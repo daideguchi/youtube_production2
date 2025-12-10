@@ -127,9 +127,10 @@ def main():
             str(PROJECT_ROOT / "tools" / "run_pipeline.py"),
             "--srt", str(srt_path),
             "--out", str(output_dir / run_name),  # Specify the output directory
-            "--engine", "none",  # Use none to avoid actual image generation during test
+            "--engine", "none",  # Use none to avoid timeline engine, but images will be generated
             "--channel", args.channel,
             "--concurrency", str(args.concurrency),
+            "--nanobanana", "direct",  # Enable actual image generation via LLMRouter
             "--use-aspect-guide"
         ]
 
@@ -188,51 +189,6 @@ def main():
             logger.error(f"❌ No valid run directory found for {video_id} with image_cues.json. Run with 'new' first.")
             sys.exit(1)
 
-    elif args.intent == "check":
-        logger.info(f"🔍 CHECK Mode for {video_id} (validation only)...")
-
-        # Generate run name with timestamp
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        run_name = f"{video_id}_{timestamp}"
-
-        # Execute pipeline in none mode to generate image_cues.json
-        run_pipeline_cmd = [
-            sys.executable,
-            str(PROJECT_ROOT / "tools" / "run_pipeline.py"),
-            "--srt", str(srt_path),
-            "--out", str(output_dir / run_name),  # Specify the output directory
-            "--engine", "none",  # Skip actual image generation
-            "--channel", args.channel,
-            "--concurrency", str(args.concurrency),
-            "--use-aspect-guide"
-        ]
-
-        ret_code = run_command(run_pipeline_cmd)
-        if ret_code != 0:
-            logger.error("❌ Pipeline execution failed in check mode")
-            sys.exit(ret_code)
-
-        # Find the latest run directory to get the run_dir for belt generation
-        latest_run_dir = find_latest_run_dir(video_id, output_dir)
-        if latest_run_dir:
-            logger.info(f"📁 Processing belt config in run_dir: {latest_run_dir.name}")
-            # Run auto_capcut_run to generate belts (but not draft)
-            base_cmd = [
-                sys.executable,
-                str(tool_path),
-                "--channel", args.channel,
-                "--srt", str(srt_path),
-                "--run-name", latest_run_dir.name,  # Use specific run
-                "--img-concurrency", str(args.concurrency),
-                "--suppress-warnings",
-                "--dry-run"  # Skip actual draft creation
-            ]
-
-            run_command(base_cmd)
-        else:
-            logger.warning(f"⚠️  Could not find run directory after pipeline execution for {video_id}")
-
-
     elif args.intent == "draft":
         logger.info(f"⏩ Draft regeneration for {video_id}: Looking for latest run_dir...")
 
@@ -273,9 +229,10 @@ def main():
             str(PROJECT_ROOT / "tools" / "run_pipeline.py"),
             "--srt", str(srt_path),
             "--out", str(output_dir / run_name),  # Specify the output directory
-            "--engine", "none",  # Skip actual image generation
+            "--engine", "none",  # Skip timeline engine
             "--channel", args.channel,
             "--concurrency", str(args.concurrency),
+            "--nanobanana", "none",  # Skip actual image generation in check mode
             "--use-aspect-guide"
         ]
 

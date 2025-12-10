@@ -11,7 +11,15 @@ import json
 from typing import List, Dict
 from functools import lru_cache
 
-from core.config import config
+try:
+    from commentary_02_srt2images_timeline.src.core.config import config
+except ImportError:
+    # Fallback to relative import if the package isn't properly installed
+    import sys
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parents[2]
+    sys.path.insert(0, str(project_root / "src"))
+    from core.config import config
 
 
 # ==== 429 Resilient Pipeline: QuotaExhaustedError ====
@@ -338,197 +346,83 @@ def _run_mcp(prompt: str, output_path: str, width: int, height: int) -> bool:
 
 
 def _run_direct(prompt: str, output_path: str, width: int, height: int, config_path: str | None, timeout_sec: int, input_images: list[str] | None = None) -> bool:
+    # Use LLMRouter instead of direct google.genai
     try:
-        from google import genai
-        from google.genai import types  # noqa: F401
-    except Exception:
-        logging.error("google-genai SDK not installed. Install with: pip install google-genai")
+        from factory_common.llm_router import get_router
+    except ImportError as e:
+        logging.error(f"LLMRouter not available: {e}")
         return False
 
-    # Load API key from SSOT config
-    try:
-        api_key = config.GEMINI_API_KEY
-    except ValueError as e:
-        logging.error(f"Configuration error: {e}")
-        return False
-
-    # Model selection logic
-    model = "gemini-2.5-flash"
-    # phase_models.image_generation を優先（providerはgemini想定）: registry最優先→UI設定
-    try:
-        if LLM_REGISTRY_PATH.exists():
-            reg = json.loads(LLM_REGISTRY_PATH.read_text(encoding="utf-8"))
-            if isinstance(reg, dict):
-                ph = reg.get("image_generation") or {}
-                if ph.get("provider") == "gemini" and ph.get("model"):
-                    model = ph["model"]
-        from ui.backend.main import _get_ui_settings  # type: ignore
-        settings = _get_ui_settings()
-        llm = settings.get("llm", {}) if isinstance(settings, dict) else {}
-        phase_models = llm.get("phase_models") or {}
-        phase = phase_models.get("image_generation") or {}
-        if phase.get("provider") == "gemini" and phase.get("model"):
-            model = phase["model"]
-    except Exception:
-        pass
-
-    # Config file model override (only model, not key)
-    if config_path and os.path.exists(config_path):
-        try:
-            cfg = json.loads(Path(config_path).read_text(encoding="utf-8"))
-            model = cfg.get("model") or model
-        except Exception as e:
-            logging.warning("Failed to read config %s: %s", config_path, e)
-
-    env_model_override = os.environ.get("SRT2IMAGES_IMAGE_MODEL")
-    if env_model_override:
-        model = env_model_override
-        logging.info("Using image model override: %s", model)
-
-    client = genai.Client(api_key=api_key)
+    router = get_router()
     
     # Retry configuration (削減: 5→3)
     max_retries = 3
     
-    # Content preparation
-    if input_images:
-        enhanced_prompt = f"Create a new image based on this description: {prompt}. Generate a completely new image, do not just describe or analyze the input image."
-        contents = [enhanced_prompt]
-        try:
-            from PIL import Image
-            for p in input_images:
-                try:
-                    contents.append(Image.open(p))
-                except Exception:
-                    continue
-        except Exception:
-            pass
-    else:
-        contents = [prompt]
-        
-    # Gemini image generation config
-    media_res_level = os.environ.get("SRT2IMAGES_MEDIA_RESOLUTION")
-    config_kwargs = {"response_modalities": ["IMAGE", "TEXT"]}
-    if media_res_level:
-        try:
-            MediaResolution = getattr(types, "MediaResolution", None)
-            if MediaResolution:
-                candidate = None
-                token = media_res_level
-                if token.lower().startswith("media_resolution_"):
-                    token = token.upper()
-                candidate = getattr(MediaResolution, token, None)
-                if candidate is None:
-                    try:
-                        candidate = MediaResolution(token)  # type: ignore[arg-type]
-                    except Exception:
-                        candidate = None
-                if candidate:
-                    config_kwargs["media_resolution"] = candidate
-                    logging.info("Using media_resolution override: %s", token)
-        except Exception as e:
-            logging.warning("Failed to apply media_resolution=%s: %s", media_res_level, e)
-    
-    generate_config = types.GenerateContentConfig(**config_kwargs)
+    # Prepare content for LLMRouter
+    messages = [
+        {"role": "user", "content": prompt}
+    ]
 
     for attempt in range(max_retries + 1):
         try:
-            resp = client.models.generate_content(
-                model=model, 
-                contents=contents,
-                config=generate_config
+            # Use LLMRouter to call the image generation task
+            # The task name 'visual_image_gen' is defined in the LLM router configuration
+            response = router.call(
+                task="visual_image_gen",
+                messages=messages,
+                temperature=0.2,
+                image_generation=True
             )
             
-            # Parse images
+            # The response should be a Gemini response object, we need to extract the image data
+            # This is assuming the LLMRouter's _invoke_image_gen method returns a proper response
             image_data = None
-            if hasattr(resp, 'candidates') and resp.candidates:
-                for cand in resp.candidates:
-                    content = getattr(cand, 'content', None)
-                    parts = getattr(content, 'parts', []) if content else []
-                    for part in parts:
-                        if hasattr(part, 'inline_data') and part.inline_data:
-                            data = getattr(part.inline_data, 'data', None)
-                            # google-genai may return inline_data.data as base64 (bytes or str)
-                            try:
-                                import base64
-                                if isinstance(data, (bytes, bytearray)):
-                                    b = bytes(data)
-                                    # If bytes look like base64 ASCII, decode
-                                    if len(b) >= 5 and all(32 <= x <= 122 for x in b[:16]) and not (b and (b[0] in (0x89, 0xFF))):
-                                        image_data = base64.b64decode(b)
-                                    else:
-                                        image_data = b
-                                elif isinstance(data, str):
-                                    image_data = base64.b64decode(data)
-                                else:
-                                    image_data = None
-                            except Exception:
-                                image_data = None
-                            if image_data:
-                                break
+            # Check if response is a Gemini response object with candidates
+            if hasattr(response, 'candidates') and response.candidates:
+                for candidate in response.candidates:
+                    content = getattr(candidate, 'content', None)
+                    if content and hasattr(content, 'parts'):
+                        for part in content.parts:
+                            # Check if part has inline_data (image bytes)
+                            if hasattr(part, 'inline_data') and part.inline_data:
+                                # Extract the image bytes
+                                data = getattr(part.inline_data, 'data', None)
+                                if data:
+                                    try:
+                                        import base64
+                                        # If data is base64 encoded string, decode it
+                                        if isinstance(data, str):
+                                            image_data = base64.b64decode(data)
+                                        elif isinstance(data, (bytes, bytearray)):
+                                            # If already bytes, use it directly
+                                            image_data = bytes(data)
+                                        else:
+                                            logging.warning(f"Unexpected data type for image: {type(data)}")
+                                            continue
+                                    except Exception as e:
+                                        logging.error(f"Error decoding image data: {e}")
+                                        continue
+                                    
+                                if image_data:
+                                    break
                     if image_data:
                         break
             
+            # If no image data was extracted, try to handle text response
             if not image_data:
-                text_content = getattr(resp, 'text', '') or "No text content"
-                logging.warning(f"Direct mode: No image in response; got text only. Text: {text_content[:500]}")
-                
-                # Fallback: Retry without input images if they were present
-                if input_images:
-                    logging.info("Fallback: Retrying without input images...")
-                    # Nested try/except for fallback to avoid breaking the main loop
-                    try:
-                        fallback_resp = client.models.generate_content(
-                            model=model,
-                            contents=[prompt],
-                            config=generate_config
-                        )
-                        # ... (Parse fallback image similar to above) ...
-                        # Simplified parsing for fallback to avoid code duplication bloat, or copy-paste
-                        fallback_image_data = None
-                        if hasattr(fallback_resp, 'candidates') and fallback_resp.candidates:
-                             for cand in fallback_resp.candidates:
-                                content = getattr(cand, 'content', None)
-                                parts = getattr(content, 'parts', []) if content else []
-                                for part in parts:
-                                    if hasattr(part, 'inline_data') and part.inline_data:
-                                        data = getattr(part.inline_data, 'data', None)
-                                        if isinstance(data, (bytes, bytearray)):
-                                            fallback_image_data = bytes(data)
-                                            break
-                                        elif isinstance(data, str):
-                                            import base64
-                                            fallback_image_data = base64.b64decode(data)
-                                            break
-                                if fallback_image_data:
-                                    break
-                        
-                        if fallback_image_data:
-                            image_data = fallback_image_data
-                            logging.info("Fallback succeeded: Generated image without input guide")
-                        else:
-                            logging.error("Fallback also failed: No image generated")
-                            # If fallback fails, it's a content issue, not a transient error, so we might not want to retry
-                            # But for safety, we treat it as failure.
-                            # If we want to retry this specific error, we loop.
-                            # Assuming "No image" is a failure worth retrying if it's due to server glitches, 
-                            # but usually it's refusal. We'll count it as an error to retry if strictly needed, 
-                            # or just return False. Let's return False to avoid loop if it's a refusal.
-                            return False 
-                    except Exception as e:
-                        logging.error("Fallback attempt failed: %s", e)
-                        # Check if fallback failed due to rate limit
-                        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-                             raise e # Re-raise to trigger main loop backoff
-                        return False
-                else:
-                    # No input images, just failed to generate
-                    return False
+                # If we got a text response instead of image, log it and return False
+                text_content = getattr(response, 'text', '') or getattr(response, '__str__', lambda: 'No content')()
+                logging.warning(f"No image data in Gemini response, got text: {text_content[:500] if text_content else 'No text content'}")
+                return False
 
+            # Write the image data to file
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'wb') as f:
                 f.write(image_data)
-            logging.info("Wrote image via direct mode: %s", output_path)
+            
+            # Log success
+            run_dir_name = Path(output_path).parent.parent.name  # Get run_dir name for logging
+            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image output={output_path}")
             _increment_success_counter()  # 成功カウンターをインクリメント
             return True
 
@@ -556,7 +450,8 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
                 logging.warning(f"Gemini API Error (Attempt {attempt+1}/{max_retries}): {error_msg[:100]}... Retrying in {wait_time}s")
                 time.sleep(wait_time)
             else:
-                logging.error(f"Gemini API failed after {attempt} retries. Final error: {error_msg}")
+                run_dir_name = Path(output_path).parent.parent.name  # Get run_dir name for logging
+                logging.error(f"[{run_dir_name}][image_gen][ERROR] reason='gemini api failure' detail='{error_msg}'")
                 return False
 
     return False
@@ -612,6 +507,14 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         ok = _run_mcp(prompt, out_path, width, height)
     elif mode == "direct":
         ok = _run_direct(prompt, out_path, width, height, config_path, timeout_sec, input_images=input_images)
+        
+        # Log image generation status for direct mode
+        if ok:
+            run_dir_name = Path(out_path).parent.parent.name  # Get run_dir name for logging
+            # Count how many PNG files are in the images directory
+            images_dir = Path(out_path).parent
+            png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
+            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
 
     if ok:
         # Convert to 16:9 aspect ratio if needed - handle multiple generated images
@@ -638,7 +541,10 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
             _ensure_pillow()
             ph_text = placeholder_text if (placeholder_text is not None and len(placeholder_text) > 0) else cue.get("summary", "")
             _make_placeholder_png(out_path, width, height, ph_text)
-            logging.info("Wrote placeholder %s", out_path)
+            run_dir_name = Path(out_path).parent.parent.name  # Get run_dir name for logging
+            images_dir = Path(out_path).parent
+            png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
+            logging.info(f"[{run_dir_name}][image_gen][FALLBACK] reason='placeholder' placeholders={png_count}")
 
 
 # 単純なトークンバケット的なレートリミット用のキュー
@@ -703,3 +609,20 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
             cue, mode, force, width, height, bin_path, timeout_sec, config_path,
             retry_until_success, max_retries, placeholder_text, max_per_minute
         )
+    
+    # Log a summary of the image generation results
+    if len(cues) > 0:
+        # Get the run directory to calculate results
+        run_dir = Path(cues[0]['image_path']).parent.parent
+        run_dir_name = run_dir.name
+        images_dir = run_dir / "images"
+        if images_dir.exists():
+            png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
+            if mode == "direct":
+                logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
+            elif mode == "none":
+                logging.info(f"[{run_dir_name}][image_gen][SKIP] reason='mode none' images=0")
+            else:
+                # Count placeholders vs actual images by checking file size or content
+                # For now we'll just log the total
+                logging.info(f"[{run_dir_name}][image_gen][BATCH_COMPLETE] mode={mode} total_images={png_count}")

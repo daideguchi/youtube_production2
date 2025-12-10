@@ -184,7 +184,7 @@ def _create_belt_generation_prompt(summaries: List[Dict], total_duration: float,
 ```json
 {{
   "belts": [
-    {example_json}
+    {",\n    ".join(example_belts)}
   ]
 }}
 ```

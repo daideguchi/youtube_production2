@@ -254,46 +254,33 @@ class LLMRouter:
             raise NotImplementedError("Gemini Text not supported yet")
 
     def _invoke_image_gen(self, provider, client, model_conf, messages, **kwargs):
-        if provider != "gemini":
-            raise NotImplementedError("Only Gemini supported for image gen currently")
-        
-        # Extract prompt from messages
-        # Usually the last user message
-        prompt = ""
-        for m in reversed(messages):
-            if m["role"] == "user":
-                prompt = m["content"]
-                break
-        
-        if not prompt:
-            raise ValueError("No prompt found for image generation")
+        if provider == "gemini":
+            # Extract prompt from messages
+            # Usually the last user message
+            prompt = ""
+            for m in reversed(messages):
+                if m["role"] == "user":
+                    prompt = m["content"]
+                    break
 
-        model_name = model_conf.get("model_name")
-        
-        # GenAI call
-        model = genai.GenerativeModel(model_name)
-        
-        # Config
-        aspect_ratio = kwargs.get("aspect_ratio", "16:9")
-        # Gemini currently doesn't support aspect ratio via API in standard way?
-        # Actually it does in newer versions via generation_config
-        # But let's keep it simple for now or use the prompt injection
-        
-        full_prompt = f"{prompt} --aspect_ratio {aspect_ratio}" # Prompt injection for safety if model follows it
-        
-        # Actual API might differ based on library version. 
-        # Assuming generate_content returning image data or url?
-        # Gemini 2.5 Flash Image might return PIL image.
-        
-        response = model.generate_content(prompt)
-        # Verify response
-        # This part depends heavily on the specific Gemini model output format
-        # For 'flash-image', it might return an image object part.
-        
-        # For now, let's assume we return the result object and let caller handle
-        # OR better: return a standardized dict
-        
-        return response
+            if not prompt:
+                raise ValueError("No prompt found for image generation")
+
+            model_name = model_conf.get("model_name")
+
+            # Use the configured genai client
+            model = genai.GenerativeModel(model_name)
+
+            # For image generation, just pass the prompt
+            # Additional parameters will be handled by the model configuration
+            try:
+                response = model.generate_content(prompt)
+                return response
+            except Exception as e:
+                logger.error(f"Error in Gemini image generation: {e}")
+                raise
+        else:
+            raise NotImplementedError(f"Image generation not supported for provider: {provider}")
 
 def get_router():
     return LLMRouter()
