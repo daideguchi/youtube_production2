@@ -71,6 +71,7 @@ import {
   AutoDraftSrtContent,
   ProjectSrtContent,
   PromptTemplateContentResponse,
+  ResearchFileEntry,
   ResearchListResponse,
   ResearchFileResponse,
   UiParams,
@@ -85,6 +86,25 @@ export type { VideoJobCreatePayload, VideoProjectCreatePayload } from "./types";
 
 const DEFAULT_API_BASE_URL = ""; // use relative path by default
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? DEFAULT_API_BASE_URL;
+
+type GitHubRepoInfo = {
+  owner: string;
+  repo: string;
+  branch: string;
+};
+
+type GitHubContent = {
+  name: string;
+  path: string;
+  type: "file" | "dir" | string;
+  size: number;
+  download_url?: string | null;
+};
+
+const GITHUB_BASE_DIRS: Record<string, string> = {
+  research: "00_research",
+  scripts: "script_pipeline/data",
+};
 
 function resolveBackendBase(): string | null {
   if (API_BASE_URL) {
@@ -190,6 +210,132 @@ async function requestText(path: string, init?: RequestInit): Promise<string> {
     throw new Error(message);
   }
   return response.status === 204 ? "" : (await response.text());
+}
+
+function isGitHubPagesHost(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.hostname.endsWith("github.io");
+}
+
+function resolveGitHubRepoInfo(): GitHubRepoInfo {
+  if (typeof window === "undefined") {
+    return {
+      owner: process.env.REACT_APP_GITHUB_OWNER ?? "daideguchi",
+      repo: process.env.REACT_APP_GITHUB_REPO ?? "youtube_production2",
+      branch: process.env.REACT_APP_GITHUB_BRANCH ?? "main",
+    };
+  }
+
+  const owner = process.env.REACT_APP_GITHUB_OWNER ?? window.location.hostname.split(".")[0];
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const repoFromPath = pathParts.length > 0 ? pathParts[0] : undefined;
+
+  return {
+    owner,
+    repo: process.env.REACT_APP_GITHUB_REPO ?? repoFromPath ?? "youtube_production2",
+    branch: process.env.REACT_APP_GITHUB_BRANCH ?? "main",
+  };
+}
+
+function cleanPath(path: string): string {
+  return path.replace(/^\/+|\/+$/g, "");
+}
+
+function joinRepoPath(...parts: string[]): string {
+  return parts
+    .map(cleanPath)
+    .filter(Boolean)
+    .join("/");
+}
+
+function encodeRepoPath(path: string): string {
+  return path
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+async function fetchGitHubContents(base: string, relPath: string): Promise<GitHubContent | GitHubContent[]> {
+  const repoInfo = resolveGitHubRepoInfo();
+  const baseDir = GITHUB_BASE_DIRS[base];
+  if (!baseDir) {
+    throw new Error("unsupported base for GitHub fetch");
+  }
+
+  const repoPath = joinRepoPath(baseDir, relPath);
+  const encodedPath = encodeRepoPath(repoPath || baseDir);
+  const url = `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/${encodedPath}?ref=${encodeURIComponent(
+    repoInfo.branch
+  )}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/vnd.github+json",
+    },
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`GitHub contents error ${response.status}: ${message || response.statusText}`);
+  }
+
+  return (await response.json()) as GitHubContent | GitHubContent[];
+}
+
+async function fetchGitHubResearchList(base: string, path = ""): Promise<ResearchListResponse> {
+  const repoData = await fetchGitHubContents(base, path);
+  const currentPath = cleanPath(path);
+
+  const items = Array.isArray(repoData)
+    ? repoData
+    : repoData.type === "file"
+      ? [repoData]
+      : [];
+
+  const entries = items
+    .map<ResearchFileEntry>((item) => ({
+      name: item.name,
+      path: cleanPath(joinRepoPath(currentPath, item.name)),
+      is_dir: item.type === "dir",
+      size: item.size,
+    }))
+    .sort((a, b) => {
+      if (a.is_dir && !b.is_dir) return -1;
+      if (!a.is_dir && b.is_dir) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+  return {
+    base,
+    path: currentPath,
+    entries,
+  };
+}
+
+async function fetchGitHubResearchFile(base: string, path: string): Promise<ResearchFileResponse> {
+  const targetPath = cleanPath(path);
+  const repoData = await fetchGitHubContents(base, targetPath);
+  const item = Array.isArray(repoData) ? null : repoData;
+
+  if (!item || item.type !== "file" || !item.download_url) {
+    throw new Error("GitHub file not found or unsupported type");
+  }
+
+  const response = await fetch(item.download_url);
+  if (!response.ok) {
+    throw new Error(`Failed to load file from GitHub: ${response.statusText}`);
+  }
+
+  const content = await response.text();
+
+  return {
+    base,
+    path: targetPath,
+    size: item.size,
+    modified: undefined,
+    content,
+  };
 }
 
 export function fetchChannels(): Promise<ChannelSummary[]> {
@@ -890,17 +1036,32 @@ export function assignThumbnailLibraryAsset(
   );
 }
 
-export function fetchResearchList(base: string, path = ""): Promise<ResearchListResponse> {
+export async function fetchResearchList(base: string, path = ""): Promise<ResearchListResponse> {
   const search = new URLSearchParams();
   if (base) search.set("base", base);
   if (path) search.set("path", path);
   const query = search.toString();
-  return request<ResearchListResponse>(`/api/research/list${query ? `?${query}` : ""}`);
+
+  try {
+    return await request<ResearchListResponse>(`/api/research/list${query ? `?${query}` : ""}`);
+  } catch (error) {
+    if (isGitHubPagesHost()) {
+      return fetchGitHubResearchList(base, path);
+    }
+    throw error;
+  }
 }
 
-export function fetchResearchFile(base: string, path: string): Promise<ResearchFileResponse> {
+export async function fetchResearchFile(base: string, path: string): Promise<ResearchFileResponse> {
   const search = new URLSearchParams({ base, path });
-  return request<ResearchFileResponse>(`/api/research/file?${search.toString()}`);
+  try {
+    return await request<ResearchFileResponse>(`/api/research/file?${search.toString()}`);
+  } catch (error) {
+    if (isGitHubPagesHost()) {
+      return fetchGitHubResearchFile(base, path);
+    }
+    throw error;
+  }
 }
 
 export function fetchUiParams(): Promise<UiParamsResponse> {
