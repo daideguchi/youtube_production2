@@ -17,7 +17,7 @@ root.render(
     {mockMode ? (
       <MockGallery />
     ) : (
-      <BrowserRouter>
+      <BrowserRouter basename="/youtube_production2">
         <App />
       </BrowserRouter>
     )}

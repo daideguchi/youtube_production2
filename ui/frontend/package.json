@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://daideguchi.github.io/youtube_production2",
   "dependencies": {
     "@remotion/player": "^4.0.164",
     "@testing-library/dom": "^10.4.1",
