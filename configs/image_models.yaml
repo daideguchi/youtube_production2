@@ -1,0 +1,35 @@
+# Image generation model configuration
+# Defines providers, models, tiers, and task defaults for ImageClient
+
+providers:
+  gemini:
+    env_api_key: GEMINI_API_KEY
+
+models:
+  gemini_2_5_flash_image:
+    provider: gemini
+    model_name: gemini-2.5-flash-image
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+# Tier-to-model resolution. The first entry is treated as the primary candidate.
+tiers:
+  image:
+    - gemini_2_5_flash_image
+
+# Task-level defaults. Options provided at call time override these values.
+tasks:
+  image_generation:
+    tier: image
+    defaults:
+      aspect_ratio: "16:9"
+      n: 1
+  visual_image_gen:
+    tier: image
+    defaults:
+      aspect_ratio: "16:9"
+      n: 1
