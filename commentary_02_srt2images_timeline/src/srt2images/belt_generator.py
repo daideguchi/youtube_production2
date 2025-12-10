@@ -180,13 +180,14 @@ def _create_belt_generation_prompt(summaries: List[Dict], total_duration: float,
     if belt_mode == "main_only":
         special_instructions = "\nサブ帯は不要で、メインタイトルのみを生成してください。"
 
-    prompt = f"""以下のようにJSON ONLYのフォーマットで返してください。説明文や余計なテキストは一切不要です。
-
+    prompt = f"""以下はJSON ONLYのフォーマットで返してください。説明文や余計なテキストは一切不要です。
+```json
 {{
   "belts": [
     {example_json}
   ]
 }}
+```
 
 台本内容から、時間軸({total_duration:.3f}s)全体をカバーする{target_sections}個の帯タイトルをJSON形式で生成してください。
 - 各セクションは時間的に連続（隙間・重複なし）
@@ -199,8 +200,6 @@ def _create_belt_generation_prompt(summaries: List[Dict], total_duration: float,
 
 台本内容:
 {content_snippet}
-
-```json
 """
     return prompt
 

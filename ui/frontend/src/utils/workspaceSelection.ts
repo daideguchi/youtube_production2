@@ -1,3 +1,5 @@
+import { safeLocalStorage } from "./safeStorage";
+
 const WORKSPACE_SELECTION_STORAGE_KEY = "videoProduction:selectedProject";
 
 export type WorkspaceSelection = {
@@ -5,22 +7,12 @@ export type WorkspaceSelection = {
   projectId: string | null;
 };
 
-function getStorage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
 export function loadWorkspaceSelection(): WorkspaceSelection | null {
   if (typeof window === "undefined") {
     return null;
   }
-  const storage = getStorage();
-  if (!storage) return null;
   try {
-    const raw = storage.getItem(WORKSPACE_SELECTION_STORAGE_KEY);
+    const raw = safeLocalStorage.getItem(WORKSPACE_SELECTION_STORAGE_KEY);
     if (!raw) {
       return null;
     }
@@ -41,18 +33,16 @@ export function saveWorkspaceSelection(selection: WorkspaceSelection | null): vo
   if (typeof window === "undefined") {
     return;
   }
-  const storage = getStorage();
-  if (!storage) return;
   try {
     if (!selection || (!selection.channel && !selection.projectId)) {
-      storage.removeItem(WORKSPACE_SELECTION_STORAGE_KEY);
+      safeLocalStorage.removeItem(WORKSPACE_SELECTION_STORAGE_KEY);
       return;
     }
     const payload: WorkspaceSelection = {
       channel: selection.channel ? selection.channel.toUpperCase() : null,
       projectId: selection.projectId ?? null,
     };
-    storage.setItem(WORKSPACE_SELECTION_STORAGE_KEY, JSON.stringify(payload));
+    safeLocalStorage.setItem(WORKSPACE_SELECTION_STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // ignore quota errors
   }

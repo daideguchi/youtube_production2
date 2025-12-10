@@ -79,6 +79,8 @@ import {
   AudioAnalysis,
 } from "./types";
 
+import { apiUrl } from "../utils/apiClient";
+
 export type { VideoJobCreatePayload, VideoProjectCreatePayload } from "./types";
 
 const DEFAULT_API_BASE_URL = ""; // use relative path by default
@@ -112,11 +114,8 @@ function buildUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
-  const base = resolveBackendBase();
-  if (!base) {
-    return path;
-  }
-  return `${base}${path}`;
+  // GitHub Pages対応：apiUrlヘルパーを使用
+  return apiUrl(path);
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

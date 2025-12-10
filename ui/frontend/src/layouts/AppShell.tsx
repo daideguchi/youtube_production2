@@ -43,6 +43,7 @@ import { pickCurrentStage, resolveStageStatus } from "../components/StageProgres
 import { ChannelListSection } from "../components/ChannelListSection";
 import { resolveAudioSubtitleState } from "../utils/video";
 import type { DetailTab } from "../components/VideoDetailPanel";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./workspace-clean.css";
 import "./channel-clean.css";
 import "./audio-clean.css";
@@ -176,36 +177,23 @@ function sanitizeDetailTabParam(value: string | null): DetailTab | null {
   return null;
 }
 
-function getStorage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
 function safeGet(key: string): string | null {
-  const storage = getStorage();
-  if (!storage) return null;
   try {
-    return storage.getItem(key);
+    return safeLocalStorage.getItem(key);
   } catch {
     return null;
   }
 }
 function safeSet(key: string, value: string): void {
-  const storage = getStorage();
-  if (!storage) return;
   try {
-    storage.setItem(key, value);
+    safeLocalStorage.setItem(key, value);
   } catch {
     /* no-op */
   }
 }
 function safeRemove(key: string): void {
-  const storage = getStorage();
-  if (!storage) return;
   try {
-    storage.removeItem(key);
+    safeLocalStorage.removeItem(key);
   } catch {
     /* no-op */
   }
