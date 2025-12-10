@@ -111,7 +111,8 @@ def run_strict_pipeline(
         segments=active_segments,
         engine=engine,
         voicevox_client=vv_client,
-        speaker_id=speaker_id
+        speaker_id=speaker_id,
+        channel=channel,
     )
     
     # 3. Synthesis

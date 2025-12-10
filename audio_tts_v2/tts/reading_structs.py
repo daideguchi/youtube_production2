@@ -77,6 +77,7 @@ class RiskySpan:
     risk_score: float
     reason: str
     mora_range: Optional[Tuple[int, int]] = None
+    surface: str = ""
 
 
 @dataclass
@@ -234,6 +235,7 @@ def evaluate_reading_diffs(
                     risk_score=1.0,
                     reason=f"voicevox:{actual} != expected:{expected}",
                     mora_range=(0, len(moras)),
+                    surface=tok.surface,
                 )
             )
     return risky

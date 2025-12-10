@@ -7,6 +7,12 @@ from pathlib import Path
 from .strict_structure import AudioSegment
 from .mecab_tokenizer import tokenize_with_mecab
 from .voicevox_api import VoicevoxClient
+from .reading_dict import (
+    ReadingEntry,
+    export_words_for_word_dict,
+    load_channel_reading_dict,
+    merge_channel_readings,
+)
 from factory_common.llm_router import get_router
 
 KB_PATH = Path(__file__).resolve().parents[1] / "data" / "global_knowledge_base.json"
@@ -112,7 +118,8 @@ def resolve_readings_strict(
     segments: List[AudioSegment],
     engine: str,
     voicevox_client: Optional[VoicevoxClient],
-    speaker_id: int
+    speaker_id: int,
+    channel: Optional[str] = None,
 ) -> None:
     
     if engine != "voicevox":
@@ -123,8 +130,11 @@ def resolve_readings_strict(
     if not voicevox_client:
         raise ValueError("Voicevox client required for Strict Mode")
 
-    # 1. 辞書ロード
+    # 1. 辞書ロード（グローバル + チャンネル固有）
     kb = WordDictionary(KB_PATH)
+    channel_dict = load_channel_reading_dict(channel) if channel else {}
+    if channel_dict:
+        kb.words.update(export_words_for_word_dict(channel_dict))
     
     # 初期化
     for seg in segments:
@@ -134,6 +144,10 @@ def resolve_readings_strict(
 
     conflicts: List[Dict[str, Any]] = []
     print(f"[ARBITER] auditing {len(segments)} segments...")
+    if channel_dict:
+        print(f"[ARBITER] preload channel dict entries={len(channel_dict)}")
+
+    new_channel_entries: Dict[str, ReadingEntry] = {}
 
     for i, seg in enumerate(segments):
         target_text = seg.text # オリジナルのテキスト
@@ -336,6 +350,13 @@ def resolve_readings_strict(
                             if word and reading:
                                 print(f"  [LEARN] {word} -> {reading}")
                                 kb.set(word, reading)
+                                if channel:
+                                    new_channel_entries[word] = ReadingEntry(
+                                        surface=word,
+                                        reading_hira=reading,
+                                        reading_kana=reading,
+                                        source="llm",
+                                    )
                 else:
                     # Fallback
                     print(f"  [WARN] LLM no verdict for Seg {idx}. Keeping Kanji.")
@@ -347,4 +368,6 @@ def resolve_readings_strict(
             raise RuntimeError("Arbiter failed. Pipeline stopped.") from e
             
     kb.save()
+    if channel and new_channel_entries:
+        merge_channel_readings(channel, new_channel_entries)
     print(f"[ARBITER] Knowledge Base updated at {KB_PATH}")

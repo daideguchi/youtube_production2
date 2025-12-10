@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 import difflib
+import logging
 import re
 
 from .routing import load_routing_config, decide_engine
@@ -35,11 +36,16 @@ from .synthesis import _wav_duration
 from .synthesis import _wav_duration
 from .local_generator import generate_draft_readings, generate_reference_kana
 from .auditor import audit_blocks
-from datetime import timedelta
+from .reading_dict import load_channel_reading_dict
+from .risk_utils import load_hazard_terms
+from datetime import datetime, timedelta
 import math
 import json # Fixed: Global import for safety
 import time
 import sys
+
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_tagged_tts_local(tagged_content: str):
@@ -153,11 +159,29 @@ def run_tts_pipeline(
     display_text: Optional[str] = None,  # SRT用表示テキスト（Aテキスト=assembled.md）
     existing_blocks: Optional[List[Dict[str, object]]] = None, # [NEW] Existing blocks for regeneration
 ) -> OrchestratorResult:
+    t_start = time.time()
+    t_ruby_start = t_start
+    t_ruby_end = t_ruby_start
+    t_risk_start = t_ruby_end
+    t_risk_end = t_risk_start
+    t_arbiter_start = t_risk_end
+    t_arbiter_end = t_arbiter_start
+    t_synth_start = t_arbiter_end
+    t_synth_end = t_synth_start
+    tts_reading_calls = 0
+    audit_needed_count = 0
+    vocab_term_count = 0
+
     qa_issues: Optional[List[Dict[str, object]]] = None
     base_dir = Path.cwd()
     cfg = load_routing_config()
     engine = engine_override or decide_engine(channel, video_no, cfg)
     print(f"[STEP] engine={engine}", flush=True)
+
+    channel_dict = load_channel_reading_dict(channel) if channel else {}
+    hazard_terms = load_hazard_terms()
+    if channel_dict:
+        print(f"[DICT] preload channel entries={len(channel_dict)}", flush=True)
 
     # If reusing blocks, we skip text processing
     if existing_blocks:
@@ -254,9 +278,10 @@ def run_tts_pipeline(
             blk["b_text"] = r
     
         print("[STEP 2/2] AI Auditing (Twin-Engine Consensus)", flush=True)
-        
+
         # --- TWIN-ENGINE CONSENSUS CHECK (Runs ALWAYS for Voicevox) ---
         audit_needed_count = 0
+        t_risk_start = time.time()
         if engine == "voicevox" and phase != "srt_only":
             print("[AUDIT] Running Twin-Engine Analysis (MeCab vs Voicevox)...", flush=True)
             from tts.voicevox_api import VoicevoxClient
@@ -306,12 +331,14 @@ def run_tts_pipeline(
                     audit_needed_count += 1
                     
             print(f"[AUDIT] Twin-Engine Result: {audit_needed_count}/{len(srt_blocks)} blocks require Audit.", flush=True)
-    
+
         elif phase != "srt_only":
              # Usage other than voicevox: Audit all if not trusted
              for b in srt_blocks:
                  b["audit_needed"] = True
                  audit_needed_count += 1
+
+        t_risk_end = time.time()
     
         # --- DECISION: LLM Audit vs Manual Stop vs Skip ---
         if skip_annotation:
@@ -358,9 +385,17 @@ def run_tts_pipeline(
             # Check cache... (omitted for brevity, existing logic applies)
             # 2. Audit (LLM)
             if audit_needed_count > 0:
-                 audited_blocks = audit_blocks(srt_blocks)
+                 t_arbiter_start = time.time()
+                 audited_blocks, llm_calls, vocab_term_count = audit_blocks(
+                     srt_blocks,
+                     channel=channel,
+                     channel_dict=channel_dict,
+                     hazard_dict=hazard_terms,
+                 )
+                 t_arbiter_end = time.time()
+                 tts_reading_calls += llm_calls
                  if len(audited_blocks) == len(srt_blocks):
-                     srt_blocks = audited_blocks 
+                     srt_blocks = audited_blocks
                  else:
                      print("[ERROR] Critial Audit Mismatch. Falling back to Draft.", flush=True)
 
@@ -539,6 +574,7 @@ def run_tts_pipeline(
     audio_meta: Dict[str, object]
     engine_metadata: Dict[str, object] = {}
     katakana_ref = None
+    t_synth_start = time.time()
     if engine == "voicevox":
         # CRITICAL: Only call LLM reference if NOT skipping annotation (Cost Saving)
         katakana_ref = ""
@@ -589,6 +625,8 @@ def run_tts_pipeline(
             "emotion": res.emotion,
         }
         srt_entries = _build_srt_from_blocks(res.block_meta, srt_blocks, pauses)
+
+    t_synth_end = time.time()
 
     # strict metadata validation
     if engine == "voicevox":
@@ -702,6 +740,42 @@ def run_tts_pipeline(
         qa_issues=qa_issues,
         srt_entries=srt_entries_fmt,
     )
+
+    t_end = time.time()
+    profile = {
+        "ruby": t_ruby_end - t_ruby_start,
+        "risk": t_risk_end - t_risk_start,
+        "arbiter": t_arbiter_end - t_arbiter_start,
+        "synth": t_synth_end - t_synth_start,
+        "total": t_end - t_start,
+    }
+    logger.info(
+        "TTS_PROFILE channel=%s video=%s ruby=%.3f risk=%.3f arbiter=%.3f synth=%.3f total=%.3f",
+        channel,
+        video_no,
+        profile["ruby"],
+        profile["risk"],
+        profile["arbiter"],
+        profile["synth"],
+        profile["total"],
+    )
+
+    try:
+        jsonl_path = Path("logs/tts_voicevox_reading.jsonl")
+        jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+        jsonl_record = {
+            "timestamp": datetime.now().isoformat(),
+            "channel": channel,
+            "video": video_no,
+            "layer_times": profile,
+            "tts_reading_calls": tts_reading_calls,
+            "audit_blocks_marked": audit_needed_count,
+            "risky_terms": vocab_term_count,
+        }
+        with jsonl_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(jsonl_record, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logger.warning("Failed to write tts_voicevox_reading log: %s", e)
 
     # 最終ガード: 必須メタが空でないかをチェック
     required_engine_meta = ["voicevox_kana", "voicevox_kana_corrected", "voicevox_kana_diff"] if engine == "voicevox" else []
