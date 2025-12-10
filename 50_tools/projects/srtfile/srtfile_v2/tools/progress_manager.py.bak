@@ -1,0 +1,1153 @@
+from tools.script_validation_handler import handle_script_validation
+#!/usr/bin/env python3
+"""
+processing_status.json と Google Sheets の進捗を統一的に管理するCLI
+
+Usage examples:
+  # 進捗ファイル初期化（台本制作開始時）
+  python3 tools/progress_manager.py init --channel-code CH08 --video-number 3
+
+  # ステージ更新（アウトライン完了）
+  python3 tools/progress_manager.py update-stage \
+      --channel-code CH08 \
+      --video-number 3 \
+      --stage script_outline \
+      --state completed \
+      --detail agent=Qwen \
+      --update-sheet \
+      --row-key 3
+
+  # 全体ステータス更新
+  python3 tools/progress_manager.py set-status \
+      --channel-code CH08 \
+      --video-number 3 \
+      --status script_validated \
+      --update-sheet \
+      --row-key 3
+
+  # 現在の進捗を表示
+  python3 tools/progress_manager.py show --channel-code CH08 --video-number 3
+
+  # チャンネル全体の進捗一覧
+  python3 tools/progress_manager.py summary --channel-code CH08
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import shutil
+import subprocess
+from pathlib import Path
+from collections import OrderedDict
+from dataclasses import dataclass
+from datetime import datetime
+from textwrap import indent
+from typing import Dict, Any, Optional, List, Tuple, Set
+from loguru import logger
+
+# プロジェクトルートをパスに追加
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from app import sheets_io, progress_tracker  # noqa: E402
+
+DEFAULT_PENDING_FILE = PROJECT_ROOT / "tasks" / "pending_scripts.md"
+
+
+STAGE_METADATA: "OrderedDict[str, Dict[str, str]]" = OrderedDict(
+    [
+        (
+            "kimi_research",
+            {
+                "title": "Kimiリサーチ統合",
+                "owner": "Kimi K2 / Brave Search",
+                "criteria": "analysis/kimi/research_brief.md と references.json を更新し、次工程で参照可能な要点を整理",
+            },
+        ),
+        (
+            "script_outline",
+            {
+                "title": "アウトライン設計",
+                "owner": "台本担当（LLM / Qwen）",
+                "criteria": "outline.md が完成し CLI で completed に更新",
+            },
+        ),
+        (
+            "script_draft",
+            {
+                "title": "章ごとの草稿",
+                "owner": "台本担当（LLM / Qwen）",
+                "criteria": "section_0*.md が揃い内容調整が完了",
+            },
+        ),
+        (
+            "script_review",
+            {
+                "title": "連結＆リライト",
+                "owner": "台本担当 / レビュア",
+                "criteria": "assembled.md が整形済み、Summary 追記済み",
+            },
+        ),
+        (
+            "kimi_quality_review",
+            {
+                "title": "Kimi品質レビュー",
+                "owner": "Kimi K2",
+                "criteria": "analysis/kimi/quality_review.md にトーン調整・説得力強化・差分対応の提案と反映チェックを記録",
+            },
+        ),
+        (
+            "script_validation",
+            {
+                "title": "ローカル検証",
+                "owner": "台本担当",
+                "criteria": "validate_local_script.py が SUCCESS、validation.log 記録済み",
+            },
+        ),
+        (
+            "audio_synthesis",
+            {
+                "title": "音声合成",
+                "owner": "パイプライン",
+                "criteria": "app.pipeline 実行で自動的に更新される（セクション WAV 完了）",
+            },
+        ),
+        (
+            "srt_generation",
+            {
+                "title": "字幕生成",
+                "owner": "パイプライン",
+                "criteria": "最終 SRT が生成され、verify_srt_sync 成功",
+            },
+        ),
+        (
+            "timeline_copy",
+            {
+                "title": "Timeline 連携",
+                "owner": "パイプライン",
+                "criteria": "srt2images-timeline/input/ へコピー済み",
+            },
+        ),
+        (
+            "image_generation",
+            {
+                "title": "画像生成",
+                "owner": "srt2images-timeline 等",
+                "criteria": "タイムライン画像が生成され image_count が更新",
+            },
+        ),
+        (
+            "capcut_draft",
+            {
+                "title": "CapCutドラフト",
+                "owner": "動画編集担当",
+                "criteria": "CapCut でドラフト作成し draft_name を記録",
+            },
+        ),
+    ]
+)
+
+
+STATE_ICONS = {
+    progress_tracker.ProgressStatus.STAGE_COMPLETED: "✅",
+    progress_tracker.ProgressStatus.STAGE_PROCESSING: "🔄",
+    progress_tracker.ProgressStatus.STAGE_FAILED: "❌",
+    progress_tracker.ProgressStatus.STAGE_PENDING: "🕗",
+    # 追加ステータス - やり直し対応
+    progress_tracker.ProgressStatus.STAGE_RERUN_REQUESTED: "🔄⚠️",
+    progress_tracker.ProgressStatus.STAGE_RERUN_IN_PROGRESS: "🔄📝",
+    progress_tracker.ProgressStatus.STAGE_RERUN_COMPLETED: "🔄🏁",
+}
+
+GLOBAL_STATUS_ICONS = {
+    progress_tracker.ProgressStatus.SCRIPT_IN_PROGRESS: "📝",
+    progress_tracker.ProgressStatus.SCRIPT_READY: "📄",
+    progress_tracker.ProgressStatus.SCRIPT_VALIDATED: "🧪",
+    progress_tracker.ProgressStatus.PROCESSING: "🔄",
+    progress_tracker.ProgressStatus.AUDIO_DONE: "🔊",
+    progress_tracker.ProgressStatus.TIMELINE_READY: "🎬",
+    progress_tracker.ProgressStatus.IMAGES_DONE: "🖼️",
+    progress_tracker.ProgressStatus.CAPCUT_DONE: "✂️",
+    progress_tracker.ProgressStatus.COMPLETED: "🏁",
+    progress_tracker.ProgressStatus.PENDING: "🕗",
+    # 追加ステータス - やり直し対応
+    progress_tracker.ProgressStatus.RERUN_REQUESTED: "🔄⚠️",
+    progress_tracker.ProgressStatus.RERUN_IN_PROGRESS: "🔄📝",
+    progress_tracker.ProgressStatus.RERUN_COMPLETED: "🔄🏁",
+}
+
+
+def sanitize_component(value: Optional[str]) -> str:
+    if not value:
+        return "unknown"
+    sanitized = value.replace("/", "_").replace("\\", "_")
+    sanitized = sanitized.replace(" ", "_")
+    return sanitized
+
+
+def load_channel_configs(config_path: Path) -> Dict[str, Dict[str, Any]]:
+    with config_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    return {item["code"]: item for item in data}
+
+
+def resolve_channel_name(
+    channels: Dict[str, Dict[str, Any]], channel_code: str, explicit_name: Optional[str]
+) -> str:
+    if explicit_name:
+        return explicit_name
+    channel_info = channels.get(channel_code)
+    if not channel_info:
+        raise ValueError(f"チャンネルコード '{channel_code}' が configs/sheets.json で見つかりません")
+    return channel_info.get("worksheet") or channel_info.get("name")
+
+
+def resolve_storage_channel_name(
+    channels: Dict[str, Dict[str, Any]], channel_code: str, fallback: Optional[str]
+) -> str:
+    channel_info = channels.get(channel_code)
+    if not channel_info:
+        return fallback or channel_code
+    return channel_info.get("name") or channel_info.get("display_name") or fallback or channel_code
+
+
+def resolve_project_path(path_str: str) -> Path:
+    candidate = Path(path_str)
+    if not candidate.is_absolute():
+        candidate = (PROJECT_ROOT / candidate).resolve()
+    return candidate
+
+
+def copy_if_exists(
+    src_str: Optional[str],
+    dest_dir: Path,
+    *,
+    dest_name: Optional[str] = None,
+    label: str = "",
+) -> Optional[Path]:
+    if not src_str:
+        return None
+    candidate = resolve_project_path(src_str)
+    if not candidate.exists():
+        logger.warning(f"アーティファクトコピー失敗: {candidate} が存在しません ({label})")
+        return None
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    target = dest_dir / (dest_name or candidate.name)
+    try:
+        shutil.copy2(candidate, target)
+        logger.info(f"アーティファクト保存: {label or target.name} -> {target}")
+        return target
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"アーティファクトコピー中にエラー: {candidate} -> {target} ({exc})")
+        return None
+
+
+def normalise_video_number(raw: str) -> str:
+    raw = str(raw).strip()
+    if raw.isdigit():
+        return f"{int(raw):03d}"
+    safe = raw.replace("/", "_").replace(" ", "_")
+    return safe or "000"
+
+
+def determine_script_id(channel_code: str, video_token: str, explicit: Optional[str]) -> str:
+    if explicit:
+        return explicit
+    if channel_code and video_token:
+        return f"{channel_code}-{video_token}"
+    return video_token or channel_code
+
+
+def determine_script_title_from_assembled(assembled_path: Path) -> str:
+    """
+    assembled.mdファイルからタイトルを抽出または生成する
+    実際には、tools/generate_script_filename.pyを使用すべきだが、
+    便宜上簡易的な実装を行う
+    """
+    if not assembled_path.exists():
+        return "台本"
+    
+    try:
+        content = assembled_path.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        
+        # 最初の有意義な行をタイトルとして使用（見出し、太字、または普通の文章）
+        for line in lines:
+            line = line.strip()
+            # 見出し行をチェック (# で始まる)
+            if line.startswith("#"):
+                title = line.lstrip("# ").strip()
+                # 長すぎたら省略
+                if len(title) > 50:
+                    title = title[:50] + "..."
+                return sanitize_title(title)
+            
+            # 太字（**text**）をチェック
+            import re
+            bold_match = re.search(r'\*\*(.+?)\*\*', line)
+            if bold_match:
+                title = bold_match.group(1).strip()
+                if len(title) > 50:
+                    title = title[:50] + "..."
+                return sanitize_title(title)
+        
+        # 見つからなかった場合はデフォルト
+        return "台本"
+    except Exception as exc:
+        logger.warning(f"assembled.mdからタイトル抽出に失敗: {exc}")
+        return "台本"
+
+
+def sanitize_title(title: str) -> str:
+    """
+    ファイル名として使用できるようにタイトルをサニタイズする
+    """
+    # ファイル名として使えない文字を置換
+    invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+    for char in invalid_chars:
+        title = title.replace(char, '_')
+    
+    # 末尾のドットや空白を削除
+    title = title.rstrip('. ')
+    
+    # 連続するスペースを1つに
+    import re
+    title = re.sub(r' +', ' ', title)
+    
+    return title
+
+
+class PendingValidationError(Exception):
+    """Raised when pending_scripts.md validation fails."""
+
+
+@dataclass
+class PendingRow:
+    channel: str
+    row_key: str
+    video_number: str
+    title: str
+    note: str
+    line_index: int
+
+
+def load_pending_markdown(path: Path) -> Tuple[List[PendingRow], List[str]]:
+    if not path.exists():
+        raise PendingValidationError(
+            f"未作成台本リストが見つかりません: {path}. `make update-pending` を実行してから再試行してください。"
+        )
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    entries: List[PendingRow] = []
+    for idx, line in enumerate(lines):
+        if not line.startswith("|"):
+            continue
+        if line.startswith("|-----------"):
+            continue
+        cells = [cell.strip() for cell in line.split("|")]
+        if len(cells) < 6:
+            continue
+        channel = cells[1]
+        if channel == "チャンネル":
+            continue
+        row = PendingRow(
+            channel=channel,
+            row_key=cells[2],
+            video_number=cells[3],
+            title=cells[4],
+            note=cells[5],
+            line_index=idx,
+        )
+        entries.append(row)
+    return entries, lines
+
+
+def normalise_pending_token(value: str) -> str:
+    if not value:
+        return ""
+    token = value.strip()
+    if not token or token == "-":
+        return ""
+    if token.isdigit():
+        return f"{int(token):03d}"
+    return token.lower()
+
+
+def build_candidate_tokens(entry: PendingRow) -> Set[str]:
+    tokens: Set[str] = set()
+    for source in (entry.row_key, entry.video_number):
+        if not source:
+            continue
+        raw = source.strip()
+        if raw and raw != "-":
+            tokens.add(raw)
+        normalised = normalise_pending_token(raw)
+        if normalised:
+            tokens.add(normalised)
+            tokens.add(f"{entry.channel}-{normalised}")
+    return tokens
+
+
+def update_pending_note(path: Path, lines: List[str], entry: PendingRow, note: str) -> None:
+    parts = lines[entry.line_index].split("|")
+    if len(parts) < 6:
+        raise PendingValidationError(
+            f"pending_scripts.md の行が想定外の形式です (line={entry.line_index + 1})"
+        )
+    parts[5] = f" {note.strip()} "
+    lines[entry.line_index] = "|".join(parts)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    entry.note = note
+
+
+def ensure_pending_claimed(
+    channel_code: str,
+    video_token: str,
+    raw_video_number: str,
+    script_id: str,
+    pending_path: Path,
+    claimant: Optional[str] = None,
+) -> PendingRow:
+    entries, lines = load_pending_markdown(pending_path)
+    if not entries:
+        raise PendingValidationError(
+            f"{pending_path} に未作成台本の行がありません。`make update-pending` で最新化してください。"
+        )
+
+    target_tokens = {
+        token
+        for token in [
+            video_token,
+            raw_video_number.strip(),
+            normalise_pending_token(raw_video_number),
+            script_id,
+            script_id.lower(),
+            f"{channel_code}-{video_token}",
+            f"{channel_code}-{normalise_pending_token(raw_video_number)}",
+        ]
+        if token
+    }
+
+    matches: List[PendingRow] = []
+    for entry in entries:
+        if entry.channel != channel_code:
+            continue
+        entry_tokens = build_candidate_tokens(entry)
+        if entry_tokens.intersection(target_tokens):
+            matches.append(entry)
+
+    if not matches:
+        raise PendingValidationError(
+            f"{pending_path} に {channel_code} / No.{raw_video_number} の未作成台本が見つかりません。"
+            " `make update-pending` を実行し、該当行を追加した上で `CLAIMED:<担当>@YYYY-MM-DD` を記入してください。"
+        )
+
+    if len(matches) > 1:
+        options = ", ".join(
+            f"No.{entry.row_key or entry.video_number} ({entry.title})" for entry in matches
+        )
+        raise PendingValidationError(
+            f"{channel_code} の候補が複数見つかりました: {options}. `tasks/pending_scripts.md` を整理して一意にしてください。"
+        )
+
+    entry = matches[0]
+    if claimant:
+        stamp = datetime.now().strftime("%Y-%m-%d")
+        new_note = f"CLAIMED:{claimant}@{stamp}"
+        update_pending_note(pending_path, lines, entry, new_note)
+        logger.info(
+            f"pending_scripts.md を更新しました: {channel_code} / No.{entry.row_key or entry.video_number} -> {new_note}"
+        )
+    else:
+        if "CLAIMED" not in entry.note.upper():
+            raise PendingValidationError(
+                f"{channel_code} / No.{entry.row_key or entry.video_number} は `CLAIMED:<担当>@YYYY-MM-DD` が未入力です。"
+                " 先に tasks/pending_scripts.md を編集してから再度 `progress_manager.py init` を実行してください。"
+            )
+
+    return entry
+
+
+def parse_kv_pairs(pairs: Optional[list[str]]) -> Dict[str, Any]:
+    result: Dict[str, Any] = {}
+    if not pairs:
+        return result
+    for item in pairs:
+        if "=" not in item:
+            raise ValueError(f"key=value 形式で指定してください: {item}")
+        key, value = item.split("=", 1)
+        result[key.strip()] = value.strip()
+    return result
+
+
+def compute_output_roots(
+    output_root: Path,
+    channel_code: str,
+    channel_name: str,
+    *,
+    ensure_dirs: bool = False,
+) -> Tuple[Path, Path, str]:
+    code_part = sanitize_component(channel_code) if channel_code else None
+    name_part = sanitize_component(channel_name)
+
+    if code_part:
+        base_name = f"{code_part}_{name_part}"
+    else:
+        base_name = name_part
+
+    final_root = output_root / f"{base_name}_final"
+    temp_root = output_root / f"{base_name}_temp"
+
+    if ensure_dirs:
+        final_root.mkdir(parents=True, exist_ok=True)
+        temp_root.mkdir(parents=True, exist_ok=True)
+
+    return final_root, temp_root, base_name
+
+
+def build_sheet_message(stage: str, state: str, details: Dict[str, Any]) -> str:
+    str_details = {k: str(v) for k, v in details.items()}
+    return progress_tracker.ProgressTracker.format_sheet_status(stage, state, str_details)
+
+
+def ensure_tracker(
+    output_root: Path,
+    channel_code: str,
+    video_number: str,
+    script_id: str,
+    channel_name: str,
+    channels: Dict[str, Dict[str, Any]],
+    metadata: Optional[Dict[str, Any]] = None,
+    *,
+    create: bool = True,
+) -> progress_tracker.ProgressTracker:
+    final_root, temp_root, _ = compute_output_roots(
+        output_root, channel_code, channel_name, ensure_dirs=create
+    )
+    if create:
+        temp_root.mkdir(parents=True, exist_ok=True)
+    output_dir = final_root / video_number
+    tracker = progress_tracker.ProgressTracker(output_dir)
+    if create:
+        tracker.initialize(script_id, channel_name, metadata=metadata)
+    return tracker
+
+
+def update_sheet_progress(
+    worksheet_name: str, row_key: str, message: str
+) -> None:
+    if not row_key:
+        raise ValueError("シート更新には --row-key が必要です")
+    sheets_io.update_progress(worksheet_name, row_key, message)
+
+
+def icon_for_state(state: str) -> str:
+    return GLOBAL_STATUS_ICONS.get(
+        state,
+        STATE_ICONS.get(state, "•"),
+    )
+
+
+def stage_details_lines(stage_name: str, stage_data: Dict[str, Any]) -> List[str]:
+    lines: List[str] = []
+    meta = STAGE_METADATA.get(stage_name)
+    if meta:
+        lines.append(f"owner: {meta['owner']}")
+        lines.append(f"criteria: {meta['criteria']}")
+    for key, value in stage_data.items():
+        if key in {"status"}:
+            continue
+        lines.append(f"{key}: {value}")
+    return lines
+
+
+def render_status_report(status: Dict[str, Any]) -> str:
+    lines: List[str] = []
+    script_id = status.get("script_id", "N/A")
+    channel = status.get("channel", "N/A")
+    overall_status = status.get("status", progress_tracker.ProgressStatus.PENDING)
+    updated_at = status.get("updated_at", "N/A")
+
+    icon = GLOBAL_STATUS_ICONS.get(overall_status, "•")
+    lines.append(f"Script ID : {script_id}")
+    lines.append(f"Channel   : {channel}")
+    lines.append(f"Status    : {icon} {overall_status}")
+    lines.append(f"Updated   : {updated_at}")
+
+    metadata = status.get("metadata")
+    if metadata:
+        lines.append("Metadata :")
+        for key, value in metadata.items():
+            lines.append(f"  - {key}: {value}")
+
+    stages = status.get("stages", {})
+    lines.append("Stages:")
+    next_stage_name: Optional[str] = None
+    for stage_name, meta in STAGE_METADATA.items():
+        stage_data = stages.get(stage_name, {})
+        state = stage_data.get(
+            "status", progress_tracker.ProgressStatus.STAGE_PENDING
+        )
+        if next_stage_name is None and state != progress_tracker.ProgressStatus.STAGE_COMPLETED:
+            next_stage_name = stage_name
+        icon = STATE_ICONS.get(state, "•")
+        title = meta["title"]
+        lines.append(f"  {icon} {stage_name} : {title} [{state}]")
+        detail_lines = stage_details_lines(stage_name, stage_data)
+        for detail in detail_lines:
+            lines.append(f"      - {detail}")
+
+    # 未定義ステージ (将来拡張)
+    for stage_name, stage_data in stages.items():
+        if stage_name in STAGE_METADATA:
+            continue
+        state = stage_data.get(
+            "status", progress_tracker.ProgressStatus.STAGE_PENDING
+        )
+        icon = STATE_ICONS.get(state, "•")
+        lines.append(f"  {icon} {stage_name} : (custom) [{state}]")
+        for detail in stage_details_lines(stage_name, stage_data):
+            lines.append(f"      - {detail}")
+
+    if next_stage_name:
+        next_meta = STAGE_METADATA.get(next_stage_name)
+        if next_meta:
+            lines.append("")
+            lines.append(
+                f"Next action → {next_stage_name}: {next_meta['title']} "
+                f"(owner: {next_meta['owner']})"
+            )
+
+    return "\n".join(lines)
+
+
+def summarize_channel(
+    output_root: Path,
+    channels: Dict[str, Dict[str, Any]],
+    channel_code: str,
+    channel_name: str,
+) -> Tuple[str, List[Tuple[str, str, Path]]]:
+    final_root, _, base_name = compute_output_roots(
+        output_root, channel_code, channel_name, ensure_dirs=False
+    )
+    items: List[Tuple[str, str, Path]] = []
+    if not final_root.exists():
+        return base_name, items
+
+    for entry in sorted(final_root.iterdir()):
+        if not entry.is_dir():
+            continue
+        status_path = entry / progress_tracker.ProgressTracker.STATUS_FILE
+        if status_path.exists():
+            try:
+                data = json.loads(status_path.read_text(encoding="utf-8"))
+                state = data.get("status", progress_tracker.ProgressStatus.PENDING)
+            except Exception:
+                state = "invalid"
+        else:
+            state = "missing"
+        items.append((entry.name, state, status_path))
+    return base_name, items
+
+
+def cmd_init(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    sheet_name = resolve_channel_name(channels, args.channel_code, args.channel_name)
+    storage_name = resolve_storage_channel_name(channels, args.channel_code, sheet_name)
+    video_token = normalise_video_number(args.video_number)
+    script_id = determine_script_id(args.channel_code, video_token, args.script_id)
+    metadata = parse_kv_pairs(args.meta)
+
+    pending_path = Path(args.pending_file).resolve()
+    try:
+        ensure_pending_claimed(
+            args.channel_code,
+            video_token,
+            args.video_number,
+            script_id,
+            pending_path,
+            claimant=args.claimant,
+        )
+    except PendingValidationError as exc:
+        logger.error(exc)
+        sys.exit(1)
+
+    work_root = Path("work") / args.channel_code.lower() / video_token
+    kimi_dir = work_root / "analysis" / "kimi"
+    kimi_dir.mkdir(parents=True, exist_ok=True)
+
+    research_path = kimi_dir / "research_brief.md"
+    if not research_path.exists():
+        research_path.write_text(
+            "# Kimiリサーチブリーフ\n\n"
+            "## ゴール\n"
+            "- 視聴者像・課題感\n"
+            "- 今回の台本で届ける核心メッセージ\n"
+            "- Kimi K2 / Brave Search で得た要点ハイライト\n"
+            "\n"
+            "## メモ\n"
+            "- 比較すべき視点 / 反論の芽\n"
+            "- 参照したクエリと結果サマリ\n",
+            encoding="utf-8",
+        )
+
+    references_path = kimi_dir / "references.json"
+    if not references_path.exists():
+        references_path.write_text(
+            json.dumps({"sources": []}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    quality_path = kimi_dir / "quality_review.md"
+    if not quality_path.exists():
+        quality_path.write_text(
+            "# Kimi品質レビュー\n\n"
+            "## チェック観点\n"
+            "- トーンとキャラクターの一貫性\n"
+            "- 感情導線と説得力を高める追加案\n"
+            "- データ・事実確認の指摘\n"
+            "\n"
+            "## 推奨アクション\n"
+            "- [ ] 章別コメント\n"
+            "- [ ] 追加で盛り込むべき情報\n",
+            encoding="utf-8",
+        )
+
+    tracker = ensure_tracker(
+        Path(args.output_root),
+        args.channel_code,
+        video_token,
+        script_id,
+        storage_name,
+        channels,
+        metadata=metadata or None,
+    )
+    logger.success(
+        f"進捗ファイル初期化: {tracker.status_file} "
+        f"(script_id={script_id}, channel={storage_name})"
+    )
+
+
+def cmd_update_stage(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    # 環境変数QWEN_STRICTを確認し、--strictが指定されていない場合のデフォルト値を設定
+    import os
+    if not hasattr(args, 'strict') or args.strict is None:
+        args.strict = os.environ.get('QWEN_STRICT', '1') != '0'
+    
+    sheet_name = resolve_channel_name(channels, args.channel_code, args.channel_name)
+    storage_name = resolve_storage_channel_name(channels, args.channel_code, sheet_name)
+    video_token = normalise_video_number(args.video_number)
+    script_id = determine_script_id(args.channel_code, video_token, args.script_id)
+    metadata = parse_kv_pairs(args.meta)
+    details = parse_kv_pairs(args.detail)
+
+    tracker = ensure_tracker(
+        Path(args.output_root),
+        args.channel_code,
+        video_token,
+        script_id,
+        storage_name,
+        channels,
+        metadata=metadata or None,
+    )
+
+    artifact_details = details.copy() if details else {}
+
+    work_root = Path("work") / args.channel_code.lower() / video_token
+            # script_validationステージの処理をhandle_script_validation関数に委譲
+handle_script_validation(args, artifact_details, work_root, temp_dir, script_id, video_token, storage_name)
+
+    # strictモードのプリフライトチェックを先に行う
+    elif args.strict and args.stage == "script_draft" and args.state == "completed":
+        # script_draftの場合は、チャプターとアウトラインが必要
+        work_dir = Path(f"work/{args.channel_code.lower()}/{video_token}")
+        chapters_dir = work_dir / "chapters"
+        outline_path = work_dir / "outline.md"
+        
+        missing_items = []
+        if not chapters_dir.exists():
+            missing_items.append(f"chapters directory: {chapters_dir}")
+        if not outline_path.exists():
+            missing_items.append(f"outline file: {outline_path}")
+            
+        if missing_items:
+            logger.error(f"strictモード: 必須アーティファクトが見つかりません: {missing_items}")
+            raise FileNotFoundError(f"必須アーティファクトが見つかりません: {missing_items}")
+
+    tracker.update_stage(
+        args.stage,
+        args.state,
+        details=details if details else None,
+        update_global_status=args.global_status,
+    )
+
+    output_root_path = Path(args.output_root)
+    final_root, temp_root, _ = compute_output_roots(
+        output_root_path, args.channel_code, storage_name, ensure_dirs=True
+    )
+    temp_dir = temp_root / video_token
+    final_dir = final_root / video_token
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    final_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.stage == "script_review":
+        assembled_path = artifact_details.get("assembled_path")
+        copy_if_exists(assembled_path, temp_dir, dest_name="assembled.md", label="assembled")
+        gpt_feedback = artifact_details.get("gpt5_feedback") or artifact_details.get("feedback_path")
+        copy_if_exists(gpt_feedback, temp_dir, dest_name="gpt5_feedback.json", label="gpt5_feedback")
+    elif args.stage == "kimi_research":
+        kimi_dest = temp_dir / "analysis" / "kimi"
+        research_path = artifact_details.get("research_path") or str(kimi_workspace / "research_brief.md")
+        references_path = artifact_details.get("references_path") or str(kimi_workspace / "references.json")
+        copy_if_exists(research_path, kimi_dest, dest_name="research_brief.md", label="kimi_research")
+        copy_if_exists(references_path, kimi_dest, dest_name="references.json", label="kimi_research_refs")
+    elif args.stage == "kimi_quality_review":
+        kimi_dest = temp_dir / "analysis" / "kimi"
+        review_path = artifact_details.get("quality_path") or str(kimi_workspace / "quality_review.md")
+        copy_if_exists(review_path, kimi_dest, dest_name="quality_review.md", label="kimi_quality_review")
+    elif args.stage == "script_draft" and args.state == "completed":
+        # script_draftがcompletedになる前に、チャプターの文字数をチェックする
+        # work_dir は output/CHXX_XXX_final/NNN という形式
+        # chapters_dir は work_dir / "chapters"
+        # outline.md は work_dir / "outline.md"
+        work_dir = tracker.status_file.parent
+        chapters_dir = work_dir / "chapters"
+        outline_path = work_dir / "outline.md"
+        
+        if not chapters_dir.exists():
+            logger.error(f"Chapters directory not found: {chapters_dir}")
+            raise ValueError(f"Chapters directory not found: {chapters_dir}")
+            
+        if not outline_path.exists():
+            logger.error(f"Outline file not found: {outline_path}")
+            raise ValueError(f"Outline file not found: {outline_path}")
+            
+        # チャプターの文字数チェック
+        check_cmd = [
+            sys.executable, "-m", "tools.check_and_enhance_chapter_length",
+            "--outline", str(outline_path),
+            "--chapters-dir", str(chapters_dir)
+        ]
+        
+        logger.info(f"Running chapter length check: {' '.join(check_cmd)}")
+        result = subprocess.run(check_cmd, cwd=PROJECT_ROOT, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            logger.error(f"Chapter length check failed: {result.stderr}")
+            raise ValueError(f"Chapter length check failed. Please revise chapters to meet word targets.\n{result.stdout}\n{result.stderr}")
+            
+        logger.success("All chapters passed length check.")
+        
+        # チェック通過を進捗に記録
+        tracker.update_stage(
+            args.stage,
+            args.state,
+            details={"length_check_passed": True},
+            update_global_status=args.global_status,
+        )
+        # 既にtracker.update_stageを実行したので、後の共通処理はスキップ
+        if args.update_sheet:
+            row_key = args.row_key or script_id
+            if isinstance(row_key, str) and row_key.isdigit():
+                row_key_lookup = int(row_key)
+            else:
+                row_key_lookup = row_key
+            channel_info = channels.get(args.channel_code, {})
+            worksheet_name = resolve_channel_name(
+                channels, args.channel_code, channel_info.get("worksheet")
+            )
+            sheet_details = details.copy()
+            sheet_details.update(parse_kv_pairs(args.sheet_extra))
+            sheet_message = build_sheet_message(args.stage, args.state, sheet_details)
+            update_sheet_progress(worksheet_name, row_key_lookup, sheet_message)
+            logger.success(f"シート進捗更新: worksheet={worksheet_name}, row={row_key}")
+        return  # 処理を終了
+                except Exception as e:
+                    logger.warning(f"generate_script_filename に失敗: {e}")
+
+            # 3) 最後に一発で確定（分岐漏れを絶対に作らない）
+            final_script_name = f"{script_id}_{script_title}.txt"
+            # 以降、この final_script_name を使って配置・コピー
+            
+            final_script_path = script_dir / final_script_name
+            
+            # 整形済みスクリプトをコピー
+            source_final_path = resolve_project_path(final_path)
+            if source_final_path.exists():
+                shutil.copy2(source_final_path, final_script_path)
+                logger.info(f"整形済みスクリプト保存: {final_script_path}")
+            else:
+                logger.warning(f"整形済みスクリプトが存在しません: {source_final_path}")
+        
+        # 原文スクリプト(assembled.md)の処理
+        assembled_path = work_root / "assembled.md"
+        if assembled_path.exists():
+            # 原文スクリプトをoutput/CHxx_XXX_temp/NNN/ディレクトリにコピー
+            # script_titleは上で定義済み
+            original_script_name = f"{script_id}_{script_title}_原文.txt"
+            copy_if_exists(str(assembled_path), temp_dir, dest_name=original_script_name, label="original_script")
+        else:
+            logger.warning(f"assembled.mdが存在しません: {assembled_path}")
+        
+        validation_log = artifact_details.get("validation_log") or artifact_details.get("validation_path")
+        copy_if_exists(validation_log, temp_dir, dest_name="validation.log", label="validation_log")
+
+    if args.update_sheet:
+        row_key = args.row_key or script_id
+        if isinstance(row_key, str) and row_key.isdigit():
+            row_key_lookup = int(row_key)
+        else:
+            row_key_lookup = row_key
+        channel_info = channels.get(args.channel_code, {})
+        worksheet_name = resolve_channel_name(
+            channels, args.channel_code, channel_info.get("worksheet")
+        )
+        sheet_details = details.copy()
+        sheet_details.update(parse_kv_pairs(args.sheet_extra))
+        sheet_message = build_sheet_message(args.stage, args.state, sheet_details)
+        update_sheet_progress(worksheet_name, row_key_lookup, sheet_message)
+        logger.success(f"シート進捗更新: worksheet={worksheet_name}, row={row_key}")
+
+
+def cmd_set_status(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    sheet_name = resolve_channel_name(channels, args.channel_code, args.channel_name)
+    storage_name = resolve_storage_channel_name(channels, args.channel_code, sheet_name)
+    video_token = normalise_video_number(args.video_number)
+    script_id = determine_script_id(args.channel_code, video_token, args.script_id)
+    metadata = parse_kv_pairs(args.meta)
+
+    tracker = ensure_tracker(
+        Path(args.output_root),
+        args.channel_code,
+        video_token,
+        script_id,
+        storage_name,
+        channels,
+        metadata=metadata or None,
+    )
+    tracker.set_global_status(args.status)
+
+    if args.update_sheet:
+        row_key = args.row_key or script_id
+        if isinstance(row_key, str) and row_key.isdigit():
+            row_key_lookup = int(row_key)
+        else:
+            row_key_lookup = row_key
+        channel_info = channels.get(args.channel_code, {})
+        worksheet_name = resolve_channel_name(
+            channels, args.channel_code, channel_info.get("worksheet")
+        )
+        details = parse_kv_pairs(args.sheet_extra)
+        sheet_message = build_sheet_message("global", args.status, details)
+        update_sheet_progress(worksheet_name, row_key_lookup, sheet_message)
+        logger.success(f"シート進捗更新: worksheet={worksheet_name}, row={row_key}")
+
+
+def cmd_show(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    sheet_name = resolve_channel_name(channels, args.channel_code, args.channel_name)
+    storage_name = resolve_storage_channel_name(channels, args.channel_code, sheet_name)
+    video_token = normalise_video_number(args.video_number)
+    script_id = determine_script_id(args.channel_code, video_token, args.script_id)
+
+    tracker = ensure_tracker(
+        Path(args.output_root),
+        args.channel_code,
+        video_token,
+        script_id,
+        storage_name,
+        channels,
+        create=False,
+    )
+    status = tracker.get_status()
+    if args.json:
+        print(json.dumps(status, ensure_ascii=False, indent=2))
+    else:
+        print(render_status_report(status))
+
+
+def cmd_summary(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    output_root = Path(args.output_root)
+    if args.channel_code:
+        codes = [args.channel_code]
+    else:
+        codes = sorted(channels.keys())
+
+    for code in codes:
+        try:
+            sheet_name = resolve_channel_name(channels, code, None)
+        except ValueError:
+            logger.warning(f"チャンネルコード '{code}' は設定に存在しません")
+            continue
+
+        storage_name = resolve_storage_channel_name(channels, code, sheet_name)
+        base_name, entries = summarize_channel(output_root, channels, code, storage_name)
+        print(f"\n=== {code} ({storage_name}) → output/{base_name}_final ===")
+        if not entries:
+            print("  (進捗ファイルなし)")
+            continue
+
+        for video, state, status_path in entries:
+            icon = icon_for_state(state)
+            print(f"  {icon} No.{video} : {state}")
+            if args.detailed and status_path.exists():
+                try:
+                    data = json.loads(status_path.read_text(encoding="utf-8"))
+                    report = render_status_report(data)
+                    report_indented = indent(report, "    ")
+                    print(report_indented)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(f"    レポート取得失敗 ({status_path}): {exc}")
+
+def cmd_normalize(args: argparse.Namespace, channels: Dict[str, Dict[str, Any]]) -> None:
+    output_root = Path(args.output_root)
+    patched = 0
+    for status_path in output_root.rglob(progress_tracker.ProgressTracker.STATUS_FILE):
+        output_dir = status_path.parent
+        tracker = progress_tracker.ProgressTracker(output_dir)
+        data = tracker.get_status()
+        if not data:
+            continue
+        script_id = data.get("script_id") or output_dir.name
+        channel = data.get("channel") or output_dir.parent.name
+        tracker.initialize(script_id, channel, metadata=data.get("metadata"))
+        patched += 1
+    logger.success(f"正規化完了: {patched}ファイル更新")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="統一進捗管理CLI")
+    parser.add_argument("--output-root", default="output", help="出力ルートディレクトリ")
+    parser.add_argument(
+        "--config",
+        default=str(PROJECT_ROOT / "configs" / "sheets.json"),
+        help="チャンネル設定ファイルパス",
+    )
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # init
+    init_parser = subparsers.add_parser("init", help="進捗ファイルを初期化する")
+    init_parser.add_argument("--channel-code", required=True, help="チャンネルコード (例: CH08)")
+    init_parser.add_argument("--video-number", required=True, help="動画番号 / 行キー")
+    init_parser.add_argument("--script-id", help="script_idを直接指定 (例: CH08-003)")
+    init_parser.add_argument("--channel-name", help="シート名を明示的に指定")
+    init_parser.add_argument("--meta", action="append", help="metadataに追加するkey=value")
+    init_parser.add_argument(
+        "--claimant",
+        help="CLAIMED欄に記録する担当者名。指定すると pending_scripts.md を自動更新",
+    )
+    init_parser.add_argument(
+        "--pending-file",
+        type=Path,
+        default=DEFAULT_PENDING_FILE,
+        help="未作成台本リストのパス (デフォルト: tasks/pending_scripts.md)",
+    )
+    init_parser.set_defaults(func=cmd_init)
+
+    # update-stage
+    update_parser = subparsers.add_parser("update-stage", help="ステージ進捗を更新する")
+    update_parser.add_argument("--channel-code", required=True)
+    update_parser.add_argument("--video-number", required=True)
+    update_parser.add_argument("--stage", required=True, help="ステージ名")
+    update_parser.add_argument(
+        "--state",
+        required=True,
+        choices=[
+            progress_tracker.ProgressStatus.STAGE_PENDING,
+            progress_tracker.ProgressStatus.STAGE_PROCESSING,
+            progress_tracker.ProgressStatus.STAGE_COMPLETED,
+            progress_tracker.ProgressStatus.STAGE_FAILED,
+            # 追加ステータス - やり直し対応
+            progress_tracker.ProgressStatus.STAGE_RERUN_REQUESTED,
+            progress_tracker.ProgressStatus.STAGE_RERUN_IN_PROGRESS,
+            progress_tracker.ProgressStatus.STAGE_RERUN_COMPLETED,
+        ],
+        help="ステージステータス",
+    )
+    update_parser.add_argument("--global-status", help="全体ステージも更新する場合に指定")
+    update_parser.add_argument("--script-id", help="script_idを直接指定")
+    update_parser.add_argument("--channel-name", help="シート名を明示的に指定")
+    update_parser.add_argument("--detail", action="append", help="ステージ詳細 key=value")
+    update_parser.add_argument("--meta", action="append", help="metadataに追加するkey=value")
+    update_parser.add_argument("--update-sheet", action="store_true", help="Google Sheetsも更新する")
+    update_parser.add_argument("--row-key", help="シート更新で使用する台本番号/No.")
+    update_parser.add_argument("--sheet-extra", action="append", help="シート専用 key=value")
+    update_parser.add_argument("--strict", action="store_true", help="必須アーティファクトの存在を検証し、欠けている場合はエラーとする（デフォルトは環境変数QWEN_STRICTで決定）")
+    update_parser.set_defaults(func=cmd_update_stage)
+
+    # set-status
+    status_parser = subparsers.add_parser("set-status", help="全体ステータスを更新する")
+    status_parser.add_argument("--channel-code", required=True)
+    status_parser.add_argument("--video-number", required=True)
+    status_parser.add_argument(
+        "--status",
+        required=True,
+        choices=[
+            progress_tracker.ProgressStatus.SCRIPT_IN_PROGRESS,
+            progress_tracker.ProgressStatus.SCRIPT_READY,
+            progress_tracker.ProgressStatus.SCRIPT_VALIDATED,
+            progress_tracker.ProgressStatus.PROCESSING,
+            progress_tracker.ProgressStatus.AUDIO_DONE,
+            progress_tracker.ProgressStatus.TIMELINE_READY,
+            progress_tracker.ProgressStatus.IMAGES_DONE,
+            progress_tracker.ProgressStatus.CAPCUT_DONE,
+            progress_tracker.ProgressStatus.COMPLETED,
+            # 追加ステータス - やり直し対応
+            progress_tracker.ProgressStatus.RERUN_REQUESTED,
+            progress_tracker.ProgressStatus.RERUN_IN_PROGRESS,
+            progress_tracker.ProgressStatus.RERUN_COMPLETED,
+        ],
+        help="全体ステータス",
+    )
+    status_parser.add_argument("--script-id", help="script_idを直接指定")
+    status_parser.add_argument("--channel-name", help="シート名を明示的に指定")
+    status_parser.add_argument("--meta", action="append", help="metadataに追加するkey=value")
+    status_parser.add_argument("--update-sheet", action="store_true")
+    status_parser.add_argument("--row-key", help="シート更新で使用する台本番号/No.")
+    status_parser.add_argument("--sheet-extra", action="append", help="シート専用 key=value")
+    status_parser.set_defaults(func=cmd_set_status)
+
+    # show
+    show_parser = subparsers.add_parser("show", help="現在の進捗を表示する")
+    show_parser.add_argument("--channel-code", required=True)
+    show_parser.add_argument("--video-number", required=True)
+    show_parser.add_argument("--script-id", help="script_idを直接指定")
+    show_parser.add_argument("--channel-name", help="シート名を明示的に指定")
+    show_parser.add_argument("--json", action="store_true", help="JSON形式で表示する")
+    show_parser.set_defaults(func=cmd_show)
+
+    # summary
+    summary_parser = subparsers.add_parser(
+        "summary", help="チャンネル全体の進捗一覧を表示する"
+    )
+    summary_parser.add_argument("--channel-code", help="対象チャンネルコード（省略で全件）")
+    summary_parser.add_argument(
+        "--detailed", action="store_true", help="各台本の詳細レポートも表示する"
+    )
+    summary_parser.set_defaults(func=cmd_summary)
+
+    # normalize
+    normalize_parser = subparsers.add_parser(
+        "normalize", help="output配下のprogressファイルを標準化する"
+    )
+    normalize_parser.set_defaults(func=cmd_normalize)
+
+    return parser
+
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    try:
+        channels = load_channel_configs(Path(args.config))
+        args.func(args, channels)
+        return 0
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"処理中にエラーが発生しました: {exc}")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,400 @@
+{
+  "script_id": "CH06-001",
+  "channel": "CH06",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-18T03:18:33.869293Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-18T03:19:06.244008Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "length_check_passed": true,
+      "updated_at": "2025-11-18T06:33:28.774160Z",
+      "quality_validation_passed": true,
+      "quality_validation": {
+        "checked_at": "2025-11-18T06:33:28.817797Z",
+        "passed": true,
+        "issues": [],
+        "warnings": [
+          "chapter_1.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）",
+          "chapter_2.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）",
+          "chapter_3.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）",
+          "chapter_4.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）",
+          "chapter_5.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）"
+        ],
+        "chapters": [
+          {
+            "chapter": "script_pipeline/data/CH06/001/content/chapters/chapter_1.md",
+            "passed": true,
+            "validated_at": "2025-11-18T06:33:28.816186Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1748,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 39,
+                  "max_sentence_length": 81
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3107476635514019,
+                  "kanji_count": 532,
+                  "total_characters": 1712
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/001/content/chapters/chapter_2.md",
+            "passed": true,
+            "validated_at": "2025-11-18T06:33:28.816563Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1877,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 38,
+                  "max_sentence_length": 82
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3280825638240087,
+                  "kanji_count": 604,
+                  "total_characters": 1841
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/001/content/chapters/chapter_3.md",
+            "passed": true,
+            "validated_at": "2025-11-18T06:33:28.816981Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 2380,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 48,
+                  "max_sentence_length": 96
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3389031705227078,
+                  "kanji_count": 791,
+                  "total_characters": 2334
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/001/content/chapters/chapter_4.md",
+            "passed": true,
+            "validated_at": "2025-11-18T06:33:28.817259Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1532,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 32,
+                  "max_sentence_length": 85
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3655126498002663,
+                  "kanji_count": 549,
+                  "total_characters": 1502
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/001/content/chapters/chapter_5.md",
+            "passed": true,
+            "validated_at": "2025-11-18T06:33:28.817554Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1658,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 34,
+                  "max_sentence_length": 73
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3253086419753086,
+                  "kanji_count": 527,
+                  "total_characters": 1620
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-18T06:59:25.529991Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-18T07:05:17.957226Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-18T07:09:10.142998Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-18T07:08:28.975950Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "c63be2701b480bce95083d1e379ac085e4254e16ac038e9f2e7ecf2bc109ba1d",
+      "updated_at": "2025-11-18T08:57:41.521199Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH06-001_20251118T085741"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_audio_ai": {
+      "status": "completed",
+      "updated_at": "2025-11-18T08:59:21.050634Z",
+      "details": {
+        "prompt_hash": "d897079cc66482a26ab8002aa42ec0b481c13c82",
+        "model": "qwen/qwen3-235b-a22b:free"
+      },
+      "prompt_hash": "d897079cc66482a26ab8002aa42ec0b481c13c82"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-18T08:59:30.600598Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-11-18T12:08:34Z",
+  "updated_at": "2025-11-18T08:59:30.757471Z",
+  "metadata": {
+    "title": "【閲覧注意】バチカン図書館の地下に眠る『トマスによる福音書』が暴く、キリスト教最大のタブー【都市伝説のダーク図書館】",
+    "title_sanitized": "【閲覧注意】バチカン図書館の地下に眠る『トマスによる福音書』が暴く、キリスト教最大のタブー【都市伝説のダーク図書館】",
+    "sheet_title": "【封印された福音】ナグ・ハマディで発見されたトマス福音書と異端の真実【都市伝説のダーク図書館】",
+    "channel_code": "CH06",
+    "video_number": "001",
+    "script_id": "CH06-001",
+    "channel_display_name": "都市伝説・闇_都市伝説のダーク図書館",
+    "ready_for_audio": true,
+    "title_updated_at": "2025-11-18T07:07:10.574937Z",
+    "assembled_characters": 9506,
+    "output_characters": 9667,
+    "chapter_characters": 9506,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "c63be2701b480bce95083d1e379ac085e4254e16ac038e9f2e7ecf2bc109ba1d",
+      "updated_at": "2025-11-18T08:57:41.521174Z"
+    },
+    "audio": {
+      "rewrite": {
+        "script_audio_raw_path": "data/CH06/001/audio_prep/script_audio_raw.txt",
+        "updated_at": "2025-11-18T08:59:20.894566Z",
+        "model": "qwen/qwen3-235b-a22b:free",
+        "prompt_hash": "d897079cc66482a26ab8002aa42ec0b481c13c82"
+      },
+      "prepare": {
+        "script_sanitized_path": "data/CH06/001/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio_at": "2025-11-18T08:59:30.485572Z"
+  }
+}

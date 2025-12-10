@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "engine": "voicevox",
+  "status": "completed",
+  "updated_at": "2025-11-03T11:17:41Z",
+  "total_chunks": 82,
+  "completed_chunks": 82,
+  "sanitized_script": "data/CH02/007/audio_prep/script_sanitized.txt",
+  "chunks_dir": "data/CH02/007/audio_prep/voicevox_chunks",
+  "output_dir": null,
+  "cli_script": null,
+  "notes": null,
+  "final_wav": "audio_tts_v2/artifacts/final/CH02/CH02-007.wav",
+  "final_srt": "audio_tts_v2/artifacts/final/CH02/CH02-007.srt"
+}

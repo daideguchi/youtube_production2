@@ -1,0 +1,116 @@
+{
+  "script_id": "CH03-048",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-01T11:30:16.423911Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-01T11:33:33.370234Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-01T11:41:36.848716Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-01T11:54:49.479093Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T11:59:14.195905Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T12:03:25.631165Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-01T12:06:23.100088Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "274a104c9b60f4cffd66d803d7b5521fbfb20459349a045c9e0d2d7b733f541d",
+      "updated_at": "2025-11-01T12:10:25.958161Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH03-048_20251101T120804"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-01T12:11:16.902494Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:56.424765Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/048/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/048/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-11-01T01:35:22.706084Z",
+  "updated_at": "2025-11-14T08:16:10.291546Z",
+  "metadata": {
+    "ready_for_audio": false,
+    "sheet_flag": "1",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/048/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/048/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 48,
+    "sheet_title": "【白内障】視界のかすみ・ぼやけは手術で治る！眼科医が教える最新治療と眼内レンズ",
+    "channel_code": "CH03",
+    "channel_display_name": "シニア・健康_【シニアの健康】朗読図書館",
+    "video_number": "048",
+    "script_id": "CH03-048",
+    "title": "【白内障】視界のかすみ・ぼやけは手術で治る！眼科医が教える最新治療と眼内レンズ",
+    "title_sanitized": "【白内障】視界のかすみ・ぼやけは手術で治る！眼科医が教える最新治療と眼内レンズ",
+    "title_updated_at": "2025-11-01T12:06:23.100088Z",
+    "assembled_characters": 10065,
+    "output_characters": 10395,
+    "chapter_characters": 10065,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "274a104c9b60f4cffd66d803d7b5521fbfb20459349a045c9e0d2d7b733f541d",
+      "updated_at": "2025-11-01T12:10:25.958125Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH03/048/audio_prep/script_sanitized.txt"
+      },
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:56Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/048_20251113T120856Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/048_20251113T120856Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:56Z"
+  },
+  "channel_code": "CH03",
+  "video_number": "048"
+}

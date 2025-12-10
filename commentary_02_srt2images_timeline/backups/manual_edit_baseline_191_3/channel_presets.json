@@ -1,0 +1,76 @@
+{
+  "channels": {
+    "CH01": {
+      "name": "人生の道標",
+      "prompt_template": "templates/jinsei_standard_illustration.txt",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH01-UNK_道標_最新テンプレ",
+      "position": {"tx": 0.0, "ty": 0.0, "scale": 0.99},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "帯レイヤー最上段／belt_config必須。画像は完全イラスト調固定。",
+      "status": "active"
+    },
+    "CH02": {
+      "name": "哲学系",
+      "prompt_template": "templates/jinsei_no_michishirube_contextual.txt",
+      "style": "Warm Japanese illustration, calm storytelling",
+      "capcut_template": "CH02_哲学_テンプレドラフト",
+      "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "帯ルールはCH01準拠。章タイトル生成ロジックを共用する。",
+      "status": "active"
+    },
+    "CH03": {
+      "name": "シニアの健康",
+      "prompt_template": "templates/senior_health_reading.txt",
+      "style": "soft, warm, gentle, friendly, pastel palette",
+      "capcut_template": "000_シニアの朗読テンプレ",
+      "position": {"tx": -0.163, "ty": 0.201, "scale": 0.59},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "人生の道標と同じ帯ロジックを採用。",
+      "status": "active"
+    },
+    "CH04": {
+      "name": "隠れ書庫アカシック／心理学",
+      "prompt_template": "templates/oil_painting_akashic_fantasy.txt",
+      "style": "mystical oil painting, akashic records, calm narration",
+      "capcut_template": "CH04_アカシック_テンプレ",
+      "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "油絵アカシック演出。帯ルールは共通仕様。",
+      "status": "active"
+    },
+    "CH05": {
+      "name": "シニア恋愛物語",
+      "prompt_template": "templates/japanese_visual.txt",
+      "style": "heartwarming senior love story, Japanese aesthetic",
+      "capcut_template": "シニア恋愛物語_完璧版",
+      "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": false},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "成功設定（retry/validation）を継続利用。",
+      "status": "active"
+    },
+    "CH06": {
+      "name": "都市伝説のダーク図書館",
+      "prompt_template": null,
+      "style": "mystical, fantastical yet realistic urban legend illustration, coherent lighting",
+      "capcut_template": null,
+      "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
+      "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true},
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "画風のみ確定。具体テンプレ／プロンプトは今後定義。",
+      "status": "pending"
+    }
+  }
+}

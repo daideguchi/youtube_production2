@@ -1,0 +1,12 @@
+シーン説明: {summary}
+登場人物: 62歳の雅子さんという女性。明るい短い髪、親しみやすい笑顔、優しく落ち着いた雰囲気。静かな日常の中で内面の葛藤を感じる中年女性。お寺を訪れる際やスーパーでの勤務中など、日常的な場面での姿を描く。
+世界観: 静かな自然、日常の暮らし、心の内面など、その場面で語られている状況を具体的に描写する。孤独や気づき、脳科学のイメージなどテーマに沿ったモチーフを組み込み、仏教的象徴は必要なときだけ控えめに添える。
+スタイル: 柔らかな日本のイラスト調、静かな空気感、丁寧なライティング、くっきりしつつ優しい輪郭、わずかな幻想表現、落ち着いた色彩。{style}
+EN Instruction: Create a brand-new 16:9 illustration that visually explains the idea described above. Focus on storytelling details (objects, people, scenery) that make the concept easy to grasp. The main character should consistently be Masako, a 62-year-old Japanese woman with a gentle, caring expression, wearing appropriate clothing for the scene (work uniform at the supermarket, casual clothes for home, modest dress at temple). Use Buddhist symbols subtly only if relevant. No text or letters in the image.
+構図: 主題が一目で分かる構成。雅子さんを中央付近に配置し、背景には時間・場所・感情を示す要素を散りばめる。
+品質: 高解像度、ノイズレス、自然な陰影、滑らかなグラデーション、情報量は整理され見やすいレイアウト。
+出力解像度: {size}
+推奨モチーフ: 落ち着いた自然、室内の静かな風景、雅子さん、スーパーのレジ風景、お寺の本堂、瞑想する人物、脳や神経ネットワークのイメージ、古い書物、蝋燭、灯り、穏やかな街角など。テーマに合わせた具体的な小道具や人物の表情を描く。
+禁止: 文字・字幕・標識・ポスター・ロゴ・UI表現・暴力表現・現代ガジェットの過度な強調。過剰な宗教比重、抽象すぎる表現。
+ネガティブ: {negative}
+文脈重視: 話の内容を丁寧に読み取り、視聴者が内容を理解しやすくなるような視覚的ヒントを入れる。雅子さんの表情や態度に内面の変化が表れるように描くこと。

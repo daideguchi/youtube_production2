@@ -1,0 +1,19 @@
+{
+  "name": "srt2images-timeline__20251005",
+  "original_name": "srt2images-timeline__20251005",
+  "moved_at": "2025-10-05T13:11:04",
+  "from": "/Users/dd/srt2images-timeline",
+  "to": "/Users/dd/claudecode/10_active/srt2images-timeline__20251005",
+  "git": {
+    "is_repo": true,
+    "remote_origin": "git@github.com:daideguchi/srt2images-timeline.git",
+    "last_commit": "2025-09-29T07:05:08"
+  },
+  "languages": [
+    "python",
+    "typescript",
+    "tsx",
+    "markdown",
+    "shell"
+  ]
+}

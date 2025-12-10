@@ -1,0 +1,4 @@
+inference_logic: v2_strict_router
+model: router_managed
+timestamp: 2025-12-10T11:59:51.235290
+status: success

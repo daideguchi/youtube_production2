@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Node
+**/node_modules/
+**/.cache/
+
+# Outputs
+output/
+final.mp4
+capcut_output/
+capcut_projects/
+input/
+
+# UI logs and runtime files
+ui/*.log
+ui/*.pid
+ui/logs/
+ui/.venv/
+
+# OS
+.DS_Store

@@ -1,0 +1,21 @@
+{
+  "status": "completed",
+  "metadata": {
+    "title": "「人類が最後に発明するものは、AIである」",
+    "expected_title": "【人類最期の発明】AIとシンギュラリティ【都市伝説のダーク図書館】",
+    "youtube_description": "シンギュラリティ、ラプラスの魔、ロコのバジリスク。\nAIにまつわる都市伝説と、技術的特異点がもたらす未来のシナリオを徹底解説。\n\n00:00 導入：ロコのバジリスク\n02:15 第1章：シンギュラリティの到来\n04:30 第2章：ラプラスの魔と監視社会\n06:45 第3章：ロコのバジリスクの戦慄\n09:00 第4章：AIと倫理のジレンマ\n11:15 第5章：シミュレーション仮説とのリンク\n13:30 第6章：融合する人類\n15:45 結び：最後の発明\n\n#都市伝説 #AI #シンギュラリティ #ロコのバジリスク #ダーク図書館",
+    "ready_for_audio": true,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH06/008/content/assembled.md",
+    "assembled_characters": 5758,
+    "title_sanitized": "「人類が最後に発明するものは、AIである」"
+  },
+  "stages": {
+    "script_review": {
+      "status": "completed"
+    }
+  },
+  "script_id": "CH06-008",
+  "channel": "CH06",
+  "channel_code": "CH06",
+  "video_number": "008"
+}

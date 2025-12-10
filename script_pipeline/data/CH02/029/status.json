@@ -1,0 +1,101 @@
+{
+  "script_id": "CH02-029",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-01T01:10:22.740714Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-01T01:16:10.994633Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-01T01:34:14.679925Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T01:42:55.022857Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-01T02:15:22.436692Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "4488a0d802e0f46e978fd86f3b135d2b3d931104435ed20b523399e95f88ef73",
+      "updated_at": "2025-11-01T04:29:20.293403Z",
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "details": {
+        "log_base": "logs/llm_polish/CH02-029_20251101T042840"
+      },
+      "fallback": "reuse_stage7_draft"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-01T03:30:00.000000Z"
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z",
+      "engine": "voicevox",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.srt"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z"
+    },
+    "timeline_copy": {
+      "status": "completed",
+      "updated_at": "2025-11-01T03:42:44.616566Z"
+    },
+    "image_generation": {},
+    "topic_research": {},
+    "quality_check": {}
+  },
+  "created_at": "2025-10-31T04:51:22.736644Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "metadata": {
+    "ready_for_audio": true,
+    "sheet_flag": "",
+    "sheet_progress_cell": "timeline_copy: completed (13/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 30,
+    "sheet_title": "【才能の呪い】なぜ神童は大人になると、ただの人になるのか―才能の正しい殺し方",
+    "channel_code": "CH02",
+    "video_number": "029",
+    "script_id": "CH02-029",
+    "title": "子どもの頃「天才」と呼ばれていた同級生が、大人になると普通の人になっていく。逆に、目立たなかった人がいつの間にか周りを追い抜いている。才能は最初の輝きだけで終わるのか。才能の呪いとは何か。今日は、才能に振り回されず長く活かすための考え方と動き方を、できるだけ平らな言葉で話します。",
+    "title_sanitized": "子どもの頃「天才」と呼ばれていた同級生が、大人になると普通の人になっていく。逆に、目立たなかった人がいつの間にか周りを追い抜いている。才能は最初の輝きだけで終わるのか。才能の呪いとは何か。今日は、才能に振り回されず長く活かすための考え方と動き方を、できるだけ平らな言葉で話します。",
+    "title_updated_at": "2025-11-01T02:14:58.119225Z",
+    "assembled_characters": 7299,
+    "output_characters": 7299,
+    "chapter_characters": 7299,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "4488a0d802e0f46e978fd86f3b135d2b3d931104435ed20b523399e95f88ef73",
+      "updated_at": "2025-11-01T04:28:43.574281Z"
+    },
+    "channel_display_name": "企画",
+    "audio": {
+      "synthesis": {
+        "engine": "voicevox",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.srt",
+        "updated_at": "2025-12-02T03:59:38Z"
+      }
+    },
+    "assembled_path": "script_pipeline/data/CH02/029/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/029/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/029/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【才能の呪い】なぜ神童は大人になると、ただの人になるのか―才能の正しい殺し方 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n子どもの頃「天才」と呼ばれていた同級生が、大人になると普通の人になっていく。逆に、目立たなかった人がいつの間にか周りを追い抜いている。才能は最初の輝きだけで終わるのか。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH02",
+  "video_number": "029"
+}

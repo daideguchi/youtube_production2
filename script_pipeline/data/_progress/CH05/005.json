@@ -1,0 +1,76 @@
+{
+  "script_id": "CH05-005",
+  "channel": "CH05",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.328495Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.328832Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.328870Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.329158Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.329272Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.329304Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.329413Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:46:22.329838Z"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:18:13.793800Z"
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "updated_at": "2025-11-13T11:48:17.741547Z"
+    },
+    "srt_generation": {
+      "status": "pending",
+      "updated_at": "2025-11-13T10:29:32.991761Z"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "updated_at": "2025-11-13T10:29:32.992033Z"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.292954Z",
+  "updated_at": "2025-11-14T09:06:11.257477Z",
+  "metadata": {
+    "title": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
+    "title_sanitized": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
+    "title_updated_at": "2025-10-27T01:03:03.821568Z",
+    "assembled_characters": 12556,
+    "output_characters": 13015,
+    "chapter_characters": 12556,
+    "audio": {},
+    "ready_for_audio": true,
+    "ready_for_audio_at": "2025-11-13T10:29:32.992041Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "🕗 audio_synthesis: pending",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 6,
+    "sheet_title": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。"
+  },
+  "channel_code": "CH05",
+  "video_number": "005"
+}

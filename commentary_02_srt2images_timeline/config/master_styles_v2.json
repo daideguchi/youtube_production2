@@ -1,0 +1,61 @@
+{
+  "styles": {
+    "jinsei_standard_v2": {
+      "name": "Jinsei Standard V2",
+      "description": "Standard style for Jinsei no Michishirube. Validated against manual edit v191_3.",
+      "canvas_width": 1920,
+      "canvas_height": 1080,
+      "subtitle_style": {
+        "font_family": "System",
+        "font_size_pt": 50.0,
+        "text_color": "#FFFFFF",
+        "stroke_enabled": true,
+        "stroke_color": "#000000",
+        "stroke_width_pt": 2.0,
+        "background_enabled": true,
+        "background_color": "#000000",
+        "background_opacity": 1.0,
+        "background_round_radius_ratio": 0.4,
+        "position_x": 0.0,
+        "position_y": 0.8,
+        "alignment": "center"
+      },
+      "belt_style": {
+        "font_family": "System",
+        "font_size_pt": 40.0,
+        "text_color": "#FFFFFF",
+        "background_enabled": true,
+        "background_color": "#000000",
+        "background_opacity": 1.0,
+        "position_x": -0.8,
+        "position_y": -0.8,
+        "alignment": "left"
+      },
+      "audio": {
+        "bgm_volume": 0.3,
+        "voice_volume": 1.0,
+        "bgm_ducking_enabled": false
+      },
+      "structure": {
+        "opening_duration_sec": 3.0,
+        "ending_duration_sec": 5.0
+      },
+      "platform_overrides": {
+        "capcut": {
+          "subtitle": {
+            "font_scale_factor": 0.1,
+            "background": {
+              "width": 0.28,
+              "height": 0.28,
+              "horizontal_offset": -1.0,
+              "vertical_offset": -1.0
+            }
+          },
+          "belt": {
+             "position_logic": "belt_position_calculator"
+          }
+        }
+      }
+    }
+  }
+}

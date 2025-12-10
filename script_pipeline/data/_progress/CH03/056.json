@@ -1,0 +1,66 @@
+{
+  "script_id": "CH03-056",
+  "channel": "CH03",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:55:37.646987Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:58:17.158420Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T09:01:36.361334Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:11.282299Z"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-11-12T08:53:37.921426Z",
+  "updated_at": "2025-11-14T08:16:11.211537Z",
+  "metadata": {
+    "channel_code": "CH03",
+    "video_number": "056",
+    "script_id": "CH03-056",
+    "channel_display_name": "企画",
+    "ready_for_audio": false,
+    "sheet_flag": "1",
+    "sheet_progress_cell": "✅ script_outline: completed",
+    "sheet_quality_cell": "文字数チェック: error - 文字数チェックエラー: main() takes 0 positional arguments but 1 was given; 改行チェック: error - assembled.md not found: content/final/assembled.md; Kimiレビュー: error - assembled.md not found: content/final/assembled.md",
+    "sheet_row_number": 56,
+    "sheet_title": "【逆流性食道炎】胸やけ・ゲップ・喉の違和感…シニアに急増中の胃酸トラブル"
+  },
+  "channel_code": "CH03",
+  "video_number": "056"
+}

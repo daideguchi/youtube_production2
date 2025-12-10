@@ -1,0 +1,106 @@
+{
+  "script_id": "CH03-022",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.803241Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.803422Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.803508Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.804055Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.804347Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:37.804414Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:09:11.584599Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "d21599980efc5081f2e97b18472d52f71575632058b7c0a2d12de11cef240d76",
+      "updated_at": "2025-10-27T13:11:13.805285Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:11:13.999418Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:50.798364Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/022/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/022/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.249240Z",
+  "updated_at": "2025-11-14T08:16:07.474214Z",
+  "metadata": {
+    "title": "60歳からの片付けで人生を軽やかに",
+    "title_sanitized": "60歳からの片付けで人生を軽やかに",
+    "title_updated_at": "2025-10-27T13:09:11.584599Z",
+    "chapter_characters": 8071,
+    "assembled_characters": 8071,
+    "output_characters": 8175,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "d21599980efc5081f2e97b18472d52f71575632058b7c0a2d12de11cef240d76",
+      "updated_at": "2025-10-27T13:11:13.805234Z"
+    },
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:50Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/022_20251113T120850Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/022_20251113T120850Z.failed.log"
+        }
+      ]
+    },
+    "ready_for_audio": false,
+    "audio_failed_at": "2025-11-13T12:08:50Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/022/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/022/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 23,
+    "sheet_title": "60歳からの片付けで人生を軽やかに"
+  },
+  "channel_code": "CH03",
+  "video_number": "022"
+}

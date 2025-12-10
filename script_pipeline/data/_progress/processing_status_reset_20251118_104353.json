@@ -1,0 +1,227 @@
+{
+  "script_id": "CH06-005",
+  "channel": "CH06",
+  "status": "pending",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending",
+      "prompt_hash": "5e00f37dc01dffa9b8a203f49412966a1697ee714e812e0e15bf015e4c85de30",
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "engine": "voicevox",
+      "voice_key": "voicevox_aoyama",
+      "voice_character": "青山龍星",
+      "voice_style": "ノーマル",
+      "chunk_count": "1",
+      "artefact_voicevox_chunks": "data/CH06/005/audio_prep/voicevox_chunks",
+      "engine_url": "http://127.0.0.1:50021",
+      "final_wav": "audio_tts_v2/artifacts/final/CH06/CH06-005.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH06/CH06-005.srt",
+      "dry_run": false,
+      "silence_plan": "[0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.0]",
+      "pause_map": "[]",
+      "sanitized_script": "data/CH06/005/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH06/005/audio_prep/script_sanitized.txt"
+    },
+    "srt_generation": {
+      "status": "pending",
+      "audio_duration": "360.829",
+      "srt_duration": "360.829",
+      "delta_ms": "0.3",
+      "blocks": "52"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "delivery_path": "delivery/CH06/CH06-005"
+    },
+    "image_generation": {
+      "status": "pending"
+    },
+    "script_audio_ai": {
+      "status": "pending",
+      "prompt_hash": "6c3bfb89478de77f62ec8cc86ec86e1f52b4a46f"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.228883Z",
+  "updated_at": "2025-11-18T01:38:52.673140Z",
+  "metadata": {
+    "title": "【古代核戦争の痕跡】20億年前に地球に存在した超文明…オクロの天然原子炉が示す恐るべき真実【都市伝説のダーク図書館】",
+    "title_sanitized": "【古代核戦争の痕跡】20億年前に地球に存在した超文明…オクロの天然原子炉が示す恐るべき真実【都市伝説のダーク図書館】",
+    "title_updated_at": "2025-11-03T06:46:59.993579Z",
+    "channel_code": "CH06",
+    "video_number": "005",
+    "script_id": "CH06-005",
+    "channel_display_name": "都市伝説・闇_都市伝説のダーク図書館",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "5e00f37dc01dffa9b8a203f49412966a1697ee714e812e0e15bf015e4c85de30",
+      "updated_at": "2025-11-03T06:51:54.121887Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH06/005/audio_prep/script_sanitized.txt",
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "chunk_count": 1,
+        "updated_at": "2025-11-15T11:11:03Z"
+      },
+      "history": [
+        {
+          "event": "completed",
+          "timestamp": "2025-11-11T00:51:15Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": "audio_tts_v2/artifacts/final/CH06/CH06-005.wav",
+          "final_srt": "audio_tts_v2/artifacts/final/CH06/CH06-005.srt",
+          "log_json": "logs/audio_synthesis/CH06/005_20251111T005115Z.completed.json",
+          "log_text": "logs/audio_synthesis/CH06/005_20251111T005115Z.completed.log"
+        },
+        {
+          "event": "completed",
+          "timestamp": "2025-11-15T11:11:03Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": "audio_tts_v2/artifacts/final/CH06/CH06-005.wav",
+          "final_srt": "audio_tts_v2/artifacts/final/CH06/CH06-005.srt",
+          "log_json": "logs/audio_synthesis/CH06/005_20251115T111103Z.completed.json",
+          "log_text": "logs/audio_synthesis/CH06/005_20251115T111103Z.completed.log"
+        },
+        {
+          "event": "srt_verified",
+          "timestamp": "2025-11-15T11:11:03Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH06/005_20251115T111103Z.srt_verified.json",
+          "log_text": "logs/audio_synthesis/CH06/005_20251115T111103Z.srt_verified.log"
+        }
+      ],
+      "synthesis": {
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "final_wav": "audio_tts_v2/artifacts/final/CH06/CH06-005.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH06/CH06-005.srt",
+        "artefacts": {
+          "sanitized": "data/CH06/005/audio_prep/script_sanitized.txt",
+          "voicevox_chunks": "data/CH06/005/audio_prep/voicevox_chunks"
+        },
+        "updated_at": "2025-11-15T11:11:03Z",
+        "chunk_count": 1,
+        "silence_plan": [
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.45,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.35,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.35,
+          0.44999999999999996,
+          0.44999999999999996,
+          0.45,
+          0.44999999999999996,
+          0.0
+        ],
+        "log": {
+          "json": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH06/005_20251115T111103Z.completed.json",
+          "log": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH06/005_20251115T111103Z.completed.log"
+        }
+      },
+      "verify": {
+        "status": "completed",
+        "updated_at": "2025-11-15T11:11:03Z",
+        "tolerance_ms": 50,
+        "audio_duration_sec": 360.829,
+        "srt_duration_sec": 360.829,
+        "delta_ms": 0.3
+      }
+    },
+    "audio_processing_started_at": "2025-10-24T09:23:03Z",
+    "audio_completed_at": "2025-11-15T11:11:03Z",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_flag": "0",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 6,
+    "sheet_title": "【古代核戦争の痕跡】20億年前に地球に存在した超文明…オクロの天然原子炉が示す恐るべき真実【都市伝説のダーク図書館】",
+    "assembled_characters": 8000,
+    "output_characters": 8598,
+    "chapter_characters": 5931
+  },
+  "channel_code": "CH06",
+  "video_number": "005"
+}

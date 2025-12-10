@@ -1,0 +1,4 @@
+inference_logic: v2_full
+model: gpt-4o
+synced_at: 2025-12-07T11:33:24.537942
+status: approved_by_sync_tool

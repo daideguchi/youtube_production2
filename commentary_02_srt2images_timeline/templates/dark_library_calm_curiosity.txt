@@ -1,0 +1,19 @@
+You are generating a single 16:9 illustration for CH06 「都市伝説のダーク図書館」.
+Scene: {summary}
+
+Visual direction:
+- Mood: quiet, mysterious, curiosity-inducing yet calming. Urban-legend library with subtle magic.
+- Color: warm golden light accents (lamps, floating motes) × deep indigo/blue-gray stacks and stone. Low saturation, soft contrast.
+- Light/air: soft bloom/halo, thin mist, floating dust/particles. Edges are soft; avoid harsh blacks.
+- Touch: watercolor + light oil glaze; thin/broken ink lines; washi-like grain; gentle gradients.
+- Composition: clear focal object or space (aisle, desk, glowing book). Negative space to keep it serene. Metaphorical motifs welcome.
+
+People policy:
+- Default: minimal or no humans. If the script requires a narrator/guide, use a single consistent Japanese/Asian face/attire across frames. Otherwise avoid people.
+- No extra characters, no crowding.
+
+Hard constraints:
+- No text, signs, UI, logos. No photorealism. No anime exaggeration. No horror gore.
+
+Style hints: {style}
+Resolution: {size}

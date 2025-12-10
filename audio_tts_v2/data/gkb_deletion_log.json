@@ -1,0 +1,22 @@
+{
+  "deletions": [
+    {
+      "word": "バー",
+      "reading": "バー",
+      "reason": "manual_cleanup_by_agent",
+      "timestamp": 1765180558.743192
+    },
+    {
+      "word": "遺影",
+      "reading": "イエイ",
+      "reason": "manual_cleanup_by_agent",
+      "timestamp": 1765180558.7432058
+    },
+    {
+      "word": "永遠",
+      "reading": "エイエン",
+      "reason": "manual_cleanup_by_agent",
+      "timestamp": 1765180558.743208
+    }
+  ]
+}

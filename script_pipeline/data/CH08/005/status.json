@@ -1,0 +1,73 @@
+{
+  "script_id": "CH08-005",
+  "channel": "CH08",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-10T09:06:53.398480Z",
+  "metadata": {
+    "title": "真夜中、スマホを伏せても頭の中で言葉がざわつく。ニュースの断片、誰かの声、自分へのツッコミ。静かにしたいのに止まらない。そんな夜は「夜の図書館」を開き、聞くだけの哲学で頭の騒がしさを鎮めましょう。テーマは「【夜の図書館】聞くだけ哲学で頭の騒がしさを鎮める」。読むより「聞く」、考えすぎず「味わう」。好奇心を残したまま、眠りを邪魔しない静かな遊びとして進めます。",
+    "title_sanitized": "真夜中、スマホを伏せても頭の中で言葉がざわつく。ニュースの断片、誰かの声、自分へのツッコミ。静かにしたいのに止まらない。そんな夜は「夜の図書館」を開き、聞くだけの哲学で頭の騒がしさを鎮めましょう。テーマは「【夜の図書館】聞くだけ哲学で頭の騒がしさを鎮める」。読むより「聞く」、考えすぎず「味わう」。好奇心を残したまま、眠りを邪魔しない静かな遊びとして進めます。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH08",
+    "channel_display_name": "CH08",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【夜の図書館】聞くだけ哲学で頭の騒がしさを鎮める",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/005/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/005/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/005/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【夜の図書館】聞くだけ哲学で頭の騒がしさを鎮める を“悪用厳禁”の視点で安全に扱う方法を解説します。\n真夜中、スマートフォンの画面を消しても、指先に残る光の余韻がまぶたの裏に浮かんで眠れない。そんな夜は、頭の中に静かな書庫を作り、そこに降りていくイメージから始めましょう。階段を一段ずつ降りるたび、靴音が石に吸い込まれていき、心拍がゆっくり落ちていく。\n⚠️ 注意：無理をせず、体調や人間関係を優先して試してください。\n#スピリチュアル #波動 #自己浄化",
+    "audio_reviewed": true
+  },
+  "channel_code": "CH08",
+  "video_number": "005"
+}

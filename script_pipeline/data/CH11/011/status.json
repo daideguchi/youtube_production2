@@ -1,0 +1,67 @@
+{
+  "script_id": "CH01-011",
+  "channel": "CH01",
+  "status": "script_in_progress",
+  "stages": {
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:19.551378Z"
+    },
+    "quality_check": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T13:30:49.364947Z",
+  "updated_at": "2025-12-01T03:56:04.408476Z",
+  "metadata": {
+    "ready_for_audio": false,
+    "audio": {},
+    "sheet_flag": "",
+    "sheet_progress_cell": "glm4_5_research: pending",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 12,
+    "sheet_title": "【怒りを消す技術】腹が立ったとき、人生が好転するブッダの「考えない」習慣",
+    "assembled_path": "script_pipeline/data/CH01/011/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH01/011/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH01/011/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 4847,
+    "title": "# 【心を整えて人生うまくいく】怒りをやさしく手放し、静かな強さを育てるブッダの習慣",
+    "title_sanitized": "# 【心を整えて人生うまくいく】怒りをやさしく手放し、静かな強さを育てるブッダの習慣",
+    "youtube_description": "この動画では「【怒りを消す技術】腹が立ったとき、人生が好転するブッダの「考えない」習慣」を仏教の視点でやさしく解き明かします。\n一言で心が燃えることがあります。横入りされた、理不尽に叱られた、家族にきつく当たられた。怒りは瞬時に湧き、体は熱くなり、頭は真っ白になる。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "011"
+}

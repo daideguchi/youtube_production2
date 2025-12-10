@@ -1,0 +1,72 @@
+{
+  "script_id": "CH10-021",
+  "channel": "CH10",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-04T07:31:41Z",
+  "updated_at": "2025-12-04T23:56:08.272258Z",
+  "metadata": {
+    "title": "眠れない夜、心の中で三つの自分が話し続ける。理性の自分は明日の段取りを並べ、怒りや誇りの自分は今日の言葉に噛みつき、欲の自分は布団を蹴飛ばそうとする。プラトンは「魂には三つの部分があり、それらが調和すると強くなる」と書いた。アテナイの夜、彼は月光の下で議論を聴き、影と炎と洞窟を思い描きながら、静かに歩いた。今夜は、三つの自分と仲直りして眠るための、小さな儀式を置こう。",
+    "title_sanitized": "眠れない夜、心の中で三つの自分が話し続ける。理性の自分は明日の段取りを並べ、怒りや誇りの自分は今日の言葉に噛みつき、欲の自分は布団を蹴飛ばそうとする。プラトンは「魂には三つの部分があり、それらが調和すると強くなる」と書いた。アテナイの夜、彼は月光の下で議論を聴き、影と炎と洞窟を思い描きながら、静かに歩いた。今夜は、三つの自分と仲直りして眠るための、小さな儀式を置こう。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 6015,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH10",
+    "channel_display_name": "深夜の偉人ラジオ",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【プラトン流】心の中に住む三つの自分と仲直りする方法",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-04T23:56:08.272258Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/021/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/021/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/021/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【プラトン流】心の中に住む三つの自分と仲直りする方法 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n眠れない夜、心の中で三つの自分が話し続ける。理性の自分は明日の段取りを並べ、怒りや誇りの自分は今日の言葉に噛みつき、欲の自分は布団を蹴飛ばそうとする。プラトンは「魂には三つの部分があり、それらが調和すると強くなる」と書いた。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH10",
+  "video_number": "021"
+}

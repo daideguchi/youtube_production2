@@ -1,0 +1,66 @@
+{
+  "script_id": "CH02-031",
+  "channel": "CH02",
+  "status": "script_completed",
+  "metadata": {
+    "title": "朝のキッチンで、ケトルの音が鳴っても体が動きません。出社はできるし、締め切りも守れるのに、何も感じない。静かに心がすり減る感覚だけが残ります。派手な爆発も涙もないまま、内側だけが崩れていく。これが静かな燃え尽きです。",
+    "title_sanitized": "朝のキッチンで、ケトルの音が鳴っても体が動きません。出社はできるし、締め切りも守れるのに、何も感じない。静かに心がすり減る感覚だけが残ります。派手な爆発も涙もないまま、内側だけが崩れていく。これが静かな燃え尽きです。",
+    "assembled_path": "script_pipeline/data/CH02/031/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/031/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/031/audio_prep/script_sanitized_with_pauses.txt",
+    "audio": {
+      "synthesis": {
+        "engine": "voicevox",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.srt",
+        "updated_at": "2025-12-02T03:59:38Z"
+      }
+    },
+    "ready_for_audio": true,
+    "assembled_characters": 7995,
+    "youtube_description": "朝のキッチンで、ケトルの音が鳴っても体が動きません。出社はできるし、締め切りも守れるのに、何も感じない。静かに心がすり減る感覚だけが残ります。派手な爆発も涙もないまま、内側だけが崩れていく。これが静かな燃え尽きです。 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n朝のキッチンで、ケトルの音が鳴っても体が動きません。出社はできるし、締め切りも守れるのに、何も感じない。静かに心がすり減る感覚だけが残ります。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-11-28T05:55:00Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-28T05:55:00Z"
+    },
+    "script_draft": {
+      "status": "processing",
+      "updated_at": "2025-11-28T06:00:00Z"
+    },
+    "script_enhancement": {},
+    "script_review": {},
+    "quality_check": {},
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-12-04T03:02:13Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-12-04T03:02:13Z"
+    },
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z",
+      "engine": "voicevox",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.srt"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z"
+    },
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-11-28T05:50:00Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "channel_code": "CH02",
+  "video_number": "031"
+}

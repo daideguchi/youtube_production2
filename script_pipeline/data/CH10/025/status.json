@@ -1,0 +1,72 @@
+{
+  "script_id": "CH10-025",
+  "channel": "CH10",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-04T07:31:41Z",
+  "updated_at": "2025-12-05T00:13:00.893398Z",
+  "metadata": {
+    "title": "眠れない夜、心のざわめきが止まらない。カントは「星空と道徳法則」を見上げながら、理性の静けさを愛した。彼のルーティンは同じ時間の散歩、同じ机、同じランプ。繰り返しの中に安心を作り、揺れない自分を保った。今夜は、カントの静けさを借りて、揺れを少しだけ収める儀式を置こう。",
+    "title_sanitized": "眠れない夜、心のざわめきが止まらない。カントは「星空と道徳法則」を見上げながら、理性の静けさを愛した。彼のルーティンは同じ時間の散歩、同じ机、同じランプ。繰り返しの中に安心を作り、揺れない自分を保った。今夜は、カントの静けさを借りて、揺れを少しだけ収める儀式を置こう。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 5986,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH10",
+    "channel_display_name": "深夜の偉人ラジオ",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【カント流】揺れない自分をつくる夜の静かな習慣",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-05T00:13:00.893398Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/025/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/025/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/025/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【カント流】揺れない自分をつくる夜の静かな習慣 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n眠れない夜、心のざわめきが止まらない。カントは「星空と道徳法則」を見上げながら、理性の静けさを愛した。彼のルーティンは同じ時間の散歩、同じ机、同じランプ。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH10",
+  "video_number": "025"
+}

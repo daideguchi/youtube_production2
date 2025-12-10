@@ -1,0 +1,58 @@
+{
+  "engine_default": "voicevox",
+  "channel_override": {
+    "CH01": "voicepeak",
+    "CH02": "voicevox",
+    "CH03": "voicepeak",
+    "CH04": "voicevox",
+    "CH05": "voicevox",
+    "CH06": "voicevox",
+    "CH07": "voicevox",
+    "CH08": "voicevox",
+    "CH09": "voicevox",
+    "CH10": "voicevox",
+    "CH11": "voicevox"
+  },
+  "script_override": {
+    "CH06-033": "voicevox"
+  },
+  "voicevox": {
+    "url": "http://127.0.0.1:50021",
+    "speaker_env": "AOYAMA_SPEAKER_ID",
+    "fallback_speaker_id": null,
+    "character": "青山流星",
+    "channel_speaker_env": {
+      "CH05": "NAMINE_SPEAKER_ID"
+    }
+  },
+  "voicepeak": {
+    "binary_path": "/Applications/voicepeak.app/Contents/MacOS/voicepeak",
+    "default_narrator": "Japanese Male 3",
+    "default_speed": 100,
+    "default_pitch": 0,
+    "default_emotion": "",
+    "reading_source": "mecab",
+    "channel_narrator": {
+      "CH01": "Japanese Male 3",
+      "CH03": "Japanese Female 1"
+    }
+  },
+  "elevenlabs": {
+    "api_key_env": "ELEVENLABS_API_KEY",
+    "voice_id": "4lOQ7A2l7HPuG7UIHiKA",
+    "voice_id_env": "ELEVEN_VOICE_ID",
+    "model_id": "eleven_v3",
+    "model_id_env": "ELEVEN_MODEL_ID",
+    "channel_voice_id": {
+      "CH04": "Mv8AjrYZCBkdsmDHNwcB"
+    },
+    "voice_alias": {
+      "4lOQ7A2l7HPuG7UIHiKA": "Kyoko",
+      "Mv8AjrYZCBkdsmDHNwcB": "Ishibashi",
+      "j210dv0vWm7fCknyQpbA": "Hinata"
+    }
+  },
+  "llm": {
+    "model": "tts_primary"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "script_id": "CH09-015",
+  "channel": "CH09",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T09:15:29.265814",
+  "metadata": {
+    "title": "「器が違う人」と一緒にいると、自分の判断が静かになります。焦って決めず、長い目で物事を見られるようになり、余計な摩耗が減ります。逆に、器の小さな人といると、短期的な感情に巻き込まれ、決断が雑になっていきます。今日は「器が違う人の七つの力」を軸に、朝・昼・夜で基準を思い出し、迷ったら戻れる流れを作ります。終わるころには、誰と時間を深く使うかを静かに選べるようになり、自分自身もその器に近づいているはずです。",
+    "title_sanitized": "「器が違う人」と一緒にいると、自分の判断が静かになります。焦って決めず、長い目で物事を見られるようになり、余計な摩耗が減ります。逆に、器の小さな人といると、短期的な感情に巻き込まれ、決断が雑になっていきます。今日は「器が違う人の七つの力」を軸に、朝・昼・夜で基準を思い出し、迷ったら戻れる流れを作ります。終わるころには、誰と時間を深く使うかを静かに選べるようになり、自分自身もその器に近づいているはずです。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH09",
+    "channel_display_name": "CH09",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【情報の洪水を止める】入力制限の決断",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/015/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/015/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/015/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【情報の洪水を止める】入力制限の決断 を“危険人物/言ってはいけない言葉”の視点で整理し、線引きのチェックリストを提供。\n「器が違う人」と一緒にいると、自分の判断が静かになります。焦って決めず、長い目で物事を見られるようになり、余計な摩耗が減ります。逆に、器の小さな人といると、短期的な感情に巻き込まれ、決断が雑になっていきます。\n🧭 今日からできる一歩：言わないリストを作る / 距離を置くサインを1つ決める\n#人間関係 #自己防衛 #線引き"
+  },
+  "channel_code": "CH09",
+  "video_number": "015"
+}

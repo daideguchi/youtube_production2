@@ -1,0 +1,2946 @@
+{
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31070,
+    "hash": "a4789f713060997e34f928f7a46ae235643d8c5d",
+    "src": "audio_tts_v2/artifacts/final/CH02/015/CH02-015.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-001.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 27425,
+    "hash": "fab5848a398c9a4309c339c6d5054e3f439ea7d2",
+    "src": "audio_tts_v2/artifacts/final/CH02/001/CH02-001.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-029.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-029.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31283,
+    "hash": "b4c892fdf2a151300c2108f2318903b9162307df",
+    "src": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-028.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-028.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 30218,
+    "hash": "96df5a76f7295b39cb76f111f2d4c2752e18d924",
+    "src": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-014.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-014.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32969,
+    "hash": "8a1cfe61b8e93f9a2b6ebdb31f26b2930daeff78",
+    "src": "audio_tts_v2/artifacts/final/CH02/014/CH02-014.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-002.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-002.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 21359,
+    "hash": "0d6e41278b636b583a5c7205b7f13aa765c6055b",
+    "src": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-016.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-016.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 27758,
+    "hash": "2727c55ef0dc02286d7fa10192b77d62bdbba7b3",
+    "src": "audio_tts_v2/artifacts/final/CH02/016/CH02-016.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-017.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-017.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32387,
+    "hash": "375b3de678fcd96d7a3bcaa49fb76e3999122e86",
+    "src": "audio_tts_v2/artifacts/final/CH02/017/CH02-017.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-003.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-003.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32674,
+    "hash": "f8eefed386db32e9d4aeb0468732c20cb3e90049",
+    "src": "audio_tts_v2/artifacts/final/CH02/003/CH02-003.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-007.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-007.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33983,
+    "hash": "bb3477ec312a8f1339d7947763f0ba5623a4bcba",
+    "src": "audio_tts_v2/artifacts/final/CH02/007/CH02-007.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-012.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-012.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33656,
+    "hash": "0854ce0c9a46ec44259cf6366c3d7b5cf73bcd52",
+    "src": "audio_tts_v2/artifacts/final/CH02/012/CH02-012.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-010.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-010.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32903,
+    "hash": "a9574f792785db203d784804878bb1cd61fb425f",
+    "src": "audio_tts_v2/artifacts/final/CH02/010/CH02-010.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-004.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-004.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33002,
+    "hash": "b347656060b03e28951bf93a1e80a7e5e445db6c",
+    "src": "audio_tts_v2/artifacts/final/CH02/004/CH02-004.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-005.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-005.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32342,
+    "hash": "008ba247075ef14254445fb8f5e34ac690f0cdac",
+    "src": "audio_tts_v2/artifacts/final/CH02/005/CH02-005.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-011.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-011.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32135,
+    "hash": "9b7a391b37a16add334a25e0063bc5df159261e9",
+    "src": "audio_tts_v2/artifacts/final/CH02/011/CH02-011.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-014.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-014.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 64519276,
+    "hash": "769977d1a0226c117c643b8510dab62deadf8679",
+    "src": "audio_tts_v2/artifacts/final/CH02/014/CH02-014.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-028.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-028.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54465196,
+    "hash": "6a2f23d5513973f2b7986dca74825414ac68d19d",
+    "src": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-029.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-029.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 57943468,
+    "hash": "88dda27e6160762be66493507dccaa9a7fd607eb",
+    "src": "audio_tts_v2/artifacts/final/CH02/029/CH02-029.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-001.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 55311596,
+    "hash": "fa9506b6c5eeeef5499f1ea16919a26e4729bafa",
+    "src": "audio_tts_v2/artifacts/final/CH02/001/CH02-001.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 61650988,
+    "hash": "587083734e42922a398d9ae9f18e7fee2a474697",
+    "src": "audio_tts_v2/artifacts/final/CH02/015/CH02-015.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-003.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-003.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 66960812,
+    "hash": "d89db614355b6d6119afc10234d36439bd6f74af",
+    "src": "audio_tts_v2/artifacts/final/CH02/003/CH02-003.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-017.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-017.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 65642220,
+    "hash": "55d4f674906eae5b4d9eb3b685137f4f9ab107c1",
+    "src": "audio_tts_v2/artifacts/final/CH02/017/CH02-017.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-016.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-016.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 56287468,
+    "hash": "aaacdf08bc7f436e5b5f4c1f1ca728865df162c4",
+    "src": "audio_tts_v2/artifacts/final/CH02/016/CH02-016.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-002.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-002.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 41430828,
+    "hash": "9f8222dcf9055b97165ed8def4849612adb16892",
+    "src": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-012.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-012.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 64845740,
+    "hash": "5dc92a01830877a8234c19cd3abff0cae3e31a1f",
+    "src": "audio_tts_v2/artifacts/final/CH02/012/CH02-012.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-007.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-007.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 68662956,
+    "hash": "de63d67fc53dfa4f7b88c36f7c1b251e498b7ef8",
+    "src": "audio_tts_v2/artifacts/final/CH02/007/CH02-007.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-011.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-011.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 64240492,
+    "hash": "4c3691038fe140b730a4794d3791597cf9133333",
+    "src": "audio_tts_v2/artifacts/final/CH02/011/CH02-011.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-005.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-005.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 67744940,
+    "hash": "093a826fc3693ad794e884292afc003866e17647",
+    "src": "audio_tts_v2/artifacts/final/CH02/005/CH02-005.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-004.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-004.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 68028204,
+    "hash": "b7ea5ad8e05aaac1b132d241d0a31ac258898957",
+    "src": "audio_tts_v2/artifacts/final/CH02/004/CH02-004.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-010.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-010.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 68028652,
+    "hash": "a2597bc9d6bda3ea2bc8bc3973f4f96519b434a0",
+    "src": "audio_tts_v2/artifacts/final/CH02/010/CH02-010.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-021.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-021.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54112108,
+    "hash": "800645572136edcbee751b2aeae7a4bad80ea64c",
+    "src": "audio_tts_v2/artifacts/final/CH02/021/CH02-021.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-008.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-008.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 64553452,
+    "hash": "4781435019cdbecad3bd846cc78d11f73496adc9",
+    "src": "audio_tts_v2/artifacts/final/CH02/008/CH02-008.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-020.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-020.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54852396,
+    "hash": "e31c77ed05ffb6ecdf1feb35fce3941fcdc9813a",
+    "src": "audio_tts_v2/artifacts/final/CH02/020/CH02-020.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-022.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-022.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 58609260,
+    "hash": "ed6b7c48f95fce94450d80a325fb728f4887bd48",
+    "src": "audio_tts_v2/artifacts/final/CH02/022/CH02-022.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-023.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-023.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 56480620,
+    "hash": "fb02f5d874b0ab825e125cece4bf16701c415a82",
+    "src": "audio_tts_v2/artifacts/final/CH02/023/CH02-023.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 59642924,
+    "hash": "b7adccb7fa96677ad6a69325cd45f38f80c2f2c2",
+    "src": "audio_tts_v2/artifacts/final/CH02/027/CH02-027.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-033.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-033.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 60228332,
+    "hash": "0f702da4044f19d03c69dd58d0acc4a6b1c5499a",
+    "src": "audio_tts_v2/artifacts/final/CH02/033/CH02-033.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-032.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-032.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 60897068,
+    "hash": "8c4e56786c3eabaf0c843b9abf1edd117c470585",
+    "src": "audio_tts_v2/artifacts/final/CH02/032/CH02-032.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54651820,
+    "hash": "86d23138c43d0ec43846f5e675b021d1bdad9ab4",
+    "src": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-018.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-018.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 61964140,
+    "hash": "a42ec0fdf41cbf1262d14b50f9acbb03f1669996",
+    "src": "audio_tts_v2/artifacts/final/CH02/018/CH02-018.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-030.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-030.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 55873068,
+    "hash": "8baf9f48a3d13cbbf4b7c0d4c8597cbdd56feec9",
+    "src": "audio_tts_v2/artifacts/final/CH02/030/CH02-030.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-024.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-024.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54594604,
+    "hash": "27df6280db64987dcdd7ef5929abc5dd50160495",
+    "src": "audio_tts_v2/artifacts/final/CH02/024/CH02-024.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 53890924,
+    "hash": "4ec213b313ffd4c10a5fe1d99d06200aa57683e6",
+    "src": "audio_tts_v2/artifacts/final/CH02/025/CH02-025.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-031.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-031.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 63705260,
+    "hash": "58fdd1de5f50bbf85cb3c9f60da4c5e1dd7709b3",
+    "src": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-019.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-019.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 55994028,
+    "hash": "b8cdd3241e0b7d39feda8dcabfa405f7a0b1dde7",
+    "src": "audio_tts_v2/artifacts/final/CH02/019/CH02-019.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-020.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-020.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 26947,
+    "hash": "c447465795c088c1c9da99c9cdaaaf402a5a6cee",
+    "src": "audio_tts_v2/artifacts/final/CH02/020/CH02-020.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-008.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-008.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31465,
+    "hash": "8b29bd1bf41416029bde272903590299854cd202",
+    "src": "audio_tts_v2/artifacts/final/CH02/008/CH02-008.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-021.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-021.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 26366,
+    "hash": "dcbce5e908103b22261c287f3253235d76971a05",
+    "src": "audio_tts_v2/artifacts/final/CH02/021/CH02-021.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-023.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-023.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 27095,
+    "hash": "de1943287bbf98f401c32b9a98969cfddeb0a5c7",
+    "src": "audio_tts_v2/artifacts/final/CH02/023/CH02-023.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-022.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-022.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 28592,
+    "hash": "3cc986a4d15d3604c06b8b1b5b22baa220151fc2",
+    "src": "audio_tts_v2/artifacts/final/CH02/022/CH02-022.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 27059,
+    "hash": "1ce77371b176ec91c4b102e52169ce56f4dbd913",
+    "src": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-032.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-032.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33626,
+    "hash": "b15aeb41e81f7c7ff05cf2f953faad5dde7c2f23",
+    "src": "audio_tts_v2/artifacts/final/CH02/032/CH02-032.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-033.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-033.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33419,
+    "hash": "e53a6ad9e6e8d631fd932235f4c3e41720437be8",
+    "src": "audio_tts_v2/artifacts/final/CH02/033/CH02-033.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 30599,
+    "hash": "2f978bf5fb49eadd1f61d03721ff20fbacb11d22",
+    "src": "audio_tts_v2/artifacts/final/CH02/027/CH02-027.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-019.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-019.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 27464,
+    "hash": "e6cf58581e7e2b02c826fd8995e576a0c8fbd703",
+    "src": "audio_tts_v2/artifacts/final/CH02/019/CH02-019.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-031.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-031.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 34741,
+    "hash": "d0a4929e7bb3386674a11a6fb0d7fc17c91ad3a7",
+    "src": "audio_tts_v2/artifacts/final/CH02/031/CH02-031.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 26487,
+    "hash": "d821cba75a48dc6ce4c8d1de069ca4b38b4d95f6",
+    "src": "audio_tts_v2/artifacts/final/CH02/025/CH02-025.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-024.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-024.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 26655,
+    "hash": "8a6e037d1c46602f113569b0aaed84095029040e",
+    "src": "audio_tts_v2/artifacts/final/CH02/024/CH02-024.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-030.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-030.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 30650,
+    "hash": "e205393da13516d517b4718ff3dd1862d0c88e58",
+    "src": "audio_tts_v2/artifacts/final/CH02/030/CH02-030.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-018.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-018.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 30806,
+    "hash": "0b3c7421dd5f7046d313062ec43680eaa943a070",
+    "src": "audio_tts_v2/artifacts/final/CH02/018/CH02-018.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/195.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/195.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 76162920,
+    "hash": "ea7cc625a3e21abb673d9561e0f848164034796e"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/194.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/194.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54345576,
+    "hash": "938388a5e8482cd82e530b6bce06324a5f4f0fd2"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/193.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/193.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 73718888,
+    "hash": "9852bfc986bd64cf3d838a7a17ca880a50d2ebea"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/192.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/192.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 61859432,
+    "hash": "59f79f79ae0c0486368a6e056a4c3895c443a03e"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/194.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/194.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 15201,
+    "hash": "5677bcaf7446311be53e3e2910a95c6c10e646ce"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/195.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/195.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 20405,
+    "hash": "2587251d5207b90418f124f621a09b2fbe1d3d5a"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/192.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/192.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 19586,
+    "hash": "b7bf4309349c351877bb78218d6bafa1f11a826b"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/193.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/193.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 19854,
+    "hash": "2396de5b625f3d5a0dad7a1305394da4005bd6d0"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-001.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31072,
+    "hash": "eb07a620a96bc1269792f388f9ca542d4a7b9b8e",
+    "src": "audio_tts_v2/artifacts/final/CH04/001/CH04-001.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-001.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 56328684,
+    "hash": "7934feb5d222ed65aabdbe758f01a10e043888f2",
+    "src": "audio_tts_v2/artifacts/final/CH04/001/CH04-001.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-008.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-008.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31945,
+    "hash": "8bfb7c4da0e43a924f1014bee7e51a67d5b89c56",
+    "src": "audio_tts_v2/artifacts/final/CH06/008/CH06-008.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-008.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-008.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 67649324,
+    "hash": "8acb5988d2d94783d37e62de4387d49ec76b59e9",
+    "src": "audio_tts_v2/artifacts/final/CH06/008/CH06-008.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-001.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 72950060,
+    "hash": "037c8a4f725d5ca6e217b2c20c0eb3d2043d34c7",
+    "src": "audio_tts_v2/artifacts/final/CH06/001/CH06-001.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-002.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-002.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 63270828,
+    "hash": "445577860d882d3d20a9f404e00d81d601fda1de",
+    "src": "audio_tts_v2/artifacts/final/CH06/002/CH06-002.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-003.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-003.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 63560524,
+    "hash": "cab4fb80c0c59b61f8b63c5e02f520bb4b8ebd65",
+    "src": "audio_tts_v2/artifacts/final/CH06/003/CH06-003.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-006.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-006.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 69362412,
+    "hash": "b1de009aef88afdea2a93a85d6644e2bee5b93bd",
+    "src": "audio_tts_v2/artifacts/final/CH06/006/CH06-006.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-004.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-004.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 54002732,
+    "hash": "d9253bb37e271b947cbdeb767dd1a6d619d081b8",
+    "src": "audio_tts_v2/artifacts/final/CH06/004/CH06-004.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-010.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-010.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 75953068,
+    "hash": "65d9d704e621eae3f5dcd145779035b6852e1859",
+    "src": "audio_tts_v2/artifacts/final/CH06/010/CH06-010.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-005.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-005.wav",
+    "type": "wav",
+    "checked": false,
+    "size": 74188332,
+    "hash": "fc0bcb620b523d8162552037f9f57064a0302f2c",
+    "src": "audio_tts_v2/artifacts/final/CH06/005/CH06-005.wav"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-001.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 38373,
+    "hash": "12bd12f6905b38afb1e8e1e559c7c6f8b2043c2c",
+    "src": "audio_tts_v2/artifacts/final/CH06/001/CH06-001.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-003.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-003.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 30457,
+    "hash": "241ee6ea1deb73ed823f4242316fe277501bbd2f",
+    "src": "audio_tts_v2/artifacts/final/CH06/003/CH06-003.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-002.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-002.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 29594,
+    "hash": "3cdeab912e2d6625e3aaa636e2cf7528b6e2c089",
+    "src": "audio_tts_v2/artifacts/final/CH06/002/CH06-002.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-006.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-006.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 32504,
+    "hash": "d2006e2e8320bc5e74cedacf4a0677c78dbb1c2d",
+    "src": "audio_tts_v2/artifacts/final/CH06/006/CH06-006.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-005.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-005.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 31216,
+    "hash": "d532d355e08991c1b244da93439652ae274fcddb",
+    "src": "audio_tts_v2/artifacts/final/CH06/005/CH06-005.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-010.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-010.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 33025,
+    "hash": "70af83b6469db1363fd6171d684e25fe32eedb98",
+    "src": "audio_tts_v2/artifacts/final/CH06/010/CH06-010.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-004.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-004.srt",
+    "type": "srt",
+    "checked": false,
+    "size": 23522,
+    "hash": "acf89c43a313c2f1c00eb1970c9977ab30f3e850",
+    "src": "audio_tts_v2/artifacts/final/CH06/004/CH06-004.srt"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-001.srt",
+    "size": 174,
+    "hash": "2785b0e1c5bf2afb01a77877d704a8d76273f6aa"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-002.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-002.srt",
+    "size": 174,
+    "hash": "7e7f18da0cc553b27ea2f6c9bf6046697abd9074"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-003.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-003.srt",
+    "size": 174,
+    "hash": "1c7cdfdeb806cff00649cd5448e23aacca04526f"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-001.wav",
+    "size": 224300,
+    "hash": "330a61a7a81bb080d84ca62fd769b92a0aa1bede"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-002.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-002.wav",
+    "size": 165164,
+    "hash": "c2d938c54909442f42c05e3db1b279b3561a9d5f"
+  },
+  "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-003.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CHTEST_CHTEST/CHTEST-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CHTEST/CHTEST-003.wav",
+    "size": 578092,
+    "hash": "24e1c5965c11e99c59a861044bdf49e22fe0a6ee"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-002.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/002/CH04-002.srt",
+    "size": 32538,
+    "hash": "93d68e466ef20e4d89948ab7a5fa4a1d94c05d4a"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-002.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/002/CH04-002.wav",
+    "size": 58909900,
+    "hash": "3b24e1cf0dfa661656e6cbd12151b3bee18208f5"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-003.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/003/CH04-003.srt",
+    "size": 28910,
+    "hash": "ed930968b29a34bb33b7d0c247d472afb7add249"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-003.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/003/CH04-003.wav",
+    "size": 52352300,
+    "hash": "8d1c67c02d35f25bbf00c5b8428a979a2e42fe5a"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-004.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/004/CH04-004.srt",
+    "size": 26585,
+    "hash": "715b656395f43c3ecfc4b044ed1050dff29211b2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-004.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/004/CH04-004.wav",
+    "size": 48713132,
+    "hash": "ded261b4efa747fb65d4a46d02816a1ad121ddb5"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-005.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/005/CH04-005.srt",
+    "size": 25727,
+    "hash": "119cae03b61ef98bf30e87a5b06c347576335d47"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-005.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/005/CH04-005.wav",
+    "size": 45693612,
+    "hash": "634146355c5f73cd95831b94f0d21357342785d2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-006.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/006/CH04-006.srt",
+    "size": 24449,
+    "hash": "d3280a8e1e56d34dc2ed951f2a446d129d5419e3"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-006.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/006/CH04-006.wav",
+    "size": 44351276,
+    "hash": "24c22a4d5dea298fef886e5a5edfc76bc7eec37a"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-007.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/007/CH04-007.srt",
+    "size": 26654,
+    "hash": "c34bdc2fd70e6f90c5d9b35e8f6d4f44e68a97c5"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-007.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/007/CH04-007.wav",
+    "size": 48346540,
+    "hash": "83950393c1da22146fb31bdb849194ffa9dba2dd"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-008.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/008/CH04-008.srt",
+    "size": 30230,
+    "hash": "cf02815b17fc7477fd77caaa18c208b97ec4bf48"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-008.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/008/CH04-008.wav",
+    "size": 55384236,
+    "hash": "c4e0f353840fb8b8074415b49ea2cafdad554fc8"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-009.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/009/CH04-009.srt",
+    "size": 29288,
+    "hash": "5532f9c9d1a128fb5ce593719cfd5565da9a4bf9"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-009.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/009/CH04-009.wav",
+    "size": 53173868,
+    "hash": "8d207ba8527f3e7865f10eb8660cc75f1b8b52cf"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-010.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/010/CH04-010.srt",
+    "size": 25497,
+    "hash": "a8c63e20b01d034d858eed2daa8cd631f7b1b67d"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-010.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/010/CH04-010.wav",
+    "size": 46492396,
+    "hash": "b1580cac52bf2957ef40de09c056d80bad953bca"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-011.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/011/CH04-011.srt",
+    "size": 26439,
+    "hash": "4e4e42ad90e8476b059b94988447381c2e2c04c9"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-011.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/011/CH04-011.wav",
+    "size": 48476460,
+    "hash": "ca08c62bf4542a930a52f9d37195a35d8e55569e"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-012.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/012/CH04-012.srt",
+    "size": 26312,
+    "hash": "f65d35b47ce6e7e7b7c294a47c58d01f7aeb6f19"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-012.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/012/CH04-012.wav",
+    "size": 47059628,
+    "hash": "de32d07336feaa5f2d90519c0bc71d364cd6dc90"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-013.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/013/CH04-013.srt",
+    "size": 29892,
+    "hash": "faf7cd72e8ca70d218026e5934e8ec4e0848c816"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-013.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/013/CH04-013.wav",
+    "size": 53806956,
+    "hash": "40c3fee059adcb01d40844df2838f3e25eafb80a"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-014.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/014/CH04-014.srt",
+    "size": 27200,
+    "hash": "b9b2c0ff2b484929dfaa5779eb709ac710c45651"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-014.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/014/CH04-014.wav",
+    "size": 49503468,
+    "hash": "95d91169d204868ba036d5ee87b6f661aaeef498"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-015.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/015/CH04-015.srt",
+    "size": 26697,
+    "hash": "566cc08e04b08e726de55e6f0d10a15539ac9a54"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-015.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/015/CH04-015.wav",
+    "size": 49066796,
+    "hash": "2e5d9eee7539bdb2a17da819d05a91b67aa3ebcf"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-016.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/016/CH04-016.srt",
+    "size": 26612,
+    "hash": "5ab396d1bf2785eb8b346a50ecf8caa23cc71dcd"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-016.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/016/CH04-016.wav",
+    "size": 48507372,
+    "hash": "9078e484cb4e5a60d995a182df25c4615590b0e6"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-017.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/017/CH04-017.srt",
+    "size": 25595,
+    "hash": "2a72e4297830d9dab019ef965d310cb8be22a4ec"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-017.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/017/CH04-017.wav",
+    "size": 46702668,
+    "hash": "03f5ac0abe779b65497667b09ac39f3e72a900e4"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-018.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/018/CH04-018.srt",
+    "size": 25391,
+    "hash": "de7c17fdec2cd9010513e85934aab52cde9acfa2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-018.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/018/CH04-018.wav",
+    "size": 54722732,
+    "hash": "b32d8db68dd54c78664dafb7380d3b37bebb19cd"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-019.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/019/CH04-019.srt",
+    "size": 32360,
+    "hash": "3160adce6fea03e9a21d86b0217b3176edd1328f"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-019.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/019/CH04-019.wav",
+    "size": 57239500,
+    "hash": "9a00d50fa0af919a4871a75dfd9836838aac3b73"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-020.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/020/CH04-020.srt",
+    "size": 26711,
+    "hash": "bbd4232741d0a5c8e032675f78965f0094c9263c"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-020.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/020/CH04-020.wav",
+    "size": 55317388,
+    "hash": "23699920ac8aaf3c5e8f6a85398950dc159588d2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-021.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/021/CH04-021.srt",
+    "size": 25412,
+    "hash": "1156a96ceff2569f1d4ba1ff47814b43b9d41152"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-021.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/021/CH04-021.wav",
+    "size": 50029580,
+    "hash": "cc9b5ab47ad628bb9ef810d43f2097f11145dbe8"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-022.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/022/CH04-022.srt",
+    "size": 24265,
+    "hash": "3e2af232192017ac67f9af71cecb31376f6106a9"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-022.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/022/CH04-022.wav",
+    "size": 53015756,
+    "hash": "3af94795035ca79e0c93e0a4e57f58a36b47cf82"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-023.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/023/CH04-023.srt",
+    "size": 24487,
+    "hash": "ef38ee9ef89f02fc65a63228be1e07d5d5bcb177"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-023.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/023/CH04-023.wav",
+    "size": 58419276,
+    "hash": "6fd0332addc8575af9ccdc23c7af8cd9a0c3d9ad"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-024.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/024/CH04-024.srt",
+    "size": 25493,
+    "hash": "9e462f48c7d5214311180b6db94a6c30fc5138a1"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-024.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/024/CH04-024.wav",
+    "size": 54354572,
+    "hash": "5daaadfd1ad2b90b34eabc24486ce7bea48a4bc1"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-025.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/025/CH04-025.srt",
+    "size": 25283,
+    "hash": "d0694e2c227e8b448c478e17f5503037029908f1"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-025.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/025/CH04-025.wav",
+    "size": 50543532,
+    "hash": "759eb32db81b6126859a26266a43f8f2426ad309"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-026.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/026/CH04-026.srt",
+    "size": 24594,
+    "hash": "e434a9ec13ccc3d9d4ee3d63f4b2c87b2ce37bdd"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-026.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/026/CH04-026.wav",
+    "size": 64372940,
+    "hash": "4b75b57bc561aa4dc35c331dc91abe9209aa726c"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-027.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/027/CH04-027.srt",
+    "size": 26309,
+    "hash": "da7d65cbd5b73a53f9eabdc0c9ffe96fa70c2ce3"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-027.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/027/CH04-027.wav",
+    "size": 54378188,
+    "hash": "46c83dd7957de87cb3562e64a13e79318180c2ae"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-028.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/028/CH04-028.srt",
+    "size": 30302,
+    "hash": "e7fe4cbf3f68fb089fc355e08a6ef60174b86d7f"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-028.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/028/CH04-028.wav",
+    "size": 54870700,
+    "hash": "763a78d230efeac92497d610a7e40a83916370d2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-029.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/029/CH04-029.srt",
+    "size": 29630,
+    "hash": "de7d6044d5f163c33afdb30b0ec0d9aebb08227d"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-029.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/029/CH04-029.wav",
+    "size": 56786220,
+    "hash": "a82f0664413341dea73cd8737ea0bc6a52ea947b"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-030.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/030/CH04-030.srt",
+    "size": 30383,
+    "hash": "e1f61b3992f8481a74835402df0056b02598e3bd"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-030.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/030/CH04-030.wav",
+    "size": 54993388,
+    "hash": "449b83cfe21dc7040cb93cd3da20907399a6c7b2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-031.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-031.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/031/CH04-031.srt",
+    "size": 26464,
+    "hash": "6be5ff4cd09f62d5f5c1d0cc7aecc953345ffac2"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-031.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-031.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/031/CH04-031.wav",
+    "size": 57478636,
+    "hash": "11f82c430d4f94c2b39d0fd9893054b43c5ccee6"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-032.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-032.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/032/CH04-032.srt",
+    "size": 24890,
+    "hash": "022a4e8618b55a4cf6596710d45bbb257f856b93"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-032.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-032.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/032/CH04-032.wav",
+    "size": 51387756,
+    "hash": "b182e052d63450a000981b6ede4305866f97c42c"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-033.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-033.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/033/CH04-033.srt",
+    "size": 25100,
+    "hash": "8465ac61eb8a214dc086b2c59ebc84c5317823ef"
+  },
+  "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-033.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH04_隠れ書庫アカシック／心理学/CH04-033.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH04/033/CH04-033.wav",
+    "size": 51862092,
+    "hash": "5f53155ad9fa0e13cc4dd6be9314400d94fa2423"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-007.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/007/CH06-007.srt",
+    "size": 31724,
+    "hash": "f3df459196cbbb24bede51cd7551e044b4412989"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-007.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/007/CH06-007.wav",
+    "size": 62066732,
+    "hash": "fa3752078c187405025aac109e5df46617f5a6ad"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-009.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/009/CH06-009.srt",
+    "size": 32136,
+    "hash": "096ae31d7aefa0b658a1072d3daf6d09eb9e9a06"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-009.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/009/CH06-009.wav",
+    "size": 68095660,
+    "hash": "c881f434b68c2e80f68ea35bf57b3ed26d32b5f5"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-011.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/011/CH06-011.srt",
+    "size": 31223,
+    "hash": "3e3f3cc4c9169125f32e5552751daec41fb0efb0"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-011.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/011/CH06-011.wav",
+    "size": 68297548,
+    "hash": "2238eafd14285364fb6b29a535915c9c1940ce95"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-012.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/012/CH06-012.srt",
+    "size": 31337,
+    "hash": "da24634faf8490629a1fcaf2e7a65c5c4a34d240"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-012.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/012/CH06-012.wav",
+    "size": 67860076,
+    "hash": "514a701804660e3f03b04be44f5d197c282d4897"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-013.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/013/CH06-013.srt",
+    "size": 31368,
+    "hash": "cb101d643f4908d41c57b632ef209064ecba8507"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-013.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/013/CH06-013.wav",
+    "size": 70875820,
+    "hash": "7b0152870582abc97b20313cd2d1f9cfc3ee8d5c"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-014.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/014/CH06-014.srt",
+    "size": 31172,
+    "hash": "989f321ba2aa5ce0d461d3eddc19b12f3a1fc75c"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-014.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/014/CH06-014.wav",
+    "size": 69564556,
+    "hash": "81a5dd4b71ab211b07600be40f4c72ea78a2b697"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-015.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/015/CH06-015.srt",
+    "size": 31481,
+    "hash": "8630f431c2fee1c330ca1e6bbf375a4a76709ebd"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-015.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/015/CH06-015.wav",
+    "size": 73287980,
+    "hash": "c6b121dc04d45a560a4189bea49f87c40d14720a"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-016.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/016/CH06-016.srt",
+    "size": 32578,
+    "hash": "a058a6d2bfb70a2234da14a411feb8a6cc2740ca"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-016.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/016/CH06-016.wav",
+    "size": 79009260,
+    "hash": "51dced95c48f331d589105aaee0a0d6a69089676"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-017.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/017/CH06-017.srt",
+    "size": 27662,
+    "hash": "f512f56ae40500bd8c7f879e0b8d16b0c46150f0"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-017.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/017/CH06-017.wav",
+    "size": 61680428,
+    "hash": "6f5a53ec55921e775d41450a18a85d19573f8d54"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-018.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/018/CH06-018.srt",
+    "size": 30959,
+    "hash": "822699c7ad77c186d4b5cf173d44c94b5222dc75"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-018.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/018/CH06-018.wav",
+    "size": 74402412,
+    "hash": "3de1e1573b94a2d01a048127d5fb0d36d6728213"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-019.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/019/CH06-019.srt",
+    "size": 30022,
+    "hash": "2c6fb33869f7f9a7cae2c9d73205b2879d734c6e"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-019.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/019/CH06-019.wav",
+    "size": 70637260,
+    "hash": "26bbfb1db100b802885ceac287be2321715d64bb"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-020.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/020/CH06-020.srt",
+    "size": 30462,
+    "hash": "158d2c49a832ff3b42db5ac223019e341b88292f"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-020.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/020/CH06-020.wav",
+    "size": 74142060,
+    "hash": "a1af0c683e28282e1c006eee891dc874fb490a69"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-034.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-034.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/034/CH02-034.srt",
+    "size": 33554,
+    "hash": "3da39bd65bcc836cce9328ecf6ad076b9c24c9e7"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-034.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-034.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/034/CH02-034.wav",
+    "size": 61392172,
+    "hash": "f4ed93dc7b632cbfd9d0dcd1f2a1e2b1c15868b7"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-021.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/021/CH06-021.srt",
+    "size": 29767,
+    "hash": "09e64491d2e0f99133967898729f700d187e24c4"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-021.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/021/CH06-021.wav",
+    "size": 71655564,
+    "hash": "046ac1ffbbf68695e5b9a93dc8f3f1c9c4c27d4d"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-022.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/022/CH06-022.srt",
+    "size": 29984,
+    "hash": "edd0e35ff31d1c1d42e5754c6c7828ed4100c399"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-022.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/022/CH06-022.wav",
+    "size": 67971692,
+    "hash": "e946257e16d168a85d927f10a7752cf98ca722aa"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-023.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/023/CH06-023.srt",
+    "size": 29306,
+    "hash": "ce28189dee9c1478857d58c38d76858644e10e32"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-023.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/023/CH06-023.wav",
+    "size": 68136300,
+    "hash": "a141bfe747d97c9d367c3c9ffbc65efd051468be"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-024.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/024/CH06-024.srt",
+    "size": 29653,
+    "hash": "83a367a1970214e31869f8160bfb7a25f817bc05"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-024.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/024/CH06-024.wav",
+    "size": 68097708,
+    "hash": "6c2ee87f987afa1dfbfaf119780b40f433821e76"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-025.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/025/CH06-025.srt",
+    "size": 29823,
+    "hash": "f0f108a5acdd192a508ecad0208a179888947664"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-025.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/025/CH06-025.wav",
+    "size": 68353964,
+    "hash": "3b0ca98045c282f6eedf61f960de888470d7da91"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-026.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/026/CH06-026.srt",
+    "size": 30446,
+    "hash": "fa3a59f6ae453d109a78f8f4acb978bb0fac7ee0"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-026.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/026/CH06-026.wav",
+    "size": 71136780,
+    "hash": "0097a54d95319e08ee0e72f48bc5df2a74d4fa2c"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-027.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/027/CH06-027.srt",
+    "size": 29768,
+    "hash": "932aa474e7caeb1f5539d17d14c9ac0022d68e77"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-027.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/027/CH06-027.wav",
+    "size": 72050444,
+    "hash": "85a33ecd9b37c873fa236745f3826ad0524d4237"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-028.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/028/CH06-028.srt",
+    "size": 30646,
+    "hash": "bd00b1f46b7ec6e5b432ccc76f2a0967f3370cd0"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-028.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/028/CH06-028.wav",
+    "size": 72671436,
+    "hash": "e2b16a139576e89d0770425b97d45249c75d95e8"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-029.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/029/CH06-029.srt",
+    "size": 27479,
+    "hash": "b7669f18245616fd418bdc186f1b84167a40d2a8"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-029.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/029/CH06-029.wav",
+    "size": 67760396,
+    "hash": "5e2362097112bd62e3a94476fa5fadedb7701130"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-030.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/030/CH06-030.srt",
+    "size": 22862,
+    "hash": "c68affb4397e2c8fed4931c354122ae0072ee528"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-030.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/030/CH06-030.wav",
+    "size": 57906988,
+    "hash": "9870432239793e9bdbc35e36a85563db363a5c0b"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-031.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-031.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/031/CH06-031.srt",
+    "size": 23223,
+    "hash": "c07e1be94109f5556cd5c1a1b28fa472298cb99f"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-031.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-031.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/031/CH06-031.wav",
+    "size": 51463276,
+    "hash": "2a01bd7fe77ac7722483ac4a1426309698ca2c2d"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-032.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-032.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/032/CH06-032.srt",
+    "size": 18364,
+    "hash": "786efc8c642c7cdd413374b1e27017700d2fe828"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-032.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-032.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/032/CH06-032.wav",
+    "size": 43504972,
+    "hash": "434dbb1ef13452fbeb16fc602df985e3b934ec01"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-033.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-033.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/033/CH06-033.srt",
+    "size": 20678,
+    "hash": "53824781df560a4c59ff887e9014532eca0a9346"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-033.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-033.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/033/CH06-033.wav",
+    "size": 46663468,
+    "hash": "17c1505fb3e4fdefc407172476f92b372724e806"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-035.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-035.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/035/CH02-035.srt",
+    "size": 33636,
+    "hash": "1cb10d2cd48116b2ae0ad2b66d67b7cd8be5e6d8"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-035.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-035.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/035/CH02-035.wav",
+    "size": 61210220,
+    "hash": "a8b7cde4121e0de68d7666021f80431369c02585"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-036.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-036.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/036/CH02-036.srt",
+    "size": 32918,
+    "hash": "8c939c6e6ff0f500b89c765224596dbcb993be69"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-036.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-036.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/036/CH02-036.wav",
+    "size": 59494764,
+    "hash": "647e9162a8ecb6a6e6adf0623dc9da1671c80c15"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-037.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-037.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/037/CH02-037.srt",
+    "size": 33613,
+    "hash": "a31bb56bd707733a36bdcdde61fde5d983e86a70"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-037.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-037.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/037/CH02-037.wav",
+    "size": 61681772,
+    "hash": "fdece2c5dd3c94312b97d89482dbd8253a1e8bac"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-038.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-038.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/038/CH02-038.srt",
+    "size": 35175,
+    "hash": "fd03e13a5f71a5b405b96dfcd8cd3a6e4860fdc4"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-038.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-038.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/038/CH02-038.wav",
+    "size": 62762924,
+    "hash": "4f3100ae0304f1d9f22fd7c481cae63f36c6d8b1"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-039.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-039.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/039/CH02-039.srt",
+    "size": 36105,
+    "hash": "7e320dfd1be5170f8134b1e9e65f62611a04ee69"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-039.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-039.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/039/CH02-039.wav",
+    "size": 66593612,
+    "hash": "b14fb744254a70a690fbbb2a6728e8f3ce404d7f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-040.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-040.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/040/CH02-040.srt",
+    "size": 31346,
+    "hash": "3326086abce75f067d4ba156388a3b71ec8f0a1f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-040.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-040.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/040/CH02-040.wav",
+    "size": 63761260,
+    "hash": "ba9535b0fa1e2072e28908576d4388c1a937368e"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-041.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-041.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/041/CH02-041.srt",
+    "size": 28473,
+    "hash": "01b2f1033d1b2dc49b6edb55048c1a1322e91517"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-041.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-041.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/041/CH02-041.wav",
+    "size": 57546316,
+    "hash": "8123b528b5615788188006367dd4f806ca6272e8"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-042.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-042.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/042/CH02-042.srt",
+    "size": 31073,
+    "hash": "f9671c9ed950fc5494e0aa980ad751700f5ab745"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-042.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-042.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/042/CH02-042.wav",
+    "size": 66198956,
+    "hash": "b4954292f25d1ca1852c2b9f22ed9b68912b0d4f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-043.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-043.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/043/CH02-043.srt",
+    "size": 30048,
+    "hash": "ef2e8f3e636d89ea6ea61fb718fa9e3ec6f8e451"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-043.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-043.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/043/CH02-043.wav",
+    "size": 62271276,
+    "hash": "f24e3226d56badbcd8d29482b31e910fc83dba35"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-044.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-044.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/044/CH02-044.srt",
+    "size": 31353,
+    "hash": "1974722165f6ab14a7c57d5c34d95551c79561f1"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-044.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-044.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/044/CH02-044.wav",
+    "size": 64526316,
+    "hash": "08e0b0b93a295f20a88994291ebfc2bbb324c2d4"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-045.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-045.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/045/CH02-045.srt",
+    "size": 30263,
+    "hash": "10ba96b53084e7f777a6d7b38cf70fdbfc825299"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-045.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-045.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/045/CH02-045.wav",
+    "size": 63422060,
+    "hash": "cbc09c35498d7cfd7d874d1a0761713be679af47"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-046.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-046.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/046/CH02-046.srt",
+    "size": 29899,
+    "hash": "44253042b9d05b8ad2daf99d269936b6b27e5b71"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-046.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-046.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/046/CH02-046.wav",
+    "size": 62862316,
+    "hash": "c12e188b431d07f0692fda660973a801900c03d3"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-047.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-047.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/047/CH02-047.srt",
+    "size": 27819,
+    "hash": "be46206c61417924271a8e24e23160ffd1bb0eb7"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-047.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-047.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/047/CH02-047.wav",
+    "size": 58653804,
+    "hash": "3ac30ddaaf3daab3ba5f9c013b36831534fdc05e"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-048.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-048.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/048/CH02-048.srt",
+    "size": 28769,
+    "hash": "8f6d036efde606d2b7a7f89fee6a702cf7e5102f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-048.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-048.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/048/CH02-048.wav",
+    "size": 59201452,
+    "hash": "3e7ceb3724f24b19ce388d53f616e0e3bda4b770"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-049.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-049.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/049/CH02-049.srt",
+    "size": 30135,
+    "hash": "a8b70f57efb66f5a37f7e5c4457d49163642f33a"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-049.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-049.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/049/CH02-049.wav",
+    "size": 63980076,
+    "hash": "9469bc9ad2a87b06f6cbe1cfb45e15b6cffc199e"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-050.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-050.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/050/CH02-050.srt",
+    "size": 29717,
+    "hash": "0e7f1e6cbdd0c9ca95c8d7c9a36f4ee4beb096eb"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-050.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-050.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/050/CH02-050.wav",
+    "size": 61254764,
+    "hash": "e3a99ef70f223adce4b3328a50db0583e67f390c"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-051.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-051.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/051/CH02-051.srt",
+    "size": 32456,
+    "hash": "7a37f60f0e0be8e5f919344b8a4a9cd993d9cf7f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-051.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-051.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/051/CH02-051.wav",
+    "size": 59560492,
+    "hash": "7ba9c0271088ffbb56ab224b0ad264eb5a9b34b2"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-053.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-053.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/053/CH02-053.srt",
+    "size": 29945,
+    "hash": "2b0c7e253fb1f0b1b980a340f2b98d5ddda12c8f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-053.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-053.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/053/CH02-053.wav",
+    "size": 63226540,
+    "hash": "37b6606a28ef3887be89e691eab4134b0f9b7613"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-054.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-054.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/054/CH02-054.srt",
+    "size": 30203,
+    "hash": "dd68c92f353de5193475e7161a6656cb1ca6e3c3"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-054.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-054.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/054/CH02-054.wav",
+    "size": 62569836,
+    "hash": "373607bda939ed5e0bfe56a69810b7d9eaa22b44"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-055.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-055.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/055/CH02-055.srt",
+    "size": 34652,
+    "hash": "89c6eefad56d6976ef43c91d9ac9ce185a97af85"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-055.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-055.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/055/CH02-055.wav",
+    "size": 62884140,
+    "hash": "115f3d3597c8d871102277d4a0ce3c08068a8d87"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-056.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-056.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/056/CH02-056.srt",
+    "size": 35741,
+    "hash": "d2a00110c60e0d9c952eaa0d00d3274eb85c0c34"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-056.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-056.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/056/CH02-056.wav",
+    "size": 64821036,
+    "hash": "8061ab8efb9ceab7fc80a19bd741858e2def6876"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-057.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-057.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/057/CH02-057.srt",
+    "size": 29030,
+    "hash": "803ee1ec99c969764875eecbf93c57e795d1f53c"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-057.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-057.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/057/CH02-057.wav",
+    "size": 52719340,
+    "hash": "7236cdb7ec75ef1bbb26a662814a8df74493522a"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-058.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-058.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/058/CH02-058.srt",
+    "size": 33875,
+    "hash": "648f0121571d1fc4593b289bc24a3da97d7ca9da"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-058.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-058.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/058/CH02-058.wav",
+    "size": 61856876,
+    "hash": "30c3d49e966ed44f218a6843d75c132498682537"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-059.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-059.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/059/CH02-059.srt",
+    "size": 32957,
+    "hash": "1077d277ec4a0ab58da9e9867b45838f617a04ae"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-059.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-059.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/059/CH02-059.wav",
+    "size": 60065068,
+    "hash": "8b04e05d3fc5375ccadd671d855a4e1cc7fc4b8e"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-060.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-060.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/060/CH02-060.srt",
+    "size": 35042,
+    "hash": "448dfe658b4198d685825e12db019085dea497d7"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-060.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-060.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/060/CH02-060.wav",
+    "size": 63214636,
+    "hash": "3430796a692992e85b22c0518a737eb45bb90d80"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-061.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-061.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/061/CH02-061.srt",
+    "size": 34341,
+    "hash": "a86ce8466fe54f6682dd51e613a1172131c06148"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-061.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-061.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/061/CH02-061.wav",
+    "size": 61743468,
+    "hash": "472e4b9944f9d98d6e2d1847513bba2966e369fa"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-063.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-063.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/063/CH02-063.srt",
+    "size": 29359,
+    "hash": "120bae5439efa3aaadfb855c3f41609dbdbb4e11"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-063.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-063.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/063/CH02-063.wav",
+    "size": 60359532,
+    "hash": "2e3c58800fed698087535ca1d18e842c1676f712"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-064.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-064.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/064/CH02-064.srt",
+    "size": 31714,
+    "hash": "2d2f55b2ab90eca905fcfa4602d26bc5a6039cbc"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-064.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-064.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/064/CH02-064.wav",
+    "size": 66469932,
+    "hash": "3206cc2c8eda9e877ac663aea2a5a4cced184f70"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-065.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-065.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/065/CH02-065.srt",
+    "size": 30098,
+    "hash": "0b9871907af564e6c608b88d345c6ac0a8aed3b3"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-065.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-065.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/065/CH02-065.wav",
+    "size": 62129068,
+    "hash": "2c818b2595d74dca0e18ff7aa2e183c59321b490"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-006.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/006/CH02-006.srt",
+    "size": 30503,
+    "hash": "bbf06cb349cff2f02f1857b130586cbe94459ff4"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-006.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/006/CH02-006.wav",
+    "size": 61877740,
+    "hash": "e525d91a1b675c4603ef571585015eec19d0884b"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-009.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/009/CH02-009.srt",
+    "size": 33221,
+    "hash": "b2c862f5f75a857c105559db63f9b0a59ff9cff8"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-009.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/009/CH02-009.wav",
+    "size": 67178988,
+    "hash": "c2fc9b4a4c4712c0cb22e24dd286e89724e2b396"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-013.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/013/CH02-013.srt",
+    "size": 33764,
+    "hash": "d3c4ac6dd7094552805348c0175bda80470541d8"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-013.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/013/CH02-013.wav",
+    "size": 68289836,
+    "hash": "9db08c0c39e2ab6517aecfb4cc2a1dff3b337c1d"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-052.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-052.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/052/CH02-052.srt",
+    "size": 36089,
+    "hash": "812d1509cfc8952e63e3ad8769f923154d51a772"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-071.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-071.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/071/CH02-071.srt",
+    "size": 34380,
+    "hash": "102a29d239f7099c100b811095be4bfeece99cb0"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-072.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-072.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/072/CH02-072.srt",
+    "size": 28175,
+    "hash": "b3a06253955dc71c645f8320d48c9ede5779e65f"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-073.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-073.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/073/CH02-073.srt",
+    "size": 32264,
+    "hash": "050ffd06bbf7267025e8f36a7e0a204b225354db"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-074.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-074.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/074/CH02-074.srt",
+    "size": 31808,
+    "hash": "7febe3c0fba5bcd21e8f6ab4ca3de07f83b72f82"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-075.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-075.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/075/CH02-075.srt",
+    "size": 29117,
+    "hash": "97d8b317569cb4d8dec82e4c22e7a11961adfd9e"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-076.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-076.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/076/CH02-076.srt",
+    "size": 34258,
+    "hash": "22571b1e41aaf9345b213eb1e4f7a83676f17c35"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-077.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-077.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/077/CH02-077.srt",
+    "size": 26177,
+    "hash": "76baf4d573a250905c85cc6072f390a12c6317b3"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-078.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-078.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/078/CH02-078.srt",
+    "size": 34712,
+    "hash": "4a7e36c9ea2257ef2dbfbdbf7cd802c924c66384"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-079.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-079.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/079/CH02-079.srt",
+    "size": 34703,
+    "hash": "e1cdcc70c75eee81bdc26de25ff6f0b0ae570ca1"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-080.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-080.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/080/CH02-080.srt",
+    "size": 33996,
+    "hash": "a634a62f5eafee82990731a1b9ba4d0413b0eac6"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-081.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-081.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/081/CH02-081.srt",
+    "size": 34301,
+    "hash": "2ced0fd404b865e2169f6d37d98021cabfe1e2da"
+  },
+  "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-082.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-082.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH02/082/CH02-082.srt",
+    "size": 35060,
+    "hash": "a6f2c617a2c4ec5345a59742f639cea3ce4dd116"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/001/CH05-001.srt",
+    "size": 20501,
+    "hash": "def4968d6fc9482cd600ebb6f1d00e6d66c70c61"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/001/CH05-001.wav",
+    "size": 37812908,
+    "hash": "8a7d2e2737876f5c339c6197be6fe102b612e4d2"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/002/CH05-002.srt",
+    "size": 20051,
+    "hash": "3027c7980599ddf5e68c356333d310b0e2accd14"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/002/CH05-002.wav",
+    "size": 37591724,
+    "hash": "5803613d80eccd51a2e738cfd69b381bdcc99d85"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/003/CH05-003.srt",
+    "size": 20098,
+    "hash": "f80a13f934fc07624f8a02bf605b5716cb0274e9"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/003/CH05-003.wav",
+    "size": 37130668,
+    "hash": "a9ed3d5c3dba5233c6f0f073f5808da19a515444"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-004.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/004/CH05-004.srt",
+    "size": 12374,
+    "hash": "d0e23058888d7c55d85c6c54b35b6d94f3dc9ecc"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-004.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/004/CH05-004.wav",
+    "size": 22537580,
+    "hash": "8ea0740789a6c8dcb1506e4ac1896bdd1a96cd79"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-005.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/005/CH05-005.srt",
+    "size": 4034,
+    "hash": "148e72c16a07b3a4db8b5d9dba0628ac0653e6cd"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-005.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/005/CH05-005.wav",
+    "size": 7710604,
+    "hash": "1d2aa25bcd3f92110b384ba8083155e1777c693d"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-006.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/006/CH05-006.srt",
+    "size": 4533,
+    "hash": "4ef331f241f8c967f731986265c22e4af20fc1c1"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-006.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/006/CH05-006.wav",
+    "size": 9217964,
+    "hash": "db68d1c26ba200dd0cbe430afdd6cf4495579bcc"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-007.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/007/CH05-007.srt",
+    "size": 4536,
+    "hash": "4ecc4c53763cb526a222fb3e50df1dc2b8c43fa0"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-007.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/007/CH05-007.wav",
+    "size": 8775212,
+    "hash": "f517496b570bd9e3a2780d116285ff99ff6847e9"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-008.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/008/CH05-008.srt",
+    "size": 5613,
+    "hash": "1b8bf8df715342131ef1a4ae9927c491babeea01"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-008.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/008/CH05-008.wav",
+    "size": 10903660,
+    "hash": "23b5a4cb9af1fbd2fd6cce269eaae33c4fc2e560"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-009.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/009/CH05-009.srt",
+    "size": 5061,
+    "hash": "ef6a2d5719de2e9941d5abac291148426b52acba"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-009.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/009/CH05-009.wav",
+    "size": 10167852,
+    "hash": "0391e3e9a6fa407fd904405864464953fec53ceb"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-010.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/010/CH05-010.srt",
+    "size": 5075,
+    "hash": "6c4a077ee2f5931acbe5227fcc96e48874c36f24"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-010.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/010/CH05-010.wav",
+    "size": 9930348,
+    "hash": "0e6f5d6f1747cef27b6f61be90e58c0e27b4428f"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-011.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/011/CH05-011.srt",
+    "size": 4591,
+    "hash": "bd5ffcec897fe08b60295b4a70d339a6a8516e0f"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-011.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/011/CH05-011.wav",
+    "size": 9421100,
+    "hash": "9efd0f75b269092ae43c7795b974265944aa1553"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-012.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/012/CH05-012.srt",
+    "size": 5255,
+    "hash": "353966e5a028cef8433849338c045d0d3a23a7bb"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-012.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/012/CH05-012.wav",
+    "size": 10253612,
+    "hash": "3a12cff2065ff3af604b8b4ef673af6257fb884f"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-013.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/013/CH05-013.srt",
+    "size": 4174,
+    "hash": "0665596b3e1b2d62ea30c067ba0a81eadc433c3f"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-013.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/013/CH05-013.wav",
+    "size": 8694828,
+    "hash": "c491409728c20bf6268abfe070008c7bc9c82fb1"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-014.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/014/CH05-014.srt",
+    "size": 3145,
+    "hash": "c44f2bced969fe505fd52275e659daa09f59653c"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-014.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/014/CH05-014.wav",
+    "size": 6214892,
+    "hash": "735113c7c0dc083d11fd8ac421d6aeb7c4a3a2a7"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-015.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/015/CH05-015.srt",
+    "size": 5471,
+    "hash": "5ec79306050ebd7071b84eb8b87c5654da23ca90"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-015.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/015/CH05-015.wav",
+    "size": 10751980,
+    "hash": "2513646377568d6b241df9d96050c702189fdd66"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-016.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/016/CH05-016.srt",
+    "size": 7074,
+    "hash": "c6747c79d75639b730504c5728aceaee856f81d0"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-016.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/016/CH05-016.wav",
+    "size": 14885996,
+    "hash": "c1d7fcbfb4596ff2e72d865a8ce0f17024591cec"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-017.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/017/CH05-017.srt",
+    "size": 9384,
+    "hash": "b35a8057c1099696ca78fd9b68c5ad0801270228"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-017.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/017/CH05-017.wav",
+    "size": 19054700,
+    "hash": "0f4cd68e7726c89c3704924176cec3f12d1f9447"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-018.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/018/CH05-018.srt",
+    "size": 8847,
+    "hash": "9982eb8a2a138487605ee9b1a732ee467d820adb"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-018.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/018/CH05-018.wav",
+    "size": 18733740,
+    "hash": "3c94a5870d696f3c7287adc093a095a313b16aec"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-019.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/019/CH05-019.srt",
+    "size": 7116,
+    "hash": "af75cdce708714cc6641cbafbb557cadfd017319"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-019.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/019/CH05-019.wav",
+    "size": 14538028,
+    "hash": "9e4eb45cd92aa1f9687a0c2ed6b45cfc7cd77375"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-020.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/020/CH05-020.srt",
+    "size": 6982,
+    "hash": "91653acade1ab142d2a3d3ac60dbbc638d1107e6"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-020.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/020/CH05-020.wav",
+    "size": 14708268,
+    "hash": "8e75f7c583c9def7a8c2d306dce06975e3a94a27"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-021.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/021/CH05-021.srt",
+    "size": 6383,
+    "hash": "52262676499e1385d51ba0520af8d0243c5b1b3c"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-021.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/021/CH05-021.wav",
+    "size": 13928044,
+    "hash": "9c222854761b45df7e80ada0c34efe1c1a780479"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-022.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/022/CH05-022.srt",
+    "size": 3631,
+    "hash": "5cdffe6061b5c565b67241ba40c0c65ed82b4fca"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-022.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/022/CH05-022.wav",
+    "size": 7866412,
+    "hash": "0785cb7e6f4bde7012997bbfab532c3e57d60776"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-023.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/023/CH05-023.srt",
+    "size": 5179,
+    "hash": "339b64bdb93a09558385be2307bced07fb26ed23"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-023.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/023/CH05-023.wav",
+    "size": 10866988,
+    "hash": "e80cab82d5b3f067e8c9a9989e62d806b2f1ebad"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-024.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/024/CH05-024.srt",
+    "size": 4652,
+    "hash": "040d8cd77d58ab9679a4ebb5ff67f2a40103747b"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-024.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/024/CH05-024.wav",
+    "size": 9788140,
+    "hash": "ce275e7b179d6bc2c0a85a070215f07b40f7e064"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-025.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/025/CH05-025.srt",
+    "size": 4849,
+    "hash": "22e2e1a975a7f02339f73980874b46c01deda982"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-025.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/025/CH05-025.wav",
+    "size": 9836524,
+    "hash": "050d7c6e4db25f6f5f342f9f6e9f789d97755713"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-026.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/026/CH05-026.srt",
+    "size": 5586,
+    "hash": "cbdab40b8afbfd7f0b90f217424ca089e9a43217"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-026.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/026/CH05-026.wav",
+    "size": 11932204,
+    "hash": "4acd1c2eeb12e5cfcade7ec02519c881215cc92f"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-027.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/027/CH05-027.srt",
+    "size": 4775,
+    "hash": "4ae07c703c6efef67a45b7bc3524eb50a6679b75"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-027.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/027/CH05-027.wav",
+    "size": 10070252,
+    "hash": "d1c80a2ea079700087a76a9f6a52144ee97d1f88"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-028.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/028/CH05-028.srt",
+    "size": 4524,
+    "hash": "512a7aadaa3588d7d44c76ad467a2532bfc23200"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-028.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/028/CH05-028.wav",
+    "size": 9780908,
+    "hash": "8144d88d6fd9e72d866e971c96499086daef1eeb"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-029.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/029/CH05-029.srt",
+    "size": 4447,
+    "hash": "94ad66811c38d4607b70870f68b6ed3eaecfe1df"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-029.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/029/CH05-029.wav",
+    "size": 9266284,
+    "hash": "7aa6bce93b483831fbbc79a179758459af1d2d44"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-030.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/030/CH05-030.srt",
+    "size": 6772,
+    "hash": "a1fd94389303b5d00b89c8d81570dacf19075178"
+  },
+  "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-030.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH05/030/CH05-030.wav",
+    "size": 13537068,
+    "hash": "bb891752bc68909fd87d925690c09068697b4c54"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-996.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-996.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/996/CH06-996.srt",
+    "size": 214,
+    "hash": "6a54db14ca1771b90b05c0ac8c0b037e71ea3b69"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-997.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-997.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/997/CH06-997.srt",
+    "size": 275,
+    "hash": "e09ca9169f0e117d3a5948e74eddb76cdbc30cf6"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-998.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-998.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/998/CH06-998.srt",
+    "size": 255,
+    "hash": "3e83c0ed67ffce618a7865a64a15da3221e5f064"
+  },
+  "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-999.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH06_都市伝説のダーク図書館/CH06-999.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH06/999/CH06-999.srt",
+    "size": 297,
+    "hash": "75adea13dd0b60e43a192ac84c604e76e74b2a39"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/001/CH09-001.srt",
+    "size": 25879,
+    "hash": "a188d980b1e209517521b3f82bc066c07b44797f"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/001/CH09-001.wav",
+    "size": 47218668,
+    "hash": "a078ce147cad7ba3d986506f8d886ff9a6efe8c3"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-004.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/004/CH09-004.wav",
+    "size": 44557036,
+    "hash": "e0c03b097935c9b336f82ca76ac237842dba3c55"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-005.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/005/CH09-005.wav",
+    "size": 45621740,
+    "hash": "ff3f14d04fea4ef8a2c12d15a4dfdfe2f0cfe617"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/006/CH09-006.srt",
+    "size": 25727,
+    "hash": "beed3d92d6e6ec529e3ac1384983ea224c5ad5b7"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/006/CH09-006.wav",
+    "size": 49063724,
+    "hash": "a8b030c4c441b1968a755de06de6e5de309a4571"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/007/CH09-007.srt",
+    "size": 23457,
+    "hash": "10847b3ce95db6e8983291f576497950d89ad360"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/007/CH09-007.wav",
+    "size": 44392492,
+    "hash": "6e27850dc39382c067e30f23e0d4bfc17b9a3ffa"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/008/CH09-008.srt",
+    "size": 22677,
+    "hash": "7fa60800e56f39f8ca9de1e8ff84bef2c2b4b795"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/008/CH09-008.wav",
+    "size": 42259692,
+    "hash": "333d8f5ec2e5f7d6f81ec193aa214dff508c069c"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/009/CH09-009.srt",
+    "size": 18015,
+    "hash": "13582cb114895c8fb6bea2a8939d9367a9eb931f"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/009/CH09-009.wav",
+    "size": 33897516,
+    "hash": "4fdb35d5f63d5e7df1b77153d93c42fe0f14f399"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/010/CH09-010.srt",
+    "size": 23894,
+    "hash": "4ae73dfa26362cb63d630c8569d92f450d37ac78"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/010/CH09-010.wav",
+    "size": 44642348,
+    "hash": "44e997ccea4a62d4b028bf3651cfec20b4f7295a"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/011/CH09-011.srt",
+    "size": 17510,
+    "hash": "b3210eda9004c6027c818b4b152704af1122e2b0"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/011/CH09-011.wav",
+    "size": 33747244,
+    "hash": "0ca893a4e5f4ee4c8f5167eabfd1519aea7c1916"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/012/CH09-012.srt",
+    "size": 16483,
+    "hash": "1c7df5a1bd4748d5b4ceab498bcd0d6192e48251"
+  },
+  "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH09/012/CH09-012.wav",
+    "size": 31029356,
+    "hash": "fdea7a8f122d4710d688984cb4df5eba391748a7"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/CH01-220.srt": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/CH01-220.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH01/220/CH01-220.srt",
+    "size": 22942,
+    "hash": "7595d4ec55c7226bf8110e90ac935666c0544ea5"
+  },
+  "commentary_02_srt2images_timeline/input/CH01_人生の道標/CH01-220.wav": {
+    "path": "commentary_02_srt2images_timeline/input/CH01_人生の道標/CH01-220.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "audio_tts_v2/artifacts/final/CH01/220/CH01-220.wav",
+    "size": 73315688,
+    "hash": "740788bf6f72f13a09e1c888009a1924b67d58b8"
+  }
+}

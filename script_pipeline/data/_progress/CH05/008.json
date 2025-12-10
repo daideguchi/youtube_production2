@@ -1,0 +1,106 @@
+{
+  "script_id": "CH05-008",
+  "channel": "CH05",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-07T12:01:29.882202Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:27:52.142474Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:34:09.959299Z",
+      "details": {
+        "last_error": "コマンド実行に失敗しました (exit_code=1): python3 - <<'PY'\nimport os\nfrom pathlib import Path\nimport sys\nsys.path.insert(0, str(Path.cwd()))\nfrom qwen.cli import _ensure_chapter_targets\nif not _ensure_chapter_targets(os.environ['CH'], os.environ['NO']):\n    raise SystemExit('❌ 章文字数の自動強化に失敗しました')\nPY"
+      }
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:36:26.220696Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:38:39.887481Z",
+      "details": {
+        "last_error": "コマンド実行に失敗しました (exit_code=1): python3 core/tools/glm4_5_prompt_runner.py --template prompts/glm4_5_toolkit/intro_prompt.txt --output \"$DATA_DIR/content/intro.md\" --channel-code \"$CH\" --video-number \"$NO\""
+      }
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:40:34.991779Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:42:07.326195Z",
+      "details": {
+        "last_error": "コマンド実行に失敗しました (exit_code=1): python3 core/tools/run_script_validation.py CH05 008 --auto-title"
+      }
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "8ffc26f618a69e748d55ccf6fd3a044dfac08e745c21fc1cfa2af6df00fefc58",
+      "fallback": "reuse_stage7_draft",
+      "updated_at": "2025-11-12T08:43:21.387600Z",
+      "details": {
+        "fallback": "reuse_stage7_draft",
+        "fallback_reason": "openrouter_client 呼び出しに失敗しました: /Users/dd/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\n⚠️ HTTP 429 - 1秒後にリトライ (1/3)\n⚠️ HTTP 429 - 2秒後にリトライ (2/3)\n❌ エラー: ❌ OpenRouter APIレート制限超過\n無料プランの制限に達した可能性があります\n詳細: {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day-high-balance. \",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"2000\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1762992000000\"},\"provider_name\":null}},\"user_id\":\"user_2zOlu4h0qc2KMYb0QcWBb3d6nhj\"}",
+        "log_base": "logs/llm_polish/CH05-008_20251112T084321"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:44:06.115525Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "updated_at": "2025-11-13T11:48:17.986423Z"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.289009Z",
+  "updated_at": "2025-11-14T09:06:11.850586Z",
+  "metadata": {
+    "title": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
+    "title_sanitized": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
+    "title_updated_at": "2025-10-25T02:16:16.384516Z",
+    "ready_for_audio": true,
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH05/008/audio_prep/script_sanitized.txt"
+      }
+    },
+    "channel_code": "CH05",
+    "channel_display_name": "企画",
+    "video_number": "008",
+    "script_id": "CH05-008",
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "8ffc26f618a69e748d55ccf6fd3a044dfac08e745c21fc1cfa2af6df00fefc58",
+      "updated_at": "2025-11-12T08:43:21.387547Z"
+    },
+    "ready_for_audio_at": "2025-11-12T08:44:06.116209Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "🕗 timeline_copy: pending",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 9,
+    "sheet_title": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。"
+  },
+  "channel_code": "CH05",
+  "video_number": "008"
+}

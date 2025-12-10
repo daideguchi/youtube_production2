@@ -1,0 +1,11 @@
+{
+  "last_updated": "2025-12-06T11:20:00+09:00",
+  "inference_logic": "manual_agent_inference",
+  "corrections": [
+    "Expanded 'Free Mason' gloss to 'フリーメイソン' (自由な石工、フリーメイソン)",
+    "Expanded 'Speculative Masonry' gloss to 'スペキュラティブメイソンリー' (思索的フリーメイソンリー、スペキュラティブメイソンリー)",
+    "Removed middle dots from names: Grand Lodge, George Washington, Benjamin Franklin, Pierre Charles L'Enfant, Albert Pike, Adam Weishaupt, Simon Bolivar, Hiram Abiff, Jardine Matheson, Georgia Guidestones.",
+    "Handled Latin/English phrases: Novus Ordo Seclorum (ノブスオルドセクロルム), New World Order (ニューワールドオーダー), Annuit Coeptis (アヌイトコエプティス), Ordo Ab Chao (オルドアブカオ), Light Bringer (ライトブリンガー).",
+    "Removed markdown headers."
+  ]
+}

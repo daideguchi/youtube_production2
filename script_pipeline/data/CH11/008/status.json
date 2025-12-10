@@ -1,0 +1,67 @@
+{
+  "script_id": "CH01-008",
+  "channel": "CH01",
+  "status": "script_in_progress",
+  "stages": {
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:19.229464Z"
+    },
+    "quality_check": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T13:30:49.364315Z",
+  "updated_at": "2025-12-01T03:56:04.408476Z",
+  "metadata": {
+    "ready_for_audio": false,
+    "audio": {},
+    "sheet_flag": "",
+    "sheet_progress_cell": "glm4_5_research: pending",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 9,
+    "sheet_title": "【危険なサイン】あなたの善意を食い物にする「ずるい人」から身を守るブッダの知恵",
+    "assembled_path": "script_pipeline/data/CH01/008/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH01/008/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH01/008/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 5728,
+    "title": "# 【危険なサイン】あなたの善意を食い物にする「ずるい人」から身を守るブッダの知恵",
+    "title_sanitized": "# 【危険なサイン】あなたの善意を食い物にする「ずるい人」から身を守るブッダの知恵",
+    "youtube_description": "この動画では「【危険なサイン】あなたの善意を食い物にする「ずるい人」から身を守るブッダの知恵」を仏教の視点でやさしく解き明かします。\n「あなたって本当に優しいよね」と褒め言葉から始まり、気づけば財布も時間も心も差し出している。頼まれると断れず、後で強い疲労と後悔だけが残る。助けた相手は感謝せず、次の要求を準備している。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "008"
+}

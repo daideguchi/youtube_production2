@@ -1,0 +1,1 @@
+CHTEST placeholder assembled script

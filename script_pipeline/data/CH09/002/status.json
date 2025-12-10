@@ -1,0 +1,72 @@
+{
+  "script_id": "CH09-002",
+  "channel": "CH09",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T09:15:29.265814",
+  "metadata": {
+    "title": "朝のデスクに座った瞬間から、決めることが山のように積み上がる。メールの返信順、会議資料の仕上げ、突然の依頼、家族からの連絡。頭は忙しくても心は散っていき、気づけば午前だけで体力が削られる。そんな朝に三分だけ、自分の軸を一行で書く時間を取ってほしい。今日だけ譲れない一つを書く。そのたった一行が一日の揺れを止める。",
+    "title_sanitized": "朝のデスクに座った瞬間から、決めることが山のように積み上がる。メールの返信順、会議資料の仕上げ、突然の依頼、家族からの連絡。頭は忙しくても心は散っていき、気づけば午前だけで体力が削られる。そんな朝に三分だけ、自分の軸を一行で書く時間を取ってほしい。今日だけ譲れない一つを書く。そのたった一行が一日の揺れを止める。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH09",
+    "channel_display_name": "CH09",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【朝3分】今日譲れない一つを書くワーク",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/002/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/002/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/002/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【朝3分】今日譲れない一つを書くワーク を“危険人物/言ってはいけない言葉”の視点で整理し、線引きのチェックリストを提供。\n朝のデスクに座った瞬間から、決めることが山のように積み上がる。メールの返信順、会議資料の仕上げ、突然の依頼、家族からの連絡。頭は忙しくても心は散っていき、気づけば午前だけで体力が削られる。\n🧭 今日からできる一歩：言わないリストを作る / 距離を置くサインを1つ決める\n#人間関係 #自己防衛 #線引き"
+  },
+  "channel_code": "CH09",
+  "video_number": "002"
+}

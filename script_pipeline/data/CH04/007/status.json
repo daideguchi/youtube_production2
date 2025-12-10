@@ -1,0 +1,104 @@
+{
+  "script_id": "CH04-007",
+  "channel": "CH04",
+  "status": "completed",
+  "metadata": {
+    "title": "あの人が嫌いなのは、あなたが自分を嫌いだからかもしれません。",
+    "expected_title": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方",
+    "title_sanitized": "あの人が嫌いなのは、あなたが自分を嫌いだからかもしれません。",
+    "title_updated_at": "2025-10-25T02:16:00.566872Z",
+    "chapter_characters": 9946,
+    "assembled_characters": 9946,
+    "output_characters": 10239,
+    "ready_for_audio": true,
+    "audio": {
+      "synthesis": {
+        "final_wav": "audio_tts_v2/artifacts/final/CH04/007/CH04-007.wav",
+        "updated_at": "2025-12-05T03:15:02.543992+00:00"
+      }
+    },
+    "channel_code": "CH04",
+    "channel_display_name": "企画",
+    "video_number": "007",
+    "script_id": "CH04-007",
+    "sheet_flag": "",
+    "sheet_progress_cell": "in_progress",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 8,
+    "sheet_title": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "c2f96d7384a9915eb0ebaf335692b4e8937b7920dd564c4d971ec3bced636b87",
+      "updated_at": "2025-11-18T09:10:49.888146Z"
+    },
+    "chapter_count": 1,
+    "target_audience": "30〜50代で知的好奇心が強く、心理実験や隠れた歴史・神秘の話から日常を俯瞰したいと思っている人。",
+    "main_tag": "潜在意識",
+    "sub_tag": "心理トリック",
+    "life_scene": "深夜の書斎",
+    "key_concept": "集合的無意識",
+    "benefit": "日常の違和感を言語化できる",
+    "metaphor": "鍵穴から覗く",
+    "description_lead": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。",
+    "description_body": "・XX実験の真相\n・今日から使える心理トリック",
+    "tags": [
+      "潜在意識",
+      "心理トリック"
+    ],
+    "persona": "# CH04 Persona & Planning Template\n\n## 0. テンプレ SoT\n- SoT: `progress/templates/CH04_planning_template.csv`\n- 最終更新: 2025-11-15（テンプレサンプル刷新）\n- 手順: 1行目ヘッダー/2行目サンプルをコピー→`{NEXT_NO}` `{NEXT_VIDEO}` を置換→`progress/channels/CHxx.csv` に追加→`planning_store.refresh --force`\n- 注意: テンプレを改訂したら本節に更新内容を追記し、SSOT 側に変更履歴を残す。\n\n## 1. 共通ペルソナ\n> 30〜50代で知的好奇心が強く、心理実験や隠れた歴史・神秘の話から日常を俯瞰したいと思っている人。\n\n- `ターゲット層` はこの文で固定。企画ごとに書き換えない。\n- 記事・論文・一次資料へのリンクは `企画意図` に必ず記載する。\n\n## 2. タグセット\n| フィールド | 役割 | 推奨入力例 |\n|---|---|---|\n| 悩みタグ_メイン | 主題 | 潜在意識 / 記憶 / 直感 / シンクロ / 未解決事件 / 神話 |\n| 悩みタグ_サブ | 補助 | 仕事のひらめき / 人間観察 / 心理トリック |\n| ライフシーン | 場面 | 深夜の書斎 / オフィスでの休憩 / 旧図書館 / 雨の窓辺 |\n| キーコンセプト | 視点 | 集合的無意識 / アカシックレコード / ユング / 認知実験 |\n| ベネフィット一言 | 効果 | 「日常の違和感を言語化できる」「新しい視点が手に入る」 |\n| たとえ話イメージ | サムネ/本文 | 鍵穴から覗く / 本の迷路 / 光る糸を辿る |\n| 説明文_リード | 冒頭 | 「日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう」 |\n| 説明文_この動画でわかること | 箇条書き | ・XX実験の真相\\n・今日から使える心理トリック |\n\n## 3. 記入ルール\n1. タイトルは「【秘密/心理】×【身近な疑問】」。読後感は余韻を残す。 \n2. 構成案は `【導入】→【謎/実験紹介】→【考察】→【日常への翻訳】→【問いかけ】`。\n3. サムネは暗めの背景＋光るモチーフ。コピーは12〜14文字で謎を匂わせる。\n\n## 4. テンプレ\n- `progress/templates/CH04_planning_template.csv` をコピーし、Analytics根拠や引用を差し替える。\n- タグ列・説明文列は必ず記入し、ミステリー要素と学びの両方を明示する。\n\n## 5. 運用\n1. 企画追加後 `planning_store.refresh`。\n2. `progress_manager.py verify --channel-code CH04` を実行し、列をチェック。\n3. UI でタグ列・説明文が表示されることを確認する。\n",
+    "script_prompt": "## CH04 企画・心理ミステリー向け 台本プロンプト（字幕制約なし）\n\nあなたはチャンネル「企画」（心理実験・隠された歴史や神秘を扱う知的エンタメ）の専属ライターです。\n視聴者は30〜50代、好奇心が強く、日常の違和感や心理トリックを噛み砕いて知りたい人たちです。\n\n【一貫性・必須】\n- アウトライン/BRIEFで決めた主人公や語り口（語り手視点）が章ごとに変わらないようにする。新しい主人公や固有名を勝手に追加しない。\n- 章をまたいで、フック→事例→解析→日常への翻訳→問いかけ→クロージングの流れが途切れないよう、前章の文脈を踏まえて次章へつなぐ。\n- 謎や問いかけを必ず散りばめ、学術解説だけで終わらせない（探偵の語りで導く）。\n\nトーン\n- 落ち着いた語り口で、静かな探偵のように導く。\n- 上から目線・命令口調禁止。敬意と余韻を大事に。\n- 専門用語は必ず身近な例で説明し、比喩を使って腑に落とす。\n\n構成ガイド（柔軟に可変だが流れは守る）\n1) 導入・フック: ひとつの謎や違和感、実験の小話で惹きつける。\n2) 事例・エピソード: 心理実験／歴史の裏話／日常の「ん？」を具体的に描写。\n3) 解析・考察: その現象をどう説明できるか。複数視点で紐解く（脳科学・心理・社会）。\n4) 日常への翻訳: 視聴者の職場・家庭・人間関係でどう活かせるかを具体的に示す。\n5) まとめ・問いかけ: 今日の核心を短くまとめ、視聴者に考えたくなる問いを残す。\n6) クロージング: 「また一緒に探求しましょう」と品よく締め、軽いCTAを添える。\n\n必須要素\n- 賢人・研究者・実験名などを1つ以上登場させ、信頼性と物語性を付与。\n- 難解な概念は必ず具体例（生活・仕事・人間関係）でかみ砕く。\n- 「気づき」「違和感」「観察」「仮説」をキーワードに、視聴者の視点が変わる瞬間を作る。\n- ポジティブな余韻（新しい視点が手に入る／怖さより面白さを前面に）。\n- 随所で短い問いかけを入れ、レトリックに頼りすぎず具体例と並走させる。\n- **各章で問いかけを最低2回以上入れる（例:「なぜでしょうか？」「もしあなたなら？」）。**\n\n禁止事項\n- 箇条書き・見出し・記号多用。\n- タイムスタンプや形式的な字幕指定は不要。\n- 決めつけ、脅し文句、断定的な煽り。\n\nボリューム感\n- 20〜25分読める厚みを目安に、十分な事例と考察を重ねる（文字数の数値指定は不要）。\n\nこのプロンプトを本文にインライン展開し、1本の台本全文を生成してください（章分けや次回予告は不要）。\n",
+    "ready_for_audio_at": null,
+    "assembled_path": "script_pipeline/data/CH04/007/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH04/007/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH04/007/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方 の“違和感/謎”を心理・脳科学・物語で探究し、日常に使える視点に翻訳します。\n人生の九割は、人間関係で決まる。\n💡 こんな方に：30〜50代で知的好奇心が強く、心理実験や隠れた歴史・神秘の話から日常を俯瞰したいと思っている人。\n🧭 今日からできる一歩：気づいた違和感をメモし、1日1つ観察してみる\n#心理学 #脳科学 #好奇心 #知的エンタメ"
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "details": {},
+      "updated_at": "2025-12-05T03:15:02.543992+00:00"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "details": {},
+      "updated_at": "2025-12-05T03:15:02.543992+00:00"
+    }
+  },
+  "updated_at": "2025-12-05T03:15:02.543992+00:00",
+  "channel_code": "CH04",
+  "video_number": "007"
+}

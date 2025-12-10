@@ -1,0 +1,115 @@
+{
+  "script_id": "CH03-026",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-31T13:46:20.818923Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-31T13:48:05.229902Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-31T14:15:19.946249Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "length_check_passed": true,
+      "updated_at": "2025-10-31T14:16:44.169661Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "assembled_chars": "5106",
+      "updated_at": "2025-10-31T14:17:37.289035Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "quality_review": "created",
+      "updated_at": "2025-10-31T14:22:28.781071Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-31T14:26:23.953302Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "1d4215292974f521155686672675cf3e955551ab6d216f905969cb1db05ef085",
+      "updated_at": "2025-10-31T14:27:30.995080Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH03-026_20251031T142730"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-31T14:27:31.202727Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:51.724768Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/026/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/026/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.262630Z",
+  "updated_at": "2025-11-14T08:16:07.915900Z",
+  "metadata": {
+    "title": "【正しい歩き方】そのウォーキング、膝と腰を壊します！",
+    "title_sanitized": "【正しい歩き方】そのウォーキング、膝と腰を壊します！",
+    "title_updated_at": "2025-10-31T14:26:23.953302Z",
+    "ready_for_audio": false,
+    "assembled_characters": 8493,
+    "output_characters": 8888,
+    "chapter_characters": 8493,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "1d4215292974f521155686672675cf3e955551ab6d216f905969cb1db05ef085",
+      "updated_at": "2025-10-31T14:27:30.995058Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH03/026/audio_prep/script_sanitized.txt"
+      },
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:51Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/026_20251113T120851Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/026_20251113T120851Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:51Z",
+    "sheet_flag": "14",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/026/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/026/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 27,
+    "sheet_title": "【正しい歩き方】そのウォーキング、膝と腰を壊します！"
+  },
+  "channel_code": "CH03",
+  "video_number": "026"
+}

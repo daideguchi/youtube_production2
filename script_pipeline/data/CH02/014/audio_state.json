@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "engine": "voicepeak",
+  "status": "queued",
+  "updated_at": "2025-10-26T00:13:12Z",
+  "total_chunks": 328,
+  "completed_chunks": 0,
+  "sanitized_script": "data/CH02/014/audio_prep/script_sanitized.txt",
+  "chunks_dir": "data/CH02/014/audio_prep/voicepeak_chunks",
+  "output_dir": "data/CH02/014/audio_prep/voicepeak_output",
+  "cli_script": "data/CH02/014/audio_prep/voicepeak_batch.sh",
+  "notes": null
+}

@@ -1,0 +1,27 @@
+## 音声生成処理の基本フロー
+
+### 1. 音声生成準備
+- 各動画番号の `assembled.md` スクリプトファイルが `script_pipeline/data/{チャンネル}/{動画番号}/content/` に存在することを確認
+
+### 2. 音声生成実行
+- 以下のコマンドを使用して、各動画に対して音声生成を実行：
+```
+PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel {チャンネルコード} --video {動画番号} --input "script_pipeline/data/{チャンネル}/{動画番号}/content/assembled.md"
+```
+- 音声生成にはVOICEVOXエンジンが使用され、指定されたキャラクターの声が適用される
+- LLMにより読み方の判定と修正が行われる（Reading Resolution）
+- 音声ファイルは `{チャンネル}/{動画番号}/audio_prep/{チャンネル}-{動画番号}.wav` として保存される
+- 字幕ファイルは `{チャンネル}/{動画番号}/audio_prep/{チャンネル}-{動画番号}.srt` として保存される
+
+### 3. CSVファイル更新
+- 生成された音声ファイルを反映するために、`progress/channels/{チャンネル}.csv` の該当動画行を以下のように更新：
+  - 音声整形：`済`
+  - 音声検証：`完了 Δ0.0ms tol=50ms YYYY-MM-DD`
+  - 音声生成：`完了 YYYY-MM-DD`
+  - 音声品質：`完了 YYYY-MM-DD`
+
+### 4. 進捗確認
+- CSVファイルの該当動画行が正しく更新されていること
+- 音声ファイルが存在すること（`script_pipeline/data/{チャンネル}/{動画番号}/audio_prep/`に.wavファイル）
+- 字幕ファイルが存在すること（.srtファイル）
+- を確認して、処理完了とする

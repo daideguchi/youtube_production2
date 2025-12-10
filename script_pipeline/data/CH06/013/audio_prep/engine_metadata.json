@@ -1,0 +1,179 @@
+{
+  "voicevox_kana_diff": {
+    "engine_kana": "ダ'イ/ロク'ショオ、ショオグンノ'/ユイゴン'",
+    "llm_kana": "",
+    "diff": [
+      {
+        "tag": "delete",
+        "engine_span": "ダ'イ/ロク'ショオ、ショオグンノ'/ユイゴン'",
+        "llm_span": "",
+        "pos": [
+          0,
+          24,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "voicevox_accent_phrases": [
+    {
+      "moras": [
+        {
+          "text": "ダ",
+          "consonant": "d",
+          "consonant_length": 0.06492520123720169,
+          "vowel": "a",
+          "vowel_length": 0.08884632587432861,
+          "pitch": 4.568896293640137
+        },
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.07749990373849869,
+          "pitch": 5.029062271118164
+        }
+      ],
+      "accent": 1,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "ロ",
+          "consonant": "r",
+          "consonant_length": 0.031580254435539246,
+          "vowel": "o",
+          "vowel_length": 0.0678945854306221,
+          "pitch": 4.663692474365234
+        },
+        {
+          "text": "ク",
+          "consonant": "k",
+          "consonant_length": 0.07641095668077469,
+          "vowel": "u",
+          "vowel_length": 0.04557806998491287,
+          "pitch": 4.616601943969727
+        },
+        {
+          "text": "ショ",
+          "consonant": "sh",
+          "consonant_length": 0.08042970299720764,
+          "vowel": "o",
+          "vowel_length": 0.08260971307754517,
+          "pitch": 4.419456481933594
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.15997804701328278,
+          "pitch": 4.346619129180908
+        }
+      ],
+      "accent": 2,
+      "pause_mora": {
+        "text": "、",
+        "consonant": null,
+        "consonant_length": null,
+        "vowel": "pau",
+        "vowel_length": 0.2762981057167053,
+        "pitch": 0.0
+      },
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "ショ",
+          "consonant": "sh",
+          "consonant_length": 0.14013603329658508,
+          "vowel": "o",
+          "vowel_length": 0.0805235430598259,
+          "pitch": 4.656915664672852
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.07761403173208237,
+          "pitch": 4.865107536315918
+        },
+        {
+          "text": "グ",
+          "consonant": "g",
+          "consonant_length": 0.04198269546031952,
+          "vowel": "u",
+          "vowel_length": 0.081267811357975,
+          "pitch": 4.8616437911987305
+        },
+        {
+          "text": "ン",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "N",
+          "vowel_length": 0.06672908365726471,
+          "pitch": 4.82151460647583
+        },
+        {
+          "text": "ノ",
+          "consonant": "n",
+          "consonant_length": 0.03920505940914154,
+          "vowel": "o",
+          "vowel_length": 0.08196397125720978,
+          "pitch": 4.733173847198486
+        }
+      ],
+      "accent": 5,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "ユ",
+          "consonant": "y",
+          "consonant_length": 0.06480052322149277,
+          "vowel": "u",
+          "vowel_length": 0.07355207204818726,
+          "pitch": 4.558168411254883
+        },
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.07874679565429688,
+          "pitch": 4.584972858428955
+        },
+        {
+          "text": "ゴ",
+          "consonant": "g",
+          "consonant_length": 0.06619618088006973,
+          "vowel": "o",
+          "vowel_length": 0.1033111959695816,
+          "pitch": 4.406429767608643
+        },
+        {
+          "text": "ン",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "N",
+          "vowel_length": 0.14971058070659637,
+          "pitch": 4.387673377990723
+        }
+      ],
+      "accent": 4,
+      "pause_mora": null,
+      "is_interrogative": false
+    }
+  ],
+  "voicevox_kana": "ダ'イ/ロク'ショオ、ショオグンノ'/ユイゴン'",
+  "voicevox_kana_llm_ref": "",
+  "voicevox_kana_corrected": "ダ'イ/ロク'ショオ、ショオグンノ'/ユイゴン'"
+}

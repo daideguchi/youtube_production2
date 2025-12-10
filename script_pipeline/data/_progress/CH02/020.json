@@ -1,0 +1,89 @@
+{
+  "script_id": "CH02-020",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:15:20.180262Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:17:49.445160Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:21:36.824809Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:22:02.520190Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:43:25.918261Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "review_path": "data/CH02/020/content/analysis/glm4_5/quality_review.md",
+      "updated_at": "2025-10-30T04:53:14.241281Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:54:07.693695Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "b03d044d219250454aed033deec525dbf3d6672d54e1ae5ad7faa04c2d45062a",
+      "updated_at": "2025-10-30T04:57:05.149032Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T04:57:31.371880Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.278574Z",
+  "updated_at": "2025-11-14T08:15:55.418150Z",
+  "metadata": {
+    "title": "【言語の限界】なぜ「本当に大切なこと」は、言葉にした瞬間に嘘になるのか",
+    "title_sanitized": "【言語の限界】なぜ「本当に大切なこと」は、言葉にした瞬間に嘘になるのか",
+    "title_updated_at": "2025-10-30T04:54:07.693695Z",
+    "chapter_characters": 8263,
+    "assembled_characters": 8263,
+    "output_characters": 8507,
+    "ready_for_audio": true,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "b03d044d219250454aed033deec525dbf3d6672d54e1ae5ad7faa04c2d45062a",
+      "updated_at": "2025-10-30T04:57:05.148976Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/020/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio_at": "20251030T045731Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 21,
+    "sheet_title": "【言語の限界】なぜ「本当に大切なこと」は、言葉にした瞬間に嘘になるのか"
+  },
+  "channel_code": "CH02",
+  "video_number": "020"
+}

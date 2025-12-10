@@ -1,0 +1,164 @@
+{
+  "voicevox_kana_diff": {
+    "engine_kana": "ダ'イ/イッ'ショオ、ボイジャアケ'エカク",
+    "llm_kana": "",
+    "diff": [
+      {
+        "tag": "delete",
+        "engine_span": "ダ'イ/イッ'ショオ、ボイジャアケ'エカク",
+        "llm_span": "",
+        "pos": [
+          0,
+          21,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "voicevox_accent_phrases": [
+    {
+      "moras": [
+        {
+          "text": "ダ",
+          "consonant": "d",
+          "consonant_length": 0.06410761922597885,
+          "vowel": "a",
+          "vowel_length": 0.11488925665616989,
+          "pitch": 4.57090425491333
+        },
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.11904862523078918,
+          "pitch": 4.974585056304932
+        }
+      ],
+      "accent": 1,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.09381113201379776,
+          "pitch": 4.5684075355529785
+        },
+        {
+          "text": "ッ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "cl",
+          "vowel_length": 0.11051727831363678,
+          "pitch": 0.0
+        },
+        {
+          "text": "ショ",
+          "consonant": "sh",
+          "consonant_length": 0.0953466147184372,
+          "vowel": "o",
+          "vowel_length": 0.10293388366699219,
+          "pitch": 4.410806179046631
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.1645997166633606,
+          "pitch": 4.362253665924072
+        }
+      ],
+      "accent": 2,
+      "pause_mora": {
+        "text": "、",
+        "consonant": null,
+        "consonant_length": null,
+        "vowel": "pau",
+        "vowel_length": 0.3719787001609802,
+        "pitch": 0.0
+      },
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "ボ",
+          "consonant": "b",
+          "consonant_length": 0.05607955902814865,
+          "vowel": "o",
+          "vowel_length": 0.09696515649557114,
+          "pitch": 4.575134754180908
+        },
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.08083251118659973,
+          "pitch": 4.830804824829102
+        },
+        {
+          "text": "ジャ",
+          "consonant": "j",
+          "consonant_length": 0.0591597706079483,
+          "vowel": "a",
+          "vowel_length": 0.07815943658351898,
+          "pitch": 4.801177501678467
+        },
+        {
+          "text": "ア",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "a",
+          "vowel_length": 0.07498100399971008,
+          "pitch": 4.795590877532959
+        },
+        {
+          "text": "ケ",
+          "consonant": "k",
+          "consonant_length": 0.08913171291351318,
+          "vowel": "e",
+          "vowel_length": 0.05182676017284393,
+          "pitch": 4.755741596221924
+        },
+        {
+          "text": "エ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "e",
+          "vowel_length": 0.05809821933507919,
+          "pitch": 4.5584940910339355
+        },
+        {
+          "text": "カ",
+          "consonant": "k",
+          "consonant_length": 0.0676310732960701,
+          "vowel": "a",
+          "vowel_length": 0.05626162141561508,
+          "pitch": 4.369761943817139
+        },
+        {
+          "text": "ク",
+          "consonant": "k",
+          "consonant_length": 0.08471658825874329,
+          "vowel": "u",
+          "vowel_length": 0.1067185029387474,
+          "pitch": 4.351568222045898
+        }
+      ],
+      "accent": 5,
+      "pause_mora": null,
+      "is_interrogative": false
+    }
+  ],
+  "voicevox_kana": "ダ'イ/イッ'ショオ、ボイジャアケ'エカク",
+  "voicevox_kana_llm_ref": "",
+  "voicevox_kana_corrected": "ダ'イ/イッ'ショオ、ボイジャアケ'エカク"
+}

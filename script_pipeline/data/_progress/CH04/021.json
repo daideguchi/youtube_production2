@@ -1,0 +1,530 @@
+{
+  "script_id": "CH04-021",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:48:56.012679Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:49:15.366805Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:49:16.988379Z",
+      "length_check_passed": true,
+      "quality_validation_passed": true,
+      "quality_validation": {
+        "checked_at": "2025-11-12T08:49:16.993011Z",
+        "passed": true,
+        "issues": [],
+        "warnings": [
+          "chapter_1.md [structure] チャプター冒頭に見出し(##)がありません, 箇条書きがありません（要点整理を推奨）",
+          "chapter_2.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_3.md [style_guide] 6文目が長すぎます（592字）",
+          "chapter_4.md [style_guide] 5文目が長すぎます（427字）",
+          "chapter_6.md [style_guide] 6文目が長すぎます（187字）, 10文目が長すぎます（197字）, 12文目が長すぎます（231字）, 17文目が長すぎます（185字）",
+          "chapter_7.md [style_guide] 12文目が長すぎます（151字）",
+          "chapter_8.md [style_guide] 4文目が長すぎます（181字）"
+        ],
+        "chapters": [
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_1.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.990629Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 701,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 20,
+                  "max_sentence_length": 74
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "チャプター冒頭に見出し(##)がありません",
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.2530487804878049,
+                  "kanji_count": 166,
+                  "total_characters": 656
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_2.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.990798Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 777,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 19,
+                  "max_sentence_length": 62
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3085399449035813,
+                  "kanji_count": 224,
+                  "total_characters": 726
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_3.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.990996Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1107,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "6文目が長すぎます（592字）"
+                ],
+                "metrics": {
+                  "sentence_count": 11,
+                  "max_sentence_length": 592
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.34838709677419355,
+                  "kanji_count": 324,
+                  "total_characters": 930
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_4.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.991236Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1285,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "5文目が長すぎます（427字）"
+                ],
+                "metrics": {
+                  "sentence_count": 19,
+                  "max_sentence_length": 427
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3723404255319149,
+                  "kanji_count": 420,
+                  "total_characters": 1128
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_5.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.991474Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1157,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 22,
+                  "max_sentence_length": 128
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.25380228136882127,
+                  "kanji_count": 267,
+                  "total_characters": 1052
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_6.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.991807Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1859,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "6文目が長すぎます（187字）",
+                  "10文目が長すぎます（197字）",
+                  "12文目が長すぎます（231字）",
+                  "17文目が長すぎます（185字）"
+                ],
+                "metrics": {
+                  "sentence_count": 24,
+                  "max_sentence_length": 231
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.2179640718562874,
+                  "kanji_count": 364,
+                  "total_characters": 1670
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_7.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.992432Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 2045,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "12文目が長すぎます（151字）"
+                ],
+                "metrics": {
+                  "sentence_count": 43,
+                  "max_sentence_length": 151
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.2089791555318012,
+                  "kanji_count": 391,
+                  "total_characters": 1871
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH04/021/content/chapters/chapter_8.md",
+            "passed": true,
+            "validated_at": "2025-11-12T08:49:16.992709Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1171,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "4文目が長すぎます（181字）"
+                ],
+                "metrics": {
+                  "sentence_count": 25,
+                  "max_sentence_length": 181
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.22075471698113208,
+                  "kanji_count": 234,
+                  "total_characters": 1060
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:25.043868Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:25.044098Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:25.044130Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:25.044186Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-11-18T09:22:41.860633Z"
+    },
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.241080Z",
+  "updated_at": "2025-11-18T09:22:41.861143Z",
+  "metadata": {
+    "title": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？ 内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
+    "title_sanitized": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？_内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
+    "title_updated_at": "2025-10-25T02:16:09.667442Z",
+    "chapter_characters": 10102,
+    "assembled_characters": 10102,
+    "output_characters": 10103,
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 22,
+    "sheet_title": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？ 内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
+    "ready_for_audio": false,
+    "audio": {},
+    "planning": {},
+    "channel_code": "CH04",
+    "channel_display_name": "企画",
+    "video_number": "021",
+    "script_id": "CH04-021",
+    "sheet_flag": ""
+  },
+  "channel_code": "CH04",
+  "video_number": "021"
+}

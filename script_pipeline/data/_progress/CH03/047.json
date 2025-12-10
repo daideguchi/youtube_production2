@@ -1,0 +1,86 @@
+{
+  "script_id": "CH03-047",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:39:14.987599Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:39:15.923426Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:39:16.936274Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T02:42:49.845162Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T02:42:49.845259Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T02:42:49.845290Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-28T02:42:49.845352Z"
+    },
+    "script_polish_ai": {},
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:56.192490Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/047/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/047/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.250383Z",
+  "updated_at": "2025-11-14T08:16:10.179243Z",
+  "metadata": {
+    "title": "【帯状疱疹】経験者が語る…あの痛みは地獄だった！50歳からのワクチンという選択",
+    "title_sanitized": "【帯状疱疹】経験者が語る…あの痛みは地獄だった！50歳からのワクチンという選択",
+    "title_updated_at": "2025-10-25T02:15:53.108352Z",
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:56Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/047_20251113T120856Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/047_20251113T120856Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:56Z",
+    "sheet_flag": "20",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/047/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/047/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 47,
+    "sheet_title": "【帯状疱疹】経験者が語る…あの痛みは地獄だった！50歳からのワクチンという選択"
+  },
+  "channel_code": "CH03",
+  "video_number": "047"
+}

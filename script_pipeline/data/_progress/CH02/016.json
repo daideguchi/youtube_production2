@@ -1,0 +1,89 @@
+{
+  "script_id": "CH02-016",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.855145Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.855279Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.855339Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.855787Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.855972Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:16.856030Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:22:11.278880Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:38:32.751599Z",
+      "prompt_hash": "0c8df3eaa1fb616224f95302875bd05b17c86c367e875f72f3ccc576d2e2f4ef",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:38:32.935696Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.279784Z",
+  "updated_at": "2025-11-14T08:15:54.927003Z",
+  "metadata": {
+    "title": "【天才の憂鬱】なぜレオナルド・ダ・ヴィンチは、ほとんどの作品を未完で終えたのか",
+    "title_sanitized": "【天才の憂鬱】なぜレオナルド・ダ・ヴィンチは、ほとんどの作品を未完で終えたのか",
+    "title_updated_at": "2025-10-27T12:22:11.278880Z",
+    "assembled_characters": 8708,
+    "output_characters": 8850,
+    "chapter_characters": 8708,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "0c8df3eaa1fb616224f95302875bd05b17c86c367e875f72f3ccc576d2e2f4ef",
+      "updated_at": "2025-10-27T12:38:32.751572Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/016/audio_prep/script_sanitized.txt"
+      }
+    },
+    "audio_processing_started_at": "2025-10-27T06:43:12Z",
+    "audio_completed_at": "2025-10-27T06:43:31Z",
+    "ready_for_audio": true,
+    "ready_for_audio_at": "2025-11-14T06:17:46.317386Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 17,
+    "sheet_title": "【天才の憂鬱】なぜレオナルド・ダ・ヴィンチは、ほとんどの作品を未完で終えたのか"
+  },
+  "channel_code": "CH02",
+  "video_number": "016"
+}

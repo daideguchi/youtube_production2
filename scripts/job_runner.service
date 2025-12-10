@@ -1,0 +1,16 @@
+[Unit]
+Description=Factory Commentary Job Runner
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/Users/dd/10_YouTube_Automation/factory_commentary
+Environment=PYTHONPATH=/Users/dd/10_YouTube_Automation/factory_commentary
+ExecStart=/usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 100 --max-parallel 1 --sleep 10
+Restart=always
+RestartSec=10
+StandardOutput=append:/Users/dd/10_YouTube_Automation/factory_commentary/logs/job_runner.out
+StandardError=append:/Users/dd/10_YouTube_Automation/factory_commentary/logs/job_runner.err
+
+[Install]
+WantedBy=multi-user.target

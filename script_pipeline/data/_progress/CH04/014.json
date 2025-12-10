@@ -1,0 +1,82 @@
+{
+  "script_id": "CH04-014",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:38:31.920845Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:38:58.240218Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:39:54.766815Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:28:35.412634Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:28:39.745736Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:28:43.627938Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:24.272113Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "43d3224c15de3fccb0ae941c865845ff8a9cf345391fa0a09c3230aa9b0b0e7f",
+      "updated_at": "2025-11-18T09:15:31.339671Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH04-014_20251118T091531"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.234376Z",
+  "updated_at": "2025-11-18T09:22:40.974868Z",
+  "metadata": {
+    "title": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
+    "title_sanitized": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
+    "title_updated_at": "2025-10-25T02:16:05.260060Z",
+    "chapter_characters": 2319,
+    "assembled_characters": 2319,
+    "output_characters": 0,
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "in_progress",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 15,
+    "sheet_title": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH04",
+    "channel_display_name": "心理・好奇心_隠れ書庫アカシック",
+    "video_number": "014",
+    "script_id": "CH04-014",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "43d3224c15de3fccb0ae941c865845ff8a9cf345391fa0a09c3230aa9b0b0e7f",
+      "updated_at": "2025-11-18T09:15:31.339649Z"
+    }
+  },
+  "channel_code": "CH04",
+  "video_number": "014"
+}

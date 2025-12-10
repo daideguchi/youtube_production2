@@ -1,0 +1,26 @@
+{
+  "id": "specifications/process-guide",
+  "title": "YouTube自動化の流れ（完全ガイド）",
+  "description": "このページでは、YouTube動画を自動生成する全工程をわかりやすく、具体的に説明します。",
+  "source": "@site/docs/specifications/process-guide.md",
+  "sourceDirName": "specifications",
+  "slug": "/specifications/process-guide",
+  "permalink": "/docs/specifications/process-guide",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "スクリプトファイルの役割一覧",
+    "permalink": "/docs/scripts/file-roles"
+  },
+  "next": {
+    "title": "スプレッドシート仕様書",
+    "permalink": "/docs/specifications/spreadsheet"
+  }
+}

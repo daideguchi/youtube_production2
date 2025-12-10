@@ -1,0 +1,76 @@
+{
+  "script_id": "CH01-004",
+  "channel": "CH01",
+  "status": "completed",
+  "stages": {
+    "topic_research": {
+      "status": "completed"
+    },
+    "script_outline": {
+      "status": "completed"
+    },
+    "script_draft": {
+      "status": "completed"
+    },
+    "script_enhancement": {
+      "status": "completed"
+    },
+    "script_review": {
+      "status": "completed"
+    },
+    "quality_check": {
+      "status": "completed"
+    },
+    "script_validation": {
+      "status": "completed"
+    },
+    "script_polish_ai": {
+      "status": "completed"
+    },
+    "script_audio_ai": {
+      "status": "completed"
+    },
+    "script_tts_prepare": {
+      "status": "completed"
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    },
+    "timeline_copy": {
+      "status": "completed"
+    },
+    "image_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-05T01:17:06.701582Z",
+  "updated_at": "2025-12-05T01:19:57.200050Z",
+  "metadata": {
+    "title": "「昔は良かった」と口にした瞬間、目の前の人の表情が少し曇るのを感じたことはありませんか。懐かしさを分かち合いたいだけなのに、いつの間にか話題が重くなり、空気が固まる。老後に孤立する人の多くは、この一言を無自覚に繰り返しています。ブッダは「今を見よ」と説きました。過去に囚われることは、苦しみの原因になると。過去を否定するのではなく、過去に寄りかかり過ぎないで今を見つめる。これが、老いても人が離れない人の習慣です。",
+    "title_sanitized": "「昔は良かった」と口にした瞬間、目の前の人の表情が少し曇るのを感じたことはありませんか。懐かしさを分かち合いたいだけなのに、いつの間にか話題が重くなり、空気が固まる。老後に孤立する人の多くは、この一言を無自覚に繰り返しています。ブッダは「今を見よ」と説きました。過去に囚われることは、苦しみの原因になると。過去を否定するのではなく、過去に寄りかかり過ぎないで今を見つめる。これが、老いても人が離れない人の習慣です。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH01",
+    "channel_display_name": "人生の道標",
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "自分を縛る枠を壊す！自我の解体で見つける真の幸せ",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-05T01:17:06.701582Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/004/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/004/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/004/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「自分を縛る枠を壊す！自我の解体で見つける真の幸せ」を仏教の視点でやさしく解き明かします。\n「昔は良かった」と口にした瞬間、目の前の人の表情が少し曇るのを感じたことはありませんか。懐かしさを分かち合いたいだけなのに、いつの間にか話題が重くなり、空気が固まる。老後に孤立する人の多くは、この一言を無自覚に繰り返しています。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "004"
+}

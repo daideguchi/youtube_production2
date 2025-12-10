@@ -1,0 +1,14 @@
+{
+  "script_id": "CH11-046",
+  "channel": "CH11",
+  "channel_code": "CH11",
+  "video_number": "046",
+  "status": "script_validated",
+  "stages": {},
+  "metadata": {
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH11/046/content/assembled.md",
+    "assembled_characters": 10001,
+    "title": "# ブッダが教える「余白のある老後」――執着を手放し、心を整える10の習慣（長尺特別編）",
+    "title_sanitized": "# ブッダが教える「余白のある老後」――執着を手放し、心を整える10の習慣（長尺特別編）"
+  }
+}

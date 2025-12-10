@@ -1,0 +1,26 @@
+{
+  "id": "specifications/dod-criteria",
+  "title": "DoD（Definition of Done）合格基準 - 数値レベル完全定義",
+  "description": "型（qwen.md）に基づく厳密運用 - 迷いが生じないレベルまで数値化",
+  "source": "@site/docs/specifications/dod-criteria.md",
+  "sourceDirName": "specifications",
+  "slug": "/specifications/dod-criteria",
+  "permalink": "/docs/specifications/dod-criteria",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "データベーススキーマ設計（chartDB）",
+    "permalink": "/docs/specifications/database-schema"
+  },
+  "next": {
+    "title": "処理プロセス詳細フロー（迷いゼロレベル）",
+    "permalink": "/docs/specifications/flow-details"
+  }
+}

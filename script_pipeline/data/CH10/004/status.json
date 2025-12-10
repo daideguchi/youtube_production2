@@ -1,0 +1,72 @@
+{
+  "script_id": "CH10-004",
+  "channel": "CH10",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-04T07:31:41Z",
+  "updated_at": "2025-12-04T22:18:14.707352Z",
+  "metadata": {
+    "title": "眠れない夜、胸の奥で「このままでいいのか」というざわめきが消えないなら、岡本太郎の火を少しだけ借りよう。彼は「自分の中に毒を持て」と言った。毒と聞くと破壊を想像するかもしれないが、彼の毒は、胸の奥に眠る衝動のことだった。誰にも見せず、誰にも褒められず、説明もできない衝動。昼間は理性の蓋で押さえているそれが、夜になるとむくりと起き上がり、眠りを邪魔する。今夜は、その衝動を無理に消さず、火を見るように見守る。燃やし尽くすのではなく、囲んで温めるための時間だ。",
+    "title_sanitized": "眠れない夜、胸の奥で「このままでいいのか」というざわめきが消えないなら、岡本太郎の火を少しだけ借りよう。彼は「自分の中に毒を持て」と言った。毒と聞くと破壊を想像するかもしれないが、彼の毒は、胸の奥に眠る衝動のことだった。誰にも見せず、誰にも褒められず、説明もできない衝動。昼間は理性の蓋で押さえているそれが、夜になるとむくりと起き上がり、眠りを邪魔する。今夜は、その衝動を無理に消さず、火を見るように見守る。燃やし尽くすのではなく、囲んで温めるための時間だ。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 5993,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH10",
+    "channel_display_name": "深夜の偉人ラジオ",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【岡本太郎流】未完成なまま動く人がすべてを手にする理由",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-04T22:18:14.707352Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/004/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/004/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/004/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【岡本太郎流】未完成なまま動く人がすべてを手にする理由 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n眠れない夜、胸の奥で「このままでいいのか」というざわめきが消えないなら、岡本太郎の火を少しだけ借りよう。彼は「自分の中に毒を持て」と言った。毒と聞くと破壊を想像するかもしれないが、彼の毒は、胸の奥に眠る衝動のことだった。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH10",
+  "video_number": "004"
+}

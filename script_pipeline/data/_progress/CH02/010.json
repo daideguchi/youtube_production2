@@ -1,0 +1,87 @@
+{
+  "script_id": "CH02-010",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.850367Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.850545Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.850626Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.851150Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.851349Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:06.851410Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T03:17:55.381066Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-30T03:20:46.080257Z",
+      "prompt_hash": "7ce88743e3915e3e06d8758e4544013f018dc1094a7e1eb6103f89d69d507e64",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T03:20:46.376674Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.280870Z",
+  "updated_at": "2025-11-14T08:15:54.195545Z",
+  "metadata": {
+    "title": "【警告】「自分らしく生きる」という最大の嘘―真の自由とは何か",
+    "title_sanitized": "【警告】「自分らしく生きる」という最大の嘘―真の自由とは何か",
+    "title_updated_at": "2025-10-30T03:17:55.381066Z",
+    "chapter_characters": 8018,
+    "assembled_characters": 8018,
+    "output_characters": 8141,
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 11,
+    "sheet_title": "【警告】「自分らしく生きる」という最大の嘘―真の自由とは何か",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "7ce88743e3915e3e06d8758e4544013f018dc1094a7e1eb6103f89d69d507e64",
+      "updated_at": "2025-10-30T03:20:46.080224Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/010/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio": true,
+    "ready_for_audio_at": "20251030T032046Z"
+  },
+  "channel_code": "CH02",
+  "video_number": "010"
+}

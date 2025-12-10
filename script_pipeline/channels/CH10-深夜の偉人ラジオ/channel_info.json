@@ -1,0 +1,53 @@
+{
+  "channel_id": "CH10",
+  "name": "深夜の偉人ラジオ",
+  "persona_path": "progress/personas/CH10_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH10-深夜の偉人ラジオ/script_prompt.txt",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/86GunoCjqrDLFzQIcdGHkNM-_R7VAyhhEomsv-t6yUURBoMHw2mx81aLlvN_SfIoIZeuA0Qw=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "深夜の偉人ラジオ",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@radio_shinya",
+    "handle": "@radio_shinya",
+    "url": "https://www.youtube.com/channel/UC4aedZNoH6aBFlb6n9-JrDQ",
+    "updated_at": "2025-12-04T06:22:10.499896Z"
+  },
+  "youtube": {
+    "channel_id": "UC4aedZNoH6aBFlb6n9-JrDQ",
+    "title": "深夜の偉人ラジオ",
+    "custom_url": "@radio_shinya",
+    "handle": "@radio_shinya",
+    "url": "https://www.youtube.com/channel/UC4aedZNoH6aBFlb6n9-JrDQ",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2025-12-04T10:43:36.085370+00:00",
+    "source": "UC4aedZNoH6aBFlb6n9-JrDQ",
+    "published_at": null
+  },
+  "spreadsheet_id": "",
+  "description": "眠れない夜に偉人の言葉を静かに届ける長尺ラジオチャンネル",
+  "persona": {
+    "demographics": {
+      "age_range": "30-60代",
+      "life_stage": "考えすぎや不安を抱え夜に耳だけで聴きたい層"
+    },
+    "interests": [
+      "偉人の名言と物語",
+      "夜に聴ける落ち着いたトーン",
+      "今日からできる小さな一歩"
+    ],
+    "pain_points": [
+      "考えすぎ",
+      "将来不安",
+      "孤独感"
+    ],
+    "language_preference": "落ち着いた日本人シニア女性の語り、説教なし",
+    "content_preference": "名言→現代の悩み→今日の一歩まで落とし込むラジオ台本",
+    "target_audience": "考えすぎや不安で夜に眠れない大人"
+  },
+  "script_prompt": "script_pipeline/channels/CH10-深夜の偉人ラジオ/script_prompt.txt"
+}

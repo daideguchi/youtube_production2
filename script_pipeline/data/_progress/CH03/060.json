@@ -1,0 +1,58 @@
+{
+  "script_id": "CH03-060",
+  "channel": "CH03",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "research_path": "data/CH03/060/content/analysis/glm4_5/research_brief.md",
+      "updated_at": "2025-11-04T05:35:55.509851Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T10:11:07.623409Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T10:16:19.962984Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:11.726260Z"
+    },
+    "script_review": {},
+    "glm4_5_quality_review": {},
+    "script_validation": {},
+    "script_polish_ai": {},
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.270239Z",
+  "updated_at": "2025-11-14T08:16:11.653147Z",
+  "metadata": {
+    "title": "CH03-060",
+    "title_sanitized": "CH03-060",
+    "title_updated_at": "2025-10-25T02:15:53.665149Z",
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "channel_code": "CH03",
+    "channel_display_name": "企画",
+    "ready_for_audio": false,
+    "audio": {},
+    "video_number": "060",
+    "script_id": "CH03-060",
+    "sheet_flag": "1",
+    "sheet_progress_cell": "✅ script_outline: completed",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 60,
+    "sheet_title": "【健康診断】その検査、もう不要です！専門医が語る、受けるべき検査・やめるべき検査"
+  },
+  "channel_code": "CH03",
+  "video_number": "060"
+}

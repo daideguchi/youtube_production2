@@ -1,0 +1,116 @@
+{
+  "script_id": "CH03-044",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-01T06:47:01.456399Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-01T06:51:18.189503Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:05:02.431114Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:07:36.878761Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:12:03.283518Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:24:50.346830Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:27:47.371711Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "b41ac142110a57a1f4f0d0a510215c1eb4046cd9bf41074a2c778144cd5facd0",
+      "updated_at": "2025-11-01T11:12:44.751991Z",
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "details": {
+        "log_base": "logs/llm_polish/CH03-044_20251101T111241"
+      }
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-01T07:33:24.625078Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:55.494327Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/044/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/044/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-31T10:23:40.490727Z",
+  "updated_at": "2025-11-14T08:16:09.837320Z",
+  "metadata": {
+    "ready_for_audio": false,
+    "sheet_flag": "1",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/044/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/044/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 44,
+    "sheet_title": "【沈黙の臓器】腎臓は一度壊れたら治らない！腎臓病を招く危険な習慣",
+    "channel_code": "CH03",
+    "channel_display_name": "シニア・健康_【シニアの健康】朗読図書館",
+    "video_number": "044",
+    "script_id": "CH03-044",
+    "title": "【沈黙の臓器】腎臓は一度壊れたら治らない！腎臓病を招く危険な習慣",
+    "title_sanitized": "【沈黙の臓器】腎臓は一度壊れたら治らない！腎臓病を招く危険な習慣",
+    "title_updated_at": "2025-11-01T07:27:47.371711Z",
+    "assembled_characters": 11245,
+    "output_characters": 11563,
+    "chapter_characters": 11245,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "verifyclear",
+      "updated_at": "2025-11-01T11:09:11.969700Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH03/044/audio_prep/script_sanitized.txt"
+      },
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:55Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/044_20251113T120855Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/044_20251113T120855Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:55Z"
+  },
+  "channel_code": "CH03",
+  "video_number": "044"
+}

@@ -1,0 +1,32 @@
+シーン説明: {summary}
+視覚要素: {visual_focus}
+
+# ペルソナ・トーン（全カット共通・必須・一貫性強化）
+語り手=50代前後の日本人僧侶。丸顔〜卵型、落ち着いた表情、目は小さめで優しい。僧衣は「濃紺の袈裟＋薄茶の帯」で固定し、全カットで髪型/顔立ち/体型/衣装/色を絶対に変えない。僧衣の皺や布質感も毎回同じにする。舞台は日本的日常や静かな寺院・自然。16:9 横長。テキスト・看板・字幕・UI・記号は一切描かない（文字完全禁止）。「別の人物」や「服装変更」は禁止。
+
+# スタイル定義（強め・油彩水彩ハイブリッド）
+Style: Japanese illustration with stronger brushstrokes, oil-watercolor hybrid, gentle vignette glow, cinematic contrast, light fantasy mood. Character consistency is critical: same face shape, skin tone, hair (薄い黒髪の短髪 or 剃髪), same robe colors every frame.
+Negative: Photorealistic, 3D render, photograph, horror, messy, distorted face, anime big eyes, cel shading, heavy neon.
+Requirement: Illustration must feel premium, slightly mystical but grounded. No real photos. Keep proportions realistic-adult. Avoid anime exaggeration.
+
+# 描写ガイドライン
+
+## 1. 視聴者を掴む構成
+- 冒頭は強めの光や色でフックを作る（夕暮れ逆光、霧の光粒、象徴的シルエット）。平凡なバストアップは避ける。
+- 中盤は画角を切り替える（ロング/クローズ/俯瞰/煽り）＋動きを感じる線（風・粒子・雲）を入れる。
+
+## 2. 人物表現（一貫性最優先）
+- 年相応の穏やかな表情。シワや白髪は自然に、美しく。リアルすぎず絵本寄りの温かさ。
+- 顔のパーツ配置・髪型・僧衣の色/質感を毎カット固定。別人物や服の差し替えは厳禁。手足の長さ、体型も同じに保つ。
+
+## 3. 比喩・抽象表現
+- 不快なボディホラーは禁止。霧、曇り空、重い荷物、絡まった糸など柔らかいメタファーを使用。解決は光、晴れ間、花、鳥で。
+
+## 4. 構図と雰囲気
+- 余白を残し、詰め込みすぎない。パステル〜アース系を基調に、少しだけ強めの光のリムやグローを足す。
+- 文字・字幕・ロゴ・記号は描かない。
+
+# 入力パラメータ
+{style}
+{negative}
+セレクトが優先。手入力があれば手入力を使用。どちらも空ならプリセット。

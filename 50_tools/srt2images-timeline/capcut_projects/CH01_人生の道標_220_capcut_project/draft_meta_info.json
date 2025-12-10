@@ -1,0 +1,21 @@
+{
+  "draft_name": "CH01_人生の道標_220",
+  "draft_path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220",
+  "total_tracks": 4,
+  "total_segments": 51,
+  "file_size": 15420,
+  "last_modified": "2025-12-09T10:30:00",
+  "duration": 710.12,
+  "fps": 30.0,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "formats": [
+    "draft_info.json",
+    "draft_meta_info.json",
+    "image_cues.json"
+  ],
+  "status": "created",
+  "description": "CapCut project for Buddhist teaching story about Hakuin Ekaku and handling criticism"
+}

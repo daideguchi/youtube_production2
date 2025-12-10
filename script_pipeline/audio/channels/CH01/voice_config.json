@@ -1,0 +1,50 @@
+{
+  "channel_code": "CH01",
+  "channel_name": "仏教・科学 人生の道標",
+  "default_voice_key": "voicevox_aoyama",
+  "output": {
+    "final_root": "data/CH01/_legacy_audio_final",
+    "temp_root": "data/CH01/_legacy_audio_temp"
+  },
+  "voices": {
+    "voicepeak_male3": {
+      "engine": "voicepeak",
+      "character": "Japanese Male 3",
+      "engine_options": {
+        "narrator": "Japanese Male 3",
+        "pitch": -60
+      }
+    },
+    "voicepeak_female1_low": {
+      "engine": "voicepeak",
+      "character": "Japanese Female 1",
+      "engine_options": {
+        "narrator": "Japanese Female 1",
+        "pitch": -60
+      }
+    },
+    "voicevox_aoyama": {
+      "engine": "voicevox",
+      "character": "青山龍星",
+      "style": "ノーマル",
+      "speed_scale": 1.0,
+      "pitch_scale": 0.0,
+      "intonation_scale": 1.0,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.1,
+      "post_phoneme_length": 0.1
+    },
+    "voicevox_namioto": {
+      "engine": "voicevox",
+      "character": "波音リツ",
+      "style": "ノーマル",
+      "speed_scale": 1.0,
+      "pitch_scale": 0.0,
+      "intonation_scale": 1.1,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.12,
+      "post_phoneme_length": 0.12
+    }
+  },
+  "section_voice_rules": {}
+}

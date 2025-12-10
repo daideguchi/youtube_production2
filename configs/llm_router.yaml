@@ -1,0 +1,172 @@
+# LLM Router Configuration
+# Defines providers, models, tiers, and task mappings.
+
+providers:
+  azure:
+    env_api_key: AZURE_OPENAI_API_KEY
+    env_endpoint: AZURE_OPENAI_ENDPOINT
+    default_api_version: "2024-10-01-preview"
+  
+  gemini:
+    env_api_key: GEMINI_API_KEY
+  
+  openrouter:
+    env_api_key: OPENROUTER_API_KEY
+    base_url: "https://openrouter.ai/api/v1"
+
+models:
+  # --- Azure Models ---
+  azure_gpt5_mini:
+    provider: azure
+    deployment: gpt-5-mini
+    api_version: "2025-04-01-preview"
+    capabilities:
+      mode: chat
+      reasoning: true
+      json_mode: true
+      max_completion_tokens: 128000
+    defaults:
+      temperature: 1.0
+  
+  # --- Gemini Models (Image Only) ---
+  gemini_2_5_flash_image:
+    provider: gemini
+    model_name: gemini-2.5-flash-image
+    capabilities:
+      mode: image_generation
+      vision: false
+      json_mode: false
+
+  # --- OpenRouter Models ---
+  or_qwen_free:
+    provider: openrouter
+    model_name: "qwen/qwen-2.5-72b-instruct:free"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: false
+      max_tokens: 4096
+
+  or_deepseek_r1:
+    provider: openrouter
+    model_name: "deepseek/deepseek-r1:free"
+    capabilities:
+      mode: chat
+      reasoning: true
+      max_tokens: 8192
+
+  or_llama_free:
+    provider: openrouter
+    model_name: "meta-llama/llama-3.3-70b-instruct:free"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: false
+      max_tokens: 4096
+
+tiers:
+  # High intelligence, reasoning capable
+  heavy_reasoning:
+    - azure_gpt5_mini
+    - or_deepseek_r1
+    - or_qwen_free
+    - or_llama_free
+  
+  # Standard tasks
+  standard:
+    - azure_gpt5_mini
+    - or_qwen_free
+
+  # Cost effective
+  cheap:
+    - or_qwen_free
+
+  # Special purpose: Image generation ONLY
+  image_gen:
+    - gemini_2_5_flash_image
+
+tasks:
+  # --- Script Pipeline ---
+  script_topic_research:
+    tier: heavy_reasoning
+    timeout: 300
+    
+  script_outline:
+    tier: heavy_reasoning
+    timeout: 180
+    retry_policy: standard
+    fallback_policy: tier_down
+
+  script_chapter_brief:
+    tier: heavy_reasoning
+    timeout: 180
+
+  script_chapter_draft:
+    tier: heavy_reasoning
+    timeout: 240
+    retry_policy: extended
+
+  script_chapter_review:
+    tier: heavy_reasoning
+    timeout: 180
+  
+  script_cta:
+    tier: heavy_reasoning
+    timeout: 180
+
+  script_quality_check:
+    tier: heavy_reasoning
+    timeout: 300
+
+  script_format:
+    tier: standard
+    timeout: 60
+
+  # --- TTS Pipeline ---
+  tts_annotate:
+    tier: standard
+    timeout: 30
+    system_prompt_override: "You are a linguistic expert."
+
+  tts_text_prepare:
+    tier: standard
+    timeout: 60
+
+  tts_segment:
+    tier: standard
+    timeout: 30
+
+  tts_pause:
+    tier: standard
+    timeout: 30
+
+  tts_reading:
+    tier: heavy_reasoning
+    timeout: 60
+
+  # --- Visual Pipeline ---
+  visual_section_plan:
+    tier: heavy_reasoning
+    timeout: 120
+
+  visual_persona:
+    tier: heavy_reasoning
+    timeout: 60
+
+  visual_prompt_refine:
+    tier: heavy_reasoning
+    timeout: 60
+
+  visual_image_gen:
+    tier: image_gen
+    timeout: 60
+
+  belt_generation:
+    tier: standard
+    timeout: 120
+    defaults:
+      response_format: "json_object"
+
+  title_generation:
+    tier: standard
+    timeout: 60

@@ -1,0 +1,83 @@
+{
+  "script_id": "CH04-010",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:24:16.476938Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:24:37.768134Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:25:40.222308Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:23:42.835948Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:23:46.993608Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:23:50.664421Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:23.829701Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "6f1901e79b4a5cf8be95ea79212e960264e7c174f58bea9d39ca4e621bc80e69",
+      "updated_at": "2025-11-18T09:12:01.428980Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH04-010_20251118T091201"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.240172Z",
+  "updated_at": "2025-11-18T09:22:40.419722Z",
+  "metadata": {
+    "title": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
+    "title_sanitized": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
+    "title_updated_at": "2025-10-25T02:16:02.616354Z",
+    "chapter_characters": 2207,
+    "assembled_characters": 5012,
+    "output_characters": 0,
+    "sheet_progress_cell": "in_progress",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 11,
+    "sheet_title": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
+    "ready_for_audio": false,
+    "audio": {},
+    "planning": {},
+    "channel_code": "CH04",
+    "channel_display_name": "心理・好奇心_隠れ書庫アカシック",
+    "video_number": "010",
+    "script_id": "CH04-010",
+    "sheet_flag": "",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "6f1901e79b4a5cf8be95ea79212e960264e7c174f58bea9d39ca4e621bc80e69",
+      "updated_at": "2025-11-18T09:12:01.428934Z"
+    }
+  },
+  "channel_code": "CH04",
+  "video_number": "010"
+}

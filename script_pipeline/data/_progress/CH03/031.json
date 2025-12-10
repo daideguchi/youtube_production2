@@ -1,0 +1,92 @@
+{
+  "script_id": "CH03-031",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:35.319969Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:36.296054Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:37.345428Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:37.469614Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:38.411923Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:39.489893Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T17:25:40.408065Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:52.900085Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/031/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/031/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {},
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.252935Z",
+  "updated_at": "2025-11-14T08:16:08.471892Z",
+  "metadata": {
+    "title": "【骨折→寝たきり】1日1分で激変！理学療法士が教える「転倒予防」最強の習慣",
+    "title_sanitized": "【骨折→寝たきり】1日1分で激変！理学療法士が教える「転倒予防」最強の習慣",
+    "title_updated_at": "2025-10-25T02:15:46.316513Z",
+    "ready_for_audio": false,
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:52Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/031_20251113T120852Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/031_20251113T120852Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:52Z",
+    "sheet_flag": "8",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/031/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/031/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 32,
+    "sheet_title": "【骨折→寝たきり】1日1分で激変！理学療法士が教える「転倒予防」最強の習慣"
+  },
+  "channel_code": "CH03",
+  "video_number": "031"
+}

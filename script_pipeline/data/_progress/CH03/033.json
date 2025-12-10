@@ -1,0 +1,117 @@
+{
+  "script_id": "CH03-033",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:50:18.619032Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:51:23.753671Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:57:31.717492Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:57:44.621849Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:58:46.501760Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:59:50.486556Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:02:06.371649Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "0842dac369f453b2742b3b0b935d7303e31a00c6586b574eaed137704eaaf28a",
+      "updated_at": "2025-10-31T08:05:04.470357Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH03-033_20251031T080501"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-31T08:05:16.108366Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:53.370499Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/033/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/033/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.267465Z",
+  "updated_at": "2025-11-14T08:16:08.693887Z",
+  "metadata": {
+    "title": "【便秘は万病のもと】腸内環境が劇的に改善！医師が勧める最強の食べ物TOP5",
+    "title_sanitized": "【便秘は万病のもと】腸内環境が劇的に改善！医師が勧める最強の食べ物TOP5",
+    "title_updated_at": "2025-10-31T05:02:01.290694Z",
+    "channel_code": "CH03",
+    "video_number": "033",
+    "script_id": "CH03-033",
+    "ready_for_audio": false,
+    "assembled_characters": 8017,
+    "output_characters": 8348,
+    "chapter_characters": 7941,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "0842dac369f453b2742b3b0b935d7303e31a00c6586b574eaed137704eaaf28a",
+      "updated_at": "2025-10-31T08:05:04.470333Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH03/033/audio_prep/script_sanitized.txt"
+      },
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:53Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/033_20251113T120853Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/033_20251113T120853Z.failed.log"
+        }
+      ]
+    },
+    "sheet_flag": "1",
+    "sheet_title": "【便秘は万病のもと】腸内環境が劇的に改善！医師が勧める最強の食べ物TOP5",
+    "sheet_row_number": 34,
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/033/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/033/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "audio_failed_at": "2025-11-13T12:08:53Z"
+  },
+  "channel_code": "CH03",
+  "video_number": "033"
+}

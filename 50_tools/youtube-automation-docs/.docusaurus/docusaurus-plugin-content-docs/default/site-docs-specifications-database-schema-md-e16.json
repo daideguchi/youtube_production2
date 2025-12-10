@@ -1,0 +1,26 @@
+{
+  "id": "specifications/database-schema",
+  "title": "データベーススキーマ設計（chartDB）",
+  "description": "📊 ChartDBで視覚化",
+  "source": "@site/docs/specifications/database-schema.md",
+  "sourceDirName": "specifications",
+  "slug": "/specifications/database-schema",
+  "permalink": "/docs/specifications/database-schema",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "スプレッドシート仕様書",
+    "permalink": "/docs/specifications/spreadsheet"
+  },
+  "next": {
+    "title": "DoD（Definition of Done）合格基準 - 数値レベル完全定義",
+    "permalink": "/docs/specifications/dod-criteria"
+  }
+}

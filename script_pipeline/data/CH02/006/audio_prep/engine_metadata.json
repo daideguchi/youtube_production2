@@ -1,0 +1,165 @@
+{
+  "voicevox_kana_diff": {
+    "engine_kana": "カテエカ'ンキョオモ/エエキョオ'/シマ'_ス",
+    "llm_kana": "",
+    "diff": [
+      {
+        "tag": "delete",
+        "engine_span": "カテエカ'ンキョオモ/エエキョオ'/シマ'_ス",
+        "llm_span": "",
+        "pos": [
+          0,
+          23,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "voicevox_accent_phrases": [
+    {
+      "moras": [
+        {
+          "text": "カ",
+          "consonant": "k",
+          "consonant_length": 0.06103400141000748,
+          "vowel": "a",
+          "vowel_length": 0.053668513894081116,
+          "pitch": 4.636630058288574
+        },
+        {
+          "text": "テ",
+          "consonant": "t",
+          "consonant_length": 0.07839198410511017,
+          "vowel": "e",
+          "vowel_length": 0.06996208429336548,
+          "pitch": 5.056166648864746
+        },
+        {
+          "text": "エ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "e",
+          "vowel_length": 0.08604808151721954,
+          "pitch": 5.024056434631348
+        },
+        {
+          "text": "カ",
+          "consonant": "k",
+          "consonant_length": 0.0773748904466629,
+          "vowel": "a",
+          "vowel_length": 0.07481160759925842,
+          "pitch": 5.049098491668701
+        },
+        {
+          "text": "ン",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "N",
+          "vowel_length": 0.06919828057289124,
+          "pitch": 5.000649929046631
+        },
+        {
+          "text": "キョ",
+          "consonant": "ky",
+          "consonant_length": 0.09405602514743805,
+          "vowel": "o",
+          "vowel_length": 0.06432544440031052,
+          "pitch": 4.592200756072998
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.07427076995372772,
+          "pitch": 4.42750358581543
+        },
+        {
+          "text": "モ",
+          "consonant": "m",
+          "consonant_length": 0.050264209508895874,
+          "vowel": "o",
+          "vowel_length": 0.0852111279964447,
+          "pitch": 4.34229040145874
+        }
+      ],
+      "accent": 4,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "エ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "e",
+          "vowel_length": 0.08622733503580093,
+          "pitch": 4.4012980461120605
+        },
+        {
+          "text": "エ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "e",
+          "vowel_length": 0.07562030851840973,
+          "pitch": 4.489771366119385
+        },
+        {
+          "text": "キョ",
+          "consonant": "ky",
+          "consonant_length": 0.10172171145677567,
+          "vowel": "o",
+          "vowel_length": 0.0612897053360939,
+          "pitch": 4.530822277069092
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.06743917614221573,
+          "pitch": 4.450573921203613
+        }
+      ],
+      "accent": 4,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "シ",
+          "consonant": "sh",
+          "consonant_length": 0.10215277969837189,
+          "vowel": "i",
+          "vowel_length": 0.019456282258033752,
+          "pitch": 4.421245574951172
+        },
+        {
+          "text": "マ",
+          "consonant": "m",
+          "consonant_length": 0.039789870381355286,
+          "vowel": "a",
+          "vowel_length": 0.08359476923942566,
+          "pitch": 4.370638847351074
+        },
+        {
+          "text": "ス",
+          "consonant": "s",
+          "consonant_length": 0.17519712448120117,
+          "vowel": "U",
+          "vowel_length": 0.04832259565591812,
+          "pitch": 0.0
+        }
+      ],
+      "accent": 2,
+      "pause_mora": null,
+      "is_interrogative": false
+    }
+  ],
+  "voicevox_kana": "カテエカ'ンキョオモ/エエキョオ'/シマ'_ス",
+  "voicevox_kana_llm_ref": "",
+  "voicevox_kana_corrected": "カテエカ'ンキョオモ/エエキョオ'/シマ'_ス"
+}

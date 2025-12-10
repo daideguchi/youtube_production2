@@ -1,0 +1,51 @@
+{
+  "episode": "191",
+  "main_title": "人生の道標 191話",
+  "total_duration": 836.434,
+  "belt_lower": {
+    "track": 4,
+    "text": "人生の道標 191話",
+    "start_sec": 3.0,
+    "duration_sec": 836.434,
+    "font_size": 5.0,
+    "position": "upper"
+  },
+  "belt_upper": [
+    {
+      "track": 3,
+      "text": "①心の重さを知る - 無意識の言葉",
+      "start_sec": 0.0,
+      "end_sec": 54.0,
+      "duration_sec": 54.0,
+      "font_size": 4.5,
+      "position": "upper"
+    },
+    {
+      "track": 3,
+      "text": "②雅子さんの物語 - 言葉の力に気づく",
+      "start_sec": 54.0,
+      "end_sec": 355.0,
+      "duration_sec": 301.0,
+      "font_size": 4.5,
+      "position": "upper"
+    },
+    {
+      "track": 3,
+      "text": "③言葉の言い換え - 心を軽くする方法",
+      "start_sec": 355.0,
+      "end_sec": 624.0,
+      "duration_sec": 269.0,
+      "font_size": 4.5,
+      "position": "upper"
+    },
+    {
+      "track": 3,
+      "text": "④言葉の業 - 未来を彩る優しい言葉",
+      "start_sec": 624.0,
+      "end_sec": 836.434,
+      "duration_sec": 212.43399999999997,
+      "font_size": 4.5,
+      "position": "upper"
+    }
+  ]
+}

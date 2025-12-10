@@ -1,0 +1,39 @@
+{
+  "script_id": "CH01-246",
+  "channel": "CH01",
+  "status": "pending",
+  "stages": {
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-05T01:18:09.978875Z",
+  "updated_at": "2025-12-05T01:18:09.978875Z",
+  "metadata": {
+    "title": "【逃げ場所の確保】心の避難所（サードプレイス）を持たない人は脆い",
+    "title_sanitized": "【逃げ場所の確保】心の避難所（サードプレイス）を持たない人は脆い",
+    "title_updated_at": null,
+    "chapter_characters": 66,
+    "assembled_characters": 66,
+    "output_characters": 66,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH01",
+    "channel_display_name": "人生の道標",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【逃げ場所の確保】心の避難所（サードプレイス）を持たない人は脆い",
+    "chapter_count": 0,
+    "assembled_path": "script_pipeline/data/CH01/246/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/246/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/246/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「【逃げ場所の確保】心の避難所（サードプレイス）を持たない人は脆い」を仏教の視点でやさしく解き明かします。\n心が折れそうなときに使える“たった一言”をお届け。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "246"
+}

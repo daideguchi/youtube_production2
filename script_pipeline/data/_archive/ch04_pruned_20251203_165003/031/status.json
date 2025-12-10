@@ -1,0 +1,79 @@
+{
+  "script_id": "CH04-031",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T13:29:04.764595Z",
+  "updated_at": "2025-12-01T03:56:04.408476Z",
+  "metadata": {
+    "channel_code": "CH04",
+    "channel_display_name": "企画",
+    "video_number": "031",
+    "script_id": "CH04-031",
+    "ready_for_audio": true,
+    "title": "睡眠学習の科学と実践方法",
+    "title_sanitized": "睡眠学習の科学と実践方法",
+    "title_updated_at": "2025-11-01T12:23:56.067932Z",
+    "assembled_characters": 8367,
+    "output_characters": 8981,
+    "chapter_characters": 8367,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "1d584fd0ef65c90be1f767fd533471cf616e9d4236a23005c4abbb0468af026f",
+      "updated_at": "2025-11-01T12:29:36.452457Z"
+    },
+    "audio": {},
+    "sheet_flag": "0.0",
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 27,
+    "sheet_title": "睡眠学習の科学と実践方法",
+    "chapter_count": 1,
+    "ready_for_audio_at": null,
+    "assembled_path": "script_pipeline/data/CH04/031/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH04/031/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH04/031/audio_prep/script_sanitized_with_pauses.txt"
+  },
+  "channel_code": "CH04",
+  "video_number": "031"
+}

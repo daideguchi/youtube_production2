@@ -1,0 +1,82 @@
+{
+  "script_id": "CH04-009",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:22:58.829588Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:23:23.543374Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:23:25.374026Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:29:11.114602Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:29:12.224146Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:29:13.196337Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:23.720181Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "aa80a8993b5a223a5cde7fe8059a93a6a9b68f1b93863920ed713cbcdfdff43a",
+      "updated_at": "2025-11-18T09:11:25.097612Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH04-009_20251118T091124"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.236311Z",
+  "updated_at": "2025-11-18T09:22:40.297037Z",
+  "metadata": {
+    "title": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
+    "title_sanitized": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
+    "title_updated_at": "2025-10-25T02:16:01.956172Z",
+    "chapter_characters": 8302,
+    "assembled_characters": 8326,
+    "output_characters": 8301,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH04",
+    "channel_display_name": "心理・好奇心_隠れ書庫アカシック",
+    "video_number": "009",
+    "script_id": "CH04-009",
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "in_progress",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 10,
+    "sheet_title": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "aa80a8993b5a223a5cde7fe8059a93a6a9b68f1b93863920ed713cbcdfdff43a",
+      "updated_at": "2025-11-18T09:11:25.097593Z"
+    }
+  },
+  "channel_code": "CH04",
+  "video_number": "009"
+}

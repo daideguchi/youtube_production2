@@ -1,0 +1,92 @@
+{
+  "script_id": "CH03-039",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:51.459994Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:55.150825Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:58.721000Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:58.849058Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:39:02.448376Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:39:05.569993Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T17:25:46.050429Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:54.303257Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/039/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/039/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {},
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.256708Z",
+  "updated_at": "2025-11-14T08:16:09.273211Z",
+  "metadata": {
+    "title": "【うつ病のサイン】それ、ただの気分の落ち込みじゃない！家族が気付くべき高齢者のSOS",
+    "title_sanitized": "【うつ病のサイン】それ、ただの気分の落ち込みじゃない！家族が気付くべき高齢者のSOS",
+    "title_updated_at": "2025-10-25T02:15:50.284259Z",
+    "ready_for_audio": false,
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:54Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/039_20251113T120854Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/039_20251113T120854Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:54Z",
+    "sheet_flag": "15",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/039/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/039/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 39,
+    "sheet_title": "【うつ病のサイン】それ、ただの気分の落ち込みじゃない！家族が気付くべき高齢者のSOS"
+  },
+  "channel_code": "CH03",
+  "video_number": "039"
+}

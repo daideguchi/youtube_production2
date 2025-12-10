@@ -1,0 +1,76 @@
+{
+  "script_id": "CH01-001",
+  "channel": "CH01",
+  "status": "completed",
+  "stages": {
+    "topic_research": {
+      "status": "completed"
+    },
+    "script_outline": {
+      "status": "completed"
+    },
+    "script_draft": {
+      "status": "completed"
+    },
+    "script_enhancement": {
+      "status": "completed"
+    },
+    "script_review": {
+      "status": "completed"
+    },
+    "quality_check": {
+      "status": "completed"
+    },
+    "script_validation": {
+      "status": "completed"
+    },
+    "script_polish_ai": {
+      "status": "completed"
+    },
+    "script_audio_ai": {
+      "status": "completed"
+    },
+    "script_tts_prepare": {
+      "status": "completed"
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    },
+    "timeline_copy": {
+      "status": "completed"
+    },
+    "image_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-05T01:17:06.701582Z",
+  "updated_at": "2025-12-05T01:19:57.200050Z",
+  "metadata": {
+    "title": "六十歳を過ぎたころ、人付き合いの重さが急に体に響くようになりました。若い頃は「嫌われないように」「義理を欠かないように」と、会いたくない人にも笑顔を貼りつけてきた。それが当たり前だと思ってきたのに、ある朝ふと、肩に乗った石のような重さに気づきます。このまま残りの時間を、誰かの機嫌のために使うのか。心の奥で、小さな問いが静かに芽を出します。ブッダの教えは、執着を手放し、静けさを選ぶことで心が軽くなると伝えます。人間関係も同じです。無理に繋いだ手をそっと離すと、自分の手が使えるようになり、残りの人生を自分の足で歩けるようになります。",
+    "title_sanitized": "六十歳を過ぎたころ、人付き合いの重さが急に体に響くようになりました。若い頃は「嫌われないように」「義理を欠かないように」と、会いたくない人にも笑顔を貼りつけてきた。それが当たり前だと思ってきたのに、ある朝ふと、肩に乗った石のような重さに気づきます。このまま残りの時間を、誰かの機嫌のために使うのか。心の奥で、小さな問いが静かに芽を出します。ブッダの教えは、執着を手放し、静けさを選ぶことで心が軽くなると伝えます。人間関係も同じです。無理に繋いだ手をそっと離すと、自分の手が使えるようになり、残りの人生を自分の足で歩けるようになります。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH01",
+    "channel_display_name": "人生の道標",
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "むしろ孤独は強みに変わる | ブッダの教え",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-05T01:17:06.701582Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/001/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/001/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/001/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「むしろ孤独は強みに変わる | ブッダの教え」を仏教の視点でやさしく解き明かします。\n六十歳を過ぎたころ、人付き合いの重さが急に体に響くようになりました。若い頃は「嫌われないように」「義理を欠かないように」と、会いたくない人にも笑顔を貼りつけてきた。それが当たり前だと思ってきたのに、ある朝ふと、肩に乗った石のような重さに気づきます。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "001"
+}

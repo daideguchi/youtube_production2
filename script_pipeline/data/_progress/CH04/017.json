@@ -1,0 +1,88 @@
+{
+  "script_id": "CH04-017",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:27.224105Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:27.392253Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:27.558184Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:27.723920Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:27.896382Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T09:13:28.066315Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-29T07:24:56.373263Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "8058720a13ce5900d505f7dcb58751cb3c935f4eb76e559cfb74e602500e12f7",
+      "updated_at": "2025-10-29T07:29:24.326366Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:22:41.352452Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.239824Z",
+  "updated_at": "2025-11-18T09:22:41.352857Z",
+  "metadata": {
+    "title": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
+    "title_sanitized": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
+    "title_updated_at": "2025-10-29T07:24:56.373263Z",
+    "chapter_characters": 8158,
+    "assembled_characters": 8158,
+    "output_characters": 8503,
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 18,
+    "sheet_title": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
+    "ready_for_audio": false,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "8058720a13ce5900d505f7dcb58751cb3c935f4eb76e559cfb74e602500e12f7",
+      "updated_at": "2025-10-29T07:29:24.326325Z"
+    },
+    "audio": {},
+    "planning": {},
+    "channel_code": "CH04",
+    "video_number": "017",
+    "script_id": "CH04-017",
+    "channel_display_name": "心理・好奇心_隠れ書庫アカシック",
+    "sheet_flag": ""
+  },
+  "channel_code": "CH04",
+  "video_number": "017"
+}

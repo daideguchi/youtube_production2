@@ -1,0 +1,84 @@
+{
+  "script_id": "CH04-016",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-29T00:19:01.746116Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-29T00:23:04.934176Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-29T01:24:36.340989Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-29T01:33:07.476786Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-29T01:36:48.726153Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-29T01:44:09.920931Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-29T01:54:42.457556Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "feb6945f06e96ffc8d5adc327f65fdac54fcb9510cf432061eff6f71549b94fd",
+      "updated_at": "2025-10-29T02:00:24.512809Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:22:41.229973Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.239609Z",
+  "updated_at": "2025-11-18T09:22:41.230484Z",
+  "metadata": {
+    "title": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
+    "title_sanitized": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
+    "title_updated_at": "2025-10-29T01:54:42.457556Z",
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 17,
+    "sheet_title": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
+    "ready_for_audio": false,
+    "assembled_characters": 8016,
+    "output_characters": 8382,
+    "chapter_characters": 8016,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "feb6945f06e96ffc8d5adc327f65fdac54fcb9510cf432061eff6f71549b94fd",
+      "updated_at": "2025-10-29T02:00:24.512777Z"
+    },
+    "audio": {},
+    "planning": {},
+    "sheet_flag": ""
+  },
+  "channel_code": "CH04",
+  "video_number": "016"
+}

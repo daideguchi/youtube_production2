@@ -1,0 +1,112 @@
+{
+  "script_id": "CH02-026",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:50:51.980405Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:03:38.843977Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:04:59.150583Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:06:33.781213Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:14:02.835270Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "f2766f912f514aeb33d0df536139c5ebe4526811abc9da84f2ce2c1a053bbf97",
+      "updated_at": "2025-10-31T11:32:47.710834Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH02-026_20251031T113244"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-31T08:16:57.371135Z"
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z",
+      "engine": "voicevox",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.srt"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-10-31T04:47:37.258313Z"
+    },
+    "quality_check": {
+      "status": "completed",
+      "updated_at": "2025-10-31T05:11:12.305069Z"
+    }
+  },
+  "created_at": "2025-10-30T06:23:05.029755Z",
+  "updated_at": "2025-12-09T12:02:21.419717Z",
+  "metadata": {
+    "ready_for_audio": true,
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_outline: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 27,
+    "sheet_title": "【優しさの刃】あなたの“良かれ”は、なぜ相手を傷つけるのか―他者への介入という暴力",
+    "channel_code": "CH02",
+    "video_number": "026",
+    "script_id": "CH02-026",
+    "title": "深夜、友人から「もう限界かも」とメッセージが届きました。明日も早いけれど、放っておけずに電話に出る。気づけば一時間。布団に入っても頭が冴え、翌朝はぼんやり。優しくしたつもりが、自分も相手もすり減っている。この重さの正体が「優しさの刃」です。刃がない優しさは、守りたいものごと飲み込み、やがて自分も壊します。今日は、優しさを長く続けるための境界の引き方を静かに考えます。",
+    "title_sanitized": "深夜、友人から「もう限界かも」とメッセージが届きました。明日も早いけれど、放っておけずに電話に出る。気づけば一時間。布団に入っても頭が冴え、翌朝はぼんやり。優しくしたつもりが、自分も相手もすり減っている。この重さの正体が「優しさの刃」です。刃がない優しさは、守りたいものごと飲み込み、やがて自分も壊します。今日は、優しさを長く続けるための境界の引き方を静かに考えます。",
+    "title_updated_at": "2025-10-31T05:13:30.104786Z",
+    "assembled_characters": 6920,
+    "output_characters": 6920,
+    "chapter_characters": 6920,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "f2766f912f514aeb33d0df536139c5ebe4526811abc9da84f2ce2c1a053bbf97",
+      "updated_at": "2025-10-31T11:32:47.710816Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/026/audio_prep/script_sanitized.txt"
+      },
+      "synthesis": {
+        "engine": "voicevox",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.srt",
+        "updated_at": "2025-12-02T03:59:38Z"
+      }
+    },
+    "ready_for_audio_at": "2025-10-31T08:16:57.372430Z",
+    "channel_display_name": "心理学・モチベ_静寂の哲学",
+    "assembled_path": "script_pipeline/data/CH02/026/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/026/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/026/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【優しさの刃】あなたの“良かれ”は、なぜ相手を傷つけるのか―他者への介入という暴力 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n深夜、友人から「もう限界かも」とメッセージが届きました。明日も早いけれど、放っておけずに電話に出る。気づけば一時間。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ",
+    "audio_reviewed": true
+  },
+  "channel_code": "CH02",
+  "video_number": "026"
+}

@@ -1,0 +1,124 @@
+# Stage definitions for the new script pipeline (isolated from existing flows).
+#
+# Each stage lists required outputs (relative to the video root) that will be
+# generated as placeholders by the runner unless real generators are wired in.
+#
+# Order matters: the first pending stage is executed by default.
+stages:
+  - name: topic_research
+    description: Collect research brief and references
+    outputs:
+      - path: content/analysis/research/research_brief.md
+        required: true
+      - path: content/analysis/research/references.json
+        required: true
+    llm:
+      task: script_topic_research
+      template: research
+      max_tokens: 64000
+      placeholders:
+        TOPIC: from_title    # use SoT title/expected_title
+        CHANNEL_CONTEXT: from_channel_name
+        AUDIENCE_PROFILE: from_persona
+        CHANNEL_STYLE_GUIDE: from_style
+  - name: script_outline
+    description: Draft outline
+    outputs:
+      - path: content/outline.md
+        required: true
+    llm:
+      task: script_outline
+      template: outline
+      max_tokens: 64000
+      placeholders:
+        RESEARCH_BRIEF: "@content/analysis/research/research_brief.md"
+        TOPIC: from_title
+        CHANNEL_CONTEXT: from_channel_name
+        AUDIENCE_PROFILE: from_persona
+        CHANNEL_STYLE_GUIDE: from_style
+        CHAPTER_COUNT: from_chapter_count
+  - name: chapter_brief
+    description: Chapter-level brief instructions
+    outputs:
+      - path: content/chapters/chapter_briefs.json
+        required: true
+    llm:
+      task: script_chapter_brief
+      template: chapter_brief
+      max_tokens: 64000
+      placeholders:
+        TOPIC: from_title
+        AUDIENCE_PROFILE: from_persona
+        CHANNEL_STYLE_GUIDE: from_style
+        META_JSON: from_metadata_json
+        OUTLINE_TEXT: "@content/outline.md"
+        TOTAL_CHAPTERS: "from_outline_count"
+  - name: script_draft
+    description: Draft chapters
+    outputs:
+      - path: content/chapters/chapter_1.md
+        required: true
+    llm:
+      task: script_chapter_draft
+      template: chapter
+      max_tokens: 4096
+      placeholders:
+        CHAPTER_NUMBER: "1"
+        CHAPTER_TITLE: from_title
+        # 章あたりの目標文字数（単本の厚みを確保）
+        WORD_TARGET: "1800"
+        META_JSON: from_metadata_json
+        OUTLINE_TEXT: "@content/outline.md"
+        CHAPTER_JSON: "{\"heading\": \"第1章\"}"
+        SCRIPT_PROMPT: from_script_prompt
+  - name: script_enhancement
+    description: Enhancement pass (no new files)
+    outputs: []
+  - name: script_review
+    description: Assemble chapters
+    outputs:
+      - path: content/assembled.md
+        required: true
+      - path: content/final/cta.txt
+        required: false
+      - path: content/final/scenes.json
+        required: false
+    llm:
+      task: script_cta
+      template: cta
+      max_tokens: 64000
+      placeholders:
+        TOPIC: from_title
+        CHANNEL_CONTEXT: from_channel_name
+        AUDIENCE_PROFILE: from_persona
+        CHANNEL_STYLE_GUIDE: from_style
+        CTA_PURPOSE: "物語の余韻を残し、深い考察を促す（チャンネル登録や高評価は一切求めない）"
+        TARGET_LENGTH: "160"
+  - name: quality_check
+    description: Quality review
+    outputs:
+      - path: content/analysis/research/quality_review.md
+        required: true
+    llm:
+      task: script_quality_check
+      template: quality
+      max_tokens: 64000
+      placeholders:
+        SCRIPT_CONTENT: "@content/final/assembled.md"
+        CHANNEL_CONTEXT: from_channel_name
+        AUDIENCE_PROFILE: from_persona
+        CHANNEL_STYLE_GUIDE: from_style
+  - name: script_validation
+    description: Final validation (no additional outputs; SoT=content/final/assembled.md)
+    outputs: []
+  - name: audio_synthesis
+    description: Generate audio and subtitles
+    outputs:
+      - path: audio_prep/script_sanitized.txt
+        required: true
+      - path: audio_prep/chunks
+        required: false
+      - path: ../../../audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.wav
+        required: true
+      - path: ../../../audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.srt
+        required: true

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "engine": "voicepeak",
+  "status": "failed",
+  "updated_at": "2025-11-13T12:08:50Z",
+  "total_chunks": 158,
+  "completed_chunks": 158,
+  "sanitized_script": "data/CH03/023/audio_prep/script_sanitized.txt",
+  "tagged_script": null,
+  "chunks_dir": null,
+  "output_dir": null,
+  "cli_script": null,
+  "notes": null,
+  "metadata": {
+    "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "specifications/spreadsheet",
+  "title": "スプレッドシート仕様書",
+  "description": "スプシ = 唯一の真実（Single Source of Truth）",
+  "source": "@site/docs/specifications/spreadsheet.md",
+  "sourceDirName": "specifications",
+  "slug": "/specifications/spreadsheet",
+  "permalink": "/docs/specifications/spreadsheet",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "YouTube自動化の流れ（完全ガイド）",
+    "permalink": "/docs/specifications/process-guide"
+  },
+  "next": {
+    "title": "データベーススキーマ設計（chartDB）",
+    "permalink": "/docs/specifications/database-schema"
+  }
+}

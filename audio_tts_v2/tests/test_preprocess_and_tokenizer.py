@@ -1,0 +1,27 @@
+import sys
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tts.preprocess import preprocess_a_text  # noqa: E402
+from tts.mecab_tokenizer import tokenize_with_mecab  # noqa: E402
+
+
+def test_preprocess_and_silence_detection():
+    text = "\ufeff 今日はテストです。[0.5]\n"
+    res = preprocess_a_text(text)
+    assert res["a_text"].startswith("今日は")
+    assert res["meta"]["silence_tags"]
+
+
+def test_tokenizer_inserts_silence(monkeypatch):
+    try:
+        import MeCab  # noqa: F401
+    except ImportError:
+        pytest.skip("MeCab not installed")
+    tokens = tokenize_with_mecab("重力波観測[0.5]成功")
+    assert any(t.get("pos") == "silence_tag" for t in tokens)

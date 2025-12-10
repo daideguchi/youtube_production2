@@ -1,0 +1,95 @@
+{
+  "script_id": "CH06-001",
+  "channel": "CH06",
+  "status": "completed",
+  "metadata": {
+    "title": "1600年間、人類から隠され続けてきた一冊の本があります。",
+    "expected_title": "【禁断の福音書】トマスによる福音書【都市伝説のダーク図書館】",
+    "chapter_count": 7,
+    "assembled_path": "script_pipeline/data/CH06/001/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH06/001/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH06/001/audio_prep/script_sanitized_with_pauses.txt",
+    "ready_for_audio": true,
+    "assembled_characters": 9323,
+    "title_sanitized": "1600年間、人類から隠され続けてきた一冊の本があります。",
+    "youtube_description": "1600年間、人類から隠され続けてきた一冊の本があります。 の“噂”と“根拠”を切り分け、考察で本当かもしれないを探ります。\n1600年間、人類から隠され続けてきた一冊の本があります。\nもし、あなたが信じているキリスト教の歴史が、ある組織によって都合よく書き換えられたものだとしたら、どうしますか。\n🧭 今日からできる一歩：複数ソースを照合・仮説と事実を分けてメモ\n#都市伝説 #考察 #検証"
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/analysis/research/research_brief.md",
+          "content/analysis/research/references.json"
+        ],
+        "llm": true
+      }
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/outline.md"
+        ],
+        "llm": true
+      }
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/chapters/chapter_briefs.json"
+        ],
+        "llm": true
+      }
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/chapters/chapter_1.md",
+          "content/chapters/chapter_2.md",
+          "content/chapters/chapter_3.md",
+          "content/chapters/chapter_4.md",
+          "content/chapters/chapter_5.md",
+          "content/chapters/chapter_6.md",
+          "content/chapters/chapter_7.md"
+        ],
+        "llm": true
+      }
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/final/assembled.md",
+          "content/final/cta.txt",
+          "content/final/scenes.json"
+        ],
+        "llm": true
+      }
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {
+        "generated": [
+          "content/analysis/research/quality_review.md"
+        ],
+        "llm": true
+      }
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {
+        "generated": []
+      }
+    }
+  },
+  "updated_at": "2025-12-02T07:13:06.531851Z",
+  "channel_code": "CH06",
+  "video_number": "001"
+}

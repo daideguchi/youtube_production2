@@ -1,0 +1,76 @@
+{
+  "script_id": "CH01-009",
+  "channel": "CH01",
+  "status": "completed",
+  "stages": {
+    "topic_research": {
+      "status": "completed"
+    },
+    "script_outline": {
+      "status": "completed"
+    },
+    "script_draft": {
+      "status": "completed"
+    },
+    "script_enhancement": {
+      "status": "completed"
+    },
+    "script_review": {
+      "status": "completed"
+    },
+    "quality_check": {
+      "status": "completed"
+    },
+    "script_validation": {
+      "status": "completed"
+    },
+    "script_polish_ai": {
+      "status": "completed"
+    },
+    "script_audio_ai": {
+      "status": "completed"
+    },
+    "script_tts_prepare": {
+      "status": "completed"
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    },
+    "timeline_copy": {
+      "status": "completed"
+    },
+    "image_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-05T01:17:06.701582Z",
+  "updated_at": "2025-12-05T01:19:57.200050Z",
+  "metadata": {
+    "title": "死を考えると胸の奥が冷たくなります。眠れない夜に呼吸が浅くなります。ブッダは「すべては生まれ、老い、病み、やがて死ぬ」と語りました。脅すためではなく、今を静かに見る灯りとして語りました。輪廻や六道という言葉は遠くの物語に見えますが、「今の行いが次の瞬間を形作る」という因果を伝えます。死を遠ざけるより、今の生を整えることが、最期を穏やかにします。ここでは、穏やかな最期を迎えるために、物語と小さな実践を積み重ねます。わかりやすく、手が届く言葉だけで進みます。",
+    "title_sanitized": "死を考えると胸の奥が冷たくなります。眠れない夜に呼吸が浅くなります。ブッダは「すべては生まれ、老い、病み、やがて死ぬ」と語りました。脅すためではなく、今を静かに見る灯りとして語りました。輪廻や六道という言葉は遠くの物語に見えますが、「今の行いが次の瞬間を形作る」という因果を伝えます。死を遠ざけるより、今の生を整えることが、最期を穏やかにします。ここでは、穏やかな最期を迎えるために、物語と小さな実践を積み重ねます。わかりやすく、手が届く言葉だけで進みます。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH01",
+    "channel_display_name": "人生の道標",
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "欲望の渦から抜け出し、心の平和を見つける旅 | ブッダの教え",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-05T01:17:06.701582Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/009/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/009/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH01/009/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「欲望の渦から抜け出し、心の平和を見つける旅 | ブッダの教え」を仏教の視点でやさしく解き明かします。\n死を考えると胸の奥が冷たくなります。眠れない夜に呼吸が浅くなります。ブッダは「すべては生まれ、老い、病み、やがて死ぬ」と語りました。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH01",
+  "video_number": "009"
+}

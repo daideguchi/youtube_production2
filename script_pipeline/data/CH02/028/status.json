@@ -1,0 +1,110 @@
+{
+  "script_id": "CH02-028",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:22:26.496777Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:33:44.583866Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:33:57.517134Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:34:56.837189Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:37:21.102232Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "b9f28bf94da3c87e8df9b62e38e486397d4c9558eec176a9b4e5abc7f1a1ae6c",
+      "updated_at": "2025-11-02T08:10:32.544885Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH02-028_20251102T080810"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-02T08:11:39.161666Z"
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z",
+      "engine": "voicevox",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.srt"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:19:56.585059Z"
+    },
+    "quality_check": {
+      "status": "completed",
+      "updated_at": "2025-10-31T10:36:36.239901Z"
+    }
+  },
+  "created_at": "2025-10-31T01:12:45.461342Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "metadata": {
+    "ready_for_audio": true,
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_outline: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 29,
+    "sheet_title": "【都市の孤独】なぜ人口密度が高い東京ほど、人は孤独を感じるのか",
+    "channel_code": "CH02",
+    "video_number": "028",
+    "script_id": "CH02-028",
+    "title": "夕方の改札を抜けると、人の波に押されながら胸だけが冷えていく感覚があります。肩は触れるのに、心は触れません。にぎやかなのに静か、近いのに遠い。この矛盾が都市の孤独です。今日は、その冷たさに小さく温度を戻す方法を探します。",
+    "title_sanitized": "夕方の改札を抜けると、人の波に押されながら胸だけが冷えていく感覚があります。肩は触れるのに、心は触れません。にぎやかなのに静か、近いのに遠い。この矛盾が都市の孤独です。今日は、その冷たさに小さく温度を戻す方法を探します。",
+    "title_updated_at": "2025-10-31T10:37:15.885581Z",
+    "assembled_characters": 6939,
+    "output_characters": 6939,
+    "chapter_characters": 6939,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "b9f28bf94da3c87e8df9b62e38e486397d4c9558eec176a9b4e5abc7f1a1ae6c",
+      "updated_at": "2025-11-02T08:10:32.544846Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/028/audio_prep/script_sanitized.txt"
+      },
+      "synthesis": {
+        "engine": "voicevox",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/028/CH02-028.srt",
+        "updated_at": "2025-12-02T03:59:38Z"
+      }
+    },
+    "ready_for_audio_at": "2025-11-02T08:11:39.162431Z",
+    "assembled_path": "script_pipeline/data/CH02/028/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/028/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/028/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【都市の孤独】なぜ人口密度が高い東京ほど、人は孤独を感じるのか を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n夕方の改札を抜けると、人の波に押されながら胸だけが冷えていく感覚があります。肩は触れるのに、心は触れません。にぎやかなのに静か、近いのに遠い。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH02",
+  "video_number": "028"
+}

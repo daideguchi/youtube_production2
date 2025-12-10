@@ -1,0 +1,155 @@
+{
+  "voicevox_kana_diff": {
+    "engine_kana": "ダ'イ/イッ'ショオ、カセエノ'/カオ'",
+    "llm_kana": "",
+    "diff": [
+      {
+        "tag": "delete",
+        "engine_span": "ダ'イ/イッ'ショオ、カセエノ'/カオ'",
+        "llm_span": "",
+        "pos": [
+          0,
+          20,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "voicevox_accent_phrases": [
+    {
+      "moras": [
+        {
+          "text": "ダ",
+          "consonant": "d",
+          "consonant_length": 0.06410761922597885,
+          "vowel": "a",
+          "vowel_length": 0.11488925665616989,
+          "pitch": 4.577914714813232
+        },
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.11904862523078918,
+          "pitch": 4.977079391479492
+        }
+      ],
+      "accent": 1,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "イ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "i",
+          "vowel_length": 0.09373842179775238,
+          "pitch": 4.593566417694092
+        },
+        {
+          "text": "ッ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "cl",
+          "vowel_length": 0.10610143095254898,
+          "pitch": 0.0
+        },
+        {
+          "text": "ショ",
+          "consonant": "sh",
+          "consonant_length": 0.09378598630428314,
+          "vowel": "o",
+          "vowel_length": 0.09768993407487869,
+          "pitch": 4.429017066955566
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.15368738770484924,
+          "pitch": 4.353397369384766
+        }
+      ],
+      "accent": 2,
+      "pause_mora": {
+        "text": "、",
+        "consonant": null,
+        "consonant_length": null,
+        "vowel": "pau",
+        "vowel_length": 0.35578423738479614,
+        "pitch": 0.0
+      },
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "カ",
+          "consonant": "k",
+          "consonant_length": 0.05574824661016464,
+          "vowel": "a",
+          "vowel_length": 0.055515095591545105,
+          "pitch": 4.5909528732299805
+        },
+        {
+          "text": "セ",
+          "consonant": "s",
+          "consonant_length": 0.10098268836736679,
+          "vowel": "e",
+          "vowel_length": 0.057590238749980927,
+          "pitch": 4.8097429275512695
+        },
+        {
+          "text": "エ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "e",
+          "vowel_length": 0.059675052762031555,
+          "pitch": 4.809391021728516
+        },
+        {
+          "text": "ノ",
+          "consonant": "n",
+          "consonant_length": 0.03647203743457794,
+          "vowel": "o",
+          "vowel_length": 0.06906569749116898,
+          "pitch": 4.717904567718506
+        }
+      ],
+      "accent": 4,
+      "pause_mora": null,
+      "is_interrogative": false
+    },
+    {
+      "moras": [
+        {
+          "text": "カ",
+          "consonant": "k",
+          "consonant_length": 0.0910096988081932,
+          "vowel": "a",
+          "vowel_length": 0.062188923358917236,
+          "pitch": 4.518111228942871
+        },
+        {
+          "text": "オ",
+          "consonant": null,
+          "consonant_length": null,
+          "vowel": "o",
+          "vowel_length": 0.18578726053237915,
+          "pitch": 4.375035762786865
+        }
+      ],
+      "accent": 2,
+      "pause_mora": null,
+      "is_interrogative": false
+    }
+  ],
+  "voicevox_kana": "ダ'イ/イッ'ショオ、カセエノ'/カオ'",
+  "voicevox_kana_llm_ref": "",
+  "voicevox_kana_corrected": "ダ'イ/イッ'ショオ、カセエノ'/カオ'"
+}

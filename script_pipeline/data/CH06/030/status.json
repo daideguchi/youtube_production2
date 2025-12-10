@@ -1,0 +1,76 @@
+{
+  "script_id": "CH06-030",
+  "channel": "CH06",
+  "status": "script_validated",
+  "metadata": {
+    "title": "2012年1月4日。",
+    "expected_title": "【ネットの闇】ダークウェブ【都市伝説のダーク図書館】",
+    "ready_for_audio": true,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH06/030/content/assembled.md",
+    "assembled_characters": 3367,
+    "title_sanitized": "2012年1月4日。",
+    "youtube_description": "2012年1月4日、インターネット上の掲示板に、一枚の奇妙な画像が投稿されました。 の“噂”と“根拠”を切り分け、考察で本当かもしれないを探ります。\n2012年1月4日、インターネット上の掲示板に、一枚の奇妙な画像が投稿されました。\n黒い背景に白い文字で、こう書かれていました。\n「私たちは知性の高い人間を探している。\n🧭 今日からできる一歩：複数ソースを照合・仮説と事実を分けてメモ\n#都市伝説 #考察 #検証",
+    "audio_reviewed": true
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_polish_ai": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "details": {}
+    },
+    "srt_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "details": {}
+    },
+    "image_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    }
+  },
+  "updated_at": "2025-12-09T23:58:37.131454Z",
+  "channel_code": "CH06",
+  "video_number": "030"
+}

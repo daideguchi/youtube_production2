@@ -1,0 +1,104 @@
+{
+  "script_id": "CH03-005",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.640480Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.640615Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.640677Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.641361Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.641574Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.641632Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.641744Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:27.642282Z"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:18:11.547900Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:46.812137Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/005/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/005/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "updated_at": "2025-10-28T08:56:09.668901Z"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.267716Z",
+  "updated_at": "2025-11-14T08:16:05.573238Z",
+  "metadata": {
+    "title": "【知らないと損】60歳から使える「シニア割引」完全攻略ガイド2025",
+    "title_sanitized": "【知らないと損】60歳から使える「シニア割引」完全攻略ガイド2025",
+    "title_updated_at": "2025-10-27T02:17:47.926709Z",
+    "chapter_characters": 8023,
+    "assembled_characters": 8023,
+    "output_characters": 8555,
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:46Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/005_20251113T120846Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/005_20251113T120846Z.failed.log"
+        }
+      ]
+    },
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "90c915aa42638d9dbbdea83ac2721fa516fd9155b158b00a4392c88b548a8987",
+      "updated_at": "2025-10-27T02:24:07.552304Z"
+    },
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/005/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/005/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 6,
+    "sheet_title": "【知らないと損】60歳から使える「シニア割引」完全攻略ガイド2025",
+    "ready_for_audio": false,
+    "planning": {},
+    "audio_failed_at": "2025-11-13T12:08:46Z",
+    "sheet_flag": ""
+  },
+  "channel_code": "CH03",
+  "video_number": "005"
+}

@@ -1,0 +1,1754 @@
+{
+  "canvas_config": {
+    "background": null,
+    "height": 1080,
+    "ratio": "original",
+    "width": 1920
+  },
+  "color_space": 0,
+  "draft_type": "video",
+  "duration": 710120000,
+  "fps": 30.0,
+  "id": "CH01_人生の道標_220_DRAFT",
+  "materials": {
+    "texts": [
+      {
+        "id": "INTRO_001",
+        "words": "もし悪口を言われたら、あなたは反撃しますか？それとも落ち込みますか？",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "STORY_INTRO_002",
+        "words": "江戸時代の名僧・白隠禅師の逸話",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "WHITE_INSC_003",
+        "words": "白隠禅師",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "DAUGHTER_STORY_004",
+        "words": "娘の妊娠",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "FATHER_ANGER_005",
+        "words": "父親の怒り",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "FALSE_ACCUSATION_006",
+        "words": "白隠さんとの子です",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "BABY_DELIVERY_007",
+        "words": "赤ちゃんの誕生",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "ACCUSATION_TEMPLE_008",
+        "words": "寺への怒号",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "HAKUIN_RESPONSE_009",
+        "words": "ああ、そうですか",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "BABY_CARE_010",
+        "words": "赤ちゃんの世話",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "VILLAGE_TURN_011",
+        "words": "村人たちの冷たい視線",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "DISCIPLES_LEAVE_012",
+        "words": "弟子たちの離脱",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "YEAR_PASSES_013",
+        "words": "一年が経過",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "SNOW_WALK_014",
+        "words": "雪の中の托鉢",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "DAUGHTER_REALIZATION_015",
+        "words": "娘の後悔",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "TRUTH_REVEAL_016",
+        "words": "真実の告白",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "FATHER_APOLOGY_017",
+        "words": "父親の謝罪",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "BABY_RETURN_018",
+        "words": "赤ちゃんの返還",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "HAKUIN_WISDOM_019",
+        "words": "この子にもちゃんと父がいたのですね",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      },
+      {
+        "id": "WISDOM_LESSON_020",
+        "words": "悪口に対する究極の防御法",
+        "font_family": "",
+        "font_size": 5.0,
+        "font_color": "#FFFFFF",
+        "alignment": 0,
+        "bold_width": 0.0,
+        "italic": false,
+        "underline": false,
+        "background_color": "",
+        "background_alpha": 1.0,
+        "border_color": "#000000",
+        "border_width": 2.0,
+        "shadow": true,
+        "shadow_color": "#000000",
+        "shadow_offset_x": 1.0,
+        "shadow_offset_y": 1.0
+      }
+    ],
+    "videos": [
+      {
+        "id": "IMG_001",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0001.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 34274000
+      },
+      {
+        "id": "IMG_002",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0002.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 30420000
+      },
+      {
+        "id": "IMG_003",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0003.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31810000
+      },
+      {
+        "id": "IMG_004",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0004.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 33165000
+      },
+      {
+        "id": "IMG_005",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0005.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 29445000
+      },
+      {
+        "id": "IMG_006",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0006.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 30405000
+      },
+      {
+        "id": "IMG_007",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0007.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 32955000
+      },
+      {
+        "id": "IMG_008",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0008.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 29280000
+      },
+      {
+        "id": "IMG_009",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0009.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 32385000
+      },
+      {
+        "id": "IMG_010",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0010.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31020000
+      },
+      {
+        "id": "IMG_011",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0011.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31545000
+      },
+      {
+        "id": "IMG_012",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0012.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 30945000
+      },
+      {
+        "id": "IMG_013",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0013.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 33120000
+      },
+      {
+        "id": "IMG_014",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0014.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 30840000
+      },
+      {
+        "id": "IMG_015",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0015.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 33600000
+      },
+      {
+        "id": "IMG_016",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0016.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 33225000
+      },
+      {
+        "id": "IMG_017",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0017.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 29310000
+      },
+      {
+        "id": "IMG_018",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0018.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 27000000
+      },
+      {
+        "id": "IMG_019",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0019.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31935000
+      },
+      {
+        "id": "IMG_020",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0020.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31080000
+      },
+      {
+        "id": "IMG_021",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0021.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 31500000
+      },
+      {
+        "id": "IMG_022",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0022.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 30645000
+      },
+      {
+        "id": "IMG_023",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0023.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 33315000
+      },
+      {
+        "id": "IMG_024",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0024.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 32115000
+      },
+      {
+        "id": "IMG_025",
+        "path": "/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220/images/0025.txt",
+        "width": 1920,
+        "height": 1080,
+        "duration": 15705000
+      }
+    ]
+  },
+  "tracks": [
+    {
+      "id": "tr_video_01",
+      "name": "image_timeline",
+      "type": "video",
+      "attribute": 0,
+      "flag": 0,
+      "segments": [
+        {
+          "id": "seg_001",
+          "material_id": "IMG_001",
+          "target_timerange": {
+            "start": 0,
+            "duration": 34274000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 34274000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 34274000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_002",
+          "material_id": "IMG_002",
+          "target_timerange": {
+            "start": 33774000,
+            "duration": 30420000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30420000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 30420000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_003",
+          "material_id": "IMG_003",
+          "target_timerange": {
+            "start": 64194000,
+            "duration": 31810000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31810000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31810000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_004",
+          "material_id": "IMG_004",
+          "target_timerange": {
+            "start": 96004000,
+            "duration": 33165000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33165000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 33165000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_005",
+          "material_id": "IMG_005",
+          "target_timerange": {
+            "start": 129169000,
+            "duration": 29445000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29445000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 29445000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_006",
+          "material_id": "IMG_006",
+          "target_timerange": {
+            "start": 158614000,
+            "duration": 30405000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30405000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 30405000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_007",
+          "material_id": "IMG_007",
+          "target_timerange": {
+            "start": 189019000,
+            "duration": 32955000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 32955000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 32955000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_008",
+          "material_id": "IMG_008",
+          "target_timerange": {
+            "start": 221974000,
+            "duration": 29280000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29280000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 29280000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_009",
+          "material_id": "IMG_009",
+          "target_timerange": {
+            "start": 251254000,
+            "duration": 32385000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 32385000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 32385000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_010",
+          "material_id": "IMG_010",
+          "target_timerange": {
+            "start": 283639000,
+            "duration": 31020000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31020000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31020000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_011",
+          "material_id": "IMG_011",
+          "target_timerange": {
+            "start": 314659000,
+            "duration": 31545000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31545000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31545000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_012",
+          "material_id": "IMG_012",
+          "target_timerange": {
+            "start": 346204000,
+            "duration": 30945000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30945000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 30945000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_013",
+          "material_id": "IMG_013",
+          "target_timerange": {
+            "start": 377149000,
+            "duration": 33120000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33120000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 33120000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_014",
+          "material_id": "IMG_014",
+          "target_timerange": {
+            "start": 410269000,
+            "duration": 30840000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30840000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 30840000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_015",
+          "material_id": "IMG_015",
+          "target_timerange": {
+            "start": 441109000,
+            "duration": 33600000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33600000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 33600000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_016",
+          "material_id": "IMG_016",
+          "target_timerange": {
+            "start": 474709000,
+            "duration": 33225000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33225000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 33225000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_017",
+          "material_id": "IMG_017",
+          "target_timerange": {
+            "start": 507934000,
+            "duration": 29310000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29310000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 29310000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_018",
+          "material_id": "IMG_018",
+          "target_timerange": {
+            "start": 537244000,
+            "duration": 27000000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 27000000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 27000000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_019",
+          "material_id": "IMG_019",
+          "target_timerange": {
+            "start": 564244000,
+            "duration": 31935000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31935000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31935000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_020",
+          "material_id": "IMG_020",
+          "target_timerange": {
+            "start": 596179000,
+            "duration": 31080000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31080000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31080000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_021",
+          "material_id": "IMG_021",
+          "target_timerange": {
+            "start": 627259000,
+            "duration": 31500000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31500000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 31500000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_022",
+          "material_id": "IMG_022",
+          "target_timerange": {
+            "start": 658759000,
+            "duration": 30645000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30645000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 30645000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_023",
+          "material_id": "IMG_023",
+          "target_timerange": {
+            "start": 689404000,
+            "duration": 33315000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33315000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 33315000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_024",
+          "material_id": "IMG_024",
+          "target_timerange": {
+            "start": 722719000,
+            "duration": 32115000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 32115000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 32115000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "seg_025",
+          "material_id": "IMG_025",
+          "target_timerange": {
+            "start": 754834000,
+            "duration": 15705000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 15705000
+          },
+          "render_timerange": {
+            "start": 0,
+            "duration": 15705000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        }
+      ]
+    },
+    {
+      "id": "tr_text_main",
+      "name": "subtitles_text",
+      "type": "text",
+      "attribute": 0,
+      "flag": 0,
+      "segments": [
+        {
+          "id": "txt_seg_001",
+          "material_id": "INTRO_001",
+          "target_timerange": {
+            "start": 0,
+            "duration": 34274000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 34274000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_002",
+          "material_id": "STORY_INTRO_002",
+          "target_timerange": {
+            "start": 34274000,
+            "duration": 30420000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30420000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_003",
+          "material_id": "WHITE_INSC_003",
+          "target_timerange": {
+            "start": 64694000,
+            "duration": 31810000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31810000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_004",
+          "material_id": "DAUGHTER_STORY_004",
+          "target_timerange": {
+            "start": 96504000,
+            "duration": 33165000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33165000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_005",
+          "material_id": "FATHER_ANGER_005",
+          "target_timerange": {
+            "start": 129669000,
+            "duration": 29445000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29445000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_006",
+          "material_id": "FALSE_ACCUSATION_006",
+          "target_timerange": {
+            "start": 159114000,
+            "duration": 30405000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30405000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_007",
+          "material_id": "BABY_DELIVERY_007",
+          "target_timerange": {
+            "start": 189519000,
+            "duration": 32955000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 32955000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_008",
+          "material_id": "ACCUSATION_TEMPLE_008",
+          "target_timerange": {
+            "start": 222474000,
+            "duration": 29280000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29280000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_009",
+          "material_id": "HAKUIN_RESPONSE_009",
+          "target_timerange": {
+            "start": 251754000,
+            "duration": 32385000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 32385000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_010",
+          "material_id": "BABY_CARE_010",
+          "target_timerange": {
+            "start": 284139000,
+            "duration": 31020000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31020000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_011",
+          "material_id": "VILLAGE_TURN_011",
+          "target_timerange": {
+            "start": 315159000,
+            "duration": 31545000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31545000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_012",
+          "material_id": "DISCIPLES_LEAVE_012",
+          "target_timerange": {
+            "start": 346704000,
+            "duration": 30945000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30945000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_013",
+          "material_id": "YEAR_PASSES_013",
+          "target_timerange": {
+            "start": 377649000,
+            "duration": 33120000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33120000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_014",
+          "material_id": "SNOW_WALK_014",
+          "target_timerange": {
+            "start": 410769000,
+            "duration": 30840000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 30840000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_015",
+          "material_id": "DAUGHTER_REALIZATION_015",
+          "target_timerange": {
+            "start": 441609000,
+            "duration": 33600000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33600000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_016",
+          "material_id": "TRUTH_REVEAL_016",
+          "target_timerange": {
+            "start": 475209000,
+            "duration": 33225000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 33225000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_017",
+          "material_id": "FATHER_APOLOGY_017",
+          "target_timerange": {
+            "start": 508434000,
+            "duration": 29310000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 29310000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_018",
+          "material_id": "BABY_RETURN_018",
+          "target_timerange": {
+            "start": 537744000,
+            "duration": 27000000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 27000000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_019",
+          "material_id": "HAKUIN_WISDOM_019",
+          "target_timerange": {
+            "start": 564744000,
+            "duration": 31935000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 31935000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        },
+        {
+          "id": "txt_seg_020",
+          "material_id": "WISDOM_LESSON_020",
+          "target_timerange": {
+            "start": 596679000,
+            "duration": 113441000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 113441000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 300.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0
+        }
+      ]
+    },
+    {
+      "id": "tr_audio_bgm",
+      "name": "bgm_track",
+      "type": "audio",
+      "attribute": 0,
+      "flag": 0,
+      "segments": [
+        {
+          "id": "aud_seg_bgm_01",
+          "material_id": "bgm_01",
+          "target_timerange": {
+            "start": 0,
+            "duration": 710120000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 710120000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0,
+          "audio_volume": 0.3
+        }
+      ]
+    },
+    {
+      "id": "tr_audio_voice",
+      "name": "voiceover_track",
+      "type": "audio",
+      "attribute": 0,
+      "flag": 0,
+      "segments": [
+        {
+          "id": "aud_seg_voice_01",
+          "material_id": "voice_01",
+          "target_timerange": {
+            "start": 0,
+            "duration": 710120000
+          },
+          "source_timerange": {
+            "start": 0,
+            "duration": 710120000
+          },
+          "transform": {
+            "tx": 0.0,
+            "ty": 0.0,
+            "rotation": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "skew_x": 0.0,
+            "skew_y": 0.0
+          },
+          "alpha": 1.0,
+          "audio_volume": 1.0
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "version": "1.0",
+    "project_name": "CH01_人生の道標_220",
+    "creation_date": "2025-12-09",
+    "description": "CapCut project for Buddhist teaching story about Hakuin Ekaku and handling criticism"
+  }
+}

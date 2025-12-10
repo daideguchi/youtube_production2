@@ -1,0 +1,98 @@
+{
+  "script_id": "CH03-023",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.429343Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.429475Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.429538Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.429872Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.430044Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.430102Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.430215Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:38.430785Z"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:18:02.475363Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:51.032043Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/023/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/023/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {},
+    "timeline_copy": {},
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.245181Z",
+  "updated_at": "2025-11-14T08:16:07.583662Z",
+  "metadata": {
+    "title": "【友達の作り方】定年後、孤立しない！60歳からの新しい人間関係術",
+    "title_sanitized": "【友達の作り方】定年後、孤立しない！60歳からの新しい人間関係術",
+    "title_updated_at": "2025-10-27T06:20:30.774603Z",
+    "assembled_characters": 8984,
+    "output_characters": 8984,
+    "chapter_characters": 8984,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "71493f169af4840fbe2f77d8e96c2520518a44171fafdcae369a201efe1d2cdc",
+      "updated_at": "2025-10-27T06:22:00.957343Z"
+    },
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:51Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/023_20251113T120851Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/023_20251113T120851Z.failed.log"
+        }
+      ]
+    },
+    "ready_for_audio": false,
+    "audio_failed_at": "2025-11-13T12:08:50Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/023/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/023/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 24,
+    "sheet_title": "【友達の作り方】定年後、孤立しない！60歳からの新しい人間関係術"
+  },
+  "channel_code": "CH03",
+  "video_number": "023"
+}

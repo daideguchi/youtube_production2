@@ -1,0 +1,51 @@
+{
+  "channel_id": "CH07",
+  "name": "仏教の心【全てうまくいく】",
+  "persona_path": "progress/personas/CH07_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH07-仏教の心【全てうまくいく】/script_prompt.txt",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/a4zP_1PessT3qRKqtM0w9NH6Y1-Gl92y-TwlNR-CRwoqVjAdPC3LntpU9tLjbNy6CYWJvFu7Aw=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "https://yt3.googleusercontent.com/X7s-NrXF2iCronWsKOvH_vcuNHFYmx4CWMBJOiqgfbWbIjntDhvcDsE-VVnQda3rv27nRlXXZQ",
+    "title": "仏教の心【全てうまくいく】",
+    "subscriber_count": 47,
+    "view_count": 2850,
+    "video_count": 9,
+    "custom_url": "@buddha_dogen",
+    "handle": "@buddha_dogen",
+    "url": "https://www.youtube.com/@buddha_dogen",
+    "updated_at": "2024-09-30T08:14:29.814107Z"
+  },
+  "youtube": {
+    "channel_id": "UCkw7-R-GI_N5grDBRN6rLzg",
+    "title": "仏教の心【全てうまくいく】",
+    "custom_url": "@buddha_dogen",
+    "handle": "@buddha_dogen",
+    "url": "https://www.youtube.com/@buddha_dogen",
+    "view_count": 2850,
+    "subscriber_count": 47,
+    "video_count": 9,
+    "synced_at": "2025-12-04T09:36:08.982285+00:00",
+    "source": "@buddha_dogen",
+    "published_at": null
+  },
+  "description": "朝夜の不安を仏教の知恵と習慣で軽くする安らぎチャンネル",
+  "persona": {
+    "demographics": {
+      "age_range": "40-60代",
+      "life_stage": "日常の不安やストレスを和らげたい"
+    },
+    "interests": [
+      "呼吸・掃除などの朝夜ルーティン",
+      "仏教の実践的な教え",
+      "穏やかな語りで心を整える"
+    ],
+    "pain_points": [
+      "朝のモヤモヤ",
+      "人間関係や老後の不安"
+    ],
+    "language_preference": "やさしい話し言葉、断定や説教はしない",
+    "content_preference": "短文化せず、結論→理由→具体ステップで安心を与える",
+    "target_audience": "40〜60代で、日常の不安やストレスを仏教の知恵で和らげたい人"
+  },
+  "script_prompt": "script_pipeline/channels/CH07-仏教の心【全てうまくいく】/script_prompt.txt"
+}

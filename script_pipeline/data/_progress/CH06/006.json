@@ -1,0 +1,392 @@
+{
+  "script_id": "CH06-006",
+  "channel": "CH06",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-19T09:58:26.541520Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-19T09:59:00.908782Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "length_check_passed": true,
+      "updated_at": "2025-11-19T11:35:16.625276Z",
+      "quality_validation_passed": true,
+      "quality_validation": {
+        "checked_at": "2025-11-19T11:35:16.669107Z",
+        "passed": true,
+        "issues": [],
+        "warnings": [
+          "chapter_1.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_2.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_4.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_5.md [structure] 箇条書きがありません（要点整理を推奨）"
+        ],
+        "chapters": [
+          {
+            "chapter": "script_pipeline/data/CH06/006/content/chapters/chapter_1.md",
+            "passed": true,
+            "validated_at": "2025-11-19T11:35:16.666099Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 2105,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 54,
+                  "max_sentence_length": 89
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3501199040767386,
+                  "kanji_count": 730,
+                  "total_characters": 2085
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/006/content/chapters/chapter_2.md",
+            "passed": true,
+            "validated_at": "2025-11-19T11:35:16.666531Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 2339,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 55,
+                  "max_sentence_length": 76
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.35066609368285345,
+                  "kanji_count": 816,
+                  "total_characters": 2327
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/006/content/chapters/chapter_3.md",
+            "passed": true,
+            "validated_at": "2025-11-19T11:35:16.667241Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 3181,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 62,
+                  "max_sentence_length": 107
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.36765634870499053,
+                  "kanji_count": 1164,
+                  "total_characters": 3166
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/006/content/chapters/chapter_4.md",
+            "passed": true,
+            "validated_at": "2025-11-19T11:35:16.667991Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 3479,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 69,
+                  "max_sentence_length": 82
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.33641351429396477,
+                  "kanji_count": 1165,
+                  "total_characters": 3463
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH06/006/content/chapters/chapter_5.md",
+            "passed": true,
+            "validated_at": "2025-11-19T11:35:16.668801Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 3543,
+                  "minimum_length": 1120,
+                  "expected_length": 1400
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 70,
+                  "max_sentence_length": 106
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.34551118663268193,
+                  "kanji_count": 1220,
+                  "total_characters": 3531
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:31:20.644831Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:39:10.428137Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:39:44.664380Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:39:46.050685Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "6a9394a1e260e0936f459f84aec7c34f0246e3bf12f8e45c21a88e26f3b8bc09",
+      "updated_at": "2025-11-19T11:40:12.940244Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH06-006_20251119T114012"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_audio_ai": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:41:32.406253Z",
+      "details": {
+        "prompt_hash": "1d04aafa117f13a7b8554fcb1f9cb1c093097c24",
+        "model": "gemini-3-pro-preview"
+      },
+      "prompt_hash": "1d04aafa117f13a7b8554fcb1f9cb1c093097c24"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-19T11:41:36.089307Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-11-18T12:08:34Z",
+  "updated_at": "2025-11-19T11:41:36.495149Z",
+  "metadata": {
+    "title": "【禁断の実験】NASAが隠す「フィラデルフィア実験」の真実と現代物理学への衝撃【都市伝説のダーク図書館】",
+    "title_sanitized": "【禁断の実験】NASAが隠す「フィラデルフィア実験」の真実と現代物理学への衝撃【都市伝説のダーク図書館】",
+    "sheet_title": "【禁断の実験】NASAが隠す「フィラデルフィア実験」の真実と現代物理学への衝撃【都市伝説のダーク図書館】",
+    "channel_code": "CH06",
+    "channel_display_name": "企画",
+    "ready_for_audio": true,
+    "video_number": "006",
+    "script_id": "CH06-006",
+    "title_updated_at": "2025-11-19T11:39:46.050685Z",
+    "assembled_characters": 15421,
+    "output_characters": 15862,
+    "chapter_characters": 14597,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "6a9394a1e260e0936f459f84aec7c34f0246e3bf12f8e45c21a88e26f3b8bc09",
+      "updated_at": "2025-11-19T11:40:12.940227Z"
+    },
+    "audio": {
+      "rewrite": {
+        "script_audio_raw_path": "data/CH06/006/audio_prep/script_audio_raw.txt",
+        "updated_at": "2025-11-19T11:41:32.002513Z",
+        "model": "gemini-3-pro-preview",
+        "prompt_hash": "1d04aafa117f13a7b8554fcb1f9cb1c093097c24"
+      },
+      "prepare": {
+        "script_sanitized_path": "data/CH06/006/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio_at": "2025-11-19T11:41:35.860398Z"
+  }
+}

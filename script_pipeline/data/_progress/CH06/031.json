@@ -1,0 +1,56 @@
+{
+  "script_id": "CH06-031",
+  "channel": "CH06",
+  "status": "pending",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending",
+      "length_check_passed": false
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_audio_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "metadata": {
+    "title": "【歴史への介入者】写真に写り込んだありえない人物…タイムトラベラーは本当に実在するのか？【都市伝説のダーク図書館】",
+    "title_sanitized": "【歴史への介入者】写真に写り込んだありえない人物…タイムトラベラーは本当に実在するのか？【都市伝説のダーク図書館】",
+    "sheet_title": "【歴史への介入者】写真に写り込んだありえない人物…タイムトラベラーは本当に実在するのか？【都市伝説のダーク図書館】"
+  },
+  "created_at": "2025-11-18T12:08:34Z"
+}

@@ -1,0 +1,72 @@
+{
+  "script_id": "CH09-014",
+  "channel": "CH09",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T09:15:29.265814",
+  "metadata": {
+    "title": "いい相手を選ぶ基準を持っている人は、決断が静かです。焦って選ばず、長く信頼できる人を残します。基準がないと、目先の魅力や他人の評価に揺れてしまい、「なぜあの人を手放したのか」「なぜあの人に時間を使い続けたのか」と後悔が残ります。今日は「離したくない良い相手」の九つの特徴を軸に、朝・昼・夜で基準を思い出し、迷ったら戻れる流れを作ります。終わるころには、あなた自身が基準に近づき、静かに選べるようになっているはずです。",
+    "title_sanitized": "いい相手を選ぶ基準を持っている人は、決断が静かです。焦って選ばず、長く信頼できる人を残します。基準がないと、目先の魅力や他人の評価に揺れてしまい、「なぜあの人を手放したのか」「なぜあの人に時間を使い続けたのか」と後悔が残ります。今日は「離したくない良い相手」の九つの特徴を軸に、朝・昼・夜で基準を思い出し、迷ったら戻れる流れを作ります。終わるころには、あなた自身が基準に近づき、静かに選べるようになっているはずです。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH09",
+    "channel_display_name": "CH09",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【スケジュールは8割】余白を残す決め方",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/014/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/014/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/014/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【スケジュールは8割】余白を残す決め方 を“危険人物/言ってはいけない言葉”の視点で整理し、線引きのチェックリストを提供。\nいい相手を選ぶ基準を持っている人は、決断が静かです。焦って選ばず、長く信頼できる人を残します。基準がないと、目先の魅力や他人の評価に揺れてしまい、「なぜあの人を手放したのか」「なぜあの人に時間を使い続けたのか」と後悔が残ります。\n🧭 今日からできる一歩：言わないリストを作る / 距離を置くサインを1つ決める\n#人間関係 #自己防衛 #線引き"
+  },
+  "channel_code": "CH09",
+  "video_number": "014"
+}

@@ -1,0 +1,65 @@
+{
+  "script_id": "CH05-025",
+  "channel": "CH05",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.288006Z",
+  "updated_at": "2025-11-14T09:06:14.028716Z",
+  "metadata": {
+    "title": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
+    "title_sanitized": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
+    "title_updated_at": "2025-10-25T02:16:43.907662Z",
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "sheet_flag": "",
+    "sheet_progress_cell": "glm4_5_research: pending",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 26,
+    "sheet_title": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。"
+  },
+  "channel_code": "CH05",
+  "video_number": "025"
+}

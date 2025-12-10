@@ -1,0 +1,56 @@
+{
+  "script_id": "CH06-025",
+  "channel": "CH06",
+  "status": "pending",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending",
+      "length_check_passed": false
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_audio_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "metadata": {
+    "title": "【聖骸布の奇跡】トリノの聖骸布は本物か偽物か？最新の科学調査が暴いた\"ありえない\"立体情報【都市伝説のダーク図書館】",
+    "title_sanitized": "【聖骸布の奇跡】トリノの聖骸布は本物か偽物か？最新の科学調査が暴いた\"ありえない\"立体情報【都市伝説のダーク図書館】",
+    "sheet_title": "【聖骸布の奇跡】トリノの聖骸布は本物か偽物か？最新の科学調査が暴いた\"ありえない\"立体情報【都市伝説のダーク図書館】"
+  },
+  "created_at": "2025-11-18T12:08:34Z"
+}

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")/.." || exit 1
+printf "%-40s  %s\n" "RUN" "VIDEO"
+for d in output/*/ ; do
+  base=$(basename "$d")
+  vid="${d}video.mp4"
+  if [ -L "$vid" ] || [ -f "$vid" ]; then
+    printf "%-40s  %s\n" "$base" "$vid"
+  else
+    printf "%-40s  %s\n" "$base" "(no video)"
+  fi
+done | sort -r

@@ -1,0 +1,73 @@
+{
+  "script_id": "CH08-004",
+  "channel": "CH08",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-10T09:00:09.817292Z",
+  "metadata": {
+    "title": "窓の外の看板が夜遅くまで光り、壁に淡い影をゆらす。まぶたを閉じても光が消えず、今日の出来事が頭の中で何度も再生される。眠りたいのに、思考の上映会が終わらない。そんな夜こそ、静かな書庫を開いてみましょう。高い天井、木と紙の匂い、手元だけを照らす小さなランプ。ここは「イメージ呼吸で潜在意識を静める」ための実験室です。好奇心を少しだけ持って、静かな遊びを始めます。",
+    "title_sanitized": "窓の外の看板が夜遅くまで光り、壁に淡い影をゆらす。まぶたを閉じても光が消えず、今日の出来事が頭の中で何度も再生される。眠りたいのに、思考の上映会が終わらない。そんな夜こそ、静かな書庫を開いてみましょう。高い天井、木と紙の匂い、手元だけを照らす小さなランプ。ここは「イメージ呼吸で潜在意識を静める」ための実験室です。好奇心を少しだけ持って、静かな遊びを始めます。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH08",
+    "channel_display_name": "CH08",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【夢を見る前に】イメージ呼吸で潜在意識を静める",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/004/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/004/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/004/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【夢を見る前に】イメージ呼吸で潜在意識を静める を“悪用厳禁”の視点で安全に扱う方法を解説します。\n窓の外の看板が夜遅くまで光り、部屋の壁に淡い影を揺らす。目を閉じても光が消えず、思考が途切れない夜は、静かな地階の書庫へ降りるイメージを持ってみてください。靴音が石段に吸い込まれ、降りるたびに体温が少し下がり、心拍もゆっくりになる。\n⚠️ 注意：無理をせず、体調や人間関係を優先して試してください。\n#スピリチュアル #波動 #自己浄化",
+    "audio_reviewed": true
+  },
+  "channel_code": "CH08",
+  "video_number": "004"
+}

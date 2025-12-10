@@ -1,0 +1,87 @@
+{
+  "script_id": "CH02-011",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498202Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498342Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498402Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498730Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498929Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:08.498990Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T03:23:38.985975Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "087c7d88ad7c77bd30f164a54a128d0312d8463a459ef610395c4fb8ac253348",
+      "updated_at": "2025-10-30T03:25:43.474036Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T03:25:43.737696Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.279428Z",
+  "updated_at": "2025-11-14T08:15:54.316024Z",
+  "metadata": {
+    "title": "【皇帝の哲学】なぜローマ帝国最高の賢者は、息子を“最悪の皇帝”に育ててしまったのか",
+    "title_sanitized": "【皇帝の哲学】なぜローマ帝国最高の賢者は、息子を“最悪の皇帝”に育ててしまったのか",
+    "title_updated_at": "2025-10-30T03:23:38.985975Z",
+    "chapter_characters": 8466,
+    "assembled_characters": 8466,
+    "output_characters": 8578,
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 12,
+    "sheet_title": "【皇帝の哲学】なぜローマ帝国最高の賢者は、息子を“最悪の皇帝”に育ててしまったのか",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "087c7d88ad7c77bd30f164a54a128d0312d8463a459ef610395c4fb8ac253348",
+      "updated_at": "2025-10-30T03:25:43.474013Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/011/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio": true,
+    "ready_for_audio_at": "20251030T032543Z"
+  },
+  "channel_code": "CH02",
+  "video_number": "011"
+}

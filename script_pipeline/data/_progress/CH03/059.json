@@ -1,0 +1,66 @@
+{
+  "script_id": "CH03-059",
+  "channel": "CH03",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-12T09:54:18.724145Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T09:57:17.617526Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T10:00:26.658778Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:11.612661Z"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-11-12T09:49:56.613806Z",
+  "updated_at": "2025-11-14T08:16:11.542817Z",
+  "metadata": {
+    "channel_code": "CH03",
+    "video_number": "059",
+    "script_id": "CH03-059",
+    "channel_display_name": "企画",
+    "ready_for_audio": false,
+    "sheet_flag": "1",
+    "sheet_progress_cell": "✅ script_outline: completed",
+    "sheet_quality_cell": "文字数チェック: error - 文字数チェックエラー: main() takes 0 positional arguments but 1 was given; 改行チェック: error - assembled.md not found: content/final/assembled.md; Kimiレビュー: error - assembled.md not found: content/final/assembled.md",
+    "sheet_row_number": 59,
+    "sheet_title": "【皮膚のかゆみ】乾燥・かぶれ・じんましん…医師が教える、高齢者のしつこい痒みの止め方"
+  },
+  "channel_code": "CH03",
+  "video_number": "059"
+}

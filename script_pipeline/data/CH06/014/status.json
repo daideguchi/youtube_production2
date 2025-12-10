@@ -1,0 +1,75 @@
+{
+  "script_id": "CH06-014",
+  "channel": "CH06",
+  "status": "script_validated",
+  "metadata": {
+    "title": "旧約聖書に記された、神の契約の箱「アーク」。",
+    "expected_title": "【失われた秘宝】契約の箱アーク【都市伝説のダーク図書館】",
+    "ready_for_audio": true,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH06/014/content/assembled.md",
+    "assembled_characters": 8055,
+    "title_sanitized": "旧約聖書に記された、神の契約の箱「アーク」。",
+    "youtube_description": "旧約聖書に記された、神の契約の箱「アーク」。 の“噂”と“根拠”を切り分け、考察で本当かもしれないを探ります。\n旧約聖書に記された、神の契約の箱「アーク」。\nモーゼが神から授かった十戒の石板を納めたとされる、黄金の箱です。\n🧭 今日からできる一歩：複数ソースを照合・仮説と事実を分けてメモ\n#都市伝説 #考察 #検証"
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_polish_ai": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "details": {}
+    },
+    "srt_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "details": {}
+    },
+    "image_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    }
+  },
+  "updated_at": "2025-12-03T11:05:00.735422+00:00",
+  "channel_code": "CH06",
+  "video_number": "014"
+}

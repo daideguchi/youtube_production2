@@ -1,0 +1,72 @@
+{
+  "script_id": "CH07-003",
+  "channel": "CH07",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T09:15:29.265814",
+  "metadata": {
+    "title": "# 【心が汚い人が必ず発する7つの言葉】静かに受け流す法（CH07-003）",
+    "title_sanitized": "# 【心が汚い人が必ず発する7つの言葉】静かに受け流す法（CH07-003）",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 6032,
+    "output_characters": 6032,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH07",
+    "channel_display_name": "CH07",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【怒りが消える】箸置きひとつで心を鎮める禅の作法",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/003/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/003/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/003/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「【怒りが消える】箸置きひとつで心を鎮める禅の作法」を仏教の視点でやさしく解き明かします。\n# 心が汚い人が口にする言葉を受け流す長い物語（CH07-003）。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH07",
+  "video_number": "003"
+}

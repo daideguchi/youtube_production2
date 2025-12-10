@@ -1,0 +1,56 @@
+{
+  "script_id": "CH06-014",
+  "channel": "CH06",
+  "status": "pending",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending",
+      "length_check_passed": false
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_audio_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "metadata": {
+    "title": "【ピラミッドの真実】ギザの大ピラミッドは本当に王の墓だったのか？最新の宇宙線調査が暴いた\"未知の空間\"【都市伝説のダーク図書館】",
+    "title_sanitized": "【ピラミッドの真実】ギザの大ピラミッドは本当に王の墓だったのか？最新の宇宙線調査が暴いた\"未知の空間\"【都市伝説のダーク図書館】",
+    "sheet_title": "【ピラミッドの真実】ギザの大ピラミッドは本当に王の墓だったのか？最新の宇宙線調査が暴いた\"未知の空間\"【都市伝説のダーク図書館】"
+  },
+  "created_at": "2025-11-18T12:08:34Z"
+}

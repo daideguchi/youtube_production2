@@ -1,0 +1,19 @@
+{
+  "characters": [
+    {
+      "name": "Old Man (Ojii-san)",
+      "description": "Elderly Japanese man, roughly 70s, lean and weathered skin from outdoor work. Short gray hair mostly hidden under a tied cloth, thin build with a slight stoop, calloused hands. Wears simple rural work clothes — indigo cotton kimono/jacket and worn trousers, straw sandals or sturdy work boots. Often seen carrying a small sickle/grass-cutting tool and a shoulder bag for gathered grass.",
+      "consistency_rules": "Always wears a red tenugui tied around his head; always appears elderly and weathered; always in simple indigo work clothing; always carries a grass-cutting tool (sickle/short scythe)."
+    }
+  ],
+  "settings": [
+    {
+      "name": "Mountain Hut",
+      "description": "Small, old wooden cabin deep in the mountains. Interior dominated by a sunken irori (hearth) with a suspended iron kettle, warm amber firelight, smoke-stained beams and low ceiling, sparse wooden furnishings (chest, low table, hanging drying herbs), rough floor (wood or packed earth), small shuttered window. Exterior: mossy stones, steep wooded slope, thatched or shingle roof, very rural/traditional Japanese feel."
+    },
+    {
+      "name": "Mountain Slope / Grass-Clearing Area",
+      "description": "Steep mountainside and narrow dirt footpaths lined with tall grasses and scattered cedars/pines. Open clearings where grass is cut, small piles/bundles of cut grass, morning mist or clear daylight, natural, untamed vegetation, simple stone markers or wooden signposts occasionally visible. Atmosphere is rustic and quiet."
+    }
+  ]
+}

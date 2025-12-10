@@ -1,0 +1,75 @@
+{
+  "script_id": "CH06-028",
+  "channel": "CH06",
+  "status": "script_validated",
+  "metadata": {
+    "title": "私たちは、この宇宙で孤独なのでしょうか。",
+    "expected_title": "【宇宙の孤独】フェルミのパラドックス【都市伝説のダーク図書館】",
+    "ready_for_audio": true,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH06/028/content/assembled.md",
+    "assembled_characters": 3633,
+    "title_sanitized": "私たちは、この宇宙で孤独なのでしょうか。",
+    "youtube_description": "私たちは、この宇宙で孤独なのでしょうか。 の“噂”と“根拠”を切り分け、考察で本当かもしれないを探ります。\n私たちは、この宇宙で孤独なのでしょうか。\nそれとも、遥か彼方の星に、私たちと同じように知性を持つ生命が存在するのでしょうか。\n1977年、冷戦の緊張が続く中、人類は二つの小さな探査機を宇宙の深淵へと送り出しました。\n🧭 今日からできる一歩：複数ソースを照合・仮説と事実を分けてメモ\n#都市伝説 #考察 #検証"
+  },
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_polish_ai": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "details": {}
+    },
+    "srt_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "details": {}
+    },
+    "image_generation": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    }
+  },
+  "updated_at": "2025-12-03T11:05:00.735422+00:00",
+  "channel_code": "CH06",
+  "video_number": "028"
+}

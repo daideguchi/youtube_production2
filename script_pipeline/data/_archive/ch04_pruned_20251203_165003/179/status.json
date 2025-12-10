@@ -1,0 +1,65 @@
+{
+  "script_id": "CH04-179",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed"
+    },
+    "script_outline": {
+      "status": "completed"
+    },
+    "chapter_brief": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "completed"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "completed"
+    },
+    "quality_check": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-03T07:44:46.674797Z",
+  "updated_at": "2025-12-03T07:47:43.078086Z",
+  "metadata": {
+    "channel_code": "CH04",
+    "channel_display_name": "企画",
+    "video_number": "179",
+    "script_id": "CH04-179",
+    "ready_for_audio": false,
+    "title": "【孤独こそが最強の武器】ブッダに学ぶ、一人の時間を”極上”に変える「孤独力」",
+    "title_sanitized": "【孤独こそが最強の武器】ブッダに学ぶ、一人の時間を”極上”に変える「孤独力」",
+    "title_updated_at": "2025-12-03T07:44:46.674797Z",
+    "assembled_characters": 6575,
+    "output_characters": 6575,
+    "chapter_characters": 6575,
+    "audio": {},
+    "sheet_flag": "0.0",
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": null,
+    "sheet_title": "【孤独こそが最強の武器】ブッダに学ぶ、一人の時間を”極上”に変える「孤独力」",
+    "chapter_count": 1,
+    "ready_for_audio_at": null,
+    "assembled_path": "script_pipeline/data/CH04/179/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH04/179/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH04/179/audio_prep/script_sanitized_with_pauses.txt"
+  },
+  "channel_code": "CH04",
+  "video_number": "179"
+}

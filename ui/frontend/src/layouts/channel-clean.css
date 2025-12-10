@@ -1,0 +1,161 @@
+/* Channel view clean styles. Scoped by workspace--channel-clean to avoid bleeding into other pages. */
+
+.workspace--channel-clean .main-content--channel {
+  background: transparent;
+  border: none;
+  padding: 0;
+  gap: 16px;
+  box-shadow: none;
+}
+
+.workspace--channel-clean .channel-overview,
+.workspace--channel-clean .channel-projects,
+.workspace--channel-clean .channel-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+.workspace--channel-clean .channel-overview__header h1,
+.workspace--channel-clean .channel-projects__header h2,
+.workspace--channel-clean .channel-card__heading h4 {
+  color: var(--color-text-strong);
+}
+
+.workspace--channel-clean .channel-overview__description,
+.workspace--channel-clean .channel-overview__meta-row,
+.workspace--channel-clean .channel-projects__meta {
+  color: var(--color-text-muted);
+}
+
+.workspace--channel-clean .channel-projects__table {
+  border: 1px solid var(--color-border-muted);
+  box-shadow: none;
+}
+
+.workspace--channel-clean .channel-projects__table thead {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-strong);
+}
+
+.workspace--channel-clean .channel-projects__table th,
+.workspace--channel-clean .channel-projects__table td {
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.workspace--channel-clean .channel-projects__row:hover {
+  background: rgba(29, 78, 216, 0.06);
+}
+
+.workspace--channel-clean .channel-projects__row--active {
+  background: rgba(29, 78, 216, 0.12);
+}
+
+.workspace--channel-clean .channel-chip--info,
+.workspace--channel-clean .channel-chip--warning {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-muted);
+  color: var(--color-text-strong);
+}
+
+.workspace--channel-clean .channel-projects__search {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 12px;
+}
+
+.workspace--channel-clean .ready-indicator {
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-strong);
+  box-shadow: none;
+}
+
+.workspace--channel-clean .stage-badge {
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-strong);
+  box-shadow: none;
+}
+
+.workspace--channel-clean .channel-settings-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+
+.workspace--channel-clean .channel-settings-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.workspace--channel-clean .channel-settings-card__header h3 {
+  margin: 0;
+  color: var(--color-text-strong);
+}
+
+.workspace--channel-clean .channel-settings-card__description {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+}
+
+.workspace--channel-clean .channel-settings-card__actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.workspace--channel-clean .channel-settings-card__toggle {
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-strong);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.workspace--channel-clean .channel-settings-card__body {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.workspace--channel-clean .channel-settings-editor__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.workspace--channel-clean .channel-settings-editor__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace--channel-clean .channel-settings-editor__field--wide {
+  grid-column: span 2;
+}
+
+.workspace--channel-clean .channel-settings-editor__field textarea {
+  min-height: 96px;
+}
+
+.workspace--channel-clean .channel-settings-editor__field--wide textarea {
+  min-height: 140px;
+}
+
+@media (max-width: 960px) {
+  .workspace--channel-clean .channel-overview,
+  .workspace--channel-clean .channel-projects,
+  .workspace--channel-clean .channel-card {
+    padding: 14px;
+  }
+}

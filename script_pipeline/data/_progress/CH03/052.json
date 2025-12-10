@@ -1,0 +1,572 @@
+{
+  "script_id": "CH03-052",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "research_path": "data/CH03/052/content/analysis/glm4_5/research_brief.md",
+      "updated_at": "2025-11-04T08:42:06.187421Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:57.368435Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/052/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/052/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-04T08:47:46.517317Z",
+      "details": {
+        "last_error": "コマンド実行に失敗しました (exit_code=1): python3 core/tools/content_processor.py outline --channel CH03 --video 052"
+      }
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-04T09:14:08.331221Z",
+      "length_check_passed": true,
+      "quality_validation_passed": true,
+      "quality_validation": {
+        "checked_at": "2025-11-04T09:14:08.343170Z",
+        "passed": true,
+        "issues": [],
+        "warnings": [
+          "chapter_1.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_2.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_3.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_5.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_6.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_7.md [structure] 箇条書きがありません（要点整理を推奨）",
+          "chapter_8.md [structure] 箇条書きがありません（要点整理を推奨）"
+        ],
+        "chapters": [
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_1.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.339757Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 929,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 23,
+                  "max_sentence_length": 62
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3132530120481928,
+                  "kanji_count": 286,
+                  "total_characters": 913
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_2.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.340142Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 904,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 20,
+                  "max_sentence_length": 97
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3764172335600907,
+                  "kanji_count": 332,
+                  "total_characters": 882
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_3.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.340544Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1078,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 32,
+                  "max_sentence_length": 64
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.33270499528746467,
+                  "kanji_count": 353,
+                  "total_characters": 1061
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_4.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.340996Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1280,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 33,
+                  "max_sentence_length": 77
+                }
+              },
+              {
+                "name": "structure",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.32104832104832104,
+                  "kanji_count": 392,
+                  "total_characters": 1221
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_5.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.341473Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1222,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 35,
+                  "max_sentence_length": 68
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3408710217755444,
+                  "kanji_count": 407,
+                  "total_characters": 1194
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_6.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.341920Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1272,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 34,
+                  "max_sentence_length": 61
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.34322373696872494,
+                  "kanji_count": 428,
+                  "total_characters": 1247
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_7.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.342279Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 1002,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 23,
+                  "max_sentence_length": 77
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3539553752535497,
+                  "kanji_count": 349,
+                  "total_characters": 986
+                }
+              }
+            ]
+          },
+          {
+            "chapter": "script_pipeline/data/CH03/052/content/chapters/chapter_8.md",
+            "passed": true,
+            "validated_at": "2025-11-04T09:14:08.342603Z",
+            "checks": [
+              {
+                "name": "length",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {
+                  "current_length": 909,
+                  "minimum_length": 640,
+                  "expected_length": 800
+                }
+              },
+              {
+                "name": "placeholders",
+                "passed": true,
+                "severity": "error",
+                "issues": [],
+                "metrics": {}
+              },
+              {
+                "name": "style_guide",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "sentence_count": 18,
+                  "max_sentence_length": 78
+                }
+              },
+              {
+                "name": "structure",
+                "passed": false,
+                "severity": "warning",
+                "issues": [
+                  "箇条書きがありません（要点整理を推奨）"
+                ],
+                "metrics": {}
+              },
+              {
+                "name": "readability",
+                "passed": true,
+                "severity": "warning",
+                "issues": [],
+                "metrics": {
+                  "kanji_ratio": 0.3759820426487093,
+                  "kanji_count": 335,
+                  "total_characters": 891
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-04T11:21:13.443099Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-04T11:34:35.062874+00:00",
+      "note": "Manually updated after Sheets sync failure (SSOT: files exist)"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-04T11:38:32.736353+00:00",
+      "note": "SSOT: quality_review.md exists"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-04T11:46:06.980585Z"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "18a203feb24500263ecd2206c016bf47f1709511ef0f154f7e858ace70f0f299",
+      "updated_at": "2025-11-04T11:50:06.418385Z",
+      "details": {
+        "log_base": "logs/llm_polish/CH03-052_20251104T114744"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:10.843517Z"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-11-03T15:57:04.112125Z",
+  "updated_at": "2025-11-14T08:16:10.741798Z",
+  "metadata": {
+    "channel_display_name": "シニア・健康_【シニアの健康】朗読図書館",
+    "channel_code": "CH03",
+    "ready_for_audio": false,
+    "title": "【エコノミークラス症候群】長時間のバス旅行・避難所で命を落とす！足の血栓の恐怖",
+    "title_sanitized": "【エコノミークラス症候群】長時間のバス旅行・避難所で命を落とす！足の血栓の恐怖",
+    "title_updated_at": "2025-11-04T11:46:06.980585Z",
+    "assembled_characters": 10473,
+    "output_characters": 11309,
+    "chapter_characters": 8297,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "18a203feb24500263ecd2206c016bf47f1709511ef0f154f7e858ace70f0f299",
+      "updated_at": "2025-11-04T11:50:06.418337Z"
+    },
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:57Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/052_20251113T120857Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/052_20251113T120857Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:57Z",
+    "sheet_flag": "1",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/052/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/052/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 52,
+    "sheet_title": "【エコノミークラス症候群】長時間のバス旅行・避難所で命を落とす！足の血栓の恐怖"
+  },
+  "channel_code": "CH03",
+  "video_number": "052"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "scripts/file-roles",
+  "title": "スクリプトファイルの役割一覧",
+  "description": "📁 プロジェクト構造",
+  "source": "@site/docs/scripts/file-roles.md",
+  "sourceDirName": "scripts",
+  "slug": "/scripts/file-roles",
+  "permalink": "/docs/scripts/file-roles",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "下請けAI向けプロンプト原本集",
+    "permalink": "/docs/prompts/ai-worker-prompts"
+  },
+  "next": {
+    "title": "YouTube自動化の流れ（完全ガイド）",
+    "permalink": "/docs/specifications/process-guide"
+  }
+}

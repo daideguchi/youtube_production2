@@ -1,0 +1,90 @@
+{
+  "script_id": "CH02-007",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080250Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080313Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080666Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080843Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:39:15.430143Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:51:32.098516Z",
+      "prompt_hash": "c8ed92dd6c72ceb35200234b5aeaee15c1b7e50db1eaea5a1d5c8a3859e52972",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:51:32.375040Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.306482Z"
+    },
+    "image_generation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.306611Z"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080115Z"
+    },
+    "quality_check": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:02.080903Z"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.274400Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "metadata": {
+    "title": "ある日、電車で何気なく「あと何年生きるんだろう」と考えてしまったとき、胸の奥がざわつきました。普段はスケジュールや通知に追われているのに、ふと死のことを思うと、時間の質が急に変わります。死を意識する人ほど、生の手触りが薄いのか、それとも濃くなるのか。哲学と心理の観点から、この違和感を好奇心の対象として眺めます。",
+    "title_sanitized": "ある日、電車で何気なく「あと何年生きるんだろう」と考えてしまったとき、胸の奥がざわつきました。普段はスケジュールや通知に追われているのに、ふと死のことを思うと、時間の質が急に変わります。死を意識する人ほど、生の手触りが薄いのか、それとも濃くなるのか。哲学と心理の観点から、この違和感を好奇心の対象として眺めます。",
+    "title_updated_at": "2025-10-30T02:39:15.430143Z",
+    "chapter_characters": 8008,
+    "assembled_characters": 8008,
+    "output_characters": 7972,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "c8ed92dd6c72ceb35200234b5aeaee15c1b7e50db1eaea5a1d5c8a3859e52972",
+      "updated_at": "2025-10-30T02:51:32.098488Z"
+    },
+    "audio": {},
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_outline: completed (11/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 8,
+    "sheet_title": "【死生観】死を恐れる人ほど生きていない―ハイデガーが見抜いた現代の病理",
+    "ready_for_audio": true,
+    "assembled_path": "script_pipeline/data/CH02/007/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/007/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/007/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【死生観】死を恐れる人ほど生きていない―ハイデガーが見抜いた現代の病理 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\nある日、電車で何気なく「あと何年生きるんだろう」と考えてしまったとき、胸の奥がざわつきました。普段はスケジュールや通知に追われているのに、ふと死のことを思うと、時間の質が急に変わります。死を意識する人ほど、生の手触りが薄いのか、それとも濃くなるのか。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH02",
+  "video_number": "007"
+}

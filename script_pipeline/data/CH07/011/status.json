@@ -1,0 +1,72 @@
+{
+  "script_id": "CH07-011",
+  "channel": "CH07",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T12:31:06.375664",
+  "metadata": {
+    "title": "# 【もう舐められない】見下されたときの最強の一言（CH07-011）",
+    "title_sanitized": "# 【もう舐められない】見下されたときの最強の一言（CH07-011）",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 6035,
+    "output_characters": 6035,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH07",
+    "channel_display_name": "CH07",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【執着を一ミリ緩める】仏教の手放しトレーニング",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/011/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/011/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH07/011/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "この動画では「【執着を一ミリ緩める】仏教の手放しトレーニング」を仏教の視点でやさしく解き明かします。\n# 見下された瞬間に場を平らに戻す長い物語（CH07-011）。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+  },
+  "channel_code": "CH07",
+  "video_number": "011"
+}

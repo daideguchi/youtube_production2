@@ -1,0 +1,97 @@
+{
+  "script_id": "CH02-030",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:06:08.876018Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:06:58.379716Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:08:42.581914Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:17:39.917862Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:18:55.181657Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:22:19.597934Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:59:15.882807Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "b5ad3abb833e719c54863fdd7ed314729299c04aa5dc28f1ed5c64aa7448abaf",
+      "fallback": "reuse_stage7_draft",
+      "updated_at": "2025-11-01T05:31:33.890344Z",
+      "details": {
+        "fallback": "reuse_stage7_draft",
+        "fallback_reason": "qwen から空の応答が返されました",
+        "log_base": "logs/llm_polish/CH02-030_20251101T053130"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-01T05:32:01.493198Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-31T09:30:47.971990Z",
+  "updated_at": "2025-11-14T08:15:56.774068Z",
+  "metadata": {
+    "ready_for_audio": true,
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_outline: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 31,
+    "sheet_title": "【笑いの哲学】なぜ私たちは、人の失敗を笑ってしまうのか―攻撃性としてのユーモア",
+    "channel_code": "CH02",
+    "channel_display_name": "企画",
+    "video_number": "030",
+    "script_id": "CH02-030",
+    "title": "【笑いの哲学】なぜ私たちは、人の失敗を笑ってしまうのか―攻撃性としてのユーモア",
+    "title_sanitized": "【笑いの哲学】なぜ私たちは、人の失敗を笑ってしまうのか―攻撃性としてのユーモア",
+    "title_updated_at": "2025-11-01T05:59:15.882807Z",
+    "assembled_characters": 8010,
+    "output_characters": 8264,
+    "chapter_characters": 7979,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "b5ad3abb833e719c54863fdd7ed314729299c04aa5dc28f1ed5c64aa7448abaf",
+      "updated_at": "2025-11-01T05:31:33.890319Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/030/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ready_for_audio_at": "2025-11-14T06:17:47.880941Z"
+  },
+  "channel_code": "CH02",
+  "video_number": "030"
+}

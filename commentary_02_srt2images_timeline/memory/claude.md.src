@@ -1,0 +1,6 @@
+@./claude.base.md
+@./claude.team.md
+@./claude.project.md
+
+## 実行時の注意
+- 大量API呼び出し禁止、レート制御厳守

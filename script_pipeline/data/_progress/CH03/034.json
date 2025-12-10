@@ -1,0 +1,123 @@
+{
+  "script_id": "CH03-034",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:21:42.462568Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:27:31.446410Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:39:33.499919Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:39:46.920034Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:41:13.118321Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-31T09:44:15.521177Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-01T13:09:46.204134Z"
+    },
+    "script_polish_ai": {
+      "details": {
+        "fallback": "reuse_stage7_draft",
+        "fallback_reason": "qwen から空の応答が返されました",
+        "log_base": "logs/llm_polish/CH03-034_20251101T132355"
+      },
+      "status": "completed",
+      "updated_at": "2025-11-01T13:23:55.820459Z",
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "fallback": "reuse_stage7_draft"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-11-01T13:26:57.128635Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:53.605326Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/034/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/034/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending",
+      "updated_at": "2025-11-13T10:29:32.112731Z"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "updated_at": "2025-11-13T11:48:16.332408Z"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.267208Z",
+  "updated_at": "2025-11-14T08:16:08.805151Z",
+  "metadata": {
+    "title": "CH03-034",
+    "title_sanitized": "CH03-034",
+    "title_updated_at": "2025-11-01T13:09:46.204134Z",
+    "channel_code": "CH03",
+    "video_number": "034",
+    "script_id": "CH03-034",
+    "ready_for_audio": false,
+    "channel_display_name": "シニア・健康_【シニアの健康】朗読図書館",
+    "assembled_characters": 8419,
+    "output_characters": 8930,
+    "chapter_characters": 7578,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "f1ebb0618e603e0d715dcf04a174f9487bd284002b7ce5da36ad65f6fcd0a4d4",
+      "updated_at": "2025-11-01T13:23:55.820447Z"
+    },
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:53Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/034_20251113T120853Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/034_20251113T120853Z.failed.log"
+        }
+      ]
+    },
+    "delivery": {
+      "path": "delivery/CH03/CH03-034",
+      "final_wav": "delivery/CH03/CH03-034/CH03-034_final.wav",
+      "final_srt": "delivery/CH03/CH03-034/CH03-034_final.srt",
+      "updated_at": "2025-11-04T08:29:24Z"
+    },
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/034/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/034/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_flag": "1",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 35,
+    "sheet_title": "【熱中症】室内でもキケン！命を守る、高齢者のための正しい水分補給術",
+    "audio_failed_at": "2025-11-13T12:08:53Z"
+  },
+  "channel_code": "CH03",
+  "video_number": "034"
+}

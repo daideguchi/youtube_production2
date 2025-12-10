@@ -1,0 +1,1738 @@
+{
+  "script_id": "CH02-006",
+  "channel": "CH02",
+  "status": "completed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265368Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265452Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265491Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265734Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265846Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265883Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:31:55.698615Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:36:24.139573Z",
+      "prompt_hash": "11229e42fa6066fb7c5272b2c13199adbfcdab263066b465577d1511831108d0",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:36:24.409109Z"
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-11-03T11:26:29.342069Z",
+      "engine": "voicevox",
+      "voice_key": "voicevox_aoyama",
+      "voice_character": "青山龍星",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH02/006/audio_prep/script_sanitized.txt",
+      "chunk_count": "1",
+      "artefact_sanitized": "data/CH02/006/audio_prep/script_sanitized.txt",
+      "artefact_voicevox_chunks": "data/CH02/006/audio_prep/voicevox_chunks",
+      "engine_url": "http://127.0.0.1:50021",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/CH02-006.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/CH02-006.srt",
+      "dry_run": false,
+      "silence_plan": "[0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.35, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.55, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.55, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.55, 0.44999999999999996, 0.44999999999999996, 0.55, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.35, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.55, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.45, 0.44999999999999996, 0.55, 0.35, 0.44999999999999996, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.35, 0.55, 0.44999999999999996, 0.44999999999999996, 0.55, 0.44999999999999996, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.45, 0.44999999999999996, 0.35, 0.44999999999999996, 0.44999999999999996, 0.45, 0.35, 0.35, 0.44999999999999996, 0.44999999999999996, 0.44999999999999996, 0.0]",
+      "pause_map": "[]"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-11-03T11:29:15.013311Z",
+      "audio_duration": "1806.958",
+      "srt_duration": "1806.958",
+      "delta_ms": "0.0",
+      "blocks": "222"
+    },
+    "timeline_copy": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.191016Z"
+    },
+    "image_generation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.191141Z"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.277730Z",
+  "updated_at": "2025-11-14T08:15:53.697981Z",
+  "metadata": {
+    "title": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄",
+    "title_sanitized": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄",
+    "title_updated_at": "2025-10-30T02:31:55.698615Z",
+    "chapter_characters": 8912,
+    "assembled_characters": 9051,
+    "output_characters": 9303,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "11229e42fa6066fb7c5272b2c13199adbfcdab263066b465577d1511831108d0",
+      "updated_at": "2025-10-30T02:36:24.139543Z"
+    },
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/006/audio_prep/script_sanitized.txt",
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "chunk_count": 1,
+        "updated_at": "2025-11-05T00:58:27.150222Z",
+        "script_tagged_path": "data/CH02/006/audio_prep/script_sanitized_with_pauses.txt"
+      },
+      "history": [
+        {
+          "event": "completed",
+          "timestamp": "2025-11-03T11:28:49Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": "audio_tts_v2/artifacts/final/CH02/CH02-006.wav",
+          "final_srt": "audio_tts_v2/artifacts/final/CH02/CH02-006.srt",
+          "log_json": "logs/audio_synthesis/CH02/006_20251103T112849Z.completed.json",
+          "log_text": "logs/audio_synthesis/CH02/006_20251103T112849Z.completed.log"
+        },
+        {
+          "event": "srt_verified",
+          "timestamp": "2025-11-03T11:29:17Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH02/006_20251103T112917Z.srt_verified.json",
+          "log_text": "logs/audio_synthesis/CH02/006_20251103T112917Z.srt_verified.log"
+        },
+        {
+          "event": "tts_saved",
+          "status": "saved",
+          "message": "音声用テキストを保存 (再生成あり)",
+          "diff_preview": [],
+          "timestamp": "2025-11-05T00:58:27.163618Z"
+        },
+        {
+          "event": "audio_regeneration_failed",
+          "status": "failed",
+          "message": "CH02: there are other ready_for_audio videos awaiting processing (CH02-008, CH02-009, CH02-010, CH02-011, CH02-012, CH02-013, CH02-014, CH02-015, CH02-020, CH02-021, CH02-026, CH02-027, CH02-028). Finish those before starting a new audio job or pass --ignore-pending to override.",
+          "timestamp": "2025-11-05T00:58:41.938112Z"
+        }
+      ],
+      "synthesis": {
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/CH02-006.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/CH02-006.srt",
+        "artefacts": {
+          "sanitized": "data/CH02/006/audio_prep/script_sanitized.txt",
+          "voicevox_chunks": "data/CH02/006/audio_prep/voicevox_chunks"
+        },
+        "updated_at": "2025-11-03T11:28:49Z",
+        "chunk_count": 1,
+        "silence_plan": [
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.55,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.55,
+          0.35,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.55,
+          0.45,
+          0.45,
+          0.55,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.55,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.55,
+          0.35,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.35,
+          0.55,
+          0.45,
+          0.45,
+          0.55,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.45,
+          0.0
+        ],
+        "log": {
+          "json": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH02/006_20251103T112849Z.completed.json",
+          "log": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH02/006_20251103T112849Z.completed.log"
+        }
+      },
+      "verify": {
+        "status": "completed",
+        "updated_at": "2025-11-03T11:28:49Z",
+        "tolerance_ms": 50,
+        "audio_duration_sec": 1806.958,
+        "srt_duration_sec": 1806.958,
+        "delta_ms": 0.0
+      },
+      "pause_map": [
+        {
+          "section": 1,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 2,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 3,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 4,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 5,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 6,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 7,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 8,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 9,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 10,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 11,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 12,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 13,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 14,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 15,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 16,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 17,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 18,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 19,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 20,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 21,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 22,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 23,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 24,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 25,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 26,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 27,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 28,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 29,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 30,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 31,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 32,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 33,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 34,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 35,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 36,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 37,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 38,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 39,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 40,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 41,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 42,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 43,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 44,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 45,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 46,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 47,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 48,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 49,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 50,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 51,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 52,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 53,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 54,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 55,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 56,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 57,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 58,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 59,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 60,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 61,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 62,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 63,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 64,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 65,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 66,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 67,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 68,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 69,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 70,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 71,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 72,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 73,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 74,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 75,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 76,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 77,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 78,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 79,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 80,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 81,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 82,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 83,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 84,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 85,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 86,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 87,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 88,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 89,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 90,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 91,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 92,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 93,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 94,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 95,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 96,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 97,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 98,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 99,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 100,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 101,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 102,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 103,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 104,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 105,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 106,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 107,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 108,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 109,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 110,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 111,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 112,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 113,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 114,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 115,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 116,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 117,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 118,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 119,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 120,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 121,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 122,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 123,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 124,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 125,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 126,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 127,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 128,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 129,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 130,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 131,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 132,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 133,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 134,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 135,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 136,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 137,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 138,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 139,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 140,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 141,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 142,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 143,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 144,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 145,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 146,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 147,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 148,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 149,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 150,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 151,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 152,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 153,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 154,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 155,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 156,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 157,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 158,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 159,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 160,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 161,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 162,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 163,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 164,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 165,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 166,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 167,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 168,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 169,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 170,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 171,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 172,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 173,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 174,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 175,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 176,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 177,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 178,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 179,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 180,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 181,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 182,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 183,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 184,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 185,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 186,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 187,
+          "pause_sec": 0.55,
+          "source": "user_tag",
+          "raw_tag": "[0.55s]"
+        },
+        {
+          "section": 188,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 189,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 190,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 191,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 192,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 193,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 194,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 195,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 196,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 197,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 198,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 199,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 200,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 201,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 202,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 203,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 204,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 205,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 206,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 207,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 208,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 209,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 210,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 211,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 212,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 213,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 214,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 215,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 216,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 217,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 218,
+          "pause_sec": 0.35,
+          "source": "user_tag",
+          "raw_tag": "[0.35s]"
+        },
+        {
+          "section": 219,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 220,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        },
+        {
+          "section": 221,
+          "pause_sec": 0.45,
+          "source": "user_tag",
+          "raw_tag": "[0.45s]"
+        }
+      ]
+    },
+    "audio_processing_started_at": "2025-11-03T08:10:36Z",
+    "audio_completed_at": "2025-11-03T11:28:49Z",
+    "sheet_flag": "1",
+    "sheet_progress_cell": "script_outline: completed (11/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 7,
+    "sheet_title": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄",
+    "ready_for_audio": false,
+    "audio_failed_at": "2025-11-03T11:10:01Z",
+    "channel_code": "CH02",
+    "channel_display_name": "企画"
+  },
+  "channel_code": "CH02",
+  "video_number": "006",
+  "completed_at": "2025-11-14T06:17:45.191170Z"
+}

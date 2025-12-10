@@ -1,0 +1,233 @@
+{
+  "script_id": "CH04-001",
+  "channel": "CH04",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.535515Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.535708Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.535743Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.536121Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.536203Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:53.536230Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-12T07:33:49.827031Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "1f012213f666b62c48e8aedf0ff361df823bed4044c8d669005636d1c00aa506",
+      "fallback": "reuse_stage7_draft",
+      "updated_at": "2025-11-12T07:34:45.217675Z",
+      "details": {
+        "fallback": "reuse_stage7_draft",
+        "fallback_reason": "openrouter_client 呼び出しに失敗しました: /Users/dd/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\n⚠️ HTTP 429 - 1秒後にリトライ (1/3)\n⚠️ HTTP 429 - 2秒後にリトライ (2/3)\n❌ エラー: ❌ OpenRouter APIレート制限超過\n無料プランの制限に達した可能性があります\n詳細: {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day-high-balance. \",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"2000\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1762992000000\"},\"provider_name\":null}},\"user_id\":\"user_2zOlu4h0qc2KMYb0QcWBb3d6nhj\"}",
+        "log_base": "logs/llm_polish/CH04-001_20251112T073445"
+      },
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:03:07.028191Z"
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:03:07.028911Z"
+    },
+    "srt_generation": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:03:07.028992Z"
+    },
+    "timeline_copy": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:03:07.029081Z"
+    },
+    "image_generation": {
+      "status": "pending",
+      "updated_at": "2025-11-18T09:03:07.029086Z"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.237103Z",
+  "updated_at": "2025-11-18T09:22:39.156663Z",
+  "metadata": {
+    "title": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
+    "title_sanitized": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
+    "title_updated_at": "2025-10-25T02:15:56.146676Z",
+    "chapter_characters": 8148,
+    "assembled_characters": 8148,
+    "output_characters": 8437,
+    "ready_for_audio": false,
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH04/001/audio_prep/script_sanitized.txt",
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "chunk_count": 1,
+        "updated_at": "2025-11-13T12:59:29Z"
+      },
+      "history": [
+        {
+          "event": "completed",
+          "timestamp": "2025-11-13T12:59:29Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": "audio_tts_v2/artifacts/final/CH04/CH04-001.wav",
+          "final_srt": "audio_tts_v2/artifacts/final/CH04/CH04-001.srt",
+          "log_json": "logs/audio_synthesis/CH04/001_20251113T125929Z.completed.json",
+          "log_text": "logs/audio_synthesis/CH04/001_20251113T125929Z.completed.log"
+        },
+        {
+          "event": "srt_verified",
+          "timestamp": "2025-11-13T12:59:29Z",
+          "status": "completed",
+          "message": null,
+          "engine": "voicevox",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH04/001_20251113T125929Z.srt_verified.json",
+          "log_text": "logs/audio_synthesis/CH04/001_20251113T125929Z.srt_verified.log"
+        }
+      ],
+      "synthesis": {
+        "engine": "voicevox",
+        "voice_key": "voicevox_aoyama",
+        "voice_character": "青山龍星",
+        "voice_style": "ノーマル",
+        "final_wav": "audio_tts_v2/artifacts/final/CH04/CH04-001.wav",
+        "final_srt": "audio_tts_v2/artifacts/final/CH04/CH04-001.srt",
+        "artefacts": {
+          "sanitized": "data/CH04/001/audio_prep/script_sanitized.txt",
+          "voicevox_chunks": "data/CH04/001/audio_prep/voicevox_chunks"
+        },
+        "updated_at": "2025-11-13T12:59:29Z",
+        "chunk_count": 1,
+        "silence_plan": [
+          0.55,
+          0.35,
+          0.44999999999999996,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.44999999999999996,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.35,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.44999999999999996,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.35,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.44999999999999996,
+          0.55,
+          0.55,
+          0.44999999999999996,
+          0.55,
+          0.55,
+          0.35,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.55,
+          0.45,
+          0.55,
+          0.55,
+          0.55,
+          0.45,
+          0.55,
+          0.44999999999999996,
+          0.0
+        ],
+        "log": {
+          "json": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH04/001_20251113T125929Z.completed.json",
+          "log": "/Users/dd/youtube_master/commentary_01_srtfile_v2/logs/audio_synthesis/CH04/001_20251113T125929Z.completed.log"
+        }
+      },
+      "verify": {
+        "status": "completed",
+        "updated_at": "2025-11-13T12:59:29Z",
+        "tolerance_ms": 50,
+        "audio_duration_sec": 1393.589,
+        "srt_duration_sec": 1393.589,
+        "delta_ms": 0.3
+      }
+    },
+    "channel_code": "CH04",
+    "channel_display_name": "企画",
+    "video_number": "001",
+    "script_id": "CH04-001",
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "1f012213f666b62c48e8aedf0ff361df823bed4044c8d669005636d1c00aa506",
+      "updated_at": "2025-11-12T07:34:45.217648Z"
+    },
+    "sheet_flag": "1.0",
+    "sheet_progress_cell": "script_validated",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 2,
+    "sheet_title": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
+    "audio_processing_started_at": "2025-11-13T12:54:46Z",
+    "audio_completed_at": "2025-11-13T12:59:29Z"
+  },
+  "channel_code": "CH04",
+  "video_number": "001"
+}

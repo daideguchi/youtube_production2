@@ -1,0 +1,72 @@
+{
+  "script_id": "CH09-021",
+  "channel": "CH09",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-04T09:15:29.265814",
+  "metadata": {
+    "title": "「いい人ほど運が逃げる」と感じる瞬間があります。誰かのために動いているのに、忙しさと疲労ばかりが残る。頼まれごとを優先して自分の時間が削れ、決断が雑になり、結果的にチャンスを逃す。運は偶然ではなく、選び方と線引きの結果です。今日は、いい人が運に見放されないために、トレードオフを言語化し、境界を守りながら信頼を積む方法を、一日の流れに沿って丁寧に話します。",
+    "title_sanitized": "「いい人ほど運が逃げる」と感じる瞬間があります。誰かのために動いているのに、忙しさと疲労ばかりが残る。頼まれごとを優先して自分の時間が削れ、決断が雑になり、結果的にチャンスを逃す。運は偶然ではなく、選び方と線引きの結果です。今日は、いい人が運に見放されないために、トレードオフを言語化し、境界を守りながら信頼を積む方法を、一日の流れに沿って丁寧に話します。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH09",
+    "channel_display_name": "CH09",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【仕事と家庭の板挟み】トレードオフを言語化",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/021/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/021/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH09/021/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【仕事と家庭の板挟み】トレードオフを言語化 を“危険人物/言ってはいけない言葉”の視点で整理し、線引きのチェックリストを提供。\n「いい人ほど運が逃げる」と感じる瞬間があります。誰かのために動いているのに、忙しさと疲労ばかりが残る。頼まれごとを優先して自分の時間が削れ、決断が雑になり、結果的にチャンスを逃す。\n🧭 今日からできる一歩：言わないリストを作る / 距離を置くサインを1つ決める\n#人間関係 #自己防衛 #線引き"
+  },
+  "channel_code": "CH09",
+  "video_number": "021"
+}

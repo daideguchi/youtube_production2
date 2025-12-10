@@ -1,0 +1,11 @@
+{
+  "voicevox_kana_diff": {
+    "engine_kana": "",
+    "llm_kana": "",
+    "diff": []
+  },
+  "voicevox_accent_phrases": null,
+  "voicevox_kana": "",
+  "voicevox_kana_llm_ref": "",
+  "voicevox_kana_corrected": ""
+}

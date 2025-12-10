@@ -1,0 +1,50 @@
+{
+  "channel_id": "CH09",
+  "name": "不動の指針",
+  "persona_path": "progress/personas/CH09_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH09-不動の指針/script_prompt.txt",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/i41bAbH86X_sMp0b4FakVejP4IgC4YY029Y11PRsHPZOiMK9YAZgX-Vvjfsu7wl0pdFA4ht8=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "不動の指針",
+    "subscriber_count": 4,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@hudo_no_shishin",
+    "handle": "@hudo_no_shishin",
+    "url": "https://www.youtube.com/channel/UCSWGduuNcydherU8cQJCqHA",
+    "updated_at": "2024-11-12T11:12:05.41125Z"
+  },
+  "youtube": {
+    "channel_id": "UCSWGduuNcydherU8cQJCqHA",
+    "title": "不動の指針",
+    "custom_url": "@hudo_no_shishin",
+    "handle": "@hudo_no_shishin",
+    "url": "https://www.youtube.com/channel/UCSWGduuNcydherU8cQJCqHA",
+    "view_count": 0,
+    "subscriber_count": 4,
+    "video_count": 0,
+    "synced_at": "2025-12-04T07:18:57.435130+00:00",
+    "source": "UCSWGduuNcydherU8cQJCqHA",
+    "published_at": null
+  },
+  "description": "決断疲れを減らし、価値観メモで揺れない軸を育てる",
+  "persona": {
+    "demographics": {
+      "age_range": "30-50代",
+      "life_stage": "日々の意思決定で疲弊するビジネスパーソン"
+    },
+    "interests": [
+      "最小限の習慣化",
+      "価値観メモ・行動原則の整備"
+    ],
+    "pain_points": [
+      "決断疲れ",
+      "優先順位の迷い"
+    ],
+    "language_preference": "実務的で温度感のある丁寧語。説教禁止。",
+    "content_preference": "具体ステップとケース例で即日使える台本",
+    "target_audience": "30〜50代のビジネスパーソンで軸を定めたい人"
+  },
+  "script_prompt": "script_pipeline/channels/CH09-不動の指針/script_prompt.txt"
+}

@@ -1,0 +1,73 @@
+{
+  "script_id": "CH08-002",
+  "channel": "CH08",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-10T08:37:47.905901Z",
+  "metadata": {
+    "title": "深夜、窓の外に車の音が途切れず続き、まぶたを閉じても頭の中の小さな会話が止まらない。布団の上で向きを変えても、思考が光の粒となって跳ね続ける。そんな夜は、静かな書庫を開くところから始めましょう。月の光が床に細い帯を作り、木の香りと紙の匂いが混ざる空間。あなたのためだけに用意された机があり、椅子に腰を下ろすと心拍がゆっくり落ち着き、呼吸が深くなっていきます。",
+    "title_sanitized": "深夜、窓の外に車の音が途切れず続き、まぶたを閉じても頭の中の小さな会話が止まらない。布団の上で向きを変えても、思考が光の粒となって跳ね続ける。そんな夜は、静かな書庫を開くところから始めましょう。月の光が床に細い帯を作り、木の香りと紙の匂いが混ざる空間。あなたのためだけに用意された机があり、椅子に腰を下ろすと心拍がゆっくり落ち着き、呼吸が深くなっていきます。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH08",
+    "channel_display_name": "CH08",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【月光読書】一行日記で不安を紙におろす",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【月光読書】一行日記で不安を紙におろす を“悪用厳禁”の視点で安全に扱う方法を解説します。\n深夜、窓の外に響く車の音が途切れなく続いている。まぶたを閉じても、頭の中で小さな会話が止まらない。目を覚ましたまま布団の中で、静かな書庫を思い浮かべることから始めてみましょう。\n⚠️ 注意：無理をせず、体調や人間関係を優先して試してください。\n#スピリチュアル #波動 #自己浄化",
+    "audio_reviewed": true
+  },
+  "channel_code": "CH08",
+  "video_number": "002"
+}

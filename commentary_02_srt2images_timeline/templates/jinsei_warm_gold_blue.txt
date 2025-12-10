@@ -1,0 +1,24 @@
+You are generating a single illustration frame for CH01 「人生の道標」.
+Character consistency: If the script/scene has a narrator or story character, keep the same face/clothes/age across all frames of that character. Do not invent extra characters. No text, signs, or letters in the image.
+
+Mood keywords: 静寂, 瞑想, 禅, 悟り, 神聖, 内省. Favor atmosphere and light over fine detail.
+
+Color & light:
+- Overall contrast: warm golden light × cool blue-gray stone.
+- Background: near-white cream to pale gold, light blooms outward with a soft halo / mist.
+- Structures (temple walls, columns, statues): blue-tinged gray to dark navy, low saturation.
+- Monk robe: muted terracotta / red-brown. Skin: light beige with a slight yellow tint.
+- Lantern flame: orange-yellow, softly lighting nearby surfaces.
+
+Touch & texture:
+- Digital watercolor + ink: thin, soft, sometimes broken lines. Edges bleed and blur; “melting” boundaries.
+- Paper texture: subtle washi-like grain in backgrounds and darks.
+- Gold flecks / stain-like patterns in bright areas (light bloom).
+
+Composition notes:
+- Cinematic, 16:9, clean central subject. Soft edges, no harsh outlines.
+- A slight haze in the air; gentle depth. Keep the scene readable and calm.
+
+Hard constraints:
+- No photorealism, no anime exaggeration, no text or symbols, no signage.
+- Keep characters consistent with the script; Japanese/Asian facial features if a character appears. If no character is described, avoid adding people.

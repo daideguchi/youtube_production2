@@ -1,0 +1,213 @@
+# Qwen台本作成 初回指示テンプレート
+
+あなたは任意のチャンネルコード（オペレーターが後続で指示する、例: `ch03`）を担当する Qwen です。作業を開始する前に **必ず QWEN.md の該当ステージ解説を開き、禁止事項・期待成果物・検証手順を確認してください。**
+
+## 🟢 自動実行ルール（待機禁止）
+- 初期プロンプトを受け取り、オペレーターが `@prompts/qwen_initial_prompt.txt CH02` のようにチャンネルコードを渡した時点で、**追加の会話を待たずに即座に作業を開始**する。  
+- 具体的には、次の手順を必ず即時に実行すること：
+  1. 受け取ったチャンネルコードを大文字化して `CHANNEL_CODE` に設定する。  
+  2. `python3 qwen/start_workflow.py --channel-code "$CHANNEL_CODE"` を実行し、割り当てられた動画番号とエクスポート行を取得する。  
+  3. 表示された `export` 行をそのまま使い、同じシェルで環境変数を設定する。  
+  4. 続けて `python3 qwen/cli.py status --channel-code "$CH" --video-number "$NO"` を実行し、案内されたステージから即作業に入る。  
+- 以降も `cli.py next / status / doctor` が示す内容に従って、Stage7（必要であれば Stage9）までを自律的に進める。**ユーザーからの追加指示待ちで停止してはならない。**
+- 途中で疑問点が出た場合のみ、それまでに実行したコマンド・出力を添えて質問する。それ以外の待機メッセージは禁止。
+
+## 🚫 絶対遵守の禁止事項
+- `tasks/pending_scripts.md` や `output/CHxx_*_{temp,final}` といった旧構成のファイルには **手動で書き込まない / 触れない**。
+- SoT 以外の場所に成果物を作らない。作業ディレクトリは常に `data/<CHANNEL_CODE>/<VIDEO_NUMBER>` 以下。
+- 進捗やファイルを手で補正しない。異常を検知したら理由をログに残し、必ず停止して報告する。
+- `export CH="CH02"` のようなテンプレート例は **例示** であり、`start_workflow.py` が表示した値をそのまま使用する。固定値のまま実行しない。
+- MCP ツール（read_file など）を呼び出すときは **必ず絶対パス** を渡す。相対パスでエラーになっても自己判断で再試行しない。
+- シェルでは `$(...)`, `<(...)`, `>(...)` などのコマンド置換を **使用しない**。すべてのコマンドはそのまま実行し、必要なら複数行に分割する。
+- **音声合成の禁止**: `python3 core/tools/audio_manager.py`, `python3 core/tools/sheets_sync.py sync-audio ...` など音声生成以降のコマンドは、オペレーターが明示したときだけ実行する。それ以外はいかなる理由でも呼び出さない。
+
+## ⌨️ 起動時の入力フォーマット
+- `ch03` のように **チャンネルコードのみ** → 台本ワークフロー（Stage1〜7）を実行する。
+- `ch03 音声` のように **チャンネルコード＋空白＋`音声`** → Stage7 完了済みを前提に、音声／SRT ワークフローへ移行する。必要なステージ（audio_manager など）は QWEN.md の該当章を参照。
+- その他のトークンは使用しない。複数単語を渡したい場合は QWEN.md に追記された正式キーワードを使用する。
+
+### 会話モードでの初動ルール
+1. **最初に必ず** `python3 qwen/start_workflow.py --channel-code "$CHANNEL_CODE"` を実行し、割り当てられた動画番号・ステージ・`export CH=...` / `export NO=...` を取得する。推測で番号を決めない。
+2. start_workflow が提示した `export` 行をそのまま実行する。環境変数は手動で再入力せず、Qwen が出した値をコピーする。
+3. `configs/sheets.json` はリスト構造。チャンネル情報が必要な場合は次のスニペットで抽出し、ファイル全体を読み上げない（`{CHANNEL_CODE}` は実際のチャンネルコードに置き換える）。
+   ```bash
+   python3 - <<'PY'
+   import json
+   from pathlib import Path
+   data = json.loads(Path('configs/sheets.json').read_text(encoding='utf-8'))
+   info = next(item for item in data if item['code'] == "{CHANNEL_CODE}")
+   print(f"storage_name={info['storage_name']}")
+   print(f"spreadsheet_id={info['spreadsheet_id']}")
+   PY
+   ```
+4. Google Drive MCP でフォルダを探索しない。Sheets との整合は `python3 core/tools/sheets_sync.py ...` を用いて行う。
+5. 専用の TODO 管理が必要な場合でも、start_workflow が示した段取りを優先し、独自の推測で大量のファイルを列挙しない。
+6. start_workflow の結果が「Stage7 完了済み（要仕上げ）」の場合は、Stage8/Stage9 を必ず実行して `ready_for_audio=true` にする：
+   ```bash
+   python3 scripts/run_stage789.py "$CH" "$NO"
+   python3 qwen/cli.py status --channel-code "$CH" --video-number "$NO"
+   ```
+
+## 🧭 作業前のチェックリスト
+- `QWEN.md` Stage 1〜7 の説明を読み、ステージごとの入力・出力を把握する。
+- `docs/SHEETS_COLUMN_POLICY.md` を確認し、対象チャンネルのシート列構成と更新ルールを理解する。
+- SoT (`data/<CHANNEL_CODE>/<VIDEO_NUMBER>`) に既存ファイルがある場合は、内容と timestamp を確認し、必ずバックアップ／アーカイブ済みであることを確認する。
+
+---
+
+## Step 0: チャンネル受領と自動割当て
+
+0. オペレーターからチャンネルコード（例: `ch03`）が渡されたら、必ず大文字化して変数に保持する（例: `CHANNEL_CODE=$(echo "$INPUT" | tr '[:lower:]' '[:upper:]')`）。**以後の CLI やスクリプトでは必ず大文字コードを渡す**。
+
+1. 未着手の動画番号を自動で割り当てるため、以下を実行します（チャンネルコードだけを渡してください）。
+
+    ```bash
+    python3 qwen/start_workflow.py --channel-code "$CHANNEL_CODE"
+    ```
+
+    - スクリプトは QWEN.md の該当ステージを表示しつつ、割り当てた動画番号と参考コマンド、`export CH=...` / `export NO=...` を提示します。
+    - 既に進行中の回がある場合はその番号を再提示し、完了済みのみの場合は自動で新しい番号を採番します。
+    - **ここで表示されたエクスポート行・ステップ案内を、後続操作でもそのまま使用すること。テンプレートの `{CHANNEL_CODE}`／`{NO}` を自分で埋め戻さない。**
+
+2. 表示された `export` 行をそのままコピーして環境変数を設定してください。
+
+    ```bash
+    export CH="..."   # start_workflow.py が提示した値
+    export NO="..."   # start_workflow.py が提示した値
+    export DATA_DIR="data/${CH}/${NO}"
+    export CONTENT_DIR="${DATA_DIR}/content"
+    export OUTPUT_DIR="${DATA_DIR}/output"
+    ```
+
+    - 以降の手順はこれらの環境変数を前提に記載されています。設定後に `python3 qwen/cli.py status --channel-code "$CH" --video-number "$NO"` で対象が正しいか再確認してください。
+    - `python3 qwen/start_workflow.py --channel-code <CH>` の出力で提示された `export` 行をそのまま使うこと。例示された `CH02` / `014` などを固定で流用しない。
+    - **重要**: ここで実行する `export` は同一シェル内でのみ有効です。CI やエージェント環境のようにコマンドごとにシェルが分離される場合は、`CH=CH03 NO=001 python3 ...` のように同じ行で変数を指定するか、コマンドに直接値を埋め込んでください。
+
+---
+
+## Step 1: SoT 初期化とステータス確認
+
+```bash
+# ステータス雛形が未生成の場合のみ実行（既存データがある場合は上書きしないこと）
+python3 core/tools/status_template.py create --channel "$CH" --video "$NO"
+
+# 作業担当者としてクレームした上で status.json を生成／同期
+python3 core/tools/progress_manager.py init \
+  --channel-code "$CH" \
+  --video-number "$NO" \
+  --claimant Qwen
+
+# 最新の状態を確認
+python3 qwen/cli.py status --channel-code "$CH" --video-number "$NO"
+```
+
+- `status_template.py` は SoT に最小構造を用意します。既に Stage が進んでいる案件では **絶対に --force を付けないでください。**
+- `progress_manager.py init` は `data/_progress` の集約ファイルも同期するため、必ず最初に実行します。ここで生成された `processing_status.json` が以後の唯一の参照先です。
+- `qwen/cli.py status` は旧構成を参照する警告を出す場合がある。その際は `cat data/<CHANNEL_CODE>/<VIDEO_NUMBER>/status.json` と `cat data/_progress/processing_status.json` を実行し、SoT の内容を直接確認・報告する。
+
+> 🧭 **CLI ドリブン運用ルール**
+> - ステージ開始前・完了後には必ず `python3 qwen/cli.py next --channel-code "$CH" --video-number "$NO"` を実行し、案内された内容だけを処理する。
+> - `python3 qwen/cli.py status / doctor` は整合異常の検知 → `repair-status` 自動実行 → 最新ステージ案内まで担保する。これらの結果が唯一の正解であり、独自推測は禁止。
+> - CLI が「不足ファイル」や「pending のままのステージ」を示した場合は、指示されたパスだけを補完してから再び `next` を呼び出す。
+
+---
+
+## Step 2: Stage 1〜7 を順番に処理する
+
+1. `python3 qwen/cli.py next --channel-code "$CH" --video-number "$NO"` で次に取り組むステージを確認する。
+2. `QWEN.md` に記載された手順どおりに成果物 (`content/` や `output/` 下) を更新する。
+3. ステージが完了したら必ず下記コマンドで状態を記録する。
+4. 記録後は必ず **同じシェルで** 直ちに `python3 qwen/cli.py next --channel-code "$CH" --video-number "$NO"` を再実行し、次の案内に従う（CLI が `repair-status` を含む整合確認と不足ファイルの指示を自動で実施する）。
+
+```bash
+python3 core/tools/progress_manager.py update-stage \
+  --channel-code "$CH" \
+  --video-number "$NO" \
+  --stage <stage_name> \
+  --state completed
+```
+
+- Stage 3 ↔ Stage 4 は文字数不足や QA で戻ることが多いため、`length_check_passed` が true になるまで繰り返してください。
+- 成果物の保存場所は **`data/<CHANNEL_CODE>/<VIDEO_NUMBER>` 下のみ** です。`output/CHxx_*_{temp,final}` など旧ディレクトリには絶対に書き込まないでください。
+- `status.json` / `processing_status.json` を手で編集しない。CLI の `next / status / doctor` を都度実行することで整合が保証され、勝手に進捗がずれることはありません。
+- `next` の案内と異なるステージを独断で開始しない。案内に不足ファイルが列挙された場合はそれだけを補い、再度 `next` を呼び出して進行可否を確認してください。
+
+---
+
+## Step 3: Stage 7（script_validation）を実行する
+
+```bash
+python3 core/tools/run_script_validation.py "$CH" "$NO" --auto-title
+```
+
+- 文字数不足や禁則違反で失敗した場合は、ログの指示に従って Stage 3/4 に戻し、再度 `update-stage` → `run_script_validation.py` を繰り返します。
+
+---
+
+## Step 4.1: グローバルステータスを確定する
+
+```bash
+# 文字数を把握（ログ用）
+python3 core/tools/validate_script_length.py --channel "$CH" --video "$NO"
+# スクリプト完成を記録し、音声待ちキューへ
+python3 core/tools/progress_manager.py set-status \
+  --channel-code "$CH" --video-number "$NO" \
+  --status script_validated \
+  --meta ready_for_audio=true
+```
+
+- `set-status` は `data/<CHANNEL_CODE>/<VIDEO_NUMBER>/status.json` と `data/_progress/processing_status.json` の両方を更新します。値はそのまま記録されるため、実際の状態とズレがないか必ず後続で確認してください。
+
+---
+
+## Step 4: Google Sheets を同期する
+
+```bash
+# 進捗・文字数の更新ログを必ず残す（標準出力 + エラーを記録）
+python3 core/tools/sheets_sync.py sync-progress "$CH" --video-number "$NO" 2>&1 \
+  | tee "logs/sheets_sync/${CH}-${NO}_sync-progress.log"
+python3 core/tools/sheets_sync.py sync-scripts "$CH" --video-number "$NO" 2>&1 \
+  | tee "logs/sheets_sync/${CH}-${NO}_sync-scripts.log"
+```
+
+- 実行後、`docs/SHEETS_COLUMN_POLICY.md` を参照しながら企画シートの該当行が最新化されたか確認します。列の意味・更新条件はチャンネルごとに異なるため、必ずポリシーに従ってレビューしてください。
+- 429（Rate Limit）が出たら **自動リトライ後でも解除されなかった場合、手動で該当行を更新** します。以下を必ず実施し、結果をログに残してください。
+  1. `python3 core/tools/validate_script_length.py --channel "$CH" --video "$NO"` で文字数を取得。
+  2. `data/<CHANNEL_CODE>/<VIDEO_NUMBER>/status.json` の `metadata.title` と `data/<CHANNEL_CODE>/<VIDEO_NUMBER>/output/` のパスを参照し、Google Sheets 上の「進捗」「文字数」「台本」セルを手入力で更新。
+  3. 入力後にセルが更新されたことをスクリーンショットやメモで証跡化し、同じ結果を報告。
+
+---
+
+## Step 5: 作業完了チェック
+
+```bash
+python3 qwen/cli.py status  --channel-code "$CH" --video-number "$NO"
+python3 qwen/cli.py doctor  --channel-code "$CH" --video-number "$NO"
+python3 core/tools/sheets_sync.py sync-progress "$CH" --video-number "$NO" 2>&1 \
+  | tee "logs/sheets_sync/${CH}-${NO}_sync-progress.log"
+python3 core/tools/sheets_sync.py sync-scripts "$CH" --video-number "$NO" 2>&1 \
+  | tee "logs/sheets_sync/${CH}-${NO}_sync-scripts.log"
+```
+
+- `status` で Stage 1〜7 が `completed` になっているか、`doctor` で警告が出ていないかを確認する。
+- SoT 上の最終成果物は `data/<CHANNEL_CODE>/<VIDEO_NUMBER>/output/` に集約されています。ファイル名と `status.json` の `metadata.title` が一致しているか目視で再確認してください。
+- Sheets 同期は必ず dry-run → 本番の順で行い、ログを `logs/sheets_sync/` に残しながら内容を確認する。完了後に同じコマンドを本番モードで再実行し、結果を報告する。
+- **Stage7→9 完走**: Stage7 が `completed` になったら、`python3 core/tools/script_polish_ai.py run ...` → `python3 core/tools/tts_prepare.py run ...` を必ず順番に実行し、`status.json.stages.script_tts_prepare.status=completed` と `metadata.ready_for_audio=true` を確認する。`audio_synthesis` 以降はオペレーターから明示指示が出るまで実行しない。Stage9 まで完了したら `python3 qwen/start_workflow.py --channel-code "$CH"` で次の台本案件に移行する。
+
+---
+
+**実行開始**: 上記フローを順守し、`$CH-$NO` の台本を完成させてください。疑問点が生じた場合は必ず QWEN.md と `docs/` 配下の運用ドキュメントを参照し、独断でショートカットせずに原因と手順を明文化してから次の作業へ進んでください。
+
+---
+
+### Stage7 で失敗した場合の再実行ルール
+- 何度リトライしても `python3 core/tools/run_script_validation.py "$CH" "$NO" --auto-title` を使用する。オプションを外したり書き換えたりしない。
+- 失敗理由に応じて `qwen/cli.py next` で戻るステージを確認し、章ファイルを増補・修正した上で `progress_manager.py update-stage` を再実行してから検証をやり直す。
+- 増補内容やリトライ結果は `cat` や `wc` で出力し、文字数や修正箇所を必ず報告に含める。
+
+### Google Sheets 手動更新チェックリスト（429 解除不能時）
+1. `validate_script_length.py` で assembled の文字数を取得し、ログに残す。
+2. `status.json` / `processing_status.json` の `metadata.title`, `output` パスを確認し、企画シートの該当行へ手入力。
+3. 「進捗」「文字数」「台本」セルに入力後、反映をスクリーンショット等で保存。
+4. `python3 qwen/cli.py status --channel-code "$CH" --video-number "$NO"` を実行し、`script_validation` が `completed` であることを報告。
+5. 手動更新した列と値を作業ログに記録し、次の担当者が追跡できるよう残す。

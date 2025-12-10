@@ -1,0 +1,82 @@
+{
+  "ch01": {
+    "name": "仏教・科学 人生の道標",
+    "storage_name": "仏教・科学 人生の道標",
+    "spreadsheet_id": "1xfaUSqR2lE4MxC4_6O6aiodWmOm3quRBxAQzWk1eTzg",
+    "description": "仏教の教えと現代科学を融合した人生哲学",
+    "thumbnail_columns": ["サムネタイトル", "サムネ用DALL-Eプロンプト"],
+    "specific_columns": []
+  },
+  "ch02": {
+    "name": "心理学・モチベ 静寂の哲学",
+    "storage_name": "心理学・モチベ 静寂の哲学",
+    "spreadsheet_id": "1cNyYk_BBUx2DZ3iTxNnOF8lxQ84Gx2e44An4eI1mQ5o",
+    "description": "心理学とモチベーションを哲学的に考察",
+    "thumbnail_columns": ["サムネタイトル", "DALL-Eプロンプト"],
+    "specific_columns": ["ターゲット層"]
+  },
+  "ch03": {
+    "name": "シニア・健康 【シニアの健康】朗読図書館",
+    "storage_name": "シニア・健康 【シニアの健康】朗読図書館",
+    "spreadsheet_id": "1SRsNFxhJHYqAtDlzVO15l2y5iGm05HTBdlf7OzBmzIg",
+    "description": "60歳以上の高齢者向け健康情報",
+    "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "テキスト配置・デザイン指示 (人間/ツール向け)"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）", "DALL-Eプロンプト（URL・テキスト指示込み）"]
+  },
+  "ch04": {
+    "name": "心理・好奇心 隠れ書庫アカシック",
+    "storage_name": "心理・好奇心 隠れ書庫アカシック",
+    "spreadsheet_id": "1kuIX-pG7c8wBjtsIbnD0KCH-V0DIfznbfV9vP00aJew",
+    "description": "心理学と好奇心をテーマにした知的コンテンツ",
+    "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "テキスト配置・デザイン指示 (人間/ツール向け)"],
+    "specific_columns": ["内容（企画要約）"]
+  },
+  "ch05": {
+    "name": "シニア・恋愛 シニア恋愛",
+    "storage_name": "シニア・恋愛 シニア恋愛",
+    "spreadsheet_id": "1c6SgGcNmHFPYO7LH-EYjhbOdDKqNl7ckxIEPTTsmlIw",
+    "description": "シニア層の恋愛事情に寄り添うコンテンツ",
+    "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "GPT用プロンプト（日本人シニア女性）"],
+    "specific_columns": ["台本本文"]
+  },
+  "ch06": {
+    "name": "都市伝説・闇 都市伝説のダーク図書館",
+    "storage_name": "都市伝説・闇 都市伝説のダーク図書館",
+    "spreadsheet_id": "1nTiQ-LNLlq_IsXcZvN43AKpgKYxtwSf5RTz1SjsFtcM",
+    "description": "都市伝説と闇の世界を探る",
+    "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  },
+  "ch07": {
+    "name": "仏教の心【全てうまくいく】",
+    "storage_name": "仏教の心【全てうまくいく】",
+    "spreadsheet_id": "",
+    "description": "朝夜の不安を仏教の習慣で和らげる",
+    "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  },
+  "ch08": {
+    "name": "隠れ書庫アカシック",
+    "storage_name": "隠れ書庫アカシック",
+    "spreadsheet_id": "",
+    "description": "夜の静かな読書と呼吸で過覚醒を鎮める",
+    "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  },
+  "ch09": {
+    "name": "不動の指針",
+    "storage_name": "不動の指針",
+    "spreadsheet_id": "",
+    "description": "価値観メモで決断疲れを減らす",
+    "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  },
+  "ch10": {
+    "name": "深夜の偉人ラジオ",
+    "storage_name": "深夜の偉人ラジオ",
+    "spreadsheet_id": "",
+    "description": "偉人の言葉を夜に静かに聴けるラジオ",
+    "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
+    "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  }
+}

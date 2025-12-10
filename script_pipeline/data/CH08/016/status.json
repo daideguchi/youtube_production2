@@ -1,0 +1,73 @@
+{
+  "script_id": "CH08-016",
+  "channel": "CH08",
+  "status": "pending",
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "pending",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-12-04T07:38:59Z",
+  "updated_at": "2025-12-10T05:45:53.749709Z",
+  "metadata": {
+    "title": "深夜、スマートフォンを伏せたのに指先に光の名残が残り、まぶたの裏に映像が流れ続ける。眠りたいのに脳が静まらない夜、静かな書庫を開いて心をほどく時間を持ちましょう。テーマは『【静かな陰謀】怖くならない都市伝説の味わい方』。夜の朗読と実用のステップを重ね、眠りを妨げずに役立つ方法だけを置いていきます。",
+    "title_sanitized": "深夜、スマートフォンを伏せたのに指先に光の名残が残り、まぶたの裏に映像が流れ続ける。眠りたいのに脳が静まらない夜、静かな書庫を開いて心をほどく時間を持ちましょう。テーマは『【静かな陰謀】怖くならない都市伝説の味わい方』。夜の朗読と実用のステップを重ね、眠りを妨げずに役立つ方法だけを置いていきます。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH08",
+    "channel_display_name": "CH08",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【静かな陰謀】怖くならない都市伝説の味わい方",
+    "chapter_count": 0,
+    "ready_for_audio_at": null,
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/016/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/016/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/016/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【静かな陰謀】怖くならない都市伝説の味わい方 を“悪用厳禁”の視点で安全に扱う方法を解説します。\n深夜、スマートフォンを伏せたのに指先に光の名残が残り、まぶたの裏に映像が流れ続ける。静かな書庫を心の中に作り、そこへ降りていくイメージから始めましょう。階段を一段ずつ降りるたびに靴音が石に吸い込まれ、心拍がゆっくり落ち着いていく。\n⚠️ 注意：無理をせず、体調や人間関係を優先して試してください。\n#スピリチュアル #波動 #自己浄化",
+    "audio_reviewed": true
+  },
+  "channel_code": "CH08",
+  "video_number": "016"
+}

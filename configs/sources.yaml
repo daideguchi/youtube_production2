@@ -1,0 +1,4 @@
+channels:
+  CH06:
+    planning_csv: progress/channels/CH06.csv
+    persona: progress/personas/CH06_PERSONA.md

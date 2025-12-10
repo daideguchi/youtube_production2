@@ -1,0 +1,67 @@
+{
+  "script_id": "CH05-016",
+  "channel": "CH05",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "pending"
+    },
+    "script_outline": {
+      "status": "pending"
+    },
+    "script_draft": {
+      "status": "pending"
+    },
+    "script_enhancement": {
+      "status": "pending"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.290654Z",
+  "updated_at": "2025-11-14T09:06:12.976664Z",
+  "metadata": {
+    "title": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
+    "title_sanitized": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
+    "title_updated_at": "2025-10-25T02:16:29.911780Z",
+    "chapter_characters": 0,
+    "assembled_characters": 0,
+    "output_characters": 0,
+    "channel_code": "CH05",
+    "channel_display_name": "企画",
+    "ready_for_audio": false,
+    "audio": {},
+    "sheet_flag": "",
+    "sheet_progress_cell": "glm4_5_research: pending",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 17,
+    "sheet_title": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。"
+  },
+  "channel_code": "CH05",
+  "video_number": "016"
+}

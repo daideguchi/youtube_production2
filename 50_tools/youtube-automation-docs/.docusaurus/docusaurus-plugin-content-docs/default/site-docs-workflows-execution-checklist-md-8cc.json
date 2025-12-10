@@ -1,0 +1,26 @@
+{
+  "id": "workflows/execution-checklist",
+  "title": "実行チェックリスト（AI実行ガイド）",
+  "description": "AIが迷わず実行できる完全コマンド集",
+  "source": "@site/docs/workflows/execution-checklist.md",
+  "sourceDirName": "workflows",
+  "slug": "/workflows/execution-checklist",
+  "permalink": "/docs/workflows/execution-checklist",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "スプシ中心運用フロー（ビジネスロジック）",
+    "permalink": "/docs/workflows/business-flow"
+  },
+  "next": {
+    "title": "実行モード（plan-only / dry-run / apply）",
+    "permalink": "/docs/workflows/execution-modes"
+  }
+}

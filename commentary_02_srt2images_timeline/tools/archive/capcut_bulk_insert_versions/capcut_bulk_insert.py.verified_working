@@ -1,0 +1,540 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import sys
+import re
+from pathlib import Path
+
+# CapCut API path
+sys.path.insert(0, "/Users/dd/capcut_api")
+
+import pyJianYingDraft as draft
+from pyJianYingDraft import Draft_folder, Track_type, Video_material, Video_segment, Text_segment, Clip_settings, Timerange, SEC
+from pyJianYingDraft import Text_style, Text_background, Text_border
+from typing import Optional
+import json as _json2
+
+
+def load_cues(run_dir: Path):
+    data = json.loads((run_dir / "image_cues.json").read_text(encoding="utf-8"))
+    fps = int(data["fps"])
+    size = data["size"]
+    crossfade = float(data.get("crossfade", 0.0))
+    cues = data["cues"]
+    return fps, size, crossfade, cues
+
+
+def parse_srt_file(srt_path: Path):
+    """Parse SRT file and return list of subtitle entries."""
+    if not srt_path.exists():
+        return []
+    
+    content = srt_path.read_text(encoding='utf-8')
+    # SRT pattern: index, time, text, blank line
+    pattern = r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n(.*?)(?=\n\n|\n\d+\n|\Z)'
+    matches = re.findall(pattern, content, re.DOTALL)
+    
+    subtitles = []
+    for match in matches:
+        index, start_time, end_time, text = match
+        
+        # Convert time to microseconds
+        def time_to_us(time_str):
+            h, m, s_ms = time_str.split(':')
+            s, ms = s_ms.split(',')
+            return (int(h) * 3600 + int(m) * 60 + int(s)) * 1000000 + int(ms) * 1000
+        
+        subtitles.append({
+            'index': int(index),
+            'start_us': time_to_us(start_time),
+            'end_us': time_to_us(end_time),
+            'text': text.strip().replace('\n', ' ')
+        })
+    
+    return subtitles
+
+
+def make_absolute_schedule_us(cues):
+    """Use absolute timing from image_cues.json (start_sec/end_sec) instead of contiguous layout.
+    Returns list of (start_us, dur_us) for each cue.
+    """
+    SEC_US = 1_000_000
+    starts = []
+    for c in cues:
+        start_us = int(round(float(c.get("start_sec", 0.0)) * SEC_US))
+        end_us = int(round(float(c.get("end_sec", 0.0)) * SEC_US))
+        if end_us <= start_us:
+            # Fallback to duration_sec if provided; else minimum 1 frame at 30fps
+            dur_us = int(round(float(c.get("duration_sec", 1.0)) * SEC_US))
+        else:
+            dur_us = end_us - start_us
+        starts.append((start_us, max(SEC // 60, dur_us)))  # minimum ~16ms to avoid zero-length
+    return starts
+
+
+def ensure_video_track(script: draft.Script_file, name: str, absolute_index: Optional[int] = None):
+    """Ensure a top-most video track exists with predictable name.
+    If the track exists, bump its absolute_index to an extremely high number
+    to guarantee it renders above all template overlays.
+    """
+    HIGH = 999999 if absolute_index is None else absolute_index
+    try:
+        script.add_track(Track_type.video, name, absolute_index=HIGH)
+    except Exception:
+        # If it already exists, try to bump its index
+        try:
+            tr = script.tracks[name]
+            # Some pyJianYingDraft versions expose .absolute_index, others .render_index
+            if hasattr(tr, 'absolute_index'):
+                tr.absolute_index = HIGH
+            elif hasattr(tr, 'render_index'):
+                tr.render_index = HIGH
+        except Exception:
+            pass
+
+
+def _load_draft_track_indices(draft_dir: Path) -> list[int]:
+    """Parse draft_info.json to collect existing tracks' absolute indices.
+    Return a list of integer indices (may be empty on failure).
+    """
+    indices: list[int] = []
+    try:
+        info_path = draft_dir / 'draft_info.json'
+        data = _json2.loads(info_path.read_text(encoding='utf-8'))
+        tracks = data.get('tracks') or data.get('script', {}).get('tracks')
+        it = []
+        if isinstance(tracks, dict):
+            it = tracks.values()
+        elif isinstance(tracks, list):
+            it = tracks
+        for tr in it:
+            ai = tr.get('absolute_index') or tr.get('render_index') or tr.get('z_index')
+            if isinstance(ai, int):
+                indices.append(ai)
+    except Exception:
+        pass
+    return indices
+
+
+def _compute_abs_index_for_rank(draft_dir: Path, rank_from_top: int = 3, default_high: int = 1_000_000) -> int:
+    """Compute an absolute_index so that the new track appears at the given rank from top.
+    We try to place it below the top (rank-1) tracks but above the next, using the
+    existing absolute_index distribution. Fallback to default_high-(rank-1).
+    """
+    try:
+        indices = sorted(set(_load_draft_track_indices(draft_dir)), reverse=True)
+        if not indices:
+            return default_high - (rank_from_top - 1)
+        # If there are fewer tracks than rank, place relative to current max
+        if len(indices) < rank_from_top:
+            return indices[0] - (rank_from_top - 1)
+        # Desired window: strictly between indices[rank-2] (second for rank=3) and indices[rank-1]
+        upper = indices[rank_from_top - 2]  # rank-1 from top
+        lower = indices[rank_from_top - 1]  # rank from top currently
+        # Try between upper and lower
+        if upper - lower >= 2:
+            return lower + 1
+        # Otherwise, nudge below upper if possible
+        cand = upper - 1
+        if cand > lower:
+            return cand
+        # As a last resort, place at lower (may tie) or default fallback
+        return lower
+    except Exception:
+        return default_high - (rank_from_top - 1)
+
+
+def _read_tracks_meta(draft_dir: Path):
+    try:
+        info_path = draft_dir / 'draft_info.json'
+        data = _json2.loads(info_path.read_text(encoding='utf-8'))
+        tracks = data.get('tracks') or data.get('script', {}).get('tracks')
+        if isinstance(tracks, dict):
+            items = []
+            for k, v in tracks.items():
+                it = dict(v)
+                it['name'] = k
+                items.append(it)
+            return items
+        elif isinstance(tracks, list):
+            return tracks
+    except Exception:
+        return []
+    return []
+
+
+def _compute_audio_voice_index_below_bgm(draft_dir: Path, fallback: int = 10) -> int:
+    tracks = _read_tracks_meta(draft_dir)
+    audio_indices = []
+    for tr in tracks:
+        if tr.get('type') == 'audio':
+            ai = tr.get('absolute_index') or tr.get('render_index') or tr.get('z_index')
+            if isinstance(ai, int):
+                audio_indices.append(ai)
+    if not audio_indices:
+        return fallback
+    bgm_idx = max(audio_indices)
+    return max(1, bgm_idx - 1)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", required=True, help="srt2images output run dir (contains image_cues.json and images/)")
+    ap.add_argument("--draft-root", default=str(Path.home() / "Movies/CapCut/User Data/Projects/com.lveditor.draft"))
+    # Senior Romance default template (common minimal package)
+    ap.add_argument("--template", required=False, default="シニア恋愛テンプレ", help="Existing CapCut draft folder name to duplicate (Senior Romance default)")
+    ap.add_argument("--preferred-template-prefix", default="シニア恋愛テンプレ", help="When exact template name not found, pick the newest starting with this prefix")
+    ap.add_argument("--new", default="5-コピー-画像版", help="New draft folder name")
+    ap.add_argument("--transition", default="Dissolve")
+    ap.add_argument("--crossfade", type=float, default=0.5)
+    # Position/scale defaults (corrected for exact user coordinates: X=-313, Y=217, Scale=59%)
+    ap.add_argument("--tx", type=float, default=-0.3125, help="transform_x (half-canvas units)")
+    # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y
+    ap.add_argument("--ty", type=float, default=0.20555555555, help="transform_y (half-canvas units)")
+    ap.add_argument("--scale", type=float, default=0.59)
+    ap.add_argument("--title", help="Left-top title text to set")
+    ap.add_argument("--title-duration", type=float, default=30.0, help="Title display duration (seconds)")
+    ap.add_argument("--srt-file", help="SRT file path for subtitle insertion")
+    ap.add_argument("--inject-into-main", action="store_true", help="Insert into the first existing video track instead of creating a new one")
+    ap.add_argument("--rank-from-top", type=int, default=4, help="Desired layer rank from top (1=topmost). Images will be placed on this layer rank.")
+    ap.add_argument("--voice-file", help="Voice audio file (WAV/MP3) to insert below BGM (optional)")
+    args = ap.parse_args()
+
+    run_dir = Path(args.run).resolve()
+    images_dir = run_dir / "images"
+    fps, size, crossfade_from_run, cues = load_cues(run_dir)
+    crossfade = args.crossfade if args.crossfade is not None else crossfade_from_run
+
+    # Build absolute schedule from cues' start/end seconds (do not force contiguous)
+    schedule = make_absolute_schedule_us(cues)
+    width, height = size["width"], size["height"]
+
+    # Duplicate draft
+    df = Draft_folder(args.draft_root)
+    # Resolve template name
+    template_name = args.template
+    try:
+        if not template_name:
+            # auto-pick by prefix
+            import os
+            cand = []
+            for name in os.listdir(args.draft_root):
+                if name.startswith(args.preferred_template_prefix):
+                    cand.append(name)
+            if cand:
+                cand.sort()
+                template_name = cand[-1]
+        # Fallback to known stable template if preferred not found
+        if not template_name:
+            template_name = "036_シニア恋愛36_文字なし_日本シニア_やさしい_人物統一_16x9_20250911_154352"
+        # Verify existence
+        import os
+        if not os.path.isdir(str(Path(args.draft_root) / template_name)):
+            # Try to relax suffix like (1)
+            base = template_name
+            cand = [n for n in os.listdir(args.draft_root) if n.startswith(base)]
+            if cand:
+                cand.sort()
+                template_name = cand[-1]
+        df.duplicate_as_template(template_name, args.new, allow_replace=True)
+    except Exception as e:
+        raise
+    script = df.load_template(args.new)
+    draft_dir = Path(args.draft_root) / args.new
+    assets_dir = draft_dir / 'assets' / 'image'
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    # Decide target track
+    if args.inject_into_main:
+        # Try to find an existing primary video track
+        target_track = None
+        try:
+            for name, tr in getattr(script, 'tracks', {}).items():
+                if hasattr(tr, 'type') and tr.type == Track_type.video:
+                    target_track = name
+                    break
+        except Exception:
+            target_track = None
+        if not target_track:
+            target_track = "main_video"
+            desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
+            ensure_video_track(script, name=target_track, absolute_index=desired_index)
+        track_name = target_track
+        try:
+            script.tracks[track_name].segments = []
+        except Exception:
+            pass
+    else:
+        base = f"srt2images_{run_dir.name}"
+        track_name = base
+        # Ensure unique track name
+        idx = 1
+        while getattr(script, 'tracks', {}).get(track_name):
+            idx += 1
+            track_name = f"{base}_{idx}"
+        desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
+        ensure_video_track(script, name=track_name, absolute_index=desired_index)
+        # Clear our track if it already has segments
+        try:
+            script.tracks[track_name].segments = []
+        except Exception:
+            pass
+
+    # Insert images
+    prev_end_us = None
+    for i, cue in enumerate(cues):
+        img = images_dir / f"{i+1:04d}.png"
+        dest = assets_dir / img.name
+        try:
+            import shutil
+            shutil.copy2(img, dest)
+        except Exception:
+            pass
+        # Absolute timing from cues
+        start_us, dur_us = schedule[i]
+        # Material: reference draft-local asset path to avoid relinking
+        # Updated for pyJianYingDraft 0.2.x API (removed material_type and replace_path)
+        mat = Video_material(path=str(dest), material_name=img.name)
+        # Register material into the draft to ensure materials.images contains it
+        try:
+            script.add_material(mat)
+        except Exception as e:
+            print(f"Warning: Failed to add_material for {img.name}: {e}")
+
+        seg = Video_segment(
+            mat,
+            target_timerange=Timerange(start_us, dur_us),
+            source_timerange=Timerange(0, dur_us),
+            clip_settings=Clip_settings(transform_x=args.tx, transform_y=args.ty, scale_x=args.scale, scale_y=args.scale),
+        )
+        # Apply transition to current segment (CapCut applies transition at boundary; clips should not overlap)
+        # Disabled due to pyJianYingDraft 0.2.x API changes
+        # if args.transition and crossfade > 0 and i > 0 and prev_end_us is not None and abs(start_us - prev_end_us) < int(0.02 * SEC):
+        #     try:
+        #         ttype = getattr(draft.CapCut_Transition_type, args.transition)
+        #     except Exception:
+        #         ttype = getattr(draft.Transition_type, args.transition)
+        #     seg.add_transition(ttype, duration=int(crossfade * 1e6))
+
+        script.add_segment(seg, track_name=track_name)
+        prev_end_us = start_us + dur_us
+
+    # Add title text if specified
+    if args.title:
+        try:
+            # Search for existing text tracks
+            text_tracks = []
+            for track_name_check, track in script.tracks.items():
+                if hasattr(track, 'type') and track.type == Track_type.text:
+                    text_tracks.append((track_name_check, track))
+            
+            if not text_tracks:
+                # Create new text track
+                title_track_name = "title_text"
+                script.add_track(Track_type.text, title_track_name, absolute_index=1000000)
+                
+                # Create text segment  
+                title_duration_us = int(args.title_duration * SEC)
+                try:
+                    text_seg = Text_segment(
+                        args.title,
+                        target_timerange=Timerange(0, title_duration_us)
+                    )
+                except TypeError:
+                    # Fallback for older pyJianYingDraft versions
+                    text_seg = Text_segment(args.title)
+                    text_seg.target_timerange = Timerange(0, title_duration_us)
+                script.add_segment(text_seg, track_name=title_track_name)
+                print(f"Added new title: '{args.title}'")
+            else:
+                # Update existing text track
+                for track_name_check, track in text_tracks:
+                    if hasattr(track, 'segments') and track.segments:
+                        first_segment = track.segments[0]
+                        if hasattr(first_segment, 'text'):
+                            print(f"Updated title from '{first_segment.text}' to '{args.title}'")
+                            first_segment.text = args.title
+                            break
+        except Exception as e:
+            print(f"Warning: Failed to set title '{args.title}': {e}")
+
+    # Add SRT subtitles if specified - with 人生の道標 style design
+    if args.srt_file:
+        try:
+            srt_path = Path(args.srt_file)
+            if srt_path.exists():
+                # Copy SRT file to draft directory for reference
+                draft_path = Path(args.draft_root) / args.new
+                srt_dest = draft_path / f"{args.new}.srt"
+                import shutil as _sh
+                try:
+                    _sh.copy2(srt_path, srt_dest)
+                    print(f"Copied SRT file to {srt_dest} for CapCut to use directly")
+                except Exception:
+                    pass
+
+                # Insert subtitles on a dedicated top text layer (above images)
+                subs = parse_srt_file(srt_path)
+                if subs:
+                    sub_track_name = "subtitles_text"
+                    try:
+                        # Ensure a very high absolute index so text stays on top
+                        script.add_track(Track_type.text, sub_track_name, absolute_index=2_000_000)
+                    except Exception:
+                        pass
+                    # Clear existing
+                    try:
+                        script.tracks[sub_track_name].segments = []
+                    except Exception:
+                        pass
+                    # Create 人生の道標 style settings (universal for all templates)
+                    subtitle_style = Text_style(
+                        size=5.0,
+                        color=(1.0, 1.0, 1.0),  # White
+                        alpha=1.0,
+                        align=1,  # Center alignment
+                        line_spacing=2  # 0.02 in percentage = 2 in line_spacing units
+                    )
+
+                    subtitle_background = Text_background(
+                        color="#000000",  # Black
+                        alpha=1.0,
+                        round_radius=0.4,  # 40% rounded corners
+                        style=1,
+                        height=0.28,
+                        width=0.28,
+                        horizontal_offset=0.0,
+                        vertical_offset=0.0
+                    )
+
+                    subtitle_border = Text_border(
+                        width=0.08,
+                        alpha=1.0,
+                        color=(0.0, 0.0, 0.0)  # Black border (RGB tuple)
+                    )
+
+                    subtitle_clip = Clip_settings(
+                        transform_x=0.0,  # Center
+                        transform_y=-0.8,  # Upper area
+                        scale_x=1.0,
+                        scale_y=1.0
+                    )
+
+                    added = 0
+                    for ent in subs:
+                        start_us = int(ent['start_us'])
+                        dur_us = max(SEC // 60, int(ent['end_us'] - ent['start_us']))
+                        text_val = ent.get('text', '')
+                        try:
+                            # Create text segment with full 人生の道標 design
+                            text_seg = Text_segment(
+                                text_val,
+                                Timerange(start_us, dur_us),
+                                style=subtitle_style,
+                                background=subtitle_background,
+                                border=subtitle_border,
+                                clip_settings=subtitle_clip
+                            )
+                        except Exception as e:
+                            # Fallback: minimal style
+                            try:
+                                text_seg = Text_segment(text_val, Timerange(start_us, dur_us))
+                                print(f"Warning: Could not apply full style to segment: {e}")
+                            except Exception:
+                                continue
+                        try:
+                            script.add_segment(text_seg, track_name=sub_track_name)
+                            added += 1
+                        except Exception:
+                            continue
+                    print(f"Inserted {added} subtitle segments on track '{sub_track_name}' with 人生の道標 design")
+                else:
+                    print("Warning: Parsed 0 subtitle entries from SRT")
+            else:
+                print(f"Warning: SRT file not found: {srt_path}")
+        except Exception as e:
+            print(f"Warning: Failed to insert SRT subtitles: {e}")
+
+    # Insert voice audio if provided
+    if getattr(args, 'voice_file', None):
+        try:
+            vpath = Path(args.voice_file)
+            if vpath.exists():
+                # Copy to materials/audio
+                audio_dir = draft_dir / 'materials' / 'audio'
+                audio_dir.mkdir(parents=True, exist_ok=True)
+                voice_dest = audio_dir / vpath.name
+                try:
+                    import shutil as _sh
+                    _sh.copy2(vpath, voice_dest)
+                except Exception:
+                    pass
+                # Ensure audio track below BGM
+                voice_track = 'voiceover'
+                voice_index = _compute_audio_voice_index_below_bgm(draft_dir, fallback=5)
+                try:
+                    script.add_track(Track_type.audio, voice_track, absolute_index=voice_index)
+                except Exception:
+                    pass
+                # Determine total timeline duration from cues/schedule
+                total_us = 0
+                try:
+                    for s, d in schedule:
+                        total_us = max(total_us, s + d)
+                except Exception:
+                    total_us = int(60 * SEC)
+                try:
+                    from pyJianYingDraft import Audio_material, Audio_segment
+                    # Updated for pyJianYingDraft 0.2.x API (removed replace_path)
+                    amat = Audio_material(path=str(voice_dest), material_name=vpath.name)
+                    try:
+                        script.add_material(amat)
+                    except Exception:
+                        pass
+                    aseg = Audio_segment(amat, target_timerange=Timerange(0, total_us))
+                    script.add_segment(aseg, track_name=voice_track)
+                    print(f"Inserted voice audio '{vpath.name}' on track '{voice_track}'")
+                except Exception as e:
+                    print(f"Warning: Failed to insert voice audio: {e}")
+            else:
+                print(f"Warning: Voice file not found: {vpath}")
+        except Exception as e:
+            print(f"Warning: Voice insert error: {e}")
+
+    # Save back to JSON (in-place)
+    script.save()
+    print(f"Inserted {len(cues)} images into draft: {args.new}\nLocation: {args.draft_root}/{args.new}")
+
+    # --- Improve discoverability in output run dir ---
+    try:
+        import datetime, json as _json, os
+        # Create a stable symlink from run_dir -> actual CapCut draft folder
+        run_capcut_link = run_dir / 'capcut_draft'
+        if run_capcut_link.exists() or run_capcut_link.is_symlink():
+            try:
+                if run_capcut_link.is_symlink() or run_capcut_link.is_file():
+                    run_capcut_link.unlink()
+                else:
+                    import shutil
+                    shutil.rmtree(run_capcut_link)
+            except Exception:
+                pass
+        run_capcut_link.symlink_to(draft_dir)
+
+        # Also drop an info JSON for quick reference/search in output/
+        info = {
+            'draft_name': args.new,
+            'draft_path': str(draft_dir),
+            'created_at': datetime.datetime.now().isoformat(timespec='seconds'),
+            'template_used': template_name,
+            'transform': {'tx': args.tx, 'ty': args.ty, 'scale': args.scale},
+            'crossfade_sec': crossfade,
+            'title': args.title,
+            'srt_file': args.srt_file,
+        }
+        (run_dir / 'capcut_draft_info.json').write_text(_json.dumps(info, ensure_ascii=False, indent=2), encoding='utf-8')
+    except Exception as e:
+        print(f"Note: Could not create output symlink/info: {e}")
+
+
+if __name__ == "__main__":
+    main()

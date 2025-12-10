@@ -1,0 +1,92 @@
+{
+  "script_id": "CH03-028",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:20.007668Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:20.913926Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:21.928065Z",
+      "length_check_passed": true
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:22.052199Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:23.090715Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-28T01:38:24.138741Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T17:25:38.569990Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:52.200556Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/028/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/028/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {},
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.262021Z",
+  "updated_at": "2025-11-14T08:16:08.138938Z",
+  "metadata": {
+    "title": "【人生会議】もしもの時、どうしたい？家族と絶対に話しておくべき5つのこと",
+    "title_sanitized": "【人生会議】もしもの時、どうしたい？家族と絶対に話しておくべき5つのこと",
+    "title_updated_at": "2025-10-25T02:15:44.621612Z",
+    "ready_for_audio": false,
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:52Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/028_20251113T120852Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/028_20251113T120852Z.failed.log"
+        }
+      ]
+    },
+    "audio_failed_at": "2025-11-13T12:08:52Z",
+    "sheet_flag": "7",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/028/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/028/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 29,
+    "sheet_title": "【人生会議】もしもの時、どうしたい？家族と絶対に話しておくべき5つのこと"
+  },
+  "channel_code": "CH03",
+  "video_number": "028"
+}

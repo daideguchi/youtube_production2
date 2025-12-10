@@ -1,0 +1,30 @@
+{
+  "channel": "CH05",
+  "video": "999",
+  "engine": "voicevox",
+  "timestamp": 1765240938.473845,
+  "segments": [
+    {
+      "text": "修一は高校で招待を受けた。",
+      "reading": "修一は高校で招待を受けた。",
+      "pre": 0.0,
+      "post": 0.5,
+      "heading": false,
+      "duration": 2.3786666666666667,
+      "verdict": "llm_approved_voicevox_kanji",
+      "mecab": "シュウイチハ高校デショウタイヲ受けタ。",
+      "voicevox": "シュウイチワ'/コオコオデ'/ショ'オタイオ/ウケ'タ"
+    },
+    {
+      "text": "今日はいい天気だ。",
+      "reading": "今日はいい天気だ。",
+      "pre": 0.0,
+      "post": 0.5,
+      "heading": false,
+      "duration": 1.2266666666666666,
+      "verdict": "llm_fixed_misreading",
+      "mecab": "コンニチハいい天気ダ。",
+      "voicevox": "キョ'オワ/イ'イ/テ'ンキダ"
+    }
+  ]
+}

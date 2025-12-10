@@ -1,0 +1,68 @@
+{
+  "script_id": "CH03-062",
+  "channel": "CH03",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:52.697500Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:52.697628Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:52.697687Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:52.698210Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-11-12T10:25:14.326104Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-11-12T10:29:29.082355Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:11.953005Z",
+      "error": "文字数不足"
+    },
+    "script_polish_ai": {},
+    "script_tts_prepare": {},
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.250637Z",
+  "updated_at": "2025-11-14T08:16:11.874032Z",
+  "metadata": {
+    "title": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+    "title_sanitized": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+    "title_updated_at": "2025-10-25T02:15:54.790883Z",
+    "ready_for_audio": false,
+    "audio": {},
+    "channel_code": "CH03",
+    "video_number": "062",
+    "script_id": "CH03-062",
+    "channel_display_name": "企画",
+    "sheet_flag": "",
+    "sheet_progress_cell": "✅ glm4_5_quality_review: completed",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 62,
+    "sheet_title": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント"
+  },
+  "channel_code": "CH03",
+  "video_number": "062"
+}

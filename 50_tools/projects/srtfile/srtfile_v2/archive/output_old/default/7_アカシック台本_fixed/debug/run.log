@@ -1,0 +1,161 @@
+2025-10-05 15:11:39.931 | INFO     | __main__:main:129 - 台本ファイル: scripts/7_アカシック台本_fixed.txt
+2025-10-05 15:11:39.931 | INFO     | __main__:main:130 - チャンネル: default
+2025-10-05 15:11:39.931 | INFO     | __main__:main:131 - 台本ID: 7_アカシック台本_fixed
+2025-10-05 15:11:39.931 | INFO     | __main__:main:132 - 話者ID: 13
+2025-10-05 15:11:39.931 | INFO     | __main__:main:133 - 出力先: build/default/7_アカシック台本_fixed
+2025-10-05 15:11:39.931 | INFO     | __main__:main:150 - 台本読み込み: scripts/7_アカシック台本_fixed.txt
+2025-10-05 15:11:39.931 | INFO     | __main__:main:152 - 台本文字数: 4581文字
+2025-10-05 15:11:39.931 | INFO     | __main__:main:155 - セクション分割開始
+2025-10-05 15:11:39.931 | INFO     | app.script_parser:parse_sections:73 - 台本パース完了: 100セクション抽出
+2025-10-05 15:11:39.931 | SUCCESS  | __main__:main:157 - セクション分割完了: 100セクション
+2025-10-05 15:11:39.931 | INFO     | __main__:main:160 - Gemini 2.5 Pro初期化（改行最適化用）
+2025-10-05 15:11:39.931 | INFO     | app.llm_processor:__init__:37 - Gemini 2.5 Pro初期化完了（改行最適化用）
+2025-10-05 15:11:39.931 | INFO     | __main__:main:164 - セクション検証・改行最適化開始
+2025-10-05 15:11:39.931 | WARNING  | __main__:main:178 - セクション67の検証エラー → LLMで改行最適化: セクション67の検証エラー:
+  - セクションは最大2行までです（現在: 3行）
+  - 3行目: 文字数が27文字を超えています（現在: 29文字） - 'らしい香りに誘われて、たくさんの人々が集まってくるのです。...'
+  内容: ['あなたの心には、やがて美しく、力強い花が咲き乱れ、その', '素晴', 'らしい香りに誘われて、たくさんの人々が集まってくるのです。']
+2025-10-05 15:11:39.931 | WARNING  | app.llm_processor:optimize_section_linebreaks:68 - 54文字超過（58文字）→ 2セクションに自動分割します
+2025-10-05 15:12:00.380 | INFO     | app.llm_processor:_split_into_two_sections:276 - 2セクション分割成功: 1行 + 2行
+2025-10-05 15:12:00.382 | INFO     | __main__:main:212 - セクション67(1/2)の最適化成功
+2025-10-05 15:12:00.382 | INFO     | __main__:main:217 - セクション67(2/2)の最適化成功
+2025-10-05 15:12:00.382 | WARNING  | __main__:main:178 - セクション77の検証エラー → LLMで改行最適化: セクション77の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 34文字） - 'あなたがもし、愚痴や不満の波動を出し続けていれば、あなたの周...'
+  内容: ['あなたがもし、愚痴や不満の波動を出し続けていれば、あなたの周りには、']
+2025-10-05 15:12:00.382 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:12:02.387 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: あなたがもし、愚痴や不満の波動を出し続けていれば、あなたの周...
+2025-10-05 15:12:16.465 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 14.1秒
+2025-10-05 15:12:16.467 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['あなたがもし、愚痴や不満の波動を出し続けていれば、', 'あなたの周りには、']
+2025-10-05 15:12:16.468 | INFO     | __main__:main:222 - セクション77の改行最適化成功
+2025-10-05 15:12:16.468 | WARNING  | __main__:main:178 - セクション79の検証エラー → LLMで改行最適化: セクション79の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 45文字） - 'しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を出すよ...'
+  内容: ['しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を出すようになれば、あなたの周りには、']
+2025-10-05 15:12:16.468 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:12:18.473 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を出すよ...
+2025-10-05 15:12:37.803 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 19.3秒
+2025-10-05 15:12:37.806 | WARNING  | app.llm_processor:optimize_section_linebreaks:151 - 試行1: 1行目が27文字超過（32文字）: しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を出すように
+2025-10-05 15:12:37.806 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 2/2: しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を出すよ...
+2025-10-05 15:12:37.806 | INFO     | app.llm_processor:optimize_section_linebreaks:108 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:12:49.806 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 10.0秒
+2025-10-05 15:12:49.807 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行2で成功: ['しかし、あなたが感謝と穏やかさ、そして成長意欲の波動を', '出すようになれば、あなたの周りには、']
+2025-10-05 15:12:49.808 | INFO     | __main__:main:222 - セクション79の改行最適化成功
+2025-10-05 15:12:49.808 | WARNING  | __main__:main:178 - セクション82の検証エラー → LLMで改行最適化: セクション82の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 34文字） - 'あなたの魂のステージが上がれば、もはや周波数の合わなくなった...'
+  内容: ['あなたの魂のステージが上がれば、もはや周波数の合わなくなった人とは、']
+2025-10-05 15:12:49.809 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:12:51.811 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: あなたの魂のステージが上がれば、もはや周波数の合わなくなった...
+2025-10-05 15:13:01.951 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 10.1秒
+2025-10-05 15:13:01.953 | WARNING  | app.llm_processor:optimize_section_linebreaks:151 - 試行1: 1行目が27文字超過（30文字）: あなたの魂のステージが上がれば、もはや周波数の合わなくなった
+2025-10-05 15:13:01.953 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 2/2: あなたの魂のステージが上がれば、もはや周波数の合わなくなった...
+2025-10-05 15:13:01.953 | INFO     | app.llm_processor:optimize_section_linebreaks:108 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:13:14.262 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 10.3秒
+2025-10-05 15:13:14.264 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行2で成功: ['あなたの魂のステージが上がれば、', 'もはや周波数の合わなくなった人とは、']
+2025-10-05 15:13:14.265 | INFO     | __main__:main:222 - セクション82の改行最適化成功
+2025-10-05 15:13:14.265 | WARNING  | __main__:main:178 - セクション83の検証エラー → LLMで改行最適化: セクション83の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 28文字） - '何のわだかまりもなく、自然と疎遠になっていくのですから。...'
+  内容: ['何のわだかまりもなく、自然と疎遠になっていくのですから。']
+2025-10-05 15:13:14.265 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:13:16.265 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: 何のわだかまりもなく、自然と疎遠になっていくのですから。...
+2025-10-05 15:13:22.717 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 6.5秒
+2025-10-05 15:13:22.718 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['何のわだかまりもなく、自然と疎遠になっていくのですから', '。']
+2025-10-05 15:13:22.718 | INFO     | __main__:main:222 - セクション83の改行最適化成功
+2025-10-05 15:13:22.719 | WARNING  | __main__:main:178 - セクション84の検証エラー → LLMで改行最適化: セクション84の検証エラー:
+  - セクションは最大2行までです（現在: 3行）
+  - 3行目: 文字数が27文字を超えています（現在: 29文字） - 'めに自分を偽る時間を、自分を磨く神聖な時間に変えるのです。...'
+  内容: ['だから、孤独を恐れないでください。周りに無理に合わせる', 'た', 'めに自分を偽る時間を、自分を磨く神聖な時間に変えるのです。']
+2025-10-05 15:13:22.719 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:13:24.719 | WARNING  | app.llm_processor:optimize_section_linebreaks:68 - 54文字超過（57文字）→ 2セクションに自動分割します
+2025-10-05 15:13:45.479 | INFO     | app.llm_processor:_split_into_two_sections:276 - 2セクション分割成功: 1行 + 2行
+2025-10-05 15:13:45.480 | INFO     | __main__:main:212 - セクション84(1/2)の最適化成功
+2025-10-05 15:13:45.481 | INFO     | __main__:main:217 - セクション84(2/2)の最適化成功
+2025-10-05 15:13:45.481 | WARNING  | __main__:main:178 - セクション85の検証エラー → LLMで改行最適化: セクション85の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 40文字） - '静かに自分と向き合い、本を読み、心を整える時間こそが、あなた...'
+  内容: ['静かに自分と向き合い、本を読み、心を整える時間こそが、あなたという香木の香りを、']
+2025-10-05 15:13:45.481 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:13:47.486 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: 静かに自分と向き合い、本を読み、心を整える時間こそが、あなた...
+2025-10-05 15:14:02.543 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 15.1秒
+2025-10-05 15:14:02.543 | WARNING  | app.llm_processor:optimize_section_linebreaks:136 - 試行1: 文字が変更されました
+2025-10-05 15:14:02.543 | WARNING  | app.llm_processor:optimize_section_linebreaks:137 -   元のテキスト（40文字）: 静かに自分と向き合い、本を読み、心を整える時間こそが、あなたという香木の香りを、
+2025-10-05 15:14:02.543 | WARNING  | app.llm_processor:optimize_section_linebreaks:138 -   Gemini出力（47文字）: 静かに自分と向き合い、本を読み、心を整える時間こそが、あなたという香木の香りを、（全40文字）
+2025-10-05 15:14:02.543 | WARNING  | app.llm_processor:optimize_section_linebreaks:139 -   差分: 元=40文字 vs 出力=47文字
+2025-10-05 15:14:02.543 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 2/2: 静かに自分と向き合い、本を読み、心を整える時間こそが、あなた...
+2025-10-05 15:14:02.543 | INFO     | app.llm_processor:optimize_section_linebreaks:108 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:14:22.685 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 18.1秒
+2025-10-05 15:14:22.687 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行2で成功: ['静かに自分と向き合い、本を読み、心を整える時間こそが、', 'あなたという香木の香りを、']
+2025-10-05 15:14:22.688 | INFO     | __main__:main:222 - セクション85の改行最適化成功
+2025-10-05 15:14:22.688 | WARNING  | __main__:main:178 - セクション90の検証エラー → LLMで改行最適化: セクション90の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 35文字） - 'そして、あなたの心である「意」を、誰にも見えなくとも、清らか...'
+  内容: ['そして、あなたの心である「意」を、誰にも見えなくとも、清らかなものに。']
+2025-10-05 15:14:22.688 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:14:24.693 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: そして、あなたの心である「意」を、誰にも見えなくとも、清らか...
+2025-10-05 15:14:35.568 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 10.9秒
+2025-10-05 15:14:35.570 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['そして、あなたの心である「意」を、誰にも見えなくとも、', '清らかなものに。']
+2025-10-05 15:14:35.571 | INFO     | __main__:main:222 - セクション90の改行最適化成功
+2025-10-05 15:14:35.571 | WARNING  | __main__:main:178 - セクション91の検証エラー → LLMで改行最適化: セクション91の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 31文字） - 'この三つを整えることだけを、毎日、少しずつ、意識してください...'
+  内容: ['この三つを整えることだけを、毎日、少しずつ、意識してください。']
+2025-10-05 15:14:35.571 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:14:37.576 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: この三つを整えることだけを、毎日、少しずつ、意識してください...
+2025-10-05 15:14:52.341 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 14.8秒
+2025-10-05 15:14:52.343 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['この三つを整えることだけを、毎日、', '少しずつ、意識してください。']
+2025-10-05 15:14:52.343 | INFO     | __main__:main:222 - セクション91の改行最適化成功
+2025-10-05 15:14:52.344 | WARNING  | __main__:main:178 - セクション94の検証エラー → LLMで改行最適化: セクション94の検証エラー:
+  - 2行目: 文字数が27文字を超えています（現在: 28文字） - '幸せな人生を歩むための、大きなきっかけとなれば幸いです。...'
+  内容: ['この動画が、あなたの人間関係を見つめ直し、より豊かで、', '幸せな人生を歩むための、大きなきっかけとなれば幸いです。']
+2025-10-05 15:14:52.344 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:14:54.346 | WARNING  | app.llm_processor:optimize_section_linebreaks:68 - 54文字超過（55文字）→ 2セクションに自動分割します
+2025-10-05 15:15:11.289 | INFO     | app.llm_processor:_split_into_two_sections:276 - 2セクション分割成功: 1行 + 2行
+2025-10-05 15:15:11.291 | INFO     | __main__:main:212 - セクション94(1/2)の最適化成功
+2025-10-05 15:15:11.292 | INFO     | __main__:main:217 - セクション94(2/2)の最適化成功
+2025-10-05 15:15:11.292 | WARNING  | __main__:main:178 - セクション95の検証エラー → LLMで改行最適化: セクション95の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 38文字） - 'もし、今日の話が少しでもあなたの心に響いたのなら、高評価とチ...'
+  内容: ['もし、今日の話が少しでもあなたの心に響いたのなら、高評価とチャンネル登録で、']
+2025-10-05 15:15:11.292 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:15:13.293 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: もし、今日の話が少しでもあなたの心に響いたのなら、高評価とチ...
+2025-10-05 15:15:36.820 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 23.5秒
+2025-10-05 15:15:36.821 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['もし、今日の話が少しでもあなたの心に響いたのなら、高評', '価とチャンネル登録で、']
+2025-10-05 15:15:36.821 | INFO     | __main__:main:222 - セクション95の改行最適化成功
+2025-10-05 15:15:36.822 | WARNING  | __main__:main:178 - セクション97の検証エラー → LLMで改行最適化: セクション97の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 36文字） - 'そして、あなたが今日から実践してみようと思う「身口意」の整え...'
+  内容: ['そして、あなたが今日から実践してみようと思う「身口意」の整え方を、ぜひ、']
+2025-10-05 15:15:36.822 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:15:38.827 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: そして、あなたが今日から実践してみようと思う「身口意」の整え...
+2025-10-05 15:15:46.306 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 7.5秒
+2025-10-05 15:15:46.307 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['そして、あなたが今日から実践してみようと思う「身口意」', 'の整え方を、ぜひ、']
+2025-10-05 15:15:46.307 | INFO     | __main__:main:222 - セクション97の改行最適化成功
+2025-10-05 15:15:46.307 | WARNING  | __main__:main:178 - セクション98の検証エラー → LLMで改行最適化: セクション98の検証エラー:
+  - 1行目: 文字数が27文字を超えています（現在: 33文字） - 'コメント欄で教えてください。あなたの決意が、誰かの勇気になり...'
+  内容: ['コメント欄で教えてください。あなたの決意が、誰かの勇気になります。']
+2025-10-05 15:15:46.307 | INFO     | __main__:main:186 -   レート制限対策: 2.0秒待機...
+2025-10-05 15:15:48.311 | INFO     | app.llm_processor:optimize_section_linebreaks:102 - LLM改行最適化試行 1/2: コメント欄で教えてください。あなたの決意が、誰かの勇気になり...
+2025-10-05 15:15:58.639 | INFO     | app.llm_processor:optimize_section_linebreaks:117 -   Gemini API応答時間: 10.3秒
+2025-10-05 15:15:58.642 | SUCCESS  | app.llm_processor:optimize_section_linebreaks:159 - 試行1で成功: ['コメント欄で教えてください。あなたの決意が、', '誰かの勇気になります。']
+2025-10-05 15:15:58.643 | INFO     | __main__:main:222 - セクション98の改行最適化成功
+2025-10-05 15:15:58.643 | SUCCESS  | __main__:main:229 - 改行最適化完了: 103セクション
+2025-10-05 15:15:58.646 | INFO     | __main__:main:237 - 最適化済みセクション保存: build/default/7_アカシック台本_fixed/debug/optimized_sections.json
+2025-10-05 15:15:58.647 | INFO     | __main__:main:240 - VOICEVOX Engine接続確認
+2025-10-05 15:15:58.647 | DEBUG    | app.voicevox_api:get_speakers:35 - get_speakers
+2025-10-05 15:15:58.761 | INFO     | __main__:main:244 - VOICEVOX Engine接続成功: 39話者利用可能
+2025-10-05 15:15:58.762 | INFO     | __main__:main:251 - 音声合成開始: speaker_id=13, 並列実行
+2025-10-05 15:15:58.762 | INFO     | app.voicevox_api:synthesize_normal:274 - 通常合成: text='人生の悩みの９割は、人間関係によって決まる、とよく言われます...', speaker=13
+2025-10-05 15:15:58.762 | INFO     | app.voicevox_api:synthesize_normal:274 - 通常合成: text='仕事の成功も、日々の幸福感も、そして時には、心や体の健康さえ...', speaker=13
+2025-10-05 15:15:58.762 | DEBUG    | app.voicevox_api:audio_query:100 - audio_query: text='人生の悩みの９割は、人間関係によって決まる、とよく言われます。...', speaker=13
+2025-10-05 15:15:58.762 | INFO     | app.voicevox_api:synthesize_normal:274 - 通常合成: text='私たちの周りに、どんな人がいるかによって、大きく左右されてし...', speaker=13
+2025-10-05 15:15:58.762 | DEBUG    | app.voicevox_api:audio_query:100 - audio_query: text='仕事の成功も、日々の幸福感も、そして時には、心や体の健康さえも…...', speaker=13
+2025-10-05 15:15:58.762 | INFO     | app.voicevox_api:synthesize_normal:274 - 通常合成: text='あなたは今、こんな風に感じていませんか？「なぜか良いご縁に恵...', speaker=13
+2025-10-05 15:15:58.768 | DEBUG    | app.voicevox_api:audio_query:100 - audio_query: text='私たちの周りに、どんな人がいるかによって、大きく左右されてしまうからです。...', speaker=13
+2025-10-05 15:15:58.769 | DEBUG    | app.voicevox_api:audio_query:100 - audio_query: text='あなたは今、こんな風に感じていませんか？「なぜか良いご縁に恵まれない」...', speaker=13
+2025-10-05 15:15:58.894 | DEBUG    | app.voicevox_api:audio_query:104 - audio_query成功: kana='ジ'ンセエノ/ナヤミ'ノ/キュウ'ワリワ、ニンゲンカ'ンケエニ/ヨッテ'/キマル'、ト'/ヨ'ク/イ...'
+2025-10-05 15:15:58.894 | DEBUG    | app.voicevox_api:synthesis:146 - synthesis: speaker=13, query_keys=['accent_phrases', 'speedScale', 'pitchScale', 'intonationScale', 'volumeScale', 'prePhonemeLength', 'postPhonemeLength', 'pauseLength', 'pauseLengthScale', 'outputSamplingRate', 'outputStereo', 'kana']
+2025-10-05 15:15:58.895 | DEBUG    | app.voicevox_api:audio_query:104 - audio_query成功: kana='シゴトノ'/セエコオモ'、ヒ'ビノ/コオ_フク'カンモ、ソ_シテ'/トキ'ニワ、ココ'ロヤ/カラダノ...'
+2025-10-05 15:15:58.895 | DEBUG    | app.voicevox_api:synthesis:146 - synthesis: speaker=13, query_keys=['accent_phrases', 'speedScale', 'pitchScale', 'intonationScale', 'volumeScale', 'prePhonemeLength', 'postPhonemeLength', 'pauseLength', 'pauseLengthScale', 'outputSamplingRate', 'outputStereo', 'kana']
+2025-10-05 15:15:58.896 | DEBUG    | app.voicevox_api:audio_query:104 - audio_query成功: kana='アナ'タワ/イ'マ、コンナ'/カゼニ'/カンジテ'/イマセ'ンカ？、ナ'ゼカ/ヨ'イ/ゴ'エンニ/メ...'
+2025-10-05 15:15:58.896 | DEBUG    | app.voicevox_api:audio_query:104 - audio_query成功: kana='ワタシ'タチノ/マワリニ'、ド'ンナ/_ヒトガ'/イル'カニヨッテ、オ'オ_キク/サ'ユウ/サレテ'...'
+2025-10-05 15:15:58.896 | DEBUG    | app.voicevox_api:synthesis:146 - synthesis: speaker=13, query_keys=['accent_phrases', 'speedScale', 'pitchScale', 'intonationScale', 'volumeScale', 'prePhonemeLength', 'postPhonemeLength', 'pauseLength', 'pauseLengthScale', 'outputSamplingRate', 'outputStereo', 'kana']
+2025-10-05 15:15:58.896 | DEBUG    | app.voicevox_api:synthesis:146 - synthesis: speaker=13, query_keys=['accent_phrases', 'speedScale', 'pitchScale', 'intonationScale', 'volumeScale', 'prePhonemeLength', 'postPhonemeLength', 'pauseLength', 'pauseLengthScale', 'outputSamplingRate', 'outputStereo', 'kana']
+2025-10-05 15:16:00.866 | DEBUG    | app.voicevox_api:synthesis:150 - synthesis成功: 252972バイト
+2025-10-05 15:16:00.866 | INFO     | app.voicevox_api:synthesize_normal:282 - 通常合成成功: 252972バイト
+2025-10-05 15:16:00.867 | DEBUG    | app.wav_tools:save_wav:196 - WAV保存成功: build/default/7_アカシック台本_fixed/sections/001.wav, 252972バイト
+2025-10-05 15:16:00.868 | DEBUG    | app.wav_tools:duration:42 - WAV実測長: 5.269秒 (126464frames, 24000Hz)
+2025-10-05 15:16:00.868 | INFO     | app.voicevox_api:synthesize_normal:274 - 通常合成: text='「いつも人間関係で損をしてしまう」「周りに理解されず、孤独を...', speaker=13
+2025-10-05 15:16:00.868 | DEBUG    | app.voicevox_api:audio_query:100 - audio_query: text='「いつも人間関係で損をしてしまう」「周りに理解されず、孤独を感じる」...', speaker=13

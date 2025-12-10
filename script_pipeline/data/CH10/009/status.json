@@ -1,0 +1,72 @@
+{
+  "script_id": "CH10-009",
+  "channel": "CH10",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-04T07:31:41Z",
+  "updated_at": "2025-12-04T22:45:42.626532Z",
+  "metadata": {
+    "title": "眠れない夜、頭の中で「やらなきゃ」が渦巻く。何かを成さねばと肩に力が入る。そんな夜は、老子の「無為」を借りよう。老子は「何もしない人が、すべてを成す」と言った。無為とはサボりではない。流れに身を置き、余計な力を抜き、自然に委ねること。今夜は、あなたの「何もしない」を許可する時間だ。",
+    "title_sanitized": "眠れない夜、頭の中で「やらなきゃ」が渦巻く。何かを成さねばと肩に力が入る。そんな夜は、老子の「無為」を借りよう。老子は「何もしない人が、すべてを成す」と言った。無為とはサボりではない。流れに身を置き、余計な力を抜き、自然に委ねること。今夜は、あなたの「何もしない」を許可する時間だ。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 5813,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH10",
+    "channel_display_name": "深夜の偉人ラジオ",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【老子流】何もしない人がすべてを成す理由",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-04T22:45:42.626532Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/009/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/009/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/009/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【老子流】何もしない人がすべてを成す理由 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n眠れない夜、頭の中で「やらなきゃ」が渦巻く。何かを成さねばと肩に力が入る。そんな夜は、老子の「無為」を借りよう。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH10",
+  "video_number": "009"
+}

@@ -1,0 +1,104 @@
+{
+  "script_id": "CH02-002",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.451646Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.451709Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.452403Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.452627Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.452827Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:58:15.112494Z",
+      "prompt_hash": "e092eabb1948253edd97dc66cd3da6b30601ee6f36082bf5932f5eaf6937cf5a",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:58:15.314397Z"
+    },
+    "audio_synthesis": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z",
+      "engine": "voicevox",
+      "final_wav": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.wav",
+      "final_srt": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.srt"
+    },
+    "srt_generation": {
+      "status": "completed",
+      "updated_at": "2025-12-02T03:59:38Z"
+    },
+    "timeline_copy": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:44.745148Z"
+    },
+    "image_generation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:44.745273Z"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.451510Z"
+    },
+    "quality_check": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:44:53.452695Z"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.284193Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "metadata": {
+    "title": "愛されたい。その願いを持たない人間はいません。私たちは生まれた瞬間から、誰かに抱きしめられることを求め、誰かに見つめられることを望み、誰かに必要とされることを祈りながら生きています。母親の温もり、友人の承認、恋人の眼差し。私たちの人生は、愛されたいという欲求によって形作られているといっても過言ではありません。",
+    "title_sanitized": "愛されたい。その願いを持たない人間はいません。私たちは生まれた瞬間から、誰かに抱きしめられることを求め、誰かに見つめられることを望み、誰かに必要とされることを祈りながら生きています。母親の温もり、友人の承認、恋人の眼差し。私たちの人生は、愛されたいという欲求によって形作られているといっても過言ではありません。",
+    "title_updated_at": "2025-10-27T02:42:19.124786Z",
+    "chapter_characters": 8346,
+    "assembled_characters": 8346,
+    "output_characters": 8671,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "e092eabb1948253edd97dc66cd3da6b30601ee6f36082bf5932f5eaf6937cf5a",
+      "updated_at": "2025-10-27T11:58:15.112469Z"
+    },
+    "audio": {
+      "synthesis": {
+        "engine": "voicevox",
+        "final_wav": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.wav",
+        "updated_at": "2025-12-02T03:59:38Z",
+        "final_srt": "audio_tts_v2/artifacts/final/CH02/002/CH02-002.srt"
+      }
+    },
+    "sheet_flag": "1",
+    "sheet_progress_cell": "script_outline: completed (11/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 3,
+    "sheet_title": "静寂の哲学",
+    "ready_for_audio": true,
+    "channel_code": "CH02",
+    "channel_display_name": "企画",
+    "assembled_path": "script_pipeline/data/CH02/002/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/002/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/002/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "静寂の哲学 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n愛されたい。その願いを持たない人間はいません。私たちは生まれた瞬間から、誰かに抱きしめられることを求め、誰かに見つめられることを望み、誰かに必要とされることを祈りながら生きています。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH02",
+  "video_number": "002"
+}

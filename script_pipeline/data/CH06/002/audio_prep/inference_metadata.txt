@@ -1,0 +1,15 @@
+{
+  "last_updated": "2025-12-06T11:15:00+09:00",
+  "inference_logic": "manual_agent_inference",
+  "corrections": [
+    "Removed middle dots from Piri Reis (ピリレイス)",
+    "Removed middle dots from Halil Edhem (ハリルエデム)",
+    "Removed middle dots from Piri Ibn Haji Mehmed (ピリイブンハジメフメッド)",
+    "Removed middle dots from Harold Z. Ohlmeyer (ハロルドゼットオールマイヤー)",
+    "Removed middle dots from Orontius Finaeus (オロンティウスフィネウス)",
+    "Removed middle dots from Gerardus Mercator (ゲラルドゥスメルカトル)",
+    "Removed middle dots from Charles Hapgood (チャールズハップグッド)",
+    "Removed middle dots from Philippe Buache (フィリップブアシュ)",
+    " stripped ## headers to ensure smooth reading flow."
+  ]
+}

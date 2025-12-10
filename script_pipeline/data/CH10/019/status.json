@@ -1,0 +1,72 @@
+{
+  "script_id": "CH10-019",
+  "channel": "CH10",
+  "status": "script_validated",
+  "stages": {
+    "topic_research": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "completed",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {}
+    },
+    "quality_check": {
+      "status": "completed",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "completed",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "completed"
+    },
+    "srt_generation": {
+      "status": "completed"
+    }
+  },
+  "created_at": "2025-12-04T07:31:41Z",
+  "updated_at": "2025-12-04T23:47:27.696650Z",
+  "metadata": {
+    "title": "眠れない夜、不安が胸の内側を歩き回る。不安は敵なのか、味方なのか。キルケゴールは「不安は可能性のめまい」と呼んだ。可能性が開くから、不安が生まれる。彼はデンマークの石畳を歩き、婚約を解き、孤独に「死に至る病」を書き、夜はランプの下で祈った。彼にとって不安は、あなたを守ろうとするサインだった。今夜は、不安を追い出さず、守りとして傍らに置いて眠る儀式を置こう。",
+    "title_sanitized": "眠れない夜、不安が胸の内側を歩き回る。不安は敵なのか、味方なのか。キルケゴールは「不安は可能性のめまい」と呼んだ。可能性が開くから、不安が生まれる。彼はデンマークの石畳を歩き、婚約を解き、孤独に「死に至る病」を書き、夜はランプの下で祈った。彼にとって不安は、あなたを守ろうとするサインだった。今夜は、不安を追い出さず、守りとして傍らに置いて眠る儀式を置こう。",
+    "title_updated_at": null,
+    "chapter_characters": 0,
+    "assembled_characters": 6034,
+    "output_characters": 0,
+    "ready_for_audio": true,
+    "audio": {},
+    "channel_code": "CH10",
+    "channel_display_name": "深夜の偉人ラジオ",
+    "sheet_flag": "",
+    "sheet_progress_cell": "",
+    "sheet_quality_cell": "",
+    "sheet_row_number": null,
+    "sheet_title": "【キルケゴール流】不安はあなたを守ろうとするサイン",
+    "chapter_count": 0,
+    "ready_for_audio_at": "2025-12-04T23:47:27.696650Z",
+    "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/019/content/assembled.md",
+    "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/019/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH10/019/audio_prep/script_sanitized_with_pauses.txt",
+    "youtube_description": "【キルケゴール流】不安はあなたを守ろうとするサイン を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\n眠れない夜、不安が胸の内側を歩き回る。不安は敵なのか、味方なのか。キルケゴールは「不安は可能性のめまい」と呼んだ。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH10",
+  "video_number": "019"
+}

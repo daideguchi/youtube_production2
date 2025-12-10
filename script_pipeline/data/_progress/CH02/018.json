@@ -1,0 +1,87 @@
+{
+  "script_id": "CH02-018",
+  "channel": "CH02",
+  "status": "script_validated",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.207497Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.207667Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.207748Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.208311Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.208535Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:20.208612Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:22:19.041110Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:52:13.438185Z",
+      "prompt_hash": "a657a06be5e8e703c7e8e8fdfd861679d8a5699a701e2cca5d298d11f3914e97",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T12:52:13.625410Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.278829Z",
+  "updated_at": "2025-11-14T08:15:55.174081Z",
+  "metadata": {
+    "title": "【美意識の哲学】なぜ日本人は「わびさび」に惹かれるのか―不完全さの中に神を見る",
+    "title_sanitized": "【美意識の哲学】なぜ日本人は「わびさび」に惹かれるのか―不完全さの中に神を見る",
+    "title_updated_at": "2025-10-27T12:22:19.041110Z",
+    "chapter_characters": 8160,
+    "assembled_characters": 8315,
+    "output_characters": 8563,
+    "audio": {
+      "prepare": {
+        "script_sanitized_path": "data/CH02/018/audio_prep/script_sanitized.txt"
+      }
+    },
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "a657a06be5e8e703c7e8e8fdfd861679d8a5699a701e2cca5d298d11f3914e97",
+      "updated_at": "2025-10-27T12:52:13.438160Z"
+    },
+    "ready_for_audio": true,
+    "ready_for_audio_at": "2025-11-14T06:17:46.535979Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "script_validation: completed (9/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 19,
+    "sheet_title": "【美意識の哲学】なぜ日本人は「わびさび」に惹かれるのか―不完全さの中に神を見る"
+  },
+  "channel_code": "CH02",
+  "video_number": "018"
+}

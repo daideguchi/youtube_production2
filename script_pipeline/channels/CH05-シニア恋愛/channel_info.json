@@ -1,0 +1,58 @@
+{
+  "channel_id": "CH05",
+  "name": "シニア・恋愛 シニア恋愛",
+  "persona_path": "progress/personas/CH05_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH05-シニア恋愛/script_prompt.txt",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/mrzdwPhHtty1JrtSa2cbMVVpKERNdS_jGvyxYzHB_0ggRHBOduaEzgP7SQYSbGK0HAiEeij8=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "シニアの温かい恋愛【体験談】",
+    "subscriber_count": 533,
+    "view_count": 80014,
+    "video_count": 41,
+    "custom_url": "@senior_love_japan",
+    "handle": "@senior_love_japan",
+    "url": "https://www.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg",
+    "updated_at": "2025-05-21T23:28:11.679992Z"
+  },
+  "youtube": {
+    "channel_id": "UCNxC0Q2xDoofIClGNurUcIg",
+    "title": "シニアの温かい恋愛【体験談】",
+    "description": "「もう歳だから…」そう言って、心の奥に閉じ込めた気持ちはありませんか？\nこのチャンネルでは、60代・70代の女性たちが語る、切なくて温かい恋の物語をお届けしています。\n孤独、ぬくもり、誰にも言えなかった想い——\n年齢を重ねたからこそ、わかることがある。\nあなたの“心の奥”が、ふっとほどけるようなひとときを、どうぞ。\n",
+    "url": "https://www.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg",
+    "handle": "@senior_love_japan",
+    "custom_url": "@senior_love_japan",
+    "view_count": 80014,
+    "subscriber_count": 533,
+    "video_count": 41,
+    "synced_at": "2025-12-04T07:18:56.832648+00:00",
+    "source": "UCNxC0Q2xDoofIClGNurUcIg",
+    "published_at": "2025-05-21T23:28:11.679992Z"
+  },
+  "spreadsheet_id": "1c6SgGcNmHFPYO7LH-EYjhbOdDKqNl7ckxIEPTTsmlIw",
+  "description": "シニア層の恋愛事情に寄り添うコンテンツ",
+  "persona": {
+    "demographics": {
+      "age_range": "60-80代",
+      "life_stage": "定年後、第二の人生を過ごす世代",
+      "family_structure": "夫婦または独居、既に子育てを終えた世代"
+    },
+    "interests": [
+      "シニア世代の恋愛事情",
+      "新たな出会いと人間関係",
+      "自分らしさとパートナーシップ",
+      "コミュニケーションと理解"
+    ],
+    "pain_points": [
+      "年齢差恋愛や離婚後の恋愛への不安",
+      "若手とのコミュニケーションの違い",
+      "自分の魅力や価値を再認識することへの悩み",
+      "周囲の目や偏見へのストレス"
+    ],
+    "language_preference": "わかりやすく、親しみやすい話し言葉",
+    "content_preference": "具体的で実用的なアドバイス、シニア世代に寄り添った視点、現代の恋愛事情への洞察",
+    "target_audience": "60歳以上のシニア層"
+  },
+  "script_prompt": "以下の条件で『シニアの恋愛体験談』YouTube動画の台本を作成してください：\n\n【基本設定】\n・チャンネル名：シニアの恋愛体験談\n・動画時間：20-25分\n・ターゲット：60代以上のシニア層\n・語り手：温かみのある女性ナレーター（VOICEVOX想定）\n\n【台本構成（必須）】\n・冒頭：惹きつける会話からスタート\n・体験者紹介・背景説明\n・メイン体験談（会話文中心の詳細なストーリー）\n・問題の分析・解説（統計データ含む）\n・解決策・アドバイス\n・エンディング\n\n【必須要素】\n・体験者の年齢・性別・家族構成を明確に設定\n・具体的な会話文を「」で多用\n・感情の変化を丁寧に描写\n・同世代視聴者の共感を呼ぶ表現\n・説教臭くない自然なアドバイス\n・統計データや一般論を含む分析部分\n\n【文体・トーン】\n・敬語を基本とし、親しみやすく\n・「〜ですね」「〜でしょうか」など共感的表現\n・感情に寄り添う温かい語りかけ\n・断定的ではなく、提案的な表現\n\n【禁止事項】\n・箇条書き（・）の使用\n・タイムスタンプの記載\n・説教臭い内容\n・一方的な価値観の押し付け\n・過度にネガティブな表現\n・個人や団体への批判\n",
+  "synced_at": "2025-11-01T13:42:10.276866"
+}

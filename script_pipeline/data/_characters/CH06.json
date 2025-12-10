@@ -1,0 +1,68 @@
+{
+  "$schema": "https://example.com/schemas/character-portrait.schema.json",
+  "channel": "CH06",
+  "version": "2025-11-12",
+  "characters": [
+    {
+      "id": "narrator_natsu",
+      "display_name": "ナツ",
+      "role": "番組の案内役。視聴者の代弁者として疑問を投げかける。",
+      "alignment": "neutral",
+      "voice": {
+        "tone": "穏やかで論理的",
+        "pitch": "mid",
+        "speed": "slow"
+      },
+      "speech_rules": {
+        "required_closings": ["。", "？", "！"],
+        "forbidden_regex": ["w{2,}", "[！!？?]{2,}"],
+        "max_sentence_length": 80
+      },
+      "traits": ["冷静", "メタ視点", "比喩は最小限"],
+      "relationships": [
+        {"target": "agent_hana", "type": "ally", "notes": "取材協力者"},
+        {"target": "agent_rin", "type": "confidant", "notes": "裏事情を共有"}
+      ]
+    },
+    {
+      "id": "agent_hana",
+      "display_name": "花",
+      "role": "地下研究ネットワークを束ねるリーダー。調査データを提供する。",
+      "alignment": "protagonist",
+      "voice": {
+        "tone": "冷静沈着",
+        "pitch": "low",
+        "speed": "medium"
+      },
+      "speech_rules": {
+        "required_prefix": "結論から言うと",
+        "forbidden_regex": ["よね", "かな？"],
+        "max_sentence_length": 90
+      },
+      "traits": ["事実ベース", "比喩を避ける", "敬語は使わない"],
+      "relationships": [
+        {"target": "agent_rin", "type": "former_partner", "notes": "思想の違いで対立"}
+      ]
+    },
+    {
+      "id": "agent_rin",
+      "display_name": "リン",
+      "role": "宮内庁内部の匿名情報提供者。慎重派。",
+      "alignment": "skeptic",
+      "voice": {
+        "tone": "丁寧で含みのある話し方",
+        "pitch": "mid",
+        "speed": "medium"
+      },
+      "speech_rules": {
+        "required_suffix": "……と私は考えています",
+        "forbidden_regex": ["断言", "絶対"],
+        "max_sentence_length": 110
+      },
+      "traits": ["遠回し", "敬語", "感情を表に出さない"],
+      "relationships": [
+        {"target": "agent_hana", "type": "rival", "notes": "目的は同じだが手段が対立"}
+      ]
+    }
+  ]
+}

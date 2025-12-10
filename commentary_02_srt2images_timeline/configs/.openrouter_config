@@ -1,0 +1,9 @@
+# 🚨 SRT2Images Timeline 専用 - 絶対信頼APIキー
+# 動作確認済み: 2025-09-04 23:36
+# 他のプロジェクトの影響を受けない独立設定
+OPENROUTER_API_KEY=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
+
+# テスト結果:
+# ✅ deepseek/deepseek-chat モデル接続成功
+# ✅ GPT-5 Chat モデル対応
+# ✅ 章分割・タイトル生成機能対応

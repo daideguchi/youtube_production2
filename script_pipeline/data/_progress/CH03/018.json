@@ -1,0 +1,106 @@
+{
+  "script_id": "CH03-018",
+  "channel": "CH03",
+  "status": "failed",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.285118Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.285270Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.285347Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.285740Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.285942Z"
+    },
+    "glm4_5_quality_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:35.286016Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:07:30.141615Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "prompt_hash": "e26699cb99c48e216cfff3cee33d268743dd951a056bb292a1e15f4dd9eec2dc",
+      "updated_at": "2025-10-27T13:09:01.222192Z",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-27T13:09:01.431276Z"
+    },
+    "audio_synthesis": {
+      "status": "failed",
+      "updated_at": "2025-11-13T12:08:49.868245Z",
+      "engine": "voicepeak",
+      "voice_key": "voicepeak_female1",
+      "voice_character": "女性1",
+      "voice_style": "ノーマル",
+      "sanitized_script": "data/CH03/018/audio_prep/script_sanitized.txt",
+      "artefact_sanitized": "data/CH03/018/audio_prep/script_sanitized.txt",
+      "error": "VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh",
+      "note": "voicepeak_ready_check_failed"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {}
+  },
+  "created_at": "2025-10-27T11:44:13.259412Z",
+  "updated_at": "2025-11-14T08:16:07.026509Z",
+  "metadata": {
+    "title": "介護保険制度を正しく使えば数十万円も節約可能",
+    "title_sanitized": "介護保険制度を正しく使えば数十万円も節約可能",
+    "title_updated_at": "2025-10-27T13:07:30.141615Z",
+    "chapter_characters": 8066,
+    "assembled_characters": 8066,
+    "output_characters": 8138,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "e26699cb99c48e216cfff3cee33d268743dd951a056bb292a1e15f4dd9eec2dc",
+      "updated_at": "2025-10-27T13:09:01.222156Z"
+    },
+    "audio": {
+      "history": [
+        {
+          "event": "failed",
+          "timestamp": "2025-11-13T12:08:49Z",
+          "status": "failed",
+          "message": null,
+          "engine": "voicepeak",
+          "final_wav": null,
+          "final_srt": null,
+          "log_json": "logs/audio_synthesis/CH03/018_20251113T120849Z.failed.json",
+          "log_text": "logs/audio_synthesis/CH03/018_20251113T120849Z.failed.log"
+        }
+      ]
+    },
+    "ready_for_audio": false,
+    "audio_failed_at": "2025-11-13T12:08:49Z",
+    "sheet_flag": "",
+    "sheet_progress_cell": "❌ audio_synthesis: failed | engine=voicepeak | voice_key=voicepeak_female1 | voice_character=女性1 | voice_style=ノーマル | sanitized_script=data/CH03/018/audio_prep/script_sanitized.txt | artefact_sanitized=data/CH03/018/audio_prep/script_sanitized.txt | error=VoicePeak readiness スクリプトが見つかりません: /Users/dd/youtube_master/commentary_01_srtfile_v2/bin/check_voicepeak.sh | note=voicepeak_ready_check_failed",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 19,
+    "sheet_title": "介護保険制度を正しく使えば数十万円も節約可能"
+  },
+  "channel_code": "CH03",
+  "video_number": "018"
+}

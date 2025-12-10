@@ -1,0 +1,22 @@
+{
+  "id": "workflows/execution-modes",
+  "title": "実行モード（plan-only / dry-run / apply）",
+  "description": "Claude監督システムの安全運用 - 3段階実行フロー",
+  "source": "@site/docs/workflows/execution-modes.md",
+  "sourceDirName": "workflows",
+  "slug": "/workflows/execution-modes",
+  "permalink": "/docs/workflows/execution-modes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "実行チェックリスト（AI実行ガイド）",
+    "permalink": "/docs/workflows/execution-checklist"
+  }
+}

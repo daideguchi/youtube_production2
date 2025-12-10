@@ -1,0 +1,820 @@
+{
+  "version": 1,
+  "updated_at": "2025-11-15T08:00:23.213194+00:00",
+  "projects": [
+    {
+      "channel": "CH01",
+      "video": "001",
+      "title": "年金の現実：老後サバイバルガイド",
+      "status": "review",
+      "owner": "dd",
+      "summary": "サムネ訴求は共感＋危機感のバランスを狙う。",
+      "notes": "文字サイズと色のコントラストを要調整。",
+      "tags": [
+        "年金",
+        "共感訴求"
+      ],
+      "selected_variant_id": "ytm::5ca6cc03e17b",
+      "updated_at": "2025-11-15T03:11:20.152395+00:00",
+      "variants": [
+        {
+          "id": "concept_a",
+          "label": "案A: 通知書ズーム",
+          "status": "draft",
+          "image_url": "https://dummyimage.com/640x360/222/ffffff.png&text=CH01-001+A",
+          "notes": "文字情報が多く視認性に課題。",
+          "tags": [
+            "通知書",
+            "危機感"
+          ]
+        },
+        {
+          "id": "concept_b",
+          "label": "案B: 夫婦ショック構図",
+          "status": "review",
+          "image_url": "https://dummyimage.com/640x360/550/ffffff.png&text=CH01-001+B",
+          "notes": "表情は良い。差し色と文字位置を微調整予定。",
+          "tags": [
+            "人物",
+            "共感"
+          ]
+        },
+        {
+          "id": "concept_c",
+          "label": "案C: グラフ比較",
+          "status": "draft",
+          "image_url": "https://dummyimage.com/640x360/915/ffffff.png&text=CH01-001+C",
+          "notes": "数字訴求だがパッと見で伝わりにくい。",
+          "tags": [
+            "データ",
+            "数字"
+          ]
+        },
+        {
+          "id": "ytm::5ca6cc03e17b",
+          "label": "道標アート1",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH01/001/001_buddha.png",
+          "image_path": "CH01/001/001_buddha.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:11:20.152395+00:00",
+          "updated_at": "2025-11-15T03:11:20.152395+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH01",
+      "video": "002",
+      "title": "悟りと今日からの習慣",
+      "status": "draft",
+      "owner": "dd",
+      "summary": "穏やかさと実践の両立を狙う。",
+      "tags": [
+        "習慣",
+        "瞑想"
+      ],
+      "selected_variant_id": "ytm::2279796f6411",
+      "updated_at": "2025-11-15T03:11:20.154791+00:00",
+      "variants": [
+        {
+          "id": "calm_light",
+          "label": "朝日の差し込む窓辺",
+          "status": "candidate",
+          "image_url": "https://dummyimage.com/640x360/447/ffffff.png&text=CH01-002+A",
+          "notes": "やや情報量が少ない。タイトル文字の配置検討。"
+        },
+        {
+          "id": "orbital_focus",
+          "label": "宇宙と瞑想イメージ",
+          "status": "draft",
+          "image_url": "https://dummyimage.com/640x360/123/ffffff.png&text=CH01-002+B",
+          "notes": "トンマナがチャンネルとズレるかも。"
+        },
+        {
+          "id": "ytm::2279796f6411",
+          "label": "静寂の光",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH01/002/002_calm.png",
+          "image_path": "CH01/002/002_calm.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:11:20.154791+00:00",
+          "updated_at": "2025-11-15T03:11:20.154791+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH02",
+      "video": "004",
+      "title": "静寂の効用：夜の呼吸法",
+      "status": "approved",
+      "owner": "designer-A",
+      "summary": "夜の静けさと安心感を最大化。",
+      "selected_variant_id": "ytm::4833f0ba7afa",
+      "updated_at": "2025-11-15T03:12:02.326539+00:00",
+      "variants": [
+        {
+          "id": "blue_moon",
+          "label": "青い月と瞑想",
+          "status": "approved",
+          "image_url": "https://dummyimage.com/640x360/114/ffffff.png&text=CH02-004+Moon",
+          "notes": "完成版。タイトルと一体感あり。"
+        },
+        {
+          "id": "forest_mist",
+          "label": "森林に差し込む光",
+          "status": "archived",
+          "image_url": "https://dummyimage.com/640x360/333/ffffff.png&text=CH02-004+Forest",
+          "notes": "メッセージが弱く没案。"
+        },
+        {
+          "id": "ytm::4833f0ba7afa",
+          "label": "CH02 案D",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH02/004/004_sigma_CH02.png",
+          "image_path": "CH02/004/004_sigma_CH02.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.326539+00:00",
+          "updated_at": "2025-11-15T03:12:02.326539+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH06",
+      "video": "001",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::0df04a792ed1",
+          "label": "暗庫の書",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/001/001_darkvault.png",
+          "image_path": "CH06/001/001_darkvault.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:05:27.970454+00:00",
+          "updated_at": "2025-11-15T03:05:27.970454+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::0df04a792ed1",
+      "updated_at": "2025-11-15T03:05:27.970454+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "002",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::35914793d87c",
+          "label": "氷下の地図",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/002/002_antarc.png",
+          "image_path": "CH06/002/002_antarc.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:05:27.971942+00:00",
+          "updated_at": "2025-11-15T03:05:27.971942+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::35914793d87c",
+      "updated_at": "2025-11-15T03:05:27.971942+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::02205e012b79",
+          "label": "異界の灯",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/003/003_mystic.png",
+          "image_path": "CH06/003/003_mystic.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:05:27.974131+00:00",
+          "updated_at": "2025-11-15T03:05:27.974131+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::02205e012b79",
+      "updated_at": "2025-11-15T03:05:27.974131+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "004",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::37acdce73ed0",
+          "label": "封印の儀",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/004/004_secret.png",
+          "image_path": "CH06/004/004_secret.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:05:27.976926+00:00",
+          "updated_at": "2025-11-15T03:05:27.976926+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::37acdce73ed0",
+      "updated_at": "2025-11-15T03:05:27.976926+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::5379c9e5e578",
+          "label": "影の記憶",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/005/005_shadow.png",
+          "image_path": "CH06/005/005_shadow.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:05:27.978953+00:00",
+          "updated_at": "2025-11-15T03:05:27.978953+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::5379c9e5e578",
+      "updated_at": "2025-11-15T03:05:27.978953+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "006",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::f01c6158488b",
+          "label": "Pythonトレンド",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/006/python_trend.png",
+          "image_path": "CH06/006/python_trend.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:07:25.168810+00:00",
+          "updated_at": "2025-11-15T03:07:25.168810+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::f01c6158488b",
+      "updated_at": "2025-11-15T03:07:25.168810+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "007",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::b1b3ef176471",
+          "label": "Bulk20",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/007/bulk_20.png",
+          "image_path": "CH06/007/bulk_20.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:08:00.805270+00:00",
+          "updated_at": "2025-11-15T03:08:00.805270+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::b1b3ef176471",
+      "updated_at": "2025-11-15T03:08:00.805270+00:00"
+    },
+    {
+      "channel": "CH01",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::0755e9680f93",
+          "label": "意識の灯",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH01/003/003_focus.png",
+          "image_path": "CH01/003/003_focus.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:11:20.157069+00:00",
+          "updated_at": "2025-11-15T03:11:20.157069+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::0755e9680f93",
+      "updated_at": "2025-11-15T03:11:20.157069+00:00"
+    },
+    {
+      "channel": "CH01",
+      "video": "004",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::ae93caff9c93",
+          "label": "智慧の環",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH01/004/004_wisdom.png",
+          "image_path": "CH01/004/004_wisdom.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:11:20.159878+00:00",
+          "updated_at": "2025-11-15T03:11:20.159878+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::ae93caff9c93",
+      "updated_at": "2025-11-15T03:11:20.159878+00:00"
+    },
+    {
+      "channel": "CH01",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::e2bf5cb973ea",
+          "label": "古寺の気配",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH01/005/005_temple.png",
+          "image_path": "CH01/005/005_temple.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:11:20.162110+00:00",
+          "updated_at": "2025-11-15T03:11:20.162110+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::e2bf5cb973ea",
+      "updated_at": "2025-11-15T03:11:20.162110+00:00"
+    },
+    {
+      "channel": "CH02",
+      "video": "001",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::01e9c188dfd0",
+          "label": "CH02 案A",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH02/001/001_aura_CH02.png",
+          "image_path": "CH02/001/001_aura_CH02.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.319089+00:00",
+          "updated_at": "2025-11-15T03:12:02.319089+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::01e9c188dfd0",
+      "updated_at": "2025-11-15T03:12:02.319089+00:00"
+    },
+    {
+      "channel": "CH02",
+      "video": "002",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::39c98c864d7e",
+          "label": "CH02 案B",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH02/002/002_myst_CH02.png",
+          "image_path": "CH02/002/002_myst_CH02.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.320523+00:00",
+          "updated_at": "2025-11-15T03:12:02.320523+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::39c98c864d7e",
+      "updated_at": "2025-11-15T03:12:02.320523+00:00"
+    },
+    {
+      "channel": "CH02",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::52015e49f474",
+          "label": "CH02 案C",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH02/003/003_flare_CH02.png",
+          "image_path": "CH02/003/003_flare_CH02.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.322744+00:00",
+          "updated_at": "2025-11-15T03:12:02.322744+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::52015e49f474",
+      "updated_at": "2025-11-15T03:12:02.322744+00:00"
+    },
+    {
+      "channel": "CH02",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::1761fb5eba15",
+          "label": "CH02 案E",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH02/005/005_noir_CH02.png",
+          "image_path": "CH02/005/005_noir_CH02.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.329157+00:00",
+          "updated_at": "2025-11-15T03:12:02.329157+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::1761fb5eba15",
+      "updated_at": "2025-11-15T03:12:02.329157+00:00"
+    },
+    {
+      "channel": "CH03",
+      "video": "001",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::12bc94301384",
+          "label": "CH03 案A",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH03/001/001_aura_CH03.png",
+          "image_path": "CH03/001/001_aura_CH03.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.330309+00:00",
+          "updated_at": "2025-11-15T03:12:02.330309+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::12bc94301384",
+      "updated_at": "2025-11-15T03:12:02.330309+00:00"
+    },
+    {
+      "channel": "CH03",
+      "video": "002",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::d77c3db8a7b7",
+          "label": "CH03 案B",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH03/002/002_myst_CH03.png",
+          "image_path": "CH03/002/002_myst_CH03.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.332241+00:00",
+          "updated_at": "2025-11-15T03:12:02.332241+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::d77c3db8a7b7",
+      "updated_at": "2025-11-15T03:12:02.332241+00:00"
+    },
+    {
+      "channel": "CH03",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::2704ed5ce578",
+          "label": "CH03 案C",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH03/003/003_flare_CH03.png",
+          "image_path": "CH03/003/003_flare_CH03.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.334786+00:00",
+          "updated_at": "2025-11-15T03:12:02.334786+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::2704ed5ce578",
+      "updated_at": "2025-11-15T03:12:02.334786+00:00"
+    },
+    {
+      "channel": "CH03",
+      "video": "004",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::5791daee5eac",
+          "label": "CH03 案D",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH03/004/004_sigma_CH03.png",
+          "image_path": "CH03/004/004_sigma_CH03.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.336802+00:00",
+          "updated_at": "2025-11-15T03:12:02.336802+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::5791daee5eac",
+      "updated_at": "2025-11-15T03:12:02.336802+00:00"
+    },
+    {
+      "channel": "CH03",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::2b2cedfdb6aa",
+          "label": "CH03 案E",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH03/005/005_noir_CH03.png",
+          "image_path": "CH03/005/005_noir_CH03.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.338446+00:00",
+          "updated_at": "2025-11-15T03:12:02.338446+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::2b2cedfdb6aa",
+      "updated_at": "2025-11-15T03:12:02.338446+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "001",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::279417185719",
+          "label": "CH04 案A",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/001/001_aura_CH04.png",
+          "image_path": "CH04/001/001_aura_CH04.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.341483+00:00",
+          "updated_at": "2025-11-15T03:12:02.341483+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::279417185719",
+      "updated_at": "2025-11-15T03:12:02.341483+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "002",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::bdd0424e58c4",
+          "label": "CH04 案B",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/002/002_myst_CH04.png",
+          "image_path": "CH04/002/002_myst_CH04.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.343889+00:00",
+          "updated_at": "2025-11-15T03:12:02.343889+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::bdd0424e58c4",
+      "updated_at": "2025-11-15T03:12:02.343889+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::62af047a20a4",
+          "label": "CH04 案C",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/003/003_flare_CH04.png",
+          "image_path": "CH04/003/003_flare_CH04.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.346375+00:00",
+          "updated_at": "2025-11-15T03:12:02.346375+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::62af047a20a4",
+      "updated_at": "2025-11-15T03:12:02.346375+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "004",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::e83ff48976bb",
+          "label": "CH04 案D",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/004/004_sigma_CH04.png",
+          "image_path": "CH04/004/004_sigma_CH04.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.348470+00:00",
+          "updated_at": "2025-11-15T03:12:02.348470+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::e83ff48976bb",
+      "updated_at": "2025-11-15T03:12:02.348470+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::7883c80e02e9",
+          "label": "CH04 案E",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/005/005_noir_CH04.png",
+          "image_path": "CH04/005/005_noir_CH04.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.350005+00:00",
+          "updated_at": "2025-11-15T03:12:02.350005+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::7883c80e02e9",
+      "updated_at": "2025-11-15T03:12:02.350005+00:00"
+    },
+    {
+      "channel": "CH05",
+      "video": "001",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::a5e93a35ea44",
+          "label": "CH05 案A",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH05/001/001_aura_CH05.png",
+          "image_path": "CH05/001/001_aura_CH05.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.351841+00:00",
+          "updated_at": "2025-11-15T03:12:02.351841+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::a5e93a35ea44",
+      "updated_at": "2025-11-15T03:12:02.351841+00:00"
+    },
+    {
+      "channel": "CH05",
+      "video": "002",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::dee1e2fbf0c4",
+          "label": "CH05 案B",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH05/002/002_myst_CH05.png",
+          "image_path": "CH05/002/002_myst_CH05.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.353716+00:00",
+          "updated_at": "2025-11-15T03:12:02.353716+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::dee1e2fbf0c4",
+      "updated_at": "2025-11-15T03:12:02.353716+00:00"
+    },
+    {
+      "channel": "CH05",
+      "video": "003",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::e0770c646096",
+          "label": "CH05 案C",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH05/003/003_flare_CH05.png",
+          "image_path": "CH05/003/003_flare_CH05.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.355834+00:00",
+          "updated_at": "2025-11-15T03:12:02.355834+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::e0770c646096",
+      "updated_at": "2025-11-15T03:12:02.355834+00:00"
+    },
+    {
+      "channel": "CH05",
+      "video": "004",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::68c655b172bd",
+          "label": "CH05 案D",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH05/004/004_sigma_CH05.png",
+          "image_path": "CH05/004/004_sigma_CH05.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.357833+00:00",
+          "updated_at": "2025-11-15T03:12:02.357833+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::68c655b172bd",
+      "updated_at": "2025-11-15T03:12:02.357833+00:00"
+    },
+    {
+      "channel": "CH05",
+      "video": "005",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::f69f272e33b0",
+          "label": "CH05 案E",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH05/005/005_noir_CH05.png",
+          "image_path": "CH05/005/005_noir_CH05.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T03:12:02.359386+00:00",
+          "updated_at": "2025-11-15T03:12:02.359386+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::f69f272e33b0",
+      "updated_at": "2025-11-15T03:12:02.359386+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "008",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::f053caaea5f6",
+          "label": "トレンドPython",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/008/trend_a21c38de0e053eca.png",
+          "image_path": "CH06/008/trend_a21c38de0e053eca.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T04:41:30.207952+00:00",
+          "updated_at": "2025-11-15T04:41:30.207952+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::f053caaea5f6",
+      "updated_at": "2025-11-15T04:41:30.207952+00:00"
+    },
+    {
+      "channel": "CH04",
+      "video": "009",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::6dc6fc91e930",
+          "label": "テスト",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH04/009/trend_a21c38de0e053eca.png",
+          "image_path": "CH04/009/trend_a21c38de0e053eca.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T05:05:08.703969+00:00",
+          "updated_at": "2025-11-15T05:05:08.703969+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::6dc6fc91e930",
+      "updated_at": "2025-11-15T05:05:08.703969+00:00"
+    },
+    {
+      "channel": "CH06",
+      "video": "191",
+      "status": "draft",
+      "variants": [
+        {
+          "id": "ytm::172bba98fc16",
+          "label": "テスト",
+          "status": "draft",
+          "image_url": "/thumbnails/assets/CH06/191/1.png",
+          "image_path": "CH06/191/1.png",
+          "notes": null,
+          "tags": null,
+          "prompt": null,
+          "created_at": "2025-11-15T08:00:23.212814+00:00",
+          "updated_at": "2025-11-15T08:00:23.212814+00:00"
+        }
+      ],
+      "selected_variant_id": "ytm::172bba98fc16",
+      "updated_at": "2025-11-15T08:00:23.212814+00:00"
+    }
+  ]
+}

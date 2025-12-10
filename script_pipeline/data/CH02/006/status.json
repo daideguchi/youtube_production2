@@ -1,0 +1,93 @@
+{
+  "script_id": "CH02-006",
+  "channel": "CH02",
+  "status": "script_completed",
+  "stages": {
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265452Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265491Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265734Z"
+    },
+    "script_review": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265846Z"
+    },
+    "script_validation": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:31:55.698615Z"
+    },
+    "script_polish_ai": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:36:24.139573Z",
+      "prompt_hash": "11229e42fa6066fb7c5272b2c13199adbfcdab263066b465577d1511831108d0",
+      "details": {},
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt"
+    },
+    "script_tts_prepare": {
+      "status": "completed",
+      "updated_at": "2025-10-30T02:36:24.409109Z"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.191016Z"
+    },
+    "image_generation": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:17:45.191141Z"
+    },
+    "topic_research": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265368Z"
+    },
+    "quality_check": {
+      "status": "completed",
+      "updated_at": "2025-10-27T11:45:00.265883Z"
+    }
+  },
+  "created_at": "2025-10-27T11:44:13.277730Z",
+  "updated_at": "2025-12-04T03:02:56Z",
+  "metadata": {
+    "title": "職場でも友人関係でも、頼まれごとが多い人がいます。呼ばれたら断れない、場を和ませる役を引き受ける、誰かの愚痴の受け皿になる。周囲からは「いい人」と言われることが多いのに、本人は妙な孤独を感じることがあります。なぜ、いい人ほど孤独を抱えやすいのか。慰めではなく、心理や哲学の好奇心として掘ります。",
+    "title_sanitized": "職場でも友人関係でも、頼まれごとが多い人がいます。呼ばれたら断れない、場を和ませる役を引き受ける、誰かの愚痴の受け皿になる。周囲からは「いい人」と言われることが多いのに、本人は妙な孤独を感じることがあります。なぜ、いい人ほど孤独を抱えやすいのか。慰めではなく、心理や哲学の好奇心として掘ります。",
+    "title_updated_at": "2025-10-30T02:31:55.698615Z",
+    "chapter_characters": 8912,
+    "assembled_characters": 9051,
+    "output_characters": 9303,
+    "ai_polish": {
+      "model": "qwen",
+      "template": "prompts/llm_polish_template.txt",
+      "prompt_hash": "11229e42fa6066fb7c5272b2c13199adbfcdab263066b465577d1511831108d0",
+      "updated_at": "2025-10-30T02:36:24.139543Z"
+    },
+    "audio": {},
+    "sheet_flag": "1",
+    "sheet_progress_cell": "script_outline: completed (11/13完了)",
+    "sheet_quality_cell": "✅完了",
+    "sheet_row_number": 7,
+    "sheet_title": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄",
+    "ready_for_audio": true,
+    "channel_code": "CH02",
+    "channel_display_name": "企画",
+    "assembled_path": "script_pipeline/data/CH02/006/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH02/006/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH02/006/audio_prep/script_sanitized_with_pauses.txt",
+    "audio_reviewed": false,
+    "youtube_description": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄 を哲学・心理と偉人の言葉で分解し、静かな思考法に落とし込みます。\nなぜ「いい人」は疲れてしまうのかについてお伝えします。\n🧭 今日からできる一歩：深呼吸・メモ・短い無思考タイムを挟む\n#思考法 #哲学 #夜のラジオ"
+  },
+  "channel_code": "CH02",
+  "video_number": "006"
+}

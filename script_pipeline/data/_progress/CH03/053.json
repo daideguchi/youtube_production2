@@ -1,0 +1,67 @@
+{
+  "script_id": "CH03-053",
+  "channel": "CH03",
+  "status": "script_in_progress",
+  "stages": {
+    "glm4_5_research": {
+      "status": "completed",
+      "updated_at": "2025-11-07T09:36:40.799506Z"
+    },
+    "script_outline": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:12:17.969827Z"
+    },
+    "script_draft": {
+      "status": "completed",
+      "updated_at": "2025-11-12T08:14:59.003455Z"
+    },
+    "script_enhancement": {
+      "status": "completed",
+      "updated_at": "2025-11-14T06:18:10.955226Z"
+    },
+    "script_review": {
+      "status": "pending"
+    },
+    "glm4_5_quality_review": {
+      "status": "pending"
+    },
+    "script_validation": {
+      "status": "pending"
+    },
+    "script_polish_ai": {
+      "status": "pending"
+    },
+    "script_tts_prepare": {
+      "status": "pending"
+    },
+    "audio_synthesis": {
+      "status": "pending"
+    },
+    "srt_generation": {
+      "status": "pending"
+    },
+    "timeline_copy": {
+      "status": "pending"
+    },
+    "image_generation": {
+      "status": "pending"
+    }
+  },
+  "created_at": "2025-11-03T22:05:03.306714Z",
+  "updated_at": "2025-11-14T08:16:10.855105Z",
+  "metadata": {
+    "channel_display_name": "企画",
+    "channel_code": "CH03",
+    "ready_for_audio": false,
+    "audio": {},
+    "video_number": "053",
+    "script_id": "CH03-053",
+    "sheet_flag": "1",
+    "sheet_progress_cell": "✅ script_outline: completed",
+    "sheet_quality_cell": "未完了",
+    "sheet_row_number": 53,
+    "sheet_title": "【誤嚥性肺炎】死因第6位！「むせる」を放置してはいけない本当の理由"
+  },
+  "channel_code": "CH03",
+  "video_number": "053"
+}

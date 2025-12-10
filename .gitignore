@@ -1,0 +1,102 @@
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+logs/
+.DS_Store
+__pycache__/
+/a
+/b
+/c
+/スクリーンショット 2025-11-04 10.34.37.png
+/スクリーンショット 2025-11-04 10.39.43.png
+/スクリーンショット 2025-11-04 11.09.45.png
+_local_archives/
+*.pyc
+*.pyo
+*.mp4
+*.wav
+*.srt
+audio_tts_v2/artifacts/audio/
+audio_tts_v2/artifacts/final/
+
+50_tools/projects/kutikomi_srt/input/
+50_tools/projects/kutikomi_srt/output/
+commentary_02_srt2images_timeline/_recovery/
+50_tools/projects/kutikomi_srt/tmp/
+50_tools/projects/kutikomi_srt/natural-ether-*.json
+.coverage
+review_01_kutikomi_srt/input/
+review_01_kutikomi_srt/output/
+node_modules/
+50_tools/srt2images-timeline/output/
+memo.md
+credentials/
+50_tools/projects/srtfile/srtfile_v2/archive/output_old/
+_old
+.pytest*
+.remotion*
+audio_tts_v2/artifacts
+backups
+*スクリーンショット*archive_20251206/
+_old
+
+# API Keys and sensitive configuration files
+*API_KEY*
+*api_key*
+*secret*
+*SECRET*
+*token*
+*TOKEN*
+*_key*
+*_KEY*
+
+# Authentication and authorization
+*.json
+!*.json  # 全てのJSONを無視しないようにするための例外
+credentials/
+*.credentials
+credential/
+*.token
+*.pem
+*.p12
+*.crt
+
+# Google related
+*client_secret*.json
+*credentials*.json
+*oauth*.json
+*google*.json
+*.gpg
+GOOGLE_APPLICATION_CREDENTIALS
+
+# Specific sensitive files
+configs/client_secret_*.json
+configs/srtfile-*.json
+credentials/*
+commentary_02_srt2images_timeline/.gemini_config
+commentary_02_srt2images_timeline/configs/.openrouter_config
+configs/drive_oauth_client.json
+credentials/drive_oauth_token.json
+credentials/gemini_config
+credentials/natural-ether-*.json
+credentials/srtfile-tts-credentials.json
+
+# Token files used in audio processing
+script_pipeline/data/CH*/**/tokens.json
+
+# API response files
+script_pipeline/data/CH*/**/topic_research_response.json
+script_pipeline/data/CH*/**/script_outline_response.json
+script_pipeline/data/CH*/**/quality_check_response.json
+script_pipeline/data/CH*/**/chapter_brief_response.json
+script_pipeline/data/CH*/**/script_review_response.json
+script_pipeline/data/CH*/**/script_draft_response.json
+
+# Other sensitive data files
+script_pipeline/data/openrouter_models_snapshot.json
+
+# Old specification documents (not to be pushed)
+ssot_old/

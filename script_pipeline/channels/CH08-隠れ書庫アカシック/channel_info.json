@@ -1,0 +1,50 @@
+{
+  "channel_id": "CH08",
+  "name": "静かな夜の心理図書室",
+  "persona_path": "progress/personas/CH08_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH08-隠れ書庫アカシック/script_prompt.txt",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/H-0wLdC-RY_yxyfAKKSxmgFZPHddGMlWEj4wjhpWYYrcVtz6qRznAdaxkMZaSToY5x1F_jGd=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "https://yt3.googleusercontent.com/NMuvREJCLe6ekKL5GuQagRpaW7RuifWOGvSmbPMpDP51ZvYnMm6fUZlRADuAXWEZhCDYScEIeQ",
+    "title": "静かな夜の心理図書室",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@calm_mind_lab-n9n",
+    "handle": "@calm_mind_lab-n9n",
+    "url": "https://www.youtube.com/channel/UCUPj4bRwrMUfHHuy1knBDIQ",
+    "updated_at": "2025-10-06T06:54:28.577591Z"
+  },
+  "youtube": {
+    "channel_id": "UCUPj4bRwrMUfHHuy1knBDIQ",
+    "title": "静かな夜の心理図書室",
+    "custom_url": "@calm_mind_lab-n9n",
+    "handle": "@calm_mind_lab-n9n",
+    "url": "https://www.youtube.com/channel/UCUPj4bRwrMUfHHuy1knBDIQ",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2025-12-05T05:59:44.249063+00:00",
+    "source": "UCUPj4bRwrMUfHHuy1knBDIQ",
+    "published_at": null
+  },
+  "description": "心理とスピリチュアルを静かにほどく夜の朗読室。眠れない夜に、呼吸と小さな気づきで心をゆるめます。",
+  "persona": {
+    "demographics": {
+      "age_range": "20-40代",
+      "life_stage": "仕事や人間関係で疲れた夜に静かに癒やされたい"
+    },
+    "interests": [
+      "静かな読書儀式",
+      "軽いスピリチュアルと安心感の両立"
+    ],
+    "pain_points": [
+      "眠れない夜",
+      "過覚醒と情報疲れ"
+    ],
+    "language_preference": "囁くような伴走者トーン。煽りや断定はしない。",
+    "content_preference": "知的好奇心を満たしつつ眠りを妨げない穏やかな台本",
+    "target_audience": "20〜40代で、静かに心をほどきたい夜更かし層"
+  },
+  "script_prompt": "script_pipeline/channels/CH08-隠れ書庫アカシック/script_prompt.txt"
+}
