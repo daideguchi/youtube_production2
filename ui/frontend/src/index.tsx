@@ -12,12 +12,22 @@ const root = ReactDOM.createRoot(
 const searchParams = new URLSearchParams(window.location.search);
 const mockMode = searchParams.get('mock') === '1';
 
+// basenameを動的に設定
+const getRouterBasename = (): string => {
+  // GitHub PagesのURL（youtube_production2）かを判定
+  const currentOrigin = window.location.origin;
+  const currentPath = window.location.pathname;
+  const isGitHubPages = currentOrigin.includes('github.io') && currentPath.startsWith('/youtube_production2');
+
+  return isGitHubPages ? '/youtube_production2' : '/';
+};
+
 root.render(
   <React.StrictMode>
     {mockMode ? (
       <MockGallery />
     ) : (
-      <BrowserRouter basename="/youtube_production2">
+      <BrowserRouter basename={getRouterBasename()}>
         <App />
       </BrowserRouter>
     )}

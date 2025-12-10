@@ -7,8 +7,18 @@ export const getApiBaseUrl = (): string => {
     return envBase.replace(/\/$/, ""); // 末尾の / を消す
   }
 
-  // env がなければ今のオリジンを使う（ローカル開発用の保険）
-  return window.location.origin.replace(/\/$/, "");
+  // GitHub PagesのURL（youtube_production2）かを判定
+  const currentOrigin = window.location.origin;
+  const currentPath = window.location.pathname;
+  const isGitHubPages = currentOrigin.includes('github.io') && currentPath.startsWith('/youtube_production2');
+
+  if (isGitHubPages) {
+    // GitHub Pages環境では相対パスを使用
+    return '';
+  } else {
+    // ローカル環境ではバックエンドのURLを返す
+    return 'http://localhost:8000';
+  }
 };
 
 export const apiUrl = (path: string): string => {
