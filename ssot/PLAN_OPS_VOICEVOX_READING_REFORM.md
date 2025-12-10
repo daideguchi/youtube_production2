@@ -18,12 +18,17 @@
 - Aテキスト前処理〜トークン化: `tts/orchestrator.py::run_tts_pipeline` で Markdown を保持したまま前処理→MeCab トークナイズを実行し `tokens` を生成。【F:audio_tts_v2/tts/orchestrator.py†L137-L205】
 - Bテキスト初期生成: SRT ブロックごとに MeCab のドラフト読み (`generate_draft_readings`) を付与し `b_text` を保持。【F:audio_tts_v2/tts/orchestrator.py†L205-L273】
 - Twin-Engine 監査: VOICEVOX `/audio_query` 由来の `voicevox_kana` と MeCab 読みを比較し、一致しないブロックへ `audit_needed` を設定。【F:audio_tts_v2/tts/orchestrator.py†L273-L332】
-- 監査プロンプト枠: `tts/auditor.py` が LLM 判定用の枠を持ち、今後ルビ/差分比較に拡張予定。【F:audio_tts_v2/tts/auditor.py†L1-L115】
+- 監査プロンプト枠: `tts/auditor.py` は hazard/辞書/トリビアル差分ゲート後の語彙をまとめて `tts_reading` にバッチ送信し、学習結果をチャンネル辞書に即反映する。【F:audio_tts_v2/tts/auditor.py†L8-L219】
 - VOICEVOX 合成: `tts/synthesis.py::voicevox_synthesis(_chunks)` が `/audio_query`→`/synthesis` を実行し `accent_phrases` を保持可能。`apply_kana_patches` で moras を上書きでき、`voicevox_synthesis` は `patches`、`voicevox_synthesis_chunks` は `patches_by_block` を受け取って `/synthesis` に渡す。【F:audio_tts_v2/tts/synthesis.py】
 - データクラス: `tts/reading_structs.py` にルビ・リスク・カナパッチの共通型（`RubyToken`, `RiskySpan`, `KanaPatch` 等）と LLM 呼び出しスケルトンが定義済み。【F:audio_tts_v2/tts/reading_structs.py†L1-L86】
 - テスト: `audio_tts_v2/tests/test_apply_kana_patches.py` がパッチ適用の no-op/範囲内/範囲外/`correct_moras` 優先を検証。【F:audio_tts_v2/tests/test_apply_kana_patches.py†L1-L86】
 
 ## 3. 4レイヤー構成とコードマッピング
+### 3.0 レイヤー0: 語彙キャッシュ / チャンネル辞書
+- 追加: `audio_tts_v2/tts/reading_dict.py` を新設し、チャンネル単位の YAML 辞書をロード/マージする。`merge_channel_readings` で LLM 判定結果をキャッシュし、`arbiter.resolve_readings_strict` から `load_channel_reading_dict` を呼び出して WordDictionary に事前注入する。
+- ロードタイミング: `strict_orchestrator.run_strict_pipeline` → `resolve_readings_strict` 呼び出し時に `channel` 引数を渡し、Voicevox 前の辞書適用に利用。
+- 更新: LLM が返した `corrections` を `ReadingEntry` として YAML に書き戻す。アクセント情報は null 許容。
+
 ### 3.1 レイヤー1: LLM ルビ付け
 - 挿入位置: `run_tts_pipeline` のトークン生成直後。
 - 実装: `reading_structs.call_llm_for_ruby(tokens: list[RubyToken] | list[dict], lines: list[str]) -> RubyInfo` を実装し、`RubyInfo` を `srt_blocks` へ付与。`raw_llm_payload` に生レスポンスを保持。
@@ -44,7 +49,7 @@
 - `RubyToken`: `surface, reading_hira, reading_kana_candidates?, token_index, line_id, char_range`。【F:audio_tts_v2/tts/reading_structs.py†L13-L22】
 - `RubyLine`: `line_id, text, tokens`。【F:audio_tts_v2/tts/reading_structs.py†L25-L28】
 - `RubyInfo`: `lines, raw_llm_payload?`。【F:audio_tts_v2/tts/reading_structs.py†L31-L34】
-- `RiskySpan`: `line_id, token_index, risk_score, reason`（必要に応じ mora_range 拡張）。【F:audio_tts_v2/tts/reading_structs.py†L36-L40】
+- `RiskySpan`: `line_id, token_index, risk_score, reason, surface, mora_range?`。hazard・差分理由を保持し語彙バッチ判定に渡す。【F:audio_tts_v2/tts/reading_structs.py†L36-L43】
 - `KanaPatch`: `block_id, token_index, mora_range, correct_kana, correct_moras?`。`correct_moras` があれば優先。【F:audio_tts_v2/tts/reading_structs.py†L43-L62】
 - LLM 呼び出し: `call_llm_for_ruby(lines: list[RubyLine]) -> RubyInfo`（チャンク入力 + payload 保存）。【F:audio_tts_v2/tts/reading_structs.py†L43-L55】
 - アラインメント: `align_moras_with_tokens(accent_phrases, tokens) -> list[Tuple[RubyToken, List[str]]]`（差分評価前段）。【F:audio_tts_v2/tts/reading_structs.py†L58-L64】
@@ -57,17 +62,21 @@
 - TODO: multi-character モーラの安全適用（`correct_moras` 必須化）と `/synthesis` 直前のパッチ適用位置の配線（完了）。
 
 ## 6. ログ / hazard 辞書 / アクセント付きカナ再利用
-- ログ: `logs/tts_voicevox_reading.jsonl` を新設し、`{timestamp, channel, video, block_id, surface, llm_ruby, vv_moras, mecab_reading, decision, hazard_score}` を追記。LLM 評価 payload は `raw_llm_payload` として保持。
+- ログ: `logs/tts_voicevox_reading.jsonl` を新設し、`{timestamp, channel, video, block_id, surface, llm_ruby, vv_moras, mecab_reading, decision, hazard_score}` を追記。LLM 評価 payload は `raw_llm_payload` として保持。実行プロファイルでは `audit_blocks_marked`（Twin-Engineで監査候補になったブロック数）と `risky_terms`（語彙バッチに実際に送った語数）、`tts_reading_calls`（実リクエスト回数）を JSONL に蓄積し、History 集計の根拠とする。
 - hazard 辞書: `data/hazard_readings.yaml` をキャッシュ用途で管理し、`term, score, notes, last_seen` を保持。ログから週次集計で更新し、レイヤー1/3の優先度付けに利用。
 - アクセント付きカナ学習: `/audio_query` の `accent_phrases[].moras` と LLM ルビを JSONL に蓄積し、将来の「漢字仮名交じり→アクセント付きカナ」モデルの教師データとする。文脈（前後文）とアクセント句境界/ピッチをそのまま保存。
+- プロファイル計測: `tts/orchestrator.py::run_tts_pipeline` にレイヤー別タイマーを追加し、`TTS_PROFILE channel=...` ログと JSONL (`tts_voicevox_reading.jsonl`) に `{layer_times, tts_reading_calls, risky_terms}` を記録する。
 
 ## 7. TODO / 実装ステータス（唯一の進行管理表）
 - [x] `call_llm_for_ruby` 実装（チャンク入力 + RubyInfo 出力 + payload 保存）。
-- [ ] レイヤー2候補抽出: MeCab 複数読み/未知語 + hazard 辞書を組み合わせ `RiskySpan` を生成。
+- [x] レイヤー2候補抽出: MeCab 複数読み/未知語 + hazard 辞書を組み合わせ `RiskySpan` を生成し、auditor で `collect_risky_candidates` によるゲートを有効化。
 - [x] `/audio_query` 差分: `align_moras_with_tokens` + `evaluate_reading_diffs` を暫定実装し、代表例（怒り方/方が/辛い）でモーラ差分検証。
 - [x] `apply_kana_patches` の multi-mora 安全化 + `/synthesis` 直前配線（ブロック別パッチを受け取る引数追加）。
 - [x] ログ・hazard 辞書の JSONL/YAML ひな形配置と集計スクリプト追加（`scripts/`）。
 - [x] HISTORY への進捗追記（`ssot_old` ではなく本 SSOT と `logs/`/`data/` を正とする）。
+- [x] レイヤー0導入: チャンネル辞書 (YAML) のロードと LLM 判定結果の書き戻し。`reading_dict.py` 追加。
+- [x] 計測追加: `run_tts_pipeline` にレイヤー別タイミングログと JSONL 追記、リスク件数/LLM 呼び出し回数の計測スケルトンを整備。
+- [x] レイヤー3語彙バッチ化: `audit_blocks` で hazard/辞書/トリビアル通過語彙のみを抽出し、最大40語ずつ `tts_reading` にバッチ送信。返却読みはチャンネル辞書と学習辞書へ即書き戻し、`tts_reading_calls` に実リクエスト数を記録。
 
 ## 8. 運用メモ
 - 本書が唯一の更新ソース。旧 `ssot_old/` 配下やルート stub には追記しない。
@@ -78,6 +87,9 @@
 - 2025-12-10 (Codex): `synthesis.py` に `apply_kana_patches` を統合し、`voicevox_synthesis` へのパッチ適用ロジックを実装。`consonant` リセット処理を追加し、テスト (`audio_tts_v2/tests/test_apply_kana_patches.py`) を更新してパスさせた。
 - 2025-12-10 (Codex): `apply_kana_patches` 実装およびテスト (`audio_tts_v2/tests/test_apply_kana_patches.py`) 追加。`strict_synthesizer.py` への配線完了。Layer 4 実装完了。
 - 2025-12-10 (Codex): `mecab_tokenizer.py` の辞書スキャン深度修正、`arbiter.py` への「怒り」誤読防止ルール追加。
+- 2025-12-11 (Codex): チャンネル辞書 (`reading_dict.py`) を追加し、Arbiter で LLM 裁定結果を YAML にキャッシュする経路を実装。`run_tts_pipeline` にレイヤー別プロファイルログを出力する計測を追加し、辞書/ハザードのユーティリティ (`risk_utils.py`) とユニットテストを拡充。
+- 2025-12-11 (Codex): auditor 経路にレイヤー2ゲートを配線。hazard 辞書/チャンネル辞書/トリビアル差分フィルタを通過したブロックだけを LLM (`tts_reading`) に送り、実際の LLM 呼び出し回数を JSONL に反映できるよう orchestration を更新。
+- 2025-12-11 (Codex): レイヤー3を語彙単位バッチ監査に刷新。`RiskySpan.surface` を追加し、ブロック内の危険語彙をまとめて LLM adjudicator に送り、得られた読みを全ブロックへ一括適用。新規テストで語彙グルーピングと上限サンプリングを確認。プロファイルログの `risky_terms` を「実際に LLM へ送った語数」に変更し、`audit_blocks_marked` と分離して履歴の妥当性を担保。
 
 ---
-- 最終更新: 2025-12-10 / 担当: Codex
+- 最終更新: 2025-12-11 / 担当: Codex
