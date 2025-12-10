@@ -8,8 +8,14 @@ from collections import deque
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import json
-from typing import List, Dict
+from typing import Dict, List
 from functools import lru_cache
+
+from factory_common.image_client import (
+    ImageClient,
+    ImageGenerationError,
+    ImageTaskOptions,
+)
 
 try:
     from commentary_02_srt2images_timeline.src.core.config import config
@@ -35,6 +41,8 @@ class QuotaExhaustedError(Exception):
 _CONSECUTIVE_429_COUNT = 0
 _MAX_CONSECUTIVE_429 = 3  # 3回連続で諦める
 _SUCCESSFUL_IMAGE_COUNT = 0  # 成功した画像数
+
+USE_LEGACY_IMAGE_ROUTER = os.getenv("USE_LEGACY_IMAGE_ROUTER") == "1"
 
 def _reset_429_counter():
     """429カウンターをリセット（成功時に呼ぶ）"""
@@ -346,111 +354,154 @@ def _run_mcp(prompt: str, output_path: str, width: int, height: int) -> bool:
 
 
 def _run_direct(prompt: str, output_path: str, width: int, height: int, config_path: str | None, timeout_sec: int, input_images: list[str] | None = None) -> bool:
-    # Use LLMRouter instead of direct google.genai
-    try:
-        from factory_common.llm_router import get_router
-    except ImportError as e:
-        logging.error(f"LLMRouter not available: {e}")
-        return False
+    image_client: ImageClient | None = None
+    router = None
 
-    router = get_router()
+    if not USE_LEGACY_IMAGE_ROUTER:
+        try:
+            image_client = ImageClient()
+        except Exception as exc:
+            logging.error("ImageClient initialization failed: %s", exc)
+
+    if image_client is None:
+        from factory_common.llm_router import get_router
+
+        router = get_router()
     
     # Retry configuration (削減: 5→3)
     max_retries = 3
     
-    # Prepare content for LLMRouter
     messages = [
         {"role": "user", "content": prompt}
     ]
 
+    aspect_ratio = f"{width}:{height}" if width and height else None
+
     for attempt in range(max_retries + 1):
         try:
-            # Use LLMRouter to call the image generation task
-            # The task name 'visual_image_gen' is defined in the LLM router configuration
+            if image_client is not None:
+                options = ImageTaskOptions(
+                    task="visual_image_gen",
+                    prompt=prompt,
+                    aspect_ratio=aspect_ratio,
+                    n=1,
+                )
+                result = image_client.generate(options)
+                image_data = result.images[0] if result.images else None
+
+                if not image_data:
+                    raise ImageGenerationError("No image bytes returned from ImageClient")
+
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                with open(output_path, 'wb') as f:
+                    f.write(image_data)
+
+                run_dir_name = Path(output_path).parent.parent.name
+                logging.info(
+                    f"[{run_dir_name}][image_gen][OK] engine={result.model} output={output_path}"
+                )
+                _increment_success_counter()
+                return True
+
+        except ImageGenerationError as exc:
+            logging.warning(
+                "ImageClient generation failed (Attempt %d/%d): %s",
+                attempt + 1,
+                max_retries,
+                exc,
+            )
+            if USE_LEGACY_IMAGE_ROUTER and router is None:
+                from factory_common.llm_router import get_router
+
+                router = get_router()
+            if router is None:
+                continue
+            image_client = None
+        except Exception as exc:
+            logging.error("Unexpected error from ImageClient: %s", exc)
+            if USE_LEGACY_IMAGE_ROUTER and router is None:
+                from factory_common.llm_router import get_router
+
+                router = get_router()
+            image_client = None
+
+        if router is None:
+            continue
+
+        try:
             response = router.call(
                 task="visual_image_gen",
                 messages=messages,
                 temperature=0.2,
-                image_generation=True
+                image_generation=True,
             )
-            
-            # The response should be a Gemini response object, we need to extract the image data
-            # This is assuming the LLMRouter's _invoke_image_gen method returns a proper response
+
             image_data = None
-            # Check if response is a Gemini response object with candidates
             if hasattr(response, 'candidates') and response.candidates:
                 for candidate in response.candidates:
                     content = getattr(candidate, 'content', None)
                     if content and hasattr(content, 'parts'):
                         for part in content.parts:
-                            # Check if part has inline_data (image bytes)
                             if hasattr(part, 'inline_data') and part.inline_data:
-                                # Extract the image bytes
                                 data = getattr(part.inline_data, 'data', None)
                                 if data:
-                                    try:
-                                        import base64
-                                        # If data is base64 encoded string, decode it
-                                        if isinstance(data, str):
-                                            image_data = base64.b64decode(data)
-                                        elif isinstance(data, (bytes, bytearray)):
-                                            # If already bytes, use it directly
-                                            image_data = bytes(data)
-                                        else:
-                                            logging.warning(f"Unexpected data type for image: {type(data)}")
-                                            continue
-                                    except Exception as e:
-                                        logging.error(f"Error decoding image data: {e}")
-                                        continue
-                                    
+                                    import base64
+
+                                    if isinstance(data, str):
+                                        image_data = base64.b64decode(data)
+                                    elif isinstance(data, (bytes, bytearray)):
+                                        image_data = bytes(data)
+                                    else:
+                                        logging.warning(
+                                            "Unexpected data type for image: %s", type(data)
+                                        )
+
                                 if image_data:
                                     break
                     if image_data:
                         break
-            
-            # If no image data was extracted, try to handle text response
+
             if not image_data:
-                # If we got a text response instead of image, log it and return False
                 text_content = getattr(response, 'text', '') or getattr(response, '__str__', lambda: 'No content')()
-                logging.warning(f"No image data in Gemini response, got text: {text_content[:500] if text_content else 'No text content'}")
+                logging.warning(
+                    "No image data in Gemini response, got text: %s",
+                    text_content[:500] if text_content else 'No text content',
+                )
                 return False
 
-            # Write the image data to file
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'wb') as f:
                 f.write(image_data)
-            
-            # Log success
-            run_dir_name = Path(output_path).parent.parent.name  # Get run_dir name for logging
+
+            run_dir_name = Path(output_path).parent.parent.name
             logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image output={output_path}")
-            _increment_success_counter()  # 成功カウンターをインクリメント
+            _increment_success_counter()
             return True
 
         except Exception as e:
             error_msg = str(e)
             is_rate_limit = "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg or "quota" in error_msg.lower()
             is_server_error = "500" in error_msg or "INTERNAL" in error_msg or "503" in error_msg
-            
-            # 429の場合は連続カウンターをチェック（QuotaExhaustedErrorが投げられる可能性）
+
             if is_rate_limit:
                 try:
                     _increment_429_counter()
                 except QuotaExhaustedError:
-                    # 上位に伝播させる
                     raise
-            
+
             if attempt < max_retries and (is_rate_limit or is_server_error):
-                # 429の場合は長めのバックオフ（60秒〜）
                 if is_rate_limit:
-                    wait_time = min(120, 60 * (attempt + 1))  # 60, 120, 120
+                    wait_time = min(120, 60 * (attempt + 1))
                 else:
-                    wait_time = min(30, 5 * (2 ** attempt))  # 5, 10, 20, 30
-                    wait_time += 2  # Add a bit more for server errors
-                
-                logging.warning(f"Gemini API Error (Attempt {attempt+1}/{max_retries}): {error_msg[:100]}... Retrying in {wait_time}s")
+                    wait_time = min(30, 5 * (2 ** attempt))
+                    wait_time += 2
+
+                logging.warning(
+                    f"Gemini API Error (Attempt {attempt+1}/{max_retries}): {error_msg[:100]}... Retrying in {wait_time}s"
+                )
                 time.sleep(wait_time)
             else:
-                run_dir_name = Path(output_path).parent.parent.name  # Get run_dir name for logging
+                run_dir_name = Path(output_path).parent.parent.name
                 logging.error(f"[{run_dir_name}][image_gen][ERROR] reason='gemini api failure' detail='{error_msg}'")
                 return False
 
