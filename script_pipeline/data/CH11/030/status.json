@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-030",
-  "channel": "CH01",
+  "script_id": "CH11-030",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 31,
     "sheet_title": "【人生の迷子になったら】進むべき道がわからなくなった時に読む、ブッダからの手紙",
-    "assembled_path": "script_pipeline/data/CH01/030/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/030/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/030/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 4162,
+    "assembled_path": "script_pipeline/data/CH11/030/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/030/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/030/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6038,
     "title": "道に迷ったと感じるとき、地図は手元にないのに、時間だけが過ぎていきます。仕事を終えた後の空白、家族の役割が変わった後の静けさ、残りの人生をどう使うかという問い。立ち止まるのは悪いことではありません。ただ、立ち止まったまま凍るのは苦しい。今日は、進むべき道がわからなくなったときに、心を少し温めて前に出すための手紙を、仏教の視点も借りてお届けします。大きな決断を急がず、足元を照らす小さな光を手に入れるための話です。",
     "title_sanitized": "道に迷ったと感じるとき、地図は手元にないのに、時間だけが過ぎていきます。仕事を終えた後の空白、家族の役割が変わった後の静けさ、残りの人生をどう使うかという問い。立ち止まるのは悪いことではありません。ただ、立ち止まったまま凍るのは苦しい。今日は、進むべき道がわからなくなったときに、心を少し温めて前に出すための手紙を、仏教の視点も借りてお届けします。大きな決断を急がず、足元を照らす小さな光を手に入れるための話です。",
-    "youtube_description": "この動画では「【人生の迷子になったら】進むべき道がわからなくなった時に読む、ブッダからの手紙」を仏教の視点でやさしく解き明かします。\n道に迷ったと感じるとき、地図は手元にないのに、時間だけが過ぎていきます。仕事を終えた後の空白、家族の役割が変わった後の静けさ、残りの人生をどう使うかという問い。立ち止まるのは悪いことではありません。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【人生の迷子になったら】進むべき道がわからなくなった時に読む、ブッダからの手紙」を仏教の視点でやさしく解き明かします。\n道に迷ったと感じるとき、地図は手元にないのに、時間だけが過ぎていきます。仕事を終えた後の空白、家族の役割が変わった後の静けさ、残りの人生をどう使うかという問い。立ち止まるのは悪いことではありません。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6038
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "030"
 }

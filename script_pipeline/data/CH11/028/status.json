@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-028",
-  "channel": "CH01",
+  "script_id": "CH11-028",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 29,
     "sheet_title": "【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣",
-    "assembled_path": "script_pipeline/data/CH01/028/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/028/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/028/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5503,
+    "assembled_path": "script_pipeline/data/CH11/028/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/028/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/028/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6101,
     "title": "「あの人、なぜか感じがいい」。言葉にしにくい惹きつける雰囲気があります。顔立ちではなく、人相の温度が違う。人相は生まれつきだけで決まりません。日々の習慣と言葉が、顔に刻まれ、雰囲気を作ります。仏教は「顔は心の鏡」と教えます。今日は、人相を柔らかくし、自然に運を呼び込む習慣を、平易な言葉でお伝えします。美容グッズよりも効く、心の整え方です。",
     "title_sanitized": "「あの人、なぜか感じがいい」。言葉にしにくい惹きつける雰囲気があります。顔立ちではなく、人相の温度が違う。人相は生まれつきだけで決まりません。日々の習慣と言葉が、顔に刻まれ、雰囲気を作ります。仏教は「顔は心の鏡」と教えます。今日は、人相を柔らかくし、自然に運を呼び込む習慣を、平易な言葉でお伝えします。美容グッズよりも効く、心の整え方です。",
-    "youtube_description": "この動画では「【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣」を仏教の視点でやさしく解き明かします。\n「あの人、なぜか感じがいい」。言葉にしにくい惹きつける雰囲気があります。顔立ちではなく、人相の温度が違う。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣」を仏教の視点でやさしく解き明かします。\n「あの人、なぜか感じがいい」。言葉にしにくい惹きつける雰囲気があります。顔立ちではなく、人相の温度が違う。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6101
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "028"
 }

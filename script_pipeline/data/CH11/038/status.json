@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-038",
-  "channel": "CH01",
+  "script_id": "CH11-038",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 39,
     "sheet_title": "【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで、あなたの印象は劇的に変わる",
-    "assembled_path": "script_pipeline/data/CH01/038/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/038/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/038/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5997,
+    "assembled_path": "script_pipeline/data/CH11/038/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/038/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/038/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6355,
     "title": "# 【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで印象が劇的に変わる",
     "title_sanitized": "# 【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで印象が劇的に変わる",
-    "youtube_description": "この動画では「【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで、あなたの印象は劇的に変わる」を仏教の視点でやさしく解き明かします。\n# 【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで印象が劇的に変わる。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで、あなたの印象は劇的に変わる」を仏教の視点でやさしく解き明かします。\n# 【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで印象が劇的に変わる。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6355
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "038"
 }

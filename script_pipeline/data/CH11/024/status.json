@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-024",
-  "channel": "CH01",
+  "script_id": "CH11-024",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 25,
     "sheet_title": "【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段",
-    "assembled_path": "script_pipeline/data/CH01/024/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/024/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/024/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5843,
+    "assembled_path": "script_pipeline/data/CH11/024/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/024/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/024/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6199,
     "title": "「あの人だけは絶対に許せない」と心が固まると、自分の時間も固まり、眠りまで奪われます。相手は笑っているのに、自分だけが燃え続ける。憎しみは相手を罰するつもりで、自分を焦がす火です。今日は、その火を静かに消し、自分の心を守るための手立てを、仏教の知恵とともに考えます。許さないままでもいい。まず、燃え広がる火から自分を避難させることが目的です。",
     "title_sanitized": "「あの人だけは絶対に許せない」と心が固まると、自分の時間も固まり、眠りまで奪われます。相手は笑っているのに、自分だけが燃え続ける。憎しみは相手を罰するつもりで、自分を焦がす火です。今日は、その火を静かに消し、自分の心を守るための手立てを、仏教の知恵とともに考えます。許さないままでもいい。まず、燃え広がる火から自分を避難させることが目的です。",
-    "youtube_description": "この動画では「【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段」を仏教の視点でやさしく解き明かします。\n「あの人だけは絶対に許せない」と心が固まると、自分の時間も固まり、眠りまで奪われます。相手は笑っているのに、自分だけが燃え続ける。憎しみは相手を罰するつもりで、自分を焦がす火です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段」を仏教の視点でやさしく解き明かします。\n「あの人だけは絶対に許せない」と心が固まると、自分の時間も固まり、眠りまで奪われます。相手は笑っているのに、自分だけが燃え続ける。憎しみは相手を罰するつもりで、自分を焦がす火です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6199
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "024"
 }

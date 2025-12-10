@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-013",
-  "channel": "CH01",
+  "script_id": "CH11-013",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 14,
     "sheet_title": "【心が楽になる鈍感力】いちいち傷つかない人が実践している、ブッダの「受け流す」智慧",
-    "assembled_path": "script_pipeline/data/CH01/013/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/013/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/013/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 4923,
+    "assembled_path": "script_pipeline/data/CH11/013/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/013/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/013/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 10055,
     "title": "# 【鈍感力】いちいち傷つかず穏やかに生きるためのブッダの盾の作り方",
     "title_sanitized": "# 【鈍感力】いちいち傷つかず穏やかに生きるためのブッダの盾の作り方",
-    "youtube_description": "この動画では「【心が楽になる鈍感力】いちいち傷つかない人が実践している、ブッダの「受け流す」智慧」を仏教の視点でやさしく解き明かします。\n小さな一言で心がチクッとする。悪気のない指摘、雑な態度、SNSのとげとげしいコメント。いちいち反応していると、心はすぐ擦り切れます。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【心が楽になる鈍感力】いちいち傷つかない人が実践している、ブッダの「受け流す」智慧」を仏教の視点でやさしく解き明かします。\n小さな一言で心がチクッとする。悪気のない指摘、雑な態度、SNSのとげとげしいコメント。いちいち反応していると、心はすぐ擦り切れます。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 10055
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "013"
 }
