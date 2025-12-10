@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-022",
-  "channel": "CH01",
+  "script_id": "CH11-022",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 23,
     "sheet_title": "【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧",
-    "assembled_path": "script_pipeline/data/CH01/022/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/022/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/022/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5660,
+    "assembled_path": "script_pipeline/data/CH11/022/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/022/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/022/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6650,
     "title": "鏡に映るシワや白髪を見るたびに、ため息をついていませんか。若い頃はなかった線が一本増えるたびに「もう終わりだ」と思う人もいます。けれど、その線や色の変化は、あなたが歩いてきた道の証拠であり、誰にも真似できない勲章です。老いることを「劣化」ではなく「熟成」として眺められたら、毎日の景色が少し柔らかくなります。今日は、シワや白髪を美しく見るための視点を、仏教の智慧とともにお話しします。",
     "title_sanitized": "鏡に映るシワや白髪を見るたびに、ため息をついていませんか。若い頃はなかった線が一本増えるたびに「もう終わりだ」と思う人もいます。けれど、その線や色の変化は、あなたが歩いてきた道の証拠であり、誰にも真似できない勲章です。老いることを「劣化」ではなく「熟成」として眺められたら、毎日の景色が少し柔らかくなります。今日は、シワや白髪を美しく見るための視点を、仏教の智慧とともにお話しします。",
-    "youtube_description": "この動画では「【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧」を仏教の視点でやさしく解き明かします。\n鏡に映るシワや白髪を見るたびに、ため息をついていませんか。若い頃はなかった線が一本増えるたびに「もう終わりだ」と思う人もいます。けれど、その線や色の変化は、あなたが歩いてきた道の証拠であり、誰にも真似できない勲章です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧」を仏教の視点でやさしく解き明かします。\n鏡に映るシワや白髪を見るたびに、ため息をついていませんか。若い頃はなかった線が一本増えるたびに「もう終わりだ」と思う人もいます。けれど、その線や色の変化は、あなたが歩いてきた道の証拠であり、誰にも真似できない勲章です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6650
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "022"
 }

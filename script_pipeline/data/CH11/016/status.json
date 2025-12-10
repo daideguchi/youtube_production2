@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-016",
-  "channel": "CH01",
+  "script_id": "CH11-016",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 17,
     "sheet_title": "【病と共に生きる智慧】病気になって初めてわかる、本当の幸せとは｜ブッダの教え",
-    "assembled_path": "script_pipeline/data/CH01/016/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/016/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/016/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 2481,
+    "assembled_path": "script_pipeline/data/CH11/016/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/016/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/016/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 10004,
     "title": "病気になると、当たり前だと思っていたことが一気に揺らぎます。歩けること、食べられること、眠れること。できなくなった瞬間に、健康の価値の大きさに気づく。今日は、病と共に生きるときに心を軽くするブッダの智慧を、平易な言葉でお話しします。治すだけでなく、「どう生きるか」を考えるための小さなヒントです。",
     "title_sanitized": "病気になると、当たり前だと思っていたことが一気に揺らぎます。歩けること、食べられること、眠れること。できなくなった瞬間に、健康の価値の大きさに気づく。今日は、病と共に生きるときに心を軽くするブッダの智慧を、平易な言葉でお話しします。治すだけでなく、「どう生きるか」を考えるための小さなヒントです。",
-    "youtube_description": "この動画では「【病と共に生きる智慧】病気になって初めてわかる、本当の幸せとは｜ブッダの教え」を仏教の視点でやさしく解き明かします。\n病気になると、当たり前だと思っていたことが一気に揺らぎます。歩けること、食べられること、眠れること。できなくなった瞬間に、健康の価値の大きさに気づく。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【病と共に生きる智慧】病気になって初めてわかる、本当の幸せとは｜ブッダの教え」を仏教の視点でやさしく解き明かします。\n病気になると、当たり前だと思っていたことが一気に揺らぎます。歩けること、食べられること、眠れること。できなくなった瞬間に、健康の価値の大きさに気づく。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 10004
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "016"
 }

@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-027",
-  "channel": "CH01",
+  "script_id": "CH11-027",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 28,
     "sheet_title": "【究極の断捨離】人生の最後に本当に残すべきは、たった３つだけ｜ブッダのミニマリズム",
-    "assembled_path": "script_pipeline/data/CH01/027/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/027/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/027/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5609,
+    "assembled_path": "script_pipeline/data/CH11/027/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/027/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/027/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6036,
     "title": "家の中も、心の中も、気づけば「いつか使うかも」であふれます。終活という言葉を聞くと、何を残し、何を手放すか悩み始めます。全部を持っていける人はいません。では、最後まで本当に残すべきものは何でしょうか。仏教の視点で絞り込むと、意外にもたった三つに落ち着きます。今日は、人生の最後に持ち歩きたい三つの宝を見つけ、他を静かに手放すための道筋をお話しします。",
     "title_sanitized": "家の中も、心の中も、気づけば「いつか使うかも」であふれます。終活という言葉を聞くと、何を残し、何を手放すか悩み始めます。全部を持っていける人はいません。では、最後まで本当に残すべきものは何でしょうか。仏教の視点で絞り込むと、意外にもたった三つに落ち着きます。今日は、人生の最後に持ち歩きたい三つの宝を見つけ、他を静かに手放すための道筋をお話しします。",
-    "youtube_description": "この動画では「【究極の断捨離】人生の最後に本当に残すべきは、たった３つだけ｜ブッダのミニマリズム」を仏教の視点でやさしく解き明かします。\n家の中も、心の中も、気づけば「いつか使うかも」であふれます。終活という言葉を聞くと、何を残し、何を手放すか悩み始めます。全部を持っていける人はいません。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【究極の断捨離】人生の最後に本当に残すべきは、たった３つだけ｜ブッダのミニマリズム」を仏教の視点でやさしく解き明かします。\n家の中も、心の中も、気づけば「いつか使うかも」であふれます。終活という言葉を聞くと、何を残し、何を手放すか悩み始めます。全部を持っていける人はいません。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6036
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "027"
 }

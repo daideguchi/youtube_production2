@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-032",
-  "channel": "CH01",
+  "script_id": "CH11-032",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -54,14 +54,17 @@
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 33,
     "sheet_title": "【人間関係の悩みが消える】嫌な人から自分を守る、ブッダの「慈悲の距離」という考え方",
-    "assembled_path": "script_pipeline/data/CH01/032/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/032/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/032/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 5453,
+    "assembled_path": "script_pipeline/data/CH11/032/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/032/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/032/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 6028,
     "title": "嫌な人から距離を取りたいのに、罪悪感が勝ってしまう。断れば冷たい人と思われそうで、我慢を重ねて疲れ果てる。そんなときに役立つのが、仏教の「慈悲の距離」という考え方です。距離を取ることは冷たさではなく、優しさを長持ちさせるための工夫です。今日は、嫌な人から自分を守りつつ、心を荒らさない距離の作り方を、具体的な言葉や所作とともにお伝えします。",
     "title_sanitized": "嫌な人から距離を取りたいのに、罪悪感が勝ってしまう。断れば冷たい人と思われそうで、我慢を重ねて疲れ果てる。そんなときに役立つのが、仏教の「慈悲の距離」という考え方です。距離を取ることは冷たさではなく、優しさを長持ちさせるための工夫です。今日は、嫌な人から自分を守りつつ、心を荒らさない距離の作り方を、具体的な言葉や所作とともにお伝えします。",
-    "youtube_description": "この動画では「【人間関係の悩みが消える】嫌な人から自分を守る、ブッダの「慈悲の距離」という考え方」を仏教の視点でやさしく解き明かします。\n嫌な人から距離を取りたいのに、罪悪感が勝ってしまう。断れば冷たい人と思われそうで、我慢を重ねて疲れ果てる。そんなときに役立つのが、仏教の「慈悲の距離」という考え方です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【人間関係の悩みが消える】嫌な人から自分を守る、ブッダの「慈悲の距離」という考え方」を仏教の視点でやさしく解き明かします。\n嫌な人から距離を取りたいのに、罪悪感が勝ってしまう。断れば冷たい人と思われそうで、我慢を重ねて疲れ果てる。そんなときに役立つのが、仏教の「慈悲の距離」という考え方です。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
+    "output_characters": 6028
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "032"
 }

@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-003",
-  "channel": "CH01",
+  "script_id": "CH11-003",
+  "channel": "CH11",
   "status": "script_in_progress",
   "stages": {
     "script_outline": {
@@ -50,21 +50,22 @@
   "metadata": {
     "ready_for_audio": false,
     "audio": {},
-    "channel_code": "CH01",
-    "channel_display_name": "企画",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
     "sheet_flag": "",
     "sheet_progress_cell": "glm4_5_research: pending",
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 4,
     "sheet_title": "【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由",
-    "assembled_path": "script_pipeline/data/CH01/003/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/003/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/003/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 6096,
+    "assembled_path": "script_pipeline/data/CH11/003/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/003/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/003/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 5274,
     "title": "# 【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由",
     "title_sanitized": "# 【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由",
-    "youtube_description": "この動画では「【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由」を仏教の視点でやさしく解き明かします。\n# 【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由」を仏教の視点でやさしく解き明かします。\n# 【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "output_characters": 5274
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "003"
 }

@@ -1,6 +1,6 @@
 {
-  "script_id": "CH01-004",
-  "channel": "CH01",
+  "script_id": "CH11-004",
+  "channel": "CH11",
   "status": "script_validated",
   "stages": {
     "script_outline": {
@@ -343,21 +343,22 @@
   "metadata": {
     "ready_for_audio": false,
     "audio": {},
-    "channel_code": "CH01",
-    "channel_display_name": "仏教・科学_人生の道標",
+    "channel_code": "CH11",
+    "channel_display_name": "CH11",
     "sheet_flag": "3",
     "sheet_progress_cell": "script_enhancement: pending",
     "sheet_quality_cell": "未完了",
     "sheet_row_number": 5,
     "sheet_title": "【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末",
-    "assembled_path": "script_pipeline/data/CH01/004/content/assembled.md",
-    "tts_path": "script_pipeline/data/CH01/004/audio_prep/script_sanitized.txt",
-    "tts_tagged_path": "script_pipeline/data/CH01/004/audio_prep/script_sanitized_with_pauses.txt",
-    "assembled_characters": 7388,
+    "assembled_path": "script_pipeline/data/CH11/004/content/assembled.md",
+    "tts_path": "script_pipeline/data/CH11/004/audio_prep/script_sanitized.txt",
+    "tts_tagged_path": "script_pipeline/data/CH11/004/audio_prep/script_sanitized_with_pauses.txt",
+    "assembled_characters": 9857,
     "title": "# 【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末",
     "title_sanitized": "# 【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末",
-    "youtube_description": "この動画では「【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末」を仏教の視点でやさしく解き明かします。\n「昔は良かった」が口癖になると、周りの人は静かに離れていきます。思い出話は温かいはずなのに、口を開けば現代への不満ばかり。子や孫は目をそらし、友人は呼びにくくなる。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係"
+    "youtube_description": "この動画では「【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末」を仏教の視点でやさしく解き明かします。\n「昔は良かった」が口癖になると、周りの人は静かに離れていきます。思い出話は温かいはずなのに、口を開けば現代への不満ばかり。子や孫は目をそらし、友人は呼びにくくなる。\n🧭 今日からできる一歩：一呼吸おいて距離をとる / 優しさと境界線を両立する\n#仏教 #心を整える #人間関係",
+    "output_characters": 9857
   },
-  "channel_code": "CH01",
+  "channel_code": "CH11",
   "video_number": "004"
 }
