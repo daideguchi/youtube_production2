@@ -36,10 +36,10 @@
       "details": {}
     },
     "audio_synthesis": {
-      "status": "pending"
+      "status": "completed"
     },
     "srt_generation": {
-      "status": "pending"
+      "status": "completed"
     }
   },
   "created_at": "2025-12-04T07:38:59Z",
@@ -51,7 +51,7 @@
     "chapter_characters": 0,
     "assembled_characters": 0,
     "output_characters": 0,
-    "ready_for_audio": false,
+    "ready_for_audio": true,
     "audio": {},
     "channel_code": "CH08",
     "channel_display_name": "CH08",
@@ -61,7 +61,7 @@
     "sheet_row_number": null,
     "sheet_title": "【月光読書】一行日記で不安を紙におろす",
     "chapter_count": 0,
-    "ready_for_audio_at": null,
+    "ready_for_audio_at": "2025-12-11T00:45:31.742284",
     "assembled_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/content/assembled.md",
     "tts_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/audio_prep/script_sanitized.txt",
     "tts_tagged_path": "/Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline/data/CH08/002/audio_prep/script_sanitized_with_pauses.txt",

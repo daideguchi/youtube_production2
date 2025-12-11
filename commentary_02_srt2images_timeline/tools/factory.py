@@ -189,33 +189,6 @@ def main():
             logger.error(f"❌ No valid run directory found for {video_id} with image_cues.json. Run with 'new' first.")
             sys.exit(1)
 
-    elif args.intent == "draft":
-        logger.info(f"⏩ Draft regeneration for {video_id}: Looking for latest run_dir...")
-
-        # Find the latest run directory with image_cues.json
-        latest_run_dir = find_latest_run_dir(video_id, output_dir)
-        if latest_run_dir:
-            logger.info(f"📁 Using run_dir: {latest_run_dir.name}")
-
-            # Run auto_capcut_run with the specific run directory
-            base_cmd = [
-                sys.executable,
-                str(tool_path),
-                "--channel", args.channel,
-                "--srt", str(srt_path),
-                "--run-name", latest_run_dir.name,  # Explicitly specify the run to use
-                "--img-concurrency", str(args.concurrency),
-                "--suppress-warnings"
-            ]
-
-            if args.debug:
-                base_cmd.append("--dry-run")
-
-            run_command(base_cmd)
-        else:
-            logger.error(f"❌ No valid run directory found for {video_id} with image_cues.json. Run with 'new' first.")
-            sys.exit(1)
-
     elif args.intent == "check":
         logger.info(f"🔍 CHECK Mode for {video_id} (validation only)...")
 
