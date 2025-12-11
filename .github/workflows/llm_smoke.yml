@@ -31,7 +31,12 @@ jobs:
       - name: Lint templates vs presets
         run: |
           set -e
-          python scripts/lint_check_templates.py
+          python commentary_02_srt2images_timeline/scripts/lint_check_templates.py
+
+      - name: Lint model configs
+        run: |
+          set -e
+          python commentary_02_srt2images_timeline/scripts/lint_check_models.py
 
       - name: Run LLM phase smoke (skip if keys missing)
         env:
