@@ -5,9 +5,10 @@ import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 import google.genai as genai
+from google.genai import types as genai_types
 import yaml
 
 
@@ -45,12 +46,18 @@ class ImageClient:
     by extending `_get_adapter`.
     """
 
-    def __init__(self, config_path: str | Path | None = None):
+    def __init__(
+        self,
+        config_path: str | Path | None = None,
+        config_data: Dict[str, Any] | None = None,
+        adapter_overrides: Dict[str, Any] | None = None,
+    ):
         self.config_path = Path(
             config_path
             or Path(__file__).resolve().parents[1] / "configs" / "image_models.yaml"
         )
-        self._config = self._load_config()
+        self._adapter_overrides = adapter_overrides or {}
+        self._config = config_data or self._load_config()
 
     def generate(self, options: ImageTaskOptions) -> ImageResult:
         task_conf = self._config.get("tasks", {}).get(options.task)
@@ -67,16 +74,27 @@ class ImageClient:
         if not candidates:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
-        model_key = candidates[0]
-        model_conf = self._config.get("models", {}).get(model_key)
-        if not model_conf:
-            raise ImageGenerationError(f"Model '{model_key}' not found in configuration")
+        errors: List[Tuple[str, Exception]] = []
+        for model_key in candidates:
+            model_conf = self._config.get("models", {}).get(model_key)
+            if not model_conf:
+                errors.append((model_key, ImageGenerationError(f"Model '{model_key}' not found")))
+                continue
 
-        capabilities = model_conf.get("capabilities", {})
-        resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
-        adapter = self._get_adapter(model_conf)
+            capabilities = model_conf.get("capabilities", {})
+            resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
+            try:
+                adapter = self._get_adapter(model_key, model_conf)
+                return adapter.generate(model_conf, resolved)
+            except Exception as exc:  # noqa: BLE001
+                errors.append((model_key, exc))
+                logging.warning("ImageClient: %s failed for %s (%s)", model_key, options.task, exc)
+                continue
 
-        return adapter.generate(model_conf, resolved)
+        raise ImageGenerationError(
+            f"All image models failed for task '{options.task}': "
+            + "; ".join([f"{k}: {e}" for k, e in errors])
+        )
 
     def _load_config(self) -> Dict[str, Any]:
         if not self.config_path.exists():
@@ -94,6 +112,8 @@ class ImageClient:
     ) -> ImageTaskOptions:
         merged: Dict[str, Any] = {**defaults}
 
+        dropped: Dict[str, Any] = {}
+
         for field_name in [
             "aspect_ratio",
             "size",
@@ -108,16 +128,23 @@ class ImageClient:
         merged["n"] = max(1, int(merged.get("n", 1)))
 
         if not capabilities.get("supports_aspect_ratio", True):
-            merged.pop("aspect_ratio", None)
+            if "aspect_ratio" in merged:
+                dropped["aspect_ratio"] = merged.pop("aspect_ratio")
 
         if not capabilities.get("supports_size", True):
-            merged.pop("size", None)
+            if "size" in merged:
+                dropped["size"] = merged.pop("size")
 
         if not capabilities.get("supports_negative_prompt", True):
-            merged.pop("negative_prompt", None)
+            if "negative_prompt" in merged:
+                dropped["negative_prompt"] = merged.pop("negative_prompt")
 
         if not capabilities.get("supports_seed", True):
-            merged.pop("seed", None)
+            if "seed" in merged:
+                dropped["seed"] = merged.pop("seed")
+
+        if dropped:
+            logging.debug("ImageClient: dropped unsupported params for model (%s)", dropped)
 
         return ImageTaskOptions(
             task=options.task,
@@ -130,7 +157,9 @@ class ImageClient:
             extra=options.extra,
         )
 
-    def _get_adapter(self, model_conf: Dict[str, Any]):
+    def _get_adapter(self, model_key: str, model_conf: Dict[str, Any]):
+        if model_key in self._adapter_overrides:
+            return self._adapter_overrides[model_key]
         provider = model_conf.get("provider")
         if provider == "gemini":
             return GeminiImageAdapter(self._config.get("providers", {}))
@@ -142,14 +171,48 @@ class GeminiImageAdapter:
     def __init__(self, provider_conf: Dict[str, Any]):
         self.provider_conf = provider_conf.get("gemini", {})
         api_key_env = self.provider_conf.get("env_api_key", "")
-        api_key = os.getenv(api_key_env)
+        api_key = self._resolve_api_key(api_key_env)
 
         if not api_key:
             raise ImageGenerationError(
                 f"Gemini API key not found. Please set environment variable '{api_key_env}'."
             )
 
-        genai.configure(api_key=api_key)
+        self.client = genai.Client(api_key=api_key)
+
+    @staticmethod
+    def _resolve_api_key(env_name: str) -> Optional[str]:
+        """
+        Attempt to resolve API key from environment; if missing, load common .env locations.
+        This reduces friction when shells do not preload .env.
+        """
+        if not env_name:
+            return None
+
+        key = os.getenv(env_name)
+        if key:
+            return key
+
+        candidates = [
+            Path(__file__).resolve().parents[1] / ".env",              # project root (/factory_commentary/.env)
+            Path(__file__).resolve().parents[2] / ".env",              # parent root fallback
+            Path.home() / ".env",                                     # user home
+        ]
+        for env_path in candidates:
+            if not env_path.exists():
+                continue
+            try:
+                for line in env_path.read_text(encoding="utf-8").splitlines():
+                    if line.strip().startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    if k.strip() == env_name:
+                        val = v.strip().strip("\"'")
+                        os.environ.setdefault(env_name, val)
+                        return val
+            except Exception:
+                continue
+        return os.getenv(env_name)
 
     def generate(
         self, model_conf: Dict[str, Any], options: ImageTaskOptions
@@ -158,32 +221,29 @@ class GeminiImageAdapter:
         if not model_name:
             raise ImageGenerationError("Gemini model name is missing from configuration")
 
-        model = genai.GenerativeModel(model_name)
         images: List[bytes] = []
         metadata: Dict[str, Any] = {
             "aspect_ratio": options.aspect_ratio,
-            "size": options.size,
+            "image_size": options.size,
             "seed": options.seed,
             "negative_prompt": options.negative_prompt,
+            "n": options.n,
         }
-
-        generation_config: Dict[str, Any] = {}
-        if options.aspect_ratio:
-            generation_config["aspect_ratio"] = options.aspect_ratio
-        if options.size:
-            generation_config["size"] = options.size
-        if options.seed is not None:
-            generation_config["seed"] = options.seed
-        if options.negative_prompt:
-            generation_config["negative_prompt"] = options.negative_prompt
-
-        request_id: str | None = None
-        for _ in range(options.n):
-            response = model.generate_content(
-                options.prompt, generation_config=generation_config or None
+        # NOTE: Gemini 2.5 image API (2025-12) returns image bytes via generate_content.
+        # - generate_images is not available for model=gemini-2.5-flash-image (404 on this SDK).
+        # - response_modalities / aspect_ratio / image_size parameters cause server errors, so
+        #   we keep the minimal call and extract inline_data parts.
+        try:
+            response = self.client.models.generate_content(
+                model=model_name,
+                contents=[options.prompt],
+                # API は aspect_ratio/size を受け付けないため送らない
             )
-            request_id = getattr(response, "request_id", request_id)
-            images.extend(self._extract_images(response))
+        except Exception as e:  # pragma: no cover
+            raise ImageGenerationError(str(e)) from e
+
+        request_id: str | None = getattr(response, "response_id", None)
+        images.extend(self._extract_images(response))
 
         if not images:
             raise ImageGenerationError("Gemini response did not return any image data")
@@ -200,8 +260,8 @@ class GeminiImageAdapter:
     def _extract_images(response: Any) -> List[bytes]:
         extracted: List[bytes] = []
         candidates = getattr(response, "candidates", []) or []
-        for candidate in candidates:
-            content = getattr(candidate, "content", None)
+        for cand in candidates:
+            content = getattr(cand, "content", None)
             parts = getattr(content, "parts", []) if content else []
             for part in parts:
                 inline = getattr(part, "inline_data", None)
@@ -216,4 +276,3 @@ class GeminiImageAdapter:
                     logging.warning("Unexpected image payload type from Gemini: %s", type(data))
 
         return extracted
-
