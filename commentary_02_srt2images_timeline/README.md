@@ -6,21 +6,21 @@
 Do not run `auto_capcut_run.py` or `run_pipeline.py` directly unless you are debugging.
 
 ### 1. New Production (Images -> Belt -> Draft)
-Standard flow. Generates images, belt config, and CapCut draft.
+標準フロー。Gemini 2.5 Flash Image を使い、CapCutドラフトまで生成。
 ```bash
-python3 tools/factory.py CH01 input/CH01/script.srt
+python3 tools/factory.py CH01 input/CH01/script.srt --nanobanana direct
 ```
 
 ### 2. Resume / Re-Draft (Skip Image Gen)
-If images are already generated and you just want to rebuild the draft or belt config.
+画像を再生成せず、最新 run_dir からドラフト/ベルトを再構築。
 ```bash
 python3 tools/factory.py CH01 input/CH01/script.srt draft
 ```
 
-### 3. Force Regeneration (Fix Images)
-Forces regeneration of all images and rebuilds the draft.
+### 3. Validation Only (No Images)
+画像生成なしでセクション/Belt/タイトルのみチェック。
 ```bash
-python3 tools/factory.py CH01 input/CH01/script.srt fix
+python3 tools/factory.py CH01 input/CH01/script.srt check --nanobanana none
 ```
 
 ---
@@ -29,8 +29,14 @@ python3 tools/factory.py CH01 input/CH01/script.srt fix
 
 - **Entry Point**: `tools/factory.py`
   - Wraps `tools/auto_capcut_run.py` with simplified intents.
+  - Image generation path is single: `nanobanana=direct` (ImageClient + Gemini 2.5 flash image). Use `--nanobanana none` to skip images.
+  - Optional safety: `--abort-on-log "Unknown field,quota,RESOURCE_EXHAUSTED"` でログ検知中断が可能（タイムアウト無しで待つ場合の保険）。
+  - Timeout: デフォルトは無制限。必要な場合のみ `--timeout-ms` を指定。
 - **Channel Config**: `config/channel_presets.json`
   - Defines templates, layout, image generation density, and styles per channel.
+- **Template Registry (SSOT)**: `config/template_registry.json`
+  - 全テンプレートの単一ソース。UI/プリセット/ツールはここに列挙されたものだけを使う。
+  - 追加したら `scripts/lint_check_templates.py` を実行し、channel_presets の prompt_template が登録済みか検証する。
 - **System Config**: `src/core/config.py`
   - Manages API Keys and environment variables.
 - **Image Logic**: `src/srt2images/`

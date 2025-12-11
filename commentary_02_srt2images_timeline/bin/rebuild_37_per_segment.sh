@@ -3,7 +3,7 @@ set -euo pipefail
 
 SRT="/Users/dd/srt2images-timeline/シニア恋愛37未.srt"
 OUT_DIR="output/シニア恋愛37"
-PROMPT_TEMPLATE="templates/senior_romance_jp_consistent.txt"
+PROMPT_TEMPLATE="templates/senior_romance_jp_consistent.txt" # registry: active manual
 DRAFT_ROOT="$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft"
 TEMPLATE_NAME="036_シニア恋愛36_文字なし_日本シニア_やさしい_人物統一_16x9_20250911_154352"
 NEW_DRAFT_NAME="037_シニア恋愛37_PERSEG_文字なし_日本シニア_やさしい_人物統一_16x9_$(date +%Y%m%d_%H%M%S)"
@@ -34,4 +34,3 @@ python3 tools/capcut_bulk_insert.py \
   --tx 0 --ty 0 --scale 1 2>&1 | tee -a "$RUN_LOG"
 
 echo "[ok] $(date) draft ready: $DRAFT_ROOT/$NEW_DRAFT_NAME" | tee -a "$RUN_LOG"
-

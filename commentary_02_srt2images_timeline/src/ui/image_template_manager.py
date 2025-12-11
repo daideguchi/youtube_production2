@@ -5,11 +5,16 @@ Image Template Manager
 """
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, asdict
 import logging
 from datetime import datetime
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(PROJECT_ROOT / "src"))
+from config.template_registry import get_active_templates, resolve_template_path  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +50,7 @@ class ImageTemplateManager:
             templates_dir: テンプレートファイルディレクトリ
             config_file: テンプレート設定ファイル
         """
-        self.base_dir = Path("/Users/dd/srt2images-timeline")
+        self.base_dir = PROJECT_ROOT
         self.templates_dir = Path(templates_dir or self.base_dir / "templates")
         self.config_file = Path(config_file or self.base_dir / "ui" / "image_templates_config.json")
         
@@ -58,48 +63,22 @@ class ImageTemplateManager:
     
     def _get_predefined_templates(self) -> Dict[str, ImageTemplate]:
         """プリセットテンプレート定義"""
-        return {
-            "japanese_visual": ImageTemplate(
-                name="日本語ビジュアル",
-                description="日本人向けの温かみのあるビジュアル",
-                category="恋愛・ライフスタイル",
-                style="heartwarming senior love story, Japanese aesthetic",
-                file="templates/japanese_visual.txt",
-                preview_keywords=["温かい", "日本風", "優しい"],
-                author="system",
-                version="1.0"
-            ),
-            "jp_fantasy_clear": ImageTemplate(
-                name="ファンタジー清楚",
-                description="ファンタジー要素を含む清楚なスタイル",
-                category="ファンタジー",
-                style="fantasy, elegant, clean, Japanese aesthetic",
-                file="templates/jp_fantasy_clear.txt",
-                preview_keywords=["ファンタジー", "上品", "清楚"],
-                author="system",
-                version="1.0"
-            ),
-            "jinsei_contextual": ImageTemplate(
-                name="人生の道標（文脈版）",
-                description="人生観・哲学的コンテンツ向け",
-                category="哲学・スピリチュアル",
-                style="Warm Japanese illustration, calm storytelling",
-                file="templates/jinsei_no_michishirube_contextual.txt",
-                preview_keywords=["哲学的", "深い", "人生"],
-                author="system",
-                version="1.0"
-            ),
-            "spiritual_fantasy": ImageTemplate(
-                name="スピリチュアルファンタジー",
-                description="スピリチュアル・神秘的な表現",
-                category="スピリチュアル",
-                style="spiritual, mystical, premium quality",
-                file="templates/spiritual_fantasy_premium.txt",
-                preview_keywords=["神秘的", "スピリチュアル", "高品質"],
-                author="system",
-                version="1.0"
-            )
-        }
+        presets: Dict[str, ImageTemplate] = {}
+        for entry in get_active_templates():
+            # scopeにmanual/legacy含むものだけをUIのプリセットとして扱う
+            if any(tag in entry.scope for tag in ("manual", "legacy")) or len(entry.scope) == 0:
+                presets_key = Path(entry.id).stem
+                presets[presets_key] = ImageTemplate(
+                    name=entry.label,
+                    description=entry.label,
+                    category="プリセット",
+                    style="",
+                    file=str(Path("templates") / entry.id),
+                    preview_keywords=[],
+                    author="system",
+                    version="1.0",
+                )
+        return presets
     
     def _load_custom_templates(self) -> Dict[str, ImageTemplate]:
         """カスタムテンプレート設定を読み込み"""

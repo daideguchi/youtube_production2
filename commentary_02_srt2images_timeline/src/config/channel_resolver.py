@@ -12,6 +12,7 @@ from typing import Dict, Optional, Any
 
 # Import new domain schema
 from core.domain.channel_schema import ChannelRegistry, ChannelConfig
+from config.template_registry import is_registered_template, resolve_template_path
 
 logger = logging.getLogger(__name__)
 
@@ -43,15 +44,22 @@ class ChannelPreset:
     config_model: Optional[ChannelConfig] = None
 
     def resolved_prompt_template(self) -> Optional[str]:
-        return _resolve_path(self.prompt_template)
+        resolved = _resolve_path(self.prompt_template)
+        if resolved and not is_registered_template(resolved):
+            logger.warning("Template not registered: %s (channel=%s)", resolved, self.channel_id)
+        return resolved
 
 
 def _resolve_path(value: Optional[str]) -> Optional[str]:
     if not value:
         return None
-    path = Path(value)
-    if not path.is_absolute():
-        path = PROJECT_ROOT / path
+    # Allow registry-relative paths
+    if Path(value).name == value:
+        path = resolve_template_path(value)
+    else:
+        path = Path(value)
+        if not path.is_absolute():
+            path = PROJECT_ROOT / path
     return str(path)
 
 

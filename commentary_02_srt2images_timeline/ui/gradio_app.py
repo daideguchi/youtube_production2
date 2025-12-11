@@ -12,23 +12,23 @@ import glob
 import time
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
+import sys
 
 # プロジェクトルート
 PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.append(str(PROJECT_ROOT / "src"))
+
+from config.template_registry import get_active_templates, resolve_template_path  # noqa: E402
+
 DRAFT_ROOT = Path("/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft")
 WHITELIST_PATH = PROJECT_ROOT / "config" / "track_whitelist.json"
 
-# テンプレート情報
-IMAGE_TEMPLATES = {
-    "人生の道標（文脈多様版）": "jinsei_no_michishirube_contextual.txt",
-    "人生の道標（仏教演出）": "jinsei_no_michishirube_buddhist.txt",
-    "日本人向け恋愛（ウルトラソフト）": "senior_romance_jp_ultra_soft.txt",
-    "日本人向け恋愛（一貫性）": "senior_romance_jp_consistent.txt",
-    "シニア健康系": "senior_health_reading.txt",
-    "ファンタジー（油絵アカシック）": "oil_painting_akashic_fantasy.txt",
-    "哲学系（油絵）": "oil_painting_philosophy.txt",
-    "日本人向けビジュアル": "japanese_visual.txt",
-}
+def _load_image_templates() -> Dict[str, str]:
+    active = get_active_templates()
+    return {entry.label: entry.id for entry in active}
+
+
+IMAGE_TEMPLATES = _load_image_templates()
 
 CAPCUT_TEMPLATES = {
     "人生の道標_最新テンプレ": "人生の道標_最新テンプレ",
@@ -167,7 +167,7 @@ def run_phase1(
     
     # テンプレートファイル名を取得
     template_file = IMAGE_TEMPLATES.get(image_template, list(IMAGE_TEMPLATES.values())[0])
-    template_path = PROJECT_ROOT / "templates" / template_file
+    template_path = resolve_template_path(template_file)
     
     if not template_path.exists():
         return f"❌ テンプレートが見つかりません: {template_path}", None

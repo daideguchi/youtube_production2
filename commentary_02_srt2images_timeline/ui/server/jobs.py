@@ -14,6 +14,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(PROJECT_ROOT / "src"))
+from config.template_registry import resolve_template_path, is_registered_template  # noqa: E402
+
 
 _IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 _DEFAULT_MIN_IMAGE_BYTES = 60_000
@@ -328,6 +332,10 @@ class CommandBuilder:
         if prompt_style := options.get("style"):
             env["COMMENTARY02_PROMPT_STYLE"] = str(prompt_style)
 
+        nanobanana = str(options.get("nanobanana", "direct"))
+        if nanobanana not in ("direct", "none"):
+            nanobanana = "direct"
+
         command: List[str] = [
             str(self._run_srt2images_script()),
             "--srt",
@@ -337,7 +345,7 @@ class CommandBuilder:
             "--engine",
             str(options.get("engine", "capcut")),
             "--nanobanana",
-            str(options.get("nanobanana", "none")),
+            nanobanana,
             "--prompt-template",
             str(template),
             "--cue-mode",
@@ -360,8 +368,7 @@ class CommandBuilder:
             command.extend(["--negative", str(negative)])
         if (concurrency := options.get("concurrency")) is not None:
             command.extend(["--concurrency", str(concurrency)])
-        if (nanobanana_bin := options.get("nanobanana_bin")) is not None:
-            command.extend(["--nanobanana-bin", str(nanobanana_bin)])
+        # nanobanana_bin/config deprecated; ignore if provided
         if (template_seed := options.get("seed")) is not None:
             command.extend(["--seed", str(template_seed)])
         if (channel := options.get("channel")) is not None:
@@ -685,17 +692,22 @@ class CommandBuilder:
         return 3.0
 
     def _resolve_template_path(self, override: Optional[str], template_used: Optional[str]) -> Path:
-        if override:
-            path = Path(override)
-        elif template_used:
-            path = self._project_root / "templates" / template_used
-        else:
-            path = self._project_root / "templates" / "japanese_visual.txt"
-        if not path.is_absolute():
-            path = (self._project_root / path).resolve()
-        if not path.exists():
-            raise ValueError(f"プロンプトテンプレートが見つかりません: {path}")
-        return path
+        """
+        Resolve prompt template with registry awareness.
+        """
+        candidate = override or template_used
+        if candidate:
+            path = resolve_template_path(candidate)
+            if not is_registered_template(path):
+                logger.warning("Prompt template not registered: %s", path)
+            if not Path(path).exists():
+                raise ValueError(f"プロンプトテンプレートが見つかりません: {path}")
+            return Path(path)
+        # Fallback default
+        fallback = self._project_root / "templates" / "default.txt"
+        if not fallback.exists():
+            raise ValueError(f"プロンプトテンプレートが見つかりません: {fallback}")
+        return fallback
 
     def _resolve_project_relative(self, project_dir: Path, value: str) -> Path:
         candidate = Path(value)
