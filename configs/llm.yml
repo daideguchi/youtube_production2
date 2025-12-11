@@ -111,6 +111,8 @@ tiers:
 
   image_gen:
     - gemini_2_5_flash_image
+  image:
+    - gemini_2_5_flash_image
 
 tasks:
   # Script pipeline (new flow)

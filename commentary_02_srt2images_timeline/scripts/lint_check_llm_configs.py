@@ -5,6 +5,7 @@ Checks:
   - tasks/tier/model references in llm_router.yaml are defined in allowed models
   - tier definitions reference existing models
   - llm_registry.json task -> model references exist
+  - llm.yml tasks reference existing tiers/models (self-consistency)
 Source of truth set = llm.yml.models ∪ llm_model_registry.yaml.models
 Fails on any missing reference.
 """
@@ -69,6 +70,18 @@ def main() -> int:
         tier = tconf.get("tier")
         if tier and tier not in tiers:
             errors.append(f"llm_router.yaml task '{tname}' references unknown tier '{tier}'")
+
+    # llm.yml self-consistency (tasks -> tier -> model)
+    llm_tasks = llm_yml.get("tasks") or {}
+    llm_tiers = llm_yml.get("tiers") or {}
+    for tname, tconf in llm_tasks.items():
+        tier = tconf.get("tier")
+        if tier and tier not in llm_tiers:
+            errors.append(f"llm.yml task '{tname}' references unknown tier '{tier}'")
+        models = llm_tiers.get(tier, []) if tier else []
+        for m in models:
+            if m not in allowed_models:
+                errors.append(f"llm.yml tier '{tier}' (task '{tname}') references unknown model '{m}'")
 
     # llm_registry.json (legacy)
     llm_reg = load_json(CFG / "llm_registry.json")
