@@ -327,30 +327,11 @@ def _discover_channel_prompt_specs() -> List[Dict[str, Any]]:
 def _load_prompt_documents() -> Dict[str, Dict[str, Any]]:
     base_specs: List[Dict[str, Any]] = [
         _prompt_spec(
-            prompt_id="qwen_initial_prompt",
-            label="Qwen初期プロンプト",
-            description="台本量産ワークフロー開始時に読み込むテンプレート",
-            primary_path=PROMPTS_ROOT / "qwen_initial_prompt.txt",
-            sync_paths=[COMMENTARY_PROMPTS_ROOT / "qwen_initial_prompt.txt"],
-        ),
-        _prompt_spec(
             prompt_id="youtube_description_prompt",
             label="YouTube説明文プロンプト",
             description="SRTから投稿用説明文を生成するテンプレート",
             primary_path=PROMPTS_ROOT / "youtube_description_prompt.txt",
             sync_paths=[COMMENTARY_PROMPTS_ROOT / "youtube_description_prompt.txt"],
-        ),
-        _prompt_spec(
-            prompt_id="qwen_initial_prompt_ch04",
-            label="Qwen初期プロンプト CH04",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "qwen_initial_prompt_ch04.txt",
-            sync_paths=[PROMPTS_ROOT / "qwen_initial_prompt_ch04.txt"],
-        ),
-        _prompt_spec(
-            prompt_id="qwen_initial_prompt_ch06",
-            label="Qwen初期プロンプト CH06",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "qwen_initial_prompt_ch06.txt",
-            sync_paths=[PROMPTS_ROOT / "qwen_initial_prompt_ch06.txt"],
         ),
         _prompt_spec(
             prompt_id="phase2_audio_prompt",

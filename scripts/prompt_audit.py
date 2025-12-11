@@ -79,12 +79,6 @@ def iter_prompt_files(channel_code: str | None) -> List[Path]:
             path = ch_dir / candidate
             if path.exists():
                 files.append(path)
-    global_prompt = PROMPTS_DIR / "qwen_initial_prompt.txt"
-    if global_prompt.exists():
-        files.append(global_prompt)
-    commentary_global = COMMENTARY_PROMPTS_DIR / "qwen_initial_prompt.txt"
-    if commentary_global.exists():
-        files.append(commentary_global)
     return files
 
 

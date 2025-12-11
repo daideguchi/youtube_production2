@@ -1,7 +1,7 @@
-# CH01 Persona & Planning Template
+# CH11 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH01_planning_template.csv`
+- SoT: `progress/templates/CH01_planning_template.csv`（CH11 は CH01 テンプレを流用）
 - 最終更新: 2025-11-15（テンプレ2行目のサンプルを更新した日付）
 - 参照手順: 1行目ヘッダーと2行目サンプルをコピー→`{NEXT_NO}`/`{NEXT_VIDEO}` を差し替え→`progress/channels/CHxx.csv` に貼り付け→`planning_store.refresh --force`
 - SSOTでの扱い: このファイルがテンプレの導線/更新日時を示す唯一の場所。テンプレ改訂時は必ずここへ日時と変更点メモを追記する。
@@ -10,7 +10,7 @@
 > 他人の目や言葉に振り回されがちな40〜60代。真面目で優しいがゆえに、人間関係・老後・お金・孤独の不安を抱え、仏教の整理術で心を軽くしたいと願っている人。
 
 - `progress/channels/CHxx.csv` の `ターゲット層` 列は **この一文をコピペして固定** する。企画ごとに別のターゲットを書かない。
-- Qwen / CLI プロンプトで CH01 を扱う際は、必ずこの文を前置きに読み上げる（`prompts/qwen_initial_prompt.txt` にも追記済み）。
+- 台本作成時は最新の SoT と運用ドキュメントだけを参照し、この一文をターゲット層として固定する。
 
 ## 2. 企画ごとに切り替える「悩みタグ」セット
 | フィールド | 役割 | 推奨入力例 |
@@ -24,9 +24,9 @@
 | `説明文_リード` | YouTube概要欄の冒頭一文 | 「優しさを利用されがちなあなたへ──慈悲と境界線のお話」 |
 | `説明文_この動画でわかること` | 箇条書きで視聴メリットを書く | 「・慈悲と甘やかしの違い\n・距離を置く言い換え3つ」 |
 
-> `progress/channels/CHxx.csv`（および `progress/channels/CH01.csv`）の末尾にこれら8列を追加済み。既存行は空欄のままで構わないが、No.191以降は必ず埋める。
+> `progress/channels/CHxx.csv`（および `progress/channels/CH11.csv`）の末尾にこれら8列を追加済み。既存行は空欄のままで構わないが、No.191以降は必ず埋める。
 
-## 3. 企画シート執筆ルール（CH01）
+## 3. 企画シート執筆ルール（CH11）
 1. **タイトル**: 「【括弧】＋具体的な痛み」→ 「こうすれば楽になる」構造で 28〜34 文字。
 2. **企画意図**: 1〜2文で動画のポジティブゴール（例: “自責を減らし、優しさを自分に向け直す”）。
 3. **構成案**: `【導入】→【課題提示】→【仏教の視点】→【実践ステップ】→【結論】` の5ブロックで書く。
@@ -34,11 +34,11 @@
 5. **サムネタイトル上/下**: 上＝呼びかけ、下＝行動ワードを基本とし、なるべく漢字＋ひらがなで視認性を確保。
 
 ## 4. コピペ用テンプレ
-- ファイル: `progress/templates/CH01_planning_template.csv`
+- ファイル: `progress/templates/CH01_planning_template.csv`（CH11 もこのテンプレを利用）
 - 使い方: 1行目（ヘッダー）と2行目（サンプル）をコピーし、新しい No. / 動画番号 / タイトルなどを上書き。`{NEXT_NO}` や `{NEXT_VIDEO}` を差し替える。
 - `ターゲット層` は触らず、悩みタグやベネフィットはサンプルのコメント形式を踏襲する。
 
 ## 5. ワークフローへの組み込み
 1. 企画を追加したら `python3 -m core.tools.planning_store refresh --force` を実行してキャッシュ更新。
-2. `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CH01` で列ズレが無いか検証。
+2. `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CH11` で列ズレが無いか検証。
 3. UI (`ScriptFactory` / `Projects`) で行が表示されることを確認し、テンプレに沿った値が反映されているかスポットチェックする。
