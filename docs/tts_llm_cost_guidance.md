@@ -47,6 +47,39 @@
 - Sudachiの`reading_form`は長音・促音が整うため、トリビアル差分の判定基準を単純化でき、LLM呼び出しのさらなる削減に繋がる。
 - Sudachi用のユーザー辞書は頻出チャンネルから優先的にコンパイルし、効果を測定してから全体適用する。
 
+## 具体的な改修指示（コードの場所と変更内容）
+**「どのファイルのどの関数をどう変えるか」を固定する。抽象案ではなく、実装者がそのまま手を入れられる形にする。**
+
+1) **Aテキストへ`---`を強制注入し、ブロック境界として保持する**
+- **ファイル/関数**: `audio_tts_v2/tts/preprocess.py::preprocess_a_text`
+- **変更**: `strip_markdown`後の`cleaned`に対し、行頭`#`（見出し）または空行の直前に`"---\n"`を挿入するオプション`inject_sections: bool`を追加。`meta["section_markers"]`に挿入後のオフセットを記録する。デフォルトは`True`で`run_tts_pipeline`から必ず有効化。
+
+2) **水平線をSRT分割の第一優先境界にする**
+- **ファイル/関数**: `audio_tts_v2/tts/orchestrator.py::_presplit_headings`および`_raw_sentence_blocks_for_srt`
+- **変更**:
+  - `_presplit_headings`で`---`行を検出したら、改行だけでなくプレースホルダ`"<SECTION>"`行を挿入し、そのまま次工程へ渡す。
+  - `_raw_sentence_blocks_for_srt`で`<SECTION>`行に遭遇したら即`_flush`し、新規ブロックを作らず`section_boundary=True`を次ブロックに付与。`raw_text`/`text`には残さない。これにより`run_tts_pipeline`内のステップ1〜3が`---`境界を尊重する。
+
+3) **見出し＋本文を同一チャンクに固定する**
+- **ファイル/関数**: `audio_tts_v2/tts/orchestrator.py::_merge_short_blocks`
+- **変更**: `heading_prefixes = ("#",)` の判定に加え、直前ブロックが見出しまたは`section_boundary`の場合は結合禁止フラグを立てる。これで見出しと直後の本文が1チャンクに収まり、LLM監査の最小単位が固定される。
+
+4) **チャンク単位のハッシュを生成してLLM送信をキャッシュ可能にする**
+- **ファイル/関数**: `audio_tts_v2/tts/orchestrator.py::run_tts_pipeline`（Twin-Engine直後〜`audit_blocks`直前）
+- **変更**: 各`srt_blocks[i]`に `chunk_hash = sha1(raw_text + voicevox_kana + mecab_kana + dict_version)` を追加。`dict_version`は`audio_tts_v2/configs/learning_dict.json`とチャンネル辞書の更新時刻でよい。このハッシュを`audit_blocks`へ渡し、同一ハッシュの監査結果は再送しない。
+
+5) **LLM監査をハッシュキーでスキップ**
+- **ファイル/関数**: `audio_tts_v2/tts/auditor.py::_select_candidates` と `audit_blocks`
+- **変更**: `blocks`引数から`chunk_hash`を受け取り、`cache_dir = Path("logs/tts_audit_cache")`で`{chunk_hash}.json`を参照。存在すれば`b["audit_needed"] = False`にし、結果をブロックへ反映。新規監査時はLMMレスポンスを同名ファイルへ書き出し、辞書更新時のみ削除する。
+
+6) **辞書学習の粒度をフレーズ優先にする実装位置を明記**
+- **ファイル/関数**: `audio_tts_v2/tts/auditor.py::_build_vocab_requests`
+- **変更**: `grouped[surface]`キーを`surface`単体ではなく`surface + "|" + "".join(span.reasons)`に変更し、同表記異文脈を別グループ化する。`examples`に前後2文を必ず入れてLLMへ送る。戻り値をフレーズ辞書(YAML)へマップする補助スクリプトは`scripts/reading_dict/`配下に追加する（ファイル新設可）。
+
+7) **数字＋単位の必監査をコードで固定**
+- **ファイル/関数**: `audio_tts_v2/tts/risk_utils.py::collect_risky_candidates`
+- **変更**: `risk_score`算出時に `if token.surface.isdigit() and next_token.surface in {"%", "kg", "倍", "件"}: risk_score = 1.0` を挿入し、`reason="num_unit"`を付与。これを`auditor.py`の`_build_vocab_requests`で最優先`reasons`としてLLMへ渡す（テンプレ不要）。
+
 ## 辞書設計を「単語リスト」から進化させるための指針
 単語だけの素朴なエントリでは文脈による読み分けを失いやすい。以下のような構造化と運用で、LLM依存を減らしつつ精度を底上げする。
 
