@@ -17,6 +17,7 @@ class LLMCallOptions:
     response_format: Optional[str] = None
     timeout: Optional[int] = None
     extra: Dict[str, Any] = None
+    stop: Optional[List[str]] = None
 
 
 @dataclass
@@ -58,8 +59,10 @@ class LLMClient:
             # Capability-based clamps to avoid invalid params hitting legacy router
             if caps.get("allow_temperature") is False:
                 options.temperature = None
-            if caps.get("allow_stop") is False and options.extra:
-                options.extra.pop("stop", None)
+            if caps.get("allow_stop") is False:
+                options.stop = None
+                if options.extra:
+                    options.extra.pop("stop", None)
             if caps.get("allow_json_mode") is False and options.response_format == "json_object":
                 options.response_format = None
             # Temporary: legacy router Azure path does not accept max_output_tokens param
@@ -73,6 +76,7 @@ class LLMClient:
             max_output_tokens=options.max_output_tokens,
             response_format=options.response_format,
             timeout=options.timeout,
+            stop=options.stop,
         )
         return LLMResult(
             content=resp,
