@@ -5,8 +5,8 @@ Lint: verify model references across configs are consistent.
 - Legacy refs: configs/llm_router.yaml, configs/llm_model_registry.yaml
 Checks:
  1) llm_router models keys must exist in SOT set (llm.yml ∪ llm_model_registry.yaml).
- 2) Warn if allow_temperature is False but defaults.temperature is set.
-Exit code 1 only for missing model references.
+ 2) Fail if allow_temperature is False but defaults.temperature is set.
+Exit code 1 for any violation.
 """
 from __future__ import annotations
 
@@ -32,7 +32,6 @@ def load_yaml(path: Path):
 
 def main() -> int:
     errors: list[str] = []
-    warnings: list[str] = []
 
     llm_yml = load_yaml(CFG / "llm.yml")
     sot_models = set((llm_yml.get("models") or {}).keys())
@@ -48,13 +47,13 @@ def main() -> int:
     if unknown_router:
         errors.append(f"llm_router.yaml references unknown models: {', '.join(unknown_router)}")
 
-    # Capability vs defaults sanity (warning only)
+    # Capability vs defaults sanity (error)
     for mid, mcfg in (llm_yml.get("models") or {}).items():
         caps = (mcfg or {}).get("capabilities") or {}
         defaults = (mcfg or {}).get("defaults") or {}
         allow_temp = caps.get("allow_temperature", True)
         if allow_temp is False and "temperature" in defaults:
-            warnings.append(f"{mid}: allow_temperature=False but defaults.temperature is set")
+            errors.append(f"{mid}: allow_temperature=False but defaults.temperature is set")
 
     if errors:
         print("❌ model lint failed:")
@@ -63,10 +62,6 @@ def main() -> int:
         return 1
 
     print("✅ model lint passed (refs OK)")
-    if warnings:
-        print("⚠️ warnings:")
-        for w in warnings:
-            print(" -", w)
     return 0
 
 
