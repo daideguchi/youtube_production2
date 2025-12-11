@@ -1,0 +1,303 @@
+# Unified LLM configuration (models, tiers, tasks)
+# This file consolidates legacy llm_router.yaml + llm_registry.json + llm_model_registry.yaml
+# into a single source of truth for the new LLMClient.
+
+providers:
+  azure:
+    env_api_key: AZURE_OPENAI_API_KEY
+    env_endpoint: AZURE_OPENAI_ENDPOINT
+    default_api_version: "2025-04-01-preview"
+    responses_api_version: "2025-04-01-preview"
+
+  openrouter:
+    env_api_key: OPENROUTER_API_KEY
+    base_url: "https://openrouter.ai/api/v1"
+
+  gemini:
+    env_api_key: GEMINI_API_KEY
+
+models:
+  azure_gpt5_mini:
+    provider: azure
+    api_type: responses
+    deployment: gpt-5-mini
+    capabilities:
+      allow_reasoning: true
+      allow_json_mode: true
+      allow_temperature: false
+      allow_stop: false
+      max_output_tokens: 128000
+
+  azure_gpt5_chat:
+    provider: azure
+    api_type: chat
+    deployment: gpt-5-chat
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 16384
+
+  azure_tts_primary:
+    provider: azure
+    api_type: responses
+    deployment: gpt-5-mini
+    capabilities:
+      allow_reasoning: true
+      allow_json_mode: true
+      allow_temperature: false
+      allow_stop: false
+      max_output_tokens: 128000
+
+  or_qwen_free:
+    provider: openrouter
+    api_type: chat
+    model: "qwen/qwen-2.5-72b-instruct:free"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: false
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 4096
+
+  or_llama_free:
+    provider: openrouter
+    api_type: chat
+    model: "meta-llama/llama-3.3-70b-instruct:free"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: false
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 4096
+
+  or_deepseek_r1:
+    provider: openrouter
+    api_type: chat
+    model: "deepseek/deepseek-r1:free"
+    capabilities:
+      allow_reasoning: true
+      allow_json_mode: false
+      allow_temperature: false
+      allow_stop: false
+      max_output_tokens: 8192
+
+  gemini_2_5_flash_image:
+    provider: gemini
+    api_type: image
+    model: gemini-2.5-flash-image
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+tiers:
+  heavy_reasoning:
+    - azure_gpt5_mini   # 運用中
+    # 以下は登録のみ（運用停止中）
+    # - or_deepseek_r1
+    # - or_qwen_free
+    # - or_llama_free
+
+  standard:
+    - azure_gpt5_mini   # 運用中
+    # - or_qwen_free     # 登録のみ
+
+  cheap:
+    - azure_gpt5_mini   # 運用中
+
+  image_gen:
+    - gemini_2_5_flash_image
+
+tasks:
+  # Script pipeline (new flow)
+  script_topic_research:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 300
+
+  script_outline:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      thinking_level: high
+
+  script_chapter_brief:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      thinking_level: high
+
+  script_chapter_draft:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 240
+      thinking_level: high
+
+  script_chapter_review:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      thinking_level: high
+
+  script_cta:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      thinking_level: high
+
+  script_quality_check:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 300
+      thinking_level: high
+
+  script_format:
+    tier: standard
+    defaults:
+      timeout: 60
+
+  # Legacy script tasks (llm_registry.json)
+  script_polish_ai:
+    tier: heavy_reasoning
+    defaults:
+      thinking_level: low
+      max_output_tokens: 4096
+
+  script_draft:
+    tier: heavy_reasoning
+    defaults:
+      thinking_level: low
+      max_output_tokens: 4096
+
+  script_rewrite:
+    tier: heavy_reasoning
+    defaults:
+      thinking_level: low
+      max_output_tokens: 4096
+
+  quality_review:
+    tier: heavy_reasoning
+    defaults:
+      thinking_level: low
+      max_output_tokens: 4096
+
+  context_analysis:
+    tier: heavy_reasoning
+    defaults:
+      thinking_level: low
+      max_output_tokens: 4096
+
+  research:
+    tier: standard
+
+  review:
+    tier: standard
+
+  enhance:
+    tier: standard
+
+  general:
+    tier: standard
+
+  natural_command:
+    tier: standard
+
+  # TTS pipeline
+  tts_annotate:
+    tier: standard
+    defaults:
+      timeout: 30
+      response_format: json_object
+
+  tts_text_prepare:
+    tier: standard
+    defaults:
+      timeout: 60
+      response_format: json_object
+
+  tts_segment:
+    tier: standard
+    defaults:
+      timeout: 30
+      response_format: json_object
+
+  tts_pause:
+    tier: standard
+    defaults:
+      timeout: 30
+      response_format: json_object
+
+  tts_reading:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 60
+
+  audio_text:
+    tier: standard
+
+  # Visual pipeline
+  visual_section_plan:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 120
+
+  visual_persona:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 60
+
+  visual_prompt_refine:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 60
+
+  visual_image_gen:
+    tier: image_gen
+    defaults:
+      timeout: 60
+      aspect_ratio: "16:9"
+      n: 1
+
+  # Belt/Title helpers
+  belt_generation:
+    tier: standard
+    defaults:
+      timeout: 120
+      response_format: json_object
+
+  title_generation:
+    tier: standard
+    defaults:
+      timeout: 60
+
+  # Thumbnails / captions (legacy)
+  caption:
+    tier: standard
+    defaults:
+      max_output_tokens: 4096
+
+  thumbnail_caption:
+    tier: standard
+    defaults:
+      max_output_tokens: 4096
+
+  # Image generation (legacy entry)
+  image_generation:
+    tier: image
+    defaults:
+      aspect_ratio: "16:9"
+      n: 1
+
+  image_generation_gemini3:
+    tier: image
+    defaults:
+      aspect_ratio: "16:9"
+      n: 1
+
+  # OpenRouter fallback placeholder
+  openrouter_fallback:
+    tier: cheap
