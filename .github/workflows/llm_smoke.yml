@@ -38,6 +38,11 @@ jobs:
           set -e
           python commentary_02_srt2images_timeline/scripts/lint_check_models.py
 
+      - name: Lint llm config references
+        run: |
+          set -e
+          python commentary_02_srt2images_timeline/scripts/lint_check_llm_configs.py
+
       - name: Run LLM phase smoke (skip if keys missing)
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
