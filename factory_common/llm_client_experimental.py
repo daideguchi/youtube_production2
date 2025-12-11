@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from factory_common.llm_router import get_router
-from commentary_02_srt2images_timeline.src.config.llm_resolver import resolve_task  # type: ignore
+from commentary_02_srt2images_timeline.src.config.llm_resolver import resolve_task, get_model_config  # type: ignore
 
 
 @dataclass
@@ -51,6 +51,20 @@ class LLMClient:
             resolved_tier = resolved.get("tier")
             if not resolved_model:
                 raise ValueError(f"No model resolved for task '{options.task}' from llm.yml")
+
+            model_conf = get_model_config(resolved_model) or {}
+            provider = model_conf.get("provider")
+            caps = (model_conf.get("capabilities") or {})
+            # Capability-based clamps to avoid invalid params hitting legacy router
+            if caps.get("allow_temperature") is False:
+                options.temperature = None
+            if caps.get("allow_stop") is False and options.extra:
+                options.extra.pop("stop", None)
+            if caps.get("allow_json_mode") is False and options.response_format == "json_object":
+                options.response_format = None
+            # Temporary: legacy router Azure path does not accept max_output_tokens param
+            if provider == "azure":
+                options.max_output_tokens = None
 
         resp = self.router.call(
             task=options.task,
