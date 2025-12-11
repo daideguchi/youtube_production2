@@ -134,14 +134,29 @@ models:
   5. 旧直接呼び出しを段階的に削除し、テストを整備。
 
 ## 7. 実装タスク一覧（ToDo）
-- [x] `configs/llm_router.yaml` 作成（tiers/models/tasks 定義）。
-- [x] `factory_common/llm_router.py` 実装（provider adapter, capability 正規化, retry/fallback）。
-- [x] `script_pipeline` ステージ定義更新（outline/plan/review/consistency 追加、task 名付与）。
-- [x] `script_pipeline/runner.py` を router API に差し替え、`script_plan.json` 保存/読込導線追加。
-- [x] `audio_tts_v2/tts/llm_adapter.py` に三段階 Bテキスト生成ロジックと router 呼び出しを導入、`builder.py` で SSML 生成を統合。（SSML生成は既存ロジック維持とし、Router移行のみ完了）
-- [x] `audio_tts_v2` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、`audio_tts_v2/tts/llm_client.py` を削除。
-- [x] `commentary_02_srt2images_timeline` に Visual Bible 読込と router 呼び出しを追加、画像プロンプト生成部を差し替え。（VisualBibleGeneratorを追加実装済）
-- [x] 回帰テスト・サンプルパイプライン（script→tts→image）の E2E テストを追加。（Visual Bible 生成の検証完了）
+- [x] `configs/llm_router.yaml` 作成（tiers/models/tasks 定義）。  
+  - 追加済み: tier→model 候補、task→tier、fallback ポリシー、タスクオーバーライド。
+- [x] `factory_common/llm_router.py` 実装（provider adapter, capability 正規化, retry/fallback）。  
+  - 追加済み: llm_param_guard, per-status backoff, usage JSONL ログ。
+- [ ] `script_pipeline` ステージ定義更新（outline/plan/review/consistency 追加、task 名付与）。  
+  - 現状: 旧 `_run_llm` 直接呼び出しのまま。stage 定義の task 化・router 経由未導入。
+- [ ] `script_pipeline/runner.py` を router API に差し替え、`script_plan.json` 保存/読込導線追加。  
+  - 現状: 章ドラフト/整形は直接 Azure/Gemini 呼び出し。outline/review/consistency 未実装。
+- [ ] `audio_tts_v2/tts/llm_adapter.py` に三段階 Bテキスト生成ロジックと router 呼び出しを導入、`builder.py` で SSML 生成を統合。  
+  - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線と SSML 統合が未完。orchestrator/builder 側への三段導線配線が残り。
+- [ ] `audio_tts_v2` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、`audio_tts_v2/tts/llm_client.py` を削除。  
+  - 現状: llm_adapter は移行完了。その他モジュールの llm_client 参照は残存のため掃除が必要。
+- [ ] `commentary_02_srt2images_timeline` に Visual Bible 読込と router 呼び出しを追加、画像プロンプト生成部を差し替え。  
+  - 現状: Visual Bible 未読込。Gemini image 直呼び出し＆テンプレ混在。
+- [ ] 回帰テスト・サンプルパイプライン（script→tts→image）の E2E テストを追加。  
+  - 現状: 断片的な単体テストのみ。end-to-end 未整備。
+
+### 次に着手すべき具体ステップ（優先度順）
+1) script_pipeline: stages.yaml/templates.yaml に task を明示し、`_run_llm` で `resolve_task` を必須にする（fallback 直指定禁止）。  
+2) script_pipeline: `script_outline`/`script_chapter_review`/`script_global_consistency` を新設（空でもよい）し、ルータ経由で実行できるようにする。  
+3) TTS: `tts_annotate`→`tts_text_prepare`→`tts_reading` の三段階を導線化し、旧 `llm_client` 参照を全削除。  
+4) commentary_02: `LLMContextAnalyzer` と image prompt 生成を router 経由に統一し、nanobanana=direct 以外の分岐を削除。  
+5) E2E: script→tts→image の最小ケースを `tests/test_e2e_pipeline.py` などで追加し、環境変数で実行可否を制御。  
 
 ## 8. 付録
 - **主要関数**

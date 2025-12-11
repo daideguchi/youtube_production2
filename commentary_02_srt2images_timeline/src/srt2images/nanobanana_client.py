@@ -42,7 +42,8 @@ _CONSECUTIVE_429_COUNT = 0
 _MAX_CONSECUTIVE_429 = 3  # 3回連続で諦める
 _SUCCESSFUL_IMAGE_COUNT = 0  # 成功した画像数
 
-USE_LEGACY_IMAGE_ROUTER = os.getenv("USE_LEGACY_IMAGE_ROUTER") == "1"
+# Legacy router fallback is disabled by default.
+USE_LEGACY_IMAGE_ROUTER = False  # Legacy router disabled; ImageClient is the only path
 
 def _reset_429_counter():
     """429カウンターをリセット（成功時に呼ぶ）"""
@@ -363,7 +364,7 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
         except Exception as exc:
             logging.error("ImageClient initialization failed: %s", exc)
 
-    if image_client is None:
+    if image_client is None and USE_LEGACY_IMAGE_ROUTER:
         from factory_common.llm_router import get_router
 
         router = get_router()
@@ -410,100 +411,12 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
                 max_retries,
                 exc,
             )
-            if USE_LEGACY_IMAGE_ROUTER and router is None:
-                from factory_common.llm_router import get_router
-
-                router = get_router()
-            if router is None:
-                continue
             image_client = None
         except Exception as exc:
             logging.error("Unexpected error from ImageClient: %s", exc)
-            if USE_LEGACY_IMAGE_ROUTER and router is None:
-                from factory_common.llm_router import get_router
-
-                router = get_router()
             image_client = None
 
-        if router is None:
-            continue
-
-        try:
-            response = router.call(
-                task="visual_image_gen",
-                messages=messages,
-                temperature=0.2,
-                image_generation=True,
-            )
-
-            image_data = None
-            if hasattr(response, 'candidates') and response.candidates:
-                for candidate in response.candidates:
-                    content = getattr(candidate, 'content', None)
-                    if content and hasattr(content, 'parts'):
-                        for part in content.parts:
-                            if hasattr(part, 'inline_data') and part.inline_data:
-                                data = getattr(part.inline_data, 'data', None)
-                                if data:
-                                    import base64
-
-                                    if isinstance(data, str):
-                                        image_data = base64.b64decode(data)
-                                    elif isinstance(data, (bytes, bytearray)):
-                                        image_data = bytes(data)
-                                    else:
-                                        logging.warning(
-                                            "Unexpected data type for image: %s", type(data)
-                                        )
-
-                                if image_data:
-                                    break
-                    if image_data:
-                        break
-
-            if not image_data:
-                text_content = getattr(response, 'text', '') or getattr(response, '__str__', lambda: 'No content')()
-                logging.warning(
-                    "No image data in Gemini response, got text: %s",
-                    text_content[:500] if text_content else 'No text content',
-                )
-                return False
-
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(image_data)
-
-            run_dir_name = Path(output_path).parent.parent.name
-            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image output={output_path}")
-            _increment_success_counter()
-            return True
-
-        except Exception as e:
-            error_msg = str(e)
-            is_rate_limit = "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg or "quota" in error_msg.lower()
-            is_server_error = "500" in error_msg or "INTERNAL" in error_msg or "503" in error_msg
-
-            if is_rate_limit:
-                try:
-                    _increment_429_counter()
-                except QuotaExhaustedError:
-                    raise
-
-            if attempt < max_retries and (is_rate_limit or is_server_error):
-                if is_rate_limit:
-                    wait_time = min(120, 60 * (attempt + 1))
-                else:
-                    wait_time = min(30, 5 * (2 ** attempt))
-                    wait_time += 2
-
-                logging.warning(
-                    f"Gemini API Error (Attempt {attempt+1}/{max_retries}): {error_msg[:100]}... Retrying in {wait_time}s"
-                )
-                time.sleep(wait_time)
-            else:
-                run_dir_name = Path(output_path).parent.parent.name
-                logging.error(f"[{run_dir_name}][image_gen][ERROR] reason='gemini api failure' detail='{error_msg}'")
-                return False
+        # Legacy router path removed; if ImageClient failed, retry loop continues
 
     return False
 
@@ -547,25 +460,30 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
+    # Normalize mode: allow only direct (ImageClient) or none (skip)
+    mode_norm = mode
+    if mode_norm not in ("direct", "none"):
+        logging.warning("nanobanana mode=%s is deprecated; forcing direct", mode_norm)
+        mode_norm = "direct"
+
     ok = False
     input_images = []
     if isinstance(cue.get("input_images"), list):
         input_images = [str(x) for x in cue["input_images"]]
-    if mode == "cli":
-        local_retry = 0 if retry_until_success else max(1, int(max_retries))
-        ok = _run_cli(prompt, out_path, width, height, bin_path, timeout_sec, input_images=input_images, retry_count=local_retry)
-    elif mode == "mcp":
-        ok = _run_mcp(prompt, out_path, width, height)
-    elif mode == "direct":
-        ok = _run_direct(prompt, out_path, width, height, config_path, timeout_sec, input_images=input_images)
+    if mode_norm == "none":
+        logging.info("nanobanana mode=none: skipping image generation for %s", out_path)
+        return
+
+    # Only direct path (ImageClient)
+    ok = _run_direct(prompt, out_path, width, height, config_path, timeout_sec, input_images=input_images)
         
-        # Log image generation status for direct mode
-        if ok:
-            run_dir_name = Path(out_path).parent.parent.name  # Get run_dir name for logging
-            # Count how many PNG files are in the images directory
-            images_dir = Path(out_path).parent
-            png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
-            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
+    # Log image generation status for direct mode
+    if ok:
+        run_dir_name = Path(out_path).parent.parent.name  # Get run_dir name for logging
+        # Count how many PNG files are in the images directory
+        images_dir = Path(out_path).parent
+        png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
+        logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
 
     if ok:
         # Convert to 16:9 aspect ratio if needed - handle multiple generated images
@@ -663,17 +581,33 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
     
     # Log a summary of the image generation results
     if len(cues) > 0:
-        # Get the run directory to calculate results
         run_dir = Path(cues[0]['image_path']).parent.parent
         run_dir_name = run_dir.name
         images_dir = run_dir / "images"
+        expected = len(cues)
+        png_names = []
         if images_dir.exists():
-            png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
-            if mode == "direct":
-                logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
-            elif mode == "none":
-                logging.info(f"[{run_dir_name}][image_gen][SKIP] reason='mode none' images=0")
-            else:
-                # Count placeholders vs actual images by checking file size or content
-                # For now we'll just log the total
-                logging.info(f"[{run_dir_name}][image_gen][BATCH_COMPLETE] mode={mode} total_images={png_count}")
+            png_names = [f.name for f in images_dir.glob("*.png") if f.is_file()]
+            png_count = len(png_names)
+        else:
+            png_count = 0
+
+        if mode == "direct":
+            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
+        elif mode == "none":
+            logging.info(f"[{run_dir_name}][image_gen][SKIP] reason='mode none' images=0")
+        else:
+            logging.info(f"[{run_dir_name}][image_gen][BATCH_COMPLETE] mode={mode} total_images={png_count}")
+
+        if png_count != expected:
+            # Detect missing frames early so downstream (CapCut) doesn't fail silently
+            missing = sorted(
+                {f"{i:04d}.png" for i in range(1, expected + 1)} - set(png_names)
+            )
+            logging.warning(
+                "[%s][image_gen][MISMATCH] expected=%d got=%d missing=%s",
+                run_dir_name,
+                expected,
+                png_count,
+                ",".join(missing[:10]) + ("..." if len(missing) > 10 else ""),
+            )

@@ -2,11 +2,14 @@
 
 ## 1. 現状の実装サマリ
 
+- **集計ツール**: `python3 scripts/aggregate_llm_usage.py --log logs/llm_usage.jsonl --top 10` でモデル/タスク別件数や fallback_chain, 平均レイテンシを確認。詳細は `ssot/TOOLS_LLM_USAGE.md`。
 ### 1.1 設定ファイルの分布
 - **モデル仕様レジストリ**: `configs/llm_model_registry.yaml` に provider / endpoint / API バージョン / responses API 利用有無 / パラメータ許容フラグ（temperature, stop, reasoning）と default_max_completion_tokens を保持。Azure の gpt-5 系、OpenRouter の無料 Llama、Gemini 互換枠などが混在し、`fallback_model` もここで定義。【F:configs/llm_model_registry.yaml†L1-L79】
 - **タスク割り当て**: `configs/llm_registry.json` で research / review / script_* / image_generation など業務タスク→provider, model を一対一で紐付け。大半が Azure gpt-5-mini 固定で、thinkingLevel や max_output_tokens が一部タスクに直書きされている。【F:configs/llm_registry.json†L1-L96】
 - **OpenRouter メタ**: `script_pipeline/config/openrouter_models.json` は多数モデルのサポートパラメータと max_tokens を持つが、現行ランナーでは参照は限定的。【F:script_pipeline/config/openrouter_models.json†L1-L115】
 - **TTS タスクマップ**: `audio_tts_v2/configs/llm_tasks.yaml` で annotate/reading など TTS サブタスクを `tts_primary` に束ね、`llm_client` が registry と組み合わせて解決する。【F:audio_tts_v2/configs/llm_tasks.yaml†L1-L7】【F:audio_tts_v2/tts/llm_client.py†L16-L109】
+- **フォールバックポリシー**: `configs/llm_fallback_policy.yaml` で transient ステータス／リトライ上限／backoff に加え per-status backoff・per-status retry 上限、最大試行回数、総待機時間を設定化（デフォルト: 429/5xx/408, 全候補試行, backoff=1s, wait<=30s）。
+- **tier候補/タスク割当のオーバーライド**: `configs/llm_tier_candidates.yaml` / `configs/llm_tier_mapping.yaml` で tier→モデル候補・task→tier を上書き可能。image tier は `configs/image_models.yaml`（ImageClient）で管理。
 
 ### 1.2 実行経路（script_pipeline/runner.py）
 - ステージ定義 (`stages.yaml`/`templates.yaml`) からテンプレートと model/provider を解決し、`_run_llm` が直接プロバイダ別の関数を叩く。`SCRIPT_PIPELINE_DEFAULT_MODEL` と registry の `default_model`、または最初のモデルがフォールバックとして使われる。【F:script_pipeline/runner.py†L1213-L1302】
@@ -19,7 +22,11 @@
 - `get_model_conf` で registry から provider/endpoint/deployment を解決し、Azure の場合は endpoint 正規化と verbosity 推定を実施。Responses API を前提とした `azure_responses` がメインで、Gemini も fallback としてサポートしている。【F:audio_tts_v2/tts/llm_client.py†L84-L180】
 - `azure_chat_with_fallback` は model_keys を受け取り順次試行するが、パラメータ互換性チェックや tier 抽象は存在しない。【F:audio_tts_v2/tts/llm_client.py†L198-L272】
 
-### 1.4 現状課題
+- **タスク別オーバーライド**: `configs/llm_task_overrides.yaml` で taskごとに tier/models/options/system_prompt を簡単に上書き可能（デフォルトは llm_router.yaml）。tier候補は `configs/llm_tier_candidates.yaml` / `llm_tier_mapping.yaml` で調整、image tier は `configs/image_models.yaml`（ImageClient）。
+
+### 1.4 現状課題・最新アップデート
+- フォールバックポリシーを `configs/llm_fallback_policy.yaml` で設定化（429/5xx/408 のみ次候補、backoff 1s、retry_limit=0=全候補）。llm_router が参照。
+- 成功/失敗の呼び出しログを `logs/llm_usage.jsonl`（環境変数 `LLM_ROUTER_LOG_PATH`、`LLM_ROUTER_LOG_DISABLE=1` で無効化）へ JSONL 追記する仕組みを追加。成功時は `task/model/provider/fallback_chain/latency_ms/usage(token)/request_id`、失敗時は `error/error_class/status_code/chain` を記録。
 - タスク→モデルが直結しており、利用層（reasoning 重視 / コスト重視 / 画像）の抽象がないため、一括でモデル方針を切り替えるのが困難。【F:configs/llm_registry.json†L1-L96】
 - Azure Responses API 前提で temperature/stop を送らないなどの制約がコード側に散在し、OpenRouter/Gemini との差異を吸収する統一インターフェースがない。【F:script_pipeline/runner.py†L345-L463】【F:audio_tts_v2/tts/llm_client.py†L145-L180】
 - Fallback は Gemin→Azure など特定経路に限定され、quota / 429 検知による段階的フォールバックや tier 代替案が設計されていない。【F:script_pipeline/runner.py†L1352-L1421】

@@ -8,6 +8,8 @@ from .strict_segmenter import strict_segmentation
 from .arbiter import resolve_readings_strict
 from .strict_synthesizer import strict_synthesis, generate_srt
 from .voicevox_api import VoicevoxClient
+from .mecab_tokenizer import tokenize_with_mecab
+from .reading_structs import RubyToken, align_moras_with_tokens
 from .routing import load_routing_config, resolve_voicevox_speaker_id
 
 # Need to load voice_config.json manually because routing.py doesn't handle it fully
@@ -41,7 +43,8 @@ def run_strict_pipeline(
     voicepeak_config: Optional[Dict[str, Any]],
     artifact_root: Path,
     target_indices: Optional[List[int]] = None,
-    resume: bool = False
+    resume: bool = False,
+    prepass: bool = False,
 ) -> None:
     
     print(f"=== STRICT PIPELINE START ===")
@@ -107,52 +110,104 @@ def run_strict_pipeline(
 
     # 2. Reading Resolution (Arbiter)
     print(f"[STEP 2] Reading Resolution (AI Arbiter) - Processing {len(active_segments)} segments")
-    resolve_readings_strict(
+    patches_by_block = resolve_readings_strict(
         segments=active_segments,
         engine=engine,
         voicevox_client=vv_client,
         speaker_id=speaker_id,
         channel=channel,
+        video=video_no,
     )
     
-    # 3. Synthesis
-    print("[STEP 3] Audio Synthesis")
-    # Pass target_indices to synthesizer so it knows which chunks to regenerate vs reuse
-    strict_synthesis(
-        segments=segments, # Pass ALL segments
-        output_wav=output_wav,
-        engine=engine,
-        voice_config=voice_config,
-        voicevox_client=vv_client,
-        speaker_id=speaker_id,
-        target_indices=target_indices, # New arg
-        resume=resume
-    )
-    
-    # 4. SRT Generation
-    srt_path = output_wav.with_suffix(".srt")
-    generate_srt(segments, srt_path)
+    if not prepass:
+        # 3. Synthesis
+        print("[STEP 3] Audio Synthesis")
+        # Pass target_indices to synthesizer so it knows which chunks to regenerate vs reuse
+        strict_synthesis(
+            segments=segments, # Pass ALL segments
+            output_wav=output_wav,
+            engine=engine,
+            voice_config=voice_config,
+            voicevox_client=vv_client,
+            speaker_id=speaker_id,
+            target_indices=target_indices, # New arg
+            resume=resume,
+            patches=patches_by_block,
+        )
+        
+        # 4. SRT Generation
+        srt_path = output_wav.with_suffix(".srt")
+        generate_srt(segments, srt_path)
+    else:
+        print("[STEP 3] Prepass mode: skip synthesis/SRT. Log only.")
     
     # 5. Log Output
+    # prepass用にトークン情報をできるだけ詳細に残す
+    log_segments = []
+    for idx, s in enumerate(segments):
+        seg_entry: Dict[str, Any] = {
+            "section_id": idx,
+            "text": s.text,
+            "reading": s.reading,
+            "pre": s.pre_pause_sec,
+            "post": s.post_pause_sec,
+            "heading": s.is_heading,
+            "duration": s.duration_sec,
+            "verdict": s.arbiter_verdict,
+            "mecab": s.mecab_reading,
+            "voicevox": s.voicevox_reading,
+        }
+        # token-level info (best-effort)
+        try:
+            tokens = tokenize_with_mecab(s.text)
+            ruby_tokens: List[RubyToken] = []
+            for t in tokens:
+                ruby_tokens.append(
+                    RubyToken(
+                        surface=t.get("surface", ""),
+                        reading_hira=t.get("reading_mecab") or t.get("surface") or "",
+                        token_index=int(t.get("index", len(ruby_tokens))),
+                        line_id=idx,
+                    )
+                )
+            vv_kana = s.voicevox_reading or ""
+            vv_token_map: Dict[int, str] = {}
+            try:
+                # strict_synthesis で使った accent_phrases はここでは持っていないため、
+                # 再度 audio_query を取得して alignment する（prepass 時のみコスト許容）。
+                query_for_log = vv_client.audio_query(s.reading or s.text, speaker_id) if prepass else None
+                accent_phrases = query_for_log.get("accent_phrases") if query_for_log else None
+                if accent_phrases:
+                    aligned = align_moras_with_tokens(accent_phrases, ruby_tokens)
+                    for rt, moras in aligned:
+                        vv_token_map[rt.token_index] = "".join(moras)
+            except Exception:
+                vv_token_map = {}
+
+            tok_entries = []
+            for rt in ruby_tokens:
+                tok_entries.append(
+                    {
+                        "token_index": rt.token_index,
+                        "surface": rt.surface,
+                        "pos": tokens[rt.token_index].get("pos", ""),
+                        "mecab_kana": rt.reading_hira,
+                        "voicevox_kana": vv_kana,
+                        "voicevox_kana_norm": vv_token_map.get(rt.token_index, ""),
+                    }
+                )
+            seg_entry["tokens"] = tok_entries
+        except Exception:
+            pass
+
+        log_segments.append(seg_entry)
+
     log_data = {
         "channel": channel,
         "video": video_no,
         "engine": engine,
         "timestamp": time.time(),
-        "segments": [
-            {
-                "text": s.text,
-                "reading": s.reading,
-                "pre": s.pre_pause_sec,
-                "post": s.post_pause_sec,
-                "heading": s.is_heading,
-                "duration": s.duration_sec,
-                "verdict": s.arbiter_verdict,
-                "mecab": s.mecab_reading,
-                "voicevox": s.voicevox_reading
-            }
-            for s in segments
-        ]
+        "segments": log_segments,
     }
     output_log.write_text(json.dumps(log_data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"=== PIPELINE FINISHED ===")

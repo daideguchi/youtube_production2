@@ -25,3 +25,35 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel {チャンネル�
 - 音声ファイルが存在すること（`script_pipeline/data/{チャンネル}/{動画番号}/audio_prep/`に.wavファイル）
 - 字幕ファイルが存在すること（.srtファイル）
 - を確認して、処理完了とする
+
+## CapCutドラフト生成フロー（全チャンネル共通）
+- 前提
+  - `commentary_02_srt2images_timeline/config/channel_presets.json` に各CHの capcut_template / layout / opening_offset / prompt_template が定義済み。
+  - CapCutのテンプレートフォルダが `--draft-root` 配下に存在すること（例: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH01-UNK_道標_最新テンプレ`）。
+  - 対応SRTが `commentary_02_srt2images_timeline/input/{CHxx_*}/` にあること。
+- 実行コマンド例（ディレクトリ `commentary_02_srt2images_timeline/` で実行）
+```
+python tools/auto_capcut_run.py \
+  --channel CH01 \
+  --srt input/CH01_人生の道標/220.srt \
+  --out output/jinsei220 \
+  --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" \
+  --nanobanana direct \
+  --crossfade 0.5 \
+  --imgdur 20 \
+  --fps 30 \
+  --belt-mode llm \
+  --resume false
+```
+- 内部処理の順序（auto_capcut_run.py）
+  1) `tools/run_pipeline.py` を呼び出し、channel preset に従って LLM分割→image_cues.json 生成（`--channel`必須、CH01は pace 12s/カット、他は preset base_period）。画像も同時生成。  
+  2) ベルト生成: `belt_mode` 既定は `llm`（image_cues からLLM生成）。`existing` を指定すると run_dir 内の belt_config.json をそのまま使い、なければスキップ。`equal`/`grouped` は labels や chapters/episode_info.json が必要。  
+  3) `tools/capcut_bulk_insert.py` でテンプレ複製→opening_offset をテンプレトラックに適用→image_cues.json に沿って画像/字幕を配置。テンプレート名は `--template` 未指定なら preset capcut_template を自動使用。CapCut側には tx=0, ty=0, scale=1.03, crossfade=args.crossfade で挿入。  
+  4) `tools/inject_title_json.py` でタイトルを draft JSON に注入（生成タイトル or `--title`）。`auto_run_info.json` に実行メタを書き出し。
+- 主要設定ポイント
+  - opening_offset: presetの `belt.opening_offset` を使用（CH01=3.0s、他CHは0が多い）。CapCutトラックをシフト済み。  
+  - layout/position: presetの position(tx,ty,scale) と layout(beltTopPct 等) を適用。  
+  - style/prompt: presetの prompt_template + prompt_suffix + tone_profile を使用。文字禁止・人物一貫のガードレールはテンプレに強制付与。  
+  - ベルト: 既定は `belt_mode=llm`。既存を使う場合のみ `--belt-mode existing`（belt_config.json が無い場合はスキップされる）。均等4分割は `equal`+labels、日本語必須。章構成から作る場合は `grouped`+chapters/episode_info.json。  
+  - 再実行/部分更新: `--resume` で既存 run_dir の cues/images を再利用。`--fallback-if-missing-cues` で欠損時のみ再生成。  
+  - 確認: 出力先 `output/{run_name}/` に `image_cues.json`, `capcut_draft/`, `capcut_draft_info.json`, `auto_run_info.json` が揃っていることを確認。

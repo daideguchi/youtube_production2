@@ -16,17 +16,17 @@
   reading_hira: ウケトッテミル
   reading_kana: ウケトッテミル
   source: llm
+四で:
+  accent_moras: null
+  last_updated: '2025-12-11T02:50:56.466404+00:00'
+  reading_hira: ヨンデ
+  reading_kana: ヨンデ
+  source: llm
 引き:
   accent_moras: null
   last_updated: '2025-12-10T23:41:12.584522+00:00'
   reading_hira: ヒキ
   reading_kana: ヒキ
-  source: llm
-後:
-  accent_moras: null
-  last_updated: '2025-12-10T23:49:24.512809+00:00'
-  reading_hira: アト
-  reading_kana: アト
   source: llm
 手に取っても:
   accent_moras: null
@@ -57,6 +57,12 @@
   last_updated: '2025-12-11T00:07:21.516203+00:00'
   reading_hira: ハドウ
   reading_kana: ハドウ
+  source: llm
+肩甲骨:
+  accent_moras: null
+  last_updated: '2025-12-11T02:50:56.466404+00:00'
+  reading_hira: ケンコウコツ
+  reading_kana: ケンコウコツ
   source: llm
 背負わせてしまう:
   accent_moras: null
@@ -99,12 +105,6 @@
   last_updated: '2025-12-11T00:19:53.055461+00:00'
   reading_hira: ヒライテイナイ
   reading_kana: ヒライテイナイ
-  source: llm
-額:
-  accent_moras: null
-  last_updated: '2025-12-10T15:26:32.163354+00:00'
-  reading_hira: ヒタイ
-  reading_kana: ヒタイ
   source: llm
 飛び込んでくる:
   accent_moras: null

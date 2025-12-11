@@ -52,11 +52,31 @@ def _truncate_summary(text: str, limit: int = 60) -> str:
 DEFAULT_DRAFT_ROOT = Path.home() / "Movies/CapCut/User Data/Projects/com.lveditor.draft"
 
 
-def run(cmd, env, cwd, exit_on_error=True, timeout=None):
+def run(cmd, env, cwd, exit_on_error=True, timeout=None, abort_patterns=None):
     print(f"▶ {' '.join(cmd)}")
+    abort_patterns = [p.strip() for p in abort_patterns.split(",")] if abort_patterns else []
     start = time.time()
-    res = subprocess.run(cmd, env=env, cwd=cwd, timeout=timeout)
+    proc = subprocess.Popen(cmd, env=env, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    try:
+        for line in proc.stdout:
+            line = line.rstrip("\n")
+            print(line)
+            if abort_patterns and any(p in line for p in abort_patterns):
+                print(f"❌ Abort pattern detected: {line}")
+                proc.terminate()
+                proc.wait(timeout=5)
+                return subprocess.CompletedProcess(cmd, 1)
+        proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        proc.terminate()
+        return subprocess.CompletedProcess(cmd, 124)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        proc.terminate()
+        return subprocess.CompletedProcess(cmd, 1)
+
     elapsed = time.time() - start
+    res = subprocess.CompletedProcess(cmd, proc.returncode)
     res.elapsed = elapsed  # attach elapsed seconds
     if res.returncode != 0 and exit_on_error:
         sys.exit(res.returncode)
@@ -180,9 +200,14 @@ def generate_title_from_cues(cues_path: Path) -> str:
             raise RuntimeError("LLM returned empty title")
         return title
     except Exception as e:
-        print(f"⚠️  Title generation failed: {e}, using fallback title")
-        # Return a fallback title to keep the pipeline running
-        return f"{cues_path.stem}の動画"
+        print(f"⚠️  Title generation failed: {e}, using deterministic fallback")
+        # Deterministic fallback: use最初のサマリを18-28文字でカット、なければファイル名
+        fallback = ""
+        if summaries:
+            fallback = summaries[0][:28]
+        if not fallback:
+            fallback = cues_path.stem
+        return fallback
 
 
 def load_channel_preset(channel_id: str):
@@ -220,7 +245,7 @@ def main():
     ap.add_argument("--template", help="Explicit CapCut template name (optional, otherwise preset capcut_template)")
     ap.add_argument("--prompt-template", help="Explicit prompt template path (optional, otherwise preset prompt_template)")
     ap.add_argument("--img-concurrency", type=int, default=1, help="Image generation concurrency (default: 1 for rate limit safety)")
-    ap.add_argument("--nanobanana", default="direct", help="Image generation mode (direct/cli/mcp/none)")
+    ap.add_argument("--nanobanana", default="direct", choices=["direct", "none"], help="Image generation mode (direct=ImageClient(Gemini), none=skip)")
     ap.add_argument("--force", action="store_true", help="Force regenerate images")
     ap.add_argument("--suppress-warnings", action="store_true", default=True, help="Suppress DeprecationWarnings from underlying libs")
     ap.add_argument("--dry-run", action="store_true", help="Only run pre-flight + logging without modifying drafts")
@@ -235,7 +260,12 @@ def main():
         help="Belt generation mode: existing (use belt_config.json as-is), equal (manual labels), grouped (chapters/episode_info), llm (from image_cues via LLM)",
     )
     ap.add_argument("--timeout-ms", type=int, default=300000, help="Timeout per command (ms)")
+    ap.add_argument("--abort-on-log", help="Comma-separated patterns; abort if any appears in child stdout/stderr")
     args = ap.parse_args()
+
+    if args.nanobanana not in ("direct", "none"):
+        print(f"⚠️ nanobanana={args.nanobanana} is deprecated; falling back to 'direct'")
+        args.nanobanana = "direct"
 
     # config has already populated os.environ
     env = os.environ.copy()
@@ -247,7 +277,7 @@ def main():
     try:
         _ = config.GEMINI_API_KEY
     except ValueError:
-        print("❌ GEMINI_API_KEY not found in SSOT config. Ensure .env or .gemini_config exists.")
+        print("❌ GEMINI_API_KEY not found. Set it in the project .env or your shell environment.")
         sys.exit(1)
 
     run_name = args.run_name
@@ -290,6 +320,18 @@ def main():
     if not ok:
         print(f"❌ Preset invalid: {msg}")
         sys.exit(1)
+
+    # Fast-fail if CapCut template is missing on disk to avoid long waits later
+    if template_override:
+        template_path = Path(args.draft_root) / template_override
+        if not template_path.exists():
+            print(
+                f"❌ CapCut template not found: {template_path}\n"
+                f"   - draft_root = {args.draft_root}\n"
+                f"   - template   = {template_override}\n"
+                "テンプレートを配置するか、--template で存在する名前を指定してください。"
+            )
+            sys.exit(1)
 
     # 1) run_pipeline (images + cues) unless resume
     need_pipeline = not args.resume
@@ -341,7 +383,14 @@ def main():
             pipeline_cmd = [x for x in pipeline_cmd if x not in ("--nanobanana", args.nanobanana)]
             pipeline_cmd += ["--nanobanana", "none"]
             pipeline_cmd = [x for x in pipeline_cmd if x != "--force"]
-        pipeline_res = run(pipeline_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None)
+        pipeline_res = run(
+            pipeline_cmd,
+            env,
+            PROJECT_ROOT,
+            exit_on_error=args.exit_on_error,
+            timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
+            abort_patterns=args.abort_on_log,
+        )
     else:
         pipeline_res = None
         print("ℹ️ resume mode: skipping pipeline (reuse existing cues/images)")
@@ -402,7 +451,7 @@ def main():
                 "--labels",
                 labels,
             ]
-        run(belt_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None)
+        run(belt_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
     elif args.belt_mode == "llm":
         make_llm_belt_from_cues(run_dir, opening_offset=opening_offset)
     else:
@@ -467,7 +516,7 @@ def main():
         "--ty",
         "0.0",
         "--scale",
-        "1.0",
+        "1.03",
         "--crossfade",
         args.crossfade,
         "--opening-offset",
@@ -475,7 +524,7 @@ def main():
         "--rank-from-top",
         "4",
     ]
-    draft_res = run(draft_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None)
+    draft_res = run(draft_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
 
     # 4) Inject title via JSON (robust)
     inject_cmd = [
@@ -488,7 +537,7 @@ def main():
         "--duration",
         "30",
     ]
-    inject_res = run(inject_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None)
+    inject_res = run(inject_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
 
     # Write a small run log
     log_path = run_dir / "auto_run_info.json"

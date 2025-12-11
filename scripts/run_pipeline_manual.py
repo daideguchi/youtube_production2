@@ -27,10 +27,10 @@ def main():
     parser.add_argument("--size", default="1920x1080")
     parser.add_argument("--imgdur", type=float, default=6.0)
     parser.add_argument("--crossfade", type=float, default=1.0)
-    parser.add_argument("--nanobanana", default="direct") # direct is safer than cli for now if client exists
-    parser.add_argument("--nanobanana_bin", default=None) # Path to nanobanana binary if cli mode
+    parser.add_argument("--nanobanana", default="direct", choices=["direct", "none"], help="Image generation: direct=Gemini(ImageClient), none=skip")
+    parser.add_argument("--nanobanana_bin", default=None, help="Deprecated (CLI removed); keep empty")
     parser.add_argument("--nanobanana_timeout", type=int, default=300)
-    parser.add_argument("--nanobanana_config", default=None)
+    parser.add_argument("--nanobanana_config", default=None, help="Deprecated (unused in direct mode)")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--negative", default="")
     parser.add_argument("--seed", type=int, default=-1)

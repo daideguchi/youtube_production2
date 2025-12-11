@@ -1,0 +1,11 @@
+# Task → tier のドラフトマッピング。実運用に合わせて上書き可。
+tasks:
+  script_outline: heavy_reasoning
+  script_chapter_draft: heavy_reasoning
+  script_chapter_review: heavy_reasoning
+  script_global_consistency: heavy_reasoning
+  tts_annotate: standard
+  tts_reading: standard
+  visual_section_plan: heavy_reasoning
+  visual_prompt_from_chunk: heavy_reasoning
+  image_generation: image_gen

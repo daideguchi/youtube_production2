@@ -108,7 +108,7 @@ class TestPipeline(unittest.TestCase):
             cue_mode="grouped",
             crossfade=0.5,
             fps=30,
-            nanobanana='cli',
+            nanobanana='direct',
             nanobanana_bin='',
             nanobanana_timeout=300,
             prompt_template='templates/default.txt',

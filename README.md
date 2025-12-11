@@ -30,6 +30,10 @@ youtube_master/
 | スタートガイド | `START_HERE.md` |
 | ドキュメント索引 | `ssot/DOCS_INDEX.md` |
 
+## キー管理（Gemini等）
+- `GEMINI_API_KEY` などの秘密鍵はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/*` への複製はしない。
+- `.env.example` を参考に必要キーを埋める。既に設定済みの環境変数があればそれが優先される。
+
 ## 見る場所・見ない場所（台本ライン）
 - 見る: `ssot/**`（正本）、`commentary_01_srtfile_v2/data/CHxx/NNN/status.json`（進捗 SoT）、`progress/channels/CHxx.csv`（ミラー）
 - 見ない: `_archives/**`, `docs/**`, `commentary_01_srtfile_v2/docs/**`（参照専用）

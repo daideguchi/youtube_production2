@@ -16,10 +16,10 @@ imgdur = 20.0
 cue_mode = "grouped"
 
 [image_generation]
-nanobanana = "cli"
+nanobanana = "direct"
 nanobanana_bin = ""
 nanobanana_timeout = 300
-nanobanana_config = "~/nanobanana/config.json"
+nanobanana_config = ""
 prompt_template = "templates/default.txt"
 style = ""
 negative = ""

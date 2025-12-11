@@ -7,7 +7,7 @@ from pathlib import Path
 # Add project root to sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from tts.llm_client import azure_chat_with_fallback, get_task_model_keys
+# Legacy script; kept for reference. Do not use in current pipeline.
 
 REVIEW_PROMPT = """
 You are a Japanese B-Text Auditor and Corrector.

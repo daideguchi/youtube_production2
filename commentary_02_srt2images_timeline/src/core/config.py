@@ -1,5 +1,6 @@
 import os
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -59,24 +60,10 @@ class AppConfig:
         Returns the Gemini API Key.
         Strictly enforces that a key must be present.
         """
-        # Check for specific user config file first as requested
-        user_config_path = Path(__file__).resolve().parents[3] / ".gemini_config"
-        if user_config_path.exists():
-            try:
-                content = user_config_path.read_text(encoding="utf-8").strip()
-                # Expecting format GEMINI_API_KEY=xyz or just key? 
-                # The user showed "GEMINI_API_KEY=..."
-                for line in content.splitlines():
-                    if line.startswith("GEMINI_API_KEY="):
-                        return line.split("=", 1)[1].strip()
-            except Exception as e:
-                logger.warning(f"Failed to read .gemini_config: {e}")
-
         key = os.environ.get("GEMINI_API_KEY")
         if not key:
             raise ValueError(
-                "GEMINI_API_KEY is missing! "
-                "Please set it in your environment, .env file, or .gemini_config."
+                "GEMINI_API_KEY is missing! Set it in your environment or the project .env."
             )
         return key
 

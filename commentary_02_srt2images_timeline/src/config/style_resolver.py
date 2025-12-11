@@ -7,6 +7,8 @@ from src.core.domain.style_schema import VideoStyle, TextStyle
 # Resolved relative to project root (commentary_02)
 # src/config/style_resolver.py -> src/config -> src -> commentary_02 -> factory_commentary -> ssot
 DEFAULT_STYLE_PATH = Path(__file__).resolve().parents[3] / "ssot" / "master_styles.json"
+# Fallback path to local config copy
+FALLBACK_STYLE_PATH = Path(__file__).resolve().parents[2] / "config" / "master_styles.json"
 
 class StyleResolver:
     def __init__(self, config_path: Path = DEFAULT_STYLE_PATH):
@@ -15,10 +17,13 @@ class StyleResolver:
         self._load()
 
     def _load(self):
-        if not self.config_path.exists():
-            raise FileNotFoundError(f"Style config not found: {self.config_path}")
+        path = self.config_path
+        if not path.exists() and FALLBACK_STYLE_PATH.exists():
+            path = FALLBACK_STYLE_PATH
+        if not path.exists():
+            raise FileNotFoundError(f"Style config not found (tried): {self.config_path} | fallback={FALLBACK_STYLE_PATH}")
         
-        with open(self.config_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
         raw_styles = data.get("styles", {})

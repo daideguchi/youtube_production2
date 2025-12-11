@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { runAudioTtsV2FromScript } from "../api/client";
-import type { RunTtsV2Response } from "../api/types";
 
 interface ChannelProgress {
   channel: string;

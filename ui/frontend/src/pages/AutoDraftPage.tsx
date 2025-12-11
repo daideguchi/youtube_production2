@@ -352,20 +352,6 @@ export function AutoDraftPage() {
     }
   };
 
-  const handleDownloadSrt = () => {
-    if (srtPreview.status !== "ready" || !srtPreview.content) return;
-    const blob = new Blob([srtPreview.content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const name = form.srtPath.split(/[\\/]/).pop() || "subtitle.srt";
-    a.href = url;
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
   const handleSaveSrt = async () => {
     if (!form.srtPath) {
       setToast("SRTが未選択です");

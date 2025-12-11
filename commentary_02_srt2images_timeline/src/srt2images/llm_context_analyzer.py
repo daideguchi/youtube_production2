@@ -33,7 +33,7 @@ class SectionBreak:
 
 class LLMContextAnalyzer:
     """LLM文脈分析システム (Wrapper around LLMRouter)"""
-    MAX_SEGMENTS_PER_CALL = 1000
+    MAX_SEGMENTS_PER_CALL = 600
     OVERLAP_SEGMENTS = 3
     MIN_SECTION_SECONDS = 3.0
     MAX_SECTION_SECONDS = 40.0
@@ -214,16 +214,16 @@ Script excerpts:
         messages.append({"role": "user", "content": prompt})
 
         try:
+            # Route via LLMClient (router wraps the new client); expect string content
             content = router.call(
                 task="visual_section_plan",
                 messages=messages,
-                temperature=0.3
+                temperature=0.3,
             )
-            
             section_breaks = self._parse_llm_response(
                 content,
                 start_offset=start_offset,
-                segment_count=len(segments)
+                segment_count=len(segments),
             )
 
             if not section_breaks:

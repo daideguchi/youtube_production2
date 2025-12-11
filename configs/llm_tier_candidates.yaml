@@ -1,0 +1,9 @@
+tiers:
+  heavy_reasoning:
+  - azure_gpt5_mini
+  standard:
+  - azure_gpt5_mini
+  cheap:
+  - azure_gpt5_mini
+  image_gen:
+  - gemini_2_5_flash_image

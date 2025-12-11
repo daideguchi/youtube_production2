@@ -1,8 +1,8 @@
 # CapCut Draft SOP (All Channels)
 
 ## 0. Environment
-- Load keys: `export GEMINI_API_KEY=$(cut -d= -f2 /Users/dd/10_YouTube_Automation/factory_commentary/credentials/gemini_config)`
-- Confirm `nanobanana_config` (default `~/nanobanana/config.json`) exists if using direct/cli.
+- Load keys from one place: set `GEMINI_API_KEY` in the project `.env` (or export in your shell). No `.gemini_config` / credentials copies.
+- nanobanana route is single: `direct` only. CLI/mcp 経路や config.json は不要（空でOK）。
 
 ## 1. Run command (no fallbacks)
 ```

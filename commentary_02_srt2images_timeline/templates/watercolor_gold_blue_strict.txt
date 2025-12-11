@@ -1,9 +1,11 @@
 シーン説明: {summary}
 視覚要素: {visual_focus}
+主要人物（この回で描いてよい人物）: {main_character}
+禁止: 主要人物以外の歴史上の人物や有名人を描かない。別の偉人名が出てもその人物を描かない。不要な新キャラを追加しない。
 
 # スタイル定義（固定）
 Style: Traditional watercolor-like digital painting. Thin, pale brown-to-gray lines with occasional breaks. Forms are defined by soft color fields and bleeding edges rather than hard outlines. Subtle washi-like paper grain across the whole frame. No text, no UI, no signs.
-Negative: Photorealism, 3D render, horror, gore, anime exaggeration, big eyes, cel shading, hard outlines, cluttered composition, modern signage.
+Negative: Photorealism, 3D render, horror, gore, anime exaggeration, big eyes, cel shading, hard outlines, cluttered composition, modern signage, red headband, scythe, farm/worker/construction gear, hardhat, tool belts, industrial setting. If the script explicitly calls for such worker/gear, then allow only that and keep one consistent face; otherwise forbid.
 Requirement: Keep proportions realistic-adult; gentle, high-quality illustration. Avoid adding extra characters.
 
 # 追加スタイル仕様（デジタル水彩・厳格）
@@ -31,6 +33,21 @@ Requirement: Keep proportions realistic-adult; gentle, high-quality illustration
 
 5. 要約用（スタイル＆色味だけ）
 - 伝統的水彩画風のデジタルペインティング。細く薄い茶〜グレー線と和紙目テクスチャ。柔らかなにじみとバックラン、粒状感。暖クリーム〜ハニーゴールド＆テラコッタをハイライトに、影・背景は低彩度のブルーグレー／グリーングレーで対比。彩度控えめだがゴールド周辺だけ少し鮮やかに。拡散逆光と金箔の斑点、薄い霧の空気感で静かにドラマチック。
+
+6. ムード/トーン（哲学的・幻想的・ややダーク）
+- 内省的で静かな雰囲気。夜明け前／夕闇のような低コントラストな陰影をうっすら入れ、画面全体を落ち着いた暗さで包む。
+- 幻想的・夢幻的な空気感。遠景にわずかな霧やぼかしを入れ、現実と非現実の境界を曖昧に。
+- 光は柔らかいゴールドの拡散光。影はブルーグレー〜グリーングレーで静かに深く、過度に劇的にしない。
+- 哲学的な余韻を持たせる構図：余白や後景に象徴的なモチーフ（静かな道、霧に浮かぶ樹影など）を暗示的に配し、物語を匂わせる。派手な装飾は排除。
+
+7. きれいな油絵グレーズ（追加ニュアンス）
+- 水彩をベースに、薄い油彩グレーズを上品に重ねて艶と深みを足す。厚塗りや荒い筆致は禁止。クリーンで滑らかな仕上がりを優先。
+
+# 追加ムード（写実・退廃・心理的な非日常）
+- 現実味のある質感をわずかに残しつつ、退廃的な空気（古びた壁、剥がれた塗装、光の埃）を薄く混ぜる。
+- 色は落ち着いた中低彩度を基調に、ポイントで金や冷たいブルーグレーのコントラストを強め、惹きつける焦点を作る。
+- 心理描写を匂わせる構図（余白に影、視線の逃げ場、奥にぼんやりとした形）で非日常感を出す。
+- 優しさは保持しつつ、静かな不穏さ・好奇心を刺激するトーンを一滴加える。
 
 # 入力パラメータ
 {style}

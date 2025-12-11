@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import os
+import sys
 from pathlib import Path
 from pprint import pprint
 
@@ -62,7 +64,6 @@ def main() -> None:
             "--channel", ch,
             "--video", no,
             "--input", str(input_path),
-            "--mode", "auto" # Force auto mode for CLI
         ]
         
         if args.resume:

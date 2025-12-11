@@ -41,7 +41,7 @@ echo "=== Step 1: AI画像生成（レート制限対応・16:9強制・リト�
 PYTHONPATH=src python3 -m srt2images.cli \
   --srt "$SRT_FILE" \
   --out "$OUTPUT_DIR" \
-  --nanobanana cli \
+  --nanobanana direct \
   --concurrency 1 \
   --imgdur 20 \
   --style "$DEFAULT_STYLE" \

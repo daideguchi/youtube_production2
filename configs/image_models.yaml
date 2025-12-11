@@ -10,7 +10,7 @@ models:
     provider: gemini
     model_name: gemini-2.5-flash-image
     capabilities:
-      supports_aspect_ratio: true
+      supports_aspect_ratio: false
       supports_size: false
       supports_negative_prompt: false
       supports_seed: true
@@ -18,18 +18,18 @@ models:
 
 # Tier-to-model resolution. The first entry is treated as the primary candidate.
 tiers:
-  image:
+  image_gen:
     - gemini_2_5_flash_image
 
 # Task-level defaults. Options provided at call time override these values.
 tasks:
   image_generation:
-    tier: image
+    tier: image_gen
     defaults:
       aspect_ratio: "16:9"
       n: 1
   visual_image_gen:
-    tier: image
+    tier: image_gen
     defaults:
       aspect_ratio: "16:9"
       n: 1

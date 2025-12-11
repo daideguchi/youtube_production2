@@ -22,26 +22,8 @@ if env_key:
 else:
     print("   ❌ 設定されていません")
 
-# 2. .gemini_configファイルから
-gemini_config_path = project_root / ".gemini_config"
-print(f"\n2. .gemini_configファイル ({gemini_config_path}):")
-if gemini_config_path.exists():
-    try:
-        content = gemini_config_path.read_text(encoding="utf-8").strip()
-        print(f"   ファイル内容:")
-        for line in content.splitlines():
-            if line.strip() and not line.strip().startswith("#"):
-                print(f"     {line[:50]}...")
-                if line.startswith("GEMINI_API_KEY="):
-                    key = line.split("=", 1)[1].strip()
-                    print(f"   ✅ キーを検出: {key[:20]}...{key[-10:]}")
-    except Exception as e:
-        print(f"   ❌ 読み込みエラー: {e}")
-else:
-    print("   ❌ ファイルが存在しません")
-
-# 3. config.pyから読み込まれるキー
-print(f"\n3. config.py経由で読み込まれるキー:")
+# 2. config.pyから読み込まれるキー
+print(f"\n2. config.py経由で読み込まれるキー:")
 try:
     from src.core.config import config
     config_key = config.GEMINI_API_KEY
@@ -50,8 +32,8 @@ except Exception as e:
     print(f"   ❌ 読み込みエラー: {e}")
     config_key = None
 
-# 4. 他の.envファイルを確認
-print(f"\n4. その他の設定ファイル:")
+# 3. .envファイルを確認（プロジェクトとホーム）
+print(f"\n3. .envファイルを確認:")
 env_files = [
     project_root / ".env",
     Path.home() / ".env",
@@ -71,7 +53,7 @@ for env_file in env_files:
     else:
         print(f"   {env_file}: 存在しません")
 
-# 5. 実際に使用されるキーの比較
+# 4. 実際に使用されるキーの比較
 print(f"\n" + "=" * 60)
 print("実際に使用されるキー:")
 print("=" * 60)
@@ -86,5 +68,4 @@ if config_key:
         print(f"   ✅ 環境変数とconfig.pyのキーは一致しています")
 else:
     print("❌ キーを読み込めませんでした")
-
 

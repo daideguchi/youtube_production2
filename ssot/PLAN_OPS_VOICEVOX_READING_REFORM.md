@@ -6,7 +6,7 @@
 > - 担当/レビュー: Codex（最終更新者）
 > - 対象範囲 (In Scope): `audio_tts_v2` の VOICEVOX 読み誤り対策、SRT/Bテキスト生成経路
 > - 非対象 (Out of Scope): 台本生成ロジックの刷新、投稿/動画編集 UI
-> - 最終更新日: 2025-12-10
+- 最終更新日: 2025-12-11
 
 > VOICEVOX 読み誤り対策の正本。旧 SSOT は `ssot_old/` に退避済みで、以後の更新・TODO 管理は本書のみで行う。
 
@@ -14,10 +14,19 @@
 - 目的: VOICEVOX を用いた audio_tts_v2 パイプラインでの誤読・不自然抑揚を、LLM/MeCab/VOICEVOX の三者比較で検出・矯正する。
 - 適用: `audio_tts_v2` の `run_tts_pipeline` 実行経路全般（A テキスト→ SRT → B テキスト→音声/SRT 出力）。
 
+## 1.1 最新方針（2025-12-11 再確定・実装済み）
+- Ruby LLM の役割は「surface単位で VOICEVOX の読みが OK/NG を判定し、NG のときだけカナを返す」だけ。文を書き換えない。
+- 1動画あたりの Ruby LLM は構造的に最大2コール / surface 最大40件（batch20×2）に固定。パラメータキャップではなく仕様。
+- 送信対象は hazard レベルAのみ（英数字/数値/未知語/固有名詞/ハザード辞書）。レベルB（単なる block_diff）は `include_level_b=True` のときだけ。
+- Voicevox の聴きやすさ揺れ（コオテエ/キョオ等）は正規化で trivial 判定し、LLM に送らない。禁止語（今日/今/助詞/1文字等）は全経路で除外。
+- LLM I/O: 入力 items[{surface,mecab_kana,voicevox_kana,contexts,hazard_tags,positions}], 出力 items[{surface,decision=ok|ng|skip,correct_kana?}]; decision!=ng は無視。correct_kana はカタカナのみをローカル検証してから KanaPatch 化。
+- KanaPatch は positions で全出現に適用し、accent_phrases で align。失敗時は長さクリップ＋fallback理由をログ。
+- vocab LLM は本番パイプラインから切り離し（enable_vocab=False デフォルト）。辞書育成はオフラインバッチ前提にする。
+- ログ: `tts_voicevox_reading.jsonl` に selected/adopted/rejected/calls、surface/mecab/voicevox/ruby、reason（hazard/trivial_skipped/banned/align_fallback 等）を記録し、集計でコール数≤2/件数≤40を確認する。
 ## 2. 現行実装サマリ（実コード優先）
 - Aテキスト前処理〜トークン化: `tts/orchestrator.py::run_tts_pipeline` で Markdown を保持したまま前処理→MeCab トークナイズを実行し `tokens` を生成。【F:audio_tts_v2/tts/orchestrator.py†L137-L205】
 - Bテキスト初期生成: SRT ブロックごとに MeCab のドラフト読み (`generate_draft_readings`) を付与し `b_text` を保持。【F:audio_tts_v2/tts/orchestrator.py†L205-L273】
-- Twin-Engine 監査: VOICEVOX `/audio_query` 由来の `voicevox_kana` と MeCab 読みを比較し、一致しないブロックへ `audit_needed` を設定。【F:audio_tts_v2/tts/orchestrator.py†L273-L332】
+- Twin-Engine 監査: VOICEVOX `/audio_query` 由来の `voicevox_kana` と MeCab 読みを比較し、一致しないブロックへ `audit_needed` を設定。`audio_query` の `accent_phrases` もブロックに保持し、KanaPatch アラインに利用。【F:audio_tts_v2/tts/orchestrator.py†L273-L332】
 - 監査プロンプト枠: `tts/auditor.py` は hazard/辞書/トリビアル差分ゲート後の語彙をまとめて `tts_reading` にバッチ送信し、学習結果をチャンネル辞書に即反映する。【F:audio_tts_v2/tts/auditor.py†L8-L219】
 - VOICEVOX 合成: `tts/synthesis.py::voicevox_synthesis(_chunks)` が `/audio_query`→`/synthesis` を実行し `accent_phrases` を保持可能。`apply_kana_patches` で moras を上書きでき、`voicevox_synthesis` は `patches`、`voicevox_synthesis_chunks` は `patches_by_block` を受け取って `/synthesis` に渡す。【F:audio_tts_v2/tts/synthesis.py】
 - データクラス: `tts/reading_structs.py` にルビ・リスク・カナパッチの共通型（`RubyToken`, `RiskySpan`, `KanaPatch` 等）と LLM 呼び出しスケルトンが定義済み。【F:audio_tts_v2/tts/reading_structs.py†L1-L86】
@@ -28,10 +37,11 @@
 - 追加: `audio_tts_v2/tts/reading_dict.py` を新設し、チャンネル単位の YAML 辞書をロード/マージする。`merge_channel_readings` で LLM 判定結果をキャッシュし、`arbiter.resolve_readings_strict` から `load_channel_reading_dict` を呼び出して WordDictionary に事前注入する。
 - ロードタイミング: `strict_orchestrator.run_strict_pipeline` → `resolve_readings_strict` 呼び出し時に `channel` 引数を渡し、Voicevox 前の辞書適用に利用。
 - 更新: LLM が返した `corrections` を `ReadingEntry` として YAML に書き戻す。アクセント情報は null 許容。
+- ポリシー: 辞書はホワイトリスト（固有名詞/外来語/製品名）限定。1文字・助詞/助動詞・文脈依存語（今日/今/昨日/明日/今年/来年/去年など）は登録禁止で、ロード/保存/適用/LLM送信の全経路でフィルタする。
 
-### 3.1 レイヤー1: LLM ルビ付け
-- 挿入位置: `run_tts_pipeline` のトークン生成直後。
-- 実装: `reading_structs.call_llm_for_ruby(tokens: list[RubyToken] | list[dict], lines: list[str]) -> RubyInfo` を実装し、`RubyInfo` を `srt_blocks` へ付与。`raw_llm_payload` に生レスポンスを保持。
+### 3.1 レイヤー1: LLM ルビ付け（現在は使用しない）
+- 現状 `run_tts_pipeline` では **未配線**。LLMコスト削減と過剰介入防止のため、ルビ用LLM呼び出しは行わない。
+- `reading_structs.call_llm_for_ruby` は将来の実験用に残置するが、運用フローでは呼び出さない。
 
 ### 3.2 レイヤー2: 危険箇所スコアリング
 - 挿入位置: ルビ取得後、SRT 確定前に危険候補抽出。
@@ -66,6 +76,7 @@
 - hazard 辞書: `data/hazard_readings.yaml` をキャッシュ用途で管理し、`term, score, notes, last_seen` を保持。ログから週次集計で更新し、レイヤー1/3の優先度付けに利用。
 - アクセント付きカナ学習: `/audio_query` の `accent_phrases[].moras` と LLM ルビを JSONL に蓄積し、将来の「漢字仮名交じり→アクセント付きカナ」モデルの教師データとする。文脈（前後文）とアクセント句境界/ピッチをそのまま保存。
 - プロファイル計測: `tts/orchestrator.py::run_tts_pipeline` にレイヤー別タイマーを追加し、`TTS_PROFILE channel=...` ログと JSONL (`tts_voicevox_reading.jsonl`) に `{layer_times, tts_reading_calls, risky_terms}` を記録する。
+- コスト上限: LLM 読み裁定はデフォルト calls<=3, vocab_terms<=120 に制限し、超過時は `budget_exceeded=true` をログ出力のうえ辞書/Voicevox優先で続行する（LLM追撃なし）。理由は `budget_exceeded:<stage>` 形式で JSONL に残す。
 
 ## 7. TODO / 実装ステータス（唯一の進行管理表）
 - [x] `call_llm_for_ruby` 実装（チャンク入力 + RubyInfo 出力 + payload 保存）。
@@ -77,6 +88,9 @@
 - [x] レイヤー0導入: チャンネル辞書 (YAML) のロードと LLM 判定結果の書き戻し。`reading_dict.py` 追加。
 - [x] 計測追加: `run_tts_pipeline` にレイヤー別タイミングログと JSONL 追記、リスク件数/LLM 呼び出し回数の計測スケルトンを整備。
 - [x] レイヤー3語彙バッチ化: `audit_blocks` で hazard/辞書/トリビアル通過語彙のみを抽出し、最大40語ずつ `tts_reading` にバッチ送信。返却読みはチャンネル辞書と学習辞書へ即書き戻し、`tts_reading_calls` に実リクエスト数を記録。
+- [x] コスト/禁止語ガード: 辞書・学習・LLM送信の全経路で禁止語をフィルタし、LLM呼び出しを calls<=3 / vocab<=120 の上限で打ち切るフォールバックを導入。
+- [ ] TTS三段導線（annotate→text_prepare→reading→SSML）を orchestrator/builder に接続 | ⏳ llm_adapter 側は router 化済み。実配線は他エージェント対応中のため本タスクでは触らない。
+- [ ] E2E スモーク（RUN_E2E_SMOKE=1 で実行可否切替） | ⏳ プレースホルダを tests に追加済み。実パイプラインは未実行。
 
 ## 8. 運用メモ
 - 本書が唯一の更新ソース。旧 `ssot_old/` 配下やルート stub には追記しない。

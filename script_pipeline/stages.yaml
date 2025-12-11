@@ -74,6 +74,12 @@ stages:
   - name: script_enhancement
     description: Enhancement pass (no new files)
     outputs: []
+    llm:
+      task: script_chapter_review
+      template: chapter_review
+      max_tokens: 4096
+      placeholders:
+        SCRIPT_CONTENT: "@content/chapters/chapter_1.md"
   - name: script_review
     description: Assemble chapters
     outputs:
@@ -111,6 +117,12 @@ stages:
   - name: script_validation
     description: Final validation (no additional outputs; SoT=content/final/assembled.md)
     outputs: []
+    llm:
+      task: script_global_consistency
+      template: consistency
+      max_tokens: 4096
+      placeholders:
+        SCRIPT_CONTENT: "@content/assembled.md"
   - name: audio_synthesis
     description: Generate audio and subtitles
     outputs:
@@ -122,3 +134,9 @@ stages:
         required: true
       - path: ../../../audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.srt
         required: true
+    llm:
+      task: tts_reading
+      template: tts_reading
+      max_tokens: 32000
+      placeholders:
+        A_TEXT: "@content/assembled.md"

@@ -6,6 +6,7 @@ import os
 import dotenv
 import requests
 import sys
+import shutil
 
 # Ensure project root and audio_tts_v2 are in sys.path
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -44,6 +45,8 @@ def parse_args() -> argparse.Namespace:
     # Partial Regeneration
     p.add_argument("--indices", type=str, help="Comma-separated segment indices to regenerate (0-based). Example: '3,10'")
     p.add_argument("--resume", action="store_true", help="Resume from existing chunks (skip generation if chunk exists)")
+    # Prepass (reading only, no synthesis)
+    p.add_argument("--prepass", action="store_true", help="Reading-only pass (no wav synthesis). Generates log.json with readings.")
 
     return p.parse_args()
 
@@ -73,9 +76,55 @@ def main() -> None:
     base_dir = Path(__file__).resolve().parents[2]
     if not args.input.exists():
         raise SystemExit(f"[ERROR] Input file not found: {args.input}")
-    
+
+    # --- Global guard: assemble the right script before synthesis -----------------
+    # ルール:
+    # - チャンネル/動画配下の content に assembled_human.md があれば、それが最終確定版。
+    # - assembled_human.md が存在し、assembled.md と内容が異なる場合は、
+    #   assembled_human.md を assembled.md に自動で同期してから進む。
+    # - assembled_human.md が無ければ、assembled.md をそのまま使う。
+    #
+    # これにより「古い assembled.md を参照して誤って合成する」事故を防ぐ。
+    content_dir = args.input.parent
+    human_path = content_dir / "assembled_human.md"
+    assembled_path = content_dir / "assembled.md"
+
+    if args.input.name == "assembled.md" and human_path.exists():
+        try:
+            human_text = human_path.read_text(encoding="utf-8")
+            assembled_text = assembled_path.read_text(encoding="utf-8") if assembled_path.exists() else ""
+            if human_text != assembled_text:
+                assembled_path.write_text(human_text, encoding="utf-8")
+                print(f"[SYNC] assembled_human.md -> assembled.md (authoritative human edit detected)")
+        except Exception as e:
+            raise SystemExit(f"[ERROR] Failed to sync assembled_human.md -> assembled.md: {e}")
+
     # Output to script_pipeline/data/...
     artifact_root = base_dir / "script_pipeline" / "data" / args.channel / args.video / "audio_prep"
+
+    def _latest_mtime(path: Path) -> float:
+        mtimes = []
+        if path.exists():
+            mtimes.append(path.stat().st_mtime)
+            for p in path.rglob("*"):
+                if p.exists():
+                    try:
+                        mtimes.append(p.stat().st_mtime)
+                    except OSError:
+                        continue
+        return max(mtimes) if mtimes else 0.0
+
+    # If human/assembled script is newer than existing artifacts, purge audio_prep
+    script_mtime = (human_path if human_path.exists() else assembled_path).stat().st_mtime
+    if artifact_root.exists():
+        artifacts_mtime = _latest_mtime(artifact_root)
+        if script_mtime > artifacts_mtime:
+            try:
+                shutil.rmtree(artifact_root)
+                print(f"[CLEAN] audio_prep purged (script newer than artifacts)")
+            except Exception as e:
+                raise SystemExit(f"[ERROR] Failed to purge old audio_prep: {e}")
+
     artifact_root.mkdir(parents=True, exist_ok=True)
     
     out_wav = args.out_wav or artifact_root / f"{args.channel}-{args.video}.wav"
@@ -108,9 +157,13 @@ def main() -> None:
             voicepeak_config=voicepeak_overrides,
             artifact_root=out_wav.parent,
             target_indices=[int(i) for i in args.indices.split(",")] if args.indices else None,
-            resume=args.resume
+            resume=args.resume,
+            prepass=args.prepass,
         )
-        print(f"[SUCCESS] Pipeline completed. Output: {out_wav}")
+        if args.prepass:
+            print(f"[SUCCESS] Prepass completed. Log: {log_path}")
+        else:
+            print(f"[SUCCESS] Pipeline completed. Output: {out_wav}")
         
         # Metadata
         from datetime import datetime

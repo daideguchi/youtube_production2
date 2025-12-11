@@ -1,0 +1,11 @@
+# Optional task overrides for LLMRouter
+# ここで task ごとに tier/models/options/system_prompt を上書きできる。
+# 未設定の場合は llm_router.yaml の定義を使用する。
+tasks:
+  # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
+  # script_outline:
+  #   models: [gpt-5-mini]
+  #   system_prompt_override: "You are a careful editor."
+  #   options:
+  #     temperature: 0.2
+  #     response_format: json_object

@@ -17,6 +17,15 @@ templates:
   cta:
     heading: CTA
     path: script_pipeline/prompts/cta_prompt.txt
+  chapter_review:
+    heading: チャプター自己レビュー
+    path: script_pipeline/prompts/chapter_review_prompt.txt
+  consistency:
+    heading: 全体整合チェック
+    path: script_pipeline/prompts/consistency_prompt.txt
+  tts_reading:
+    heading: TTS用読み合わせ
+    path: script_pipeline/prompts/tts_reading_prompt.txt
   polish:
     heading: 仕上げ
     path: script_pipeline/prompts/llm_polish_template.txt

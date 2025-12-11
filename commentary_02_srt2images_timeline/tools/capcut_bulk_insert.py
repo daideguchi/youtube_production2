@@ -14,6 +14,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # CapCut API path
 # Ensure pyJianYingDraft is importable in local environments
@@ -39,6 +41,43 @@ import traceback
 from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path
 from src.config.style_resolver import StyleResolver
 from src.adapters.capcut.style_mapper import CapCutStyleAdapter
+
+# Channel-specific post processors (per-channel hooks)
+CHANNEL_HOOKS = {}
+
+# CH02 hook implementation
+def _apply_ch02_overrides(draft_dir: Path, belt_text: Optional[str] = None):
+    """
+    Apply CH02-specific overrides:
+    - Belt text update (content/info both)
+    - Keep existing BGM/Effect; no extra injection to avoid cross-channel mixing
+    """
+    try:
+        for fname in ("draft_content.json", "draft_info.json"):
+            path = draft_dir / fname
+            if not path.exists():
+                continue
+            data = json.loads(path.read_text())
+            # belt_main text update if provided
+            if belt_text:
+                belt = next((t for t in data.get("tracks", []) if t.get("name") == "belt_main"), None)
+                if belt and belt.get("segments"):
+                    mid = belt["segments"][0].get("material_id")
+                    mats = data.get("materials", {}).get("texts", [])
+                    for m in mats:
+                        if m.get("id") == mid:
+                            if isinstance(m.get("content"), dict):
+                                m["content"]["text"] = belt_text
+                            else:
+                                m["content"] = belt_text if fname.endswith("info.json") else {"text": belt_text}
+                            m["base_content"] = belt_text
+                            m["name"] = m.get("name") or "belt_main_text"
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    except Exception as exc:
+        logger.warning(f"CH02 override failed: {exc}")
+
+# register hook
+CHANNEL_HOOKS["CH02"] = _apply_ch02_overrides
 
 try:
     from fix_fade_transitions_correct import (
@@ -525,6 +564,140 @@ def ensure_absolute_indices(draft_dir: Path) -> None:
         logger.warning(f"Failed to enforce absolute_index: {exc}")
 
 
+def _apply_common_subtitle_style(draft_dir: Path) -> None:
+    """
+    Normalize subtitle track styling across channels (shared baseline).
+    Source of truth: master_styles_v2.json style 'ch02_common_subtitle_v2'
+    Fallbacks (if style not found): center align, width 0.82, line_spacing 0.021,
+    white text, thin black border, no background, position y=-0.8, scale 1.0
+    """
+    try:
+        # Load style from SSOT
+        style = None
+        try:
+            resolver = StyleResolver(Path(__file__).resolve().parents[1] / "config" / "master_styles_v2.json")
+            style = resolver.get_style("ch02_common_subtitle_v2") or resolver.get_style("jinsei_standard_v2")
+        except Exception:
+            style = None
+
+        # Defaults
+        cfg = {
+            "line_max_width": 0.82,
+            "line_spacing": 0.021,
+            "text_size": 30,
+            "font_size": 15,
+            "border_width": 0.06,
+            "border_color": "#000000",
+            "text_color": "#FFFFFF",
+            "background_style": 0,
+            "background_color": "",
+            "background_alpha": 0.0,
+            "transform_y": -0.8,
+        }
+
+        # Override from SSOT if available
+        if style:
+            s = style.subtitle_style
+            cfg["text_size"] = s.font_size_pt * style.platform_overrides.get("capcut", {}).get("subtitle", {}).get("font_scale_factor", 0.1)
+            cfg["font_size"] = cfg["text_size"] / 2  # approximate
+            cfg["line_spacing"] = 0.02
+            cfg["text_color"] = s.text_color
+            if s.stroke_enabled:
+                cfg["border_color"] = s.stroke_color
+                cfg["border_width"] = 0.06
+            cfg["background_style"] = 0 if not s.background_enabled else 1
+            cfg["background_color"] = s.background_color if s.background_enabled else ""
+            cfg["background_alpha"] = s.background_opacity if s.background_enabled else 0.0
+            cfg["line_max_width"] = 0.82
+            cfg["transform_y"] = -s.position_y  # invert logical to CapCut
+
+        for fname in ("draft_content.json", "draft_info.json"):
+            path = draft_dir / fname
+            if not path.exists():
+                continue
+            data = json.loads(path.read_text())
+            tracks = [t for t in data.get("tracks", []) if t.get("name") == "subtitles_text"]
+            if not tracks:
+                continue
+
+            sub_mat_ids = set()
+            for t in tracks:
+                for seg in t.get("segments", []):
+                    mid = seg.get("material_id")
+                    if mid:
+                        sub_mat_ids.add(mid)
+                    clip = seg.setdefault("clip", {})
+                    clip.setdefault("transform", {})
+                    clip["transform"]["x"] = 0.0
+                    clip["transform"]["y"] = cfg["transform_y"]
+                    clip.setdefault("scale", {})
+                    clip["scale"]["x"] = 1.0
+                    clip["scale"]["y"] = 1.0
+
+            mats = data.get("materials", {}).get("texts", [])
+            for m in mats:
+                if m.get("id") not in sub_mat_ids:
+                    continue
+                m["alignment"] = 1  # center
+                m["line_max_width"] = cfg["line_max_width"]
+                m["line_spacing"] = cfg["line_spacing"]
+                m["text_size"] = cfg["text_size"]
+                m["font_size"] = cfg["font_size"]
+                m["border_width"] = cfg["border_width"]
+                m["border_color"] = cfg["border_color"]
+                m["text_color"] = cfg["text_color"]
+                m["background_style"] = cfg["background_style"]
+                m["background_color"] = cfg["background_color"]
+                m["background_alpha"] = cfg["background_alpha"]
+                m["force_apply_line_max_width"] = False
+
+                content_field = m.get("content")
+                if isinstance(content_field, str):
+                    try:
+                        c_json = json.loads(content_field)
+                    except Exception:
+                        c_json = None
+                elif isinstance(content_field, dict):
+                    c_json = content_field
+                else:
+                    c_json = None
+
+                if isinstance(c_json, dict):
+                    styles = c_json.get("styles") or []
+                    for st in styles:
+                        st["size"] = 3.0
+                        fill = st.setdefault("fill", {})
+                        fill["alpha"] = 1.0
+                        fill_content = fill.setdefault(
+                            "content", {"render_type": "solid", "solid": {"alpha": 1.0, "color": [1.0, 1.0, 1.0]}}
+                        )
+                        if isinstance(fill_content, dict):
+                            solid = fill_content.setdefault("solid", {"alpha": 1.0, "color": [1.0, 1.0, 1.0]})
+                            solid["alpha"] = 1.0
+                            solid["color"] = [1.0, 1.0, 1.0]
+                        st["strokes"] = st.get("strokes", [])
+                        st["bold"] = False
+                        st["underline"] = False
+                    m["content"] = json.dumps(c_json, ensure_ascii=False)
+
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    except Exception as exc:  # pragma: no cover
+        logger.warning(f"Subtitle style normalization failed: {exc}")
+
+
+def _apply_channel_hook(channel_id: Optional[str], draft_dir: Path) -> None:
+    """
+    Run channel-specific post-processors if registered.
+    """
+    try:
+        if not channel_id:
+            return
+        hook = CHANNEL_HOOKS.get(channel_id)
+        if hook:
+            # CH02では帯テキストを後から渡すことがあるため、必要ならここで引数を追加可能
+            hook(draft_dir)
+    except Exception as exc:  # pragma: no cover
+        logger.warning(f"Channel hook failed for {channel_id}: {exc}")
 def sync_draft_info_with_content(draft_dir: Path) -> bool:
     """
     Sync draft_info.json with draft_content.json.
@@ -609,6 +782,69 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
         return False
 
 
+def _dedupe_tracks_and_materials(draft_dir: Path):
+    """
+    Remove duplicate tracks/materials caused by template carryover.
+    Keep the last occurrence of each (type, name) track and dedupe video materials by path/material_name.
+    """
+    try:
+        content_path = draft_dir / "draft_content.json"
+        if not content_path.exists():
+            return
+        data = _json2.loads(content_path.read_text(encoding="utf-8"))
+        tracks = data.get("tracks", [])
+        deduped = []
+        seen = set()
+        for tr in reversed(tracks):
+            key = (tr.get("type"), tr.get("name"))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(tr)
+        deduped.reverse()
+        data["tracks"] = deduped
+
+        mats = data.get("materials", {}).get("videos", [])
+        seen_vid = set()
+        dedup_vid = []
+        for m in reversed(mats):
+            key = (m.get("path"), m.get("material_name"))
+            if key in seen_vid:
+                continue
+            seen_vid.add(key)
+            dedup_vid.append(m)
+        dedup_vid.reverse()
+        data.setdefault("materials", {})["videos"] = dedup_vid
+
+        content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def _force_video_scale(draft_dir: Path, scale: float):
+    """Force clip.scale for all video segments to the given scale (CapCut sometimes resets)."""
+    try:
+        content_path = draft_dir / "draft_content.json"
+        if not content_path.exists():
+            return
+        data = _json2.loads(content_path.read_text(encoding="utf-8"))
+        changed = False
+        for tr in data.get("tracks", []):
+            if tr.get("type") != "video":
+                continue
+            for seg in tr.get("segments", []):
+                clip = seg.setdefault("clip", {})
+                clip.setdefault("scale", {})
+                clip.setdefault("transform", {})
+                clip["scale"]["x"] = scale
+                clip["scale"]["y"] = scale
+                changed = True
+        if changed:
+            content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def apply_auto_fade_transitions(draft_dir: Path, track_name: str, fade_duration_sec: float) -> int:
     """Inject crossfade transitions directly into CapCut draft JSON files."""
     if (
@@ -657,35 +893,17 @@ def apply_auto_fade_transitions(draft_dir: Path, track_name: str, fade_duration_
     return added
 
 
-def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, layout_config=None):
+def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, layout_config=None, channel_id=None):
     """
-    人生の道標専用: 既存帯トラックを上書き・最上位に移動
-
-    テンプレートの帯レイヤーを：
-    1. material の text のみ更新（styles は一切触らない）
-    2. timerange のみ調整
-    3. 位置を文字数ベースで調整（新規追加）
-    4. トラックを最上位に移動
+    帯レイヤーを上書き・最上位に移動（チャンネル共通）。
+    CH01 固定のスタイル参照を排除し、レイアウトは belt_config / layout_config を優先。
     """
     try:
-        # Use StyleResolver to get the style
-        resolver = StyleResolver()
-        # TODO: Pass style_id from arguments or infer. For now, default to jinsei_standard_v2
-        style = resolver.get_style("jinsei_standard_v2")
-        if not style:
-            logger.warning("Style 'jinsei_standard_v2' not found, falling back to defaults")
-            # Fallback defaults if style missing (should not happen with SSOT)
-            slope = 0.022479
-            intercept = -0.944752
-            clip_y = 0.775
-            scale_val = 0.236588
-        else:
-            # Extract belt config from platform overrides
-            belt_config = style.platform_overrides.get("capcut", {}).get("belt", {})
-            slope = belt_config.get("slope", 0.022479)
-            intercept = belt_config.get("intercept", -0.944752)
-            clip_y = belt_config.get("y_position", 0.775)
-            scale_val = belt_config.get("scale", 0.236588)
+        # 汎用デフォルト
+        slope = 0.022479
+        intercept = -0.944752
+        clip_y = 0.775
+        scale_val = 0.236588
 
         # Dynamic layout override (SSOT)
         if layout_config:
@@ -713,11 +931,12 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
             total_duration_sec = (content_data.get('duration', 0) / SEC)
         total_duration_us = int(total_duration_sec * SEC)
 
-        # belt_dataの構造を処理
-        # 新形式（belt_config.json）
-        if 'belts' in belt_data:
-            belts = belt_data['belts']
+        # belt_dataの構造を処理（ベルトなしは安全にスキップ）
+        belts_raw = belt_data.get('belts')
+        belt_upper = belt_data.get('belt_upper', [])
+        belt_lower = belt_data.get('belt_lower', {})
 
+        if belts_raw is not None:
             def _normalize_belts(belts_list):
                 """Sort by start, fill missing end/duration, ensure contiguous coverage."""
                 if not belts_list:
@@ -742,29 +961,28 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
                             norm[i]['end'] = total_duration_sec
                 return norm
 
-            belts = _normalize_belts(belts)
-
-            # belts配列をbelt_upperに変換（全区間連続）
+            belts = _normalize_belts(belts_raw)
             belt_upper = []
             for belt in belts:
+                duration = max(0.0, float(belt['end']) - float(belt['start']))
                 belt_upper.append({
-                    'text': belt['text'],
-                    'start_sec': belt['start'],
-                    'duration_sec': belt['end'] - belt['start']
+                    'text': belt.get('text', ''),
+                    'start_sec': float(belt.get('start', 0.0)),
+                    'duration_sec': duration
                 })
-            # メインタイトル用のデータ（belt_lowerがあれば優先）
-            belt_lower = belt_data.get('belt_lower', {})
-        else:
-            # 旧形式（互換性維持）
-            belt_lower = belt_data.get('belt_lower', {})
-            belt_upper = belt_data.get('belt_upper', [])
 
-        if not belt_lower:
-            belt_lower = {'text': title if title else '人生の道標', 'start_sec': 0.0, 'duration_sec': total_duration_sec}
+        fallback_title = title or belt_data.get("main_title") or ""
+        if not belt_lower and fallback_title:
+            belt_lower = {'text': fallback_title, 'start_sec': 0.0, 'duration_sec': total_duration_sec}
         else:
-            belt_lower.setdefault('text', title if title else '人生の道標')
+            belt_lower.setdefault('text', fallback_title)
             belt_lower.setdefault('start_sec', 0.0)
             belt_lower.setdefault('duration_sec', total_duration_sec)
+
+        # ベルト情報が皆無かつタイトルも無い場合のみスキップ（落ちないようガード）
+        if not belt_upper and (not belt_lower or not belt_lower.get('text')):
+            logger.info("  ⏭️  belt_config has no belts/main title; skipping belt overlay")
+            return
 
         tracks = content_data.get('tracks', [])
         materials_text = {mat.get('id'): mat for mat in content_data.get('materials', {}).get('texts', [])}
@@ -784,134 +1002,167 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
         target_upper_texts = [item['text'] for item in belt_upper]
         target_lower_text = belt_lower.get('text', '')
 
-        subtitle_belt_track_idx = None
-        subtitle_candidate_idx = None
-        main_belt_track_idx = None
-        main_candidate_idx = None
-
-        for idx, track in enumerate(tracks):
-            if track.get('type') != 'text':
-                continue
-            segs = track.get('segments', [])
-            seg_count = len(segs)
-            seg_texts = _segment_texts(segs)
-            if seg_count == len(target_upper_texts):
-                if set(seg_texts) == set(target_upper_texts):
-                    subtitle_belt_track_idx = idx
-                    logger.info(f"  ✅ サブタイトル帯発見: Track {idx}")
-                elif subtitle_candidate_idx is None:
-                    subtitle_candidate_idx = idx
-            elif seg_count == 1:
-                text_value = seg_texts[0] if seg_texts else ''
-                if target_lower_text and text_value == target_lower_text:
-                    main_belt_track_idx = idx
-                    logger.info(f"  ✅ メイン帯発見: Track {idx}")
-                elif not target_lower_text and main_candidate_idx is None:
-                    main_candidate_idx = idx
-                elif main_candidate_idx is None:
-                    main_candidate_idx = idx
-
-        if subtitle_belt_track_idx is None:
-            subtitle_belt_track_idx = subtitle_candidate_idx
-        if main_belt_track_idx is None:
-            main_belt_track_idx = main_candidate_idx
-
-        # fallback: pick first/second text track even if counts differ
-        if subtitle_belt_track_idx is None or main_belt_track_idx is None:
-            text_track_indices = [i for i, t in enumerate(tracks) if t.get('type') == 'text']
-            if len(text_track_indices) >= 1 and subtitle_belt_track_idx is None:
-                subtitle_belt_track_idx = text_track_indices[0]
-            if len(text_track_indices) >= 2 and main_belt_track_idx is None:
-                main_belt_track_idx = text_track_indices[1]
-            elif len(text_track_indices) >= 1 and main_belt_track_idx is None:
-                main_belt_track_idx = text_track_indices[0]
-        if subtitle_belt_track_idx is None or main_belt_track_idx is None:
-            logger.error("  ❌ テンプレートの帯レイヤーが見つかりません")
-            return
-
+        disable_subtitle_belt = True  # 全チャンネルでサブ帯を無効化
         texts = list(materials_text.values())
 
-        # サブタイトル帯を更新
-        subtitle_track = tracks[subtitle_belt_track_idx]
-        # セグメント数が足りない場合は最後のセグメントを複製して増やす
-        if len(subtitle_track.get('segments', [])) < len(belt_upper):
-            import copy as _copy
-            while len(subtitle_track['segments']) < len(belt_upper):
-                if subtitle_track['segments']:
-                    subtitle_track['segments'].append(_copy.deepcopy(subtitle_track['segments'][-1]))
-                else:
+        subtitle_belt_track_idx = None
+        main_belt_track_idx = None
+
+        if belt_upper and not disable_subtitle_belt:
+            subtitle_candidate_idx = None
+            main_candidate_idx = None
+            for idx, track in enumerate(tracks):
+                if track.get('type') != 'text':
+                    continue
+                segs = track.get('segments', [])
+                seg_count = len(segs)
+                seg_texts = _segment_texts(segs)
+                if seg_count == len(target_upper_texts):
+                    if set(seg_texts) == set(target_upper_texts):
+                        subtitle_belt_track_idx = idx
+                        logger.info(f"  ✅ サブタイトル帯発見: Track {idx}")
+                    elif subtitle_candidate_idx is None:
+                        subtitle_candidate_idx = idx
+                elif seg_count == 1:
+                    text_value = seg_texts[0] if seg_texts else ''
+                    if target_lower_text and text_value == target_lower_text:
+                        main_belt_track_idx = idx
+                        logger.info(f"  ✅ メイン帯発見: Track {idx}")
+                    elif main_candidate_idx is None:
+                        main_candidate_idx = idx
+
+            if subtitle_belt_track_idx is None:
+                subtitle_belt_track_idx = subtitle_candidate_idx
+            if main_belt_track_idx is None:
+                main_belt_track_idx = main_candidate_idx
+        else:
+            if belt_upper:
+                logger.info("  ⏭️ サブ帯はグローバル設定で無効化しました")
+            else:
+                logger.info("  ⏭️ サブ帯は指定なしのためスキップ")
+
+        # メイン帯用のトラックを探す（title/belt系の名前を優先）。無ければ新規作成し、字幕は触らない。
+        if main_belt_track_idx is None:
+            for idx, track in enumerate(tracks):
+                if track.get('type') != 'text':
+                    continue
+                name = (track.get('name') or '').lower()
+                if 'subtitle' in name:
+                    continue
+                if 'title' in name or 'belt' in name:
+                    main_belt_track_idx = idx
                     break
-        # 多すぎる場合は切り詰める
-        if len(subtitle_track.get('segments', [])) > len(belt_upper):
-            subtitle_track['segments'] = subtitle_track['segments'][:len(belt_upper)]
-
-        for idx, (segment, chapter) in enumerate(zip(subtitle_track['segments'], belt_upper)):
-            # 時間範囲を更新
-            start_sec = chapter.get('start_sec', 0.0)
-            duration_sec = chapter.get('duration_sec')
-            if duration_sec is None:
-                end_sec = chapter.get('end_sec')
-                if end_sec is not None:
-                    duration_sec = max(0.0, end_sec - start_sec)
-                else:
-                    duration_sec = 0.0
-            start_us = int((start_sec * SEC) + opening_offset_us)
-            duration_us = int(duration_sec * SEC)
-            segment['target_timerange'] = {
-                'start': start_us,
-                'duration': duration_us
+        if main_belt_track_idx is None:
+            for idx, track in enumerate(tracks):
+                if track.get('type') != 'text':
+                    continue
+                if len(track.get('segments', [])) == 1:
+                    name = (track.get('name') or '').lower()
+                    if 'subtitle' in name:
+                        continue
+                    main_belt_track_idx = idx
+                    break
+        if main_belt_track_idx is None:
+            # 新規帯トラックを作成（他のテキストは触らない）
+            new_mat_id = "belt_main_text"
+            new_seg = {
+                "id": "belt_main_seg",
+                "material_id": new_mat_id,
+                "target_timerange": {"start": opening_offset_us, "duration": int(total_duration_sec * SEC)},
+                "source_timerange": {"start": 0, "duration": int(total_duration_sec * SEC)},
+                "render_timerange": {"start": 0, "duration": int(total_duration_sec * SEC)},
             }
-            segment['source_timerange'] = {
-                'start': 0,
-                'duration': duration_us
+            tracks.append({
+                "id": "belt_main_track",
+                "type": "text",
+                "name": "belt_main",
+                "absolute_index": 1_000_001,
+                "segments": [new_seg],
+            })
+            # Ensure materials_text contains the new material
+            materials_text[new_mat_id] = {
+                "id": new_mat_id,
+                "type": "text",
+                "content": json.dumps({"text": belt_lower['text']}, ensure_ascii=False),
             }
-            segment['render_timerange'] = {
-                'start': 0,
-                'duration': duration_us
-            }
+            main_belt_track_idx = len(tracks) - 1
+            logger.info("  ➕ 新規メイン帯トラックを追加 (belt_main)")
+        if main_belt_track_idx is None:
+            logger.error("  ❌ メイン帯用のテキストトラックが見つかりません")
+            return
 
-            # 位置を文字数ベースで計算して設定
-            text = chapter['text']
-            x = calculate_belt_x_position(text)
+        # refresh texts after possible additions
+        texts = list(materials_text.values())
 
-            # clipセクションがなければ作成
-            if 'clip' not in segment:
-                segment['clip'] = {}
-            if 'transform' not in segment['clip']:
-                segment['clip']['transform'] = {}
-            if 'scale' not in segment['clip']:
-                segment['clip']['scale'] = {}
-
-            # 位置とスケールを設定
-            segment['clip']['transform']['x'] = x
-            segment['clip']['transform']['y'] = clip_y
-            segment['clip']['scale']['x'] = scale_val
-            segment['clip']['scale']['y'] = scale_val
-
-            # material の text とスタイルを更新
-            material_id = segment.get('material_id')
-            if material_id:
-                for mat in texts:
-                    if mat.get('id') == material_id:
-                        import json as _json_text
-                        content_obj = _json_text.loads(mat['content'])
-                        content_obj['text'] = chapter['text']
-                        mat['content'] = _json_text.dumps(content_obj, ensure_ascii=False)
-
-                        # スタイル設定を適用
-                        # Note: These hardcoded values should ideally also come from SSOT
-                        # For now, we keep them as they were in get_belt_style_settings
-                        # or we can move them to SSOT later.
-                        mat['alignment'] = 1 # Center
-                        mat['fixed_width'] = -1.0
-                        mat['background_width'] = 0.28
-                        mat['background_height'] = 0.28
-                        mat['background_color'] = '#ffdc00'
-                        mat['background_round_radius'] = 0.4
-                        mat['background_alpha'] = 1.0
-
-                        logger.info(f"  📝 章{idx+1}: {chapter['text']} (x={x:.4f})")
+        # サブタイトル帯を更新（有効時のみ）
+        if belt_upper and not disable_subtitle_belt and subtitle_belt_track_idx is not None:
+            subtitle_track = tracks[subtitle_belt_track_idx]
+            if len(subtitle_track.get('segments', [])) < len(belt_upper):
+                import copy as _copy
+                while len(subtitle_track['segments']) < len(belt_upper):
+                    if subtitle_track['segments']:
+                        subtitle_track['segments'].append(_copy.deepcopy(subtitle_track['segments'][-1]))
+                    else:
                         break
+            if len(subtitle_track.get('segments', [])) > len(belt_upper):
+                subtitle_track['segments'] = subtitle_track['segments'][:len(belt_upper)]
+
+            for idx, (segment, chapter) in enumerate(zip(subtitle_track['segments'], belt_upper)):
+                start_sec = chapter.get('start_sec', 0.0)
+                duration_sec = chapter.get('duration_sec')
+                if duration_sec is None:
+                    end_sec = chapter.get('end_sec')
+                    if end_sec is not None:
+                        duration_sec = max(0.0, end_sec - start_sec)
+                    else:
+                        duration_sec = 0.0
+                start_us = int((start_sec * SEC) + opening_offset_us)
+                duration_us = int(duration_sec * SEC)
+                segment['target_timerange'] = {
+                    'start': start_us,
+                    'duration': duration_us
+                }
+                segment['source_timerange'] = {
+                    'start': 0,
+                    'duration': duration_us
+                }
+                segment['render_timerange'] = {
+                    'start': 0,
+                    'duration': duration_us
+                }
+
+                text = chapter['text']
+                x = calculate_belt_x_position(text)
+
+                if 'clip' not in segment:
+                    segment['clip'] = {}
+                if 'transform' not in segment['clip']:
+                    segment['clip']['transform'] = {}
+                if 'scale' not in segment['clip']:
+                    segment['clip']['scale'] = {}
+
+                segment['clip']['transform']['x'] = x
+                segment['clip']['transform']['y'] = clip_y
+                segment['clip']['scale']['x'] = scale_val
+                segment['clip']['scale']['y'] = scale_val
+
+                material_id = segment.get('material_id')
+                if material_id:
+                    for mat in texts:
+                        if mat.get('id') == material_id:
+                            import json as _json_text
+                            content_obj = _json_text.loads(mat['content'])
+                            content_obj['text'] = chapter['text']
+                            mat['content'] = _json_text.dumps(content_obj, ensure_ascii=False)
+                            mat['alignment'] = 1
+                            mat['fixed_width'] = -1.0
+                            mat['background_width'] = 0.28
+                            mat['background_height'] = 0.28
+                            mat['background_color'] = '#ffdc00'
+                            mat['background_round_radius'] = 0.4
+                            mat['background_alpha'] = 1.0
+                            logger.info(f"  📝 章{idx+1}: {chapter['text']} (x={x:.4f})")
+                            break
 
         # メイン帯を更新
         main_track = tracks[main_belt_track_idx]
@@ -944,19 +1195,28 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
                     logger.info(f"  📝 メイン帯: {belt_lower['text'][:30]}...")
                     break
 
-        # トラックを最上位に移動
-        subtitle_track_obj = tracks.pop(subtitle_belt_track_idx)
-        # main_belt_track_idx が subtitle より後ろの場合、pop で1つずれる
-        if main_belt_track_idx > subtitle_belt_track_idx:
-            main_belt_track_idx -= 1
-        main_track_obj = tracks.pop(main_belt_track_idx)
-
-        tracks.append(subtitle_track_obj)
-        tracks.append(main_track_obj)
+        # トラックを最上位に移動（サブ帯なしならメインのみ）
+        if subtitle_belt_track_idx is not None and belt_upper and not disable_subtitle_belt:
+            subtitle_track_obj = tracks.pop(subtitle_belt_track_idx)
+            if main_belt_track_idx > subtitle_belt_track_idx:
+                main_belt_track_idx -= 1
+            main_track_obj = tracks.pop(main_belt_track_idx)
+            tracks.append(subtitle_track_obj)
+            tracks.append(main_track_obj)
+        else:
+            main_track_obj = tracks.pop(main_belt_track_idx)
+            tracks.append(main_track_obj)
         logger.info("  ✅ 帯トラックを最上位に移動")
 
-        # 保存
+        # 保存（materials.textsも更新）
         content_data['tracks'] = tracks
+        if "materials" not in content_data:
+            content_data["materials"] = {}
+        existing = {m.get("id"): m for m in content_data["materials"].get("texts", [])}
+        for m in texts:
+            if m.get("id"):
+                existing[m["id"]] = m
+        content_data["materials"]["texts"] = list(existing.values())
         draft_content_path.write_text(_json_belt.dumps(content_data, ensure_ascii=False, indent=2))
         logger.info("  ✅ 帯トラック更新完了")
 
@@ -1287,7 +1547,7 @@ def main():
     ap.add_argument("--tx", type=float, default=-0.3125, help="transform_x (half-canvas units)")
     # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y
     ap.add_argument("--ty", type=float, default=0.20555555555, help="transform_y (half-canvas units)")
-    ap.add_argument("--scale", type=float, default=1.04)
+    ap.add_argument("--scale", type=float, default=1.03)
     ap.add_argument("--title", help="Left-top title text to set")
     ap.add_argument("--title-duration", type=float, default=30.0, help="Title display duration (seconds)")
     ap.add_argument("--skip-title", action="store_true", help="Skip title insertion (useful when a JSON post-processor will inject it)")
@@ -1466,11 +1726,14 @@ def main():
     else:
         base = f"srt2images_{run_dir.name}"
         track_name = base
-        # Ensure unique track name
-        idx = 1
-        while getattr(script, 'tracks', {}).get(track_name):
-            idx += 1
-            track_name = f"{base}_{idx}"
+        # Remove any existing srt2images_* video tracks to avoid duplicates
+        try:
+            for name in list(getattr(script, 'tracks', {}).keys()):
+                tr = script.tracks[name]
+                if hasattr(tr, 'type') and tr.type == Track_type.video and name.startswith(base):
+                    del script.tracks[name]
+        except Exception:
+            pass
         desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
         ensure_video_track(script, name=track_name, absolute_index=desired_index)
         # Clear our track if it already has segments
@@ -1478,6 +1741,20 @@ def main():
             script.tracks[track_name].segments = []
         except Exception:
             pass
+
+    # Clean previous assets/materials to avoid duplication from template
+    try:
+        if assets_dir.exists():
+            shutil.rmtree(assets_dir)
+        assets_dir.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+    try:
+        # pyJianYingDraft Script keeps materials as dict; clear videos to avoid doubling
+        if hasattr(script, "materials") and isinstance(script.materials, dict):
+            script.materials["videos"] = []
+    except Exception:
+        pass
 
     # Insert images
     prev_end_us = None
@@ -1508,22 +1785,36 @@ def main():
             clip_settings=Clip_settings(transform_x=args.tx, transform_y=args.ty, scale_x=args.scale, scale_y=args.scale),
         )
 
-        # Subtle Ken Burns-style drift (deterministic per index) — slightly stronger motion
-        rng = random.Random(7739 + i)
-        jitter = 0.04
-        start_tx = args.tx + rng.uniform(-jitter, jitter)
-        start_ty = args.ty + rng.uniform(-jitter, jitter)
-        end_tx = args.tx + rng.uniform(-jitter, jitter)
-        end_ty = args.ty + rng.uniform(-jitter, jitter)
-        scale_jitter = 0.06
-        start_scale = args.scale * (1.0 + rng.uniform(-scale_jitter / 2, scale_jitter / 2))
-        end_scale = args.scale * (1.0 + rng.uniform(-scale_jitter, scale_jitter))
-        seg.add_keyframe(KeyframeProperty.position_x, 0, start_tx)
-        seg.add_keyframe(KeyframeProperty.position_y, 0, start_ty)
-        seg.add_keyframe(KeyframeProperty.uniform_scale, 0, start_scale)
-        seg.add_keyframe(KeyframeProperty.position_x, dur_us, end_tx)
-        seg.add_keyframe(KeyframeProperty.position_y, dur_us, end_ty)
-        seg.add_keyframe(KeyframeProperty.uniform_scale, dur_us, end_scale)
+        # Gentle Ken Burns drift（安全マージン確保: 基本スケール1.03固定＋微小移動）
+        try:
+            if 'clip' not in seg.__dict__:
+                seg.clip = {}
+            seg.clip.setdefault('transform', {})
+            seg.clip.setdefault('scale', {})
+
+            rng = random.Random(7739 + i)  # deterministic per index
+            pos_jitter = 0.02  # small move to avoid cropping
+            start_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
+            start_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
+            end_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
+            end_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
+            # scale: keep base 1.03, end up to +2%
+            start_scale = args.scale
+            end_scale = args.scale * (1.0 + rng.uniform(0.0, 0.02))
+
+            seg.clip['transform']['x'] = start_tx
+            seg.clip['transform']['y'] = start_ty
+            seg.clip['scale']['x'] = start_scale
+            seg.clip['scale']['y'] = start_scale
+
+            seg.add_keyframe(KeyframeProperty.position_x, 0, start_tx)
+            seg.add_keyframe(KeyframeProperty.position_y, 0, start_ty)
+            seg.add_keyframe(KeyframeProperty.uniform_scale, 0, start_scale)
+            seg.add_keyframe(KeyframeProperty.position_x, dur_us, end_tx)
+            seg.add_keyframe(KeyframeProperty.position_y, dur_us, end_ty)
+            seg.add_keyframe(KeyframeProperty.uniform_scale, dur_us, end_scale)
+        except Exception:
+            pass
         # Apply transition to current segment (CapCut applies transition at boundary; clips should not overlap)
         # Disabled due to pyJianYingDraft 0.2.x API changes
         # if args.transition and crossfade > 0 and i > 0 and prev_end_us is not None and abs(start_us - prev_end_us) < int(0.02 * SEC):
@@ -1539,52 +1830,44 @@ def main():
     # Add title text if specified
     if args.title and not getattr(args, "skip_title", False):
         try:
-            # Search for existing text tracks
-            text_tracks = []
-            for track_name_check, track in script.tracks.items():
-                if hasattr(track, 'type') and track.type == Track_type.text:
-                    text_tracks.append((track_name_check, track))
-            
-            if not text_tracks:
-                # Create new text track
-                title_track_name = "title_text"
-                script.add_track(Track_type.text, title_track_name, absolute_index=1000000)
-
-                # Create text segment with robust constructor usage
-                title_duration_us = int(args.title_duration * SEC)
-                text_seg = None
-                try:
-                    tr = Timerange(opening_offset_us, title_duration_us)
-                    text_seg = Text_segment(args.title, tr)
-                except Exception:
-                    text_seg = None
-
-                if text_seg:
-                    script.add_segment(text_seg, track_name=title_track_name)
-                    print(f"Added new title: '{args.title}'")
-                else:
-                    print(f"Warning: Failed to build title segment for '{args.title}' (constructor mismatch)")
+            title_track_name = "title_text"
+            title_track = None
+            # Prefer an existing 'title_text' track; ignore others (字幕を壊さない)
+            if title_track_name in script.tracks:
+                title_track = script.tracks[title_track_name]
             else:
-                # Update existing text track
-                for track_name_check, track in text_tracks:
-                    if hasattr(track, 'segments') and track.segments:
-                        first_segment = track.segments[0]
-                        if hasattr(first_segment, 'text'):
-                            print(f"Updated title from '{first_segment.text}' to '{args.title}'")
-                            first_segment.text = args.title
-                            # Ensure timerange fields exist and are dicts
-                            try:
-                                td = int(args.title_duration * SEC)
-                                timerange_dict = {"start": opening_offset_us, "duration": td}
-                                if not getattr(first_segment, "target_timerange", None) or isinstance(first_segment.target_timerange, str):
-                                    first_segment.target_timerange = timerange_dict
-                                if not getattr(first_segment, "source_timerange", None) or isinstance(first_segment.source_timerange, str):
-                                    first_segment.source_timerange = timerange_dict
-                                if not getattr(first_segment, "render_timerange", None) or isinstance(first_segment.render_timerange, str):
-                                    first_segment.render_timerange = timerange_dict
-                            except Exception:
-                                pass
-                            break
+                # Create dedicated title track
+                script.add_track(Track_type.text, title_track_name, absolute_index=1_000_000)
+                title_track = script.tracks.get(title_track_name)
+
+            if title_track is not None:
+                # Ensure one segment
+                if not getattr(title_track, "segments", None):
+                    title_track.segments = []
+                if not title_track.segments:
+                    try:
+                        tr = Timerange(opening_offset_us, int(args.title_duration * SEC))
+                        seg = Text_segment(args.title, tr)
+                        title_track.segments.append(seg)
+                        print(f"Added new title: '{args.title}'")
+                    except Exception:
+                        print(f"Warning: Failed to build title segment for '{args.title}' (constructor mismatch)")
+                else:
+                    first_segment = title_track.segments[0]
+                    if hasattr(first_segment, 'text'):
+                        print(f"Updated title from '{getattr(first_segment, 'text', '')}' to '{args.title}'")
+                        first_segment.text = args.title
+                        try:
+                            td = int(args.title_duration * SEC)
+                            timerange_dict = {"start": opening_offset_us, "duration": td}
+                            if not getattr(first_segment, "target_timerange", None) or isinstance(first_segment.target_timerange, str):
+                                first_segment.target_timerange = timerange_dict
+                            if not getattr(first_segment, "source_timerange", None) or isinstance(first_segment.source_timerange, str):
+                                first_segment.source_timerange = timerange_dict
+                            if not getattr(first_segment, "render_timerange", None) or isinstance(first_segment.render_timerange, str):
+                                first_segment.render_timerange = timerange_dict
+                        except Exception:
+                            pass
         except Exception as e:
             print(f"Warning: Failed to set title '{args.title}': {e}")
 
@@ -1684,7 +1967,7 @@ def main():
                         dur_us = max(SEC // 60, int(ent['end_us'] - ent['start_us']))
                         text_val = ent.get('text', '')
                         try:
-                            # Create text segment with full 人生の道標 design
+            # Create text segment (generic style)
                             text_seg = Text_segment(
                                 text_val,
                                 Timerange(start_us, dur_us),
@@ -1698,11 +1981,18 @@ def main():
                         except Exception as e:
                             print(f"Warning: Could not apply full style to segment: {e}")
                             continue
-                    print(f"Inserted {added} subtitle segments on track '{sub_track_name}' with perfect 人生の道標 style")
+                    print(f"Inserted {added} subtitle segments on track '{sub_track_name}' with configured subtitle style")
                 else:
                     print("Warning: Parsed 0 subtitle entries from SRT")
             else:
                 print(f"Warning: SRT file not found: {srt_path}")
+
+            # Normalize subtitle styling (shared baseline across channels)
+            try:
+                _apply_common_subtitle_style(Path(args.draft_root) / args.new)
+                logger.info("Applied common subtitle style normalization")
+            except Exception as exc:
+                logger.warning(f"Subtitle style normalization failed: {exc}")
         except Exception as e:
             print(f"Warning: Failed to insert SRT subtitles: {e}")
 
@@ -1786,6 +2076,11 @@ def main():
     # Save back to JSON (in-place)
     script.save()
 
+    # Deduplicate tracks/materials (template carryover cleanup)
+    _dedupe_tracks_and_materials(draft_dir)
+    # Enforce fixed scale on video segments
+    _force_video_scale(draft_dir, float(args.scale))
+
     fade_target = args.fade_duration if args.fade_duration is not None else args.crossfade
     if not getattr(args, "disable_auto_fade", False):
         try:
@@ -1824,7 +2119,8 @@ def main():
     ensure_absolute_indices(draft_dir)
 
     # ========================================
-    # 🎯 人生の道標専用: ポストプロセッシング（script.save()後に実行）
+    # 🎯 帯ポストプロセッシング（チャンネル共通）
+    #    CH01固定のスタイルは排除し、belt_config + layout_configのみで適用
     # ========================================
     if args.belt_config:
         try:
@@ -1833,12 +2129,20 @@ def main():
             if belt_config_path.exists():
                 belt_data = _json.loads(belt_config_path.read_text(encoding='utf-8'))
 
-                logger.info("🎯 人生の道標専用ポストプロセッシング開始")
+                logger.info("🎯 帯ポストプロセッシング開始")
 
                 # ステップ1: 帯レイヤーを上書き・最上位に移動
                 logger.info("📝 帯レイヤーを上書き・最上位に移動...")
                 layout_cfg = preset.config_model.layout if preset and preset.config_model else None
-                apply_belt_config(belt_data, args.opening_offset, draft_dir, logger, title=args.title, layout_config=layout_cfg)
+                apply_belt_config(
+                    belt_data,
+                    args.opening_offset,
+                    draft_dir,
+                    logger,
+                    title=args.title,
+                    layout_config=layout_cfg,
+                    channel_id=preset.channel_id if preset else None,
+                )
 
                 # ステップ2: エフェクトのエンド位置調整
                 logger.info("✨ エフェクト終了位置を調整...")
@@ -1851,11 +2155,11 @@ def main():
                 if opening_offset_us > 0:
                     _shift_tracks_in_json(draft_dir, opening_offset_us)
                 
-                # 字幕スタイルの強制修正 (Using Adapter now)
+                # 字幕スタイルの強制修正 (Using Adapter now) ※チャンネル共通
                 fix_subtitle_style_direct(str(draft_dir / "draft_info.json"), adapter)
-                
+
                 if sync_draft_info_with_content(draft_dir):
-                    logger.info("✅ 人生の道標ドラフト作成完了")
+                    logger.info("✅ ドラフト作成完了 (帯/字幕反映)")
                 else:
                     logger.warning("⚠️  同期失敗")
 
@@ -1868,6 +2172,10 @@ def main():
 
     # 最終チェック: 開始オフセット違反を検出（BGM・背景トラックのみ除外）
     _validate_opening_offset(draft_dir, opening_offset_us, logger)
+
+    # 強制的にスケールを反映（pyJianYingDraftがリセットする場合のガード）
+    _force_video_scale(draft_dir, float(args.scale))
+    sync_draft_info_with_content(draft_dir)
 
     # Ensure draft_info has name/id for CapCut discoverability
     try:

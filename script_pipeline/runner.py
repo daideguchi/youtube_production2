@@ -18,7 +18,7 @@ def _require_env_vars(keys: List[str]) -> None:
 
 from .sot import load_status, save_status, init_status, status_path, Status, StageState
 from .validator import validate_stage
-from factory_common.llm_router import get_router
+from factory_common.llm_client import LLMClient
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -72,6 +72,13 @@ LOG_SINK = str(PROJECT_ROOT / "script_pipeline" / "data" / "llm_sessions.jsonl")
 # stages to skip (no LLM formatting run) — none by default
 SKIP_STAGES: Set[str] = set()
 FORCE_FALLBACK_SENTINEL = PROJECT_ROOT / "script_pipeline" / "data" / "_state" / "force_fallback"
+
+# Tunables
+CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
+FORMAT_CHUNK_LEN = int(os.getenv("SCRIPT_FORMAT_CHUNK_LEN", "600"))
+
+# Shared LLM client (task→tier→model resolution via configs/llm.yml)
+router_client = LLMClient()
 
 
 def _load_stage_defs() -> List[Dict[str, Any]]:
@@ -997,17 +1004,13 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         prompt_text = json.dumps(msgs, ensure_ascii=False, indent=2)
         as_messages_flag = True
 
-    # 3. Call Router
+    # 3. Call LLM
     task_name = llm_cfg.get("task")
     if not task_name:
-        # Backward compatibility or fallback if task missing in yaml
-        print(f"[{stage}] Warning: No 'task' defined. Using 'script_format' as generic fallback.")
-        task_name = "script_format"
+        # タスク未指定は許容しない（ルータ経由を必須化）
+        raise RuntimeError(f"[{stage}] llm.task is required; stages.yaml/templates.yaml に task を明示してください")
 
-    router = get_router()
-    messages = []
-    
-    # Try to parse prompt as JSON messages if it looks like it
+    messages: List[Dict[str, str]] = []
     if as_messages_flag or (prompt_text.strip().startswith("[") and prompt_text.strip().endswith("]")):
         try:
             parsed = json.loads(prompt_text)
@@ -1036,19 +1039,26 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
 
     try:
         # Optional params
-        kwargs = {}
+        call_kwargs = {}
         if llm_cfg.get("max_tokens"):
             try:
-                kwargs["max_tokens"] = int(llm_cfg.get("max_tokens"))
-            except:
+                call_kwargs["max_tokens"] = int(llm_cfg.get("max_tokens"))
+            except Exception:
                 pass
-        
-        content = router.call(
+        if llm_cfg.get("temperature") is not None:
+            call_kwargs["temperature"] = llm_cfg.get("temperature")
+        if llm_cfg.get("response_format"):
+            call_kwargs["response_format"] = llm_cfg.get("response_format")
+        if llm_cfg.get("timeout"):
+            call_kwargs["timeout"] = llm_cfg.get("timeout")
+
+        llm_result = router_client.call(
             task=task_name,
             messages=messages,
-            **kwargs
+            **call_kwargs,
         )
-        
+
+        content = llm_result.content
         if not content:
             raise RuntimeError("LLM returned empty content")
 
@@ -1058,7 +1068,14 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         
         # Log response
         try:
-            resp_log.write_text(json.dumps({"task": task_name, "response": content}, ensure_ascii=False, indent=2), encoding="utf-8")
+            resp_log.write_text(
+                json.dumps(
+                    {"task": task_name, "response": content, "usage": llm_result.usage},
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
         except Exception:
             pass
 
@@ -1325,6 +1342,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         if not st.metadata.get("target_word_count"):
             total_words = default_total
         per_chapter = max(400, int(total_words / max(len(chapters), 1)))
+        per_chapter = min(per_chapter, CHAPTER_WORD_CAP)
         for num, heading in chapters:
             out_path = base / "content" / "chapters" / f"chapter_{num}.md"
             brief_obj = _load_chapter_brief(base, num)
@@ -1374,7 +1392,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             formatted_paras: List[str] = []
 
             for p_idx, para in enumerate(paragraphs):
-                chunks = _split_into_chunks(para, max_len=800)
+                chunks = _split_into_chunks(para, max_len=FORMAT_CHUNK_LEN)
                 chunk_results: List[str] = []
                 for c_idx, chunk in enumerate(chunks):
                     tmp_out = out_path.parent / f"{name}.para{p_idx+1}.chunk{c_idx+1}.fmt.tmp"

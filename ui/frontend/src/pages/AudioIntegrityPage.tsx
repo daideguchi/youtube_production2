@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
 // API Endpoint Base
@@ -43,7 +43,7 @@ export const AudioIntegrityPage: React.FC = () => {
   const [showKB, setShowKB] = useState(false);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -81,11 +81,11 @@ export const AudioIntegrityPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [channelId, videoId]);
 
   useEffect(() => {
     fetchData();
-  }, [channelId, videoId]);
+  }, [fetchData]);
 
   const handleDeleteKB = async (key: string) => {
     if (!window.confirm(`「${key}」の登録を削除しますか？`)) return;

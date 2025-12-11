@@ -167,6 +167,13 @@ from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
 
+_llm_usage_import_error: Exception | None = None
+try:
+    from ui.backend.routers import llm_usage
+except Exception as e:  # pragma: no cover - optional router
+    llm_usage = None  # type: ignore[assignment]
+    _llm_usage_import_error = e
+
 try:
     import google.generativeai as genai
 except Exception:  # pragma: no cover - optional dependency
@@ -5496,6 +5503,10 @@ def _generate_heuristic_thumbnail_description(image_path: Path) -> str:
 app = FastAPI(title="YouTube Master UI API")
 if video_router:
     app.include_router(video_router)
+if llm_usage:
+    app.include_router(llm_usage.router)
+elif _llm_usage_import_error:
+    logger.error("Failed to load llm_usage router: %s", _llm_usage_import_error)
 app.include_router(jobs.router)
 app.include_router(swap.router)
 app.include_router(params.router)

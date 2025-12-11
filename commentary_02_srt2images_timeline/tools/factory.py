@@ -41,16 +41,30 @@ except ImportError:
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def run_command(cmd: List[str], cwd: Path = PROJECT_ROOT, check: bool = True) -> int:
-    """Run a subprocess command with real-time output."""
+def run_command(cmd: List[str], cwd: Path = PROJECT_ROOT, check: bool = True, abort_patterns=None) -> int:
+    """Run a subprocess command with real-time output. If abort_patterns is provided, abort when any pattern appears."""
     cmd_str = " ".join(cmd)
     logger.info(f"🚀 Executing: {cmd_str}")
+    abort_patterns = [p.strip() for p in abort_patterns.split(",")] if abort_patterns else []
+
+    proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     try:
-        result = subprocess.run(cmd, cwd=cwd, check=check)
-        return result.returncode
+        for line in proc.stdout:
+            line = line.rstrip("\n")
+            print(line)
+            if abort_patterns and any(p in line for p in abort_patterns):
+                logger.error(f"❌ Abort pattern detected: {line}")
+                proc.terminate()
+                proc.wait(timeout=5)
+                return 1
+        return proc.wait()
     except subprocess.CalledProcessError as e:
         logger.error(f"❌ Command failed: {cmd_str}")
         return e.returncode
+    except Exception as e:
+        logger.error(f"❌ Unexpected error: {e}")
+        proc.terminate()
+        return 1
 
 def find_latest_run_dir(video_id: str, output_dir: Path) -> Optional[Path]:
     """
@@ -95,6 +109,9 @@ def main():
     parser.add_argument("--title", help="Explicit video title (overrides LLM generation)")
     parser.add_argument("--labels", help="Explicit belt labels (comma separated)")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument("--nanobanana", choices=["direct", "none"], default="direct", help="Image generation mode: direct=ImageClient(Gemini), none=skip")
+    parser.add_argument("--abort-on-log", help="Comma-separated patterns; if any appears in child stdout/stderr, abort the process.")
+    parser.add_argument("--timeout-ms", type=int, help="Optional timeout (ms) for child commands (run_pipeline/auto_capcut_run). Default: no timeout.")
 
     args = parser.parse_args()
 
@@ -113,6 +130,8 @@ def main():
     # Construct the base command for auto_capcut_run.py
     tool_path = Path(__file__).resolve().parent / "auto_capcut_run.py"
 
+    abort_patterns = args.abort_on_log or ""
+
     # Apply options based on Intent
     if args.intent == "new":
         logger.info(f"🎬 Starting NEW production pipeline for {video_id}...")
@@ -130,7 +149,7 @@ def main():
             "--engine", "none",  # Use none to avoid timeline engine, but images will be generated
             "--channel", args.channel,
             "--concurrency", str(args.concurrency),
-            "--nanobanana", "direct",  # Enable actual image generation via LLMRouter
+            "--nanobanana", args.nanobanana,
             "--use-aspect-guide"
         ]
 
@@ -139,7 +158,9 @@ def main():
             run_pipeline_cmd.extend(["--title", args.title])
 
         # Run the pipeline
-        ret_code = run_command(run_pipeline_cmd)
+        run_timeout = args.timeout_ms / 1000 if args.timeout_ms else None
+
+        ret_code = run_command(run_pipeline_cmd, abort_patterns=abort_patterns)
         if ret_code != 0:
             logger.error("❌ Pipeline execution failed")
             sys.exit(ret_code)
@@ -155,11 +176,15 @@ def main():
             "--img-concurrency", str(args.concurrency),
             "--suppress-warnings"
         ]
+        if args.timeout_ms:
+            base_cmd.extend(["--timeout-ms", str(args.timeout_ms)])
+        if abort_patterns:
+            base_cmd.extend(["--abort-on-log", abort_patterns])
 
         if args.debug:
             base_cmd.append("--dry-run")
 
-        run_command(base_cmd)
+        run_command(base_cmd, abort_patterns=abort_patterns)
 
 
     elif args.intent == "draft":
@@ -184,7 +209,7 @@ def main():
             if args.debug:
                 base_cmd.append("--dry-run")
 
-            run_command(base_cmd)
+            run_command(base_cmd, abort_patterns=abort_patterns)
         else:
             logger.error(f"❌ No valid run directory found for {video_id} with image_cues.json. Run with 'new' first.")
             sys.exit(1)
@@ -196,7 +221,7 @@ def main():
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         run_name = f"{video_id}_{timestamp}"
 
-        # Execute pipeline in none mode to generate image_cues.json
+        # Execute pipeline; respect requested nanobanana mode (default: direct).
         run_pipeline_cmd = [
             sys.executable,
             str(PROJECT_ROOT / "tools" / "run_pipeline.py"),
@@ -205,11 +230,11 @@ def main():
             "--engine", "none",  # Skip timeline engine
             "--channel", args.channel,
             "--concurrency", str(args.concurrency),
-            "--nanobanana", "none",  # Skip actual image generation in check mode
+            "--nanobanana", args.nanobanana,
             "--use-aspect-guide"
         ]
 
-        ret_code = run_command(run_pipeline_cmd)
+        ret_code = run_command(run_pipeline_cmd, abort_patterns=abort_patterns)
         if ret_code != 0:
             logger.error("❌ Pipeline execution failed in check mode")
             sys.exit(ret_code)
@@ -230,7 +255,12 @@ def main():
                 "--dry-run"  # Skip actual draft creation
             ]
 
-            run_command(base_cmd)
+            if args.timeout_ms:
+                base_cmd.extend(["--timeout-ms", str(args.timeout_ms)])
+            if abort_patterns:
+                base_cmd.extend(["--abort-on-log", abort_patterns])
+
+            run_command(base_cmd, abort_patterns=abort_patterns)
         else:
             logger.warning(f"⚠️  Could not find run directory after pipeline execution for {video_id}")
 

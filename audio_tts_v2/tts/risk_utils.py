@@ -15,10 +15,48 @@ def _normalize(text: str) -> str:
     normalized = (text or "").translate(table)
     return re.sub(r"[\s、。・,，\.．]", "", normalized)
 
-
 def _katakana_to_hiragana(text: str) -> str:
     table = {code: code - 0x60 for code in range(ord("ァ"), ord("ヴ") + 1)}
     return text.translate(table)
+
+
+def normalize_for_compare(kana: str) -> str:
+    """
+    Normalize kana for comparing MeCab vs VOICEVOX:
+    - Hiragana -> Katakana
+    - Remove long vowel marks
+    - Collapse typical VOICEVOX "audibility" variations (コオ/コウ, キョオ/キョウ, テエ/テイ, etc.)
+    """
+    if kana is None:
+        return ""
+    text = str(kana)
+    text = text.translate({code: code + 0x60 for code in range(ord("ぁ"), ord("ゖ") + 1)})  # ひらがな→カタカナ
+    text = text.replace("ー", "")
+    replacements = [
+        ("オオ", "オウ"),
+        ("オー", "オウ"),
+        ("コオ", "コウ"),
+        ("ゴオ", "ゴウ"),
+        ("ソオ", "ソウ"),
+        ("ゾオ", "ゾウ"),
+        ("トオ", "トウ"),
+        ("ドオ", "ドウ"),
+        ("ホオ", "ホウ"),
+        ("モオ", "モウ"),
+        ("ョオ", "ョウ"),
+        ("テエ", "テイ"),
+        ("デエ", "デイ"),
+        ("キョオ", "キョウ"),
+        ("ギョオ", "ギョウ"),
+    ]
+    for a, b in replacements:
+        text = text.replace(a, b)
+    return _normalize(text)
+
+
+def _normalize_voicevox_kana(text: str) -> str:
+    """Alias for VOICEVOX kana normalization used in auditor."""
+    return normalize_for_compare(text)
 
 
 def is_trivial_diff(expected: str, actual: str) -> bool:
@@ -27,24 +65,20 @@ def is_trivial_diff(expected: str, actual: str) -> bool:
     if expected is None or actual is None:
         return True
 
-    norm_expected = _normalize(str(expected))
-    norm_actual = _normalize(str(actual))
+    norm_expected = normalize_for_compare(str(expected))
+    norm_actual = normalize_for_compare(str(actual))
 
     if norm_expected == norm_actual:
         return True
 
-    hira_expected = _katakana_to_hiragana(norm_expected)
-    hira_actual = _katakana_to_hiragana(norm_actual)
-    if hira_expected == hira_actual:
-        return True
-
-    if norm_expected.replace("ー", "") == norm_actual.replace("ー", ""):
-        return True
-
     # Single character delta or long sound mark fluctuation
     if abs(len(norm_expected) - len(norm_actual)) <= 1:
-        diff_chars = sum(1 for a, b in zip(norm_expected, norm_actual) if a != b)
+        diff_positions = [i for i, (a, b) in enumerate(zip(norm_expected, norm_actual)) if a != b]
+        diff_chars = len(diff_positions)
         if diff_chars <= 1:
+            # 先頭1文字差で長さが十分ある場合（例: ツライ/カライ）は非トリビアル扱い
+            if diff_positions and diff_positions[0] == 0 and max(len(norm_expected), len(norm_actual)) >= 3:
+                return False
             return True
     return False
 

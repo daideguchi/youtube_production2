@@ -158,6 +158,10 @@ def run_tts_pipeline(
     engine_override: Optional[str] = None,
     display_text: Optional[str] = None,  # SRT用表示テキスト（Aテキスト=assembled.md）
     existing_blocks: Optional[List[Dict[str, object]]] = None, # [NEW] Existing blocks for regeneration
+    max_tts_reading_calls: int = 3,
+    max_vocab_terms: int = 120,
+    max_ruby_terms: int = 120,
+    max_ruby_calls: int = 3,
 ) -> OrchestratorResult:
     t_start = time.time()
     t_ruby_start = t_start
@@ -303,9 +307,11 @@ def run_tts_pipeline(
                 
                 # Voicevox Prediction
                 vv_kana = ""
+                accent_phrases = None
                 try:
-                    # Fast timeout ok?
-                    vv_kana = vv_client.get_kana(txt, speaker_id)
+                    vv_query = vv_client.audio_query(txt, speaker_id)
+                    vv_kana = str(vv_query.get("kana") or "")
+                    accent_phrases = vv_query.get("accent_phrases")
                 except Exception as e:
                     vv_kana = f"ERROR: {e}"
     
@@ -319,6 +325,8 @@ def run_tts_pipeline(
                 
                 b["voicevox_kana"] = vv_kana
                 b["mecab_kana"] = mecab_kana
+                if accent_phrases:
+                    b["accent_phrases"] = accent_phrases
                 
                 # Consensus Logic
                 # If vv_kana is ERROR, we MUST Audit.
@@ -386,16 +394,31 @@ def run_tts_pipeline(
             # 2. Audit (LLM)
             if audit_needed_count > 0:
                  t_arbiter_start = time.time()
-                 audited_blocks, llm_calls, vocab_term_count = audit_blocks(
+                 audited_blocks, ruby_patches, llm_calls, vocab_term_count, budget_exceeded = audit_blocks(
                      srt_blocks,
                      channel=channel,
+                     video=video_no,
                      channel_dict=channel_dict,
                      hazard_dict=hazard_terms,
+                     # vocabはhazardレベルAのみ＆少数上限（長尺対策）
+                     enable_vocab=True,
+                     max_vocab_terms=min(max_vocab_terms, 40) if max_vocab_terms else 40,
+                     max_llm_calls=max_tts_reading_calls,
+                     max_ruby_terms=max_ruby_terms,
+                     max_ruby_calls=max_ruby_calls,
                  )
                  t_arbiter_end = time.time()
                  tts_reading_calls += llm_calls
+                 if budget_exceeded:
+                     print(
+                         f"[AUDIT] Budget cap reached (calls>{max_tts_reading_calls} or vocab>{max_vocab_terms}); "
+                         "skipped remaining LLM adjudication.",
+                         flush=True,
+                     )
                  if len(audited_blocks) == len(srt_blocks):
                      srt_blocks = audited_blocks
+                     if ruby_patches:
+                         meta["ruby_patches"] = ruby_patches
                  else:
                      print("[ERROR] Critial Audit Mismatch. Falling back to Draft.", flush=True)
 
@@ -587,7 +610,15 @@ def run_tts_pipeline(
         else:
             print("[STEP] katakana reference (skipped)", flush=True)
         print("[STEP] synthesis voicevox start", flush=True)
-        res = voicevox_synthesis_chunks(srt_blocks, output_audio_path, channel=channel, cfg=cfg, pauses=pauses)
+        patches_by_block = meta.get("ruby_patches")
+        res = voicevox_synthesis_chunks(
+            srt_blocks,
+            output_audio_path,
+            channel=channel,
+            cfg=cfg,
+            pauses=pauses,
+            patches_by_block=patches_by_block,
+        )
         # 簡易補正: LLMカタナを優先的に採用し、engine kanaとの差分確認用に保持
         voicevox_kana_corrected = katakana_ref or res.kana
         engine_metadata["voicevox_kana_diff"] = _diff_kana(res.kana or "", katakana_ref or "")
@@ -771,6 +802,7 @@ def run_tts_pipeline(
             "tts_reading_calls": tts_reading_calls,
             "audit_blocks_marked": audit_needed_count,
             "risky_terms": vocab_term_count,
+            "ruby_patches": len(meta.get("ruby_patches", {})) if meta.get("ruby_patches") else 0,
         }
         with jsonl_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(jsonl_record, ensure_ascii=False) + "\n")

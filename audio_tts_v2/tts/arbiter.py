@@ -9,13 +9,27 @@ from .mecab_tokenizer import tokenize_with_mecab
 from .voicevox_api import VoicevoxClient
 from .reading_dict import (
     ReadingEntry,
+    is_banned_surface,
     export_words_for_word_dict,
     load_channel_reading_dict,
     merge_channel_readings,
 )
-from factory_common.llm_router import get_router
+from . import auditor
+from .reading_structs import KanaPatch
 
 KB_PATH = Path(__file__).resolve().parents[1] / "data" / "global_knowledge_base.json"
+LEARNING_DICT_PATH = Path("audio_tts_v2/configs/learning_dict.json")
+
+
+def _load_learning_dict() -> Dict[str, str]:
+    """Load global learning dictionary (ignores banned surfaces)."""
+    if not LEARNING_DICT_PATH.exists():
+        return {}
+    try:
+        data = json.loads(LEARNING_DICT_PATH.read_text(encoding="utf-8"))
+        return {k: v for k, v in data.items() if not is_banned_surface(str(k))}
+    except Exception:
+        return {}
 
 class WordDictionary:
     """単語単位の読み辞書"""
@@ -24,13 +38,29 @@ class WordDictionary:
         self.words: Dict[str, str] = self._load()
 
     def _load(self) -> Dict[str, str]:
-        if not self.path.exists():
-            return {}
+        base: Dict[str, str] = {}
+        if self.path.exists():
+            try:
+                data = json.loads(self.path.read_text(encoding="utf-8"))
+                loaded = data.get("words", {})
+                base.update(
+                    {
+                        word: reading
+                        for word, reading in loaded.items()
+                        if not is_banned_surface(str(word))
+                    }
+                )
+            except Exception:
+                base = {}
+
+        # Merge global learning dict
         try:
-            data = json.loads(self.path.read_text(encoding="utf-8"))
-            return data.get("words", {})
+            learning = _load_learning_dict()
+            base.update(learning)
         except Exception:
-            return {}
+            pass
+
+        return base
 
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -45,6 +75,8 @@ class WordDictionary:
         return self.words.get(word)
 
     def set(self, word: str, reading: str):
+        if is_banned_surface(word):
+            return
         self.words[word] = reading
 
     def apply_to_text(self, text: str) -> str:
@@ -56,6 +88,8 @@ class WordDictionary:
         # まず文字列マッチングで置換（長い単語から順に処理）
         sorted_words = sorted(self.words.keys(), key=len, reverse=True)
         for word in sorted_words:
+            if is_banned_surface(word):
+                continue
             if word in result:
                 result = result.replace(word, self.words[word])
         
@@ -120,254 +154,144 @@ def resolve_readings_strict(
     voicevox_client: Optional[VoicevoxClient],
     speaker_id: int,
     channel: Optional[str] = None,
-) -> None:
-    
+    video: Optional[str] = None,
+) -> Dict[int, List[KanaPatch]]:
+    """Strict reading resolver that delegates to auditor (surface-aggregated, max 2 LLM calls).
+
+    Returns patches_by_block for use in synthesis.
+    """
     if engine != "voicevox":
         for seg in segments:
-            seg.reading = seg.text 
-        return
+            seg.reading = seg.text
+        return {}
 
     if not voicevox_client:
         raise ValueError("Voicevox client required for Strict Mode")
 
-    # 1. 辞書ロード（グローバル + チャンネル固有）
+    # 1. 辞書ロード（グローバル + チャンネル固有 + ローカル）
     kb = WordDictionary(KB_PATH)
     channel_dict = load_channel_reading_dict(channel) if channel else {}
     if channel_dict:
         kb.words.update(export_words_for_word_dict(channel_dict))
-    
-    # 初期化
+    # 動画ローカル辞書（audio_prep/local_reading_dict.json）があればマージ
+    local_overrides: Dict[int, Dict[int, str]] = {}
+    if channel and video:
+        repo_root = Path(__file__).resolve().parents[2]
+        local_dict_path = (
+            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_reading_dict.json"
+        )
+        if local_dict_path.exists():
+            try:
+                local_dict = json.loads(local_dict_path.read_text(encoding="utf-8"))
+                for k, v in local_dict.items():
+                    if not is_banned_surface(k):
+                        kb.words[k] = v
+                print(f"[ARBITER] Loaded local_reading_dict.json ({len(local_dict)} entries)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_reading_dict.json: {e}")
+        # 位置指定オーバーライド（section_id/token_index 単位）
+        local_tok_path = (
+            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_token_overrides.json"
+        )
+        if local_tok_path.exists():
+            try:
+                data = json.loads(local_tok_path.read_text(encoding="utf-8"))
+                for item in data:
+                    sid = int(item.get("section_id", -1))
+                    tidx = int(item.get("token_index", -1))
+                    reading = item.get("reading") or ""
+                    if sid < 0 or tidx < 0 or not reading:
+                        continue
+                    local_overrides.setdefault(sid, {})[tidx] = reading
+                print(f"[ARBITER] Loaded local_token_overrides.json ({len(local_overrides)} sections)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_token_overrides.json: {e}")
+    # 動画ローカル辞書（audio_prep/local_reading_dict.json）があればマージ
+    if channel and video:
+        repo_root = Path(__file__).resolve().parents[2]
+        local_dict_path = (
+            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_reading_dict.json"
+        )
+        if local_dict_path.exists():
+            try:
+                local_dict = json.loads(local_dict_path.read_text(encoding="utf-8"))
+                for k, v in local_dict.items():
+                    if not is_banned_surface(k):
+                        kb.words[k] = v
+                print(f"[ARBITER] Loaded local_reading_dict.json ({len(local_dict)} entries)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_reading_dict.json: {e}")
+
+    # 2. 初期化
     for seg in segments:
         seg.text_for_check = seg.text
         seg.reading = seg.text
-        seg.arbiter_verdict = "pending"
+        seg.arbiter_verdict = "pending_auditor"
 
-    conflicts: List[Dict[str, Any]] = []
-    print(f"[ARBITER] auditing {len(segments)} segments...")
-    if channel_dict:
-        print(f"[ARBITER] preload channel dict entries={len(channel_dict)}")
+    print(f"[ARBITER] auditing {len(segments)} segments (auditor path)...")
+    blocks: List[Dict[str, Any]] = []
 
-    new_channel_entries: Dict[str, ReadingEntry] = {}
-
+    # 3. 各セグメントを blocks に積む（auditor が surface 集約＆2コール上限で処理）
     for i, seg in enumerate(segments):
-        target_text = seg.text # オリジナルのテキスト
-        
-        # 1. Voicevoxのデフォルト読みを取得 (Reference B: Actual)
+        target_text = seg.text  # オリジナルのテキスト
+
+        # 3.1 辞書適用＋位置オーバーライドを使ってテキストを再構成する
+        tokens = tokenize_with_mecab(target_text)
+        patched_parts: List[str] = []
+        override_map = local_overrides.get(i) or {}
+        for idx_tok, tok in enumerate(tokens):
+            if idx_tok in override_map:
+                patched_parts.append(override_map[idx_tok])
+                continue
+            surface = tok.get("surface", "")
+            if surface in kb.words:
+                patched_parts.append(kb.words[surface])
+            else:
+                patched_parts.append(surface)
+        patched_text = "".join(patched_parts)
+
+        # 3.2 Voicevox audio_query は辞書/override適用後のテキストで実行
         try:
-            query = voicevox_client.audio_query(target_text, speaker_id)
+            query = voicevox_client.audio_query(patched_text, speaker_id)
             vv_kana = query.get("kana", "")
             seg.voicevox_reading = vv_kana
         except Exception as e:
             print(f"[ERROR] Voicevox query failed: {e}")
             raise RuntimeError(f"Voicevox query failed for segment {i}") from e
 
-        # 2. 比較対象の読みを取得 (Reference A: Expected)
-        # 辞書適用を試みる
-        patched_text = kb.apply_to_text(target_text)
-        
-        expected_reading = ""
-        source_type = ""
+        # 3.3 MeCab読み（辞書/override適用後のテキストで取得）
+        expected_reading = get_mecab_reading(patched_text)
+        seg.mecab_reading = expected_reading
+        # Synth側で使う読みも辞書適用後で上書き
+        seg.reading = patched_text
 
-        if patched_text != target_text:
-            # 辞書に登録がある場合、その読みを正解候補とする
-            expected_reading = get_mecab_reading(patched_text)
-            source_type = "Dictionary"
-        else:
-            # 辞書になければ、MeCabの標準読みを正解候補とする
-            mecab_raw = get_mecab_reading(target_text)
-            expected_reading = mecab_raw
-            source_type = "MeCab"
-        
-        seg.mecab_reading = expected_reading # ログ用
-
-        # 3. 厳密な比較
-        norm_vv = normalize_kana_for_comparison(vv_kana)
-        norm_expected = normalize_kana_for_comparison(expected_reading)
-        
-        if norm_vv == norm_expected and norm_vv:
-            # 完全一致なら、Voicevoxは正しく読めている。
-            # 辞書にある単語だとしても、漢字のまま渡すことでアクセント推論を活かす。
-            seg.reading = target_text
-            seg.arbiter_verdict = f"match_{source_type.lower()}_kept_kanji"
-        else:
-            # 不一致（辞書指定と違う、またはMeCabと違う）
-            
-            # 【重要】辞書登録済みの単語でVoicevoxと不一致の場合、辞書を優先する
-            if source_type == "Dictionary" and patched_text != target_text:
-                # 辞書に登録されている単語は、Voicevoxの読みが違っても辞書を信頼
-                # 明らかな誤読として、辞書適用済みテキストを使用
-                seg.reading = patched_text
-                seg.arbiter_verdict = "dictionary_priority_override"
-                print(f"  [DICT] Seg {i}: 辞書優先で修正 - {target_text[:20]}... -> {patched_text[:20]}...")
-                continue
-            
-            # 辞書登録がない場合、または一致しない場合はLLMに判断を委ねる
-            # 「招待(ショウタイ)」vs「ショオタイ」のようなケースもここに来るが、LLMなら救える。
-            conflicts.append({
-                "id": i,
+        blocks.append(
+            {
+                "index": i,
                 "text": target_text,
-                "expected": expected_reading, # 辞書/MeCabの読み
-                "voicevox": vv_kana,          # Voicevoxの読み
-                "source": source_type         # 何と食い違ったか
-            })
+                "b_text": patched_text,
+                "mecab_kana": expected_reading,
+                "voicevox_kana": vv_kana,
+                "accent_phrases": query.get("accent_phrases") or [],
+                "audit_needed": True,
+            }
+        )
 
-    if not conflicts:
-        print("[ARBITER] No conflicts.")
-        return
+    # 4. auditor に委譲（surface集約＋最大2コール/40件）
+    try:
+        _, patches_by_block, _, _, _ = auditor.audit_blocks(
+            blocks,
+            channel=channel,
+            video=video,
+            channel_dict=channel_dict,
+            hazard_dict=None,
+            max_ruby_calls=2,
+            max_ruby_terms=40,
+            enable_vocab=False,
+        )
+    except Exception as e:
+        print(f"[ERROR] auditor failed: {e}")
+        raise RuntimeError("auditor failed") from e
 
-    print(f"[ARBITER] Resolving {len(conflicts)} conflicts via LLM...")
-    
-    CHUNK_SIZE = 10
-    router = get_router()
-    
-    for i in range(0, len(conflicts), CHUNK_SIZE):
-        batch = conflicts[i:i+CHUNK_SIZE]
-        
-        prompt = f"""
-あなたはプロのナレーターの読みを校正するAIです。
-以下のテキストは、辞書指定(Dictionary)または標準辞書(MeCab)と、音声合成エンジン(Voicevox)の間で読みが食い違っています。
-
-【最重要原則: Voicevoxの読みを優先せよ】
-1. Voicevoxは漢字文脈からアクセントと読みを高精度に推論します。
-2. 読み仮名をカタカナに開くとアクセント情報が失われ、一本調子になります。
-3. **Voicevoxの読みが文脈的に自然であれば、辞書/MeCabと違っても修正しないでください（Correctionsを空にする）。**
-4. **修正は「明確に誤読である」と確信できる場合のみ行ってください。**
-
-【修正しない方が良い判断基準】
-- Voicevoxの読みが文脈的に成立する
-- 表記の違いだけで、発音として問題がない（長音、促音などの表記揺れ）
-- 迷う場合は「修正しない」を選ぶ（Voicevoxを信頼）
-
-■ 修正不要のケース (Corrections: []) - **これらは誤読ではありません**
-1.  **長音の母音化**:
-    *   辞書:「ショウタイ(招待)」 vs Voicevox:「ショオタイ」 -> **正解** (修正不要)
-    *   辞書:「コウコウ(高校)」 vs Voicevox:「コオコオ」 -> **正解** (修正不要)
-    *   辞書:「エイエン(永遠)」 vs Voicevox:「エエエン」 -> **正解** (修正不要)
-2.  **助詞の発音**:
-    *   「～へ」 -> 「エ」
-    *   「言う」 -> 「イウ」/「ユウ」
-3.  **無声化・微妙な揺れ**:
-    *   「シテ」 vs 「シ_テ」 (無声化記号) -> **正解** (修正不要)
-
-■ 修正が必要なケース (Corrections あり)
-1.  **辞書指定との明白な乖離**:
-    *   辞書:「コンニチ(今日)」 vs Voicevox:「キョウ」 -> 文脈が「本日は」なら修正必須。
-2.  **同形異音の誤読**:
-    *   「人気(ひとけ)」 vs Voicevox:「ニンキ」 -> **修正対象**
-    *   「行って(おこなって)」 vs Voicevox:「イッテ」 -> **修正対象**
-    *   「怒り(イカリ)」 vs Voicevox:「オコリ」 -> **修正対象** (「オコリ」は「起こり」等別の意味になるため不可)
-    *   「その分(ソノブン)」 vs Voicevox:「ソノワケ」 -> **修正対象** (「分」は「ブン」と読む)
-    *   「同じ道(オナジミチ)」 vs Voicevox:「ドオジミチ」 -> **修正対象** (「同じ」は「オナジ」と読む)
-3.  **固有名詞の明白な誤読**:
-    *   「大和(ヤマト)」 vs Voicevox:「ダイワ」 -> **修正対象**
-
-出力はJSON形式のリストで返してください。
-**迷ったら必ず修正なし（空リスト）を選んでください。** Voicevoxの読みを優先することが最優先事項です。
-漢字のままVoicevoxに渡すことで、最高品質の音声が生成されます。
-
-[
-  {{
-    "id": 0,
-    "corrections": [
-      {{ "word": "人気", "reading": "ヒトケ" }}
-    ]
-  }},
-  {{
-    "id": 1,
-    "corrections": [] 
-  }}
-]
-
-対象リスト:
-{json.dumps(batch, ensure_ascii=False, indent=2)}
-"""
-        messages = [
-            {"role": "system", "content": "You are a Japanese Reading Arbiter. Return strict JSON."},
-            {"role": "user", "content": prompt}
-        ]
-        
-        try:
-            content = router.call(
-                task="tts_reading",
-                messages=messages,
-                temperature=0.0,
-                response_format="json_object"
-            )
-            
-            response = []
-            try:
-                parsed = json.loads(content)
-                if isinstance(parsed, dict) and "content" in parsed:
-                    # Handle case where LLM returns wrapper
-                    response = parsed["content"]
-                elif isinstance(parsed, list):
-                    response = parsed
-                elif isinstance(parsed, dict) and "corrections" in parsed:
-                    # Single object? unlikely but possible
-                     response = [parsed]
-                elif isinstance(parsed, dict):
-                    # Maybe {"results": [...]} or similar?
-                    # Try to find a list value
-                    for v in parsed.values():
-                        if isinstance(v, list):
-                            response = v
-                            break
-            except json.JSONDecodeError:
-                print(f"[WARN] Failed to parse JSON from Arbiter LLM. Content: {content[:100]}...")
-                response = []
-
-            resp_map = {}
-            if isinstance(response, list):
-                for item in response:
-                    if "id" in item:
-                        resp_map[item["id"]] = item.get("corrections", [])
-            
-            for item in batch:
-                idx = item["id"]
-                seg = segments[idx]
-                target_text = seg.text # オリジナル漢字
-
-                if idx in resp_map:
-                    corrections = resp_map[idx]
-                    
-                    if not corrections:
-                        # LLM判定: Voicevoxの読みでOK（表記揺れ含む）
-                        # 漢字のまま採用！
-                        seg.reading = target_text
-                        seg.arbiter_verdict = "llm_approved_voicevox_kanji"
-                    else:
-                        # LLM判定: 誤読あり。修正適用。
-                        # ここで初めてカタカナに開かれる。
-                        fixed_text = apply_patches(target_text, corrections)
-                        seg.reading = fixed_text
-                        seg.arbiter_verdict = "llm_fixed_misreading"
-                        print(f"  [PATCH] Seg {idx}: {target_text[:15]}... -> {fixed_text[:15]}...")
-                        
-                        # 辞書学習（誤読パターンのみ登録）
-                        for corr in corrections:
-                            word = corr.get("word")
-                            reading = corr.get("reading")
-                            if word and reading:
-                                print(f"  [LEARN] {word} -> {reading}")
-                                kb.set(word, reading)
-                                if channel:
-                                    new_channel_entries[word] = ReadingEntry(
-                                        surface=word,
-                                        reading_hira=reading,
-                                        reading_kana=reading,
-                                        source="llm",
-                                    )
-                else:
-                    # Fallback
-                    print(f"  [WARN] LLM no verdict for Seg {idx}. Keeping Kanji.")
-                    seg.reading = target_text
-                    seg.arbiter_verdict = "fallback_kanji"
-
-        except Exception as e:
-            print(f"[ERROR] Arbiter LLM failed for batch {i}: {e}")
-            raise RuntimeError("Arbiter failed. Pipeline stopped.") from e
-            
-    kb.save()
-    if channel and new_channel_entries:
-        merge_channel_readings(channel, new_channel_entries)
-    print(f"[ARBITER] Knowledge Base updated at {KB_PATH}")
+    print("[ARBITER] auditor finished (surface aggregation path).")
+    return patches_by_block

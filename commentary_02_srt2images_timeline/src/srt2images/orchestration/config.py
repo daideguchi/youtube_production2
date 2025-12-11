@@ -22,8 +22,8 @@ def get_args():
     )
     parser.add_argument("--crossfade", type=float, help="Crossfade seconds between images (0 allowed)")
     parser.add_argument("--fps", type=int, help="Timeline FPS")
-    parser.add_argument("--nanobanana", choices=["cli", "mcp", "direct", "none"], help="Image generation mode")
-    parser.add_argument("--nanobanana-bin", help="Path to nanobanana CLI binary (if not in PATH)")
+    parser.add_argument("--nanobanana", choices=["direct", "none"], help="Image generation mode (direct=ImageClient(Gemini), none=skip)")
+    parser.add_argument("--nanobanana-bin", help="Path to nanobanana CLI binary (deprecated; ignored)")
     parser.add_argument("--nanobanana-timeout", type=int, help="Per-image generation timeout (seconds)")
     parser.add_argument(
         "--prompt-template",
@@ -63,8 +63,8 @@ def get_args():
     args.cue_mode = args.cue_mode or get_config_val('cues.cue_mode', 'grouped')
     args.crossfade = args.crossfade or get_config_val('output.crossfade', 0.5)
     args.fps = args.fps or get_config_val('output.fps', 30)
-    args.nanobanana = args.nanobanana or get_config_val('image_generation.nanobanana', 'cli')
-    args.nanobanana_bin = args.nanobanana_bin or get_config_val('image_generation.nanobanana_bin', '')
+    args.nanobanana = args.nanobanana or get_config_val('image_generation.nanobanana', 'direct')
+    args.nanobanana_bin = ''  # deprecated
     args.nanobanana_timeout = args.nanobanana_timeout or get_config_val('image_generation.nanobanana_timeout', 300)
     
     default_prompt_template = str(Path(__file__).resolve().parents[3] / "templates" / "default.txt")
@@ -86,7 +86,7 @@ def get_args():
 
     args.fit = args.fit or get_config_val('output.fit', 'cover')
     args.margin = args.margin or get_config_val('output.margin', 0)
-    args.nanobanana_config = args.nanobanana_config or get_config_val('image_generation.nanobanana_config', str(Path.home() / "nanobanana" / "config.json"))
+    args.nanobanana_config = ''  # deprecated
     args.max_retries = args.max_retries or get_config_val('robustness.max_retries', 6)
     args.placeholder_text = args.placeholder_text or get_config_val('robustness.placeholder_text', '画像生成中…後で自動差し替え')
     

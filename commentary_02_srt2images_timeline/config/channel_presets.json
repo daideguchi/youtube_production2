@@ -23,11 +23,11 @@
     },
     "CH02": {
       "name": "哲学系",
-      "prompt_template": "templates/watercolor_gold_blue_strict.txt",
-      "prompt_suffix": "基本は人物なし。脚本に明示的に人物が出る場合のみ登場させ、顔立ち/服装/年齢を全カットで一貫（日本人/アジア系）。抽象・比喩優先、デジタル水彩＋薄い線画＋和紙テクスチャの厳格スタイル。暖かな金色光×冷たい青グレー石のコントラスト。少しノスタルジックな色褪せ感と粒状感を追加。油彩表現は禁止。",
-      "tone_profile": "トーン: 静寂・内省・瞑想的。水彩＋インクのにじみと和紙目、低彩度、ソフトなハイライト、薄い霧。軽いフィルム粒子/色褪せでノスタルジックに。文字要素は描かない。油彩表現は禁止。",
-      "character_note": "人物ポリシー: デフォルトは人を描かない。脚本に人物がある場合のみ登場させ、同じ顔/服/年齢を維持。不要な新キャラ追加は不可。日本人/アジア系の穏やかな顔立ち。",
-      "style": "calm watercolor + soft oil glaze, warm-gold light vs cool blue-gray stone, no text",
+      "prompt_template": "templates/watercolor_gold_blue_ch02.txt",
+      "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、水彩＋薄い線画＋和紙テクスチャを厳格適用。写実寄りの水彩に薄い油彩グレーズで艶と深みを足す。文字/看板/ロゴは禁止。",
+      "tone_profile": "トーン: 静寂・内省・幻想的。写実寄りの水彩＋薄い油彩グレーズ、低〜中彩度、柔らかいハイライトと薄い霧。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
+      "character_note": "人物ポリシー: デフォルト無人。人物が出る場合は台本に沿う一人/少数のみで、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラや現場作業員・道具（赤い鉢巻・鎌等）は禁止。",
+      "style": "realistic-leaning watercolor + soft oil glaze, warm-gold light vs cool blue-gray stone, no text, no cartoon, consistent characters",
       "capcut_template": "CH02-UNK_テンプレ",
       "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
       "layout": {"beltTopPct": 82, "beltHeightPct": 16, "subtitleBottomPx": 120, "subtitleMaxWidthPct": 80, "subtitleFontSize": 34},
@@ -91,11 +91,11 @@
     },
     "CH06": {
       "name": "都市伝説のダーク図書館",
-      "prompt_template": "templates/watercolor_gold_blue_strict.txt",
-      "prompt_suffix": "好奇心をくすぐるが落ち着いたダーク図書館。暖かな金色の光アクセント×深いインディゴ/青グレーの書架・石。デジタル水彩＋薄い線画＋和紙テクスチャを厳格適用、柔らかい縁と霧。基本無人、必要時のみ案内人1名を一貫（日本人/アジア顔、性別任意）。文字や看板は描かない。油彩表現は禁止。",
-      "tone_profile": "トーン: 静寂・ミステリアス・少し不穏だが安らぐ。低彩度、ソフトなハイライト、薄い靄。都市伝説感と美しさを両立。アニメ誇張なし。油彩表現は禁止。",
-      "character_note": "人物ポリシー: デフォルトは人を描かない。脚本に案内人/語り手が必要な場合のみ登場させ、同一の顔/服/髪色で統一（30-40代の日本人/アジア系、僧侶指定なし）。不要な新キャラは追加しない。",
-      "style": "mystical urban legend, watercolor-oil hybrid, cinematic lighting, metaphor-first, no text, spiritual calm atmosphere, soothing oil painting and watercolor vibe, minimal or no humans, focus on metaphorical library artifacts and scenery",
+      "prompt_template": "templates/watercolor_gold_blue_ch06_dark.txt",
+      "prompt_suffix": "好奇心をくすぐるが落ち着いたダーク図書館。暖かな金色の点光×深いインディゴ/青グレーの書架・石。水彩＋薄い線画＋和紙＋グランジ＋フィルム粒子。基本無人、必要時のみ案内人1名を一貫（日本人/アジア顔、性別任意）。かわいい/ポップ禁止。文字や看板は描かない。",
+      "tone_profile": "トーン: 静寂・ミステリアス・少し不穏だが安らぐ。低〜中低彩度、局所的スポット光と薄い霧。退廃的な空気感。アニメ誇張なし。",
+      "character_note": "人物ポリシー: デフォルト無人。人物が必要な場合のみ台本指定の案内人を一貫（顔/服/年齢/文化を固定）。無関係な新キャラや作業員・鎌・赤鉢巻は禁止（台本明示時のみ限定）。",
+      "style": "dark urban-legend library, watercolor-oil hybrid, cinematic moody lighting, metaphor-first, no text, minimal humans, grunge + washi texture, warm gold accents vs deep indigo shadows",
       "capcut_template": "CH06-001_ダーク図書館_capcut_v10",
       "capcut_settings": {
         "timeline": {

@@ -1,0 +1,33 @@
+シーン説明: {summary}
+視覚要素: {visual_focus}
+主要人物（必要時のみ）: {main_character}
+禁止: 主要人物以外の歴史/有名人を描かない。無関係な作業員・工事/農具・赤い鉢巻・鎌は描かない（台本に明示がある場合だけ、その人物1名に限定）。かわいい/ポップ/明るい配色は禁止。
+
+# スタイル定義（CH06専用: ダーク図書館・都市伝説）
+Style: Dark, moody watercolor-oil hybrid. Warm gold accents only as point lights; dominant deep indigo/blue-gray/charcoal shadows. Thin, broken brown-gray lines; soft bleeding edges; washi texture plus subtle grunge and film grain. No text/UI/signage.
+Negative: Cute, pop, pastel, kawaii, photoreal glamour, cartoon, anime exaggeration, big eyes, cel shading, hard outlines, modern signage, bright daylight, red headband, scythe, worker/farmer/construction gear, hardhat, tool belts, industrial uniforms, friendly workplace vibes.
+Requirement: Realistic proportions. Eerie but calm; metaphoric props (books, shelves, fog, old lamps). Keep frames spacious; avoid clutter. No extra characters.
+
+# 色・光
+- ベース色: 深いインディゴ/群青/スレートグレー＋煤けたブラウン。ハイライトのみ暖ゴールドの点光。
+- 彩度: 低〜中低。ゴールドだけ少し彩度を上げて対比。
+- 光: 局所的なスポット光と薄い霧。コントラストは中程度で、陰影を長く引く。
+
+# 空気・質感
+- 薄い煙や埃が差す退廃的な空気。紙・石・錆びた金属の質感を残す。
+- 和紙目に加え、微細なフィルム粒子と軽いグランジ汚れを全体に。
+
+# ブラシ・レンダリング
+- 水彩のにじみとダークエッジで形を作り、要所だけ油彩グレーズで光沢と厚みを足す。
+- 硬いエッジは禁止。選択的にシャープにするのは焦点のみ。
+
+# ムード
+- 都市伝説の静かな不穏さ＋どこか癒やされる落ち着き。
+- 比喩・象徴を優先（終わりのない書架、閉ざされた扉、光る埃など）。
+
+# 人物一貫性
+- 基本無人。人物が必要な場合のみ台本の指定人物を1名または最小限で、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラは入れない。
+
+# 入力パラメータ
+{style}
+{negative}

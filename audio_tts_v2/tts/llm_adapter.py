@@ -5,9 +5,10 @@ import os
 import re
 from typing import Dict, Optional, List, Any
 
-from factory_common.llm_router import get_router
+from factory_common.llm_router import LLMRouter
 
 LOCAL_INFERENCE_ONLY = os.getenv("LOCAL_INFERENCE_ONLY") == "1"
+router = LLMRouter()
 
 SYSTEM_PROMPT = (
     "You are a TTS annotation engine. Output ONLY a JSON object:\n"
@@ -22,6 +23,18 @@ KATAKANA_PROMPT = (
     "You convert Japanese A-text into full katakana reading (numbers also as katakana words). "
     "Do not add explanations. Return JSON {\"katakana\": \"...\"} only."
 )
+
+# Filter out trivial tokens (numbers/punctuation) to reduce LLM payload for annotate
+# Allow digits/whitespace/punctuation; escape + and - properly for char class
+_TRIVIAL_RE = re.compile(r"^[0-9０-９\\s\\.,，。、％%\\-\\+/]+$")
+
+
+def _is_trivial_token(tok: dict) -> bool:
+    surface = str(tok.get("surface") or "").strip()
+    if not surface:
+        return True
+    # Pure numbers/punctuation/symbols
+    return bool(_TRIVIAL_RE.match(surface))
 
 SRT_SEGMENT_PROMPT = (
     "You split Japanese text into short readable segments for subtitles. "
@@ -81,32 +94,17 @@ Your task is to convert the provided Japanese display text (A-Text) into a readi
 3. **No Semantic Changes:** Do NOT change the meaning or the words themselves unless correcting the *reading*. The B-Text must maintain a 1:1 semantic mapping with the A-Text.
 4. **Format:** Return the B-Text as a raw string. Do not use JSON. Just the text stream.
 5. **Headings:** Keep markdown headings (e.g. `## Chapter`) as they help structure, but you can add pauses after them.
-
-**Example Input:**
-## 序章
-昔々、あるところに。
-
-**Example Output:**
-## 序章[wait=1.0s]
-昔々、[wait=0.5s]あるところに。[wait=0.5s]
 """
 
 READING_GENERATION_PROMPT = (
-    "You are a professional Japanese narrator. Your task is to prepare text for high-quality TTS (Voicevox/Voicepeak).\n"
-    "Input: A list of text segments (mechanically split).\n"
-    "Output: A JSON object `{\"readings\": [\"text1\", \"text2\", ...]}` corresponding 1-to-1 with the input segments.\n"
+    "You are a professional Japanese narrator. Prepare text for high-quality TTS (Voicevox/Voicepeak).\n"
+    "Input: A list of text segments (already split).\n"
+    "Output: JSON only: {\"readings\": [\"...\"]} 1:1 with input.\n"
     "Rules:\n"
-    "1. **NO LATIN CHARACTERS (CRITICAL):** The output must NOT contain any English letters (A-Z) or Symbols (%, &). Convert ALL of them to Katakana reading.\n"
-    "   - \"DNA\" -> \"ディーエヌエー\" (NOT \"DNA\")\n"
-    "   - \"100%\" -> \"ヒャクパーセント\" (NOT \"100%\")\n"
-    "2. **Preserve Standard Japanese:** Aside from Latin/Symbols, keep natural Kanji/Kana mixed text (e.g. 「私は」 -> 「私は」). Do NOT convert Kanji to Kana unless necessary.\n"
-    "3. **Apply Existing Readings:** If input has `Kanji(Reading)`, replace with `Reading` (remove parens).\n"
-    "4. **Fix Misreadings:** STRICTLY replace ambiguous numbers/names:\n"
-    "   - \"4月1日\" -> \"4月ついたち\".\n"
-    "   - \"ナグ・ハマディ\" -> \"ナグハマディ\" (Remove dots).\n"
-    "   - **GLOBAL RULE:** Remove ALL middle dots (・) from names/titles. \"ピリ・レイス\" -> \"ピリレイス\".\n"
-    "5. **Formatting:** Remove spaces between Japanese words.\n"
-    "6. **Headings:** Keep hashtags. \"# 第1章\" -> \"# ダイイッショウ\".\n"
+    "- No Latin letters or %/&; convert them to Katakana (e.g., DNA -> ディーエヌエー, 100% -> ヒャクパーセント).\n"
+    "- Preserve Kanji/Kana mix except for disambiguation; do not over-convert.\n"
+    "- If input has Kanji(Reading), replace with Reading.\n"
+    "- Remove middle dots (・) from names/titles; keep hashtags (#) as-is.\n"
 )
 
 
@@ -132,27 +130,32 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
             )
         return {"token_annotations": anns}
 
-    tokens_in = payload.get("tokens") or []
-    token_map = {int(t.get("index", i)): t for i, t in enumerate(tokens_in)}
-    
+    tokens_in_all = payload.get("tokens") or []
+    token_map = {int(t.get("index", i)): t for i, t in enumerate(tokens_in_all)}
+    tokens_for_llm = [t for t in tokens_in_all if not _is_trivial_token(t)]
+    payload_for_llm = dict(payload)
+    payload_for_llm["tokens"] = tokens_for_llm
+
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": USER_TEMPLATE.format(payload=json.dumps(payload, ensure_ascii=False))},
+        {
+            "role": "user",
+            "content": USER_TEMPLATE.format(payload=json.dumps(payload_for_llm, ensure_ascii=False)),
+        },
     ]
     
     last_err: Exception | None = None
     last_raw: Optional[str] = None
     
-    router = get_router()
-    
-    # Try calling via router
+    # Try calling via LLM router
     try:
-        content = router.call(
+        result = router.call(
             task="tts_annotate",
             messages=messages,
             response_format="json_object",
-            timeout=timeout
+            timeout=timeout,
         )
+        content = result.content
         last_raw = content
         
         try:
@@ -163,9 +166,31 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
             except Exception:
                 obj = _parse_json_salvage(content)
         
+        annotations = []
         if obj.get("token_annotations"):
-            return _enrich_annotations(obj, token_map)
-        raise ValueError("missing token_annotations in parsed/salvaged response")
+            annotations = _enrich_annotations(obj, token_map)
+        else:
+            raise ValueError("missing token_annotations in parsed/salvaged response")
+
+        # Fill missing indexes with defaults to keep alignment
+        seen = {int(a.get("index")) for a in annotations if isinstance(a, dict) and "index" in a}
+        missing = set(token_map.keys()) - seen
+        for idx in sorted(missing):
+            tok = token_map[idx]
+            annotations.append(
+                {
+                    "index": idx,
+                    "surface": tok.get("surface"),
+                    "llm_reading_kana": tok.get("reading_mecab") or tok.get("surface") or "",
+                    "write_mode": "original",
+                    "risk_level": 0,
+                    "reason": "",
+                    "reading_mecab": tok.get("reading_mecab"),
+                }
+            )
+
+        annotations = sorted(annotations, key=lambda x: int(x.get("index", 0)))
+        return {"token_annotations": annotations}
         
     except Exception as e:
         last_err = e
@@ -216,7 +241,6 @@ def llm_readings_for_candidates(
         return out
 
     out: dict[int, str] = {}
-    router = get_router()
 
     def _call(batch: list[dict]) -> dict[int, str]:
         sentence_snippet = sentence[:300] if sentence else ""
@@ -230,12 +254,13 @@ def llm_readings_for_candidates(
         ]
         
         try:
-            content = router.call(
+            result = router.call(
                 task="tts_reading",
                 messages=messages,
                 response_format="json_object",
-                timeout=timeout
+                timeout=timeout,
             )
+            content = result.content
             
             if isinstance(content, str):
                 try:
@@ -281,37 +306,27 @@ def katakana_a_text(a_text: str, model: str | None = None, api_key: str | None =
     if LOCAL_INFERENCE_ONLY:
         return ""
     
-    chunks = _split_for_segmentation(a_text, limit=1200)
-    out: list[str] = []
-    router = get_router()
-    
-    for chunk in chunks:
-        messages = [
-            {"role": "system", "content": KATAKANA_PROMPT},
-            {"role": "user", "content": json.dumps({"a_text": chunk}, ensure_ascii=False)},
-        ]
-        try:
-            content = router.call(
-                task="tts_text_prepare",
-                messages=messages,
-                response_format="json_object",
-                timeout=timeout,
-                max_tokens=max_tokens
-            )
-            try:
-                obj = json.loads(content)
-                if obj.get("katakana"):
-                    out.append(str(obj["katakana"]))
-                    continue
-            except Exception:
-                pass
-            print("[LLM_WARN] katakana missing in response")
-        except Exception as e:
-            print(f"[LLM_WARN] katakana_a_text chunk failed: {e}")
-            break
-            
-    if out:
-        return "".join(out)
+    payload = {"a_text": a_text}
+    messages = [
+        {"role": "system", "content": KATAKANA_PROMPT},
+        {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+    ]
+    try:
+        result = router.call(
+            task="tts_text_prepare",
+            messages=messages,
+            response_format="json_object",
+            timeout=timeout,
+            max_tokens=max_tokens,
+        )
+        content = result.content
+        obj = json.loads(content)
+        katakana = obj.get("katakana")
+        if katakana:
+            return str(katakana)
+        print("[LLM_WARN] katakana missing in response")
+    except Exception as e:
+        print(f"[LLM_WARN] katakana_a_text failed: {e}")
     raise ValueError("katakana_a_text failed")
 
 
@@ -338,7 +353,6 @@ def suggest_pauses(blocks: list[dict], model: str | None = None, api_key: str | 
         return pauses
 
     all_pauses: dict[int, float] = {}
-    router = get_router()
 
     def _call(batch: list[dict]) -> list[dict]:
         payload = {"segments": [{"index": b.get("index", i), "text": b.get("text", "")} for i, b in enumerate(batch)]}
@@ -348,12 +362,13 @@ def suggest_pauses(blocks: list[dict], model: str | None = None, api_key: str | 
         ]
         
         try:
-            content = router.call(
+            result = router.call(
                 task="tts_pause",
                 messages=messages,
                 response_format="json_object",
-                timeout=timeout
+                timeout=timeout,
             )
+            content = result.content
             
             try:
                 obj = _parse_json_strict(content)
@@ -460,7 +475,6 @@ def segment_text_llm(a_text: str, max_len: int, model: str | None = None, api_ke
 
     chunks = _split_for_segmentation(a_text)
     segments: list[dict] = []
-    router = get_router()
     last_err: Exception | None = None
 
     for chunk in chunks:
@@ -471,12 +485,13 @@ def segment_text_llm(a_text: str, max_len: int, model: str | None = None, api_ke
         ]
         
         try:
-            content = router.call(
+            result = router.call(
                 task="tts_segment",
                 messages=messages,
                 response_format="json_object",
-                timeout=timeout
+                timeout=timeout,
             )
+            content = result.content
             
             segs = None
             if isinstance(content, str):
@@ -509,25 +524,38 @@ def generate_reading_script(a_text: str, model: str | None = None, api_key: str 
 
     chunks = _split_for_segmentation(a_text, limit=800)
     b_text_parts: list[str] = []
-    router = get_router()
 
     for chunk in chunks:
-        messages = [
-            {"role": "system", "content": B_TEXT_GEN_PROMPT},
-            {"role": "user", "content": chunk},
-        ]
         try:
-            content = router.call(
+            # 1st pass: segmentation
+            seg_result = segment_text_llm(chunk, max_len=120, timeout=timeout)
+            segs = seg_result.get("segments") or []
+            if not segs:
+                raise ValueError("LLM segmentation returned empty list")
+
+            # 2nd pass: reading generation per segment via tts_reading (json)
+            seg_texts = [str(s.get("text", "")) for s in segs]
+            payload = {"segments": seg_texts}
+            messages_read = [
+                {"role": "system", "content": READING_GENERATION_PROMPT},
+                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+            ]
+            read_result = router.call(
                 task="tts_reading",
-                messages=messages,
-                timeout=timeout
+                messages=messages_read,
+                response_format="json_object",
+                timeout=timeout,
             )
-            if content:
-                b_text_parts.append(content)
-            else:
-                raise ValueError("Empty content")
-        except Exception:
-            print("[LLM_WARN] generate_reading_script failed for chunk, using raw A-Text")
+            content_read = read_result.content
+            readings = []
+            if isinstance(content_read, str):
+                obj = _parse_json_lenient(content_read)
+                readings = obj.get("readings") or []
+            if not readings or len(readings) != len(seg_texts):
+                raise ValueError("reading generation mismatch")
+            b_text_parts.extend(readings)
+        except Exception as e:
+            print(f"[LLM_WARN] generate_reading_script failed for chunk, using raw A-Text: {e}")
             b_text_parts.append(chunk)
 
     return "\n".join(b_text_parts)
@@ -537,77 +565,34 @@ def generate_reading_for_blocks(blocks: list[dict], model: str | None = None, ap
     if LOCAL_INFERENCE_ONLY:
         return [str(b.get("text", "")) for b in blocks]
 
-    batch_size = 20
-    all_readings = []
-    router = get_router()
-    
-    for i in range(0, len(blocks), batch_size):
-        batch = blocks[i : i + batch_size]
-        payload = {"segments": [str(b.get("text", "")) for b in batch]}
-        
-        messages = [
-            {"role": "system", "content": READING_GENERATION_PROMPT},
-            {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
-        ]
-        
-        success = False
-        batch_readings = []
-        
-        try:
-            content = router.call(
-                task="tts_reading",
-                messages=messages,
-                response_format="json_object",
-                timeout=timeout
-            )
-            
-            extracted = None
-            if isinstance(content, str):
-                obj = _parse_json_lenient(content)
-                if obj.get("readings"):
-                    extracted = obj["readings"]
-            
-            if extracted and len(extracted) == len(batch):
-                # [STRICT VALIDATION] Check for Robotic Katakana Output
-                from audio_tts_v2.tts.validators import validate_reading_quality # Path fixed?
-                # Check import path: audio_tts_v2.tts.validators vs .validators
-                # Assuming relative import works or path is correct
-                
-                is_valid = True
-                # Note: Dynamic import inside function might be safer if circular dep risk
-                # But here we assume validators exists
-                
-                for orig_blk, reading in zip(batch, extracted):
-                    orig_text = str(orig_blk.get("text", ""))
-                    # Simple validation bypass if import fails or simplified
-                    # We keep the logic but wrap import
-                    try:
-                        from .validators import validate_reading_quality
-                        ok, msg = validate_reading_quality(orig_text, reading)
-                        if not ok:
-                            print(f"[LLM_ERROR] Rejected robotic reading: In='{orig_text}' Out='{reading}' Msg='{msg}'")
-                            is_valid = False
-                            break
-                    except ImportError:
-                        pass # skip validation if module missing
+    payload = {"segments": [str(b.get("text", "")) for b in blocks]}
+    messages = [
+        {"role": "system", "content": READING_GENERATION_PROMPT},
+        {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+    ]
 
-                if is_valid:
-                    batch_readings = extracted
-                    success = True
-            
-            elif extracted:
-                print(f"[LLM_WARN] Reading count mismatch. In={len(batch)}, Out={len(extracted)}.")
-                
-        except Exception as e:
-            print(f"[LLM_WARN] Error generating readings: {e}")
-        
-        if not success:
-            print("[LLM_ERROR] Failed to generate readings for batch. Fallback to raw text.")
-            batch_readings = [str(b.get("text", "")) for b in batch]
-            
-        all_readings.extend(batch_readings)
+    try:
+        result = router.call(
+            task="tts_reading",
+            messages=messages,
+            response_format="json_object",
+            timeout=timeout,
+        )
+        content = result.content
+        extracted = None
+        if isinstance(content, str):
+            obj = _parse_json_lenient(content)
+            if obj.get("readings"):
+                extracted = obj["readings"]
+        if extracted and len(extracted) == len(blocks):
+            return extracted
+        else:
+            print(f"[LLM_WARN] Reading count mismatch. In={len(blocks)}, Out={len(extracted) if extracted else 0}.")
+    except Exception as e:
+        print(f"[LLM_WARN] generate_reading_for_blocks failed: {e}")
 
-    return all_readings
+    # Fallback: return raw texts
+    return [str(b.get("text", "")) for b in blocks]
 
 
 def _parse_json_strict(text: str) -> dict:

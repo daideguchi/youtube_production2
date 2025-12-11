@@ -1,7 +1,7 @@
 ## CapCut Draft One-shot Pipeline (Channel/SRT agnostic)
 
 Prereq:
-- `source /Users/dd/youtube_master/.env` (GEMINI/OPENROUTER keys, etc.)
+- `source /Users/dd/youtube_master/.env` (GEMINI/OPENROUTER keys, etc.) — キーは `.env` 一元管理。`.gemini_config` や credentials 配下に複製しない。
 - `PYTHONPATH` is set by the script; no need to export manually.
 
 Main command:
@@ -20,10 +20,8 @@ python3 tools/auto_capcut_run.py \
 - Steps: run_pipeline → equal-split belt → CapCut draft insert → Title JSON injection.
 - Presets: template/position/tone/character/belt_labels/opening_offset are auto-applied from `config/channel_presets.json`.
 - SRT is auto-copied into the run dir; draft name defaults to `<srt_basename>_draft`.
-- `--dry-run` to skip generation/draft ops (nanobanana=none) for quick preflight.
 - `--suppress-warnings` default ON (DeprecationWarning).
-
-Diffusion mode: switch with `--nanobanana direct|cli|mcp|none`.
+- Diffusion mode is single-path: `--nanobanana direct` (Gemini via ImageClient) or `--nanobanana none` to skip. Legacy cli/mcp are removed to avoid routing mistakes.
 
 After-run artifacts:
 - `output/<run>/auto_run_info.json`: summary + cue counts + replacements log.

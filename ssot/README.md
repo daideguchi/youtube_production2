@@ -18,3 +18,7 @@
 
 ## 運用マニュアル
 - `OPS_CHANNEL_LAUNCH_MANUAL.md`: テーマ入力後に AI エージェントが 30 本の企画 CSV とペルソナを整備し、「企画準備完了」に到達するための手順書。
+
+## 環境変数の原則
+- 秘密鍵（例: `GEMINI_API_KEY`）はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
+- 具体的な必須キー一覧やポートは `ssot/OPS_ENV_VARS.md` を参照。

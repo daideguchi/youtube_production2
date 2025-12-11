@@ -22,12 +22,6 @@ interface BatchTtsProgress {
     channels: Record<string, ChannelProgress> | null;
 }
 
-interface LogEntry {
-    timestamp: string;
-    message: string;
-    type: "info" | "success" | "error";
-}
-
 async function fetchBatchProgress(): Promise<BatchTtsProgress> {
     const res = await fetch(`${API_BASE_URL}/api/batch-tts/progress`);
     if (!res.ok) throw new Error(`Failed: ${res.status}`);

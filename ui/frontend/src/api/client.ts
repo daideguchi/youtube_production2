@@ -106,28 +106,6 @@ const GITHUB_BASE_DIRS: Record<string, string> = {
   scripts: "script_pipeline/data",
 };
 
-function resolveBackendBase(): string | null {
-  if (API_BASE_URL) {
-    return API_BASE_URL.replace(/\/$/, "");
-  }
-  if (typeof window !== "undefined") {
-    try {
-      const url = new URL(window.location.href);
-      if (!url.port) {
-        return url.origin.replace(/\/$/, "");
-      }
-      if (url.port !== "8000") {
-        url.port = "8000";
-        return url.origin.replace(/\/$/, "");
-      }
-      return url.origin.replace(/\/$/, "");
-    } catch {
-      // ignore
-    }
-  }
-  return "http://127.0.0.1:8000";
-}
-
 type JsonMap = Record<string, unknown>;
 
 function buildUrl(path: string): string {

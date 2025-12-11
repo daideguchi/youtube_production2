@@ -67,7 +67,8 @@ export type WorkspaceView =
   | "audioIntegrity"
   | "reports"
   | "jobs"
-  | "settings";
+  | "settings"
+  | "llmUsage";
 
 export type ShellOutletContext = {
   view: WorkspaceView;
@@ -311,6 +312,10 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   reports: {
     title: "レポート",
     description: "チャネル横断の指標や定期レポートを集計中です。暫定的にダッシュボードをご利用ください。",
+  },
+  llmUsage: {
+    title: "LLM Usage",
+    description: "LLMログとタスク別オーバーライド設定を確認・変更",
   },
 };
 
@@ -1163,3 +1168,5 @@ export function AppShell() {
     </div>
   );
 }
+
+            <NavLink to="/llm-usage" className={({ isActive }) => (isActive ? "active" : "")}>LLM Usage</NavLink>

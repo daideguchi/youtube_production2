@@ -20,6 +20,7 @@ import { CapcutDraftPage } from "./pages/CapcutDraftPage";
 import { CapcutSwapPage } from "./pages/CapcutSwapPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
+import LlmUsagePage from "./pages/LlmUsagePage";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/tts-progress" element={<TtsProgressPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/llm-usage" element={<LlmUsagePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

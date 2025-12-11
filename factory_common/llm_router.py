@@ -7,6 +7,59 @@ from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
 from dotenv import load_dotenv
 
+from factory_common.llm_param_guard import sanitize_params
+
+DEFAULT_FALLBACK_POLICY = {
+    "transient_statuses": [429, 500, 502, 503, 504, 408],
+    "retry_limit": 0,  # 0 means try all
+    "backoff_sec": 1.0,
+    "per_status_backoff": {},
+    "per_status_retry": {},
+    "max_total_attempts": 0,
+    "max_total_wait_sec": 0,
+}
+TRANSIENT_STATUSES = set(DEFAULT_FALLBACK_POLICY["transient_statuses"])
+
+# HTTPステータスを例外から推測するための簡易ヘルパ
+def _extract_status(exc: Exception) -> Optional[int]:
+    for attr in ("http_status", "status_code", "status"):
+        if hasattr(exc, attr):
+            try:
+                val = int(getattr(exc, attr))
+                return val
+            except Exception:
+                continue
+    resp = getattr(exc, "response", None)
+    if resp is not None:
+        for attr in ("status_code", "status"):
+            if hasattr(resp, attr):
+                try:
+                    return int(getattr(resp, attr))
+                except Exception:
+                    continue
+    return None
+
+
+def _extract_request_id(result: Any) -> Optional[str]:
+    for attr in ("id", "request_id"):
+        if hasattr(result, attr):
+            try:
+                val = getattr(result, attr)
+                if val:
+                    return str(val)
+            except Exception:
+                continue
+    resp = getattr(result, "response", None)
+    if resp is not None:
+        for attr in ("id", "request_id"):
+            if hasattr(resp, attr):
+                try:
+                    val = getattr(resp, attr)
+                    if val:
+                        return str(val)
+                except Exception:
+                    continue
+    return None
 # Try importing OpenAI
 try:
     from openai import OpenAI, AzureOpenAI
@@ -26,6 +79,9 @@ logger = logging.getLogger("LLMRouter")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
+FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
+DEFAULT_LOG_PATH = PROJECT_ROOT / "logs" / "llm_usage.jsonl"
+TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
 
 def _load_env_forced():
@@ -43,6 +99,7 @@ class LLMRouter:
         if cls._instance is None:
             cls._instance = super(LLMRouter, cls).__new__(cls)
             cls._instance._initialized = False
+            cls._instance.task_overrides = {}
         return cls._instance
 
     def __init__(self):
@@ -51,7 +108,11 @@ class LLMRouter:
         
         _load_env_forced()
         self.config = self._load_config()
+        self.fallback_policy = self._load_fallback_policy()
+        self.task_overrides = self._load_task_overrides()
         self._setup_clients()
+        if self.task_overrides is None:
+            self.task_overrides = {}
         self._initialized = True
 
     def _load_config(self) -> Dict[str, Any]:
@@ -59,6 +120,70 @@ class LLMRouter:
             raise FileNotFoundError(f"Router config not found at {CONFIG_PATH}")
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
+
+    def _log_usage(self, payload: Dict[str, Any]) -> None:
+        if os.getenv("LLM_ROUTER_LOG_DISABLE") == "1":
+            return
+        log_path = Path(os.getenv("LLM_ROUTER_LOG_PATH") or DEFAULT_LOG_PATH)
+        try:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with log_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.debug(f"LLM usage log write failed: {e}")
+
+    def _load_fallback_policy(self) -> Dict[str, Any]:
+        policy = DEFAULT_FALLBACK_POLICY.copy()
+        if FALLBACK_POLICY_PATH.exists():
+            try:
+                loaded = yaml.safe_load(FALLBACK_POLICY_PATH.read_text())
+                if isinstance(loaded, dict):
+                    policy.update({k: loaded.get(k, v) for k, v in policy.items()})
+            except Exception as e:
+                logger.warning(f"Failed to load fallback policy; using defaults. Error: {e}")
+        return policy
+
+    def _load_task_overrides(self) -> Dict[str, Any]:
+        overrides: Dict[str, Any] = {}
+        if TASK_OVERRIDE_PATH.exists():
+            try:
+                loaded = yaml.safe_load(TASK_OVERRIDE_PATH.read_text()) or {}
+                if isinstance(loaded, dict):
+                    overrides = loaded.get("tasks", {})
+            except Exception as e:
+                logger.warning(f"Failed to load task overrides; ignoring. Error: {e}")
+        return overrides
+
+    def _extract_usage(self, result: Any) -> Dict[str, Any]:
+        """
+        Providerごとの usage 情報を抽出して dict を返す。
+        未対応/取得不可の場合は空 dict。
+        """
+        usage = {}
+        # OpenAI/Azure client returns .usage on ChatCompletion
+        if hasattr(result, "usage"):
+            try:
+                usage = {
+                    "prompt_tokens": getattr(result.usage, "prompt_tokens", None),
+                    "completion_tokens": getattr(result.usage, "completion_tokens", None),
+                    "total_tokens": getattr(result.usage, "total_tokens", None),
+                }
+            except Exception:
+                pass
+        # Gemini: result may have usage_metadata on the response
+        if hasattr(result, "usage_metadata"):
+            try:
+                meta = result.usage_metadata
+                usage.update({
+                    "prompt_tokens": getattr(meta, "prompt_token_count", None),
+                    "completion_tokens": getattr(meta, "candidates_token_count", None),
+                    "total_tokens": getattr(meta, "total_token_count", None),
+                })
+            except Exception:
+                pass
+        # Remove None-only entries
+        usage = {k: v for k, v in usage.items() if v is not None}
+        return usage
 
     def _setup_clients(self):
         self.clients = {}
@@ -108,14 +233,27 @@ class LLMRouter:
                 self.clients["gemini"] = "configured" # Client is static
 
     def get_models_for_task(self, task: str) -> List[str]:
-        task_conf = self.config.get("tasks", {}).get(task)
-        if not task_conf:
-            logger.warning(f"Task '{task}' not defined in config. Using fallback standard tier.")
-            tier = "standard"
-        else:
-            tier = task_conf.get("tier")
+        task_conf = self.config.get("tasks", {}).get(task, {})
+        override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
+        tier = override_conf.get("tier") or task_conf.get("tier") or "standard"
         
-        return self.config.get("tiers", {}).get(tier, [])
+        tier_models = []
+        # explicit models override wins
+        if override_conf.get("models"):
+            tier_models = override_conf["models"]
+        else:
+            # base tier models
+            tier_models = self.config.get("tiers", {}).get(tier, [])
+            # Allow tier override from llm_tier_candidates.yaml if present
+            candidates_path = CONFIG_PATH.parents[0] / "llm_tier_candidates.yaml"
+            if candidates_path.exists():
+                try:
+                    candidates = yaml.safe_load(candidates_path.read_text()).get("tiers", {})
+                    if tier in candidates and candidates[tier]:
+                        tier_models = candidates[tier]
+                except Exception as e:
+                    logger.warning(f"Failed to load tier candidates override: {e}")
+        return tier_models
 
     def call(self, 
              task: str, 
@@ -131,18 +269,35 @@ class LLMRouter:
             raise ValueError(f"No models available for task: {task}")
 
         last_error = None
+        last_status = None
+        last_error_class = None
 
-        # System Prompt Injection/Override logic
-        # If task has system_prompt_override in config, prepend it?
-        # Usually messages already contain system prompt.
-        # But if 'system_prompt_override' arg is passed, we might want to replace the first system message.
-        if system_prompt_override:
-            # Check if messages[0] is system
+        task_conf = self.config.get("tasks", {}).get(task, {})
+        override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
+
+        # System Prompt Injection/Override logic (override > task_conf > existing)
+        sp_override = system_prompt_override or override_conf.get("system_prompt_override") or task_conf.get("system_prompt_override")
+        if sp_override:
             if messages and messages[0]['role'] == 'system':
-                messages[0]['content'] = system_prompt_override
+                messages[0]['content'] = sp_override
             else:
-                messages.insert(0, {"role": "system", "content": system_prompt_override})
+                messages.insert(0, {"role": "system", "content": sp_override})
 
+        # Consolidate options for param guard
+        task_options = task_conf.get("options", {})
+        override_options = override_conf.get("options", {})
+        base_options = {
+            **task_options,
+            **override_options,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "response_format": response_format,
+            **kwargs,
+        }
+
+        tried = []
+        total_wait = 0.0
+        status_counts = {}
         for model_key in models:
             model_conf = self.config.get("models", {}).get(model_key)
             if not model_conf:
@@ -156,24 +311,80 @@ class LLMRouter:
                 continue
 
             try:
+                safe_options = sanitize_params(model_conf, base_options)
                 logger.info(f"Router: Invoking {model_key} for {task}...")
-                return self._invoke_provider(
+                start = time.time()
+                result = self._invoke_provider(
                     provider_name, 
                     client, 
                     model_conf, 
                     messages, 
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    response_format=response_format,
-                    **kwargs
+                    **safe_options
                 )
+                usage = self._extract_usage(result)
+                req_id = _extract_request_id(result)
+                latency_ms = int((time.time() - start) * 1000)
+                chain = tried + [model_key]
+                logger.info(f"Router: {task} succeeded via {model_key} (fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})")
+                self._log_usage({
+                    "status": "success",
+                    "task": task,
+                    "model": model_key,
+                    "provider": provider_name,
+                    "chain": chain,
+                    "latency_ms": latency_ms,
+                    "usage": usage,
+                    "request_id": req_id,
+                    "timestamp": time.time(),
+                })
+                return result
             except Exception as e:
-                logger.warning(f"Failed to call {model_key}: {e}")
+                status = _extract_status(e)
+                logger.warning(f"Failed to call {model_key}: {e} (status={status})")
                 last_error = e
-                # Fallback to next model
+                last_status = status
+                last_error_class = e.__class__.__name__
+                tried.append(model_key)
+                # Retry next candidate only for transient-ish statuses; otherwise fail fast
+                transient_statuses = set(self.fallback_policy.get("transient_statuses", [])) or TRANSIENT_STATUSES
+                backoff_sec = float(self.fallback_policy.get("backoff_sec", 1.0))
+                retry_limit = int(self.fallback_policy.get("retry_limit", 0))
+                max_attempts = int(self.fallback_policy.get("max_total_attempts", 0))
+                max_wait = float(self.fallback_policy.get("max_total_wait_sec", 0))
+                per_status_retry = self.fallback_policy.get("per_status_retry", {}) or {}
+
+                if retry_limit and len(tried) >= retry_limit:
+                    break
+
+                if max_attempts and len(tried) >= max_attempts:
+                    break
+
+                if status not in transient_statuses | {None}:
+                    break
+                if status in transient_statuses:
+                    if status is not None:
+                        status_counts[status] = status_counts.get(status, 0) + 1
+                        limit = int(per_status_retry.get(str(status), 0))
+                        if limit and status_counts[status] >= limit:
+                            break
+                    per_status = self.fallback_policy.get("per_status_backoff", {}) or {}
+                    sleep_for = float(per_status.get(str(status), backoff_sec))
+                    if max_wait and (total_wait + sleep_for) > max_wait:
+                        break
+                    time.sleep(sleep_for)  # short backoff to avoid hammering provider
+                    total_wait += sleep_for
                 continue
         
-        raise RuntimeError(f"All models failed for task '{task}'. Last error: {last_error}")
+        self._log_usage({
+            "status": "fail",
+            "task": task,
+            "chain": tried,
+            "error": str(last_error),
+            "error_class": last_error_class,
+            "status_code": last_status,
+            "timestamp": time.time(),
+        })
+        raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
 
     def _invoke_provider(self, provider, client, model_conf, messages, **kwargs):
         cap = model_conf.get("capabilities", {})
@@ -183,49 +394,19 @@ class LLMRouter:
         defaults = model_conf.get("defaults", {})
         params = {**defaults, **kwargs}
         
-        # Clean params based on args
-        # e.g. if temperature passed explicitly, use it.
-        # kwargs already has precedence in python dict merge if we did defaults | kwargs
-        # But here we do explicit args.
-        
-        # Prepare API call args
+        # Params are already sanitized in call(); just forward with minimal mapping
         api_args = {}
-        
-        # Parameters Filter for Reasoning Models
-        # Reasoning models (o1, gpt-5-mini) have strict parameter constraints.
-        # They often reject: temperature, top_p, frequency_penalty, presence_penalty, logprobs
-        is_reasoning_model = cap.get("reasoning", False)
-        
-        # List of params to exclude for reasoning models
-        # (We only include them if NOT reasoning model)
-        standard_params = ["temperature", "top_p", "frequency_penalty", "presence_penalty"]
-        
-        for param in standard_params:
-            if not is_reasoning_model:
-                # Check params dict first, then kwargs
-                if param in params and params[param] is not None:
-                     api_args[param] = params[param]
-                elif param in kwargs and kwargs[param] is not None:
-                     api_args[param] = kwargs[param]
-            else:
-                # For reasoning models, strictly ignore these params to avoid 400 errors.
-                pass
-
-        # Max Tokens (Reasoning models use max_completion_tokens)
-        if "max_tokens" in kwargs and kwargs["max_tokens"] is not None:
-            # Check model limit?
-             api_args["max_completion_tokens" if provider == "azure" else "max_tokens"] = kwargs["max_tokens"]
-
-        # Response Format (JSON)
-        if kwargs.get("response_format") == "json_object":
-            if cap.get("json_mode"):
-                api_args["response_format"] = {"type": "json_object"}
-            else:
-                # Model doesn't support native JSON mode
-                # Just append instruction to prompt?
-                # Or trust the prompt has it.
-                # For models without native JSON support, we'll rely on prompt engineering
-                pass
+        for k, v in params.items():
+            if v is None:
+                continue
+            if k == "response_format" and v == "json_object":
+                if cap.get("json_mode"):
+                    api_args["response_format"] = {"type": "json_object"}
+                else:
+                    # モデルが JSON mode 未対応ならそのままプロンプトに任せる
+                    pass
+                continue
+            api_args[k] = v
 
         # IMAGE GENERATION
         if mode == "image_generation":

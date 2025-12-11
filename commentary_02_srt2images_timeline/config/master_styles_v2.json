@@ -56,6 +56,49 @@
           }
         }
       }
+    },
+    "ch02_common_subtitle_v2": {
+      "name": "CH02 Common Subtitle",
+      "description": "Shared subtitle style for CH02 (and others) with no background panel.",
+      "canvas_width": 1920,
+      "canvas_height": 1080,
+      "subtitle_style": {
+        "font_family": "System",
+        "font_size_pt": 50.0,
+        "text_color": "#FFFFFF",
+        "stroke_enabled": true,
+        "stroke_color": "#000000",
+        "stroke_width_pt": 1.2,
+        "background_enabled": false,
+        "background_color": "#000000",
+        "background_opacity": 0.0,
+        "background_round_radius_ratio": 0.0,
+        "position_x": 0.0,
+        "position_y": 0.8,
+        "alignment": "center"
+      },
+      "audio": {
+        "bgm_volume": 0.3,
+        "voice_volume": 1.0,
+        "bgm_ducking_enabled": false
+      },
+      "structure": {
+        "opening_duration_sec": 0.0,
+        "ending_duration_sec": 5.0
+      },
+      "platform_overrides": {
+        "capcut": {
+          "subtitle": {
+            "font_scale_factor": 0.1,
+            "background": {
+              "width": 0.28,
+              "height": 0.28,
+              "horizontal_offset": -1.0,
+              "vertical_offset": -1.0
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -8,6 +8,8 @@
 
 ## 2. 現状の構成と処理フロー（調査結果）
 ### 2.1 設定ファイルとレジストリ
+- **現行で運用してよいモデル**: テキストは `azure/gpt-5-mini`、画像は `gemini-2.5-flash-image` のみ。`gpt_4o_mini` や `azure_gpt_5` のような存在しない/旧名モデルは使わない（設定に残っていれば掃除対象）。
+- **登録ポリシー**: レジストリには将来使う候補（OpenRouter など）を残してよいが、運用で使うかどうかは tier リストで制御する。現状の tier は gpt-5-mini／gemini-2.5-flash-image のみに絞っており、他候補は「登録のみ・未運用」。
 - `configs/llm_registry.json`: 業務タスク→provider/model を 1:1 で紐付け。台本系・TTS 系ともほぼ全て `azure/gpt-5-mini` 固定。thinkingLevel / max_output_tokens がタスクに直書きされている。【F:configs/llm_registry.json†L1-L74】
 - `configs/llm_model_registry.yaml`: モデル仕様レジストリ。Azure（gpt-5-mini / gpt-5-chat / tts_primary / gemini-3-pro-preview）と OpenRouter 無料枠、OpenAI 互換を定義。Azure の `use_responses_api` や `allow_reasoning_effort` フラグを持つが、family は chat に固定、image 系は未整備。【F:configs/llm_model_registry.yaml†L1-L71】
 - `configs/llm_router.yaml`: 別系統の Router 設定。providers（azure/openrouter/gemini）、models、tiers（heavy_reasoning/standard/cheap/image_gen）、tasks を定義。台本・TTS 向けの tier 設計があるが、実装側の capabilities 反映は限定的。【F:configs/llm_router.yaml†L1-L86】
@@ -227,9 +229,18 @@ class LLMClient:
   - 作業: usage/token/latency を task 単位でメトリクス化し、ダッシュボードを追加。`LLM_LAYER_REFACTOR_PLAN.md` と `IMAGE_MODELS` PLAN を同期更新。
   - 検証: 台本/TTS/画像ごとの月次コスト試算が出せること、失敗率が可視化されていること。
   - ロールバック: メトリクス送信が問題を起こした場合は feature flag で無効化。
+- **実装メモ (進捗)**
+  - ✅ LLMClient 実装済み（usage ログを `logs/llm_usage.jsonl` に JSONL 追記。`LLM_USAGE_LOG_PATH` でパス変更可、`LLM_USAGE_LOG_DISABLE=1` で無効化）。
+  - ✅ ImageClient フェイルオーバー実装。commentary 画像経路の legacy router を削除し、ImageClient のみを再試行。
+  - ✅ 画像生成ルートは単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）。検証時は `--nanobanana none` を利用。
+  - ✅ Gemini image で aspect_ratio を送らない（capabilities supports_aspect_ratio=false）ことで Unknown field エラーを解消。
+  - ✅ StyleResolver は `ssot/master_styles.json` が無ければ `config/master_styles.json` をフォールバックする。
+  - ✅ abort-on-log オプションを factory/auto_capcut に追加（パターン検知で早期停止、デフォルトは無効）。
+  - 推奨 abort-on-log パターン例: `"Unknown field,quota,RESOURCE_EXHAUSTED"`（Gemini画像生成やAPIエラーの早期停止用）。
+  - Timeout: デフォルト無指定（無制限）。必要時のみ `--timeout-ms` を指定し、abort-on-log と併用でハング/エラーを安全に止める。
+  - ⏳ visual_section_plan の 600 セグ分割スモーク（長尺 SRT でセクション数・境界確認）が未実施。
 
 ## 6. 今後の拡張余地
 - **コスト可視化**: `LLMResult.usage` をタスク別に集計し、月次ダッシュボード化。
 - **動的ルーティング**: 予算・レイテンシ・429 状況に応じて tier を runtime に切替えるオプション。
 - **モデル追加手順**: `models` にプロバイダ固有メタを追加→capabilities で制約を宣言→adapter の param_map に反映するだけで差し替え可能にする。
-

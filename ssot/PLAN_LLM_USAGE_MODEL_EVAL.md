@@ -52,7 +52,8 @@
 | visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
 | visual_section_plan | 最大 1000 セグメントを結合（目安 50k chars）【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
 | visual_prompt_refine | セクションごとの短文 (~1k) | 画像プロンプト | **1.5k** | 20–30 (セクション数) | heavy_reasoning → **or_deepseek_r1** | 中量テキストを多数呼ぶため、コスト最適化で heavy tier の二番手を推奨。【F:configs/llm_router.yaml†L69-L86】【F:configs/llm_router.yaml†L147-L160】 |
-| visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】 |
+| visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。UI/auto は direct/none の 1本道。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】【F:configs/image_models.yaml†L25-L41】 |
+| e2e_smoke | 便宜上の環境ゲート | - | - | - | RUN_E2E_SMOKE=1 でのみ実行 | 重いテストの誤実行防止（ゲートのみ）。 |
 
 ## 3. モデル適性評価
 - **azure_gpt5_mini (responses/chat)**: 128k context で reasoning/JSON/長文が安定。script・長尺レビュー・B テキスト・visual_section に最優先。【F:configs/llm_router.yaml†L17-L38】【F:configs/llm_router.yaml†L67-L87】
@@ -67,6 +68,13 @@
 4) **visual_section_plan の分割実行**: 1000 セグメント上限時は 50k tokens 超。600 セグメント単位で分割し、結果を統合するサブルーチンを追加して失敗率とコストを抑制。【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L182-L220】
 5) **router で thinking_level デフォルト明示**: heavy_reasoning タスクに `thinking=high` を明記し、standard/cheap では強制 none。意図せぬ reasoning 課金を防ぐ。【F:configs/llm_router.yaml†L67-L172】
 6) **ログとモニタリング**: すべての router 呼び出しで `prompt_tokens/completion_tokens` を SSOT に集約し、ステージ別コストダッシュボードを後続で実装。
+
+## 6. 実測ログ運用メモ
+- 実装済み: `factory_common/llm_client.py` が呼び出し成功ごとに `logs/llm_usage.jsonl` へ JSONL 追記。
+- 環境変数: `LLM_USAGE_LOG_PATH` でログパス変更、`LLM_USAGE_LOG_DISABLE=1` でロギング停止。
+- 集計: `PYTHONPATH=. python scripts/aggregate_llm_usage.py --log logs/llm_usage.jsonl --top 20` で task/provider/model ごとの call/token 集計を確認。
+- 画像生成の経路は単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）か `none`（スキップ）。legacy router/cli/mcp は廃止し、Gemini には aspect_ratio を送らない設定（capabilities supports_aspect_ratio=false）。
+- 残課題: 長尺 SRT を使った `visual_section_plan`（600 セグ分割）のスモークを実施し、トークン/セクション品質を目視確認する。
 
 ## 5. 実行順序（着手ガイド）
 1. router 既定値に thinking_level/clamp を追加し、config へ `max_output_tokens` を記載。

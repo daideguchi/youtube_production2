@@ -67,19 +67,15 @@ models:
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
-    - azure_gpt5_mini
-    - or_deepseek_r1
-    - or_qwen_free
-    - or_llama_free
+    - azure_gpt5_mini   # 現在はこれのみ運用（他は待機・登録のみ）
   
   # Standard tasks
   standard:
-    - azure_gpt5_mini
-    - or_qwen_free
+    - azure_gpt5_mini   # 現在はこれのみ運用（他は待機・登録のみ）
 
   # Cost effective
   cheap:
-    - or_qwen_free
+    - azure_gpt5_mini   # 現在はこれのみ運用
 
   # Special purpose: Image generation ONLY
   image_gen:
@@ -158,6 +154,8 @@ tasks:
     timeout: 60
 
   visual_image_gen:
+    tier: image_gen
+  image_generation:
     tier: image_gen
     timeout: 60
 

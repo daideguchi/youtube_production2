@@ -184,6 +184,7 @@ def align_moras_with_tokens(
     """
     Align VOICEVOX accent phrase moras with RubyTokens in order.
     This is a best-effort greedy alignment that slices mora stream based on token reading length.
+    When mora stream is shorter than expected, remaining tokens get empty slices (to be handled by caller).
     """
 
     if accent_phrases is None:
@@ -239,4 +240,3 @@ def evaluate_reading_diffs(
                 )
             )
     return risky
-
