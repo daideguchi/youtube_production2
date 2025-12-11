@@ -38,6 +38,16 @@ def get_model_config(model_id: str) -> Optional[Dict]:
     return (cfg.get("models") or {}).get(model_id)
 
 
+def get_capabilities(model_id: str) -> Dict[str, Any]:
+    model = get_model_config(model_id) or {}
+    return model.get("capabilities") or {}
+
+
+def get_defaults(task: str) -> Dict[str, Any]:
+    tconf = get_task_config(task) or {}
+    return tconf.get("defaults") or {}
+
+
 def get_tier_models(tier: str) -> List[str]:
     cfg = _load_llm_config()
     return list((cfg.get("tiers") or {}).get(tier, []) or [])

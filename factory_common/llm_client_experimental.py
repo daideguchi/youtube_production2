@@ -6,7 +6,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from factory_common.llm_router import get_router
-from commentary_02_srt2images_timeline.src.config.llm_resolver import resolve_task, get_model_config  # type: ignore
+from commentary_02_srt2images_timeline.src.config.llm_resolver import (
+    resolve_task,
+    get_model_config,
+    get_capabilities,
+    get_defaults,
+)  # type: ignore
 
 
 @dataclass
@@ -18,6 +23,7 @@ class LLMCallOptions:
     timeout: Optional[int] = None
     extra: Dict[str, Any] = None
     stop: Optional[List[str]] = None
+    thinking_level: Optional[str] = None
 
 
 @dataclass
@@ -55,7 +61,19 @@ class LLMClient:
 
             model_conf = get_model_config(resolved_model) or {}
             provider = model_conf.get("provider")
-            caps = (model_conf.get("capabilities") or {})
+            caps = get_capabilities(resolved_model)
+            defaults = get_defaults(options.task)
+
+            # Apply task defaults from llm.yml if caller left them None
+            if options.temperature is None and "temperature" in defaults:
+                options.temperature = defaults.get("temperature")
+            if options.max_output_tokens is None and "max_output_tokens" in defaults:
+                options.max_output_tokens = defaults.get("max_output_tokens")
+            if options.response_format is None and "response_format" in defaults:
+                options.response_format = defaults.get("response_format")
+            if options.thinking_level is None and "thinking_level" in defaults:
+                options.thinking_level = defaults.get("thinking_level")
+
             # Capability-based clamps to avoid invalid params hitting legacy router
             if caps.get("allow_temperature") is False:
                 options.temperature = None
@@ -65,6 +83,8 @@ class LLMClient:
                     options.extra.pop("stop", None)
             if caps.get("allow_json_mode") is False and options.response_format == "json_object":
                 options.response_format = None
+            if caps.get("allow_reasoning_effort") is False:
+                options.thinking_level = None
             # Temporary: legacy router Azure path does not accept max_output_tokens param
             if provider == "azure":
                 options.max_output_tokens = None
