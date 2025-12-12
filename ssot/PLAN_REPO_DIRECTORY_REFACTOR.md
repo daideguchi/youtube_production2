@@ -534,7 +534,7 @@ legacy/
 - [x] `apps/` 作成。
 - [x] `ui/backend` → `apps/ui-backend/backend`（互換: `ui/backend` は symlink）
 - [x] `ui/frontend` → `apps/ui-frontend`（互換: `ui/frontend` は symlink）
-- [ ] `remotion/` → `apps/remotion`（experimental。主線が安定してから最後に移してOK）
+- [x] `remotion/` → `apps/remotion`（互換: `remotion` は symlink）
 - [ ] `scripts/start_all.sh` / `ui/tools/start_manager.py` の参照パス更新。
 - [ ] Remotion `public/input` の symlink を `workspaces/video/input` へ向ける。
 

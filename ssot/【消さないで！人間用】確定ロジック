@@ -1,17 +1,26 @@
 ## 音声生成処理の基本フロー
 
 ### 1. 音声生成準備
-- 各動画番号の `assembled.md` スクリプトファイルが `script_pipeline/data/{チャンネル}/{動画番号}/content/` に存在することを確認
+- `script_pipeline/data/{チャンネル}/{動画番号}/content/assembled.md` が存在することを確認
+- `assembled_human.md` がある場合はそれが正本（run_tts が必要に応じて `assembled.md` に同期して事故を防止）
 
-### 2. 音声生成実行
-- 以下のコマンドを使用して、各動画に対して音声生成を実行：
+### 2. 音声生成実行（SoT=final）
+- 推奨: **final 配下に直接出力**（下流はここだけ参照すれば良い）
 ```
-PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel {チャンネルコード} --video {動画番号} --input "script_pipeline/data/{チャンネル}/{動画番号}/content/assembled.md"
+PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py \
+  --channel {チャンネルコード} --video {動画番号} \
+  --input "script_pipeline/data/{チャンネル}/{動画番号}/content/assembled.md" \
+  --out-wav "audio_tts_v2/artifacts/final/{チャンネル}/{動画番号}/{チャンネル}-{動画番号}.wav" \
+  --log "audio_tts_v2/artifacts/final/{チャンネル}/{動画番号}/log.json"
 ```
-- 音声生成にはVOICEVOXエンジンが使用され、指定されたキャラクターの声が適用される
-- LLMにより読み方の判定と修正が行われる（Reading Resolution）
-- 音声ファイルは `{チャンネル}/{動画番号}/audio_prep/{チャンネル}-{動画番号}.wav` として保存される
-- 字幕ファイルは `{チャンネル}/{動画番号}/audio_prep/{チャンネル}-{動画番号}.srt` として保存される
+- 音声生成エンジン（VOICEVOX/Voicepeak/ElevenLabs）は `audio_tts_v2/tts/routing.py` が決定（必要なら `--engine-override`）。
+- 読み解決（Reading Resolution）はデフォで動作（コスト回避の手動運用は `SKIP_TTS_READING=1`）。
+- 出力（正本）: `audio_tts_v2/artifacts/final/{チャンネル}/{動画番号}/`
+  - `{チャンネル}-{動画番号}.wav`
+  - `{チャンネル}-{動画番号}.srt`
+  - `log.json`
+  - `a_text.txt`（入力Aテキストのスナップショット）
+- `script_pipeline/data/{チャンネル}/{動画番号}/audio_prep/` は **中間領域**（スクリプト更新時に自動 purge 対象）。下流のSoTにはしない。
 
 ### 3. CSVファイル更新
 - 生成された音声ファイルを反映するために、`progress/channels/{チャンネル}.csv` の該当動画行を以下のように更新：
@@ -22,15 +31,15 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel {チャンネル�
 
 ### 4. 進捗確認
 - CSVファイルの該当動画行が正しく更新されていること
-- 音声ファイルが存在すること（`script_pipeline/data/{チャンネル}/{動画番号}/audio_prep/`に.wavファイル）
-- 字幕ファイルが存在すること（.srtファイル）
+- 音声ファイルが存在すること（`audio_tts_v2/artifacts/final/{チャンネル}/{動画番号}/` に `.wav`）
+- 字幕ファイルが存在すること（同ディレクトリに `.srt`）
 - を確認して、処理完了とする
 
 ## CapCutドラフト生成フロー（全チャンネル共通）
 - 前提
   - `commentary_02_srt2images_timeline/config/channel_presets.json` に各CHの capcut_template / layout / opening_offset / prompt_template が定義済み。
   - CapCutのテンプレートフォルダが `--draft-root` 配下に存在すること（例: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH01-UNK_道標_最新テンプレ`）。
-  - 対応SRTが `commentary_02_srt2images_timeline/input/{CHxx_*}/` にあること。
+  - SRT は任意のパスでOK（デフォルトで `--prefer-tts-final=true` のため、episode を特定できれば `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` を優先して使用）。
 - 実行コマンド例（ディレクトリ `commentary_02_srt2images_timeline/` で実行）
 ```
 python tools/auto_capcut_run.py \
@@ -51,6 +60,9 @@ python tools/auto_capcut_run.py \
   3) `tools/capcut_bulk_insert.py` でテンプレ複製→opening_offset をテンプレトラックに適用→image_cues.json に沿って画像/字幕を配置。テンプレート名は `--template` 未指定なら preset capcut_template を自動使用。CapCut側には tx=0, ty=0, scale=1.03, crossfade=args.crossfade で挿入。  
   4) `tools/inject_title_json.py` でタイトルを draft JSON に注入（生成タイトル or `--title`）。`auto_run_info.json` に実行メタを書き出し。
   - 主要設定ポイント
+    - **SRT正本**: デフォルトで `--prefer-tts-final=true`。指定した `--srt` が別場所でも、episode を特定できれば final を優先して使う（古いSRTでドラフト作る事故を防止）。  
+    - **整合チェック（推奨）**: `timeline_manifest.json` が生成されていること（`wav長 ≒ srt終端 ≒ cues終端` を厳格検証し、ズレ事故を検知する“契約”）。  
+    - **字幕スタイル**: `subtitles_text` は SSOT `jinsei_standard_v2`（黒背景）を優先して正規化する（CapCutの「デフォルト挿入」見た目に寄せる）。  
     - opening_offset: presetの `belt.opening_offset` を使用（CH01=3.0s、他CHは0が多い）。CapCutトラックをシフト済み。  
     - layout/position: presetの position(tx,ty,scale) と layout(beltTopPct 等) を適用。  
     - style/prompt: presetの prompt_template + prompt_suffix + tone_profile を使用。文字禁止・人物一貫のガードレールはテンプレに強制付与。  
@@ -62,19 +74,20 @@ python tools/auto_capcut_run.py \
 - CH01の「220」系ロジックは生存中。`src/srt2images/cue_maker.py` でCH01のみ `base_seconds=12` を強制し、LLM文脈分割を使って細かいカットを作る（機械20s分割はフォールバック扱い）。他CHは `channel_presets.image_generation.base_period` を参照（デフォルト30s、CH02はconfigで9s）。
 - テンプレ/設定の正本:
   - `commentary_02_srt2images_timeline/config/channel_presets.json`: チャンネルごとの capcut_template / belt / layout / prompt_template / suffix 等。
-  - `commentary_02_srt2images_timeline/config/template_registry.json`: テンプレ一覧とscope。CH06のダーク水彩テンプレ `watercolor_gold_blue_ch06_dark.txt` を登録済み。`jinsei_standard_illustration.txt` などlegacyテンプレは削除済み（UIのCH01固定2択も撤廃し、registryベースの一覧のみ表示）。
-  - グローバル（manual scope）は ad-hoc 利用用、channel scope がデフォルト。legacy scope は廃止・非推奨。
-- 環境変数の恒久対策: `sitecustomize.py` と `factory_common/image_client.py` がリポジトリ直下/ホームの `.env` を自動読込し、`os.environ.setdefault` で全プロセスに伝播する。`GEMINI_API_KEY` は `.env` に入れておけばPythonをどこから起動しても拾う。
+  - `commentary_02_srt2images_timeline/config/template_registry.json`: 画像プロンプトテンプレのSoT（`channel_presets.json` の `prompt_template` は登録必須 / lint: `commentary_02_srt2images_timeline/scripts/lint_check_templates.py`）。
+    - scope: `["CHxx", ...]`=チャンネル既定 / `["legacy"]`=旧（混乱防止のため `inactive` 推奨）
+    - status: `active`=運用 / `inactive`=残してOKだが運用では使わない
+- 環境変数: 上の「環境変数の恒久ロード」を参照（`.env` 一本化）。
 - LLMメタログ: `commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py` は `call_with_raw` 経由で request_id / chain / latency / usage を `logs/llm_context_analyzer.log` に jsonl で記録（なければ従来call）。LLM全体のusageは `logs/llm_usage.jsonl`（router）で集計でき、`scripts/llm_usage_report.py` で要約可能。
 - LLMログ統合レポート: `scripts/llm_logs_combined_report.py` で `llm_usage.jsonl` / `llm_context_analyzer.log` / `tts_llm_usage.log` をまとめて要約（件数・モデル/プロバイダ内訳・レイテンシ・トークン合計・last request_id）。監視/定期集計に利用可。
 - CIアーティファクト: `llm_smoke` ワークフローが実行後に LLM系ログ (`llm_usage.jsonl`, `llm_context_analyzer.log`, `tts_llm_usage.log`) をアーティファクトとして保存する（存在する場合のみ、best-effort）。
 - CapCutドラフト生成チェックリスト（簡易）:
   1) `.env` が正しく読み込まれているか `python scripts/check_env.py` または `commentary_02_srt2images_timeline/check_gemini_key.py` で確認。`.venv/lib/python3.x/site-packages/factory_commentary_env.pth` により cwd を問わず sitecustomize が走る。
   2) `progress/channels/CHxx.csv` に台本パス/企画意図/タグが入っていることを確認し、テンプレ選択は `config/channel_presets.json` + `config/template_registry.json` に存在するものを使う（CH06ダークは `watercolor_gold_blue_ch06_dark.txt`、CH01は 220 ロジック生存で base_period=12s 固定）。
-  3) `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...` を実行。`--resume` で再利用、`--belt-mode existing` で既存ベルトを尊重する。`logs/auto_run_info.json` を必ず確認。
+  3) `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...` を実行。`--resume` で再利用、`--belt-mode existing` で既存ベルトを尊重する。`output/{run_name}/auto_run_info.json` を必ず確認。
   4) 生成物確認: `image_cues.json` の `llm_context` に企画意図・タグが入っているか、CapCut draft が `opening_offset` 付きでシフトされているか、画像/字幕の件数がSRT行数と一致しているか。
-  5) 画像生成は `llm_context_analyzer` で得たセクション文脈＋テンプレ＋タグをそのまま Gemini image に渡すため、企画CSVを最新化しないと文脈が外れる。ズレを見つけたら CSV→planning_store.refresh→再実行で揃える。
-  6) テンプレ管理: `templates/` はチャンネル既定のみ残し、手動スコープの旧テンプレは廃止済み。残存テンプレは `jinsei_warm_gold_blue_strict.txt` (CH01), `watercolor_gold_blue_ch02.txt` (CH02), `senior_health_reading.txt` (CH03), `watercolor_gold_blue_strict.txt` (CH04/07/08/11), `senior_romance_sensual.txt` (CH05), `philosophy_calm_watercolor_oil.txt` (CH09/10), `watercolor_gold_blue_ch06_dark.txt` と `dark_library_calm_curiosity.txt` (CH06)。`template_registry.json` からも manual スコープを削除し、古いシェルは CH 既定テンプレに差し替え済み。
+  5) 画像生成は `llm_context_analyzer` で得たセクション文脈＋テンプレ＋タグをそのまま Gemini image に渡すため、企画CSVを最新化しないと文脈が外れる。ズレを見つけたら CSV更新→再実行（`planning_store.refresh()` は現状 no-op）。古いSRT起因のズレは `tools/align_run_dir_to_tts_final.py` で retime。
+  6) テンプレ管理: 運用で使う画像プロンプトテンプレは `config/template_registry.json` の `status=active` のみ。`channel_presets.json` の `prompt_template` が参照するテンプレは必ず registry に登録し、不要/旧テンプレは `inactive` に落として残す（混乱防止）。
 
 ### CH01 固有（220ロジック・きめ細かいカット）
 - 分割ロジック: `src/srt2images/cue_maker.py` で CH01 のみ `base_seconds=12` を強制。LLM文脈分割を優先し、秒数固定のフォールバックは補助扱い。
@@ -82,14 +95,26 @@ python tools/auto_capcut_run.py \
 - 画像生成: セクション文脈＋企画CSVタグを Gemini に渡す。`image_cues.json` の `llm_context` に企画の要約が入っていることを確認。
 - コマンド例: `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py --channel CH01 --srt input/CH01_人生の道標/220.srt --out output/jinsei220 --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --nanobanana direct --crossfade 0.5 --imgdur 20 --fps 30 --belt-mode llm`
 
+### CH06 固有（CH06-テンプレ固定 / 量産ドラフト）
+- **絶対ルール**: コピー元テンプレは必ず `CH06-テンプレ`（他テンプレ混入はNG）。
+- SoT: `commentary_02_srt2images_timeline/output/CH06-NNN_capcut_v1/timeline_manifest.json`
+  - `wav長 ≒ srt終端 ≒ cues終端` が一致していること（ズレがあれば `tools/align_run_dir_to_tts_final.py --run <run_dir>` で retime。LLMなし）。
+- クリーン再生成（画像タイムライン + テンプレ構造を維持）:
+  - `python commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv progress/channels/CH06.csv --videos 2-30`
+- 音声＋字幕をSoT(manifest)から注入（黒背景）:
+  - `python commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1`
+  - 002〜030を同様に実行（再実行しても増殖しない / `draft_info.json` と `draft_content.json` を同期してレイヤカオスを防止）。
+
 ### 企画CSVの参照・UI
 - `configs/sources.yaml` に CH01〜CH11 全ての planning CSV と persona を登録済み。script/image/音声パイプラインは常に最新 CSV を参照（`script_pipeline/runner.py` の `planning_csv` ロード）。
-- UI `/progress` で `progress/channels/CHxx.csv` を直接表示して確認できる。企画が変わったら CSV を更新→必要なら `planning_store.refresh(force=True)`→再実行。
+- UI `/progress` で `progress/channels/CHxx.csv` を直接表示して確認できる。企画が変わったら CSV を更新→（CSVは都度読み込みなので `planning_store.refresh()` は現状 no-op）→再実行。
 - 企画→台本への伝播を担保したいときは、CSV更新後に当該話数のステータスをリセットするか、再生成ジョブを実行してメタデータを取り込み直す。
 
 ### 環境変数の恒久ロード
-- `.env` はリポジトリ直下に一本化。`sitecustomize.py` で Python 起動時に自動読込、`LLMRouter` も `.env` を強制ロード、Gemini Image アダプタも `.env` を探して `GEMINI_API_KEY` を注入。
-- FastAPI バックエンドは起動時にリポジトリ直下 `.env` を必ず読むように追加済み。`scripts/with_ytm_env.sh` を使えばシェルでも漏れなく export される。
+- `.env` はリポジトリ直下に一本化。
+  - Python: `sitecustomize.py` が自動読込（setdefault）。加えて `audio_tts_v2/scripts/run_tts.py` と `factory_common/llm_router.py` は python-dotenv があれば `override=True` で明示ロード。
+  - FastAPI（ui/backend）: 起動時に repo root `.env` を読む（override=False / setdefault）。
+  - シェル/Node: `scripts/with_ytm_env.sh <cmd>` で `.env` を export してから実行。
 
 ### リテイク（台本/音声）運用
 - デフォルトは `redo_script=true` / `redo_audio=true`（人が確定したら false に落とす運用）。
@@ -104,18 +129,24 @@ python tools/auto_capcut_run.py \
 
 ### 2025-12-12 追加メモ（環境・CapCut・テンプレ・画像文脈）
 - `.env` 一本化の恒久策:  
-  - Python は `sitecustomize.py` と `LLMRouter` が `.env` を強制ロード（override=True）するため、どの CWD でも `GEMINI_API_KEY` などが拾われる。  
-  - FastAPI（ui/backend）も起動時に `.env` を必読。  
+  - Python: `sitecustomize.py` が repo root `.env` を自動読込（setdefault）。加えて `audio_tts_v2/scripts/run_tts.py` と `factory_common/llm_router.py` は python-dotenv があれば `override=True` でロード（事故防止）。  
+  - FastAPI（ui/backend）: 起動時に repo root `.env` を読込（override=False / setdefault）。  
   - シェル/Node/外部スクリプトは `scripts/with_ytm_env.sh <cmd>` で `.env` を export してから実行すれば取りこぼしなし。  
   - 健全性チェック: `python scripts/check_env.py` で主要キーの有無を確認。  
 - CapCutドラフト CH01 220 ロジック確認:  
   - `cue_maker.py` の CH01 分岐で `base_seconds=12`＋LLM文脈分割を継続。細かいカットとアングル変化は 220 ロジックが生存。  
-  - 画像生成は `llm_context` に企画CSVの要約・タグを詰めて Gemini に渡す（`planning_store.refresh()` で最新CSVを強制読込）。  
+  - 画像生成は `llm_context` に企画CSVの情報を詰めて渡す（`planning_store.refresh()` は現状 no-op で、CSVは都度読み込み）。  
   - SRT は `commentary_02_srt2images_timeline/input/CH01_人生の道標/220.srt` を指定し、`--belt-mode llm` / `--crossfade 0.5` / `--imgdur 20` / `--fps 30` がデフォルトのおすすめ。  
   - 実行後は `output/{run_name}/image_cues.json` の `llm_context` と `auto_run_info.json` を必ず確認。  
-- テンプレ整理: `commentary_02_srt2images_timeline/templates` は CH06 用の `dark_library_calm_curiosity.txt` のみ残置（legacy/未使用は削除済み）。`config/template_registry.json` も channel scope ベース、manual scope なし。  
+- テンプレ整理（画像プロンプト）:
+  - SoT: `commentary_02_srt2images_timeline/config/template_registry.json`
+  - `commentary_02_srt2images_timeline/config/channel_presets.json` の `prompt_template` が参照するテンプレは **registryに登録必須**（lint: `commentary_02_srt2images_timeline/scripts/lint_check_templates.py`）。
+  - `commentary_02_srt2images_timeline/templates/` には active / legacy が混在し得るが、**運用で使うのは registry の active**（legacyは残してもOK。混乱防止のため status を `inactive` にしておく）。  
 - サムネ・企画CSV UI: `/progress` で CSV をサムネ付きで確認でき、リテイクON/OFFとメモをモーダルから編集可能（デフォルト true）。タイルはチャンネルアイコンで切替可、モーダルの閉じるボタンは明色で視認性を確保。  
-- 最終音声の入力ガード: TTS は human版があれば優先し、`input_path` が assembled 以外の場合は拒否して異常生成を防止。成功時は `redo_audio` を自動クリア。
+- 最終音声の入力ガード:
+  - 推奨: `/api/audio-tts-v2/run-from-script` を使う（`assembled_human.md -> assembled.md -> script_sanitized.txt` の順で確定入力を自動解決）。
+  - `audio_tts_v2/scripts/run_tts.py` は `assembled_human.md` が `assembled.md` より新しい場合に自動同期して「古いテキストで合成」事故を防ぐ。
+  - 音声成功時は `redo_audio=false` をベストエフォートで自動クリア（台本側のフラグは維持）。
 
 ### VOICEVOX公式ユーザー辞書同期（正規ルート）
 - VOICEVOXエンジンの公式ユーザー辞書API（`voicevox_engine` README準拠）を利用できるようにしてある。
