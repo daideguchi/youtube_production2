@@ -29,6 +29,7 @@
 - `OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
 - `OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
+- `OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
 - `IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
 
