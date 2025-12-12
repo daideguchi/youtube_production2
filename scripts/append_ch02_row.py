@@ -1,8 +1,14 @@
-
 import csv
-import os
+import sys
+from pathlib import Path
 
-file_path = '/Users/dd/10_YouTube_Automation/factory_commentary/progress/channels/CH02.csv'
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import channels_csv_path
+
+file_path = channels_csv_path("CH02")
 
 new_row = [
     '31', 'CH02', '31', 'CH02-031', 'CH02-031',
