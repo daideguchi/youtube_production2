@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 def load_env():
-    env_path = Path("/Users/dd/10_YouTube_Automation/factory_commentary/.env")
+    env_path = Path(__file__).resolve().parents[1] / ".env"
     if env_path.exists():
         for line in env_path.read_text(encoding="utf-8").splitlines():
             if "=" in line and not line.startswith("#"):
