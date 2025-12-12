@@ -39,15 +39,23 @@
 ### 1.1 Cross‑cutting（全ドメイン共通）
 
 - `logs/llm_usage.jsonl`  
-  - Writer: `factory_common/llm_client.py`（LLMClient の全呼び出し）
-  - 形式: 1行JSON
-    - `ts`, `task`, `provider`, `model`, `usage`
+  - Writer:
+    - `factory_common/llm_client.py`（LLMClient。legacy スキーマ: `ts`, `task`, `provider`, `model`, `usage`）
+    - `factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `timestamp`）
+    - `factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`）
+  - 形式: 1行JSON（複数スキーマ混在。将来的に schema_version で統一予定）
   - Reader/UI: `ui/backend/routers/llm_usage.py`, `scripts/aggregate_llm_usage.py`
   - 種別: **L1**
 
 - `logs/agent_tasks/{pending,results,completed}/*.json`  
-  - Writer: `factory_common/agent_mode.py`, `scripts/agent_runner.py`
+  - Writer: `factory_common/agent_mode.py`, `scripts/agent_runner.py`, `factory_common/llm_api_failover.py`
   - 役割: agent/think-mode の **キュー/結果キャッシュ**（enqueue → complete → rerun）
+  - 関連:
+    - `logs/agent_tasks/coordination/memos/*.json`（申し送り/フォールバック通知）
+      - Writer: `factory_common/llm_api_failover.py`, `scripts/agent_coord.py`
+      - Reader: `python scripts/agent_coord.py memos`, `python scripts/agent_coord.py memo-show <MEMO_ID>`
+    - `logs/agent_tasks/coordination/locks/*.json`（任意: 作業スコープロック）
+      - Writer/Reader: `scripts/agent_coord.py`
   - 備考: `logs/` は gitignore のため増えやすい。不要になった結果は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` に従い退避/削除。
   - 種別: **L1（運用SoT）**
 
@@ -171,21 +179,23 @@
 
 ---
 
-### 1.6 現状スナップショット（2025-12-12 観測）
+### 1.6 現状スナップショット（2025-12-13 観測）
 
 ルート `logs/` の “今” の状態（サイズ/件数）は、cleanup計画の優先度付けに使う。
 
-- file_count: 87
+- file_count: 90
 - top-by-size（上位）:
+  - `logs/ui_hub/frontend.log`（約11.64MB）
   - `logs/tts_voicevox_reading.jsonl`（約5.48MB）
-  - `logs/image_usage.log`（約1.07MB）
-  - `logs/ui_hub/start_all.nohup.log`（約1.04MB）
+  - `logs/image_usage.log`（約1.16MB）
+  - `logs/ui_hub/start_all.nohup.log`（約1.05MB）
   - `logs/ui_hub/frontend.manual.log`（約0.55MB）
   - `logs/audit_report_global.txt`（約0.49MB）
 
-#### 1.6.1 observed paths（2025-12-12）
+#### 1.6.1 observed paths（2025-12-13）
 再生成: `find logs -type f -maxdepth 4 -print | sort`
 ```
+logs/agent_tasks/coordination/memos/memo__20251212T171830Z__5652e1e9.json
 logs/agent_tasks/pending/script_outline__8e80cdc248e86c11d627743fbdbafa1a.json
 logs/agent_tasks/pending/visual_section_plan__556282e7af8a39e130cb42a2b427509a.json
 logs/annot_raw_fail.json
@@ -323,9 +333,9 @@ logs/ui/ui_tasks.db
   - 種別: **L3 / run単位**
 
 - 規模スナップショット（2025-12-12）:
-  - run dir count: 271
-  - `output/*/logs/` dir count: 249
-  - `output/*/logs/*` file count: 251
+  - run dir count: 278
+  - `output/*/logs/` dir count: 257
+  - `output/*/logs/*` file count: 258
 
 - `output/{run_id}/auto_run_info.json`（実行メタ）
   - Writer: `tools/auto_capcut_run.py`
