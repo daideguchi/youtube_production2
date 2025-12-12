@@ -3,9 +3,15 @@
 CH10-001の音声とSRTをstrict pipelineで再生成するためのスクリプト
 辞書更新と修正された設定を反映する
 """
-import json
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from audio_tts_v2.tts.strict_orchestrator import run_strict_pipeline
+from factory_common.paths import video_root
 
 def regenerate_audio_srt_strict_ch10_001():
     # パラメータを設定
@@ -16,8 +22,10 @@ def regenerate_audio_srt_strict_ch10_001():
     # LLM_API_KEYは環境変数から取得される想定
     llm_api_key = "dummy"  # 実際には環境変数から取得されるはず
 
+    video_dir = video_root(channel, video_no)
+
     # 入力テキストをassembled.mdからロード
-    input_path = Path("script_pipeline/data/CH10/001/content/assembled.md")
+    input_path = video_dir / "content" / "assembled.md"
     if not input_path.exists():
         print(f"Input text not found at {input_path}")
         return
@@ -25,7 +33,7 @@ def regenerate_audio_srt_strict_ch10_001():
     input_text = input_path.read_text(encoding="utf-8")
 
     # 出力パスを設定
-    output_dir = Path("script_pipeline/data/CH10/001/audio_prep")
+    output_dir = video_dir / "audio_prep"
     output_wav = output_dir / "CH10-001-strict.wav"
     output_log = output_dir / "CH10-001-strict.log.json"
 

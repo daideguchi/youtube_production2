@@ -4,15 +4,22 @@ CH10-001の音声とSRTを再生成するためのスクリプト
 辞書更新と修正された設定を反映する
 """
 import json
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from audio_tts_v2.tts.synthesis import voicevox_synthesis_chunks
 from audio_tts_v2.tts.routing import load_routing_config
 from audio_tts_v2.tts.strict_synthesizer import generate_srt
 from audio_tts_v2.tts.strict_structure import AudioSegment
+from factory_common.paths import audio_pkg_root, video_root
 
 def load_knowledge_base():
     """Knowledge baseをロードする関数"""
-    kb_path = Path("audio_tts_v2/data/global_knowledge_base.json")
+    kb_path = audio_pkg_root() / "data" / "global_knowledge_base.json"
     if kb_path.exists():
         data = json.loads(kb_path.read_text(encoding="utf-8"))
         return data
@@ -21,6 +28,10 @@ def load_knowledge_base():
         return {"words": {}}
 
 def regenerate_audio_and_srt_ch10_001():
+    channel = "CH10"
+    video_no = "001"
+    video_dir = video_root(channel, video_no)
+
     # Knowledge baseをロード (辞書設定を反映)
     kb = load_knowledge_base()
 
@@ -28,7 +39,7 @@ def regenerate_audio_and_srt_ch10_001():
     cfg = load_routing_config()
 
     # CH10-001用のテキストをロード
-    b_text_path = Path("script_pipeline/data/CH10/001/audio_prep/b_text.txt")
+    b_text_path = video_dir / "audio_prep" / "b_text.txt"
     if not b_text_path.exists():
         print(f"b_text.txt not found at {b_text_path}")
         return
@@ -47,7 +58,7 @@ def regenerate_audio_and_srt_ch10_001():
             })
 
     # 音声合成を実行
-    output_path = Path("script_pipeline/data/CH10/001/audio_prep/CH10-001-regenerated.wav")
+    output_path = video_dir / "audio_prep" / f"{channel}-{video_no}-regenerated.wav"
 
     print("Starting audio synthesis for CH10-001...")
     print(f"Input text length: {len(b_text_content)} characters")
@@ -75,7 +86,7 @@ def regenerate_audio_and_srt_ch10_001():
     print(f"Sample rate: {result.sample_rate} Hz")
 
     # SRTファイルを生成するためにログファイルからセグメント情報をロード
-    log_path = Path("script_pipeline/data/CH10/001/audio_prep/log.json")
+    log_path = video_dir / "audio_prep" / "log.json"
     if not log_path.exists():
         print(f"Log file not found at {log_path}, cannot generate SRT")
         return
