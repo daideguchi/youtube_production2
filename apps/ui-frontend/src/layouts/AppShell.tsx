@@ -279,6 +279,10 @@ function determineView(pathname: string): WorkspaceView {
 }
 
 const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo">, PlaceholderCopy> = {
+  studio: {
+    title: "Episode Studio",
+    description: "企画→台本→音声→動画を、エピソード単位で“次に押すべきボタン”が分かる形に統合します。",
+  },
   workflow: {
     title: "制作フロー",
     description: "企画→台本→音声→動画を、1本単位で迷わず進めるための一本道ビューです。",
