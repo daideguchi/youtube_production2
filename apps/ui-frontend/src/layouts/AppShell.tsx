@@ -55,6 +55,7 @@ export type ReadyFilter = "all" | "ready" | "not_ready";
 export type WorkspaceView =
   | "dashboard"
   | "workflow"
+  | "studio"
   | "channel"
   | "channelVideo"
   | "research"
@@ -222,6 +223,9 @@ function determineView(pathname: string): WorkspaceView {
   }
   if (matchPath("/channels/:channelCode", pathname)) {
     return "channel";
+  }
+  if (matchPath("/studio", pathname)) {
+    return "studio";
   }
   if (matchPath("/workflow", pathname)) {
     return "workflow";
@@ -722,25 +726,63 @@ export function AppShell() {
   }, [routeVideoNumber, selectedVideo]);
 
   useEffect(() => {
-    if (view !== "audioReview" && view !== "scriptFactory" && view !== "channelSettings") {
+    if (
+      view !== "audioReview" &&
+      view !== "scriptFactory" &&
+      view !== "channelSettings" &&
+      view !== "workflow" &&
+      view !== "studio"
+    ) {
       return;
     }
     const params = new URLSearchParams(location.search);
     const channelParam = params.get("channel");
     const videoParam = params.get("video");
+    const strictQuerySelection = view === "workflow" || view === "studio";
+
+    if (strictQuerySelection && !channelParam) {
+      if (selectedChannel !== null) {
+        setSelectedChannel(null);
+      }
+      if (selectedVideo !== null) {
+        setSelectedVideo(null);
+      }
+      if (videoDetail) {
+        setVideoDetail(null);
+      }
+      return;
+    }
     if (channelParam) {
       const normalizedChannel = channelParam.trim().toUpperCase();
       if (normalizedChannel && normalizedChannel !== selectedChannel) {
         setSelectedChannel(normalizedChannel);
+        if (strictQuerySelection && selectedVideo !== null) {
+          setSelectedVideo(null);
+        }
+        if (strictQuerySelection && videoDetail) {
+          setVideoDetail(null);
+        }
       }
+    }
+    if (!videoParam && strictQuerySelection) {
+      if (selectedVideo !== null) {
+        setSelectedVideo(null);
+      }
+      if (videoDetail) {
+        setVideoDetail(null);
+      }
+      return;
     }
     if (videoParam) {
       const normalizedVideo = videoParam.trim();
       if (normalizedVideo && normalizedVideo !== selectedVideo) {
         setSelectedVideo(normalizedVideo);
+        if (videoDetail) {
+          setVideoDetail(null);
+        }
       }
     }
-  }, [location.search, selectedChannel, selectedVideo, view]);
+  }, [location.search, selectedChannel, selectedVideo, videoDetail, view]);
 
   useEffect(() => {
     if (view !== "channelVideo") {
@@ -1081,6 +1123,7 @@ export function AppShell() {
       {
         title: "制作フロー",
         items: [
+          { key: "studio", label: "Episode Studio", icon: "🎛️", path: "/studio" },
           { key: "workflow", label: "制作フロー", icon: "🧭", path: "/workflow" },
           { key: "progress", label: "企画CSV", icon: "🗂️", path: "/progress" },
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },

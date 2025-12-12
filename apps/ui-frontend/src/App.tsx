@@ -25,6 +25,7 @@ import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
 import LlmUsagePage from "./pages/LlmUsagePage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
+import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
       <Route element={<AppShell />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/workflow" element={<WorkflowPage />} />
+        <Route path="/studio" element={<EpisodeStudioPage />} />
         <Route path="/projects" element={<ScriptFactoryPage />} />
         <Route path="/channel-workspace" element={<ChannelWorkspacePage />} />
         <Route path="/channel-settings" element={<ChannelSettingsPage />} />
