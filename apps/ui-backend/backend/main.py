@@ -214,6 +214,17 @@ from app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
+from factory_common.paths import (
+    audio_final_dir,
+    audio_pkg_root,
+    logs_root as ssot_logs_root,
+    planning_root as ssot_planning_root,
+    repo_root as ssot_repo_root,
+    script_data_root as ssot_script_data_root,
+    script_pkg_root,
+    thumbnails_root as ssot_thumbnails_root,
+    video_pkg_root,
+)
 
 _llm_usage_import_error: Exception | None = None
 try:
@@ -234,28 +245,29 @@ except Exception:  # pragma: no cover - optional dependency
 
 LOGGER_NAME = "ui.backend"
 logger = logging.getLogger(LOGGER_NAME)
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+APPS_ROOT = Path(__file__).resolve().parents[2]
+# NOTE: PROJECT_ROOT is treated as repo-root throughout this file.
+PROJECT_ROOT = ssot_repo_root()
 # ensure repository root on sys.path so that `ui.*` imports resolve when launched via uvicorn
-repo_root = PROJECT_ROOT.parent
+repo_root = PROJECT_ROOT
 backend_root = Path(__file__).resolve().parent
-for p in (repo_root, PROJECT_ROOT, backend_root):
+for p in (repo_root, APPS_ROOT, backend_root):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 # 旧 commentary_01_srtfile_v2 から script_pipeline へ移行済み
-COMMENTARY01_ROOT = PROJECT_ROOT / "script_pipeline"
-COMMENTARY02_ROOT = PROJECT_ROOT / "commentary_02_srt2images_timeline"
-DATA_ROOT = COMMENTARY01_ROOT / "data"
+COMMENTARY01_ROOT = script_pkg_root()
+COMMENTARY02_ROOT = video_pkg_root()
+DATA_ROOT = ssot_script_data_root()
 EXPORTS_DIR = COMMENTARY01_ROOT / "exports"
 PLANNING_CSV_PATH = None  # legacy master unused; channel CSVs are SoT
-CHANNEL_PLANNING_DIR = PROJECT_ROOT / "progress" / "channels"
+CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
 PROMPTS_ROOT = PROJECT_ROOT / "prompts"
 COMMENTARY_PROMPTS_ROOT = COMMENTARY01_ROOT / "prompts"
 SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
 THUMBNAIL_PROJECTS_CANDIDATES = [
-    PROJECT_ROOT / "thumbnails" / "projects.json",
-    PROJECT_ROOT.parent / "thumbnails" / "projects.json",
+    ssot_thumbnails_root() / "projects.json",
 ]
-THUMBNAIL_ASSETS_DIR = PROJECT_ROOT / "thumbnails" / "assets"
+THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 THUMBNAIL_SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 THUMBNAIL_PROJECTS_LOCK = threading.Lock()
 UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
@@ -271,10 +283,10 @@ THUMBNAIL_PROJECT_STATUSES = {
 }
 THUMBNAIL_LIBRARY_MAX_BYTES = 15 * 1024 * 1024
 THUMBNAIL_REMOTE_FETCH_TIMEOUT = 15
-LOGS_ROOT = PROJECT_ROOT / "logs"
+LOGS_ROOT = ssot_logs_root()
 SSOT_SYNC_LOG_DIR = LOGS_ROOT / "regression" / "ssot_sync"
 LLM_MODEL_SCORES_PATH = PROJECT_ROOT / "ssot" / "HISTORY_llm_model_scores.json"
-KB_PATH = PROJECT_ROOT / "audio_tts_v2" / "data" / "global_knowledge_base.json"
+KB_PATH = audio_pkg_root() / "data" / "global_knowledge_base.json"
 UI_LOG_DIR = LOGS_ROOT / "ui"
 TASK_LOG_DIR = UI_LOG_DIR / "batch_workflow"
 TASK_DB_PATH = UI_LOG_DIR / "ui_tasks.db"
@@ -2894,7 +2906,7 @@ def _stage_status_value(stage_entry: Optional[dict]) -> str:
 
 
 def _detect_artifact_path(channel_code: str, video_number: str, extension: str) -> Path:
-    base = PROJECT_ROOT / "audio_tts_v2" / "artifacts" / "final" / channel_code / video_number
+    base = audio_final_dir(channel_code, video_number)
     return base / f"{channel_code}-{video_number}{extension}"
 
 
@@ -3523,13 +3535,31 @@ def resolve_text_file(path: Path) -> Optional[str]:
 def resolve_audio_path(status: dict, base_dir: Path) -> Optional[Path]:
     channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
     video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
-    candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.wav"
-    return candidate.resolve() if candidate.exists() else None
+    metadata = status.get("metadata", {}) if isinstance(status, dict) else {}
+    audio_meta = metadata.get("audio", {}) if isinstance(metadata, dict) else {}
+    synth_meta = audio_meta.get("synthesis", {}) if isinstance(audio_meta, dict) else {}
+    final_wav = synth_meta.get("final_wav") if isinstance(synth_meta, dict) else None
+    if final_wav:
+        candidate = Path(str(final_wav))
+        if not candidate.is_absolute():
+            candidate = (PROJECT_ROOT / candidate).resolve()
+        if candidate.exists():
+            return candidate.resolve()
+
+    final_candidate = _detect_artifact_path(channel, video_no, ".wav")
+    if final_candidate.exists():
+        return final_candidate.resolve()
+
+    legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.wav"
+    return legacy_candidate.resolve() if legacy_candidate.exists() else None
 
 
 def resolve_log_path(status: dict, base_dir: Path) -> Optional[Path]:
     channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
     video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
+    final_log = audio_final_dir(channel, video_no) / "log.json"
+    if final_log.exists():
+        return final_log.resolve()
     candidate = base_dir / "audio_prep" / "log.json"
     if candidate.exists():
         return candidate.resolve()
@@ -3559,8 +3589,22 @@ def summarize_log(log_path: Path) -> Optional[dict]:
 def resolve_srt_path(status: dict, base_dir: Path) -> Optional[Path]:
     channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
     video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
-    candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.srt"
-    return candidate.resolve() if candidate.exists() else None
+    metadata = status.get("metadata", {}) if isinstance(status, dict) else {}
+    srt_meta = metadata.get("subtitles", {}) if isinstance(metadata, dict) else {}
+    final_srt = srt_meta.get("final_srt") if isinstance(srt_meta, dict) else None
+    if final_srt:
+        candidate = Path(str(final_srt))
+        if not candidate.is_absolute():
+            candidate = (PROJECT_ROOT / candidate).resolve()
+        if candidate.exists():
+            return candidate.resolve()
+
+    final_candidate = _detect_artifact_path(channel, video_no, ".srt")
+    if final_candidate.exists():
+        return final_candidate.resolve()
+
+    legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.srt"
+    return legacy_candidate.resolve() if legacy_candidate.exists() else None
 
 
 def _merge_channel_payload(base: dict, override: dict) -> dict:

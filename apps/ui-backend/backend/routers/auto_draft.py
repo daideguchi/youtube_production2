@@ -7,11 +7,12 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Body
 
-from factory_common.paths import audio_artifacts_root, video_pkg_root, video_runs_root
+from factory_common.paths import audio_artifacts_root, repo_root, video_pkg_root, video_runs_root
 
 router = APIRouter(prefix="/api/auto-draft", tags=["auto-draft"])
 
 PROJECT_ROOT = video_pkg_root()
+REPO_ROOT = repo_root()
 INPUT_ROOT = audio_artifacts_root() / "final"
 SCRIPT = PROJECT_ROOT / "tools" / "auto_capcut_run.py"
 TEMPLATE_ROOT = PROJECT_ROOT / "templates"
@@ -267,5 +268,6 @@ def create_draft(
         "run_name": run_name,
         "title": title,
         "channel": channel,
-        "run_dir": str(Path("output") / run_name),
+        "run_dir": str(run_dir.relative_to(REPO_ROOT)) if run_dir.is_relative_to(REPO_ROOT) else str(run_dir),
+        "run_dir_abs": str(run_dir),
     }
