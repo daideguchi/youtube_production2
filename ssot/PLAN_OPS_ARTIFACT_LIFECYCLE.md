@@ -97,6 +97,7 @@
 - **L3/Logs**
   - `logs/tts_voicevox_reading.jsonl`
   - `logs/tts_llm_usage.log`
+  - `audio_tts_v2/logs/*.log`（観測される。現行コード参照は薄く、legacy/adhoc の可能性が高い）
 
 **削除/圧縮基準**
 - `status.json.stage >= audio_synthesis` かつ `progress/channels` の該当行が `audio: ready` になったら:
@@ -105,6 +106,11 @@
   - `artifacts/audio/...` は last-run だけ残し、古い run は `artifacts/_archive_audio/<timestamp>/` に移動。
 - `audio: published` になったら:
   - `artifacts/final/<CH>/<VIDEO>/` を `final.zip` に圧縮し、chunks 等は保持しない。
+
+**現行の補助スクリプト（安全ガード付き）**
+- `scripts/sync_audio_prep_to_final.py`: prep→final の不足ファイルのみ同期（上書きしない）
+- `scripts/purge_audio_prep_binaries.py`: final が揃っている動画の audio_prep 直下 wav/srt を削除
+- `scripts/cleanup_audio_prep.py`: audio_prep/chunks を削除（recent window で生成中を保護）
 
 ### 3.4 画像/動画ドラフト（commentary_02_srt2images_timeline）
 
@@ -122,6 +128,7 @@
   - `input/<channel>/<video>.*`（SRT/音声同期済みのコピー）
 - **L3/Logs**
   - `commentary_02_srt2images_timeline/logs/*`
+  - `commentary_02_srt2images_timeline/output/<run>/logs/*`（run単位ログ。run_dir と一緒に管理する）
   - `logs/llm_context_analyzer.log`
 
 **削除/圧縮基準**
