@@ -2,6 +2,7 @@
 
 このフォルダは **agent/think-mode 運用の指示書（Runbook）の正本** です。  
 `LLM_MODE=agent|think` でパイプラインを動かすと、`logs/agent_tasks/pending/` に「処理待ちタスク」が生成されます。
+また、API LLM が失敗した場合も `LLM_API_FAILOVER_TO_THINK`（デフォルト有効）により pending が生成されます。
 
 ## 原則
 - Runbook は「そのまま実行できる」レベルで書く（コマンド/分岐/成果物/チェックを具体化）。
@@ -14,6 +15,7 @@
    - 推奨: `./scripts/think.sh --all-text -- <command> [args...]`
 2. pending を確認
    - `python scripts/agent_runner.py list`
+   - フォールバック/申し送りのメモ確認（任意）: `python scripts/agent_coord.py memos`
    - 先に担当を明示（推奨）:
      - `export LLM_AGENT_NAME=Mike`
      - `python scripts/agent_runner.py claim <TASK_ID>`

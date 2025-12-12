@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from factory_common.llm_param_guard import sanitize_params
 from factory_common.agent_mode import maybe_handle_agent_mode
+from factory_common.llm_api_failover import maybe_failover_to_think
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -460,6 +461,22 @@ class LLMRouter:
                 "timestamp": time.time(),
             }
         )
+        failover = maybe_failover_to_think(
+            task=task,
+            messages=messages,
+            options=base_options,
+            response_format=response_format,
+            return_raw=return_raw,
+            failure={
+                "error": str(last_error) if last_error is not None else None,
+                "error_class": last_error_class,
+                "status_code": last_status,
+                "chain": tried,
+            },
+        )
+        if failover is not None:
+            return failover
+
         raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
 
     def _invoke_provider(self, provider, client, model_conf, messages, return_raw: bool = False, **kwargs):

@@ -14,6 +14,7 @@
 ## 2. 重要な前提
 - **コマンドはエージェントが実行する**（人間は監督/指示のみ）。
 - THINK MODE は「API LLM 呼び出しの代わりに pending を作って停止」する。
+- 重要: **API LLM が落ちた場合も自動で THINK MODE にフォールバック**する（`LLM_API_FAILOVER_TO_THINK`、デフォルト有効）。
 - 複数エージェント運用では `LLM_AGENT_NAME` を設定し、作業前に pending を **claim** して衝突を避ける。
 
 ## 3. 実行プロトコル（ループ）
@@ -31,6 +32,8 @@
 ### 3.2 pending を検出したらやること
 1. pending 一覧:
    - `python scripts/agent_runner.py list`
+   - フォールバック/申し送りのメモ確認（任意）:
+     - `python scripts/agent_coord.py memos`
 2. 1タスクずつ処理:
    - （推奨）担当を明示して claim:
      - `export LLM_AGENT_NAME=Mike`（または `python scripts/agent_runner.py --agent-name Mike ...`）

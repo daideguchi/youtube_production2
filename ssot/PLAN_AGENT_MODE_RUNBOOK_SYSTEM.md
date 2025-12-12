@@ -42,6 +42,8 @@
   - `api`（デフォルト）: 既存の API LLM 呼び出し
   - `agent`: すべて agent-mode（pending を作って停止）
   - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら **テキスト系のみ** を安全デフォルトで intercept
+- API失敗時のTHINK MODEフォールバック（重要ルール）:
+  - `LLM_API_FAILOVER_TO_THINK`（デフォルト有効）: API LLM が失敗したら自動で pending を作って停止（= THINK MODEで続行可能）
 - 担当エージェント名（推奨）:
   - `LLM_AGENT_NAME=...`（例: `LLM_AGENT_NAME=Mike`）
     - pending に `claimed_by` / `claimed_at` を自動付与
@@ -67,6 +69,7 @@
 - `messages`（LLM互換）
 - `options`（timeout等の非本質は hash から除外）
 - `runbook_path`, `result_path`
+- `failover?`（API失敗時の付帯情報: error/chain など）
 - `claimed_by?`, `claimed_at?`（担当エージェント名/タイムスタンプ）
 - `caller`, `invocation`
 

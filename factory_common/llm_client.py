@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from factory_common.llm_config import load_llm_config, resolve_task
 from factory_common.agent_mode import maybe_handle_agent_mode
+from factory_common.llm_api_failover import maybe_failover_to_think
 
 try:
     from openai import AzureOpenAI, OpenAI
@@ -145,6 +146,28 @@ class LLMClient:
                 logger.warning("LLMClient: %s failed for %s (%s)", model_key, task, exc)
                 last_error = exc
                 continue
+
+        failover = maybe_failover_to_think(
+            task=task,
+            messages=messages,
+            options=merged_options,
+            response_format=str(response_format) if response_format is not None else None,
+            return_raw=False,
+            failure={
+                "error": str(last_error) if last_error is not None else None,
+                "error_class": last_error.__class__.__name__ if last_error is not None else None,
+                "status_code": None,
+                "chain": models,
+            },
+        )
+        if failover is not None:
+            return LLMResult(
+                content=str(failover.get("content", "")),
+                provider=str(failover.get("provider", "agent")),
+                model=str(failover.get("model", "agent")),
+                usage=dict(failover.get("usage") or {}),
+                raw=failover.get("raw"),
+            )
 
         raise RuntimeError(f"All models failed for task '{task}'. last_error={last_error}")
 

@@ -27,7 +27,7 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
 - `LLM_MODE`:
   - `api`（デフォルト）: 通常どおり API LLM を呼ぶ
   - `agent`: LLM 呼び出しを止めて `logs/agent_tasks/` に pending を作る
-  - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら **テキスト系だけ** を安全デフォルトで intercept
+  - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら `script_/tts_/visual_/title_/belt_` を安全デフォルトで intercept（`image_generation` 等は除外）
 
 ### キュー配置
 - `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `logs/agent_tasks`
@@ -55,3 +55,14 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
   - `export LLM_MODE=agent`
   - `export LLM_AGENT_TASK_PREFIXES=script_`
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033`
+
+## 重要ルール: API LLM が死んだら THINK MODE で続行
+- `LLM_API_FAILOVER_TO_THINK`（任意）:
+  - **デフォルト有効**（未設定でもON）
+  - API LLM が失敗したら、自動で pending を作って停止（= THINK MODEで続行できる状態にする）
+  - 無効化: `LLM_API_FAILOVER_TO_THINK=0`
+- `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
+
+### 失敗時に見る場所
+- pending: `logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）
+- memo: `logs/agent_tasks/coordination/memos/*.json`（一覧は `python scripts/agent_coord.py memos`）

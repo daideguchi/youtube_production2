@@ -13,8 +13,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Defaults: text tasks only
-PREFIXES_DEFAULT="script_,tts_,visual_"
+# Defaults: text tasks only (avoid image generation tasks)
+PREFIXES_DEFAULT="script_,tts_,visual_,title_,belt_"
 EXCLUDE_TASKS_DEFAULT="visual_image_gen,image_generation"
 AUTO_BUNDLE=1
 LOOP=0
@@ -36,7 +36,7 @@ Options:
   --script        Only intercept script_* tasks
   --tts           Only intercept tts_* tasks
   --visual        Only intercept visual_* tasks (text only; image_generation is excluded)
-  --all-text      Intercept script_/tts_/visual_ (default)
+  --all-text      Intercept script_/tts_/visual_/title_/belt_ (default)
   --agent-name <name>
                  Set LLM_AGENT_NAME for claim/completed_by metadata
   --no-bundle     Do not generate bundle markdown files for pending tasks
