@@ -1,4 +1,4 @@
-inference_logic: v2_strict
-model: tts_primary
-timestamp: 2025-12-08T20:54:40.460441
+inference_logic: v2_strict_router
+model: router_managed
+timestamp: 2025-12-12T17:31:32.742036
 status: success

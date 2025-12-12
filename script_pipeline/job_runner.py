@@ -10,7 +10,7 @@
 - run-loop: pendingがなくなるか上限まで連続実行
 
 保存先:
-  script_pipeline/data/_state/job_queue.jsonl
+  DATA_ROOT/_state/job_queue.jsonl
   各行が1ジョブのJSON（status: pending/running/completed/failed）
 """
 from __future__ import annotations

@@ -43,6 +43,11 @@ jobs:
           set -e
           python commentary_02_srt2images_timeline/scripts/lint_check_llm_configs.py
 
+      - name: Summarize LLM logs (if present)
+        run: |
+          set -e
+          python scripts/llm_logs_combined_report.py || true
+
       - name: Run LLM phase smoke (skip if keys missing)
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
@@ -56,3 +61,14 @@ jobs:
             exit 0
           fi
           python scripts/smoke_llm_phase_models.py --allow-missing-keys
+
+      - name: Upload LLM logs (best-effort)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-logs
+          path: |
+            logs/llm_usage.jsonl
+            logs/llm_context_analyzer.log
+            logs/tts_llm_usage.log
+          if-no-files-found: ignore

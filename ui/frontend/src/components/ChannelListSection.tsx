@@ -9,6 +9,7 @@ interface ChannelListSectionProps {
   error: string | null;
   onSelectChannel: (code: string | null) => void;
   variant?: "sidebar" | "dashboard";
+  redoSummary?: Record<string, { redo_script: number; redo_audio: number; redo_both: number }>;
 }
 
 function formatNumber(value: number | undefined | null): string {
@@ -67,6 +68,7 @@ export function ChannelListSection({
   error,
   onSelectChannel,
   variant = "sidebar",
+  redoSummary = {},
 }: ChannelListSectionProps) {
   const statsMap = useMemo(() => {
     const map = new Map<string, DashboardChannelSummary>();
@@ -289,6 +291,14 @@ export function ChannelListSection({
                         ) : null}
                       </div>
                     </div>
+
+                    {redoSummary[channel.code] ? (
+                      <div className="channel-chip__badges">
+                        <span className="channel-chip__redo">
+                          リテイク: 台本 {redoSummary[channel.code].redo_script} / 音声 {redoSummary[channel.code].redo_audio}
+                        </span>
+                      </div>
+                    ) : null}
 
                     <div className="channel-chip__section">
                       <span className="channel-chip__section-title">制作進捗</span>

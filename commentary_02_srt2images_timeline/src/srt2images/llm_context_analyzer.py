@@ -16,6 +16,7 @@ from factory_common.llm_router import get_router
 
 # Visual Bible Path (New)
 VISUAL_BIBLE_PATH = Path(__file__).resolve().parents[3] / "commentary_02_srt2images_timeline" / "data" / "visual_bible.json"
+LLM_LOG_PATH = Path(__file__).resolve().parents[3] / "logs" / "llm_context_analyzer.log"
 
 @dataclass
 class SectionBreak:
@@ -54,6 +55,7 @@ class LLMContextAnalyzer:
                 logging.info(f"Loaded Visual Bible from {VISUAL_BIBLE_PATH}")
             except Exception as e:
                 logging.warning(f"Failed to load Visual Bible: {e}")
+        LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     def analyze_story_sections(self, segments: List[Dict], target_sections: int = 20) -> List[SectionBreak]:
         """
@@ -120,10 +122,11 @@ Script excerpts:
         
         router = get_router()
         try:
-            content = router.call(
+            content, meta = self._invoke_llm(
+                router,
                 task="visual_persona",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.2
+                temperature=0.2,
             )
             return self._postprocess_persona_text(content, max_chars=max_chars)
         except Exception as e:
@@ -200,7 +203,7 @@ Script excerpts:
         logging.info(f"DEBUG: Prompt length: {len(prompt)} chars")
 
         router = get_router()
-        
+
         # Inject Visual Bible if available
         system_instruction = ""
         if self.visual_bible:
@@ -214,8 +217,8 @@ Script excerpts:
         messages.append({"role": "user", "content": prompt})
 
         try:
-            # Route via LLMClient (router wraps the new client); expect string content
-            content = router.call(
+            content, meta = self._invoke_llm(
+                router,
                 task="visual_section_plan",
                 messages=messages,
                 temperature=0.3,
@@ -455,6 +458,51 @@ Script excerpts:
             return relative_idx
 
         return None
+
+    # ---- LLM呼び出しヘルパ ----
+    def _invoke_llm(self, router, task: str, messages: List[Dict[str, str]], temperature: float):
+        """
+        call_with_raw があればメタ情報ごと取得しログに残す。無ければ従来 call() を使用。
+        Returns (content, meta_dict).
+        """
+        meta: Dict[str, Any] = {}
+        try:
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                resp = call_with_raw(
+                    task=task,
+                    messages=messages,
+                    temperature=temperature,
+                )
+                meta = {
+                    "request_id": resp.get("request_id"),
+                    "chain": resp.get("chain"),
+                    "model": resp.get("model"),
+                    "provider": resp.get("provider"),
+                    "latency_ms": resp.get("latency_ms"),
+                    "usage": resp.get("usage"),
+                }
+                self._log_llm_call(task, meta)
+                return resp.get("content"), meta
+            # fallback
+            content = router.call(
+                task=task,
+                messages=messages,
+                temperature=temperature,
+            )
+            self._log_llm_call(task, {"provider": "legacy_router"})
+            return content, meta
+        except Exception:
+            self._log_llm_call(task, {"provider": "legacy_router", "error": "invoke_failed"})
+            raise
+
+    def _log_llm_call(self, task: str, payload: Dict[str, Any]):
+        try:
+            record = {"task": task, **payload}
+            with LLM_LOG_PATH.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
 
     # ---- 解析フロー補助メソッド ----
 

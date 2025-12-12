@@ -10,6 +10,7 @@ from .strict_synthesizer import strict_synthesis, generate_srt
 from .voicevox_api import VoicevoxClient
 from .mecab_tokenizer import tokenize_with_mecab
 from .reading_structs import RubyToken, align_moras_with_tokens
+import json
 from .routing import load_routing_config, resolve_voicevox_speaker_id
 
 # Need to load voice_config.json manually because routing.py doesn't handle it fully
@@ -45,6 +46,7 @@ def run_strict_pipeline(
     target_indices: Optional[List[int]] = None,
     resume: bool = False,
     prepass: bool = False,
+    skip_tts_reading: bool = False,
 ) -> None:
     
     print(f"=== STRICT PIPELINE START ===")
@@ -58,6 +60,27 @@ def run_strict_pipeline(
         print(f"[CONFIG] Loaded voice config: {json.dumps(voice_config, ensure_ascii=False)}")
     else:
         print(f"[CONFIG] No specific voice config found. Using defaults.")
+
+    # ローカル位置オーバーライド（contextual LLM の出力）を先読みしておく
+    local_overrides: Dict[int, Dict[int, str]] = {}
+    if channel and video_no:
+        repo_root = Path(__file__).resolve().parents[2]
+        local_tok_path = (
+            repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_token_overrides.json"
+        )
+        if local_tok_path.exists():
+            try:
+                data = json.loads(local_tok_path.read_text(encoding="utf-8"))
+                for item in data:
+                    sid = int(item.get("section_id", -1))
+                    tidx = int(item.get("token_index", -1))
+                    reading = item.get("reading") or ""
+                    if sid < 0 or tidx < 0 or not reading:
+                        continue
+                    local_overrides.setdefault(sid, {})[tidx] = reading
+                print(f"[PREPASS] Loaded local_token_overrides.json ({len(local_overrides)} sections)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_token_overrides.json: {e}")
 
     # 0. Setup Engine Client
     vv_client = None
@@ -77,6 +100,47 @@ def run_strict_pipeline(
     segments = strict_segmentation(input_text)
     print(f"-> Generated {len(segments)} segments.")
     
+    # ローカル位置オーバーライド（contextual LLM の出力）を先読みしておく
+    local_overrides: Dict[int, Dict[int, str]] = {}
+    if channel and video_no:
+        repo_root = Path(__file__).resolve().parents[2]
+        local_tok_path = (
+            repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_token_overrides.json"
+        )
+        if local_tok_path.exists():
+            try:
+                data = json.loads(local_tok_path.read_text(encoding="utf-8"))
+                for item in data:
+                    sid = int(item.get("section_id", -1))
+                    tidx = int(item.get("token_index", -1))
+                    reading = item.get("reading") or ""
+                    if sid < 0 or tidx < 0 or not reading:
+                        continue
+                    local_overrides.setdefault(sid, {})[tidx] = reading
+                print(f"[PREPASS] Loaded local_token_overrides.json ({len(local_overrides)} sections)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_token_overrides.json: {e}")
+        # ローカル辞書（surface単位）もログ用に読み込む
+        local_dict_path = repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_reading_dict.json"
+        local_dict: Dict[str, str] = {}
+        if local_dict_path.exists():
+            try:
+                local_dict = json.loads(local_dict_path.read_text(encoding="utf-8"))
+                print(f"[PREPASS] Loaded local_reading_dict.json ({len(local_dict)} entries)")
+            except Exception as e:
+                print(f"[WARN] Failed to load local_reading_dict.json: {e}")
+    else:
+        local_dict = {}
+    # グローバル辞書もログ用に読み込む
+    global_dict: Dict[str, str] = {}
+    global_path = Path("audio_tts_v2/configs/learning_dict.json")
+    if global_path.exists():
+        try:
+            data = json.loads(global_path.read_text(encoding="utf-8"))
+            global_dict = {k: v for k, v in data.items()}
+        except Exception as e:
+            print(f"[WARN] Failed to load learning_dict.json: {e}")
+
     # Partial Update Logic
     active_segments = []
     if target_indices:
@@ -117,6 +181,7 @@ def run_strict_pipeline(
         speaker_id=speaker_id,
         channel=channel,
         video=video_no,
+        skip_tts_reading=skip_tts_reading,
     )
     
     if not prepass:
@@ -158,24 +223,23 @@ def run_strict_pipeline(
             "voicevox": s.voicevox_reading,
         }
         # token-level info (best-effort)
-        try:
-            tokens = tokenize_with_mecab(s.text)
-            ruby_tokens: List[RubyToken] = []
-            for t in tokens:
-                ruby_tokens.append(
-                    RubyToken(
-                        surface=t.get("surface", ""),
-                        reading_hira=t.get("reading_mecab") or t.get("surface") or "",
-                        token_index=int(t.get("index", len(ruby_tokens))),
-                        line_id=idx,
-                    )
+        tokens = tokenize_with_mecab(s.text)
+        ruby_tokens: List[RubyToken] = []
+        for t in tokens:
+            ruby_tokens.append(
+                RubyToken(
+                    surface=t.get("surface", ""),
+                    reading_hira=t.get("reading_mecab") or t.get("surface") or "",
+                    token_index=int(t.get("index", len(ruby_tokens))),
+                    line_id=idx,
                 )
-            vv_kana = s.voicevox_reading or ""
-            vv_token_map: Dict[int, str] = {}
+            )
+        vv_kana = s.voicevox_reading or ""
+        vv_token_map: Dict[int, str] = {}
+        if prepass:
+            # prepass時のみ、ログ精度を上げるため再度 audio_query で accent_phrases を取得し alignment を試みる
             try:
-                # strict_synthesis で使った accent_phrases はここでは持っていないため、
-                # 再度 audio_query を取得して alignment する（prepass 時のみコスト許容）。
-                query_for_log = vv_client.audio_query(s.reading or s.text, speaker_id) if prepass else None
+                query_for_log = vv_client.audio_query(s.reading or s.text, speaker_id)
                 accent_phrases = query_for_log.get("accent_phrases") if query_for_log else None
                 if accent_phrases:
                     aligned = align_moras_with_tokens(accent_phrases, ruby_tokens)
@@ -184,21 +248,36 @@ def run_strict_pipeline(
             except Exception:
                 vv_token_map = {}
 
-            tok_entries = []
-            for rt in ruby_tokens:
-                tok_entries.append(
-                    {
-                        "token_index": rt.token_index,
-                        "surface": rt.surface,
-                        "pos": tokens[rt.token_index].get("pos", ""),
-                        "mecab_kana": rt.reading_hira,
-                        "voicevox_kana": vv_kana,
-                        "voicevox_kana_norm": vv_token_map.get(rt.token_index, ""),
-                    }
-                )
-            seg_entry["tokens"] = tok_entries
-        except Exception:
-            pass
+        tok_entries = []
+        for rt in ruby_tokens:
+            surface = rt.surface
+            before_vv = vv_token_map.get(rt.token_index, vv_kana)
+            final_reading = None
+            final_source = None
+            # 位置オーバーライド優先
+            if idx in local_overrides and rt.token_index in local_overrides[idx]:
+                final_reading = local_overrides[idx][rt.token_index]
+                final_source = "local_token"
+            elif surface in local_dict:
+                final_reading = local_dict[surface]
+                final_source = "local_dict"
+            elif surface in global_dict:
+                final_reading = global_dict[surface]
+                final_source = "global_dict"
+
+            tok_entries.append(
+                {
+                    "token_index": rt.token_index,
+                    "surface": surface,
+                    "pos": tokens[rt.token_index].get("pos", ""),
+                    "mecab_kana": rt.reading_hira,
+                    "voicevox_kana": vv_kana,
+                    "voicevox_kana_norm": before_vv,
+                    "final_reading": final_reading,
+                    "final_reading_source": final_source,
+                }
+            )
+        seg_entry["tokens"] = tok_entries
 
         log_segments.append(seg_entry)
 

@@ -6,13 +6,42 @@ from factory_common.llm_router import get_router
 from datetime import datetime
 
 # Config
-BATCH_SECTIONS = 80  # number of sections per call (tune as needed)
+BATCH_SECTIONS = 20  # number of sections per call (tune as needed)
 CONF_THRESHOLD = 0.9
 FORCE_SURFACES = {"NO", "SNS", "微調整", "肩甲骨"}
 
 
 def chunk_sections(sections: List[Dict[str, Any]], size: int) -> List[List[Dict[str, Any]]]:
     return [sections[i : i + size] for i in range(0, len(sections), size)]
+
+
+def _parse_router_response(content: Any) -> Dict[str, Any]:
+    """
+    Router からの返却が文字列の場合も dict の場合も吸収して decisions を含む dict にそろえる。
+    """
+    # Already a dict with 'decisions'
+    if isinstance(content, dict):
+        if "decisions" in content:
+            return content
+        # OpenAI-like chat structure
+        try:
+            choices = content.get("choices")
+            if choices:
+                msg = choices[0]["message"]["content"]
+                return json.loads(msg)
+        except Exception:
+            pass
+    # String
+    if isinstance(content, str):
+        text = content.strip()
+        if not text:
+            raise ValueError("empty response text")
+        # If it looks like JSON, parse directly
+        if text.startswith("{") or text.startswith("["):
+            return json.loads(text)
+        # Otherwise try to load after forcing JSON
+        return json.loads(text)
+    raise ValueError(f"unsupported response type: {type(content)}")
 
 
 def run_batch(channel: str, video: str, sections: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -31,17 +60,33 @@ def run_batch(channel: str, video: str, sections: List[Dict[str, Any]]) -> Dict[
         "出力は JSON オブジェクトのみで、必ず {\"channel\":...,\"video\":...,\"decisions\":[...]} の形式にすること。"
     )
     user_prompt = json.dumps(payload, ensure_ascii=False)
-    content = router.call(
-        task="tts_reading",
-        messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        max_tokens=6000,
-        timeout=120,
-        response_format="json_object",
-    )
-    return json.loads(content)
+    call_with_raw = getattr(router, "call_with_raw", None)
+    if callable(call_with_raw):
+        resp = call_with_raw(
+            task="tts_reading",
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=6000,
+            timeout=120,
+            response_format=None,  # raw text
+        )
+        content = resp.get("content")
+        meta = {k: resp.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")}
+        return {"decisions": _parse_router_response(content).get("decisions", []), "llm_meta": meta}
+    else:
+        content = router.call(
+            task="tts_reading",
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=6000,
+            timeout=120,
+            response_format=None,  # raw text
+        )
+        return {"decisions": _parse_router_response(content).get("decisions", [])}
 
 
 def main():
@@ -59,29 +104,59 @@ def main():
 
     batches = chunk_sections(sections, BATCH_SECTIONS)
     decisions: List[Dict[str, Any]] = []
+    llm_meta_logs: List[Dict[str, Any]] = []
     for batch in batches:
-        res = run_batch(channel, video, batch)
-        decisions.extend(res.get("decisions", []))
+        # 最大3回までリトライして、ダメならそのバッチをスキップ
+        ok = False
+        for _ in range(3):
+            try:
+                res = run_batch(channel, video, batch)
+                decisions.extend(res.get("decisions", []))
+                meta = res.get("llm_meta")
+                if meta:
+                    llm_meta_logs.append(meta)
+                ok = True
+                break
+            except Exception as e:
+                err_msg = str(e)
+                continue
+        if not ok:
+            print(f"[WARN] batch skipped after retries")
 
     out_path = Path(args.out) if args.out else cand_path.parent / "contextual_decisions.json"
     out_path.write_text(json.dumps({"channel": channel, "video": video, "decisions": decisions}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[LLM] decisions={len(decisions)} -> {out_path}")
+    # log meta if any
+    if llm_meta_logs:
+        try:
+            log_path = Path("logs/tts_voicevox_reading.jsonl")
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with log_path.open("a", encoding="utf-8") as f:
+                for m in llm_meta_logs:
+                    f.write(json.dumps({"task": "tts_reading", **m}, ensure_ascii=False) + "\n")
+            print(f"[LLM] meta logged: {len(llm_meta_logs)} entries")
+        except Exception:
+            pass
 
     # Build local_token_overrides.json
     overrides: List[Dict[str, Any]] = []
     for d in decisions:
-        if d.get("action") != "fix":
+        if (d.get("action") or "").lower() != "fix":
             continue
-        if float(d.get("confidence", 0.0)) < CONF_THRESHOLD:
+        conf = float(d.get("confidence", 1.0) or 1.0)
+        if conf < CONF_THRESHOLD:
+            continue
+        reading = d.get("reading") or ""
+        if not reading:
             continue
         overrides.append(
             {
                 "section_id": d.get("section_id"),
                 "token_index": d.get("token_index"),
-                "surface": d.get("surface"),
-                "reading": d.get("reading"),
+                "surface": d.get("surface", ""),
+                "reading": reading,
                 "reason": d.get("reason", ""),
-                "confidence": d.get("confidence", 0.0),
+                "confidence": conf,
             }
         )
 

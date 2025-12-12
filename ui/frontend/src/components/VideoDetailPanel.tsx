@@ -16,6 +16,7 @@ import {
   fetchHumanScripts,
   updateHumanScripts,
   fetchAText,
+  updateVideoRedo,
 } from "../api/client";
 import { STAGE_ORDER, translateStage, translateStatus } from "../utils/i18n";
 import { AudioWorkspace } from "./AudioWorkspace";
@@ -144,6 +145,10 @@ const [aTextModalError, setATextModalError] = useState<string | null>(null);
   const [statusDraft, setStatusDraft] = useState(detail.status ?? "");
   const [readyDraft, setReadyDraft] = useState(detail.ready_for_audio);
   const [stageDrafts, setStageDrafts] = useState<Record<string, string>>(detail.stages ?? {});
+  const [redoScript, setRedoScript] = useState(detail.redo_script ?? true);
+  const [redoAudio, setRedoAudio] = useState(detail.redo_audio ?? true);
+  const [redoNote, setRedoNote] = useState(detail.redo_note ?? "");
+  const [redoSaving, setRedoSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -164,6 +169,11 @@ const [humanLoading, setHumanLoading] = useState(false);
 const [humanError, setHumanError] = useState<string | null>(null);
 const [copyDescStatus, setCopyDescStatus] = useState<"idle" | "copied" | "error">("idle");
   const warningMessages = useMemo(() => detail.warnings?.filter(Boolean) ?? [], [detail.warnings]);
+  useEffect(() => {
+    setRedoScript(detail.redo_script ?? true);
+    setRedoAudio(detail.redo_audio ?? true);
+    setRedoNote(detail.redo_note ?? "");
+  }, [detail.redo_script, detail.redo_audio, detail.redo_note]);
 const SHOW_AI_SECTION = false; // AI生成版は非表示
 const openATextModal = useCallback(async () => {
   setATextModalOpen(true);
@@ -189,6 +199,10 @@ const openATextModal = useCallback(async () => {
     [audioReviewed, audioReviewedBase, ttsBase, ttsDraft]
   );
   const ttsDirty = assembledDirty || audioDirty;
+  const redoDirty =
+    redoScript !== (detail.redo_script ?? true) ||
+    redoAudio !== (detail.redo_audio ?? true) ||
+    redoNote !== (detail.redo_note ?? "");
 
   const refreshAudioScript = useCallback(async () => {
     setAudioScriptLoading(true);
@@ -298,6 +312,9 @@ const openATextModal = useCallback(async () => {
     setAiCopyStatus("idle");
     setAudioScriptUpdatedAt(detail.audio_updated_at ?? null);
     setAudioScriptError(null);
+    setRedoScript(detail.redo_script ?? true);
+    setRedoAudio(detail.redo_audio ?? true);
+    setRedoNote(detail.redo_note ?? "");
   }, [detail]);
 
   useEffect(() => {
@@ -464,8 +481,18 @@ const openATextModal = useCallback(async () => {
       setAudioReviewed(reviewed);
       setAudioReviewedBase(reviewed);
       setAssembledBase(assembledDraft);
+      // 台本リテイクを自動解除
+      setRedoScript(false);
+      setRedoSaving(true);
+      try {
+        await updateVideoRedo(detail.channel, detail.video, { redo_script: false, redo_note: redoNote });
+      } catch {
+        /* best effort */
+      } finally {
+        setRedoSaving(false);
+      }
     });
-  }, [assembledDraft, detail.channel, detail.updated_at, detail.video, wrapAction]);
+  }, [assembledDraft, detail.channel, detail.updated_at, detail.video, redoNote, wrapAction]);
 
   const handleSaveAudioDraft = useCallback(async () => {
     await wrapAction("音声用テキスト", async () => {
@@ -478,8 +505,18 @@ const openATextModal = useCallback(async () => {
       setAudioReviewed(reviewed);
       setAudioReviewedBase(reviewed);
       setTtsBase(ttsDraft);
+      // 音声リテイクを自動解除
+      setRedoAudio(false);
+      setRedoSaving(true);
+      try {
+        await updateVideoRedo(detail.channel, detail.video, { redo_audio: false, redo_note: redoNote });
+      } catch {
+        /* best effort */
+      } finally {
+        setRedoSaving(false);
+      }
     });
-  }, [detail.channel, detail.updated_at, detail.video, ttsDraft, wrapAction]);
+  }, [detail.channel, detail.updated_at, detail.video, redoNote, ttsDraft, wrapAction]);
 
   const handleSaveBothScripts = useCallback(async () => {
     await wrapAction("A・Bテキスト", async () => {
@@ -494,8 +531,23 @@ const openATextModal = useCallback(async () => {
       setAudioReviewedBase(reviewed);
       setAssembledBase(assembledDraft);
       setTtsBase(ttsDraft);
+      // 台本/音声リテイクを自動解除
+      setRedoScript(false);
+      setRedoAudio(false);
+      setRedoSaving(true);
+      try {
+        await updateVideoRedo(detail.channel, detail.video, {
+          redo_script: false,
+          redo_audio: false,
+          redo_note: redoNote,
+        });
+      } catch {
+        /* best effort */
+      } finally {
+        setRedoSaving(false);
+      }
     });
-  }, [assembledDraft, detail.channel, detail.updated_at, detail.video, ttsDraft, wrapAction]);
+  }, [assembledDraft, detail.channel, detail.updated_at, detail.video, redoNote, ttsDraft, wrapAction]);
 
   const handleSaveStatus = useCallback(
     () => wrapAction("案件ステータス", () => onUpdateStatus(statusDraft)),
@@ -1113,6 +1165,54 @@ const openATextModal = useCallback(async () => {
             {/* 人間編集版の行: A' | B' */}
             <div className="script-row">
               <h2 className="script-row__title">人間編集版（編集可能）</h2>
+              <div className="redo-panel">
+                <div className="redo-panel__controls">
+                  <label className="redo-panel__toggle">
+                    <input
+                      type="checkbox"
+                      checked={redoScript}
+                      onChange={(e) => setRedoScript(e.target.checked)}
+                    />
+                    台本リテイクが必要
+                  </label>
+                  <label className="redo-panel__toggle">
+                    <input
+                      type="checkbox"
+                      checked={redoAudio}
+                      onChange={(e) => setRedoAudio(e.target.checked)}
+                    />
+                    音声リテイクが必要
+                  </label>
+                </div>
+                <div className="redo-panel__note">
+                  <textarea
+                    value={redoNote}
+                    onChange={(e) => setRedoNote(e.target.value)}
+                    placeholder="リテイク理由や指示をメモ"
+                    rows={2}
+                  />
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--primary workspace-button--sm"
+                    disabled={redoSaving || (!redoDirty)}
+                    onClick={async () => {
+                      setRedoSaving(true);
+                      try {
+                        await updateVideoRedo(detail.channel, detail.video, {
+                          redo_script: redoScript,
+                          redo_audio: redoAudio,
+                          redo_note: redoNote,
+                        });
+                        setMessage("リテイク情報を保存しました");
+                      } finally {
+                        setRedoSaving(false);
+                      }
+                    }}
+                  >
+                    {redoSaving ? "保存中..." : "リテイク情報を保存"}
+                  </button>
+                </div>
+              </div>
               <div className="script-tab__layout">
                 {/* A' テキスト 人間版 */}
                 <div className="script-editor-card">

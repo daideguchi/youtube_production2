@@ -260,7 +260,12 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
         video: detail.video,
         input_path: inputPath,
       });
-      setRunMessage(`TTS実行成功: engine=${res.engine ?? "n/a"}, wav=${res.wav_path}`);
+      // llm_meta はバックエンドの追加フィールド（型が古い場合でも拾えるようにフォールバック）
+      const meta = "llm_meta" in res ? (res as any).llm_meta : null;
+      const metaLabel = meta
+        ? ` | LLM: ${meta.model ?? "n/a"} (${meta.provider ?? "n/a"}) req=${meta.request_id ?? "?"} latency=${meta.latency_ms ?? "?"}ms`
+        : "";
+      setRunMessage(`TTS実行成功: engine=${res.engine ?? "n/a"}, wav=${res.wav_path}${metaLabel}`);
       // 最新ファイルを即反映
       const absoluteWav = /^https?:/i.test(res.wav_path)
         ? res.wav_path

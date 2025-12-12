@@ -7,11 +7,12 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Body
 
+from factory_common.paths import audio_artifacts_root, video_pkg_root, video_runs_root
+
 router = APIRouter(prefix="/api/auto-draft", tags=["auto-draft"])
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3] / "commentary_02_srt2images_timeline"
-REPO_ROOT = PROJECT_ROOT.parent
-INPUT_ROOT = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final"
+PROJECT_ROOT = video_pkg_root()
+INPUT_ROOT = audio_artifacts_root() / "final"
 SCRIPT = PROJECT_ROOT / "tools" / "auto_capcut_run.py"
 TEMPLATE_ROOT = PROJECT_ROOT / "templates"
 
@@ -47,7 +48,7 @@ def read_srt(path: str) -> Dict[str, Any]:
     try:
         target.relative_to(INPUT_ROOT)
     except Exception:
-        raise HTTPException(status_code=400, detail="srt_path must be under audio_tts_v2/artifacts/final")
+        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
     if not target.exists():
         raise HTTPException(status_code=404, detail=f"srt not found: {target}")
     if target.suffix.lower() != ".srt":
@@ -80,7 +81,7 @@ def write_srt(payload: Dict[str, Any]) -> Dict[str, Any]:
     try:
         target.relative_to(INPUT_ROOT)
     except Exception:
-        raise HTTPException(status_code=400, detail="srt_path must be under audio_tts_v2/artifacts/final")
+        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
     if target.suffix.lower() != ".srt":
         raise HTTPException(status_code=400, detail="target is not an .srt file")
     try:
@@ -161,26 +162,35 @@ def create_draft(
     try:
         srt.relative_to(INPUT_ROOT)
     except Exception:
-        raise HTTPException(status_code=400, detail="srt_path must be under audio_tts_v2/artifacts/final")
+        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
     if not srt.exists():
         raise HTTPException(status_code=400, detail=f"srt not found: {srt}")
 
     # channel inference: take first component after input (e.g., input/CH01_xxx/yyy.srt -> CH01_xxx)
-    if not channel:
-        parts = srt.relative_to(INPUT_ROOT).parts
-        channel_guess = parts[0] if parts else "CH01"
-        if channel_guess.startswith("CH") and len(channel_guess) >= 4 and channel_guess[2:4].isdigit():
-            channel = channel_guess[:4]
-        else:
-            channel = channel_guess
+    parts = srt.relative_to(INPUT_ROOT).parts
+    channel_guess = parts[0] if parts else "CH01"
+    inferred_channel = None
+    if channel_guess.startswith("CH") and len(channel_guess) >= 4 and channel_guess[2:4].isdigit():
+        inferred_channel = channel_guess[:4]
+    else:
+        inferred_channel = channel_guess
+    if channel:
+        # Safety: prevent cross-channel wiring (wrong template/preset applied to another channel's SRT)
+        if inferred_channel and channel.upper() != inferred_channel.upper():
+            raise HTTPException(status_code=400, detail=f"channel mismatch: srt belongs to {inferred_channel} but channel={channel}")
+    else:
+        channel = inferred_channel
     if not run_name:
         ts = time.strftime("%Y%m%d_%H%M%S")
-        run_name = f"{srt.stem}_{ts}"
+        stem = srt.stem
+        if stem.isdigit():
+            stem = f"{channel}-{stem.zfill(3)}"
+        run_name = f"{stem}_{ts}"
     if not belt_mode:
         belt_mode = "llm"
 
     # Prepare run_dir early (for grouped uploads)
-    run_dir = PROJECT_ROOT / "output" / run_name
+    run_dir = video_runs_root() / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
 
     # Normalize prompt_template path (avoid templates/templates duplication)

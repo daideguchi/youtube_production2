@@ -186,6 +186,11 @@ def generate_title_from_cues(cues_path: Path) -> str:
     )
     content = prompt + joined
 
+    # Optional: disable text LLM usage (e.g., quota exhausted) and use deterministic fallback.
+    if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
+        fallback = summaries[0][:28] if summaries else cues_path.stem
+        return fallback
+
     # Use LLMRouter instead of direct google.genai
     try:
         from factory_common.llm_router import get_router
@@ -267,6 +272,25 @@ def main():
         print(f"⚠️ nanobanana={args.nanobanana} is deprecated; falling back to 'direct'")
         args.nanobanana = "direct"
 
+    # Safety: prevent cross-channel wiring.
+    # If SRT filename/path implies another channel, fail fast.
+    srt_path = Path(args.srt).expanduser().resolve()
+    name_match = re.search(r"(CH\d{2})", srt_path.name, flags=re.IGNORECASE)
+    if name_match and name_match.group(1).upper() != args.channel.upper():
+        print(f"❌ channel mismatch: srt={srt_path.name} implies {name_match.group(1).upper()} but --channel={args.channel}")
+        sys.exit(1)
+    repo_root = PROJECT_ROOT.parent
+    final_root = repo_root / "audio_tts_v2" / "artifacts" / "final"
+    try:
+        rel_parts = srt_path.relative_to(final_root).parts
+        if rel_parts:
+            dir_ch = rel_parts[0][:4].upper()
+            if dir_ch.startswith("CH") and dir_ch[2:4].isdigit() and dir_ch != args.channel.upper():
+                print(f"❌ channel mismatch: srt under {dir_ch} but --channel={args.channel}")
+                sys.exit(1)
+    except Exception:
+        pass
+
     # config has already populated os.environ
     env = os.environ.copy()
     env["PYTHONPATH"] = f"{PROJECT_ROOT}:{PROJECT_ROOT / 'src'}"
@@ -283,16 +307,14 @@ def main():
     run_name = args.run_name
     if not run_name:
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        run_name = f"{Path(args.srt).stem}_{ts}"
+        stem = Path(args.srt).stem
+        # Avoid cross-channel collisions when SRT filename is numeric-only (e.g., 220.srt)
+        if re.fullmatch(r"\d{1,3}", stem):
+            stem = f"{args.channel}-{stem.zfill(3)}"
+        run_name = f"{stem}_{ts}"
     run_dir = PROJECT_ROOT / "output" / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
     draft_name = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
-
-    # Copy SRT into run_dir for later CapCut insertion
-    srt_basename = Path(args.srt).name
-    srt_copy = run_dir / srt_basename
-    if not srt_copy.exists():
-        srt_copy.write_bytes(Path(args.srt).read_bytes())
 
     # Load preset for opening_offset (and potential future defaults)
     preset = load_channel_preset(args.channel) or {}
@@ -339,6 +361,44 @@ def main():
     if args.resume and args.fallback_if_missing_cues and not cues_path.exists():
         print("ℹ️ resume requested but image_cues.json missing; running pipeline instead")
         need_pipeline = True
+
+    # Sync SRT into run_dir for later CapCut insertion.
+    # - If we (re)run pipeline, always overwrite to keep cues/subtitles aligned.
+    # - If resume mode, do NOT overwrite; fail fast when a different SRT is passed to avoid unrelated drafts.
+    srt_source = Path(args.srt)
+    srt_basename = srt_source.name
+    srt_copy = run_dir / srt_basename
+    try:
+        src_bytes = srt_source.read_bytes()
+    except Exception as e:
+        print(f"❌ Failed to read SRT: {srt_source} ({e})")
+        sys.exit(1)
+
+    if need_pipeline:
+        # overwrite when different (or missing)
+        try:
+            if (not srt_copy.exists()) or (srt_copy.read_bytes() != src_bytes):
+                srt_copy.write_bytes(src_bytes)
+                print(f"[SYNC] run_dir SRT updated: {srt_copy.name}")
+        except Exception:
+            srt_copy.write_bytes(src_bytes)
+            print(f"[SYNC] run_dir SRT overwritten: {srt_copy.name}")
+    else:
+        # resume: preserve existing copy; abort if mismatch
+        if srt_copy.exists():
+            try:
+                if srt_copy.read_bytes() != src_bytes:
+                    print(
+                        "❌ Resume mode with different SRT detected. "
+                        "Use a new --run-name or disable --resume to regenerate cues/images."
+                    )
+                    sys.exit(1)
+            except Exception:
+                pass
+        else:
+            # no existing copy; copy best-effort (assume args.srt matches cues)
+            srt_copy.write_bytes(src_bytes)
+            print(f"[SYNC] run_dir SRT copied (resume): {srt_copy.name}")
 
     if need_pipeline:
         # Resolve run_pipeline.py relative to this script to avoid hardcoding CWD assumptions
@@ -419,6 +479,43 @@ def main():
     def build_equal():
         make_equal_split_belt(run_dir, labels, opening_offset=opening_offset)
 
+    def build_deterministic_from_cues(target_sections: int = 4):
+        """Deterministic belt generation without LLM: equal time split + first summary."""
+        cues_path = run_dir / "image_cues.json"
+        try:
+            cues_data = json.loads(cues_path.read_text(encoding="utf-8"))
+            cues_list = cues_data.get("cues", [])
+        except Exception:
+            cues_list = []
+        total_duration = max((c.get("end_sec", 0) for c in cues_list), default=0.0)
+        sections = max(1, int(target_sections))
+        span = total_duration / sections if sections else total_duration
+        belts = []
+        for i in range(sections):
+            start = span * i
+            end = total_duration if i == sections - 1 else span * (i + 1)
+            # pick first cue summary in this range
+            title_src = ""
+            for c in cues_list:
+                st = float(c.get("start_sec", 0))
+                if st >= start and st < end:
+                    title_src = (c.get("summary") or c.get("text") or "").strip()
+                    break
+            short = "".join(title_src.split())
+            if len(short) > 10:
+                short = short[:10]
+            text = f"{i+1}. {short}" if short else f"{i+1}. セクション{i+1}"
+            belts.append({"text": text, "start": round(start, 3), "end": round(end, 3)})
+        out = {
+            "episode": "",
+            "total_duration": round(total_duration, 3),
+            "belts": belts,
+            "opening_offset": opening_offset,
+            "main_title": None,
+        }
+        (run_dir / "belt_config.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+        return out
+
     if args.belt_mode == "existing":
         if not (run_dir / "belt_config.json").exists():
             print("ℹ️ belt_mode=existing: belt_config.json not found, skipping belt generation.")
@@ -453,7 +550,11 @@ def main():
             ]
         run(belt_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
     elif args.belt_mode == "llm":
-        make_llm_belt_from_cues(run_dir, opening_offset=opening_offset)
+        if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
+            # default to 4 sections unless preset caps it elsewhere
+            build_deterministic_from_cues(target_sections=4)
+        else:
+            make_llm_belt_from_cues(run_dir, opening_offset=opening_offset)
     else:
         print(f"❌ Unknown belt_mode: {args.belt_mode}")
         sys.exit(1)

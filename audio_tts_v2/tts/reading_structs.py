@@ -4,8 +4,6 @@ import json
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from factory_common.llm_router import get_router
-
 from .builder import _katakana_to_hiragana
 
 
@@ -115,6 +113,11 @@ def call_llm_for_ruby(lines: Sequence[RubyLine], *, timeout: int = 120) -> RubyI
     - Accepts a list of RubyLine; each line has tokens with surface + optional reading_hira.
     - Returns RubyInfo with RubyTokens updated (reading_hira) and raw payload preserved.
     """
+
+    try:
+        from factory_common.llm_router import get_router  # type: ignore
+    except Exception as e:  # pragma: no cover
+        raise RuntimeError(f"LLM router not available for ruby hints: {e}") from e
 
     router = get_router()
     serialized_lines = [ln.to_dict() for ln in lines]

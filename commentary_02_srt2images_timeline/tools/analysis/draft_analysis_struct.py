@@ -1282,7 +1282,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  '230D70CC-52DB-4C03-A5F2-93477237F82B': {'crop_ratio': 'free',
@@ -1290,7 +1290,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  '2F1AFA7E-68A0-49A3-B4DA-43B94B6ED889': {'crop_ratio': 'free',
@@ -1298,7 +1298,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  '52B9CC97-42DA-4FDC-BA28-726C1EAA78BC': {'crop_ratio': 'free',
@@ -1306,7 +1306,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  '7898DD26-17F8-4EA0-95B6-A27B13CF10A8': {'crop_ratio': 'free',
@@ -1314,7 +1314,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  '8554931C-E07B-4EEB-845D-8AB44AAAFAD5': {'crop_ratio': 'free',
@@ -1322,7 +1322,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  'CEC383B3-E8EE-4972-B5BF-9903F3189C5E': {'crop_ratio': 'free',
@@ -1330,7 +1330,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  'D8E8F565-A0E2-4CAA-B3B1-9FB931966CF8': {'crop_ratio': 'free',
@@ -1338,7 +1338,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  'DD37E3CB-F3E5-4EC7-A1BE-A2483291F1C8': {'crop_ratio': 'free',
@@ -1346,7 +1346,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920},
  'E66DE2BB-14EF-453C-BC7E-4C7CBE354BEC': {'crop_ratio': 'free',
@@ -1354,7 +1354,7 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
                                           'has_audio': True,
                                           'height': 1080,
                                           'name': '名称未設定のデザイン.mp4',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                                           'width': 1920}}
 
@@ -1362,41 +1362,41 @@ video_materials = {'10234EDC-6AB3-4E5E-AD00-69D3F737486A': {'crop_ratio': 'free'
 audio_materials = {'06FB74BE-A030-4B85-A653-CC864F6211E9': {'duration_sec': 165.033333,
                                           'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                                           'name': '03_Afternoon Reverie.mp3',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                                   'Reverie.mp3',
                                           'type': 'extract_music'},
  '2687452A-0945-4605-B9E3-F71AB59B581E': {'duration_sec': 165.033333,
                                           'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                                           'name': '03_Afternoon Reverie.mp3',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                                   'Reverie.mp3',
                                           'type': 'extract_music'},
  '2E424292-AD07-4CD3-9FB6-6A1C125C182D': {'duration_sec': 735.266666,
                                           'music_id': '3871a543-cc9a-433b-afae-a82b2378e6ba',
                                           'name': '1.wav',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/1.wav',
                                           'type': 'extract_music'},
  '5E07C340-F6C3-42AF-99FA-A9471CC67648': {'duration_sec': 165.033333,
                                           'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                                           'name': '03_Afternoon Reverie.mp3',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                                   'Reverie.mp3',
                                           'type': 'extract_music'},
  'AC801AC7-BF48-418A-8187-FF360D6F5D3C': {'duration_sec': 165.033333,
                                           'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                                           'name': '03_Afternoon Reverie.mp3',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                                   'Reverie.mp3',
                                           'type': 'extract_music'},
  'F734F6D8-2A61-433A-9BA3-7C7AD313E7F9': {'duration_sec': 165.033333,
                                           'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                                           'name': '03_Afternoon Reverie.mp3',
-                                          'path': '/Users/dd/Library/Mobile '
+                                          'path': '/Users/<user>/Library/Mobile '
                                                   'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                                   'Reverie.mp3',
                                           'type': 'extract_music'}}
@@ -1429,7 +1429,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': 'D8E8F565-A0E2-4CAA-B3B1-9FB931966CF8',
@@ -1462,7 +1462,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '7898DD26-17F8-4EA0-95B6-A27B13CF10A8',
@@ -1495,7 +1495,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': 'DD37E3CB-F3E5-4EC7-A1BE-A2483291F1C8',
@@ -1528,7 +1528,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '52B9CC97-42DA-4FDC-BA28-726C1EAA78BC',
@@ -1561,7 +1561,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '2F1AFA7E-68A0-49A3-B4DA-43B94B6ED889',
@@ -1595,7 +1595,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '10234EDC-6AB3-4E5E-AD00-69D3F737486A',
@@ -1632,7 +1632,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '8554931C-E07B-4EEB-845D-8AB44AAAFAD5',
@@ -1666,7 +1666,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': '230D70CC-52DB-4C03-A5F2-93477237F82B',
@@ -1700,7 +1700,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': 'E66DE2BB-14EF-453C-BC7E-4C7CBE354BEC',
@@ -1734,7 +1734,7 @@ timeline_tracks = [{'name': '',
                              'has_audio': True,
                              'height': 1080,
                              'name': '名称未設定のデザイン.mp4',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/名称未設定のデザイン.mp4',
                              'width': 1920},
                 'material_id': 'CEC383B3-E8EE-4972-B5BF-9903F3189C5E',
@@ -6464,7 +6464,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 735.266666,
                              'music_id': '3871a543-cc9a-433b-afae-a82b2378e6ba',
                              'name': '1.wav',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/32_シニアの口コミ１/1.wav',
                              'type': 'extract_music'},
                 'material_id': '2E424292-AD07-4CD3-9FB6-6A1C125C182D',
@@ -6490,7 +6490,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 165.033333,
                              'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                              'name': '03_Afternoon Reverie.mp3',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                      'Reverie.mp3',
                              'type': 'extract_music'},
@@ -6514,7 +6514,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 165.033333,
                              'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                              'name': '03_Afternoon Reverie.mp3',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                      'Reverie.mp3',
                              'type': 'extract_music'},
@@ -6538,7 +6538,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 165.033333,
                              'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                              'name': '03_Afternoon Reverie.mp3',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                      'Reverie.mp3',
                              'type': 'extract_music'},
@@ -6562,7 +6562,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 165.033333,
                              'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                              'name': '03_Afternoon Reverie.mp3',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                      'Reverie.mp3',
                              'type': 'extract_music'},
@@ -6586,7 +6586,7 @@ timeline_tracks = [{'name': '',
                              'duration_sec': 165.033333,
                              'music_id': 'c1d0f2f8-cdac-4ac7-ae12-7938ac888251',
                              'name': '03_Afternoon Reverie.mp3',
-                             'path': '/Users/dd/Library/Mobile '
+                             'path': '/Users/<user>/Library/Mobile '
                                      'Documents/com~apple~CloudDocs/01_create/youtube事業/★音源/suno/03_Afternoon '
                                      'Reverie.mp3',
                              'type': 'extract_music'},

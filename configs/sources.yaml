@@ -1,4 +1,34 @@
 channels:
+  CH01:
+    planning_csv: progress/channels/CH01.csv
+    persona: progress/personas/CH01_PERSONA.md
+  CH02:
+    planning_csv: progress/channels/CH02.csv
+    persona: progress/personas/CH02_PERSONA.md
+  CH03:
+    planning_csv: progress/channels/CH03.csv
+    persona: progress/personas/CH03_PERSONA.md
+  CH04:
+    planning_csv: progress/channels/CH04.csv
+    persona: progress/personas/CH04_PERSONA.md
+  CH05:
+    planning_csv: progress/channels/CH05.csv
+    persona: progress/personas/CH05_PERSONA.md
   CH06:
     planning_csv: progress/channels/CH06.csv
     persona: progress/personas/CH06_PERSONA.md
+  CH07:
+    planning_csv: progress/channels/CH07.csv
+    persona: progress/personas/CH07_PERSONA.md
+  CH08:
+    planning_csv: progress/channels/CH08.csv
+    persona: progress/personas/CH08_PERSONA.md
+  CH09:
+    planning_csv: progress/channels/CH09.csv
+    persona: progress/personas/CH09_PERSONA.md
+  CH10:
+    planning_csv: progress/channels/CH10.csv
+    persona: progress/personas/CH10_PERSONA.md
+  CH11:
+    planning_csv: progress/channels/CH11.csv
+    persona: progress/personas/CH11_PERSONA.md

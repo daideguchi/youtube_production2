@@ -229,6 +229,7 @@ def run_tts_pipeline(
     annotations: Dict[str, object] = {"token_annotations": []}
     b_text = ""
     b_log = []
+    prepared_segments: Optional[List[Dict[str, object]]] = None
 
     # --- Strict Mechanical Segmentation & Validations ---
     if existing_blocks:
@@ -267,6 +268,10 @@ def run_tts_pipeline(
             if "raw_text" not in blk:
                 blk["raw_text"] = blk.get("text", "")
             raw_txt = str(blk.get("raw_text") or blk.get("text", ""))
+            # Section delimiter '---' should not be spoken
+            if raw_txt.strip().strip("-") == "":
+                blk["text"] = ""
+                continue
             blk["text"] = _clean_srt_display_text(raw_txt)
     
         print(f"[STEP] srt blocks={len(srt_blocks)} (mechanically split)", flush=True)
@@ -280,7 +285,49 @@ def run_tts_pipeline(
         # Assign drafts immediately
         for blk, r in zip(srt_blocks, draft_readings):
             blk["b_text"] = r
-    
+
+        # 1.5 Optional: LLM readings (tts_reading)
+        # Optional: LLM reading override (feature flag)
+        use_llm_reading = os.getenv("TTS_USE_LLM_READING", "0").lower() in ("1", "true", "yes", "on")
+        if use_llm_reading and engine != "voicepeak":  # keep Voicepeak pipeline stable
+            try:
+                print("[STEP 1.5] LLM Readings (tts_reading)", flush=True)
+                llm_readings = generate_reading_for_blocks(srt_blocks, model=llm_model, api_key=llm_api_key, timeout=llm_timeout)
+                if len(llm_readings) == len(srt_blocks):
+                    for blk, llm_r in zip(srt_blocks, llm_readings):
+                        if llm_r:
+                            blk["b_text"] = llm_r
+                else:
+                    print(f"[LLM_WARN] LLM readings count mismatch: in={len(srt_blocks)} out={len(llm_readings)}. Using MeCab drafts.")
+            except Exception as e:
+                print(f"[LLM_WARN] LLM readings failed: {e}. Using MeCab drafts.")
+
+        # 1.6 Optional: Text prepare (tts_text_prepare) for pause/ruby hints
+        use_text_prepare = os.getenv("TTS_USE_TEXT_PREPARE", "0").lower() in ("1", "true", "yes", "on")
+        if use_text_prepare:
+            try:
+                print("[STEP 1.6] LLM Text Prepare (tts_text_prepare)", flush=True)
+                prepared_segments = tts_text_prepare(
+                    srt_blocks,
+                    model=llm_model,
+                    api_key=llm_api_key,
+                    timeout=llm_timeout,
+                    batch_size=10,
+                )
+                if prepared_segments and len(prepared_segments) == len(srt_blocks):
+                    # Merge hints into blocks
+                    for blk, prep in zip(srt_blocks, prepared_segments):
+                        if "text" in prep:
+                            blk["b_text"] = prep["text"]
+                        if "pause_sec" in prep:
+                            blk["pause_sec_hint"] = prep["pause_sec"]
+                        if "ruby" in prep:
+                            blk["ruby_hint"] = prep["ruby"]
+                else:
+                    print(f"[LLM_WARN] tts_text_prepare count mismatch: in={len(srt_blocks)} out={len(prepared_segments) if prepared_segments else 0}. Skipping.")
+            except Exception as e:
+                print(f"[LLM_WARN] tts_text_prepare failed: {e}. Skipping.")
+
         print("[STEP 2/2] AI Auditing (Twin-Engine Consensus)", flush=True)
 
         # --- TWIN-ENGINE CONSENSUS CHECK (Runs ALWAYS for Voicevox) ---
@@ -424,15 +471,32 @@ def run_tts_pipeline(
 
     # MOVED: srt_blocks.json saving is now deferred to after synthesis to include duration data.
 
-    b_text = "".join(str(b.get("b_text", "")) for b in srt_blocks)
+    # Build final b_text using builder (apply ruby_hints if provided)
+    ruby_hints_map = None
+    if prepared_segments:
+        ruby_hints_map = {}
+        for blk in srt_blocks:
+            try:
+                idx = int(blk.get("index"))
+            except Exception:
+                continue
+            if "ruby_hint" in blk:
+                ruby_hints_map[idx] = blk.get("ruby_hint")
 
-    # 7. Pause Generation (Fixed Rules Only)
-    # LLM suggest_pauses is REMOVED.
-    # Logic: apply fixed bias rules directly.
-    
+    # Rebuild b_text with ruby hints (if any)
+    token_annots = annotations.get("token_annotations", [])
+    if tokens and token_annots:
+        b_text, b_log = build_b_text(a_text_clean, tokens, token_annots, ruby_hints=ruby_hints_map)
+    else:
+        # Fallback: use existing b_text on srt_blocks
+        b_text = "".join(str(b.get("b_text", "")) for b in srt_blocks)
+        b_log = []
+
+    # 7. Pause Generation (LLM hints + fixed bias fallback)
     def _apply_pause_bias(blocks: List[Dict[str, object]], pauses_in: List[float]) -> List[float]:
         """
-        [STRICT] 固定ルールによるポーズ適用
+        固定ルールによるポーズ適用。
+        LLMヒントがあれば優先し、なければビルトインのバイアスを使う。
         ユーザー仕様:
         1. 見出し前後: 1.0s
         2. 段落ヒント: 0.75s
@@ -444,28 +508,26 @@ def run_tts_pipeline(
         for i, blk in enumerate(blocks):
             text = str(blk.get("text", "")).strip()
             raw_text = str(blk.get("raw_text", ""))
-            
-            # Determine base pause
-            pause = 0.25 # Default
 
-            # CRITICAL: text is already cleaned (no #), so must check raw_text
+            # LLMヒントがあれば最優先
+            if "pause_sec_hint" in blk:
+                p = float(blk.get("pause_sec_hint") or 0.0)
+                p = max(0.0, min(1.5, p))
+                out.append(p)
+                continue
+
+            pause = 0.25  # Default
             if raw_text.strip().startswith("#"):
-                 # Heading itself gets 1.0s
-                 pause = 1.0
-            elif i < len(blocks) - 1 and str(blocks[i+1].get("raw_text", "")).strip().startswith("#"):
-                 # Prior to heading gets 1.0s (check next block's raw_text)
-                 pause = 1.0
+                pause = 1.0
+            elif i < len(blocks) - 1 and str(blocks[i + 1].get("raw_text", "")).strip().startswith("#"):
+                pause = 1.0
             elif "\n\n" in raw_text or "　　" in raw_text:
-                 # Paragraph hint
-                 pause = 0.75
+                pause = 0.75
             elif text.endswith(("。", "．", "！", "!", "？", "?")):
-                 # Sentence end
-                 pause = 0.3
+                pause = 0.3
             elif text.endswith(("、", "，", ",")):
-                 # Comma
-                 pause = 0.25
-            
-            # Clamp 0.0 ~ 1.5
+                pause = 0.25
+
             pause = max(0.0, min(1.5, pause))
             out.append(pause)
         return out
@@ -473,11 +535,8 @@ def run_tts_pipeline(
     dummy_pauses = [0.0] * len(srt_blocks)
     pauses = _apply_pause_bias(srt_blocks, dummy_pauses)
 
-    print(f"[STEP] fixed pauses applied. blocks={len(pauses)}", flush=True)
+    print(f"[STEP] pauses applied. blocks={len(pauses)}", flush=True)
 
-    print(f"[STEP] fixed pauses applied. blocks={len(pauses)}", flush=True)
-
-    # Note: legacy `suggest_pauses` loop is removed. Strict fixed rules only.
     meta["pauses"] = pauses
     
     # 音声用チャンク: Voicepeakは分割済みを利用、それ以外はSRT分割と同じ数のブロックで個別合成

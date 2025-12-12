@@ -5,7 +5,11 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set, Tuple, Union
 
-import yaml
+# yaml is optional; hazard terms are best-effort when missing.
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover
+    yaml = None  # type: ignore
 
 from .reading_structs import RiskySpan, RubyToken
 
@@ -93,6 +97,8 @@ def load_hazard_terms(path: Path | None = None) -> Set[str]:
     if path is None:
         path = Path(__file__).resolve().parents[1] / "data" / "hazard_readings.yaml"
     if not path.exists():
+        return set()
+    if yaml is None:
         return set()
 
     try:

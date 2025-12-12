@@ -2,9 +2,21 @@
 import argparse
 import sys
 from pathlib import Path
+import os
 
 # CapCut API path
-sys.path.insert(0, "/Users/dd/capcut_api")
+_candidates = []
+env_api_root = os.getenv("CAPCUT_API_ROOT")
+if env_api_root:
+    _candidates.append(Path(env_api_root).expanduser())
+_candidates.extend([
+    Path.home() / "capcut_api",
+    Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
+])
+for _cand in _candidates:
+    if _cand.exists():
+        sys.path.insert(0, str(_cand))
+        break
 
 import pyJianYingDraft as draft
 from pyJianYingDraft import Draft_folder, Track_type, Text_segment, Timerange, SEC

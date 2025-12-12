@@ -298,6 +298,9 @@ export interface VideoDetail {
   planning?: PlanningInfo | null;
   youtube_description?: string | null;
   warnings?: string[];
+  redo_script?: boolean;
+  redo_audio?: boolean;
+  redo_note?: string | null;
 }
 
 export interface HumanScriptResponse {
@@ -359,6 +362,49 @@ export interface PlanningTemplateResponse {
 
 export interface PlanningTemplateUpdatePayload {
   content: string;
+}
+
+export interface RedoUpdatePayload {
+  redo_script?: boolean;
+  redo_audio?: boolean;
+  redo_note?: string | null;
+}
+
+export interface RedoUpdateResponse {
+  status: string;
+  redo_script: boolean;
+  redo_audio: boolean;
+  redo_note?: string | null;
+  updated_at: string;
+}
+
+export interface ThumbnailOverridePayload {
+  thumbnail_url: string;
+  thumbnail_path?: string | null;
+}
+
+export interface ThumbnailOverrideResponse {
+  status: string;
+  thumbnail_url: string;
+  thumbnail_path?: string | null;
+  updated_at: string;
+}
+
+export interface RedoSummaryItem {
+  channel: string;
+  redo_script: number;
+  redo_audio: number;
+  redo_both: number;
+}
+
+export interface ThumbnailLookupItem {
+  path: string;
+  url: string;
+  name?: string;
+}
+
+export interface ThumbnailLookupResponse {
+  items: ThumbnailLookupItem[];
 }
 
 export interface ChannelProfileResponse {
@@ -591,6 +637,18 @@ export interface AudioReviewItem {
   } | null;
 }
 
+export interface LlmMeta {
+  request_id?: string | null;
+  model?: string | null;
+  provider?: string | null;
+  latency_ms?: number | null;
+  usage?: {
+    prompt_tokens?: number | null;
+    completion_tokens?: number | null;
+    total_tokens?: number | null;
+  } | null;
+}
+
 export interface RunTtsV2Response {
   engine?: string | null;
   wav_path: string;
@@ -599,6 +657,7 @@ export interface RunTtsV2Response {
   stdout?: string | null;
   final_wav?: string | null;
   final_srt?: string | null;
+  llm_meta?: LlmMeta | null;
 }
 
 export type ThumbnailProjectStatus = "draft" | "in_progress" | "review" | "approved" | "published" | "archived";

@@ -33,6 +33,8 @@ class LLMResult:
     model: str
     usage: Dict[str, Any]
     raw: Any
+    request_id: Optional[str] = None
+    chain: Optional[List[str]] = None
 
 
 class LLMClient:
@@ -89,19 +91,40 @@ class LLMClient:
             if provider == "azure":
                 options.max_output_tokens = None
 
-        resp = self.router.call(
-            task=options.task,
-            messages=messages,
-            temperature=options.temperature,
-            max_output_tokens=options.max_output_tokens,
-            response_format=options.response_format,
-            timeout=options.timeout,
-            stop=options.stop,
-        )
-        return LLMResult(
-            content=resp,
-            provider="legacy_router",
-            model=resolved_model or "(resolved by router)",
-            usage={},
-            raw=resp,
-        )
+        router_call = getattr(self.router, "call_with_raw", None)
+        if callable(router_call):
+            resp = router_call(
+                task=options.task,
+                messages=messages,
+                temperature=options.temperature,
+                max_tokens=options.max_output_tokens,
+                response_format=options.response_format,
+                timeout=options.timeout,
+                stop=options.stop,
+            )
+            return LLMResult(
+                content=resp.get("content"),
+                provider=resp.get("provider") or "legacy_router",
+                model=resolved_model or resp.get("model") or "(resolved by router)",
+                usage=resp.get("usage") or {},
+                raw=resp.get("raw"),
+                request_id=resp.get("request_id"),
+                chain=resp.get("chain"),
+            )
+        else:
+            resp = self.router.call(
+                task=options.task,
+                messages=messages,
+                temperature=options.temperature,
+                max_output_tokens=options.max_output_tokens,
+                response_format=options.response_format,
+                timeout=options.timeout,
+                stop=options.stop,
+            )
+            return LLMResult(
+                content=resp,
+                provider="legacy_router",
+                model=resolved_model or "(resolved by router)",
+                usage={},
+                raw=resp,
+            )

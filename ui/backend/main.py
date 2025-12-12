@@ -23,6 +23,7 @@ import hashlib
 import mimetypes
 import shutil
 import base64
+import unicodedata
 import requests
 from PIL import Image, ImageStat
 from datetime import datetime, timezone, timedelta
@@ -35,6 +36,25 @@ import threading
 
 import logging
 
+from fastapi.staticfiles import StaticFiles
+# audio_tts_v2 routing helpers
+from audio_tts_v2.tts.routing import (
+    load_routing_config,
+    resolve_eleven_model,
+    resolve_eleven_voice,
+    resolve_voicevox_speaker_id,
+)
+from audio_tts_v2.tts.reading_dict import (
+    ReadingEntry,
+    is_banned_surface,
+    load_channel_reading_dict,
+    merge_channel_readings,
+    save_channel_reading_dict,
+    normalize_reading_kana,
+    is_safe_reading,
+)
+from audio_tts_v2.tts.mecab_tokenizer import tokenize_with_mecab
+from audio_tts_v2.tts.auditor import calc_kana_mismatch_score
 FILE_PATH = Path(__file__).resolve()
 BACKEND_ROOT = FILE_PATH.parent
 UI_ROOT = BACKEND_ROOT.parent
@@ -43,6 +63,34 @@ REPO_ROOT = PROJECT_ROOT.parent
 for p in (BACKEND_ROOT, UI_ROOT, PROJECT_ROOT, REPO_ROOT):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
+
+# Ensure .env is loaded even when uvicorn is started outside the repo root.
+def _load_root_env() -> None:
+    env_path = REPO_ROOT / ".env"
+    if not env_path.exists():
+        return
+    try:
+        # Prefer python-dotenv if available
+        try:
+            from dotenv import load_dotenv  # type: ignore
+
+            load_dotenv(dotenv_path=env_path, override=False)
+            return
+        except Exception:
+            pass
+
+        # Fallback: minimal parser
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
+                continue
+            key, value = stripped.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+    except Exception:
+        # Fail-soft: backend should still start
+        pass
+
+_load_root_env()
 
 # Provide ui/backend import alias when launched via uvicorn from arbitrary cwd
 import importlib
@@ -4355,6 +4403,9 @@ class VideoDetailResponse(BaseModel):
     status: str
     ready_for_audio: bool
     stages: Dict[str, str]
+    redo_script: bool = True
+    redo_audio: bool = True
+    redo_note: Optional[str] = None
     assembled_path: Optional[str]
     assembled_content: Optional[str]
     assembled_human_path: Optional[str] = None
@@ -4386,6 +4437,51 @@ class VideoDetailResponse(BaseModel):
     planning: Optional[PlanningInfoResponse] = None
     youtube_description: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
+
+
+class RedoUpdateRequest(BaseModel):
+    redo_script: Optional[bool] = None
+    redo_audio: Optional[bool] = None
+    redo_note: Optional[str] = None
+
+
+class RedoUpdateResponse(BaseModel):
+    status: str
+    redo_script: bool
+    redo_audio: bool
+    redo_note: Optional[str] = None
+    updated_at: str
+
+
+class RedoItemResponse(BaseModel):
+    channel: str
+    video: str
+    redo_script: bool
+    redo_audio: bool
+    redo_note: Optional[str] = None
+    title: Optional[str] = None
+    status: Optional[str] = None
+
+
+class RedoSummaryItem(BaseModel):
+    channel: str
+    redo_script: int
+    redo_audio: int
+    redo_both: int
+
+
+class ThumbnailOverrideRequest(BaseModel):
+    thumbnail_url: str
+    thumbnail_path: Optional[str] = None
+
+
+class ThumbnailOverrideResponse(BaseModel):
+    status: str
+    thumbnail_url: str
+    thumbnail_path: Optional[str] = None
+    updated_at: str
+
+
 
 
 class AudioIntegrityItem(BaseModel):
@@ -5177,7 +5273,10 @@ def _resolve_library_asset_path(channel_code: str, asset_identifier: str) -> tup
             return base_dir, candidate
         # Avoid double-joining when the relative path already starts with the base directory name.
         parts = list(normalized.parts)
-        if parts and parts[0] == base_dir.name:
+        def _norm_token(value: str) -> str:
+            return unicodedata.normalize("NFC", value)
+
+        if parts and _norm_token(parts[0]) == _norm_token(base_dir.name):
             inner = Path(*parts[1:])
             candidate2 = (base_dir / inner).resolve()
             try:
@@ -5521,6 +5620,79 @@ try:
     app.include_router(research_files.router)
 except Exception as e:
     logger.error("Failed to load research_files router: %s", e)
+
+# 静的に thumbnails ディレクトリを配信
+thumb_dir = PROJECT_ROOT / "thumbnails"
+if thumb_dir.exists():
+    app.mount("/thumbnails", StaticFiles(directory=thumb_dir), name="thumbnails")
+
+
+@app.get("/api/redo/summary", response_model=List[RedoSummaryItem])
+def get_redo_summary(channel: Optional[str] = None):
+    """チャンネル別のリテイク件数サマリを返す。channel を指定しない場合は全チャンネル集計。"""
+    def _list_progress_channels() -> List[str]:
+        base = PROJECT_ROOT / "progress" / "channels"
+        if not base.exists():
+            return []
+        return [p.stem for p in base.glob("*.csv")]
+
+    def progress_csv_rows(channel_code: str) -> List[Dict[str, str]]:
+        path = PROJECT_ROOT / "progress" / "channels" / f"{channel_code}.csv"
+        if not path.exists():
+            return []
+        import csv
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            return [row for row in reader]
+
+    rows = []
+    if channel:
+        ch = normalize_channel_code(channel)
+        rows = progress_csv_rows(ch)
+    else:
+        for ch in _list_progress_channels():
+            try:
+                rows.extend(progress_csv_rows(ch))
+            except Exception:
+                continue
+    summary: Dict[str, Dict[str, int]] = {}
+    for row in rows:
+        ch = row.get("チャンネル") or row.get("channel") or row.get("Channel") or ""
+        if not ch:
+            continue
+        s_flag = row.get("redo_script", "true").lower()
+        a_flag = row.get("redo_audio", "true").lower()
+        redo_s = s_flag not in ["false", "0", "no", "n"]
+        redo_a = a_flag not in ["false", "0", "no", "n"]
+        bucket = summary.setdefault(ch, {"redo_script": 0, "redo_audio": 0, "redo_both": 0})
+        if redo_s and redo_a:
+            bucket["redo_both"] += 1
+        if redo_s:
+            bucket["redo_script"] += 1
+        if redo_a:
+            bucket["redo_audio"] += 1
+    return [
+        RedoSummaryItem(
+            channel=ch,
+            redo_script=data["redo_script"],
+            redo_audio=data["redo_audio"],
+            redo_both=data["redo_both"],
+        )
+        for ch, data in summary.items()
+    ]
+
+
+@app.get("/api/thumbnails/lookup")
+def thumbnail_lookup(
+    channel: str = Query(..., description="CHコード (例: CH02)"),
+    video: Optional[str] = Query(None, description="動画番号 (例: 019)"),
+    title: Optional[str] = Query(None, description="動画タイトル（任意）"),
+    limit: int = Query(3, description="返す件数"),
+):
+    channel_code = normalize_channel_code(channel)
+    video_no = normalize_video_number(video) if video else None
+    thumbs = _find_thumbnails(channel_code, video_no, title, limit=limit)
+    return {"items": thumbs}
 try:
     from backend.routers import auto_draft
 
@@ -5801,6 +5973,22 @@ def list_channels():
 def list_planning_rows(channel: Optional[str] = Query(None, description="CHコード (例: CH06)")):
     channel_code = normalize_channel_code(channel) if channel else None
     return _load_planning_rows(channel_code)
+
+
+@app.post("/api/planning/refresh")
+def refresh_planning_store(
+    channel: Optional[str] = Query(None, description="CHコード (省略可)"),
+):
+    """
+    planning_store を強制再読込する。外部でCSVを編集した直後の手動同期用。
+    """
+    planning_store.refresh(force=True)
+    if channel:
+        try:
+            normalize_channel_code(channel)
+        except Exception:
+            pass
+    return {"ok": True}
 
 
 @app.get("/api/planning/spreadsheet", response_model=PlanningSpreadsheetResponse)
@@ -7590,6 +7778,15 @@ def get_video_detail(channel: str, video: str):
             metadata["sheet_flag"] = row_raw.get("作成フラグ")
         planning_section = get_planning_section(metadata)
         update_planning_from_row(planning_section, row_raw)
+    # リテイクフラグはデフォルトで True（人が確定させたら false にする運用）
+    redo_script = metadata.get("redo_script")
+    if redo_script is None:
+        redo_script = True
+    redo_audio = metadata.get("redo_audio")
+    if redo_audio is None:
+        redo_audio = True
+    redo_note = metadata.get("redo_note")
+
     stages_meta = status.get("stages", {}) or {}
     stages_meta, audio_exists, srt_exists = _inject_audio_completion_from_artifacts(channel_code, video_number, stages_meta, metadata)
     stages = {key: value.get("status", "pending") for key, value in stages_meta.items()} if stages_meta else {}
@@ -7686,6 +7883,9 @@ def get_video_detail(channel: str, video: str):
         status=status_value,
         ready_for_audio=bool(metadata.get("ready_for_audio", False)),
         stages=stages,
+        redo_script=bool(redo_script),
+        redo_audio=bool(redo_audio),
+        redo_note=redo_note,
         # A：人間編集版のみ（なければ空）。パスは human があればそれ、無ければ assembled を返す
         assembled_path=safe_relative_path(assembled_human_path) if assembled_human_path.exists() else (safe_relative_path(assembled_path) if assembled_path.exists() else None),
         assembled_content=assembled_content,
@@ -7721,6 +7921,239 @@ def get_video_detail(channel: str, video: str):
         youtube_description=youtube_description,
         warnings=warnings,
     )
+
+
+@app.patch("/api/channels/{channel}/videos/{video}/redo", response_model=RedoUpdateResponse)
+def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    st = load_status(channel_code, video_number)
+    meta = st.metadata or {}
+
+    redo_script = payload.redo_script if payload.redo_script is not None else meta.get("redo_script", True)
+    redo_audio = payload.redo_audio if payload.redo_audio is not None else meta.get("redo_audio", True)
+    redo_note = payload.redo_note if payload.redo_note is not None else meta.get("redo_note")
+
+    meta["redo_script"] = bool(redo_script)
+    meta["redo_audio"] = bool(redo_audio)
+    if redo_note is not None:
+        meta["redo_note"] = redo_note
+    st.metadata = meta
+    save_status(st)
+
+    updated_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return RedoUpdateResponse(
+        status="ok",
+        redo_script=bool(redo_script),
+        redo_audio=bool(redo_audio),
+        redo_note=redo_note,
+        updated_at=updated_at,
+    )
+
+
+@app.patch("/api/channels/{channel}/videos/{video}/thumbnail", response_model=ThumbnailOverrideResponse)
+def update_video_thumbnail_override(channel: str, video: str, payload: ThumbnailOverrideRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    st = load_status(channel_code, video_number)
+    meta = st.metadata or {}
+
+    meta["thumbnail_url_override"] = payload.thumbnail_url
+    if payload.thumbnail_path is not None:
+        meta["thumbnail_path_override"] = payload.thumbnail_path
+
+    st.metadata = meta
+    save_status(st)
+
+    updated_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return ThumbnailOverrideResponse(
+        status="ok",
+        thumbnail_url=payload.thumbnail_url,
+        thumbnail_path=payload.thumbnail_path,
+        updated_at=updated_at,
+    )
+
+
+def _clear_redo_flags(channel: str, video: str, *, redo_script: Optional[bool] = None, redo_audio: Optional[bool] = None):
+    """
+    ベストエフォートでリテイクフラグを更新する（API内部利用）。音声成功時は redo_audio=False、台本保存時は redo_script=False などに利用。
+    """
+    try:
+        channel_code = normalize_channel_code(channel)
+        video_number = normalize_video_number(video)
+        st = load_status(channel_code, video_number)
+        meta = st.metadata or {}
+        if redo_script is not None:
+            meta["redo_script"] = bool(redo_script)
+        if redo_audio is not None:
+            meta["redo_audio"] = bool(redo_audio)
+        st.metadata = meta
+        save_status(st)
+    except Exception:
+        # ベストエフォートなので握りつぶす
+        pass
+
+
+def _find_thumbnails(channel: str, video: Optional[str] = None, title: Optional[str] = None, limit: int = 3) -> List[Dict[str, str]]:
+    """
+    thumbnails/ 配下からチャンネルコード・動画番号に合致しそうなサムネをスコアで探す。
+    スコア: channel一致 +3, video番号含む(+2) / 数字一致(+2)、タイトルワード一致(+1)。スコア同点は更新日時降順。
+    """
+    base = PROJECT_ROOT / "thumbnails"
+    if not base.exists():
+        return []
+    channel_code = normalize_channel_code(channel)
+    video_no = normalize_video_number(video) if video else None
+    video_no_int = None
+    if video_no and video_no.isdigit():
+        try:
+            video_no_int = int(video_no)
+        except Exception:
+            video_no_int = None
+    title_tokens: List[str] = []
+    if title:
+        # 短い単語のみ加点対象
+        title_tokens = [t.lower() for t in re.findall(r"[\\w一-龠ぁ-んァ-ヴー]+", title) if len(t) >= 2]
+    matches: List[Tuple[int, float, Path]] = []
+    for path in base.rglob("*"):
+        if not path.is_file():
+            continue
+        if path.suffix.lower() not in [".png", ".jpg", ".jpeg", ".webp"]:
+            continue
+        score = 0
+        lower = str(path).lower()
+        if channel_code.lower() in lower:
+            score += 3
+
+        video_matched = False
+        if video_no and video_no in lower:
+            score += 2
+            video_matched = True
+        elif video_no_int is not None:
+            nums = re.findall(r"(\\d{1,4})", lower)
+            for n in nums:
+                try:
+                    if int(n) == video_no_int:
+                        score += 2
+                        video_matched = True
+                        break
+                except Exception:
+                    continue
+        if title_tokens:
+            for tok in title_tokens:
+                if tok and tok in lower:
+                    score += 1
+                    break
+        if video_no and not video_matched:
+            continue
+        if score == 0 and channel_code.lower() not in lower:
+            continue
+        mtime = path.stat().st_mtime
+        matches.append((score, mtime, path))
+    matches.sort(key=lambda x: (-x[0], -x[1]))
+    results: List[Dict[str, str]] = []
+    for _, _, p in matches[:limit]:
+        rel = p.relative_to(PROJECT_ROOT)
+        url = f"/{rel.as_posix()}"
+        results.append({"path": str(rel), "url": url, "name": p.name})
+    return results
+
+
+@app.get("/api/redo", response_model=List[RedoItemResponse])
+def list_redo_items(
+    channel: Optional[str] = Query(None, description="CHコード (例: CH02)"),
+    type: Optional[str] = Query(None, description="script|audio|all で絞り込み"),
+):
+    channel_filter = normalize_channel_code(channel) if channel else None
+    type_filter = (type or "").lower()
+    want_script = type_filter in ("script", "all", "") or type_filter not in ("audio", "script")
+    want_audio = type_filter in ("audio", "all", "") or type_filter not in ("audio", "script")
+
+    results: List[RedoItemResponse] = []
+    for ch_dir in list_channel_dirs():
+        ch_code = ch_dir.name.upper()
+        if channel_filter and ch_code != channel_filter:
+            continue
+        for vid_dir in list_video_dirs(ch_code):
+            video_number = vid_dir.name
+            try:
+                st = load_status(ch_code, video_number)
+            except HTTPException:
+                continue
+            meta = st.get("metadata", {}) if isinstance(st.get("metadata", {}), dict) else {}
+            redo_script = meta.get("redo_script")
+            redo_audio = meta.get("redo_audio")
+            redo_note = meta.get("redo_note")
+            if redo_script is None:
+                redo_script = True
+            if redo_audio is None:
+                redo_audio = True
+            # type filter
+            if type_filter in ("script", "audio"):
+                if type_filter == "script" and not redo_script:
+                    continue
+                if type_filter == "audio" and not redo_audio:
+                    continue
+            if not want_script and not want_audio:
+                continue
+            title = meta.get("sheet_title") or meta.get("title")
+            results.append(
+                RedoItemResponse(
+                    channel=ch_code,
+                    video=video_number,
+                    redo_script=bool(redo_script),
+                    redo_audio=bool(redo_audio),
+                    redo_note=redo_note,
+                    title=title,
+                    status=st.get("status"),
+                )
+            )
+    return results
+
+
+@app.get("/api/redo/summary", response_model=List[RedoSummaryItem])
+def list_redo_summary(
+    channel: Optional[str] = Query(None, description="CHコード (例: CH02)"),
+):
+    channel_filter = normalize_channel_code(channel) if channel else None
+    summaries: Dict[str, Dict[str, int]] = {}
+
+    for ch_dir in list_channel_dirs():
+        ch_code = ch_dir.name.upper()
+        if channel_filter and ch_code != channel_filter:
+            continue
+        sums = summaries.setdefault(ch_code, {"redo_script": 0, "redo_audio": 0, "redo_both": 0})
+        for vid_dir in list_video_dirs(ch_code):
+            st_path = vid_dir / "status.json"
+            if not st_path.exists():
+                continue
+            try:
+                st = load_status(ch_code, vid_dir.name)
+                meta = st.get("metadata", {}) if isinstance(st.get("metadata", {}), dict) else {}
+                redo_script = meta.get("redo_script")
+                redo_audio = meta.get("redo_audio")
+                if redo_script is None:
+                    redo_script = True
+                if redo_audio is None:
+                    redo_audio = True
+                if redo_script:
+                    sums["redo_script"] += 1
+                if redo_audio:
+                    sums["redo_audio"] += 1
+                if redo_script and redo_audio:
+                    sums["redo_both"] += 1
+            except Exception:
+                continue
+
+    return [
+        RedoSummaryItem(
+            channel=ch,
+            redo_script=vals["redo_script"],
+            redo_audio=vals["redo_audio"],
+            redo_both=vals["redo_both"],
+        )
+        for ch, vals in sorted(summaries.items())
+    ]
 
 
 @app.get("/api/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
@@ -7761,6 +8194,10 @@ def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
     write_text_with_lock(path, payload.content)
     timestamp = current_timestamp()
     status["updated_at"] = timestamp
+    # 台本リテイクは保存成功時に自動解除（ベストエフォート）
+    meta = status.get("metadata") or {}
+    meta["redo_script"] = False
+    status["metadata"] = meta
     save_status(channel_code, video_number, status)
     return {"status": "ok", "updated_at": timestamp}
 
@@ -8272,13 +8709,18 @@ def get_audio_log(channel: str, video: str):
 
 @app.get("/api/audio-tts-v2/health")
 def audio_tts_v2_health():
-    cfg = load_routing_config()
+    try:
+        cfg = load_routing_config()
+    except Exception as exc:
+        return {"status": "error", "detail": f"routing_config_load_failed: {exc}"}
+
     result = {
-        "engine_default": cfg.engine_default,
+        "status": "ok",
+        "engine_default": getattr(cfg, "engine_default", None),
         "engine_override_env": os.getenv("ENGINE_DEFAULT_OVERRIDE"),
         "voicevox": {
-            "url": cfg.voicevox_url,
-            "speaker_env": cfg.voicevox_speaker_env,
+            "url": getattr(cfg, "voicevox_url", None),
+            "speaker_env": getattr(cfg, "voicevox_speaker_env", None),
             "ok": False,
             "detail": None,
         },
@@ -8288,16 +8730,17 @@ def audio_tts_v2_health():
             "deployment": os.getenv("AZURE_OPENAI_DEPLOYMENT"),
         },
         "elevenlabs": {
-            "api_key_present": bool(os.getenv(cfg.eleven_api_key_env)),
-            "voice_id": resolve_eleven_voice("", cfg=cfg) if cfg.eleven_voice_id else None,
-            "model_id": resolve_eleven_model(cfg),
+            "api_key_present": bool(os.getenv(getattr(cfg, "eleven_api_key_env", ""))),
+            "voice_id": resolve_eleven_voice("", cfg=cfg) if getattr(cfg, "eleven_voice_id", None) else None,
+            "model_id": resolve_eleven_model(cfg) if cfg else None,
         },
     }
-    # Voicevox ping
+    # Voicevox ping (best effort)
     try:
-        resp = requests.get(f"{cfg.voicevox_url}/speakers", timeout=2)
-        resp.raise_for_status()
-        result["voicevox"]["ok"] = True
+        if getattr(cfg, "voicevox_url", None):
+            resp = requests.get(f"{cfg.voicevox_url}/speakers", timeout=2)
+            resp.raise_for_status()
+            result["voicevox"]["ok"] = True
     except Exception as exc:  # pragma: no cover - best effort check
         result["voicevox"]["detail"] = str(exc)
     return result
@@ -8349,8 +8792,7 @@ def audio_analysis(channel: str, video: str):
 
 def _resolve_script_pipeline_input_path(channel: str, video: str) -> Path:
     """
-    script_pipeline/data/<channel>/<video>/ から音声用入力を解決する。
-    優先: audio_prep/script_sanitized.txt -> content/assembled.md
+    旧式の解決（後方互換）。呼び出し元は _resolve_final_tts_input_path を優先すること。
     """
     base = PROJECT_ROOT / "script_pipeline" / "data" / channel / video
     candidates = [
@@ -8361,6 +8803,33 @@ def _resolve_script_pipeline_input_path(channel: str, video: str) -> Path:
         if cand.exists():
             return cand
     raise HTTPException(status_code=404, detail=f"script_pipeline input not found: {channel}-{video}")
+
+
+def _resolve_final_tts_input_path(channel: str, video: str) -> Path:
+    """
+    音声生成で必ず参照する最終確定入力を解決する。
+    優先度（人手が介入した最新版を最優先）:
+    1) audio_prep/script_audio_human.txt
+    2) content/script_audio_human.txt
+    3) content/assembled_human.md
+    4) audio_prep/script_sanitized.txt
+    5) content/script_audio.txt
+    6) content/assembled.md
+    見つからない場合は 404 を返す。
+    """
+    base = PROJECT_ROOT / "script_pipeline" / "data" / channel / video
+    candidates = [
+        base / "audio_prep" / "script_audio_human.txt",
+        base / "content" / "script_audio_human.txt",
+        base / "content" / "assembled_human.md",
+        base / "audio_prep" / "script_sanitized.txt",
+        base / "content" / "script_audio.txt",
+        base / "content" / "assembled.md",
+    ]
+    for cand in candidates:
+        if cand.exists():
+            return cand
+    raise HTTPException(status_code=404, detail=f"final tts input not found: {channel}-{video}")
 
 
 def _resolve_a_text_display_path(channel: str, video: str) -> Path:
@@ -8405,7 +8874,7 @@ def api_audio_tts_v2_run_from_script(
 ):
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)
-    input_path = _resolve_script_pipeline_input_path(channel_code, video_no)
+    input_path = _resolve_final_tts_input_path(channel_code, video_no)
     payload = TtsV2Request(
         channel=channel_code,
         video=video_no,
@@ -8452,6 +8921,13 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
         "--input",
         str(input_path),
     ]
+
+    # Always write to artifacts/final so downstream CapCut uses latest audio/SRT.
+    final_dir = repo_root / "audio_tts_v2" / "artifacts" / "final" / req.channel / req.video
+    final_dir.mkdir(parents=True, exist_ok=True)
+    final_wav_path = final_dir / f"{req.channel}-{req.video}.wav"
+    final_log_path = final_dir / "log.json"
+    cmd.extend(["--out-wav", str(final_wav_path), "--log", str(final_log_path)])
     if req.engine_override:
         cmd.extend(["--engine-override", req.engine_override])
     if req.reading_source:
@@ -8469,36 +8945,22 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"audio_tts_v2 failed: {e.stderr or e.stdout or e}")
     stdout = completed.stdout.strip()
-    wav_path = None
-    log_path = None
-    engine = None
-    for token in stdout.split():
-        if token.startswith("wav="):
-            wav_path = token.replace("wav=", "")
-        if token.startswith("log="):
-            log_path = token.replace("log=", "")
-        if token.startswith("engine="):
-            engine = token.replace("engine=", "")
-    if not wav_path:
-        raise HTTPException(status_code=500, detail=f"audio_tts_v2 did not return wav path: {stdout}")
-    wav_path = str(Path(wav_path).resolve())
-    srt_path = str(Path(wav_path).with_suffix(".srt"))
-    final_wav = None
-    final_srt = None
-    # 最終集約を推定（channel/video を入れている前提）
-    try:
-        p = Path(wav_path)
-        video_no = p.stem.split("-")[-1]
-        channel_code = p.stem.split("-")[0]
-        final_root = Path(__file__).resolve().parents[2] / "audio_tts_v2" / "artifacts" / "final" / channel_code
-        final_wav_path = final_root / f"{channel_code}-{video_no}.wav"
-        final_srt_path = final_root / f"{channel_code}-{video_no}.srt"
-        if final_wav_path.exists():
-            final_wav = str(final_wav_path)
-        if final_srt_path.exists():
-            final_srt = str(final_srt_path)
-    except Exception:
-        pass
+    if not final_wav_path.exists():
+        raise HTTPException(status_code=500, detail=f"audio_tts_v2 did not create wav: {stdout}")
+    wav_path = str(final_wav_path.resolve())
+    srt_path = str(final_wav_path.with_suffix(".srt").resolve())
+    final_wav = wav_path if Path(wav_path).exists() else None
+    final_srt = srt_path if Path(srt_path).exists() else None
+    engine = req.engine_override
+    if not engine:
+        m = re.search(r"Engine=([a-zA-Z0-9_]+)", stdout)
+        if m:
+            engine = m.group(1).lower()
+    llm_meta = None
+
+    # リテイク(音声)は成功時に自動で解除（ベストエフォート）
+    _clear_redo_flags(req.channel, req.video, redo_audio=False)
+    # 音声が成功しても台本リテイクが残っている場合は明示的に残す（redo_scriptは触らない）
 
     return {
         "engine": engine,
@@ -8508,12 +8970,32 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
         "stdout": stdout,
         "final_wav": final_wav,
         "final_srt": final_srt,
+        "llm_meta": llm_meta,
     }
 
 
 @app.post("/api/audio-tts-v2/run")
 def api_audio_tts_v2_run(payload: TtsV2Request):
-    return _run_audio_tts_v2(payload)
+    channel_code = normalize_channel_code(payload.channel)
+    video_no = normalize_video_number(payload.video)
+    resolved = _resolve_final_tts_input_path(channel_code, video_no)
+
+    provided = Path(payload.input_path)
+    repo_root = Path(__file__).resolve().parents[2]
+    if not provided.is_absolute():
+        provided = (repo_root / provided).resolve()
+
+    if provided.resolve() != resolved.resolve():
+        raise HTTPException(
+            status_code=400,
+            detail=f"input_path must be final script: {resolved} (provided: {provided})",
+        )
+
+    fixed = payload.copy()
+    fixed.channel = channel_code
+    fixed.video = video_no
+    fixed.input_path = str(resolved)
+    return _run_audio_tts_v2(fixed)
 
 
 class TtsV2BatchItem(BaseModel):
@@ -8541,11 +9023,23 @@ def api_audio_tts_v2_run_batch(payload: List[TtsV2BatchItem]):
     failure = 0
     for item in payload:
         try:
+            channel_code = normalize_channel_code(item.channel)
+            video_no = normalize_video_number(item.video)
+            resolved = _resolve_final_tts_input_path(channel_code, video_no)
+            provided = Path(item.input_path)
+            repo_root = Path(__file__).resolve().parents[2]
+            if not provided.is_absolute():
+                provided = (repo_root / provided).resolve()
+            if provided.resolve() != resolved.resolve():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"input_path must be final script: {resolved} (provided: {provided})",
+                )
             res = _run_audio_tts_v2(
                 TtsV2Request(
-                    channel=item.channel,
-                    video=item.video,
-                    input_path=item.input_path,
+                    channel=channel_code,
+                    video=video_no,
+                    input_path=str(resolved),
                     engine_override=item.engine_override,
                     reading_source=item.reading_source,
                     voicepeak_narrator=item.voicepeak_narrator,
@@ -8810,6 +9304,53 @@ def get_knowledge_base():
         logger.error(f"Failed to load KB at {real_kb_path}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to load KB: {e}")
 
+class KnowledgeBaseUpsertRequest(BaseModel):
+    word: str = Field(..., description="登録する単語（漢字/表記）")
+    reading: str = Field(..., description="読み（カナ推奨）")
+
+
+@app.post("/api/kb")
+def upsert_knowledge_base_entry(payload: KnowledgeBaseUpsertRequest):
+    """Add or update an entry in Global Knowledge Base (word dict)."""
+    word = payload.word.strip()
+    reading = payload.reading.strip()
+    if is_banned_surface(word):
+        raise HTTPException(status_code=400, detail="短すぎる/曖昧な単語は辞書登録できません。")
+    if not reading:
+        raise HTTPException(status_code=400, detail="読みを入力してください。")
+    normalized = normalize_reading_kana(reading)
+    if not is_safe_reading(normalized):
+        raise HTTPException(status_code=400, detail="読みはカナで入力してください（漢字や説明文は不可）。")
+    if normalized == word:
+        raise HTTPException(status_code=400, detail="読みが表記と同じなので登録不要です。")
+    reading = normalized
+
+    kb_path = KB_PATH
+    kb_path.parent.mkdir(parents=True, exist_ok=True)
+    data: Dict[str, Any] = {"version": 2, "words": {}, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if kb_path.exists():
+        try:
+            data = json.loads(kb_path.read_text(encoding="utf-8"))
+        except Exception:
+            # fall back to empty structure
+            data = {"version": 2, "words": {}, "updated_at": datetime.now(timezone.utc).isoformat()}
+
+    container = data.get("words")
+    if container is None:
+        container = data.get("entries")
+        if container is None:
+            container = {}
+        data["words"] = container
+    if not isinstance(container, dict):
+        container = {}
+        data["words"] = container
+
+    container[word] = reading
+    data["version"] = data.get("version") or 2
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    kb_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return data
+
 @app.delete("/api/kb/{entry_key}")
 def delete_knowledge_base_entry(entry_key: str):
     """Delete an entry from GKB."""
@@ -8843,6 +9384,93 @@ def delete_knowledge_base_entry(entry_key: str):
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update KB: {e}")
+
+
+class ChannelReadingUpsertRequest(BaseModel):
+    surface: str = Field(..., description="表記（辞書キー）")
+    reading_kana: str = Field(..., description="読み（カナ）")
+    reading_hira: Optional[str] = Field(None, description="読み（ひらがな・任意）")
+    voicevox_kana: Optional[str] = Field(None, description="Voicevox 元読み（任意）")
+    accent_moras: Optional[List[str]] = Field(None, description="アクセントモーラ列（任意）")
+    source: Optional[str] = Field("manual", description="登録元")
+
+
+@app.get("/api/reading-dict/{channel}")
+def get_channel_reading_dict_api(channel: str):
+    channel_code = normalize_channel_code(channel)
+    data = load_channel_reading_dict(channel_code)
+
+    def _compute_mecab_kana(surface: str) -> str:
+        try:
+            tokens = tokenize_with_mecab(surface)
+            parts: List[str] = []
+            for tok in tokens:
+                reading = tok.get("reading_mecab") or tok.get("surface") or ""
+                parts.append(str(reading))
+            return normalize_reading_kana("".join(parts))
+        except Exception:
+            return ""
+
+    enriched: Dict[str, Dict[str, object]] = {}
+    for surface, meta in data.items():
+        meta_dict = dict(meta or {})
+        mecab_kana = _compute_mecab_kana(surface)
+        meta_dict["mecab_kana"] = mecab_kana
+        voicevox_kana = meta_dict.get("voicevox_kana")
+        if isinstance(voicevox_kana, str) and voicevox_kana:
+            similarity, mora_diff, _ = calc_kana_mismatch_score(mecab_kana, voicevox_kana)
+            meta_dict["similarity"] = similarity
+            meta_dict["mora_diff"] = mora_diff
+        enriched[surface] = meta_dict
+
+    return enriched
+
+
+@app.post("/api/reading-dict/{channel}")
+def upsert_channel_reading_dict_api(channel: str, payload: ChannelReadingUpsertRequest):
+    channel_code = normalize_channel_code(channel)
+    surface = payload.surface.strip()
+    reading_kana = payload.reading_kana.strip()
+    reading_hira = (payload.reading_hira or "").strip() or reading_kana
+    if is_banned_surface(surface):
+        raise HTTPException(status_code=400, detail="短すぎる/曖昧な単語は辞書登録できません。")
+    if not reading_kana:
+        raise HTTPException(status_code=400, detail="読みを入力してください。")
+    normalized_kana = normalize_reading_kana(reading_kana)
+    normalized_hira = normalize_reading_kana(reading_hira)
+    if not is_safe_reading(normalized_kana):
+        raise HTTPException(status_code=400, detail="読みはカナで入力してください（漢字や説明文は不可）。")
+    if normalized_kana == surface:
+        raise HTTPException(status_code=400, detail="読みが表記と同じなので登録不要です。")
+    entry = ReadingEntry(
+        surface=surface,
+        reading_hira=normalized_hira or normalized_kana,
+        reading_kana=normalized_kana,
+        voicevox_kana=(payload.voicevox_kana or "").strip() or None,
+        accent_moras=payload.accent_moras,
+        source=payload.source or "manual",
+        last_updated="",
+    )
+    try:
+        merged = merge_channel_readings(channel_code, {surface: entry})
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return merged
+
+
+@app.delete("/api/reading-dict/{channel}/{surface}")
+def delete_channel_reading_dict_entry_api(channel: str, surface: str):
+    channel_code = normalize_channel_code(channel)
+    key = surface.strip()
+    current = load_channel_reading_dict(channel_code)
+    if key not in current:
+        raise HTTPException(status_code=404, detail="entry not found")
+    current.pop(key, None)
+    try:
+        save_channel_reading_dict(channel_code, current)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {"success": True}
 
 
 def parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
@@ -9092,3 +9720,68 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
         phase_details=_export_phase_details(),
     )
     return LLMSettingsResponse(llm=config)
+
+
+# Progress CSV expose
+@app.get("/api/progress/channels/{channel_code}")
+def api_progress_channel(channel_code: str):
+    repo_root = Path(__file__).resolve().parents[2]
+    csv_path = repo_root / "progress" / "channels" / f"{channel_code}.csv"
+    if not csv_path.exists():
+        raise HTTPException(status_code=404, detail="progress csv not found")
+    try:
+        import csv
+        with csv_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        # merge redo flags from status.json (default True when missing)
+        for row in rows:
+            video_num = row.get("動画番号") or row.get("video") or row.get("Video") or ""
+            norm_video = normalize_video_number(video_num) if video_num else None
+            if not norm_video:
+                continue
+            meta: Dict[str, Any] = {}
+            try:
+                st = load_status(channel_code, norm_video)
+                meta = st.metadata or {}
+                redo_script = meta.get("redo_script")
+                redo_audio = meta.get("redo_audio")
+                if redo_script is None:
+                    redo_script = True
+                if redo_audio is None:
+                    redo_audio = True
+                row["redo_script"] = bool(redo_script)
+                row["redo_audio"] = bool(redo_audio)
+                if meta.get("redo_note"):
+                    row["redo_note"] = meta.get("redo_note")
+            except Exception:
+                row["redo_script"] = True
+                row["redo_audio"] = True
+            # thumbnail autofill (if not explicitly provided)
+            has_thumb = False
+            for key in ["thumbnail_url", "サムネURL", "サムネ画像URL", "サムネ画像"]:
+                if isinstance(row.get(key), str) and row.get(key).strip():
+                    has_thumb = True
+                    if key != "thumbnail_url":
+                        row["thumbnail_url"] = row.get(key).strip()
+                    break
+            if not has_thumb:
+                override_url = meta.get("thumbnail_url_override")
+                override_path = meta.get("thumbnail_path_override")
+                if isinstance(override_url, str) and override_url.strip():
+                    row["thumbnail_url"] = override_url.strip()
+                    if isinstance(override_path, str) and override_path.strip():
+                        row["thumbnail_path"] = override_path.strip()
+                    has_thumb = True
+            if not has_thumb:
+                try:
+                    title = row.get("タイトル") or row.get("title") or None
+                    thumbs = _find_thumbnails(channel_code, norm_video, title, limit=1)
+                    if thumbs:
+                        row["thumbnail_url"] = thumbs[0]["url"]
+                        row["thumbnail_path"] = thumbs[0]["path"]
+                except Exception:
+                    pass
+        return {"channel": channel_code, "rows": rows}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"failed to read csv: {e}")

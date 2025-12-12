@@ -283,8 +283,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.wav",
     "type": "wav",
     "checked": false,
-    "size": 59642924,
-    "hash": "b7adccb7fa96677ad6a69325cd45f38f80c2f2c2",
+    "size": 56159852,
+    "hash": "e2c7e31cb8d1e82adcf0c5998feaa6319dd9496c",
     "src": "audio_tts_v2/artifacts/final/CH02/027/CH02-027.wav"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-033.wav": {
@@ -307,8 +307,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.wav",
     "type": "wav",
     "checked": false,
-    "size": 54651820,
-    "hash": "86d23138c43d0ec43846f5e675b021d1bdad9ab4",
+    "size": 40527404,
+    "hash": "f0a13951b37578100f7ce622e76b1c0abb2c2d5f",
     "src": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.wav"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-018.wav": {
@@ -339,8 +339,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.wav",
     "type": "wav",
     "checked": false,
-    "size": 53890924,
-    "hash": "4ec213b313ffd4c10a5fe1d99d06200aa57683e6",
+    "size": 41928492,
+    "hash": "58d96ee7812ebfde18ec1bd89cd086c23c2bc3a3",
     "src": "audio_tts_v2/artifacts/final/CH02/025/CH02-025.wav"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-031.wav": {
@@ -403,8 +403,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-026.srt",
     "type": "srt",
     "checked": false,
-    "size": 27059,
-    "hash": "1ce77371b176ec91c4b102e52169ce56f4dbd913",
+    "size": 26039,
+    "hash": "417d0bf12d5fe24393ba2d046b8440bc5a4d4cee",
     "src": "audio_tts_v2/artifacts/final/CH02/026/CH02-026.srt"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-032.srt": {
@@ -427,8 +427,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-027.srt",
     "type": "srt",
     "checked": false,
-    "size": 30599,
-    "hash": "2f978bf5fb49eadd1f61d03721ff20fbacb11d22",
+    "size": 33821,
+    "hash": "7dbf7577fcac3b31c9a25d943d17e4f9539ed33c",
     "src": "audio_tts_v2/artifacts/final/CH02/027/CH02-027.srt"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-019.srt": {
@@ -451,8 +451,8 @@
     "path": "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-025.srt",
     "type": "srt",
     "checked": false,
-    "size": 26487,
-    "hash": "d821cba75a48dc6ce4c8d1de069ca4b38b4d95f6",
+    "size": 27359,
+    "hash": "543e9375cc5f1c1451588fe37eddfde4a9828bea",
     "src": "audio_tts_v2/artifacts/final/CH02/025/CH02-025.srt"
   },
   "commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-024.srt": {
@@ -2276,32 +2276,32 @@
     "type": "srt",
     "checked": false,
     "src": "audio_tts_v2/artifacts/final/CH05/001/CH05-001.srt",
-    "size": 20501,
-    "hash": "def4968d6fc9482cd600ebb6f1d00e6d66c70c61"
+    "size": 20537,
+    "hash": "8b6247c0e5d9e8da27ab99ab717e3ac22c149a49"
   },
   "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.wav": {
     "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-001.wav",
     "type": "wav",
     "checked": false,
     "src": "audio_tts_v2/artifacts/final/CH05/001/CH05-001.wav",
-    "size": 37812908,
-    "hash": "8a7d2e2737876f5c339c6197be6fe102b612e4d2"
+    "size": 36100204,
+    "hash": "b9619a0cd6fd15cd00490ce87b721025957af40b"
   },
   "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.srt": {
     "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.srt",
     "type": "srt",
     "checked": false,
     "src": "audio_tts_v2/artifacts/final/CH05/002/CH05-002.srt",
-    "size": 20051,
-    "hash": "3027c7980599ddf5e68c356333d310b0e2accd14"
+    "size": 20099,
+    "hash": "00bada4978e326870a259d9782790109d3b96e2d"
   },
   "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.wav": {
     "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-002.wav",
     "type": "wav",
     "checked": false,
     "src": "audio_tts_v2/artifacts/final/CH05/002/CH05-002.wav",
-    "size": 37591724,
-    "hash": "5803613d80eccd51a2e738cfd69b381bdcc99d85"
+    "size": 36127916,
+    "hash": "df6b9e02288809bc5027ed4318d3db894115045f"
   },
   "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.srt": {
     "path": "commentary_02_srt2images_timeline/input/CH05_シニア恋愛物語/CH05-003.srt",

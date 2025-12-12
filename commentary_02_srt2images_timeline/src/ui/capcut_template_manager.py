@@ -35,10 +35,15 @@ class CapCutTemplateManager:
         Args:
             capcut_projects_dir: CapCutプロジェクトディレクトリのパス
         """
-        self.capcut_projects_dir = Path(
-            capcut_projects_dir or 
-            "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft"
-        )
+        if capcut_projects_dir:
+            self.capcut_projects_dir = Path(capcut_projects_dir).expanduser()
+        else:
+            env_root = os.getenv("CAPCUT_DRAFT_ROOT")
+            self.capcut_projects_dir = (
+                Path(env_root).expanduser()
+                if env_root
+                else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+            )
         self.templates_cache = {}
         self.predefined_templates = self._get_predefined_templates()
     

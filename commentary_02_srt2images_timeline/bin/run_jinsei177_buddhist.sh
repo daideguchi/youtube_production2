@@ -7,8 +7,8 @@ set -e  # Exit on any error
 # Configuration for Jinsei 177 project
 SRT_FILE="output/jinsei177/177_final.srt"
 OUTPUT_DIR="output/jinsei177"
-TEMPLATE="templates/jinsei_no_michishirube_buddhist.txt"
-STYLE="Buddhist spirituality, gentle wisdom, peaceful enlightenment, Japanese philosophy"
+TEMPLATE="templates/jinsei_warm_gold_blue_strict.txt"
+STYLE="Japanese digital watercolor, warm gold vs cool blue-gray stone, no text, consistent characters"
 DRAFT_ROOT="$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft"
 TEMPLATE_NAME="人生の道標_最新テンプレ"
 NEW_DRAFT_NAME="人生の道標_177_仏教版"

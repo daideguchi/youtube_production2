@@ -104,7 +104,7 @@ def test_ruby_overrides_align_fallback_logged(fake_router):
     tokens_by_block = {0: [_default_token()]}
     blocks_by_index = {0: {"index": 0, "accent_phrases": None}}
 
-    llm_calls, terms, budget, budget_reason, patches, fallbacks, applied, rejected = auditor._apply_ruby_overrides(
+    llm_calls, terms, budget, budget_reason, patches, fallbacks, applied, rejected, _ = auditor._apply_ruby_overrides(
         requests,
         blocks_by_index=blocks_by_index,
         tokens_by_block=tokens_by_block,
@@ -139,7 +139,7 @@ def test_ruby_overrides_budget_reason(fake_router):
     tokens_by_block = {i: [_default_token()] for i in range(25)}
     blocks_by_index = {i: {"index": i, "accent_phrases": None} for i in range(25)}
 
-    llm_calls, terms, budget, budget_reason, patches, fallbacks, applied, rejected = auditor._apply_ruby_overrides(
+    llm_calls, terms, budget, budget_reason, patches, fallbacks, applied, rejected, _ = auditor._apply_ruby_overrides(
         requests,
         blocks_by_index=blocks_by_index,
         tokens_by_block=tokens_by_block,

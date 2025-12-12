@@ -9,7 +9,7 @@
 #   python3 relink_capcut_photo_materials.py "<ドラフトフォルダへのフルパス>"
 #
 # 例:
-#   python3 relink_capcut_photo_materials.py "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/【改修】人生の道標_186_多様版_最終"
+#   python3 relink_capcut_photo_materials.py "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft-name>"
 
 import sys, json, shutil
 from pathlib import Path

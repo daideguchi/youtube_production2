@@ -4,11 +4,11 @@
 
 set -e  # Exit on any error
 
-# Configuration for Jinsei 177 project (Contextual Variety)
+# Configuration for Jinsei 177 project (Contextual / 現行テンプレ反映)
 SRT_FILE="output/jinsei177/177_final.srt"
 OUTPUT_DIR="output/jinsei177"
-TEMPLATE="templates/jinsei_contextual_variety.txt"
-STYLE="diverse contextual illustration, warm and accessible, varied visual styles, human psychology themes"
+TEMPLATE="templates/jinsei_warm_gold_blue_strict.txt"
+STYLE="Japanese digital watercolor, warm gold vs cool blue-gray stone, no text, consistent characters"
 DRAFT_ROOT="$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft"
 TEMPLATE_NAME="人生の道標_最新テンプレ"
 NEW_DRAFT_NAME="人生の道標_177_多様版_最終"

@@ -31,7 +31,8 @@ def test_build_vocab_requests_groups_and_limits_examples():
     assert len(requests) == 1
     req = requests[0]
     assert req["surface"] == "怒り"
-    assert "hazard:怒り" in req["reasons"] and "block_diff" in req["reasons"]
+    # vocab LLM は hazard レベルのみ対象
+    assert req["reasons"] == ["hazard:怒り"]
     assert req["examples"] == ["怒りを鎮める"]  # capped to max_examples=1
     assert req["mecab_kana"] == "いかり"
     assert req["voicevox_kana"] == "イカリ"

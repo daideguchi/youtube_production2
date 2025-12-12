@@ -20,7 +20,12 @@ sys.path.append(str(PROJECT_ROOT / "src"))
 
 from config.template_registry import get_active_templates, resolve_template_path  # noqa: E402
 
-DRAFT_ROOT = Path("/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft")
+_env_draft_root = os.getenv("CAPCUT_DRAFT_ROOT")
+DRAFT_ROOT = (
+    Path(_env_draft_root).expanduser()
+    if _env_draft_root
+    else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+)
 WHITELIST_PATH = PROJECT_ROOT / "config" / "track_whitelist.json"
 
 def _load_image_templates() -> Dict[str, str]:
@@ -571,7 +576,7 @@ with gr.Blocks(title="🎬 SRT2Images CapCut自動生成", theme=gr.themes.Soft(
         with gr.Column():
             swap_draft_path = gr.Textbox(
                 label="CapCutドラフトパス",
-                value="/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】",
+                value=str(DRAFT_ROOT / "195_draft-【手動調整後4】"),
             )
             swap_run_dir = gr.Textbox(
                 label="run_dir (images/ があるディレクトリ)",

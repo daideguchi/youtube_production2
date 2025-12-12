@@ -50,9 +50,11 @@ def main() -> None:
     if args.command == "audio":
         import subprocess
         
-        # Resolve paths
-        base_dir = Path(__file__).resolve().parents[1]
-        input_path = base_dir / "script_pipeline" / "data" / ch / no / "content" / "assembled.md"
+        # Resolve paths via SSOT
+        from factory_common.paths import repo_root, video_root, audio_final_dir, audio_pkg_root
+
+        base_dir = repo_root()
+        input_path = video_root(ch, no) / "content" / "assembled.md"
         
         if not input_path.exists():
             print(f"Error: Input file not found: {input_path}")
@@ -65,6 +67,13 @@ def main() -> None:
             "--video", no,
             "--input", str(input_path),
         ]
+
+        # Write to artifacts/final by default so CapCut/preview always use latest audio/SRT.
+        final_dir = audio_final_dir(ch, no)
+        final_dir.mkdir(parents=True, exist_ok=True)
+        final_wav = final_dir / f"{ch}-{no}.wav"
+        final_log = final_dir / "log.json"
+        cmd.extend(["--out-wav", str(final_wav), "--log", str(final_log)])
         
         if args.resume:
             cmd.append("--resume")
@@ -75,7 +84,7 @@ def main() -> None:
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
         # Add root and audio_tts_v2 to PYTHONPATH
-        new_paths = [str(base_dir), str(base_dir / "audio_tts_v2")]
+        new_paths = [str(base_dir), str(audio_pkg_root())]
         if pythonpath:
             new_paths.append(pythonpath)
         env["PYTHONPATH"] = os.pathsep.join(new_paths)

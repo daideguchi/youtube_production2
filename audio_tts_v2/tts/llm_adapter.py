@@ -4,11 +4,13 @@ import json
 import os
 import re
 from typing import Dict, Optional, List, Any
+from pathlib import Path
 
 from factory_common.llm_router import LLMRouter
 
 LOCAL_INFERENCE_ONLY = os.getenv("LOCAL_INFERENCE_ONLY") == "1"
 router = LLMRouter()
+LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
 
 SYSTEM_PROMPT = (
     "You are a TTS annotation engine. Output ONLY a JSON object:\n"
@@ -35,6 +37,28 @@ def _is_trivial_token(tok: dict) -> bool:
         return True
     # Pure numbers/punctuation/symbols
     return bool(_TRIVIAL_RE.match(surface))
+
+
+def _log_llm_meta(task: str, meta: dict):
+    if not meta:
+        return
+    try:
+        LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        record = {"task": task, **meta}
+        with LLM_LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        if os.getenv("TTS_LLM_LOG_STDOUT") == "1":
+            print(
+                "[LLM_META]",
+                f"task={task}",
+                f"model={meta.get('model')}",
+                f"provider={meta.get('provider')}",
+                f"request_id={meta.get('request_id')}",
+                f"latency_ms={meta.get('latency_ms')}",
+                f"usage={meta.get('usage')}",
+            )
+    except Exception:
+        pass
 
 SRT_SEGMENT_PROMPT = (
     "You split Japanese text into short readable segments for subtitles. "
@@ -149,13 +173,23 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
     
     # Try calling via LLM router
     try:
-        result = router.call(
-            task="tts_annotate",
-            messages=messages,
-            response_format="json_object",
-            timeout=timeout,
-        )
-        content = result.content
+        call_with_raw = getattr(router, "call_with_raw", None)
+        if callable(call_with_raw):
+            result = call_with_raw(
+                task="tts_annotate",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+            )
+            content = result.get("content")
+            _log_llm_meta("tts_annotate", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+        else:
+            content = router.call(
+                task="tts_annotate",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+            )
         last_raw = content
         
         try:
@@ -254,13 +288,23 @@ def llm_readings_for_candidates(
         ]
         
         try:
-            result = router.call(
-                task="tts_reading",
-                messages=messages,
-                response_format="json_object",
-                timeout=timeout,
-            )
-            content = result.content
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                result = call_with_raw(
+                    task="tts_reading",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
+                content = result.get("content")
+                _log_llm_meta("tts_reading", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+            else:
+                content = router.call(
+                    task="tts_reading",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
             
             if isinstance(content, str):
                 try:
@@ -312,14 +356,25 @@ def katakana_a_text(a_text: str, model: str | None = None, api_key: str | None =
         {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
     ]
     try:
-        result = router.call(
-            task="tts_text_prepare",
-            messages=messages,
-            response_format="json_object",
-            timeout=timeout,
-            max_tokens=max_tokens,
-        )
-        content = result.content
+        call_with_raw = getattr(router, "call_with_raw", None)
+        if callable(call_with_raw):
+            result = call_with_raw(
+                task="tts_text_prepare",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+                max_tokens=max_tokens,
+            )
+            content = result.get("content")
+            _log_llm_meta("tts_text_prepare", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+        else:
+            content = router.call(
+                task="tts_text_prepare",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+                max_tokens=max_tokens,
+            )
         obj = json.loads(content)
         katakana = obj.get("katakana")
         if katakana:
@@ -362,13 +417,23 @@ def suggest_pauses(blocks: list[dict], model: str | None = None, api_key: str | 
         ]
         
         try:
-            result = router.call(
-                task="tts_pause",
-                messages=messages,
-                response_format="json_object",
-                timeout=timeout,
-            )
-            content = result.content
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                result = call_with_raw(
+                    task="tts_pause",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
+                content = result.get("content")
+                _log_llm_meta("tts_pause", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+            else:
+                content = router.call(
+                    task="tts_pause",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
             
             try:
                 obj = _parse_json_strict(content)
@@ -485,13 +550,23 @@ def segment_text_llm(a_text: str, max_len: int, model: str | None = None, api_ke
         ]
         
         try:
-            result = router.call(
-                task="tts_segment",
-                messages=messages,
-                response_format="json_object",
-                timeout=timeout,
-            )
-            content = result.content
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                result = call_with_raw(
+                    task="tts_segment",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
+                content = result.get("content")
+                _log_llm_meta("tts_segment", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+            else:
+                content = router.call(
+                    task="tts_segment",
+                    messages=messages,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
             
             segs = None
             if isinstance(content, str):
@@ -540,13 +615,23 @@ def generate_reading_script(a_text: str, model: str | None = None, api_key: str 
                 {"role": "system", "content": READING_GENERATION_PROMPT},
                 {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
             ]
-            read_result = router.call(
-                task="tts_reading",
-                messages=messages_read,
-                response_format="json_object",
-                timeout=timeout,
-            )
-            content_read = read_result.content
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                read_result = call_with_raw(
+                    task="tts_reading",
+                    messages=messages_read,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
+                content_read = read_result.get("content")
+                _log_llm_meta("tts_reading", {k: read_result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+            else:
+                content_read = router.call(
+                    task="tts_reading",
+                    messages=messages_read,
+                    response_format="json_object",
+                    timeout=timeout,
+                )
             readings = []
             if isinstance(content_read, str):
                 obj = _parse_json_lenient(content_read)
@@ -572,13 +657,23 @@ def generate_reading_for_blocks(blocks: list[dict], model: str | None = None, ap
     ]
 
     try:
-        result = router.call(
-            task="tts_reading",
-            messages=messages,
-            response_format="json_object",
-            timeout=timeout,
-        )
-        content = result.content
+        call_with_raw = getattr(router, "call_with_raw", None)
+        if callable(call_with_raw):
+            result = call_with_raw(
+                task="tts_reading",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+            )
+            content = result.get("content")
+            _log_llm_meta("tts_reading", {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")})
+        else:
+            content = router.call(
+                task="tts_reading",
+                messages=messages,
+                response_format="json_object",
+                timeout=timeout,
+            )
         extracted = None
         if isinstance(content, str):
             obj = _parse_json_lenient(content)
@@ -657,4 +752,4 @@ def _enrich_annotations(obj: dict, token_map: dict[int, dict]) -> dict:
                 "reading_mecab": reading_mecab,
             }
         )
-    return {"token_annotations": out}
+    return out

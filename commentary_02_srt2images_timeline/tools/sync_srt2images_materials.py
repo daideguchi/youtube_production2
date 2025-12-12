@@ -11,7 +11,7 @@ What it does:
 
 Usage:
   python3 tools/sync_srt2images_materials.py \
-    --draft "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】"
+    --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】"
 """
 
 import argparse

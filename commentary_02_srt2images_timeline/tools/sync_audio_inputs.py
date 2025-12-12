@@ -16,11 +16,13 @@ from pathlib import Path
 import argparse
 import hashlib
 
-BASE = Path(__file__).resolve().parents[2]  # repo root
-ART_ROOT = BASE / "audio_tts_v2" / "artifacts" / "final"
-INPUT_ROOT = BASE / "commentary_02_srt2images_timeline" / "input"
-PRESET_PATH = BASE / "commentary_02_srt2images_timeline" / "config" / "channel_presets.json"
-MANIFEST = BASE / "commentary_02_srt2images_timeline" / "progress" / "audio_sync_status.json"
+from factory_common.paths import repo_root, audio_artifacts_root, video_input_root, video_pkg_root
+
+BASE = repo_root()  # repo root
+ART_ROOT = audio_artifacts_root() / "final"
+INPUT_ROOT = video_input_root()
+PRESET_PATH = video_pkg_root() / "config" / "channel_presets.json"
+MANIFEST = video_pkg_root() / "progress" / "audio_sync_status.json"
 
 
 def load_channel_names():

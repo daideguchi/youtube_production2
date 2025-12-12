@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any
+import os
 import re
 import json
 import hashlib
@@ -13,12 +14,31 @@ from .reading_dict import (
     export_words_for_word_dict,
     load_channel_reading_dict,
     merge_channel_readings,
+    normalize_reading_kana,
+    is_safe_reading,
 )
+from .risk_utils import is_trivial_diff
 from . import auditor
 from .reading_structs import KanaPatch
 
 KB_PATH = Path(__file__).resolve().parents[1] / "data" / "global_knowledge_base.json"
 LEARNING_DICT_PATH = Path("audio_tts_v2/configs/learning_dict.json")
+LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
+
+# Surfaces that should be kept even if they match MeCab/trivial diff.
+FORCE_GLOBAL_SURFACES = {"同じ道"}
+
+
+def _log_llm_meta(task: str, meta: dict):
+    if not meta:
+        return
+    try:
+        LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        record = {"task": task, **meta}
+        with LLM_LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
 
 
 def _load_learning_dict() -> Dict[str, str]:
@@ -27,7 +47,22 @@ def _load_learning_dict() -> Dict[str, str]:
         return {}
     try:
         data = json.loads(LEARNING_DICT_PATH.read_text(encoding="utf-8"))
-        return {k: v for k, v in data.items() if not is_banned_surface(str(k))}
+        if not isinstance(data, dict):
+            return {}
+        cleaned: Dict[str, str] = {}
+        for surface, reading in data.items():
+            key = str(surface).strip()
+            if is_banned_surface(key):
+                continue
+            if not isinstance(reading, str):
+                continue
+            normalized = normalize_reading_kana(reading)
+            if not is_safe_reading(normalized):
+                continue
+            if normalized == key:
+                continue
+            cleaned[key] = normalized
+        return cleaned
     except Exception:
         return {}
 
@@ -42,14 +77,26 @@ class WordDictionary:
         if self.path.exists():
             try:
                 data = json.loads(self.path.read_text(encoding="utf-8"))
-                loaded = data.get("words", {})
-                base.update(
-                    {
-                        word: reading
-                        for word, reading in loaded.items()
-                        if not is_banned_surface(str(word))
-                    }
-                )
+                loaded = data.get("words", {}) or {}
+                if isinstance(loaded, dict):
+                    for word, reading in loaded.items():
+                        surface = str(word).strip()
+                        if is_banned_surface(surface):
+                            continue
+                        if not isinstance(reading, str):
+                            continue
+                        normalized = normalize_reading_kana(reading)
+                        if not is_safe_reading(normalized):
+                            continue
+                        if normalized == surface:
+                            continue
+                        if surface not in FORCE_GLOBAL_SURFACES:
+                            mecab_kana = normalize_reading_kana(get_mecab_reading(surface))
+                            if mecab_kana and (
+                                mecab_kana == normalized or is_trivial_diff(mecab_kana, normalized)
+                            ):
+                                continue
+                        base[surface] = normalized
             except Exception:
                 base = {}
 
@@ -155,6 +202,7 @@ def resolve_readings_strict(
     speaker_id: int,
     channel: Optional[str] = None,
     video: Optional[str] = None,
+    skip_tts_reading: bool = False,
 ) -> Dict[int, List[KanaPatch]]:
     """Strict reading resolver that delegates to auditor (surface-aggregated, max 2 LLM calls).
 
@@ -276,6 +324,12 @@ def resolve_readings_strict(
                 "audit_needed": True,
             }
         )
+
+    if skip_tts_reading:
+        print("[ARBITER] skip_tts_reading=True -> dictionaries/overrides applied; auditor/LLM skipped.")
+        for seg in segments:
+            seg.arbiter_verdict = "dict_only_skip_llm"
+        return {}
 
     # 4. auditor に委譲（surface集約＋最大2コール/40件）
     try:

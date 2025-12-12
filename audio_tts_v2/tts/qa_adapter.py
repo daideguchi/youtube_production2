@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 from typing import Dict
 
-from factory_common.llm_router import get_router
-
 SYSTEM_PROMPT = (
     "You are a QA checker for TTS B-text. Compare a_text and b_text."
     "Return JSON only with issues: list of {index, suggestion, reason}."
@@ -28,6 +26,10 @@ def qa_check(payload: Dict[str, object], model: str | None = None, api_key: str 
         {"role": "user", "content": USER_TEMPLATE.format(payload=json.dumps(payload, ensure_ascii=False))},
     ]
     
+    try:
+        from factory_common.llm_router import get_router  # type: ignore
+    except Exception as e:  # pragma: no cover
+        raise RuntimeError(f"LLM router not available for QA: {e}") from e
     router = get_router()
     try:
         # Use tts_reading task (High Intelligence) for QA

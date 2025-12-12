@@ -6,6 +6,7 @@
 ユーザー要求: 「これらが絶対に守られるようにチェック機能を徹底整備して」
 """
 
+import os
 import sys
 import json
 import argparse
@@ -15,7 +16,19 @@ from PIL import Image
 import re
 
 # CapCut API path
-sys.path.insert(0, "/Users/dd/capcut_api")
+_CANDIDATE_API_PATHS = []
+env_api_root = os.getenv("CAPCUT_API_ROOT")
+if env_api_root:
+    _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
+_CANDIDATE_API_PATHS.extend([
+    Path.home() / "capcut_api",
+    Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
+])
+for _candidate in _CANDIDATE_API_PATHS:
+    if _candidate.exists():
+        path_str = str(_candidate)
+        if path_str not in sys.path:
+            sys.path.insert(0, path_str)
 
 try:
     import pyJianYingDraft as draft
@@ -385,7 +398,7 @@ def main():
   python3 comprehensive_validation.py \\
     --run ./output/auto_20250905_121136 \\
     --draft-dir "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/001_シニアの朗読_画像版" \\
-    --srt-file /Users/dd/projects/srtfile/output/7_台本_final.srt
+    --srt-file "./path/to/script.srt"
         """
     )
     

@@ -5,7 +5,7 @@ CapCut Draft Analyzer
 「シニアの口コミ１_2」ドラフトファイルの完全構造解析
 
 使用方法:
-python tools/analysis/capcut_draft_analyzer.py
+python tools/analysis/capcut_draft_analyzer.py --draft-info "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft-name>/draft_info.json"
 
 機能:
 1. 全レイヤー構造とパラメータ抽出
@@ -17,6 +17,7 @@ python tools/analysis/capcut_draft_analyzer.py
 """
 
 import json
+import argparse
 import pathlib
 from pprint import pprint
 from typing import Dict, List, Any, Optional
@@ -313,11 +314,15 @@ class CapCutDraftAnalyzer:
 
 def main():
     """メイン実行関数"""
+    ap = argparse.ArgumentParser(description="CapCut draft_info.json analyzer")
+    ap.add_argument("--draft-info", required=True, help="Path to draft_info.json")
+    args = ap.parse_args()
+
     print("🔍 CapCut Draft Analyzer - 徹底解析開始")
     print("=" * 60)
 
     # ドラフトファイルパス
-    draft_path = "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/シニアの口コミ１_2/draft_info.json"
+    draft_path = args.draft_info
 
     # 解析器初期化
     analyzer = CapCutDraftAnalyzer(draft_path)

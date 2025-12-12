@@ -3,10 +3,21 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import os
-import dotenv
-import requests
 import sys
 import shutil
+import urllib.request
+
+# requests is optional; fall back to urllib when not installed.
+try:
+    import requests  # type: ignore
+except Exception:
+    requests = None  # type: ignore
+
+# python-dotenv is optional; sitecustomize/with_ytm_env.sh already load .env.
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:
+    load_dotenv = None
 
 # Ensure project root and audio_tts_v2 are in sys.path
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -51,8 +62,19 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 def main() -> None:
-    # Load .env
-    dotenv.load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env", override=True)
+    # Load .env (SSOT at repo root). Use python-dotenv if available, otherwise fallback parse.
+    env_path = Path(__file__).resolve().parents[2] / ".env"
+    if load_dotenv is not None:
+        load_dotenv(dotenv_path=env_path, override=True)
+    else:
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#") or "=" not in stripped:
+                    continue
+                k, v = stripped.split("=", 1)
+                os.environ[k.strip()] = v.strip().strip("\"'")
+    skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
 
     if len(args.video) != 3 or not args.video.isdigit():
@@ -67,13 +89,20 @@ def main() -> None:
     if engine == "voicevox":
         vv_url = cfg.voicevox_url
         try:
-            r = requests.get(f"{vv_url}/speakers", timeout=3)
-            r.raise_for_status()
+            if requests is not None:
+                r = requests.get(f"{vv_url}/speakers", timeout=3)
+                r.raise_for_status()
+            else:
+                with urllib.request.urlopen(f"{vv_url}/speakers", timeout=3) as resp:  # noqa: S310
+                    if resp.status != 200:
+                        raise RuntimeError(resp.status)
         except Exception as e:
             raise SystemExit(f"[ERROR] Voicevox not reachable at {vv_url}: {e}")
 
-    # IO Setup
-    base_dir = Path(__file__).resolve().parents[2]
+    # IO Setup (SSOT paths)
+    from factory_common.paths import repo_root, video_root, audio_final_dir
+
+    base_dir = repo_root()
     if not args.input.exists():
         raise SystemExit(f"[ERROR] Input file not found: {args.input}")
 
@@ -99,8 +128,8 @@ def main() -> None:
         except Exception as e:
             raise SystemExit(f"[ERROR] Failed to sync assembled_human.md -> assembled.md: {e}")
 
-    # Output to script_pipeline/data/...
-    artifact_root = base_dir / "script_pipeline" / "data" / args.channel / args.video / "audio_prep"
+    # Output to script_pipeline/data/... (or workspaces/scripts after Stage2)
+    artifact_root = video_root(args.channel, args.video) / "audio_prep"
 
     def _latest_mtime(path: Path) -> float:
         mtimes = []
@@ -159,12 +188,53 @@ def main() -> None:
             target_indices=[int(i) for i in args.indices.split(",")] if args.indices else None,
             resume=args.resume,
             prepass=args.prepass,
+            skip_tts_reading=skip_tts_reading,
         )
         if args.prepass:
             print(f"[SUCCESS] Prepass completed. Log: {log_path}")
         else:
             print(f"[SUCCESS] Pipeline completed. Output: {out_wav}")
-        
+
+            # --- Final artifacts sync -------------------------------------------------
+            # Regardless of where --out-wav points, always sync latest outputs to
+            # audio_tts_v2/artifacts/final/<CH>/<VIDEO>/ so downstream tools
+            # (CapCut, AutoDraft, UI preview) never pick stale audio/SRT.
+            final_dir = audio_final_dir(args.channel, args.video)
+            final_dir.mkdir(parents=True, exist_ok=True)
+            final_wav = final_dir / f"{args.channel}-{args.video}.wav"
+            final_srt = final_dir / f"{args.channel}-{args.video}.srt"
+            final_log = final_dir / "log.json"
+            try:
+                if out_wav.resolve() != final_wav.resolve():
+                    shutil.copy2(out_wav, final_wav)
+                else:
+                    final_wav = out_wav
+            except Exception as e:
+                raise SystemExit(f"[ERROR] Failed to sync final wav: {e}")
+
+            try:
+                srt_path = out_wav.with_suffix(".srt")
+                if srt_path.exists():
+                    if srt_path.resolve() != final_srt.resolve():
+                        shutil.copy2(srt_path, final_srt)
+                    else:
+                        final_srt = srt_path
+            except Exception as e:
+                raise SystemExit(f"[ERROR] Failed to sync final srt: {e}")
+
+            try:
+                if log_path.exists():
+                    if log_path.resolve() != final_log.resolve():
+                        shutil.copy2(log_path, final_log)
+            except Exception as e:
+                raise SystemExit(f"[ERROR] Failed to sync final log: {e}")
+
+            try:
+                # Keep a_text.txt (authoritative input) alongside final artifacts
+                shutil.copy2(args.input, final_dir / "a_text.txt")
+            except Exception:
+                pass
+
         # Metadata
         from datetime import datetime
         meta_path = artifact_root / "inference_metadata.txt"

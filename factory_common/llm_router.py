@@ -255,15 +255,65 @@ class LLMRouter:
                     logger.warning(f"Failed to load tier candidates override: {e}")
         return tier_models
 
-    def call(self, 
-             task: str, 
-             messages: List[Dict[str, str]], 
-             system_prompt_override: Optional[str] = None,
-             temperature: Optional[float] = None,
-             max_tokens: Optional[int] = None,
-             response_format: Optional[str] = None,
-             **kwargs) -> Any:
-        
+    def call(
+        self,
+        task: str,
+        messages: List[Dict[str, str]],
+        system_prompt_override: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        response_format: Optional[str] = None,
+        **kwargs,
+    ) -> Any:
+        result = self._call_internal(
+            task=task,
+            messages=messages,
+            system_prompt_override=system_prompt_override,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            return_raw=False,
+            **kwargs,
+        )
+        return result["content"]
+
+    def call_with_raw(
+        self,
+        task: str,
+        messages: List[Dict[str, str]],
+        system_prompt_override: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        response_format: Optional[str] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """
+        Like call(), but returns a dict with content, raw response, usage, request_id,
+        model/provider, fallback chain, and latency_ms.
+        """
+        return self._call_internal(
+            task=task,
+            messages=messages,
+            system_prompt_override=system_prompt_override,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            return_raw=True,
+            **kwargs,
+        )
+
+    def _call_internal(
+        self,
+        task: str,
+        messages: List[Dict[str, str]],
+        system_prompt_override: Optional[str],
+        temperature: Optional[float],
+        max_tokens: Optional[int],
+        response_format: Optional[str],
+        return_raw: bool,
+        **kwargs,
+    ) -> Dict[str, Any]:
+
         models = self.get_models_for_task(task)
         if not models:
             raise ValueError(f"No models available for task: {task}")
@@ -278,8 +328,8 @@ class LLMRouter:
         # System Prompt Injection/Override logic (override > task_conf > existing)
         sp_override = system_prompt_override or override_conf.get("system_prompt_override") or task_conf.get("system_prompt_override")
         if sp_override:
-            if messages and messages[0]['role'] == 'system':
-                messages[0]['content'] = sp_override
+            if messages and messages[0]["role"] == "system":
+                messages[0]["content"] = sp_override
             else:
                 messages.insert(0, {"role": "system", "content": sp_override})
 
@@ -305,7 +355,7 @@ class LLMRouter:
 
             provider_name = model_conf.get("provider")
             client = self.clients.get(provider_name)
-            
+
             if not client:
                 logger.debug(f"Client for {provider_name} not ready. Skipping {model_key}")
                 continue
@@ -314,18 +364,23 @@ class LLMRouter:
                 safe_options = sanitize_params(model_conf, base_options)
                 logger.info(f"Router: Invoking {model_key} for {task}...")
                 start = time.time()
-                result = self._invoke_provider(
-                    provider_name, 
-                    client, 
-                    model_conf, 
-                    messages, 
-                    **safe_options
+                raw_result = self._invoke_provider(
+                    provider_name,
+                    client,
+                    model_conf,
+                    messages,
+                    return_raw=True,
+                    **safe_options,
                 )
-                usage = self._extract_usage(result)
-                req_id = _extract_request_id(result)
+                content = self._extract_content(provider_name, model_conf, raw_result)
+                usage = self._extract_usage(raw_result)
+                req_id = _extract_request_id(raw_result)
                 latency_ms = int((time.time() - start) * 1000)
                 chain = tried + [model_key]
-                logger.info(f"Router: {task} succeeded via {model_key} (fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})")
+                logger.info(
+                    f"Router: {task} succeeded via {model_key} "
+                    f"(fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})"
+                )
                 self._log_usage({
                     "status": "success",
                     "task": task,
@@ -337,7 +392,16 @@ class LLMRouter:
                     "request_id": req_id,
                     "timestamp": time.time(),
                 })
-                return result
+                return {
+                    "content": content,
+                    "raw": raw_result if return_raw else None,
+                    "usage": usage,
+                    "request_id": req_id,
+                    "model": model_key,
+                    "provider": provider_name,
+                    "chain": chain,
+                    "latency_ms": latency_ms,
+                }
             except Exception as e:
                 status = _extract_status(e)
                 logger.warning(f"Failed to call {model_key}: {e} (status={status})")
@@ -374,7 +438,7 @@ class LLMRouter:
                     time.sleep(sleep_for)  # short backoff to avoid hammering provider
                     total_wait += sleep_for
                 continue
-        
+
         self._log_usage({
             "status": "fail",
             "task": task,
@@ -386,7 +450,7 @@ class LLMRouter:
         })
         raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
 
-    def _invoke_provider(self, provider, client, model_conf, messages, **kwargs):
+    def _invoke_provider(self, provider, client, model_conf, messages, return_raw: bool = False, **kwargs):
         cap = model_conf.get("capabilities", {})
         mode = cap.get("mode", "chat")
         
@@ -426,13 +490,26 @@ class LLMRouter:
                 messages=messages,
                 **api_args
             )
-            return response.choices[0].message.content
+            return response if return_raw else response.choices[0].message.content
 
         # Gemini Chat (Not implemented fully in config yet for Text, but ready)
         if provider == "gemini":
             # Convert messages to Gemini format
             # This is complex, skipping for now as we don't use Gemini for text in this config
             raise NotImplementedError("Gemini Text not supported yet")
+
+    @staticmethod
+    def _extract_content(provider: str, model_conf: Dict[str, Any], raw_result: Any) -> Any:
+        cap = model_conf.get("capabilities", {}) or {}
+        mode = cap.get("mode", "chat")
+        if mode == "image_generation":
+            return raw_result
+        if provider in ["azure", "openrouter"]:
+            try:
+                return raw_result.choices[0].message.content  # type: ignore[attr-defined]
+            except Exception:
+                pass
+        return raw_result
 
     def _invoke_image_gen(self, provider, client, model_conf, messages, **kwargs):
         if provider == "gemini":

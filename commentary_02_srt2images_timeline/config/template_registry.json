@@ -1,21 +1,5 @@
 {
   "templates": [
-    { "id": "jinsei_warm_gold_blue_strict.txt", "label": "CH01 人生の道標（水彩厳格）", "scope": ["CH01"], "status": "active" },
-    { "id": "watercolor_gold_blue_ch02.txt", "label": "CH02 哲学系（水彩gold/blue）", "scope": ["CH02"], "status": "active" },
-    { "id": "senior_health_reading.txt", "label": "CH03 シニア健康朗読", "scope": ["CH03"], "status": "active" },
-    { "id": "watercolor_gold_blue_strict.txt", "label": "汎用 水彩gold/blue（strict）", "scope": ["CH04", "CH06", "CH07", "CH08", "CH11"], "status": "active" },
-    { "id": "senior_romance_sensual.txt", "label": "CH05 恋愛（センシュアル）", "scope": ["CH05"], "status": "active" },
-    { "id": "philosophy_calm_watercolor_oil.txt", "label": "CH09/CH10 哲学（水彩+油彩）", "scope": ["CH09", "CH10"], "status": "active" },
-    { "id": "dark_library_calm_curiosity.txt", "label": "CH06 ダークライブラリ", "scope": ["CH06"], "status": "active" },
-    { "id": "jinsei_no_michishirube_contextual.txt", "label": "人生の道標（文脈多様版）", "scope": ["manual"], "status": "active" },
-    { "id": "jinsei_no_michishirube_buddhist.txt", "label": "人生の道標（仏教演出）", "scope": ["manual"], "status": "active" },
-    { "id": "jinsei_standard_illustration.txt", "label": "人生の道標（汎用イラスト）", "scope": ["legacy"], "status": "legacy" },
-    { "id": "japanese_visual.txt", "label": "日本人向けビジュアル", "scope": ["manual"], "status": "active" },
-    { "id": "oil_painting_akashic_fantasy.txt", "label": "ファンタジー（油絵アカシック）", "scope": ["manual"], "status": "active" },
-    { "id": "oil_painting_philosophy.txt", "label": "哲学系（油絵）", "scope": ["manual"], "status": "active" },
-    { "id": "senior_romance_jp_consistent.txt", "label": "日本人向け恋愛（一貫性）", "scope": ["manual"], "status": "active" },
-    { "id": "senior_romance_jp_ultra_soft.txt", "label": "日本人向け恋愛（ウルトラソフト）", "scope": ["manual"], "status": "active" },
-    { "id": "jinsei191_masako_strict.txt", "label": "jinsei191 masako strict（アーカイブ）", "scope": ["legacy"], "status": "legacy" },
-    { "id": "jinsei_contextual_variety.txt", "label": "人生の道標（文脈バラエティ）", "scope": ["legacy"], "status": "legacy" }
+    { "id": "dark_library_calm_curiosity.txt", "label": "CH06 ダークライブラリ", "scope": ["CH06"], "status": "active" }
   ]
 }

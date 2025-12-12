@@ -120,16 +120,7 @@ export function AutoDraftPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [channelOptions, presetCapcutTemplate]);
 
-  // Prompt options: CH01は2択に限定、それ以外は一覧
-  const promptOptions = useMemo(() => {
-    if (form.channel === "CH01") {
-      return [
-        { name: "CH01 強め・油彩水彩", path: "templates/jinsei_illustration_strong.txt" },
-        { name: "CH01 標準・水彩", path: "templates/jinsei_standard_illustration.txt" },
-      ];
-    }
-    return promptTemplateOptions;
-  }, [form.channel, promptTemplateOptions]);
+  const promptOptions = useMemo(() => promptTemplateOptions, [promptTemplateOptions]);
 
   const groupedSrts = useMemo(() => {
     const groups: Record<string, AutoDraftSrtItem[]> = {};

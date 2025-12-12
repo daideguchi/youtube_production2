@@ -12,7 +12,7 @@ Safe image swapper for existing CapCut drafts.
   # まず --dry-run（デフォルト）で計画確認
   GEMINI_API_KEY=... python3 tools/safe_image_swap.py \
       --run-dir output/jinsei195_v1 \
-      --draft "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft" \
+      --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft" \
       --indices 4 5 6 \
       --style-mode illustration \
       --custom-prompt "Persona指示をここに"

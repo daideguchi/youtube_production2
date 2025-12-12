@@ -7,8 +7,8 @@ set -e  # Exit on any error
 # Configuration from successful run
 SRT_FILE="/Users/dd/srt2images-timeline/無題動画.srt"
 OUTPUT_DIR="output/無題動画_日本人版"
-TEMPLATE="templates/japanese_visual.txt"
-STYLE="heartwarming senior love story, Japanese aesthetic"
+TEMPLATE="templates/senior_romance_sensual.txt"
+STYLE="realistic yet soft senior romance, cinematic lighting, Japanese aesthetic"
 DRAFT_ROOT="$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft"
 TEMPLATE_NAME="シニア恋愛物語_完璧版"
 NEW_DRAFT_NAME="シニア恋愛物語_日本人版_完璧版"

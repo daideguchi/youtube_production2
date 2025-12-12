@@ -23,6 +23,27 @@ def make_cues(segments: List[Dict], target_imgdur: float = 20.0, fps: int = 30, 
     if not segments:
         return cues
 
+    # Optional: disable LLM context splitting (e.g., quota exhausted) and fall back
+    # to the mechanical splitter. Default behavior remains unchanged unless the
+    # environment variable is set.
+    if os.getenv("SRT2IMAGES_DISABLE_CONTEXT_LLM") == "1":
+        base_seconds = float(target_imgdur)
+        try:
+            from config.channel_resolver import ChannelPresetResolver
+            if (channel_id or "").upper() == "CH01":
+                base_seconds = 12.0
+            elif channel_id:
+                resolver = ChannelPresetResolver()
+                preset = resolver.resolve(channel_id)
+                if preset and preset.config_model and preset.config_model.image_generation:
+                    cfg_period = preset.config_model.image_generation.base_period
+                    if cfg_period > 0:
+                        base_seconds = float(cfg_period)
+        except Exception:
+            pass
+        logging.info("⚙️ LLM context disabled: using mechanical split (target≈%.1fs)", base_seconds)
+        return _make_cues_mechanical_fallback(segments, target_imgdur=base_seconds, fps=fps)
+
     # 🚨 重要：LLM文脈理解システムを使用
     # 機械的20秒分割は廃止され、ストーリーベースの自然な分割を実行
     logging.info("🧠 LLM文脈理解システム使用: 自然なセクション分割を実行")

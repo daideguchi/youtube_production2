@@ -57,7 +57,7 @@ def main():
         "--out", str(OUTPUT_DIR),
         "--channel", "CH01",
         "--engine", "none", # We will do capcut separately
-        "--prompt-template", "templates/jinsei191_masako_strict.txt",
+        "--prompt-template", "templates/jinsei_warm_gold_blue_strict.txt",
         "--style", "Warm Japanese illustration, calm storytelling, gentle lighting, soft colors, strict character consistency for 62-year-old Masako with realistic portrayals",
         "--nanobanana", "direct",
         "--force",

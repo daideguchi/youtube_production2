@@ -1,6 +1,6 @@
 """
 Simple SoT loader/writer for the new script_pipeline.
-Keeps status.json under script_pipeline/data/CHXX/NNN/status.json
+Keeps status.json under DATA_ROOT/CHXX/NNN/status.json
 and does not touch existing pipelines.
 """
 from __future__ import annotations
@@ -10,8 +10,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Any, List
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT / "script_pipeline" / "data"
+from factory_common.paths import script_data_root
+
+DATA_ROOT = script_data_root()
 
 
 @dataclass
@@ -31,7 +32,9 @@ class Status:
 
 
 def status_path(channel: str, video: str) -> Path:
-    return DATA_ROOT / channel / video / "status.json"
+    ch = str(channel).upper()
+    no = str(video).zfill(3)
+    return DATA_ROOT / ch / no / "status.json"
 
 
 def load_status(channel: str, video: str) -> Status:

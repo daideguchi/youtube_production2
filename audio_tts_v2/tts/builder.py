@@ -10,7 +10,12 @@ def _katakana_to_hiragana(text: str) -> str:
     return text.translate(table)
 
 
-def build_b_text(a_text: str, tokens: List[Dict[str, object]], annotations: List[Dict[str, object]]) -> Tuple[str, List[Dict[str, object]]]:
+def build_b_text(
+    a_text: str,
+    tokens: List[Dict[str, object]],
+    annotations: List[Dict[str, object]],
+    ruby_hints: Dict[int, str] | None = None,
+) -> Tuple[str, List[Dict[str, object]]]:
     ann_map = {int(a["index"]): a for a in annotations}
     tokens_sorted = sorted(tokens, key=lambda t: int(t.get("char_start", 0)))
     parts: List[str] = []
@@ -46,6 +51,10 @@ def build_b_text(a_text: str, tokens: List[Dict[str, object]], annotations: List
         ann = ann_map.get(idx, {})
         mode = str(ann.get("write_mode", "original"))
         reading = str(ann.get("llm_reading_kana", "") or tok.get("reading_mecab", "") or surface)
+        # If ruby hints exist, override reading with ruby hint (katakana/hiragana expected)
+        if ruby_hints and idx in ruby_hints:
+            reading = str(ruby_hints[idx])
+            mode = "katakana"
         risk_level = int(ann.get("risk_level", 1) or 1)
         surface_upper = surface.upper()
         is_digit = surface.isdigit()  # 漢数字は別扱い

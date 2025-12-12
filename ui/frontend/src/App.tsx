@@ -1,5 +1,5 @@
-import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./layouts/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ScriptFactoryPage } from "./pages/ScriptFactoryPage";
@@ -21,6 +21,8 @@ import { CapcutSwapPage } from "./pages/CapcutSwapPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
 import LlmUsagePage from "./pages/LlmUsagePage";
+import { ProgressPage } from "./pages/ProgressPage";
+import { DictionaryPage } from "./pages/DictionaryPage";
 
 function App() {
   return (
@@ -37,6 +39,7 @@ function App() {
         <Route path="/channels/:channelCode/videos/:video" element={<ChannelDetailPage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
+        <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
         <Route path="/capcut-edit" element={<CapcutEditPage />} />
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />
@@ -44,6 +47,7 @@ function App() {
         <Route path="/audio-tts-v2" element={<AudioTtsV2Page />} />
         <Route path="/audio-integrity" element={<AudioIntegrityPage />} />
         <Route path="/tts-progress" element={<TtsProgressPage />} />
+        <Route path="/progress" element={<ProgressPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/llm-usage" element={<LlmUsagePage />} />

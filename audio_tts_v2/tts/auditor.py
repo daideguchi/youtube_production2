@@ -7,8 +7,15 @@ from datetime import datetime
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import difflib
 import unicodedata
+LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
 
-from factory_common.llm_router import get_router
+def get_router():  # pragma: no cover
+    """Module-level router accessor for monkeypatching in tests."""
+    try:
+        from factory_common.llm_router import get_router as inner_get_router  # type: ignore
+    except Exception as exc:
+        raise RuntimeError(f"LLM router not available for auditor: {exc}") from exc
+    return inner_get_router()
 
 from .mecab_tokenizer import tokenize_with_mecab
 from .reading_dict import (
@@ -16,6 +23,8 @@ from .reading_dict import (
     export_words_for_word_dict,
     is_banned_surface,
     merge_channel_readings,
+    normalize_reading_kana,
+    is_safe_reading,
 )
 from .risk_utils import (
     collect_risky_candidates,
@@ -337,15 +346,49 @@ def _apply_ruby_overrides(
             {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
         ]
         try:
-            content = router.call(
-                task="tts_reading",
-                messages=messages,
-                max_tokens=4000,
-                timeout=120,
-                response_format="json_object",
-            )
+            call_with_raw = getattr(router, "call_with_raw", None)
+            if callable(call_with_raw):
+                resp = call_with_raw(
+                    task="tts_reading",
+                    messages=messages,
+                    max_tokens=4000,
+                    timeout=120,
+                    response_format="json_object",
+                )
+                content = resp.get("content")
+                meta = {k: resp.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")}
+                # log meta to shared tts log
+                if meta:
+                    try:
+                        LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+                        with LLM_LOG_PATH.open("a", encoding="utf-8") as f:
+                            f.write(json.dumps({"task": "tts_reading", **meta}, ensure_ascii=False) + "\n")
+                        if os.getenv("TTS_LLM_LOG_STDOUT") == "1":
+                            print(
+                                "[LLM_META]",
+                                "task=tts_reading",
+                                f"model={meta.get('model')}",
+                                f"provider={meta.get('provider')}",
+                                f"request_id={meta.get('request_id')}",
+                                f"latency_ms={meta.get('latency_ms')}",
+                                f"usage={meta.get('usage')}",
+                            )
+                    except Exception:
+                        pass
+            else:
+                content = router.call(
+                    task="tts_reading",
+                    messages=messages,
+                    max_tokens=4000,
+                    timeout=120,
+                    response_format="json_object",
+                )
             llm_calls += 1
-            parsed = json.loads(content)
+            try:
+                parsed = json.loads(content)
+            except Exception:
+                print("[WARN] Ruby LLM response empty/invalid; skipping batch")
+                continue
             for item in parsed.get("items", []) or []:
                 surface = item.get("surface") or ""
                 decision = str(item.get("decision") or "").lower()
@@ -928,17 +971,44 @@ def audit_blocks(
             raise RuntimeError(f"[AUDIT_ERROR] Vocab batch failed: {e}") from e
 
     if learned_words:
-        channel_updates = {
-            surface: ReadingEntry(surface=surface, reading_hira=reading, reading_kana=reading, source="llm")
-            for surface, reading in learned_words.items()
+        voicevox_map = {
+            str(req.get("surface")): str(req.get("voicevox_kana") or "")
+            for req in vocab_requests
+            if req.get("surface")
         }
-        save_learning_dict(learned_words)
-        if channel:
-            channel_dict = merge_channel_readings(channel, channel_updates)
-        else:
-            channel_dict = channel_dict or {}
-            for surface, entry in channel_updates.items():
-                channel_dict[surface] = entry.to_dict()
+        filtered_words: Dict[str, str] = {}
+        for surface, reading in learned_words.items():
+            surface_key = str(surface).strip()
+            normalized = normalize_reading_kana(str(reading))
+            if not is_safe_reading(normalized):
+                continue
+            if normalized == surface_key:
+                # no-op override
+                continue
+            vv_kana = voicevox_map.get(surface_key) or ""
+            if vv_kana and is_trivial_diff(normalized, vv_kana):
+                # voicevox already reads it fine (trivial diff)
+                continue
+            filtered_words[surface_key] = normalized
+
+        if filtered_words:
+            channel_updates = {
+                surface: ReadingEntry(
+                    surface=surface,
+                    reading_hira=reading,
+                    reading_kana=reading,
+                    voicevox_kana=voicevox_map.get(surface) or None,
+                    source="llm",
+                )
+                for surface, reading in filtered_words.items()
+            }
+            save_learning_dict(filtered_words)
+            if channel:
+                channel_dict = merge_channel_readings(channel, channel_updates)
+            else:
+                channel_dict = channel_dict or {}
+                for surface, entry in channel_updates.items():
+                    channel_dict[surface] = entry.to_dict()
 
     # Apply resolved readings to all blocks.
     surface_map = export_words_for_word_dict(channel_dict or {})

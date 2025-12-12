@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import List, Dict, Iterable, Optional, Set
 from dataclasses import dataclass
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CHANNELS_DIR = PROJECT_ROOT / "progress" / "channels"
+from factory_common.paths import planning_root
+
+CHANNELS_DIR = planning_root() / "channels"
 
 @dataclass
 class PlanningRow:

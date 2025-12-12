@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional
 
-import yaml
+# yaml is optional; dictionaries are best-effort when missing.
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover
+    yaml = None  # type: ignore
 
 
 READING_DICT_ROOT = Path(__file__).resolve().parents[1] / "data" / "reading_dict"
@@ -19,7 +24,26 @@ AMBIGUOUS_SURFACES = {
     "今年",
     "来年",
     "去年",
+    "一行",
 }
+
+KANJI_RE = re.compile(r"[\u4E00-\u9FFF]")
+_HIRA_TO_KATAKANA = str.maketrans(
+    {chr(h): chr(h + 0x60) for h in range(ord("ぁ"), ord("ゔ") + 1)}
+)
+
+
+def normalize_reading_kana(reading: str) -> str:
+    """Normalize reading into Katakana when possible."""
+    return str(reading or "").strip().translate(_HIRA_TO_KATAKANA)
+
+
+def is_safe_reading(reading: str) -> bool:
+    """Return True when reading does not contain Kanji characters."""
+    reading = normalize_reading_kana(reading)
+    if not reading:
+        return False
+    return KANJI_RE.search(reading) is None
 
 
 def is_banned_surface(surface: str) -> bool:
@@ -36,22 +60,29 @@ class ReadingEntry:
     surface: str
     reading_hira: str
     reading_kana: str
+    voicevox_kana: Optional[str] = None
     accent_moras: Optional[list[str]] = None
     source: str = "manual"
     last_updated: str = ""
 
     def to_dict(self) -> Dict[str, object]:
-        return {
+        payload: Dict[str, object] = {
             "reading_hira": self.reading_hira,
             "reading_kana": self.reading_kana,
             "accent_moras": self.accent_moras,
             "source": self.source,
             "last_updated": self.last_updated,
         }
+        if self.voicevox_kana:
+            payload["voicevox_kana"] = self.voicevox_kana
+        return payload
 
 
 def _load_yaml(path: Path) -> Dict[str, Dict[str, object]]:
     if not path.exists():
+        return {}
+    if yaml is None:
+        # Without PyYAML we cannot parse; treat as empty mapping.
         return {}
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -91,6 +122,8 @@ def save_channel_reading_dict(channel: str, data: Dict[str, Dict[str, object]]) 
     _ensure_root()
     path = READING_DICT_ROOT / f"{channel}.yaml"
     serialized = _filter_entries({str(k): v for k, v in data.items()})
+    if yaml is None:
+        raise RuntimeError("PyYAML is required to save reading_dict.yaml")
     path.write_text(yaml.safe_dump(serialized, allow_unicode=True, sort_keys=True), encoding="utf-8")
 
 
@@ -128,7 +161,12 @@ def export_words_for_word_dict(data: Dict[str, Dict[str, object]]) -> Dict[str, 
             continue
         reading = meta.get("reading_kana") or meta.get("reading_hira")
         if isinstance(reading, str) and reading:
-            out[surface] = reading
+            normalized = normalize_reading_kana(reading)
+            if not is_safe_reading(normalized):
+                continue
+            if normalized == surface:
+                continue
+            out[surface] = normalized
     return out
 
 

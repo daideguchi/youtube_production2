@@ -72,7 +72,13 @@ class VisualBibleGenerator:
         logger.info("Generating new Visual Bible from script...")
         
         # Combine segments for context
-        full_text = "\n".join([f"[{s['index']}] {s['text']}" for s in segments])
+        # parse_srt() returns segments without explicit "index", so fall back to enumeration.
+        full_text = "\n".join(
+            [
+                f"[{s.get('index', i + 1)}] {s.get('text', '')}"
+                for i, s in enumerate(segments)
+            ]
+        )
         # Truncate if too long (approx 20k chars safety limit for context window)
         if len(full_text) > 30000:
             full_text = full_text[:30000] + "...(truncated)"

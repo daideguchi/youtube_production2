@@ -1,0 +1,350 @@
+# OPS_CONFIRMED_PIPELINE_FLOW — 確定処理ロジック / 確定処理フロー（実態SoT）
+
+この文書は「今このリポジトリで実際に動いている処理フロー」と「削除/移動の判定に必要な入出力（I/O）とSoT」を、コード実態とSSOTを突き合わせて確定したもの。  
+リファクタリング/ゴミ判定は **必ず本フローとI/Oを正として行う**。
+
+---
+
+## 0. 用語 / SoT（Single Source of Truth）
+
+### 0.1 SoTの階層
+- **SoT（正本）**: そのフェーズの唯一の真実。以降の全処理はこれを参照する。
+- **Mirror（ミラー）**: SoTをUI/集計用に写したもの。手動編集は原則禁止（手動時は同期ルールに従う）。
+- **Artifacts（生成物）**: 中間/最終成果物。保持/削除ルールは `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` が正本。
+
+### 0.2 ルートの実体（現行）
+- **Planning SoT**: `progress/channels/CHxx.csv`
+  - 企画/タイトル/タグ/リテイクフラグ等の正本。  
+  - `script_pipeline/tools/planning_store.py` が常にこれを都度読み込み。
+- **Script SoT**: `script_pipeline/data/{CH}/{NNN}/status.json`
+  - 台本生成のステージ状態とメタデータ正本。
+  - `script_pipeline/cli.py` / `script_pipeline/runner.py` が更新。
+- **Audio SoT**:
+  - 生成中間: `script_pipeline/data/{CH}/{NNN}/audio_prep/`（strict run_tts の作業領域）
+  - 最終参照正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+    - CapCut/AutoDraft/UI は **必ず final 配下を読む**。
+- **Video SoT（CapCut/画像）**: `commentary_02_srt2images_timeline/output/{run_id}/`
+  - `image_cues.json` / `images/` / `belt_config.json` / `capcut_draft/` 等を含むrun単位の正本。
+- **Remotion SoT（レンダリング/実験ライン）**: `remotion/out/` + run_dir内の remotion関連JSON
+  - コード/UI/preview は存在するが、**現行の本番運用では未使用（将来/研究用）**。CapCut主線の代替候補。
+- **Thumbnail SoT**: `thumbnails/projects.json`
+  - サムネ案の追跡正本。UIはこれを読み書きする。
+- **Publish SoT（Google Sheets）**: `YT_PUBLISH_SHEET`（外部SoT）
+  - ローカル側は参照/反映のみ。  
+  - 実装: `scripts/youtube_publisher/publish_from_sheet.py`
+
+### 0.3 旧名/参照の注意
+- 文書/スクリプト/テストに `commentary_01_srtfile_v2` が残るが、**実体は `script_pipeline` に移行済みでディレクトリは存在しない**。  
+  これらは **Legacy参照** とみなし、リファクタリングで隔離/更新対象。
+
+---
+
+## 1. グローバル確定ルール（全フェーズ共通）
+
+### 1.1 .env / 環境変数ロード
+- 秘密鍵・モデル設定は **リポジトリ直下 `.env` が正本**。  
+- Python起動時: `sitecustomize.py` と各CLIが `.env` を強制ロードする（CWD非依存）。  
+- シェル/Node等: `scripts/with_ytm_env.sh <cmd>` を通して `.env` をexportして実行。
+- 例外的に各パッケージ内 `.env` / `credentials/*` へ複製は禁止（`ssot/OPS_ENV_VARS.md` 参照）。
+
+### 1.2 run_id / run_dir
+- Video/画像/CapCut/Remotion は **run単位で完結**。  
+- run_dirは `commentary_02_srt2images_timeline/output/{run_id}/`。  
+  `{run_id}` は `CHxx-<video>` もしくは `jinsei220` のような人間が判別可能な名前を推奨。
+- run_dirは **次フェーズの正本入力になるため、フローが確定するまで削除禁止**。
+
+### 1.3 ステージ同期
+- Planning CSV と status.json は別SoTだが **連動前提**。
+- 同期ツールは旧名依存が残るため、現状は **人間がCSV更新/ステージリセットを運用で担保**。  
+  ここは `PLAN_REPO_DIRECTORY_REFACTOR.md` の Stage 1–3 で統一予定。
+
+---
+
+## 2. フェーズ別 確定処理フロー / I/O
+
+### Phase A. Planning（企画）
+
+**Entry points**
+- 人間が `progress/channels/CHxx.csv` を更新（ローカル or Google Sheets→CSV反映）。
+- UI `/progress` でCSVを閲覧/編集（UIはCSVを直接読む）。
+
+**Inputs**
+- `progress/channels/CHxx.csv`（正本）
+- `progress/personas/CHxx_PERSONA.md`（人格/トーン）
+- `script_pipeline/config/sources.yaml`（CSV/Persona/Promptの解決表）
+
+**Outputs**
+- 企画行の更新（タイトル/動画番号/タグ/リテイク/ステータス列 等）
+- Scriptフェーズで使用する「最新企画コンテキスト」。
+
+**Downstream dependencies**
+- Script生成はCSVから動画番号/タイトル/タグ等を取り込むため、企画更新後は **必要ならScriptステージをresetして再生成**。
+
+---
+
+### Phase B. Script Pipeline（台本生成）
+
+**Entry points**
+- CLI（正規）:  
+  - `python -m script_pipeline.cli init --channel CHxx --video NNN --title "<title>"`
+  - `python -m script_pipeline.cli run --channel CHxx --video NNN --stage <stage>`
+  - `python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
+- UI（補助）: `/api/script-*` 系（main.py側でrunner呼び出し）
+
+**SoT / Inputs**
+- `script_pipeline/data/{CH}/{NNN}/status.json`（正本）
+- `progress/channels/{CH}.csv`（企画SoT、planning_storeで参照）
+- `progress/personas/{CH}_PERSONA.md`
+- `script_pipeline/channels/*/script_prompt.txt` または `script_pipeline/channels/CHxx_script_prompt.txt`
+- LLM設定:
+  - `factory_common/llm_client.py` が `.env` と `configs/llm.yml` を参照してモデル解決。
+
+**Stages と Outputs（現行 stages.yaml）**
+1. `topic_research`
+   - Outputs:
+     - `content/analysis/research/research_brief.md` (required)
+     - `content/analysis/research/references.json` (required)
+2. `script_outline`
+   - Outputs:
+     - `content/outline.md` (required)
+3. `chapter_brief`
+   - Outputs:
+     - `content/chapters/chapter_briefs.json` (required)
+4. `script_draft`
+   - Outputs:
+     - `content/chapters/chapter_1.md` (required, 以後章数分増える想定)
+5. `script_enhancement`
+   - Outputs: なし（内容改善のみ）
+6. `script_review`
+   - Outputs:
+     - `content/assembled.md` (required)  ※最終Aテキスト
+     - `content/final/cta.txt` (optional)
+     - `content/final/scenes.json` (optional)
+7. `quality_check`
+   - Outputs:
+     - `content/analysis/research/quality_review.md` (required)
+8. `script_validation`
+   - Outputs: なし（最終整合チェック）
+9. `audio_synthesis`（Audioフェーズ呼び出し口）
+   - Outputs（参照先はAudio側で確定）:
+     - `audio_prep/script_sanitized.txt` (required)
+     - `audio_prep/chunks/` (optional)
+     - `../../../audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav` (required)
+     - `../../../audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` (required)
+
+**Downstream dependencies**
+- Audioフェーズは `content/assembled.md` を入力とするため、Script確定後に進む。
+
+---
+
+### Phase C. Audio / TTS（音声・字幕生成）
+
+**Entry points**
+- CLI（正規）:
+  - `PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input script_pipeline/data/CHxx/NNN/content/assembled.md`
+  - `python -m script_pipeline.cli audio --channel CHxx --video NNN`（run_tts wrapper）
+- UI（補助）:
+  - `/api/redo` / `/api/channels/{ch}/videos/{no}/redo`（リテイク管理）
+  - `/api/auto-draft/srt` でSRTをUI修正（final配下のみ許可）
+
+**Inputs**
+- Aテキスト: `script_pipeline/data/{CH}/{NNN}/content/assembled.md`
+  - もし `assembled_human.md` が存在し内容差分があれば、run_tts が自動で `assembled.md` に同期（human版が正本）。
+- LLM Reading Resolution:
+  - `audio_tts_v2/tts/reading_resolver/*` が `factory_common/llm_client.py` 経由でモデル解決。
+- Voiceエンジン:
+  - VOICEVOX / Voicepeak / ElevenLabs を `audio_tts_v2/tts/routing.py` で決定。
+
+**Outputs（確定）**
+- 作業領域（中間正本）: `script_pipeline/data/{CH}/{NNN}/audio_prep/`
+  - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt`, `log.json`, `chunks/` 等
+  - **スクリプトが新しい場合は audio_prep を自動 purge**（run_ttsの確定ルール）
+- 最終参照正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+  - `{CH}-{NNN}.wav`
+  - `{CH}-{NNN}.srt`
+  - `log.json`
+  - `a_text.txt`（入力Aテキストのスナップショット）
+  - run_tts が必ず最新を同期するため、**下流はここだけ読めばよい**。
+
+**CSV更新（運用）**
+- `progress/channels/{CH}.csv` の該当行を手動で更新:
+  - 音声整形/検証/生成/品質の列を `済/完了 YYYY-MM-DD` に更新（`ssot/【消さないで！人間用】確定ロジック` が正本）。
+
+**Downstream dependencies**
+- Video/CapCutは `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` を入力SRTとして使う。
+
+---
+
+### Phase D. Video（SRT→画像→ベルト→CapCutドラフト）
+
+**Entry points**
+- CLI（正規/推奨）:
+  - `python commentary_02_srt2images_timeline/tools/factory.py ...`
+- CLI（詳細制御）:
+  - `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py --channel CHxx --srt <srt> --out output/<run_id> ...`
+- UI:
+  - `/api/auto-draft/*`（SRT選択→ドラフト生成）
+  - `/api/video-production/*`（プロジェクト管理/画像再生成/ベルト編集/設定更新）
+
+**Inputs**
+- SRT正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`
+- チャンネルプリセット:
+  - `commentary_02_srt2images_timeline/config/channel_presets.json`
+  - presetには capcut_template / layout / opening_offset / prompt_template / position / belt が定義。
+- CapCutテンプレ:
+  - `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<template_dir>`
+- 画像生成LLM/モデル:
+  - `commentary_02_srt2images_timeline/src/srt2images/orchestration/pipeline.py` が `SRT2IMAGES_IMAGE_MODEL` を channelで決定。
+
+**内部順序（確定, auto_capcut_run）**
+1. `run_pipeline` 実行（cue生成＋画像生成）
+   - Outputs:
+     - `output/{run_id}/image_cues.json`
+     - `output/{run_id}/images/0001.png ...`
+     - `output/{run_id}/persona.txt` / `channel_preset.json`（存在時）
+     - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
+2. ベルト生成（belt_mode既定=llm）
+   - Outputs:
+     - `output/{run_id}/belt_config.json`（日本語4本が正）
+3. CapCut draft生成
+   - Outputs:
+     - `output/{run_id}/capcut_draft/`（テンプレ複製＋字幕/画像挿入）
+     - `capcut_draft_info.json`
+4. タイトルJSON注入
+   - Outputs:
+     - `auto_run_info.json`（実行メタ/モデル/パラメータ）
+
+**確認ポイント（run_dir完成条件）**
+- `image_cues.json` / `images/` / `belt_config.json` / `capcut_draft/` / `capcut_draft_info.json` / `auto_run_info.json` が揃う。
+
+**Downstream dependencies**
+- **本番主線は CapCut ドラフト → CapCut側で mp4 書き出し**。
+- Remotionラインも同run_dirを入力できるが、現行は実験/未使用扱い。
+- 最終動画のアップロード/公開はPublishフェーズへ。
+
+**After CapCut draft（手動/運用）**
+- CapCutで draft を開き、必要な手動調整・画像差し替え・帯/字幕の目視確認を実施（詳細SOP: `commentary_02_srt2images_timeline/docs/CAPCUT_DRAFT_SOP.md`）。
+- CapCutから最終 mp4 を書き出し（ローカル保存先は任意）。
+- 完成 mp4 を Drive の `uploads/final` フォルダへアップロードし、URLを Publish Sheet の `Drive (final)` 列へ貼付する。
+  - アップロード補助CLI: `python3 scripts/drive_upload_oauth.py --file <mp4>`（フォルダ変更時のみ `--folder <id>`）。
+
+---
+
+### Phase E. Remotion Render（実験/未使用ライン）
+
+> 現行運用ではこのラインは使っていない。次フェーズは CapCut 書き出しが正規。Remotion は将来の自動レンダリング候補として保持。
+
+**Entry points**
+- CLI:
+  - `node remotion/scripts/render.js --run output/<run_id> --channel CHxx --title "<title>" --out remotion/out/<name>.mp4`
+  - `node remotion/scripts/snapshot.js --run output/<run_id> ...`
+
+**Inputs**
+- run_dir:
+  - `output/<run_id>/image_cues.json`
+  - `output/<run_id>/images/`
+  - `output/<run_id>/belt_config.json`（存在時）
+  - `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`（run_dirにコピー済みでない場合はCLI指定が必要）
+- レイアウト:
+  - `commentary_02_srt2images_timeline/config/channel_presets.json` の layout/position/belt
+  - `remotion/preset_layouts.json`（preset欠損時のフォールバック）
+
+**Outputs**
+- `remotion/out/*.mp4`（最終動画）
+- 欠損画像情報:
+  - `output/<run_id>/remotion_missing_images.json`
+  - `output/<run_id>/remotion_missing_images_snapshot.json`
+
+---
+
+### Phase F. Thumbnails（サムネ案生成・レビュー / 独立動線）
+
+> サムネ動線は音声/CapCut/Remotionとは独立に運用する。Planning CSV は表示補助・在庫同期の補助情報にのみ利用。
+
+**Entry points**
+- UI `/thumbnails` タブ（React）  
+- Backend:
+  - `GET/PUT /api/thumbnails/*`
+  - `POST /api/thumbnails/{ch}/{video}/assets`
+
+**Inputs**
+- `thumbnails/projects.json`（正本）
+- `thumbnails/assets/{CH}/{video}/*`（画像実体, UIが配置）
+- 企画CSVのタイトル/タグはUI表示補助に利用（正本はprojects.json）。
+
+**Outputs**
+- `projects.json` の status / variants / selected_variant_id 更新
+- assets配下の画像保存
+
+---
+
+### Phase G. Publish（Drive→YouTube投稿）
+
+**Entry points**
+- `python3 scripts/youtube_publisher/publish_from_sheet.py [--max-rows N] [--run]`
+  - `--run` 無しは dry-run。
+
+**Inputs**
+- 外部SoT:
+  - Google Sheet `YT_PUBLISH_SHEET_ID` / `YT_PUBLISH_SHEET_NAME`
+  - Status == `ready` かつ YouTube Video ID 空の行が対象。
+- Drive(final) URL（シート列 `Drive (final)`）  
+- OAuth:
+  - `configs/drive_oauth_client.json`
+  - `credentials/drive_oauth_token.json`
+  - `credentials/youtube_publisher_token.json`
+
+**Outputs**
+- 一時DL: ローカル `tmp/yt_upload_*.bin`
+- YouTubeアップロード（--run時のみ）
+- Sheet書き戻し:
+  - Status=`uploaded`
+  - YouTube Video ID
+  - UpdatedAt
+
+---
+
+### Phase H. Analytics / Ops（運用・監視）
+
+**Entry points**
+- LLM/音声/画像の利用集計: `scripts/aggregate_llm_usage.py`, `scripts/llm_usage_report.py`
+- SRT整合/品質監査: `scripts/check_all_srt.sh`, `scripts/verify_srt_sync.py`, `scripts/audio_integrity_report.py`
+- 旧/臨時ツール群: `scripts/*`（用途は個別README/ファイルヘッダ参照）
+
+**Outputs**
+- `logs/` / `script_pipeline/data/llm_sessions.jsonl` / `audio_tts_v2/artifacts/final/*/log.json` などへ追記。
+
+---
+
+## 3. リテイク（redo）確定運用
+
+- redoフラグは Planning CSV（正本）で管理し、Script/Audioの再実行対象を決める。
+- デフォルト運用:
+  - `redo_script=true`, `redo_audio=true`（未処理扱い）
+  - 再生成完了後に false へ落とす。
+- API/UI/CLI は `ssot/【消さないで！人間用】確定ロジック` の規約に従う。
+
+---
+
+## 4. Legacy / 旧フローの扱い（ゴミ判定の基準）
+
+### 4.1 Legacyとみなす根拠
+- 実体の無い `commentary_01_srtfile_v2` 参照（tests/, scripts/, docs/に残存）。
+- `_old/`, `50_tools/`, `00_research/` 配下の試作/履歴。
+
+### 4.2 ただし削除禁止のもの
+- 現行コードやUIから参照されるディレクトリ/ファイルは **Legacyでも即削除不可**。
+  - 例: `commentary_02_srt2images_timeline/ui/` は `ui/backend/video_production.py` が参照するため現行依存あり。
+
+### 4.3 確実ゴミの定義（削除許可条件）
+- ① 現行SoTフローのどのフェーズにも入力/参照されない  
+- ② `rg` 等で参照ゼロが確認できる  
+- ③ 人間が「不要」と明示確認  
+→ この3条件が揃ったもののみ「確実ゴミ」として削除/legacy移動する。
+
+---
+
+## 5. 次アクション（本フローを前提にしたリファクタリング）
+
+- `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` の Stage 0–6 をこのSoTに沿って実施。  
+- 最初にやるべきは **Path SSOT（factory_common/paths.py）導入** と旧名参照の逐次消し込み。

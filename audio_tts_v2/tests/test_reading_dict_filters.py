@@ -12,6 +12,7 @@ from audio_tts_v2.tts.reading_dict import is_banned_surface, export_words_for_wo
 def test_is_banned_surface():
     assert is_banned_surface("今日") is True
     assert is_banned_surface("今") is True
+    assert is_banned_surface("一行") is True
     assert is_banned_surface("") is True
     assert is_banned_surface("あ") is True  # 1文字
     assert is_banned_surface("漢字語") is False

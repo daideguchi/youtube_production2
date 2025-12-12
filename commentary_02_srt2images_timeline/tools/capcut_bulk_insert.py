@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import json
 import sys
 import re
@@ -9,6 +10,7 @@ import inspect
 import shutil
 import time
 import random
+import os
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -19,10 +21,15 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # CapCut API path
 # Ensure pyJianYingDraft is importable in local environments
-_CANDIDATE_API_PATHS = [
-    Path("/Users/dd/capcut_api"),
+_CANDIDATE_API_PATHS = []
+# Allow override for local CapCut API checkout
+env_api_root = os.getenv("CAPCUT_API_ROOT")
+if env_api_root:
+    _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
+_CANDIDATE_API_PATHS.extend([
+    Path.home() / "capcut_api",
     Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
-]
+])
 
 for _candidate in _CANDIDATE_API_PATHS:
     if _candidate.exists():
@@ -35,7 +42,6 @@ from pyJianYingDraft import Draft_folder, Track_type, Video_material, Video_segm
 from pyJianYingDraft import Text_style, Text_background, Text_border
 from typing import Optional
 import json as _json2
-import os
 import logging
 import traceback
 from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path
@@ -285,6 +291,52 @@ def parse_srt_file(srt_path: Path):
         })
     
     return subtitles
+
+def _extract_video_id_from_path(path_str: str) -> Optional[str]:
+    """Pick first CHxx-xxx pattern from path-like string."""
+    if not path_str:
+        return None
+    m = re.search(r"(CH\d{2})[-_](\d{3})", path_str)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}"
+    m = re.search(r"CH\d{2}-\d{3}", path_str)
+    return m.group(0) if m else None
+
+
+def _sanitize_filename_component(text: str) -> str:
+    """Remove characters CapCut/macOS dislike inside draft folder names."""
+    if text is None:
+        return ""
+    return re.sub(r'[\\/:*?"<>|]', "_", text.strip())
+
+
+def _load_title_from_channel_csv(channel_id: Optional[str], video_id: Optional[str]) -> Optional[str]:
+    """
+    Lookup タイトル (or タイトル_サニタイズ) from progress/channels/<channel>.csv by 動画ID.
+    """
+    if not channel_id or not video_id:
+        return None
+    base_root = PROJECT_ROOT
+    csv_path = base_root / "progress" / "channels" / f"{channel_id}.csv"
+    if not csv_path.exists():
+        base_root = PROJECT_ROOT.parent
+        csv_path = base_root / "progress" / "channels" / f"{channel_id}.csv"
+        if not csv_path.exists():
+            logger.debug(f"channel CSV not found for auto-name: {csv_path}")
+            return None
+
+    try:
+        with csv_path.open(newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                vid = (row.get("動画ID") or row.get("動画id") or row.get("動画Id") or "").strip()
+                if vid == video_id:
+                    title = (row.get("タイトル_サニタイズ") or row.get("タイトル") or row.get("タイトル（修正済）") or "").strip()
+                    return title or None
+    except Exception as exc:
+        logger.warning(f"Failed to load title from {csv_path}: {exc}")
+        logger.debug(traceback.format_exc())
+    return None
 
 
 def make_absolute_schedule_us(cues, offset_us=0):
@@ -819,6 +871,62 @@ def _dedupe_tracks_and_materials(draft_dir: Path):
         content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
         pass
+
+def _fallback_set_main_belt_title(draft_dir: Path, title: str) -> None:
+    """
+    If belt_config is not provided, set the main belt text to title as a fallback.
+    Operates directly on draft_content.json / draft_info.json without changing timing.
+    """
+    if not title:
+        return
+    try:
+        for fname in ("draft_content.json", "draft_info.json"):
+            path = draft_dir / fname
+            if not path.exists():
+                continue
+            data = _json2.loads(path.read_text(encoding="utf-8"))
+            tracks = data.get("tracks", [])
+            mats = data.get("materials", {}).get("texts", [])
+            # find main belt-like track
+            target_track = None
+            for tr in tracks:
+                if tr.get("type") != "text":
+                    continue
+                name = (tr.get("name") or "").lower()
+                if "belt" in name or "title" in name:
+                    target_track = tr
+                    break
+            if not target_track and tracks:
+                target_track = tracks[0]
+            if not target_track:
+                continue
+            segs = target_track.get("segments") or []
+            if not segs:
+                continue
+            seg = segs[0]
+            mid = seg.get("material_id")
+            if not mid:
+                continue
+            for m in mats:
+                if m.get("id") == mid:
+                    content_obj = m.get("content")
+                    if isinstance(content_obj, str):
+                        try:
+                            content_json = json.loads(content_obj)
+                        except Exception:
+                            content_json = {"text": title}
+                    elif isinstance(content_obj, dict):
+                        content_json = content_obj
+                    else:
+                        content_json = {"text": title}
+                    content_json["text"] = title
+                    m["content"] = json.dumps(content_json, ensure_ascii=False) if isinstance(content_obj, str) else content_json
+                    m["base_content"] = title
+                    m["name"] = m.get("name") or "belt_main_text"
+                    break
+            path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as exc:
+        logger.warning(f"Fallback belt title inject failed: {exc}")
 
 
 def _force_video_scale(draft_dir: Path, scale: float):
@@ -1543,6 +1651,7 @@ def main():
     ap.add_argument("--crossfade", type=float, default=0.5)
     ap.add_argument("--fade-duration", type=float, default=None, help="Fade duration between CapCut image segments (defaults to --crossfade)")
     ap.add_argument("--disable-auto-fade", action="store_true", help="Skip automatic CapCut fade injection")
+    ap.add_argument("--auto-name-from-csv", action="store_true", help="If set, derive draft name from channel CSV title (progress/channels/<channel>.csv)")
     # Position/scale defaults (corrected for exact user coordinates: X=-313, Y=217, Scale=59%)
     ap.add_argument("--tx", type=float, default=-0.3125, help="transform_x (half-canvas units)")
     # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y
@@ -1571,6 +1680,7 @@ def main():
         "ty": ap.get_default("ty"),
         "scale": ap.get_default("scale"),
         "opening_offset": ap.get_default("opening_offset"),
+        "new": ap.get_default("new"),
     }
     detected_channel = args.channel
     if not detected_channel:
@@ -1611,7 +1721,33 @@ def main():
 
     if preset:
         logger.info(f"Using Channel Preset: {preset.name} ({preset.channel_id})")
-    
+        if not channel_id:
+            channel_id = preset.channel_id
+
+    # ----------------------------------------
+    # Auto draft naming from channel CSV
+    # ----------------------------------------
+    video_id = _extract_video_id_from_path(args.srt_file or "")
+    if not video_id:
+        video_id = _extract_video_id_from_path(str(args.run))
+
+    auto_name_requested = args.auto_name_from_csv or args.new == parser_defaults["new"]
+    if auto_name_requested:
+        if not video_id:
+            logger.warning("Auto-name requested but video_id could not be derived from --srt-file/--run")
+        else:
+            title_from_csv = _load_title_from_channel_csv(channel_id, video_id)
+            base_name = f"★{video_id}"
+            if title_from_csv:
+                base_name = f"{base_name}-{title_from_csv}"
+            auto_new = _sanitize_filename_component(base_name)
+
+            if not args.new or args.new == parser_defaults["new"]:
+                args.new = auto_new
+                logger.info(f"🆕 Auto draft name applied: {args.new}")
+            else:
+                logger.info(f"🆕 Auto draft name suggestion: {auto_new} (kept user-specified --new='{args.new}')")
+
     # 3. Resolve Video Style & Create Adapter
     style_resolver = StyleResolver()
     # Use ID from preset, or fallback to preset's embedded style
@@ -1686,6 +1822,10 @@ def main():
     draft_dir = Path(args.draft_root) / args.new
     assets_dir = draft_dir / 'assets' / 'image'
     assets_dir.mkdir(parents=True, exist_ok=True)
+
+    # If no belt_config is provided, set belt text to title as a fallback
+    if not args.belt_config and args.title:
+        _fallback_set_main_belt_title(draft_dir, args.title)
 
     # Shift existing template segments to honor opening_offset (e.g., CH01 first 3s blank)
     if opening_offset_us > 0:
@@ -2084,11 +2224,16 @@ def main():
     fade_target = args.fade_duration if args.fade_duration is not None else args.crossfade
     if not getattr(args, "disable_auto_fade", False):
         try:
-            applied = apply_auto_fade_transitions(draft_dir, track_name, float(fade_target or 0.0))
+            fade_val = float(fade_target or 0.0)
+            applied = apply_auto_fade_transitions(draft_dir, track_name, fade_val)
             if applied == 0:
-                logger.info("Auto-fade: no transitions added (track=%s, fade=%.2fs)", track_name, float(fade_target or 0.0))
+                logger.error("❌ Auto-fade (%.2fs) could not be applied. Helper missing or track empty.", fade_val)
+                sys.exit(1)
+            else:
+                logger.info("✅ Auto-fade transitions applied: %d (%.2fs)", applied, fade_val)
         except Exception as exc:
-            logger.warning(f"Auto-fade injection failed: {exc}")
+            logger.error(f"Auto-fade injection failed: {exc}")
+            sys.exit(1)
 
     _merge_info_tracks_into_content(draft_dir)
     print(f"Inserted {len(cues)} images into draft: {args.new}\nLocation: {args.draft_root}/{args.new}")

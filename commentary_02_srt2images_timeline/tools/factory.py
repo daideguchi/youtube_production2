@@ -24,6 +24,8 @@ from pathlib import Path
 from typing import Optional, List
 import os
 import glob
+import re
+import json
 
 # Define PROJECT_ROOT before using it
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -66,7 +68,29 @@ def run_command(cmd: List[str], cwd: Path = PROJECT_ROOT, check: bool = True, ab
         proc.terminate()
         return 1
 
-def find_latest_run_dir(video_id: str, output_dir: Path) -> Optional[Path]:
+def canonical_video_id(channel: str, stem: str) -> str:
+    """
+    Build a canonical video ID that is safe across channels.
+    Examples:
+      - stem="CH02-015" -> "CH02-015"
+      - stem="220" with channel="CH01" -> "CH01-220"
+      - stem="CH01_人生の道標_220" -> "CH01-220"
+    """
+    raw = (stem or "").strip()
+    ch = (channel or "").strip().upper()
+
+    m = re.search(r"(CH\d{2})[-_ ]?(\d{3})", raw, flags=re.IGNORECASE)
+    if m:
+        return f"{m.group(1).upper()}-{m.group(2)}"
+    if re.fullmatch(r"\d{1,3}", raw):
+        return f"{ch}-{raw.zfill(3)}"
+    m2 = re.search(r"(\d{3})", raw)
+    if m2:
+        return f"{ch}-{m2.group(1)}"
+    return f"{ch}-{raw}" if ch else raw
+
+
+def find_latest_run_dir(video_id: str, output_dir: Path, *, channel: Optional[str] = None, fallback_ids: Optional[List[str]] = None) -> Optional[Path]:
     """
     Find the latest valid run directory for a given video ID.
     A valid run directory must contain image_cues.json to be considered valid.
@@ -78,13 +102,25 @@ def find_latest_run_dir(video_id: str, output_dir: Path) -> Optional[Path]:
     Returns:
         Path to the latest valid run directory or None if not found
     """
-    # Find all directories matching the video ID pattern
-    pattern = str(output_dir / f"{video_id}_*")
-    candidates = []
+    patterns = [video_id] + [x for x in (fallback_ids or []) if x and x != video_id]
+    candidates: List[Path] = []
 
-    for path in glob.glob(pattern):
-        run_path = Path(path)
-        if run_path.is_dir() and (run_path / "image_cues.json").exists():
+    for vid in patterns:
+        pattern = str(output_dir / f"{vid}_*")
+        for path in glob.glob(pattern):
+            run_path = Path(path)
+            if not (run_path.is_dir() and (run_path / "image_cues.json").exists()):
+                continue
+            if channel:
+                info_path = run_path / "auto_run_info.json"
+                if info_path.exists():
+                    try:
+                        info = json.loads(info_path.read_text(encoding="utf-8"))
+                        if (info.get("channel") or "").upper() != channel.upper():
+                            continue
+                    except Exception:
+                        # If metadata is broken, fall back to name-based filter.
+                        pass
             candidates.append(run_path)
 
     if not candidates:
@@ -121,8 +157,25 @@ def main():
         logger.error(f"❌ SRT file not found: {srt_path}")
         sys.exit(1)
 
-    # Extract video ID from the SRT filename (without extension)
-    video_id = srt_path.stem  # e.g., "CH02-015" from "CH02-015.srt"
+    # Safety: prevent cross-channel wiring.
+    name_match = re.search(r"(CH\d{2})", srt_path.name, flags=re.IGNORECASE)
+    if name_match and name_match.group(1).upper() != args.channel.upper():
+        logger.error(f"❌ channel mismatch: srt={srt_path.name} implies {name_match.group(1).upper()} but channel={args.channel}")
+        sys.exit(1)
+    final_root = PROJECT_ROOT.parent / "audio_tts_v2" / "artifacts" / "final"
+    try:
+        rel_parts = srt_path.relative_to(final_root).parts
+        if rel_parts:
+            dir_ch = rel_parts[0][:4].upper()
+            if dir_ch.startswith("CH") and dir_ch[2:4].isdigit() and dir_ch != args.channel.upper():
+                logger.error(f"❌ channel mismatch: srt under {dir_ch} but channel={args.channel}")
+                sys.exit(1)
+    except Exception:
+        pass
+
+    # Extract and normalize video ID from the SRT filename (without extension)
+    raw_video_id = srt_path.stem  # e.g., "CH02-015" or "220"
+    video_id = canonical_video_id(args.channel, raw_video_id)
 
     # Define the output directory
     output_dir = PROJECT_ROOT / "output"
@@ -191,7 +244,12 @@ def main():
         logger.info(f"⏩ Draft regeneration for {video_id}: Looking for latest run_dir...")
 
         # Find the latest run directory with image_cues.json
-        latest_run_dir = find_latest_run_dir(video_id, output_dir)
+        latest_run_dir = find_latest_run_dir(
+            video_id,
+            output_dir,
+            channel=args.channel,
+            fallback_ids=[raw_video_id],
+        )
         if latest_run_dir:
             logger.info(f"📁 Using run_dir: {latest_run_dir.name}")
 
@@ -240,7 +298,12 @@ def main():
             sys.exit(ret_code)
 
         # Find the latest run directory to get the run_dir for belt generation
-        latest_run_dir = find_latest_run_dir(video_id, output_dir)
+        latest_run_dir = find_latest_run_dir(
+            video_id,
+            output_dir,
+            channel=args.channel,
+            fallback_ids=[raw_video_id],
+        )
         if latest_run_dir:
             logger.info(f"📁 Processing belt config in run_dir: {latest_run_dir.name}")
             # Run auto_capcut_run to generate belts (but not draft)

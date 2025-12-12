@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import time
 import uuid
@@ -12,16 +13,23 @@ from fastapi import APIRouter, HTTPException, Query, Body
 from fastapi.responses import FileResponse
 from PIL import Image
 
+from factory_common.paths import logs_root, repo_root as ssot_repo_root, video_pkg_root, video_runs_root
+
 router = APIRouter(prefix="/api/swap", tags=["swap"])
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SAFE_SWAP = PROJECT_ROOT / "commentary_02_srt2images_timeline" / "tools" / "safe_image_swap.py"
-LOG_DIR = PROJECT_ROOT / "logs" / "swap"
+PROJECT_ROOT = ssot_repo_root()
+SAFE_SWAP = video_pkg_root() / "tools" / "safe_image_swap.py"
+LOG_DIR = logs_root() / "swap"
 HISTORY_ROOT = LOG_DIR / "history"
-WHITELIST_PATH = PROJECT_ROOT / "commentary_02_srt2images_timeline" / "config" / "track_whitelist.json"
+WHITELIST_PATH = video_pkg_root() / "config" / "track_whitelist.json"
 IMAGE_ASSET_SUBDIR = "assets/image"
-CAPCUT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
-OUTPUT_ROOT = PROJECT_ROOT / "commentary_02_srt2images_timeline" / "output"
+_env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
+CAPCUT_ROOT = (
+    Path(_env_capcut_root).expanduser()
+    if _env_capcut_root
+    else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+)
+OUTPUT_ROOT = video_runs_root()
 IMAGE_CUES_NAME = "image_cues.json"
 PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"
 PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"
@@ -124,7 +132,7 @@ def swap_images(
     try:
         proc = subprocess.run(
             cmd,
-            cwd=str(PROJECT_ROOT / "commentary_02_srt2images_timeline"),
+            cwd=str(video_pkg_root()),
             capture_output=True,
             text=True,
             timeout=1800,
@@ -213,7 +221,7 @@ def list_drafts(limit: int = Query(default=200, ge=1, le=500)) -> Dict[str, Any]
 
 @router.get("/run-dirs")
 def list_run_dirs(limit: int = Query(default=200, ge=1, le=500)) -> Dict[str, Any]:
-    """List output run directories under commentary_02_srt2images_timeline/output."""
+    """List output run directories under the video runs root."""
     _ensure_paths()
     if not OUTPUT_ROOT.exists():
         return {"items": []}

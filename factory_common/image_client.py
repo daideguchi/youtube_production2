@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import base64
+import json
 import logging
 import os
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+import time
 
 import google.genai as genai
 from google.genai import types as genai_types
@@ -60,6 +64,7 @@ class ImageClient:
         self._config = config_data or self._load_config()
 
     def generate(self, options: ImageTaskOptions) -> ImageResult:
+        started_at = time.perf_counter()
         task_conf = self._config.get("tasks", {}).get(options.task)
         if not task_conf:
             raise ImageGenerationError(
@@ -75,7 +80,7 @@ class ImageClient:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
         errors: List[Tuple[str, Exception]] = []
-        for model_key in candidates:
+        for attempt_idx, model_key in enumerate(self._rotate_candidates(tier_name, candidates)):
             model_conf = self._config.get("models", {}).get(model_key)
             if not model_conf:
                 errors.append((model_key, ImageGenerationError(f"Model '{model_key}' not found")))
@@ -83,14 +88,53 @@ class ImageClient:
 
             capabilities = model_conf.get("capabilities", {})
             resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
-            try:
-                adapter = self._get_adapter(model_key, model_conf)
-                return adapter.generate(model_conf, resolved)
-            except Exception as exc:  # noqa: BLE001
-                errors.append((model_key, exc))
-                logging.warning("ImageClient: %s failed for %s (%s)", model_key, options.task, exc)
-                continue
+            max_attempts = int(task_conf.get("retries_per_model", 1)) + 1
+            for sub_attempt in range(max_attempts):
+                try:
+                    adapter = self._get_adapter(model_key, model_conf)
+                    result = adapter.generate(model_conf, resolved)
+                    duration_ms = int((time.perf_counter() - started_at) * 1000)
+                    # round-robin: next call starts after the successful model
+                    self._persist_round_robin_index(tier_name, model_key, candidates)
+                    self._log_usage(
+                        success=True,
+                        task=options.task,
+                        tier=tier_name,
+                        model_key=model_key,
+                        provider=model_conf.get("provider"),
+                        request_id=result.request_id,
+                        duration_ms=duration_ms,
+                        prompt_hash=self._hash_prompt(options.prompt),
+                        attempt=attempt_idx + 1,
+                    )
+                    return result
+                except Exception as exc:  # noqa: BLE001
+                    errors.append((model_key, exc))
+                    logging.warning(
+                        "ImageClient: %s failed for %s (attempt %d/%d, %s)",
+                        model_key,
+                        options.task,
+                        sub_attempt + 1,
+                        max_attempts,
+                        exc,
+                    )
+                    # last attempt for this model: break to next candidate
+                    if sub_attempt + 1 >= max_attempts:
+                        break
+                    time.sleep(0.25)
 
+        duration_ms = int((time.perf_counter() - started_at) * 1000)
+        self._log_usage(
+            success=False,
+            task=options.task,
+            tier=tier_name,
+            model_key=None,
+            provider=None,
+            request_id=None,
+            duration_ms=duration_ms,
+            prompt_hash=self._hash_prompt(options.prompt),
+            errors=[{"model": k, "error": str(e)} for k, e in errors],
+        )
         raise ImageGenerationError(
             f"All image models failed for task '{options.task}': "
             + "; ".join([f"{k}: {e}" for k, e in errors])
@@ -165,6 +209,89 @@ class ImageClient:
             return GeminiImageAdapter(self._config.get("providers", {}))
 
         raise ImageGenerationError(f"Unsupported image provider: {provider}")
+
+    @staticmethod
+    def _hash_prompt(prompt: str) -> str:
+        """Hash prompt to avoid logging raw text."""
+        return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+
+    def _log_usage(
+        self,
+        *,
+        success: bool,
+            task: str,
+            tier: str,
+            model_key: Optional[str],
+            provider: Optional[str],
+            request_id: Optional[str],
+            duration_ms: int,
+            prompt_hash: str,
+            errors: Optional[List[Dict[str, str]]] = None,
+            attempt: Optional[int] = None,
+        ) -> None:
+        log_path_env = os.getenv("IMAGE_CLIENT_USAGE_LOG", "").strip()
+        log_path = Path(log_path_env) if log_path_env else Path(__file__).resolve().parents[1] / "logs" / "image_usage.log"
+        try:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "success": success,
+                "task": task,
+                "tier": tier,
+                "model": model_key,
+                "provider": provider,
+                "request_id": request_id,
+                "duration_ms": duration_ms,
+                "prompt_sha256": prompt_hash,
+            }
+            if attempt is not None:
+                payload["attempt"] = attempt
+            if errors:
+                payload["errors"] = errors
+            with log_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        except Exception as exc:  # pragma: no cover - logging must not break generation
+            logging.debug("ImageClient: failed to write usage log (%s)", exc)
+
+    # ---- round-robin helpers -------------------------------------------------
+    @property
+    def _rr_state_path(self) -> Path:
+        return Path(__file__).resolve().parents[1] / "logs" / "image_rr_state.json"
+
+    def _rotate_candidates(self, tier_name: str, candidates: List[str]) -> List[str]:
+        """
+        Round-robin starting point per tier to avoid pinning to the first model.
+        Falls back to the original order if state cannot be read.
+        """
+        if not candidates:
+            return candidates
+        try:
+            state = {}
+            if self._rr_state_path.exists():
+                state = json.loads(self._rr_state_path.read_text(encoding="utf-8") or "{}")
+            idx = int(state.get(tier_name, 0)) % len(candidates)
+            return candidates[idx:] + candidates[:idx]
+        except Exception:
+            return candidates
+
+    def _persist_round_robin_index(self, tier_name: str, model_key: str, candidates: List[str]) -> None:
+        """
+        After a success, advance the starting index so the next call tries the following model.
+        """
+        if not candidates:
+            return
+        try:
+            self._rr_state_path.parent.mkdir(parents=True, exist_ok=True)
+            state = {}
+            if self._rr_state_path.exists():
+                state = json.loads(self._rr_state_path.read_text(encoding="utf-8") or "{}")
+            if model_key in candidates:
+                next_idx = (candidates.index(model_key) + 1) % len(candidates)
+                state[tier_name] = next_idx
+                self._rr_state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            # state persistence failures must not break generation
+            logging.debug("ImageClient: failed to persist RR state", exc_info=True)
 
 
 class GeminiImageAdapter:

@@ -40,7 +40,6 @@ export const AudioIntegrityPage: React.FC = () => {
   const [kb, setKb] = useState<KBData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showKB, setShowKB] = useState(false);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
 
   const fetchData = useCallback(async () => {
@@ -86,16 +85,6 @@ export const AudioIntegrityPage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  const handleDeleteKB = async (key: string) => {
-    if (!window.confirm(`「${key}」の登録を削除しますか？`)) return;
-    try {
-      await fetch(`${API_BASE}/kb/${encodeURIComponent(key)}`, { method: "DELETE" });
-      fetchData(); 
-    } catch (e) {
-      alert("削除に失敗しました");
-    }
-  };
 
   const getVerdictLabel = (verdict: string) => {
     if (verdict === "match_kanji") return "一致 (漢字)";
@@ -147,31 +136,12 @@ export const AudioIntegrityPage: React.FC = () => {
           )}
         </div>
         
-        <h3>単語辞書 (GKB) - {kb && kb.words ? Object.keys(kb.words).length : 0}件</h3>
-        <button onClick={fetchData} style={{ padding: "5px 10px", cursor: "pointer" }}>辞書更新</button>
-        
-        {kb && kb.words && (
-          <table style={{ width: "100%", marginTop: "20px", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ textAlign: "left", backgroundColor: "#f5f5f5" }}>
-                <th style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>単語</th>
-                <th style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>読み (カナ)</th>
-                <th style={{ padding: "8px", borderBottom: "1px solid #ddd", width: "100px" }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(kb.words).map(([word, reading]) => (
-                <tr key={word}>
-                  <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{word}</td>
-                  <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{reading}</td>
-                  <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>
-                    <button onClick={() => handleDeleteKB(word)} style={{ color: "red", border: "none", background: "none", cursor: "pointer" }}>削除</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <div style={{ padding: "12px", backgroundColor: "#f3f4f6", borderRadius: "6px", marginTop: "20px" }}>
+          <h3 style={{ marginTop: 0 }}>読み辞書 - {kb && kb.words ? Object.keys(kb.words).length : 0}件</h3>
+          <p style={{ marginBottom: 0 }}>
+            辞書の確認・追加・削除は <a href="/dictionary">辞書ページ</a> で行ってください。
+          </p>
+        </div>
       </div>
     );
   }
@@ -259,39 +229,11 @@ export const AudioIntegrityPage: React.FC = () => {
         </div>
       )}
 
-      <div style={{ border: "1px solid #ddd", borderRadius: "8px", overflow: "hidden" }}>
-        <div 
-          onClick={() => setShowKB(!showKB)} 
-          style={{ padding: "10px 15px", backgroundColor: "#f5f5f5", cursor: "pointer", fontWeight: "bold", display: "flex", justifyContent: "space-between" }}
-        >
-          単語辞書 (GKB) - {kb && kb.words ? Object.keys(kb.words).length : 0}件
-          <span>{showKB ? "▲" : "▼"}</span>
+      <div style={{ padding: "12px", backgroundColor: "#f3f4f6", borderRadius: "6px" }}>
+        <strong>読み辞書</strong> - {kb && kb.words ? Object.keys(kb.words).length : 0}件
+        <div style={{ marginTop: "6px" }}>
+          辞書の確認・追加・削除は <a href="/dictionary">辞書ページ</a> で行ってください。
         </div>
-        
-        {showKB && kb && kb.words && (
-          <div style={{ maxHeight: "400px", overflowY: "auto", padding: "0" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-              <thead>
-                <tr style={{ textAlign: "left", backgroundColor: "#fafafa" }}>
-                  <th style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>単語</th>
-                  <th style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>読み (カナ)</th>
-                  <th style={{ padding: "8px", borderBottom: "1px solid #ddd", width: "100px" }}>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(kb.words).map(([word, reading]) => (
-                  <tr key={word} style={{ borderBottom: "1px solid #eee" }}>
-                    <td style={{ padding: "8px" }}>{word}</td>
-                    <td style={{ padding: "8px" }}>{reading}</td>
-                    <td style={{ padding: "8px" }}>
-                      <button onClick={() => handleDeleteKB(word)} style={{ color: "red", border: "none", background: "none", cursor: "pointer" }}>削除</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </div>
   );

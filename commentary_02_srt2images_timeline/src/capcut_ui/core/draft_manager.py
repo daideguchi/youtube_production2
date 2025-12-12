@@ -3,6 +3,7 @@
 CapCut Draft Manager
 CapCutドラフトの読み込み・保存・バックアップを安全に管理する中核モジュール
 """
+import os
 import json
 import shutil
 from pathlib import Path
@@ -265,7 +266,10 @@ class DraftManager:
 # 使用例とテスト用の関数
 def test_draft_manager():
     """DraftManagerのテスト関数"""
-    draft_path = "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/001_人生の道標_177_スピリチュアル版"
+    draft_path = os.getenv("CAPCUT_DRAFT_PATH")
+    if not draft_path:
+        print("ℹ️ Set CAPCUT_DRAFT_PATH to a CapCut draft directory (or draft_info.json) to run this test.")
+        return
 
     # DraftManager初期化
     manager = DraftManager(draft_path)

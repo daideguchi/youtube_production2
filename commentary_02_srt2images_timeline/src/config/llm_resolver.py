@@ -3,13 +3,13 @@ from __future__ import annotations
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 import yaml
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]  # /Users/dd/10_YouTube_Automation/factory_commentary
+PROJECT_ROOT = Path(__file__).resolve().parents[3]  # repo root
 # Prefer top-level configs/llm.yml (repo root), fallback to module-local configs (commentary_02_srt2images_timeline/configs)
 LLM_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm.yml"
 LLM_CONFIG_FALLBACK = Path(__file__).resolve().parents[1] / "configs" / "llm.yml"

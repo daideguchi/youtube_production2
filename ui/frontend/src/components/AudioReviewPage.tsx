@@ -6,10 +6,12 @@ import {
   fetchChannels,
   runAudioTtsV2,
   fetchAText,
+  updateVideoRedo,
 } from "../api/client";
 import type { AudioReviewItem, ChannelSummary } from "../api/types";
 import { translateStatus } from "../utils/i18n";
 import { BatchTtsProgressPanel } from "./BatchTtsProgressPanel";
+import { RedoBadge } from "./RedoBadge";
 
 function formatDuration(seconds?: number | null): string {
   if (seconds == null || Number.isNaN(seconds)) {
@@ -23,6 +25,16 @@ function formatDuration(seconds?: number | null): string {
   }
   return `${minutes}分 ${remain.toFixed(remain % 1 === 0 ? 0 : 1)}秒`;
 }
+
+const toBool = (v: any, fallback = true) => {
+  if (v === true || v === false) return v;
+  if (typeof v === "string") {
+    const s = v.toLowerCase();
+    if (["true", "1", "yes", "y", "ok", "redo"].includes(s)) return true;
+    if (["false", "0", "no", "n"].includes(s)) return false;
+  }
+  return fallback;
+};
 
 function formatDateTime(value?: string | null): string {
   if (!value) {
@@ -168,6 +180,7 @@ export function AudioReviewPage() {
   const [showManualOnly, setShowManualOnly] = useState(false);
   const [showQualityAttentionOnly, setShowQualityAttentionOnly] = useState(false);
   const [showSubtitlePendingOnly, setShowSubtitlePendingOnly] = useState(false);
+  const [showRedoOnly, setShowRedoOnly] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [autoplayNext, setAutoplayNext] = useState(true);
   const [currentItemKey, setCurrentItemKey] = useState<string | null>(null);
@@ -235,6 +248,22 @@ export function AudioReviewPage() {
     if (showSubtitlePendingOnly) {
       data = data.filter((item) => item.subtitle_stage !== "completed");
     }
+    if (showRedoOnly) {
+      const toBool = (v: any, fallback = true) => {
+        if (v === true || v === false) return v;
+        if (typeof v === "string") {
+          const s = v.toLowerCase();
+          if (["true", "1", "yes", "y", "ok", "redo"].includes(s)) return true;
+          if (["false", "0", "no", "n"].includes(s)) return false;
+        }
+        return fallback;
+      };
+      data = data.filter((item) => {
+        const redoAudio = (item as any)["redo_audio"];
+        const redoScript = (item as any)["redo_script"];
+        return toBool(redoAudio, true) || toBool(redoScript, true);
+      });
+    }
     const sorted = [...data];
     sorted.sort((a, b) => {
       if (sortKey === "recent") {
@@ -250,7 +279,7 @@ export function AudioReviewPage() {
       return aDuration - bDuration;
     });
     return sorted;
-  }, [items, normalizedKeyword, showManualOnly, showQualityAttentionOnly, showSubtitlePendingOnly, sortKey]);
+  }, [items, normalizedKeyword, showManualOnly, showQualityAttentionOnly, showSubtitlePendingOnly, showRedoOnly, sortKey]);
 
   const processedKeys = useMemo(() => processedItems.map((item) => `${item.channel}-${item.video}`), [processedItems]);
 
@@ -423,7 +452,11 @@ export function AudioReviewPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <header className="modal__header">
               <h3>{logModalTitle || "ログ"}</h3>
-              <button className="workspace-button workspace-button--ghost" onClick={() => setLogModalOpen(false)}>
+              <button
+                className="workspace-button workspace-button--ghost"
+                style={{ background: "#0f172a", color: "#fff", borderColor: "#0f172a" }}
+                onClick={() => setLogModalOpen(false)}
+              >
                 閉じる
               </button>
             </header>
@@ -440,7 +473,11 @@ export function AudioReviewPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <header className="modal__header">
               <h3>{aTextModalTitle || "Aテキスト"}</h3>
-              <button className="workspace-button workspace-button--ghost" onClick={() => setATextModalOpen(false)}>
+              <button
+                className="workspace-button workspace-button--ghost"
+                style={{ background: "#0f172a", color: "#fff", borderColor: "#0f172a" }}
+                onClick={() => setATextModalOpen(false)}
+              >
                 閉じる
               </button>
             </header>
@@ -525,8 +562,17 @@ export function AudioReviewPage() {
             checked={showSubtitlePendingOnly}
             onChange={(event) => setShowSubtitlePendingOnly(event.target.checked)}
           />
-          <span>字幕未完のみ</span>
-        </label>
+            <span>字幕未完のみ</span>
+          </label>
+
+          <label className="audio-review__field audio-review__field--checkbox">
+            <input
+              type="checkbox"
+              checked={showRedoOnly}
+              onChange={(event) => setShowRedoOnly(event.target.checked)}
+            />
+            <span>リテイクのみ</span>
+          </label>
 
         {itemsLoading ? <span className="status-chip">読み込み中…</span> : null}
         {itemsError ? <span className="status-chip status-chip--danger">{itemsError}</span> : null}
@@ -595,6 +641,9 @@ export function AudioReviewPage() {
           const logSrc = resolveAudioSrc(item.audio_log_url ?? undefined);
           const finalWav = resolveAudioSrc(`/api/channels/${item.channel}/videos/${item.video}/audio`);
           const finalSrt = resolveAudioSrc(`/api/channels/${item.channel}/videos/${item.video}/srt`);
+          const redoAudio = toBool((item as any)["redo_audio"], true);
+          const redoScript = toBool((item as any)["redo_script"], true);
+          const redoNote = (item as any)["redo_note"] || "";
           const metaLines: string[] = [];
           if (item.audio_engine) metaLines.push(`engine: ${item.audio_engine}`);
           if (item.audio_duration_seconds != null) metaLines.push(formatDuration(item.audio_duration_seconds));
@@ -631,6 +680,8 @@ export function AudioReviewPage() {
             <article
               key={key}
               className={`audio-card${isActive ? " audio-card--active" : ""}`}
+              data-redo={redoAudio || redoScript ? "1" : "0"}
+              style={redoAudio || redoScript ? { borderColor: "#f97316", boxShadow: "0 0 0 2px rgba(249,115,22,0.15)" } : undefined}
               role="button"
               tabIndex={0}
               onClick={handleNavigateToDetail}
@@ -648,11 +699,17 @@ export function AudioReviewPage() {
                 </span>
               </div>
               <header className="audio-card__header">
-                <div className="audio-card__identity">
-                  <span className="audio-card__chip audio-card__chip--code">{item.channel}-{item.video}</span>
-                  {item.channel_title ? (
-                    <span className="audio-card__chip audio-card__chip--channel">{item.channel_title}</span>
-                  ) : null}
+               <div className="audio-card__identity">
+                 <span className="audio-card__chip audio-card__chip--code">{item.channel}-{item.video}</span>
+                {item.channel_title ? (
+                  <span className="audio-card__chip audio-card__chip--channel">{item.channel_title}</span>
+                ) : null}
+                {redoAudio || redoScript ? (
+                  <RedoBadge
+                    label={`リテイク${redoScript ? " 台本" : ""}${redoScript && redoAudio ? " /" : ""}${redoAudio ? " 音声" : ""}`}
+                    note={redoNote || "リテイク対象"}
+                  />
+                ) : null}
                 </div>
                 <div className="audio-card__status-group">
                   <span className="audio-card__badge">{audioStageLabel}</span>
@@ -661,7 +718,16 @@ export function AudioReviewPage() {
                   {isRunning ? <span className="audio-card__badge audio-card__badge--info">再生成中…</span> : null}
                 </div>
               </header>
-              <div className="audio-card__title" title={item.title ?? undefined}>{item.title ?? "タイトル未設定"}</div>
+              <div
+                className="audio-card__title"
+                title={
+                  redoAudio || redoScript
+                    ? (redoNote || item.title || "タイトル未設定")
+                    : (item.title || "タイトル未設定")
+                }
+              >
+                {item.title || "タイトル未設定"}
+              </div>
               <div className="audio-card__stats">
                 <span className={qualityBadgeClass}>{item.audio_quality_status ?? "品質未評価"}</span>
                 {metaLines.map((line, idx) => (
@@ -669,6 +735,7 @@ export function AudioReviewPage() {
                     {line}
                   </span>
                 ))}
+                {redoAudio || redoScript ? <RedoBadge note={redoNote || "リテイク対象"} /> : null}
                 {logSummary ? (
                   <span className="audio-card__chip">
                     log: {logSummary.engine ?? "-"} / {logSummary.duration_sec ? `${logSummary.duration_sec.toFixed(1)}s` : "?"}
@@ -755,6 +822,12 @@ export function AudioReviewPage() {
                         const finalInfo = res.final_wav ? ` / final_wav: ${res.final_wav}` : "";
                         setRunMessage(`再生成完了: ${item.channel}-${item.video} (${res.engine ?? "engine?"})${logInfo}${finalInfo}`);
                         setToast(null);
+                        // 成功時にリテイク（音声）を自動解除
+                        try {
+                          await updateVideoRedo(item.channel, item.video, { redo_audio: false });
+                        } catch {
+                          /* best effort */
+                        }
                       } catch (runErr) {
                         const msg = runErr instanceof Error ? runErr.message : String(runErr ?? "再生成に失敗しました");
                         setRunError(`${item.channel}-${item.video}: ${msg}`);

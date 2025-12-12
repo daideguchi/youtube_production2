@@ -13170,7 +13170,8 @@ button:hover:not(:disabled) {
 }
 
 .script-factory__table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 13px;
   table-layout: auto;
@@ -13186,8 +13187,9 @@ button:hover:not(:disabled) {
 
 .script-factory__th-title,
 .script-factory__td-title {
-  min-width: 340px;
-  max-width: 520px;
+  width: 520px;
+  min-width: 520px;
+  max-width: 900px;
 }
 
 .script-factory__th-progress,
@@ -13215,6 +13217,11 @@ button:hover:not(:disabled) {
   background: #f8fafc;
   border: 1px solid transparent;
   cursor: pointer;
+}
+
+.script-factory__td-title .script-factory__cell-text {
+  max-height: 6.8em;
+  min-width: 520px;
 }
 
 .script-factory__cell-text:hover {

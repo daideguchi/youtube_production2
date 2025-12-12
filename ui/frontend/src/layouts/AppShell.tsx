@@ -27,6 +27,7 @@ import {
   updateStages,
   fetchDashboardOverview,
   replaceTtsSegment,
+  fetchRedoSummary,
 } from "../api/client";
 import {
   ChannelSummary,
@@ -65,6 +66,8 @@ export type WorkspaceView =
   | "capcutEdit"
   | "audioTtsV2"
   | "audioIntegrity"
+  | "progress"
+  | "dictionary"
   | "reports"
   | "jobs"
   | "settings"
@@ -78,6 +81,7 @@ export type ShellOutletContext = {
   dashboardOverview: DashboardOverview | null;
   dashboardLoading: boolean;
   dashboardError: string | null;
+  redoSummary: Record<string, { redo_script: number; redo_audio: number; redo_both: number }>;
   selectedChannel: string | null;
   selectedChannelSummary: ChannelSummary | null;
   selectedChannelSnapshot: ChannelSnapshot | null;
@@ -257,6 +261,12 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/reports", pathname)) {
     return "reports";
   }
+  if (matchPath("/progress", pathname)) {
+    return "progress";
+  }
+  if (matchPath("/dictionary", pathname)) {
+    return "dictionary";
+  }
   return "dashboard";
 }
 
@@ -264,6 +274,14 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   scriptFactory: {
     title: "台本作成（バッチ）",
     description: "progress/channels/CHxx.csv（planning_store）を直接参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
+  },
+  progress: {
+    title: "企画CSVビューア",
+    description: "progress/channels/ 配下のSoTをUIで直接確認し、台本・音声の揺れを防ぎます。台本パスや企画意図も列で確認できます。",
+  },
+  dictionary: {
+    title: "読み辞書 管理",
+    description: "グローバル/チャンネル単位の誤読辞書を一括で追加・削除・検索します。誤読発見→即登録のための専用ハブです。",
   },
   promptManager: {
     title: "プロンプト管理",
@@ -352,6 +370,7 @@ export function AppShell() {
   const [dashboardOverview, setDashboardOverview] = useState<DashboardOverview | null>(null);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [redoSummary, setRedoSummary] = useState<Record<string, { redo_script: number; redo_audio: number; redo_both: number }>>({});
 
   const [selectedChannel, setSelectedChannel] = useState<string | null>(() => {
     if (typeof window === "undefined") {
@@ -482,6 +501,17 @@ export function AppShell() {
     try {
       const data = await fetchDashboardOverview();
       setDashboardOverview(data);
+      // refresh redo summary (all channels)
+      try {
+        const rows = await fetchRedoSummary();
+        const map: Record<string, { redo_script: number; redo_audio: number; redo_both: number }> = {};
+        rows.forEach((r) => {
+          map[r.channel] = { redo_script: r.redo_script, redo_audio: r.redo_audio, redo_both: r.redo_both };
+        });
+        setRedoSummary(map);
+      } catch {
+        /* non-blocking */
+      }
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : String(error));
       setDashboardOverview(null);
@@ -986,6 +1016,7 @@ export function AppShell() {
     dashboardOverview,
     dashboardLoading,
     dashboardError,
+    redoSummary,
     selectedChannel,
     selectedChannelSummary,
     selectedChannelSnapshot,
@@ -1039,6 +1070,8 @@ export function AppShell() {
     () => [
       { key: "dashboard" as WorkspaceView, label: "ダッシュボード", icon: "📊", path: "/dashboard" },
       { key: "research" as WorkspaceView, label: "リサーチ", icon: "🧪", path: "/research" },
+      { key: "progress" as WorkspaceView, label: "企画CSV", icon: "🗂️", path: "/progress" },
+      { key: "dictionary" as WorkspaceView, label: "辞書", icon: "📖", path: "/dictionary" },
       { key: "thumbnails" as WorkspaceView, label: "サムネイル", icon: "🖼️", path: "/thumbnails" },
       { key: "promptManager" as WorkspaceView, label: "プロンプト", icon: "🗒️", path: "/prompts" },
       { key: "jobs" as WorkspaceView, label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
@@ -1168,5 +1201,3 @@ export function AppShell() {
     </div>
   );
 }
-
-            <NavLink to="/llm-usage" className={({ isActive }) => (isActive ? "active" : "")}>LLM Usage</NavLink>

@@ -11,16 +11,21 @@ from typing import Dict, List, Tuple, Any, Set
 def _require_env_vars(keys: List[str]) -> None:
     missing = [k for k in keys if not os.getenv(k)]
     if missing:
+        from factory_common.paths import repo_root
         raise SystemExit(
             f"環境変数が未設定: {', '.join(missing)}。" \
-            " `set -a && source /Users/dd/10_YouTube_Automation/factory_commentary/.env && set +a` を実行してから再試行してください。"
+            f" `set -a && source {repo_root() / '.env'} && set +a` を実行してから再試行してください。"
         )
 
 from .sot import load_status, save_status, init_status, status_path, Status, StageState
 from .validator import validate_stage
+from .tools import optional_fields_registry as opt_fields
 from factory_common.llm_client import LLMClient
+from factory_common.paths import repo_root, script_pkg_root, script_data_root
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = repo_root()
+SCRIPT_PKG_ROOT = script_pkg_root()
+DATA_ROOT = script_data_root()
 
 _ENV_LOADED = False
 
@@ -28,14 +33,12 @@ _ENV_LOADED = False
 def _autoload_env(env_path: Path | None = None) -> None:
     """
     Load .env once per process to avoid missing keys in fresh shells.
-    正本は /Users/dd/10_YouTube_Automation/factory_commentary/.env を最優先。
+    正本は repo_root()/.env を最優先。
     """
     global _ENV_LOADED
     if _ENV_LOADED:
         return
     candidate_paths = []
-    # 正本のみを最優先
-    candidate_paths.append(Path("/Users/dd/10_YouTube_Automation/factory_commentary/.env"))
     # 明示的な引数
     if env_path:
         candidate_paths.insert(0, env_path)
@@ -57,21 +60,20 @@ def _autoload_env(env_path: Path | None = None) -> None:
             continue
     _ENV_LOADED = True
 
-STAGE_DEF_PATH = PROJECT_ROOT / "script_pipeline" / "stages.yaml"
-TEMPLATE_DEF_PATH = PROJECT_ROOT / "script_pipeline" / "templates.yaml"
-DATA_ROOT = PROJECT_ROOT / "script_pipeline" / "data"
-SOURCES_PATH = PROJECT_ROOT / "script_pipeline" / "config" / "sources.yaml"
+STAGE_DEF_PATH = SCRIPT_PKG_ROOT / "stages.yaml"
+TEMPLATE_DEF_PATH = SCRIPT_PKG_ROOT / "templates.yaml"
+SOURCES_PATH = SCRIPT_PKG_ROOT / "config" / "sources.yaml"
 CONFIG_ROOT = PROJECT_ROOT / "configs"
 # モデルレジストリはトップ配下（configs）を優先し、無ければ script_pipeline 配下を使う
 MODEL_REGISTRY_PRIMARY = CONFIG_ROOT / "llm_model_registry.yaml"
-MODEL_REGISTRY_FALLBACK = PROJECT_ROOT / "script_pipeline" / "config" / "llm_model_registry.yaml"
+MODEL_REGISTRY_FALLBACK = SCRIPT_PKG_ROOT / "config" / "llm_model_registry.yaml"
 OPENROUTER_MODELS_PRIMARY = CONFIG_ROOT / "openrouter_models.json"
-OPENROUTER_MODELS_FALLBACK = PROJECT_ROOT / "script_pipeline" / "config" / "openrouter_models.json"
+OPENROUTER_MODELS_FALLBACK = SCRIPT_PKG_ROOT / "config" / "openrouter_models.json"
 # minimal log sink for debugging mini挙動
-LOG_SINK = str(PROJECT_ROOT / "script_pipeline" / "data" / "llm_sessions.jsonl")
+LOG_SINK = str(DATA_ROOT / "llm_sessions.jsonl")
 # stages to skip (no LLM formatting run) — none by default
 SKIP_STAGES: Set[str] = set()
-FORCE_FALLBACK_SENTINEL = PROJECT_ROOT / "script_pipeline" / "data" / "_state" / "force_fallback"
+FORCE_FALLBACK_SENTINEL = DATA_ROOT / "_state" / "force_fallback"
 
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
@@ -444,6 +446,8 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
     if csv_path:
         csv_row = _load_csv_row(Path(csv_path), video)
         if csv_row:
+            planning_section = opt_fields.get_planning_section(extra_meta)
+            opt_fields.update_planning_from_row(planning_section, csv_row)
             extra_meta.update(
                 {
                     "title": csv_row.get("タイトル") or title,
@@ -463,6 +467,9 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
                     "tags": [csv_row.get("悩みタグ_メイン"), csv_row.get("悩みタグ_サブ")],
                 }
             )
+            for key in ("concept_intent", "content_notes", "content_summary", "outline_notes", "script_sample", "script_body"):
+                if key not in extra_meta and planning_section.get(key):
+                    extra_meta[key] = planning_section.get(key)
     persona_path = sources.get("persona")
     if persona_path and Path(persona_path).exists():
         extra_meta["persona"] = Path(persona_path).read_text(encoding="utf-8")

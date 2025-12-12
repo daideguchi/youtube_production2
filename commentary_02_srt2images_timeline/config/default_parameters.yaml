@@ -796,7 +796,7 @@ project:
 
   # CapCut統合設定
   capcut:
-    draft_root: "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/"
+    draft_root: "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/"
     default_template: "シニア恋愛テンプレ"
     layer_mapping:
       background: 0

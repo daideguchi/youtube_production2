@@ -1,17 +1,16 @@
 """TTS Progress monitoring router for the UI."""
 
 from pathlib import Path
-from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import os
+
+from factory_common.paths import audio_artifacts_root, script_data_root
 
 router = APIRouter(prefix="/api/tts-progress", tags=["tts-progress"])
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-TTS_OUTPUT_DIR = PROJECT_ROOT / "audio_tts_v2" / "artifacts" / "final"
-SCRIPT_DATA_DIR = PROJECT_ROOT / "script_pipeline" / "data"
+# SoT roots (Path SSOT)
+TTS_OUTPUT_DIR = audio_artifacts_root() / "final"
+SCRIPT_DATA_DIR = script_data_root()
 
 
 class ChannelProgress(BaseModel):
@@ -31,7 +30,7 @@ class TtsProgressResponse(BaseModel):
 
 
 def get_channel_episodes(channel: str) -> list[str]:
-    """Get all episode IDs for a channel from script_pipeline/data."""
+    """Get all episode IDs for a channel from the script data root."""
     channel_dir = SCRIPT_DATA_DIR / channel
     if not channel_dir.exists():
         return []

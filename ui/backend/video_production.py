@@ -18,8 +18,17 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-COMMENTARY02_ROOT = PROJECT_ROOT / "commentary_02_srt2images_timeline"
+from factory_common.paths import (
+    audio_artifacts_root,
+    logs_root,
+    repo_root as ssot_repo_root,
+    script_data_root,
+    video_pkg_root,
+    video_runs_root,
+)
+
+PROJECT_ROOT = ssot_repo_root()
+COMMENTARY02_ROOT = video_pkg_root()
 VALID_PROJECT_ID_PATTERN = r"^[A-Za-z0-9_-]+$"
 
 
@@ -108,15 +117,20 @@ except Exception:  # pragma: no cover - commentary_02 assets missing
     JobManager = None  # type: ignore
     video_router: Optional[APIRouter] = None
 else:
-    OUTPUT_ROOT = COMMENTARY02_ROOT / "output"
+    OUTPUT_ROOT = video_runs_root()
     TOOLS_ROOT = COMMENTARY02_ROOT / "tools"
-    INPUT_ROOT = PROJECT_ROOT / "audio_tts_v2" / "artifacts" / "final"
+    INPUT_ROOT = audio_artifacts_root() / "final"
     CONFIG_ROOT = COMMENTARY02_ROOT / "config"
     CHANNEL_PRESETS_PATH = CONFIG_ROOT / "channel_presets.json"
-    CAPCUT_DRAFT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
-    JOB_LOG_ROOT = PROJECT_ROOT / "logs" / "ui_hub" / "video_production"
+    _env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
+    CAPCUT_DRAFT_ROOT = (
+        Path(_env_capcut_root).expanduser()
+        if _env_capcut_root
+        else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+    )
+    JOB_LOG_ROOT = logs_root() / "ui_hub" / "video_production"
     # 旧 commentary_01_srtfile_v2 -> script_pipeline に移行済み
-    COMMENTARY01_DATA_ROOT = PROJECT_ROOT / "script_pipeline" / "data"
+    COMMENTARY01_DATA_ROOT = script_data_root()
     CHANNEL_CODE_PATTERN = re.compile(r"([A-Za-z]{2}\d{2})", re.IGNORECASE)
     VIDEO_NUMBER_PATTERN = re.compile(r"(?:(?<=-)|(?<=_)|^)(\d{3})(?=$|[^0-9])")
 

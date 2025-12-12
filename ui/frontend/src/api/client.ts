@@ -78,6 +78,10 @@ import {
   UiParamsResponse,
   AudioIntegrityItem,
   AudioAnalysis,
+  RedoUpdatePayload,
+  RedoUpdateResponse,
+  RedoSummaryItem,
+  ThumbnailLookupResponse,
 } from "./types";
 
 import { apiUrl } from "../utils/apiClient";
@@ -395,6 +399,13 @@ export function fetchPlanningRows(channel?: string): Promise<PlanningCsvRow[]> {
   return request<PlanningCsvRow[]>(`/api/planning${search}`);
 }
 
+export function refreshPlanningStore(channel?: string): Promise<{ ok: boolean }> {
+  const search = channel ? `?channel=${encodeURIComponent(channel)}` : "";
+  return request<{ ok: boolean }>(`/api/planning/refresh${search}`, {
+    method: "POST",
+  });
+}
+
 export function fetchPlanningSpreadsheet(channel: string): Promise<PlanningSpreadsheetResponse> {
   return request<PlanningSpreadsheetResponse>(`/api/planning/spreadsheet?channel=${encodeURIComponent(channel)}`);
 }
@@ -573,6 +584,20 @@ export function updateReady(
   });
 }
 
+export function updateVideoRedo(
+  channel: string,
+  video: string,
+  payload: RedoUpdatePayload
+): Promise<RedoUpdateResponse> {
+  return request<RedoUpdateResponse>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/redo`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
 export function updatePlanning(
   channel: string,
   video: string,
@@ -619,6 +644,65 @@ export function createPlanningRow(payload: PlanningCreatePayload): Promise<Plann
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export function fetchRedoSummary(channel?: string): Promise<RedoSummaryItem[]> {
+  const search = new URLSearchParams();
+  if (channel) {
+    search.set("channel", channel);
+  }
+  const path = `/api/redo/summary${search.toString() ? `?${search.toString()}` : ""}`;
+  return request<RedoSummaryItem[]>(path);
+}
+
+export type KnowledgeBaseResponse = {
+  version: number;
+  words: Record<string, string>;
+};
+
+export function fetchKnowledgeBase(): Promise<KnowledgeBaseResponse> {
+  return request<KnowledgeBaseResponse>("/api/kb");
+}
+
+export function upsertKnowledgeBaseEntry(word: string, reading: string): Promise<KnowledgeBaseResponse> {
+  return request<KnowledgeBaseResponse>("/api/kb", {
+    method: "POST",
+    body: JSON.stringify({ word, reading }),
+  });
+}
+
+export function deleteKnowledgeBaseEntry(word: string): Promise<void> {
+  return request<void>(`/api/kb/${encodeURIComponent(word)}`, { method: "DELETE" });
+}
+
+export function fetchChannelReadingDict(channel: string): Promise<Record<string, any>> {
+  return request<Record<string, any>>(`/api/reading-dict/${encodeURIComponent(channel)}`);
+}
+
+export function upsertChannelReadingEntry(
+  channel: string,
+  payload: { surface: string; reading_kana: string; reading_hira?: string; voicevox_kana?: string }
+): Promise<Record<string, any>> {
+  return request<Record<string, any>>(`/api/reading-dict/${encodeURIComponent(channel)}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteChannelReadingEntry(channel: string, surface: string): Promise<void> {
+  return request<void>(
+    `/api/reading-dict/${encodeURIComponent(channel)}/${encodeURIComponent(surface)}`,
+    { method: "DELETE" }
+  );
+}
+
+export function lookupThumbnails(channel: string, video?: string, title?: string, limit = 3): Promise<ThumbnailLookupResponse> {
+  const search = new URLSearchParams({ channel });
+  if (video) search.set("video", video);
+  if (title) search.set("title", title);
+  if (limit) search.set("limit", String(limit));
+  const path = `/api/thumbnails/lookup?${search.toString()}`;
+  return request<ThumbnailLookupResponse>(path);
 }
 
 export function fetchPersonaDocument(channel: string): Promise<PersonaDocumentResponse> {
@@ -770,6 +854,10 @@ export function runAudioTtsV2(payload: {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function fetchProgressCsv(channel: string) {
+  return request<{ channel: string; rows: Record<string, string>[] }>(`/api/progress/channels/${encodeURIComponent(channel)}`);
 }
 
 export function runAudioTtsV2FromScript(payload: {

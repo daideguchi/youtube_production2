@@ -6,14 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 import json
-try:
-    import audioop
-except ImportError:
-    audioop = None
 
 from .voicepeak_cli import synthesize_chunk, VoicepeakCLIError
 from .voicevox_api import VoicevoxClient
-from .elevenlabs_client import build_eleven_client
 from .routing import (
     load_routing_config,
     resolve_voicevox_speaker_id,
@@ -137,8 +132,15 @@ def _trim_wav_silence(wav_path: Path, threshold: int = 300, padding_ms: int = 30
     - threshold: audioop.rms のしきい値
     - padding_ms: トリム後に残す余裕時間
     """
-    if audioop is None:
-        # ビルド環境でaudioopが無効な場合は何もせず返す
+    # audioop は Python3.13 で廃止予定のため、必要時のみ遅延 import し、
+    # import 時の DeprecationWarning は抑制する（デフォルトでは TRIM 無効）。
+    try:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            import audioop as _audioop  # type: ignore
+    except Exception:
+        # audioop が無効/未導入な環境では何もせず返す
         return
     wav_path = Path(wav_path)
     if not wav_path.exists():
@@ -166,7 +168,7 @@ def _trim_wav_silence(wav_path: Path, threshold: int = 300, padding_ms: int = 30
         chunk = frames[start:end]
         if not chunk:
             return 0.0
-        return audioop.rms(chunk, sampwidth)
+        return _audioop.rms(chunk, sampwidth)
 
     # 先頭側
     start_idx = 0
@@ -587,6 +589,14 @@ def voicepeak_synthesis(
 
 def elevenlabs_synthesis(b_text: str, out_wav: Path, channel: str, cfg: Optional[RoutingConfig] = None) -> ElevenResult:
     cfg = cfg or load_routing_config()
+    try:
+        # Lazy import so VOICEVOX/VOICEPEAK-only runs do not require requests.
+        from .elevenlabs_client import build_eleven_client  # type: ignore
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError(
+            "ElevenLabs synthesis was requested but dependencies are unavailable. "
+            "Install 'requests' and configure ELEVEN_API_KEY, or use voicevox/voicepeak."
+        ) from exc
     client = build_eleven_client(
         cfg.eleven_api_key_env, resolve_eleven_voice(channel, cfg), resolve_eleven_model(cfg)
     )
@@ -607,6 +617,14 @@ def elevenlabs_synthesis_chunks(
     pauses: Optional[List[float]] = None,
 ) -> ElevenResult:
     cfg = cfg or load_routing_config()
+    try:
+        # Lazy import so VOICEVOX/VOICEPEAK-only runs do not require requests.
+        from .elevenlabs_client import build_eleven_client  # type: ignore
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError(
+            "ElevenLabs synthesis was requested but dependencies are unavailable. "
+            "Install 'requests' and configure ELEVEN_API_KEY, or use voicevox/voicepeak."
+        ) from exc
     client = build_eleven_client(
         cfg.eleven_api_key_env, resolve_eleven_voice(channel, cfg), resolve_eleven_model(cfg)
     )

@@ -2,7 +2,7 @@
 # fix_capcut_draft_image_binding.py
 # CapCut draft: photo素材の media_path 補完、render_timerange/transform の矛盾を修正
 # 使い方:
-#   python3 fix_capcut_draft_image_binding.py "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/【改修】人生の道標_186_多様版_最終"
+#   python3 fix_capcut_draft_image_binding.py "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft-name>"
 
 import sys, json, shutil
 from pathlib import Path

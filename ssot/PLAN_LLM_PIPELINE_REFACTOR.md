@@ -19,7 +19,7 @@
 | `script_pipeline/runner.py` | `_call_azure_chat` | Azure | deployment + Responses/Chat API 切替 | 台本各ステージ（outline/draft/format 等） | `max_completion_tokens/max_output_tokens`, `reasoning_effort`, optional `response_format`, timeout 240s【F:script_pipeline/runner.py†L345-L463】 |
 | `script_pipeline/runner.py` | `_call_openrouter_chat` | OpenRouter | 任意 model ID | 台本ステージ fallback/指定 | `max_tokens`, messages or prompt, timeout 240s【F:script_pipeline/runner.py†L465-L508】 |
 | `script_pipeline/runner.py` | `_call_gemini_generate` | Gemini | `generateContent` v1beta | 台本ステージ（特に draft/format） | `maxOutputTokens`, optional `thinkingLevel`, JSON messages, timeout 120–240s【F:script_pipeline/runner.py†L510-L619】 |
-| `audio_tts_v2/tts/llm_client.py` | `azure_responses` / `gemini_generate_content` / `azure_chat_with_fallback` | Azure / Gemini | Registry 参照 (`llm_model_registry.yaml`) | TTS 注釈・分割・QA など LLM ヘルパー | `max_output_tokens/max_tokens`, `responseMimeType`, reasoning minimal for gpt-5-mini, retries via model list【F:audio_tts_v2/tts/llm_client.py†L84-L180】【F:audio_tts_v2/tts/llm_client.py†L198-L260】 |
+| `audio_tts_v2/tts/llm_adapter.py` | `annotate_tokens` / `segment_text_llm` / `suggest_pauses` / `tts_text_prepare` | Router経由 (Azure/Gemini/OpenRouter) | `configs/llm.yml` | TTS 注釈・分割・pause推定・Bテキスト準備 | `max_output_tokens/max_tokens`, `response_format=json_object`, `timeout` などをタスク定義で正規化【F:audio_tts_v2/tts/llm_adapter.py†L1-L420】 |
 | `audio_tts_v2/tts/llm_adapter.py` | `annotate_tokens`, `segment_text_llm`, `suggest_pauses`, `B_TEXT_GEN_PROMPT` | Azure (default) | system/user プロンプト直書き | 読み誤り検出、SRT 分割、ポーズ付与、Bテキスト生成 | JSON schema 指定、最大 3000 tokens、失敗時デフォルト fallback【F:audio_tts_v2/tts/llm_adapter.py†L12-L218】 |
 | `commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py` | `LLMContextAnalyzer` | Gemini / Azure / OpenRouter | registry + env で切替 | SRT セクション解析（画像用文脈） | Azure: retries/backoff, max_completion_tokens=60000; OpenRouter: 4096 tokens; Gemini: `genai.Client`【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L37-L214】 |
 
@@ -31,7 +31,7 @@
 ### 2.3 TTS（Bテキスト）と音声生成フロー
 - `audio_tts_v2/tts/orchestrator.py` で Aテキストを前処理→MeCab トークン化→かなエンジン構築→SRT ブロック生成。見出し検証・グループ付与後にドラフト読み（MeCab）を付与。【F:audio_tts_v2/tts/orchestrator.py†L138-L260】
 - LLM は `llm_adapter` 経由で「危険トークン注釈」「セグメント分割」「ポーズ推定」等を行うが、Bテキスト生成（待ちタグ含む）は単一プロンプト `B_TEXT_GEN_PROMPT` で一括生成し、構造的な三段階化は未導入。【F:audio_tts_v2/tts/llm_adapter.py†L81-L218】
-- QA/annotation は `azure_chat_with_fallback` で Azure/Gemini を切替。失敗時はデフォルトのカナを返してパイプライン継続する設計。【F:audio_tts_v2/tts/llm_client.py†L145-L181】【F:audio_tts_v2/tts/llm_adapter.py†L190-L217】
+- QA/annotation は Router 経由。失敗時はデフォルトのカナを返してパイプライン継続する設計（`llm_adapter` 内でフォールバック実装）。
 
 ### 2.4 画像用文脈解析・プロンプト生成
 - `commentary_02_srt2images_timeline/src/srt2images/cue_maker.py` で SRT セグメントを LLM 文脈解析に渡し、自然なセクション境界と summary/visual_focus を得る。モデルは `LLMContextAnalyzer` が registry/env から選択（Gemini/ Azure / OpenRouter）。【F:commentary_02_srt2images_timeline/src/srt2images/cue_maker.py†L13-L112】
@@ -143,9 +143,9 @@ models:
 - [ ] `script_pipeline/runner.py` を router API に差し替え、`script_plan.json` 保存/読込導線追加。  
   - 現状: 章ドラフト/整形は直接 Azure/Gemini 呼び出し。outline/review/consistency 未実装。
 - [ ] `audio_tts_v2/tts/llm_adapter.py` に三段階 Bテキスト生成ロジックと router 呼び出しを導入、`builder.py` で SSML 生成を統合。  
-  - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線と SSML 統合が未完。orchestrator/builder 側への三段導線配線が残り。
-- [ ] `audio_tts_v2` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、`audio_tts_v2/tts/llm_client.py` を削除。  
-  - 現状: llm_adapter は移行完了。その他モジュールの llm_client 参照は残存のため掃除が必要。
+  - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線は orchestrator/builder まで配線済み（pause/ruby適用）。SSML側に `<break>` を入れる追加実装が必要なら残タスク。
+- [ ] `audio_tts_v2` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、旧ドキュメント言及を掃除する。  
+  - 現状: llm_adapter は移行完了。旧 `llm_client.py` は削除済み/非参照。残るのは文書の片付けと、SSMLへの `<break>` 挿入を要する場合の仕上げ。
 - [ ] `commentary_02_srt2images_timeline` に Visual Bible 読込と router 呼び出しを追加、画像プロンプト生成部を差し替え。  
   - 現状: Visual Bible 未読込。Gemini image 直呼び出し＆テンプレ混在。
 - [ ] 回帰テスト・サンプルパイプライン（script→tts→image）の E2E テストを追加。  

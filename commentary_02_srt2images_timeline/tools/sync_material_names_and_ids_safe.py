@@ -5,7 +5,7 @@ for specific targets. Track structure and timerange are not touched.
 
 Usage:
   python3 tools/sync_material_names_and_ids_safe.py \
-    --draft "/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】" \
+    --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】" \
     --targets \
       0004_v1764583832.png=04cfba85-a7fa-417a-931e-1f1a9af943fe \
       0005_v1764583876.png=07a78a60-73dc-4627-83cc-66a1ab4bc3f7 \
