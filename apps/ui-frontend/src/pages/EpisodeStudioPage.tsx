@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext, useSearchParams } from "react-router-dom";
 
-import { fetchVideoJobs, fetchVideoProjectDetail } from "../api/client";
+import { createVideoProject, fetchVideoJobs, fetchVideoProjectDetail, runAudioTtsV2 } from "../api/client";
 import type { VideoJobRecord, VideoProjectDetail } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
 import { apiUrl } from "../utils/apiClient";
@@ -69,12 +69,21 @@ export function EpisodeStudioPage() {
       ? `/capcut-edit/production?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}&project=${encodeURIComponent(episodeId)}`
       : "/capcut-edit/production";
 
+  const [refreshToken, setRefreshToken] = useState(0);
+  const cacheBust = `?v=${refreshToken}`;
+
   const audioUrl =
-    channel && video ? apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/audio`) : null;
+    channel && video
+      ? `${apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/audio`)}${cacheBust}`
+      : null;
   const srtUrl =
-    channel && video ? apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/srt`) : null;
+    channel && video
+      ? `${apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/srt`)}${cacheBust}`
+      : null;
   const audioLogUrl =
-    channel && video ? apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/log`) : null;
+    channel && video
+      ? `${apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/log`)}${cacheBust}`
+      : null;
 
   const [videoProject, setVideoProject] = useState<VideoProjectDetail | null>(null);
   const [videoProjectLoading, setVideoProjectLoading] = useState(false);
@@ -153,7 +162,7 @@ export function EpisodeStudioPage() {
 
     setAudioLogLoading(true);
     setAudioLogError(null);
-    fetch(apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/log`), {
+    fetch(audioLogUrl ?? apiUrl(`/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/log`), {
       cache: "no-store",
     })
       .then(async (resp) => {
@@ -187,7 +196,89 @@ export function EpisodeStudioPage() {
     return () => {
       cancelled = true;
     };
-  }, [channel, episodeId, video]);
+  }, [audioLogUrl, channel, episodeId, refreshToken, video]);
+
+  const handleRefresh = () => {
+    setRefreshToken((value) => value + 1);
+  };
+
+  const [ttsRunBusy, setTtsRunBusy] = useState(false);
+  const [ttsRunMessage, setTtsRunMessage] = useState<string | null>(null);
+  const [ttsRunError, setTtsRunError] = useState<string | null>(null);
+
+  const [projectCreateBusy, setProjectCreateBusy] = useState(false);
+  const [projectCreateMessage, setProjectCreateMessage] = useState<string | null>(null);
+  const [projectCreateError, setProjectCreateError] = useState<string | null>(null);
+
+  const handleRunTts = async () => {
+    if (!channel || !video) {
+      setTtsRunError("チャンネル/動画が未選択です。");
+      return;
+    }
+    const detail = videoDetail;
+    if (!detail) {
+      setTtsRunError("詳細が未取得です（少し待ってから再試行してください）。");
+      return;
+    }
+
+    const inputPath =
+      detail.script_audio_path ??
+      detail.tts_path ??
+      detail.assembled_path ??
+      detail.script_audio_human_path ??
+      detail.assembled_human_path;
+
+    if (!inputPath) {
+      setTtsRunError("TTS入力パスが不明です（assembled/script_audio が未作成）。");
+      return;
+    }
+
+    setTtsRunBusy(true);
+    setTtsRunMessage(null);
+    setTtsRunError(null);
+    try {
+      const res = await runAudioTtsV2({
+        channel,
+        video,
+        input_path: inputPath,
+      });
+      const finalWav = (res as any).final_wav ?? res.wav_path;
+      const finalSrt = (res as any).final_srt ?? res.srt_path ?? "";
+      setTtsRunMessage(`TTS実行成功: wav=${finalWav}${finalSrt ? ` srt=${finalSrt}` : ""}`);
+      handleRefresh();
+    } catch (err) {
+      setTtsRunError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setTtsRunBusy(false);
+    }
+  };
+
+  const handleCreateVideoProject = async () => {
+    if (!episodeId || !channel || !video) {
+      setProjectCreateError("チャンネル/動画が未選択です。");
+      return;
+    }
+
+    setProjectCreateBusy(true);
+    setProjectCreateMessage(null);
+    setProjectCreateError(null);
+    try {
+      const srtPath =
+        videoDetail?.srt_path ?? `audio_tts_v2/artifacts/final/${channel}/${video}/${episodeId}.srt`;
+
+      const res = await createVideoProject({
+        projectId: episodeId,
+        channelId: channel,
+        existingSrtPath: srtPath,
+      });
+      setProjectCreateMessage(`プロジェクト作成: ${res.project_id} (${res.output_dir})`);
+      handleRefresh();
+    } catch (err) {
+      setProjectCreateError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setProjectCreateBusy(false);
+    }
+  };
 
   const handleChannelChange = (next: string) => {
     const params = new URLSearchParams(searchParams);
@@ -221,6 +312,9 @@ export function EpisodeStudioPage() {
           <p className="page-lead">企画 → 台本 → 音声 → 動画（CapCut）を、1本単位で迷わず進めるための画面です。</p>
         </div>
         <div className="capcut-edit-page__actions">
+          <button className="button button--ghost" onClick={handleRefresh} disabled={!episodeId}>
+            更新
+          </button>
           <Link className="button button--ghost" to={workflowLink}>
             ← 制作フロー
           </Link>
@@ -481,7 +575,12 @@ export function EpisodeStudioPage() {
                   <a className="button button--ghost" href={audioLogUrl ?? undefined} target="_blank" rel="noreferrer">
                     log.json
                   </a>
+                  <button className="button" onClick={handleRunTts} disabled={!episodeId || ttsRunBusy}>
+                    {ttsRunBusy ? "TTS実行中…" : "TTS実行"}
+                  </button>
                 </div>
+                {ttsRunMessage ? <div className="main-alert">{ttsRunMessage}</div> : null}
+                {ttsRunError ? <div className="main-alert main-alert--error">{ttsRunError}</div> : null}
                 {audioUrl ? (
                   <audio controls src={audioUrl} style={{ width: "100%" }} />
                 ) : (
@@ -550,13 +649,20 @@ export function EpisodeStudioPage() {
               </div>
             </div>
           ) : (
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <Link className="button" to={videoProductionLink}>
-                プロジェクト作成/管理へ
-              </Link>
-              <Link className="button button--ghost" to={capcutDraftLink}>
-                AutoDraft へ
-              </Link>
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button className="button" onClick={handleCreateVideoProject} disabled={!episodeId || projectCreateBusy}>
+                  {projectCreateBusy ? "プロジェクト作成中…" : "プロジェクト作成（final SRT）"}
+                </button>
+                <Link className="button button--ghost" to={videoProductionLink}>
+                  プロジェクト作成/管理へ
+                </Link>
+                <Link className="button button--ghost" to={capcutDraftLink}>
+                  AutoDraft へ
+                </Link>
+              </div>
+              {projectCreateMessage ? <div className="main-alert">{projectCreateMessage}</div> : null}
+              {projectCreateError ? <div className="main-alert main-alert--error">{projectCreateError}</div> : null}
             </div>
           )}
         </div>
