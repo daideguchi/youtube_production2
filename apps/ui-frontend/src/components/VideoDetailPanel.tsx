@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
   SrtVerifyResponse,
   TtsReplaceResponse,
@@ -32,7 +33,7 @@ const STAGE_STATUS_OPTIONS = [
 
 const DEFAULT_AI_CHECK_INSTRUCTION = `YouTube向けナレーション台本として適切かを次の観点で評価してください。\n- 冒頭の引き込み力\n- 構成と論理展開の明瞭さ\n- 表現の自然さと語尾・敬体の統一\n- 情緒とテンポ（冗長さや重複の有無）\n\n50〜120文字程度の要約と、改善の優先提案を3点以内で日本語で示してください。`;
 
-export type DetailTab = "overview" | "script" | "audio" | "history";
+export type DetailTab = "overview" | "script" | "audio" | "video" | "history";
 type DetailMode = "diff";
 
 type DetailTabTone = "info" | "warning" | "danger" | "success" | undefined;
@@ -779,6 +780,10 @@ const openATextModal = useCallback(async () => {
   );
 
   const youtubeDescription = detail.youtube_description ?? "";
+  const episodeId = `${detail.channel}-${detail.video}`;
+  const workflowLink = `/workflow?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
+  const capcutDraftLink = `/capcut-edit/draft?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
+  const videoProductionLink = `/capcut-edit/production?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}&project=${encodeURIComponent(episodeId)}`;
 
 
 
@@ -796,6 +801,7 @@ const openATextModal = useCallback(async () => {
       { key: "overview", label: "概要" },
       { key: "script", label: "台本・音声字幕", badge: scriptBadge, tone: ttsDirty ? "warning" : undefined },
       { key: "audio", label: "音声レビュー", badge: audioBadge, tone: audioBadge ? "warning" : undefined },
+      { key: "video", label: "動画" },
       { key: "history", label: "履歴" },
     ];
   }, [audioStageStatus, ttsDirty]);
@@ -1384,6 +1390,40 @@ const openATextModal = useCallback(async () => {
                 </div>
               </CollapseCard>
             ) : null}
+          </div>
+        )}
+
+        {activeTab === "video" && (
+          <div className="detail-tab-panel detail-tab-panel--video" role="tabpanel">
+            <section className="detail-section">
+              <h3>動画（CapCut）</h3>
+              <p className="muted">
+                final SRT を基準に、AutoDraft（最短）またはプロジェクト管理（再実行/編集）へ進めます。
+              </p>
+              <ul>
+                <li>音声: {detail.audio_url ? "READY" : "未生成"}</li>
+                <li>SRT: {detail.srt_path ? "READY" : "未生成"}</li>
+                <li>
+                  推奨 project_id: <code>{episodeId}</code>
+                </li>
+              </ul>
+              <div className="actions actions--compact" style={{ marginTop: 10 }}>
+                <Link className="workspace-button workspace-button--primary" to={capcutDraftLink}>
+                  AutoDraft（新規ドラフト）
+                </Link>
+                <Link className="workspace-button" to={videoProductionLink}>
+                  プロジェクト管理
+                </Link>
+                <Link className="workspace-button workspace-button--ghost" to={workflowLink}>
+                  制作フロー
+                </Link>
+              </div>
+              {!detail.srt_path ? (
+                <p className="muted" style={{ marginTop: 10 }}>
+                  先に音声生成で SRT を作成してください（SoT: <code>audio_tts_v2/artifacts/final</code>）。
+                </p>
+              ) : null}
+            </section>
           </div>
         )}
 

@@ -152,7 +152,7 @@ export type ChannelSnapshot = {
 };
 
 const READY_FILTER_VALUES: ReadyFilter[] = ["all", "ready", "not_ready"];
-const DETAIL_TAB_VALUES: DetailTab[] = ["overview", "script", "audio", "history"];
+const DETAIL_TAB_VALUES: DetailTab[] = ["overview", "script", "audio", "video", "history"];
 const COMPLETED_STATUSES = new Set(["completed", "skipped"]);
 const SCRIPT_STAGE_KEYS = [
   "script_polish_ai",
