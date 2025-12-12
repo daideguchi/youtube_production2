@@ -29,6 +29,17 @@ import uuid
 
 # Define PROJECT_ROOT before using it
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.timeline_manifest import (
+    EpisodeId,
+    build_timeline_manifest,
+    parse_episode_id,
+    resolve_final_audio_srt,
+    write_timeline_manifest,
+)
 
 # Import using the installed package structure
 try:
@@ -243,6 +254,18 @@ def main():
     ap = argparse.ArgumentParser(description="End-to-end CapCut draft builder")
     ap.add_argument("--channel", required=True, help="Channel ID (e.g., CH01)")
     ap.add_argument("--srt", required=True, help="Path to input SRT")
+    ap.add_argument(
+        "--prefer-tts-final",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Prefer audio_tts_v2/artifacts/final/<CH>/<NNN>/<CH>-<NNN>.srt when resolvable (default: true)",
+    )
+    ap.add_argument(
+        "--insert-audio",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Insert voice WAV into CapCut draft when available (default: true)",
+    )
     ap.add_argument("--run-name", help="Output run directory name under output/ (default: <srtname>_<timestamp>)")
     ap.add_argument("--title", help="Title to set in CapCut draft (if omitted, LLM generates from cues)")
     ap.add_argument("--labels", help="Comma-separated 4 labels for belts (equal split)")
@@ -278,15 +301,16 @@ def main():
 
     # Safety: prevent cross-channel wiring.
     # If SRT filename/path implies another channel, fail fast.
-    srt_path = Path(args.srt).expanduser().resolve()
-    name_match = re.search(r"(CH\d{2})", srt_path.name, flags=re.IGNORECASE)
+    requested_srt_path = Path(args.srt).expanduser().resolve()
+    name_match = re.search(r"(CH\d{2})", requested_srt_path.name, flags=re.IGNORECASE)
     if name_match and name_match.group(1).upper() != args.channel.upper():
-        print(f"❌ channel mismatch: srt={srt_path.name} implies {name_match.group(1).upper()} but --channel={args.channel}")
+        print(
+            f"❌ channel mismatch: srt={requested_srt_path.name} implies {name_match.group(1).upper()} but --channel={args.channel}"
+        )
         sys.exit(1)
-    repo_root = PROJECT_ROOT.parent
-    final_root = repo_root / "audio_tts_v2" / "artifacts" / "final"
+    final_root = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final"
     try:
-        rel_parts = srt_path.relative_to(final_root).parts
+        rel_parts = requested_srt_path.relative_to(final_root).parts
         if rel_parts:
             dir_ch = rel_parts[0][:4].upper()
             if dir_ch.startswith("CH") and dir_ch[2:4].isdigit() and dir_ch != args.channel.upper():
@@ -294,6 +318,22 @@ def main():
                 sys.exit(1)
     except Exception:
         pass
+
+    # Resolve SoT SRT/WAV from audio_tts_v2 final when possible.
+    episode = parse_episode_id(str(requested_srt_path))
+    if episode is None and re.fullmatch(r"\d{1,3}", requested_srt_path.stem):
+        episode = EpisodeId(channel=args.channel.upper(), video=requested_srt_path.stem.zfill(3))
+    effective_srt_path = requested_srt_path
+    effective_wav_path: Path | None = None
+    if args.prefer_tts_final and episode and episode.channel.upper() == args.channel.upper():
+        try:
+            effective_wav_path, effective_srt_path = resolve_final_audio_srt(episode)
+            if effective_srt_path.resolve() != requested_srt_path.resolve():
+                print(f"[SoT] Using final SRT: {effective_srt_path} (requested: {requested_srt_path})")
+        except FileNotFoundError:
+            # Keep requested SRT (manual workflows / in-progress episodes)
+            effective_srt_path = requested_srt_path
+            effective_wav_path = None
 
     # config has already populated os.environ
     env = os.environ.copy()
@@ -311,7 +351,7 @@ def main():
     run_name = args.run_name
     if not run_name:
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        stem = Path(args.srt).stem
+        stem = effective_srt_path.stem
         # Avoid cross-channel collisions when SRT filename is numeric-only (e.g., 220.srt)
         if re.fullmatch(r"\d{1,3}", stem):
             stem = f"{args.channel}-{stem.zfill(3)}"
@@ -369,8 +409,8 @@ def main():
     # Sync SRT into run_dir for later CapCut insertion.
     # - If we (re)run pipeline, always overwrite to keep cues/subtitles aligned.
     # - If resume mode, do NOT overwrite; fail fast when a different SRT is passed to avoid unrelated drafts.
-    srt_source = Path(args.srt)
-    srt_basename = srt_source.name
+    srt_source = effective_srt_path
+    srt_basename = f"{episode.episode}.srt" if episode else srt_source.name
     srt_copy = run_dir / srt_basename
     try:
         src_bytes = srt_source.read_bytes()
@@ -413,7 +453,7 @@ def main():
             sys.executable,
             str(run_pipeline_path),
             "--srt",
-            str(args.srt),
+            str(effective_srt_path),
             "--out",
             str(run_dir),
             "--engine",
@@ -614,6 +654,7 @@ def main():
         effective_title,
         "--srt-file",
         str(srt_copy),
+        *(["--voice-file", str(effective_wav_path)] if (args.insert_audio and effective_wav_path and not args.dry_run) else []),
         "--belt-config",
         str(run_dir / "belt_config.json"),
         "--tx",
@@ -644,6 +685,16 @@ def main():
     ]
     inject_res = run(inject_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
 
+    # Create/refresh run_dir symlink to the draft for quick navigation
+    if not args.dry_run:
+        try:
+            link = run_dir / "capcut_draft"
+            if link.exists() or link.is_symlink():
+                link.unlink()
+            os.symlink(str((Path(args.draft_root) / draft_name).resolve()), str(link))
+        except Exception:
+            pass
+
     # Write a small run log
     log_path = run_dir / "auto_run_info.json"
     try:
@@ -656,7 +707,11 @@ def main():
     log = existing if isinstance(existing, dict) else {}
     log.update({
         "channel": args.channel,
-        "srt": str(Path(args.srt).resolve()),
+        # Back-compat: keep the old key name as the effective SoT input
+        "srt": str(effective_srt_path.resolve()),
+        "srt_requested": str(requested_srt_path),
+        "srt_effective": str(effective_srt_path.resolve()),
+        "audio_wav_effective": str(effective_wav_path.resolve()) if effective_wav_path else "",
         "run_dir": str(run_dir),
         "draft": str(Path(args.draft_root) / draft_name),
         "draft_name": draft_name,
@@ -696,6 +751,37 @@ def main():
     timings["overall_seconds"] = round(overall_elapsed, 2)
     if timings:
         log.setdefault("timings", {}).update(timings)
+
+    # Write timeline manifest when final audio/srt are resolvable.
+    # This is a "diagnostic contract" for future refactors; do not hard-fail the pipeline here.
+    if not args.dry_run and episode and effective_wav_path and effective_srt_path.exists() and (run_dir / "image_cues.json").exists():
+        try:
+            manifest = build_timeline_manifest(
+                run_dir=run_dir,
+                episode=episode,
+                audio_wav=effective_wav_path,
+                audio_srt=effective_srt_path,
+                image_cues_path=run_dir / "image_cues.json",
+                belt_config_path=(run_dir / "belt_config.json") if (run_dir / "belt_config.json").exists() else None,
+                capcut_draft_dir=(Path(args.draft_root) / draft_name),
+                notes="auto_capcut_run (SoT=audio_tts_v2 final)",
+                validate=True,
+            )
+        except Exception as e:
+            log["timeline_manifest_error"] = str(e)
+            manifest = build_timeline_manifest(
+                run_dir=run_dir,
+                episode=episode,
+                audio_wav=effective_wav_path,
+                audio_srt=effective_srt_path,
+                image_cues_path=run_dir / "image_cues.json",
+                belt_config_path=(run_dir / "belt_config.json") if (run_dir / "belt_config.json").exists() else None,
+                capcut_draft_dir=(Path(args.draft_root) / draft_name),
+                notes=f"auto_capcut_run (manifest validation failed: {e})",
+                validate=False,
+            )
+        mf_path = write_timeline_manifest(run_dir, manifest)
+        log["timeline_manifest"] = str(mf_path)
 
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
 

@@ -29,6 +29,11 @@ import json
 
 # Define PROJECT_ROOT before using it
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.timeline_manifest import EpisodeId, parse_episode_id, resolve_final_audio_srt
 
 # Import using the installed package structure
 try:
@@ -152,19 +157,21 @@ def main():
     args = parser.parse_args()
 
     # Validate Inputs
-    srt_path = Path(args.srt).resolve()
-    if not srt_path.exists():
-        logger.error(f"❌ SRT file not found: {srt_path}")
+    requested_srt_path = Path(args.srt).resolve()
+    if not requested_srt_path.exists():
+        logger.error(f"❌ SRT file not found: {requested_srt_path}")
         sys.exit(1)
 
     # Safety: prevent cross-channel wiring.
-    name_match = re.search(r"(CH\d{2})", srt_path.name, flags=re.IGNORECASE)
+    name_match = re.search(r"(CH\d{2})", requested_srt_path.name, flags=re.IGNORECASE)
     if name_match and name_match.group(1).upper() != args.channel.upper():
-        logger.error(f"❌ channel mismatch: srt={srt_path.name} implies {name_match.group(1).upper()} but channel={args.channel}")
+        logger.error(
+            f"❌ channel mismatch: srt={requested_srt_path.name} implies {name_match.group(1).upper()} but channel={args.channel}"
+        )
         sys.exit(1)
-    final_root = PROJECT_ROOT.parent / "audio_tts_v2" / "artifacts" / "final"
+    final_root = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final"
     try:
-        rel_parts = srt_path.relative_to(final_root).parts
+        rel_parts = requested_srt_path.relative_to(final_root).parts
         if rel_parts:
             dir_ch = rel_parts[0][:4].upper()
             if dir_ch.startswith("CH") and dir_ch[2:4].isdigit() and dir_ch != args.channel.upper():
@@ -173,8 +180,22 @@ def main():
     except Exception:
         pass
 
+    # Prefer audio_tts_v2 final SRT when resolvable (prevents stale input copies).
+    episode = parse_episode_id(str(requested_srt_path))
+    if episode is None and re.fullmatch(r"\d{1,3}", requested_srt_path.stem):
+        episode = EpisodeId(channel=args.channel.upper(), video=requested_srt_path.stem.zfill(3))
+    srt_path = requested_srt_path
+    if episode and episode.channel.upper() == args.channel.upper():
+        try:
+            _wav, final_srt = resolve_final_audio_srt(episode)
+            if final_srt.resolve() != requested_srt_path.resolve():
+                logger.info("✅ SoT SRT selected: %s (requested: %s)", final_srt, requested_srt_path)
+            srt_path = final_srt.resolve()
+        except FileNotFoundError:
+            srt_path = requested_srt_path
+
     # Extract and normalize video ID from the SRT filename (without extension)
-    raw_video_id = srt_path.stem  # e.g., "CH02-015" or "220"
+    raw_video_id = episode.episode if episode else srt_path.stem  # e.g., "CH02-015" or "220"
     video_id = canonical_video_id(args.channel, raw_video_id)
 
     # Define the output directory
