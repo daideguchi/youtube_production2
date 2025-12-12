@@ -9,12 +9,18 @@
 
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CHANNELS_DIR = REPO_ROOT / "progress" / "channels"
-DATA_ROOT = REPO_ROOT / "script_pipeline" / "data"
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import planning_root, script_data_root
+
+CHANNELS_DIR = planning_root() / "channels"
+DATA_ROOT = script_data_root()
 
 
 def load_csv(path: Path) -> Tuple[List[Dict[str, str]], List[str]]:
