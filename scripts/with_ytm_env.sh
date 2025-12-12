@@ -10,6 +10,8 @@ if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ .env not found at $ENV_FILE" >&2
   exit 1
 fi
+# Ensure repo imports work regardless of caller CWD/global PYTHONPATH.
+export PYTHONPATH="$ROOT_DIR${PYTHONPATH:+:$PYTHONPATH}"
 # shellcheck disable=SC1090
 set -a
 source "$ENV_FILE"
