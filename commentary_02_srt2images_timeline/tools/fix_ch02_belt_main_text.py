@@ -17,13 +17,24 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 
-CAPCUT_DRAFT_ROOT = Path("/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft")
-RUN_ROOT = Path(__file__).resolve().parents[1] / "output"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import video_runs_root
+
+CAPCUT_DRAFT_ROOT = Path(
+    os.getenv("CAPCUT_DRAFT_ROOT")
+    or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
+)
+RUN_ROOT = video_runs_root()
 
 
 def _load_json(path: Path) -> Dict[str, Any]:

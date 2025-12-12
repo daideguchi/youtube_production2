@@ -17,13 +17,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
-DEFAULT_DRAFT_ROOT = Path("/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft")
+DEFAULT_DRAFT_ROOT = Path(
+    os.getenv("CAPCUT_DRAFT_ROOT")
+    or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
+)
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -191,4 +195,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

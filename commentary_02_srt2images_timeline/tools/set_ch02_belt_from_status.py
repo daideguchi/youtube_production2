@@ -15,15 +15,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 
-CAPCUT_DRAFT_ROOT = Path("/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft")
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT_DATA_ROOT = REPO_ROOT / "script_pipeline" / "data"
-RUN_ROOT = REPO_ROOT / "commentary_02_srt2images_timeline" / "output"
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import status_path as script_status_path
+from factory_common.paths import video_runs_root
+
+CAPCUT_DRAFT_ROOT = Path(
+    os.getenv("CAPCUT_DRAFT_ROOT")
+    or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
+)
+RUN_ROOT = video_runs_root()
 
 
 DEFAULT_TARGETS = [
@@ -106,8 +116,8 @@ def _extract_bracket_topic(sheet_title: str) -> Optional[str]:
 
 
 def _derive_topic_from_status(channel: str, video: str) -> str:
-    status_path = SCRIPT_DATA_ROOT / channel / video / "status.json"
-    data = _load_json(status_path)
+    path = script_status_path(channel, video)
+    data = _load_json(path)
     meta = data.get("metadata", {}) if isinstance(data, dict) else {}
     sheet_title = meta.get("sheet_title")
     if isinstance(sheet_title, str) and sheet_title.strip():
