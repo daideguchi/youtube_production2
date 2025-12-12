@@ -9,10 +9,16 @@ CH02 全スクリプト内容品質チェック (001-082)
 
 from pathlib import Path
 import re
+import sys
 from collections import Counter
 
-BASE_DIR = Path("/Users/dd/10_YouTube_Automation/factory_commentary")
-DATA_DIR = BASE_DIR / "script_pipeline/data/CH02"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import script_data_root
+
+DATA_DIR = script_data_root() / "CH02"
 
 def get_paragraphs(text):
     """テキストを段落に分割"""
