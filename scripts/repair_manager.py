@@ -1,4 +1,3 @@
-
 import subprocess
 import time
 import sys
@@ -6,18 +5,23 @@ import os
 import json
 from pathlib import Path
 
-# Paths
-BASE_DIR = Path("/Users/dd/10_YouTube_Automation/factory_commentary")
-TTS_DIR = BASE_DIR / "audio_tts_v2"
-ARTIFACTS_DIR = TTS_DIR / "artifacts" / "final"
-LOGS_DIR = BASE_DIR / "logs" / "repair"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import audio_final_dir, audio_pkg_root, logs_root, repo_root
+
+# Paths (SSOT)
+BASE_DIR = repo_root()
+TTS_DIR = audio_pkg_root()
+LOGS_DIR = logs_root() / "repair"
 
 class RepairManager:
     def __init__(self, channel, video_id):
         self.channel = channel
-        self.video_id = video_id
-        self.video_dir = ARTIFACTS_DIR / channel / video_id
-        self.log_file = LOGS_DIR / f"{channel}-{video_id}.log"
+        self.video_id = str(video_id).zfill(3)
+        self.video_dir = audio_final_dir(channel, self.video_id)
+        self.log_file = LOGS_DIR / f"{channel}-{self.video_id}.log"
         self.input_file = self.video_dir / "a_text.txt"
         self.metadata_file = self.video_dir / "srt_blocks.json"
         
@@ -53,7 +57,7 @@ class RepairManager:
         
         cmd = [
             sys.executable,
-            "audio_tts_v2/scripts/run_tts.py",
+            str(TTS_DIR / "scripts" / "run_tts.py"),
             "--channel", self.channel,
             "--video", self.video_id,
             "--input", str(self.input_file),
@@ -74,7 +78,6 @@ class RepairManager:
             self.clean_slate()
         
         env = os.environ.copy()
-        env["PYTHONPATH"] = "audio_tts_v2"
         
         with open(self.log_file, "a") as log_f:
             self.process = subprocess.Popen(
