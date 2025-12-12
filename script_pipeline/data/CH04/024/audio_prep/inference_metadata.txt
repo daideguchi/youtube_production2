@@ -1,4 +1,0 @@
-inference_logic: v2_synced
-model: unknown
-synced_at: 2025-12-07T11:33:24.346870
-status: approved_by_sync_tool

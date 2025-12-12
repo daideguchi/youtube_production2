@@ -1,4 +1,0 @@
-inference_logic: v2_srt_only
-model: default
-timestamp: 2025-12-07T11:34:52.436880
-status: generated_by_v2_runner

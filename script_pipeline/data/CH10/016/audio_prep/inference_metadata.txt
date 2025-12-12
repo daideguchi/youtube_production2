@@ -1,4 +1,0 @@
-inference_logic: v2_strict
-model: tts_primary
-timestamp: 2025-12-09T18:39:27.893140
-status: success

@@ -1,9 +1,0 @@
-{
-  "last_updated": "2025-12-06T11:25:00+09:00",
-  "inference_logic": "manual_agent_inference",
-  "corrections": [
-    "Removed middle dots from names: Robert Bauval (ロバートボーヴァル), Christopher Dunn (クリストファーダン), Edgar Cayce (エドガーケイシー).",
-    "Handled technical terms: 'Orion Mystery' (オリオンミステリー), 'Zep Tepi' (ゼプテピ、初めの時), 'Big Void' (ビッグヴォイド), 'Upuaut 2' (ウプウアウトニゴウ), 'Dolphin Pyramid' (ドルフィンピラミッド), 'Hall of Records' (ホールオブレコード), 'Stargate' (スターゲート), 'Energy Plant' (エネルギープラント), 'Dendera Light' (デンデラノデンキュウ).",
-    "Handled symbols: Pi (円周率、パイ), Phi (黄金比、ファイ)."
-  ]
-}

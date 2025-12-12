@@ -1,8 +1,0 @@
-{
-  "last_updated": "2025-12-06T11:28:00+09:00",
-  "inference_logic": "manual_agent_inference",
-  "corrections": [
-    "Removed middle dots from names: Mac Brazel, Jesse Marcel, Roger Ramey, Bill Brazel, Walt Whitmore, Glenn Dennis, Philip Corso, David Grusch.",
-    "Handled technical terms: 'Rawin Sonde' (レーウィンゾンデ), 'I-Beam' (アイビーム), 'Hangar 18' (ハンガーエイティーン), 'Guy Hottel Memo' (ガイホッテルメモ), 'High Dive Dummy' (ハイダイブニンギョウ), 'EBE' (イービーイー), 'Yellow Book' (イエローブック), 'Tic Tac UFO' (チクタクユーフォー), 'Project Serpo' (プロジェクトセルポ), 'Reverse Engineering' (逆行分析、リバースエンジニアリング)."
-  ]
-}
