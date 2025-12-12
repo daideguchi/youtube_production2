@@ -21,6 +21,8 @@ __pycache__/
 _local_archives/
 *.pyc
 *.pyo
+*.bak
+*~
 *.mp4
 *.wav
 *.srt

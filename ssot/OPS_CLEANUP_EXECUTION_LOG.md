@@ -65,3 +65,13 @@
   - `commentary_02_srt2images_timeline/image_cues.json`
 - バックアップ（復元先）:
   - `backups/20251212_repo_residue/commentary_02_legacy_root_artifacts/`
+
+### 2) バックアップファイル（.bak）の削除
+
+意図: repo tracked のバックアップ残骸を除去し、探索ノイズを減らす。
+
+- 削除:
+  - `commentary_02_srt2images_timeline/tools/factory.py.bak`
+  - `50_tools/projects/srtfile/srtfile_v2/tools/progress_manager.py.bak`
+- 付随:
+  - `.gitignore` に `*.bak` と `*~` を追加
