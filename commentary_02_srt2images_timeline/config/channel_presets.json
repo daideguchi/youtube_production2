@@ -28,7 +28,7 @@
       "tone_profile": "トーン: 静寂・内省・幻想的。写実寄りの水彩＋薄い油彩グレーズ、低〜中彩度、柔らかいハイライトと薄い霧。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
       "character_note": "人物ポリシー: デフォルト無人。人物が出る場合は台本に沿う一人/少数のみで、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラや現場作業員・道具（赤い鉢巻・鎌等）は禁止。",
       "style": "realistic-leaning watercolor + soft oil glaze, warm-gold light vs cool blue-gray stone, no text, no cartoon, consistent characters",
-      "capcut_template": "CH02-UNK_テンプレ",
+      "capcut_template": "CH02-テンプレ",
       "position": {"tx": 0.0, "ty": 0.0, "scale": 1.0},
       "layout": {"beltTopPct": 82, "beltHeightPct": 16, "subtitleBottomPx": 120, "subtitleMaxWidthPct": 80, "subtitleFontSize": 34},
       "belt": {"enabled": true, "opening_offset": 0.0, "requires_config": true, "mode": "main_only", "max_sections": 1},
