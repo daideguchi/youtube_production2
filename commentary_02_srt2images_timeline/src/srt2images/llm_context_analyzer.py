@@ -616,20 +616,10 @@ Script excerpts:
             )
 
             if not new_breaks or len(new_breaks) <= 1:
-                if self.strict_mode:
-                    raise RuntimeError(
-                        f"🚨 CRITICAL ERROR: LLM failed to split overlong section (duration={duration:.1f}s). "
-                        f"Mechanical fallback is DISABLED. This violates the core value of contextual understanding. "
-                        f"Please check Gemini API status or adjust target_sections parameter."
-                    )
-                else:
-                    logging.warning(
-                        f"⚠️  LLM failed to split overlong section (duration={duration:.1f}s), "
-                        f"using fallback segmentation for this section."
-                    )
-                    # Return the original section as-is if strict mode is off and splitting failed
-                    refined.append(br)
-                    continue
+                raise RuntimeError(
+                    f"🚨 LLM failed to split overlong section (duration={duration:.1f}s). "
+                    "Mechanical fallback is DISABLED. Fix the LLM call/prompt/parsing and rerun."
+                )
 
             refined.extend(new_breaks)
 

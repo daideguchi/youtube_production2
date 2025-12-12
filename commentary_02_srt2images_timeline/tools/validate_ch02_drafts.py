@@ -55,7 +55,7 @@ def _find_latest_draft_dirs(draft_root: Path, channel: str, videos: List[str]) -
     found: List[Path] = []
     missing: List[str] = []
     for video in videos:
-        pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\\d{{8}}_\\d{{6}}_draft$")
+        pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
         matches = [p for p in draft_root.iterdir() if p.is_dir() and pat.match(p.name)]
         matches.sort(key=lambda p: p.name)
         if not matches:
@@ -281,7 +281,7 @@ def main() -> None:
     if args.all_matching:
         targets: List[Path] = []
         for video in videos:
-            pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\\d{{8}}_\\d{{6}}_draft$")
+            pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
             matches = [p for p in draft_root.iterdir() if p.is_dir() and pat.match(p.name)]
             matches.sort(key=lambda p: p.name)
             targets.extend(matches)
@@ -323,4 +323,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
