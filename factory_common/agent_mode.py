@@ -59,6 +59,11 @@ def _llm_mode() -> str:
     return (os.getenv("LLM_MODE") or "api").strip().lower()
 
 
+def _agent_name() -> Optional[str]:
+    raw = (os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip()
+    return raw or None
+
+
 def agent_mode_enabled_for_task(task: str) -> bool:
     mode = _llm_mode()
     # Alias: "think" means "agent" (named mode)
@@ -235,6 +240,7 @@ def ensure_pending_task(
             # If corrupted, overwrite with a fresh payload.
             pass
 
+    agent_name = _agent_name()
     payload: Dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "id": task_id,
@@ -260,6 +266,9 @@ def ensure_pending_task(
             "argv": sys.argv,
         },
     }
+    if agent_name:
+        payload["claimed_by"] = agent_name
+        payload["claimed_at"] = _now_iso_utc()
     _atomic_write_json(p_path, payload)
     return payload
 
@@ -269,6 +278,7 @@ def write_result(
     task: str,
     content: str,
     notes: str | None = None,
+    completed_by: str | None = None,
     queue_dir: Optional[Path] = None,
     move_pending: bool = True,
 ) -> Path:
@@ -279,6 +289,7 @@ def write_result(
         "id": task_id,
         "task": task,
         "completed_at": _now_iso_utc(),
+        "completed_by": completed_by or _agent_name(),
         "content": content,
     }
     if notes:
@@ -365,4 +376,3 @@ def maybe_handle_agent_mode(
         "  - rerun: the same command that created this pending task (see pending.invocation as a hint)",
     ]
     raise SystemExit("\n".join(msg_lines))
-

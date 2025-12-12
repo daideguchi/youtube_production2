@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from factory_common.agent_mode import (
@@ -16,6 +18,22 @@ from factory_common.agent_mode import (
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _now_iso_utc() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _agent_name(args: argparse.Namespace) -> str | None:
+    raw = (getattr(args, "agent_name", None) or os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip()
+    return raw or None
+
+
+def _atomic_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -32,15 +50,16 @@ def cmd_list(args: argparse.Namespace) -> int:
         task = str(obj.get("task") or "-")
         created = str(obj.get("created_at") or "-")
         runbook = str(obj.get("runbook_path") or "-")
-        status = "ready" if results_path(task_id, queue_dir=q).exists() else "pending"
-        rows.append((status, task_id, task, created, runbook))
+        claimed_by = str(obj.get("claimed_by") or "-")
+        status = "ready" if results_path(task_id, queue_dir=q).exists() else ("claimed" if claimed_by != "-" else "pending")
+        rows.append((status, task_id, task, created, runbook, claimed_by))
 
     if not rows:
         print("(no pending tasks)")
         return 0
 
     # TSV for easy copy/paste
-    print("status\ttask_id\ttask\tcreated_at\trunbook")
+    print("status\ttask_id\ttask\tcreated_at\trunbook\tclaimed_by")
     for r in rows:
         print("\t".join(r))
     return 0
@@ -69,6 +88,12 @@ def cmd_complete(args: argparse.Namespace) -> int:
         print("pending missing task name", file=sys.stderr)
         return 2
 
+    agent = _agent_name(args)
+    if agent and not pending_obj.get("claimed_by"):
+        pending_obj["claimed_by"] = agent
+        pending_obj["claimed_at"] = _now_iso_utc()
+        _atomic_write_json(p, pending_obj)
+
     if args.content_file:
         content = Path(args.content_file).read_text(encoding="utf-8")
     else:
@@ -93,6 +118,7 @@ def cmd_complete(args: argparse.Namespace) -> int:
         task=task,
         content=content,
         notes=args.notes,
+        completed_by=agent,
         queue_dir=q,
         move_pending=not args.keep_pending,
     )
@@ -112,6 +138,7 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     task = str(obj.get("task") or "-")
     runbook = str(obj.get("runbook_path") or "-")
     response_format = obj.get("response_format")
+    claimed_by = str(obj.get("claimed_by") or "-")
     caller = obj.get("caller") or {}
     result_path = str(obj.get("result_path") or results_path(task_id, queue_dir=q))
 
@@ -120,6 +147,7 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     print(f"- task: {task}")
     print(f"- response_format: {response_format}")
     print(f"- runbook: {runbook}")
+    print(f"- claimed_by: {claimed_by}")
     if isinstance(caller, dict) and caller:
         print(f"- caller: {caller.get('file')}:{caller.get('line')} ({caller.get('function')})")
     print(f"- expected_result: {result_path}")
@@ -160,6 +188,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
     task = str(obj.get("task") or "-")
     runbook = str(obj.get("runbook_path") or "-")
     response_format = obj.get("response_format")
+    claimed_by = str(obj.get("claimed_by") or "-")
     instructions = obj.get("instructions") or {}
 
     print("あなたはチャットAIです。端末操作やファイル参照はできません。")
@@ -176,6 +205,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
     print(f"- task: {task}")
     print(f"- response_format: {response_format}")
     print(f"- runbook_path: {runbook}")
+    print(f"- claimed_by: {claimed_by}")
     if isinstance(instructions, dict) and instructions:
         print("")
         print("補足（運用）:")
@@ -210,6 +240,7 @@ def cmd_bundle(args: argparse.Namespace) -> int:
     task = str(obj.get("task") or "-")
     runbook = str(obj.get("runbook_path") or "-")
     response_format = obj.get("response_format")
+    claimed_by = str(obj.get("claimed_by") or "-")
     caller = obj.get("caller") or {}
     invocation = obj.get("invocation") or {}
     expected_result = str(obj.get("result_path") or results_path(task_id, queue_dir=q))
@@ -232,6 +263,7 @@ def cmd_bundle(args: argparse.Namespace) -> int:
     lines.append(f"- pending: `{p}`")
     lines.append(f"- expected_result: `{expected_result}`")
     lines.append(f"- runbook: `{runbook}`")
+    lines.append(f"- claimed_by: `{claimed_by}`")
     if isinstance(caller, dict) and caller:
         lines.append(f"- caller: `{caller.get('file')}:{caller.get('line')} ({caller.get('function')})`")
     if isinstance(invocation, dict) and invocation:
@@ -299,9 +331,35 @@ def cmd_bundle(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_claim(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = pending_path(args.task_id, queue_dir=q)
+    if not p.exists():
+        print(f"pending not found: {p}", file=sys.stderr)
+        return 2
+
+    agent = _agent_name(args)
+    if not agent:
+        print("agent name is required: set LLM_AGENT_NAME or pass --agent-name", file=sys.stderr)
+        return 2
+
+    obj = _load_json(p)
+    current = (obj.get("claimed_by") or "").strip()
+    if current and current != agent and not args.force:
+        print(f"already claimed by '{current}'. use --force to override.", file=sys.stderr)
+        return 2
+
+    obj["claimed_by"] = agent
+    obj["claimed_at"] = _now_iso_utc()
+    _atomic_write_json(p, obj)
+    print(str(p))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Agent-mode task queue helper")
     p.add_argument("--queue-dir", default=None, help="override queue dir (default: env/ logs/agent_tasks)")
+    p.add_argument("--agent-name", default=None, help="agent name (or set env LLM_AGENT_NAME)")
 
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -326,6 +384,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--include-runbook", action="store_true", help="embed runbook content into the bundle")
     sp.set_defaults(func=cmd_bundle)
 
+    sp = sub.add_parser("claim", help="mark a pending task as claimed by an agent")
+    sp.add_argument("task_id")
+    sp.add_argument("--force", action="store_true", help="override existing claim")
+    sp.set_defaults(func=cmd_claim)
+
     sp = sub.add_parser("complete", help="write results json and (optionally) move pending to completed/")
     sp.add_argument("task_id")
     sp.add_argument("--content-file", default=None, help="file containing response content (utf-8). If omitted, read stdin.")
@@ -345,4 +408,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
