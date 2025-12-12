@@ -54,8 +54,8 @@
 
 `rg --files-with-matches "script_pipeline/data"` の結果（全件）。
 
-- `ui/backend/main.py`
-- `ui/backend/routers/tts_progress.py`
+- `apps/ui-backend/backend/main.py`（互換: `ui/backend/*` は symlink）
+- `apps/ui-backend/backend/routers/tts_progress.py`
 - `apps/ui-frontend/src/api/client.ts`（互換: `ui/frontend/src/...` は symlink）
 - `apps/ui-frontend/src/components/ResearchWorkspace.tsx`
 - `audio_tts_v2/scripts/run_tts.py`
@@ -87,7 +87,7 @@
 
 - `scripts/create_image_cues_from_srt.py`
 - `scripts/run_pipeline_skip_llm.py`
-- `ui/backend/routers/swap.py`
+- `apps/ui-backend/backend/routers/swap.py`
 - `commentary_02_srt2images_timeline/ui/server/jobs.py`
 - `commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt`（Docs/運用）
 - `apps/ui-frontend/src/components/RemotionWorkspace.tsx`（experimental UI）
@@ -103,7 +103,7 @@
 
 - `audio_tts_v2/scripts/run_tts.py`
 - `commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`
-- `ui/backend/routers/auto_draft.py`
+- `apps/ui-backend/backend/routers/auto_draft.py`
 - `apps/ui-frontend/src/pages/AutoDraftPage.tsx`
 - `apps/ui-frontend/src/components/AudioWorkspace.tsx`
 - `scripts/check_all_srt.sh`
@@ -124,11 +124,11 @@
 
 `rg --files-with-matches "progress/channels"` の結果（全件）。
 
-- `ui/backend/main.py`
-- `ui/frontend/src/pages/ScriptFactoryPage.tsx`
-- `ui/frontend/src/pages/ProjectsPage.tsx`
-- `ui/frontend/src/api/client.ts`
-- `ui/frontend/src/layouts/AppShell.tsx`
+- `apps/ui-backend/backend/main.py`
+- `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx`
+- `apps/ui-frontend/src/pages/ProjectsPage.tsx`
+- `apps/ui-frontend/src/api/client.ts`
+- `apps/ui-frontend/src/layouts/AppShell.tsx`
 - `tools/check_consistency.py`
 - `tools/check_ch06_quality.py`
 - `tools/audit_and_enhance_ch06.py`
@@ -153,8 +153,8 @@
 
 `rg --files-with-matches "thumbnails/assets"` の結果（全件）。
 
-- `ui/backend/main.py`
-- `ui/frontend/src/components/ThumbnailWorkspace.tsx`
+- `apps/ui-backend/backend/main.py`
+- `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx`
 - `ui/tools/assets_sync.py`
 - `ui/tools/README.md`（Docs）
 - `thumbnails/README.md`（Docs）
@@ -172,8 +172,8 @@
 
 - `tests/*`（多数）
 - `scripts/*`（generate_subtitles/build_video_payload/sync_* 等）
-- `ui/backend/main.py`
-- `ui/backend/video_production.py`
+- `apps/ui-backend/backend/main.py`
+- `apps/ui-backend/backend/video_production.py`
 - `progress/README.md`
 - `thumbnails/README.md`
 - `configs/README.md`

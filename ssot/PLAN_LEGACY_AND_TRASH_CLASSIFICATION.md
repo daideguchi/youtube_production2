@@ -70,7 +70,7 @@
 
 **ユーザー指摘の「ゴミ候補」検証（結論）**
 - `commentary_02_srt2images_timeline/ui/` は **ゴミではない**:
-  - `ui/backend/video_production.py` から `commentary_02_srt2images_timeline.ui.server.jobs` を参照しているため、削除すると UI ジョブ運用が破綻する。
+  - `apps/ui-backend/backend/video_production.py` から `commentary_02_srt2images_timeline.ui.server.jobs` を参照しているため、削除すると UI ジョブ運用が破綻する（互換: `ui/backend` は symlink）。
 - `commentary_02_srt2images_timeline/examples/` は **存在しない**（現行ツリーにディレクトリ自体が無い）。
 
 **Keep（現行依存あり）**

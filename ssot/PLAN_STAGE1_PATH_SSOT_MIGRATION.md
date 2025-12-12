@@ -119,11 +119,11 @@
 
 ### 3.4 Stage1-4: UI backend（paths SSOT への一本化）
 対象（`script_pipeline/data` / `progress/channels` / `audio_tts_v2/artifacts` / `thumbnails/assets` / `commentary_02/output` / Remotion preview path）:
-- `ui/backend/main.py`
-- `ui/backend/video_production.py`
-- `ui/backend/routers/auto_draft.py`
-- `ui/backend/routers/swap.py`
-- `ui/backend/routers/tts_progress.py`
+- `apps/ui-backend/backend/main.py`（互換: `ui/backend/*` は symlink）
+- `apps/ui-backend/backend/video_production.py`
+- `apps/ui-backend/backend/routers/auto_draft.py`
+- `apps/ui-backend/backend/routers/swap.py`
+- `apps/ui-backend/backend/routers/tts_progress.py`
 - `ui/tools/assets_sync.py`（backendと同じpathsを使う）
 
 ゲート:

@@ -51,7 +51,7 @@
   - `commentary_02_srt2images_timeline/`（SRT→画像/CapCut・output= `commentary_02_srt2images_timeline/output/`）
   - `factory_common/`（LLM/画像クライアント等の共通層）
 - **アプリ（UI/動画）**
-  - `ui/backend`（FastAPI、複数のルートパスを直書き）
+  - `apps/ui-backend/backend`（FastAPI、互換: `ui/backend` は symlink）
   - `apps/ui-frontend`（React、互換: `ui/frontend` は symlink）
   - `remotion/`（Node+Remotion。現行は未使用の実験ラインだがコード/preview/UI入口は存在）
 - **SoT/運用データ**
@@ -414,7 +414,7 @@ legacy/
 - Video 失敗: run を `runs/_failed/<run_id>/` に移し、次 run を作る
 
 ## 6. 影響範囲と依存関係
-- **UI backend**: `ui/backend/main.py`, `ui/backend/video_production.py`, `ui/backend/routers/*`
+- **UI backend**: `apps/ui-backend/backend/main.py`, `apps/ui-backend/backend/video_production.py`, `apps/ui-backend/backend/routers/*`（互換: `ui/backend/*` は symlink 経由）
   - `PROJECT_ROOT/"script_pipeline"`, `"commentary_02_srt2images_timeline"`, `"progress"`, `"thumbnails"` の参照を paths SSOT に置換。
 - **UI frontend**: `apps/ui-frontend/src/components/*`（互換: `ui/frontend/src/*` は symlink 経由）
   - `00_research`, `thumbnails/assets`, `script_pipeline/data` 表示パスの更新。
@@ -532,7 +532,7 @@ legacy/
 
 ### Stage 5: `apps/` へのアプリ移動
 - [x] `apps/` 作成。
-- [ ] `ui/backend` → `apps/ui-backend/backend`
+- [x] `ui/backend` → `apps/ui-backend/backend`（互換: `ui/backend` は symlink）
 - [x] `ui/frontend` → `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 - [ ] `remotion/` → `apps/remotion`（experimental。主線が安定してから最後に移してOK）
 - [ ] `scripts/start_all.sh` / `ui/tools/start_manager.py` の参照パス更新。

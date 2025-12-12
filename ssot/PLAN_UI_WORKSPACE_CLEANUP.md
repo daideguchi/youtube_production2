@@ -6,7 +6,7 @@
 - **担当/レビュー**: AI agent / Owner review
 - **対象範囲 (In Scope)**: `apps/ui-frontend` のページ/サイドバー/ルーティング整理、辞書UIの集約（互換: `ui/frontend` は symlink）
 - **非対象 (Out of Scope)**: バックエンドの大規模リファクタリング、データ形式の変更、既存ジョブ/パイプラインの仕様変更
-- **関連 SoT/依存**: `progress/channels/*.csv`, `audio_tts_v2/data/reading_dict/*.yaml`, `audio_tts_v2/data/global_knowledge_base.json`, `ui/backend/main.py`
+- **関連 SoT/依存**: `progress/channels/*.csv`, `audio_tts_v2/data/reading_dict/*.yaml`, `audio_tts_v2/data/global_knowledge_base.json`, `apps/ui-backend/backend/main.py`（互換: `ui/backend` は symlink）
 - **最終更新日**: 2025-12-12
 
 ## 1. 背景と目的
@@ -32,7 +32,7 @@
   - サイドバー項目の整理（表示順/カテゴリ化/折り畳み）
   - 旧UI（辞書操作が散らばる箇所）の整理・誘導
 - **Out of Scope**
-  - `ui/backend` の構造変更・大型API整理（別計画に委ねる）
+- `apps/ui-backend/backend` の構造変更・大型API整理（別計画に委ねる）
   - SoTファイル構造の再設計
   - 既存ページの機能追加（必要最小限の修正のみ）
 
@@ -66,7 +66,7 @@
   - `App.tsx`（routes）
   - `AudioIntegrityPage.tsx`（辞書UI撤去・誘導）
 - **依存**
-  - `ui/backend/main.py` のKB/reading-dict API
+  - `apps/ui-backend/backend/main.py` のKB/reading-dict API
   - `audio_tts_v2/tts/reading_dict.py` のYAML読み書き
 - **他計画との整合**
   - 別エージェントが作成中のバックエンド大幅リファクタ計画が `ssot/` に来たら、本計画のAPI前提はそちらへ追従する。
@@ -104,4 +104,4 @@
 ## 12. 参照リンク
 - `apps/ui-frontend/src/pages/DictionaryPage.tsx`
 - `apps/ui-frontend/src/layouts/AppShell.tsx`
-- `ui/backend/main.py`（KB/reading-dict endpoints）
+- `apps/ui-backend/backend/main.py`（KB/reading-dict endpoints）
