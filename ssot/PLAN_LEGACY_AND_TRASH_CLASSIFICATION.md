@@ -23,6 +23,7 @@
 ### 1.1 実施済み（証跡）
 - 2025-12-12: `factory_commentary.egg-info/` と `commentary_02_srt2images_timeline/{src,ui/src}/memory/` を確実ゴミとして削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-12: `commentary_02_srt2images_timeline/**/runtime/logs/notifications.jsonl` を参照ゼロのコミット残骸として削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 2025-12-13: `commentary_02_srt2images_timeline/` 直下の残骸（`PROJ.json`, `channel_preset.json`, `persona.txt`, `image_cues.json`）を削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`。バックアップ作成済み）。
 
 ---
 
@@ -82,11 +83,7 @@
 
 **Trash候補（run外の残骸）**
 > `rg`参照ゼロ・SoTフロー外。管理者確認後に削除。
-- `commentary_02_srt2images_timeline/image_cues.json`（root直下の残骸）
 - `commentary_02_srt2images_timeline/images/`（root直下の残骸）
-- `commentary_02_srt2images_timeline/persona.txt`（root直下の残骸）
-- `commentary_02_srt2images_timeline/channel_preset.json`（root直下の残骸）
-- `commentary_02_srt2images_timeline/PROJ.json`（root直下の残骸）
 - `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
 - `commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
 
