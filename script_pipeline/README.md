@@ -12,10 +12,10 @@
 - 既存フローを止めずに新フローを段階的に移行できるようにする。
 
 ## 現行の正本と参照
-- SoT: `commentary_01_srtfile_v2/data/CHxx/NNN/status.json`
-- ミラー: `progress/channels/CHxx.csv`, `commentary_01_srtfile_v2/data/_progress/CHxx/*.json`
-- 導線: `START_HERE.md` → `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md`
-- モデル: `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md`
+- SoT: `data/CHxx/NNN/status.json`
+- 企画 SoT: `progress/channels/CHxx.csv`
+- 導線: `START_HERE.md` → `ssot/OPS_SCRIPT_SOURCE_MAP.md`
+- モデル: `ssot/OPS_LLM_MODEL_CHEATSHEET.md`
 
 ### LLM / Env 正本
 - .env: `/Users/dd/10_YouTube_Automation/factory_commentary/.env`（唯一の正、runner が自動ロード）

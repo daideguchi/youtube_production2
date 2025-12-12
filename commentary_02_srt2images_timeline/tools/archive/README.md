@@ -4,4 +4,4 @@
 
 - 実行・編集しないこと。参考が必要なら最新版の `tools/capcut_bulk_insert.py` を確認してください。
 - 新しいバージョンをここへ追加せず、必要なら Git ブランチまたは `_archives/` に保存してください。
-- 調査で閲覧した場合は SSOT (`ssot/README.md` / `ssot/ops/OPS_SYSTEM_ARCHITECTURE.md`) に従って現行手順へ戻してください。
+- 調査で閲覧した場合は SSOT (`ssot/README.md` / `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`) に従って現行手順へ戻してください。

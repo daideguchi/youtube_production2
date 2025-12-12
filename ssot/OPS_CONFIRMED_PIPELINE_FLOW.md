@@ -3,6 +3,12 @@
 この文書は「今このリポジトリで実際に動いている処理フロー」と「削除/移動の判定に必要な入出力（I/O）とSoT」を、コード実態とSSOTを突き合わせて確定したもの。  
 リファクタリング/ゴミ判定は **必ず本フローとI/Oを正として行う**。
 
+I/Oスキーマ（観測ベース）: `ssot/OPS_IO_SCHEMAS.md`  
+実行入口（CLI/スクリプト/UI）: `ssot/OPS_ENTRYPOINTS_INDEX.md`  
+Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`  
+整合チェック: `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`  
+ログ: `ssot/OPS_LOGGING_MAP.md`
+
 ---
 
 ## 0. 用語 / SoT（Single Source of Truth）
@@ -215,7 +221,16 @@
      - `auto_run_info.json`（実行メタ/モデル/パラメータ）
 
 **確認ポイント（run_dir完成条件）**
-- `image_cues.json` / `images/` / `belt_config.json` / `capcut_draft/` / `capcut_draft_info.json` / `auto_run_info.json` が揃う。
+- 最低限（CapCutドラフトとして成立）:
+  - `image_cues.json`
+  - `images/`
+  - `capcut_draft`（CapCut projects への symlink）
+  - `capcut_draft_info.json`
+- 推奨（再現性/監査）:
+  - `auto_run_info.json`（実行メタ）
+  - `channel_preset.json`, `persona.txt`（存在する場合）
+- belt_mode を使う場合:
+  - `belt_config.json`
 
 **Downstream dependencies**
 - **本番主線は CapCut ドラフト → CapCut側で mp4 書き出し**。

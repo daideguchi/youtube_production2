@@ -1,0 +1,105 @@
+# OPS_SCRIPT_SOURCE_MAP — 台本/音声/動画の“ソース元”対応表（SoT→生成物）
+
+この文書は「何をどこで直すべきか（正本/SoT）」を最短で判断するためのソースマップ。  
+迷ったら **“直す場所＝SoT”** を先に確定し、派生物（ミラー/生成物）は後から同期する。
+
+関連: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+
+---
+
+## 0. 大原則（壊さないためのルール）
+
+- **SoTは1つ**：フェーズごとに“正本”は1つに限定する（複数あると必ず破綻する）。
+- **ミラーは編集禁止**：UI/集計の都合で写しているだけ。編集するなら同期ツールとセット。
+- **生成物は捨てて良い**：再生成できるものはL2/L3扱い。保持/削除は `PLAN_OPS_ARTIFACT_LIFECYCLE` が正本。
+- **パスはpaths SSOT**：コードは `factory_common/paths.py` を通す（物理移設しても壊れないため）。
+
+---
+
+## 1. Planning（企画）— “何を作るか”の正本
+
+### 1.1 SoT
+- `progress/channels/CHxx.csv`（企画の正本）
+  - 主要列（例）:
+    - `チャンネル`, `動画番号`, `動画ID`, `タイトル/Topic`, `タグ/要約`, `status`, `redo_*` 等
+  - 参照側:
+    - `script_pipeline/tools/planning_store.py`（都度CSVを読む）
+    - `commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py`（画像文脈へ注入）
+    - `ui/backend/*`（UI表示/編集）
+
+### 1.2 Mirror（編集禁止）
+- UIのキャッシュ/サマリ系（例: `ui/backend` が生成する quick_history など）
+
+### 1.3 下流へ流れる“ソース”一覧
+- タイトル/テーマ → 台本プロンプト / CapCutタイトル / YouTube投稿
+- タグ/要約/企画意図 → 画像生成のLLM文脈 / 台本の論旨
+- 進捗ステータス（ready/published等）→ cleanupの安全ガード
+
+---
+
+## 2. Script Pipeline（台本）— “本文”の正本
+
+### 2.1 SoT
+- `script_pipeline/data/{CH}/{NNN}/status.json`
+  - ステージ状態（pending/completed）と出力ファイルの存在が正本
+
+### 2.2 Human-editable（人間が直すならここ）
+- `script_pipeline/data/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本）
+  - `assembled_temp.md` 等は中間の可能性があるため、運用上は `assembled.md` を採用する（例外はSSOTに記録）
+
+### 2.3 Generated（派生物）
+- `script_pipeline/data/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（L3: 証跡/デバッグ）
+- `script_pipeline/data/{CH}/{NNN}/content/*`（段階生成物、運用で採用するファイルを固定する）
+
+### 2.4 入口（Entry points）
+- `python -m script_pipeline.cli init/run/next/run-all ...`
+  - `--channel CHxx --video NNN` を正として扱う（パス直書き禁止）
+
+---
+
+## 3. Audio/TTS（音声・SRT）— “下流が読む音声”の正本
+
+### 3.1 SoT（下流参照の正本）
+- `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+  - `{CH}-{NNN}.wav`
+  - `{CH}-{NNN}.srt`
+  - `log.json`（証跡）
+
+### 3.2 Intermediate（作業残骸：消して良い）
+- `script_pipeline/data/{CH}/{NNN}/audio_prep/`
+  - `chunks/`（最大容量。finalが揃ったら削除対象）
+  - `log.json`（finalへ同期済みなら削除対象）
+  - `pause_map.json`, `srt_blocks.json`, `tokens.json` 等（保持ポリシーは `PLAN_OPS_ARTIFACT_LIFECYCLE`）
+
+### 3.3 入口（Entry points）
+- `python -m script_pipeline.cli audio --channel CHxx --video NNN [--resume]`
+- `python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input <assembled.md>`
+
+---
+
+## 4. Video（SRT→画像→CapCutドラフト）— “run_dir”が正本
+
+### 4.1 SoT（run単位の正本）
+- `commentary_02_srt2images_timeline/output/{run_id}/`
+  - `image_cues.json`
+  - `capcut_draft/`（採用ドラフト）
+  - `belt_config.json`, `auto_run_info.json`（再現/監査に必要）
+
+### 4.2 Inputs（上流からのソース）
+- SRT: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`
+- 音声: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav`
+- 企画文脈: `progress/channels/CHxx.csv`
+- チャンネルpreset: `commentary_02_srt2images_timeline/src/config/channel_presets.json`
+
+### 4.3 入口（Entry points）
+- `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...`
+- `python commentary_02_srt2images_timeline/tools/factory.py ...`（UI/ジョブからも呼ばれる）
+
+---
+
+## 5. Thumbnails（サムネ）— 独立動線の正本
+
+- SoT: `thumbnails/projects.json`
+- 画像: `thumbnails/assets/{CH}/{NNN}/...`
+- ※サムネは音声/SRT→CapCutの主動線とは独立（ただし企画CSVを参照する場合がある）
+

@@ -39,8 +39,8 @@ youtube動画を作るにあたって順番は以下の通り
 
 ーーー
 【フェーズ２】
-- 台本手順・禁止事項は `ssot/ops/OPS_SCRIPT_GUIDE.md` を唯一の参照先とし、本書では手順を保持しない。
-- 音声・字幕は `ssot/ops/OPS_AUDIO_TTS_V2.md`（現行）を参照。
+- 台本手順・禁止事項は `ssot/OPS_SCRIPT_GUIDE.md` を唯一の参照先とし、本書では手順を保持しない。
+- 音声・字幕は `ssot/OPS_AUDIO_TTS_V2.md`（現行）を参照。
 - 企画 CSV（チャンネル別）を正として進める。その他の記述は撤去。
 全体の画風とかテーマとかについては一貫性のあるもので、見ていて視聴者が不自然に感じないもの
 
@@ -80,7 +80,7 @@ PDCAがうまく回るようにする
 ## 1. 真価（人手作業の置き換え）
 | 項目 | 自動化で得たい状態 |
 | --- | --- |
-| 台本 | 企画 CSV から台本を量産。詳細は `ssot/ops/OPS_SCRIPT_GUIDE.md` を参照。 |
+| 台本 | 企画 CSV から台本を量産。詳細は `ssot/OPS_SCRIPT_GUIDE.md` を参照。 |
 | 音声 | Bテキストを自然な日本語で読み上げる TTS を UI 上で微調整できる。VOICEPEAK/VOICEVOX を使い分け可能。 |
 | 動画 | SRT からチャンクを作り、コンテキスト一貫の画像・帯テキストを自動生成。CapCut/Remotion どちらでも調整できる。 |
 | 投稿 | 完成した動画・サムネ・説明文を表形式で管理し、承認後に自動投稿。 |
@@ -90,12 +90,12 @@ PDCAがうまく回るようにする
 | ステップ | 主要成果 | 正本 (SoT) | 人間の役割 |
 | --- | --- | --- | --- |
 | 1. リサーチ / サムネ企画 | CSV 企画案 + サムネ案 | `progress/channels/CHxx.csv`, サムネフォルダ | ベンチマーク分析、サムネ手作り、CSVへの投入 |
-| 2. 台本 | 詳細手順は `ssot/ops/OPS_SCRIPT_GUIDE.md` を参照（本書は手順を保持しない） | `script_pipeline/data/CHxx/<video>/content` | - |
-| 3. 音声 + SRT | WAV / SRT / Readyフラグ | `audio_tts_v2/artifacts/audio/<engine>/<channel>/<video>/` | 誤読修正、Ready承認 |
+| 2. 台本 | 詳細手順は `ssot/OPS_SCRIPT_GUIDE.md` を参照（本書は手順を保持しない） | `script_pipeline/data/CHxx/<video>/content` | - |
+| 3. 音声 + SRT | WAV / SRT / Readyフラグ | `audio_tts_v2/artifacts/final/<channel>/<video>/` | 誤読修正、Ready承認 |
 | 4. 画像+動画 | 画像一式 / 帯設定 / CapCut・Remotion draft | `commentary_02_srt2images_timeline/output/<project>` | 不自然な画像の差し替え、動画全体の最終確認 |
 | 5. 投稿準備 | 表形式の投稿データ | `progress/channels/CHxx.csv`, delivery フォルダ | チェックマーク、投稿タイミング決定 |
 | 6. 自動投稿 | 投稿実行ログ | `logs/regression/…`, UI からの承認ログ | 予約設定の承認 |
-| 7. 分析/PDCA | アナリティクス + 改善メモ | `progress/analytics（想定）`, `HISTORY_codex-memory.md` | 指標の読み取り、次企画への指示 |
+| 7. 分析/PDCA | アナリティクス + 改善メモ | `progress/analytics（想定）`, `ssot/history/HISTORY_codex-memory.md` | 指標の読み取り、次企画への指示 |
 
 ## 3. フェーズ別要件
 
@@ -105,8 +105,8 @@ PDCAがうまく回るようにする
 - サムネイルは管理者が手動で作り、チャンネルごとのフォルダに保存。**企画とサムネが必ず紐づいて確認できる UI / フォルダ構造**を維持。
 
 ### フェーズ2：台本・音声ラインの自動化
-- 台本工程: `ssot/ops/OPS_SCRIPT_GUIDE.md` を唯一の参照とする。本書に手順は記載しない。
-- 音声/字幕: `ssot/ops/OPS_AUDIO_TTS_V2.md` を参照。
+- 台本工程: `ssot/OPS_SCRIPT_GUIDE.md` を唯一の参照とする。本書に手順は記載しない。
+- 音声/字幕: `ssot/OPS_AUDIO_TTS_V2.md` を参照。
 - 企画 CSV はチャンネル別 SoT（`progress/channels/CHxx.csv`）。
 
 ### フェーズ3：投稿自動化
@@ -130,14 +130,14 @@ PDCAがうまく回るようにする
 
 ## 5. データ管理・SoT
 - 企画: `progress/channels/CHxx.csv`（チャンネル別が正本。master channels CSV は使用しない）
-- 台本A/B: `script_pipeline/data/CHxx/<video>/content`（台本のみ） / 音声: `audio_tts_v2/artifacts/audio/<engine>/<channel>/<video>/`
+- 台本A/B: `script_pipeline/data/CHxx/<video>/content`（台本のみ） / 音声: `audio_tts_v2/artifacts/final/<channel>/<video>/`
 - 画像・帯・動画ドラフト: `commentary_02_srt2images_timeline/output/<project>/`
 - 投稿成果: `delivery/CHxx/CHxx-###/`
 - サムネ: `thumbnails/<channel>/<...>`（フォルダ構成で管理）
 - 投稿後指標/改善メモ: `progress/analytics/<channel>.csv`（※今後新設。アナリティクスの SoT として運用する）
 
 ## 6. PDCA とログ
-- すべての工程でログを残し、`HISTORY_codex-memory.md` に記録。  
+- すべての工程でログを残し、`ssot/history/HISTORY_codex-memory.md` に記録。  
 - UI/CLI で実行したガード（`progress_manager validate-status`, `workflow_precheck` など）はログディレクトリへ保存し、異常があれば即時に差し戻す。  
 - Ready queue / 投稿 / 分析結果は CSV + 履歴ログの双方に記録し、次フェーズへのインプットにする。
 
@@ -145,7 +145,7 @@ PDCAがうまく回るようにする
 1. **候補作成**: 管理者がサムネ画像を作成し、`thumbnails/<channel>/` に配置。各案には意図や KPI をメモする。
 2. **UI で紐付け**: Thumbnail Workspace のライブラリから企画行へ紐付け。紐付け時に誰が選んだかをログに残す。
 3. **承認チェック**: 投稿前に管理者が最終案を選定し、承認フラグ（チェックボックスなど）を付ける。未承認のまま投稿自動化が走ることは許可しない。
-4. **変更履歴**: 承認の可否や差し替え理由を `HISTORY_codex-memory.md` またはサムネイルログに記録し、後から参照できるようにする。
+4. **変更履歴**: 承認の可否や差し替え理由を `ssot/history/HISTORY_codex-memory.md` またはサムネイルログに記録し、後から参照できるようにする。
 
 ### 6.2 投稿 Go/No-Go 判断
 1. **準備完了チェック**: channels CSV 上で「台本」「音声」「動画」「サムネ」「説明文」が揃っているかを UI から確認。
@@ -153,7 +153,7 @@ PDCAがうまく回るようにする
 3. **ログ保存**: 投稿実行ログ (`logs/regression/*`) と承認ログ（CSV or HISTORY）を紐付けておき、後で「誰がいつ承認したか」を追跡できる状態にする。
 
 ## 6. PDCA とログ
-- すべての工程でログを残し、`HISTORY_codex-memory.md` に記録。  
+- すべての工程でログを残し、`ssot/history/HISTORY_codex-memory.md` に記録。  
 - UI/CLI で実行したガード（`progress_manager validate-status`, `workflow_precheck` など）はログディレクトリへ保存し、異常があれば即時に差し戻す。  
 - Ready queue / 投稿 / 分析結果は CSV + 履歴ログの双方に記録し、次フェーズへのインプットにする。
 
@@ -161,7 +161,7 @@ PDCAがうまく回るようにする
 ```mermaid
 flowchart LR
     A[企画CSV\nprogress/channels/CHxx.csv] --> B[台本A/B生成\n(script_pipeline など)]
-    B --> C[TTS生成\naudio_tts_v2 → artifacts/audio/<ch>/<vid>]
+    B --> C[TTS生成\naudio_tts_v2 → artifacts/final/<ch>/<vid>]
     C --> D[画像/帯生成\ncommentary_02]
     D --> E[CapCut / Remotion Draft]
     E --> F[納品ZIP / delivery]
@@ -171,7 +171,7 @@ flowchart LR
     I --> A
 ```
 
-- 音声成果物の公式保存先: `audio_tts_v2/artifacts/audio/<channel>/<video>/`（旧 `audio/` / `logs/audio_tts/` / `artifacts/` は廃止）。  
+- 音声成果物の公式保存先: `audio_tts_v2/artifacts/final/<channel>/<video>/`。  
 - TTSエンジン: CH01→Voicepeak（男性3, CLI）、CH06-033→VOICEVOX（青山流星）、デフォルトVoicevox。LLMは Azure gpt-5-mini 固定。  
 
 ## 8. TODO / 実装状況
@@ -196,7 +196,7 @@ flowchart LR
 2. **サムネイルは人間の責務**：自動アサインは行わず、承認ログを残してから投稿へ進める。
 3. **status.json が唯一の進捗 SoT**。channels CSV はミラーであり、status.json を基準に同期する。Sheets や一時ファイルで編集しない。
 4. **A/B テキストを混ぜない**：表示と音声で管理ファイルを分離し、辞書/ポーズルールを厳守する。
-5. **ログを残す**：ガード結果・承認判断・改善メモを `HISTORY_codex-memory.md` に即記録。
+5. **ログを残す**：ガード結果・承認判断・改善メモを `ssot/history/HISTORY_codex-memory.md` に即記録。
 6. **分析で終わり分析に戻る**：`progress/analytics/<channel>.csv` を必ず更新し、次の企画に反映する。
 
 ---

@@ -56,7 +56,7 @@
   - `remotion/`（Node+Remotion。現行は未使用の実験ラインだがコード/preview/UI入口は存在）
 - **SoT/運用データ**
   - `progress/`（channels CSV/personas/templates/analytics）
-  - `thumbnails/`（projects.json + assets）
+  - `thumbnails/`（projects.json + assets（移行先） + 旧 `CHxx_<name>/` 資産）
   - `configs/`（LLM/画像/Drive/YT/設定正本）
   - `prompts/`（Qwen/説明文など）
   - `credentials/`（OAuth token 等）
@@ -75,6 +75,38 @@
   - `idea/`（メモ/下書き）
   - `docs/`（旧静的ビルド・履歴）
   - ルート `tools/`（チャンネル別のアドホック保守スクリプト）
+
+**サイズ（2025-12-12 観測: `du -sh`）**
+- `commentary_02_srt2images_timeline/`: 約22GB（主に `output/` run）
+- `audio_tts_v2/`: 約19GB（主に `artifacts/final/` がディスク上に存在）
+- `remotion/`: 約2.2GB（主に `node_modules/`）
+- `ui/`: 約1.6GB
+- `_old/`: 約1.7GB（退避物）
+- `.venv/`: 約1.4GB（環境）
+
+**トップレベル実態スナップショット（2025-12-12, FS mtime / git last commit）**
+| Path | Size (GB) | FS mtime | Git last commit | Notes |
+| --- | ---: | --- | --- | --- |
+| `progress` | 0.00 | 2025-12-04 20:06:15 | 2025-12-12 |  |
+| `script_pipeline` | 0.41 | 2025-12-12 20:55:55 | 2025-12-12 |  |
+| `audio_tts_v2` | 18.72 | 2025-12-12 20:55:55 | 2025-12-12 | large artifacts inside |
+| `commentary_02_srt2images_timeline` | 22.53 | 2025-12-12 21:56:42 | 2025-12-12 | large artifacts inside |
+| `ui` | 1.60 | 2025-12-12 16:30:08 | 2025-12-12 |  |
+| `thumbnails` | 0.20 | 2025-12-12 16:30:09 | 2025-12-11 |  |
+| `scripts` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
+| `tools` | 0.00 | 2025-12-12 21:28:00 | 2025-12-10 |  |
+| `configs` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
+| `factory_common` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
+| `remotion` | 2.21 | 2025-12-06 09:36:39 | 2025-12-10 |  |
+| `logs` | 0.01 | 2025-12-12 21:17:56 | 2025-12-12 | gitignored |
+| `data` | 0.00 | 2025-12-12 17:21:17 | 2025-12-11 |  |
+| `asset` | 0.04 | 2025-12-11 14:04:35 | 2025-12-11 |  |
+| `00_research` | 0.00 | 2025-12-09 21:11:52 | 2025-12-10 |  |
+| `docs` | 0.00 | 2025-12-11 13:54:07 | 2025-12-11 | legacy/research |
+| `50_tools` | 0.03 | 2025-11-27 13:41:50 | 2025-12-10 | legacy/research |
+| `_old` | 1.65 | 2025-12-11 09:41:03 | - | legacy/research |
+| `idea` | 0.00 | 2025-12-12 09:04:46 | 2025-12-11 | legacy/research |
+| `backups` | 0.00 | 2025-12-12 22:37:22 | - |  |
 
 ### 4.2 典型的な混乱ポイント
 - **docs/README と実体の乖離**  
@@ -105,7 +137,7 @@
 4. 画像/動画ドラフト:
    - 入力: `commentary_02_srt2images_timeline/input/`（SRT/音声同期）
    - 出力: `commentary_02_srt2images_timeline/output/<run>/`（image_cues.json, capcut_draft 等）
-5. サムネ SoT: `thumbnails/projects.json`, `thumbnails/assets/<CH>/<video>/`
+5. サムネ SoT: `thumbnails/projects.json`（画像実体は `thumbnails/assets/<CH>/<video>/` に寄せる想定。旧 `thumbnails/CHxx_<name>/...` は移行/アーカイブ対象）
 6. Remotion:
    - 入力: `remotion/input/`
    - 出力: `remotion/out/`
@@ -462,7 +494,8 @@ legacy/
 
 2.5 thumbnails
 - [ ] `workspaces/thumbnails/{assets,_archive}` 作成。
-- [ ] `thumbnails/projects.json` と `thumbnails/assets/*` を copy。
+- [ ] `thumbnails/projects.json` と（存在する場合）`thumbnails/assets/`、旧資産 `thumbnails/CH??_*/*` を copy。
+- [ ] `projects.json` の `variants[].image_path` が指す物理パスを spot check（必要なら移行スクリプトで正規化）。
 - [ ] UI ThumbnailWorkspace を smoke。
 - [ ] 旧 `thumbnails` を mv、symlink。
 
@@ -520,12 +553,13 @@ legacy/
   - [ ] `configs/`, `prompts/`, `credentials/`, `ssot/` は物理移動しない（パスだけ更新）。
   - [ ] 直書きパスゼロ（`rg` で旧パス/絶対パスがヒットしない）。
   - [ ] `workspaces/` の SoT と `progress/channels` の参照が相互に一致。
+  - [ ] SoT JSON の最低限スキーマが維持されている（`ssot/OPS_IO_SCHEMAS.md` の必須キーが欠けていない）。
 - **動作ゲート**
   - [ ] Stage 1 直後に import smoke + unit tests が green。
   - [ ] Stage 2 の各サブステップ後に該当ドメインの CLI/UI を smoke。
   - [ ] Stage 5 完了後に `scripts/start_all.sh start` が通る（Remotion preview の失敗は non‑blocking）。
 - **履歴ゲート**
-  - [ ] 変更点は `ssot/HISTORY_codex-memory.md`（存在する場合）へ日付付きで追記。
+  - [ ] 変更点は `ssot/history/HISTORY_codex-memory.md` へ日付付きで追記。
   - [ ] 重大な決定（構造/命名/互換期間変更）は本計画の ADR に追記。
 
 ## 9. 決定ログ (ADR 簡易版)

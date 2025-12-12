@@ -2,19 +2,20 @@
 
 > **重要**: 最新の仕様 / TODO / 進捗は `ssot/` 直下に集約されています。ここは全体の目次として使用し、詳細は `ssot/README.md` と `ssot/DOCS_INDEX.md` を参照してください。
 
-## ディレクトリ概要
+## ディレクトリ概要（現行）
 ```
-youtube_master/
-├─ commentary_01_srtfile_v2/       # 台本・音声ライン（SoT: data/CHxx/NNN/status.json）
-├─ commentary_02_srt2images_timeline/  # 画像・CapCut ライン
-├─ ssot/                           # Single Source of Truth (docs, specs, history)
-├─ progress/                       # 進捗ミラー (channels/CHxx.csv)
-├─ prompts/                        # Qwen 初期プロンプト (@prompts/...)
-├─ credentials/                    # 認証JSON・キー保管
-├─ scripts/                        # ツール群（ルート保持）
-├─ data/                           # 補助データ（ルート保持）
-├─ ui/                             # 共通 UI スタック（React/FastAPI）
-├─ legacy/                         # 旧/参照専用 (_archives, docs, spec, 50_tools, 00_research など)
+factory_commentary/
+├─ progress/                       # 企画/進捗 SoT（channels CSV, personas）
+├─ script_pipeline/                # 台本 SoT + runner（data/CHxx/NNN）
+├─ audio_tts_v2/                   # 音声/TTS（artifacts/final が下流参照の正本）
+├─ commentary_02_srt2images_timeline/  # SRT→画像→CapCut（output/<run_id>）
+├─ ui/                             # 運用UI（FastAPI + React）
+├─ thumbnails/                     # サムネ SoT（projects.json + 旧資産ディレクトリ）
+├─ scripts/                        # 運用CLI群（Drive/YT/監査/同期など）
+├─ logs/                           # グローバルログ（gitignore）
+├─ ssot/                           # Single Source of Truth（設計/運用/計画）
+├─ remotion/                       # experimental（現行未運用）
+├─ 50_tools/ / _old/ / docs/ / 00_research/ / idea/  # legacy/research/退避
 └─ ...
 ```
 
@@ -23,10 +24,10 @@ youtube_master/
 | --- | --- |
 | プロジェクト基礎 | `ssot/README.md` |
 | Alignment / Checklist | `ssot/OPS_ALIGNMENT_CHECKPOINTS.md` |
-| 進捗CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `progress/channels/CHxx.csv` |
-| 環境変数・ポート | `ssot/OPS_ENV_VARS.md` / `ssot/OPS_OPS_PORTS_AND_ENDPOINTS.md` |
+| 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `progress/channels/CHxx.csv` |
+| 環境変数 | `ssot/OPS_ENV_VARS.md` |
 | Qwen 対話モード | `QWEN.md` / `prompts/README.md` |
-| 台本ソースマップ | `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md` |
+| 台本ソースマップ | `ssot/OPS_SCRIPT_SOURCE_MAP.md` |
 | スタートガイド | `START_HERE.md` |
 | ドキュメント索引 | `ssot/DOCS_INDEX.md` |
 
@@ -35,12 +36,12 @@ youtube_master/
 - `.env.example` を参考に必要キーを埋める。既に設定済みの環境変数があればそれが優先される。
 
 ## 見る場所・見ない場所（台本ライン）
-- 見る: `ssot/**`（正本）、`commentary_01_srtfile_v2/data/CHxx/NNN/status.json`（進捗 SoT）、`progress/channels/CHxx.csv`（ミラー）
-- 見ない: `_archives/**`, `docs/**`, `commentary_01_srtfile_v2/docs/**`（参照専用）
+- 見る: `ssot/**`（正本）、`script_pipeline/data/CHxx/NNN/status.json`（Script SoT）、`progress/channels/CHxx.csv`（Planning SoT）
+- 見ない: `_archives/**`, `docs/**`, `_old/**`（参照専用/退避）
 
 ## 参照ルール
 - **SSOT以外の文書は参考用**：旧 `docs/` や `commentary_01/.../docs/` は履歴として残すのみで、最新仕様ではありません。
-- 進捗や設計方針を更新する際は、必ず `ssot/` 配下に追記し、`ssot/HISTORY_codex-memory.md` にログを残してください。
+- 進捗や設計方針を更新する際は、必ず `ssot/` 配下に追記し、`ssot/history/HISTORY_codex-memory.md` にログを残してください。
 - 個別 README を更新する場合も、SSOT で整合を取ってから行います。
 
 ## Drive アップロード（OAuth固定）
@@ -65,4 +66,4 @@ youtube_master/
 - 詳細: `scripts/youtube_publisher/README.md`
 
 ---
-最終更新: 2025-11-12
+最終更新: 2025-12-12

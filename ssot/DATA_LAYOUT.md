@@ -3,8 +3,9 @@
 ## 1. 概要
 
 - このドキュメントは、現在の youtube 制作パイプラインで
-  「実際に git にコミットされているデータの格納場所」を記述する。
-- 理想案ではなく、**2025-01-10 時点の事実**を優先する。
+  「実際に参照される SoT/生成物/ログの格納場所」を記述する。
+- 理想案ではなく、**2025-12-12 時点の事実**を優先する。
+  （生成物の多くは gitignore 対象で、ディスク上にのみ存在する）
 
 ## 2. チャンネル別・動画別の生成データ
 
@@ -63,20 +64,26 @@ script_pipeline/data/CH05/029
 
 * ルート: `audio_tts_v2/artifacts/final/CH{NN}/{VIDEO_NO}/`
 
-#### 例: CH09-024 の構造
+#### 例: 典型的な final 配下の構造
 
 ```text
-audio_tts_v2/artifacts/final/CH09/024
-└── a_text.txt
-
-1 directory, 1 file
+audio_tts_v2/artifacts/final/CH02/033
+├── a_text.txt
+├── CH02-033.wav
+├── CH02-033.srt
+└── log.json
 ```
+
+※ `*.wav` / `*.srt` は gitignore 対象で、通常はディスク上にのみ存在する。
 
 ### 2.3 commentary_02_srt2images_timeline
 
 * ルート: `commentary_02_srt2images_timeline/...`
 * 役割: SRT → 画像タイムライン生成
-* 該当ディレクトリはコードのみ、生成結果は他ディレクトリに配置
+* 生成結果（run_dir）: `commentary_02_srt2images_timeline/output/<run_id>/`
+  - `image_cues.json`, `images/*.png`, `capcut_draft`（CapCutプロジェクトへのsymlink）, `capcut_draft_info.json`, `auto_run_info.json` など
+  - `output/` は `commentary_02_srt2images_timeline/.gitignore` により gitignore 対象
+* 入力キャッシュ: `commentary_02_srt2images_timeline/input/`（gitignore 対象）
 
 ### 2.4 progress/channels
 
@@ -118,20 +125,26 @@ thumbnails/projects.json
 thumbnails/README.md
 ```
 
+補足:
+- サムネの追跡SoTは `thumbnails/projects.json`（採用/バリアント/画像パス等）。
+- UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `thumbnails/assets/...` に寄せる想定（未整備/移行中の可能性あり）。
+- `thumbnails/CHxx_<チャンネル名>/...` は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
+
 ## 3. UI / API とファイルパスの対応
 
 `ui/backend` 以下の FastAPI コードを読み、主要エンドポイントと対応する実際のファイルパスの対応表:
 
-| Endpoint | 読み書きパス例 | 備考 |
-|----------|----------------|------|
-| `GET /api/channels/{channelId}/videos/{videoId}` | `script_pipeline/data/CH{channelId}/{videoId}/status.json` | 動画の進捗・メタ情報 |
-| `GET /api/channels/{channelId}/videos/{videoId}/tts` | `script_pipeline/data/CH{channelId}/{videoId}/audio_prep/*.wav` | TTS 出力の音声ファイル |
-| `GET /api/channels/{channelId}/videos/{videoId}/srt` | `script_pipeline/data/CH{channelId}/{videoId}/audio_prep/*.srt` | SRT 字幕ファイル |
-| `GET /api/channels/{channelId}/videos/{videoId}/assembled` | `script_pipeline/data/CH{channelId}/{videoId}/content/assembled.md` | 台本の最終稿 |
-| `GET /api/workspaces/thumbnails/{channelId}/{videoId}` | `thumbnails/CH{channelId}_...` | サムネイルファイル群 |
-| `GET /api/planning` | `progress/channels/CH{channelId}.csv` | 進捗CSVファイル |
-| `GET /api/ssot/persona/{channelId}` | `progress/personas/{channelId}_PERSONA.md` | チリペルソナ情報 |
-| `GET /api/audio-tts-v2/...` | `audio_tts_v2/artifacts/final/CH{channelId}/{videoId}/` | 音声出力ファイル群 |
+| Endpoint | 主な読み書きパス | 備考 |
+|----------|------------------|------|
+| `GET /api/planning` | `progress/channels/CHxx.csv` | 企画/進捗CSV（Planning SoT） |
+| `GET /api/ssot/persona/{channel}` / `PUT /api/ssot/persona/{channel}` | `progress/personas/CHxx_PERSONA.md` | Persona SoT |
+| `GET /api/channels/{channel}/videos/{video}` | `script_pipeline/data/CHxx/NNN/status.json` / `content/assembled.md` | 台本SoT |
+| `PUT /api/channels/{channel}/videos/{video}/assembled` | `script_pipeline/data/CHxx/NNN/content/assembled.md` | 人間編集の正本 |
+| `GET /api/channels/{channel}/videos/{video}/audio` | `audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.wav` | 下流参照の音声SoT |
+| `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.srt` | 字幕SoT（UI編集可） |
+| `POST /api/auto-draft/create` | `commentary_02_srt2images_timeline/output/<run_id>/...` | SRT→画像→CapCutドラフト生成 |
+| `GET /api/workspaces/thumbnails` | `thumbnails/projects.json` | サムネSoT |
+| `GET /thumbnails/assets/{...}` | `thumbnails/assets/...` | 静的配信（移行中の可能性あり） |
 
 ## 4. 注意点・既知の問題
 
@@ -142,5 +155,5 @@ thumbnails/README.md
 ## 5. 改善アイデア（任意）
 
 * ディレクトリ構造を標準化し、すべての動画で同じファイル構造を持つように統一すると管理しやすくなる
-* データパス解決のための共通ユーティリティ(`resolve_script_path`, `resolve_thumbnail_dir` など)を `ssot/paths/` に集約することで、参照間違いを減らせる
+* データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
 * 現行構造を維持しつつ、薄い抽象化レイヤーを導入してAPIとファイルパスの対応関係を明確化する

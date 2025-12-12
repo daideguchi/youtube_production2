@@ -11,4 +11,4 @@
 ## 運用
 1. KPI 取得時に CSV へ追記し、`logs/analytics/fetch_*.log` に取得コマンドや API レスポンス要約を残す。
 2. 改善アクションは `logs/analytics/actions_*.md` に記録し、HISTORY に `[REQ-P4-00x]` でリンク。
-3. UI/API で返す JSON はこのカラム構成に揃える（`OPS_API_REFERENCE.md` 参照）。
+3. UI/API で返す JSON はこのカラム構成に揃える（現行の対応表は `ssot/DATA_LAYOUT.md` を参照）。
