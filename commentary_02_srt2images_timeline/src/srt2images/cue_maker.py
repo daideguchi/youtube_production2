@@ -23,26 +23,13 @@ def make_cues(segments: List[Dict], target_imgdur: float = 20.0, fps: int = 30, 
     if not segments:
         return cues
 
-    # Optional: disable LLM context splitting (e.g., quota exhausted) and fall back
-    # to the mechanical splitter. Default behavior remains unchanged unless the
-    # environment variable is set.
+    # IMPORTANT: Mechanical splitting is forbidden.
+    # If you want to stop API LLM usage, use THINK MODE failover instead of degrading quality.
     if os.getenv("SRT2IMAGES_DISABLE_CONTEXT_LLM") == "1":
-        base_seconds = float(target_imgdur)
-        try:
-            from config.channel_resolver import ChannelPresetResolver
-            if (channel_id or "").upper() == "CH01":
-                base_seconds = 12.0
-            elif channel_id:
-                resolver = ChannelPresetResolver()
-                preset = resolver.resolve(channel_id)
-                if preset and preset.config_model and preset.config_model.image_generation:
-                    cfg_period = preset.config_model.image_generation.base_period
-                    if cfg_period > 0:
-                        base_seconds = float(cfg_period)
-        except Exception:
-            pass
-        logging.info("⚙️ LLM context disabled: using mechanical split (target≈%.1fs)", base_seconds)
-        return _make_cues_mechanical_fallback(segments, target_imgdur=base_seconds, fps=fps)
+        raise RuntimeError(
+            "SRT2IMAGES_DISABLE_CONTEXT_LLM=1 is set, but mechanical splitting fallback is forbidden. "
+            "Unset this env var and rerun (or use THINK MODE failover via the agent queue)."
+        )
 
     # 🚨 重要：LLM文脈理解システムを使用
     # 機械的20秒分割は廃止され、ストーリーベースの自然な分割を実行
@@ -192,74 +179,3 @@ def _create_context_cue(
 
     return cue
 
-
-def _make_cues_mechanical_fallback(segments: List[Dict], target_imgdur: float, fps: int) -> List[Dict]:
-    """フォールバック: 従来の機械的分割（非推奨）"""
-    logging.warning("🔧 機械的分割使用（非推奨）: LLM文脈理解が理想的")
-    
-    cues: List[Dict] = []
-    if not segments:
-        return cues
-
-    # 従来の機械的ロジック（互換性のため残存）
-    cur_start = segments[0]["start"]
-    buf_text = []
-    buf_end = cur_start
-    accum_dur = 0.0
-
-    def flush_cue(start_s: float, end_s: float, text: str, idx: int):
-        if end_s <= start_s:
-            return
-        summary = _truncate_summary(text)
-        cues.append({
-            "index": idx,
-            "start_sec": round(start_s, 3),
-            "end_sec": round(end_s, 3),
-            "duration_sec": round(end_s - start_s, 3),
-            "text": text,
-            "summary": summary,
-            "context_reason": "機械的20秒分割（非推奨）",
-            "emotional_tone": "不明",
-            "start_frame": int(round(start_s * fps)),
-            "end_frame": int(round(end_s * fps)),
-            "duration_frames": max(1, int(round(end_s * fps)) - int(round(start_s * fps)))
-        })
-
-    def is_sentence_boundary(t: str) -> bool:
-        return any(p in t for p in ["。", "！", "？", ".", "!", "?"])
-
-    cue_index = 1
-    for seg in segments:
-        seg_text = seg.get("text", "").strip()
-        buf_text.append(seg_text)
-        buf_end = seg["end"]
-        accum_dur = buf_end - cur_start
-
-        if accum_dur >= target_imgdur * 0.9:
-            combined = " ".join(buf_text).strip()
-            if is_sentence_boundary(seg_text) or accum_dur >= target_imgdur * 1.1:
-                flush_cue(cur_start, buf_end, combined, cue_index)
-                cue_index += 1
-                cur_start = buf_end
-                buf_text = []
-                buf_end = cur_start
-                accum_dur = 0.0
-
-    # 残りをフラッシュ
-    remaining_text = " ".join(buf_text).strip()
-    if remaining_text:
-        flush_cue(cur_start, buf_end, remaining_text, cue_index)
-
-    # 短すぎるセクション結合
-    if len(cues) >= 2 and cues[-1]["duration_sec"] < target_imgdur / 2:
-        prev = cues[-2]
-        last = cues[-1]
-        prev["end_sec"] = last["end_sec"]
-        prev["duration_sec"] = round(prev["end_sec"] - prev["start_sec"], 3)
-        prev["text"] = (prev["text"] + " " + last["text"]).strip()
-        prev["summary"] = _truncate_summary(prev["text"])
-        prev["end_frame"] = last["end_frame"]
-        prev["duration_frames"] = prev["end_frame"] - prev["start_frame"]
-        cues.pop()
-
-    return cues

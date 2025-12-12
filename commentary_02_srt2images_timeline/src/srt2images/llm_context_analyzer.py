@@ -69,10 +69,12 @@ class LLMContextAnalyzer:
 
         initial_sections = self._generate_initial_sections(segments, target_sections)
 
-        # If LLM fails to produce any sections, use fallback segmentation
+        # IMPORTANT: Mechanical fallback segmentation is forbidden.
         if not initial_sections:
-            logging.warning("LLM segmentation failed to produce any sections, using fallback segmentation.")
-            return self._create_fallback_sections(segments, target_sections)
+            raise RuntimeError(
+                "🚨 LLM segmentation produced zero sections. "
+                "Mechanical fallback is DISABLED; fix the LLM call/prompt/parsing and rerun."
+            )
 
         refined = self._refine_overlong_sections(segments, initial_sections, target_sections, desired_avg)
         short_adjusted = self._merge_short_sections(segments, refined)
@@ -230,20 +232,16 @@ Script excerpts:
             )
 
             if not section_breaks:
-                logging.warning(
-                    "⚠️  ZERO SECTIONS PARSED, but continuing with empty list.\n"
-                    "Full response content:\n%s",
-                    content
+                raise RuntimeError(
+                    "🚨 LLM returned a response but zero sections were parsed. "
+                    "Mechanical fallback is DISABLED. "
+                    f"First 500 chars: {content[:500]!r}"
                 )
-                # Return empty list instead of raising an error
-                return []
 
             return section_breaks
 
         except Exception as e:
-            logging.warning(f"LLM Analysis failed with error: {e}. Continuing with empty sections.")
-            # Return empty list instead of raising an error to allow fallback
-            return []
+            raise RuntimeError(f"LLM analysis failed (no fallback): {e}") from e
 
     def _postprocess_persona_text(self, text: str, max_chars: int = 1200) -> str:
         """軽い後処理: フェンス除去・長さ制限など"""
@@ -745,21 +743,11 @@ Script excerpts:
 
     def _fill_gaps(self, sections: List[SectionBreak], total_segments: int) -> List[SectionBreak]:
         if not sections:
-            if self.strict_mode:
-                raise RuntimeError(
-                    "🚨 CRITICAL ERROR: No LLM-generated sections available. "
-                    "Cannot proceed without contextual understanding. "
-                    "Mechanical gap filling is DISABLED."
-                )
-            else:
-                logging.warning(
-                    "⚠️  No LLM-generated sections available, using fallback segmentation for the entire SRT."
-                )
-                # We can't create fallback sections without the actual segments list
-                # This method doesn't have access to the original segments, so return empty list
-                # The higher-level method (analyze_story_sections) already handles the case where
-                # initial sections are empty by using _create_fallback_sections
-                return []
+            raise RuntimeError(
+                "🚨 CRITICAL ERROR: No LLM-generated sections available. "
+                "Cannot proceed without contextual understanding. "
+                "Mechanical gap filling is DISABLED."
+            )
 
         sections = sorted(sections, key=lambda b: b.start_segment)
         filled: List[SectionBreak] = []
@@ -820,48 +808,3 @@ Script excerpts:
             )
 
         return filled
-
-    def _create_fallback_sections(self, segments: List[Dict], target_sections: int) -> List[SectionBreak]:
-        """
-        Create simple fallback sections when LLM analysis fails.
-        Divides the SRT segments into roughly equal chunks based on target_sections.
-        """
-        if not segments:
-            return []
-
-        total_segments = len(segments)
-        if target_sections <= 0:
-            target_sections = 1
-
-        # Calculate how many segments per section
-        segments_per_section = max(1, total_segments // target_sections)
-        remainder = total_segments % target_sections
-
-        sections = []
-        start_idx = 0
-
-        for i in range(target_sections):
-            # Add one extra segment to the first 'remainder' sections to distribute remainder
-            section_size = segments_per_section + (1 if i < remainder else 0)
-            end_idx = min(start_idx + section_size - 1, total_segments - 1)
-
-            if start_idx <= end_idx:
-                section = SectionBreak(
-                    start_segment=start_idx,
-                    end_segment=end_idx,
-                    reason="fallback segmentation",
-                    emotional_tone="neutral",
-                    summary=f"Section {len(sections) + 1}",
-                    visual_focus="general scene",
-                    section_type="other",
-                    persona_needed=False,
-                    role_tag="exposition"
-                )
-                sections.append(section)
-
-            start_idx = end_idx + 1
-            if start_idx >= total_segments:
-                break
-
-        logging.info(f"Created {len(sections)} fallback sections for {total_segments} segments")
-        return sections
