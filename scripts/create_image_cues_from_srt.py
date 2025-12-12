@@ -2,6 +2,7 @@
 """
 Script to create image cues from SRT file for CapCut project
 """
+import argparse
 import json
 import re
 from pathlib import Path
@@ -133,46 +134,59 @@ def make_cues(segments: List[Dict], target_imgdur: float = 30.0, fps: int = 30) 
 
 
 def main():
-    # Define paths
-    srt_path = Path("/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/input/CH01_人生の道標/220.srt")
-    output_dir = Path("/Users/dd/10_YouTube_Automation/factory_commentary/commentary_02_srt2images_timeline/output/CH01_人生の道標_220")
-    
-    # Parse SRT
+    ap = argparse.ArgumentParser(description="Create image_cues.json from an input SRT")
+    ap.add_argument("--srt", type=Path, required=True, help="Input SRT file path")
+    ap.add_argument("--output-dir", type=Path, required=True, help="Output directory (run_dir)")
+    ap.add_argument("--fps", type=int, default=30)
+    ap.add_argument("--imgdur", type=float, default=30.0, help="Target cue duration (seconds)")
+    ap.add_argument("--crossfade", type=float, default=0.5)
+    ap.add_argument("--width", type=int, default=1920)
+    ap.add_argument("--height", type=int, default=1080)
+    ap.add_argument("--placeholders", action="store_true", help="Write placeholder .txt files under output_dir/images/")
+    args = ap.parse_args()
+
+    srt_path = args.srt.expanduser().resolve()
+    output_dir = args.output_dir.expanduser().resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     print(f"Parsing SRT: {srt_path}")
     segments = parse_srt(srt_path)
     print(f"Parsed {len(segments)} segments")
-    
-    # Create cues
+
     print("Creating image cues...")
-    cues = make_cues(segments, target_imgdur=30.0, fps=30)
+    cues = make_cues(segments, target_imgdur=args.imgdur, fps=args.fps)
     print(f"Created {len(cues)} cues")
-    
-    # Create image_cues.json
+
     image_cues_data = {
-        "fps": 30,
-        "size": {"width": 1920, "height": 1080},
-        "crossfade": 0.5,
-        "imgdur": 30.0,
-        "cues": cues
+        "fps": args.fps,
+        "size": {"width": args.width, "height": args.height},
+        "crossfade": args.crossfade,
+        "imgdur": args.imgdur,
+        "cues": cues,
     }
-    
+
     image_cues_path = output_dir / "image_cues.json"
-    with open(image_cues_path, 'w', encoding='utf-8') as f:
-        json.dump(image_cues_data, f, indent=2, ensure_ascii=False)
-    
+    image_cues_path.write_text(json.dumps(image_cues_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Image cues saved to: {image_cues_path}")
-    
-    # Create placeholder images
-    images_dir = output_dir / "images"
-    for i, cue in enumerate(cues, start=1):
-        img_path = images_dir / f"{i:04d}.png"
-        # Create a placeholder text file instead of an actual image
-        with open(img_path.with_suffix('.txt'), 'w') as f:
-            f.write(f"Placeholder for cue {i}\n")
-            f.write(f"Duration: {cue['start_sec']:.2f}s to {cue['end_sec']:.2f}s\n")
-            f.write(f"Summary: {cue['summary'][:100]}...\n")
-    
-    print(f"Created {len(cues)} placeholder files in {images_dir}")
+
+    if args.placeholders:
+        images_dir = output_dir / "images"
+        images_dir.mkdir(parents=True, exist_ok=True)
+        for i, cue in enumerate(cues, start=1):
+            img_path = images_dir / f"{i:04d}.png"
+            placeholder_path = img_path.with_suffix(".txt")
+            placeholder_path.write_text(
+                "\n".join(
+                    [
+                        f"Placeholder for cue {i}",
+                        f"Duration: {cue['start_sec']:.2f}s to {cue['end_sec']:.2f}s",
+                        f"Summary: {cue['summary'][:100]}...",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+        print(f"Created {len(cues)} placeholder files in {images_dir}")
 
 
 if __name__ == "__main__":
