@@ -293,10 +293,10 @@ def patch_draft_json(
     title: str,
 ) -> None:
     srt2_tracks, sub_tracks, belt_track = _find_tracks(data)
-    if len(srt2_tracks) != 2:
-        raise RuntimeError(f"Expected 2 srt2images tracks, found {len(srt2_tracks)}")
-    if len(sub_tracks) != 2:
-        raise RuntimeError(f"Expected 2 subtitles_text tracks, found {len(sub_tracks)}")
+    if len(srt2_tracks) < 1:
+        raise RuntimeError("No srt2images tracks found in template")
+    if len(sub_tracks) < 1:
+        raise RuntimeError("No subtitles_text tracks found in template")
 
     _replace_video_tracks(data, srt2_tracks, cues, images_dir, draft_dir)
     _replace_subtitle_tracks(data, sub_tracks, subs)
