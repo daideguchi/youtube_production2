@@ -34,6 +34,9 @@
 
 ## 3. 計画書（PLAN_*.md）
 
+### 3.0 状態一覧
+- `PLAN_STATUS.md`: 計画書の状態（Active/Draft/Completed）一覧。
+
 ### 3.1 Repo / 構造
 - `PLAN_REPO_DIRECTORY_REFACTOR.md`: モノレポ全体のディレクトリ/生成物/レガシー再編計画。
 - `PLAN_STAGE1_PATH_SSOT_MIGRATION.md`: Stage1（物理移動なし）Path SSOT導入と置換順序の正本。
