@@ -96,7 +96,7 @@
       "tone_profile": "トーン: 静寂・ミステリアス・少し不穏だが安らぐ。低〜中低彩度、局所的スポット光と薄い霧。退廃的な空気感。アニメ誇張なし。",
       "character_note": "人物ポリシー: デフォルト無人。人物が必要な場合のみ台本指定の案内人を一貫（顔/服/年齢/文化を固定）。無関係な新キャラや作業員・鎌・赤鉢巻は禁止（台本明示時のみ限定）。",
       "style": "dark urban-legend library, watercolor-oil hybrid, cinematic moody lighting, metaphor-first, no text, minimal humans, grunge + washi texture, warm gold accents vs deep indigo shadows",
-      "capcut_template": "CH06-001_ダーク図書館_capcut_v10",
+      "capcut_template": "CH06-テンプレ",
       "capcut_settings": {
         "timeline": {
           "preferred_layer_order": ["image", "subtitles", "audio"],
@@ -110,7 +110,7 @@
       "persona_required": true,
       "image_min_bytes": 60000,
       "video_style_id": "ch06_darklibrary_v1",
-      "notes": "都市伝説感・メタファー重視。水彩×油彩の中間。文字なし。語り手一貫。CapCutテンプレ=CH06-001_ダーク図書館_capcut_v10。帯(main_belt)配置・レイヤ順を固定（画像→字幕→音声）。",
+      "notes": "都市伝説感・メタファー重視。水彩×油彩の中間。文字なし。語り手一貫。CapCutテンプレ=CH06-テンプレ（同名レイヤ含むテンプレ構造を維持）。帯(main_belt相当)配置・レイヤ順を固定（画像→字幕→音声）。",
       "status": "active"
     },
     "CH07": {
