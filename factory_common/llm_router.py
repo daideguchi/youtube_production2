@@ -8,6 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from factory_common.llm_param_guard import sanitize_params
+from factory_common.agent_mode import maybe_handle_agent_mode
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -313,7 +314,6 @@ class LLMRouter:
         return_raw: bool,
         **kwargs,
     ) -> Dict[str, Any]:
-
         models = self.get_models_for_task(task)
         if not models:
             raise ValueError(f"No models available for task: {task}")
@@ -344,6 +344,16 @@ class LLMRouter:
             "response_format": response_format,
             **kwargs,
         }
+
+        agent_result = maybe_handle_agent_mode(
+            task=task,
+            messages=messages,
+            options=base_options,
+            response_format=response_format,
+            return_raw=return_raw,
+        )
+        if agent_result is not None:
+            return agent_result
 
         tried = []
         total_wait = 0.0
@@ -439,15 +449,17 @@ class LLMRouter:
                     total_wait += sleep_for
                 continue
 
-        self._log_usage({
-            "status": "fail",
-            "task": task,
-            "chain": tried,
-            "error": str(last_error),
-            "error_class": last_error_class,
-            "status_code": last_status,
-            "timestamp": time.time(),
-        })
+        self._log_usage(
+            {
+                "status": "fail",
+                "task": task,
+                "chain": tried,
+                "error": str(last_error),
+                "error_class": last_error_class,
+                "status_code": last_status,
+                "timestamp": time.time(),
+            }
+        )
         raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
 
     def _invoke_provider(self, provider, client, model_conf, messages, return_raw: bool = False, **kwargs):

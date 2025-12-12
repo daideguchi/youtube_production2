@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from factory_common.llm_config import load_llm_config, resolve_task
+from factory_common.agent_mode import maybe_handle_agent_mode
 
 try:
     from openai import AzureOpenAI, OpenAI
@@ -99,6 +100,24 @@ class LLMClient:
         resolved = resolve_task(self.config, task)
         models = resolved.get("models", [])
         defaults = resolved.get("defaults", {}) or {}
+
+        merged_options: Dict[str, Any] = {**defaults, **options}
+        response_format = merged_options.get("response_format")
+        agent_result = maybe_handle_agent_mode(
+            task=task,
+            messages=messages,
+            options=merged_options,
+            response_format=str(response_format) if response_format is not None else None,
+            return_raw=False,
+        )
+        if agent_result is not None:
+            return LLMResult(
+                content=str(agent_result.get("content", "")),
+                provider=str(agent_result.get("provider", "agent")),
+                model=str(agent_result.get("model", "agent")),
+                usage=dict(agent_result.get("usage") or {}),
+                raw=agent_result.get("raw"),
+            )
 
         last_error: Exception | None = None
         for model_key in models:
