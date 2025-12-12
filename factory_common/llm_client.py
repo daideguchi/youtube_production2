@@ -10,6 +10,13 @@ from typing import Any, Dict, List, Optional
 from factory_common.llm_config import load_llm_config, resolve_task
 from factory_common.agent_mode import maybe_handle_agent_mode
 from factory_common.llm_api_failover import maybe_failover_to_think
+from factory_common.llm_api_cache import (
+    cache_enabled_for_task as _api_cache_enabled_for_task,
+    cache_path as _api_cache_path,
+    make_task_id as _api_cache_task_id,
+    read_cache as _api_cache_read,
+    write_cache as _api_cache_write,
+)
 
 try:
     from openai import AzureOpenAI, OpenAI
@@ -120,6 +127,25 @@ class LLMClient:
                 raw=agent_result.get("raw"),
             )
 
+        # App-level API cache (cost-saving reruns).
+        if _api_cache_enabled_for_task(task):
+            cached = _api_cache_read(task, messages, merged_options)
+            if isinstance(cached, dict):
+                meta = cached.get("meta") or {}
+                usage = cached.get("usage") or {}
+                content = cached.get("content", "")
+                task_id = cached.get("task_id") or _api_cache_task_id(task, messages, merged_options)
+                cache_file = _api_cache_path(str(task_id))
+                result = LLMResult(
+                    content=str(content),
+                    provider=str(meta.get("provider") or "cache"),
+                    model=str(meta.get("model") or meta.get("model_key") or "cache"),
+                    usage=dict(usage) if isinstance(usage, dict) else {},
+                    raw=None,
+                )
+                self._log_usage(task, result, extra={"cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)}})
+                return result
+
         last_error: Exception | None = None
         for model_key in models:
             model_conf = (self.config.get("models") or {}).get(model_key) or {}
@@ -140,7 +166,22 @@ class LLMClient:
                     model=model_conf.get("deployment") or model_conf.get("model") or "",
                     usage=usage or {},
                 )
-                self._log_usage(task, result)
+                cache_write_path = _api_cache_write(
+                    task,
+                    messages,
+                    merged_options,
+                    payload={
+                        "content": content,
+                        "usage": usage or {},
+                        "meta": {
+                            "provider": provider,
+                            "model": model_conf.get("deployment") or model_conf.get("model") or "",
+                            "model_key": model_key,
+                        },
+                    },
+                )
+                extra = {"cache": {"write": True, "path": str(cache_write_path)}} if cache_write_path else None
+                self._log_usage(task, result, extra=extra)
                 return result
             except Exception as exc:  # noqa: BLE001
                 logger.warning("LLMClient: %s failed for %s (%s)", model_key, task, exc)
@@ -241,7 +282,7 @@ class LLMClient:
         usage = getattr(resp, "usage", {}) or {}
         return content, dict(usage)
 
-    def _log_usage(self, task: str, result: LLMResult) -> None:
+    def _log_usage(self, task: str, result: LLMResult, extra: Optional[Dict[str, Any]] = None) -> None:
         """
         Append usage info to JSONL log if enabled.
         Env:
@@ -266,6 +307,8 @@ class LLMClient:
             "model": result.model,
             "usage": result.usage,
         }
+        if extra:
+            entry.update(extra)
         try:
             log_path.parent.mkdir(parents=True, exist_ok=True)
             with log_path.open("a", encoding="utf-8") as f:

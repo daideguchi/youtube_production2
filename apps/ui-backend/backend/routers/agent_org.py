@@ -3,11 +3,14 @@ from __future__ import annotations
 import fnmatch
 import json
 import os
-from datetime import datetime, timezone
+import secrets
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from factory_common.paths import logs_root, repo_root as ssot_repo_root
 
@@ -35,6 +38,13 @@ def _read_json(path: Path) -> dict:
         return obj if isinstance(obj, dict) else {}
     except Exception:
         return {}
+
+
+def _atomic_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
 
 
 def _parse_iso(dt_str: str | None) -> datetime | None:
@@ -94,6 +104,21 @@ def _scope_matches_path(scope: str, rel_path: str) -> bool:
     return rel_path.startswith(scope_norm + "/")
 
 
+def _append_event(payload: dict) -> None:
+    p = _coord_dir() / "events.jsonl"
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    except Exception:
+        return
+
+
+def _new_id(prefix: str) -> str:
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"{prefix}__{stamp}__{secrets.token_hex(4)}"
+
+
 def _repo_relative(path: str) -> str:
     p = Path(path).expanduser()
     if not p.is_absolute():
@@ -103,6 +128,21 @@ def _repo_relative(path: str) -> str:
         return str(p.absolute().relative_to(REPO_ROOT)).replace(os.sep, "/")
     except Exception:
         return str(path).replace(os.sep, "/")
+
+
+class AgentNoteCreateRequest(BaseModel):
+    to: str = Field(..., description="recipient agent name")
+    subject: str = Field(..., description="note subject")
+    body: str = Field(..., description="note body")
+    from_agent: str = Field("ui", alias="from", description="sender name")
+    ttl_min: Optional[int] = Field(None, ge=1, le=60 * 24 * 7, description="optional TTL minutes")
+
+
+class OrchestratorRequestBody(BaseModel):
+    action: str = Field(..., description="orchestrator action")
+    payload: Dict[str, Any] = Field(default_factory=dict)
+    from_agent: str = Field("ui", alias="from")
+    wait_sec: float = Field(0.0, ge=0.0, le=30.0)
 
 
 @router.get("/orchestrator")
@@ -288,6 +328,51 @@ def list_notes(
     return {"count": len(rows), "notes": rows, "queue_dir": str(q)}
 
 
+@router.post("/notes")
+def create_note(payload: AgentNoteCreateRequest) -> Dict[str, Any]:
+    q = _queue_dir()
+    inbox = _coord_dir() / "agent_notes" / "inbox"
+    inbox.mkdir(parents=True, exist_ok=True)
+    note_id = _new_id("note")
+
+    expires_at = None
+    if payload.ttl_min is not None and payload.ttl_min > 0:
+        expires_at = (
+            datetime.now(timezone.utc).replace(microsecond=0) + timedelta(minutes=int(payload.ttl_min))
+        ).isoformat()
+
+    body = {
+        "schema_version": 1,
+        "kind": "agent_note",
+        "id": note_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "to": payload.to.strip(),
+        "from": payload.from_agent.strip() or "ui",
+        "subject": payload.subject.strip(),
+        "body": payload.body,
+    }
+    if expires_at:
+        body["expires_at"] = expires_at
+
+    out = inbox / f"{note_id}.json"
+    _atomic_write_json(out, body)
+
+    _append_event(
+        {
+            "schema_version": 1,
+            "kind": "event",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "actor": payload.from_agent.strip() or "ui",
+            "action": "agent_note_sent",
+            "to": payload.to.strip(),
+            "subject": payload.subject.strip(),
+            "path": str(out),
+        }
+    )
+
+    return {"ok": True, "queue_dir": str(q), "note_id": note_id, "path": str(out)}
+
+
 @router.get("/notes/{note_id}")
 def get_note(note_id: str) -> Dict[str, Any]:
     q = _queue_dir()
@@ -299,6 +384,62 @@ def get_note(note_id: str) -> Dict[str, Any]:
         return _read_json(archived)
     raise HTTPException(status_code=404, detail="note not found")
 
+
+@router.post("/orchestrator/request")
+def orchestrator_request(body: OrchestratorRequestBody) -> Dict[str, Any]:
+    q = _queue_dir()
+    orch_dir = _coord_dir() / "orchestrator"
+    inbox = orch_dir / "inbox"
+    outbox = orch_dir / "outbox"
+    processed = orch_dir / "processed"
+    inbox.mkdir(parents=True, exist_ok=True)
+    outbox.mkdir(parents=True, exist_ok=True)
+    processed.mkdir(parents=True, exist_ok=True)
+
+    req_id = _new_id("req")
+    req_path = inbox / f"{req_id}.json"
+    req = {
+        "schema_version": 1,
+        "kind": "orchestrator_request",
+        "id": req_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "from": body.from_agent.strip() or "ui",
+        "action": body.action,
+        "payload": body.payload or {},
+    }
+    _atomic_write_json(req_path, req)
+
+    _append_event(
+        {
+            "schema_version": 1,
+            "kind": "event",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "actor": body.from_agent.strip() or "ui",
+            "action": "orchestrator_request_created",
+            "request_id": req_id,
+            "request_action": body.action,
+            "path": str(req_path),
+        }
+    )
+
+    if not body.wait_sec:
+        return {"ok": True, "queue_dir": str(q), "request_id": req_id, "request_path": str(req_path)}
+
+    deadline = time.time() + float(body.wait_sec)
+    resp_path = outbox / f"resp__{req_id}.json"
+    while time.time() < deadline:
+        if resp_path.exists():
+            resp = _read_json(resp_path)
+            return {
+                "ok": True,
+                "queue_dir": str(q),
+                "request_id": req_id,
+                "request_path": str(req_path),
+                "response_path": str(resp_path),
+                "response": resp,
+            }
+        time.sleep(0.2)
+    raise HTTPException(status_code=504, detail=f"timeout waiting for orchestrator response: {resp_path}")
 
 @router.get("/locks")
 def list_locks(
@@ -382,4 +523,3 @@ def tail_events(limit: int = Query(200, ge=1, le=2000)) -> Dict[str, Any]:
         if isinstance(obj, dict):
             out.append(obj)
     return {"count": len(out), "events": out, "queue_dir": str(q)}
-

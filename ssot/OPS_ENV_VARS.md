@@ -19,6 +19,7 @@
 - `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
 - LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
+- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `audio_tts_v2/artifacts/final/**/chunks/` を残す（デフォルトは削除）。
 
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`

@@ -119,7 +119,10 @@ def read_cache(task: str, messages: List[Dict[str, str]], options: Dict[str, Any
     if not cache_enabled_for_task(task):
         return None
 
-    task_id = make_task_id(task, messages, options)
+    try:
+        task_id = make_task_id(task, messages, options)
+    except Exception:
+        return None
     path = cache_path(task_id)
     if not path.exists():
         return None
@@ -158,7 +161,10 @@ def write_cache(task: str, messages: List[Dict[str, str]], options: Dict[str, An
     if not cache_enabled_for_task(task):
         return None
 
-    task_id = make_task_id(task, messages, options)
+    try:
+        task_id = make_task_id(task, messages, options)
+    except Exception:
+        return None
     path = cache_path(task_id)
     out: Dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -175,4 +181,3 @@ def write_cache(task: str, messages: List[Dict[str, str]], options: Dict[str, An
         return path
     except Exception:
         return None
-

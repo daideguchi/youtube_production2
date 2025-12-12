@@ -210,7 +210,8 @@ Script excerpts:
         system_instruction = ""
         if self.visual_bible:
             # Format bible as system instruction context
-            bible_text = json.dumps(self.visual_bible, ensure_ascii=False, indent=2)
+            # Token/cost optimization: compact + stable key order so repeated calls share a common prefix.
+            bible_text = json.dumps(self.visual_bible, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
             system_instruction = f"Visual Bible (Consistency Rules):\n{bible_text}\n\nUse these character/setting definitions to ensure visual consistency."
 
         messages = []

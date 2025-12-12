@@ -116,8 +116,8 @@
   - 種別: **L3（必要なら L1 に昇格可）**
 
 - `logs/swap/swap_<timestamp>.log`  
-  - Writer: `commentary_02_srt2images_timeline/ui/gradio_app.py`（Swap UI）
-  - Reader: CapCut Swap UI / `ui/backend/routers/swap.py`
+  - Writer: `apps/ui-backend/backend/routers/swap.py`（UI Hub Swap API）
+  - Reader: UI（Swap/CapCut 修復）/ `GET /api/swap/logs*`
   - 種別: **L3（30日ローテ）**
 
 ### 1.4 UI / Ops（グローバル）
@@ -353,6 +353,11 @@ logs/ui/ui_tasks.db
 
 - `commentary_02_srt2images_timeline/logs/srt2images.log`
   - 現状: 観測されるが、正規フローでは run_dir の `output/{run_id}/logs/srt2images.log` が正本。
+  - 種別: **L3（Legacy）**
+
+- `commentary_02_srt2images_timeline/logs/swap/swap_<timestamp>.log`
+  - Writer: `commentary_02_srt2images_timeline/ui/gradio_app.py`（Legacy Swap UI）
+  - 現状: UI Hub（`/api/swap`）のログ正本は `logs/swap/swap_<timestamp>.log`。
   - 種別: **L3（Legacy）**
 
 - `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`, `commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`

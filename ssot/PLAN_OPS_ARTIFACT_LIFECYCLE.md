@@ -111,6 +111,14 @@
 - `scripts/sync_audio_prep_to_final.py`: prep→final の不足ファイルのみ同期（上書きしない）
 - `scripts/purge_audio_prep_binaries.py`: final が揃っている動画の audio_prep 直下 wav/srt を削除
 - `scripts/cleanup_audio_prep.py`: audio_prep/chunks を削除（recent window で生成中を保護）
+- `scripts/purge_audio_final_chunks.py`: final/chunks を削除（recent window で生成中を保護）
+
+**現行の自動cleanup（UI/Backend 経由の TTS 成功時）**
+- backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベストエフォートで以下を実行する:
+  - `script_pipeline/.../audio_prep/chunks/` を削除
+  - `script_pipeline/.../audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
+  - `audio_tts_v2/artifacts/final/.../chunks/` を削除
+    - 無効化: `YTM_TTS_KEEP_CHUNKS=1`
 
 ### 3.4 画像/動画ドラフト（commentary_02_srt2images_timeline）
 

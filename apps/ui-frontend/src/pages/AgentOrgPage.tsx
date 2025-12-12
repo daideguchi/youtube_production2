@@ -56,15 +56,55 @@ async function fetchJson<T>(path: string): Promise<T> {
   return resp.json() as Promise<T>;
 }
 
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const resp = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(text || `HTTP ${resp.status}`);
+  }
+  return resp.json() as Promise<T>;
+}
+
 export function AgentOrgPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const [actorName, setActorName] = useState(() => {
+    try {
+      return localStorage.getItem("agent_org_actor") || "dd";
+    } catch {
+      return "dd";
+    }
+  });
 
   const [orch, setOrch] = useState<OrchestratorStatus | null>(null);
   const [agents, setAgents] = useState<AgentRow[]>([]);
   const [memos, setMemos] = useState<MemoRow[]>([]);
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [locks, setLocks] = useState<LockRow[]>([]);
+
+  const [noteTo, setNoteTo] = useState("");
+  const [noteSubject, setNoteSubject] = useState("no-touch");
+  const [noteBody, setNoteBody] = useState("");
+  const [noteTtlMin, setNoteTtlMin] = useState("60");
+
+  const [roleAgent, setRoleAgent] = useState("");
+  const [roleValue, setRoleValue] = useState("worker");
+
+  const [assignTaskId, setAssignTaskId] = useState("");
+  const [assignAgent, setAssignAgent] = useState("");
+  const [assignNote, setAssignNote] = useState("");
+
+  const [lockScopes, setLockScopes] = useState("ui/**");
+  const [lockMode, setLockMode] = useState("no_touch");
+  const [lockTtlMin, setLockTtlMin] = useState("60");
+  const [lockNote, setLockNote] = useState("");
 
   const [selectedMemoId, setSelectedMemoId] = useState<string | null>(null);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
@@ -97,6 +137,110 @@ export function AgentOrgPage() {
   useEffect(() => {
     void loadAll();
   }, [loadAll]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("agent_org_actor", actorName);
+    } catch {
+      /* ignore */
+    }
+  }, [actorName]);
+
+  useEffect(() => {
+    const first = agents[0]?.name || "";
+    if (!noteTo && first) setNoteTo(first);
+    if (!roleAgent && first) setRoleAgent(first);
+    if (!assignAgent && first) setAssignAgent(first);
+  }, [agents, noteTo, roleAgent, assignAgent]);
+
+  const handleSendNote = useCallback(async () => {
+    setActionMessage(null);
+    setActionError(null);
+    try {
+      if (!noteTo.trim()) throw new Error("to is required");
+      if (!noteSubject.trim()) throw new Error("subject is required");
+      await postJson("/api/agent-org/notes", {
+        to: noteTo.trim(),
+        subject: noteSubject.trim(),
+        body: noteBody,
+        ttl_min: noteTtlMin.trim() ? Number(noteTtlMin.trim()) : undefined,
+        from: actorName.trim() || "dd",
+      });
+      setActionMessage("note を送信しました");
+      setNoteBody("");
+      await loadAll();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    }
+  }, [actorName, loadAll, noteBody, noteSubject, noteTo, noteTtlMin]);
+
+  const sendOrchestratorRequest = useCallback(
+    async (action: string, payload: Record<string, unknown>) => {
+      setActionMessage(null);
+      setActionError(null);
+      try {
+        await postJson("/api/agent-org/orchestrator/request", {
+          action,
+          payload,
+          from: actorName.trim() || "dd",
+          wait_sec: 3,
+        });
+        setActionMessage(`orchestrator: ${action} を送信しました`);
+        await loadAll();
+      } catch (e) {
+        setActionError(e instanceof Error ? e.message : String(e));
+      }
+    },
+    [actorName, loadAll]
+  );
+
+  const handleSetRole = useCallback(async () => {
+    if (!roleAgent.trim()) {
+      setActionError("agent is required");
+      return;
+    }
+    if (!roleValue.trim()) {
+      setActionError("role is required");
+      return;
+    }
+    await sendOrchestratorRequest("set_role", { agent_name: roleAgent.trim(), role: roleValue.trim() });
+  }, [roleAgent, roleValue, sendOrchestratorRequest]);
+
+  const handleAssignTask = useCallback(async () => {
+    if (!assignTaskId.trim()) {
+      setActionError("task_id is required");
+      return;
+    }
+    if (!assignAgent.trim()) {
+      setActionError("agent is required");
+      return;
+    }
+    await sendOrchestratorRequest("assign_task", {
+      task_id: assignTaskId.trim(),
+      agent_name: assignAgent.trim(),
+      note: assignNote.trim() || undefined,
+    });
+    setAssignTaskId("");
+    setAssignNote("");
+  }, [assignAgent, assignNote, assignTaskId, sendOrchestratorRequest]);
+
+  const handleLock = useCallback(async () => {
+    const scopes = lockScopes
+      .split(/[\n,]+/g)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!scopes.length) {
+      setActionError("scopes is required");
+      return;
+    }
+    await sendOrchestratorRequest("lock", {
+      scopes,
+      mode: lockMode,
+      ttl_min: lockTtlMin.trim() ? Number(lockTtlMin.trim()) : undefined,
+      note: lockNote.trim() || undefined,
+    });
+    setLockNote("");
+  }, [lockMode, lockNote, lockScopes, lockTtlMin, sendOrchestratorRequest]);
 
   const handleSelectMemo = useCallback(async (id: string) => {
     setSelectedMemoId(id);
@@ -145,6 +289,167 @@ export function AgentOrgPage() {
           再読み込み
         </button>
         <div style={{ opacity: loading ? 0.6 : 1 }}>{orchSummary}</div>
+      </div>
+
+      <div className="card" style={{ padding: 12, display: "grid", gap: 12 }}>
+        <h3>Actions</h3>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ opacity: 0.7 }}>from</span>
+            <input
+              value={actorName}
+              onChange={(e) => setActorName(e.target.value)}
+              style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc", minWidth: 140 }}
+            />
+          </label>
+          {actionMessage && <span style={{ color: "#0a7f33" }}>{actionMessage}</span>}
+          {actionError && <span style={{ color: "red" }}>{actionError}</span>}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
+            <h4 style={{ marginTop: 0 }}>Send note</h4>
+            <div style={{ display: "grid", gap: 8 }}>
+              <label style={{ display: "grid", gap: 4 }}>
+                <span style={{ opacity: 0.7 }}>to</span>
+                <select
+                  value={noteTo}
+                  onChange={(e) => setNoteTo(e.target.value)}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                >
+                  <option value="">(select)</option>
+                  {agents.map((a) => (
+                    <option key={a.id} value={a.name}>
+                      {a.name} ({a.role})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ display: "grid", gap: 4 }}>
+                <span style={{ opacity: 0.7 }}>subject</span>
+                <input
+                  value={noteSubject}
+                  onChange={(e) => setNoteSubject(e.target.value)}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4 }}>
+                <span style={{ opacity: 0.7 }}>ttl (min)</span>
+                <input
+                  value={noteTtlMin}
+                  onChange={(e) => setNoteTtlMin(e.target.value)}
+                  inputMode="numeric"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc", maxWidth: 140 }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4 }}>
+                <span style={{ opacity: 0.7 }}>body</span>
+                <textarea
+                  value={noteBody}
+                  onChange={(e) => setNoteBody(e.target.value)}
+                  rows={4}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </label>
+              <button onClick={() => void handleSendNote()} disabled={loading}>
+                送信
+              </button>
+            </div>
+          </div>
+
+          <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
+            <h4 style={{ marginTop: 0 }}>Orchestrator</h4>
+            <div style={{ display: "grid", gap: 12 }}>
+              <div style={{ display: "grid", gap: 8 }}>
+                <strong>Set role</strong>
+                <select
+                  value={roleAgent}
+                  onChange={(e) => setRoleAgent(e.target.value)}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                >
+                  <option value="">(select)</option>
+                  {agents.map((a) => (
+                    <option key={a.id} value={a.name}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={roleValue}
+                  onChange={(e) => setRoleValue(e.target.value)}
+                  placeholder="role"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <button onClick={() => void handleSetRole()} disabled={loading}>
+                  apply
+                </button>
+              </div>
+
+              <div style={{ display: "grid", gap: 8 }}>
+                <strong>Assign task</strong>
+                <input
+                  value={assignTaskId}
+                  onChange={(e) => setAssignTaskId(e.target.value)}
+                  placeholder="task_id (e.g. CH06-002)"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <select
+                  value={assignAgent}
+                  onChange={(e) => setAssignAgent(e.target.value)}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                >
+                  <option value="">(select)</option>
+                  {agents.map((a) => (
+                    <option key={a.id} value={a.name}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={assignNote}
+                  onChange={(e) => setAssignNote(e.target.value)}
+                  placeholder="note (optional)"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <button onClick={() => void handleAssignTask()} disabled={loading}>
+                  assign
+                </button>
+              </div>
+
+              <div style={{ display: "grid", gap: 8 }}>
+                <strong>Lock</strong>
+                <textarea
+                  value={lockScopes}
+                  onChange={(e) => setLockScopes(e.target.value)}
+                  rows={3}
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc", fontFamily: "monospace" }}
+                />
+                <input
+                  value={lockMode}
+                  onChange={(e) => setLockMode(e.target.value)}
+                  placeholder="mode"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <input
+                  value={lockTtlMin}
+                  onChange={(e) => setLockTtlMin(e.target.value)}
+                  inputMode="numeric"
+                  placeholder="ttl_min"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc", maxWidth: 140 }}
+                />
+                <input
+                  value={lockNote}
+                  onChange={(e) => setLockNote(e.target.value)}
+                  placeholder="note (optional)"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <button onClick={() => void handleLock()} disabled={loading}>
+                  lock
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="card" style={{ padding: 12 }}>
@@ -292,4 +597,3 @@ export function AgentOrgPage() {
     </div>
   );
 }
-

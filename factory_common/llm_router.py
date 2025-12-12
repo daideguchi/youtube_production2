@@ -445,6 +445,7 @@ class LLMRouter:
                     {
                         "status": "success",
                         "task": task,
+                        "task_id": str(task_id),
                         "model": model_key,
                         "provider": provider_name,
                         "chain": chain,
@@ -499,22 +500,12 @@ class LLMRouter:
                 req_id = _extract_request_id(raw_result)
                 latency_ms = int((time.time() - start) * 1000)
                 chain = tried + [model_key]
-                logger.info(
-                    f"Router: {task} succeeded via {model_key} "
-                    f"(fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})"
-                )
-                self._log_usage({
-                    "status": "success",
-                    "task": task,
-                    "model": model_key,
-                    "provider": provider_name,
-                    "chain": chain,
-                    "latency_ms": latency_ms,
-                    "usage": usage,
-                    "request_id": req_id,
-                    "timestamp": time.time(),
-                })
-                _api_cache_write(
+                task_id = None
+                try:
+                    task_id = _api_cache_task_id(task, messages, base_options)
+                except Exception:
+                    task_id = None
+                cache_write_path = _api_cache_write(
                     task,
                     messages,
                     base_options,
@@ -529,6 +520,27 @@ class LLMRouter:
                         },
                     },
                 )
+                logger.info(
+                    f"Router: {task} succeeded via {model_key} "
+                    f"(fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})"
+                )
+                log_payload = {
+                    "status": "success",
+                    "task": task,
+                    "task_id": str(task_id) if task_id else None,
+                    "model": model_key,
+                    "provider": provider_name,
+                    "chain": chain,
+                    "latency_ms": latency_ms,
+                    "usage": usage,
+                    "request_id": req_id,
+                    "timestamp": time.time(),
+                }
+                if cache_write_path:
+                    log_payload["cache"] = {"write": True, "path": str(cache_write_path)}
+                # Drop nulls to keep the JSONL tidy
+                log_payload = {k: v for k, v in log_payload.items() if v is not None}
+                self._log_usage(log_payload)
                 return {
                     "content": content,
                     "raw": raw_result if return_raw else None,
@@ -538,6 +550,7 @@ class LLMRouter:
                     "provider": provider_name,
                     "chain": chain,
                     "latency_ms": latency_ms,
+                    "cache": {"write": True, "path": str(cache_write_path)} if cache_write_path else None,
                 }
             except Exception as e:
                 status = _extract_status(e)

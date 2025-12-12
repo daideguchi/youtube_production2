@@ -67,6 +67,7 @@
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）
 - `scripts/purge_audio_prep_binaries.py`（prep重複wav/srt削除）
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）
+- `scripts/purge_audio_final_chunks.py`（final/chunks削除）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 
 ---

@@ -7,7 +7,14 @@
 
 ## 0. SoT（正本）
 
-- 入力（正）: `script_pipeline/data/{CH}/{NNN}/content/assembled.md`
+- 入力（正）: `script_pipeline/data/{CH}/{NNN}/` 配下の **最終確定入力**（UI/Backend の解決順）
+  1) `audio_prep/script_audio_human.txt`
+  2) `content/script_audio_human.txt`
+  3) `content/assembled_human.md`
+  4) `audio_prep/script_sanitized.txt`
+  5) `content/script_audio.txt`
+  6) `content/assembled.md`
+  - 原則: **人間が介入した最新版（*_human）を最優先**にする。
 - 出力（下流参照の正）: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
@@ -17,9 +24,14 @@
 
 ## 1. 入口（Entry points）
 
-### 1.1 推奨（script_pipeline 経由）
+### 1.1 推奨（UI / Backend 経由）
+- `POST /api/audio-tts-v2/run-from-script`（input_path の指定不要。上記「最終確定入力」を backend 側で解決）
+  - UI: Episode Studio / 音声ワークスペースの「TTS実行」
+  - 返却: `/api/channels/{CH}/videos/{NNN}/audio|srt|log` の URL を返す（ファイルパスではない）
+
+### 1.2 推奨（script_pipeline 経由）
 - `python -m script_pipeline.cli audio --channel CH06 --video 033`
-- 途中再開（chunksを再利用）: `... --resume`
+  - 途中再開（chunksを再利用）: `... --resume`
 
 ### 1.2 直叩き（audio_tts_v2）
 - `python audio_tts_v2/scripts/run_tts.py --channel CH06 --video 033 --input script_pipeline/data/CH06/033/content/assembled.md`
@@ -44,10 +56,19 @@
 - `script_pipeline/data/{CH}/{NNN}/audio_prep/` は **strict run_tts の作業領域（L2/L3）**
   - 容量最大: `audio_prep/chunks/*.wav`
   - finalが揃ったら原則削除して良い（保持/削除の正本は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
+  - UI/Backend 経由の TTS 成功時は **自動で chunks を削除**（下記参照）
 
 ---
 
 ## 4. 後片付け（容量対策・安全ガード付き）
+
+### 4.0 自動cleanup（UI/Backend 経由の TTS 成功時）
+backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベストエフォートで以下を実行する。
+
+- `script_pipeline/data/{CH}/{NNN}/audio_prep/chunks/` を削除
+- `script_pipeline/data/{CH}/{NNN}/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
+- `audio_tts_v2/artifacts/final/{CH}/{NNN}/chunks/` を削除（巨大。再生成可能）
+  - 無効化: `YTM_TTS_KEEP_CHUNKS=1`
 
 ### 4.1 finalへ不足を同期（削除前の安全策）
 - `python3 scripts/sync_audio_prep_to_final.py --run --keep-recent-minutes 360`
@@ -60,6 +81,9 @@
 ### 4.3 audio_prep の重複wav/srt削除（finalが正になった後）
 - `python3 scripts/purge_audio_prep_binaries.py --run --keep-recent-minutes 360`
 
+### 4.4 final の chunks 削除（容量最大）
+- `python3 scripts/purge_audio_final_chunks.py --run --keep-recent-minutes 360`
+
 ---
 
 ## 5. 例外（要注意）
@@ -71,4 +95,3 @@
 対処:
 - まず `status.json` を確認し、意図して未完了か判定する
 - 必要なら `--resume` で再開して final を作ってから cleanup する
-
