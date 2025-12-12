@@ -49,3 +49,19 @@
 ### 備考
 
 - `__pycache__/` や `.pytest_cache/` は再生成されるため、必要に応じて随時削除する。
+
+---
+
+## 2025-12-13
+
+### 1) `commentary_02` 直下の残骸（repo tracked）を削除
+
+2025-12-12 にバックアップを作成済みのため、以下を **git rm**（削除）した。
+
+- 削除:
+  - `commentary_02_srt2images_timeline/PROJ.json`
+  - `commentary_02_srt2images_timeline/channel_preset.json`
+  - `commentary_02_srt2images_timeline/persona.txt`
+  - `commentary_02_srt2images_timeline/image_cues.json`
+- バックアップ（復元先）:
+  - `backups/20251212_repo_residue/commentary_02_legacy_root_artifacts/`
