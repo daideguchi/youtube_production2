@@ -4,7 +4,14 @@ import re
 import wave
 import contextlib
 import json
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import script_data_root
 
 def get_wav_duration(wav_path):
     try:
@@ -41,7 +48,7 @@ def parse_srt_last_timestamp(srt_path):
     return last_end_sec
 
 def verify_sync(channel=None):
-    root = Path("script_pipeline/data")
+    root = script_data_root()
     if channel:
         search_pattern = str(root / channel / "*" / "audio_prep")
     else:
