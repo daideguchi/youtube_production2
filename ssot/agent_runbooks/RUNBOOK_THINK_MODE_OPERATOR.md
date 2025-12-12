@@ -33,7 +33,10 @@
 1. pending 一覧:
    - `python scripts/agent_runner.py list`
    - フォールバック/申し送りのメモ確認（任意）:
-     - `python scripts/agent_coord.py memos`
+     - `python scripts/agent_org.py memos`
+   - 複数エージェント運用（任意）:
+     - `python scripts/agent_org.py orchestrator status`
+     - `python scripts/agent_org.py agents list`
 2. 1タスクずつ処理:
    - （推奨）担当を明示して claim:
      - `export LLM_AGENT_NAME=Mike`（または `python scripts/agent_runner.py --agent-name Mike ...`）

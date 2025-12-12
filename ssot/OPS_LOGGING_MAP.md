@@ -52,10 +52,18 @@
   - 役割: agent/think-mode の **キュー/結果キャッシュ**（enqueue → complete → rerun）
   - 関連:
     - `logs/agent_tasks/coordination/memos/*.json`（申し送り/フォールバック通知）
-      - Writer: `factory_common/llm_api_failover.py`, `scripts/agent_coord.py`
-      - Reader: `python scripts/agent_coord.py memos`, `python scripts/agent_coord.py memo-show <MEMO_ID>`
+      - Writer: `factory_common/llm_api_failover.py`, `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
+      - Reader: `python scripts/agent_org.py memos`, `python scripts/agent_org.py memo-show <MEMO_ID>`
     - `logs/agent_tasks/coordination/locks/*.json`（任意: 作業スコープロック）
-      - Writer/Reader: `scripts/agent_coord.py`
+      - Writer/Reader: `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
+    - `logs/agent_tasks/coordination/events.jsonl`（協調イベントログ: append-only）
+      - Writer/Reader: `scripts/agent_org.py`
+    - `logs/agent_tasks/coordination/agents/*.json`（agent registry: name/pid/heartbeat）
+      - Writer/Reader: `scripts/agent_org.py`
+    - `logs/agent_tasks/coordination/assignments/*.json`（orchestrator→agent タスク割当）
+      - Writer/Reader: `scripts/agent_org.py`
+    - `logs/agent_tasks/coordination/orchestrator/*`（orchestrator state/inbox/outbox）
+      - Writer/Reader: `scripts/agent_org.py`
   - 備考: `logs/` は gitignore のため増えやすい。不要になった結果は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` に従い退避/削除。
   - 種別: **L1（運用SoT）**
 

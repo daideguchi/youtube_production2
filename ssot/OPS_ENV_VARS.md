@@ -65,4 +65,4 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
 
 ### 失敗時に見る場所
 - pending: `logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）
-- memo: `logs/agent_tasks/coordination/memos/*.json`（一覧は `python scripts/agent_coord.py memos`）
+- memo: `logs/agent_tasks/coordination/memos/*.json`（一覧は `python scripts/agent_org.py memos`）

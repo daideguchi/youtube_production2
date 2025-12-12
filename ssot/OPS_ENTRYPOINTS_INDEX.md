@@ -53,6 +53,11 @@
 - `commentary_02_srt2images_timeline/tools/sync_*`（同期/保守）
 - `commentary_02_srt2images_timeline/tools/maintenance/*`（修復系）
 
+### 3.4 Agent/THINK MODE（複数AIエージェント運用）
+- `scripts/think.sh`（THINK MODE 一発ラッパー）
+- `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
+- `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用）
+
 ---
 
 ## 4. 生成物の掃除（容量/混乱対策）
