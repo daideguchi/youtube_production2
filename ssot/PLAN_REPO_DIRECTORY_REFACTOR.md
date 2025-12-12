@@ -52,7 +52,7 @@
   - `factory_common/`（LLM/画像クライアント等の共通層）
 - **アプリ（UI/動画）**
   - `ui/backend`（FastAPI、複数のルートパスを直書き）
-  - `ui/frontend`（React）
+  - `apps/ui-frontend`（React、互換: `ui/frontend` は symlink）
   - `remotion/`（Node+Remotion。現行は未使用の実験ラインだがコード/preview/UI入口は存在）
 - **SoT/運用データ**
   - `progress/`（channels CSV/personas/templates/analytics）
@@ -416,7 +416,7 @@ legacy/
 ## 6. 影響範囲と依存関係
 - **UI backend**: `ui/backend/main.py`, `ui/backend/video_production.py`, `ui/backend/routers/*`
   - `PROJECT_ROOT/"script_pipeline"`, `"commentary_02_srt2images_timeline"`, `"progress"`, `"thumbnails"` の参照を paths SSOT に置換。
-- **UI frontend**: `ui/frontend/src/components/*`
+- **UI frontend**: `apps/ui-frontend/src/components/*`（互換: `ui/frontend/src/*` は symlink 経由）
   - `00_research`, `thumbnails/assets`, `script_pipeline/data` 表示パスの更新。
 - **ルート scripts/tools**: `scripts/*.py`, `tools/*.py`, `scripts/*.sh`
   - `Path("script_pipeline/data")`, `commentary_02_srt2images_timeline/output` 等の直書きを置換。
@@ -531,9 +531,9 @@ legacy/
 - [ ] `pip install -e .` の import smoke を通す。
 
 ### Stage 5: `apps/` へのアプリ移動
-- [ ] `apps/` 作成。
+- [x] `apps/` 作成。
 - [ ] `ui/backend` → `apps/ui-backend/backend`
-- [ ] `ui/frontend` → `apps/ui-frontend`
+- [x] `ui/frontend` → `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 - [ ] `remotion/` → `apps/remotion`（experimental。主線が安定してから最後に移してOK）
 - [ ] `scripts/start_all.sh` / `ui/tools/start_manager.py` の参照パス更新。
 - [ ] Remotion `public/input` の symlink を `workspaces/video/input` へ向ける。

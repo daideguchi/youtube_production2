@@ -4,7 +4,7 @@
 - **Plan ID**: PLAN_UI_WORKSPACE_CLEANUP
 - **ステータス**: Active
 - **担当/レビュー**: AI agent / Owner review
-- **対象範囲 (In Scope)**: `ui/frontend` のページ/サイドバー/ルーティング整理、辞書UIの集約
+- **対象範囲 (In Scope)**: `apps/ui-frontend` のページ/サイドバー/ルーティング整理、辞書UIの集約（互換: `ui/frontend` は symlink）
 - **非対象 (Out of Scope)**: バックエンドの大規模リファクタリング、データ形式の変更、既存ジョブ/パイプラインの仕様変更
 - **関連 SoT/依存**: `progress/channels/*.csv`, `audio_tts_v2/data/reading_dict/*.yaml`, `audio_tts_v2/data/global_knowledge_base.json`, `ui/backend/main.py`
 - **最終更新日**: 2025-12-12
@@ -16,7 +16,7 @@
 
 ## 2. 成果物と成功条件 (Definition of Done)
 - **成果物**
-  - `ui/frontend/src/pages/DictionaryPage.tsx` + ルーティング/サイドバー統合
+  - `apps/ui-frontend/src/pages/DictionaryPage.tsx` + ルーティング/サイドバー統合
   - 既存ページから辞書操作を撤去し、Dictionaryページへ誘導（例: AudioIntegrity）
   - サイドバーのカテゴリ整理（段階的に実施）
   - 主要ページのUI/文言統一ガイド（必要なら追記）
@@ -93,7 +93,7 @@
 
 ## 10. リスクと対策
 - **リスク**: バックエンドの後続リファクタでAPI仕様が変わる可能性。
-  - **対策**: Dictionaryページ側は `ui/frontend/src/api/client.ts` の薄いラッパ経由で吸収し、UI側の修正を局所化する。
+  - **対策**: Dictionaryページ側は `apps/ui-frontend/src/api/client.ts` の薄いラッパ経由で吸収し、UI側の修正を局所化する。
 - **リスク**: サイドバー再編で既存ユーザーが迷う可能性。
   - **対策**: まず順序/カテゴリだけ変え、パスは維持。必要なら旧表示を設定で切替可能にする。
 
@@ -102,6 +102,6 @@
 - 各ページの機能追加（サムネ表埋め込み等）は別計画として管理。
 
 ## 12. 参照リンク
-- `ui/frontend/src/pages/DictionaryPage.tsx`
-- `ui/frontend/src/layouts/AppShell.tsx`
+- `apps/ui-frontend/src/pages/DictionaryPage.tsx`
+- `apps/ui-frontend/src/layouts/AppShell.tsx`
 - `ui/backend/main.py`（KB/reading-dict endpoints）

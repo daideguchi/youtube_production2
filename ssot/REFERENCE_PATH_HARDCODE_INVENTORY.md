@@ -56,8 +56,8 @@
 
 - `ui/backend/main.py`
 - `ui/backend/routers/tts_progress.py`
-- `ui/frontend/src/api/client.ts`
-- `ui/frontend/src/components/ResearchWorkspace.tsx`
+- `apps/ui-frontend/src/api/client.ts`（互換: `ui/frontend/src/...` は symlink）
+- `apps/ui-frontend/src/components/ResearchWorkspace.tsx`
 - `audio_tts_v2/scripts/run_tts.py`
 - `audio_tts_v2/legacy_archive/scripts/prepare_inputs.py`（Legacy）
 - `script_pipeline/sot.py`
@@ -90,7 +90,7 @@
 - `ui/backend/routers/swap.py`
 - `commentary_02_srt2images_timeline/ui/server/jobs.py`
 - `commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt`（Docs/運用）
-- `ui/frontend/src/components/RemotionWorkspace.tsx`（experimental UI）
+- `apps/ui-frontend/src/components/RemotionWorkspace.tsx`（experimental UI）
 - `ssot/*`（Docs）
 
 置換先: `factory_common.paths.video_runs_root()` / `video_run_dir(run_id)`。
@@ -104,8 +104,8 @@
 - `audio_tts_v2/scripts/run_tts.py`
 - `commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`
 - `ui/backend/routers/auto_draft.py`
-- `ui/frontend/src/pages/AutoDraftPage.tsx`
-- `ui/frontend/src/components/AudioWorkspace.tsx`
+- `apps/ui-frontend/src/pages/AutoDraftPage.tsx`
+- `apps/ui-frontend/src/components/AudioWorkspace.tsx`
 - `scripts/check_all_srt.sh`
 - `scripts/mass_regenerate_strict.sh`
 - `scripts/sequential_repair.sh`
@@ -184,4 +184,3 @@
 方針:
 - Stage 1 では「paths SSOT 化 or legacy へ隔離」のため参照を**薄く置換**。
 - Stage 3 で `legacy/commentary_01_srtfile_v2/` stub（READMEのみ）へ集約し、コード/テストから完全消し込み。
-

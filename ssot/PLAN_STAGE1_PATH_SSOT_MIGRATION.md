@@ -132,9 +132,9 @@
 
 ### 3.5 Stage1-5: UI frontend（表示パスの整理）
 対象（表示文字列/URL生成のための直書きパス除去）:
-- `ui/frontend/src/api/client.ts`
-- `ui/frontend/src/pages/*`（ScriptFactory/Projects/AutoDraft/Thumbnails/Remotion*）
-- `ui/frontend/src/components/*`（ResearchWorkspace/AudioWorkspace/ThumbnailWorkspace）
+- `apps/ui-frontend/src/api/client.ts`（互換: `ui/frontend/src/...` は symlink）
+- `apps/ui-frontend/src/pages/*`（ScriptFactory/Projects/AutoDraft/Thumbnails/Remotion*）
+- `apps/ui-frontend/src/components/*`（ResearchWorkspace/AudioWorkspace/ThumbnailWorkspace）
 
 方針:
 - **ローカルファイルパスをフロントで組み立てない**。backendが返す URL を優先。
@@ -171,4 +171,3 @@
 ## 5. Stage2 への引き継ぎ
 - Stage1 完了時点で paths SSOT があるため、Stage2 の copy→mv→symlink は paths 側の root 変更だけで全層が追従できる。
 - Stage2 の各 substep 実施前に、paths の root 返り先を **一時的に env override で切替**できるようにしておく（`YTM_WORKSPACE_ROOT`）。
-

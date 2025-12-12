@@ -29,6 +29,7 @@
   - 音声/SRTの参照は final を正本として扱う（`audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `ui/backend/video_production.py`
     - `commentary_02_srt2images_timeline/ui/server/jobs` を呼び出す
+- Frontend (React): `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 
 ---
 
