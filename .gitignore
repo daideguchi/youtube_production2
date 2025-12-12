@@ -4,6 +4,9 @@
 .env.test.local
 .env.production.local
 .env.*
+
+# Local override configs (keep out of git)
+configs/*.local.*
 logs/
 commentary_02_srt2images_timeline/**/runtime/logs/
 .DS_Store

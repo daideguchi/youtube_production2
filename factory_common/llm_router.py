@@ -80,7 +80,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("LLMRouter")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
+_DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
+_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.local.yaml"
+CONFIG_PATH = _LOCAL_CONFIG_PATH if _LOCAL_CONFIG_PATH.exists() else _DEFAULT_CONFIG_PATH
 FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
 DEFAULT_LOG_PATH = PROJECT_ROOT / "logs" / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
@@ -246,9 +248,12 @@ class LLMRouter:
         else:
             # base tier models
             tier_models = self.config.get("tiers", {}).get(tier, [])
-            # Allow tier override from llm_tier_candidates.yaml if present
-            candidates_path = CONFIG_PATH.parents[0] / "llm_tier_candidates.yaml"
-            if candidates_path.exists():
+            # Allow tier override from llm_tier_candidates.yaml (opt-in)
+            enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in ("1", "true", "yes", "on")
+            config_dir = CONFIG_PATH.parents[0]
+            local_candidates = config_dir / "llm_tier_candidates.local.yaml"
+            candidates_path = local_candidates if local_candidates.exists() else (config_dir / "llm_tier_candidates.yaml")
+            if enable_candidates_override and candidates_path.exists():
                 try:
                     candidates = yaml.safe_load(candidates_path.read_text()).get("tiers", {})
                     if tier in candidates and candidates[tier]:

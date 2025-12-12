@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -7,8 +8,11 @@ import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "llm.yml"
+DEFAULT_CONFIG_LOCAL = PROJECT_ROOT / "configs" / "llm.local.yml"
 DEFAULT_TIER_MAPPING = PROJECT_ROOT / "configs" / "llm_tier_mapping.yaml"
+DEFAULT_TIER_MAPPING_LOCAL = PROJECT_ROOT / "configs" / "llm_tier_mapping.local.yaml"
 DEFAULT_TIER_CANDIDATES = PROJECT_ROOT / "configs" / "llm_tier_candidates.yaml"
+DEFAULT_TIER_CANDIDATES_LOCAL = PROJECT_ROOT / "configs" / "llm_tier_candidates.local.yaml"
 
 # Legacy fallbacks (for compatibility)
 LEGACY_ROUTER = PROJECT_ROOT / "configs" / "llm_router.yaml"
@@ -41,9 +45,13 @@ def load_llm_config(
     Load the unified LLM config with optional tier/task overrides.
     Falls back to legacy router/registry files if the new config is absent.
     """
-    config_path = Path(config_path) if config_path else DEFAULT_CONFIG
-    tier_mapping_path = Path(tier_mapping_path) if tier_mapping_path else DEFAULT_TIER_MAPPING
-    tier_candidates_path = Path(tier_candidates_path) if tier_candidates_path else DEFAULT_TIER_CANDIDATES
+    config_path = Path(config_path) if config_path else (DEFAULT_CONFIG_LOCAL if DEFAULT_CONFIG_LOCAL.exists() else DEFAULT_CONFIG)
+    tier_mapping_path = Path(tier_mapping_path) if tier_mapping_path else (
+        DEFAULT_TIER_MAPPING_LOCAL if DEFAULT_TIER_MAPPING_LOCAL.exists() else DEFAULT_TIER_MAPPING
+    )
+    tier_candidates_path = Path(tier_candidates_path) if tier_candidates_path else (
+        DEFAULT_TIER_CANDIDATES_LOCAL if DEFAULT_TIER_CANDIDATES_LOCAL.exists() else DEFAULT_TIER_CANDIDATES
+    )
 
     base = _load_yaml(config_path)
     providers = base.get("providers", {})
@@ -78,7 +86,8 @@ def load_llm_config(
 
     # Allow tier candidates override file
     candidate_override = _load_yaml(tier_candidates_path)
-    if candidate_override.get("tiers"):
+    enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in ("1", "true", "yes", "on")
+    if enable_candidates_override and candidate_override.get("tiers"):
         tiers = candidate_override["tiers"]
 
     return {
