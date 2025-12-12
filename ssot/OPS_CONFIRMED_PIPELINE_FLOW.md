@@ -219,6 +219,11 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 4. タイトルJSON注入
    - Outputs:
      - `auto_run_info.json`（実行メタ/モデル/パラメータ）
+5. `timeline_manifest.json` 生成（可能な場合）
+   - 目的: run_dir の入力/出力/依存を “契約” として固定し、将来の移設・検証・UI表示の基礎にする。
+   - 生成条件: `audio_tts_v2/artifacts/final` の SRT/WAV が解決できる場合（失敗しても pipeline は止めない）
+   - Outputs:
+     - `timeline_manifest.json`
 
 **確認ポイント（run_dir完成条件）**
 - 最低限（CapCutドラフトとして成立）:
@@ -229,8 +234,14 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - 推奨（再現性/監査）:
   - `auto_run_info.json`（実行メタ）
   - `channel_preset.json`, `persona.txt`（存在する場合）
+  - `timeline_manifest.json`（存在する場合）
 - belt_mode を使う場合:
   - `belt_config.json`
+
+**ズレ修正（保守ツール）**
+- もし run_dir の `image_cues.json` が古いSRTから生成されていて、後から final の音声/字幕を入れるとタイムラインがズレる場合:
+  - `python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py --run commentary_02_srt2images_timeline/output/<run_id>`
+  - LLMは呼ばず、cue.text と final SRT セグメントを文字列アラインして retime する（厳格チェック付き）
 
 **Downstream dependencies**
 - **本番主線は CapCut ドラフト → CapCut側で mp4 書き出し**。

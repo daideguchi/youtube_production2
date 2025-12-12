@@ -48,6 +48,7 @@
 - `commentary_02_srt2images_timeline/tools/auto_capcut_run.py`
 - `commentary_02_srt2images_timeline/tools/run_pipeline.py`
 - `commentary_02_srt2images_timeline/tools/srt_to_capcut_complete.py`（旧統合版・運用は要確認）
+- `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py`（run_dir の cue を final SRT に retime / LLMなし）
 - `commentary_02_srt2images_timeline/tools/sync_*`（同期/保守）
 - `commentary_02_srt2images_timeline/tools/maintenance/*`（修復系）
 
@@ -76,6 +77,7 @@
 - `commentary_02_srt2images_timeline/tools/factory.py`
 - `commentary_02_srt2images_timeline/tools/run_pipeline.py`
 - `commentary_02_srt2images_timeline/tools/srt_to_capcut_complete.py`
+- `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py`
 - `script_pipeline/cli.py`
 - `script_pipeline/job_runner.py`
 - `scripts/youtube_publisher/publish_from_sheet.py`
@@ -83,4 +85,3 @@
 
 再抽出コマンド例:
 - `rg -l "argparse\\.ArgumentParser|if __name__ == '__main__'" <dirs...> | sort`
-

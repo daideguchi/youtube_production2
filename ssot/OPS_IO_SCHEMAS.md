@@ -194,6 +194,60 @@ belts[*]（観測）:
 - `transform`: dict
 - `crossfade_sec`, `fade_duration_sec`: number
 
+### 4.6 timeline_manifest.json（観測スキーマ / 診断用の“契約”）
+用途:
+- run_dir の入力/出力/依存を **1ファイルに固定**し、将来の `workspaces/` への移設・検証・UI表示の基礎にする。
+
+生成:
+- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py` が、`audio_tts_v2/artifacts/final` の SRT/WAV を解決できる場合に生成（失敗しても pipeline は止めない）。
+- `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py` が retime 後に生成（strict validation）。
+
+トップレベル（期待）:
+- `schema`: `"ytm.timeline_manifest.v1"`
+- `generated_at`: string（UTC ISO）
+- `repo_root`: string（repo absolute path）
+- `episode`: dict
+- `source`: dict
+- `derived`: dict
+- `notes`: string
+
+episode（期待）:
+- `id`: `"CHxx-NNN"`
+- `channel`: `"CHxx"`
+- `video`: `"NNN"`
+
+source.audio_wav（期待）:
+- `path`: string（repo相対 or absolute）
+- `sha1`: string
+- `duration_sec`: number
+
+source.audio_srt（期待）:
+- `path`: string（repo相対 or absolute）
+- `sha1`: string
+- `end_sec`: number
+- `entries`: number
+
+derived（期待）:
+- `run_dir`: string（repo相対）
+- `image_cues`: dict
+- `belt_config?`: dict（存在時のみ）
+- `capcut_draft?`: dict（存在時のみ。CapCut projects absolute path）
+
+derived.image_cues（期待）:
+- `path`: string（run_dir 相対）
+- `sha1`: string
+- `count`: number
+- `end_sec`: number
+- `fps`: number
+- `size`: dict
+- `crossfade`: number
+- `imgdur`: number
+
+strict validation（期待ルール）:
+- `audio_wav.duration_sec` と `audio_srt.end_sec` が許容差内（既定 tol=1s）
+- `image_cues.end_sec` と `audio_srt.end_sec` が許容差内（既定 tol=1s）
+- `images/0001.png ...` が cue 数ぶん存在（run_dir に images/ がある場合）
+
 ---
 
 ## 5. Thumbnails（サムネ）— projects.json
