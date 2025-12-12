@@ -5665,6 +5665,13 @@ try:
 except Exception as e:
     logger.error("Failed to load research_files router: %s", e)
 
+try:
+    from backend.routers import agent_org
+
+    app.include_router(agent_org.router)
+except Exception as e:
+    logger.error("Failed to load agent_org router: %s", e)
+
 # 静的に thumbnails ディレクトリを配信
 thumb_dir = PROJECT_ROOT / "thumbnails"
 if thumb_dir.exists():
@@ -8991,10 +8998,14 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     stdout = completed.stdout.strip()
     if not final_wav_path.exists():
         raise HTTPException(status_code=500, detail=f"audio_tts_v2 did not create wav: {stdout}")
-    wav_path = str(final_wav_path.resolve())
-    srt_path = str(final_wav_path.with_suffix(".srt").resolve())
-    final_wav = wav_path if Path(wav_path).exists() else None
-    final_srt = srt_path if Path(srt_path).exists() else None
+    final_srt_path = final_wav_path.with_suffix(".srt")
+    wav_file_path = str(final_wav_path.resolve())
+    srt_file_path = str(final_srt_path.resolve()) if final_srt_path.exists() else None
+    log_file_path = str(final_log_path.resolve()) if final_log_path.exists() else None
+
+    audio_url = f"/api/channels/{req.channel}/videos/{req.video}/audio"
+    srt_url = f"/api/channels/{req.channel}/videos/{req.video}/srt" if final_srt_path.exists() else None
+    log_url = f"/api/channels/{req.channel}/videos/{req.video}/log" if final_log_path.exists() else None
     engine = req.engine_override
     if not engine:
         m = re.search(r"Engine=([a-zA-Z0-9_]+)", stdout)
@@ -9008,13 +9019,18 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
 
     return {
         "engine": engine,
-        "wav_path": wav_path,
-        "srt_path": srt_path,
-        "log": log_path,
+        # Backward-compatible keys (front-end expects URL-ish strings, not absolute file paths)
+        "wav_path": audio_url,
+        "srt_path": srt_url,
+        "log": log_url,
         "stdout": stdout,
-        "final_wav": final_wav,
-        "final_srt": final_srt,
+        "final_wav": audio_url,
+        "final_srt": srt_url,
         "llm_meta": llm_meta,
+        # Debug-only extras (not part of response_model)
+        "wav_file_path": wav_file_path,
+        "srt_file_path": srt_file_path,
+        "log_file_path": log_file_path,
     }
 
 

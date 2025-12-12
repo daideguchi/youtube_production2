@@ -11,6 +11,10 @@ import shutil
 import time
 import random
 import os
+import warnings
+
+# Silence upstream deprecation warnings from pyJianYingDraft usage.
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -117,7 +121,7 @@ except Exception:
 
 def validate_template(draft_root: Path, template_name: str) -> tuple[bool, str]:
     """
-    Validate template existence and draft_content.json presence.
+    Validate template existence and at least one draft JSON presence.
 
     Returns:
         (is_valid, error_message)
@@ -133,21 +137,17 @@ def validate_template(draft_root: Path, template_name: str) -> tuple[bool, str]:
     draft_content = template_path / "draft_content.json"
     draft_info = template_path / "draft_info.json"
 
-    if not draft_content.exists():
-        if draft_info.exists():
-            return False, (
-                f"❌ Template '{template_name}' lacks draft_content.json\n"
-                f"   (has draft_info.json but pyJianYingDraft 0.2.3 requires draft_content.json)"
-            )
-        else:
-            return False, f"❌ Template '{template_name}' is not a valid CapCut draft (no JSON files)"
+    has_content = draft_content.exists() and draft_content.stat().st_size > 0
+    has_info = draft_info.exists() and draft_info.stat().st_size > 0
+    if not has_content and not has_info:
+        return False, f"❌ Template '{template_name}' is not a valid CapCut draft (no JSON files)"
 
     return True, ""
 
 
 def list_valid_templates(draft_root: Path, prefix: str = "") -> list[tuple[str, float]]:
     """
-    List all valid templates (with draft_content.json).
+    List all valid templates (with draft_content.json or draft_info.json).
 
     Returns:
         List of (template_name, mtime) sorted by modification time (newest first)
@@ -164,8 +164,12 @@ def list_valid_templates(draft_root: Path, prefix: str = "") -> list[tuple[str, 
             continue
 
         draft_content = entry / "draft_content.json"
-        if draft_content.exists():
+        draft_info = entry / "draft_info.json"
+        if draft_content.exists() and draft_content.stat().st_size > 0:
             mtime = draft_content.stat().st_mtime
+            valid_templates.append((entry.name, mtime))
+        elif draft_info.exists() and draft_info.stat().st_size > 0:
+            mtime = draft_info.stat().st_mtime
             valid_templates.append((entry.name, mtime))
 
     valid_templates.sort(key=lambda x: x[1], reverse=True)
@@ -183,6 +187,127 @@ def find_best_template(draft_root: Path, prefix: str) -> Optional[str]:
     if candidates:
         return candidates[0][0]  # Return newest
     return None
+
+
+def _try_load_json_file(path: Path) -> tuple[Optional[dict], str]:
+    """Load JSON if present & non-empty; return (data, reason_if_none)."""
+    if not path.exists():
+        return None, "missing"
+    try:
+        if path.stat().st_size == 0:
+            return None, "empty"
+    except Exception:
+        return None, "stat_failed"
+    try:
+        return json.loads(path.read_text(encoding="utf-8")), ""
+    except Exception as exc:
+        return None, f"invalid:{type(exc).__name__}"
+
+
+def _find_latest_json_backup(path: Path) -> Optional[Path]:
+    """Find newest non-empty backup like draft_content.json.bak*."""
+    candidates: list[Path] = []
+    for p in path.parent.glob(path.name + ".bak*"):
+        try:
+            if p.is_file() and p.stat().st_size > 0:
+                candidates.append(p)
+        except Exception:
+            continue
+    if not candidates:
+        return None
+    candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return candidates[0]
+
+
+def _normalize_track_names_in_place(tracks: list[dict]) -> dict[str, str]:
+    """
+    Ensure every track has a non-empty unique name.
+    Returns mapping {track_id: name} for tracks that have an id.
+    """
+    used: set[str] = set()
+    per_type_count: dict[str, int] = {}
+    id_to_name: dict[str, str] = {}
+
+    for track in tracks:
+        track_type = (track.get("type") or "track").strip() or "track"
+        name = (track.get("name") or "").strip()
+        if not name:
+            per_type_count[track_type] = per_type_count.get(track_type, 0) + 1
+            name = f"{track_type}_{per_type_count[track_type]}"
+
+        base = name
+        suffix = 1
+        while name in used:
+            suffix += 1
+            name = f"{base}_{suffix}"
+        used.add(name)
+
+        track["name"] = name
+        tid = str(track.get("id") or "").strip()
+        if tid:
+            id_to_name[tid] = name
+
+    return id_to_name
+
+
+def _apply_track_id_name_mapping(tracks: list[dict], id_to_name: dict[str, str]) -> None:
+    """Apply id->name mapping, then ensure non-empty + uniqueness."""
+    for track in tracks:
+        tid = str(track.get("id") or "").strip()
+        if tid and tid in id_to_name:
+            track["name"] = id_to_name[tid]
+    _normalize_track_names_in_place(tracks)
+
+
+def _normalize_draft_dir_for_pyjiaying(draft_dir: Path) -> None:
+    """
+    pyJianYingDraft expects sane draft JSON. After duplication, normalize:
+      - Ensure both draft_content.json and draft_info.json exist (derive from the other if needed)
+      - Repair empty/invalid JSON via backups where possible
+      - Ensure track names are non-empty and unique (prevents dropped/overwritten layers)
+    """
+    content_path = draft_dir / "draft_content.json"
+    info_path = draft_dir / "draft_info.json"
+
+    content_data, content_reason = _try_load_json_file(content_path)
+    info_data, info_reason = _try_load_json_file(info_path)
+
+    if content_data is None and info_data is None:
+        # Try backups (prefer content backups, then info backups)
+        backup = _find_latest_json_backup(content_path) or _find_latest_json_backup(info_path)
+        if backup:
+            backup_data, _ = _try_load_json_file(backup)
+            if backup_data is not None:
+                content_data = copy.deepcopy(backup_data)
+                info_data = copy.deepcopy(backup_data)
+
+    if content_data is None and info_data is not None:
+        content_data = copy.deepcopy(info_data)
+    if info_data is None and content_data is not None:
+        info_data = copy.deepcopy(content_data)
+
+    if content_data is None or info_data is None:
+        raise RuntimeError(
+            f"Draft JSON repair failed under {draft_dir} (content={content_reason}, info={info_reason})"
+        )
+
+    # Defensive defaults
+    if content_data.get("tracks") is None:
+        content_data["tracks"] = []
+    if content_data.get("materials") is None:
+        content_data["materials"] = {}
+    if info_data.get("tracks") is None:
+        info_data["tracks"] = []
+    if info_data.get("materials") is None:
+        info_data["materials"] = {}
+
+    # Normalize names and keep (id->name) consistent across both JSONs.
+    id_to_name = _normalize_track_names_in_place(content_data.get("tracks") or [])
+    _apply_track_id_name_mapping(info_data.get("tracks") or [], id_to_name)
+
+    # Write both files (ensure existence)
+    content_path.write_text(json.dumps(content_data, ensure_ascii=False), encoding="utf-8")
+    info_path.write_text(json.dumps(info_data, ensure_ascii=False), encoding="utf-8")
 
 
 def pre_flight_check(args, logger: logging.Logger) -> list[str]:
@@ -2143,15 +2268,32 @@ def main():
     template_name = args.template
     logger.info(f"📋 Using template: {template_name}")
 
-    try:
-        df.duplicate_as_template(template_name, args.new, allow_replace=True)
-        logger.info(f"✅ Duplicated template to: {args.new}")
-    except Exception as e:
-        logger.error(f"❌ Failed to duplicate template '{template_name}': {e}")
-        logger.debug(traceback.format_exc())
-        raise
+    draft_root = Path(args.draft_root)
+    template_dir = draft_root / template_name
+    draft_dir = draft_root / args.new
+
+    # Prefer pyJianYingDraft duplication, but some templates only have draft_info.json.
+    use_manual_copy = (template_dir / "draft_info.json").exists() and not (template_dir / "draft_content.json").exists()
+    if use_manual_copy:
+        if draft_dir.exists():
+            shutil.rmtree(draft_dir)
+        shutil.copytree(template_dir, draft_dir)
+        logger.info(f"✅ Copied template directory to: {args.new} (manual copy)")
+    else:
+        try:
+            df.duplicate_as_template(template_name, args.new, allow_replace=True)
+            logger.info(f"✅ Duplicated template to: {args.new}")
+        except Exception as e:
+            logger.info(f"pyJianYingDraft duplication failed; falling back to manual copy: {e}")
+            if draft_dir.exists():
+                shutil.rmtree(draft_dir)
+            shutil.copytree(template_dir, draft_dir)
+            logger.info(f"✅ Copied template directory to: {args.new} (fallback manual copy)")
+
+    # Normalize JSON + track names BEFORE loading with pyJianYingDraft.
+    _normalize_draft_dir_for_pyjiaying(draft_dir)
+
     script = df.load_template(args.new)
-    draft_dir = Path(args.draft_root) / args.new
     assets_dir = draft_dir / 'assets' / 'image'
     assets_dir.mkdir(parents=True, exist_ok=True)
 

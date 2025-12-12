@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { VideoDetail } from "../api/types";
 import { translateStatus } from "../utils/i18n";
-import { API_BASE_URL, fetchPlainTtsScript, runAudioTtsV2 } from "../api/client";
+import { API_BASE_URL, fetchPlainTtsScript, runAudioTtsV2FromScript } from "../api/client";
 
 type AudioWorkspaceHandlers = {
   onSaveSrt: (content: string) => Promise<unknown>;
@@ -243,22 +243,10 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
     setRunBusy(true);
     setRunMessage(null);
     setRunError(null);
-    const inputPath =
-      detail.script_audio_path ??
-      detail.tts_path ??
-      detail.assembled_path ??
-      detail.script_audio_human_path ??
-      detail.assembled_human_path;
-    if (!inputPath) {
-      setRunError("input_path が不明です（script_audio_path などが未設定）。");
-      setRunBusy(false);
-      return;
-    }
     try {
-      const res = await runAudioTtsV2({
+      const res = await runAudioTtsV2FromScript({
         channel: detail.channel,
         video: detail.video,
-        input_path: inputPath,
       });
       // llm_meta はバックエンドの追加フィールド（型が古い場合でも拾えるようにフォールバック）
       const meta = "llm_meta" in res ? (res as any).llm_meta : null;
@@ -301,7 +289,7 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
     } finally {
       setRunBusy(false);
     }
-  }, [detail.channel, detail.video, detail.script_audio_path, detail.tts_path, detail.assembled_path, detail.script_audio_human_path, detail.assembled_human_path]);
+  }, [detail.channel, detail.video]);
 
   useEffect(() => {
     const audio = audioRef.current;

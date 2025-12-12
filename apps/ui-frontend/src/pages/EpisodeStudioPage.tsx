@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext, useSearchParams } from "react-router-dom";
 
-import { createVideoProject, fetchVideoJobs, fetchVideoProjectDetail, runAudioTtsV2 } from "../api/client";
+import { createVideoProject, fetchVideoJobs, fetchVideoProjectDetail, runAudioTtsV2FromScript } from "../api/client";
 import type { VideoJobRecord, VideoProjectDetail } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
 import { apiUrl } from "../utils/apiClient";
@@ -221,26 +221,13 @@ export function EpisodeStudioPage() {
       return;
     }
 
-    const inputPath =
-      detail.script_audio_path ??
-      detail.tts_path ??
-      detail.assembled_path ??
-      detail.script_audio_human_path ??
-      detail.assembled_human_path;
-
-    if (!inputPath) {
-      setTtsRunError("TTS入力パスが不明です（assembled/script_audio が未作成）。");
-      return;
-    }
-
     setTtsRunBusy(true);
     setTtsRunMessage(null);
     setTtsRunError(null);
     try {
-      const res = await runAudioTtsV2({
+      const res = await runAudioTtsV2FromScript({
         channel,
         video,
-        input_path: inputPath,
       });
       const finalWav = (res as any).final_wav ?? res.wav_path;
       const finalSrt = (res as any).final_srt ?? res.srt_path ?? "";

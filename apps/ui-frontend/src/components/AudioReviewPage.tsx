@@ -4,7 +4,7 @@ import {
   API_BASE_URL,
   fetchAudioReviewItems,
   fetchChannels,
-  runAudioTtsV2,
+  runAudioTtsV2FromScript,
   fetchAText,
   updateVideoRedo,
 } from "../api/client";
@@ -809,14 +809,9 @@ export function AudioReviewPage() {
                       setRunError(null);
                       setToast(`再生成中: ${item.channel}-${item.video}`);
                       try {
-                        const inputPath = item.tts_input_path;
-                        if (!inputPath) {
-                          throw new Error("input_path が不明です。音声タブから再生成してください。");
-                        }
-                        const res = await runAudioTtsV2({
+                        const res = await runAudioTtsV2FromScript({
                           channel: item.channel,
                           video: item.video,
-                          input_path: inputPath,
                         });
                         const logInfo = res.log ? ` / log: ${res.log}` : "";
                         const finalInfo = res.final_wav ? ` / final_wav: ${res.final_wav}` : "";

@@ -1140,6 +1140,30 @@ else:
             raise HTTPException(status_code=404, detail=f"Channel not found: {channel_id}")
 
         updates = payload.dict(exclude_unset=True)
+        if "capcut_template" in updates and updates["capcut_template"] is not None and CAPCUT_DRAFT_ROOT.exists():
+            template_name = str(updates["capcut_template"]).strip()
+            if not template_name:
+                raise HTTPException(status_code=400, detail="capcut_template must be a non-empty string")
+            template_dir = CAPCUT_DRAFT_ROOT / template_name
+            if not template_dir.exists() or not template_dir.is_dir():
+                raise HTTPException(status_code=400, detail=f"capcut_template not found: {template_dir}")
+            content_path = template_dir / "draft_content.json"
+            info_path = template_dir / "draft_info.json"
+            has_content = content_path.exists() and content_path.stat().st_size > 0
+            has_info = info_path.exists() and info_path.stat().st_size > 0
+            if not has_content and not has_info:
+                raise HTTPException(status_code=400, detail=f"capcut_template has no draft JSON: {template_dir}")
+            try:
+                source_path = content_path if has_content else info_path
+                with source_path.open("r", encoding="utf-8") as handle:
+                    data = json.load(handle)
+                tracks = data.get("tracks") if isinstance(data, dict) else None
+                if not isinstance(tracks, list) or not tracks:
+                    raise HTTPException(status_code=400, detail=f"capcut_template has no tracks: {template_dir}")
+            except HTTPException:
+                raise
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"capcut_template JSON invalid: {template_dir} ({exc})") from exc
         if "position" in updates and updates["position"] is not None:
             position = entry.get("position", {}).copy()
             for key, value in updates["position"].items():
