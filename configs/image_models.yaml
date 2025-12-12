@@ -6,6 +6,16 @@ providers:
     env_api_key: GEMINI_API_KEY
 
 models:
+  gemini_3_pro_image_preview:
+    provider: gemini
+    model_name: gemini-3-pro-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
   gemini_2_5_flash_image:
     provider: gemini
     model_name: gemini-2.5-flash-image
@@ -20,6 +30,7 @@ models:
 tiers:
   image_gen:
     - gemini_2_5_flash_image
+    # - gemini_3_pro_image_preview  # emergency fallback (disabled by default)
 
 # Task-level defaults. Options provided at call time override these values.
 tasks:

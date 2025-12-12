@@ -45,6 +45,25 @@ _SUCCESSFUL_IMAGE_COUNT = 0  # 成功した画像数
 # Legacy router fallback is disabled by default.
 USE_LEGACY_IMAGE_ROUTER = False  # Legacy router disabled; ImageClient is the only path
 
+def _truncate_log(text: str, limit: int = 400) -> str:
+    if text is None:
+        return ""
+    t = str(text)
+    return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
+
+def _looks_like_429_quota(exc: Exception) -> bool:
+    msg = str(exc)
+    upper = msg.upper()
+    lower = msg.lower()
+    return ("429" in msg) and ("RESOURCE_EXHAUSTED" in upper or "quota" in lower)
+
+def _looks_like_daily_quota(exc: Exception) -> bool:
+    lower = str(exc).lower()
+    return (
+        "generate_requests_per_model_per_day" in lower
+        or "generaterequestsperdayperprojectpermodel" in lower
+    )
+
 def _reset_429_counter():
     """429カウンターをリセット（成功時に呼ぶ）"""
     global _CONSECUTIVE_429_COUNT
@@ -405,6 +424,17 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
                 return True
 
         except ImageGenerationError as exc:
+            if _looks_like_429_quota(exc):
+                # If it's clearly a per-day quota, stop immediately (waiting won't help).
+                if _looks_like_daily_quota(exc):
+                    raise QuotaExhaustedError(
+                        "Gemini API daily quota exhausted (429 RESOURCE_EXHAUSTED): "
+                        + _truncate_log(exc),
+                        successful_count=_SUCCESSFUL_IMAGE_COUNT,
+                        failed_count=_CONSECUTIVE_429_COUNT + 1,
+                    )
+                # Otherwise treat as transient 429; stop after consecutive threshold.
+                _increment_429_counter()
             logging.warning(
                 "ImageClient generation failed (Attempt %d/%d): %s",
                 attempt + 1,

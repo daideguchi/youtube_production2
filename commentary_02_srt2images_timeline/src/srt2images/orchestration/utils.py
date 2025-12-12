@@ -27,6 +27,7 @@ def setup_logging(out_dir: Path):
             logging.FileHandler(log_file),
             logging.StreamHandler(sys.stdout),
         ],
+        force=True,  # override logging configured by other modules (e.g., LLMRouter)
     )
     logging.info("Logging initialized at %s", log_file)
 
