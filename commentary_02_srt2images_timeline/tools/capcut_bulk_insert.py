@@ -91,14 +91,12 @@ try:
         backup_file as _auto_backup_file,
         load_json as _auto_load_fade_json,
         save_json as _auto_save_fade_json,
-        sync_draft_info as _auto_sync_draft_info,
     )
 except Exception:  # pragma: no cover - optional dependency
     _auto_add_crossfade_transitions = None
     _auto_backup_file = None
     _auto_load_fade_json = None
     _auto_save_fade_json = None
-    _auto_sync_draft_info = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -618,56 +616,81 @@ def ensure_absolute_indices(draft_dir: Path) -> None:
 
 def _apply_common_subtitle_style(draft_dir: Path) -> None:
     """
-    Normalize subtitle track styling across channels (shared baseline).
-    Source of truth: master_styles_v2.json style 'ch02_common_subtitle_v2'
-    Fallbacks (if style not found): center align, width 0.82, line_spacing 0.021,
-    white text, thin black border, no background, position y=-0.8, scale 1.0
+    Normalize subtitle track styling to match CapCut's default subtitle insertion.
+
+    Reference (observed in CapCut desktop default subtitle insertion):
+      - line_spacing: 0.12
+      - background_style: 1, background_color: #000000, background_alpha: 1.0
+      - content: JSON string with {text, styles:[{size:5.0, fill:white, strokes:[{width:0.00016, black}]}]}
+      - clip.transform: x=0.0, y=-0.8 ; clip.scale: 1.0
     """
     try:
-        # Load style from SSOT
-        style = None
-        try:
-            resolver = StyleResolver(Path(__file__).resolve().parents[1] / "config" / "master_styles_v2.json")
-            style = resolver.get_style("ch02_common_subtitle_v2") or resolver.get_style("jinsei_standard_v2")
-        except Exception:
-            style = None
-
-        # Defaults
         cfg = {
+            "alignment": 1,  # center
             "line_max_width": 0.82,
-            "line_spacing": 0.021,
+            "line_spacing": 0.12,
+            "background_style": 1,
+            "background_color": "#000000",
+            "background_alpha": 1.0,
             "text_size": 30,
-            "font_size": 15,
+            "font_size": 15.0,
             "border_width": 0.06,
-            "border_color": "#000000",
-            "text_color": "#FFFFFF",
-            "background_style": 0,
-            "background_color": "",
-            "background_alpha": 0.0,
-            "transform_y": -0.8,
+            # Observed: these are empty strings; actual colors come from content.styles
+            "border_color": "",
+            "text_color": "",
+            "force_apply_line_max_width": False,
+            "clip_transform_x": 0.0,
+            "clip_transform_y": -0.8,
+            "clip_scale_x": 1.0,
+            "clip_scale_y": 1.0,
+            "style_size": 5.0,
+            "stroke_width": 0.00016,
         }
 
-        # Override from SSOT if available
-        if style:
-            s = style.subtitle_style
-            cfg["text_size"] = s.font_size_pt * style.platform_overrides.get("capcut", {}).get("subtitle", {}).get("font_scale_factor", 0.1)
-            cfg["font_size"] = cfg["text_size"] / 2  # approximate
-            cfg["line_spacing"] = 0.02
-            cfg["text_color"] = s.text_color
-            if s.stroke_enabled:
-                cfg["border_color"] = s.stroke_color
-                cfg["border_width"] = 0.06
-            cfg["background_style"] = 0 if not s.background_enabled else 1
-            cfg["background_color"] = s.background_color if s.background_enabled else ""
-            cfg["background_alpha"] = s.background_opacity if s.background_enabled else 0.0
-            cfg["line_max_width"] = 0.82
-            cfg["transform_y"] = -s.position_y  # invert logical to CapCut
+        def _extract_text_from_content(content_field) -> str:
+            if isinstance(content_field, dict):
+                text = content_field.get("text")
+                return text if isinstance(text, str) else ""
+            if isinstance(content_field, str):
+                try:
+                    parsed = json.loads(content_field)
+                except Exception:
+                    return content_field
+                if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
+                    return parsed.get("text") or ""
+                return content_field
+            return ""
+
+        def _default_style_content(text: str) -> dict:
+            text = text or ""
+            return {
+                "text": text,
+                "styles": [
+                    {
+                        "range": [0, len(text)],
+                        "size": cfg["style_size"],
+                        "bold": False,
+                        "italic": False,
+                        "underline": False,
+                        "fill": {
+                            "alpha": 1.0,
+                            "content": {"render_type": "solid", "solid": {"alpha": 1.0, "color": [1.0, 1.0, 1.0]}},
+                        },
+                        "strokes": [
+                            {
+                                "content": {"solid": {"alpha": 1.0, "color": [0.0, 0.0, 0.0]}},
+                                "width": cfg["stroke_width"],
+                            }
+                        ],
+                    }
+                ],
+            }
 
         for fname in ("draft_content.json", "draft_info.json"):
             path = draft_dir / fname
             if not path.exists():
                 continue
-            data = json.loads(path.read_text())
+            data = json.loads(path.read_text(encoding="utf-8"))
             tracks = [t for t in data.get("tracks", []) if t.get("name") == "subtitles_text"]
             if not tracks:
                 continue
@@ -679,62 +702,136 @@ def _apply_common_subtitle_style(draft_dir: Path) -> None:
                     if mid:
                         sub_mat_ids.add(mid)
                     clip = seg.setdefault("clip", {})
+                    clip.setdefault("flip", {"horizontal": False, "vertical": False})
                     clip.setdefault("transform", {})
-                    clip["transform"]["x"] = 0.0
-                    clip["transform"]["y"] = cfg["transform_y"]
                     clip.setdefault("scale", {})
-                    clip["scale"]["x"] = 1.0
-                    clip["scale"]["y"] = 1.0
+                    clip["alpha"] = 1.0
+                    clip["rotation"] = 0.0
+                    clip["transform"]["x"] = cfg["clip_transform_x"]
+                    clip["transform"]["y"] = cfg["clip_transform_y"]
+                    clip["scale"]["x"] = cfg["clip_scale_x"]
+                    clip["scale"]["y"] = cfg["clip_scale_y"]
 
             mats = data.get("materials", {}).get("texts", [])
             for m in mats:
                 if m.get("id") not in sub_mat_ids:
                     continue
-                m["alignment"] = 1  # center
+                m["alignment"] = cfg["alignment"]
                 m["line_max_width"] = cfg["line_max_width"]
                 m["line_spacing"] = cfg["line_spacing"]
+                m["background_style"] = cfg["background_style"]
+                m["background_color"] = cfg["background_color"]
+                m["background_alpha"] = cfg["background_alpha"]
                 m["text_size"] = cfg["text_size"]
                 m["font_size"] = cfg["font_size"]
                 m["border_width"] = cfg["border_width"]
                 m["border_color"] = cfg["border_color"]
                 m["text_color"] = cfg["text_color"]
-                m["background_style"] = cfg["background_style"]
-                m["background_color"] = cfg["background_color"]
-                m["background_alpha"] = cfg["background_alpha"]
-                m["force_apply_line_max_width"] = False
+                m["force_apply_line_max_width"] = cfg["force_apply_line_max_width"]
 
-                content_field = m.get("content")
-                if isinstance(content_field, str):
-                    try:
-                        c_json = json.loads(content_field)
-                    except Exception:
-                        c_json = None
-                elif isinstance(content_field, dict):
-                    c_json = content_field
-                else:
-                    c_json = None
+                text_val = _extract_text_from_content(m.get("content"))
+                if not text_val:
+                    bc = m.get("base_content")
+                    if isinstance(bc, str) and bc:
+                        text_val = bc
+                m["content"] = json.dumps(_default_style_content(text_val), ensure_ascii=False)
 
-                if isinstance(c_json, dict):
-                    styles = c_json.get("styles") or []
-                    for st in styles:
-                        st["size"] = 3.0
-                        fill = st.setdefault("fill", {})
-                        fill["alpha"] = 1.0
-                        fill_content = fill.setdefault(
-                            "content", {"render_type": "solid", "solid": {"alpha": 1.0, "color": [1.0, 1.0, 1.0]}}
-                        )
-                        if isinstance(fill_content, dict):
-                            solid = fill_content.setdefault("solid", {"alpha": 1.0, "color": [1.0, 1.0, 1.0]})
-                            solid["alpha"] = 1.0
-                            solid["color"] = [1.0, 1.0, 1.0]
-                        st["strokes"] = st.get("strokes", [])
-                        st["bold"] = False
-                        st["underline"] = False
-                    m["content"] = json.dumps(c_json, ensure_ascii=False)
-
-            path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as exc:  # pragma: no cover
         logger.warning(f"Subtitle style normalization failed: {exc}")
+
+
+def _restore_template_belt_design(
+    draft_dir: Path,
+    *,
+    template_dir: Path,
+    belt_track_id: str = "belt_main_track",
+    belt_track_name: str = "belt_main",
+) -> None:
+    """
+    Restore template-only belt styling from template draft_info.json into draft draft_info.json.
+
+    Why:
+    - CapCut stores some belt styling only in draft_info.json segments:
+      - segments[0].clip (transform/scale)
+      - segments[0].extra_material_refs (effects refs)
+      - referenced materials.effects entries
+    - Some automation steps can wipe/omit those fields.
+    """
+    template_info_path = template_dir / "draft_info.json"
+    info_path = draft_dir / "draft_info.json"
+    if not template_info_path.exists():
+        raise FileNotFoundError(f"template draft_info.json not found: {template_info_path}")
+    if not info_path.exists():
+        raise FileNotFoundError(f"draft_info.json not found: {info_path}")
+
+    t_info = json.loads(template_info_path.read_text(encoding="utf-8"))
+    d_info = json.loads(info_path.read_text(encoding="utf-8"))
+    if not isinstance(t_info, dict) or not isinstance(d_info, dict):
+        raise RuntimeError("draft_info.json payload invalid (expected dict)")
+
+    t_tracks = t_info.get("tracks") or []
+    d_tracks = d_info.get("tracks") or []
+    if not isinstance(t_tracks, list) or not isinstance(d_tracks, list):
+        raise RuntimeError("draft_info.tracks missing/invalid")
+
+    def _find_track(tracks: list[dict], *, tid: str, tname: str) -> Optional[dict]:
+        for tr in tracks:
+            if isinstance(tr, dict) and tr.get("id") == tid:
+                return tr
+        for tr in tracks:
+            if isinstance(tr, dict) and tr.get("name") == tname:
+                return tr
+        return None
+
+    t_belt = _find_track(t_tracks, tid=belt_track_id, tname=belt_track_name)
+    d_belt = _find_track(d_tracks, tid=belt_track_id, tname=belt_track_name)
+    if not t_belt:
+        raise RuntimeError(f"template belt track not found (id={belt_track_id}, name={belt_track_name})")
+    if not d_belt:
+        raise RuntimeError(f"draft belt track not found (id={belt_track_id}, name={belt_track_name})")
+
+    t_seg0 = (t_belt.get("segments") or [None])[0]
+    d_seg0 = (d_belt.get("segments") or [None])[0]
+    if not isinstance(t_seg0, dict) or not isinstance(d_seg0, dict):
+        raise RuntimeError("belt segments missing/invalid")
+
+    # Restore segment-only styling from template
+    d_seg0["clip"] = copy.deepcopy(t_seg0.get("clip") or {})
+    d_seg0["extra_material_refs"] = copy.deepcopy(t_seg0.get("extra_material_refs") or [])
+
+    # Restore referenced effects from template into draft materials
+    refs = [rid for rid in (d_seg0.get("extra_material_refs") or []) if isinstance(rid, str) and rid]
+    if refs:
+        t_mats = t_info.get("materials") or {}
+        d_mats = d_info.get("materials") or {}
+        if not isinstance(t_mats, dict) or not isinstance(d_mats, dict):
+            raise RuntimeError("draft_info.materials missing/invalid")
+        t_effects = t_mats.get("effects") or []
+        d_effects = d_mats.get("effects") or []
+        if not isinstance(t_effects, list) or not isinstance(d_effects, list):
+            raise RuntimeError("draft_info.materials.effects missing/invalid")
+
+        t_by_id: dict[str, dict] = {}
+        for e in t_effects:
+            if isinstance(e, dict) and isinstance(e.get("id"), str) and e.get("id"):
+                t_by_id[e["id"]] = e
+
+        # Keep existing non-ref effects; overwrite/append ref effects in template order
+        existing_other = [
+            e for e in d_effects if not (isinstance(e, dict) and isinstance(e.get("id"), str) and e.get("id") in refs)
+        ]
+        restored = []
+        for rid in refs:
+            te = t_by_id.get(rid)
+            if not te:
+                # If template doesn't have the effect, keep draft as-is; validator will catch mismatch if needed.
+                continue
+            restored.append(copy.deepcopy(te))
+        d_mats["effects"] = existing_other + restored
+        d_info["materials"] = d_mats
+
+    info_path.write_text(json.dumps(d_info, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _apply_channel_hook(channel_id: Optional[str], draft_dir: Path) -> None:
@@ -750,6 +847,8 @@ def _apply_channel_hook(channel_id: Optional[str], draft_dir: Path) -> None:
             hook(draft_dir)
     except Exception as exc:  # pragma: no cover
         logger.warning(f"Channel hook failed for {channel_id}: {exc}")
+
+
 def sync_draft_info_with_content(draft_dir: Path) -> bool:
     """
     Sync draft_info.json with draft_content.json.
@@ -1153,7 +1252,6 @@ def apply_auto_fade_transitions(draft_dir: Path, track_name: str, fade_duration_
         or _auto_load_fade_json is None
         or _auto_save_fade_json is None
         or _auto_backup_file is None
-        or _auto_sync_draft_info is None
     ):
         logger.debug("Auto fade helper unavailable; skipping fade injection")
         return 0
@@ -1185,7 +1283,16 @@ def apply_auto_fade_transitions(draft_dir: Path, track_name: str, fade_duration_
     try:
         _auto_backup_file(draft_content_path)
         _auto_save_fade_json(draft_content_path, draft_data)
-        _auto_sync_draft_info(draft_dir, draft_data)
+        # IMPORTANT:
+        # Do NOT call fix_fade_transitions_correct.sync_draft_info() here.
+        # That function replaces draft_info.json with draft_content.json and wipes
+        # template-only styling that CapCut stores ONLY in draft_info.json:
+        # - belt clip/extra_material_refs
+        # - subtitle styling
+        # - effect/material references
+        #
+        # Use our safe sync that preserves draft_info-only fields.
+        sync_draft_info_with_content(draft_dir)
         logger.info("✨ 自動フェードを適用しました: %d 個 (%.2fs)", added, fade_duration_sec)
     except Exception as exc:
         logger.warning(f"Failed to persist fade transitions: {exc}")
@@ -2352,12 +2459,6 @@ def main():
             else:
                 print(f"Warning: SRT file not found: {srt_path}")
 
-            # Normalize subtitle styling (shared baseline across channels)
-            try:
-                _apply_common_subtitle_style(Path(args.draft_root) / args.new)
-                logger.info("Applied common subtitle style normalization")
-            except Exception as exc:
-                logger.warning(f"Subtitle style normalization failed: {exc}")
         except Exception as e:
             print(f"Warning: Failed to insert SRT subtitles: {e}")
 
@@ -2374,69 +2475,91 @@ def main():
 
     # Insert voice audio if provided
     if getattr(args, 'voice_file', None):
+        vpath = Path(args.voice_file)
+        if not vpath.exists():
+            logger.error(f"❌ Voice file not found: {vpath}")
+            sys.exit(1)
+
+        # Copy to materials/audio
+        audio_dir = draft_dir / "materials" / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        voice_dest = audio_dir / vpath.name
         try:
-            vpath = Path(args.voice_file)
-            if vpath.exists():
-                # Copy to materials/audio
-                audio_dir = draft_dir / 'materials' / 'audio'
-                audio_dir.mkdir(parents=True, exist_ok=True)
-                voice_dest = audio_dir / vpath.name
-                try:
-                    shutil.copy2(vpath, voice_dest)
-                except Exception:
-                    pass
-                # Ensure audio track below BGM
-                voice_track = 'voiceover'
-                voice_index = _compute_audio_voice_index_below_bgm(draft_dir, fallback=5)
-                try:
-                    script.add_track(Track_type.audio, voice_track, absolute_index=voice_index)
-                except Exception:
-                    pass
-                # Determine total timeline duration from cues/schedule
-                total_us = 0
-                try:
-                    for s, d in schedule:
-                        total_us = max(total_us, s + d)
-                except Exception:
-                    total_us = int(60 * SEC)
+            shutil.copy2(vpath, voice_dest)
+        except Exception as exc:
+            logger.warning(f"⚠️ Failed to copy voice file into draft materials: {exc}")
 
-                # Voice audio should match the actual content duration (without opening offset)
-                # Since schedule already includes opening_offset_us, the voice track should start AT opening_offset_us
-                
-                try:
-                    from pyJianYingDraft import Audio_material, Audio_segment
-                    # Derive voice duration from wav length; fallback to total timeline minus opening offset
-                    voice_duration_us = None
-                    try:
-                        import wave
-                        with wave.open(str(vpath), "rb") as wf:
-                            frames = wf.getnframes()
-                            rate = wf.getframerate() or 1
-                            voice_duration_us = int(frames / rate * SEC)
-                    except Exception:
-                        voice_duration_us = None
-                    if not voice_duration_us or voice_duration_us <= 0:
-                        voice_duration_us = max(0, total_us - opening_offset_us)
+        # Ensure audio track below BGM
+        voice_track = "voiceover"
+        voice_index = _compute_audio_voice_index_below_bgm(draft_dir, fallback=5)
+        try:
+            script.add_track(Track_type.audio, voice_track, absolute_index=voice_index)
+        except Exception:
+            pass
 
-                    # Updated for pyJianYingDraft 0.2.x API (removed replace_path)
-                    amat = Audio_material(path=str(voice_dest), material_name=vpath.name)
-                    try:
-                        script.add_material(amat)
-                    except Exception:
-                        pass
-                    
-                    # Start voice at opening_offset (3.0s), duration is full length of audio file (or up to video end)
-                    # We use voice_duration_us calculated earlier which was total_us - opening_offset_us
-                    # target_timerange.start determines placement on timeline
-                    aseg = Audio_segment(amat, target_timerange=Timerange(opening_offset_us, voice_duration_us))
-                    script.add_segment(aseg, track_name=voice_track)
-                    print(f"Inserted voice audio '{vpath.name}' on track '{voice_track}' starting at {opening_offset_us/SEC}s")
-                except Exception as e:
-                    print(f"Warning: Failed to insert voice audio: {e}")
-            else:
-                print(f"Warning: Voice file not found: {vpath}")
-        except Exception as e:
-            print(f"Warning: Voice insert error: {e}")
+        # Clear any existing voiceover segments (avoid duplicates on rerun)
+        try:
+            if voice_track in getattr(script, "tracks", {}):
+                script.tracks[voice_track].segments = []
+        except Exception:
+            pass
+
+        # Determine total timeline duration from cues/schedule
+        total_us = 0
+        try:
+            for s, d in schedule:
+                total_us = max(total_us, s + d)
+        except Exception:
+            total_us = int(60 * SEC)
+
+        # Derive voice duration from wav length; apply small safety trim to avoid μs overflow vs CapCut material duration
+        voice_audio_len_us: Optional[int] = None
+        try:
+            import wave
+            with wave.open(str(vpath), "rb") as wf:
+                frames = int(wf.getnframes() or 0)
+                rate = int(wf.getframerate() or 0)
+                if frames > 0 and rate > 0:
+                    # Use integer division (floor) to avoid rounding up
+                    voice_audio_len_us = (frames * int(SEC)) // rate
+        except Exception:
+            voice_audio_len_us = None
+
+        if not voice_audio_len_us or voice_audio_len_us <= 0:
+            voice_audio_len_us = max(0, total_us - opening_offset_us)
+
+        SAFETY_US = 20_000  # 20ms
+        safe_audio_us = max(0, voice_audio_len_us - SAFETY_US)
+        timeline_room_us = max(0, total_us - opening_offset_us)
+        voice_seg_us = min(safe_audio_us, timeline_room_us) if timeline_room_us else safe_audio_us
+        if voice_seg_us <= 0:
+            logger.error("❌ Voice duration invalid after safety trim (voice_seg_us<=0)")
+            sys.exit(1)
+
+        try:
+            from pyJianYingDraft import Audio_material, Audio_segment
+            amat = Audio_material(path=str(voice_dest), material_name=vpath.name)
+            try:
+                script.add_material(amat)
+            except Exception:
+                pass
+            aseg = Audio_segment(amat, target_timerange=Timerange(opening_offset_us, int(voice_seg_us)))
+            script.add_segment(aseg, track_name=voice_track)
+            logger.info("✅ Inserted voice audio '%s' on track '%s' (start=%0.3fs, dur=%0.3fs)",
+                        vpath.name, voice_track, opening_offset_us / SEC, voice_seg_us / SEC)
+        except Exception as exc:
+            logger.error(f"❌ Failed to insert voice audio segment: {exc}")
+            sys.exit(1)
+
+        # Verify voiceover segment exists (fail-fast: voice missing is not acceptable)
+        try:
+            tr = getattr(script, "tracks", {}).get(voice_track)
+            segs = getattr(tr, "segments", []) if tr else []
+            if not segs:
+                raise RuntimeError("voiceover track has no segments after insertion")
+        except Exception as exc:
+            logger.error(f"❌ Voice insert verification failed: {exc}")
+            sys.exit(1)
 
     # Save back to JSON (in-place)
     script.save()
@@ -2525,8 +2648,10 @@ def main():
                 if opening_offset_us > 0:
                     _shift_tracks_in_json(draft_dir, opening_offset_us)
                 
-                # 字幕スタイルの強制修正 (Using Adapter now) ※チャンネル共通
-                fix_subtitle_style_direct(str(draft_dir / "draft_info.json"), adapter)
+                # 字幕スタイルの強制修正 (Adapter-based).
+                # CH02はCapCutデフォルト黒背景スタイルに統一するため、ここでは適用しない。
+                if channel_id != "CH02":
+                    fix_subtitle_style_direct(str(draft_dir / "draft_info.json"), adapter)
 
                 if sync_draft_info_with_content(draft_dir):
                     logger.info("✅ ドラフト作成完了 (帯/字幕反映)")
@@ -2560,6 +2685,19 @@ def main():
             info_path.write_text(json.dumps(info_data, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
         logger.warning("Could not update draft_info.json with name/id")
+
+    # FINAL POSTPROCESS (CH02):
+    # - Enforce CapCut default subtitle style (black background)
+    # - Restore template belt styling (clip/extra_material_refs/effects) from CH02-テンプレ
+    # Must run AFTER all sync/post-processing so it won't be wiped.
+    if channel_id == "CH02":
+        try:
+            _apply_common_subtitle_style(draft_dir)
+            _restore_template_belt_design(draft_dir, template_dir=Path(args.draft_root) / template_name)
+            logger.info("✅ CH02 final postprocess applied (subtitles default + belt design restored)")
+        except Exception as exc:
+            logger.error(f"❌ CH02 final postprocess failed: {exc}")
+            sys.exit(1)
 
     # Update root_meta_info.json so CapCut UI can list the draft
     try:

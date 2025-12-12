@@ -243,6 +243,13 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - `python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py --run commentary_02_srt2images_timeline/output/<run_id>`
   - LLMは呼ばず、cue.text と final SRT セグメントを文字列アラインして retime する（厳格チェック付き）
 
+**CH06固有（CH06-テンプレ固定）**
+- CH06 はテンプレのレイヤ構造（BGM多段・メイン帯・ドリーミー紙吹雪）を壊さないことが最優先。
+- 推奨手順（画像タイムライン→音声/字幕の順でSoT反映）:
+  - `python3 commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv progress/channels/CH06.csv --videos 2-30`
+  - `python3 commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1`（002〜030を同様に実行）
+  - 仕上げ: `timeline_manifest.json`（wav/srt/cues整合）を確認し、CapCutで目視確認して mp4 書き出し。
+
 **Downstream dependencies**
 - **本番主線は CapCut ドラフト → CapCut側で mp4 書き出し**。
 - Remotionラインも同run_dirを入力できるが、現行は実験/未使用扱い。
