@@ -1,3 +1,0 @@
-[console_scripts]
-factory-ch02 = commentary_02_srt2images_timeline.tools.factory:main
-factory-commentary = commentary_02_srt2images_timeline.tools.factory:main

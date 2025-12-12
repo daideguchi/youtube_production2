@@ -20,6 +20,10 @@
 
 > 条件1 or 2が曖昧なものは **Legacy隔離**（read‑only移設）に留め、即削除しない。
 
+### 1.1 実施済み（証跡）
+- 2025-12-12: `factory_commentary.egg-info/` と `commentary_02_srt2images_timeline/{src,ui/src}/memory/` を確実ゴミとして削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 2025-12-12: `commentary_02_srt2images_timeline/**/runtime/logs/notifications.jsonl` を参照ゼロのコミット残骸として削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+
 ---
 
 ## 2. トップレベル分類（現行実態）
@@ -48,7 +52,7 @@
 - `50_tools/`：旧PoC群（Remotion旧版/旧SRTライン等）。現行コード参照なし。
 - `idea/`：思考メモ/試作。現行参照なし。
 - `docs/`：旧静的ビルド/メモ（`docs/static/*` 等）。現行UIは別導線。
-- `factory_commentary.egg-info/`：開発時生成のメタ情報（再生成可能）。
+- `factory_commentary.egg-info/`：開発時生成のメタ情報（再生成可能。確実ゴミとして削除済み）
 
 > これらは Stage3 で `legacy/` 配下に「copy→verify→mv→symlink(optional)」で隔離する。
 
@@ -62,6 +66,11 @@
 ## 3. サブツリーの詳細判定（高リスク領域）
 
 ### 3.1 `commentary_02_srt2images_timeline/`
+
+**ユーザー指摘の「ゴミ候補」検証（結論）**
+- `commentary_02_srt2images_timeline/ui/` は **ゴミではない**:
+  - `ui/backend/video_production.py` から `commentary_02_srt2images_timeline.ui.server.jobs` を参照しているため、削除すると UI ジョブ運用が破綻する。
+- `commentary_02_srt2images_timeline/examples/` は **存在しない**（現行ツリーにディレクトリ自体が無い）。
 
 **Keep（現行依存あり）**
 - `src/`, `tools/`（archive除く）, `ui/`, `config/`, `templates/`, `input/`, `output/`, `progress/audio_sync_status.json`, `logs/`, `memory/`
@@ -78,6 +87,8 @@
 - `commentary_02_srt2images_timeline/persona.txt`（root直下の残骸）
 - `commentary_02_srt2images_timeline/channel_preset.json`（root直下の残骸）
 - `commentary_02_srt2images_timeline/PROJ.json`（root直下の残骸）
+- `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
+- `commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
 
 ### 3.2 `audio_tts_v2/`
 
@@ -154,4 +165,3 @@
   → 画像パイプライン側の正本を Stage4/LLM統合のタイミングで確定。
 - `scripts/` と `tools/` の中に旧ライン（route1/route2 等）が混在。  
   → Stage3後に「Active / Legacy / Trash」を **ファイル単位で再棚卸し**する。
-
