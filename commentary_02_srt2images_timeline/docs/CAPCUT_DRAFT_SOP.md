@@ -43,6 +43,8 @@ python3 tools/auto_capcut_run.py \
 ## 5. Belt/Title QA
 - `belt_config.json` がLLM/chapters由来になっているか確認（等分ラベルが混入していないか）。
 - タイトルが案件指定どおりか `draft_content.json` もしくは CapCut UI で確認。
+- CH02（右上メイン帯）: テンプレ由来の帯デザイン（位置/青背景）が消えていたら、テンプレから復元する:
+  - `python3 commentary_02_srt2images_timeline/tools/restore_template_belt_design.py --template 'CH02-テンプレ' --draft-regex '^CH02-..._draft$'`
 
 ## 6. Checklist (per run)
 - [ ] GEMINI_API_KEY / config OK

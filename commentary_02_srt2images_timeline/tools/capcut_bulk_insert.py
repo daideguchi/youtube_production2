@@ -769,62 +769,230 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
             return False
 
         # Load both files
-        content_data = _json2.loads(draft_content_path.read_text(encoding='utf-8'))
-        info_data = _json2.loads(draft_info_path.read_text(encoding='utf-8'))
+        content_data = _json2.loads(draft_content_path.read_text(encoding="utf-8"))
+        info_data = _json2.loads(draft_info_path.read_text(encoding="utf-8"))
 
-        # Sync tracks
-        content_tracks = content_data.get('tracks', [])
-        info_tracks = info_data.get('tracks', [])
+        content_tracks = content_data.get("tracks", [])
+        info_tracks = info_data.get("tracks", [])
 
         # Build lookup of existing tracks by id for metadata preservation
-        existing_by_id = {}
+        existing_by_id: dict[str, dict] = {}
         for track in info_tracks:
-            track_id = track.get('id')
-            if track_id:
+            track_id = track.get("id")
+            if isinstance(track_id, str) and track_id:
                 existing_by_id[track_id] = track
 
-        synced_tracks = []
+        def _merge_segment_fields(seg: dict, base_seg: dict) -> dict:
+            """
+            Merge segment fields while preserving template-driven styling in draft_info.json.
+            CapCut stores certain UI-critical text styling (e.g., clip transform/scale, extra_material_refs)
+            only in draft_info.json segments, not in draft_content.json.
+            """
+            merged = copy.deepcopy(seg)
+            # Prefer base clip/settings when missing or empty (belt track etc.)
+            if isinstance(base_seg.get("clip"), dict):
+                if not isinstance(merged.get("clip"), dict) or not merged.get("clip"):
+                    merged["clip"] = copy.deepcopy(base_seg["clip"])
+                else:
+                    # Fill missing keys inside clip (do not override content keys)
+                    for ck, cv in base_seg["clip"].items():
+                        if ck not in merged["clip"]:
+                            merged["clip"][ck] = copy.deepcopy(cv)
+                    # Fill nested transform/scale if missing
+                    if isinstance(base_seg["clip"].get("transform"), dict):
+                        merged["clip"].setdefault("transform", {})
+                        if isinstance(merged["clip"]["transform"], dict):
+                            for k, v in base_seg["clip"]["transform"].items():
+                                merged["clip"]["transform"].setdefault(k, copy.deepcopy(v))
+                    if isinstance(base_seg["clip"].get("scale"), dict):
+                        merged["clip"].setdefault("scale", {})
+                        if isinstance(merged["clip"]["scale"], dict):
+                            for k, v in base_seg["clip"]["scale"].items():
+                                merged["clip"]["scale"].setdefault(k, copy.deepcopy(v))
+
+            # Preserve extra_material_refs if content lacks them (text_shape background, etc.)
+            if base_seg.get("extra_material_refs") and not merged.get("extra_material_refs"):
+                merged["extra_material_refs"] = copy.deepcopy(base_seg["extra_material_refs"])
+
+            # Fill other missing fields from base
+            for k, v in base_seg.items():
+                if k not in merged:
+                    merged[k] = copy.deepcopy(v)
+            return merged
+
+        # Sync tracks: prefer content order, but preserve template-only tracks at end.
+        synced_tracks: list[dict] = []
+        seen_track_ids: set[str] = set()
         for idx, content_track in enumerate(content_tracks):
-            track_id = content_track.get('id') or f'track_{idx}'
+            track_id = content_track.get("id") or f"track_{idx}"
+            if not isinstance(track_id, str):
+                track_id = str(track_id)
 
             base_track = existing_by_id.get(track_id, {})
 
             # Preserve commonly used optional metadata if present in existing track
             preserved_keys = (
-                'absolute_index', 'render_index', 'z_index', 'is_default_name',
-                'muted', 'locked', 'hidden', 'extra_info', 'track_style',
-                'solo', 'group_id'
+                "absolute_index",
+                "render_index",
+                "z_index",
+                "is_default_name",
+                "muted",
+                "locked",
+                "hidden",
+                "extra_info",
+                "track_style",
+                "solo",
+                "group_id",
             )
 
+            content_segs = content_track.get("segments", []) or []
+            base_segs = base_track.get("segments", []) if isinstance(base_track, dict) else []
+            merged_segs: list[dict] = []
+            for s_idx, seg in enumerate(content_segs):
+                if not isinstance(seg, dict):
+                    continue
+                base_seg = base_segs[s_idx] if isinstance(base_segs, list) and s_idx < len(base_segs) and isinstance(base_segs[s_idx], dict) else {}
+                merged_segs.append(_merge_segment_fields(seg, base_seg))
+
             new_track = {
-                'id': track_id,
-                'type': content_track.get('type'),
-                'name': content_track.get('name', base_track.get('name', '')),
-                'attribute': content_track.get('attribute', base_track.get('attribute', 0)),
-                'flag': content_track.get('flag', base_track.get('flag', 0)),
-                'segments': copy.deepcopy(content_track.get('segments', []))
+                "id": track_id,
+                "type": content_track.get("type"),
+                "name": content_track.get("name", base_track.get("name", "")) if isinstance(base_track, dict) else content_track.get("name", ""),
+                "attribute": content_track.get("attribute", base_track.get("attribute", 0)) if isinstance(base_track, dict) else content_track.get("attribute", 0),
+                "flag": content_track.get("flag", base_track.get("flag", 0)) if isinstance(base_track, dict) else content_track.get("flag", 0),
+                "segments": merged_segs,
             }
 
             for key in preserved_keys:
-                if key in base_track and key not in new_track:
+                if isinstance(base_track, dict) and key in base_track and key not in new_track:
                     new_track[key] = base_track[key]
 
             synced_tracks.append(new_track)
+            seen_track_ids.add(track_id)
 
-        info_data['tracks'] = synced_tracks
+        # Append any template-only tracks that are not represented in draft_content.json
+        for tr in info_tracks:
+            tid = tr.get("id")
+            if isinstance(tid, str) and tid and tid not in seen_track_ids:
+                synced_tracks.append(copy.deepcopy(tr))
 
-        # Sync materials (critical for CapCut to recognize new images/videos)
-        content_materials = content_data.get('materials', {})
-        info_data['materials'] = content_materials
+        info_data["tracks"] = synced_tracks
+
+        def _extract_text_from_content_field(content_field) -> str:
+            # draft_content.json: dict {"text": ...} or JSON string
+            if isinstance(content_field, dict):
+                text = content_field.get("text")
+                return text if isinstance(text, str) else ""
+            if isinstance(content_field, str):
+                # try parse json {"text": ...}, else treat as literal
+                try:
+                    parsed = json.loads(content_field)
+                except Exception:
+                    return content_field
+                if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
+                    return parsed["text"]
+                return content_field
+            return ""
+
+        def _merge_material_list_by_id(base_list: list, content_list: list, *, kind: str) -> list:
+            base_list = base_list if isinstance(base_list, list) else []
+            content_list = content_list if isinstance(content_list, list) else []
+
+            content_by_id: dict[str, dict] = {}
+            for item in content_list:
+                if isinstance(item, dict) and isinstance(item.get("id"), str):
+                    content_by_id[item["id"]] = item
+
+            out: list[dict] = []
+            seen: set[str] = set()
+            for base_item in base_list:
+                if not isinstance(base_item, dict) or not isinstance(base_item.get("id"), str):
+                    continue
+                mid = base_item["id"]
+                merged_item = copy.deepcopy(base_item)
+                c_item = content_by_id.get(mid)
+                if isinstance(c_item, dict):
+                    if kind == "texts":
+                        desired = _extract_text_from_content_field(c_item.get("content"))
+                        if not desired:
+                            bc = c_item.get("base_content")
+                            desired = bc if isinstance(bc, str) else ""
+                        if desired:
+                            merged_item["content"] = desired  # draft_info.json expects plain text string
+                            if "base_content" in merged_item or "base_content" in c_item:
+                                merged_item["base_content"] = desired
+                        # merge other keys except content/base_content (preserve style keys)
+                        for k, v in c_item.items():
+                            if k in ("content", "base_content"):
+                                continue
+                            merged_item[k] = copy.deepcopy(v)
+                    else:
+                        for k, v in c_item.items():
+                            merged_item[k] = copy.deepcopy(v)
+                out.append(merged_item)
+                seen.add(mid)
+
+            # Append new materials that don't exist in base_info.
+            # For texts, try to convert to draft_info-compatible shape minimally.
+            for c_item in content_list:
+                if not isinstance(c_item, dict) or not isinstance(c_item.get("id"), str):
+                    continue
+                mid = c_item["id"]
+                if mid in seen:
+                    continue
+                if kind == "texts":
+                    text = _extract_text_from_content_field(c_item.get("content"))
+                    bc = c_item.get("base_content")
+                    if not text and isinstance(bc, str):
+                        text = bc
+                    new_item = copy.deepcopy(c_item)
+                    new_item["content"] = text
+                    if "base_content" not in new_item and text:
+                        new_item["base_content"] = text
+                    out.append(new_item)
+                else:
+                    out.append(copy.deepcopy(c_item))
+            return out
+
+        # Sync materials, but preserve template-only styling (effects, text styling, etc.)
+        content_materials = content_data.get("materials", {})
+        base_materials = info_data.get("materials", {})
+        if not isinstance(content_materials, dict):
+            content_materials = {}
+        if not isinstance(base_materials, dict):
+            base_materials = {}
+
+        merged_materials: dict = {}
+        for key in set(base_materials.keys()) | set(content_materials.keys()):
+            merged_materials[key] = _merge_material_list_by_id(
+                base_materials.get(key, []),
+                content_materials.get(key, []),
+                kind=str(key),
+            )
+
+        # Safety: if a text material has base_content set but content empty, fill content.
+        for t in merged_materials.get("texts", []) if isinstance(merged_materials.get("texts"), list) else []:
+            if not isinstance(t, dict):
+                continue
+            if isinstance(t.get("content"), str) and not t["content"]:
+                bc = t.get("base_content")
+                if isinstance(bc, str) and bc:
+                    t["content"] = bc
+
+        info_data["materials"] = merged_materials
 
         # Sync duration
-        content_duration = content_data.get('duration', 0)
-        info_data['duration'] = content_duration
+        content_duration = content_data.get("duration", 0)
+        info_data["duration"] = content_duration
 
         # Save updated draft_info.json
-        draft_info_path.write_text(_json2.dumps(info_data, ensure_ascii=False, indent=2), encoding='utf-8')
+        draft_info_path.write_text(_json2.dumps(info_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        logger.info(f"✅ Synced draft_info.json: {len(synced_tracks)} tracks, {len(content_materials.get('videos', []))} video materials")
+        logger.info(
+            "✅ Synced draft_info.json: %d tracks, %d video materials",
+            len(synced_tracks),
+            len(content_materials.get("videos", [])) if isinstance(content_materials, dict) else 0,
+        )
 
         return True
 
@@ -884,6 +1052,7 @@ def _fallback_set_main_belt_title(draft_dir: Path, title: str) -> None:
             path = draft_dir / fname
             if not path.exists():
                 continue
+            is_info = fname == "draft_info.json"
             data = _json2.loads(path.read_text(encoding="utf-8"))
             tracks = data.get("tracks", [])
             mats = data.get("materials", {}).get("texts", [])
@@ -920,7 +1089,11 @@ def _fallback_set_main_belt_title(draft_dir: Path, title: str) -> None:
                     else:
                         content_json = {"text": title}
                     content_json["text"] = title
-                    m["content"] = json.dumps(content_json, ensure_ascii=False) if isinstance(content_obj, str) else content_json
+                    if is_info:
+                        # CapCut draft_info.json template style uses plain string content for text materials
+                        m["content"] = title
+                    else:
+                        m["content"] = json.dumps(content_json, ensure_ascii=False) if isinstance(content_obj, str) else content_json
                     m["base_content"] = title
                     m["name"] = m.get("name") or "belt_main_text"
                     break
@@ -1095,6 +1268,29 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
         tracks = content_data.get('tracks', [])
         materials_text = {mat.get('id'): mat for mat in content_data.get('materials', {}).get('texts', [])}
 
+        def _set_text_material(mat: dict, text: str) -> None:
+            """
+            draft_content.json expects text material 'content' to usually be a dict: {"text": "..."}.
+            Some templates/tools may store JSON strings; normalize to dict form here.
+            """
+            c = mat.get("content")
+            if isinstance(c, dict):
+                c["text"] = text
+                mat["content"] = c
+            elif isinstance(c, str):
+                try:
+                    parsed = _json_belt.loads(c)
+                except Exception:
+                    parsed = None
+                if isinstance(parsed, dict):
+                    parsed["text"] = text
+                    mat["content"] = parsed
+                else:
+                    mat["content"] = {"text": text}
+            else:
+                mat["content"] = {"text": text}
+            mat["base_content"] = text
+
         def _segment_texts(segments):
             texts = []
             for seg in segments:
@@ -1103,8 +1299,21 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
                 if not mat:
                     texts.append('')
                     continue
-                import json as _json_text
-                texts.append(_json_text.loads(mat['content']).get('text', ''))
+                c = mat.get("content")
+                if isinstance(c, dict):
+                    texts.append(c.get("text", "") if isinstance(c.get("text"), str) else "")
+                elif isinstance(c, str):
+                    try:
+                        import json as _json_text
+                        parsed = _json_text.loads(c)
+                    except Exception:
+                        parsed = None
+                    if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
+                        texts.append(parsed["text"])
+                    else:
+                        texts.append(c)
+                else:
+                    texts.append('')
             return texts
 
         target_upper_texts = [item['text'] for item in belt_upper]
@@ -1191,7 +1400,9 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
             materials_text[new_mat_id] = {
                 "id": new_mat_id,
                 "type": "text",
-                "content": json.dumps({"text": belt_lower['text']}, ensure_ascii=False),
+                "content": {"text": belt_lower["text"]},
+                "base_content": belt_lower["text"],
+                "name": "belt_main_text",
             }
             main_belt_track_idx = len(tracks) - 1
             logger.info("  ➕ 新規メイン帯トラックを追加 (belt_main)")
@@ -1258,10 +1469,7 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
                 if material_id:
                     for mat in texts:
                         if mat.get('id') == material_id:
-                            import json as _json_text
-                            content_obj = _json_text.loads(mat['content'])
-                            content_obj['text'] = chapter['text']
-                            mat['content'] = _json_text.dumps(content_obj, ensure_ascii=False)
+                            _set_text_material(mat, chapter["text"])
                             mat['alignment'] = 1
                             mat['fixed_width'] = -1.0
                             mat['background_width'] = 0.28
@@ -1296,10 +1504,7 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
         if material_id:
             for mat in texts:
                 if mat.get('id') == material_id:
-                    import json as _json_text
-                    content_obj = _json_text.loads(mat['content'])
-                    content_obj['text'] = belt_lower['text']
-                    mat['content'] = _json_text.dumps(content_obj, ensure_ascii=False)
+                    _set_text_material(mat, belt_lower["text"])
                     logger.info(f"  📝 メイン帯: {belt_lower['text'][:30]}...")
                     break
 

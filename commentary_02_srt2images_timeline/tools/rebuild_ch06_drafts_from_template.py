@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """
 Rebuild CH06 drafts by **directly copying** the CapCut template folder `CH06-テンプレ`
-and then patching JSON in-place while preserving all template layers, including
-duplicate track names (which pyJianYingDraft cannot represent).
+and then patching JSON in-place while preserving the template layer structure.
+
+Important:
+  - CapCut uses `draft_info.json` as the primary source for the track structure.
+  - The current `CH06-テンプレ` contains extra tracks only in `draft_content.json`
+    (subtitles, duplicate srt2images tracks, etc.) which must NOT leak into new drafts.
 
 This script:
   1) Copies `CH06-テンプレ` for each target video.
-  2) Replaces BOTH `srt2images_*` video tracks with new image segments/materials
-     using `image_cues.json` + run_dir images.
-  3) Replaces BOTH `subtitles_text` tracks with new subtitle segments/materials
-     using the run_dir SRT file while preserving style.
-  4) Updates the main belt text track (single-seg non-subtitle text track)
-     with the CSV title.
-
-After running this, you can optionally run:
-  tools/inject_ch06_template_layers.py --apply
-to add dreamy confetti effect (template has none on disk).
+  2) Patches `draft_info.json` (source of truth) to:
+     - Replace the image track segments with `image_cues.json` timing.
+     - Ensure the dreamy confetti effect, logo overlay, and main belt text span
+       the full duration.
+     - Set the main belt text to the CSV title.
+     - Loop BGM segments to cover the duration.
+     - Add image materials + required per-segment “extra materials” when cues exceed
+       the template’s 30-image baseline.
+  3) Overwrites `draft_content.json` tracks/materials/duration to match `draft_info.json`
+     to prevent future “layer chaos”.
 
 Usage:
   python tools/rebuild_ch06_drafts_from_template.py \
@@ -36,7 +40,7 @@ import shutil
 import uuid
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Iterable, List, Tuple
 
 SEC = 1_000_000  # CapCut microseconds
 
@@ -54,7 +58,8 @@ def load_json(path: Path) -> Dict[str, Any]:
 
 
 def save_json(path: Path, data: Dict[str, Any]) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # CapCut files are usually compact JSON; keep output compact to match ecosystem.
+    path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
 def sanitize_filename(name: str) -> str:
@@ -124,183 +129,326 @@ def load_title_map(csv_path: Path) -> Dict[int, str]:
     return out
 
 
-def _find_tracks(data: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, Any] | None]:
-    tracks = data.get("tracks") or []
-    srt2images_tracks = [
-        t for t in tracks
-        if t.get("type") == "video" and (t.get("name") or "").startswith("srt2images_")
-    ]
-    subtitle_tracks = [
-        t for t in tracks
-        if t.get("type") == "text" and (t.get("name") or "") == "subtitles_text"
-    ]
-    main_belt_track = next(
-        (
-            t for t in tracks
-            if t.get("type") == "text"
-            and (t.get("name") or "") != "subtitles_text"
-            and len(t.get("segments") or []) == 1
-        ),
-        None,
-    )
-    return srt2images_tracks, subtitle_tracks, main_belt_track
+def _capcut_us_from_frame(frame: int, fps: float) -> int:
+    # CapCut timelines are frame-aligned; template uses floor(frame * 1e6 / fps).
+    return int(frame * SEC / fps)
 
 
-def _replace_video_tracks(
-    data: Dict[str, Any],
-    srt2images_tracks: List[Dict[str, Any]],
-    cues: List[Dict[str, Any]],
-    images_dir: Path,
-    draft_dir: Path,
-) -> None:
-    mats = data.setdefault("materials", {})
-    videos: List[Dict[str, Any]] = mats.setdefault("videos", [])
-    original_videos = deepcopy(videos)
+def _build_id_index(materials: Dict[str, Any]) -> Dict[str, Tuple[str, Dict[str, Any]]]:
+    """
+    Return id -> (category, object) for all list-typed material categories.
+    """
+    out: Dict[str, Tuple[str, Dict[str, Any]]] = {}
+    for cat, items in (materials or {}).items():
+        if not isinstance(items, list):
+            continue
+        for it in items:
+            if isinstance(it, dict) and isinstance(it.get("id"), str):
+                out[it["id"]] = (cat, it)
+    return out
 
+
+def _reid_common_keyframes(seg: Dict[str, Any]) -> None:
+    """
+    Avoid duplicated IDs when cloning segments beyond template baseline.
+    """
+    for ck in seg.get("common_keyframes") or []:
+        if isinstance(ck, dict) and isinstance(ck.get("id"), str):
+            ck["id"] = _uuid_hex()
+        for kf in ck.get("keyframe_list") or []:
+            if isinstance(kf, dict) and isinstance(kf.get("id"), str):
+                kf["id"] = _uuid_hex()
+
+
+def _scale_keyframe_time_offsets(seg: Dict[str, Any], old_dur_us: int, new_dur_us: int) -> None:
+    if old_dur_us <= 0 or new_dur_us <= 0:
+        return
+    if not seg.get("common_keyframes"):
+        # Still keep render/source timers in sync.
+        seg["render_timerange"] = {"start": 0, "duration": 0}
+        return
+    ratio = new_dur_us / old_dur_us
+    max_off = 0
+    for ck in seg.get("common_keyframes") or []:
+        for kf in ck.get("keyframe_list") or []:
+            off = int(kf.get("time_offset") or 0)
+            new_off = int(off * ratio)
+            if new_off < 0:
+                new_off = 0
+            if new_off > new_dur_us:
+                new_off = new_dur_us
+            kf["time_offset"] = new_off
+            if new_off > max_off:
+                max_off = new_off
+    seg["render_timerange"] = {"start": 0, "duration": max_off}
+
+
+def _find_ch06_template_tracks(info: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    """
+    CH06-テンプレ has exactly these tracks in draft_info.json:
+      - video (many segments) : images timeline
+      - effect (1)            : dreamy confetti
+      - video (1)             : logo overlay
+      - text  (1)             : main belt text
+      - audio (many)          : BGM loop segments
+    """
+    tracks: List[Dict[str, Any]] = info.get("tracks") or []
+    video_tracks = [t for t in tracks if t.get("type") == "video"]
+    image_track = next((t for t in video_tracks if len(t.get("segments") or []) > 1), None)
+    logo_track = next((t for t in video_tracks if len(t.get("segments") or []) == 1), None)
+    effect_track = next((t for t in tracks if t.get("type") == "effect"), None)
+    text_track = next((t for t in tracks if t.get("type") == "text"), None)
+    audio_track = next((t for t in tracks if t.get("type") == "audio"), None)
+
+    missing = [name for name, t in [("image_track", image_track), ("logo_track", logo_track), ("effect_track", effect_track), ("text_track", text_track), ("audio_track", audio_track)] if t is None]
+    if missing:
+        raise RuntimeError(f"Template draft_info.json missing tracks: {', '.join(missing)}")
+
+    return image_track, effect_track, logo_track, text_track, audio_track
+
+
+def _ensure_assets_images(draft_dir: Path, images_dir: Path, count: int) -> None:
     assets_img_dir = draft_dir / "assets" / "image"
+    if assets_img_dir.exists():
+        # Clean aggressively to avoid template leftovers like 0004_2.png etc.
+        for p in assets_img_dir.glob("*.png"):
+            p.unlink(missing_ok=True)
     assets_img_dir.mkdir(parents=True, exist_ok=True)
-    # remove old placeholder images only
-    for f in assets_img_dir.glob("*.png"):
-        try:
-            f.unlink()
-        except Exception:
-            pass
 
-    for track in srt2images_tracks:
-        if not track.get("segments"):
-            continue
-        seg_tpl = deepcopy(track["segments"][0])
-        tpl_mid = seg_tpl.get("material_id")
-        mat_tpl = next((m for m in original_videos if m.get("id") == tpl_mid), None)
-        if not mat_tpl:
-            raise RuntimeError("Template video material not found for srt2images track")
-
-        old_mids = {s.get("material_id") for s in track.get("segments") or []}
-        videos[:] = [m for m in videos if m.get("id") not in old_mids]
-
-        new_segments: List[Dict[str, Any]] = []
-        for i, cue in enumerate(cues):
-            src_img = images_dir / f"{i+1:04d}.png"
-            if not src_img.exists():
-                # allow missing tail images silently
-                continue
-            dest_img = assets_img_dir / src_img.name
-            shutil.copy2(src_img, dest_img)
-
-            mat = deepcopy(mat_tpl)
-            mat_id = _uuid_upper()
-            mat["id"] = mat_id
-            mat["material_id"] = mat_id
-            mat["local_material_id"] = _uuid_hex()
-            mat["material_name"] = dest_img.name
-            mat["path"] = str(dest_img)
-            mat["media_path"] = str(dest_img)
-            videos.append(mat)
-
-            seg = deepcopy(seg_tpl)
-            seg["id"] = _uuid_hex()
-            seg["material_id"] = mat_id
-            start_us = int(float(cue.get("start_sec", 0.0)) * SEC)
-            end_us = int(float(cue.get("end_sec", 0.0)) * SEC)
-            dur_us = max(SEC // 60, end_us - start_us)
-            seg["target_timerange"] = {"start": start_us, "duration": dur_us}
-            seg["source_timerange"] = {"start": 0, "duration": dur_us}
-            seg["render_timerange"] = {"start": 0, "duration": dur_us}
-            new_segments.append(seg)
-
-        track["segments"] = new_segments
+    for i in range(1, count + 1):
+        src = images_dir / f"{i:04d}.png"
+        if not src.exists():
+            raise RuntimeError(f"Missing image: {src}")
+        shutil.copy2(src, assets_img_dir / src.name)
 
 
-def _replace_subtitle_tracks(
-    data: Dict[str, Any],
-    subtitle_tracks: List[Dict[str, Any]],
-    subs: List[Dict[str, Any]],
-) -> None:
-    mats = data.setdefault("materials", {})
-    texts: List[Dict[str, Any]] = mats.setdefault("texts", [])
-
-    for track in subtitle_tracks:
-        if not track.get("segments"):
-            continue
-        seg_tpl = deepcopy(track["segments"][0])
-        tpl_mid = seg_tpl.get("material_id")
-        mat_tpl = next((m for m in texts if m.get("id") == tpl_mid), None)
-        if not mat_tpl:
-            raise RuntimeError("Template subtitle material not found")
-
-        old_mids = {s.get("material_id") for s in track.get("segments") or []}
-        texts[:] = [m for m in texts if m.get("id") not in old_mids]
-
-        new_segments: List[Dict[str, Any]] = []
-        for ent in subs:
-            text_val = ent["text"]
-            start_us = int(ent["start_us"])
-            end_us = int(ent["end_us"])
-            dur_us = max(SEC // 60, end_us - start_us)
-
-            mat = deepcopy(mat_tpl)
-            mat_id = _uuid_hex()
-            mat["id"] = mat_id
-            try:
-                content_obj = json.loads(mat.get("content") or "{}")
-                if isinstance(content_obj, dict):
-                    content_obj["text"] = text_val
-                    mat["content"] = json.dumps(content_obj, ensure_ascii=False)
-            except Exception:
-                mat["content"] = json.dumps({"text": text_val}, ensure_ascii=False)
-            mat["base_content"] = text_val
-            texts.append(mat)
-
-            seg = deepcopy(seg_tpl)
-            seg["id"] = _uuid_hex()
-            seg["material_id"] = mat_id
-            seg["target_timerange"] = {"start": start_us, "duration": dur_us}
-            seg["source_timerange"] = {"start": 0, "duration": dur_us}
-            seg["render_timerange"] = {"start": 0, "duration": dur_us}
-            new_segments.append(seg)
-
-        track["segments"] = new_segments
+def _append_material(materials: Dict[str, Any], category: str, proto: Dict[str, Any], new_id: str) -> str:
+    items = materials.setdefault(category, [])
+    if not isinstance(items, list):
+        raise RuntimeError(f"materials.{category} is not a list")
+    obj = deepcopy(proto)
+    obj["id"] = new_id
+    items.append(obj)
+    return new_id
 
 
-def _update_main_belt(data: Dict[str, Any], main_belt_track: Dict[str, Any] | None, title: str) -> None:
-    if not main_belt_track or not main_belt_track.get("segments"):
-        return
-    mats = data.setdefault("materials", {})
-    texts: List[Dict[str, Any]] = mats.setdefault("texts", [])
-    seg = main_belt_track["segments"][0]
-    mid = seg.get("material_id")
-    if not mid:
-        return
-    mat = next((m for m in texts if m.get("id") == mid), None)
-    if not mat:
-        return
-    try:
-        content_obj = json.loads(mat.get("content") or "{}")
-        if isinstance(content_obj, dict):
-            content_obj["text"] = title
-            mat["content"] = json.dumps(content_obj, ensure_ascii=False)
-    except Exception:
-        mat["content"] = json.dumps({"text": title}, ensure_ascii=False)
-    mat["base_content"] = title
+def _clone_video_material_for_image(v_proto: Dict[str, Any], placeholder_prefix: str, filename: str) -> Dict[str, Any]:
+    mat = deepcopy(v_proto)
+    new_id = _uuid_hex()
+    mat["id"] = new_id
+    mat["material_id"] = new_id
+    mat["material_name"] = filename
+    mat["path"] = f"{placeholder_prefix}/assets/image/{filename}"
+    return mat
 
 
-def patch_draft_json(
-    data: Dict[str, Any],
-    cues: List[Dict[str, Any]],
-    subs: List[Dict[str, Any]],
-    images_dir: Path,
-    draft_dir: Path,
+def _patch_ch06_draft_info(
+    info: Dict[str, Any],
+    cues_payload: Dict[str, Any],
     title: str,
-) -> None:
-    srt2_tracks, sub_tracks, belt_track = _find_tracks(data)
-    if len(srt2_tracks) < 1:
-        raise RuntimeError("No srt2images tracks found in template")
-    if len(sub_tracks) < 1:
-        raise RuntimeError("No subtitles_text tracks found in template")
+) -> int:
+    fps = float(cues_payload.get("fps") or 30.0)
+    cues: List[Dict[str, Any]] = cues_payload.get("cues") or []
+    if not cues:
+        raise RuntimeError("image_cues.json has no cues")
+    n_images = len(cues)
 
-    _replace_video_tracks(data, srt2_tracks, cues, images_dir, draft_dir)
-    _replace_subtitle_tracks(data, sub_tracks, subs)
-    _update_main_belt(data, belt_track, title)
+    image_track, effect_track, logo_track, text_track, audio_track = _find_ch06_template_tracks(info)
+    mats: Dict[str, Any] = info.setdefault("materials", {})
+    id_index = _build_id_index(mats)
+
+    # Determine placeholder prefix used by existing image materials.
+    placeholder_prefix = ""
+    for v in mats.get("videos") or []:
+        if isinstance(v, dict) and isinstance(v.get("material_name"), str) and v["material_name"].endswith(".png"):
+            path = v.get("path") or ""
+            if isinstance(path, str) and path.startswith("##_draftpath_placeholder_") and "/assets/image/" in path:
+                placeholder_prefix = path.split("/assets/image/")[0]
+                break
+    if not placeholder_prefix:
+        raise RuntimeError("Failed to detect draftpath placeholder prefix in template materials.videos")
+
+    # Compute duration in microseconds from last cue end_frame.
+    last_end_frame = int(cues[-1].get("end_frame") or 0)
+    duration_us = _capcut_us_from_frame(last_end_frame, fps)
+    info["duration"] = duration_us
+
+    # Patch effect/logo/text to span full duration.
+    def _span_full(track: Dict[str, Any]) -> None:
+        if not (track.get("segments") or []):
+            return
+        seg = track["segments"][0]
+        seg["target_timerange"] = {"start": 0, "duration": duration_us}
+        if isinstance(seg.get("source_timerange"), dict):
+            seg["source_timerange"] = {"start": 0, "duration": duration_us}
+
+    _span_full(effect_track)
+    _span_full(logo_track)
+    _span_full(text_track)
+
+    # Update main belt text material content.
+    if (text_track.get("segments") or []) and isinstance(mats.get("texts"), list):
+        mid = text_track["segments"][0].get("material_id")
+        if isinstance(mid, str):
+            for t in mats["texts"]:
+                if isinstance(t, dict) and t.get("id") == mid:
+                    try:
+                        content_obj = json.loads(t.get("content") or "{}")
+                        if isinstance(content_obj, dict):
+                            content_obj["text"] = title
+                            t["content"] = json.dumps(content_obj, ensure_ascii=False, separators=(",", ":"))
+                    except Exception:
+                        t["content"] = json.dumps({"text": title}, ensure_ascii=False, separators=(",", ":"))
+                    t["base_content"] = title
+                    break
+
+    # --- Images track ---
+    img_segs_tpl: List[Dict[str, Any]] = image_track.get("segments") or []
+    if not img_segs_tpl:
+        raise RuntimeError("Template image track has no segments")
+
+    # Video material prototype for photo images: use segment0 material_id.
+    first_seg_mid = img_segs_tpl[0].get("material_id")
+    if not isinstance(first_seg_mid, str):
+        raise RuntimeError("Template image segment has no material_id")
+    v_cat, v_proto = id_index.get(first_seg_mid, (None, None))
+    if v_cat != "videos" or not isinstance(v_proto, dict):
+        raise RuntimeError("Template image segment material_id does not resolve to materials.videos")
+
+    # Extra material prototypes for image segments (speed, placeholder, canvas, sound mapping, material_color, loudness, vocal_sep)
+    img_extra_ids: List[str] = img_segs_tpl[0].get("extra_material_refs") or []
+    if len(img_extra_ids) < 7:
+        raise RuntimeError("Template image segment missing extra_material_refs (expected >=7)")
+    img_extra_protos: Dict[str, Dict[str, Any]] = {}
+    for mid in img_extra_ids:
+        if not isinstance(mid, str) or mid not in id_index:
+            continue
+        cat, obj = id_index[mid]
+        if cat in {"speeds", "placeholder_infos", "canvases", "sound_channel_mappings", "material_colors", "loudnesses", "vocal_separations"}:
+            img_extra_protos[cat] = obj
+    missing_cats = {"speeds", "placeholder_infos", "canvases", "sound_channel_mappings", "material_colors", "loudnesses", "vocal_separations"} - set(img_extra_protos.keys())
+    if missing_cats:
+        raise RuntimeError(f"Template image segment extra refs missing categories: {sorted(missing_cats)}")
+
+    # Map existing image materials by filename (0001.png..0030.png).
+    existing_img_mat_by_name: Dict[str, str] = {}
+    for m in mats.get("videos") or []:
+        if not isinstance(m, dict):
+            continue
+        name = m.get("material_name")
+        mid = m.get("id")
+        if isinstance(name, str) and isinstance(mid, str) and re.fullmatch(r"\d{4}\.png", name):
+            existing_img_mat_by_name[name] = mid
+
+    # Build new segments.
+    new_img_segments: List[Dict[str, Any]] = []
+    for i, cue in enumerate(cues, start=1):
+        filename = f"{i:04d}.png"
+        start_frame = int(cue.get("start_frame") or 0)
+        end_frame = int(cue.get("end_frame") or start_frame)
+        start_us = _capcut_us_from_frame(start_frame, fps)
+        end_us = _capcut_us_from_frame(end_frame, fps)
+        if end_us < start_us:
+            end_us = start_us
+        new_dur = max(1, end_us - start_us)
+
+        if i - 1 < len(img_segs_tpl):
+            seg = deepcopy(img_segs_tpl[i - 1])
+            old_dur = int((seg.get("target_timerange") or {}).get("duration") or new_dur)
+        else:
+            # Clone from last template segment and re-id nested keyframes to avoid collisions.
+            seg = deepcopy(img_segs_tpl[-1])
+            old_dur = int((seg.get("target_timerange") or {}).get("duration") or new_dur)
+            seg["id"] = _uuid_hex()
+            _reid_common_keyframes(seg)
+
+            # Create new per-segment extra materials and wire them.
+            speed_id = _append_material(mats, "speeds", img_extra_protos["speeds"], _uuid_hex())
+            placeholder_id = _append_material(mats, "placeholder_infos", img_extra_protos["placeholder_infos"], _uuid_upper())
+            canvas_id = _append_material(mats, "canvases", img_extra_protos["canvases"], _uuid_upper())
+            sound_id = _append_material(mats, "sound_channel_mappings", img_extra_protos["sound_channel_mappings"], _uuid_upper())
+            color_id = _append_material(mats, "material_colors", img_extra_protos["material_colors"], _uuid_upper())
+            loud_id = _append_material(mats, "loudnesses", img_extra_protos["loudnesses"], _uuid_upper())
+            vocal_id = _append_material(mats, "vocal_separations", img_extra_protos["vocal_separations"], _uuid_upper())
+            seg["extra_material_refs"] = [speed_id, placeholder_id, canvas_id, sound_id, color_id, loud_id, vocal_id]
+
+        # Ensure material exists (create if beyond template baseline).
+        mat_id = existing_img_mat_by_name.get(filename)
+        if not mat_id:
+            # Append new image video material.
+            new_mat = _clone_video_material_for_image(v_proto, placeholder_prefix, filename)
+            mats.setdefault("videos", []).append(new_mat)
+            mat_id = new_mat["id"]
+            existing_img_mat_by_name[filename] = mat_id
+        seg["material_id"] = mat_id
+
+        seg["target_timerange"] = {"start": start_us, "duration": new_dur}
+        seg["source_timerange"] = {"start": 0, "duration": new_dur}
+        _scale_keyframe_time_offsets(seg, old_dur, new_dur)
+        new_img_segments.append(seg)
+
+    image_track["segments"] = new_img_segments
+
+    # --- Audio (BGM) track ---
+    audio_segs_tpl: List[Dict[str, Any]] = audio_track.get("segments") or []
+    if not audio_segs_tpl:
+        raise RuntimeError("Template audio track has no segments")
+    loop_us = int((audio_segs_tpl[0].get("target_timerange") or {}).get("duration") or 0)
+    if loop_us <= 0:
+        raise RuntimeError("Template audio loop duration invalid")
+    need = max(1, (duration_us + loop_us - 1) // loop_us)
+
+    # Prototypes for new audio segments/materials (only used when need > template segments)
+    audio_mid0 = audio_segs_tpl[0].get("material_id")
+    if not isinstance(audio_mid0, str):
+        raise RuntimeError("Template audio segment has no material_id")
+    a_cat, a_proto = id_index.get(audio_mid0, (None, None))
+    if a_cat != "audios" or not isinstance(a_proto, dict):
+        raise RuntimeError("Template audio segment material_id does not resolve to materials.audios")
+    a_extra_ids = audio_segs_tpl[0].get("extra_material_refs") or []
+    a_extra_protos: Dict[str, Dict[str, Any]] = {}
+    for mid in a_extra_ids:
+        if not isinstance(mid, str) or mid not in id_index:
+            continue
+        cat, obj = id_index[mid]
+        if cat in {"speeds", "placeholder_infos", "beats", "sound_channel_mappings", "vocal_separations"}:
+            a_extra_protos[cat] = obj
+    missing_a = {"speeds", "placeholder_infos", "beats", "sound_channel_mappings", "vocal_separations"} - set(a_extra_protos.keys())
+    if missing_a:
+        raise RuntimeError(f"Template audio segment extra refs missing categories: {sorted(missing_a)}")
+
+    new_audio_segments: List[Dict[str, Any]] = []
+    for j in range(int(need)):
+        start_us = j * loop_us
+        if start_us >= duration_us:
+            break
+        seg_dur = min(loop_us, duration_us - start_us)
+        if j < len(audio_segs_tpl):
+            seg = deepcopy(audio_segs_tpl[j])
+        else:
+            seg = deepcopy(audio_segs_tpl[-1])
+            seg["id"] = _uuid_hex()
+            # New audio material + beat + extra refs
+            new_audio_id = _uuid_upper()
+            new_audio = deepcopy(a_proto)
+            new_audio["id"] = new_audio_id
+            mats.setdefault("audios", []).append(new_audio)
+            beat_id = _append_material(mats, "beats", a_extra_protos["beats"], _uuid_upper())
+            speed_id = _append_material(mats, "speeds", a_extra_protos["speeds"], _uuid_hex())
+            placeholder_id = _append_material(mats, "placeholder_infos", a_extra_protos["placeholder_infos"], _uuid_upper())
+            sound_id = _append_material(mats, "sound_channel_mappings", a_extra_protos["sound_channel_mappings"], _uuid_upper())
+            vocal_id = _append_material(mats, "vocal_separations", a_extra_protos["vocal_separations"], _uuid_upper())
+            seg["material_id"] = new_audio_id
+            seg["extra_material_refs"] = [speed_id, placeholder_id, beat_id, sound_id, vocal_id]
+
+        seg["target_timerange"] = {"start": int(start_us), "duration": int(seg_dur)}
+        seg["source_timerange"] = {"start": 0, "duration": int(seg_dur)}
+        # audio render_timerange stays as in template (usually 0)
+        new_audio_segments.append(seg)
+
+    audio_track["segments"] = new_audio_segments
+
+    return duration_us
 
 
 def main() -> None:
@@ -331,13 +479,12 @@ def main() -> None:
         run_dir = runs_root / f"CH06-{vid:03d}_capcut_v1"
         cues_path = run_dir / "image_cues.json"
         images_dir = run_dir / "images"
-        srt_path = run_dir / f"CH06-{vid:03d}.srt"
-        if not cues_path.exists() or not images_dir.exists() or not srt_path.exists():
+        if not cues_path.exists() or not images_dir.exists():
             print(f"[SKIP] CH06-{vid:03d}: run assets missing")
             continue
 
-        cues = load_json(cues_path).get("cues") or []
-        subs = parse_srt(srt_path)
+        cues_payload = load_json(cues_path)
+        cues = cues_payload.get("cues") or []
         title = title_map.get(vid, f"CH06-{vid:03d}")
 
         new_name = sanitize_filename(f"★CH06-{vid:03d}-{title}")
@@ -346,20 +493,43 @@ def main() -> None:
             shutil.rmtree(draft_dir)
         shutil.copytree(tpl_dir, draft_dir)
 
-        # Patch draft_content.json (source of truth)
-        content_path = draft_dir / "draft_content.json"
-        content_data = load_json(content_path)
-        patch_draft_json(content_data, cues, subs, images_dir, draft_dir, title)
-        save_json(content_path, content_data)
+        # Ensure assets/images match cues exactly (avoid template leftovers).
+        _ensure_assets_images(draft_dir, images_dir, len(cues))
 
-        # Sync draft_info.json to match content (preserve template metadata keys)
+        # Patch draft_info.json (source of truth)
         info_path = draft_dir / "draft_info.json"
-        if info_path.exists():
-            info_data = load_json(info_path)
-            info_data["tracks"] = content_data.get("tracks", [])
-            info_data["materials"] = content_data.get("materials", {})
-            info_data["duration"] = content_data.get("duration", info_data.get("duration"))
-            save_json(info_path, info_data)
+        info_data = load_json(info_path)
+        duration_us = _patch_ch06_draft_info(info_data, cues_payload, title)
+        save_json(info_path, info_data)
+
+        # Overwrite draft_content.json tracks/materials/duration to match draft_info.json
+        content_path = draft_dir / "draft_content.json"
+        if content_path.exists():
+            content_data = load_json(content_path)
+            content_data["tracks"] = info_data.get("tracks", [])
+            content_data["materials"] = info_data.get("materials", {})
+            content_data["duration"] = info_data.get("duration", duration_us)
+            save_json(content_path, content_data)
+
+        # Patch draft_meta_info.json (so CapCut registers this as a distinct project)
+        meta_path = draft_dir / "draft_meta_info.json"
+        if meta_path.exists():
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            meta["draft_fold_path"] = str(draft_dir)
+            meta["draft_root_path"] = str(draft_root)
+            meta["draft_name"] = new_name
+            meta["draft_id"] = _uuid_upper()
+            meta["tm_duration"] = int(duration_us)
+            meta_path.write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+        # Update run_dir symlink for convenience (optional, but helps future automation).
+        link_path = run_dir / "capcut_draft"
+        try:
+            if link_path.is_symlink() or link_path.exists():
+                link_path.unlink()
+            link_path.symlink_to(draft_dir)
+        except Exception:
+            pass
 
         print(f"[OK] CH06-{vid:03d} -> {new_name}")
 

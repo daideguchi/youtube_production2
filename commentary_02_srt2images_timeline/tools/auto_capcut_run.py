@@ -105,7 +105,7 @@ def make_equal_split_belt(run_dir: Path, labels: str, opening_offset: float = 0.
     return out
 
 
-def make_llm_belt_from_cues(run_dir: Path, opening_offset: float = 0.0, sections: int = 4, channel_id: str = "CH02"):
+def make_llm_belt_from_cues(run_dir: Path, opening_offset: float = 0.0, sections: int = 4, channel_id: str | None = None):
     """
     Generate belt_config.json dynamically from image_cues.json using LLMRouter.
     Falls back to empty config on failure to allow pipeline to continue.
@@ -116,6 +116,10 @@ def make_llm_belt_from_cues(run_dir: Path, opening_offset: float = 0.0, sections
 
     # Extract video ID from run_dir path for logging purposes
     video_id = run_dir.name  # e.g. CH02-015_20251210_191904
+    if not channel_id:
+        m = re.search(r"(CH\\d{2})", video_id, flags=re.IGNORECASE)
+        channel_id = m.group(1).upper() if m else "CH02"
+        logging.warning("belt_generation: channel_id not provided; inferred %s", channel_id)
 
     # Import the new belt generator module
     from commentary_02_srt2images_timeline.src.srt2images.belt_generator import generate_belt_from_script
@@ -554,7 +558,7 @@ def main():
             # default to 4 sections unless preset caps it elsewhere
             build_deterministic_from_cues(target_sections=4)
         else:
-            make_llm_belt_from_cues(run_dir, opening_offset=opening_offset)
+            make_llm_belt_from_cues(run_dir, opening_offset=opening_offset, sections=4, channel_id=args.channel)
     else:
         print(f"❌ Unknown belt_mode: {args.belt_mode}")
         sys.exit(1)

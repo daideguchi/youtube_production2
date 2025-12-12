@@ -72,12 +72,18 @@ The main pipeline executes these steps:
 - Uses LLM to generate titles that are 18-28 characters, calm and trustworthy
 
 #### 3.3. CapCut Draft Building (`tools/capcut_bulk_insert.py`)
-- Duplicates the CH02 template (`CH02-UNK_テンプレ`)
+- Duplicates the CH02 template (`CH02-テンプレ`)
 - Inserts generated images with precise timing from image cues
 - Applies watercolor-style positioning and scaling
 - Adds subtitles from the original SRT file
 - Updates belt tracks with generated titles
-- Synchronizes draft_info.json and draft_content.json
+- Synchronizes `draft_info.json` and `draft_content.json`
+  - Important: CapCut stores some template-only styling in `draft_info.json` segments (e.g., `belt_main_track` clip transform/scale + `extra_material_refs` for the blue belt background effect). The sync logic must **merge** rather than overwrite to avoid wiping the belt design.
+
+#### 3.5. Belt Design Recovery (if a draft loses the right-top belt styling)
+- If a generated draft shows the main belt style reset (position/background disappears), restore it from the template:
+  - `python tools/restore_template_belt_design.py --template 'CH02-テンプレ' --draft-regex '^(...)_draft$'`
+  - This copies the template `belt_main_track` segment `clip`/`extra_material_refs` and the referenced `materials.effects` into the target draft's `draft_info.json`, without changing timing.
 
 #### 3.4. Title Injection (`tools/inject_title_json.py`)
 - Directly injects the title into the CapCut JSON files
@@ -109,7 +115,7 @@ From `config/channel_presets.json`, CH02 has these settings:
 - **No text, no UI, no signs** in the generated images
 
 #### CapCut Settings:
-- **Template**: "CH02-UNK_テンプレ"
+- **Template**: "CH02-テンプレ"
 - **Position**: Default (tx: 0.0, ty: 0.0, scale: 1.0)
 - **Layout**: Standard positioning with 82% belt top percentage
 - **Belt Configuration**: Main-only mode, max 1 section

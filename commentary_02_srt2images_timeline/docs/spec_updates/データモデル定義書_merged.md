@@ -451,8 +451,8 @@ erDiagram
 
 - **要件定義**: `spec/要件定義書.md`
 - **システム設計**: `spec/システム設計書.md`
-- **運用仕様**: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
-- **台本ワークフロー**: `ssot/ops/OPS_SCRIPT_WORKFLOW.md`
+- **運用仕様**: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
+- **台本ワークフロー**: `ssot/OPS_SCRIPT_GUIDE.md`
 - **チャンネル設定仕様**: `spec/channel_config_spec.md`
 
 ---
