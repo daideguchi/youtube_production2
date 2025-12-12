@@ -11,6 +11,9 @@ export function CapcutEditPage() {
           <p className="page-lead">用途に応じてモードを選択してください。ページが分岐します。</p>
         </div>
         <div className="capcut-edit-page__actions">
+          <Link className="button button--ghost" to="/capcut-edit/production">
+            プロジェクト管理
+          </Link>
           <Link className="button" to="/capcut-edit/draft">
             新規ドラフト作成
           </Link>
@@ -21,7 +24,7 @@ export function CapcutEditPage() {
       </header>
       <section className="capcut-edit-page__section">
         <p style={{ marginTop: 0 }}>
-          「新規ドラフト作成」と「既存ドラフトの画像差し替え」を選ぶと、専用ページに遷移します。戻るときは各ページ上部のリンクからこのメニューに戻れます。
+          「プロジェクト管理」は SRT解析/画像/帯/CapCut配置まで一括で扱うワークスペースです。戻るときは各ページ上部のリンクからこのメニューに戻れます。
         </p>
       </section>
     </div>

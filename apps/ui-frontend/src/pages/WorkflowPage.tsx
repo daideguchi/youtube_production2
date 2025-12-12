@@ -97,6 +97,10 @@ export function WorkflowPage() {
   const capcutDraftLink = expectedSrtRelPath
     ? `/capcut-edit/draft?srt=${encodeURIComponent(expectedSrtRelPath)}`
     : "/capcut-edit/draft";
+  const videoProductionLink =
+    channel && video && episodeId
+      ? `/capcut-edit/production?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}&project=${encodeURIComponent(episodeId)}`
+      : "/capcut-edit/production";
 
   const handleChannelChange = (next: string) => {
     const params = new URLSearchParams(searchParams);
@@ -243,12 +247,15 @@ export function WorkflowPage() {
               <h3 style={{ marginTop: 0, marginBottom: 8 }}>動画（CapCut）</h3>
               <p style={{ marginTop: 0, color: "var(--color-text-muted)" }}>
                 {videoOk
-                  ? `既存 run_dir: ${matchingVideoProjects[0]?.id ?? "(unknown)"}`
-                  : "まだ run_dir がありません。final SRT からドラフトを作成へ。"}
+                  ? `既存プロジェクト: ${matchingVideoProjects[0]?.id ?? "(unknown)"}`
+                  : "まだプロジェクトがありません。final SRT からドラフトを作成へ。"}
               </p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <Link className="button" to={capcutDraftLink}>
                   新規ドラフト作成
+                </Link>
+                <Link className="button button--ghost" to={videoProductionLink}>
+                  プロジェクト管理
                 </Link>
                 <Link className="button button--ghost" to="/capcut-edit">
                   CapCut編集メニュー
@@ -283,4 +290,3 @@ export function WorkflowPage() {
     </div>
   );
 }
-

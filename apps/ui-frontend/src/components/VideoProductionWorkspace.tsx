@@ -2,11 +2,14 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ChangeEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import {
+  createVideoProject,
   createVideoJob,
   fetchCapcutDraftDetail,
   fetchCapcutDrafts,
@@ -29,7 +32,7 @@ import {
 import type {
   CapcutDraftDetail,
   CapcutDraftSummary,
-  ProjectSrtContent,
+  VideoProjectCreatePayload,
   VideoJobCreatePayload,
   VideoJobRecord,
   VideoProductionChannelPreset,
@@ -77,6 +80,14 @@ type ChannelPresetDraft = {
   notes: string;
 };
 
+type ProjectCreateDraft = {
+  channelId: string;
+  video: string;
+  projectId: string;
+  srtRelativePath: string;
+  targetSections: string;
+};
+
 const STEP_SEQUENCE: Array<{ id: string; label: string }> = [
   { id: "materials", label: "素材" },
   { id: "chunk", label: "チャンク" },
@@ -103,7 +114,19 @@ const JOB_STATUS_LABELS: Record<VideoJobRecord["status"], string> = {
 
 const DEFAULT_CHANNEL_FILTER = "";
 
+function normalizeVideoToken(value: string): string {
+  const raw = (value ?? "").trim();
+  if (!raw) return "";
+  if (/^\d+$/.test(raw)) return raw.padStart(3, "0");
+  return raw;
+}
+
+function normalizeChannelToken(value: string): string {
+  return (value ?? "").trim().toUpperCase();
+}
+
 export function VideoProductionWorkspace() {
+  const [searchParams] = useSearchParams();
   const [channelPresets, setChannelPresets] = useState<VideoProductionChannelPreset[]>([]);
   const [channelFilter, setChannelFilter] = useState<string>(DEFAULT_CHANNEL_FILTER);
   const [projects, setProjects] = useState<VideoProjectSummary[]>([]);
@@ -153,23 +176,38 @@ export function VideoProductionWorkspace() {
   const [presetSaving, setPresetSaving] = useState(false);
   const [installingDraft, setInstallingDraft] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
+  const [projectCreateDraft, setProjectCreateDraft] = useState<ProjectCreateDraft>({
+    channelId: "",
+    video: "",
+    projectId: "",
+    srtRelativePath: "",
+    targetSections: "",
+  });
+  const [creatingProject, setCreatingProject] = useState(false);
   const selectionRef = useMemo(() => loadWorkspaceSelection(), []);
   const pipelinePlan = useMemo(
     () => resolvePipelinePlan(projectDetail),
     [projectDetail]
   );
+  const appliedQueryRef = useRef(false);
+  const priorDerivedProjectIdRef = useRef<string>("");
+  const priorSuggestedSrtRef = useRef<string>("");
+
+  const queryChannel = normalizeChannelToken(searchParams.get("channel") || "");
+  const queryVideo = normalizeVideoToken(searchParams.get("video") || "");
+  const queryProject = (searchParams.get("project") || "").trim();
 
   useEffect(() => {
     void (async () => {
       try {
         const presets = await fetchVideoProductionChannels(true);
         setChannelPresets(presets);
-        setChannelFilter((current) => current || presets[0]?.channelId || DEFAULT_CHANNEL_FILTER);
+        setChannelFilter((current) => normalizeChannelToken(queryChannel) || current || presets[0]?.channelId || DEFAULT_CHANNEL_FILTER);
       } catch (error) {
         console.error(error);
       }
     })();
-  }, []);
+  }, [queryChannel]);
 
   useEffect(() => {
     void (async () => {
@@ -187,6 +225,10 @@ export function VideoProductionWorkspace() {
       try {
         const data = await fetchVideoProjects();
         setProjects(data);
+        if (queryProject && data.some((item) => item.id === queryProject)) {
+          setSelectedProjectId(queryProject);
+          return;
+        }
         if (selectionRef?.projectId && data.some((item) => item.id === selectionRef.projectId)) {
           setSelectedProjectId(selectionRef.projectId);
           return;
@@ -196,7 +238,7 @@ export function VideoProductionWorkspace() {
         console.error(error);
       }
     })();
-  }, [selectionRef]);
+  }, [queryProject, selectionRef]);
 
   useEffect(() => {
     saveWorkspaceSelection({
@@ -294,6 +336,147 @@ export function VideoProductionWorkspace() {
     }
     return channelPresets.find((preset) => preset.channelId === channelFilter) ?? null;
   }, [channelFilter, channelPresets]);
+
+  const createChannelPreset = useMemo(() => {
+    const channelId = normalizeChannelToken(projectCreateDraft.channelId);
+    if (!channelId) return null;
+    return channelPresets.find((preset) => preset.channelId === channelId) ?? null;
+  }, [channelPresets, projectCreateDraft.channelId]);
+
+  const createSrtOptions = useMemo(() => createChannelPreset?.srtFiles ?? [], [createChannelPreset]);
+
+  const derivedProjectId = useMemo(() => {
+    const channelId = normalizeChannelToken(projectCreateDraft.channelId);
+    const video = normalizeVideoToken(projectCreateDraft.video);
+    if (!channelId || !video) return "";
+    return `${channelId}-${video}`;
+  }, [projectCreateDraft.channelId, projectCreateDraft.video]);
+
+  const queryProjectMissing = useMemo(() => {
+    if (!queryProject) return false;
+    return !projects.some((project) => project.id === queryProject);
+  }, [projects, queryProject]);
+
+  const applyProjectCreatePatch = useCallback((patch: Partial<ProjectCreateDraft>) => {
+    setProjectCreateDraft((prev) => {
+      const prevChannel = normalizeChannelToken(prev.channelId);
+      const prevVideo = normalizeVideoToken(prev.video);
+      const prevDerived = prevChannel && prevVideo ? `${prevChannel}-${prevVideo}` : "";
+
+      const next: ProjectCreateDraft = {
+        ...prev,
+        ...patch,
+      };
+      next.channelId = normalizeChannelToken(next.channelId);
+      next.video = normalizeVideoToken(next.video);
+
+      const nextDerived = next.channelId && next.video ? `${next.channelId}-${next.video}` : "";
+      const projectIdPatched = typeof patch.projectId === "string";
+      const projectIdWasAuto = !prev.projectId || prev.projectId === prevDerived;
+      if (!projectIdPatched && projectIdWasAuto && nextDerived) {
+        next.projectId = nextDerived;
+      }
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (appliedQueryRef.current) return;
+    if (!channelPresets.length && !queryChannel && !queryVideo && !queryProject) return;
+
+    appliedQueryRef.current = true;
+    const fallbackChannel = normalizeChannelToken(queryChannel || channelFilter || channelPresets[0]?.channelId || "");
+    const fallbackVideo = normalizeVideoToken(queryVideo || "");
+    const fallbackProjectId = queryProject || (fallbackChannel && fallbackVideo ? `${fallbackChannel}-${fallbackVideo}` : "");
+    applyProjectCreatePatch({
+      channelId: fallbackChannel,
+      video: fallbackVideo,
+      projectId: fallbackProjectId,
+    });
+  }, [applyProjectCreatePatch, channelFilter, channelPresets, queryChannel, queryProject, queryVideo]);
+
+  useEffect(() => {
+    const priorDerived = priorDerivedProjectIdRef.current;
+    priorDerivedProjectIdRef.current = derivedProjectId;
+    if (!derivedProjectId) return;
+    setProjectCreateDraft((prev) => {
+      const currentId = (prev.projectId ?? "").trim();
+      if (!currentId || currentId === priorDerived) {
+        return { ...prev, projectId: derivedProjectId };
+      }
+      return prev;
+    });
+  }, [derivedProjectId]);
+
+  useEffect(() => {
+    if (!createSrtOptions.length) return;
+    const channelId = normalizeChannelToken(projectCreateDraft.channelId);
+    const video = normalizeVideoToken(projectCreateDraft.video);
+    const expectedSuffix = channelId && video ? `/${channelId}/${video}/${channelId}-${video}.srt` : "";
+    const expectedNeedle = expectedSuffix.toLowerCase();
+    const match =
+      expectedNeedle
+        ? createSrtOptions.find((item) => item.relativePath.replace(/\\\\/g, "/").toLowerCase().endsWith(expectedNeedle))
+        : createSrtOptions[0];
+    if (!match) return;
+    const suggested = match.relativePath;
+
+    setProjectCreateDraft((prev) => {
+      const previous = prev.srtRelativePath || "";
+      const priorSuggested = priorSuggestedSrtRef.current;
+      priorSuggestedSrtRef.current = suggested;
+      if (!previous || previous === priorSuggested) {
+        return { ...prev, srtRelativePath: suggested };
+      }
+      return prev;
+    });
+  }, [createSrtOptions, projectCreateDraft.channelId, projectCreateDraft.video]);
+
+  const handleCreateProject = useCallback(async () => {
+    const channelId = normalizeChannelToken(projectCreateDraft.channelId);
+    const video = normalizeVideoToken(projectCreateDraft.video);
+    const projectId = (projectCreateDraft.projectId || (channelId && video ? `${channelId}-${video}` : "")).trim();
+    const srtRelativePath = (projectCreateDraft.srtRelativePath || "").trim();
+    const targetSectionsRaw = (projectCreateDraft.targetSections || "").trim();
+    let targetSections: number | undefined = undefined;
+
+    if (!projectId) {
+      setBanner("project_id を入力してください。");
+      return;
+    }
+    if (!srtRelativePath) {
+      setBanner("SRT を選択してください。（audio_tts_v2/artifacts/final 配下）");
+      return;
+    }
+    if (targetSectionsRaw) {
+      const parsed = Number(targetSectionsRaw);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        setBanner("target_sections は 1 以上の数値で指定してください。");
+        return;
+      }
+      targetSections = parsed;
+    }
+
+    setCreatingProject(true);
+    try {
+      const payload: VideoProjectCreatePayload = {
+        projectId,
+        channelId: channelId || undefined,
+        targetSections,
+        existingSrtPath: srtRelativePath,
+      };
+      await createVideoProject(payload);
+      const nextProjects = await fetchVideoProjects();
+      setProjects(nextProjects);
+      setSelectedProjectId(projectId);
+      setBanner(`プロジェクトを作成しました: ${projectId}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setBanner(`プロジェクト作成に失敗しました: ${message}`);
+    } finally {
+      setCreatingProject(false);
+    }
+  }, [projectCreateDraft]);
 
   const refreshJobs = useCallback(async () => {
     if (!selectedProjectId) {
@@ -638,6 +821,88 @@ export function VideoProductionWorkspace() {
 
   return (
     <div className="vp-shell">
+      <div className="vp-panel">
+        <div className="vp-panel__header">
+          <div>
+            <h2 style={{ margin: 0 }}>新規プロジェクト作成</h2>
+            <p className="video-production-text-muted" style={{ margin: "6px 0 0" }}>
+              SRT（audio_tts_v2/artifacts/final）から SoT プロジェクトを作成します。
+            </p>
+          </div>
+          <div className="vp-panel__actions">
+            <button type="button" onClick={handleCreateProject} disabled={creatingProject}>
+              {creatingProject ? "作成中…" : "プロジェクト作成"}
+            </button>
+          </div>
+        </div>
+        {queryProjectMissing ? (
+          <p className="video-production-alert video-production-alert--warning">
+            指定されたプロジェクトが見つかりません: <strong>{queryProject}</strong>（必要ならここから作成してください）
+          </p>
+        ) : null}
+        <div className="vp-options-grid">
+          <label>
+            <span>チャンネル</span>
+            <select
+              value={projectCreateDraft.channelId}
+              onChange={(event) =>
+                applyProjectCreatePatch({ channelId: event.target.value, srtRelativePath: "" })
+              }
+            >
+              <option value="">未選択</option>
+              {channelPresets.map((preset) => (
+                <option key={preset.channelId} value={preset.channelId}>
+                  {preset.name ?? preset.channelId}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>動画番号</span>
+            <input
+              type="text"
+              value={projectCreateDraft.video}
+              placeholder="例: 022"
+              onChange={(event) => applyProjectCreatePatch({ video: event.target.value })}
+            />
+          </label>
+          <label>
+            <span>project_id</span>
+            <input
+              type="text"
+              value={projectCreateDraft.projectId}
+              placeholder={derivedProjectId ? `例: ${derivedProjectId}` : "例: CH01-022"}
+              onChange={(event) => applyProjectCreatePatch({ projectId: event.target.value })}
+            />
+          </label>
+          <label>
+            <span>SRT（relative_path）</span>
+            <select
+              value={projectCreateDraft.srtRelativePath}
+              onChange={(event) => applyProjectCreatePatch({ srtRelativePath: event.target.value })}
+              disabled={!createSrtOptions.length}
+            >
+              <option value="">{createSrtOptions.length ? "選択してください" : "SRTが見つかりません"}</option>
+              {createSrtOptions.map((srt) => (
+                <option key={srt.relativePath} value={srt.relativePath}>
+                  {srt.name} ({srt.relativePath})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>target_sections（任意）</span>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={projectCreateDraft.targetSections}
+              placeholder="例: 12"
+              onChange={(event) => applyProjectCreatePatch({ targetSections: event.target.value })}
+            />
+          </label>
+        </div>
+      </div>
       <div className="vp-shell__grid">
         <CapcutDraftBoard
           channelFilter={channelFilter}

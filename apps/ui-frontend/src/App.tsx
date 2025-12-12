@@ -19,6 +19,7 @@ import { JobsPage } from "./pages/JobsPage";
 import { CapcutEditPage } from "./pages/CapcutEditPage";
 import { CapcutDraftPage } from "./pages/CapcutDraftPage";
 import { CapcutSwapPage } from "./pages/CapcutSwapPage";
+import { ProductionPage } from "./pages/ProductionPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
 import LlmUsagePage from "./pages/LlmUsagePage";
@@ -44,6 +45,7 @@ function App() {
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
         <Route path="/capcut-edit" element={<CapcutEditPage />} />
+        <Route path="/capcut-edit/production" element={<ProductionPage />} />
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />
         <Route path="/capcut-edit/swap" element={<CapcutSwapPage />} />
         <Route path="/audio-tts-v2" element={<AudioTtsV2Page />} />
