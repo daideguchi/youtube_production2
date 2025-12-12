@@ -91,7 +91,7 @@ credentials/srtfile-tts-credentials.json
 
 # Token files used in audio processing
 script_pipeline/data/CH*/**/tokens.json
-script_pipeline/data/CH*/**/audio_prep/
+script_pipeline/data/**/audio_prep/
 
 # API response files
 script_pipeline/data/CH*/**/topic_research_response.json
