@@ -4,7 +4,7 @@
 # - When the command stops due to pending tasks, it prints the queue and (optionally) writes bundle files.
 #
 # Usage:
-#   ./scripts/think.sh [--script|--tts|--visual|--all-text] [--no-bundle] [--loop] [--] <command> [args...]
+#   ./scripts/think.sh [--script|--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--loop] [--] <command> [args...]
 #
 # Examples:
 #   ./scripts/think.sh --script -- python -m script_pipeline.cli run-all --channel CH06 --video 033
@@ -23,19 +23,22 @@ MAX_ITER=200
 
 PREFIXES="$PREFIXES_DEFAULT"
 EXCLUDE_TASKS="$EXCLUDE_TASKS_DEFAULT"
+AGENT_NAME_OVERRIDE=""
 
 usage() {
   cat <<'USAGE' >&2
 THINK MODE — "エージェントが思考するモード"
 
 Usage:
-  ./scripts/think.sh [--script|--tts|--visual|--all-text] [--no-bundle] [--] <command> [args...]
+  ./scripts/think.sh [--script|--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--] <command> [args...]
 
 Options:
   --script        Only intercept script_* tasks
   --tts           Only intercept tts_* tasks
   --visual        Only intercept visual_* tasks (text only; image_generation is excluded)
   --all-text      Intercept script_/tts_/visual_ (default)
+  --agent-name <name>
+                 Set LLM_AGENT_NAME for claim/completed_by metadata
   --no-bundle     Do not generate bundle markdown files for pending tasks
   --loop          Keep rerunning until pending clears and command succeeds
   --sleep <sec>   Poll interval for --loop (default: 2)
@@ -65,6 +68,15 @@ while [[ $# -gt 0 ]]; do
     --all-text)
       PREFIXES="$PREFIXES_DEFAULT"
       shift
+      ;;
+    --agent-name)
+      if [[ -z "${2:-}" ]]; then
+        echo "missing value for --agent-name" >&2
+        usage
+        exit 2
+      fi
+      AGENT_NAME_OVERRIDE="$2"
+      shift 2
       ;;
     --no-bundle)
       AUTO_BUNDLE=0
@@ -115,13 +127,20 @@ while :; do
     exit 3
   fi
 
+  ENV_VARS=(
+    LLM_MODE=think
+    LLM_AGENT_QUEUE_DIR="$QUEUE_DIR"
+    LLM_AGENT_TASK_PREFIXES="$PREFIXES"
+    LLM_AGENT_EXCLUDE_TASKS="$EXCLUDE_TASKS"
+  )
+  if [[ -n "$AGENT_NAME_OVERRIDE" ]]; then
+    ENV_VARS+=(LLM_AGENT_NAME="$AGENT_NAME_OVERRIDE")
+  fi
+
   set +e
   "$ROOT_DIR/scripts/with_ytm_env.sh" \
     env \
-      LLM_MODE=think \
-      LLM_AGENT_QUEUE_DIR="$QUEUE_DIR" \
-      LLM_AGENT_TASK_PREFIXES="$PREFIXES" \
-      LLM_AGENT_EXCLUDE_TASKS="$EXCLUDE_TASKS" \
+      "${ENV_VARS[@]}" \
       "${CMD[@]}"
   EXIT_CODE=$?
   set -e
@@ -186,4 +205,3 @@ while :; do
   echo "  - rerun the same command to continue" >&2
   exit "$EXIT_CODE"
 done
-

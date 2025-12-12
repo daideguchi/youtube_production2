@@ -8,6 +8,7 @@ Goal:
 Key env vars (SSOT: ssot/OPS_ENV_VARS.md):
 - LLM_MODE=api|agent|think  (think is an alias of agent, with safe defaults)
 - LLM_AGENT_QUEUE_DIR=/abs/or/relative/path (default: logs/agent_tasks)
+- LLM_AGENT_NAME=Mike (optional; used for claimed_by/completed_by metadata)
 - LLM_AGENT_TASKS=comma,separated,task,names (optional; exact allowlist)
 - LLM_AGENT_TASK_PREFIXES=script_,tts_ (optional; prefix allowlist)
 - LLM_AGENT_EXCLUDE_TASKS=image_generation (optional; exact blocklist)

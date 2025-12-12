@@ -42,6 +42,10 @@
   - `api`（デフォルト）: 既存の API LLM 呼び出し
   - `agent`: すべて agent-mode（pending を作って停止）
   - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら **テキスト系のみ** を安全デフォルトで intercept
+- 担当エージェント名（推奨）:
+  - `LLM_AGENT_NAME=...`（例: `LLM_AGENT_NAME=Mike`）
+    - pending に `claimed_by` / `claimed_at` を自動付与
+    - results に `completed_by` を保存
 - 対象タスク（任意）:
   - `LLM_AGENT_TASKS=...`（完全一致 allowlist）
   - `LLM_AGENT_TASK_PREFIXES=...`（prefix allowlist）
@@ -63,14 +67,14 @@
 - `messages`（LLM互換）
 - `options`（timeout等の非本質は hash から除外）
 - `runbook_path`, `result_path`
+- `claimed_by?`, `claimed_at?`（担当エージェント名/タイムスタンプ）
 - `caller`, `invocation`
 
 ### results
-- `schema_version`, `id`, `task`, `completed_at`, `content`, `notes?`
+- `schema_version`, `id`, `task`, `completed_at`, `completed_by?`, `content`, `notes?`
 
 ## 7. schema_version 運用ルール
 - 破壊的に変える場合のみ `schema_version` を上げる（keys/意味が変わる、必須項目が増える、など）。
 - 互換が必要なら:
   - 変換スクリプト（old → new）を追加し、Runbook に手順を追記する。
   - または `agent_runner` 側で旧版を読み取り対応する（互換期間を決める）。
-

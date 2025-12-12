@@ -14,6 +14,7 @@
 ## 2. 重要な前提
 - **コマンドはエージェントが実行する**（人間は監督/指示のみ）。
 - THINK MODE は「API LLM 呼び出しの代わりに pending を作って停止」する。
+- 複数エージェント運用では `LLM_AGENT_NAME` を設定し、作業前に pending を **claim** して衝突を避ける。
 
 ## 3. 実行プロトコル（ループ）
 
@@ -31,6 +32,9 @@
 1. pending 一覧:
    - `python scripts/agent_runner.py list`
 2. 1タスクずつ処理:
+   - （推奨）担当を明示して claim:
+     - `export LLM_AGENT_NAME=Mike`（または `python scripts/agent_runner.py --agent-name Mike ...`）
+     - `python scripts/agent_runner.py claim <TASK_ID>`
    - `python scripts/agent_runner.py bundle <TASK_ID> --include-runbook`
      - `logs/agent_tasks/bundles/<TASK_ID>.md` が作られる（Runbook + messages のスナップショット）
    - バンドルを読んで **要求された出力のみ** を作成
@@ -44,4 +48,3 @@
 ## 4. 禁止事項（運用事故防止）
 - pending の `messages` が要求していない “前置き/謝罪/提案/質問/メタ説明” を混ぜない
 - JSON指定のタスクで JSON 以外を混ぜない
-

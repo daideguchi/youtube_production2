@@ -7,12 +7,16 @@
 - Runbook は「そのまま実行できる」レベルで書く（コマンド/分岐/成果物/チェックを具体化）。
 - 変更したら必ず Runbook 内の `最終更新日` と `ADR` を更新する。
 - タスク→Runbook の割当は `configs/agent_runbooks.yaml` が正本。
+- 複数エージェント運用では **作業前に claim して担当者名を残す**（`LLM_AGENT_NAME` → `claimed_by` / `completed_by`）。
 
 ## 使い方（基本）
 1. THINK MODE で実行（結果が無ければ止まる）
    - 推奨: `./scripts/think.sh --all-text -- <command> [args...]`
 2. pending を確認
    - `python scripts/agent_runner.py list`
+   - 先に担当を明示（推奨）:
+     - `export LLM_AGENT_NAME=Mike`
+     - `python scripts/agent_runner.py claim <TASK_ID>`
 3. タスク詳細を見る
    - `python scripts/agent_runner.py show <TASK_ID>`
    - コピペ用（端末操作できるエージェント向け）: `python scripts/agent_runner.py prompt <TASK_ID>`
@@ -30,4 +34,3 @@
 - `RUNBOOK_JOB_SCRIPT_PIPELINE.md`: 台本生成（end-to-end）
 - `RUNBOOK_JOB_AUDIO_TTS_PIPELINE.md`: 音声生成（end-to-end）
 - `RUNBOOK_THINK_MODE_OPERATOR.md`: THINK MODEのループ運用
-

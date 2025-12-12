@@ -32,6 +32,13 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
 ### キュー配置
 - `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `logs/agent_tasks`
 
+### 担当エージェント名（推奨）
+- `LLM_AGENT_NAME`（推奨）: 例 `LLM_AGENT_NAME=Mike`
+  - pending 生成時に `claimed_by` / `claimed_at` を自動付与（担当者の見える化）
+  - `python scripts/agent_runner.py complete ...` 実行時に results の `completed_by` に保存
+- `AGENT_NAME`（任意）: 互換用の別名（`LLM_AGENT_NAME` が未指定のときのみ参照）
+- CLIでの上書き: `python scripts/agent_runner.py --agent-name Mike claim <TASK_ID>`
+
 ### 対象タスクの絞り込み（任意）
 - `LLM_AGENT_TASKS`（任意）: 例 `script_outline,tts_reading`（完全一致 allowlist）
 - `LLM_AGENT_TASK_PREFIXES`（任意）: 例 `script_,tts_`（prefix allowlist）
