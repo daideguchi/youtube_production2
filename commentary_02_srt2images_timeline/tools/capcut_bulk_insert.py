@@ -870,11 +870,31 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
             synced_tracks.append(new_track)
             seen_track_ids.add(track_id)
 
-        # Append any template-only tracks that are not represented in draft_content.json
+        # Append any template-only tracks that are not represented in draft_content.json.
+        #
+        # IMPORTANT: Some drafts may already contain stale duplicates in draft_info.json
+        # (e.g., previous automation runs that left old track IDs behind). If we append
+        # those, CapCut ends up showing duplicate named tracks ("voiceover", "subtitles_text", etc.).
+        # We therefore skip appending tracks that would duplicate an existing (type,name)
+        # where name is non-empty (templates sometimes legitimately have multiple "" names).
+        seen_type_name: set[tuple[str, str]] = set()
+        for t in synced_tracks:
+            t_type = t.get("type") or ""
+            t_name = t.get("name") or ""
+            if t_name:
+                seen_type_name.add((t_type, t_name))
+
         for tr in info_tracks:
             tid = tr.get("id")
-            if isinstance(tid, str) and tid and tid not in seen_track_ids:
-                synced_tracks.append(copy.deepcopy(tr))
+            if not (isinstance(tid, str) and tid and tid not in seen_track_ids):
+                continue
+            tr_type = tr.get("type") or ""
+            tr_name = tr.get("name") or ""
+            if tr_name and (tr_type, tr_name) in seen_type_name:
+                continue
+            synced_tracks.append(copy.deepcopy(tr))
+            if tr_name:
+                seen_type_name.add((tr_type, tr_name))
 
         info_data["tracks"] = synced_tracks
 
