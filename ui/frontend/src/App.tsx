@@ -2,6 +2,7 @@ import "./App.css";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./layouts/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
+import { WorkflowPage } from "./pages/WorkflowPage";
 import { ScriptFactoryPage } from "./pages/ScriptFactoryPage";
 import { ChannelOverviewPage } from "./pages/ChannelOverviewPage";
 import { ChannelDetailPage } from "./pages/ChannelDetailPage";
@@ -30,6 +31,7 @@ function App() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route element={<AppShell />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/workflow" element={<WorkflowPage />} />
         <Route path="/projects" element={<ScriptFactoryPage />} />
         <Route path="/channel-workspace" element={<ChannelWorkspacePage />} />
         <Route path="/channel-settings" element={<ChannelSettingsPage />} />

@@ -6023,6 +6023,26 @@ button:hover:not(:disabled) {
   margin: 8px 0;
 }
 
+.shell-nav__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.shell-nav__section:first-child {
+  margin-top: 0;
+}
+
+.shell-nav__section-title {
+  margin: 0;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
 .shell-nav__item {
   display: flex;
   align-items: center;

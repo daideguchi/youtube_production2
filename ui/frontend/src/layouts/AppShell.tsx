@@ -54,6 +54,7 @@ export type ReadyFilter = "all" | "ready" | "not_ready";
 
 export type WorkspaceView =
   | "dashboard"
+  | "workflow"
   | "channel"
   | "channelVideo"
   | "research"
@@ -222,6 +223,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/channels/:channelCode", pathname)) {
     return "channel";
   }
+  if (matchPath("/workflow", pathname)) {
+    return "workflow";
+  }
   if (matchPath("/channel-workspace", pathname)) {
     return "channelWorkspace";
   }
@@ -271,6 +275,10 @@ function determineView(pathname: string): WorkspaceView {
 }
 
 const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo">, PlaceholderCopy> = {
+  workflow: {
+    title: "制作フロー",
+    description: "企画→台本→音声→動画を、1本単位で迷わず進めるための一本道ビューです。",
+  },
   scriptFactory: {
     title: "台本作成（バッチ）",
     description: "progress/channels/CHxx.csv（planning_store）を直接参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
@@ -1065,30 +1073,46 @@ export function AppShell() {
     return "/audio-integrity";
   }, [selectedChannel, selectedVideo]);
 
+  type NavItem = { key: WorkspaceView; label: string; icon: string; path: string };
+  type NavSection = { title: string; items: NavItem[] };
 
-  const navItems = useMemo(
+  const navSections = useMemo<NavSection[]>(
     () => [
-      { key: "dashboard" as WorkspaceView, label: "ダッシュボード", icon: "📊", path: "/dashboard" },
-      { key: "research" as WorkspaceView, label: "リサーチ", icon: "🧪", path: "/research" },
-      { key: "progress" as WorkspaceView, label: "企画CSV", icon: "🗂️", path: "/progress" },
-      { key: "dictionary" as WorkspaceView, label: "辞書", icon: "📖", path: "/dictionary" },
-      { key: "thumbnails" as WorkspaceView, label: "サムネイル", icon: "🖼️", path: "/thumbnails" },
-      { key: "promptManager" as WorkspaceView, label: "プロンプト", icon: "🗒️", path: "/prompts" },
-      { key: "jobs" as WorkspaceView, label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
-      { key: "settings" as WorkspaceView, label: "設定", icon: "🛠️", path: "/settings" },
-      { key: "channelSettings" as WorkspaceView, label: "チャンネル詳細設定", icon: "⚙️", path: "/channel-settings" },
-      { key: "scriptFactory" as WorkspaceView, label: "台本作成", icon: "📝", path: "/projects" },
-      { key: "channelWorkspace" as WorkspaceView, label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
-      { key: "audioReview" as WorkspaceView, label: "音声レビュー", icon: "🎧", path: "/audio-review" },
-      { key: "capcutEdit" as WorkspaceView, label: "CapCut編集", icon: "🎬", path: "/capcut-edit" },
-      { key: "audioTtsV2" as WorkspaceView, label: "Audio TTS v2", icon: "🔊", path: "/audio-tts-v2" },
-      { key: "audioIntegrity" as WorkspaceView, label: "音声整合性", icon: "🩺", path: audioIntegrityLink }, // ★動的リンク
-      { key: "reports" as WorkspaceView, label: "レポート", icon: "📈", path: "/reports" },
+      {
+        title: "制作フロー",
+        items: [
+          { key: "workflow", label: "制作フロー", icon: "🧭", path: "/workflow" },
+          { key: "progress", label: "企画CSV", icon: "🗂️", path: "/progress" },
+          { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
+          { key: "audioTtsV2", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts-v2" },
+          { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
+          { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
+        ],
+      },
+      {
+        title: "編集/品質",
+        items: [
+          { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
+          { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
+          { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },
+          { key: "audioIntegrity", label: "音声整合性", icon: "🩺", path: audioIntegrityLink },
+          { key: "dictionary", label: "辞書", icon: "📖", path: "/dictionary" },
+        ],
+      },
+      {
+        title: "運用/設定",
+        items: [
+          { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
+          { key: "jobs", label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
+          { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
+          { key: "channelSettings", label: "チャンネル設定", icon: "⚙️", path: "/channel-settings" },
+          { key: "settings", label: "設定", icon: "🛠️", path: "/settings" },
+          { key: "reports", label: "レポート", icon: "📈", path: "/reports" },
+        ],
+      },
     ],
     [audioIntegrityLink]
   );
-
-  const navPrimary = navItems;
 
   const channelStats = dashboardOverview?.channels;
   const workspaceModifiers: string[] = [];
@@ -1114,29 +1138,34 @@ export function AppShell() {
           </div>
 
           <nav className="shell-nav" aria-label="主要メニュー">
-            {navPrimary.map((item) => {
-              const isChannelsPath =
-                location.pathname.startsWith("/channels") || location.pathname.startsWith("/channel-workspace");
-              const isChannelWorkspaceItem = item.key === "channelWorkspace";
-              return (
-                <NavLink
-                  key={item.key}
-                  to={item.path}
-                  className={({ isActive }) => {
-                    const active =
-                      isActive ||
-                      (isChannelWorkspaceItem && isChannelsPath) || 
-                      (item.key === "audioIntegrity" && location.pathname === "/audio-integrity"); // パラメータ付きでもアクティブにする
-                    return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
-                  }}
-                >
-                  <span className="shell-nav__icon" aria-hidden>
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
+            {navSections.map((section) => (
+              <div key={section.title} className="shell-nav__section">
+                <div className="shell-nav__section-title">{section.title}</div>
+                {section.items.map((item) => {
+                  const isChannelsPath =
+                    location.pathname.startsWith("/channels") || location.pathname.startsWith("/channel-workspace");
+                  const isChannelWorkspaceItem = item.key === "channelWorkspace";
+                  return (
+                    <NavLink
+                      key={item.key}
+                      to={item.path}
+                      className={({ isActive }) => {
+                        const active =
+                          isActive ||
+                          (isChannelWorkspaceItem && isChannelsPath) ||
+                          (item.key === "audioIntegrity" && location.pathname === "/audio-integrity");
+                        return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
+                      }}
+                    >
+                      <span className="shell-nav__icon" aria-hidden>
+                        {item.icon}
+                      </span>
+                      <span>{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
 
 

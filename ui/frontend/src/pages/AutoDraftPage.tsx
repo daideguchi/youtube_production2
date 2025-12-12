@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   createAutoDraft,
   fetchAutoDraftSrts,
@@ -61,6 +62,7 @@ function deriveDefaults(item: AutoDraftSrtItem): Partial<FormState> {
 }
 
 export function AutoDraftPage() {
+  const [searchParams] = useSearchParams();
   const shortName = (p: string) => {
     if (!p) return "";
     const parts = p.split(/[\\/]/);
@@ -73,7 +75,6 @@ export function AutoDraftPage() {
   const [runState, setRunState] = useState<RunState>({ submitting: false, error: null, result: null });
   const [toast, setToast] = useState("");
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
-  const [loadedOnce, setLoadedOnce] = useState(false);
   const [channelOptions, setChannelOptions] = useState<VideoProductionChannelPreset[]>([]);
   const [channelOptionsStatus, setChannelOptionsStatus] = useState<"idle" | "loading" | "error" | "ready">("idle");
   const [channelOptionsError, setChannelOptionsError] = useState<string | null>(null);
@@ -100,6 +101,7 @@ export function AutoDraftPage() {
   const [savingSrt, setSavingSrt] = useState(false);
   const [showCapcutManual, setShowCapcutManual] = useState(false);
   const [showPromptManual, setShowPromptManual] = useState(false);
+  const appliedInitialSelectionRef = useRef(false);
 
   const finalCapcutTemplate = useMemo(() => {
     return form.capcutTemplate.trim() || presetCapcutTemplate || "";
@@ -151,11 +153,6 @@ export function AutoDraftPage() {
         setChannelOptionsStatus("ready");
         setPromptTemplateOptions(promptList.items || []);
         setOpenGroups(new Set(srtsResp.items.map((item) => (item.name.includes("/") ? item.name.split("/")[0] : "(root)"))));
-        if (!loadedOnce && srtsResp.items[0]) {
-          const defaults = deriveDefaults(srtsResp.items[0]);
-          setForm((prev) => ({ ...prev, ...defaults }));
-        }
-        setLoadedOnce(true);
       } catch (err: any) {
         setChannelOptionsStatus("error");
         setChannelOptionsError(err?.message || "取得に失敗しました");
@@ -164,7 +161,42 @@ export function AutoDraftPage() {
       }
     };
     load();
-  }, [loadedOnce]);
+  }, []);
+
+  useEffect(() => {
+    if (appliedInitialSelectionRef.current) return;
+    if (srts.length === 0) return;
+
+    const querySrtRaw = (searchParams.get("srt") || searchParams.get("srtPath") || "").trim();
+    const queryChannel = (searchParams.get("channel") || "").trim().toUpperCase();
+    const queryVideoRaw = (searchParams.get("video") || "").trim();
+    const queryVideo = /^\d+$/.test(queryVideoRaw) ? queryVideoRaw.padStart(3, "0") : queryVideoRaw;
+
+    const normalizePath = (value: string) => value.replace(/\\/g, "/").toLowerCase();
+
+    let desired: AutoDraftSrtItem | undefined;
+    if (querySrtRaw) {
+      const needle = normalizePath(querySrtRaw);
+      desired = srts.find((item) => {
+        const name = normalizePath(item.name || "");
+        const path = normalizePath(item.path || "");
+        return name === needle || path === needle || name.endsWith(needle) || path.endsWith(needle);
+      });
+    }
+    if (!desired && queryChannel && queryVideo) {
+      const expected = normalizePath(`${queryChannel}/${queryVideo}/${queryChannel}-${queryVideo}.srt`);
+      desired = srts.find((item) => normalizePath(item.name) === expected);
+    }
+
+    const chosen = desired ?? srts[0];
+    if (chosen) {
+      const defaults = deriveDefaults(chosen);
+      setForm((prev) => ({ ...prev, ...defaults, channel: defaults.channel || queryChannel || prev.channel }));
+      setPromptPreview({ status: "idle", content: "", path: "", error: undefined });
+    }
+
+    appliedInitialSelectionRef.current = true;
+  }, [srts, searchParams]);
 
   // fetch preset info when channel changes
   useEffect(() => {
