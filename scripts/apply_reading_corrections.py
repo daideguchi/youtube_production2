@@ -8,6 +8,13 @@ script_sanitized.txt の内容を読み補正辞書に従って変換し、
 import re
 from pathlib import Path
 import argparse
+import sys
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import script_data_root
 
 
 # 誤読しやすい単語と正しい読み（CH02 自己啓発/心理学コンテキスト向け）
@@ -527,7 +534,7 @@ def main():
     parser.add_argument("--verbose", "-v", action="store_true", help="詳細表示")
     args = parser.parse_args()
     
-    base_path = Path(__file__).parent.parent / "script_pipeline/data" / args.channel
+    base_path = script_data_root() / args.channel.upper()
     
     if not base_path.exists():
         print(f"Error: {base_path} not found")
