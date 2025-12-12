@@ -9017,6 +9017,41 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     _clear_redo_flags(req.channel, req.video, redo_audio=False)
     # 音声が成功しても台本リテイクが残っている場合は明示的に残す（redo_scriptは触らない）
 
+    # 生成後の残骸（巨大chunk等）は削除して散らかりを抑える（最終成果物は削除しない）
+    cleanup: Dict[str, Any] = {}
+    try:
+        prep_dir = DATA_ROOT / req.channel / req.video / "audio_prep"
+        chunks_dir = prep_dir / "chunks"
+        if chunks_dir.is_dir():
+            shutil.rmtree(chunks_dir)
+            cleanup["audio_prep_chunks_removed"] = str(chunks_dir)
+    except Exception as exc:  # pragma: no cover - best effort
+        cleanup["audio_prep_chunks_error"] = str(exc)
+
+    try:
+        prep_dir = DATA_ROOT / req.channel / req.video / "audio_prep"
+        prep_wav = prep_dir / f"{req.channel}-{req.video}.wav"
+        prep_srt = prep_dir / f"{req.channel}-{req.video}.srt"
+        if prep_wav.exists() and final_wav_path.exists():
+            prep_wav.unlink()
+            cleanup["audio_prep_wav_removed"] = str(prep_wav)
+        if prep_srt.exists() and final_srt_path.exists():
+            prep_srt.unlink()
+            cleanup["audio_prep_srt_removed"] = str(prep_srt)
+    except Exception as exc:  # pragma: no cover - best effort
+        cleanup["audio_prep_binaries_error"] = str(exc)
+
+    keep_chunks_env = (os.getenv("YTM_TTS_KEEP_CHUNKS") or "").strip().lower()
+    keep_chunks = keep_chunks_env in {"1", "true", "yes", "y", "on"}
+    if not keep_chunks:
+        try:
+            final_chunks_dir = final_dir / "chunks"
+            if final_chunks_dir.is_dir():
+                shutil.rmtree(final_chunks_dir)
+                cleanup["final_chunks_removed"] = str(final_chunks_dir)
+        except Exception as exc:  # pragma: no cover - best effort
+            cleanup["final_chunks_error"] = str(exc)
+
     return {
         "engine": engine,
         # Backward-compatible keys (front-end expects URL-ish strings, not absolute file paths)
@@ -9031,6 +9066,7 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
         "wav_file_path": wav_file_path,
         "srt_file_path": srt_file_path,
         "log_file_path": log_file_path,
+        "cleanup": cleanup or None,
     }
 
 

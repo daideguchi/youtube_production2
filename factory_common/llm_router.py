@@ -10,6 +10,13 @@ from dotenv import load_dotenv
 from factory_common.llm_param_guard import sanitize_params
 from factory_common.agent_mode import maybe_handle_agent_mode
 from factory_common.llm_api_failover import maybe_failover_to_think
+from factory_common.llm_api_cache import (
+    cache_enabled_for_task as _api_cache_enabled_for_task,
+    cache_path as _api_cache_path,
+    make_task_id as _api_cache_task_id,
+    read_cache as _api_cache_read,
+    write_cache as _api_cache_write,
+)
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -340,16 +347,73 @@ class LLMRouter:
                 messages.insert(0, {"role": "system", "content": sp_override})
 
         # Consolidate options for param guard
-        task_options = task_conf.get("options", {})
-        override_options = override_conf.get("options", {})
-        base_options = {
+        #
+        # Router config historically used a few shapes:
+        # - tasks.<task>.options: {...}
+        # - tasks.<task>.defaults: {...}
+        # - tasks.<task>.timeout / max_tokens / response_format (flat keys)
+        #
+        # Keep backward compatibility by merging these into a single options dict.
+        task_options: Dict[str, Any] = {}
+        for key in ("options", "defaults"):
+            v = task_conf.get(key)
+            if isinstance(v, dict):
+                task_options.update(v)
+        for key in (
+            "timeout",
+            "max_tokens",
+            "max_output_tokens",
+            "max_completion_tokens",
+            "response_format",
+            "temperature",
+            "top_p",
+            "seed",
+            "stop",
+            "n",
+            "aspect_ratio",
+        ):
+            if key in task_conf and task_conf.get(key) is not None:
+                task_options.setdefault(key, task_conf.get(key))
+
+        override_options: Dict[str, Any] = {}
+        for key in ("options", "defaults"):
+            v = override_conf.get(key)
+            if isinstance(v, dict):
+                override_options.update(v)
+        for key in (
+            "timeout",
+            "max_tokens",
+            "max_output_tokens",
+            "max_completion_tokens",
+            "response_format",
+            "temperature",
+            "top_p",
+            "seed",
+            "stop",
+            "n",
+            "aspect_ratio",
+        ):
+            if key in override_conf and override_conf.get(key) is not None:
+                override_options.setdefault(key, override_conf.get(key))
+
+        # Normalize max token keys to OpenAI-style "max_tokens" before sanitize_params.
+        for opt in (task_options, override_options):
+            if "max_tokens" not in opt and "max_output_tokens" in opt:
+                opt["max_tokens"] = opt.pop("max_output_tokens")
+            if "max_tokens" not in opt and "max_completion_tokens" in opt:
+                opt["max_tokens"] = opt.pop("max_completion_tokens")
+        base_options: Dict[str, Any] = {
             **task_options,
             **override_options,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "response_format": response_format,
             **kwargs,
         }
+        # Only override defaults when explicitly provided.
+        if temperature is not None:
+            base_options["temperature"] = temperature
+        if max_tokens is not None:
+            base_options["max_tokens"] = max_tokens
+        if response_format is not None:
+            base_options["response_format"] = response_format
 
         agent_result = maybe_handle_agent_mode(
             task=task,
@@ -360,6 +424,48 @@ class LLMRouter:
         )
         if agent_result is not None:
             return agent_result
+
+        # App-level API cache (cost-saving reruns).
+        # - Only applies to text/chat tasks (image tasks are excluded by default).
+        # - Cache key is computed from (task + messages + semantic options).
+        if _api_cache_enabled_for_task(task):
+            cached = _api_cache_read(task, messages, base_options)
+            if isinstance(cached, dict):
+                meta = cached.get("meta") or {}
+                usage = cached.get("usage") or {}
+                content = cached.get("content", "")
+                task_id = cached.get("task_id") or _api_cache_task_id(task, messages, base_options)
+                cache_file = _api_cache_path(str(task_id))
+                chain = meta.get("chain") or ["cache"]
+                model_key = meta.get("model_key") or meta.get("model") or "cache"
+                provider_name = meta.get("provider") or "cache"
+                req_id = meta.get("request_id") or str(task_id)
+                logger.info(f"Router: cache hit for {task} (task_id={task_id})")
+                self._log_usage(
+                    {
+                        "status": "success",
+                        "task": task,
+                        "model": model_key,
+                        "provider": provider_name,
+                        "chain": chain,
+                        "latency_ms": 0,
+                        "usage": usage,
+                        "request_id": req_id,
+                        "cache": {"hit": True, "path": str(cache_file)},
+                        "timestamp": time.time(),
+                    }
+                )
+                return {
+                    "content": content,
+                    "raw": None,
+                    "usage": usage,
+                    "request_id": req_id,
+                    "model": model_key,
+                    "provider": provider_name,
+                    "chain": chain,
+                    "latency_ms": 0,
+                    "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
+                }
 
         tried = []
         total_wait = 0.0
@@ -408,6 +514,21 @@ class LLMRouter:
                     "request_id": req_id,
                     "timestamp": time.time(),
                 })
+                _api_cache_write(
+                    task,
+                    messages,
+                    base_options,
+                    payload={
+                        "content": content,
+                        "usage": usage,
+                        "meta": {
+                            "provider": provider_name,
+                            "model_key": model_key,
+                            "chain": chain,
+                            "request_id": req_id,
+                        },
+                    },
+                )
                 return {
                     "content": content,
                     "raw": raw_result if return_raw else None,

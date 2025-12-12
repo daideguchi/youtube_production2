@@ -26,6 +26,7 @@ import LlmUsagePage from "./pages/LlmUsagePage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
 import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
+import { AgentOrgPage } from "./pages/AgentOrgPage";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
+        <Route path="/agent-org" element={<AgentOrgPage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
         <Route path="/capcut-edit" element={<CapcutEditPage />} />
         <Route path="/capcut-edit/production" element={<ProductionPage />} />

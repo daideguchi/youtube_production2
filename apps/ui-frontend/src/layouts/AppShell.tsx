@@ -70,6 +70,7 @@ export type WorkspaceView =
   | "audioIntegrity"
   | "progress"
   | "dictionary"
+  | "agentOrg"
   | "reports"
   | "jobs"
   | "settings"
@@ -275,6 +276,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/dictionary", pathname)) {
     return "dictionary";
   }
+  if (matchPath("/agent-org", pathname)) {
+    return "agentOrg";
+  }
   return "dashboard";
 }
 
@@ -298,6 +302,10 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   dictionary: {
     title: "読み辞書 管理",
     description: "グローバル/チャンネル単位の誤読辞書を一括で追加・削除・検索します。誤読発見→即登録のための専用ハブです。",
+  },
+  agentOrg: {
+    title: "AI Org（協調）",
+    description: "複数AIエージェントの役割・稼働状態・ロック・メモを確認し、作業衝突を防ぎます。",
   },
   promptManager: {
     title: "プロンプト管理",
@@ -1151,6 +1159,7 @@ export function AppShell() {
         items: [
           { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
           { key: "jobs", label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
+          { key: "agentOrg", label: "AI Org", icon: "🤖", path: "/agent-org" },
           { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
           { key: "channelSettings", label: "チャンネル設定", icon: "⚙️", path: "/channel-settings" },
           { key: "settings", label: "設定", icon: "🛠️", path: "/settings" },
