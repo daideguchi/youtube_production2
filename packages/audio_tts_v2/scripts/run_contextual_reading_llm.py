@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 import os
 from factory_common.llm_router import get_router
+from factory_common.paths import logs_root
 from datetime import datetime
 from datetime import timezone
 
@@ -150,7 +151,7 @@ def main():
     # log meta if any
     if llm_meta_logs:
         try:
-            log_path = Path("logs/tts_voicevox_reading.jsonl")
+            log_path = logs_root() / "tts_voicevox_reading.jsonl"
             log_path.parent.mkdir(parents=True, exist_ok=True)
             with log_path.open("a", encoding="utf-8") as f:
                 for m in llm_meta_logs:
@@ -186,7 +187,7 @@ def main():
     print(f"[PATCH] local_token_overrides.json written ({len(overrides)} entries)")
 
     # write JSONL log
-    log_jsonl_path = Path(args.log_jsonl) if args.log_jsonl else Path("logs/tts_voicevox_reading.jsonl")
+    log_jsonl_path = Path(args.log_jsonl) if args.log_jsonl else (logs_root() / "tts_voicevox_reading.jsonl")
     ts = datetime.now().isoformat()
     records = []
     for d in decisions:

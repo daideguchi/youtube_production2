@@ -13,11 +13,11 @@ from .reading_structs import RubyToken, align_moras_with_tokens
 import json
 from .routing import load_routing_config, resolve_voicevox_speaker_id
 
+from factory_common.paths import audio_pkg_root, script_pkg_root, video_root
+
 # Need to load voice_config.json manually because routing.py doesn't handle it fully
 def load_channel_voice_config(channel: str) -> Optional[Dict[str, Any]]:
-    # Assume repo root relative path
-    repo_root = Path(__file__).resolve().parents[2] # factory_commentary
-    config_path = repo_root / "script_pipeline" / "audio" / "channels" / channel / "voice_config.json"
+    config_path = script_pkg_root() / "audio" / "channels" / channel / "voice_config.json"
     
     if not config_path.exists():
         print(f"[WARN] voice_config.json not found at {config_path}")
@@ -82,9 +82,9 @@ def run_strict_pipeline(
     # ローカル位置オーバーライド（contextual LLM の出力）を先読みしておく
     local_overrides: Dict[int, Dict[int, str]] = {}
     if channel and video_no:
-        repo_root = Path(__file__).resolve().parents[2]
+        video_dir = video_root(channel, video_no)
         local_tok_path = (
-            repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_token_overrides.json"
+            video_dir / "audio_prep" / "local_token_overrides.json"
         )
         if local_tok_path.exists():
             try:
@@ -100,7 +100,7 @@ def run_strict_pipeline(
             except Exception as e:
                 print(f"[WARN] Failed to load local_token_overrides.json: {e}")
         # ローカル辞書（surface単位）もログ用に読み込む
-        local_dict_path = repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_reading_dict.json"
+        local_dict_path = video_dir / "audio_prep" / "local_reading_dict.json"
         local_dict: Dict[str, str] = {}
         if local_dict_path.exists():
             try:
@@ -112,7 +112,7 @@ def run_strict_pipeline(
         local_dict = {}
     # グローバル辞書もログ用に読み込む
     global_dict: Dict[str, str] = {}
-    global_path = Path("audio_tts_v2/configs/learning_dict.json")
+    global_path = audio_pkg_root() / "configs" / "learning_dict.json"
     if global_path.exists():
         try:
             data = json.loads(global_path.read_text(encoding="utf-8"))

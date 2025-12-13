@@ -21,9 +21,11 @@ from .risk_utils import is_trivial_diff
 from . import auditor
 from .reading_structs import KanaPatch
 
+from factory_common.paths import audio_pkg_root, logs_root, video_root
+
 KB_PATH = Path(__file__).resolve().parents[1] / "data" / "global_knowledge_base.json"
-LEARNING_DICT_PATH = Path("audio_tts_v2/configs/learning_dict.json")
-LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
+LEARNING_DICT_PATH = audio_pkg_root() / "configs" / "learning_dict.json"
+LLM_LOG_PATH = logs_root() / "tts_llm_usage.log"
 
 # Surfaces that should be kept even if they match MeCab/trivial diff.
 FORCE_GLOBAL_SURFACES = {"同じ道"}
@@ -224,9 +226,9 @@ def resolve_readings_strict(
     # 動画ローカル辞書（audio_prep/local_reading_dict.json）があればマージ
     local_overrides: Dict[int, Dict[int, str]] = {}
     if channel and video:
-        repo_root = Path(__file__).resolve().parents[2]
+        video_dir = video_root(channel, video)
         local_dict_path = (
-            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_reading_dict.json"
+            video_dir / "audio_prep" / "local_reading_dict.json"
         )
         if local_dict_path.exists():
             try:
@@ -239,7 +241,7 @@ def resolve_readings_strict(
                 print(f"[WARN] Failed to load local_reading_dict.json: {e}")
         # 位置指定オーバーライド（section_id/token_index 単位）
         local_tok_path = (
-            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_token_overrides.json"
+            video_dir / "audio_prep" / "local_token_overrides.json"
         )
         if local_tok_path.exists():
             try:

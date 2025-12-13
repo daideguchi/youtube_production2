@@ -7,6 +7,8 @@ import difflib
 import logging
 import re
 
+from factory_common.paths import logs_root
+
 from .routing import load_routing_config, decide_engine
 from .preprocess import preprocess_a_text
 from .mecab_tokenizer import tokenize_with_mecab
@@ -851,7 +853,7 @@ def run_tts_pipeline(
     )
 
     try:
-        jsonl_path = Path("logs/tts_voicevox_reading.jsonl")
+        jsonl_path = logs_root() / "tts_voicevox_reading.jsonl"
         jsonl_path.parent.mkdir(parents=True, exist_ok=True)
         jsonl_record = {
             "timestamp": datetime.now().isoformat(),

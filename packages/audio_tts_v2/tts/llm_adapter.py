@@ -7,10 +7,11 @@ from typing import Dict, Optional, List, Any
 from pathlib import Path
 
 from factory_common.llm_router import LLMRouter
+from factory_common.paths import logs_root
 
 LOCAL_INFERENCE_ONLY = os.getenv("LOCAL_INFERENCE_ONLY") == "1"
 router = LLMRouter()
-LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
+LLM_LOG_PATH = logs_root() / "tts_llm_usage.log"
 
 SYSTEM_PROMPT = (
     "You are a TTS annotation engine. Output ONLY a JSON object:\n"
@@ -234,7 +235,7 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
         if last_raw:
             try:
                 from pathlib import Path
-                log_path = Path(__file__).resolve().parents[2] / "logs" / "annot_raw_fail.json"
+                log_path = logs_root() / "annot_raw_fail.json"
                 log_path.parent.mkdir(parents=True, exist_ok=True)
                 log_path.write_text(last_raw, encoding="utf-8")
             except Exception:

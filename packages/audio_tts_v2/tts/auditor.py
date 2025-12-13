@@ -7,7 +7,10 @@ from datetime import datetime
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import difflib
 import unicodedata
-LLM_LOG_PATH = Path(__file__).resolve().parents[2] / "logs" / "tts_llm_usage.log"
+
+from factory_common.paths import audio_pkg_root, logs_root
+
+LLM_LOG_PATH = logs_root() / "tts_llm_usage.log"
 
 def get_router():  # pragma: no cover
     """Module-level router accessor for monkeypatching in tests."""
@@ -76,7 +79,7 @@ Your goal is to decide the correct reading based on strict standard Japanese con
 
 
 def load_learning_dict() -> Dict[str, str]:
-    path = Path("audio_tts_v2/configs/learning_dict.json")
+    path = audio_pkg_root() / "configs" / "learning_dict.json"
     if path.exists():
         try:
             data = json.loads(path.read_text())
@@ -87,7 +90,7 @@ def load_learning_dict() -> Dict[str, str]:
 
 
 def save_learning_dict(new_entries: Dict[str, str]) -> None:
-    path = Path("audio_tts_v2/configs/learning_dict.json")
+    path = audio_pkg_root() / "configs" / "learning_dict.json"
     current = load_learning_dict()
     for k, v in new_entries.items():
         if is_banned_surface(k):
@@ -1028,7 +1031,7 @@ def audit_blocks(
 
     # Log ruby and vocab updates (best-effort)
     try:
-        log_path = Path("logs/tts_voicevox_reading.jsonl")
+        log_path = logs_root() / "tts_voicevox_reading.jsonl"
         log_path.parent.mkdir(parents=True, exist_ok=True)
         ts = datetime.now().isoformat()
         records: List[Dict[str, object]] = []

@@ -8,6 +8,7 @@
 # Local override configs (keep out of git)
 configs/*.local.*
 logs/
+logs
 commentary_02_srt2images_timeline/**/runtime/logs/
 .DS_Store
 __pycache__/
@@ -46,6 +47,7 @@ _old
 .pytest*
 .remotion*
 audio_tts_v2/artifacts
+packages/audio_tts_v2/artifacts
 backups
 *スクリーンショット*archive_20251206/
 _old
@@ -94,6 +96,8 @@ credentials/srtfile-tts-credentials.json
 # Token files used in audio processing
 script_pipeline/data/CH*/**/tokens.json
 script_pipeline/data/**/audio_prep/
+workspaces/scripts/CH*/**/tokens.json
+workspaces/scripts/**/audio_prep/
 
 # API response files
 script_pipeline/data/CH*/**/topic_research_response.json
@@ -102,9 +106,16 @@ script_pipeline/data/CH*/**/quality_check_response.json
 script_pipeline/data/CH*/**/chapter_brief_response.json
 script_pipeline/data/CH*/**/script_review_response.json
 script_pipeline/data/CH*/**/script_draft_response.json
+workspaces/scripts/CH*/**/topic_research_response.json
+workspaces/scripts/CH*/**/script_outline_response.json
+workspaces/scripts/CH*/**/quality_check_response.json
+workspaces/scripts/CH*/**/chapter_brief_response.json
+workspaces/scripts/CH*/**/script_review_response.json
+workspaces/scripts/CH*/**/script_draft_response.json
 
 # Other sensitive data files
 script_pipeline/data/openrouter_models_snapshot.json
+workspaces/scripts/openrouter_models_snapshot.json
 
 # Old specification documents (not to be pushed)
 ssot_old/

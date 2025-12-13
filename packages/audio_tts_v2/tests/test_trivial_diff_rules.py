@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 # Ensure repository root on path
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -19,4 +19,3 @@ def test_trivial_diff_flags_semantic_changes():
     assert is_trivial_diff("ツライ", "カライ") is False
     # 「オコリ」vs「イカリ」も監査対象
     assert is_trivial_diff("オコリ", "イカリ") is False
-

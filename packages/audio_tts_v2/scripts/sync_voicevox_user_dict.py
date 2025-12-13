@@ -33,6 +33,7 @@ from audio_tts_v2.tts.reading_dict import (
     normalize_reading_kana,
     is_safe_reading,
 )
+from factory_common.paths import audio_pkg_root
 from audio_tts_v2.tts.routing import load_routing_config
 from audio_tts_v2.tts.voicevox_api import VoicevoxClient
 from audio_tts_v2.tts.voicevox_user_dict import VoicevoxUserDictClient
@@ -68,7 +69,7 @@ def _infer_accent_type(vv_client: VoicevoxClient, pronunciation: str, speaker_id
 
 
 def _discover_channels() -> List[str]:
-    root = Path("audio_tts_v2/data/reading_dict")
+    root = audio_pkg_root() / "data" / "reading_dict"
     if not root.exists():
         return []
     return sorted(p.stem for p in root.glob("*.yaml"))
@@ -160,4 +161,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
