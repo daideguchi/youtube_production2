@@ -5,9 +5,9 @@ segment A (display script) content.
 
 Usage:
   python3 scripts/generate_subtitles.py CH06-001 \
-      --source-srt commentary_01_srtfile_v2/data/CH06/001/output/audio/CH06-001_final.srt \
-      --subtitle-json commentary_01_srtfile_v2/data/CH06/001/audio_prep/subtitle_segments.json \
-      --output commentary_01_srtfile_v2/data/CH06/001/output/audio/CH06-001_final_from_A.srt
+      --source-srt workspaces/audio/final/CH06/001/CH06-001.srt \
+      --subtitle-json workspaces/scripts/CH06/001/audio_prep/subtitle_segments.json \
+      --output workspaces/audio/final/CH06/001/CH06-001_from_A.srt
 
 If --source-srt/--subtitle-json/--output are omitted, defaults inside the
 chapter directory are used.
@@ -19,19 +19,27 @@ import argparse
 import json
 import math
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from factory_common.paths import audio_final_dir, video_root
+
 
 def resolve_default_paths(chapter_id: str) -> tuple[Path, Path, Path]:
     part1, part2 = chapter_id.split("-", 1)
-    base_dir = PROJECT_ROOT / "commentary_01_srtfile_v2" / "data" / part1 / part2
-    source_srt = base_dir / "output" / "audio" / f"{chapter_id}_final.srt"
-    subtitle_json = base_dir / "audio_prep" / "subtitle_segments.json"
-    output_srt = base_dir / "output" / "audio" / f"{chapter_id}_final_from_A.srt"
+    channel = part1.strip().upper()
+    video = str(part2).strip().zfill(3)
+    final_dir = audio_final_dir(channel, video)
+    source_srt = final_dir / f"{channel}-{video}.srt"
+    subtitle_json = video_root(channel, video) / "audio_prep" / "subtitle_segments.json"
+    output_srt = final_dir / f"{channel}-{video}_from_A.srt"
     return source_srt, subtitle_json, output_srt
 
 

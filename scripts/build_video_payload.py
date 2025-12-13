@@ -9,8 +9,11 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_ROOT = PROJECT_ROOT / "commentary_02_srt2images_timeline" / "output"
-MEDIA_ROOT = PROJECT_ROOT / "commentary_01_srtfile_v2" / "data"
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from factory_common.paths import audio_final_dir, video_runs_root
 
 
 def _load_json(path: Path, required: bool = True) -> Dict[str, Any]:
@@ -22,14 +25,16 @@ def _load_json(path: Path, required: bool = True) -> Dict[str, Any]:
 
 
 def _resolve_audio_path(channel: str, video: str) -> Dict[str, str]:
-    base = MEDIA_ROOT / channel / video.zfill(3) / "output" / "audio"
-    wav = base / f"{channel}-{video}_final.wav"
-    srt = base / f"{channel}-{video}_final.srt"
+    ch = str(channel).upper()
+    no = str(video).zfill(3)
+    base = audio_final_dir(ch, no)
+    wav = base / f"{ch}-{no}.wav"
+    srt = base / f"{ch}-{no}.srt"
     return {"audio": str(wav.resolve()), "srt": str(srt.resolve())}
 
 
 def build_payload(project_id: str) -> Dict[str, Any]:
-    project_dir = OUTPUT_ROOT / project_id
+    project_dir = video_runs_root() / project_id
     if not project_dir.exists():
         raise FileNotFoundError(project_dir)
 

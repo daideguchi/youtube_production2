@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 import time
 from dataclasses import dataclass, asdict
@@ -22,6 +21,12 @@ import urllib.request
 import urllib.error
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from factory_common.paths import planning_root
+from script_pipeline.tools import planning_store
+
 LOG_ROOT = PROJECT_ROOT / "logs" / "regression"
 DEFAULT_ENDPOINTS = [
     "/api/healthz",
@@ -33,15 +38,12 @@ DEFAULT_ENDPOINTS = [
 
 def _discover_channels() -> List[str]:
     try:
-        from commentary_01_srtfile_v2.core.tools import planning_store  # type: ignore
-
-        planning_store.refresh(force=True)
         channels = list(planning_store.list_channels())
         if channels:
             return list(channels)
     except Exception:
         pass
-    channel_dir = PROJECT_ROOT / "progress" / "channels"
+    channel_dir = planning_root() / "channels"
     if channel_dir.exists():
         return sorted(path.stem.upper() for path in channel_dir.glob("*.csv"))
     return []

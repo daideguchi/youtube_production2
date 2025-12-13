@@ -6,6 +6,7 @@ import argparse
 import datetime as dt
 import json
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, List, Sequence
@@ -16,11 +17,16 @@ except ImportError:  # pragma: no cover
     portalocker = None  # type: ignore
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CHANNELS_DIR = REPO_ROOT / "commentary_01_srtfile_v2" / "channels"
-DATA_DIR = REPO_ROOT / "commentary_01_srtfile_v2" / "data"
-PROMPTS_DIR = REPO_ROOT / "prompts"
-COMMENTARY_PROMPTS_DIR = REPO_ROOT / "commentary_01_srtfile_v2" / "prompts"
-LOG_DIR = REPO_ROOT / "logs" / "regression"
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from factory_common.paths import logs_root, script_data_root, script_pkg_root
+
+SCRIPT_ROOT = script_pkg_root()
+CHANNELS_DIR = SCRIPT_ROOT / "channels"
+DATA_DIR = script_data_root()
+LOG_DIR = logs_root() / "regression"
 
 @dataclass(frozen=True)
 class Pattern:
