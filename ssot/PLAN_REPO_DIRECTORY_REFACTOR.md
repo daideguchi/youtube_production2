@@ -523,12 +523,12 @@ legacy/
 ### Stage 4: `packages/` への Python パッケージ移動
 > import 名を変えずに物理位置だけ変える。
 
-- [ ] `packages/` 作成。
-- [ ] `factory_common/` → `packages/factory_common/`
-- [ ] `script_pipeline/` → `packages/script_pipeline/`
-- [ ] `audio_tts_v2/` → `packages/audio_tts_v2/`
-- [ ] `commentary_02_srt2images_timeline/` → `packages/commentary_02_srt2images_timeline/`
-- [ ] `pyproject.toml` 更新:
+- [x] `packages/` 作成。
+- [x] `factory_common/` → `packages/factory_common/`
+- [x] `script_pipeline/` → `packages/script_pipeline/`（互換: ルート `script_pipeline` は symlink）
+- [x] `audio_tts_v2/` → `packages/audio_tts_v2/`
+- [x] `commentary_02_srt2images_timeline/` → `packages/commentary_02_srt2images_timeline/`
+- [ ] `pyproject.toml` 更新（任意/後回し可。現状は互換 symlink + `PYTHONPATH=.` で運用中）:
   - `package_dir={"": "packages"}` を設定
   - `find_packages.where=["packages"]` へ
   - `project.scripts` の entrypoint パス更新
