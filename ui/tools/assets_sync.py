@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Thumbnail assets synchronisation helper.
 
-This CLI inspects ``progress/channels/CHxx.csv`` (SSOT) and makes sure the
+This CLI inspects ``workspaces/planning/channels/CHxx.csv`` (SoT) and makes sure the
 ``thumbnails/assets/{CH}/{video}/`` tree contains a directory for every active
 企画.  It can also write ``meta.json`` files with the videoタイトル、作成フラグ等を
 記録し、孤立ディレクトリのレポートも出力します。
@@ -30,9 +30,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
+# Allow running as a script (not only `python -m ...`) after removing root symlinks.
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_PLANNING = REPO_ROOT / "progress" / "planning.csv"
-ASSETS_ROOT = REPO_ROOT / "thumbnails" / "assets"
+PACKAGES_ROOT = REPO_ROOT / "packages"
+for p in (REPO_ROOT, PACKAGES_ROOT):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
+
+from factory_common.paths import planning_root, thumbnails_root  # noqa: E402
+
+DEFAULT_PLANNING = planning_root() / "channels"
+ASSETS_ROOT = thumbnails_root() / "assets"
 META_FILENAME = "meta.json"
 
 
@@ -65,32 +74,57 @@ class PlanningEntry:
     flag: str
     progress: str
     row_number: int
+    source_path: Path
 
     @property
     def key(self) -> Tuple[str, str]:
         return (self.channel, self.video)
 
 
+def _iter_planning_csv_paths(path: Path) -> List[Path]:
+    if path.is_dir():
+        out: List[Path] = []
+        for csv_path in sorted(path.glob("*.csv")):
+            if csv_path.name.lower().endswith("_planning_template.csv"):
+                continue
+            if not csv_path.stem.upper().startswith("CH"):
+                continue
+            out.append(csv_path)
+        return out
+    return [path]
+
+
 def load_planning_rows(path: Path) -> List[PlanningEntry]:
     if not path.exists():
         raise FileNotFoundError(f"Planning CSV not found: {path}")
     entries: List[PlanningEntry] = []
-    with path.open(encoding="utf-8") as fh:
-        reader = csv.DictReader(fh)
-        for idx, row in enumerate(reader, start=2):
-            channel = _normalize_channel(row.get("チャンネル", ""))
-            video = _normalize_video(row.get("動画番号") or row.get("No.") or row.get("動画No.") or row.get("台本番号") or row.get("動画ID") or "")
-            if not channel or not video:
-                continue
-            entry = PlanningEntry(
-                channel=channel,
-                video=video,
-                title=str(row.get("タイトル", "")).strip(),
-                flag=str(row.get("作成フラグ", "")).strip(),
-                progress=str(row.get("進捗", "")).strip(),
-                row_number=idx,
-            )
-            entries.append(entry)
+    for csv_path in _iter_planning_csv_paths(path):
+        if not csv_path.exists():
+            continue
+        with csv_path.open(encoding="utf-8") as fh:
+            reader = csv.DictReader(fh)
+            for idx, row in enumerate(reader, start=2):
+                channel = _normalize_channel(row.get("チャンネル", "")) or _normalize_channel(csv_path.stem)
+                video = _normalize_video(
+                    row.get("動画番号")
+                    or row.get("No.")
+                    or row.get("動画No.")
+                    or row.get("台本番号")
+                    or row.get("動画ID")
+                    or ""
+                )
+                if not channel or not video:
+                    continue
+                entry = PlanningEntry(
+                    channel=channel,
+                    video=video,
+                    title=str(row.get("タイトル", "")).strip(),
+                    flag=str(row.get("作成フラグ", "")).strip(),
+                    progress=str(row.get("進捗", "")).strip(),
+                    row_number=idx,
+                    source_path=csv_path,
+                )
+                entries.append(entry)
     return entries
 
 
@@ -185,7 +219,6 @@ def ensure_directories(
     *,
     dry_run: bool,
     refresh_meta: bool,
-    meta_source: Path,
 ) -> Tuple[int, int]:
     created = 0
     meta_written = 0
@@ -208,7 +241,7 @@ def ensure_directories(
                 "flag": entry.flag,
                 "progress": entry.progress,
                 "planning_row": entry.row_number,
-                "source": str(meta_source),
+                "source": str(entry.source_path),
                 "synced_at": timestamp,
             }
             if dry_run:
@@ -248,7 +281,12 @@ def report_state(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Thumbnail assets synchronisation helper")
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--planning", type=Path, default=DEFAULT_PLANNING, help=f"planning.csv path (default: {DEFAULT_PLANNING})")
+    common.add_argument(
+        "--planning",
+        type=Path,
+        default=DEFAULT_PLANNING,
+        help=f"Planning root (directory with CHxx.csv) or a single CSV path (default: {DEFAULT_PLANNING})",
+    )
     common.add_argument("--assets-root", type=Path, default=ASSETS_ROOT, help=f"thumbnails/assets root (default: {ASSETS_ROOT})")
     common.add_argument("--channels", help="Comma-separated channel codes (e.g. CH01,CH02)")
     common.add_argument("--videos", help="Comma-separated video numbers (001) or CHxx-### identifiers")
@@ -298,7 +336,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         else:
             print("No missing directories detected.")
         if orphans:
-            print("Orphan directories (present on disk but not in planning.csv):")
+            print("Orphan directories (present on disk but not in planning CSVs):")
             for channel, video in sorted(orphans):
                 print(f"  - {channel}/{video}")
         else:
@@ -313,7 +351,6 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         filtered,
         dry_run=args.dry_run,
         refresh_meta=args.refresh_meta,
-        meta_source=args.planning,
     )
     print(
         f"Completed ensure: {len(filtered)} rows processed | "

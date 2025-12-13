@@ -2,10 +2,14 @@
 Global .env loader.
 Always load environment variables from the project root .env (and optionally ~/.env)
 before any application code runs.
+
+Also ensures `packages/` is importable so top-level imports like `factory_common`
+work without root-level symlinks.
 """
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 
@@ -29,6 +33,13 @@ def load_env_files(paths: list[Path]) -> None:
 
 # Project root is assumed to be two levels up from this file
 PROJECT_ROOT = Path(__file__).resolve().parent
+PACKAGES_ROOT = PROJECT_ROOT / "packages"
+
+# Keep `packages/` importable for monorepo layout.
+if PACKAGES_ROOT.exists():
+    packages_str = str(PACKAGES_ROOT)
+    if packages_str not in sys.path:
+        sys.path.insert(0, packages_str)
 
 env_candidates = [
     PROJECT_ROOT / ".env",

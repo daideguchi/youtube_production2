@@ -3,8 +3,8 @@ set -euo pipefail
 
 YTM_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}" )/.." && pwd)"
 ENV_FILE="${ENV_FILE:-$YTM_ROOT/.env}"
-LOG_ROOT="$YTM_ROOT/logs/ui_hub"
-BACKEND_REQUIREMENTS="$YTM_ROOT/ui/backend/requirements.txt"
+LOG_ROOT="$YTM_ROOT/workspaces/logs/ui_hub"
+BACKEND_REQUIREMENTS="$YTM_ROOT/apps/ui-backend/backend/requirements.txt"
 PYTHON_BIN="$YTM_ROOT/.venv/bin/python3"
 if [ ! -x "$PYTHON_BIN" ]; then
   PYTHON_BIN="python3"
@@ -21,7 +21,7 @@ err()  { printf '\e[31m[ERR ]\e[0m %s\n' "$*"; }
 
 # optional: start remotion preview server (port 3100) for Studio iframe
 start_remotion_studio() {
-  local remotion_dir="$YTM_ROOT/remotion"
+  local remotion_dir="$YTM_ROOT/apps/remotion"
   local log_file="$LOG_ROOT/remotion_studio.log"
   local port="${REMOTION_STUDIO_PORT:-3100}"
   if command -v lsof >/dev/null 2>&1; then
@@ -63,6 +63,9 @@ start_remotion_studio() {
 }
 
 main() {
+  # Ensure monorepo imports work without root-level symlinks.
+  export PYTHONPATH="$YTM_ROOT:$YTM_ROOT/packages${PYTHONPATH:+:$PYTHONPATH}"
+
   info "Checking environment variables via scripts/check_env.py"
   if ! "$PYTHON_BIN" "$YTM_ROOT/scripts/check_env.py" --env-file "$ENV_FILE"; then
     err "Environment validation failed. Aborting start_all."
@@ -71,7 +74,7 @@ main() {
 
   # Ensure backend Python deps are present (idempotent)
   if [ -f "$BACKEND_REQUIREMENTS" ]; then
-    info "Installing backend deps from ui/backend/requirements.txt (idempotent)"
+    info "Installing backend deps from apps/ui-backend/backend/requirements.txt (idempotent)"
     "$PYTHON_BIN" -m pip install $PIP_OPTS -r "$BACKEND_REQUIREMENTS" || warn "pip install failed; backend may not start"
   fi
 
@@ -83,11 +86,11 @@ main() {
 
   # Refresh planning_store cache so UIに新チャンネル/CSVが即反映される
   info "Refreshing planning_store cache"
-  (cd "$YTM_ROOT" && PYTHONPATH=. "$PYTHON_BIN" -m script_pipeline.tools.planning_store refresh --force) || warn "planning_store refresh failed"
+  (cd "$YTM_ROOT" && "$PYTHON_BIN" -m script_pipeline.tools.planning_store refresh --force) || warn "planning_store refresh failed"
 
   # Sync audio artifacts into commentary input (safe: no overwrite)
-  if [ -f "$YTM_ROOT/commentary_02_srt2images_timeline/tools/sync_audio_inputs.py" ]; then
-    "$PYTHON_BIN" "$YTM_ROOT/commentary_02_srt2images_timeline/tools/sync_audio_inputs.py" || warn "sync_audio_inputs failed"
+  if [ -f "$YTM_ROOT/packages/commentary_02_srt2images_timeline/tools/sync_audio_inputs.py" ]; then
+    "$PYTHON_BIN" -m commentary_02_srt2images_timeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
   fi
 
   if [ -f "$ENV_FILE" ]; then

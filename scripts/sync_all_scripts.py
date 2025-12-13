@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 全チャンネルの台本（assembled.md）と planning CSV / status.json を同期するワンショット。
-- progress/channels/*.csv を走査
-- 対応する script_pipeline/data/{CH}/0xx/content/assembled.md があれば
+- workspaces/planning/channels/*.csv を走査（`factory_common.paths.planning_root()`）
+- 対応する workspaces/scripts/{CH}/0xx/content/assembled.md があれば（`factory_common.paths.script_data_root()`）
   - CSV: タイトル（冒頭1行）、台本パス、文字数、進捗（未設定なら script_validated）を更新
   - status.json: title/assembled_path/assembled_characters 等を補完（既存ステージは保持）
 """

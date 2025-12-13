@@ -103,6 +103,17 @@ def _load_sources(channel: str) -> Dict[str, Any]:
     return (data.get("channels") or {}).get(channel.upper()) or {}
 
 
+def _resolve_repo_path(value: str) -> Path:
+    """
+    Resolve a repo-root-relative path string into an absolute Path.
+    sources.yaml/templates.yaml store repo-relative paths; we must not rely on CWD.
+    """
+    p = Path(value)
+    if p.is_absolute():
+        return p
+    return PROJECT_ROOT / value
+
+
 def _load_csv_row(csv_path: Path, video: str) -> Dict[str, str]:
     import csv
 
@@ -175,7 +186,7 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
     extra_meta: Dict[str, Any] = {}
     csv_path = sources.get("planning_csv")
     if csv_path:
-        csv_row = _load_csv_row(Path(csv_path), video)
+        csv_row = _load_csv_row(_resolve_repo_path(str(csv_path)), video)
         if csv_row:
             planning_section = opt_fields.get_planning_section(extra_meta)
             opt_fields.update_planning_from_row(planning_section, csv_row)
@@ -202,12 +213,16 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
                 if key not in extra_meta and planning_section.get(key):
                     extra_meta[key] = planning_section.get(key)
     persona_path = sources.get("persona")
-    if persona_path and Path(persona_path).exists():
-        extra_meta["persona"] = Path(persona_path).read_text(encoding="utf-8")
+    if persona_path:
+        resolved_persona = _resolve_repo_path(str(persona_path))
+        if resolved_persona.exists():
+            extra_meta["persona"] = resolved_persona.read_text(encoding="utf-8")
         extra_meta.setdefault("target_audience", extra_meta.get("target_audience"))
     script_prompt_path = sources.get("channel_prompt")
-    if script_prompt_path and Path(script_prompt_path).exists():
-        extra_meta["script_prompt"] = Path(script_prompt_path).read_text(encoding="utf-8")
+    if script_prompt_path:
+        resolved_prompt = _resolve_repo_path(str(script_prompt_path))
+        if resolved_prompt.exists():
+            extra_meta["script_prompt"] = resolved_prompt.read_text(encoding="utf-8")
     chapter_count = sources.get("chapter_count")
     if chapter_count:
         extra_meta["chapter_count"] = chapter_count

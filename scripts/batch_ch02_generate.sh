@@ -25,13 +25,15 @@ echo "Starting batch processing of CH02 files $START_NUM to $END_NUM with concur
 echo "Time: $(date)"
 echo "----------------------------------------"
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 FAILED_FILES=()
 SUCCESSFUL_FILES=()
 
 # Process each file
 for num in $(seq -f "%03g" $START_NUM $END_NUM); do
     filename="CH02-$num"
-    srt_path="commentary_02_srt2images_timeline/input/CH02_哲学系/$filename.srt"
+    srt_path="$ROOT_DIR/workspaces/video/input/CH02_哲学系/$filename.srt"
     
     echo "Processing: $srt_path"
     
@@ -44,7 +46,7 @@ for num in $(seq -f "%03g" $START_NUM $END_NUM); do
     
     # Run the factory command with specific concurrency
     start_time=$(date +%s)
-    if factory-ch02 CH02 "$srt_path" new --concurrency "$CONCURRENCY"; then
+    if PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages" python -m commentary_02_srt2images_timeline.tools.factory CH02 "$srt_path" new --concurrency "$CONCURRENCY"; then
         end_time=$(date +%s)
         duration=$((end_time - start_time))
         echo "  ✅ Completed $filename in ${duration}s"

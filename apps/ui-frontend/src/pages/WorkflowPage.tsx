@@ -282,10 +282,10 @@ export function WorkflowPage() {
           <h2>4) 参照（SoT）</h2>
           <p className="shell-panel__subtitle">どこが正本か迷ったらここだけ見ればOKです。</p>
           <ul>
-            <li>企画（SoT）: progress/channels/CHxx.csv</li>
-            <li>台本（SoT）: script_pipeline/data/&lt;CH&gt;/&lt;NNN&gt;/status.json</li>
-            <li>音声/SRT（SoT）: audio_tts_v2/artifacts/final/&lt;CH&gt;/&lt;NNN&gt;/</li>
-            <li>動画run（SoT）: commentary_02_srt2images_timeline/output/&lt;run_id&gt;/</li>
+            <li>企画（SoT）: workspaces/planning/channels/CHxx.csv</li>
+            <li>台本（SoT）: workspaces/scripts/&lt;CH&gt;/&lt;NNN&gt;/status.json</li>
+            <li>音声/SRT（SoT）: workspaces/audio/final/&lt;CH&gt;/&lt;NNN&gt;/</li>
+            <li>動画run（SoT）: workspaces/video/runs/&lt;run_id&gt;/</li>
           </ul>
           {expectedSrtRelPath ? (
             <div style={{ marginTop: 10, fontSize: 12, color: "var(--color-text-muted)" }}>

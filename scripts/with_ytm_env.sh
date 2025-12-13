@@ -5,13 +5,13 @@
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT_DIR/.env"
-PROJECT_ENV_DIR="$ROOT_DIR/commentary_02_srt2images_timeline/env"
+PROJECT_ENV_DIR="$ROOT_DIR/packages/commentary_02_srt2images_timeline/env"
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ .env not found at $ENV_FILE" >&2
   exit 1
 fi
 # Ensure repo imports work regardless of caller CWD/global PYTHONPATH.
-export PYTHONPATH="$ROOT_DIR${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages${PYTHONPATH:+:$PYTHONPATH}"
 # shellcheck disable=SC1090
 set -a
 source "$ENV_FILE"

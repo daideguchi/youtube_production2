@@ -106,8 +106,8 @@ type GitHubContent = {
 };
 
 const GITHUB_BASE_DIRS: Record<string, string> = {
-  research: "00_research",
-  scripts: "script_pipeline/data",
+  research: "workspaces/research",
+  scripts: "workspaces/scripts",
 };
 
 type JsonMap = Record<string, unknown>;

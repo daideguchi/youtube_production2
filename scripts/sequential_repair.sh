@@ -3,6 +3,8 @@
 # Order: CH06 -> CH02 -> CH04
 CHANNELS=("CH06" "CH02" "CH04")
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 echo "Starting Sequential Repair (Priority: CH06 > CH02 > CH04)..."
 echo "Strategy: WIPE metadata, PRESERVE valid audio."
 
@@ -11,7 +13,7 @@ for CHANNEL in "${CHANNELS[@]}"; do
     
     # Find all videos in the channel (sorted)
     # Looking in artifacts/final/CHANNEL
-    VIDEO_DIRS=$(find audio_tts_v2/artifacts/final/$CHANNEL -mindepth 1 -maxdepth 1 -type d | sort)
+    VIDEO_DIRS=$(find "$ROOT_DIR/workspaces/audio/final/$CHANNEL" -mindepth 1 -maxdepth 1 -type d | sort)
     
     for VIDEO_DIR in $VIDEO_DIRS; do
         VIDEO_ID=$(basename "$VIDEO_DIR")
@@ -31,7 +33,7 @@ for CHANNEL in "${CHANNELS[@]}"; do
         # 'skip-annotation' to speed up. 'regenerate-from-json' is NOT needed since we deleted it.
         # But we rely on 'synthesis.py' Smart Reuse logic to pick up existing WAVs.
         echo "   -> Rebuilding..."
-        PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+        PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages" python -m audio_tts_v2.scripts.run_tts \
             --channel "$CHANNEL" \
             --video "$VIDEO_ID" \
             --input "$INPUT_FILE" \

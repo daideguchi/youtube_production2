@@ -27,9 +27,10 @@ from urllib import request as urllib_request
 
 UI_DIR = Path(__file__).resolve().parents[1]
 YTM_ROOT = UI_DIR.parent
-COMMENTARY01_ROOT = YTM_ROOT / "script_pipeline"
-COMMENTARY02_ROOT = YTM_ROOT / "commentary_02_srt2images_timeline"
-LOG_ROOT = YTM_ROOT / "logs" / "ui_hub"
+APPS_ROOT = YTM_ROOT / "apps"
+BACKEND_DIR = APPS_ROOT / "ui-backend" / "backend"
+FRONTEND_DIR = APPS_ROOT / "ui-frontend"
+LOG_ROOT = YTM_ROOT / "workspaces" / "logs" / "ui_hub"
 PID_ROOT = LOG_ROOT  # store pid files alongside logs for now
 ENV_FILE = YTM_ROOT / ".env"
 
@@ -55,10 +56,7 @@ def component_definitions() -> List[Component]:
     """Return the list of UI components managed by this tool."""
 
     def _build_pythonpath() -> str:
-        parts: List[str] = [str(YTM_ROOT)]
-        for extra in (COMMENTARY01_ROOT, COMMENTARY02_ROOT):
-            if extra.exists():
-                parts.append(str(extra))
+        parts: List[str] = [str(YTM_ROOT), str(YTM_ROOT / "packages")]
         existing = os.environ.get("PYTHONPATH")
         if existing:
             parts.append(existing)
@@ -76,7 +74,7 @@ def component_definitions() -> List[Component]:
     return [
         {
             "name": "backend",
-            "cwd": YTM_ROOT / "ui" / "backend",
+            "cwd": BACKEND_DIR,
             "cmd": [
                 sys.executable,
                 "-m",
@@ -94,7 +92,7 @@ def component_definitions() -> List[Component]:
         },
         {
             "name": "frontend",
-            "cwd": YTM_ROOT / "ui" / "frontend",
+            "cwd": FRONTEND_DIR,
             "cmd": ["npm", "run", "start"],
             "port": 3000,
             "log": LOG_ROOT / "frontend.log",

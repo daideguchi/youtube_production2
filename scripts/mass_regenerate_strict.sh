@@ -5,13 +5,15 @@
 # Uses --regenerate-from-json to preserve existing readings if available.
 # Otherwise falls back to fresh generation (Zero Cost Mode).
 
-LOG_FILE="logs/mass_regenerate_$(date +%Y%m%d_%H%M%S).log"
-mkdir -p logs
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOG_DIR="$ROOT_DIR/workspaces/logs"
+LOG_FILE="$LOG_DIR/mass_regenerate_$(date +%Y%m%d_%H%M%S).log"
+mkdir -p "$LOG_DIR"
 
 echo "Starting Mass Strict Regeneration..." | tee -a "$LOG_FILE"
 
 # Find all a_text.txt files (depth 4: artifacts/final/CHxx/001/a_text.txt)
-find audio_tts_v2/artifacts/final -name "a_text.txt" | sort | while read -r input_path; do
+find "$ROOT_DIR/workspaces/audio/final" -name "a_text.txt" | sort | while read -r input_path; do
     dir_path=$(dirname "$input_path")
     video_id=$(basename "$dir_path")
     channel=$(basename "$(dirname "$dir_path")")
@@ -29,7 +31,7 @@ find audio_tts_v2/artifacts/final -name "a_text.txt" | sort | while read -r inpu
     fi
     
     # Run Regeneration (Phase=full to overwrite audio and metadata)
-    PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+    PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages" python -m audio_tts_v2.scripts.run_tts \
         --channel "$channel" \
         --video "$video_id" \
         --input "$input_path" \

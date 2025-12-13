@@ -63,8 +63,8 @@ factory-ch02 = "commentary_02_srt2images_timeline.tools.factory:main"  # LEGACY 
 
 # Use find_packages with explicit configuration to handle the multiple project structure
 [tool.setuptools.packages.find]
-# Look in the project root for packages
-where = ["."]
+# Look in the monorepo packages directory
+where = ["packages"]
 # Only include the top-level packages we want to be part of the distribution
 include = ["factory_common*", "commentary_02_srt2images_timeline*", "audio_tts_v2*", "script_pipeline*"]
 # Don't search in these directories

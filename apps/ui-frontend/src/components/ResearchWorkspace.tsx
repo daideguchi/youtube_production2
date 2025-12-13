@@ -13,8 +13,8 @@ const PRESETS: Array<{ label: string; base: BaseKey; path: string; hint?: string
 ];
 
 const BASE_LABEL: Record<BaseKey, string> = {
-  research: "00_research（ベンチマーク・調査）",
-  scripts: "script_pipeline/data（台本アーカイブ）",
+  research: "workspaces/research（ベンチマーク・調査）",
+  scripts: "workspaces/scripts（台本SoT）",
 };
 
 function getExt(path: string) {
@@ -124,7 +124,7 @@ export function ResearchWorkspace() {
           <p className="eyebrow">/research</p>
           <h2>リサーチ＆ベンチマーク</h2>
           <p className="research-workspace__note">
-            00_research（ベンチマーク）と script_pipeline/data（台本アーカイブ）をブラウズ。ベンチ情報を見ながら台本を確認する最小限ビューです。
+            workspaces/research（ベンチマーク）と workspaces/scripts（台本SoT）をブラウズ。ベンチ情報を見ながら台本を確認する最小限ビューです。
           </p>
         </div>
         <div className="research-workspace__actions">

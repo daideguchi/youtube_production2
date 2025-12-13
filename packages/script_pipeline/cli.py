@@ -51,9 +51,10 @@ def main() -> None:
         import subprocess
         
         # Resolve paths via SSOT
-        from factory_common.paths import repo_root, video_root, audio_final_dir, audio_pkg_root
+        from factory_common.paths import repo_root, video_root, audio_final_dir
 
         base_dir = repo_root()
+        packages_dir = base_dir / "packages"
         input_path = video_root(ch, no) / "content" / "assembled.md"
         
         if not input_path.exists():
@@ -62,7 +63,8 @@ def main() -> None:
 
         cmd = [
             sys.executable,
-            "audio_tts_v2/scripts/run_tts.py",
+            "-m",
+            "audio_tts_v2.scripts.run_tts",
             "--channel", ch,
             "--video", no,
             "--input", str(input_path),
@@ -83,8 +85,8 @@ def main() -> None:
         # Ensure PYTHONPATH includes root and audio_tts_v2
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
-        # Add root and audio_tts_v2 to PYTHONPATH
-        new_paths = [str(base_dir), str(audio_pkg_root())]
+        # Add repo root and `packages/` so monorepo imports work without root symlinks.
+        new_paths = [str(base_dir), str(packages_dir)]
         if pythonpath:
             new_paths.append(pythonpath)
         env["PYTHONPATH"] = os.pathsep.join(new_paths)

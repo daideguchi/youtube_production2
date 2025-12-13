@@ -12,13 +12,15 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CHANNEL="CH05"
+export ROOT_DIR
 
 export SKIP_TTS_READING=1
 
 # Preflight: ensure CH05 voice config pins 波音リツ speaker_id=9.
 python3 - <<'PY'
-import json, pathlib, sys
-cfg = pathlib.Path("script_pipeline/audio/channels/CH05/voice_config.json")
+import json, os, pathlib, sys
+root = pathlib.Path(os.environ["ROOT_DIR"]).resolve()
+cfg = root / "packages" / "script_pipeline" / "audio" / "channels" / "CH05" / "voice_config.json"
 if not cfg.exists():
     print("❌ voice_config.json missing for CH05")
     sys.exit(1)
@@ -35,8 +37,9 @@ PY
 
 # Preflight: Voicevox engine must be up.
 python3 - <<'PY'
-import json, pathlib, sys, urllib.request
-cfg = pathlib.Path("audio_tts_v2/configs/routing.json")
+import json, os, pathlib, sys, urllib.request
+root = pathlib.Path(os.environ["ROOT_DIR"]).resolve()
+cfg = root / "packages" / "audio_tts_v2" / "configs" / "routing.json"
 url = "http://127.0.0.1:50021"
 if cfg.exists():
     try:
@@ -56,7 +59,7 @@ PY
 
 for n in $(seq 1 30); do
   VIDEO="$(printf "%03d" "$n")"
-  CONTENT_DIR="$ROOT_DIR/script_pipeline/data/$CHANNEL/$VIDEO/content"
+  CONTENT_DIR="$ROOT_DIR/workspaces/scripts/$CHANNEL/$VIDEO/content"
   INPUT_HUMAN="$CONTENT_DIR/assembled_human.md"
   INPUT_ASSEMBLED="$CONTENT_DIR/assembled.md"
 
@@ -71,7 +74,7 @@ for n in $(seq 1 30); do
     exit 1
   fi
 
-  OUT_DIR="$ROOT_DIR/audio_tts_v2/artifacts/final/$CHANNEL/$VIDEO"
+  OUT_DIR="$ROOT_DIR/workspaces/audio/final/$CHANNEL/$VIDEO"
   OUT_WAV="$OUT_DIR/${CHANNEL}-${VIDEO}.wav"
   OUT_LOG="$OUT_DIR/log.json"
 
@@ -82,7 +85,7 @@ for n in $(seq 1 30); do
   echo "🎙️  Regenerating $CHANNEL-$VIDEO (no LLM) from $INPUT"
   echo "=================================================="
 
-  PYTHONPATH="$ROOT_DIR/audio_tts_v2:$ROOT_DIR" python3 "$ROOT_DIR/audio_tts_v2/scripts/run_tts.py" \
+  PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages" python3 -m audio_tts_v2.scripts.run_tts \
     --channel "$CHANNEL" \
     --video "$VIDEO" \
     --input "$INPUT" \
