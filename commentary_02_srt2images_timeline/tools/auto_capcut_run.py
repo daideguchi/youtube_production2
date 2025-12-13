@@ -41,6 +41,7 @@ from factory_common.timeline_manifest import (
     resolve_final_audio_srt,
     write_timeline_manifest,
 )
+from factory_common.paths import channels_csv_path
 
 # Import using the installed package structure
 try:
@@ -297,12 +298,12 @@ def validate_preset_minimum(channel_id: str, preset: dict):
         return False, f"capcut_template missing for {channel_id}"
     return True, ""
 
-def resolve_title_from_planning_csv(episode: EpisodeId) -> str | None:
+def _load_planning_row(episode: EpisodeId) -> dict[str, str] | None:
     """
-    Resolve the human title from progress/channels/<CH>.csv.
-    This is the SoT for naming CapCut draft folders (LLM title generation is fallback only).
+    Load the planning/progress CSV row for an episode.
+    Prefers the unified SoT location via factory_common.paths.channels_csv_path().
     """
-    csv_path = REPO_ROOT / "progress" / "channels" / f"{episode.channel.upper()}.csv"
+    csv_path = channels_csv_path(episode.channel)
     if not csv_path.exists():
         return None
     try:
@@ -310,14 +311,67 @@ def resolve_title_from_planning_csv(episode: EpisodeId) -> str | None:
             reader = csv.DictReader(f)
             target = f"{episode.channel.upper()}-{episode.video.zfill(3)}"
             for row in reader:
+                if not isinstance(row, dict):
+                    continue
                 vid = (row.get("動画ID") or row.get("video_id") or "").strip()
                 if vid.upper() != target:
                     continue
-                title = (row.get("タイトル") or row.get("title") or "").strip()
-                return title or None
+                return {k: (v or "").strip() for k, v in row.items() if k}
     except Exception:
         return None
     return None
+
+
+def resolve_title_from_planning_csv(episode: EpisodeId) -> str | None:
+    """
+    Resolve the human title from planning CSV.
+    This is the SoT for naming CapCut draft folders (LLM title generation is fallback only).
+    """
+    row = _load_planning_row(episode)
+    if not row:
+        return None
+    title = (row.get("タイトル") or row.get("title") or "").strip()
+    return title or None
+
+
+def _normalize_belt_text(text: str) -> str:
+    # Remove leading bracket tag like 【シニアの青春】 to keep belt concise.
+    t = (text or "").strip()
+    t = re.sub(r"^【[^】]+】", "", t).strip()
+    t = re.sub(r"\\s+", " ", t).strip()
+    # Soft wrap long single-line titles for better belt readability.
+    if "\n" not in t and len(t) >= 34:
+        # Prefer splitting on sentence punctuation near the middle.
+        mid = len(t) // 2
+        candidates = [m.start() for m in re.finditer(r"[。！？!\\?]|」", t)]
+        if candidates:
+            split_at = min(candidates, key=lambda i: abs(i - mid))
+            if 4 <= split_at < len(t) - 2:
+                t = t[: split_at + 1] + "\n" + t[split_at + 1 :].lstrip()
+    return t
+
+
+def resolve_belt_text_from_planning_csv(episode: EpisodeId) -> str | None:
+    """
+    Resolve main belt text from planning CSV (used for template's "メイン帯").
+    Priority:
+      1) サムネタイトル
+      2) サムネタイトル上/下 (joined with newline)
+      3) タイトル (normalized)
+    """
+    row = _load_planning_row(episode)
+    if not row:
+        return None
+    thumb = (row.get("サムネタイトル") or "").strip()
+    if thumb:
+        return _normalize_belt_text(thumb)
+    up = (row.get("サムネタイトル上") or "").strip()
+    down = (row.get("サムネタイトル下") or "").strip()
+    if up or down:
+        joined = "\n".join([x for x in (up, down) if x])
+        return _normalize_belt_text(joined)
+    title = (row.get("タイトル") or "").strip()
+    return _normalize_belt_text(title) if title else None
 
 
 def main():
@@ -677,13 +731,15 @@ def main():
         time.sleep(args.sleep_after_generation)
 
     # 3) CapCut draft build
-    # Title priority:
-    # 1) --title (manual override)
-    # 2) progress/channels/<CH>.csv (Planning SoT)
-    # 3) LLM title generation (fallback only)
+    # Title sources (no LLM unless unavoidable):
+    # - Draft folder naming: planning CSV `タイトル` (stable SoT)
+    # - Main belt text: planning CSV `サムネタイトル` etc (prefer concise)
+    # - Manual override: --title overrides belt text
+    # - LLM title generation is fallback only when planning is missing
     generated_title = None
     planning_title = resolve_title_from_planning_csv(episode) if episode else None
-    if not args.title and not planning_title:
+    planning_belt_text = resolve_belt_text_from_planning_csv(episode) if episode else None
+    if not args.title and not planning_belt_text:
         try:
             cues_path = run_dir / "image_cues.json"
             generated_title = generate_title_from_cues(cues_path)
@@ -691,7 +747,7 @@ def main():
         except Exception as e:
             print(f"❌ Title generation failed: {e}")
             sys.exit(1)
-    effective_title = args.title or planning_title or generated_title or Path(args.srt).stem
+    effective_belt_title = args.title or planning_belt_text or generated_title or Path(args.srt).stem
 
     def _sanitize_capcut_name(value: str, *, max_len: int = 220) -> str:
         safe = re.sub(r"[\\/:*?\"<>|]", "_", str(value))
@@ -709,7 +765,7 @@ def main():
         draft_base = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
         draft_name = draft_base
         if args.draft_name_with_title:
-            safe = _sanitize_capcut_name(str(effective_title), max_len=120)
+            safe = _sanitize_capcut_name(str(effective_belt_title), max_len=120)
             if safe:
                 draft_name = f"{draft_base}__{safe}"
 
@@ -720,8 +776,8 @@ def main():
             belt_data = json.loads(belt_path.read_text(encoding="utf-8"))
             if isinstance(belt_data, dict):
                 if "belt_lower" in belt_data and isinstance(belt_data["belt_lower"], dict):
-                    belt_data["belt_lower"]["text"] = effective_title
-                belt_data.setdefault("main_title", effective_title)
+                    belt_data["belt_lower"]["text"] = effective_belt_title
+                belt_data.setdefault("main_title", effective_belt_title)
                 belt_path.write_text(json.dumps(belt_data, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception as e:
             print(f"⚠️ Failed to update belt_config with title: {e}")
@@ -751,7 +807,7 @@ def main():
         draft_name,
         "--skip-title",  # title will be injected via JSON to avoid constructor issues
         "--title",
-        effective_title,
+        effective_belt_title,
         "--srt-file",
         str(srt_copy),
         *(["--voice-file", str(effective_wav_path)] if (args.insert_audio and effective_wav_path and not args.dry_run) else []),
@@ -778,7 +834,7 @@ def main():
         "--draft",
         str(Path(args.draft_root) / draft_name),
         "--title",
-        effective_title,
+        effective_belt_title,
         "--duration",
         "30",
     ]

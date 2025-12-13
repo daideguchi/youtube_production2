@@ -41,21 +41,27 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
             n = (track_name or "").lower()
             return ("subtitle" in n) or n.startswith("subtitles_")
 
-        # 1) try to reuse existing belt/title track (prefer template styling)
+        # 1) try to reuse existing track
+        # Prefer template "main belt" text tracks first, but ONLY when they are
+        # a single rich-text segment (to avoid clobbering multi-segment belt layers).
         candidate_idx = None
-        # Prefer known belt-ish tracks (template styling often lives here)
+        candidate_kind = None  # "belt" | "title"
         for idx, t in enumerate(tracks):
             if t.get("type") != "text":
                 continue
             name = (t.get("name") or "").strip()
             if not name or _is_subtitle_track(name):
                 continue
+            segs = t.get("segments") or []
+            if not isinstance(segs, list) or len(segs) != 1:
+                continue
             lname = name.lower()
             if lname in {"belt_main", "main_belt", "text_1"} or "belt" in lname:
                 candidate_idx = idx
+                candidate_kind = "belt"
                 break
 
-        # Fallback: reuse explicit title tracks
+        # Fallback: reuse explicit title tracks (30s overlay etc.)
         if candidate_idx is None:
             for idx, t in enumerate(tracks):
                 if t.get("type") != "text":
@@ -63,8 +69,12 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
                 name = (t.get("name") or "").lower()
                 if _is_subtitle_track(name):
                     continue  # 字幕トラックは対象外
+                segs = t.get("segments") or []
+                if not isinstance(segs, list) or len(segs) != 1:
+                    continue
                 if name == "title_text" or "title" in name:
                     candidate_idx = idx
+                    candidate_kind = "title"
                     break
 
         # Ensure text material
@@ -106,12 +116,20 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
             seg = segs[0]
             mat_id = seg.get("material_id") or "title_text_material"
             seg["material_id"] = mat_id
-            seg["target_timerange"] = {"start": start_us, "duration": duration_us}
-            seg["source_timerange"] = {"start": 0, "duration": duration_us}
-            seg["render_timerange"] = {"start": 0, "duration": duration_us}
+            # IMPORTANT:
+            # - Template "belt" tracks should keep their original timerange to preserve
+            #   full-length overlays (CH05/CH06). The provided --duration/--start is only
+            #   for dedicated title tracks (e.g., 30s overlay).
+            if candidate_kind == "belt":
+                seg.setdefault("target_timerange", {"start": 0, "duration": duration_us})
+                seg.setdefault("source_timerange", {"start": 0, "duration": duration_us})
+                seg.setdefault("render_timerange", {"start": 0, "duration": duration_us})
+            else:
+                seg["target_timerange"] = {"start": start_us, "duration": duration_us}
+                seg["source_timerange"] = {"start": 0, "duration": duration_us}
+                seg["render_timerange"] = {"start": 0, "duration": duration_us}
             if "name" not in track or not track.get("name"):
                 track["name"] = "title_text"
-            track.setdefault("absolute_index", 1_000_000)
             _update_material(mat_id)
             tracks[candidate_idx] = track
         else:

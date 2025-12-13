@@ -1152,6 +1152,27 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
                 return content_field
             return ""
 
+        def _try_update_text_in_content_field(content_field, new_text: str) -> str | None:
+            """
+            Preserve rich text styling by updating only the inner `text` field.
+            CapCut stores rich text as a JSON string under `content` (often containing `styles`).
+            """
+            if not isinstance(new_text, str):
+                return None
+            if isinstance(content_field, dict):
+                updated = copy.deepcopy(content_field)
+                updated["text"] = new_text
+                return json.dumps(updated, ensure_ascii=False)
+            if isinstance(content_field, str):
+                try:
+                    parsed = json.loads(content_field)
+                except Exception:
+                    return None
+                if isinstance(parsed, dict):
+                    parsed["text"] = new_text
+                    return json.dumps(parsed, ensure_ascii=False)
+            return None
+
         def _merge_material_list_by_id(base_list: list, content_list: list, *, kind: str) -> list:
             base_list = base_list if isinstance(base_list, list) else []
             content_list = content_list if isinstance(content_list, list) else []
@@ -1176,7 +1197,11 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
                             bc = c_item.get("base_content")
                             desired = bc if isinstance(bc, str) else ""
                         if desired:
-                            merged_item["content"] = desired  # draft_info.json expects plain text string
+                            # Preserve template styling (rich text JSON) whenever possible.
+                            updated = _try_update_text_in_content_field(merged_item.get("content"), desired)
+                            if updated is None:
+                                updated = _try_update_text_in_content_field(c_item.get("content"), desired)
+                            merged_item["content"] = updated if updated is not None else desired
                             if "base_content" in merged_item or "base_content" in c_item:
                                 merged_item["base_content"] = desired
                         # merge other keys except content/base_content (preserve style keys)
@@ -1204,7 +1229,9 @@ def sync_draft_info_with_content(draft_dir: Path) -> bool:
                     if not text and isinstance(bc, str):
                         text = bc
                     new_item = copy.deepcopy(c_item)
-                    new_item["content"] = text
+                    if text:
+                        updated = _try_update_text_in_content_field(new_item.get("content"), text)
+                        new_item["content"] = updated if updated is not None else text
                     if "base_content" not in new_item and text:
                         new_item["base_content"] = text
                     out.append(new_item)
