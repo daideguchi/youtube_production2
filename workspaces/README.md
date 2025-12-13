@@ -5,13 +5,18 @@
 現時点では多くが **物理移動を伴わない移行** のため、旧ディレクトリへの symlink を置いています。
 （例外: `workspaces/research` は実体化済みで、旧 `00_research/` が symlink）
 
-- `progress` → `workspaces/planning`
-- `workspaces/scripts` → `script_pipeline/data/`（台本SoT）
-- `workspaces/audio` → `audio_tts_v2/artifacts/`（音声成果物）
-- `workspaces/video/runs` → `commentary_02_srt2images_timeline/output/`（動画run）
-- `workspaces/video/input` → `commentary_02_srt2images_timeline/input/`（動画入力）
-- `workspaces/logs` → `logs/`
-- `00_research` → `workspaces/research`
-- `workspaces/thumbnails` → `thumbnails/`
+## 互換 symlink（旧パス → 正本）
+- `progress/` → `workspaces/planning/`
+- `00_research/` → `workspaces/research/`
+- `logs/` → `workspaces/logs/`
+- `script_pipeline/data/` → `workspaces/scripts/`（台本SoT）
+- `audio_tts_v2/artifacts/` → `workspaces/audio/`（音声成果物）
+- `commentary_02_srt2images_timeline/output/` → `workspaces/video/runs/`（動画run）
+- `commentary_02_srt2images_timeline/input/` → `workspaces/video/input/`（動画入力）
+
+## 例外（未移行）
+- `workspaces/thumbnails/` → `thumbnails/`（現状はサムネが別動線のため、移行は慎重に進める）
 
 パス解決は `factory_common/paths.py` が正本です（`workspaces/` が実体化した時に自動で新パスへ寄ります）。
+
+Stage2（scripts/audio/video/logs）の切替は `python scripts/ops/stage2_cutover_workspaces.py --run` が正本。

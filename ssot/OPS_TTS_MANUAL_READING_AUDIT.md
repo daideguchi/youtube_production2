@@ -24,14 +24,14 @@
 ## 2. 前提 / 環境
 
 ### 2.1 入力ファイルの正本
-- 台本 SoT は `script_pipeline/data/{CH}/{VID}/content/assembled_human.md`。  
+- 台本 SoT は `workspaces/scripts/{CH}/{VID}/content/assembled_human.md`（互換: `script_pipeline/data/...`）。  
 - これが無い場合のみ `assembled.md` を使用。  
 - **どちらを使ったかを必ず記録**。
 
 ### 2.2 生成物と SoT
-- 作業領域（中間/一時）: `script_pipeline/data/{CH}/{VID}/audio_prep/`  
+- 作業領域（中間/一時）: `workspaces/scripts/{CH}/{VID}/audio_prep/`（互換: `script_pipeline/data/...`）  
   - 手動監査の対象ログはここに出力される `log.json`。  
-- 最終参照正本: `audio_tts_v2/artifacts/final/{CH}/{VID}/`（運用フローの正本は `OPS_CONFIRMED_PIPELINE_FLOW.md`）。
+- 最終参照正本: `workspaces/audio/final/{CH}/{VID}/`（互換: `audio_tts_v2/artifacts/final/...`。運用フローの正本は `OPS_CONFIRMED_PIPELINE_FLOW.md`）。
 
 ### 2.3 VOICEVOX サーバ
 - `audio_tts_v2/configs/routing.json` の VOICEVOX URL は `http://127.0.0.1:50021`。
@@ -57,7 +57,7 @@
 ### 3.0 事前クリーンアップ
 1. 対象ディレクトリへ移動:
    ```bash
-   cd script_pipeline/data/{CH}/{VID}
+   cd workspaces/scripts/{CH}/{VID}
    ```
 2. 既存の `audio_prep` を**必ず削除**（古い音声/ログ混入を防ぐ）:
    ```bash
@@ -71,7 +71,7 @@
    SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
    python audio_tts_v2/scripts/run_tts.py \
      --channel {CH} --video {VID} \
-     --input script_pipeline/data/{CH}/{VID}/content/{assembled_human_or_assembled}.md
+     --input workspaces/scripts/{CH}/{VID}/content/{assembled_human_or_assembled}.md
    ```
 2. タイムアウトで途中停止した場合:
    - `audio_prep/chunks/` が残っていれば `--resume` で復帰:
@@ -96,7 +96,7 @@
 ```bash
 python - <<'PY'
 import json, pathlib, re, collections
-log=json.loads(pathlib.Path("script_pipeline/data/{CH}/{VID}/audio_prep/log.json").read_text())
+log=json.loads(pathlib.Path("workspaces/scripts/{CH}/{VID}/audio_prep/log.json").read_text())
 segments=log.get("segments",[])
 kanji_re=re.compile(r"[\u4e00-\u9fff]")
 ascii_re=re.compile(r"[A-Za-z0-9]")
@@ -166,7 +166,7 @@ PY
 
 **(2) 文脈依存 / 行単位の誤読 → 位置パッチへ**
 - 例: 同じ表記でも行で読みが変わる・迷いがある語。
-- 追記先: `script_pipeline/data/{CH}/{VID}/audio_prep/local_token_overrides.json`
+- 追記先: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`（互換: `script_pipeline/data/...`）
 - 形式:
   ```json
   [
@@ -231,4 +231,3 @@ PY
 - 読み誤り対策（LLM経路含む設計）: `ssot/PLAN_OPS_VOICEVOX_READING_REFORM.md`
 - 生成物/SoTの保持ルール: `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
 - 現行パイプラインI/O正本: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
-

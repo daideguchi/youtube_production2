@@ -23,7 +23,7 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py \
 - `script_pipeline/data/{チャンネル}/{動画番号}/audio_prep/` は **中間領域**（スクリプト更新時に自動 purge 対象）。下流のSoTにはしない。
 
 ### 3. CSVファイル更新
-- 生成された音声ファイルを反映するために、`progress/channels/{チャンネル}.csv` の該当動画行を以下のように更新：
+- 生成された音声ファイルを反映するために、`workspaces/planning/channels/{チャンネル}.csv`（互換: `progress/channels/...`）の該当動画行を以下のように更新：
   - 音声整形：`済`
   - 音声検証：`完了 Δ0.0ms tol=50ms YYYY-MM-DD`
   - 音声生成：`完了 YYYY-MM-DD`
@@ -31,7 +31,7 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py \
 
 ### 4. 進捗確認
 - CSVファイルの該当動画行が正しく更新されていること
-- 音声ファイルが存在すること（`audio_tts_v2/artifacts/final/{チャンネル}/{動画番号}/` に `.wav`）
+- 音声ファイルが存在すること（`workspaces/audio/final/{チャンネル}/{動画番号}/` に `.wav`。互換: `audio_tts_v2/artifacts/final/...`）
 - 字幕ファイルが存在すること（同ディレクトリに `.srt`）
 - を確認して、処理完了とする
 
@@ -40,7 +40,8 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py \
   - `commentary_02_srt2images_timeline/config/channel_presets.json` に各CHの capcut_template / layout / opening_offset / prompt_template が定義済み。
   - CapCutのテンプレートフォルダが `--draft-root` 配下に存在すること（例: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH01-UNK_道標_最新テンプレ`）。
   - **macOS権限注意**: 実行環境によっては CapCut の draft root（`~/Movies/CapCut/.../com.lveditor.draft`）が **読めても書けない**（`Operation not permitted`）ことがある。この場合 `tools/auto_capcut_run.py` は自動で `commentary_02_srt2images_timeline/_capcut_drafts/` にフォールバックして生成する。CapCutで使うには、そのドラフトフォルダを CapCut draft root にコピーする（= Full Disk Access が必要）。
-  - SRT は任意のパスでOK（デフォルトで `--prefer-tts-final=true` のため、episode を特定できれば `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` を優先して使用）。
+  - SRT は任意のパスでOK（デフォルトで `--prefer-tts-final=true` のため、episode を特定できれば `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（互換: `audio_tts_v2/artifacts/final/...`）を優先して使用）。
+  - `commentary_02_srt2images_timeline/input|output` は互換 symlink（正本: `workspaces/video/input`, `workspaces/video/runs`）。
 - 実行コマンド例（ディレクトリ `commentary_02_srt2images_timeline/` で実行）
 ```
 python tools/auto_capcut_run.py \
@@ -65,7 +66,7 @@ python tools/auto_capcut_run.py \
     - **整合チェック（推奨）**: `timeline_manifest.json` が生成されていること（`wav長 ≒ srt終端 ≒ cues終端` を厳格検証し、ズレ事故を検知する“契約”）。  
     - **CapCutテンプレ自動修復**: テンプレが `draft_info.json` のみ／空トラック名／重複トラック名でも、`tools/capcut_bulk_insert.py` が **複製直後に `draft_content.json`/`draft_info.json` を復元し、トラック名を正規化してからロード**する（レイヤ落ち・別テンプレ混入事故の根治）。監査は `commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only`。  
     - **テンプレのプレースホルダ掃除（重要）**: テンプレ内に残っている `video_2` / `text_2` などの **汎用名トラック**（`^(video|text)_\\d+$`）は、複製直後に **必ず segments を空にしてから** srt2images/subtitles を挿入する（画像レイヤ二重化・無関係テキスト混入事故を根絶）。重要レイヤは必ず固有名（例: `logo`, `main_belt`, `dreamy_confetti`）にして汎用名にしない。  
-    - **ドラフト名のSoT（重要）**: `tools/auto_capcut_run.py` は `progress/channels/{CH}.csv` の `タイトル` を使い、`★{CH}-{NNN}-{タイトル}` の **安定名で上書き生成**する（timestamp draft を量産しない／誤ドラフトを開く事故を防ぐ）。  
+    - **ドラフト名のSoT（重要）**: `tools/auto_capcut_run.py` は `workspaces/planning/channels/{CH}.csv`（互換: `progress/channels/...`）の `タイトル` を使い、`★{CH}-{NNN}-{タイトル}` の **安定名で上書き生成**する（timestamp draft を量産しない／誤ドラフトを開く事故を防ぐ）。  
     - **テンプレ本体の恒久クリーン**（推奨）:
       - 正規化（backup付き）: `python3 commentary_02_srt2images_timeline/tools/normalize_capcut_templates.py --active-only --run`
       - 厳格監査（empty/dup を許さない）: `python3 commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only --strict-names`
@@ -91,7 +92,7 @@ python tools/auto_capcut_run.py \
 - CIアーティファクト: `llm_smoke` ワークフローが実行後に LLM系ログ (`llm_usage.jsonl`, `llm_context_analyzer.log`, `tts_llm_usage.log`) をアーティファクトとして保存する（存在する場合のみ、best-effort）。
 - CapCutドラフト生成チェックリスト（簡易）:
   1) `.env` が正しく読み込まれているか `python scripts/check_env.py` または `commentary_02_srt2images_timeline/check_gemini_key.py` で確認。`.venv/lib/python3.x/site-packages/factory_commentary_env.pth` により cwd を問わず sitecustomize が走る。
-  2) `progress/channels/CHxx.csv` に台本パス/企画意図/タグが入っていることを確認し、テンプレ選択は `config/channel_presets.json` + `config/template_registry.json` に存在するものを使う（CH06ダークは `watercolor_gold_blue_ch06_dark.txt`、CH01は 220 ロジック生存で base_period=12s 固定）。
+  2) `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/...`）に台本パス/企画意図/タグが入っていることを確認し、テンプレ選択は `config/channel_presets.json` + `config/template_registry.json` に存在するものを使う（CH06ダークは `watercolor_gold_blue_ch06_dark.txt`、CH01は 220 ロジック生存で base_period=12s 固定）。
   3) `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...` を実行。`--resume` で再利用、`--belt-mode existing` で既存ベルトを尊重する。`output/{run_name}/auto_run_info.json` を必ず確認。
   4) 生成物確認: `image_cues.json` の `llm_context` に企画意図・タグが入っているか、CapCut draft が `opening_offset` 付きでシフトされているか、画像/字幕の件数がSRT行数と一致しているか。
   5) 画像生成は `llm_context_analyzer` で得たセクション文脈＋テンプレ＋タグをそのまま Gemini image に渡すため、企画CSVを最新化しないと文脈が外れる。ズレを見つけたら CSV更新→再実行（`planning_store.refresh()` は現状 no-op）。古いSRT起因のズレは `tools/align_run_dir_to_tts_final.py` で retime。
@@ -108,14 +109,14 @@ python tools/auto_capcut_run.py \
 - SoT: `commentary_02_srt2images_timeline/output/CH06-NNN_capcut_v1/timeline_manifest.json`
   - `wav長 ≒ srt終端 ≒ cues終端` が一致していること（ズレがあれば `tools/align_run_dir_to_tts_final.py --run <run_dir>` で retime。LLMなし）。
 - クリーン再生成（画像タイムライン + テンプレ構造を維持）:
-  - `python commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv progress/channels/CH06.csv --videos 2-30`
+  - `python commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root workspaces/video/runs --channel-csv workspaces/planning/channels/CH06.csv --videos 2-30`（互換: `--runs-root commentary_02_srt2images_timeline/output`, `--channel-csv progress/channels/...`）
 - 音声＋字幕をSoT(manifest)から注入（黒背景）:
   - `python commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1`
   - 002〜030を同様に実行（再実行しても増殖しない / `draft_info.json` と `draft_content.json` を同期してレイヤカオスを防止）。
 
 ### 企画CSVの参照・UI
 - `configs/sources.yaml` に CH01〜CH11 全ての planning CSV と persona を登録済み。script/image/音声パイプラインは常に最新 CSV を参照（`script_pipeline/runner.py` の `planning_csv` ロード）。
-- UI `/progress` で `progress/channels/CHxx.csv` を直接表示して確認できる。企画が変わったら CSV を更新→（CSVは都度読み込みなので `planning_store.refresh()` は現状 no-op）→再実行。
+- UI `/progress` で `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/...`）を直接表示して確認できる。企画が変わったら CSV を更新→（CSVは都度読み込みなので `planning_store.refresh()` は現状 no-op）→再実行。
 - 企画→台本への伝播を担保したいときは、CSV更新後に当該話数のステータスをリセットするか、再生成ジョブを実行してメタデータを取り込み直す。
 
 ### 環境変数の恒久ロード

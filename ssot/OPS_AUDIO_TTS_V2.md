@@ -7,7 +7,7 @@
 
 ## 0. SoT（正本）
 
-- 入力（正）: `script_pipeline/data/{CH}/{NNN}/` 配下の **最終確定入力**（UI/Backend の解決順）
+- 入力（正）: `workspaces/scripts/{CH}/{NNN}/` 配下の **最終確定入力**（互換: `script_pipeline/data/...`。UI/Backend の解決順）
   1) `audio_prep/script_audio_human.txt`
   2) `content/script_audio_human.txt`
   3) `content/assembled_human.md`
@@ -15,7 +15,7 @@
   5) `content/script_audio.txt`
   6) `content/assembled.md`
   - 原則: **人間が介入した最新版（*_human）を最優先**にする。
-- 出力（下流参照の正）: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- 出力（下流参照の正）: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/...`）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`
@@ -34,7 +34,7 @@
   - 途中再開（chunksを再利用）: `... --resume`
 
 ### 1.2 直叩き（audio_tts_v2）
-- `python audio_tts_v2/scripts/run_tts.py --channel CH06 --video 033 --input script_pipeline/data/CH06/033/content/assembled.md`
+- `python audio_tts_v2/scripts/run_tts.py --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled.md`（互換: `script_pipeline/data/...`）
 
 ---
 
@@ -53,7 +53,7 @@
 
 ## 3. 中間生成物（audio_prep）の位置づけ
 
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/` は **strict run_tts の作業領域（L2/L3）**
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/` は **strict run_tts の作業領域（L2/L3）**（互換: `script_pipeline/data/...`）
   - 容量最大: `audio_prep/chunks/*.wav`
   - finalが揃ったら原則削除して良い（保持/削除の正本は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
   - UI/Backend 経由の TTS 成功時は **自動で chunks を削除**（下記参照）
@@ -65,9 +65,9 @@
 ### 4.0 自動cleanup（UI/Backend 経由の TTS 成功時）
 backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベストエフォートで以下を実行する。
 
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/chunks/` を削除
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/chunks/` を削除（巨大。再生成可能）
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/chunks/` を削除（互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
+- `workspaces/audio/final/{CH}/{NNN}/chunks/` を削除（巨大。再生成可能。互換: `audio_tts_v2/artifacts/final/.../chunks/`）
   - 無効化: `YTM_TTS_KEEP_CHUNKS=1`
 
 ### 4.1 finalへ不足を同期（削除前の安全策）
@@ -89,7 +89,7 @@ backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベ
 ## 5. 例外（要注意）
 
 ### 5.1 chunksだけ残ってfinalが無い
-例: `script_pipeline/data/CH02/018/audio_prep/chunks/` のような状態。  
+例: `workspaces/scripts/CH02/018/audio_prep/chunks/` のような状態（互換: `script_pipeline/data/...`）。  
 これは「生成途中で止まった/merge前に中断」等の可能性があるため、**即削除しない**。
 
 対処:

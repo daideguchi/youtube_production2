@@ -3,6 +3,7 @@
 - このディレクトリは最新の設計・運用ドキュメントの正本です。旧階層は `ssot_old/` に移動しました。
 - ドキュメント全体の索引は `DOCS_INDEX.md` を参照してください。
 - 計画書（`PLAN_*.md`）の状態一覧は `PLAN_STATUS.md` を参照してください。
+- 作業完走用の引き継ぎパッケージは `handoffs/README.md` を参照してください。
 - VOICEVOX 読み誤り対策の計画書（設計・実装・TODO 管理）は `PLAN_OPS_VOICEVOX_READING_REFORM.md` を参照してください。
 - LLM パイプライン統合計画は `PLAN_LLM_PIPELINE_REFACTOR.md` を参照してください。
 - 新規の計画書を作成する場合は、本 README の命名規則に従い、`PLAN_TEMPLATE.md` をコピーして着手してください。

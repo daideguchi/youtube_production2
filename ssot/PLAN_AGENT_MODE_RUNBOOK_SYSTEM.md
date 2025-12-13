@@ -24,8 +24,8 @@
 
 ## 2. 成功条件（DoD）
 - `LLM_MODE=agent|think` で実行すると、LLM 呼び出しが:
-  - API を呼ばず `logs/agent_tasks/pending/` にタスク JSON を生成し停止
-  - `logs/agent_tasks/results/<id>.json` が存在すれば API の代わりにそれを返す
+  - API を呼ばず `workspaces/logs/agent_tasks/pending/` にタスク JSON を生成し停止（互換: `logs/agent_tasks/...`）
+  - `workspaces/logs/agent_tasks/results/<id>.json` が存在すれば API の代わりにそれを返す（互換: `logs/agent_tasks/...`）
   - `complete → rerun` で **同じコマンドが続きから進む**
 - Runbook が `ssot/agent_runbooks/` に集約され、作業者が迷わない（成果物・チェック・禁止事項が明文化）。
 
@@ -54,7 +54,7 @@
   - `LLM_AGENT_EXCLUDE_TASKS=...`（完全一致 blocklist）
   - `LLM_AGENT_EXCLUDE_PREFIXES=...`（prefix blocklist）
 - キュー配置:
-  - `LLM_AGENT_QUEUE_DIR=/path/to/dir`（既定: `logs/agent_tasks`）
+  - `LLM_AGENT_QUEUE_DIR=/path/to/dir`（既定: `workspaces/logs/agent_tasks`。互換: `logs/agent_tasks`）
 - Runbook マッピング:
   - `LLM_AGENT_RUNBOOKS_CONFIG=...`（既定: `configs/agent_runbooks.yaml`）
 

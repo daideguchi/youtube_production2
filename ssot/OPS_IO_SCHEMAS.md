@@ -60,12 +60,12 @@
 ## 2. Script（台本）— video_dir と status.json
 
 ### 2.1 SoT（動画単位）
-- `script_pipeline/data/{CH}/{NNN}/status.json`
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
 
 ### 2.2 ディレクトリI/O（観測）
-- `script_pipeline/data/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本）
-- `script_pipeline/data/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
 
 ### 2.3 status.json（観測スキーマ）
 必須（期待）:
@@ -88,7 +88,7 @@ stage_state（観測）:
 ## 3. Audio/TTS（音声・字幕）— final dir と log.json
 
 ### 3.1 下流参照SoT（final）
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- `workspaces/audio/final/{CH}/{NNN}/`（正本。互換: `audio_tts_v2/artifacts/final/...`）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`
@@ -119,7 +119,7 @@ segments[*]（観測キー例）:
 ## 4. Video（SRT→画像→CapCut）— run_dir と JSON
 
 ### 4.1 SoT（run単位）
-- `commentary_02_srt2images_timeline/output/{run_id}/`
+- `workspaces/video/runs/{run_id}/`（正本。互換: `commentary_02_srt2images_timeline/output/...`）
 
 観測される代表ファイル:
 - `image_cues.json`
@@ -199,7 +199,7 @@ belts[*]（観測）:
 - run_dir の入力/出力/依存を **1ファイルに固定**し、将来の `workspaces/` への移設・検証・UI表示の基礎にする。
 
 生成:
-- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py` が、`audio_tts_v2/artifacts/final` の SRT/WAV を解決できる場合に生成（失敗しても pipeline は止めない）。
+- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py` が、`workspaces/audio/final`（互換: `audio_tts_v2/artifacts/final`）の SRT/WAV を解決できる場合に生成（失敗しても pipeline は止めない）。
 - `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py` が retime 後に生成（strict validation）。
 
 トップレベル（期待）:

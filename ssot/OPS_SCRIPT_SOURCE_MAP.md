@@ -19,7 +19,7 @@
 ## 1. Planning（企画）— “何を作るか”の正本
 
 ### 1.1 SoT
-- `progress/channels/CHxx.csv`（企画の正本）
+- `workspaces/planning/channels/CHxx.csv`（企画の正本。互換: `progress/channels/CHxx.csv`）
   - 主要列（例）:
     - `チャンネル`, `動画番号`, `動画ID`, `タイトル/Topic`, `タグ/要約`, `status`, `redo_*` 等
   - 参照側:
@@ -40,16 +40,16 @@
 ## 2. Script Pipeline（台本）— “本文”の正本
 
 ### 2.1 SoT
-- `script_pipeline/data/{CH}/{NNN}/status.json`
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
   - ステージ状態（pending/completed）と出力ファイルの存在が正本
 
 ### 2.2 Human-editable（人間が直すならここ）
-- `script_pipeline/data/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本）
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本。互換: `script_pipeline/data/...`）
   - `assembled_temp.md` 等は中間の可能性があるため、運用上は `assembled.md` を採用する（例外はSSOTに記録）
 
 ### 2.3 Generated（派生物）
-- `script_pipeline/data/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（L3: 証跡/デバッグ）
-- `script_pipeline/data/{CH}/{NNN}/content/*`（段階生成物、運用で採用するファイルを固定する）
+- `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（L3: 証跡/デバッグ。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/content/*`（段階生成物、運用で採用するファイルを固定する）
 
 ### 2.4 入口（Entry points）
 - `python -m script_pipeline.cli init/run/next/run-all ...`
@@ -60,13 +60,13 @@
 ## 3. Audio/TTS（音声・SRT）— “下流が読む音声”の正本
 
 ### 3.1 SoT（下流参照の正本）
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`（証跡）
 
 ### 3.2 Intermediate（作業残骸：消して良い）
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/`
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/`（互換: `script_pipeline/data/...`）
   - `chunks/`（最大容量。finalが揃ったら削除対象）
   - `log.json`（finalへ同期済みなら削除対象）
   - `pause_map.json`, `srt_blocks.json`, `tokens.json` 等（保持ポリシーは `PLAN_OPS_ARTIFACT_LIFECYCLE`）
@@ -80,15 +80,15 @@
 ## 4. Video（SRT→画像→CapCutドラフト）— “run_dir”が正本
 
 ### 4.1 SoT（run単位の正本）
-- `commentary_02_srt2images_timeline/output/{run_id}/`
+- `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/{run_id}/`）
   - `image_cues.json`
   - `capcut_draft/`（採用ドラフト）
   - `belt_config.json`, `auto_run_info.json`（再現/監査に必要）
 
 ### 4.2 Inputs（上流からのソース）
-- SRT: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`
-- 音声: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav`
-- 企画文脈: `progress/channels/CHxx.csv`
+- SRT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（互換: `audio_tts_v2/artifacts/final/...`）
+- 音声: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav`（互換: `audio_tts_v2/artifacts/final/...`）
+- 企画文脈: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 - チャンネルpreset: `commentary_02_srt2images_timeline/src/config/channel_presets.json`
 
 ### 4.3 入口（Entry points）
@@ -102,4 +102,3 @@
 - SoT: `thumbnails/projects.json`
 - 画像: `thumbnails/assets/{CH}/{NNN}/...`
 - ※サムネは音声/SRT→CapCutの主動線とは独立（ただし企画CSVを参照する場合がある）
-

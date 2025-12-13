@@ -3,7 +3,7 @@
 AI エージェントがテーマ入力直後から「企画準備完了！」と言える状態を自律的に作るための運用マニュアル。人手のベンチマーク分析を前提にせず、受け取ったテーマから 30 本の企画 CSV とペルソナを完成させ、台本ラインに流せるようにする。
 
 ## 0. 前提とゴール
-- SoT: `progress/channels/CHxx.csv`（企画・進捗）、`progress/personas/CHxx_PERSONA.md`（チャンネルの固定文脈）。
+- SoT: `workspaces/planning/channels/CHxx.csv`（企画・進捗。互換: `progress/channels/...`）、`workspaces/planning/personas/CHxx_PERSONA.md`（チャンネルの固定文脈。互換: `progress/personas/...`）。
 - ゴール: 上記 2 ファイルが更新され、`進捗` が `topic_research: pending` の 30 本が連番で並び、ペルソナ/禁止事項/トーンが最新化されていること。
 - 成果物チェック: `python3 -m core.tools.planning_store refresh --force` と `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CHxx` を実行して列ズレとキャッシュを確認（CI 代替）。
 
@@ -14,17 +14,17 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - 既存 CSV がある場合は No. / 動画番号の最終値（例: No.=42, 動画番号=042）。
 
 ## 2. 企画準備完了の定義（アウトプット）
-1. `progress/personas/CHxx_PERSONA.md` に以下を反映
+1. `workspaces/planning/personas/CHxx_PERSONA.md` に以下を反映（互換: `progress/personas/...`）
    - 共通ペルソナ 1 文（ターゲット層の固定文）
    - 企画ごとに切り替えるタグ/ベネフィットの使い方（例: CH01 の悩みタグ表を踏襲）
    - サムネ/構成のルール、NG 集（使わない語彙・避けるテーマ）
    - テンプレ更新日時とコピー手順（既存ファイルのフォーマットを踏襲）
-2. `progress/channels/CHxx.csv` が 30 行以上になっており、列ズレなし
+2. `workspaces/planning/channels/CHxx.csv` が 30 行以上になっており、列ズレなし（互換: `progress/channels/...`）
    - 進捗: `topic_research: pending` をセット（手動で別ステージにしない）
    - No. は連番、動画番号はゼロ埋め 3 桁、動画 ID は `CHxx-YYY`
    - `タイトル` / `企画意図` / `ターゲット層` / `具体的な内容（話の構成案）` / サムネ 3 列（タイトル・背景プロンプト・デザイン指示）を埋める
    - `更新日時` は `YYYY-MM-DD hh:mm:ss`（UTC でなくローカル時刻に揃える運用）
-   - `progress/templates/CHxx_planning_template.csv` がある場合は 1 行目ヘッダー + 2 行目サンプルをコピーし `{NEXT_NO}` 等を置換
+   - `workspaces/planning/templates/CHxx_planning_template.csv` がある場合は 1 行目ヘッダー + 2 行目サンプルをコピーし `{NEXT_NO}` 等を置換（互換: `progress/templates/...`）
 3. キャッシュ/検証コマンドが成功し、UI で行が読める
 
 ## 3. 作業ステップ（エージェント向け）
@@ -34,7 +34,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - ここで得たキーワードと NG 項目を `CHxx_PERSONA.md` のガイドセクションに追加。
 
 ### Step B. ペルソナ/ガイド更新
-- 既存の `progress/personas/CHxx_PERSONA.md` があれば追記、なければ CH01 形式で新規作成。
+- 既存の `workspaces/planning/personas/CHxx_PERSONA.md` があれば追記、なければ CH01 形式で新規作成（互換: `progress/personas/...`）。
 - 必ず含める項目
   - 共通ペルソナ 1 文（`ターゲット層` 列にコピペする定型）
   - タグの使い方表（悩み/ベネフィット/ライフシーン/キーコンセプトなど）
@@ -53,7 +53,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - `{NEXT_NO}` `{NEXT_VIDEO}` `{NEXT}` のプレースホルダを確定値に置換。
 
 ### Step D. 書き込みと検証
-1. `progress/channels/CHxx.csv` に 30 行を貼り付け（ヘッダー保持）。
+1. `workspaces/planning/channels/CHxx.csv` に 30 行を貼り付け（ヘッダー保持。互換: `progress/channels/...`）。
 2. `python3 -m core.tools.planning_store refresh --force` を実行してキャッシュを更新。
 3. `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CHxx` で列ズレを検証。
 4. UI で表示確認（行が読めるかを spot check）。
@@ -62,7 +62,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - 目的: 台本ラインがチャンネル固有のトーンと禁止事項を参照できるように、`script_pipeline/prompts/channels/CHxx.yaml` とチャンネルディレクトリ配下の `script_prompt.txt` / `channel_info.json` を整備する。
 - 手順
   1. `script_pipeline/prompts/channels/CHxx.yaml` を作成/更新
-     - `channel_prompt.channel_id` に CHxx を設定し、`persona_path` は `progress/personas/CHxx_PERSONA.md` を指定。
+     - `channel_prompt.channel_id` に CHxx を設定し、`persona_path` は `workspaces/planning/personas/CHxx_PERSONA.md` を指定（互換: `progress/personas/...`）。
      - `prompt_body` に「ゴール」「トーン&スタイル」「運用ルール」を明記。`CH03.yaml` をひな形に、禁止事項・口調・長さ目安をペルソナと整合させる。
   2. プロンプトをチャンネルディレクトリへ反映
      - コマンド例: `python -m script_pipeline.tools.channel_prompt_sync --yaml script_pipeline/prompts/channels/CHxx.yaml --channel-dir "script_pipeline/channels/CHxx-<チャンネル名>"`

@@ -299,7 +299,7 @@ logs/ui/ui_tasks.db
 
 ### 2.1 Script（台本）
 
-- `script_pipeline/data/{CH}/{NNN}/logs/`
+- `workspaces/scripts/{CH}/{NNN}/logs/`（正本。互換: `script_pipeline/data/...`）
   - Writer: `script_pipeline/runner.py`
   - 内容:
     - `{stage}_prompt.txt`
@@ -310,21 +310,21 @@ logs/ui/ui_tasks.db
   - `logs/` dir count: 91
   - `*/logs/*` file count: 1064
 
-- `script_pipeline/data/_state/job_queue.jsonl`
+- `workspaces/scripts/_state/job_queue.jsonl`（互換: `script_pipeline/data/_state/job_queue.jsonl`）
   - Writer: `script_pipeline/job_runner.py`
   - 種別: **L1（キューSoT）**
 
-- `script_pipeline/data/_state/logs/{job_id}.log`
+- `workspaces/scripts/_state/logs/{job_id}.log`（互換: `script_pipeline/data/_state/logs/{job_id}.log`）
   - Writer: `script_pipeline/job_runner.py`
   - 種別: **L3（14日ローテ。現行 cleanup_data.py が対象）**
 
 ### 2.2 Audio/TTS
 
-- `script_pipeline/data/{CH}/{NNN}/audio_prep/log.json` 等
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/log.json` 等（互換: `script_pipeline/data/...`）
   - Writer: `audio_tts_v2/scripts/run_tts.py` → `tts/strict_orchestrator.py`
   - 種別: **L2/L3（中間。ready/published 後削除対象）**
 
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/log.json`
+- `workspaces/audio/final/{CH}/{NNN}/log.json`（互換: `audio_tts_v2/artifacts/final/...`）
   - Writer: `audio_tts_v2/scripts/run_tts.py`
   - 種別: **L0/L1（最終音声の証跡）**
 
@@ -332,13 +332,13 @@ logs/ui/ui_tasks.db
   - `audio_tts_v2/artifacts/final/*/*/` dir count: 319
   - `audio_tts_v2/artifacts/final/*/*/log.json` count: 189
 
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/log_srt_only.json`, `b_text_build_log.json` 等
+- `workspaces/audio/final/{CH}/{NNN}/log_srt_only.json`, `b_text_build_log.json` 等（互換: `audio_tts_v2/artifacts/final/...`）
   - Writer: strict pipeline 内
   - 種別: **L1**
 
 ### 2.3 Video/CapCut（run単位）
 
-- `commentary_02_srt2images_timeline/output/{run_id}/logs/srt2images.log`
+- `workspaces/video/runs/{run_id}/logs/srt2images.log`（正本。互換: `commentary_02_srt2images_timeline/output/...`）
   - Writer: `commentary_02_srt2images_timeline/src/srt2images/orchestration/utils.py::setup_logging`
   - 種別: **L3 / run単位**
 
@@ -347,14 +347,14 @@ logs/ui/ui_tasks.db
   - `output/*/logs/` dir count: 257
   - `output/*/logs/*` file count: 258
 
-- `output/{run_id}/auto_run_info.json`（実行メタ）
+- `workspaces/video/runs/{run_id}/auto_run_info.json`（実行メタ）
   - Writer: `tools/auto_capcut_run.py`
   - 種別: **L1（run再現に必要）**
 
 ### 2.4 Package-local / Legacy（コード階層に残るログ）
 
 - `commentary_02_srt2images_timeline/logs/srt2images.log`
-  - 現状: 観測されるが、正規フローでは run_dir の `output/{run_id}/logs/srt2images.log` が正本。
+  - 現状: 観測されるが、正規フローでは run_dir の `workspaces/video/runs/{run_id}/logs/srt2images.log`（互換: `commentary_02_srt2images_timeline/output/...`）が正本。
   - 種別: **L3（Legacy）**
 
 - `commentary_02_srt2images_timeline/logs/swap/swap_<timestamp>.log`

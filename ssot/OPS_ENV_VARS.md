@@ -18,8 +18,8 @@
 - `python3 commentary_02_srt2images_timeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
 - `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
-- LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
-- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `audio_tts_v2/artifacts/final/**/chunks/` を残す（デフォルトは削除）。
+- LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`。互換: `logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
+- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（互換: `audio_tts_v2/artifacts/final/**/chunks/`。デフォルトは削除）。
 
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
@@ -27,11 +27,11 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
 ### 切替
 - `LLM_MODE`:
   - `api`（デフォルト）: 通常どおり API LLM を呼ぶ
-  - `agent`: LLM 呼び出しを止めて `logs/agent_tasks/` に pending を作る
+  - `agent`: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る（互換: `logs/agent_tasks/...`）
   - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら `script_/tts_/visual_/title_/belt_` を安全デフォルトで intercept（`image_generation` 等は除外）
 
 ### キュー配置
-- `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `logs/agent_tasks`
+- `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`（互換: `logs/agent_tasks`）
 
 ### 担当エージェント名（推奨）
 - `LLM_AGENT_NAME`（推奨）: 例 `LLM_AGENT_NAME=Mike`
@@ -72,5 +72,5 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
 - `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
 
 ### 失敗時に見る場所
-- pending: `logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）
-- memo: `logs/agent_tasks/coordination/memos/*.json`（一覧は `python scripts/agent_org.py memos`）
+- pending: `workspaces/logs/agent_tasks/pending/*.json`（互換: `logs/agent_tasks/...`。または `LLM_AGENT_QUEUE_DIR`）
+- memo: `workspaces/logs/agent_tasks/coordination/memos/*.json`（互換: `logs/agent_tasks/...`。一覧は `python scripts/agent_org.py memos`）

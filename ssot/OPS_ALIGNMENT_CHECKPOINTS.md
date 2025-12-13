@@ -23,7 +23,7 @@
 - [ ] `CHxx-NNN` 形式が壊れていない（`NNN` は 3 桁推奨）
 
 推奨（迷子/再生成ミスが激減する）:
-- [ ] `台本` または `台本パス` が `script_pipeline/data/{CH}/{NNN}/content/assembled.md` を指す
+- [ ] `台本` または `台本パス` が `workspaces/scripts/{CH}/{NNN}/content/assembled.md` を指す（互換: `script_pipeline/data/...`）
 - [ ] 企画更新後に下流を再生成する運用が守られている（`OPS_PLANNING_CSV_WORKFLOW.md`）
 
 ---
@@ -31,8 +31,8 @@
 ## B. Script（台本 SoT）
 
 対象:
-- `script_pipeline/data/{CH}/{NNN}/status.json`
-- `script_pipeline/data/{CH}/{NNN}/content/assembled.md`
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（正本。互換: `script_pipeline/data/...`）
 
 最低条件:
 - [ ] `status.json` が存在する
@@ -48,7 +48,7 @@
 ## C. Audio/TTS（音声・字幕 SoT）
 
 対象（下流参照の正本）:
-- `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- `workspaces/audio/final/{CH}/{NNN}/`（正本。互換: `audio_tts_v2/artifacts/final/...`）
 
 最低条件:
 - [ ] `{CH}-{NNN}.wav` が存在する
@@ -57,14 +57,14 @@
 
 推奨:
 - [ ] `log.json` の `channel/video` とディレクトリ `{CH}/{NNN}` が一致する
-- [ ] 中間生成物（`script_pipeline/data/.../audio_prep/`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
+- [ ] 中間生成物（`workspaces/scripts/.../audio_prep/`。互換: `script_pipeline/data/...`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
 
 ---
 
 ## D. Video（SRT→画像→CapCut）
 
 対象（run 単位の SoT）:
-- `commentary_02_srt2images_timeline/output/{run_id}/`
+- `workspaces/video/runs/{run_id}/`（正本。互換: `commentary_02_srt2images_timeline/output/...`）
 
 最低条件:
 - [ ] `image_cues.json` が存在し、`cues[]` が空でない

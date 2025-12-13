@@ -12,7 +12,7 @@
 - **ハードコード禁止**: コードにモデル名（例: `gpt-5-mini`）を直書きしない。
 - **タスクキーで呼ぶ**: `LLMClient.call(task=..., messages=...)` の `task` がSoT。
 - **切替は設定で**: モデル切替/コスト最適化は `configs/*.yml|*.yaml` 側で完結させる。
-- **ログは必ず残す**: `logs/llm_usage.jsonl`（集計）に集約し、他の散発ログはL3として短期保持。
+- **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計。互換: `logs/llm_usage.jsonl`）に集約し、他の散発ログはL3として短期保持。
 
 ---
 
@@ -82,4 +82,3 @@
 
 - `commentary_02_srt2images_timeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
-

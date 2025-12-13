@@ -22,14 +22,14 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - **Planning SoT**: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
   - 企画/タイトル/タグ/リテイクフラグ等の正本。  
   - `script_pipeline/tools/planning_store.py` が常にこれを都度読み込み。
-- **Script SoT**: `script_pipeline/data/{CH}/{NNN}/status.json`
+- **Script SoT**: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/{CH}/{NNN}/status.json`）
   - 台本生成のステージ状態とメタデータ正本。
   - `script_pipeline/cli.py` / `script_pipeline/runner.py` が更新。
 - **Audio SoT**:
-  - 生成中間: `script_pipeline/data/{CH}/{NNN}/audio_prep/`（strict run_tts の作業領域）
-  - 最終参照正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+  - 生成中間: `workspaces/scripts/{CH}/{NNN}/audio_prep/`（互換: `script_pipeline/data/.../audio_prep/`。strict run_tts の作業領域）
+  - 最終参照正本: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`）
     - CapCut/AutoDraft/UI は **必ず final 配下を読む**。
-- **Video SoT（CapCut/画像）**: `commentary_02_srt2images_timeline/output/{run_id}/`
+- **Video SoT（CapCut/画像）**: `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/{run_id}/`）
   - `image_cues.json` / `images/` / `belt_config.json` / `capcut_draft/` 等を含むrun単位の正本。
 - **Remotion SoT（レンダリング/実験ライン）**: `remotion/out/` + run_dir内の remotion関連JSON
   - コード/UI/preview は存在するが、**現行の本番運用では未使用（将来/研究用）**。CapCut主線の代替候補。
@@ -55,7 +55,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 1.2 run_id / run_dir
 - Video/画像/CapCut/Remotion は **run単位で完結**。  
-- run_dirは `commentary_02_srt2images_timeline/output/{run_id}/`。  
+- run_dirは `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/{run_id}/`）。  
   `{run_id}` は `CHxx-<video>` もしくは `jinsei220` のような人間が判別可能な名前を推奨。
 - run_dirは **次フェーズの正本入力になるため、フローが確定するまで削除禁止**。
 
@@ -98,8 +98,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - UI（補助）: `/api/script-*` 系（main.py側でrunner呼び出し）
 
 **SoT / Inputs**
-- `script_pipeline/data/{CH}/{NNN}/status.json`（正本）
-- LLMテキスト出力SoT: `script_pipeline/data/{CH}/{NNN}/artifacts/llm/*.json`
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
+- LLMテキスト出力SoT: `workspaces/scripts/{CH}/{NNN}/artifacts/llm/*.json`（互換: `script_pipeline/data/...`）
   - schema: `ytm.llm_text_output.v1`
   - `status=pending` は未完（埋めて `ready` にしてから再実行）
 - `workspaces/planning/channels/{CH}.csv`（企画SoT。互換: `progress/channels/{CH}.csv`）
@@ -138,8 +138,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
    - Outputs（参照先はAudio側で確定）:
      - `audio_prep/script_sanitized.txt` (required)
      - `audio_prep/chunks/` (optional)
-     - `../../../audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav` (required)
-     - `../../../audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` (required)
+     - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav` (required, 正本。互換: `audio_tts_v2/artifacts/final/...`)
+     - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt` (required, 正本。互換: `audio_tts_v2/artifacts/final/...`)
 
 **Downstream dependencies**
 - Audioフェーズは `content/assembled.md` を入力とするため、Script確定後に進む。
@@ -150,14 +150,14 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI（正規）:
-  - `PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input script_pipeline/data/CHxx/NNN/content/assembled.md`
+  - `PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`（互換: `script_pipeline/data/...`）
   - `python -m script_pipeline.cli audio --channel CHxx --video NNN`（run_tts wrapper）
 - UI（補助）:
   - `/api/redo` / `/api/channels/{ch}/videos/{no}/redo`（リテイク管理）
   - `/api/auto-draft/srt` でSRTをUI修正（final配下のみ許可）
 
 **Inputs**
-- Aテキスト: `script_pipeline/data/{CH}/{NNN}/content/assembled.md`
+- Aテキスト: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（互換: `script_pipeline/data/...`）
   - もし `assembled_human.md` が存在し内容差分があれば、run_tts が自動で `assembled.md` に同期（human版が正本）。
 - LLM Reading Resolution:
   - `audio_tts_v2/tts/reading_resolver/*` が `factory_common/llm_client.py` 経由でモデル解決。
@@ -165,10 +165,10 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - VOICEVOX / Voicepeak / ElevenLabs を `audio_tts_v2/tts/routing.py` で決定。
 
 **Outputs（確定）**
-- 作業領域（中間正本）: `script_pipeline/data/{CH}/{NNN}/audio_prep/`
+- 作業領域（中間正本）: `workspaces/scripts/{CH}/{NNN}/audio_prep/`（互換: `script_pipeline/data/...`）
   - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt`, `log.json`, `chunks/` 等
   - **スクリプトが新しい場合は audio_prep を自動 purge**（run_ttsの確定ルール）
-- 最終参照正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- 最終参照正本: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/...`）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`
@@ -180,7 +180,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - 音声整形/検証/生成/品質の列を `済/完了 YYYY-MM-DD` に更新（`ssot/【消さないで！人間用】確定ロジック` が正本）。
 
 **Downstream dependencies**
-- Video/CapCutは `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` を入力SRTとして使う。
+- Video/CapCutは `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（互換: `audio_tts_v2/artifacts/final/...`）を入力SRTとして使う。
 
 ---
 
@@ -190,13 +190,13 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - CLI（正規/推奨）:
   - `python commentary_02_srt2images_timeline/tools/factory.py ...`
 - CLI（詳細制御）:
-  - `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py --channel CHxx --srt <srt> --out output/<run_id> ...`
+  - `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`（互換: `commentary_02_srt2images_timeline/output/<run_id>`）
 - UI:
   - `/api/auto-draft/*`（SRT選択→ドラフト生成）
   - `/api/video-production/*`（プロジェクト管理/画像再生成/ベルト編集/設定更新）
 
 **Inputs**
-- SRT正本: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`
+- SRT正本: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（互換: `audio_tts_v2/artifacts/final/...`）
 - チャンネルプリセット:
   - `commentary_02_srt2images_timeline/config/channel_presets.json`
   - presetには capcut_template / layout / opening_offset / prompt_template / position / belt が定義。
@@ -212,27 +212,27 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
      - THINK/AGENT（`LLM_MODE=think|agent`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
        - `visual_image_cues_plan`（single-task）で区間計画→ cues 化
        - `PromptRefiner` はスキップ（stop/resume ループ回避）
-   - Outputs:
-     - `output/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
-     - `output/{run_id}/image_cues.json`
-     - `output/{run_id}/images/0001.png ...`
-     - `output/{run_id}/persona.txt` / `channel_preset.json`（存在時）
-     - `output/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
+	   - Outputs:
+	     - `workspaces/video/runs/{run_id}/srt_segments.json`（互換: `commentary_02_srt2images_timeline/output/...`。SRTを決定論でパースしたsegments。plan/retimeの前提）
+	     - `workspaces/video/runs/{run_id}/image_cues.json`
+	     - `workspaces/video/runs/{run_id}/images/0001.png ...`
+	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
+	     - `workspaces/video/runs/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
-2. ベルト生成（belt_mode既定=auto）
-   - Outputs:
-     - `output/{run_id}/belt_config.json`（日本語4本が正）
-3. CapCut draft生成
-   - Outputs:
-     - `output/{run_id}/capcut_draft/`（テンプレ複製＋字幕/画像挿入）
-     - `capcut_draft_info.json`
+	2. ベルト生成（belt_mode既定=auto）
+	   - Outputs:
+	     - `workspaces/video/runs/{run_id}/belt_config.json`（日本語4本が正）
+	3. CapCut draft生成
+	   - Outputs:
+	     - `workspaces/video/runs/{run_id}/capcut_draft/`（テンプレ複製＋字幕/画像挿入）
+	     - `capcut_draft_info.json`
 4. タイトルJSON注入
    - タイトル優先順位: `--title` → `workspaces/planning/channels/{CH}.csv`（該当行の「タイトル」）→ LLM生成（最後のfallback）
    - Outputs:
      - `auto_run_info.json`（実行メタ/モデル/パラメータ）
-5. `timeline_manifest.json` 生成（可能な場合）
-   - 目的: run_dir の入力/出力/依存を “契約” として固定し、将来の移設・検証・UI表示の基礎にする。
-   - 生成条件: `audio_tts_v2/artifacts/final` の SRT/WAV が解決できる場合（失敗しても pipeline は止めない）
+	5. `timeline_manifest.json` 生成（可能な場合）
+	   - 目的: run_dir の入力/出力/依存を “契約” として固定し、将来の移設・検証・UI表示の基礎にする。
+	   - 生成条件: `workspaces/audio/final`（互換: `audio_tts_v2/artifacts/final`）の SRT/WAV が解決できる場合（失敗しても pipeline は止めない）
    - Outputs:
      - `timeline_manifest.json`
 
@@ -253,14 +253,14 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **ズレ修正（保守ツール）**
 - もし run_dir の `image_cues.json` が古いSRTから生成されていて、後から final の音声/字幕を入れるとタイムラインがズレる場合:
-  - `python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py --run commentary_02_srt2images_timeline/output/<run_id>`
+  - `python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py --run workspaces/video/runs/<run_id>`（互換: `commentary_02_srt2images_timeline/output/<run_id>`）
   - LLMは呼ばず、cue.text と final SRT セグメントを文字列アラインして retime する（厳格チェック付き）
 
 **CH06固有（CH06-テンプレ固定）**
 - CH06 はテンプレのレイヤ構造（BGM多段・メイン帯・ドリーミー紙吹雪）を壊さないことが最優先。
 - 推奨手順（画像タイムライン→音声/字幕の順でSoT反映）:
-  - `python3 commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv workspaces/planning/channels/CH06.csv --videos 2-30`
-  - `python3 commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1`（002〜030を同様に実行）
+  - `python3 commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root workspaces/video/runs --channel-csv workspaces/planning/channels/CH06.csv --videos 2-30`（互換: `--runs-root commentary_02_srt2images_timeline/output`）
+  - `python3 commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run workspaces/video/runs/CH06-002_capcut_v1`（互換: `commentary_02_srt2images_timeline/output/...`。002〜030を同様に実行）
   - 仕上げ: `timeline_manifest.json`（wav/srt/cues整合）を確認し、CapCutで目視確認して mp4 書き出し。
 
 **Downstream dependencies**
@@ -282,15 +282,15 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI:
-  - `node remotion/scripts/render.js --run output/<run_id> --channel CHxx --title "<title>" --out remotion/out/<name>.mp4`
-  - `node remotion/scripts/snapshot.js --run output/<run_id> ...`
+  - `node remotion/scripts/render.js --run workspaces/video/runs/<run_id> --channel CHxx --title "<title>" --out remotion/out/<name>.mp4`（互換: `--run commentary_02_srt2images_timeline/output/<run_id>`）
+  - `node remotion/scripts/snapshot.js --run workspaces/video/runs/<run_id> ...`
 
 **Inputs**
 - run_dir:
-  - `output/<run_id>/image_cues.json`
-  - `output/<run_id>/images/`
-  - `output/<run_id>/belt_config.json`（存在時）
-  - `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt`（run_dirにコピー済みでない場合はCLI指定が必要）
+  - `workspaces/video/runs/<run_id>/image_cues.json`
+  - `workspaces/video/runs/<run_id>/images/`
+  - `workspaces/video/runs/<run_id>/belt_config.json`（存在時）
+  - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（run_dirにコピー済みでない場合はCLI指定が必要。互換: `audio_tts_v2/artifacts/final/...`）
 - レイアウト:
   - `commentary_02_srt2images_timeline/config/channel_presets.json` の layout/position/belt
   - `remotion/preset_layouts.json`（preset欠損時のフォールバック）
@@ -298,8 +298,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **Outputs**
 - `remotion/out/*.mp4`（最終動画）
 - 欠損画像情報:
-  - `output/<run_id>/remotion_missing_images.json`
-  - `output/<run_id>/remotion_missing_images_snapshot.json`
+  - `workspaces/video/runs/<run_id>/remotion_missing_images.json`
+  - `workspaces/video/runs/<run_id>/remotion_missing_images_snapshot.json`
 
 ---
 
@@ -358,7 +358,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - 旧/臨時ツール群: `scripts/*`（用途は個別README/ファイルヘッダ参照）
 
 **Outputs**
-- `logs/` / `script_pipeline/data/llm_sessions.jsonl` / `audio_tts_v2/artifacts/final/*/log.json` などへ追記。
+- `workspaces/logs/`（互換: `logs/`）/ `workspaces/scripts/llm_sessions.jsonl` / `workspaces/audio/final/*/log.json` などへ追記。
 
 ---
 

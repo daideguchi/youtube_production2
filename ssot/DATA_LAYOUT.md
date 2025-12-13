@@ -9,15 +9,15 @@
 
 ## 2. チャンネル別・動画別の生成データ
 
-### 2.1 script_pipeline/data
+### 2.1 workspaces/scripts（台本SoT）
 
-- ルート: `script_pipeline/data/CH{NN}/{VIDEO_NO}/`
+- ルート（正本）: `workspaces/scripts/CH{NN}/{VIDEO_NO}/`（互換: `script_pipeline/data/...`）
 - 代表例:
 
 #### CH07-025 の例
 
 ```text
-script_pipeline/data/CH07/025
+workspaces/scripts/CH07/025
 ├── audio_prep
 │   ├── script_sanitized_with_pauses.txt
 │   └── script_sanitized.txt
@@ -31,7 +31,7 @@ script_pipeline/data/CH07/025
 #### CH05-029 の例
 
 ```text
-script_pipeline/data/CH05/029
+workspaces/scripts/CH05/029
 ├── audio_prep
 │   ├── a_text.txt
 │   ├── annotations.json
@@ -60,14 +60,14 @@ script_pipeline/data/CH05/029
 4 directories, 364 files
 ```
 
-### 2.2 audio_tts_v2/artifacts
+### 2.2 workspaces/audio（音声成果物）
 
-* ルート: `audio_tts_v2/artifacts/final/CH{NN}/{VIDEO_NO}/`
+* ルート（正本）: `workspaces/audio/final/CH{NN}/{VIDEO_NO}/`（互換: `audio_tts_v2/artifacts/final/...`）
 
 #### 例: 典型的な final 配下の構造
 
 ```text
-audio_tts_v2/artifacts/final/CH02/033
+workspaces/audio/final/CH02/033
 ├── a_text.txt
 ├── CH02-033.wav
 ├── CH02-033.srt
@@ -80,14 +80,14 @@ audio_tts_v2/artifacts/final/CH02/033
 
 * ルート: `commentary_02_srt2images_timeline/...`
 * 役割: SRT → 画像タイムライン生成
-* 生成結果（run_dir）: `commentary_02_srt2images_timeline/output/<run_id>/`
+* 生成結果（run_dir）: `workspaces/video/runs/<run_id>/`（互換: `commentary_02_srt2images_timeline/output/<run_id>/`）
   - `image_cues.json`, `images/*.png`, `capcut_draft`（CapCutプロジェクトへのsymlink）, `capcut_draft_info.json`, `auto_run_info.json` など
-  - `output/` は `commentary_02_srt2images_timeline/.gitignore` により gitignore 対象
-* 入力キャッシュ: `commentary_02_srt2images_timeline/input/`（gitignore 対象）
+  - `runs/` は `workspaces/.gitignore` で gitignore 対象
+* 入力キャッシュ: `workspaces/video/input/`（互換: `commentary_02_srt2images_timeline/input/`、gitignore 対象）
 
-### 2.4 progress/channels
+### 2.4 workspaces/planning/channels（企画CSV）
 
-* ルート: `progress/channels/`
+* ルート: `workspaces/planning/channels/`（互換: `progress/channels/`）
 
 実在するファイル一覧（例）:
 
@@ -136,13 +136,13 @@ thumbnails/README.md
 
 | Endpoint | 主な読み書きパス | 備考 |
 |----------|------------------|------|
-| `GET /api/planning` | `progress/channels/CHxx.csv` | 企画/進捗CSV（Planning SoT） |
-| `GET /api/ssot/persona/{channel}` / `PUT /api/ssot/persona/{channel}` | `progress/personas/CHxx_PERSONA.md` | Persona SoT |
-| `GET /api/channels/{channel}/videos/{video}` | `script_pipeline/data/CHxx/NNN/status.json` / `content/assembled.md` | 台本SoT |
-| `PUT /api/channels/{channel}/videos/{video}/assembled` | `script_pipeline/data/CHxx/NNN/content/assembled.md` | 人間編集の正本 |
-| `GET /api/channels/{channel}/videos/{video}/audio` | `audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.wav` | 下流参照の音声SoT |
-| `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.srt` | 字幕SoT（UI編集可） |
-| `POST /api/auto-draft/create` | `commentary_02_srt2images_timeline/output/<run_id>/...` | SRT→画像→CapCutドラフト生成 |
+| `GET /api/planning` | `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/...`） | 企画/進捗CSV（Planning SoT） |
+| `GET /api/ssot/persona/{channel}` / `PUT /api/ssot/persona/{channel}` | `workspaces/planning/personas/CHxx_PERSONA.md`（互換: `progress/personas/...`） | Persona SoT |
+| `GET /api/channels/{channel}/videos/{video}` | `workspaces/scripts/CHxx/NNN/status.json` / `content/assembled.md`（互換: `script_pipeline/data/...`） | 台本SoT |
+| `PUT /api/channels/{channel}/videos/{video}/assembled` | `workspaces/scripts/CHxx/NNN/content/assembled.md`（互換: `script_pipeline/data/...`） | 人間編集の正本 |
+| `GET /api/channels/{channel}/videos/{video}/audio` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.wav`（互換: `audio_tts_v2/artifacts/final/...`） | 下流参照の音声SoT |
+| `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt`（互換: `audio_tts_v2/artifacts/final/...`） | 字幕SoT（UI編集可） |
+| `POST /api/auto-draft/create` | `workspaces/video/runs/<run_id>/...`（互換: `commentary_02_srt2images_timeline/output/...`） | SRT→画像→CapCutドラフト生成 |
 | `GET /api/workspaces/thumbnails` | `thumbnails/projects.json` | サムネSoT |
 | `GET /thumbnails/assets/{...}` | `thumbnails/assets/...` | 静的配信（移行中の可能性あり） |
 

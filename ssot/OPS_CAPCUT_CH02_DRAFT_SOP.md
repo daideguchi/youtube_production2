@@ -8,8 +8,8 @@
 
 ## 1. 重要な前提（SoT）
 
-- **音声/SRT SoT**: `audio_tts_v2/artifacts/final/CH02/{NNN}/CH02-{NNN}.wav|.srt`
-- **Video run SoT**: `commentary_02_srt2images_timeline/output/{run_name}/`
+- **音声/SRT SoT**: `workspaces/audio/final/CH02/{NNN}/CH02-{NNN}.wav|.srt`（互換: `audio_tts_v2/artifacts/final/...`）
+- **Video run SoT**: `workspaces/video/runs/{run_name}/`（互換: `commentary_02_srt2images_timeline/output/...`）
   - `image_cues.json`, `images/`, `belt_config.json` が前提
 - **CapCut draft root**: `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft`
 - **テンプレ**: `CH02-テンプレ`（これ以外を使わない）
@@ -45,7 +45,7 @@ CH02ドラフトは次を必ず満たすこと（満たさない生成は“完�
 
 ```bash
 python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py \
-  --run commentary_02_srt2images_timeline/output/{run_name}
+  --run workspaces/video/runs/{run_name}
 ```
 
 ### 3.2 CapCutドラフト生成（テンプレ土台・音声挿入あり）
@@ -53,7 +53,7 @@ python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py \
 ```bash
 python3 commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
   --channel CH02 \
-  --srt /Users/dd/10_YouTube_Automation/factory_commentary/audio_tts_v2/artifacts/final/CH02/{NNN}/CH02-{NNN}.srt \
+  --srt workspaces/audio/final/CH02/{NNN}/CH02-{NNN}.srt \
   --run-name {run_name} \
   --title "{belt_title}" \
   --resume \
@@ -107,4 +107,3 @@ python3 commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
 ```
 
 全て `✅` になれば CapCut側で編集/書き出しに進める。
-

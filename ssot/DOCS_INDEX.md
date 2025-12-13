@@ -10,6 +10,7 @@
 - `DATA_LAYOUT.md`: 現行データ格納の実態（SoT/生成物の場所対応）。
 - `OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
 - `history/HISTORY_codex-memory.md`: 変更履歴（運用ログ）。旧履歴は `_old/ssot_old/history/` を参照。
+- `handoffs/README.md`: 作業完走用の引き継ぎパッケージ置き場（短期・再現性重視）。
 - `REFERENCE_PATH_HARDCODE_INVENTORY.md`: 直書きパス/旧名参照の完全棚卸し（Path SSOT導入の前提）。
 - `master_styles.json`: チャンネル別スタイル・画風の正本。
 - `【消さないで！人間用】確定ロジック`: 運用上の確定ルール（人間向けの最終チェック）。

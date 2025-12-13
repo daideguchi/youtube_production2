@@ -7,9 +7,9 @@
 
 ## 0. SoT（正本）
 
-- 企画SoT: `progress/channels/CHxx.csv`
-- 台本SoT: `script_pipeline/data/{CH}/{NNN}/status.json`
-- 台本本文（入力の正）: `script_pipeline/data/{CH}/{NNN}/content/assembled.md`
+- 企画SoT: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+- 台本SoT: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/...`）
+- 台本本文（入力の正）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（互換: `script_pipeline/data/...`）
 
 ---
 
@@ -29,10 +29,10 @@
 
 ## 2. 出力（I/Oの目安）
 
-- `script_pipeline/data/{CH}/{NNN}/content/`
+- `workspaces/scripts/{CH}/{NNN}/content/`（互換: `script_pipeline/data/...`）
   - `assembled.md`（最終台本）
   - `assembled_with_quotes.md` など（運用で採用ルールを固定する）
-- `script_pipeline/data/{CH}/{NNN}/logs/`
+- `workspaces/scripts/{CH}/{NNN}/logs/`（互換: `script_pipeline/data/...`）
   - `{stage}_prompt.txt`, `{stage}_response.json`（L3: 証跡）
 
 ---
@@ -66,4 +66,3 @@
 - パス直書き禁止（`factory_common/paths.py` を使う）
 - `status.json` を手で大改造しない（必要なら `reset/reconcile` を使う）
 - `assembled.md` と別の入力で音声生成しない（例外はSSOTに残す）
-

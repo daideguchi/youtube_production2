@@ -14,8 +14,8 @@
 ## 0. 正本の定義
 
 - Planning SoT（正本）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
-- Script SoT（正本）: `script_pipeline/data/{CH}/{NNN}/status.json`
-- Audio SoT（下流参照の正本）: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
+- Script SoT（正本）: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/...`）
+- Audio SoT（下流参照の正本）: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/...`）
 
 ※ Planning CSV は「企画/在庫/意図/補助メタ」を保持し、Script/Audio の実行状態はそれぞれの SoT に残る。
 

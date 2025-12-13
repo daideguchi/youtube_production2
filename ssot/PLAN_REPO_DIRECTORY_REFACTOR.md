@@ -6,7 +6,7 @@
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: リポジトリ全体（Python/Node/シェル/SSOT/UI/生成物/旧資産）
 - **非対象 (Out of Scope)**: LLMロジック・生成品質・パイプラインのアルゴリズム改変（パス変更に伴う薄い修正は含む）
-- **関連 SoT/依存**: `script_pipeline/data`, `progress/channels`, `audio_tts_v2/artifacts`, `commentary_02_srt2images_timeline/output`, `thumbnails/assets`, `ui/backend`, `scripts/start_all.sh`
+- **関連 SoT/依存**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/planning/channels`（互換: `progress/channels`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/runs`（互換: `commentary_02_srt2images_timeline/output`）, `thumbnails/assets`, `apps/ui-backend/backend`（互換: `ui/backend`）, `scripts/start_all.sh`
 - **最終更新日**: 2025-12-13
 
 ## 1. 背景と目的
@@ -46,9 +46,9 @@
 ### 4.1 ルートの実態（調査結果）
 **現行の主要カテゴリ**
 - **コアパッケージ（Python）**
-  - `script_pipeline/`（台本ステージ・SoT= `script_pipeline/data/CHxx/NNN/`）
-  - `audio_tts_v2/`（Bテキスト/TTS・artifacts= `audio_tts_v2/artifacts/`）
-  - `commentary_02_srt2images_timeline/`（SRT→画像/CapCut・output= `commentary_02_srt2images_timeline/output/`）
+  - `script_pipeline/`（台本ステージ・SoT= `workspaces/scripts/CHxx/NNN/`。互換: `script_pipeline/data/...`）
+  - `audio_tts_v2/`（Bテキスト/TTS・final SoT= `workspaces/audio/final/`。互換: `audio_tts_v2/artifacts/`）
+  - `commentary_02_srt2images_timeline/`（SRT→画像/CapCut・run SoT= `workspaces/video/runs/`。互換: `commentary_02_srt2images_timeline/output/`）
   - `factory_common/`（LLM/画像クライアント等の共通層）
 - **アプリ（UI/動画）**
   - `apps/ui-backend/backend`（FastAPI、互換: `ui/backend` は symlink）
@@ -128,14 +128,14 @@
 
 ### 4.3 現行フローと主要生成先
 `ssot/REFERENCE_ssot_このプロダクト設計について` のフローに沿う現行実装の対応:
-1. 企画/進捗 SoT: `progress/channels/CHxx.csv`, `progress/personas/`
-2. 台本 SoT: `script_pipeline/data/CHxx/NNN/`（`content/*.md`, `status.json`）
+1. 企画/進捗 SoT: `workspaces/planning/channels/CHxx.csv`, `workspaces/planning/personas/`（互換: `progress/...`）
+2. 台本 SoT: `workspaces/scripts/CHxx/NNN/`（`content/*.md`, `status.json`。互換: `script_pipeline/data/...`）
 3. 音声生成:
-   - 入力: `script_pipeline/data/.../content/assembled.md`
-   - 出力: `script_pipeline/data/.../audio_prep/*.wav/*.srt` + `audio_tts_v2/artifacts/final/...`
+   - 入力: `workspaces/scripts/.../content/assembled.md`（互換: `script_pipeline/data/...`）
+   - 出力: `workspaces/scripts/.../audio_prep/*.wav/*.srt` + `workspaces/audio/final/...`（互換: `audio_tts_v2/artifacts/final/...`）
 4. 画像/動画ドラフト:
-   - 入力: `commentary_02_srt2images_timeline/input/`（SRT/音声同期）
-   - 出力: `commentary_02_srt2images_timeline/output/<run>/`（image_cues.json, capcut_draft 等）
+   - 入力: `workspaces/video/input/`（互換: `commentary_02_srt2images_timeline/input/`。SRT/音声同期）
+   - 出力: `workspaces/video/runs/<run>/`（互換: `commentary_02_srt2images_timeline/output/...`。image_cues.json, capcut_draft 等）
 5. サムネ SoT: `thumbnails/projects.json`（画像実体は `thumbnails/assets/<CH>/<video>/` に寄せる想定。旧 `thumbnails/CHxx_<name>/...` は移行/アーカイブ対象）
 6. Remotion:
    - 入力: `remotion/input/`
@@ -481,23 +481,19 @@ legacy/
 - [ ] UI の planning/workspace 画面を smoke。
 
 2.2 scripts (台本 SoT)
-- [ ] `workspaces/scripts/` 作成。
-- [ ] `script_pipeline/data/CHxx/*` を copy。
-- [ ] `status.json`/assembled.md の一致確認。
-- [ ] 旧 `script_pipeline/data` を mv、symlink。
+- [x] `script_pipeline/data` → `workspaces/scripts/` を **mv + symlink cutover**（正本: `scripts/ops/stage2_cutover_workspaces.py`）。
+  - 互換: `script_pipeline/data` は symlink（git 管理は `workspaces/scripts/**` 側へ移行）
 - [ ] `python -m script_pipeline.cli validate/next` を sample で smoke。
 
 2.3 audio (音声成果物)
-- [ ] `workspaces/audio/{final,audio,_archive_audio}` 作成。
-- [ ] `audio_tts_v2/artifacts/**` を copy。
-- [ ] `run_tts.py` の final sync が新パスを指すことを smoke。
-- [ ] 旧 `audio_tts_v2/artifacts` を mv、symlink。
+- [x] `audio_tts_v2/artifacts` → `workspaces/audio/` を **mv + symlink cutover**（正本: `scripts/ops/stage2_cutover_workspaces.py`）。
+- [x] `workspaces/.gitignore` に `audio/**` を追加（巨大生成物を git に出さない）。
+- [ ] `run_tts.py` の final sync が新パス（`workspaces/audio/final/...`）を指すことを smoke。
 
 2.4 video (画像/CapCut run)
-- [ ] `workspaces/video/{runs,input,_archive_runs}` 作成。
-- [ ] `commentary_02_srt2images_timeline/output/*` を `runs/` へ copy。
-- [ ] `run_id` の採用/非採用が `progress/channels` と整合するか spot check。
-- [ ] 旧 `commentary_02_srt2images_timeline/output` を mv、symlink。
+- [x] `commentary_02_srt2images_timeline/{input,output}` → `workspaces/video/{input,runs}/` を **mv + symlink cutover**（正本: `scripts/ops/stage2_cutover_workspaces.py`）。
+- [x] `workspaces/.gitignore` に `video/input/**`, `video/runs/**` を追加（巨大生成物を git に出さない）。
+- [ ] `run_id` の採用/非採用が `workspaces/planning/channels`（互換: `progress/channels`）と整合するか spot check。
 - [ ] swap/auto_draft/UI の run 一覧が動くか smoke（CapCut主線）。Remotion系の smoke は現行未使用のため optional。
 
 2.5 thumbnails
@@ -508,9 +504,8 @@ legacy/
 - [ ] 旧 `thumbnails` を mv、symlink。
 
 2.6 logs
-- [ ] `workspaces/logs/{pipeline,ui,jobs,_archive}` 作成。
-- [ ] 旧 `logs/*` を domain 別に移設（パス SSOT の `logs_root()` に合わせる）。
-- [ ] 旧 `logs` を symlink。
+- [x] `logs` → `workspaces/logs/` を **mv + symlink cutover**（正本: `scripts/ops/stage2_cutover_workspaces.py`）。
+- [ ] `workspaces/logs/{pipeline,ui,jobs,_archive}` へ段階整理（`ssot/OPS_LOGGING_MAP.md` と整合）。
 
 2.7 research
 - [x] `workspaces/research/` 実体化（旧 `00_research` は互換symlink）。

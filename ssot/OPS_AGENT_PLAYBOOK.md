@@ -49,9 +49,9 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 
 ### 3.1 SoT（正本）の定義（固定）
 - Planning SoT: `workspaces/planning/channels/{CH}.csv`（互換: `progress/channels/{CH}.csv`）
-- Script SoT: `script_pipeline/data/{CH}/{NNN}/status.json` + `content/assembled*.md`
-- Audio SoT: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`
-- Video run SoT: `commentary_02_srt2images_timeline/output/{run_id}/`
+- Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`（互換: `script_pipeline/data/...`）
+- Audio SoT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`（互換: `audio_tts_v2/artifacts/final/...`）
+- Video run SoT: `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/...`）
 - Thumbnail SoT: `thumbnails/projects.json` と `thumbnails/assets/{CH}/{NNN}/`
 
 ### 3.2 パス直書き禁止（移設耐性）
