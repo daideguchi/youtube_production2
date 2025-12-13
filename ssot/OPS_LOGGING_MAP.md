@@ -31,6 +31,8 @@
 ---
 
 注意:
+- **正本のログルートは `factory_common/paths.py:logs_root()`**（現行: `workspaces/logs/` → `logs/` への symlink）。  
+  この文書中の `logs/...` 記載は **`logs_root()/...` の意味**で読む（Stage2 で `workspaces/logs/` が実体化しても設計が壊れないようにする）。
 - ルート `logs/` は gitignore 対象（`.gitignore: logs/`）のため、運用するとログが増えても git 差分に出にくい。
 - “残す/消す/退避” の判断は本マップ（L1/L3）と `PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正本にする。
 
