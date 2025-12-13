@@ -6,7 +6,9 @@ from typing import Any, Dict
 
 import yaml
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from factory_common.paths import repo_root
+
+PROJECT_ROOT = repo_root()
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "llm.yml"
 DEFAULT_CONFIG_LOCAL = PROJECT_ROOT / "configs" / "llm.local.yml"
 DEFAULT_TIER_MAPPING = PROJECT_ROOT / "configs" / "llm_tier_mapping.yaml"

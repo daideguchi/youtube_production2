@@ -18,6 +18,7 @@ from factory_common.agent_mode import (
     results_path,
     select_runbook,
 )
+from factory_common.paths import logs_root
 
 
 def _now_iso_utc() -> str:
@@ -29,7 +30,7 @@ def _llm_log_path() -> Path:
     if raw:
         p = Path(raw)
         return p if p.is_absolute() else (PROJECT_ROOT / p)
-    return PROJECT_ROOT / "logs" / "llm_usage.jsonl"
+    return logs_root() / "llm_usage.jsonl"
 
 
 def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
@@ -217,4 +218,3 @@ def maybe_failover_to_think(
         "  - rerun: the same command that created this pending task (see pending.invocation as a hint)",
     ]
     raise SystemExit("\n".join(msg_lines))
-

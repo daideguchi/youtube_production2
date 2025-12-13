@@ -29,11 +29,22 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-SCHEMA_VERSION = 1
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from factory_common import paths as repo_paths
 
-DEFAULT_QUEUE_DIR = PROJECT_ROOT / "logs" / "agent_tasks"
-DEFAULT_RUNBOOKS_CONFIG = PROJECT_ROOT / "configs" / "agent_runbooks.yaml"
+SCHEMA_VERSION = 1
+PROJECT_ROOT = repo_paths.repo_root()
+
+
+def _default_queue_dir() -> Path:
+    return repo_paths.logs_root() / "agent_tasks"
+
+
+def _default_runbooks_config() -> Path:
+    return PROJECT_ROOT / "configs" / "agent_runbooks.yaml"
+
+
+DEFAULT_QUEUE_DIR = _default_queue_dir()
+DEFAULT_RUNBOOKS_CONFIG = _default_runbooks_config()
 
 # Options that should NOT affect the cache key (non-semantic / transport-only)
 _HASH_EXCLUDE_OPTION_KEYS = {

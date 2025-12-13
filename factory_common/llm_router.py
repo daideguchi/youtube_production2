@@ -17,6 +17,7 @@ from factory_common.llm_api_cache import (
     read_cache as _api_cache_read,
     write_cache as _api_cache_write,
 )
+from factory_common.paths import logs_root, repo_root
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -102,12 +103,12 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("LLMRouter")
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = repo_root()
 _DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
 _LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.local.yaml"
 CONFIG_PATH = _LOCAL_CONFIG_PATH if _LOCAL_CONFIG_PATH.exists() else _DEFAULT_CONFIG_PATH
 FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
-DEFAULT_LOG_PATH = PROJECT_ROOT / "logs" / "llm_usage.jsonl"
+DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
 

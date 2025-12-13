@@ -373,8 +373,9 @@ class LLMClient:
             return
         log_path = os.getenv("LLM_USAGE_LOG_PATH")
         if not log_path:
-            project_root = Path(__file__).resolve().parents[1]
-            log_path = project_root / "logs" / "llm_usage.jsonl"
+            from factory_common.paths import logs_root
+
+            log_path = logs_root() / "llm_usage.jsonl"
         else:
             log_path = Path(log_path)
 

@@ -15,6 +15,8 @@ import google.genai as genai
 from google.genai import types as genai_types
 import yaml
 
+from factory_common import paths as repo_paths
+
 
 class ImageGenerationError(Exception):
     """Raised when image generation fails or returns no usable data."""
@@ -56,10 +58,8 @@ class ImageClient:
         config_data: Dict[str, Any] | None = None,
         adapter_overrides: Dict[str, Any] | None = None,
     ):
-        self.config_path = Path(
-            config_path
-            or Path(__file__).resolve().parents[1] / "configs" / "image_models.yaml"
-        )
+        root = repo_paths.repo_root()
+        self.config_path = Path(config_path) if config_path else (root / "configs" / "image_models.yaml")
         self._adapter_overrides = adapter_overrides or {}
         self._config = config_data or self._load_config()
 
@@ -230,7 +230,7 @@ class ImageClient:
             attempt: Optional[int] = None,
         ) -> None:
         log_path_env = os.getenv("IMAGE_CLIENT_USAGE_LOG", "").strip()
-        log_path = Path(log_path_env) if log_path_env else Path(__file__).resolve().parents[1] / "logs" / "image_usage.log"
+        log_path = Path(log_path_env) if log_path_env else repo_paths.logs_root() / "image_usage.log"
         try:
             log_path.parent.mkdir(parents=True, exist_ok=True)
             payload = {
@@ -256,7 +256,7 @@ class ImageClient:
     # ---- round-robin helpers -------------------------------------------------
     @property
     def _rr_state_path(self) -> Path:
-        return Path(__file__).resolve().parents[1] / "logs" / "image_rr_state.json"
+        return repo_paths.logs_root() / "image_rr_state.json"
 
     def _rotate_candidates(self, tier_name: str, candidates: List[str]) -> List[str]:
         """
@@ -321,8 +321,8 @@ class GeminiImageAdapter:
             return key
 
         candidates = [
-            Path(__file__).resolve().parents[1] / ".env",              # project root (/factory_commentary/.env)
-            Path(__file__).resolve().parents[2] / ".env",              # parent root fallback
+            repo_paths.repo_root() / ".env",              # project root (/factory_commentary/.env)
+            repo_paths.repo_root().parent / ".env",       # parent root fallback
             Path.home() / ".env",                                     # user home
         ]
         for env_path in candidates:

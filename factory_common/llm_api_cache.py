@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from factory_common.agent_mode import PROJECT_ROOT, compute_task_id
+from factory_common.paths import logs_root
 
 SCHEMA_VERSION = 1
 
@@ -56,7 +57,7 @@ def cache_dir() -> Path:
     if raw:
         p = Path(raw)
         return p if p.is_absolute() else (PROJECT_ROOT / p)
-    return PROJECT_ROOT / "logs" / "llm_api_cache"
+    return logs_root() / "llm_api_cache"
 
 
 def _ttl_sec() -> int:
