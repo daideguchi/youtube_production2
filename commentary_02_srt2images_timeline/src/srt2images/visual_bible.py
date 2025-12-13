@@ -87,7 +87,7 @@ class VisualBibleGenerator:
         
         try:
             response = self.router.call(
-                task="visual_persona", # Reusing visual_persona task config
+                task="visual_bible",  # Dedicated task config (JSON, higher cap)
                 messages=[{"role": "user", "content": prompt}],
                 response_format="json_object",
                 temperature=0.2

@@ -1218,6 +1218,14 @@ export interface RemotionRenderOutput {
   modifiedTime?: string | null;
 }
 
+export interface RemotionDriveUpload {
+  uploadedAt?: string | null;
+  fileId?: string | null;
+  fileName?: string | null;
+  webViewLink?: string | null;
+  folderPath?: string | null;
+}
+
 export interface RemotionProjectSummary {
   projectId: string;
   channelId?: string | null;
@@ -1235,6 +1243,7 @@ export interface RemotionProjectSummary {
   remotionDir?: string | null;
   timelinePath?: string | null;
   lastRendered?: string | null;
+  driveUpload?: RemotionDriveUpload | null;
 }
 
 export interface ResearchFileEntry {

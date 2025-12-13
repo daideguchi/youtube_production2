@@ -86,7 +86,8 @@
 - 状態: `python scripts/agent_org.py orchestrator status`
 - 停止: `python scripts/agent_org.py orchestrator stop`
 - request 作成（例: 役割付与）:
-  - `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_name":"Mike","role":"audio_worker"}' --wait-sec 3`
+  - (推奨) `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_id":"<AGENT_ID>","role":"audio_worker"}' --wait-sec 3`
+  - `agent_name` でも可（同名があると失敗しうる）: `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_name":"Mike","role":"audio_worker"}' --wait-sec 3`
 
 ### Agents
 - heartbeat 起動: `python scripts/agent_org.py agents start --name Mike --role worker`
@@ -95,6 +96,7 @@
 ### Locks / Memos
 - lock: `python scripts/agent_org.py lock 'ui/**' --mode no_touch --ttl-min 60 --note 'dd working'`
 - memo: `python scripts/agent_org.py memo --to Mike --subject '...' --body '...'`
+- UI: `/agent-org`（API: `/api/agent-org/*`）
 
 ## 5. ログ設計
 - `coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。
@@ -114,4 +116,3 @@
 - UI に `agents / assigned_role / assignments / locks / memos` を統合し、誰が何を担当中かを可視化する。
 - pending を拾って自動処理する worker daemon 群（ただし LLM API 依存をどうするか要検討）。
 - lock の衝突検知を lint/CI に組み込み（ソフト強制）。
-

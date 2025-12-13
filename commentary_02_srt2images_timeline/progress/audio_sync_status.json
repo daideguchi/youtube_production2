@@ -2942,5 +2942,3469 @@
     "src": "audio_tts_v2/artifacts/final/CH01/220/CH01-220.wav",
     "size": 73315688,
     "hash": "740788bf6f72f13a09e1c888009a1924b67d58b8"
+  },
+  "workspaces/video/input/CH01_人生の道標/CH01-220.srt": {
+    "path": "workspaces/video/input/CH01_人生の道標/CH01-220.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH01/220/CH01-220.srt",
+    "size": 22942,
+    "hash": "7595d4ec55c7226bf8110e90ac935666c0544ea5"
+  },
+  "workspaces/video/input/CH01_人生の道標/CH01-220.wav": {
+    "path": "workspaces/video/input/CH01_人生の道標/CH01-220.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH01/220/CH01-220.wav",
+    "size": 73315688,
+    "hash": "740788bf6f72f13a09e1c888009a1924b67d58b8"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-001.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/001/CH02-001.srt",
+    "size": 27425,
+    "hash": "fab5848a398c9a4309c339c6d5054e3f439ea7d2"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-001.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/001/CH02-001.wav",
+    "size": 55311596,
+    "hash": "fa9506b6c5eeeef5499f1ea16919a26e4729bafa"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-002.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/002/CH02-002.srt",
+    "size": 21359,
+    "hash": "0d6e41278b636b583a5c7205b7f13aa765c6055b"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-002.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/002/CH02-002.wav",
+    "size": 41430828,
+    "hash": "9f8222dcf9055b97165ed8def4849612adb16892"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-003.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/003/CH02-003.srt",
+    "size": 32674,
+    "hash": "f8eefed386db32e9d4aeb0468732c20cb3e90049"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-003.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/003/CH02-003.wav",
+    "size": 66960812,
+    "hash": "d89db614355b6d6119afc10234d36439bd6f74af"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-004.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/004/CH02-004.srt",
+    "size": 33002,
+    "hash": "b347656060b03e28951bf93a1e80a7e5e445db6c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-004.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/004/CH02-004.wav",
+    "size": 68028204,
+    "hash": "b7ea5ad8e05aaac1b132d241d0a31ac258898957"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-005.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/005/CH02-005.srt",
+    "size": 32342,
+    "hash": "008ba247075ef14254445fb8f5e34ac690f0cdac"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-005.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/005/CH02-005.wav",
+    "size": 67744940,
+    "hash": "093a826fc3693ad794e884292afc003866e17647"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-006.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/006/CH02-006.srt",
+    "size": 30503,
+    "hash": "bbf06cb349cff2f02f1857b130586cbe94459ff4"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-006.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/006/CH02-006.wav",
+    "size": 61877740,
+    "hash": "e525d91a1b675c4603ef571585015eec19d0884b"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-007.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/007/CH02-007.srt",
+    "size": 33983,
+    "hash": "bb3477ec312a8f1339d7947763f0ba5623a4bcba"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-007.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/007/CH02-007.wav",
+    "size": 68662956,
+    "hash": "de63d67fc53dfa4f7b88c36f7c1b251e498b7ef8"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-008.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/008/CH02-008.srt",
+    "size": 31465,
+    "hash": "8b29bd1bf41416029bde272903590299854cd202"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-008.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/008/CH02-008.wav",
+    "size": 64553452,
+    "hash": "4781435019cdbecad3bd846cc78d11f73496adc9"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-009.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/009/CH02-009.srt",
+    "size": 33221,
+    "hash": "b2c862f5f75a857c105559db63f9b0a59ff9cff8"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-009.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/009/CH02-009.wav",
+    "size": 67178988,
+    "hash": "c2fc9b4a4c4712c0cb22e24dd286e89724e2b396"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-010.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/010/CH02-010.srt",
+    "size": 32903,
+    "hash": "a9574f792785db203d784804878bb1cd61fb425f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-010.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/010/CH02-010.wav",
+    "size": 68028652,
+    "hash": "a2597bc9d6bda3ea2bc8bc3973f4f96519b434a0"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-011.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/011/CH02-011.srt",
+    "size": 32135,
+    "hash": "9b7a391b37a16add334a25e0063bc5df159261e9"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-011.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/011/CH02-011.wav",
+    "size": 64240492,
+    "hash": "4c3691038fe140b730a4794d3791597cf9133333"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-012.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/012/CH02-012.srt",
+    "size": 33656,
+    "hash": "0854ce0c9a46ec44259cf6366c3d7b5cf73bcd52"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-012.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/012/CH02-012.wav",
+    "size": 64845740,
+    "hash": "5dc92a01830877a8234c19cd3abff0cae3e31a1f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-013.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/013/CH02-013.srt",
+    "size": 33764,
+    "hash": "d3c4ac6dd7094552805348c0175bda80470541d8"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-013.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/013/CH02-013.wav",
+    "size": 68289836,
+    "hash": "9db08c0c39e2ab6517aecfb4cc2a1dff3b337c1d"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-014.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/014/CH02-014.srt",
+    "size": 30459,
+    "hash": "18fa81c60a7754ca35bf0477cf413d65377a3fc2"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-014.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/014/CH02-014.wav",
+    "size": 56003500,
+    "hash": "965303541c6f144b1edfed78e488017137fa9b30"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-015.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/015/CH02-015.srt",
+    "size": 34364,
+    "hash": "20c1fbb45024b1f923e6cdee23d8db92ddba3175"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-015.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/015/CH02-015.wav",
+    "size": 58744428,
+    "hash": "8dc296c69b3b150a60f9d459b3f0006ad7b244f1"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-016.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/016/CH02-016.srt",
+    "size": 29573,
+    "hash": "2c278e5e2297dc473e56a011f59e23cef8f2306c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-016.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/016/CH02-016.wav",
+    "size": 55340780,
+    "hash": "7726b906c2bcbfbaa0c180a4b0e77fa9bb751554"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-017.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/017/CH02-017.srt",
+    "size": 35315,
+    "hash": "bdd092f0319c37c1e7a82a6cb140760a6d87b42b"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-017.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/017/CH02-017.wav",
+    "size": 58751468,
+    "hash": "dc64304c2d26b91629a42f7c62ea9204d0d2bd09"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-019.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/019/CH02-019.srt",
+    "size": 32536,
+    "hash": "6f6f722f035715f5c970eb5c2ad77aee198ff787"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-019.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/019/CH02-019.wav",
+    "size": 56104364,
+    "hash": "1790477f9547ffe44d65cd3c5c8b357ee6642d62"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-020.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/020/CH02-020.srt",
+    "size": 30461,
+    "hash": "73b0ea92312280dc772ecb93af7796f6b1d445e8"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-020.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/020/CH02-020.wav",
+    "size": 53843436,
+    "hash": "f6757392bcd23fe60715fc7a41d30380abccee3b"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-021.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/021/CH02-021.srt",
+    "size": 31967,
+    "hash": "7e73f45727c42a5ad13c37ab1e6c8b0cd1ed802a"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-021.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/021/CH02-021.wav",
+    "size": 52120300,
+    "hash": "657e42e2c19ccc35c3c513a2c06dda257ca33459"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-022.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/022/CH02-022.srt",
+    "size": 28581,
+    "hash": "ae0ba8cd983b273678c8aadef9debeda4d903417"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-022.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/022/CH02-022.wav",
+    "size": 52816748,
+    "hash": "e30d8de2a5b517574fd6ccfb9d35eb5706a72bdc"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-023.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/023/CH02-023.srt",
+    "size": 28192,
+    "hash": "40db93a741adbc117bcaa738b61acb806b48a08d"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-023.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/023/CH02-023.wav",
+    "size": 50225132,
+    "hash": "55314c95ee0f6c8e7cb9bee8caf9387e67722cbc"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-024.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/024/CH02-024.srt",
+    "size": 10997,
+    "hash": "c01b9699a76e6e3cb1dab074e43b1a393915da42"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-024.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/024/CH02-024.wav",
+    "size": 19925036,
+    "hash": "9e8875e2c36e9b7c4c16a62f9b2611d957d23715"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-025.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/025/CH02-025.srt",
+    "size": 27359,
+    "hash": "543e9375cc5f1c1451588fe37eddfde4a9828bea"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-025.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/025/CH02-025.wav",
+    "size": 41928492,
+    "hash": "58d96ee7812ebfde18ec1bd89cd086c23c2bc3a3"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-026.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/026/CH02-026.srt",
+    "size": 26039,
+    "hash": "417d0bf12d5fe24393ba2d046b8440bc5a4d4cee"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-026.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/026/CH02-026.wav",
+    "size": 40527404,
+    "hash": "f0a13951b37578100f7ce622e76b1c0abb2c2d5f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-027.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/027/CH02-027.srt",
+    "size": 33821,
+    "hash": "7dbf7577fcac3b31c9a25d943d17e4f9539ed33c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-027.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/027/CH02-027.wav",
+    "size": 56159852,
+    "hash": "e2c7e31cb8d1e82adcf0c5998feaa6319dd9496c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-028.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/028/CH02-028.srt",
+    "size": 30413,
+    "hash": "04e12a4fd437fd51a73e300668fc8ce9cf5b1660"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-028.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/028/CH02-028.wav",
+    "size": 51680300,
+    "hash": "4d34cc7262162f61d4e2e6b453f34313ad7010ee"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-029.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/029/CH02-029.srt",
+    "size": 31574,
+    "hash": "ec07d9983a69d8fb9680577c6cd0aa82865a5c90"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-029.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/029/CH02-029.wav",
+    "size": 55750700,
+    "hash": "c15504ed7f4e1e4cb72aebe73a895f0c13a0b797"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-030.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/030/CH02-030.srt",
+    "size": 30845,
+    "hash": "e11ab94f210de5219237ac2199862aa2a29c3fb2"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-030.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/030/CH02-030.wav",
+    "size": 53275052,
+    "hash": "e8cf039a5d9ac6c9ad921f584e33b8b2b0809ac3"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-031.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-031.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/031/CH02-031.srt",
+    "size": 35536,
+    "hash": "03c2b341beb193d76cb752d53a074c654298d678"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-031.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-031.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/031/CH02-031.wav",
+    "size": 61399980,
+    "hash": "eab6b35cc63a058a17434083463c959d397b5d16"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-032.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-032.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/032/CH02-032.srt",
+    "size": 34532,
+    "hash": "e197593901d1abc88dfb35c0cdeaaba6a812c056"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-032.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-032.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/032/CH02-032.wav",
+    "size": 57837548,
+    "hash": "9a4784bda10a09d6fd823e42c737769495a9822e"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-033.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-033.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/033/CH02-033.srt",
+    "size": 34400,
+    "hash": "5e439bfd48a84497ec53a9bb1681a69fef4822f2"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-033.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-033.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/033/CH02-033.wav",
+    "size": 57932524,
+    "hash": "02092b054028e0f3e182586718cfc28f99f23c01"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-034.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-034.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/034/CH02-034.srt",
+    "size": 34884,
+    "hash": "4f87c8f5a49810157f2bf970122e717cd31a6be3"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-034.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-034.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/034/CH02-034.wav",
+    "size": 60185964,
+    "hash": "0c4ad695efb43182bc2c8eafeb31bde73c8ca94c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-035.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-035.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/035/CH02-035.srt",
+    "size": 34557,
+    "hash": "0631b4cb097eef64c8aa2d37030afe3df76f51fe"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-035.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-035.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/035/CH02-035.wav",
+    "size": 58563564,
+    "hash": "c0b4f8014e97800b2bdbdbf9b905c18bdb2bc933"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-036.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-036.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/036/CH02-036.srt",
+    "size": 33878,
+    "hash": "a245515ad7348cc5644085a1be08f144f4694dd3"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-036.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-036.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/036/CH02-036.wav",
+    "size": 57164652,
+    "hash": "da902b1319e775d707f7686a026a74a7e4950d3a"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-037.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-037.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/037/CH02-037.srt",
+    "size": 33613,
+    "hash": "a31bb56bd707733a36bdcdde61fde5d983e86a70"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-038.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-038.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/038/CH02-038.srt",
+    "size": 35175,
+    "hash": "fd03e13a5f71a5b405b96dfcd8cd3a6e4860fdc4"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-039.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-039.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/039/CH02-039.srt",
+    "size": 36105,
+    "hash": "7e320dfd1be5170f8134b1e9e65f62611a04ee69"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-051.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-051.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/051/CH02-051.srt",
+    "size": 32456,
+    "hash": "7a37f60f0e0be8e5f919344b8a4a9cd993d9cf7f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-052.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-052.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/052/CH02-052.srt",
+    "size": 36089,
+    "hash": "812d1509cfc8952e63e3ad8769f923154d51a772"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-055.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-055.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/055/CH02-055.srt",
+    "size": 34652,
+    "hash": "89c6eefad56d6976ef43c91d9ac9ce185a97af85"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-056.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-056.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/056/CH02-056.srt",
+    "size": 35741,
+    "hash": "d2a00110c60e0d9c952eaa0d00d3274eb85c0c34"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-057.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-057.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/057/CH02-057.srt",
+    "size": 29030,
+    "hash": "803ee1ec99c969764875eecbf93c57e795d1f53c"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-058.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-058.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/058/CH02-058.srt",
+    "size": 33875,
+    "hash": "648f0121571d1fc4593b289bc24a3da97d7ca9da"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-059.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-059.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/059/CH02-059.srt",
+    "size": 32957,
+    "hash": "1077d277ec4a0ab58da9e9867b45838f617a04ae"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-060.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-060.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/060/CH02-060.srt",
+    "size": 35042,
+    "hash": "448dfe658b4198d685825e12db019085dea497d7"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-061.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-061.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/061/CH02-061.srt",
+    "size": 34341,
+    "hash": "a86ce8466fe54f6682dd51e613a1172131c06148"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-071.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-071.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/071/CH02-071.srt",
+    "size": 34380,
+    "hash": "102a29d239f7099c100b811095be4bfeece99cb0"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-072.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-072.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/072/CH02-072.srt",
+    "size": 28175,
+    "hash": "b3a06253955dc71c645f8320d48c9ede5779e65f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-073.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-073.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/073/CH02-073.srt",
+    "size": 32264,
+    "hash": "050ffd06bbf7267025e8f36a7e0a204b225354db"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-074.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-074.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/074/CH02-074.srt",
+    "size": 31808,
+    "hash": "7febe3c0fba5bcd21e8f6ab4ca3de07f83b72f82"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-075.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-075.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/075/CH02-075.srt",
+    "size": 29117,
+    "hash": "97d8b317569cb4d8dec82e4c22e7a11961adfd9e"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-076.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-076.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/076/CH02-076.srt",
+    "size": 34258,
+    "hash": "22571b1e41aaf9345b213eb1e4f7a83676f17c35"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-077.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-077.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/077/CH02-077.srt",
+    "size": 26177,
+    "hash": "76baf4d573a250905c85cc6072f390a12c6317b3"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-078.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-078.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/078/CH02-078.srt",
+    "size": 34712,
+    "hash": "4a7e36c9ea2257ef2dbfbdbf7cd802c924c66384"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-079.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-079.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/079/CH02-079.srt",
+    "size": 34703,
+    "hash": "e1cdcc70c75eee81bdc26de25ff6f0b0ae570ca1"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-080.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-080.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/080/CH02-080.srt",
+    "size": 33996,
+    "hash": "a634a62f5eafee82990731a1b9ba4d0413b0eac6"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-081.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-081.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/081/CH02-081.srt",
+    "size": 34301,
+    "hash": "2ced0fd404b865e2169f6d37d98021cabfe1e2da"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-082.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-082.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/082/CH02-082.srt",
+    "size": 35060,
+    "hash": "a6f2c617a2c4ec5345a59742f639cea3ce4dd116"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-001.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/001/CH04-001.srt",
+    "size": 31072,
+    "hash": "eb07a620a96bc1269792f388f9ca542d4a7b9b8e"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-001.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/001/CH04-001.wav",
+    "size": 56328684,
+    "hash": "7934feb5d222ed65aabdbe758f01a10e043888f2"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-002.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/002/CH04-002.srt",
+    "size": 32538,
+    "hash": "93d68e466ef20e4d89948ab7a5fa4a1d94c05d4a"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-002.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/002/CH04-002.wav",
+    "size": 58909900,
+    "hash": "3b24e1cf0dfa661656e6cbd12151b3bee18208f5"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-003.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/003/CH04-003.srt",
+    "size": 28910,
+    "hash": "ed930968b29a34bb33b7d0c247d472afb7add249"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-003.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/003/CH04-003.wav",
+    "size": 52352300,
+    "hash": "8d1c67c02d35f25bbf00c5b8428a979a2e42fe5a"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-004.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/004/CH04-004.srt",
+    "size": 26585,
+    "hash": "715b656395f43c3ecfc4b044ed1050dff29211b2"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-004.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/004/CH04-004.wav",
+    "size": 48713132,
+    "hash": "ded261b4efa747fb65d4a46d02816a1ad121ddb5"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-005.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/005/CH04-005.srt",
+    "size": 25727,
+    "hash": "119cae03b61ef98bf30e87a5b06c347576335d47"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-005.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/005/CH04-005.wav",
+    "size": 45693612,
+    "hash": "634146355c5f73cd95831b94f0d21357342785d2"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-006.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/006/CH04-006.srt",
+    "size": 24449,
+    "hash": "d3280a8e1e56d34dc2ed951f2a446d129d5419e3"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-006.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/006/CH04-006.wav",
+    "size": 44351276,
+    "hash": "24c22a4d5dea298fef886e5a5edfc76bc7eec37a"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-007.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/007/CH04-007.srt",
+    "size": 26654,
+    "hash": "c34bdc2fd70e6f90c5d9b35e8f6d4f44e68a97c5"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-007.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/007/CH04-007.wav",
+    "size": 48346540,
+    "hash": "83950393c1da22146fb31bdb849194ffa9dba2dd"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-008.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/008/CH04-008.srt",
+    "size": 30230,
+    "hash": "cf02815b17fc7477fd77caaa18c208b97ec4bf48"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-008.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/008/CH04-008.wav",
+    "size": 55384236,
+    "hash": "c4e0f353840fb8b8074415b49ea2cafdad554fc8"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-009.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/009/CH04-009.srt",
+    "size": 29288,
+    "hash": "5532f9c9d1a128fb5ce593719cfd5565da9a4bf9"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-009.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/009/CH04-009.wav",
+    "size": 53173868,
+    "hash": "8d207ba8527f3e7865f10eb8660cc75f1b8b52cf"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-010.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/010/CH04-010.srt",
+    "size": 25497,
+    "hash": "a8c63e20b01d034d858eed2daa8cd631f7b1b67d"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-010.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/010/CH04-010.wav",
+    "size": 46492396,
+    "hash": "b1580cac52bf2957ef40de09c056d80bad953bca"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-011.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/011/CH04-011.srt",
+    "size": 26439,
+    "hash": "4e4e42ad90e8476b059b94988447381c2e2c04c9"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-011.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/011/CH04-011.wav",
+    "size": 48476460,
+    "hash": "ca08c62bf4542a930a52f9d37195a35d8e55569e"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-012.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/012/CH04-012.srt",
+    "size": 26312,
+    "hash": "f65d35b47ce6e7e7b7c294a47c58d01f7aeb6f19"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-012.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/012/CH04-012.wav",
+    "size": 47059628,
+    "hash": "de32d07336feaa5f2d90519c0bc71d364cd6dc90"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-013.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/013/CH04-013.srt",
+    "size": 29892,
+    "hash": "faf7cd72e8ca70d218026e5934e8ec4e0848c816"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-013.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/013/CH04-013.wav",
+    "size": 53806956,
+    "hash": "40c3fee059adcb01d40844df2838f3e25eafb80a"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-014.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/014/CH04-014.srt",
+    "size": 27200,
+    "hash": "b9b2c0ff2b484929dfaa5779eb709ac710c45651"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-014.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/014/CH04-014.wav",
+    "size": 49503468,
+    "hash": "95d91169d204868ba036d5ee87b6f661aaeef498"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-015.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/015/CH04-015.srt",
+    "size": 26697,
+    "hash": "566cc08e04b08e726de55e6f0d10a15539ac9a54"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-015.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/015/CH04-015.wav",
+    "size": 49066796,
+    "hash": "2e5d9eee7539bdb2a17da819d05a91b67aa3ebcf"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-016.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/016/CH04-016.srt",
+    "size": 26612,
+    "hash": "5ab396d1bf2785eb8b346a50ecf8caa23cc71dcd"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-016.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/016/CH04-016.wav",
+    "size": 48507372,
+    "hash": "9078e484cb4e5a60d995a182df25c4615590b0e6"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-017.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/017/CH04-017.srt",
+    "size": 25595,
+    "hash": "2a72e4297830d9dab019ef965d310cb8be22a4ec"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-017.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/017/CH04-017.wav",
+    "size": 46702668,
+    "hash": "03f5ac0abe779b65497667b09ac39f3e72a900e4"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-021.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/021/CH04-021.srt",
+    "size": 25586,
+    "hash": "aa8c25c5e91a088c73583373e389a20a2440997d"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-021.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/021/CH04-021.wav",
+    "size": 47835692,
+    "hash": "709cbbcd443fc3472a535906bff74db6dceaa04e"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-022.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/022/CH04-022.srt",
+    "size": 24649,
+    "hash": "86f83ebc6c36f1a1e3df73038447bbe175ee81dd"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-022.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/022/CH04-022.wav",
+    "size": 44554988,
+    "hash": "d0b2968570d641c9a28f8705f454f531aa638f2d"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-023.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/023/CH04-023.srt",
+    "size": 24799,
+    "hash": "8313804ab5eda17138c08db4a73a751a1b270b7d"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-023.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/023/CH04-023.wav",
+    "size": 44198060,
+    "hash": "5eef53a805f892f1b58107e11cb5c144a3fdcfa6"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-024.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/024/CH04-024.srt",
+    "size": 25493,
+    "hash": "9e462f48c7d5214311180b6db94a6c30fc5138a1"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-025.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/025/CH04-025.srt",
+    "size": 25283,
+    "hash": "d0694e2c227e8b448c478e17f5503037029908f1"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-026.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/026/CH04-026.srt",
+    "size": 24594,
+    "hash": "e434a9ec13ccc3d9d4ee3d63f4b2c87b2ce37bdd"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-027.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/027/CH04-027.srt",
+    "size": 26309,
+    "hash": "da7d65cbd5b73a53f9eabdc0c9ffe96fa70c2ce3"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-028.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/028/CH04-028.srt",
+    "size": 30302,
+    "hash": "e7fe4cbf3f68fb089fc355e08a6ef60174b86d7f"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-030.srt": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/030/CH04-030.srt",
+    "size": 30383,
+    "hash": "e1f61b3992f8481a74835402df0056b02598e3bd"
+  },
+  "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-030.wav": {
+    "path": "workspaces/video/input/CH04_隠れ書庫アカシック／心理学/CH04-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH04/030/CH04-030.wav",
+    "size": 54993388,
+    "hash": "449b83cfe21dc7040cb93cd3da20907399a6c7b2"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-001.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/001/CH05-001.srt",
+    "size": 20537,
+    "hash": "8b6247c0e5d9e8da27ab99ab717e3ac22c149a49"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-001.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/001/CH05-001.wav",
+    "size": 36100204,
+    "hash": "b157823a752b0caf7fa831e536e9899f1b836a03"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-002.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/002/CH05-002.srt",
+    "size": 20099,
+    "hash": "00bada4978e326870a259d9782790109d3b96e2d"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-002.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/002/CH05-002.wav",
+    "size": 36127916,
+    "hash": "df6b9e02288809bc5027ed4318d3db894115045f"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-003.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/003/CH05-003.srt",
+    "size": 20116,
+    "hash": "a32bf78b4649fa9b48ed5b0e032793983242f5c5"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-003.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/003/CH05-003.wav",
+    "size": 35353452,
+    "hash": "086525a78c3e59769ca64fe19e051dfe4001a4c8"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-004.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/004/CH05-004.srt",
+    "size": 20279,
+    "hash": "c90d0a1cbef0aaa24fb81cbf355cf6bfb5afb0f7"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-004.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/004/CH05-004.wav",
+    "size": 37649132,
+    "hash": "174647a9165c48e5a41debc09d21328fc2e53236"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-005.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/005/CH05-005.srt",
+    "size": 22472,
+    "hash": "cfec1dc4429b7857d166bed15ddcdfac2481067a"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-005.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/005/CH05-005.wav",
+    "size": 36106860,
+    "hash": "dda6e9cf588431e0aede741d0fb3fe8c02c9bf05"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-006.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/006/CH05-006.srt",
+    "size": 16656,
+    "hash": "1ab0695717cdabd9a4d8d6999961b13438124dec"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-006.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/006/CH05-006.wav",
+    "size": 27925420,
+    "hash": "aebbebcb6d1b4521d0d32d25351b610f64ec0d0b"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-007.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/007/CH05-007.srt",
+    "size": 15128,
+    "hash": "f66fda5c480027fafb13050c62b53b00b05918ca"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-007.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/007/CH05-007.wav",
+    "size": 26257132,
+    "hash": "518b7ed3faa50f6401865fbeca408f522a907238"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-008.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/008/CH05-008.srt",
+    "size": 20162,
+    "hash": "c164ae98cf543dc8cb56d2f93e6970e19a603b3e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-008.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/008/CH05-008.wav",
+    "size": 33717996,
+    "hash": "d403b040a5e6eb5a02bfff56958b2d00bfa3c611"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-009.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/009/CH05-009.srt",
+    "size": 17312,
+    "hash": "451e9871b1caceb524c0dca0442b2476b43c4687"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-009.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/009/CH05-009.wav",
+    "size": 28919340,
+    "hash": "f7f3a227f461ed33245756b5494a7067624c2f6d"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-010.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/010/CH05-010.srt",
+    "size": 16454,
+    "hash": "c664b15e40fdeee70a93a7cd81b7cc977b0d22f7"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-010.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/010/CH05-010.wav",
+    "size": 27006060,
+    "hash": "49570c49a9088cba274000a97bbe3bc3ea6bdb70"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-011.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/011/CH05-011.srt",
+    "size": 20315,
+    "hash": "06eda4fc90a51eb884bef2be22fb850f620ddf0e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-011.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/011/CH05-011.wav",
+    "size": 34112812,
+    "hash": "979283ca25a75502ef521d7b9c42a6bfe8058db1"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-012.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/012/CH05-012.srt",
+    "size": 18200,
+    "hash": "08e89c52cfe5c3a576dc16b94e36ff1c1bdf15bb"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-012.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/012/CH05-012.wav",
+    "size": 29080044,
+    "hash": "1ad4aaee07e013c298042731e9293dae8933914e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-013.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/013/CH05-013.srt",
+    "size": 15884,
+    "hash": "aa04faaada5ec6a3bdcd2ca25419d61d6092fc0e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-013.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/013/CH05-013.wav",
+    "size": 26367340,
+    "hash": "f9cc8f187ef00ce5162ecf6a4eefc2628b1c0af2"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-014.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/014/CH05-014.srt",
+    "size": 17987,
+    "hash": "0a50de7f67a88877404bf92ed78485c37d61e556"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-014.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/014/CH05-014.wav",
+    "size": 29370476,
+    "hash": "ccd330fa88a2df6842d54127fb2674bfa5f5da5f"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-015.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/015/CH05-015.srt",
+    "size": 17762,
+    "hash": "67943b2e95fca0c4506e3e8579e2235691dd8337"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-015.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/015/CH05-015.wav",
+    "size": 29238316,
+    "hash": "98efa59f6388c5414edd200f68d0f8b920e90e8b"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-016.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/016/CH05-016.srt",
+    "size": 18716,
+    "hash": "91f06cf8511106a4f03b2654d099da5db5e26c0e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-016.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/016/CH05-016.wav",
+    "size": 30440876,
+    "hash": "34811560f983423d0148ae72f794b9f878acca2c"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-017.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/017/CH05-017.srt",
+    "size": 16079,
+    "hash": "eb603d99b3fd67a4d60873f892e25665627ca068"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-017.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/017/CH05-017.wav",
+    "size": 27271404,
+    "hash": "d9ddcafd53e01e0daf0698b7a18d56a99038e439"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-018.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/018/CH05-018.srt",
+    "size": 16184,
+    "hash": "23cc4e22a67da8bf529a8aa3d29f3cfdb5e2a305"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-018.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/018/CH05-018.wav",
+    "size": 26698860,
+    "hash": "82522e0556f0bf88e40f3c3d35233a3779d42de9"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-019.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/019/CH05-019.srt",
+    "size": 17084,
+    "hash": "d84a2ba0e39aeb5fdde72be4aad1bfad0b35e108"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-019.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/019/CH05-019.wav",
+    "size": 28297196,
+    "hash": "f076a662afc704177ef0c394aa87166b284b189c"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-020.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/020/CH05-020.srt",
+    "size": 17150,
+    "hash": "503cf700c4b1c67871dc663529e50f826edb83b1"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-020.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/020/CH05-020.wav",
+    "size": 29242220,
+    "hash": "0527266c328dcd1ea2e8da4b7eb3414b430027aa"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-021.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/021/CH05-021.srt",
+    "size": 14666,
+    "hash": "1b47976e2f7c9d9cd5588a4c0ee0946703a1a586"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-021.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/021/CH05-021.wav",
+    "size": 23689388,
+    "hash": "16ba33118c5c1a5fc39c7f6d69110149e41b037e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-022.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/022/CH05-022.srt",
+    "size": 18290,
+    "hash": "9d84773e4b8053a784d13c8d424ffa6903a688b4"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-022.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/022/CH05-022.wav",
+    "size": 29660460,
+    "hash": "f460ad462946e1800494e7ddb8d28f5a74419880"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-023.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/023/CH05-023.srt",
+    "size": 14321,
+    "hash": "19e3ac810bb7a2c73e848ba0cdb9db9b415efb9a"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-023.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/023/CH05-023.wav",
+    "size": 22682988,
+    "hash": "071508c950b4923ba5429cd181124473291b7f25"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-024.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/024/CH05-024.srt",
+    "size": 14393,
+    "hash": "7d33e039b4f2e6d0432cf1a7e818794341bb32b4"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-024.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/024/CH05-024.wav",
+    "size": 22770668,
+    "hash": "2eed4a8327bf6f3a1b841384bd4d1ee2484e2dec"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-025.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/025/CH05-025.srt",
+    "size": 13367,
+    "hash": "cc84ad50be61069798661591a920f0dcd13768fc"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-025.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/025/CH05-025.wav",
+    "size": 21519660,
+    "hash": "a51074a6e40254cfec34e9966f9c84b8859cb46a"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-026.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/026/CH05-026.srt",
+    "size": 16505,
+    "hash": "49fc7efd41d0615e761c76dec39944d023dda73d"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-026.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/026/CH05-026.wav",
+    "size": 26652588,
+    "hash": "305723395eca2f29eb2fc08778cdb586e6da4df3"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-027.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/027/CH05-027.srt",
+    "size": 17489,
+    "hash": "e68fee46620e8d2a86ff63ff5354cc658389a426"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-027.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/027/CH05-027.wav",
+    "size": 26916780,
+    "hash": "f1d53f7b189643f67a6db0f846dbcbff690fb075"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-028.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/028/CH05-028.srt",
+    "size": 15293,
+    "hash": "8acd02922d510186a40e1809488d3cc303129ac6"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-028.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/028/CH05-028.wav",
+    "size": 23385132,
+    "hash": "154496205bacd7eaf9fb0c4b6f4aab7f48d0866e"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-029.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/029/CH05-029.srt",
+    "size": 14438,
+    "hash": "e4b73496ce656034fab0748e71962392c3f6e272"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-029.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/029/CH05-029.wav",
+    "size": 22386156,
+    "hash": "24e438713ca84dcbf63e0add856e57c26e9859de"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-030.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/030/CH05-030.srt",
+    "size": 19115,
+    "hash": "3de3f42a572099eb81b04b0298bf3a561c3e2094"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-030.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/030/CH05-030.wav",
+    "size": 29614380,
+    "hash": "fadf7b99f8c0a40672fb1be5c58608cebcb6390c"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-999.srt": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-999.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/999/CH05-999.srt",
+    "size": 133,
+    "hash": "9e358ee57e52fb7d01e69da0c5b08eea79ed6a9b"
+  },
+  "workspaces/video/input/CH05_シニア恋愛物語/CH05-999.wav": {
+    "path": "workspaces/video/input/CH05_シニア恋愛物語/CH05-999.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH05/999/CH05-999.wav",
+    "size": 221100,
+    "hash": "70457cedfd73a2168736dd43fce04bb9e1b17e4b"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-001.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/001/CH06-001.srt",
+    "size": 38373,
+    "hash": "12bd12f6905b38afb1e8e1e559c7c6f8b2043c2c"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-001.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/001/CH06-001.wav",
+    "size": 72950060,
+    "hash": "037c8a4f725d5ca6e217b2c20c0eb3d2043d34c7"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-002.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/002/CH06-002.srt",
+    "size": 29594,
+    "hash": "3cdeab912e2d6625e3aaa636e2cf7528b6e2c089"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-002.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/002/CH06-002.wav",
+    "size": 63270828,
+    "hash": "445577860d882d3d20a9f404e00d81d601fda1de"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-003.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/003/CH06-003.srt",
+    "size": 30457,
+    "hash": "241ee6ea1deb73ed823f4242316fe277501bbd2f"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-003.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/003/CH06-003.wav",
+    "size": 63560524,
+    "hash": "cab4fb80c0c59b61f8b63c5e02f520bb4b8ebd65"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-004.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/004/CH06-004.srt",
+    "size": 23522,
+    "hash": "acf89c43a313c2f1c00eb1970c9977ab30f3e850"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-004.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/004/CH06-004.wav",
+    "size": 54002732,
+    "hash": "d9253bb37e271b947cbdeb767dd1a6d619d081b8"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-005.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/005/CH06-005.srt",
+    "size": 31216,
+    "hash": "d532d355e08991c1b244da93439652ae274fcddb"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-005.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/005/CH06-005.wav",
+    "size": 74188332,
+    "hash": "fc0bcb620b523d8162552037f9f57064a0302f2c"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-006.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/006/CH06-006.srt",
+    "size": 32504,
+    "hash": "d2006e2e8320bc5e74cedacf4a0677c78dbb1c2d"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-006.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/006/CH06-006.wav",
+    "size": 69362412,
+    "hash": "b1de009aef88afdea2a93a85d6644e2bee5b93bd"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-007.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/007/CH06-007.srt",
+    "size": 31724,
+    "hash": "f3df459196cbbb24bede51cd7551e044b4412989"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-007.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/007/CH06-007.wav",
+    "size": 62066732,
+    "hash": "fa3752078c187405025aac109e5df46617f5a6ad"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-008.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/008/CH06-008.srt",
+    "size": 31945,
+    "hash": "8bfb7c4da0e43a924f1014bee7e51a67d5b89c56"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-008.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/008/CH06-008.wav",
+    "size": 67649324,
+    "hash": "8acb5988d2d94783d37e62de4387d49ec76b59e9"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-009.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/009/CH06-009.srt",
+    "size": 32136,
+    "hash": "096ae31d7aefa0b658a1072d3daf6d09eb9e9a06"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-009.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/009/CH06-009.wav",
+    "size": 68095660,
+    "hash": "c881f434b68c2e80f68ea35bf57b3ed26d32b5f5"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-010.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/010/CH06-010.srt",
+    "size": 33025,
+    "hash": "70af83b6469db1363fd6171d684e25fe32eedb98"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-010.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/010/CH06-010.wav",
+    "size": 75953068,
+    "hash": "65d9d704e621eae3f5dcd145779035b6852e1859"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-011.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/011/CH06-011.srt",
+    "size": 31223,
+    "hash": "3e3f3cc4c9169125f32e5552751daec41fb0efb0"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-011.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/011/CH06-011.wav",
+    "size": 68297548,
+    "hash": "2238eafd14285364fb6b29a535915c9c1940ce95"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-012.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/012/CH06-012.srt",
+    "size": 31337,
+    "hash": "da24634faf8490629a1fcaf2e7a65c5c4a34d240"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-012.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/012/CH06-012.wav",
+    "size": 67860076,
+    "hash": "514a701804660e3f03b04be44f5d197c282d4897"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-013.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/013/CH06-013.srt",
+    "size": 31368,
+    "hash": "cb101d643f4908d41c57b632ef209064ecba8507"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-013.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/013/CH06-013.wav",
+    "size": 70875820,
+    "hash": "7b0152870582abc97b20313cd2d1f9cfc3ee8d5c"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-014.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/014/CH06-014.srt",
+    "size": 31172,
+    "hash": "989f321ba2aa5ce0d461d3eddc19b12f3a1fc75c"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-014.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/014/CH06-014.wav",
+    "size": 69564556,
+    "hash": "81a5dd4b71ab211b07600be40f4c72ea78a2b697"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-015.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/015/CH06-015.srt",
+    "size": 31481,
+    "hash": "8630f431c2fee1c330ca1e6bbf375a4a76709ebd"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-015.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/015/CH06-015.wav",
+    "size": 73287980,
+    "hash": "c6b121dc04d45a560a4189bea49f87c40d14720a"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-016.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/016/CH06-016.srt",
+    "size": 32578,
+    "hash": "a058a6d2bfb70a2234da14a411feb8a6cc2740ca"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-016.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/016/CH06-016.wav",
+    "size": 79009260,
+    "hash": "51dced95c48f331d589105aaee0a0d6a69089676"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-017.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/017/CH06-017.srt",
+    "size": 27662,
+    "hash": "f512f56ae40500bd8c7f879e0b8d16b0c46150f0"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-017.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/017/CH06-017.wav",
+    "size": 61680428,
+    "hash": "6f5a53ec55921e775d41450a18a85d19573f8d54"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-018.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/018/CH06-018.srt",
+    "size": 30959,
+    "hash": "822699c7ad77c186d4b5cf173d44c94b5222dc75"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-018.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/018/CH06-018.wav",
+    "size": 74402412,
+    "hash": "3de1e1573b94a2d01a048127d5fb0d36d6728213"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-019.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/019/CH06-019.srt",
+    "size": 30022,
+    "hash": "2c6fb33869f7f9a7cae2c9d73205b2879d734c6e"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-019.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/019/CH06-019.wav",
+    "size": 70637260,
+    "hash": "26bbfb1db100b802885ceac287be2321715d64bb"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-020.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/020/CH06-020.srt",
+    "size": 30462,
+    "hash": "158d2c49a832ff3b42db5ac223019e341b88292f"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-020.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/020/CH06-020.wav",
+    "size": 74142060,
+    "hash": "a1af0c683e28282e1c006eee891dc874fb490a69"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-021.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/021/CH06-021.srt",
+    "size": 29767,
+    "hash": "09e64491d2e0f99133967898729f700d187e24c4"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-021.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/021/CH06-021.wav",
+    "size": 71655564,
+    "hash": "046ac1ffbbf68695e5b9a93dc8f3f1c9c4c27d4d"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-022.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/022/CH06-022.srt",
+    "size": 29984,
+    "hash": "edd0e35ff31d1c1d42e5754c6c7828ed4100c399"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-022.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/022/CH06-022.wav",
+    "size": 67971692,
+    "hash": "e946257e16d168a85d927f10a7752cf98ca722aa"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-023.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/023/CH06-023.srt",
+    "size": 29306,
+    "hash": "ce28189dee9c1478857d58c38d76858644e10e32"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-023.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/023/CH06-023.wav",
+    "size": 68136300,
+    "hash": "a141bfe747d97c9d367c3c9ffbc65efd051468be"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-024.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/024/CH06-024.srt",
+    "size": 29653,
+    "hash": "83a367a1970214e31869f8160bfb7a25f817bc05"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-024.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/024/CH06-024.wav",
+    "size": 68097708,
+    "hash": "6c2ee87f987afa1dfbfaf119780b40f433821e76"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-025.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/025/CH06-025.srt",
+    "size": 29823,
+    "hash": "f0f108a5acdd192a508ecad0208a179888947664"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-025.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/025/CH06-025.wav",
+    "size": 68353964,
+    "hash": "3b0ca98045c282f6eedf61f960de888470d7da91"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-026.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/026/CH06-026.srt",
+    "size": 30446,
+    "hash": "fa3a59f6ae453d109a78f8f4acb978bb0fac7ee0"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-026.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/026/CH06-026.wav",
+    "size": 71136780,
+    "hash": "0097a54d95319e08ee0e72f48bc5df2a74d4fa2c"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-027.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/027/CH06-027.srt",
+    "size": 29768,
+    "hash": "932aa474e7caeb1f5539d17d14c9ac0022d68e77"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-027.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/027/CH06-027.wav",
+    "size": 72050444,
+    "hash": "85a33ecd9b37c873fa236745f3826ad0524d4237"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-028.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/028/CH06-028.srt",
+    "size": 30646,
+    "hash": "bd00b1f46b7ec6e5b432ccc76f2a0967f3370cd0"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-028.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/028/CH06-028.wav",
+    "size": 72671436,
+    "hash": "e2b16a139576e89d0770425b97d45249c75d95e8"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-029.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/029/CH06-029.srt",
+    "size": 27479,
+    "hash": "b7669f18245616fd418bdc186f1b84167a40d2a8"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-029.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/029/CH06-029.wav",
+    "size": 67760396,
+    "hash": "5e2362097112bd62e3a94476fa5fadedb7701130"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-030.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/030/CH06-030.srt",
+    "size": 22862,
+    "hash": "c68affb4397e2c8fed4931c354122ae0072ee528"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-030.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/030/CH06-030.wav",
+    "size": 57906988,
+    "hash": "9870432239793e9bdbc35e36a85563db363a5c0b"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-031.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-031.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/031/CH06-031.srt",
+    "size": 23223,
+    "hash": "c07e1be94109f5556cd5c1a1b28fa472298cb99f"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-031.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-031.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/031/CH06-031.wav",
+    "size": 51463276,
+    "hash": "2a01bd7fe77ac7722483ac4a1426309698ca2c2d"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-032.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-032.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/032/CH06-032.srt",
+    "size": 18364,
+    "hash": "786efc8c642c7cdd413374b1e27017700d2fe828"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-032.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-032.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/032/CH06-032.wav",
+    "size": 43504972,
+    "hash": "434dbb1ef13452fbeb16fc602df985e3b934ec01"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-033.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-033.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/033/CH06-033.srt",
+    "size": 20678,
+    "hash": "53824781df560a4c59ff887e9014532eca0a9346"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-033.wav": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-033.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/033/CH06-033.wav",
+    "size": 46663468,
+    "hash": "17c1505fb3e4fdefc407172476f92b372724e806"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-996.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-996.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/996/CH06-996.srt",
+    "size": 214,
+    "hash": "6a54db14ca1771b90b05c0ac8c0b037e71ea3b69"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-997.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-997.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/997/CH06-997.srt",
+    "size": 275,
+    "hash": "e09ca9169f0e117d3a5948e74eddb76cdbc30cf6"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-998.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-998.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/998/CH06-998.srt",
+    "size": 255,
+    "hash": "3e83c0ed67ffce618a7865a64a15da3221e5f064"
+  },
+  "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-999.srt": {
+    "path": "workspaces/video/input/CH06_都市伝説のダーク図書館/CH06-999.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH06/999/CH06-999.srt",
+    "size": 297,
+    "hash": "75adea13dd0b60e43a192ac84c604e76e74b2a39"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-001.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/001/CH08-001.srt",
+    "size": 39913,
+    "hash": "5e7eeffc472b63c016815e6d6f6826c2eb6b62d8"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-001.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/001/CH08-001.wav",
+    "size": 55769580,
+    "hash": "0691d83e5ce5005eac80679bac674e792c95416a"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-002.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/002/CH08-002.srt",
+    "size": 25522,
+    "hash": "87fe1f6664dc8c74f69e3a20f037456b7b7875f2"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-002.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/002/CH08-002.wav",
+    "size": 47192940,
+    "hash": "04fc2cdead5e66e55d7d5927140a6f126bc349e6"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-003.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/003/CH08-003.srt",
+    "size": 26769,
+    "hash": "c522da26e70e308e1ed2cf0ac24234498763e5f7"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-003.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/003/CH08-003.wav",
+    "size": 48304492,
+    "hash": "9b5665bb4584efa1072bd27f8432a44a7d202868"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-004.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/004/CH08-004.srt",
+    "size": 29954,
+    "hash": "2dfbe6ba1bf28df560891329bb985ae5ff0abcd3"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-004.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/004/CH08-004.wav",
+    "size": 52616556,
+    "hash": "fbd6b2a8b50243bb7078ddf50dc5f54caf66a412"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-005.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/005/CH08-005.srt",
+    "size": 30269,
+    "hash": "e7612ba3464aaf4c83c7525bd1be0d19dd666174"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-005.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/005/CH08-005.wav",
+    "size": 50491436,
+    "hash": "726c08667f19f5e1c69131ff482bf965f183dafb"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-006.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/006/CH08-006.srt",
+    "size": 43613,
+    "hash": "2b27500fff532f62f439f88c98368dbeee6e0ff5"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-006.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/006/CH08-006.wav",
+    "size": 72295660,
+    "hash": "44b7a39d675ecc9c1de19094023de0158246e618"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-007.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/007/CH08-007.srt",
+    "size": 48623,
+    "hash": "7fad4ab0c940af857b721d77a6006b3561d82ca9"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-007.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/007/CH08-007.wav",
+    "size": 70993004,
+    "hash": "10d77ab083309eed141361cc8343e86ea460d38c"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-008.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/008/CH08-008.srt",
+    "size": 38447,
+    "hash": "24100c0432d33058873c98e4b19cc063b0f3d225"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-008.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/008/CH08-008.wav",
+    "size": 55442924,
+    "hash": "43698280963f02b412ad31fa1b37089998227ac0"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-009.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/009/CH08-009.srt",
+    "size": 42551,
+    "hash": "e0edc6a2a6797ab71084ff4369724f3833ff2979"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-009.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/009/CH08-009.wav",
+    "size": 59680812,
+    "hash": "f9c63994455405857e92b100852fdac3d679de0f"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-010.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/010/CH08-010.srt",
+    "size": 51718,
+    "hash": "2e75dc56dedbf7eae86324d4658d75b47642babc"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-010.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/010/CH08-010.wav",
+    "size": 73403116,
+    "hash": "2dd9e35fae645e7e85261680a329c43149eac592"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-011.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/011/CH08-011.srt",
+    "size": 36050,
+    "hash": "ccb8342e5ce580b96ff2173fcab1061340c83cb6"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-011.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/011/CH08-011.wav",
+    "size": 61357356,
+    "hash": "3ed8f0d7c819d1d1bf2e4b844d940eb4a5ffb6ba"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-012.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/012/CH08-012.srt",
+    "size": 29908,
+    "hash": "b4660b1e684a7f9b67cf6a73e2736809b134f0c7"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-012.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/012/CH08-012.wav",
+    "size": 55964460,
+    "hash": "bc19099957665745bd38a2488d3ebd5414db5f98"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-013.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/013/CH08-013.srt",
+    "size": 33304,
+    "hash": "70c57a24df8272e1e120f1e502ddd0d7acf40cab"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-013.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/013/CH08-013.wav",
+    "size": 61553644,
+    "hash": "88416c8ed1a9f6c7b3efe42669788aece1c5f6b0"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-014.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/014/CH08-014.srt",
+    "size": 27238,
+    "hash": "7c79e5cfb8ff5407101788f1c97b9e1f93e8da01"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-014.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/014/CH08-014.wav",
+    "size": 50319468,
+    "hash": "54c742130d29a2daa2d08df732fb761d3a9f33c4"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-015.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/015/CH08-015.srt",
+    "size": 27227,
+    "hash": "1fe78c7d912d97bc3714b0b7b0c59d5ddd7af773"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-015.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/015/CH08-015.wav",
+    "size": 50830892,
+    "hash": "85894e4c1e595f128c9b5ba63439aed2db950237"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-016.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/016/CH08-016.srt",
+    "size": 43178,
+    "hash": "c49cd796f33b3a315921dab206b989b61948bf49"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-016.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/016/CH08-016.wav",
+    "size": 84694380,
+    "hash": "fce9bf0e1c5384c471bd9f2a9b96b6ee171f0015"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-017.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/017/CH08-017.srt",
+    "size": 27441,
+    "hash": "f28576e9543619748069b934cf3a2a67379ae8ac"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-017.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/017/CH08-017.wav",
+    "size": 53569452,
+    "hash": "b72ad3834aff1e258ba06b7e4a5735d78581238e"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-018.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/018/CH08-018.srt",
+    "size": 33464,
+    "hash": "b7f3efe7b0b6666fdfd9668b2dd3b511bea54f53"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-018.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/018/CH08-018.wav",
+    "size": 62971372,
+    "hash": "9cbaf5c8ac91aab87f2364e8d8cfd1cc008288ce"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-019.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/019/CH08-019.srt",
+    "size": 30638,
+    "hash": "3fd95392d0f06e00428c2172d7fc94663e2ae45c"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-019.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/019/CH08-019.wav",
+    "size": 55671340,
+    "hash": "2f6f96c579428fec19940eb533c2a9461ecefdd0"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-020.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/020/CH08-020.srt",
+    "size": 28553,
+    "hash": "7c8757cfd23cfc08467b07d54f1ddca1266c54e6"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-020.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/020/CH08-020.wav",
+    "size": 52495596,
+    "hash": "f233ed7ff9746048260af1c3640f945ec567b210"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-021.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/021/CH08-021.srt",
+    "size": 30044,
+    "hash": "5c673101434f4747a375211c44ce4d2753b4b925"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-021.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/021/CH08-021.wav",
+    "size": 53161388,
+    "hash": "f0793145fdaa604a24c428dbd83ca3b87c5291a4"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-022.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/022/CH08-022.srt",
+    "size": 26567,
+    "hash": "d00f1cbae7c82545f655a3b3fc1f420d4cb67854"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-022.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/022/CH08-022.wav",
+    "size": 46162412,
+    "hash": "a27f15f896b49319f89f34329ba02714445fd9f6"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-023.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/023/CH08-023.srt",
+    "size": 30389,
+    "hash": "32a341867f67b93d68b5b8992dfd793c6b25cee1"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-023.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/023/CH08-023.wav",
+    "size": 48934124,
+    "hash": "69dafb0dfa6d0c6451b112bbe225b41de5f2619c"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-024.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/024/CH08-024.srt",
+    "size": 36097,
+    "hash": "e6176e00a53e0665b2d1cfd4cf6df1eb810a158c"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-024.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/024/CH08-024.wav",
+    "size": 64120300,
+    "hash": "3f45c2a9d480a275dc9042d3bf77d131511d783d"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-025.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/025/CH08-025.srt",
+    "size": 33836,
+    "hash": "88e748825c6e4ea786712319d4c09609092e9b01"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-025.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/025/CH08-025.wav",
+    "size": 51602988,
+    "hash": "0e44baf2c1b185d84ecff2d6725825293ef89345"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-026.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/026/CH08-026.srt",
+    "size": 36377,
+    "hash": "ff68b3880eaa7c7ecd23f6c8e46cb1487e9cddfe"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-026.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/026/CH08-026.wav",
+    "size": 53011180,
+    "hash": "474f96a56a43c70186b4463fe1256bdf3bfcff6e"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-027.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/027/CH08-027.srt",
+    "size": 37889,
+    "hash": "5e193a777bd1f1d7d3473ce36ff28d9b4661ea8d"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-027.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/027/CH08-027.wav",
+    "size": 56127788,
+    "hash": "5830d1190511d70f05b835a3159cd91dc35b03d6"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-028.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/028/CH08-028.srt",
+    "size": 33452,
+    "hash": "68d2b1248071903628de38a002f302ced9e35f47"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-028.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/028/CH08-028.wav",
+    "size": 49067884,
+    "hash": "0b0bd406e8bf3725e4adc55c10983d674c299911"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-029.srt": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/029/CH08-029.srt",
+    "size": 33722,
+    "hash": "d95d33b62b13a82acd397eca49f62d28b0773fca"
+  },
+  "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-029.wav": {
+    "path": "workspaces/video/input/CH08_未設定プレースホルダ8/CH08-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH08/029/CH08-029.wav",
+    "size": 49641964,
+    "hash": "42eef0842b460fa87db52a8fabfb8f278b4c40ea"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/001/CH09-001.srt",
+    "size": 25879,
+    "hash": "a188d980b1e209517521b3f82bc066c07b44797f"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/001/CH09-001.wav",
+    "size": 47218668,
+    "hash": "a078ce147cad7ba3d986506f8d886ff9a6efe8c3"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-002.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/002/CH09-002.srt",
+    "size": 25012,
+    "hash": "dd7cb79ebb937a26c74e02d8ff58cae94f693813"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-002.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/002/CH09-002.wav",
+    "size": 44964780,
+    "hash": "d4f5044065699e41365c8dc30354656fad4a859e"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-003.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/003/CH09-003.srt",
+    "size": 22258,
+    "hash": "f92b62e188cc441f9e11c287d00a60edc7990ddf"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-003.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/003/CH09-003.wav",
+    "size": 42923308,
+    "hash": "8efaadde001bff57c3c226d352c0d459ce299b44"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-004.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/004/CH09-004.wav",
+    "size": 44557036,
+    "hash": "e0c03b097935c9b336f82ca76ac237842dba3c55"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-005.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/005/CH09-005.wav",
+    "size": 45621740,
+    "hash": "ff3f14d04fea4ef8a2c12d15a4dfdfe2f0cfe617"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/006/CH09-006.srt",
+    "size": 25727,
+    "hash": "beed3d92d6e6ec529e3ac1384983ea224c5ad5b7"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/006/CH09-006.wav",
+    "size": 49063724,
+    "hash": "a8b030c4c441b1968a755de06de6e5de309a4571"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/007/CH09-007.srt",
+    "size": 23457,
+    "hash": "10847b3ce95db6e8983291f576497950d89ad360"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/007/CH09-007.wav",
+    "size": 44392492,
+    "hash": "6e27850dc39382c067e30f23e0d4bfc17b9a3ffa"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/008/CH09-008.srt",
+    "size": 22677,
+    "hash": "7fa60800e56f39f8ca9de1e8ff84bef2c2b4b795"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/008/CH09-008.wav",
+    "size": 42259692,
+    "hash": "333d8f5ec2e5f7d6f81ec193aa214dff508c069c"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/009/CH09-009.srt",
+    "size": 18015,
+    "hash": "13582cb114895c8fb6bea2a8939d9367a9eb931f"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/009/CH09-009.wav",
+    "size": 33897516,
+    "hash": "4fdb35d5f63d5e7df1b77153d93c42fe0f14f399"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/010/CH09-010.srt",
+    "size": 23894,
+    "hash": "4ae73dfa26362cb63d630c8569d92f450d37ac78"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/010/CH09-010.wav",
+    "size": 44642348,
+    "hash": "44e997ccea4a62d4b028bf3651cfec20b4f7295a"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/011/CH09-011.srt",
+    "size": 17510,
+    "hash": "b3210eda9004c6027c818b4b152704af1122e2b0"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/011/CH09-011.wav",
+    "size": 33747244,
+    "hash": "0ca893a4e5f4ee4c8f5167eabfd1519aea7c1916"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/012/CH09-012.srt",
+    "size": 16483,
+    "hash": "1c7df5a1bd4748d5b4ceab498bcd0d6192e48251"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/012/CH09-012.wav",
+    "size": 31029356,
+    "hash": "fdea7a8f122d4710d688984cb4df5eba391748a7"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-013.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/013/CH09-013.srt",
+    "size": 11426,
+    "hash": "3e39b201e99894f50bae1e568b08dbd5f6809317"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-013.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/013/CH09-013.wav",
+    "size": 21982124,
+    "hash": "c04c1b06223c1287e184d9cf9f854a8a341c4f87"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-014.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/014/CH09-014.srt",
+    "size": 14546,
+    "hash": "6e355d9f177e704f1535f5cc8d9fcb550fb6f05f"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-014.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/014/CH09-014.wav",
+    "size": 27657836,
+    "hash": "8545f333fba6372a71b69482703467a68a69fae7"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-015.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/015/CH09-015.srt",
+    "size": 23987,
+    "hash": "8d40ab6058e9a9890f004d84babb95f4585d20e3"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-015.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/015/CH09-015.wav",
+    "size": 46191532,
+    "hash": "dc6797700deb6a15e8035152d4784d821b1ef9d3"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-016.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/016/CH09-016.srt",
+    "size": 12134,
+    "hash": "afadc3b5fd248474a439364668b5dfbeb88ab639"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-016.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/016/CH09-016.wav",
+    "size": 22221420,
+    "hash": "78ef3fef548a91bf1da903de5965e1cb6bd960ca"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-017.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/017/CH09-017.srt",
+    "size": 10024,
+    "hash": "9ddf9a369664a9ce10d01c12a8c2bb0d94701afb"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-017.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/017/CH09-017.wav",
+    "size": 18918252,
+    "hash": "50f0c6e694b06e3ebd31288e62f4c309fdb29432"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-018.srt": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/018/CH09-018.srt",
+    "size": 10107,
+    "hash": "efb27ec686ccab797e07b1044e4d421a556d8e44"
+  },
+  "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-018.wav": {
+    "path": "workspaces/video/input/CH09_未設定プレースホルダ9（偉人_人物系想定）/CH09-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH09/018/CH09-018.wav",
+    "size": 19503340,
+    "hash": "c652b510ba7d601422f7b2b01678ee7a3baef935"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-001.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/001/CH10-001.srt",
+    "size": 25644,
+    "hash": "ddf51affd1f2b52fe344f5785feb08bcd5087d83"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-001.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/001/CH10-001.wav",
+    "size": 46609196,
+    "hash": "b02d56bef01089f3a14e4d860192b4cdcb8c6e33"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-002.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/002/CH10-002.srt",
+    "size": 24680,
+    "hash": "14d784ab49fe0612144b5e5533f9740052af94a6"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-002.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/002/CH10-002.wav",
+    "size": 44020076,
+    "hash": "25651759862452991116e057074cab8b85fd4fe3"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-003.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/003/CH10-003.srt",
+    "size": 27840,
+    "hash": "3c60b8387942655d4e9661ccadc6e4e556d2f748"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-003.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/003/CH10-003.wav",
+    "size": 48224940,
+    "hash": "8b9f70fc120fec751be9f226a0ab5788a4c78a06"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-004.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-004.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/004/CH10-004.srt",
+    "size": 26961,
+    "hash": "e04037d1dd6338aee84ffad3d7c59975a24c31cb"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-004.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-004.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/004/CH10-004.wav",
+    "size": 47613036,
+    "hash": "8cc794861d53c6845406c554154d661f59d8a587"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-005.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-005.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/005/CH10-005.srt",
+    "size": 26849,
+    "hash": "a2c18d8f1a0d0395549709377dc6a0fcf93c3e94"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-005.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-005.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/005/CH10-005.wav",
+    "size": 48104748,
+    "hash": "7e36980a3a101514d45048b16726308e68304076"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-006.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-006.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/006/CH10-006.srt",
+    "size": 26961,
+    "hash": "9335ace64f6cc927af849d860d44df55f974f267"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-006.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-006.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/006/CH10-006.wav",
+    "size": 47364268,
+    "hash": "72023850f44d93a6dccb2c39d2ff3c8f1d86e2fb"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-007.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-007.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/007/CH10-007.srt",
+    "size": 16934,
+    "hash": "5f0f01a633c7203a8f9e2086c6039696e771fd9f"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-007.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-007.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/007/CH10-007.wav",
+    "size": 29211948,
+    "hash": "294b67904bdc269058458c4e0781d7a85df6f50f"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-008.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-008.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/008/CH10-008.srt",
+    "size": 27458,
+    "hash": "09acbcb67d8754c47e9201dad126ddb18aec7b50"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-008.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-008.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/008/CH10-008.wav",
+    "size": 48949420,
+    "hash": "8f26c22a0b8b0cd6c106723bb0c85dac5b5f59ab"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-009.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-009.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/009/CH10-009.srt",
+    "size": 28349,
+    "hash": "f0a76c5831a4705d08af839f9079ff49d93645eb"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-009.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-009.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/009/CH10-009.wav",
+    "size": 48835180,
+    "hash": "a5200ebb3ec0deffc2d5859f3b3f08cb57027c7d"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-010.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-010.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/010/CH10-010.srt",
+    "size": 28872,
+    "hash": "ff4a4a11e968be449d66aa32c97c7922fac0c6e0"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-010.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-010.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/010/CH10-010.wav",
+    "size": 51111020,
+    "hash": "b0151133eac1f050675c29650aefbc0f62076b9e"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-011.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-011.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/011/CH10-011.srt",
+    "size": 28172,
+    "hash": "e7d3aa788d5b2ee5431b5b8bab5a8b0ed613b7e7"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-011.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-011.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/011/CH10-011.wav",
+    "size": 50041900,
+    "hash": "310dafe3e907a6ecd6fea2aabff3545090585ffa"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-012.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-012.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/012/CH10-012.srt",
+    "size": 28027,
+    "hash": "99a4c42bb2a22a7d3aa1b8e5f71c1e75f1c11420"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-012.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-012.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/012/CH10-012.wav",
+    "size": 50560300,
+    "hash": "e4c9fb7b8fcc1256dded4a4a645436d021f16ed1"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-013.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-013.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/013/CH10-013.srt",
+    "size": 26658,
+    "hash": "bc03882ee8aacba5743ab7bacffe60f4cbf89e9f"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-013.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-013.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/013/CH10-013.wav",
+    "size": 47612332,
+    "hash": "c7fe7b758e1cc4d907f0ef9f607a0b7468516fa5"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-014.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-014.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/014/CH10-014.srt",
+    "size": 27356,
+    "hash": "e5720b5975a1b1ae9eb1c4d9002f29966f19ce52"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-014.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-014.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/014/CH10-014.wav",
+    "size": 48394284,
+    "hash": "6ee15a4345f56e07740670ccf8d93ceaf4ef9682"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-015.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-015.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/015/CH10-015.srt",
+    "size": 28094,
+    "hash": "9da1f250763d14d567b2a8a9c1e7bdbaa3ce7f30"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-015.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-015.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/015/CH10-015.wav",
+    "size": 49680940,
+    "hash": "731bd8cf4ad039a48ff88080d6cfc3fb7fdaab22"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-016.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-016.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/016/CH10-016.srt",
+    "size": 28001,
+    "hash": "64de80687a52e1e709a3fcb149b0e1a35ff3c942"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-016.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-016.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/016/CH10-016.wav",
+    "size": 48796140,
+    "hash": "af681ec99a7e174f6cbab1ec2f41b33b23a7beef"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-017.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-017.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/017/CH10-017.srt",
+    "size": 28532,
+    "hash": "f9a43395459a41243e0e09a491d26b18141bfd2f"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-017.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-017.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/017/CH10-017.wav",
+    "size": 50180140,
+    "hash": "a50dcd00a33386613f4686b89d677a541c6819e8"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-018.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-018.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/018/CH10-018.srt",
+    "size": 28244,
+    "hash": "aad5e9931d664d4bb02c93c9151302384f65b3a3"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-018.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-018.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/018/CH10-018.wav",
+    "size": 49799212,
+    "hash": "8c47f40add7699bc3ed0c7803b1df9effe90b188"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-019.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-019.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/019/CH10-019.srt",
+    "size": 27938,
+    "hash": "26983b298af2159490cb2cb78fafc8d60b96ff1c"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-019.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-019.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/019/CH10-019.wav",
+    "size": 49110188,
+    "hash": "8d01ef3ac7d8026eaac2007da69e54d0f458a9b2"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-020.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-020.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/020/CH10-020.srt",
+    "size": 28046,
+    "hash": "3c743895cf8275dc25b78bf41a129f2a59f5f5bd"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-020.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-020.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/020/CH10-020.wav",
+    "size": 49283372,
+    "hash": "178f2f45c756474a59e272174633ee6ce2350a73"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-021.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-021.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/021/CH10-021.srt",
+    "size": 27671,
+    "hash": "2ada9b6847712aa0202122ef91ab02b080236cfb"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-021.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-021.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/021/CH10-021.wav",
+    "size": 50022636,
+    "hash": "f1c32d24e23f3751cbbddfe225f256eea22dae43"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-022.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-022.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/022/CH10-022.srt",
+    "size": 26771,
+    "hash": "0b2af7a3dd90c7b394372b5957269655daa9e7d2"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-022.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-022.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/022/CH10-022.wav",
+    "size": 47459436,
+    "hash": "576291b9d16ca893a0b8127a46e26352708d849f"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-023.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-023.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/023/CH10-023.srt",
+    "size": 28214,
+    "hash": "13f2e1626aeebf26c00b7a62e1d6c12eb245913c"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-023.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-023.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/023/CH10-023.wav",
+    "size": 49820844,
+    "hash": "b7b350c46b1068ce99e9a43e0f4e494c6f66d775"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-024.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-024.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/024/CH10-024.srt",
+    "size": 28031,
+    "hash": "82d23acb24bf237c011b529bb6972a9c1e118a54"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-024.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-024.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/024/CH10-024.wav",
+    "size": 49300332,
+    "hash": "6825fc35e03262bb3049457ef3ed17a4bb6ac48c"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-025.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-025.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/025/CH10-025.srt",
+    "size": 28466,
+    "hash": "78d7478e3bf96fcf66d346cf554eb07bcf6b523d"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-025.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-025.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/025/CH10-025.wav",
+    "size": 49667884,
+    "hash": "3c73b0efd71e29230edb1b9856b52be77cc76740"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-026.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-026.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/026/CH10-026.srt",
+    "size": 26990,
+    "hash": "3a1c526474ee47544dcd89e6da01e4c4be0c6d63"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-026.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-026.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/026/CH10-026.wav",
+    "size": 49308460,
+    "hash": "0c73eaac235e460bbd1ff69f8f8d382ca3711208"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-027.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-027.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/027/CH10-027.srt",
+    "size": 27536,
+    "hash": "6f9dbf9cb61e923cfe53407aa61c3ccbf94a8ca5"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-027.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-027.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/027/CH10-027.wav",
+    "size": 49627244,
+    "hash": "156b9396b133fd39290f092a44e9f00a08b9f8c9"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-028.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-028.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/028/CH10-028.srt",
+    "size": 28355,
+    "hash": "79600e08850e97cac2ac8d243daa5af2dce6117c"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-028.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-028.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/028/CH10-028.wav",
+    "size": 50229356,
+    "hash": "90083c73c8271db4b4d0819034307e0e4d700703"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-029.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-029.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/029/CH10-029.srt",
+    "size": 25706,
+    "hash": "a456e794b14a8391ae3b16b6d273d9d25b12e478"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-029.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-029.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/029/CH10-029.wav",
+    "size": 47675500,
+    "hash": "3c3f00867bdf919ef0936ccd8562683b67eff230"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-030.srt": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-030.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/030/CH10-030.srt",
+    "size": 40,
+    "hash": "3bef8c76d951afe707e41e678d7d83f5e9619876"
+  },
+  "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-030.wav": {
+    "path": "workspaces/video/input/CH10_未設定プレースホルダ10（偉人_人物系想定）/CH10-030.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH10/030/CH10-030.wav",
+    "size": 42732,
+    "hash": "55fe0d76fce88cb1a9afe8c862002f2cf0405572"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-001.srt": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-001.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-001.srt",
+    "size": 174,
+    "hash": "2785b0e1c5bf2afb01a77877d704a8d76273f6aa"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-002.srt": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-002.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-002.srt",
+    "size": 174,
+    "hash": "7e7f18da0cc553b27ea2f6c9bf6046697abd9074"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-003.srt": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-003.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-003.srt",
+    "size": 174,
+    "hash": "1c7cdfdeb806cff00649cd5448e23aacca04526f"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-001.wav": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-001.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-001.wav",
+    "size": 224300,
+    "hash": "330a61a7a81bb080d84ca62fd769b92a0aa1bede"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-002.wav": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-002.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-002.wav",
+    "size": 165164,
+    "hash": "c2d938c54909442f42c05e3db1b279b3561a9d5f"
+  },
+  "workspaces/video/input/CHTEST_CHTEST/CHTEST-003.wav": {
+    "path": "workspaces/video/input/CHTEST_CHTEST/CHTEST-003.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CHTEST/CHTEST-003.wav",
+    "size": 578092,
+    "hash": "24e1c5965c11e99c59a861044bdf49e22fe0a6ee"
   }
 }

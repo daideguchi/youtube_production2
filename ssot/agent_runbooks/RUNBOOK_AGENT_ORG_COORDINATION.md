@@ -14,6 +14,11 @@
 - 正本ディレクトリは `logs/agent_tasks/coordination/`（`LLM_AGENT_QUEUE_DIR` で変更可）。
 - 重要: zsh は `ui/**` のような `**` を展開するため、glob は **必ずクォート**する（`'ui/**'`）。
 
+## 2.1 UI（可視化）
+- UIページ: `/agent-org`
+- Backend API: `/api/agent-org/*`
+- もし `/api/agent-org/*` が 404 なら、backend の再起動が必要（新規 router を reload が拾わないことがある）。
+
 ## 3. Orchestrator（任命・奪取不可）
 ### 3.1 起動
 ```bash
@@ -43,9 +48,10 @@ python scripts/agent_org.py agents stop --name Mike
 
 ## 5. 役割の付与（Orchestrator request）
 ```bash
+python scripts/agent_org.py agents list
 python scripts/agent_org.py orchestrator request \\
   --action set_role \\
-  --payload-json '{\"agent_name\":\"Mike\",\"role\":\"audio_worker\"}' \\
+  --payload-json '{\"agent_id\":\"<AGENT_ID>\",\"role\":\"audio_worker\"}' \\
   --wait-sec 3
 ```
 
@@ -64,7 +70,7 @@ python scripts/agent_runner.py list
 ```bash
 python scripts/agent_org.py orchestrator request \\
   --action assign_task \\
-  --payload-json '{\"task_id\":\"<TASK_ID>\",\"agent_name\":\"Mike\",\"note\":\"handle this\"}' \\
+  --payload-json '{\"task_id\":\"<TASK_ID>\",\"agent_id\":\"<AGENT_ID>\",\"note\":\"handle this\"}' \\
   --wait-sec 3
 ```
 
@@ -95,4 +101,3 @@ python scripts/agent_org.py memos --to Mike
 ```bash
 tail -n 50 logs/agent_tasks/coordination/events.jsonl
 ```
-

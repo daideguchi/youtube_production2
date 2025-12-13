@@ -106,7 +106,6 @@ def generate_belt_from_script(
             task="belt_generation",  # This task should be defined in the config
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
-            max_tokens=1500,
             response_format="json_object"  # Request JSON response - this may not work with all providers
         )
 

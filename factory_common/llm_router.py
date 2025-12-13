@@ -69,6 +69,22 @@ def _extract_request_id(result: Any) -> Optional[str]:
                 except Exception:
                     continue
     return None
+
+
+def _extract_finish_reason(result: Any) -> Optional[str]:
+    """
+    Extract finish_reason for OpenAI-compatible ChatCompletion responses.
+    Returns None when unavailable.
+    """
+    try:
+        choices = getattr(result, "choices", None)
+        if choices:
+            fr = getattr(choices[0], "finish_reason", None)
+            if fr:
+                return str(fr)
+    except Exception:
+        pass
+    return None
 # Try importing OpenAI
 try:
     from openai import OpenAI, AzureOpenAI
@@ -440,6 +456,8 @@ class LLMRouter:
                 model_key = meta.get("model_key") or meta.get("model") or "cache"
                 provider_name = meta.get("provider") or "cache"
                 req_id = meta.get("request_id") or str(task_id)
+                finish_reason = meta.get("finish_reason")
+                retry_meta = meta.get("retry")
                 logger.info(f"Router: cache hit for {task} (task_id={task_id})")
                 self._log_usage(
                     {
@@ -452,6 +470,8 @@ class LLMRouter:
                         "latency_ms": 0,
                         "usage": usage,
                         "request_id": req_id,
+                        "finish_reason": finish_reason,
+                        "retry": retry_meta,
                         "cache": {"hit": True, "path": str(cache_file)},
                         "timestamp": time.time(),
                     }
@@ -465,6 +485,8 @@ class LLMRouter:
                     "provider": provider_name,
                     "chain": chain,
                     "latency_ms": 0,
+                    "finish_reason": finish_reason,
+                    "retry": retry_meta,
                     "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
                 }
 
@@ -495,6 +517,91 @@ class LLMRouter:
                     return_raw=True,
                     **safe_options,
                 )
+                finish_reason = _extract_finish_reason(raw_result)
+
+                # Retry-on-truncation (finish_reason == "length") to keep low default caps safe.
+                # This is cheaper than always setting very high max_tokens, while staying robust.
+                retry_meta: Dict[str, Any] | None = None
+                retry_enabled = (os.getenv("LLM_RETRY_ON_LENGTH") or "1").strip().lower() not in {"0", "false", "no", "off"}
+                if retry_enabled and finish_reason == "length":
+                    max_key = None
+                    cur_max = None
+                    for k in ("max_tokens", "max_completion_tokens"):
+                        v = safe_options.get(k)
+                        if isinstance(v, int) and v > 0:
+                            max_key = k
+                            cur_max = v
+                            break
+                    caps = model_conf.get("capabilities", {}) or {}
+                    cap = None
+                    if max_key == "max_completion_tokens":
+                        cap = caps.get("max_completion_tokens")
+                    elif max_key == "max_tokens":
+                        cap = caps.get("max_tokens")
+                    try:
+                        cap = int(cap) if cap is not None else None
+                    except Exception:
+                        cap = None
+
+                    mult_raw = (os.getenv("LLM_LENGTH_RETRY_MULTIPLIER") or "2").strip()
+                    try:
+                        mult = max(1.0, float(mult_raw))
+                    except Exception:
+                        mult = 2.0
+                    env_cap_raw = (os.getenv("LLM_LENGTH_RETRY_MAX_TOKENS") or "").strip()
+                    env_cap = None
+                    if env_cap_raw:
+                        try:
+                            env_cap = int(env_cap_raw)
+                        except Exception:
+                            env_cap = None
+                    hard_cap = cap if cap is not None else env_cap
+                    if hard_cap is not None and env_cap is not None:
+                        hard_cap = min(hard_cap, env_cap)
+
+                    if max_key and cur_max:
+                        new_max = int(max(cur_max + 1, round(cur_max * mult)))
+                        if hard_cap is not None:
+                            new_max = min(new_max, hard_cap)
+                        if new_max <= cur_max:
+                            raise RuntimeError(
+                                f"finish_reason=length but cannot increase {max_key} "
+                                f"(current={cur_max}, cap={hard_cap})"
+                            )
+                        logger.warning(
+                            "Router: %s returned finish_reason=length; retrying with %s=%s (was %s)",
+                            model_key,
+                            max_key,
+                            new_max,
+                            cur_max,
+                        )
+                        # Propagate the higher cap for subsequent candidates in this call.
+                        base_options["max_tokens"] = new_max
+                        retry_opts = dict(safe_options)
+                        retry_opts[max_key] = new_max
+                        raw_retry = self._invoke_provider(
+                            provider_name,
+                            client,
+                            model_conf,
+                            messages,
+                            return_raw=True,
+                            **retry_opts,
+                        )
+                        finish_reason_retry = _extract_finish_reason(raw_retry)
+                        retry_meta = {
+                            "reason": "finish_reason_length",
+                            "max_key": max_key,
+                            "from": cur_max,
+                            "to": new_max,
+                            "finish_reason": finish_reason_retry,
+                        }
+                        if finish_reason_retry == "length":
+                            raise RuntimeError(
+                                f"finish_reason=length after retry (max={new_max}); try next model"
+                            )
+                        raw_result = raw_retry
+                        finish_reason = finish_reason_retry
+
                 content = self._extract_content(provider_name, model_conf, raw_result)
                 usage = self._extract_usage(raw_result)
                 req_id = _extract_request_id(raw_result)
@@ -505,21 +612,25 @@ class LLMRouter:
                     task_id = _api_cache_task_id(task, messages, base_options)
                 except Exception:
                     task_id = None
-                cache_write_path = _api_cache_write(
-                    task,
-                    messages,
-                    base_options,
-                    payload={
-                        "content": content,
-                        "usage": usage,
-                        "meta": {
-                            "provider": provider_name,
-                            "model_key": model_key,
-                            "chain": chain,
-                            "request_id": req_id,
+                cache_write_path = None
+                if finish_reason != "length":
+                    cache_write_path = _api_cache_write(
+                        task,
+                        messages,
+                        base_options,
+                        payload={
+                            "content": content,
+                            "usage": usage,
+                            "meta": {
+                                "provider": provider_name,
+                                "model_key": model_key,
+                                "chain": chain,
+                                "request_id": req_id,
+                                "finish_reason": finish_reason,
+                                "retry": retry_meta,
+                            },
                         },
-                    },
-                )
+                    )
                 logger.info(
                     f"Router: {task} succeeded via {model_key} "
                     f"(fallback_chain={chain}, latency_ms={latency_ms}, usage={usage}, request_id={req_id})"
@@ -534,8 +645,11 @@ class LLMRouter:
                     "latency_ms": latency_ms,
                     "usage": usage,
                     "request_id": req_id,
+                    "finish_reason": finish_reason,
                     "timestamp": time.time(),
                 }
+                if retry_meta:
+                    log_payload["retry"] = retry_meta
                 if cache_write_path:
                     log_payload["cache"] = {"write": True, "path": str(cache_write_path)}
                 # Drop nulls to keep the JSONL tidy
@@ -550,6 +664,8 @@ class LLMRouter:
                     "provider": provider_name,
                     "chain": chain,
                     "latency_ms": latency_ms,
+                    "finish_reason": finish_reason,
+                    "retry": retry_meta,
                     "cache": {"write": True, "path": str(cache_write_path)} if cache_write_path else None,
                 }
             except Exception as e:

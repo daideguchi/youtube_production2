@@ -58,6 +58,7 @@ export type WorkspaceView =
   | "studio"
   | "channel"
   | "channelVideo"
+  | "remotion"
   | "research"
   | "thumbnails"
   | "channelWorkspace"
@@ -261,6 +262,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/capcut-edit/*", pathname) || matchPath("/capcut-edit", pathname)) {
     return "capcutEdit";
   }
+  if (matchPath("/video-remotion", pathname)) {
+    return "remotion";
+  }
   if (matchPath("/audio-tts-v2", pathname)) {
     return "audioTtsV2";
   }
@@ -342,6 +346,10 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   capcutEdit: {
     title: "CapCut編集",
     description: "CapCutドラフトの新規作成と、既存ドラフトの画像差し替えをまとめたビューです。",
+  },
+  remotion: {
+    title: "Remotion編集",
+    description: "Remotion で mp4 を量産し、Google Drive へ保存するためのワークスペースです。",
   },
   audioTtsV2: {
     title: "Audio TTS v2",
@@ -1141,6 +1149,7 @@ export function AppShell() {
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
           { key: "audioTtsV2", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts-v2" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
+          { key: "remotion", label: "動画(Remotion)", icon: "🎞️", path: "/video-remotion" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
         ],
       },

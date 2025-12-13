@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 
 from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
@@ -54,8 +55,13 @@ def main() -> None:
             return
 
     if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
+        try:
+            creds.refresh(Request())
+        except RefreshError:
+            # Token revoked / invalid_grant: fall back to full re-auth flow.
+            creds = None
+
+    if not creds or not creds.valid:
         flow = InstalledAppFlow.from_client_secrets_file(
             str(client_path),
             scopes=SCOPES,

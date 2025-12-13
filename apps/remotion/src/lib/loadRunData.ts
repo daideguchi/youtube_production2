@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type { BeltConfig, Chapters, EpisodeInfo, ImageCues, Position, RunData, SubtitleCue } from "./types";
-import { parseSrt } from "./parseSrt";
+import { parseSrt } from "./parseSrt.ts";
 
 const isAscii = (text: string) => /^[\x00-\x7F]*$/.test(text);
 

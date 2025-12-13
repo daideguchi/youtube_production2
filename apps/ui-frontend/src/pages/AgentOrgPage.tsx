@@ -74,6 +74,7 @@ export function AgentOrgPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionResponse, setActionResponse] = useState<Record<string, unknown> | null>(null);
 
   const [actorName, setActorName] = useState(() => {
     try {
@@ -94,17 +95,18 @@ export function AgentOrgPage() {
   const [noteBody, setNoteBody] = useState("");
   const [noteTtlMin, setNoteTtlMin] = useState("60");
 
-  const [roleAgent, setRoleAgent] = useState("");
+  const [roleAgentId, setRoleAgentId] = useState("");
   const [roleValue, setRoleValue] = useState("worker");
 
   const [assignTaskId, setAssignTaskId] = useState("");
-  const [assignAgent, setAssignAgent] = useState("");
+  const [assignAgentId, setAssignAgentId] = useState("");
   const [assignNote, setAssignNote] = useState("");
 
   const [lockScopes, setLockScopes] = useState("ui/**");
   const [lockMode, setLockMode] = useState("no_touch");
   const [lockTtlMin, setLockTtlMin] = useState("60");
   const [lockNote, setLockNote] = useState("");
+  const [unlockLockId, setUnlockLockId] = useState("");
 
   const [selectedMemoId, setSelectedMemoId] = useState<string | null>(null);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
@@ -147,19 +149,20 @@ export function AgentOrgPage() {
   }, [actorName]);
 
   useEffect(() => {
-    const first = agents[0]?.name || "";
-    if (!noteTo && first) setNoteTo(first);
-    if (!roleAgent && first) setRoleAgent(first);
-    if (!assignAgent && first) setAssignAgent(first);
-  }, [agents, noteTo, roleAgent, assignAgent]);
+    const first = agents[0];
+    if (!noteTo && first?.name) setNoteTo(first.name);
+    if (!roleAgentId && first?.id) setRoleAgentId(first.id);
+    if (!assignAgentId && first?.id) setAssignAgentId(first.id);
+  }, [agents, noteTo, roleAgentId, assignAgentId]);
 
   const handleSendNote = useCallback(async () => {
     setActionMessage(null);
     setActionError(null);
+    setActionResponse(null);
     try {
       if (!noteTo.trim()) throw new Error("to is required");
       if (!noteSubject.trim()) throw new Error("subject is required");
-      await postJson("/api/agent-org/notes", {
+      const resp = await postJson<Record<string, unknown>>("/api/agent-org/notes", {
         to: noteTo.trim(),
         subject: noteSubject.trim(),
         body: noteBody,
@@ -167,6 +170,7 @@ export function AgentOrgPage() {
         from: actorName.trim() || "dd",
       });
       setActionMessage("note を送信しました");
+      setActionResponse(resp);
       setNoteBody("");
       await loadAll();
     } catch (e) {
@@ -178,24 +182,28 @@ export function AgentOrgPage() {
     async (action: string, payload: Record<string, unknown>) => {
       setActionMessage(null);
       setActionError(null);
+      setActionResponse(null);
       try {
-        await postJson("/api/agent-org/orchestrator/request", {
+        const canWait = Boolean(orch?.lock_held && orch?.pid_alive);
+        const resp = await postJson<Record<string, unknown>>("/api/agent-org/orchestrator/request", {
           action,
           payload,
           from: actorName.trim() || "dd",
-          wait_sec: 3,
+          wait_sec: canWait ? 3 : 0,
         });
-        setActionMessage(`orchestrator: ${action} を送信しました`);
+        const hasResponse = "response" in resp;
+        setActionMessage(`orchestrator: ${action} を${hasResponse ? "実行" : "キュー投入"}しました`);
+        setActionResponse(resp);
         await loadAll();
       } catch (e) {
         setActionError(e instanceof Error ? e.message : String(e));
       }
     },
-    [actorName, loadAll]
+    [actorName, loadAll, orch]
   );
 
   const handleSetRole = useCallback(async () => {
-    if (!roleAgent.trim()) {
+    if (!roleAgentId.trim()) {
       setActionError("agent is required");
       return;
     }
@@ -203,26 +211,26 @@ export function AgentOrgPage() {
       setActionError("role is required");
       return;
     }
-    await sendOrchestratorRequest("set_role", { agent_name: roleAgent.trim(), role: roleValue.trim() });
-  }, [roleAgent, roleValue, sendOrchestratorRequest]);
+    await sendOrchestratorRequest("set_role", { agent_id: roleAgentId.trim(), role: roleValue.trim() });
+  }, [roleAgentId, roleValue, sendOrchestratorRequest]);
 
   const handleAssignTask = useCallback(async () => {
     if (!assignTaskId.trim()) {
       setActionError("task_id is required");
       return;
     }
-    if (!assignAgent.trim()) {
+    if (!assignAgentId.trim()) {
       setActionError("agent is required");
       return;
     }
     await sendOrchestratorRequest("assign_task", {
       task_id: assignTaskId.trim(),
-      agent_name: assignAgent.trim(),
+      agent_id: assignAgentId.trim(),
       note: assignNote.trim() || undefined,
     });
     setAssignTaskId("");
     setAssignNote("");
-  }, [assignAgent, assignNote, assignTaskId, sendOrchestratorRequest]);
+  }, [assignAgentId, assignNote, assignTaskId, sendOrchestratorRequest]);
 
   const handleLock = useCallback(async () => {
     const scopes = lockScopes
@@ -241,6 +249,19 @@ export function AgentOrgPage() {
     });
     setLockNote("");
   }, [lockMode, lockNote, lockScopes, lockTtlMin, sendOrchestratorRequest]);
+
+  const handleUnlock = useCallback(
+    async (lockId?: string) => {
+      const target = (lockId ?? unlockLockId).trim();
+      if (!target) {
+        setActionError("lock_id is required");
+        return;
+      }
+      await sendOrchestratorRequest("unlock", { lock_id: target });
+      setUnlockLockId("");
+    },
+    [sendOrchestratorRequest, unlockLockId]
+  );
 
   const handleSelectMemo = useCallback(async (id: string) => {
     setSelectedMemoId(id);
@@ -305,6 +326,14 @@ export function AgentOrgPage() {
           {actionMessage && <span style={{ color: "#0a7f33" }}>{actionMessage}</span>}
           {actionError && <span style={{ color: "red" }}>{actionError}</span>}
         </div>
+        {actionResponse && (
+          <details>
+            <summary style={{ cursor: "pointer" }}>last response</summary>
+            <pre style={{ whiteSpace: "pre-wrap", background: "#f7f7f7", padding: 12, borderRadius: 8 }}>
+              {JSON.stringify(actionResponse, null, 2)}
+            </pre>
+          </details>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
@@ -363,14 +392,14 @@ export function AgentOrgPage() {
               <div style={{ display: "grid", gap: 8 }}>
                 <strong>Set role</strong>
                 <select
-                  value={roleAgent}
-                  onChange={(e) => setRoleAgent(e.target.value)}
+                  value={roleAgentId}
+                  onChange={(e) => setRoleAgentId(e.target.value)}
                   style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
                 >
                   <option value="">(select)</option>
                   {agents.map((a) => (
-                    <option key={a.id} value={a.name}>
-                      {a.name}
+                    <option key={a.id} value={a.id}>
+                      {a.name} (id={a.id}, pid={a.pid ?? "-"})
                     </option>
                   ))}
                 </select>
@@ -394,14 +423,14 @@ export function AgentOrgPage() {
                   style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
                 />
                 <select
-                  value={assignAgent}
-                  onChange={(e) => setAssignAgent(e.target.value)}
+                  value={assignAgentId}
+                  onChange={(e) => setAssignAgentId(e.target.value)}
                   style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
                 >
                   <option value="">(select)</option>
                   {agents.map((a) => (
-                    <option key={a.id} value={a.name}>
-                      {a.name}
+                    <option key={a.id} value={a.id}>
+                      {a.name} (id={a.id}, pid={a.pid ?? "-"})
                     </option>
                   ))}
                 </select>
@@ -424,12 +453,15 @@ export function AgentOrgPage() {
                   rows={3}
                   style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc", fontFamily: "monospace" }}
                 />
-                <input
+                <select
                   value={lockMode}
                   onChange={(e) => setLockMode(e.target.value)}
-                  placeholder="mode"
                   style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
-                />
+                >
+                  <option value="no_touch">no_touch</option>
+                  <option value="no_write">no_write</option>
+                  <option value="read_only">read_only</option>
+                </select>
                 <input
                   value={lockTtlMin}
                   onChange={(e) => setLockTtlMin(e.target.value)}
@@ -447,6 +479,19 @@ export function AgentOrgPage() {
                   lock
                 </button>
               </div>
+
+              <div style={{ display: "grid", gap: 8 }}>
+                <strong>Unlock</strong>
+                <input
+                  value={unlockLockId}
+                  onChange={(e) => setUnlockLockId(e.target.value)}
+                  placeholder="lock_id (e.g. lock__...)"
+                  style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #ccc" }}
+                />
+                <button onClick={() => void handleUnlock()} disabled={loading}>
+                  unlock
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -461,7 +506,9 @@ export function AgentOrgPage() {
                 <th>Status</th>
                 <th>Name</th>
                 <th>Role</th>
+                <th>ID</th>
                 <th>PID</th>
+                <th>Host PID</th>
                 <th>Last Seen</th>
               </tr>
             </thead>
@@ -471,7 +518,9 @@ export function AgentOrgPage() {
                   <td>{a.status}</td>
                   <td>{a.name}</td>
                   <td>{a.role}</td>
+                  <td style={{ fontFamily: "monospace", fontSize: 12 }}>{a.id}</td>
                   <td>{a.pid ?? "-"}</td>
+                  <td>{a.host_pid ?? "-"}</td>
                   <td>{a.last_seen_at ?? "-"}</td>
                 </tr>
               ))}
@@ -489,22 +538,41 @@ export function AgentOrgPage() {
             <thead>
               <tr>
                 <th>Status</th>
+                <th>ID</th>
                 <th>Mode</th>
                 <th>By</th>
                 <th>Scopes</th>
                 <th>Expires</th>
                 <th>Note</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {locks.map((l) => (
                 <tr key={l.id}>
                   <td>{l.status}</td>
+                  <td style={{ fontFamily: "monospace", fontSize: 12 }}>{l.id}</td>
                   <td>{l.mode ?? "-"}</td>
                   <td>{l.created_by ?? "-"}</td>
                   <td style={{ fontFamily: "monospace", fontSize: 12 }}>{(l.scopes ?? []).join(", ")}</td>
                   <td>{l.expires_at ?? "-"}</td>
                   <td>{l.note ?? "-"}</td>
+                  <td>
+                    {l.status === "active" ? (
+                      <button
+                        onClick={() => void handleUnlock(l.id)}
+                        disabled={loading}
+                        style={{
+                          background: "#fee2e2",
+                          border: "1px solid #fecaca",
+                          borderRadius: 8,
+                          padding: "4px 10px",
+                        }}
+                      >
+                        unlock
+                      </button>
+                    ) : null}
+                  </td>
                 </tr>
               ))}
             </tbody>

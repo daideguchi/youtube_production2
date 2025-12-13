@@ -1438,9 +1438,31 @@ type RemotionProjectSummaryResponse = {
   remotion_dir?: string | null;
   timeline_path?: string | null;
   last_rendered?: string | null;
+  drive_upload?: {
+    uploaded_at?: string | null;
+    destination?: {
+      folder_path?: string | null;
+    } | null;
+    drive?: {
+      id?: string | null;
+      name?: string | null;
+      webViewLink?: string | null;
+    } | null;
+  } | null;
 };
 
 function normalizeRemotionProject(raw: RemotionProjectSummaryResponse): RemotionProjectSummary {
+  const drive = raw.drive_upload?.drive ?? null;
+  const destination = raw.drive_upload?.destination ?? null;
+  const driveUpload = raw.drive_upload
+    ? {
+        uploadedAt: raw.drive_upload.uploaded_at ?? null,
+        fileId: drive?.id ?? null,
+        fileName: drive?.name ?? null,
+        webViewLink: drive?.webViewLink ?? null,
+        folderPath: destination?.folder_path ?? null,
+      }
+    : null;
   return {
     projectId: raw.project_id,
     channelId: raw.channel_id ?? null,
@@ -1472,6 +1494,7 @@ function normalizeRemotionProject(raw: RemotionProjectSummaryResponse): Remotion
     remotionDir: raw.remotion_dir ?? null,
     timelinePath: raw.timeline_path ?? null,
     lastRendered: raw.last_rendered ?? null,
+    driveUpload,
   };
 }
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import queue
 import subprocess
@@ -18,6 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(PROJECT_ROOT / "src"))
 from config.template_registry import resolve_template_path, is_registered_template  # noqa: E402
 
+logger = logging.getLogger(__name__)
 
 _IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 _DEFAULT_MIN_IMAGE_BYTES = 60_000
@@ -277,6 +279,8 @@ class CommandBuilder:
             return self._build_capcut_draft(context, options)
         if action == "render_remotion":
             return self._build_render_remotion(context, options)
+        if action == "upload_remotion_drive":
+            return self._build_upload_remotion_drive(context, options)
         if action == "swap_images":
             return self._build_swap_images(context, options)
         raise ValueError(f"Unsupported job action: {action}")
@@ -517,55 +521,69 @@ class CommandBuilder:
         project_dir = context.project_dir
         images_dir = project_dir / "images"
         image_cues_path = project_dir / "image_cues.json"
+        belt_config_path = project_dir / "belt_config.json"
         if not images_dir.exists():
             raise ValueError(f"images ディレクトリが見つかりません: {images_dir}")
         if not image_cues_path.exists():
             raise ValueError(f"image_cues.json が見つかりません: {image_cues_path}。まず analyze_srt を実行してください。")
+        if not belt_config_path.exists():
+            raise ValueError(f"belt_config.json が見つかりません: {belt_config_path}。まず generate_belt を実行してください。")
 
         env = self._base_env()
+        channel = options.get("channel") or context.channel_id
+        title = options.get("title") or context.info.get("title")
+
         command: List[str] = [
-            str(self._run_srt2images_script()),
+            str(self._with_env_script()),
+            self._python,
+            str(self._scripts_root / "remotion_export.py"),
+            "render",
+            "--run-dir",
+            str(project_dir),
             "--srt",
             str(context.srt_path),
-            "--out",
-            str(project_dir),
-            "--engine",
-            "remotion",
-            "--nanobanana",
-            "none",
-            "--cue-mode",
-            str(options.get("cue_mode", "grouped")),
-            "--imgdur",
-            str(options.get("imgdur", 20.0)),
-            "--crossfade",
-            str(options.get("crossfade", 0.5)),
             "--fps",
             str(options.get("fps", 30)),
             "--size",
             str(options.get("size", "1920x1080")),
-            "--fit",
-            str(options.get("fit", "cover")),
-            "--margin",
-            str(options.get("margin", 0)),
+            "--crossfade",
+            str(options.get("crossfade", 0.5)),
         ]
+        if channel:
+            command += ["--channel", str(channel)]
+        if title:
+            command += ["--title", str(title)]
 
-        if (style := options.get("style")):
-            command.extend(["--style", str(style)])
-        if (negative := options.get("negative")):
-            command.extend(["--negative", str(negative)])
-        if (prompt_template := options.get("prompt_template")):
-            command.extend(["--prompt-template", str(self._resolve_project_relative(project_dir, prompt_template))])
-        elif context.template_used:
-            command.extend(["--prompt-template", str(self._resolve_template_path(None, context.template_used))])
+        summary = f"Remotionレンダリング (mp4出力) ({context.project_id})"
+        return CommandSpec(command=command, cwd=self._project_root, env=env, summary=summary)
 
-        if options.get("force"):
-            command.append("--force")
-        if options.get("retry_until_success"):
-            command.append("--retry-until-success")
-        if (max_retries := options.get("max_retries")) is not None:
-            command.extend(["--max-retries", str(max_retries)])
+    def _build_upload_remotion_drive(self, context: ProjectContext, options: Dict[str, Any]) -> CommandSpec:
+        project_dir = context.project_dir
+        remotion_mp4 = project_dir / "remotion" / "output" / "final.mp4"
+        if not remotion_mp4.exists():
+            raise ValueError(f"mp4 が見つかりません: {remotion_mp4}。先に render_remotion を実行してください。")
 
-        summary = f"Remotionレンダリング ({context.project_id})"
+        env = self._base_env()
+        channel = options.get("channel") or context.channel_id
+        drive_name = options.get("name")
+        folder_id = options.get("folder")
+
+        command: List[str] = [
+            str(self._with_env_script()),
+            self._python,
+            str(self._scripts_root / "remotion_export.py"),
+            "upload",
+            "--run-dir",
+            str(project_dir),
+        ]
+        if channel:
+            command += ["--channel", str(channel)]
+        if drive_name:
+            command += ["--name", str(drive_name)]
+        if folder_id:
+            command += ["--folder", str(folder_id)]
+
+        summary = f"Google Driveへアップロード (Remotion) ({context.project_id})"
         return CommandSpec(command=command, cwd=self._project_root, env=env, summary=summary)
 
     def _build_swap_images(self, context: ProjectContext, options: Dict[str, Any]) -> CommandSpec:

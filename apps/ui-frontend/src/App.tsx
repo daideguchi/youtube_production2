@@ -27,6 +27,7 @@ import { ProgressPage } from "./pages/ProgressPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
 import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
 import { AgentOrgPage } from "./pages/AgentOrgPage";
+import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
         <Route path="/capcut-edit/production" element={<ProductionPage />} />
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />
         <Route path="/capcut-edit/swap" element={<CapcutSwapPage />} />
+        <Route path="/video-remotion" element={<RemotionWorkspacePage />} />
         <Route path="/audio-tts-v2" element={<AudioTtsV2Page />} />
         <Route path="/audio-integrity" element={<AudioIntegrityPage />} />
         <Route path="/tts-progress" element={<TtsProgressPage />} />

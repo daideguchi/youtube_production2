@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -143,7 +144,15 @@ class LLMClient:
                     usage=dict(usage) if isinstance(usage, dict) else {},
                     raw=None,
                 )
-                self._log_usage(task, result, extra={"cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)}})
+                self._log_usage(
+                    task,
+                    result,
+                    extra={
+                        "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
+                        "finish_reason": meta.get("finish_reason"),
+                        "retry": meta.get("retry"),
+                    },
+                )
                 return result
 
         last_error: Exception | None = None
@@ -159,28 +168,39 @@ class LLMClient:
 
             try:
                 payload = self._normalize_params(model_conf, defaults, options)
-                content, usage = self._invoke(provider, client, model_conf, messages, payload)
+                content, usage, finish_reason, retry_meta = self._invoke(provider, client, model_conf, messages, payload)
                 result = LLMResult(
                     content=content,
                     provider=provider,
                     model=model_conf.get("deployment") or model_conf.get("model") or "",
                     usage=usage or {},
                 )
-                cache_write_path = _api_cache_write(
-                    task,
-                    messages,
-                    merged_options,
-                    payload={
-                        "content": content,
-                        "usage": usage or {},
-                        "meta": {
-                            "provider": provider,
-                            "model": model_conf.get("deployment") or model_conf.get("model") or "",
-                            "model_key": model_key,
+                cache_write_path = None
+                if finish_reason != "length":
+                    cache_write_path = _api_cache_write(
+                        task,
+                        messages,
+                        merged_options,
+                        payload={
+                            "content": content,
+                            "usage": usage or {},
+                            "meta": {
+                                "provider": provider,
+                                "model": model_conf.get("deployment") or model_conf.get("model") or "",
+                                "model_key": model_key,
+                                "finish_reason": finish_reason,
+                                "retry": retry_meta,
+                            },
                         },
-                    },
-                )
-                extra = {"cache": {"write": True, "path": str(cache_write_path)}} if cache_write_path else None
+                    )
+                extra = {}
+                if cache_write_path:
+                    extra["cache"] = {"write": True, "path": str(cache_write_path)}
+                if finish_reason:
+                    extra["finish_reason"] = finish_reason
+                if retry_meta:
+                    extra["retry"] = retry_meta
+                extra = extra or None
                 self._log_usage(task, result, extra=extra)
                 return result
             except Exception as exc:  # noqa: BLE001
@@ -255,7 +275,7 @@ class LLMClient:
         model_conf: Dict[str, Any],
         messages: List[Dict[str, str]],
         params: Dict[str, Any],
-    ) -> tuple[str, Dict[str, Any]]:
+    ) -> tuple[str, Dict[str, Any], str | None, Dict[str, Any] | None]:
         api_type = model_conf.get("api_type", "chat")
         if api_type not in ("chat", "responses"):
             raise NotImplementedError(f"Unsupported api_type {api_type} for provider {provider}")
@@ -273,14 +293,72 @@ class LLMClient:
             # OpenRouter uses max_tokens
             call_params.pop("max_output_tokens", None)
 
-        resp = client.chat.completions.create(
-            model=model_name,
-            messages=messages,
-            **call_params,
-        )
+        resp = client.chat.completions.create(model=model_name, messages=messages, **call_params)
+        finish_reason = getattr(resp.choices[0], "finish_reason", None) if getattr(resp, "choices", None) else None
+
+        # Retry-on-truncation (finish_reason == "length") to keep low default caps safe.
+        retry_meta: Dict[str, Any] | None = None
+        retry_enabled = (os.getenv("LLM_RETRY_ON_LENGTH") or "1").strip().lower() not in {"0", "false", "no", "off"}
+        if retry_enabled and finish_reason == "length":
+            # Determine current cap key
+            cap_key = "max_output_tokens" if provider == "azure" else "max_tokens"
+            cur_max = call_params.get(cap_key)
+            if isinstance(cur_max, int) and cur_max > 0:
+                caps = model_conf.get("capabilities", {}) or {}
+                hard_cap = caps.get("max_output_tokens")
+                try:
+                    hard_cap = int(hard_cap) if hard_cap is not None else None
+                except Exception:
+                    hard_cap = None
+                mult_raw = (os.getenv("LLM_LENGTH_RETRY_MULTIPLIER") or "2").strip()
+                try:
+                    mult = max(1.0, float(mult_raw))
+                except Exception:
+                    mult = 2.0
+                env_cap_raw = (os.getenv("LLM_LENGTH_RETRY_MAX_TOKENS") or "").strip()
+                env_cap = None
+                if env_cap_raw:
+                    try:
+                        env_cap = int(env_cap_raw)
+                    except Exception:
+                        env_cap = None
+                if hard_cap is not None and env_cap is not None:
+                    hard_cap = min(hard_cap, env_cap)
+                elif env_cap is not None:
+                    hard_cap = env_cap
+
+                new_max = int(max(cur_max + 1, round(cur_max * mult)))
+                if hard_cap is not None:
+                    new_max = min(new_max, hard_cap)
+                if new_max <= cur_max:
+                    raise RuntimeError(
+                        f"finish_reason=length but cannot increase {cap_key} "
+                        f"(current={cur_max}, cap={hard_cap})"
+                    )
+                logger.warning(
+                    "LLMClient: %s returned finish_reason=length; retrying with %s=%s (was %s)",
+                    model_name,
+                    cap_key,
+                    new_max,
+                    cur_max,
+                )
+                call_params[cap_key] = new_max
+                resp = client.chat.completions.create(model=model_name, messages=messages, **call_params)
+                finish_reason2 = getattr(resp.choices[0], "finish_reason", None) if getattr(resp, "choices", None) else None
+                retry_meta = {
+                    "reason": "finish_reason_length",
+                    "max_key": cap_key,
+                    "from": cur_max,
+                    "to": new_max,
+                    "finish_reason": finish_reason2,
+                }
+                finish_reason = finish_reason2
+                if finish_reason == "length":
+                    raise RuntimeError(f"finish_reason=length after retry (max={new_max}); try next model")
+
         content = resp.choices[0].message.content
         usage = getattr(resp, "usage", {}) or {}
-        return content, dict(usage)
+        return content, dict(usage), (str(finish_reason) if finish_reason is not None else None), retry_meta
 
     def _log_usage(self, task: str, result: LLMResult, extra: Optional[Dict[str, Any]] = None) -> None:
         """

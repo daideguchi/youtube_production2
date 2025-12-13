@@ -17,14 +17,19 @@ REQUIRED_KEYS = [
     "VOICEVOX_API_KEY",
     "PIXABAY_API_KEY",
     "UI_SESSION_TOKEN",
-    "AZURE_OPENAI_API_KEY",
-    "AZURE_OPENAI_ENDPOINT",
 ]
 
 WARNING_KEYS = {
     "GEMINI_API_KEY": "Gemini API key is managed via test.dd.1107.11107@gmail.com.",
     "UI_SESSION_TOKEN": "UI session token should match ssot/OPS_ENV_VARS.md guidance.",
 }
+
+# Optional provider keys:
+# - Azure is intentionally OPTIONAL for `./start.sh` so operators can disable it
+#   (e.g., OpenRouter-only workflows) without being blocked at startup.
+OPTIONAL_PAIRS = [
+    ("AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT"),
+]
 
 
 def parse_env_file(path: Path) -> dict:
@@ -72,6 +77,18 @@ def main() -> int:
     for key, message in WARNING_KEYS.items():
         if key in env:
             print(message)
+
+    # Optional-but-consistent pairs: warn on partial config.
+    for a, b in OPTIONAL_PAIRS:
+        has_a = bool(env.get(a))
+        has_b = bool(env.get(b))
+        if has_a ^ has_b:
+            missing_key = b if has_a else a
+            present_key = a if has_a else b
+            print(
+                f"⚠️  Optional provider config incomplete: {missing_key} is missing "
+                f"but {present_key} is set. Azure is optional; set both to enable Azure."
+            )
 
     print("✅ All required environment variables are set")
     return 0

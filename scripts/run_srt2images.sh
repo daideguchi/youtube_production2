@@ -8,4 +8,4 @@ if [[ ! -d "$PROJECT_DIR" ]]; then
   exit 1
 fi
 cd "$PROJECT_DIR"
-"$ROOT_DIR/scripts/with_ytm_env.sh" python3 run_pipeline.py "$@"
+"$ROOT_DIR/scripts/with_ytm_env.sh" python3 tools/run_pipeline.py "$@"

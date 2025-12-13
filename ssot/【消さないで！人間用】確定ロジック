@@ -63,6 +63,9 @@ python tools/auto_capcut_run.py \
     - **SRT正本**: デフォルトで `--prefer-tts-final=true`。指定した `--srt` が別場所でも、episode を特定できれば final を優先して使う（古いSRTでドラフト作る事故を防止）。  
     - **整合チェック（推奨）**: `timeline_manifest.json` が生成されていること（`wav長 ≒ srt終端 ≒ cues終端` を厳格検証し、ズレ事故を検知する“契約”）。  
     - **CapCutテンプレ自動修復**: テンプレが `draft_info.json` のみ／空トラック名／重複トラック名でも、`tools/capcut_bulk_insert.py` が **複製直後に `draft_content.json`/`draft_info.json` を復元し、トラック名を正規化してからロード**する（レイヤ落ち・別テンプレ混入事故の根治）。監査は `commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only`。  
+    - **テンプレ本体の恒久クリーン**（推奨）:
+      - 正規化（backup付き）: `python3 commentary_02_srt2images_timeline/tools/normalize_capcut_templates.py --active-only --run`
+      - 厳格監査（empty/dup を許さない）: `python3 commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only --strict-names`
     - **字幕スタイル**: `subtitles_text` は SSOT `jinsei_standard_v2`（黒背景）を優先して正規化する（CapCutの「デフォルト挿入」見た目に寄せる）。  
     - opening_offset: presetの `belt.opening_offset` を使用（CH01=3.0s、他CHは0が多い）。CapCutトラックをシフト済み。  
     - layout/position: presetの position(tx,ty,scale) と layout(beltTopPct 等) を適用。  

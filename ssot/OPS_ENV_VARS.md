@@ -7,7 +7,7 @@
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
 - OpenAI/OpenRouter: `OPENAI_API_KEY`
-- Azure: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`
+- Azure（任意）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）
 - Drive/YouTube:  
   - `DRIVE_OAUTH_CLIENT_PATH`, `DRIVE_OAUTH_TOKEN_PATH`, `DRIVE_FOLDER_ID`  
   - `YT_OAUTH_CLIENT_PATH`, `YT_OAUTH_TOKEN_PATH`, `YT_PUBLISH_SHEET_ID`

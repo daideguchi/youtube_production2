@@ -192,6 +192,7 @@ def generate_title_from_cues(cues_path: Path) -> str:
 
     prompt = (
         "You are a Japanese copywriter. Read the following scene summaries and generate a concise Japanese YouTube title.\n"
+        "Output ONLY the title on a single line. No explanation, no bullet points.\n"
         "Requirements:\n"
         "- Length: 18-28 Japanese characters\n"
         "- Tone: calm, trustworthy, warm\n"
@@ -214,6 +215,7 @@ def generate_title_from_cues(cues_path: Path) -> str:
             task="title_generation",  # This needs to be added to the config
             messages=[{"role": "user", "content": content}],
             temperature=0.4,
+            max_tokens=128,
         )
         title = response.strip().splitlines()[0] if response else ""
         if not title:
@@ -293,6 +295,12 @@ def main():
     )
     ap.add_argument("--timeout-ms", type=int, default=300000, help="Timeout per command (ms)")
     ap.add_argument("--abort-on-log", help="Comma-separated patterns; abort if any appears in child stdout/stderr")
+    ap.add_argument(
+        "--draft-name-with-title",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Include '__<title>' suffix in CapCut draft directory name (default: false)",
+    )
     args = ap.parse_args()
 
     if args.nanobanana not in ("direct", "none"):
@@ -358,7 +366,6 @@ def main():
         run_name = f"{stem}_{ts}"
     run_dir = PROJECT_ROOT / "output" / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
-    draft_name = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
 
     # Load preset for opening_offset (and potential future defaults)
     preset = load_channel_preset(args.channel) or {}
@@ -622,6 +629,22 @@ def main():
             print(f"❌ Title generation failed: {e}")
             sys.exit(1)
     effective_title = args.title or generated_title or Path(args.srt).stem
+
+    # Draft directory name: by default, keep it stable and derived only from run_name.
+    # Optionally append a sanitized title suffix for human readability.
+    draft_base = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
+    draft_name = draft_base
+    if args.draft_name_with_title:
+        # Keep it filesystem-safe and predictable.
+        # - Replace path separators and control-ish chars.
+        # - Collapse whitespace.
+        # - Limit length to avoid overly long draft names.
+        safe = re.sub(r"[\\/:*?\"<>|]", "_", str(effective_title))
+        safe = " ".join(safe.split())
+        safe = re.sub(r"[_\\s]+", "_", safe).strip("_")
+        safe = safe[:48]
+        if safe:
+            draft_name = f"{draft_base}__{safe}"
 
     # Ensure belt_config (if exists) carries the effective title as main belt
     belt_path = run_dir / "belt_config.json"

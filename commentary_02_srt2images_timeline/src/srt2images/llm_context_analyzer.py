@@ -219,12 +219,22 @@ Script excerpts:
             messages.append({"role": "system", "content": system_instruction})
         messages.append({"role": "user", "content": prompt})
 
+        # Token/cost optimization:
+        # Scale output cap with the requested number of sections to avoid truncation,
+        # while keeping the default relatively low for short videos.
+        per_section = int(os.getenv("SRT2IMAGES_SECTION_PLAN_TOKENS_PER_SECTION", "55"))
+        base_cap = int(os.getenv("SRT2IMAGES_SECTION_PLAN_BASE_TOKENS", "1200"))
+        hard_cap = int(os.getenv("SRT2IMAGES_SECTION_PLAN_MAX_TOKENS", "8000"))
+        max_tokens = min(hard_cap, max(base_cap, per_section * max_sections))
+
         try:
             content, meta = self._invoke_llm(
                 router,
                 task="visual_section_plan",
                 messages=messages,
                 temperature=0.3,
+                max_tokens=max_tokens,
+                response_format="json_object",
             )
             section_breaks = self._parse_llm_response(
                 content,
@@ -284,32 +294,24 @@ Each section must:
 
 Use the [index@timestamp] markers to reference SRT segments.
 
-Return ONLY a JSON array with objects in the following schema:
+Return ONLY a JSON object (no markdown, no code fences, no extra keys) with this schema:
 
-[
-  {{
-    "section_index": 1,
-    "start_segment": <int>,
-    "end_segment": <int>,
-    "summary": "<=50 characters",
-    "visual_focus": "What should be shown visually. MUST be distinct from previous section.",
-    "emotional_tone": "calm | anxious | hopeful | ...",
-    "reason": "Why this boundary is chosen",
-    "section_type": "story | dialogue | exposition | list | analysis | instruction | context | other",
-    "role_tag": "explanation | story | dialogue | list_item | metaphor | quote | hook | cta | recap | transition | viewer_address",
-    "persona_needed": true/false  // true only when recurring characters should stay consistent across frames (story/dialogue)
-  }},
-  ...
-]
+{{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type],...]}}
+
+Field rules:
+- start_segment/end_segment: int indices from the script markers.
+- summary: <= 30 Japanese characters (short scene label).
+- visual_focus: <= 12 English words (what to show; must differ from adjacent sections).
+- emotional_tone: <= 2 words (e.g., calm, anxious, hopeful).
+- persona_needed: boolean; true ONLY if recurring characters must stay consistent.
+- role_tag: one of explanation|story|dialogue|list_item|metaphor|quote|hook|cta|recap|transition|viewer_address
+- section_type: one of story|dialogue|exposition|list|analysis|instruction|context|other
 
 Rules:
 - Use the original SRT indices shown in the text.
 - **FORCE SPLIT:** If a section would exceed 20 seconds, YOU MUST SPLIT IT even if the topic continues. Change the visual angle or focus.
-- If multiple list items or examples appear, prefer separate sections for each item.
 - The JSON must contain at least {min_sections} entries and no more than {max_sections} entries.
-- persona_needed should be true only when characters recur across multiple sections (narrative or dialogue). For abstract/list/instructional sections, set false.
-- role_tag should be concise and consistent: choose from explanation, story, dialogue, list_item, metaphor, quote, hook, cta, recap, transition, viewer_address.
-- Do not include any explanation outside the JSON array.
+- Do not include any explanation outside the JSON.
 
 Script excerpts:
 {story}
@@ -384,18 +386,46 @@ Script excerpts:
                 return []
 
             for entry in breaks_data:
-                if not isinstance(entry, dict):
-                    logging.warning(f"Skipping non-dict entry: {entry}")
+                raw_start = None
+                raw_end = None
+                reason = ""
+                emotional_tone = ""
+                summary = ""
+                visual_focus = ""
+                section_type = None
+                persona_needed = False
+                role_tag = None
+
+                # v2 compact format: [start, end, summary, visual_focus, tone, persona_needed, role_tag, section_type]
+                if isinstance(entry, (list, tuple)):
+                    raw_start = entry[0] if len(entry) >= 1 else None
+                    raw_end = entry[1] if len(entry) >= 2 else raw_start
+                    summary = str(entry[2] or "").strip() if len(entry) >= 3 else ""
+                    visual_focus = str(entry[3] or "").strip() if len(entry) >= 4 else ""
+                    emotional_tone = str(entry[4] or "").strip() if len(entry) >= 5 else ""
+                    persona_needed = bool(entry[5]) if len(entry) >= 6 else False
+                    role_tag = (str(entry[6] or "").strip() or None) if len(entry) >= 7 else None
+                    section_type = (str(entry[7] or "").strip() or None) if len(entry) >= 8 else None
+                    # Optional extra fields (kept for backward compatibility)
+                    reason = str(entry[8] or "").strip() if len(entry) >= 9 else ""
+
+                elif isinstance(entry, dict):
+                    raw_start = entry.get("start_segment")
+                    raw_end = entry.get("end_segment", raw_start)
+                    if raw_start is None:
+                        raw_start = entry.get("start_index") or entry.get("segment_index")
+                        raw_end = entry.get("end_index", raw_start)
+                    reason = (entry.get("reason", entry.get("rationale", "")) or "").strip()
+                    emotional_tone = (entry.get("emotional_tone", entry.get("tone", "")) or "").strip()
+                    summary = (entry.get("summary", entry.get("content", "")) or "").strip()
+                    visual_focus = (entry.get("visual_focus", entry.get("visual", entry.get("focus", ""))) or "").strip()
+                    section_type = (entry.get("section_type") or entry.get("type") or "").strip() or None
+                    persona_needed = bool(entry.get("persona_needed", False))
+                    role_tag = (entry.get("role_tag") or entry.get("role") or entry.get("tag", "")).strip() or None
+
+                else:
+                    logging.warning(f"Skipping unsupported entry: {entry}")
                     continue
-
-                # Try to extract start_segment and end_segment with fallbacks
-                raw_start = entry.get("start_segment")
-                raw_end = entry.get("end_segment", raw_start)
-
-                # Try alternative field names
-                if raw_start is None:
-                    raw_start = entry.get("start_index") or entry.get("segment_index")
-                    raw_end = entry.get("end_index", raw_start)
 
                 if raw_start is None:
                     logging.warning(f"Skipping entry with no start information: {entry}")
@@ -415,18 +445,19 @@ Script excerpts:
                 if end_seg < start_seg:
                     start_seg, end_seg = end_seg, start_seg
 
-                # Create SectionBreak with as much information as available
-                section_breaks.append(SectionBreak(
-                    start_segment=start_seg,
-                    end_segment=end_seg,
-                    reason=entry.get("reason", entry.get("rationale", "")).strip(),
-                    emotional_tone=entry.get("emotional_tone", entry.get("tone", "")).strip(),
-                    summary=entry.get("summary", entry.get("content", "")).strip(),
-                    visual_focus=entry.get("visual_focus", entry.get("visual", entry.get("focus", ""))).strip(),
-                    section_type=(entry.get("section_type") or entry.get("type") or "").strip() or None,
-                    persona_needed=bool(entry.get("persona_needed", False)),
-                    role_tag=(entry.get("role_tag") or entry.get("role") or entry.get("tag", "")).strip() or None,
-                ))
+                section_breaks.append(
+                    SectionBreak(
+                        start_segment=start_seg,
+                        end_segment=end_seg,
+                        reason=reason,
+                        emotional_tone=emotional_tone,
+                        summary=summary,
+                        visual_focus=visual_focus,
+                        section_type=section_type,
+                        persona_needed=persona_needed,
+                        role_tag=role_tag,
+                    )
+                )
 
         except json.JSONDecodeError as exc:
             logging.error(
@@ -459,7 +490,7 @@ Script excerpts:
         return None
 
     # ---- LLM呼び出しヘルパ ----
-    def _invoke_llm(self, router, task: str, messages: List[Dict[str, str]], temperature: float):
+    def _invoke_llm(self, router, task: str, messages: List[Dict[str, str]], temperature: float, **options: Any):
         """
         call_with_raw があればメタ情報ごと取得しログに残す。無ければ従来 call() を使用。
         Returns (content, meta_dict).
@@ -472,6 +503,7 @@ Script excerpts:
                     task=task,
                     messages=messages,
                     temperature=temperature,
+                    **options,
                 )
                 meta = {
                     "request_id": resp.get("request_id"),
@@ -488,6 +520,7 @@ Script excerpts:
                 task=task,
                 messages=messages,
                 temperature=temperature,
+                **options,
             )
             self._log_llm_call(task, {"provider": "legacy_router"})
             return content, meta

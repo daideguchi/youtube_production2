@@ -95,7 +95,12 @@ def cache_enabled_for_task(task: str) -> bool:
 
 
 def make_task_id(task: str, messages: List[Dict[str, str]], options: Dict[str, Any]) -> str:
-    return compute_task_id(task, messages, options)
+    # For API caching, treat max-token limits as transport-level controls, not semantics.
+    # This prevents cache misses when we auto-retry on truncation with a higher token cap.
+    cleaned = dict(options or {})
+    for k in ("max_tokens", "max_output_tokens", "max_completion_tokens"):
+        cleaned.pop(k, None)
+    return compute_task_id(task, messages, cleaned)
 
 
 def _safe_task_dirname(task: str) -> str:

@@ -1,5 +1,6 @@
 {
   "templates": [
+    { "id": "default.txt", "label": "default (generic)", "scope": ["global"], "status": "active" },
     { "id": "jinsei_warm_gold_blue_strict.txt", "label": "CH01 水彩（金×青）厳格", "scope": ["CH01"], "status": "active" },
     { "id": "watercolor_gold_blue_ch02.txt", "label": "CH02 水彩（金×青）", "scope": ["CH02"], "status": "active" },
     { "id": "senior_health_reading.txt", "label": "CH03 シニア健康（朗読）", "scope": ["CH03"], "status": "active" },

@@ -1,58 +1,88 @@
 import os
-import sys
+import types
 import unittest
-from unittest.mock import MagicMock, patch
 
-# Add project root to path
-sys.path.append(os.getcwd())
+from factory_common.llm_router import LLMRouter
 
-from factory_common.llm_router import LLMRouter, AzureAdapter, GeminiAdapter, OpenRouterAdapter
+
+class DummyResponse:
+    def __init__(self, content: str):
+        self.choices = [
+            types.SimpleNamespace(
+                message=types.SimpleNamespace(content=content),
+                finish_reason="stop",
+            )
+        ]
+        self.usage = types.SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3)
+
+
+class DummyCompletions:
+    def __init__(self, parent, fail_first: int, content: str):
+        self.parent = parent
+        self.fail_first = fail_first
+        self.content = content
+
+    def create(self, **kwargs):
+        self.parent.last_params = kwargs
+        self.parent.calls += 1
+        if self.parent.calls <= self.fail_first:
+            raise Exception("fail")
+        return DummyResponse(self.content)
+
+
+class DummyClient:
+    def __init__(self, fail_first: int = 0, content: str = "ok"):
+        self.calls = 0
+        self.last_params = None
+        self.chat = types.SimpleNamespace(completions=DummyCompletions(self, fail_first, content))
+
 
 class TestLLMRouter(unittest.TestCase):
     def setUp(self):
-        # Create a dummy config for testing without actual file I/O if possible,
-        # or rely on the real one but mock the API calls.
-        # For this test, we'll verify the logic using the real config file structure but mocked adapters.
-        pass
-
-    @patch("factory_common.llm_router.AzureAdapter")
-    @patch("factory_common.llm_router.GeminiAdapter")
-    @patch("factory_common.llm_router.OpenRouterAdapter")
-    def test_routing_and_fallback(self, MockOpenRouter, MockGemini, MockAzure):
-        # Setup mocks
-        mock_azure_instance = MockAzure.return_value
-        mock_gemini_instance = MockGemini.return_value
-        
-        # Scenario: Azure fails, fallback to Gemini (assuming 'standard' tier order in config)
-        # We need to peek at the actual config to know the order, or mock _select_models
-        
-        router = LLMRouter("configs/llm_router.yaml")
-        
-        # Override _select_models to enforce a specific order for testing
-        router._select_models = MagicMock(return_value=["azure_gpt4o", "gemini_2_0_flash"])
-        
-        # Azure raises exception
-        mock_azure_instance.call.side_effect = Exception("Azure 500 Error")
-        # Gemini succeeds
-        mock_gemini_instance.call.return_value = "Gemini Response"
-        
-        messages = [{"role": "user", "content": "Hello"}]
-        response = router.call("test_task", messages)
-        
-        self.assertEqual(response, "Gemini Response")
-        # Verify call order
-        mock_azure_instance.call.assert_called_once()
-        mock_gemini_instance.call.assert_called_once()
+        # Unit tests should not depend on or pollute disk cache.
+        os.environ["LLM_API_CACHE_DISABLE"] = "1"
+        # Reset singleton to avoid cross-test contamination.
+        LLMRouter._instance = None
 
     def test_config_loading(self):
-        router = LLMRouter("configs/llm_router.yaml")
+        router = LLMRouter()
         self.assertIn("providers", router.config)
         self.assertIn("models", router.config)
         self.assertIn("tiers", router.config)
         self.assertIn("tasks", router.config)
-        
-        # Check standard tier exists
-        self.assertIn("standard", router.config["tiers"])
+
+    def test_fallback_across_models(self):
+        router = LLMRouter()
+        dummy = DummyClient(fail_first=1, content="openrouter")
+
+        # Override runtime state to avoid real HTTP.
+        router.clients = {"openrouter": dummy}
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_fail": {
+                    "provider": "openrouter",
+                    "model_name": "openai/gpt-4o-mini",
+                    "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
+                    "defaults": {"temperature": 0.2, "max_tokens": 32},
+                },
+                "m_ok": {
+                    "provider": "openrouter",
+                    "model_name": "openai/gpt-4o-mini",
+                    "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
+                    "defaults": {"temperature": 0.2, "max_tokens": 32},
+                },
+            },
+            "tiers": {"standard": ["m_fail", "m_ok"]},
+            "tasks": {"general": {"tier": "standard", "options": {"max_tokens": 32}}},
+        }
+
+        out = router.call_with_raw("general", [{"role": "user", "content": "hi"}], max_tokens=16)
+        self.assertEqual(out["content"], "openrouter")
+        self.assertEqual(out["chain"], ["m_fail", "m_ok"])
+        self.assertGreaterEqual(dummy.calls, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
+

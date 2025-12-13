@@ -78,6 +78,11 @@ def main() -> int:
     ap.add_argument("--presets", default=str(DEFAULT_PRESETS_PATH), help="Path to channel_presets.json")
     ap.add_argument("--json", action="store_true", help="Output JSON summary")
     ap.add_argument("--active-only", action="store_true", help="Only report status=active channels")
+    ap.add_argument(
+        "--strict-names",
+        action="store_true",
+        help="Fail if ACTIVE templates have empty/duplicate track names",
+    )
     args = ap.parse_args()
 
     draft_root = Path(args.draft_root).expanduser().resolve()
@@ -108,6 +113,8 @@ def main() -> int:
         if status == "active":
             has_any_json = summary["has_content"] or summary["has_info"]
             if not template or not summary["dir_exists"] or not has_any_json or summary["tracks"] == 0:
+                failed_active = True
+            if args.strict_names and (summary["empty_track_names"] > 0 or summary["duplicate_track_names"] > 0):
                 failed_active = True
 
         rows.append(summary)

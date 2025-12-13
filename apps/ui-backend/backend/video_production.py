@@ -300,6 +300,7 @@ else:
             "validate_capcut",
             "build_capcut_draft",
             "render_remotion",
+            "upload_remotion_drive",
         }
         if action not in allowed_actions:
             raise HTTPException(status_code=400, detail=f"Unsupported action: {action}")
@@ -928,45 +929,79 @@ else:
     def _build_remotion_project_entry(project_dir: Path) -> Dict[str, Any]:
         project_id = project_dir.name
         info = _safe_read_json(project_dir / "capcut_draft_info.json")
-        payload = _safe_read_json(project_dir / "video_payload.json")
-        project_meta = payload.get("project", {})
-        sources_meta = payload.get("sources", {})
-        media_meta = payload.get("media", {})
+        auto_info = _safe_read_json(project_dir / "auto_run_info.json")
+        episode_info = _safe_read_json(project_dir / "episode_info.json")
+        remotion_run_info = _safe_read_json(project_dir / "remotion_run_info.json")
 
         channel_id = (
             (info.get("channel_id") if isinstance(info, dict) else None)
-            or project_meta.get("channel")
+            or (auto_info.get("channel") if isinstance(auto_info, dict) else None)
+            or (episode_info.get("channel_id") if isinstance(episode_info, dict) else None)
             or _guess_channel_code(project_id)
         )
         if isinstance(channel_id, str):
             channel_id = channel_id.upper()
+
+        video_number = _guess_video_number(
+            project_id,
+            (info.get("project_id") if isinstance(info, dict) else None),
+            (auto_info.get("srt") if isinstance(auto_info, dict) else None),
+            (info.get("srt_file") if isinstance(info, dict) else None),
+        )
+
         title = (
-            project_meta.get("title")
-            or info.get("title")
+            (info.get("title") if isinstance(info, dict) else None)
+            or (episode_info.get("title") if isinstance(episode_info, dict) else None)
             or project_dir.name
         )
-        duration_sec = project_meta.get("duration_sec")
+        duration_sec = (
+            (auto_info.get("duration_sec") if isinstance(auto_info, dict) else None)
+            or (remotion_run_info.get("duration_sec") if isinstance(remotion_run_info, dict) else None)
+        )
 
         required_assets: List[Dict[str, Any]] = []
         optional_assets: List[Dict[str, Any]] = []
 
-        audio_path = _resolve_repo_path(media_meta.get("audio"))
-        srt_path = _resolve_repo_path(media_meta.get("srt"))
-        payload_path = project_dir / "video_payload.json"
-        cues_path = _resolve_repo_path(sources_meta.get("image_cues")) or (project_dir / "image_cues.json")
-        belt_path = _resolve_repo_path(sources_meta.get("belt_config")) or (project_dir / "belt_config.json")
-        chapters_path = _resolve_repo_path(sources_meta.get("chapters")) or (project_dir / "chapters.json")
-        episode_info_path = _resolve_repo_path(sources_meta.get("episode_info")) or (project_dir / "episode_info.json")
+        # SRT: prefer capcut_draft_info.json, fallback to first *.srt in the run_dir
+        srt_path: Optional[Path] = None
+        if isinstance(info, dict):
+            srt_path = _resolve_repo_path(info.get("srt_file"))
+        if not _path_exists(srt_path):
+            candidates = sorted(project_dir.glob("*.srt"))
+            srt_path = candidates[0] if candidates else srt_path
+
+        cues_path = project_dir / "image_cues.json"
+        belt_path = project_dir / "belt_config.json"
+        chapters_path = project_dir / "chapters.json"
+        episode_info_path = project_dir / "episode_info.json"
         images_dir = project_dir / "images"
 
+        # Audio is required for rendering, but the file may live outside run_dir (audio_tts_v2 artifacts).
+        audio_path: Optional[Path] = None
+        audio_candidates: List[Path] = []
+        for ext in (".wav", ".mp3", ".m4a", ".flac"):
+            audio_candidates.extend(project_dir.glob(f"*{ext}"))
+        audio_candidates = [p for p in audio_candidates if p.is_file()]
+        if audio_candidates:
+            audio_path = sorted(audio_candidates, key=lambda p: p.stat().st_mtime, reverse=True)[0]
+        elif channel_id and video_number:
+            audio_path = (
+                PROJECT_ROOT
+                / "audio_tts_v2"
+                / "artifacts"
+                / "final"
+                / channel_id
+                / video_number
+                / f"{channel_id}-{video_number}.wav"
+            ).resolve()
+
         asset_matrix = [
-            ("Audio", audio_path, "file", True),
+            ("Audio (voice)", audio_path, "file", True),
             ("SRT", srt_path, "file", True),
             ("Image cues", cues_path, "file", True),
             ("Belt config", belt_path, "file", True),
             ("Chapters", chapters_path, "file", False),
             ("Episode info", episode_info_path, "file", False),
-            ("Video payload", payload_path, "file", True),
             ("Images directory", images_dir, "directory", True),
         ]
 
@@ -1020,6 +1055,9 @@ else:
         outputs.sort(key=lambda entry: entry.get("modified_time") or "", reverse=True)
         last_rendered = outputs[0]["modified_time"] if outputs else None
 
+        drive_upload_path = remotion_dir / "drive_upload.json" if remotion_exists else None
+        drive_upload = _safe_read_json(drive_upload_path) if drive_upload_path else {}
+
         missing_required = [asset for asset in required_assets if not asset["exists"]]
         issues = [f"{asset['label']} missing" for asset in missing_required]
         if image_count == 0:
@@ -1053,6 +1091,7 @@ else:
             "remotion_dir": str(remotion_dir) if remotion_exists else None,
             "timeline_path": str(timeline_path) if timeline_path and timeline_path.exists() else None,
             "last_rendered": last_rendered,
+            "drive_upload": drive_upload or None,
         }
 
     def _list_channel_srts(channel_id: str) -> List[Dict[str, Any]]:

@@ -12,6 +12,7 @@
 ## 環境変数
 - 正: `/Users/dd/10_YouTube_Automation/factory_commentary/.env` を唯一の正とする。
 - 必須キーは `scripts/check_env.py --env-file /Users/dd/10_YouTube_Automation/factory_commentary/.env` で検証。
+- Azure は任意（OpenRouterのみで運用する場合は未設定でも `./start.sh` は起動する）。
 - `AZURE_OPENAI_API_VERSION` などバージョン系は実デプロイに合わせ、重複・古い値はコメントアウト。
 
 ## ヘルスチェック
