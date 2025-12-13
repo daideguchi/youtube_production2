@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 import argparse
 import json
-from pathlib import Path
 import os
+import sys
+from pathlib import Path
 from typing import List, Tuple
 
-# Use project src
-ROOT = Path(__file__).resolve().parents[1]
-import sys
-sys.path.insert(0, str(ROOT / 'src'))
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import video_pkg_root  # noqa: E402
+
+ROOT = video_pkg_root()
+sys.path.insert(0, str(ROOT / "src"))
 
 from srt2images.nanobanana_client import _run_direct, _convert_to_16_9  # type: ignore
 import subprocess

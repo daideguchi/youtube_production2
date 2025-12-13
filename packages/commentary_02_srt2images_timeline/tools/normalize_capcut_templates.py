@@ -34,7 +34,7 @@ DEFAULT_DRAFT_ROOT = (
     if os.getenv("CAPCUT_DRAFT_ROOT")
     else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
 )
-DEFAULT_PRESETS_PATH = Path(__file__).resolve().parents[1] / "config" / "channel_presets.json"
+DEFAULT_PRESETS_PATH = Path(__file__).resolve().parent.parent / "config" / "channel_presets.json"
 
 
 def _try_load_json(path: Path) -> tuple[Optional[dict[str, Any]], str]:
@@ -240,4 +240,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import sys
 from pathlib import Path
+
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import video_pkg_root  # noqa: E402
+
+PROJECT_ROOT = video_pkg_root()
 
 # Import using the installed package structure
 try:
@@ -8,14 +27,8 @@ try:
     from commentary_02_srt2images_timeline.src.srt2images.orchestration.pipeline import run_pipeline
 except ImportError:
     # Fallback to relative import if the package isn't properly installed
-    import sys
-    from pathlib import Path
-    project_root = Path(__file__).resolve().parents[1]
-    repo_root = project_root.parent
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-    sys.path.insert(0, str(project_root / "src"))
-    sys.path.insert(0, str(project_root))
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+    sys.path.insert(0, str(PROJECT_ROOT))
     from srt2images.orchestration.config import get_args
     from srt2images.orchestration.pipeline import run_pipeline
 

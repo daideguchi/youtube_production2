@@ -16,15 +16,14 @@ from factory_common.image_client import (
     ImageGenerationError,
     ImageTaskOptions,
 )
-from factory_common.paths import repo_root
+from factory_common.paths import repo_root, video_pkg_root
 
 try:
     from commentary_02_srt2images_timeline.src.core.config import config
 except ImportError:
     # Fallback to relative import if the package isn't properly installed
     import sys
-    from pathlib import Path
-    project_root = Path(__file__).resolve().parents[2]
+    project_root = video_pkg_root()
     sys.path.insert(0, str(project_root / "src"))
     from core.config import config
 

@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import video_pkg_root
+
+PROJECT_ROOT = video_pkg_root()
 REGISTRY_PATH = PROJECT_ROOT / "config" / "template_registry.json"
 logger = logging.getLogger(__name__)
 

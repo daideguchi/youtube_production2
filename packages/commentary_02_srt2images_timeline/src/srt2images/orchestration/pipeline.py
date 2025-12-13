@@ -35,6 +35,7 @@ from factory_common.artifacts.visual_cues_plan import (
 )
 from factory_common.artifacts.utils import utc_now_iso
 from factory_common.timeline_manifest import parse_episode_id, sha1_file
+from factory_common.paths import video_pkg_root
 
 def run_pipeline(args):
     resolver = ChannelPresetResolver()
@@ -356,7 +357,7 @@ def run_pipeline(args):
         logging.info("Skipping PromptRefiner (cues_plan mode)")
 
     # 2.3) Attach role-based assets (channel-specific, non-invasive)
-    router = RoleAssetRouter(Path(__file__).resolve().parents[2])
+    router = RoleAssetRouter(video_pkg_root())
     router.apply(cues, channel_upper)
 
     # 2.4) Adjacent-cue diversity hints: avoid same pose/angle/object twice in a row

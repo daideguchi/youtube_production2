@@ -22,8 +22,23 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import audio_artifacts_root, video_pkg_root, video_runs_root  # noqa: E402
+
+PROJECT_ROOT = video_pkg_root()
+OUTPUT_ROOT = video_runs_root()
 DEFAULT_DRAFT_ROOT = Path.home() / "Movies/CapCut/User Data/Projects/com.lveditor.draft"
 
 
@@ -63,7 +78,7 @@ def _pick_run_name(channel: str, video: str) -> str:
     Prefer <CH>-<NNN>_redo if it exists, else pick newest matching prefix.
     """
     episode = f"{channel}-{video}"
-    out_root = PROJECT_ROOT / "output"
+    out_root = OUTPUT_ROOT
     preferred = f"{episode}_redo"
     if (out_root / preferred).is_dir():
         return preferred
@@ -81,7 +96,7 @@ def _pick_run_name(channel: str, video: str) -> str:
 
 def _final_srt_path(channel: str, video: str) -> Path:
     episode = f"{channel}-{video}"
-    return REPO_ROOT / "audio_tts_v2" / "artifacts" / "final" / channel / video / f"{episode}.srt"
+    return audio_artifacts_root() / "final" / channel / video / f"{episode}.srt"
 
 
 def _validate_run_dir(run_dir: Path) -> None:
@@ -117,7 +132,7 @@ def main() -> None:
     for idx, video in enumerate(videos, start=1):
         episode = f"{channel}-{video}"
         run_name = _pick_run_name(channel, video)
-        run_dir = PROJECT_ROOT / "output" / run_name
+        run_dir = OUTPUT_ROOT / run_name
         _validate_run_dir(run_dir)
 
         srt_path = _final_srt_path(channel, video)

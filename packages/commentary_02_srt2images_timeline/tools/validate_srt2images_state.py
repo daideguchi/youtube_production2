@@ -14,7 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-CONFIG_WHITELIST = Path(__file__).resolve().parents[1] / "config" / "track_whitelist.json"
+CONFIG_WHITELIST = Path(__file__).resolve().parent.parent / "config" / "track_whitelist.json"
 
 
 def load_json(path: Path):

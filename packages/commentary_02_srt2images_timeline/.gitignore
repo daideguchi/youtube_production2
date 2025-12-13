@@ -8,10 +8,12 @@ __pycache__/
 
 # Outputs
 output/
+output
 final.mp4
 capcut_output/
 capcut_projects/
 input/
+input
 
 # UI logs and runtime files
 ui/*.log
@@ -21,3 +23,7 @@ ui/.venv/
 
 # OS
 .DS_Store
+
+# Local scratch
+_capcut_drafts/
+tmp/

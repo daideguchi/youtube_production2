@@ -12,7 +12,9 @@ from typing import Dict, Set
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import repo_root
+
+ROOT = repo_root()
 CFG = ROOT / "configs"
 
 

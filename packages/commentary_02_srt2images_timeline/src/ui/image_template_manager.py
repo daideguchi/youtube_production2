@@ -12,7 +12,9 @@ from dataclasses import dataclass, asdict
 import logging
 from datetime import datetime
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import video_pkg_root
+
+PROJECT_ROOT = video_pkg_root()
 sys.path.append(str(PROJECT_ROOT / "src"))
 from config.template_registry import get_active_templates, resolve_template_path  # noqa: E402
 

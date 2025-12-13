@@ -8,7 +8,9 @@ import json
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from factory_common.paths import video_pkg_root
+
+PROJECT_ROOT = video_pkg_root()
 PRESETS = PROJECT_ROOT / "config" / "channel_presets.json"
 REGISTRY = PROJECT_ROOT / "config" / "template_registry.json"
 

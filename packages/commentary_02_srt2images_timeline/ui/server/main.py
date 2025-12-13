@@ -17,15 +17,44 @@ from pydantic import BaseModel, Field
 # ---------------------------------------------------------------------------
 # Path bootstrap (ensure src/ can be imported before other modules)
 # ---------------------------------------------------------------------------
-CURRENT_FILE = Path(__file__).resolve()
-UI_ROOT = CURRENT_FILE.parents[1]
-PROJECT_ROOT = CURRENT_FILE.parents[2]
-REPO_ROOT = PROJECT_ROOT.parent
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import (  # noqa: E402
+    audio_artifacts_root,
+    audio_pkg_root,
+    logs_root,
+    repo_root,
+    script_data_root,
+    video_pkg_root,
+    video_runs_root,
+)
+
+PROJECT_ROOT = video_pkg_root()
+REPO_ROOT = repo_root()
 SRC_ROOT = PROJECT_ROOT / "src"
-INPUT_ROOT = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final"
+UI_ROOT = PROJECT_ROOT / "ui"
+
+OUTPUT_ROOT = video_runs_root()
+TOOLS_ROOT = PROJECT_ROOT / "tools"
+STATIC_ROOT = OUTPUT_ROOT
+JOB_LOG_ROOT = logs_root() / "jobs" / "video_production"
+SCRIPT_PIPELINE_DATA_ROOT = script_data_root()
+
+INPUT_ROOT = audio_artifacts_root() / "final"
 CONFIG_ROOT = PROJECT_ROOT / "config"
 CHANNEL_PRESETS_PATH = CONFIG_ROOT / "channel_presets.json"
-KB_PATH = REPO_ROOT / "audio_tts_v2" / "data" / "global_knowledge_base.json"
+KB_PATH = audio_pkg_root() / "data" / "global_knowledge_base.json"
 
 for candidate in (PROJECT_ROOT, SRC_ROOT):
     candidate_str = str(candidate)
@@ -54,12 +83,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-OUTPUT_ROOT = PROJECT_ROOT / "output"
-TOOLS_ROOT = PROJECT_ROOT / "tools"
-STATIC_ROOT = OUTPUT_ROOT
-JOB_LOG_ROOT = UI_ROOT / "logs" / "jobs"
-SCRIPT_PIPELINE_DATA_ROOT = REPO_ROOT / "script_pipeline" / "data"
-
 # CapCut drafts root
 CAPCUT_DRAFT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
 _CHANNEL_CACHE: Dict[str, Any] = {"mtime": None, "data": {}}
@@ -74,7 +97,7 @@ job_manager = JobManager(
     output_root=OUTPUT_ROOT,
     tools_root=TOOLS_ROOT,
     log_root=JOB_LOG_ROOT,
-    scripts_root=PROJECT_ROOT.parent / "scripts",
+    scripts_root=REPO_ROOT / "scripts",
     project_loader=_load_project_detail,
     python_executable=sys.executable,
 )

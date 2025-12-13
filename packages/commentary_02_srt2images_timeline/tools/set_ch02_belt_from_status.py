@@ -22,9 +22,18 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
 
 from factory_common.paths import status_path as script_status_path
 from factory_common.paths import video_runs_root

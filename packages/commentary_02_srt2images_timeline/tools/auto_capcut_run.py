@@ -28,11 +28,29 @@ import datetime
 import time
 import uuid
 
-# Define PROJECT_ROOT before using it
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import (  # noqa: E402
+    audio_artifacts_root,
+    channels_csv_path,
+    repo_root,
+    video_pkg_root,
+    video_runs_root,
+)
+
+PROJECT_ROOT = video_pkg_root()
+REPO_ROOT = repo_root()
 
 from factory_common.timeline_manifest import (
     EpisodeId,
@@ -41,7 +59,6 @@ from factory_common.timeline_manifest import (
     resolve_final_audio_srt,
     write_timeline_manifest,
 )
-from factory_common.paths import channels_csv_path
 
 # Import using the installed package structure
 try:
@@ -447,7 +464,7 @@ def main():
             f"❌ channel mismatch: srt={requested_srt_path.name} implies {name_match.group(1).upper()} but --channel={args.channel}"
         )
         sys.exit(1)
-    final_root = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final"
+    final_root = audio_artifacts_root() / "final"
     try:
         rel_parts = requested_srt_path.relative_to(final_root).parts
         if rel_parts:
@@ -498,7 +515,7 @@ def main():
         if re.fullmatch(r"\d{1,3}", stem):
             stem = f"{args.channel}-{stem.zfill(3)}"
         run_name = f"{stem}_{ts}"
-    run_dir = PROJECT_ROOT / "output" / run_name
+    run_dir = video_runs_root() / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
 
     # Load preset for opening_offset (and potential future defaults)

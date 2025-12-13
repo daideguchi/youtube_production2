@@ -4,6 +4,15 @@ import sys
 from pathlib import Path
 import os
 
+def _repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
 # CapCut API path
 _candidates = []
 env_api_root = os.getenv("CAPCUT_API_ROOT")
@@ -11,7 +20,7 @@ if env_api_root:
     _candidates.append(Path(env_api_root).expanduser())
 _candidates.extend([
     Path.home() / "capcut_api",
-    Path(__file__).resolve().parents[2] / "packages" / "capcut_api",
+    _repo_root() / "packages" / "capcut_api",
 ])
 for _cand in _candidates:
     if _cand.exists():

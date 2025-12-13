@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent.parent
 GRADIO_APP = ROOT / "gradio_app.py"
 
 

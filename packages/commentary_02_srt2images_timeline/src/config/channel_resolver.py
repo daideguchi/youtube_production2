@@ -10,13 +10,15 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Optional, Any
 
+from factory_common.paths import video_pkg_root
+
 # Import new domain schema
 from core.domain.channel_schema import ChannelRegistry, ChannelConfig
 from config.template_registry import is_registered_template, resolve_template_path
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = video_pkg_root()
 DEFAULT_PRESET_PATH = PROJECT_ROOT / "config" / "channel_presets.json"
 
 CHANNEL_PATTERN = re.compile(r"CH\d{2}")

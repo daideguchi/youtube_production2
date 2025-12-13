@@ -9,7 +9,9 @@ import re
 from pathlib import Path
 from typing import Dict, List
 
-ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import repo_root
+
+ROOT = repo_root()
 
 
 def search(patterns: Dict[str, str], exts=(".py", ".js", ".ts", ".tsx")) -> Dict[str, List[str]]:

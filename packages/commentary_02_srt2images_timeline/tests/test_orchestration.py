@@ -6,7 +6,7 @@ import shutil
 import sys
 
 # Add project root to sys.path
-project_root = Path(__file__).resolve().parents[1]
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root / "src"))
 sys.path.insert(0, str(project_root))
 

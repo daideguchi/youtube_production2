@@ -2,13 +2,29 @@
 from __future__ import annotations
 import json
 import os
+import sys
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict
 
 
-OUTPUT_DIR = Path(__file__).resolve().parents[1] / "output"
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import video_runs_root  # noqa: E402
+
+OUTPUT_DIR = video_runs_root()
 
 
 @dataclass
@@ -211,4 +227,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

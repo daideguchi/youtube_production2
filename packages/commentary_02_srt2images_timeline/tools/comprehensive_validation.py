@@ -15,6 +15,15 @@ from typing import Dict, List, Tuple, Any
 from PIL import Image
 import re
 
+def _repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
+
+
 # CapCut API path
 _CANDIDATE_API_PATHS = []
 env_api_root = os.getenv("CAPCUT_API_ROOT")
@@ -22,7 +31,7 @@ if env_api_root:
     _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
 _CANDIDATE_API_PATHS.extend([
     Path.home() / "capcut_api",
-    Path(__file__).resolve().parents[2] / "packages" / "capcut_api",
+    _repo_root() / "packages" / "capcut_api",
 ])
 for _candidate in _CANDIDATE_API_PATHS:
     if _candidate.exists():

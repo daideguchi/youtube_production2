@@ -27,12 +27,33 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-TOOLS_DIR = REPO_ROOT / "commentary_02_srt2images_timeline" / "tools"
-DEFAULT_CAPCUT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+def _bootstrap_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return cur
 
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+
+_BOOTSTRAP_REPO = _bootstrap_repo_root()
+if str(_BOOTSTRAP_REPO) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_REPO))
+
+from factory_common.paths import (  # noqa: E402
+    audio_artifacts_root,
+    audio_pkg_root,
+    repo_root,
+    script_data_root,
+    video_pkg_root,
+    video_runs_root,
+)
+
+REPO_ROOT = repo_root()
+PROJECT_ROOT = video_pkg_root()
+TOOLS_DIR = PROJECT_ROOT / "tools"
+RUN_ROOT = video_runs_root()
+DEFAULT_CAPCUT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
 
 
 def _z3(x: str | int) -> str:
@@ -88,15 +109,15 @@ def _run(cmd: List[str], *, env: Optional[Dict[str, str]] = None, cwd: Optional[
 
 
 def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
-    final_dir = REPO_ROOT / "audio_tts_v2" / "artifacts" / "final" / channel / video
+    final_dir = audio_artifacts_root() / "final" / channel / video
     wav = final_dir / f"{channel}-{video}.wav"
     srt = final_dir / f"{channel}-{video}.srt"
     if wav.exists() and srt.exists():
         return wav, srt
 
-    assembled = REPO_ROOT / "script_pipeline" / "data" / channel / video / "content" / "assembled_human.md"
+    assembled = script_data_root() / channel / video / "content" / "assembled_human.md"
     if not assembled.exists():
-        assembled = REPO_ROOT / "script_pipeline" / "data" / channel / video / "content" / "assembled.md"
+        assembled = script_data_root() / channel / video / "content" / "assembled.md"
     if not assembled.exists():
         raise SystemExit(f"Missing assembled.md: {assembled}")
 
@@ -106,7 +127,7 @@ def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
     _run(
         [
             sys.executable,
-            str(REPO_ROOT / "audio_tts_v2" / "scripts" / "run_tts.py"),
+            str(audio_pkg_root() / "scripts" / "run_tts.py"),
             "--channel",
             channel,
             "--video",
@@ -124,8 +145,7 @@ def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
 
 
 def bootstrap_run_dir(channel: str, video: str, run_name: str, srt: Path) -> None:
-    out_root = REPO_ROOT / "commentary_02_srt2images_timeline" / "output"
-    run_dir = out_root / run_name
+    run_dir = RUN_ROOT / run_name
     main_title = _derive_topic_from_status(channel, video)
     _run(
         [
@@ -195,7 +215,7 @@ def build_capcut_draft(
     _run(
         cmd,
         env=env,
-        cwd=REPO_ROOT / "commentary_02_srt2images_timeline",
+        cwd=PROJECT_ROOT,
     )
 
     _run(
