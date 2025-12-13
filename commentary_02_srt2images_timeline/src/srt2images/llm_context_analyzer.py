@@ -155,28 +155,53 @@ Script excerpts:
         if fence_match:
             content = fence_match.group(1).strip()
 
-        # Extract content between first { and last }, or first [ and last ]
-        # This handles cases where there's extra text around the JSON
-        bracket_start = content.find('{')
-        bracket_end = content.rfind('}')
-        array_start = content.find('[')
-        array_end = content.rfind(']')
-
-        # Determine which type of JSON to extract
-        if bracket_start != -1 and bracket_end != -1 and (bracket_start < bracket_end):
-            if array_start == -1 or array_start > bracket_start:  # Object takes priority if it's earlier
-                json_str = content[bracket_start:bracket_end+1]
-            else:
-                # Check which comes first: object or array
-                if bracket_start < array_start:
-                    json_str = content[bracket_start:bracket_end+1]
-                else:
-                    json_str = content[array_start:array_end+1]
-        elif array_start != -1 and array_end != -1 and (array_start < array_end):
-            json_str = content[array_start:array_end+1]
-        else:
-            # If we can't find JSON brackets, try parsing the full content
+        # Extract the first balanced JSON object/array from the response.
+        # NOTE: Some providers may truncate responses mid-JSON; do NOT slice with end=-1
+        #       (that produces an empty string and hides the real error).
+        start_match = re.search(r"[\[{]", content)
+        if not start_match:
             json_str = content.strip()
+        else:
+            start = start_match.start()
+            stack: list[str] = []
+            in_str = False
+            escape = False
+            end_idx: int | None = None
+            for i in range(start, len(content)):
+                ch = content[i]
+                if in_str:
+                    if escape:
+                        escape = False
+                        continue
+                    if ch == "\\":
+                        escape = True
+                        continue
+                    if ch == '"':
+                        in_str = False
+                    continue
+
+                if ch == '"':
+                    in_str = True
+                    continue
+
+                if ch == "{":
+                    stack.append("}")
+                elif ch == "[":
+                    stack.append("]")
+                elif ch in ("}", "]"):
+                    if stack and ch == stack[-1]:
+                        stack.pop()
+                        if not stack:
+                            end_idx = i
+                            break
+
+            if end_idx is not None:
+                json_str = content[start:end_idx + 1]
+            else:
+                # Truncated/unbalanced: try a minimal repair by appending missing closers.
+                json_str = content[start:].strip()
+                if stack:
+                    json_str = json_str + "".join(reversed(stack))
 
         # Clean up any trailing commas or other invalid JSON issues
         json_str = re.sub(r',\s*}', '}', json_str)  # Remove trailing commas in objects
