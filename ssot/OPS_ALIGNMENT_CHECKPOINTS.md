@@ -14,7 +14,7 @@
 ## A. Planning（企画/進捗CSV）
 
 対象:
-- `progress/channels/CHxx.csv`
+- `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 
 最低条件（最低限ここが揃わないと下流で事故る）:
 - [ ] ファイル名 `CHxx.csv` と列 `チャンネル` の値が一致している（存在する場合）
@@ -89,4 +89,3 @@
 推奨:
 - [ ] `variants[].image_path` が実ファイルへ辿れる（`thumbnails/assets/` or 旧資産ディレクトリ）
 - [ ] 選定/承認の履歴を残す（`ssot/history/HISTORY_codex-memory.md`）
-

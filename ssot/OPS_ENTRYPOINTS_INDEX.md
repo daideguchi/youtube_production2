@@ -10,7 +10,7 @@
 
 ## 1. 最重要（E2E主動線）
 
-- 企画（Planning SoT）: `progress/channels/CHxx.csv`（UIでも編集）
+- 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 - 台本（Script）: `python -m script_pipeline.cli ...`（`script_pipeline/cli.py`）
 - 音声（Audio/TTS）:
   - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）

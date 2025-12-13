@@ -21,7 +21,7 @@
 ## 1. Planning（企画/進捗）— CSV
 
 ### 1.1 SoT
-- `progress/channels/CHxx.csv`
+- `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 
 ### 1.2 ヘッダ（例: CH01 の観測）
 - `No.`

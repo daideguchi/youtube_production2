@@ -29,7 +29,7 @@ factory_commentary/
 | --- | --- |
 | プロジェクト基礎 | `ssot/README.md` |
 | Alignment / Checklist | `ssot/OPS_ALIGNMENT_CHECKPOINTS.md` |
-| 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `progress/channels/CHxx.csv` |
+| 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
 | 環境変数 | `ssot/OPS_ENV_VARS.md` |
 | Qwen 対話モード | `QWEN.md` / `prompts/README.md` |
 | 台本ソースマップ | `ssot/OPS_SCRIPT_SOURCE_MAP.md` |
@@ -41,7 +41,7 @@ factory_commentary/
 - `.env.example` を参考に必要キーを埋める。既に設定済みの環境変数があればそれが優先される。
 
 ## 見る場所・見ない場所（台本ライン）
-- 見る: `ssot/**`（正本）、`script_pipeline/data/CHxx/NNN/status.json`（Script SoT）、`progress/channels/CHxx.csv`（Planning SoT）
+- 見る: `ssot/**`（正本）、`script_pipeline/data/CHxx/NNN/status.json`（Script SoT）、`workspaces/planning/channels/CHxx.csv`（Planning SoT）
 - 見ない: `_archives/**`, `docs/**`, `_old/**`（参照専用/退避）
 
 ## 参照ルール
