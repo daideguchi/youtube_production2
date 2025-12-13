@@ -194,8 +194,8 @@ export function RemotionWorkspace() {
     setJobError(null);
     try {
       const records = await fetchVideoJobs(projectId, 50);
-      const renderJobs = records.filter((job) => job.action === "render_remotion");
-      setJobRecords(renderJobs);
+      const relevant = records.filter((job) => job.action === "render_remotion" || job.action === "upload_remotion_drive");
+      setJobRecords(relevant);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setJobError(message);
@@ -374,8 +374,14 @@ export function RemotionWorkspace() {
   }, [projects]);
 
   const renderableStatuses: RemotionProjectSummary["status"][] = ["assets_ready", "scaffolded"];
-  const hasActiveRenderJob = jobRecords.some((job) => job.status === "queued" || job.status === "running");
+  const hasActiveRenderJob = jobRecords.some(
+    (job) => job.action === "render_remotion" && (job.status === "queued" || job.status === "running")
+  );
+  const hasActiveUploadJob = jobRecords.some(
+    (job) => job.action === "upload_remotion_drive" && (job.status === "queued" || job.status === "running")
+  );
   const canRenderRemotion = Boolean(selected && renderableStatuses.includes(selected.status));
+  const canUploadRemotionDrive = Boolean(selected && selected.status === "rendered");
   const remotionSelectionNotice =
     channelFilter === CHANNEL_FILTER_ALL
       ? "チャンネルを選択すると Video Production の選択内容を共有し、同じ案件で Remotion の準備状況を確認できます。"
@@ -454,6 +460,23 @@ export function RemotionWorkspace() {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       showBanner({ type: "error", message: `Remotionジョブ投入に失敗しました: ${message}` });
+    } finally {
+      setJobSubmitting(false);
+    }
+  }, [selected, showBanner, loadRenderJobs]);
+
+  const handleUploadRemotionDrive = useCallback(async () => {
+    if (!selected) {
+      return;
+    }
+    setJobSubmitting(true);
+    try {
+      await createVideoJob(selected.projectId, { action: "upload_remotion_drive" });
+      showBanner({ type: "success", message: `Driveアップロードをキューに追加しました (${selected.projectId})` });
+      await loadRenderJobs(selected.projectId);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      showBanner({ type: "error", message: `Driveアップロード投入に失敗しました: ${message}` });
     } finally {
       setJobSubmitting(false);
     }
@@ -597,6 +620,21 @@ export function RemotionWorkspace() {
                     ? "Remotionレンダリングを実行"
                     : "素材待ち (assets_ready待機)"}
             </button>
+            <button
+              type="button"
+              className="remotion-button remotion-button--secondary"
+              onClick={handleUploadRemotionDrive}
+              disabled={!selected || !canUploadRemotionDrive || jobSubmitting || loading || hasActiveUploadJob}
+              title={!selected ? "案件を選択してください" : !canUploadRemotionDrive ? "mp4 が生成されるまでアップロードできません" : undefined}
+            >
+              {jobSubmitting
+                ? "ジョブ投入中..."
+                : hasActiveUploadJob
+                  ? "アップロード進行中"
+                  : canUploadRemotionDrive
+                    ? "Google Driveへアップロード"
+                    : "mp4待ち"}
+            </button>
             <p className="remotion-text-muted">
               {canRenderRemotion
                 ? "実行後は下記のジョブ一覧と CapCut ジョブ管理で進捗を確認できます。"
@@ -653,6 +691,7 @@ export function RemotionWorkspace() {
               ) : null}
               <RemotionAssetsTable assets={selected.assets} onCopy={handleCopyPath} />
               <RemotionOutputs outputs={selected.outputs} onCopy={handleCopyPath} />
+              <RemotionDriveSection driveUpload={selected.driveUpload} onCopy={handleCopyPath} />
               <div className="remotion-kv">
                 <div>
                   <dt>Remotion ディレクトリ</dt>
@@ -989,6 +1028,40 @@ function RemotionOutputs({ outputs, onCopy }: OutputsProps) {
   );
 }
 
+type DriveProps = {
+  driveUpload?: RemotionProjectSummary["driveUpload"] | null;
+  onCopy: (value?: string | null) => void;
+};
+
+function RemotionDriveSection({ driveUpload, onCopy }: DriveProps) {
+  if (!driveUpload || !driveUpload.webViewLink) {
+    return (
+      <div className="remotion-section">
+        <h3>Google Drive</h3>
+        <p className="remotion-text-muted">まだ Drive にアップロードされていません。</p>
+      </div>
+    );
+  }
+  return (
+    <div className="remotion-section">
+      <h3>Google Drive</h3>
+      <div className="remotion-drive-row">
+        <a className="remotion-link" href={driveUpload.webViewLink} target="_blank" rel="noreferrer">
+          Driveで開く ↗
+        </a>
+        <button type="button" className="remotion-link" onClick={() => onCopy(driveUpload.webViewLink)}>
+          URLコピー
+        </button>
+      </div>
+      <p className="remotion-text-muted">
+        {driveUpload.fileName ? <span>ファイル: {driveUpload.fileName} · </span> : null}
+        {driveUpload.folderPath ? <span>保存先: {driveUpload.folderPath} · </span> : null}
+        {driveUpload.uploadedAt ? <span>アップロード: {formatDate(driveUpload.uploadedAt)}</span> : null}
+      </p>
+    </div>
+  );
+}
+
 type RemotionJobListProps = {
   jobs: VideoJobRecord[];
   loading: boolean;
@@ -1009,8 +1082,8 @@ function RemotionJobList({ jobs, loading, error, onReload, onSelectJob, selected
     <div className="remotion-section">
       <div className="remotion-panel__header">
         <div className="remotion-panel__header-col">
-          <h3>レンダリングジョブ</h3>
-          <p>render_remotion の履歴</p>
+          <h3>ジョブ</h3>
+          <p>render_remotion / upload_remotion_drive の履歴</p>
         </div>
         <div className="remotion-job-controls">
           <label className="remotion-job-autorefresh">
@@ -1026,6 +1099,7 @@ function RemotionJobList({ jobs, loading, error, onReload, onSelectJob, selected
         <table className="remotion-table remotion-table--compact">
           <thead>
             <tr>
+              <th>アクション</th>
               <th>ID</th>
               <th>状態</th>
               <th>開始</th>
@@ -1036,13 +1110,14 @@ function RemotionJobList({ jobs, loading, error, onReload, onSelectJob, selected
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="remotion-table__empty">
-                  {loading ? "ジョブを取得しています..." : "render_remotion ジョブがありません"}
+                <td colSpan={6} className="remotion-table__empty">
+                  {loading ? "ジョブを取得しています..." : "Remotion ジョブがありません"}
                 </td>
               </tr>
             ) : (
               jobs.map((job) => (
                 <tr key={job.id} className={job.id === selectedJobId ? "is-active" : undefined} onClick={() => onSelectJob(job.id)}>
+                  <td className="mono">{job.action}</td>
                   <td className="mono">{job.id.slice(0, 8)}</td>
                   <td>
                     <span className={`remotion-status remotion-status--${STATUS_CLASS_MAP[job.status] ?? "neutral"}`}>
@@ -1087,16 +1162,32 @@ function RemotionEditingCard({ project, onCopy }: RemotionEditingCardProps) {
     return null;
   }
   const latestOutput = project.outputs[0] ?? null;
-  const remotionDir = project.remotionDir ?? (project.remotionDir === undefined ? null : project.remotionDir);
-  const command = remotionDir
-    ? `cd ${remotionDir} && npx remotion preview`
-    : `cd commentary_02_srt2images_timeline/output/${project.projectId}/remotion && npx remotion preview`;
+  const runDir = `workspaces/video/runs/${project.projectId}`;
+  const srtPath = project.assets.find((asset) => asset.label === "SRT")?.path ?? "";
+  const channel = project.channelId ?? "";
+  const renderCommand = [
+    "python3",
+    "scripts/remotion_export.py",
+    "render",
+    "--run-dir",
+    runDir,
+    ...(channel ? ["--channel", channel] : []),
+    ...(srtPath ? ["--srt", srtPath] : []),
+  ].join(" ");
+  const uploadCommand = [
+    "python3",
+    "scripts/remotion_export.py",
+    "upload",
+    "--run-dir",
+    runDir,
+    ...(channel ? ["--channel", channel] : []),
+  ].join(" ");
 
   return (
     <div className="remotion-editing-card">
-      <h3>Remotion 編集</h3>
+      <h3>手動コマンド</h3>
       <p className="remotion-text-muted">
-        Remotion のタイムラインを開き、細かな調整や再レンダリングを行うためのエントリーポイントです。
+        UI のジョブが詰まった時のための直接実行コマンドです（基本は UI 操作のみでOK）。
       </p>
       <dl className="remotion-editing-grid">
         <div>
@@ -1116,20 +1207,32 @@ function RemotionEditingCard({ project, onCopy }: RemotionEditingCardProps) {
           </dd>
         </div>
         <div>
-          <dt>preview コマンド</dt>
+          <dt>render コマンド</dt>
           <dd className="remotion-command">
-            <code>{command}</code>
-            <button type="button" className="remotion-link" onClick={() => onCopy(command)}>
+            <code>{renderCommand}</code>
+            <button type="button" className="remotion-link" onClick={() => onCopy(renderCommand)}>
+              コピー
+            </button>
+          </dd>
+        </div>
+        <div>
+          <dt>upload コマンド</dt>
+          <dd className="remotion-command">
+            <code>{uploadCommand}</code>
+            <button type="button" className="remotion-link" onClick={() => onCopy(uploadCommand)}>
               コピー
             </button>
           </dd>
         </div>
       </dl>
-      <ol className="remotion-editing-steps">
-        <li>上記コマンドをターミナルで実行（Remotion preview が起動）。</li>
-        <li>ブラウザ上でタイムラインやコンポーネントを編集。</li>
-        <li>修正後に `render_remotion` ジョブを再投入し mp4 を更新。</li>
-      </ol>
+      {project.driveUpload?.webViewLink ? (
+        <p className="remotion-text-muted">
+          Drive:{" "}
+          <a className="remotion-link" href={project.driveUpload.webViewLink} target="_blank" rel="noreferrer">
+            {project.driveUpload.webViewLink}
+          </a>
+        </p>
+      ) : null}
     </div>
   );
 }
