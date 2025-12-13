@@ -37,17 +37,35 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
         materials = data.setdefault("materials", {})
         texts = materials.setdefault("texts", [])
 
-        # 1) try to reuse existing title track (name == title_text or single text track)
+        def _is_subtitle_track(track_name: str) -> bool:
+            n = (track_name or "").lower()
+            return ("subtitle" in n) or n.startswith("subtitles_")
+
+        # 1) try to reuse existing belt/title track (prefer template styling)
         candidate_idx = None
+        # Prefer known belt-ish tracks (template styling often lives here)
         for idx, t in enumerate(tracks):
             if t.get("type") != "text":
                 continue
-            name = (t.get("name") or "").lower()
-            if "subtitle" in name:
-                continue  # 字幕トラックは対象外
-            if name == "title_text" or "title" in name:
+            name = (t.get("name") or "").strip()
+            if not name or _is_subtitle_track(name):
+                continue
+            lname = name.lower()
+            if lname in {"belt_main", "main_belt", "text_1"} or "belt" in lname:
                 candidate_idx = idx
                 break
+
+        # Fallback: reuse explicit title tracks
+        if candidate_idx is None:
+            for idx, t in enumerate(tracks):
+                if t.get("type") != "text":
+                    continue
+                name = (t.get("name") or "").lower()
+                if _is_subtitle_track(name):
+                    continue  # 字幕トラックは対象外
+                if name == "title_text" or "title" in name:
+                    candidate_idx = idx
+                    break
 
         # Ensure text material
         def _update_material(mat_id: str):
@@ -55,7 +73,21 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
             found = False
             for i, mat in enumerate(texts):
                 if mat.get("id") == mat_id:
-                    mat["content"] = json.dumps({"text": title}, ensure_ascii=False)
+                    # Preserve template styling by updating only the inner `text` field
+                    # (CapCut stores rich text as JSON string under `content`).
+                    content_key = "content" if "content" in mat else ("text" if "text" in mat else None)
+                    if content_key and isinstance(mat.get(content_key), str):
+                        try:
+                            payload = json.loads(mat[content_key])
+                            if isinstance(payload, dict):
+                                payload["text"] = title
+                                mat[content_key] = json.dumps(payload, ensure_ascii=False)
+                            else:
+                                mat[content_key] = json.dumps({"text": title}, ensure_ascii=False)
+                        except Exception:
+                            mat[content_key] = json.dumps({"text": title}, ensure_ascii=False)
+                    else:
+                        mat["content"] = json.dumps({"text": title}, ensure_ascii=False)
                     found = True
                     break
             if not found:

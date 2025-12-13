@@ -1993,7 +1993,77 @@ def _shift_existing_segments(script, offset_us: int):
 _GENERIC_TEMPLATE_TRACK_RE = re.compile(r"^(video|text)_\d+$")
 
 
-def _purge_generic_template_placeholders(draft_dir: Path, logger: logging.Logger) -> None:
+def _detect_keep_generic_text_tracks(draft_dir: Path, logger: logging.Logger) -> set[str]:
+    """Detect template text tracks we must NOT purge (belt/title styling often lives here).
+
+    Heuristic:
+      - type=text AND name matches ^text_\\d+$
+      - exactly 1 segment
+      - referenced text material `content` is JSON with keys: {"styles", "text"}
+
+    This keeps belt/title styling intact while still allowing us to purge
+    multi-segment placeholder tracks like text_2 (template subtitles).
+    """
+    keep: set[str] = set()
+    try:
+        content_path = draft_dir / "draft_content.json"
+        if not content_path.exists():
+            return keep
+        data = json.loads(content_path.read_text(encoding="utf-8"))
+        tracks = data.get("tracks", []) or []
+        if not isinstance(tracks, list):
+            return keep
+        materials = data.get("materials", {}) or {}
+        texts = materials.get("texts", []) or []
+        if not isinstance(texts, list):
+            texts = []
+        by_id = {}
+        for mat in texts:
+            if isinstance(mat, dict) and mat.get("id"):
+                by_id[str(mat["id"])] = mat
+
+        for tr in tracks:
+            if not isinstance(tr, dict):
+                continue
+            name = (tr.get("name") or "").strip()
+            ttype = (tr.get("type") or "").strip()
+            if ttype != "text":
+                continue
+            if not name or not _GENERIC_TEMPLATE_TRACK_RE.match(name):
+                continue
+            segs = tr.get("segments") or []
+            if not (isinstance(segs, list) and len(segs) == 1):
+                continue
+            seg = segs[0] or {}
+            if not isinstance(seg, dict):
+                continue
+            mat_id = str(seg.get("material_id") or "").strip()
+            if not mat_id:
+                continue
+            mat = by_id.get(mat_id)
+            if not isinstance(mat, dict):
+                continue
+            content = mat.get("content")
+            if not isinstance(content, str) or not content.strip():
+                continue
+            try:
+                payload = json.loads(content)
+            except Exception:
+                continue
+            if isinstance(payload, dict) and "styles" in payload and "text" in payload:
+                keep.add(name)
+    except Exception as exc:
+        logger.warning("Failed to detect keep generic text tracks: %s", exc)
+        return keep
+    return keep
+
+
+def _purge_generic_template_placeholders(
+    draft_dir: Path,
+    logger: logging.Logger,
+    *,
+    keep_track_names: set[str] | None = None,
+) -> None:
     """
     Templates often keep placeholder media/text on generic tracks like video_2/text_2.
     If we add srt2images/subtitles on top without purging, CapCut ends up with duplicated
@@ -2003,6 +2073,7 @@ def _purge_generic_template_placeholders(draft_dir: Path, logger: logging.Logger
       - Purge only (type in {video,text}) AND name matches ^(video|text)_\\d+$.
       - Never touch our managed tracks: srt2images_*, subtitles_text, title_text, voiceover.
     """
+    keep_track_names = keep_track_names or set()
     removed: list[tuple[str, str, int]] = []
     for fname in ("draft_content.json", "draft_info.json"):
         path = draft_dir / fname
@@ -2021,6 +2092,8 @@ def _purge_generic_template_placeholders(draft_dir: Path, logger: logging.Logger
             if not name:
                 continue
             if name.startswith(("srt2images_", "subtitles_text", "title_text")) or name in ("voiceover",):
+                continue
+            if name in keep_track_names:
                 continue
             if ttype not in ("video", "text"):
                 continue
@@ -2047,6 +2120,7 @@ def _post_flight_validate_draft(
     *,
     expect_voice: bool,
     expect_subtitles: bool,
+    allow_generic_tracks: set[str] | None = None,
     logger: logging.Logger,
 ) -> None:
     """
@@ -2069,6 +2143,7 @@ def _post_flight_validate_draft(
     srt2_tracks = 0
     have_voiceover = False
     have_subtitles = False
+    allow_generic_tracks = allow_generic_tracks or set()
 
     for tr in tracks:
         if not isinstance(tr, dict):
@@ -2092,6 +2167,8 @@ def _post_flight_validate_draft(
                 problems.append(f"text:subtitles_text({seg_count})")
 
         if ttype in ("video", "text") and _GENERIC_TEMPLATE_TRACK_RE.match(name):
+            if name in allow_generic_tracks:
+                continue
             if seg_count > 0:
                 problems.append(f"{ttype}:{name}({seg_count})")
 
@@ -2425,9 +2502,12 @@ def main():
     # Normalize JSON + track names BEFORE loading with pyJianYingDraft.
     _normalize_draft_dir_for_pyjiaying(draft_dir)
 
+    # Detect belt/title tracks that must be preserved (some templates store styling on text_1, etc.)
+    keep_generic_text_tracks = _detect_keep_generic_text_tracks(draft_dir, logger)
+
     # Purge generic placeholder tracks from template BEFORE loading with pyJianYingDraft.
     # (If we purge after load, in-memory script.content will overwrite the JSON back.)
-    _purge_generic_template_placeholders(draft_dir, logger)
+    _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_text_tracks)
 
     script = df.load_template(args.new)
     assets_dir = draft_dir / 'assets' / 'image'
@@ -2987,6 +3067,7 @@ def main():
             draft_dir,
             expect_voice=bool(getattr(args, "voice_file", None)),
             expect_subtitles=bool(getattr(args, "srt_file", None)),
+            allow_generic_tracks=keep_generic_text_tracks,
             logger=logger,
         )
     except Exception as exc:
