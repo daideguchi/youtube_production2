@@ -88,3 +88,17 @@
 
 - 削除: `script_pipeline/data/*/*/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ 1件 / 約45.6MB）
   - 実行: `python3 scripts/purge_audio_prep_binaries.py --run --keep-recent-minutes 360`
+
+### 4) Legacy隔離（repo tracked）
+
+意図: 旧PoC/旧静的ビルド/メモを `legacy/` 配下へ隔離し、トップレベルを現行フローに集中させる。
+
+- 移動（git mv）:
+  - `50_tools/` → `legacy/50_tools/`
+  - `docs/` → `legacy/docs_old/`
+  - `idea/` → `legacy/idea/`
+- 互換 symlink（repo tracked）:
+  - `50_tools` → `legacy/50_tools`
+  - `docs` → `legacy/docs_old`
+  - `idea` → `legacy/idea`
+- 証跡: commit `bad4051e`
