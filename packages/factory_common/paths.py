@@ -81,6 +81,12 @@ def persona_path(channel: str) -> Path:
     return planning_root() / "personas" / f"{ch}_PERSONA.md"
 
 
+def research_root() -> Path:
+    ws = workspace_root() / "research"
+    old = repo_root() / "00_research"
+    return _prefer_new(old, ws)
+
+
 # ---------------------------------------------------------------------------
 # Script pipeline roots
 # ---------------------------------------------------------------------------

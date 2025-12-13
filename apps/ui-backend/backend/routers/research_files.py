@@ -6,14 +6,16 @@ from typing import Dict, Tuple
 
 from fastapi import APIRouter, HTTPException, Query
 
+from factory_common.paths import research_root, script_data_root
+
 FILE_PATH = Path(__file__).resolve()
 PROJECT_ROOT = FILE_PATH.parents[3]
 
 router = APIRouter(prefix="/api/research", tags=["research"])
 
 BASE_DIRS: Dict[str, Path] = {
-    "research": PROJECT_ROOT / "00_research",
-    "scripts": PROJECT_ROOT / "script_pipeline" / "data",
+    "research": research_root(),
+    "scripts": script_data_root(),
 }
 
 

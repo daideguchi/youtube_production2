@@ -221,6 +221,7 @@ from factory_common.paths import (
     persona_path as ssot_persona_path,
     planning_root as ssot_planning_root,
     repo_root as ssot_repo_root,
+    research_root as ssot_research_root,
     script_data_root as ssot_script_data_root,
     script_pkg_root,
     thumbnails_root as ssot_thumbnails_root,
@@ -1162,9 +1163,8 @@ async def _handle_task_completion(task_id: str, channel_code: str, status: Batch
 ENV_FILE_CANDIDATES = [
     PROJECT_ROOT / ".env",
     PROJECT_ROOT / "ui" / ".env",
-    PROJECT_ROOT / "00_research" / ".env",
+    ssot_research_root() / ".env",
     PROJECT_ROOT.parent / ".env",
-    PROJECT_ROOT.parent / "00_research" / ".env",
 ]
 
 
