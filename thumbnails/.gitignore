@@ -1,5 +1,6 @@
 # Generated thumbnail assets are large binaries managed outside Git
 assets/
+CH*/
 
 # macOS metadata
 .DS_Store
