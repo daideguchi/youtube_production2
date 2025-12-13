@@ -241,3 +241,53 @@ git の履歴には残らないため、**ローカルのみ**削除した。
 - 削除:
   - `legacy/_old/`
   - `_old`（symlink）
+
+### 18) 旧 `commentary_01_srtfile_v2` 依存テストの削除（repo tracked）
+
+意図: 実体の無い旧パッケージ名に依存したテストが残ると、`pytest` 実行時に失敗して探索と運用を阻害するため。  
+復元できるようアーカイブ後に削除した。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251213_190501_tests_commentary01_legacy.tar.gz`
+- 削除:
+  - `tests/test_annotations.py`
+  - `tests/test_b_text_builder.py`
+  - `tests/test_b_text_chunker.py`
+  - `tests/test_kana_engine.py`
+  - `tests/test_llm_adapter.py`
+  - `tests/test_llm_rewriter.py`
+  - `tests/test_llm_rewriter_openrouter.py`
+  - `tests/test_logger.py`
+  - `tests/test_orchestrator_smoke.py`
+  - `tests/test_pipeline_init_defaults.py`
+  - `tests/test_preprocess_a_text.py`
+  - `tests/test_qa.py`
+  - `tests/test_synthesis_concat.py`
+  - `tests/test_tts_routing.py`
+  - `tests/test_voicepeak_engine.py`
+
+### 19) 旧 `commentary_01_srtfile_v2` 依存スクリプトの削除（repo tracked）
+
+意図: 実体の無い旧パッケージ/旧データパスに依存したスクリプトは誤実行時の事故要因になるため、アーカイブ後に削除する。  
+（必要なものは `scripts/api_health_check.py` / `scripts/prompt_audit.py` / `scripts/validate_status_sweep.py` 等として **新SoT前提で再実装**済み。）
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251213_191620_scripts_commentary01_legacy.tar.gz`
+- 削除:
+  - `scripts/commentary_service.py`
+  - `scripts/degrade_stage_status.py`
+  - `scripts/generate_youtube_description.py`
+  - `scripts/recover_stage_sequence.py`
+  - `scripts/set_stage_pending.py`
+  - `scripts/sync_progress_with_status.py`
+  - `scripts/sync_status_mirrors.py`
+  - `scripts/validate_persona_tags.py`
+
+### 20) `commentary_02` 旧 spec_updates の削除（repo tracked）
+
+意図: SSOT が正本となったため、統合前の旧設計書（`docs/spec_updates`）は誤参照の原因になる。アーカイブ後に削除して探索ノイズを減らす。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251213_191727_commentary02_docs_spec_updates.tar.gz`
+- 削除:
+  - `packages/commentary_02_srt2images_timeline/docs/spec_updates/`
