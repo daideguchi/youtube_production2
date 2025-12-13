@@ -4,10 +4,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Any
 
+from factory_common.paths import script_data_root
+
 from .sot import load_status
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT / "script_pipeline" / "data"
+DATA_ROOT = script_data_root()
 
 
 def validate_stage(channel: str, video: str, stage_defs: List[Dict[str, Any]]) -> List[str]:

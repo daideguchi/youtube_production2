@@ -19,8 +19,17 @@ try:
 except Exception:
     load_dotenv = None
 
+# Discover repo root without relying on relative directory depth.
+# (audio_tts_v2 will be moved under packages/ in Stage4.)
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
 # Ensure project root and audio_tts_v2 are in sys.path
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
 _TTS_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
@@ -63,7 +72,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     # Load .env (SSOT at repo root). Use python-dotenv if available, otherwise fallback parse.
-    env_path = Path(__file__).resolve().parents[2] / ".env"
+    env_path = _PROJECT_ROOT / ".env"
     if load_dotenv is not None:
         load_dotenv(dotenv_path=env_path, override=True)
     else:

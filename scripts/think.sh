@@ -46,7 +46,7 @@ Options:
   -h|--help       Show help
 
 Notes:
-  - Results are written under logs/agent_tasks/ (or LLM_AGENT_QUEUE_DIR)
+  - Results are written under workspaces/logs/agent_tasks/ (or LLM_AGENT_QUEUE_DIR)
   - Use python scripts/agent_runner.py list/show/prompt/chat/bundle/complete to manage tasks.
 USAGE
 }
@@ -116,7 +116,12 @@ fi
 
 CMD=("$@")
 
-QUEUE_DIR="${LLM_AGENT_QUEUE_DIR:-$ROOT_DIR/logs/agent_tasks}"
+DEFAULT_LOGS_DIR="$ROOT_DIR/workspaces/logs"
+if [[ ! -d "$DEFAULT_LOGS_DIR" ]]; then
+  DEFAULT_LOGS_DIR="$ROOT_DIR/logs"
+fi
+
+QUEUE_DIR="${LLM_AGENT_QUEUE_DIR:-$DEFAULT_LOGS_DIR/agent_tasks}"
 PENDING_DIR="$QUEUE_DIR/pending"
 
 iter=0
