@@ -16,6 +16,8 @@ from pathlib import Path
 import os
 import time
 
+from factory_common.paths import repo_root, script_data_root
+
 def main():
     # [AMBIGUITY GUARD] Check if called via wrapper
     if not os.getenv("IS_WRAPPER_CALL"):
@@ -61,8 +63,8 @@ def main():
                 targets.append(f"{i:03d}")
 
     # Base Paths
-    project_root = Path(__file__).resolve().parents[1]
-    script_pipeline_root = project_root / "script_pipeline" / "data"
+    project_root = repo_root()
+    script_pipeline_root = script_data_root()
     
     print(f"=== Audio Generation: {args.channel} ({len(targets)} videos) ===")
     if mode == "interactive":
@@ -102,7 +104,7 @@ def main():
 
         # 2. Construct Command
         cmd = [
-            "python", "audio_tts_v2/scripts/run_tts.py", 
+            sys.executable, "-m", "audio_tts_v2.scripts.run_tts", 
             "--channel", args.channel,
             "--video", video_id,
             "--input", str(input_file),
@@ -124,7 +126,8 @@ def main():
 
         # env setup
         env = os.environ.copy()
-        env["PYTHONPATH"] = str(project_root / "audio_tts_v2")
+        packages_dir = project_root / "packages"
+        env["PYTHONPATH"] = f"{project_root}:{packages_dir}"
         
         try:
             # Run

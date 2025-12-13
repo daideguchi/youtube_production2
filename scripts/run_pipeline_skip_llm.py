@@ -6,19 +6,22 @@ import logging
 from pathlib import Path
 import shutil
 
-# プロジェクトルートをパスに追加
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root / "commentary_02_srt2images_timeline/src"))
+from factory_common.paths import video_pkg_root, video_input_root, video_runs_root
+
+# Add video package src to path for srt2images imports
+pkg_src = video_pkg_root() / "src"
+if str(pkg_src) not in sys.path:
+    sys.path.insert(0, str(pkg_src))
 
 from srt2images.generators import get_image_generator
 from srt2images.engines.capcut_engine import build_capcut_draft
 from srt2images.orchestration.utils import ensure_out_dirs, setup_logging, save_json, parse_size
 
 def run_skip_llm():
-    # 設定
-    srt_path = "commentary_02_srt2images_timeline/input/CH01_人生の道標/220.srt"
-    src_out_dir = Path("commentary_02_srt2images_timeline/output/jinsei220_resilient_v2") # LLM済み
-    dest_out_dir = Path("commentary_02_srt2images_timeline/output/jinsei220_resilient_v3") # 新規出力
+    # 設定 - use paths SSOT
+    srt_path = video_input_root() / "CH01_人生の道標" / "220.srt"
+    src_out_dir = video_runs_root() / "jinsei220_resilient_v2"  # LLM済み
+    dest_out_dir = video_runs_root() / "jinsei220_resilient_v3"  # 新規出力
     
     # 疑似引数オブジェクト
     class Args:

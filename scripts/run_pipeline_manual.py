@@ -5,9 +5,12 @@ import argparse
 import logging
 from pathlib import Path
 
-# プロジェクトルートをパスに追加
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root / "commentary_02_srt2images_timeline/src"))
+from factory_common.paths import video_pkg_root
+
+# Add video package src to path for srt2images imports
+pkg_src = video_pkg_root() / "src"
+if str(pkg_src) not in sys.path:
+    sys.path.insert(0, str(pkg_src))
 
 from srt2images.orchestration.pipeline import run_pipeline
 
