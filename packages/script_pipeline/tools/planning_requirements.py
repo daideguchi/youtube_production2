@@ -11,7 +11,9 @@ from typing import Dict, List, Optional
 
 from script_pipeline.tools.optional_fields_registry import FIELD_KEYS
 
-from factory_common.paths import planning_root
+from factory_common.paths import planning_root, repo_root
+
+YTM_ROOT = repo_root()
 
 SSOT_DIR = planning_root() / "personas"
 
