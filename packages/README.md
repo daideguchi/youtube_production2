@@ -7,9 +7,9 @@
 ## 実体化済み（正）
 - `packages/factory_common/`（互換: `factory_common` は symlink → `packages/factory_common`）
 - `packages/audio_tts_v2/`（互換: `audio_tts_v2` は symlink → `packages/audio_tts_v2`）
+- `packages/commentary_02_srt2images_timeline/`（互換: `commentary_02_srt2images_timeline` は symlink → `packages/commentary_02_srt2images_timeline`）
 
 ## 互換 symlink（未移行）
 - `packages/script_pipeline` → `../script_pipeline`
-- `packages/commentary_02_srt2images_timeline` → `../commentary_02_srt2images_timeline`
 
 移行が完了したら、ルート直下の互換 symlink 以外の旧実体は廃止し、`packages/` 配下を正本に統一します。
