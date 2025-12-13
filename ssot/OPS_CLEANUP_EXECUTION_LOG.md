@@ -102,3 +102,15 @@
   - `docs` → `legacy/docs_old`
   - `idea` → `legacy/idea`
 - 証跡: commit `bad4051e`
+
+### 5) Legacy隔離（repo tracked）
+
+意図: 各ドメイン配下に残っている legacy 断片を `legacy/` に集約し、探索ノイズを削減する。
+
+- 移動（git mv）:
+  - `audio_tts_v2/legacy_archive/` → `legacy/audio_tts_v2/legacy_archive/`
+  - `commentary_02_srt2images_timeline/tools/archive/` → `legacy/commentary_02_srt2images_timeline/tools/archive/`
+- 互換 symlink（repo tracked）:
+  - `audio_tts_v2/legacy_archive` → `../legacy/audio_tts_v2/legacy_archive`
+  - `commentary_02_srt2images_timeline/tools/archive` → `../../../legacy/commentary_02_srt2images_timeline/tools/archive`
+- 証跡: commit `0a4ed311`
