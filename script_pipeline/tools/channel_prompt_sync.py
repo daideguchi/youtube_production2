@@ -18,7 +18,9 @@ from typing import Any, Dict
 import yaml
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import repo_root
+
+PROJECT_ROOT = repo_root()
 
 
 def load_channel_prompt(yaml_path: Path) -> Dict[str, Any]:

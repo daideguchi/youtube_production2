@@ -11,10 +11,9 @@ from typing import Dict, List, Optional
 
 from script_pipeline.tools.optional_fields_registry import FIELD_KEYS
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-# In the migrated layout, YTM_ROOT = repo root
-YTM_ROOT = PROJECT_ROOT
-SSOT_DIR = YTM_ROOT / "progress" / "personas"
+from factory_common.paths import planning_root
+
+SSOT_DIR = planning_root() / "personas"
 
 
 @dataclass(frozen=True)
@@ -123,7 +122,7 @@ def get_planning_template_info(channel_code: str) -> Dict[str, object]:
     normalized = _normalize_channel(channel_code)
     if not normalized:
         return {}
-    template_path = YTM_ROOT / "progress" / "templates" / f"{normalized}_planning_template.csv"
+    template_path = planning_root() / "templates" / f"{normalized}_planning_template.csv"
     if not template_path.exists():
         return {}
     headers: List[str] = []

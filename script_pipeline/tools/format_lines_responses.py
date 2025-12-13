@@ -12,9 +12,9 @@ import sys
 from pathlib import Path
 
 from factory_common.llm_router import get_router
+from factory_common.paths import script_pkg_root
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SYSTEM_PROMPT_PATH = PROJECT_ROOT / "script_pipeline" / "prompts" / "format_lines_responses_system.txt"
+SYSTEM_PROMPT_PATH = script_pkg_root() / "prompts" / "format_lines_responses_system.txt"
 
 
 def _strip_newlines(s: str) -> str:

@@ -13,9 +13,11 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from factory_common.paths import repo_root, script_pkg_root
+
+PROJECT_ROOT = repo_root()
 CONFIG_PATH = PROJECT_ROOT / "configs" / "openrouter_models.json"
-OUTPUT_PATH = PROJECT_ROOT / "script_pipeline" / "config" / "openrouter_models.json"
+OUTPUT_PATH = script_pkg_root() / "config" / "openrouter_models.json"
 MODELS_URL = "https://openrouter.ai/api/v1/models"
 
 
