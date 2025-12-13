@@ -1,6 +1,7 @@
 
 #!/bin/bash
-LOG_FILES=("logs/mass_generation.log" "logs/fast_batch_repair.log")
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOG_FILES=("$ROOT/workspaces/logs/mass_generation.log" "$ROOT/workspaces/logs/fast_batch_repair.log")
 
 echo "Starting Auto-Approver..."
 while true; do

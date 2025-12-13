@@ -2,7 +2,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG="$ROOT/logs/ch03_batch.log"
+LOG="$ROOT/workspaces/logs/ch03_batch.log"
+mkdir -p "$(dirname "$LOG")"
+
+export PYTHONPATH="$ROOT:$ROOT/packages${PYTHONPATH:+:$PYTHONPATH}"
 
 CHANNEL="CH03"
 VIDEOS=()
@@ -10,7 +13,7 @@ while IFS= read -r path; do
   vid="$(basename "$path")"
   [[ "$vid" =~ ^[0-9]+$ ]] || continue
   VIDEOS+=("$vid")
-done < <(find "$ROOT/script_pipeline/data/CH03" -maxdepth 1 -mindepth 1 -type d | sort)
+done < <(find "$ROOT/workspaces/scripts/CH03" -maxdepth 1 -mindepth 1 -type d | sort)
 
 echo "[$(date -Iseconds)] start batch for ${#VIDEOS[@]} videos" | tee -a "$LOG"
 
