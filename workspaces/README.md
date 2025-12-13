@@ -10,7 +10,7 @@
 - `workspaces/video/runs` → `commentary_02_srt2images_timeline/output/`（動画run）
 - `workspaces/video/input` → `commentary_02_srt2images_timeline/input/`（動画入力）
 - `workspaces/logs` → `logs/`
+- `workspaces/research` → `00_research/`
 - `workspaces/thumbnails` → `thumbnails/`
 
 パス解決は `factory_common/paths.py` が正本です（`workspaces/` が実体化した時に自動で新パスへ寄ります）。
-
