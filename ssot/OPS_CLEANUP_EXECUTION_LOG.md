@@ -75,3 +75,16 @@
   - `50_tools/projects/srtfile/srtfile_v2/tools/progress_manager.py.bak`
 - 付随:
   - `.gitignore` に `*.bak` と `*~` を追加
+
+### 3) 音声生成の残骸（巨大chunks等）の削除（untracked）
+
+意図: final wav/srt/log は保持しつつ、再生成可能で容量最大の `chunks/` を削除して散らかりを減らす。
+
+- 削除: `audio_tts_v2/artifacts/final/*/*/chunks/`（106件 / 約8.5GB）
+  - 実行: `python3 scripts/purge_audio_final_chunks.py --run --keep-recent-minutes 60`
+
+- 削除: `script_pipeline/data/*/*/audio_prep/chunks/`（3件 / 約127.4MB）
+  - 実行: `python3 scripts/cleanup_audio_prep.py --run --keep-recent-minutes 60`
+
+- 削除: `script_pipeline/data/*/*/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ 1件 / 約45.6MB）
+  - 実行: `python3 scripts/purge_audio_prep_binaries.py --run --keep-recent-minutes 360`
