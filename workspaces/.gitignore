@@ -1,0 +1,15 @@
+# Generated artifacts under workspaces/ (do not commit)
+audio/**
+logs/**
+scripts/**
+video/input/**
+video/runs/**
+
+# Keep docs (tracked)
+!README.md
+!audio/README.md
+!logs/README.md
+!scripts/README.md
+!video/README.md
+!video/input/.gitkeep
+!video/runs/.gitkeep

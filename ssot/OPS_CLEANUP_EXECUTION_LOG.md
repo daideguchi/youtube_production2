@@ -208,3 +208,17 @@
 - 結果:
   - `workspaces/planning/` が正本
   - `progress` は `workspaces/planning` への symlink
+
+### 15) Stage2: `workspaces/` cutover の確定（repo tracked）
+
+意図: 生成物/中間生成物（台本・音声・動画・ログ）を repo から切り離し、`workspaces/` を正本に固定する。  
+旧パスは互換 symlink として残し、参照側の破壊を防ぐ。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251213_181445_script_pipeline_data_HEAD.tar.gz`（`script_pipeline/data/**` の repo tracked 断面）
+- 実行（git）:
+  - `script_pipeline/data/**`（repo tracked の巨大データ）を index から削除し、`script_pipeline/data -> ../workspaces/scripts` の symlink を tracked 化
+  - `workspaces/{audio,logs,scripts}` および `workspaces/video/{input,runs}` を tracked symlink から「実ディレクトリ + README/.gitignore」へ typechange
+  - `workspaces/video/{input,runs}/.gitkeep` を追加（空ディレクトリでも存在を担保）
+- 補足:
+  - 生成物の保持/削除の基準は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` に従う

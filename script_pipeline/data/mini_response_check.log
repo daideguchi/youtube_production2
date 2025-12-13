@@ -1,7 +1,0 @@
-### mini response test
-- status 200 OK
-- url: https://ai-eletus028510695380.cognitiveservices.azure.com/openai/responses?api-version=2025-03-01-preview
-- model: gpt-5-mini
-- payload: system/user echo test, max_output_tokens=256, reasoning.effort=minimal, text verbosity=low
-- result: completed (no error)
-

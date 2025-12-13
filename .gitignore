@@ -7,8 +7,12 @@
 
 # Local override configs (keep out of git)
 configs/*.local.*
-logs/
-logs
+/logs/
+/logs
+# Generated logs (prefer workspaces/logs as SoT)
+**/logs/
+!workspaces/logs/
+!workspaces/logs/README.md
 commentary_02_srt2images_timeline/**/runtime/logs/
 .DS_Store
 __pycache__/
