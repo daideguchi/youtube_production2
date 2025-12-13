@@ -222,3 +222,22 @@
   - `workspaces/video/{input,runs}/.gitkeep` を追加（空ディレクトリでも存在を担保）
 - 補足:
   - 生成物の保持/削除の基準は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` に従う
+
+### 16) `legacy/idea` の削除（repo tracked）
+
+意図: 参照されない旧メモ/試作が残ると誤参照の原因になるため、アーカイブ後に削除して探索ノイズを恒久的に下げる。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251213_185921_legacy_idea.tar.gz`
+- 削除:
+  - `legacy/idea/`
+  - `idea`（互換symlink）
+
+### 17) `legacy/_old` の削除（untracked / local）
+
+意図: repo 管理外の旧退避物（大量の古いspec/スクリプト/JSON）は、ローカル探索ノイズと誤実行リスクが高い。  
+git の履歴には残らないため、**ローカルのみ**削除した。
+
+- 削除:
+  - `legacy/_old/`
+  - `_old`（symlink）

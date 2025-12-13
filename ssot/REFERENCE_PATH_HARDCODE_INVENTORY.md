@@ -72,7 +72,7 @@
 - `scripts/apply_reading_corrections.py`
 - `scripts/sync_all_scripts.py`
 - `scripts/job_runner_service.md`（Docs）
-- `idea/study/tts.md`（Docs）
+- `ssot/history/HISTORY_tts_reading_audit.md`（Docs）
 - `docs/static/js/main.281eca7e.js` / `.map`（ビルド生成物）
 - `progress/channels/*.csv`, `progress/templates/*.csv`（SoT/テンプレ）
 - `ssot/*`（Docs）

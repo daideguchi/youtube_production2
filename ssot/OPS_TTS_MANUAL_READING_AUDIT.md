@@ -17,7 +17,7 @@
 - `SKIP_TTS_READING=1` を必ず付け、読みLLM経路を完全にスキップする。
 - 監査対象は **候補の全件**。候補抽出・確認・記録までを1セットとする。
 - 修正が必要なら **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
-- 進捗・証跡は `idea/study/tts.md` に動画ごとに記録する（後述テンプレに従う）。
+- 進捗・証跡は `ssot/history/HISTORY_tts_reading_audit.md` に動画ごとに記録する（後述テンプレに従う）。
 
 ---
 
@@ -48,7 +48,7 @@
 ### 2.4 Speaker 指定
 - routing.json の `speaker_env` に従い speaker_id を環境変数で指定する。  
   - 例（青山龍星）: `AOYAMA_SPEAKER_ID=13`
-- どの speaker で作ったかは run_tts の `[SETUP]` ログで確認し、`tts.md` に記録。
+- どの speaker で作ったかは run_tts の `[SETUP]` ログで確認し、`ssot/history/HISTORY_tts_reading_audit.md` に記録。
 
 ---
 
@@ -136,7 +136,7 @@ print("ascii_sections_total", len(ascii_sections), "example", sorted(ascii_secti
 print("top_nouns", [(s,c,mecabs[s]) for s,c in noun_counts.most_common(15)])
 PY
 ```
-- この出力値（候補数/セクション数/ASCIIセクション）は **必ず tts.md に記録**。
+- この出力値（候補数/セクション数/ASCIIセクション）は **必ず `ssot/history/HISTORY_tts_reading_audit.md` に記録**。
 
 ### 3.3 全候補の文脈チェック（手動推論）
 1. `audio_prep/log.json` を開き、`segments[*]` を **先頭から末尾まで**見る。
@@ -180,12 +180,12 @@ PY
 - 再合成後も再度 3.2→3.3 を実行し、誤読ゼロを確認。
 
 ### 3.6 記録（必須証跡）
-- `idea/study/tts.md` に動画ごとの記録を残す（テンプレは次節）。
+- `ssot/history/HISTORY_tts_reading_audit.md` に動画ごとの記録を残す（テンプレは次節）。
 - 「全候補を確認した証拠」として、**候補数/セクション数/重点語/修正有無/再合成有無**を明記する。
 
 ---
 
-## 4. 記録テンプレート（tts.md）
+## 4. 記録テンプレート（`ssot/history/HISTORY_tts_reading_audit.md`）
 
 ```md
 ## CHxx-NNN 手動チェック（YYYY-MM-DD）
@@ -207,7 +207,7 @@ PY
 ## 5. 完了条件
 - `audio_prep/log.json` の全セクションについて、候補(A/B)を **全件** 文脈付きで確認済み。
 - 必要な辞書/位置パッチが全て反映され、再合成後も誤読が残っていない。
-- `tts.md` に証跡が残っている。
+- `ssot/history/HISTORY_tts_reading_audit.md` に証跡が残っている。
 
 ---
 

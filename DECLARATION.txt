@@ -9,7 +9,7 @@
 3) 誤読が見つかれば手動で修正し、該当動画のみ再合成する。
    - 文脈依存しない読み: learning_dict.json に追加
    - 行依存の読み: local_token_overrides.json に (section_id, token_index, reading) を手で記入
-4) どのセクションを確認し、何を修正/非修正としたかを、動画ごとに必ず idea/study/tts.md に記録する。
+4) どのセクションを確認し、何を修正/非修正としたかを、動画ごとに必ず `ssot/history/HISTORY_tts_reading_audit.md` に記録する。
 5) サボらず、gpt-5-miniがすべき監査を自分で全うする。
 
 【作業チェックリスト（動画ごと、証跡必須）】
@@ -18,6 +18,6 @@
 - [ ] 全候補の文脈を目視（必要なら音も確認）
 - [ ] 読みが不自然なら辞書 or 位置パッチを手動で追加
 - [ ] 該当動画を再合成（SKIP_TTS_READING=1）
-- [ ] idea/study/tts.md に「全候補確認済み」「確認したセクション/候補一覧」「修正内容 or 修正なし」を記録
+- [ ] `ssot/history/HISTORY_tts_reading_audit.md` に「全候補確認済み」「確認したセクション/候補一覧」「修正内容 or 修正なし」を記録
 
 以上を厳守し、CH02-014以降をやり直します。全候補を確認し、記録に残すことを約束します。

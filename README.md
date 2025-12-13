@@ -18,9 +18,7 @@ factory_commentary/
 ├─ logs/                           # グローバルログ（gitignore）
 ├─ ssot/                           # Single Source of Truth（設計/運用/計画）
 ├─ remotion/                       # experimental（現行未運用）
-├─ idea/                           # 人間用メモ（互換symlink → legacy/idea）
 ├─ 00_research/                    # research（互換symlink → workspaces/research）
-├─ _old/                           # local退避（gitignore）
 └─ ...
 ```
 
@@ -42,7 +40,7 @@ factory_commentary/
 
 ## 見る場所・見ない場所（台本ライン）
 - 見る: `ssot/**`（正本）、`script_pipeline/data/CHxx/NNN/status.json`（Script SoT）、`workspaces/planning/channels/CHxx.csv`（Planning SoT）
-- 見ない: `_archives/**`, `docs/**`, `_old/**`（参照専用/退避）
+- 見ない: `legacy/**`, `backups/**`（参照専用/退避）
 
 ## 参照ルール
 - **SSOT以外の文書は参考用**：旧 `docs/` や `commentary_01/.../docs/` は履歴として残すのみで、最新仕様ではありません。

@@ -51,8 +51,8 @@
 - `logs/`：運用ログの集約（L3だが運用上参照されるため保持）。
 
 ### 2.2 Legacy隔離（現行依存ゼロ、ただし履歴/参照として残す）
-- `_old/`：旧仕様/退避物。現行コード参照なし。
-- `idea/`：思考メモ/試作。現行参照なし。
+- （削除済み / local）`_old/`：旧仕様/退避物。現行コード参照なし → 誤参照防止のためローカル削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- （削除済み）`idea/`：思考メモ/試作。現行参照なし → アーカイブ後に削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - `factory_commentary.egg-info/`：開発時生成のメタ情報（再生成可能。確実ゴミとして削除済み）
 
 > Stage3で隔離済み。`50_tools/` / `docs/` は過去に存在したが、現在は **アーカイブ後に削除済み**（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
