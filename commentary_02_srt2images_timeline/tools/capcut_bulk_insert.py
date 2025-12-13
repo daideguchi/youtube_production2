@@ -2113,7 +2113,8 @@ def main():
     ap.add_argument("--tx", type=float, default=-0.3125, help="transform_x (half-canvas units)")
     # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y
     ap.add_argument("--ty", type=float, default=0.20555555555, help="transform_y (half-canvas units)")
-    ap.add_argument("--scale", type=float, default=1.03)
+    # Global rule: keep images slightly zoomed-in to allow gentle motion without showing borders.
+    ap.add_argument("--scale", type=float, default=1.05)
     ap.add_argument("--title", help="Left-top title text to set")
     ap.add_argument("--title-duration", type=float, default=30.0, help="Title display duration (seconds)")
     ap.add_argument("--skip-title", action="store_true", help="Skip title insertion (useful when a JSON post-processor will inject it)")
@@ -2399,7 +2400,7 @@ def main():
             clip_settings=Clip_settings(transform_x=args.tx, transform_y=args.ty, scale_x=args.scale, scale_y=args.scale),
         )
 
-        # Gentle Ken Burns drift（安全マージン確保: 基本スケール1.03固定＋微小移動）
+        # Gentle Ken Burns drift（安全マージン確保: 基本スケール固定＋微小移動）
         try:
             if 'clip' not in seg.__dict__:
                 seg.clip = {}
@@ -2412,9 +2413,9 @@ def main():
             start_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
             end_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
             end_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
-            # scale: keep base 1.03, end up to +2%
+            # scale: keep constant (global rule: all images = args.scale)
             start_scale = args.scale
-            end_scale = args.scale * (1.0 + rng.uniform(0.0, 0.02))
+            end_scale = args.scale
 
             seg.clip['transform']['x'] = start_tx
             seg.clip['transform']['y'] = start_ty

@@ -141,6 +141,21 @@ def _resolve_audio_wav(run_dir: Path, channel: Optional[str], video: Optional[st
             raise FileNotFoundError(f"audio wav not found: {wav}")
         return wav
 
+    # Try local audio next (some runs keep the voice track in run_dir).
+    local_audio: list[Path] = []
+    for ext in (".wav", ".mp3", ".m4a", ".flac"):
+        local_audio.extend(sorted(run_dir.glob(f"*{ext}")))
+    local_audio = [p for p in local_audio if p.is_file()]
+    if local_audio:
+        # Prefer matching the run_dir name or any SRT stem, otherwise take newest.
+        preferred_stems = {run_dir.name}
+        preferred_stems.update({p.stem for p in run_dir.glob("*.srt")})
+        for cand in local_audio:
+            if cand.stem in preferred_stems:
+                return cand
+        local_audio.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        return local_audio[0]
+
     manifest = _read_json(run_dir / "timeline_manifest.json")
     if manifest:
         rel = (((manifest.get("source") or {}).get("audio_wav") or {}).get("path")) or ""

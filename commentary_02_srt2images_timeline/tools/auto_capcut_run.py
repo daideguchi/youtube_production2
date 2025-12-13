@@ -17,6 +17,7 @@ Requirements:
 """
 
 import argparse
+import csv
 import os
 import re
 import subprocess
@@ -250,6 +251,28 @@ def validate_preset_minimum(channel_id: str, preset: dict):
         return False, f"capcut_template missing for {channel_id}"
     return True, ""
 
+def resolve_title_from_planning_csv(episode: EpisodeId) -> str | None:
+    """
+    Resolve the human title from progress/channels/<CH>.csv.
+    This is the SoT for naming CapCut draft folders (LLM title generation is fallback only).
+    """
+    csv_path = REPO_ROOT / "progress" / "channels" / f"{episode.channel.upper()}.csv"
+    if not csv_path.exists():
+        return None
+    try:
+        with csv_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            target = f"{episode.channel.upper()}-{episode.video.zfill(3)}"
+            for row in reader:
+                vid = (row.get("動画ID") or row.get("video_id") or "").strip()
+                if vid.upper() != target:
+                    continue
+                title = (row.get("タイトル") or row.get("title") or "").strip()
+                return title or None
+    except Exception:
+        return None
+    return None
+
 
 def main():
     overall_start = time.time()
@@ -275,6 +298,7 @@ def main():
     ap.add_argument("--imgdur", default="20", help="Target img duration (seconds)")
     ap.add_argument("--fps", default="30", help="FPS")
     ap.add_argument("--crossfade", default="0.5", help="Crossfade seconds")
+    ap.add_argument("--scale", type=float, default=1.05, help="Global image scale (default: 1.05)")
     ap.add_argument("--draft-root", default=str(DEFAULT_DRAFT_ROOT), help="CapCut draft root")
     ap.add_argument("--template", help="Explicit CapCut template name (optional, otherwise preset capcut_template)")
     ap.add_argument("--prompt-template", help="Explicit prompt template path (optional, otherwise preset prompt_template)")
@@ -289,17 +313,18 @@ def main():
     ap.add_argument("--fallback-if-missing-cues", action="store_true", help="In resume mode, if image_cues.json is missing, run pipeline instead of failing")
     ap.add_argument(
         "--belt-mode",
-        choices=["existing", "equal", "grouped", "llm"],
-        default="llm",
-        help="Belt generation mode: existing (use belt_config.json as-is), equal (manual labels), grouped (chapters/episode_info), llm (from image_cues via LLM)",
+        choices=["auto", "existing", "equal", "grouped", "llm"],
+        default="auto",
+        help="Belt generation mode: auto (preset-driven), existing (use belt_config.json as-is), equal (manual labels), grouped (chapters/episode_info), llm (from image_cues via LLM)",
     )
-    ap.add_argument("--timeout-ms", type=int, default=300000, help="Timeout per command (ms)")
+    # IMPORTANT: User requested no time-based interruption. Stop on abort patterns instead.
+    ap.add_argument("--timeout-ms", type=int, default=0, help="Timeout per command (ms) (default: 0 = unlimited)")
     ap.add_argument("--abort-on-log", help="Comma-separated patterns; abort if any appears in child stdout/stderr")
     ap.add_argument(
         "--draft-name-with-title",
         action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Include '__<title>' suffix in CapCut draft directory name (default: false)",
+        default=True,
+        help="Include '__<title>' suffix in CapCut draft directory name (default: true)",
     )
     args = ap.parse_args()
 
