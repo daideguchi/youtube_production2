@@ -76,7 +76,7 @@
 ## 4. ステップ別 UI/SoT/I/O 契約（超重要）
 
 ### Phase A: Planning（企画）
-- **SoT**: `progress/channels/CHxx.csv`
+- **SoT**: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 - **UI操作**:
   - 行の作成/編集（タイトル/タグ/作成フラグ/メモ等）
   - “Script初期化”の前提チェック（必須列が埋まっているか）
@@ -218,4 +218,3 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 - Backend（UI API）: `apps/ui-backend/backend/main.py`
 - Backend（AutoDraft）: `apps/ui-backend/backend/routers/auto_draft.py`
 - Backend（VideoProduction）: `apps/ui-backend/backend/video_production.py`
-

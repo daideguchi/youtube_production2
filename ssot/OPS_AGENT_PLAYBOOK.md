@@ -48,7 +48,7 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 ## 3. “壊さない”ための不変条件（強制）
 
 ### 3.1 SoT（正本）の定義（固定）
-- Planning SoT: `progress/channels/{CH}.csv`
+- Planning SoT: `workspaces/planning/channels/{CH}.csv`（互換: `progress/channels/{CH}.csv`）
 - Script SoT: `script_pipeline/data/{CH}/{NNN}/status.json` + `content/assembled*.md`
 - Audio SoT: `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`
 - Video run SoT: `commentary_02_srt2images_timeline/output/{run_id}/`
