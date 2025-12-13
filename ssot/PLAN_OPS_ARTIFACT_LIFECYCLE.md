@@ -42,10 +42,10 @@
 
 ### 3.1 企画/進捗（planning）
 - **L0/SoT**
-  - `progress/channels/CHxx.csv`
-  - `progress/personas/*`
-  - `progress/templates/*`
-  - `progress/analytics/*`
+  - `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+  - `workspaces/planning/personas/*`
+  - `workspaces/planning/templates/*`
+  - `workspaces/planning/analytics/*`
 - **ルール**
   - CSV/Persona/Template/Analytics は **無期限保持**。
   - `planning_updates_preview.csv` 等の preview は L2 として 30 日で削除可。
@@ -100,7 +100,7 @@
   - `audio_tts_v2/logs/*.log`（観測される。現行コード参照は薄く、legacy/adhoc の可能性が高い）
 
 **削除/圧縮基準**
-- `status.json.stage >= audio_synthesis` かつ `progress/channels` の該当行が `audio: ready` になったら:
+- `status.json.stage >= audio_synthesis` かつ `workspaces/planning/channels` の該当行が `audio: ready` になったら:
   - `script_pipeline/.../audio_prep/` は削除（現行 cleanup と同じ、ただし **ready 確認後に限定**）。
   - `artifacts/final/.../chunks/` は削除（再生成可能・サイズ最大）。
   - `artifacts/audio/...` は last-run だけ残し、古い run は `artifacts/_archive_audio/<timestamp>/` に移動。
@@ -141,7 +141,7 @@
 
 **削除/圧縮基準**
 - 1 video に対し output run が複数ある場合:
-  - `progress/channels` で採用 run を `video_run_id` として SoT に記録する。
+- `workspaces/planning/channels` で採用 run を `video_run_id` として SoT に記録する。
   - 採用 run 以外は L2 として 30 日後に `output/_archive/<timestamp>/` へ移動。
 - `video: published` になったら:
   - 採用 run は L1→L0 に昇格、不要な `assets/image/` と L2 JSON を削除。
@@ -194,7 +194,7 @@ cleanup_workspace \
 ```
 
 ### 4.2 ステータス連動
-- `status.json.stage` と `progress/channels` の進捗を組み合わせて安全判定。
+- `status.json.stage` と `workspaces/planning/channels` の進捗を組み合わせて安全判定。
 - **削除条件が満たされない限り purge しない**（dry-run で差分確認）。
 
 ### 4.3 既存 cleanup の置き換え
