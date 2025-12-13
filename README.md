@@ -5,6 +5,9 @@
 ## ディレクトリ概要（現行）
 ```
 factory_commentary/
+├─ packages/                       # Target: Pythonパッケージ（当面は互換symlink）
+├─ workspaces/                     # Target: SoT+生成物（当面は互換symlink）
+├─ legacy/                         # 旧資産/退避（当面は互換symlinkを残す）
 ├─ progress/                       # 企画/進捗 SoT（channels CSV, personas）
 ├─ script_pipeline/                # 台本 SoT + runner（data/CHxx/NNN）
 ├─ audio_tts_v2/                   # 音声/TTS（artifacts/final が下流参照の正本）
@@ -15,7 +18,9 @@ factory_commentary/
 ├─ logs/                           # グローバルログ（gitignore）
 ├─ ssot/                           # Single Source of Truth（設計/運用/計画）
 ├─ remotion/                       # experimental（現行未運用）
-├─ 50_tools/ / _old/ / docs/ / 00_research/ / idea/  # legacy/research/退避
+├─ 50_tools/ docs/ idea/           # 互換symlink → legacy/
+├─ 00_research/                    # research（互換symlink: workspaces/research）
+├─ _old/                           # local退避（gitignore）
 └─ ...
 ```
 
