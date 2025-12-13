@@ -1,6 +1,6 @@
 # サムネイルワークスペース概要
 
-このディレクトリは、サムネイル生成・レビューの情報を集約し、UI から直感的に管理できるようにするための専用領域です。`commentary_01_srtfile_v2` のフロントエンド／バックエンドと連携し、各チャンネルの企画に紐づくサムネイル案を追跡します。
+このディレクトリは、サムネイル生成・レビューの情報を集約し、UI から直感的に管理できるようにするための専用領域です。FastAPI（`apps/ui-backend`）+ Frontend（`apps/ui-frontend`）と連携し、各チャンネルの企画に紐づくサムネイル案を追跡します。
 
 ## ディレクトリ構成
 
@@ -48,19 +48,20 @@
 
 ## バックエンド連携
 
-FastAPI バックエンド（`ui/backend/main.py`）に以下エンドポイントが追加されています。
+FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エンドポイントを提供します。
 
-- `GET /api/thumbnails/overview` : 全チャンネルのサムネイル概要を返却。
-- `GET /api/thumbnails/{channel}/{video}` : 単一企画のサムネイル情報を取得。
-- `PUT /api/thumbnails/{channel}/{video}` : 選択中バリアントやステータスを更新。
-- `POST /api/thumbnails/{channel}/{video}/assets` : 画像ファイルを受け取り `thumbnails/assets/{CHxx}/{video}/` に保存したうえでバリアントとして登録（初回のみ自動で採用中に設定可能）。
-- `GET /thumbnails/assets/{path}` : `assets/` 以下の静的ファイルを配信。
+- `GET /api/workspaces/thumbnails` : 全チャンネルのサムネイル概要（projects.json統合）を返却。
+- `PATCH /api/workspaces/thumbnails/{channel}/{video}` : 企画メタ（status/notes/tags/selected_variant 等）を更新。
+- `POST /api/workspaces/thumbnails/{channel}/{video}/variants` : バリアント登録（URL/メタのみ）。
+- `POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload` : 画像アップロード→ `thumbnails/assets/{CHxx}/{video}/` に保存しバリアント化。
+- `GET /thumbnails/assets/{channel}/{video}/{asset_path}` : `assets/` 配下の静的ファイル配信。
+- 補助: `GET /api/thumbnails/lookup`（thumbnails/ 配下からスコア検索）
 
 ## フロントエンド連携
 
-- サイドバーに「サムネイル」タブを追加しました（`App.tsx` の `navItems` およびルートに追加）。
-- `ThumbnailWorkspace` コンポーネント（`frontend/src/components/ThumbnailWorkspace.tsx`）で一覧 UI を提供し、`projects.json` の内容を編集できます。
-- `npm --prefix commentary_01_srtfile_v2/ui/frontend run build` で型チェック済みです（警告なし）。
+- `apps/ui-frontend/src/pages/ThumbnailsPage.tsx` がサムネ一覧ページ。
+- `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx` が主要UI（projects.json をAPI経由で編集）。
+- `npm --prefix apps/ui-frontend run build` でフロントエンドの型/ビルドを確認できます。
 
 ## 運用メモ
 

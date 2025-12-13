@@ -121,7 +121,7 @@
   → 物理移動のたびに全域修正が必要になる。
 - **アドホック scripts の散在**
   - `scripts/` と `tools/` がドメイン別に整理されておらず、保守・再利用が難しい。
-  - `scripts/commentary_service.py` のような実体不存在ディレクトリ参照の旧スクリプトが残存。
+  - `scripts/commentary_service.py` 等の旧スクリプトは誤参照の原因になりやすく、archive-first で `backups/graveyard/` に退避したうえで削除済み（`ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 19）。
 - **環境/依存物のコミット**
   - `remotion/node_modules/` がリポジトリ内に存在。
   - `.venv/` 等も混在（必須ではないが、生成物と見分けづらい）。
@@ -430,7 +430,7 @@ legacy/
   - ルート README/SSOT/OPS での旧パス記述整理。
 - **テスト**
   - `tests/*` と `audio_tts_v2/tests/*`, `commentary_02_srt2images_timeline/tests/*` の fixture パス更新。
-  - 旧 `commentary_01_srtfile_v2` 依存テストは `legacy/tests_commentary_01/` へ隔離 or 更新。
+  - 旧 `commentary_01_srtfile_v2` 依存テストは archive-first で `backups/graveyard/` に退避したうえで削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 18）。
 
 ## 7. マイルストーン / 実装ステップ（超詳細）
 

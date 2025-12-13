@@ -123,7 +123,9 @@
 - `test_*` のうち `script_pipeline` / `audio_tts_v2` / `commentary_02` / `factory_common` を直接テストするもの。
 
 **Legacy隔離（旧名依存）**
-`rg "commentary_01_srtfile_v2" tests` でヒットした以下は Stage3 で `legacy/tests_commentary_01/` に隔離:
+旧 `commentary_01_srtfile_v2` 依存テストは誤参照の原因になりやすいため、**archive-first** で `backups/graveyard/` に退避したうえで repo から削除する（実施済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` の Step 18）。
+
+対象（削除済み）:
 - `tests/test_synthesis_concat.py`
 - `tests/test_logger.py`
 - `tests/test_preprocess_a_text.py`
@@ -140,7 +142,7 @@
 - `tests/test_pipeline_init_defaults.py`
 - `tests/test_b_text_chunker.py`
 
-> これらは「削除」ではなく、旧パイプライン再現/比較用の履歴として保持する。
+> 旧パイプライン再現が必要な場合は、graveyard アーカイブから復元して別ブランチ/別リポジトリで扱う（現行 repo に常駐させない）。
 
 ---
 

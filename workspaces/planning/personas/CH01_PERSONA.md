@@ -34,11 +34,10 @@
 5. **サムネタイトル上/下**: 上＝呼びかけ、下＝行動ワードを基本とし、なるべく漢字＋ひらがなで視認性を確保。
 
 ## 4. コピペ用テンプレ
-- ファイル: `progress/templates/CH01_planning_template.csv`
+- ファイル: `workspaces/planning/templates/CH01_planning_template.csv`（互換: `progress/templates/...`）
 - 使い方: 1行目（ヘッダー）と2行目（サンプル）をコピーし、新しい No. / 動画番号 / タイトルなどを上書き。`{NEXT_NO}` や `{NEXT_VIDEO}` を差し替える。
 - `ターゲット層` は触らず、悩みタグやベネフィットはサンプルのコメント形式を踏襲する。
 
 ## 5. ワークフローへの組み込み
-1. 企画を追加したら `python3 -m core.tools.planning_store refresh --force` を実行してキャッシュ更新。
-2. `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CH01` で列ズレが無いか検証。
-3. UI (`ScriptFactory` / `Projects`) で行が表示されることを確認し、テンプレに沿った値が反映されているかスポットチェックする。
+1. 企画を追加したら UI `/progress` で表示確認（必要なら `python3 scripts/api_health_check.py --all-channels`）。
+2. 行が表示されることを確認し、テンプレに沿った値が反映されているか spot check する。

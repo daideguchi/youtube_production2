@@ -137,7 +137,6 @@
 - `tools/clean_thumbnail_prompts.py`
 - `scripts/fix_ch02_row.py`
 - `scripts/append_ch02_row.py`
-- `scripts/sync_status_mirrors.py`
 - `ui/tools/assets_sync.py`
 - `configs/sources.yaml`
 - `script_pipeline/config/sources.yaml`
@@ -170,17 +169,13 @@
 `rg --files-with-matches "commentary_01_srtfile_v2"` の結果（全件）。  
 現行ではディレクトリ実体が無く、**全てLegacy参照**。
 
-- `tests/*`（多数）
-- `scripts/*`（generate_subtitles/build_video_payload/sync_* 等）
-- `apps/ui-backend/backend/main.py`
-- `apps/ui-backend/backend/video_production.py`
-- `progress/README.md`
-- `thumbnails/README.md`
-- `configs/README.md`
-- `commentary_02_srt2images_timeline/docs/spec_updates/*`
-- `50_tools/remotion_auto_video/tools/build_video_payload.py`
-- `ssot/*`
+- `apps/ui-backend/backend/main.py`（コメント/互換メモ）
+- `apps/ui-backend/backend/video_production.py`（コメント/互換メモ）
+- `scripts/validate_status_sweep.py` / `scripts/force_asset_sync.py`（legacy置換の説明文）
+- `packages/audio_tts_v2/README.md`（互換メモ）
+- `ssot/*`（計画/cleanupログ/履歴）
+- `workspaces/planning/personas/*.md`（運用メモ）
 
 方針:
 - Stage 1 では「paths SSOT 化 or legacy へ隔離」のため参照を**薄く置換**。
-- Stage 3 で `legacy/commentary_01_srtfile_v2/` stub（READMEのみ）へ集約し、コード/テストから完全消し込み。
+- コード/テストからは削除済み。残存する参照は Docs/履歴として扱い、再導入しない。

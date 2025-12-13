@@ -155,7 +155,7 @@
 ### 3.7 Stage1-7: テストの更新 / 隔離
 対象:
 - `tests/*` のうち現行パイプライン対象は paths SSOT に追従。
-- `commentary_01_srtfile_v2` 参照テストは `legacy/tests_commentary_01/` へ隔離（Stage3で実施）。
+- `commentary_01_srtfile_v2` 参照テストは archive-first で `backups/graveyard/` に退避し、repo から削除（実施済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 18）。
 
 ゲート:
 - `pytest -q`（現行対象のみが通る状態を維持）

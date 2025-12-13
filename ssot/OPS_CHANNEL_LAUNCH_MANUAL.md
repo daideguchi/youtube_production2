@@ -5,7 +5,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 ## 0. 前提とゴール
 - SoT: `workspaces/planning/channels/CHxx.csv`（企画・進捗。互換: `progress/channels/...`）、`workspaces/planning/personas/CHxx_PERSONA.md`（チャンネルの固定文脈。互換: `progress/personas/...`）。
 - ゴール: 上記 2 ファイルが更新され、`進捗` が `topic_research: pending` の 30 本が連番で並び、ペルソナ/禁止事項/トーンが最新化されていること。
-- 成果物チェック: `python3 -m core.tools.planning_store refresh --force` と `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CHxx` を実行して列ズレとキャッシュを確認（CI 代替）。
+- 成果物チェック: UI `/progress` で列ズレ/表示を spot check し、必要なら `python3 scripts/api_health_check.py --all-channels` で planning の読み込みを確認する（旧 verify コマンドは廃止）。
 
 ## 1. インテイク（エージェントが受け取る入力）
 - チャンネル ID（例: `CH12`）、テーマ 1 文、想定視聴者 1 文。
@@ -54,9 +54,8 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 
 ### Step D. 書き込みと検証
 1. `workspaces/planning/channels/CHxx.csv` に 30 行を貼り付け（ヘッダー保持。互換: `progress/channels/...`）。
-2. `python3 -m core.tools.planning_store refresh --force` を実行してキャッシュを更新。
-3. `python3 commentary_01_srtfile_v2/core/tools/progress_manager.py verify --channel-code CHxx` で列ズレを検証。
-4. UI で表示確認（行が読めるかを spot check）。
+2. `python3 scripts/api_health_check.py --all-channels` を実行して planning 読み込みの健全性を確認。
+3. UI `/progress` で表示確認（行が読めるかを spot check）。
 
 ### Step E. 台本作成プロンプトの構築（スクリプトライン準備）
 - 目的: 台本ラインがチャンネル固有のトーンと禁止事項を参照できるように、`script_pipeline/prompts/channels/CHxx.yaml` とチャンネルディレクトリ配下の `script_prompt.txt` / `channel_info.json` を整備する。

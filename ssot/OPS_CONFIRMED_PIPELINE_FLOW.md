@@ -40,8 +40,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - 実装: `scripts/youtube_publisher/publish_from_sheet.py`
 
 ### 0.3 旧名/参照の注意
-- 文書/スクリプト/テストに `commentary_01_srtfile_v2` が残るが、**実体は `script_pipeline` に移行済みでディレクトリは存在しない**。  
-  これらは **Legacy参照** とみなし、リファクタリングで隔離/更新対象。
+- `commentary_01_srtfile_v2` は廃止（ディレクトリ実体なし）。  
+  コード/テストへ再導入しないこと。Docs/履歴に残る場合は **Legacy参照** とみなし、段階的に更新/整理する。
 
 ---
 
@@ -375,7 +375,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 ## 4. Legacy / 旧フローの扱い（ゴミ判定の基準）
 
 ### 4.1 Legacyとみなす根拠
-- 実体の無い `commentary_01_srtfile_v2` 参照（tests/, scripts/, docs/に残存）。
+- 実体の無い `commentary_01_srtfile_v2` 参照（現在は主にDocs/履歴に残存。コード/テストからは削除済み）。
 - `_old/`（互換symlink）, `legacy/idea/`（人間用メモ）, `00_research/` 配下の試作/履歴。
 - 既に削除済みの旧資産（旧PoC/旧静的ビルド等）は `ssot/OPS_CLEANUP_EXECUTION_LOG.md` を正として扱う（復元は `backups/graveyard/`）。
 
