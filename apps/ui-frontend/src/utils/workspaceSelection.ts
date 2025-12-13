@@ -8,7 +8,7 @@ export type WorkspaceSelection = {
 };
 
 export function loadWorkspaceSelection(): WorkspaceSelection | null {
-  if (typeof window === "undefined") {
+  if (!safeLocalStorage.isAvailable) {
     return null;
   }
   try {
@@ -30,7 +30,7 @@ export function loadWorkspaceSelection(): WorkspaceSelection | null {
 }
 
 export function saveWorkspaceSelection(selection: WorkspaceSelection | null): void {
-  if (typeof window === "undefined") {
+  if (!safeLocalStorage.isAvailable) {
     return;
   }
   try {

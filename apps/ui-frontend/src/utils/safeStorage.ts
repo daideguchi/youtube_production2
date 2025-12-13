@@ -7,7 +7,37 @@ export interface SafeStorage {
   isAvailable: boolean;
 }
 
-const createSafeStorage = (backing: Storage | null): SafeStorage => {
+type StorageLike = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+  clear(): void;
+};
+
+const warnStorageUnavailable = (error: unknown): void => {
+  try {
+    (globalThis as any)?.console?.warn?.("Storage not available in this context", error);
+  } catch {
+    // ignore
+  }
+};
+
+const resolveStorage = (key: "localStorage" | "sessionStorage"): StorageLike | null => {
+  try {
+    const candidate = (globalThis as any)?.[key];
+    if (!candidate) {
+      return null;
+    }
+    if (typeof candidate.getItem !== "function") {
+      return null;
+    }
+    return candidate as StorageLike;
+  } catch {
+    return null;
+  }
+};
+
+const createSafeStorage = (backing: StorageLike | null): SafeStorage => {
   if (!backing) {
     return {
       getItem: () => null,
@@ -22,7 +52,7 @@ const createSafeStorage = (backing: Storage | null): SafeStorage => {
     try {
       return fn();
     } catch (e) {
-      console.warn("Storage not available in this context", e);
+      warnStorageUnavailable(e);
       return fallback;
     }
   };
@@ -52,9 +82,9 @@ const createSafeStorage = (backing: Storage | null): SafeStorage => {
 };
 
 export const safeLocalStorage: SafeStorage = createSafeStorage(
-  typeof window !== "undefined" ? window.localStorage : null
+  resolveStorage("localStorage")
 );
 
 export const safeSessionStorage: SafeStorage = createSafeStorage(
-  typeof window !== "undefined" ? window.sessionStorage : null
+  resolveStorage("sessionStorage")
 );
