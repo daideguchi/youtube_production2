@@ -218,6 +218,7 @@ from factory_common.paths import (
     audio_final_dir,
     audio_pkg_root,
     logs_root as ssot_logs_root,
+    persona_path as ssot_persona_path,
     planning_root as ssot_planning_root,
     repo_root as ssot_repo_root,
     script_data_root as ssot_script_data_root,
@@ -639,11 +640,11 @@ def _ensure_planning_store_ready() -> None:
 
 
 def _persona_doc_path(channel_code: str) -> Path:
-    return PROJECT_ROOT / "progress" / "personas" / f"{channel_code}_PERSONA.md"
+    return ssot_persona_path(channel_code)
 
 
 def _planning_template_path(channel_code: str) -> Path:
-    return PROJECT_ROOT / "progress" / "templates" / f"{channel_code}_planning_template.csv"
+    return ssot_planning_root() / "templates" / f"{channel_code}_planning_template.csv"
 
 
 def _relative_path(path: Path) -> str:
