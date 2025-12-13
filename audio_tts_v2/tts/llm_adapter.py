@@ -168,7 +168,7 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
         },
     ]
     
-    last_err: Exception | None = None
+    last_err: BaseException | None = None
     last_raw: Optional[str] = None
     
     # Try calling via LLM router
@@ -226,7 +226,9 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
         annotations = sorted(annotations, key=lambda x: int(x.get("index", 0)))
         return {"token_annotations": annotations}
         
-    except Exception as e:
+    except BaseException as e:
+        if isinstance(e, KeyboardInterrupt):  # pragma: no cover
+            raise
         last_err = e
         # Log failure
         if last_raw:
@@ -239,7 +241,8 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
                 pass
 
     # Fallback: defaults
-    print(f"[LLM_WARN] annotate_tokens fallback due to: {last_err}")
+    if os.getenv("TTS_LLM_LOG_STDOUT") == "1":
+        print(f"[LLM_FALLBACK] annotate_tokens: {last_err}")
     defaults = []
     for idx, tok in token_map.items():
         defaults.append(

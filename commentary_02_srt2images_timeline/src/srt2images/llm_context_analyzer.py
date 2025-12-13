@@ -13,10 +13,11 @@ import math
 from pathlib import Path
 
 from factory_common.llm_router import get_router
+from factory_common.paths import logs_root, repo_root
 
-# Visual Bible Path (New)
-VISUAL_BIBLE_PATH = Path(__file__).resolve().parents[3] / "commentary_02_srt2images_timeline" / "data" / "visual_bible.json"
-LLM_LOG_PATH = Path(__file__).resolve().parents[3] / "logs" / "llm_context_analyzer.log"
+# Legacy global cache path (deprecated). Prefer passing visual_bible explicitly.
+_LEGACY_VISUAL_BIBLE_PATH = repo_root() / "data" / "visual_bible.json"
+LLM_LOG_PATH = logs_root() / "llm_context_analyzer.log"
 
 @dataclass
 class SectionBreak:
@@ -39,7 +40,13 @@ class LLMContextAnalyzer:
     MIN_SECTION_SECONDS = 3.0
     MAX_SECTION_SECONDS = 40.0
     
-    def __init__(self, api_key: str = None, model: str = None, channel_id: str | None = None):
+    def __init__(
+        self,
+        api_key: str = None,
+        model: str = None,
+        channel_id: str | None = None,
+        visual_bible: Dict[str, Any] | None = None,
+    ):
         self.channel_id = channel_id
         # Note: api_key and model args are deprecated as LLMRouter handles configuration.
         # However, we keep them in signature for compatibility.
@@ -48,13 +55,23 @@ class LLMContextAnalyzer:
         strict_mode = os.getenv("LLM_CONTEXT_ANALYZER_STRICT", "false").lower() in ("true", "1", "yes", "on")
         self.strict_mode = strict_mode
 
-        self.visual_bible = {}
-        if VISUAL_BIBLE_PATH.exists():
-            try:
-                self.visual_bible = json.loads(VISUAL_BIBLE_PATH.read_text(encoding="utf-8"))
-                logging.info(f"Loaded Visual Bible from {VISUAL_BIBLE_PATH}")
-            except Exception as e:
-                logging.warning(f"Failed to load Visual Bible: {e}")
+        # Visual bible should be scoped per-run (passed from pipeline) to avoid cross-channel leakage.
+        self.visual_bible: Dict[str, Any] = visual_bible if isinstance(visual_bible, dict) else {}
+        if not self.visual_bible:
+            # Optional opt-in via env var (absolute or repo-relative path).
+            env_path = (os.getenv("SRT2IMAGES_VISUAL_BIBLE_PATH") or "").strip()
+            if env_path:
+                p = Path(env_path)
+                if not p.is_absolute():
+                    p = repo_root() / p
+                if p.exists():
+                    try:
+                        self.visual_bible = json.loads(p.read_text(encoding="utf-8"))
+                        logging.info("Loaded Visual Bible from %s", p)
+                    except Exception as e:
+                        logging.warning("Failed to load Visual Bible from %s: %s", p, e)
+                else:
+                    logging.warning("SRT2IMAGES_VISUAL_BIBLE_PATH set but file not found: %s", p)
         LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     def analyze_story_sections(self, segments: List[Dict], target_sections: int = 20) -> List[SectionBreak]:

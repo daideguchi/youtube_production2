@@ -3,25 +3,23 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
-import sys
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Set
-
-def _require_env_vars(keys: List[str]) -> None:
-    missing = [k for k in keys if not os.getenv(k)]
-    if missing:
-        from factory_common.paths import repo_root
-        raise SystemExit(
-            f"環境変数が未設定: {', '.join(missing)}。" \
-            f" `set -a && source {repo_root() / '.env'} && set +a` を実行してから再試行してください。"
-        )
 
 from .sot import load_status, save_status, init_status, status_path, Status, StageState
 from .validator import validate_stage
 from .tools import optional_fields_registry as opt_fields
+from factory_common.artifacts.llm_text_output import (
+    SourceFile,
+    artifact_path_for_output,
+    build_pending_artifact,
+    build_ready_artifact,
+    load_llm_text_artifact,
+    write_llm_text_artifact,
+)
 from factory_common.llm_client import LLMClient
 from factory_common.paths import repo_root, script_pkg_root, script_data_root
+from factory_common.timeline_manifest import sha1_file
 
 PROJECT_ROOT = repo_root()
 SCRIPT_PKG_ROOT = script_pkg_root()
@@ -64,16 +62,8 @@ STAGE_DEF_PATH = SCRIPT_PKG_ROOT / "stages.yaml"
 TEMPLATE_DEF_PATH = SCRIPT_PKG_ROOT / "templates.yaml"
 SOURCES_PATH = SCRIPT_PKG_ROOT / "config" / "sources.yaml"
 CONFIG_ROOT = PROJECT_ROOT / "configs"
-# モデルレジストリはトップ配下（configs）を優先し、無ければ script_pipeline 配下を使う
-MODEL_REGISTRY_PRIMARY = CONFIG_ROOT / "llm_model_registry.yaml"
-MODEL_REGISTRY_FALLBACK = SCRIPT_PKG_ROOT / "config" / "llm_model_registry.yaml"
-OPENROUTER_MODELS_PRIMARY = CONFIG_ROOT / "openrouter_models.json"
-OPENROUTER_MODELS_FALLBACK = SCRIPT_PKG_ROOT / "config" / "openrouter_models.json"
-# minimal log sink for debugging mini挙動
-LOG_SINK = str(DATA_ROOT / "llm_sessions.jsonl")
 # stages to skip (no LLM formatting run) — none by default
 SKIP_STAGES: Set[str] = set()
-FORCE_FALLBACK_SENTINEL = DATA_ROOT / "_state" / "force_fallback"
 
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
@@ -97,259 +87,11 @@ def _load_templates() -> Dict[str, Dict[str, Any]]:
     return data.get("templates") or {}
 
 
-def _load_registry_payload() -> Dict[str, Any]:
-    import yaml
-
-    path = MODEL_REGISTRY_PRIMARY if MODEL_REGISTRY_PRIMARY.exists() else MODEL_REGISTRY_FALLBACK
-    if not path.exists():
-        return {}
-    try:
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-
-
-def _load_model_registry() -> Dict[str, Any]:
-    payload = _load_registry_payload()
-    registry = payload.get("models") or {}
-
-    # merge openrouter dynamic metadata if available
-    or_path = OPENROUTER_MODELS_PRIMARY if OPENROUTER_MODELS_PRIMARY.exists() else OPENROUTER_MODELS_FALLBACK
-    if or_path.exists():
-        try:
-            models = json.loads(or_path.read_text(encoding="utf-8"))
-        except Exception:
-            models = []
-        if isinstance(models, list):
-            by_id = {m.get("id"): m for m in models if isinstance(m, dict) and m.get("id")}
-            for key, entry in registry.items():
-                if not isinstance(entry, dict):
-                    continue
-                prov = entry.get("provider")
-                mid = entry.get("model") or key
-                if prov == "openrouter":
-                    meta = by_id.get(mid)
-                    if meta:
-                        if meta.get("context_length"):
-                            entry.setdefault("context_length", meta.get("context_length"))
-                        if meta.get("default_max_completion_tokens"):
-                            entry["default_max_completion_tokens"] = int(meta.get("default_max_completion_tokens"))
-                        # optional defaults
-                        if meta.get("default_parameters"):
-                            entry.setdefault("default_parameters", meta.get("default_parameters"))
-                        registry[key] = entry
-    return registry
-
-
-def _get_fallback_model(payload: Dict[str, Any] | None = None) -> str | None:
-    # env優先
-    env_model = os.getenv("SCRIPT_PIPELINE_FALLBACK_MODEL")
-    if env_model:
-        return env_model.strip()
-    if payload is None:
-        payload = _load_registry_payload()
-    model = payload.get("fallback_model")
-    if isinstance(model, str) and model.strip():
-        return model.strip()
-    return None
-
-
-def _force_fallback_enabled() -> bool:
-    if os.getenv("SCRIPT_PIPELINE_FORCE_FALLBACK") == "1":
-        return True
-    try:
-        return FORCE_FALLBACK_SENTINEL.exists()
-    except Exception:
-        return False
-
-
-def _enable_force_fallback(fallback_model: str | None) -> None:
-    if not fallback_model:
-        return
-    os.environ["SCRIPT_PIPELINE_FORCE_FALLBACK"] = "1"
-    os.environ["SCRIPT_PIPELINE_FALLBACK_MODEL"] = fallback_model
-    try:
-        FORCE_FALLBACK_SENTINEL.parent.mkdir(parents=True, exist_ok=True)
-        FORCE_FALLBACK_SENTINEL.write_text(f"quota exceeded; force fallback model={fallback_model}\n", encoding="utf-8")
-    except Exception:
-        pass
-
-
 def _render_template(template_path: Path, ph_map: Dict[str, str]) -> str:
     text = template_path.read_text(encoding="utf-8")
     for k, v in ph_map.items():
         text = text.replace(f"<<{k}>>", v)
     return text
-
-
-_SUBTITLE_ALLOWED_PUNCTS: Set[str] = {"。", "、", "！", "？", "」"}
-
-
-def _build_raw_no_nl_and_raw_breaks(raw_text: str) -> Tuple[str, Set[int]]:
-    """
-    元テキストから:
-      - 改行を除いた文字列 raw_no_nl
-      - 元の改行位置に対応するインデックス集合 raw_breaks
-    を生成する。
-    raw_no_nl のインデックス i が raw_breaks に含まれていれば、
-    「元テキストではその位置で改行だった」という意味になる。
-    """
-    raw_no_nl_chars: List[str] = []
-    raw_breaks: Set[int] = set()
-
-    normalized = raw_text.replace("\r\n", "\n").replace("\r", "\n")
-    for ch in normalized:
-        if ch == "\n":
-            raw_breaks.add(len(raw_no_nl_chars))
-        else:
-            raw_no_nl_chars.append(ch)
-
-    raw_no_nl = "".join(raw_no_nl_chars)
-    return raw_no_nl, raw_breaks
-
-
-def _split_into_chunks(text: str, max_len: int = 800) -> List[str]:
-    """
-    文末（。！？）や改行で区切りつつ、max_len以下になるように連結したチャンク配列を返す。
-    それでも長い場合は強制スライス。
-    """
-    import re
-
-    # 文末で一旦分割
-    parts = re.split(r"(?<=[。！？])", text)
-    parts = [p for p in parts if p.strip()]
-    chunks: List[str] = []
-    buf = ""
-    for p in parts:
-        if len(buf) + len(p) <= max_len:
-            buf += p
-        else:
-            if buf:
-                chunks.append(buf)
-            if len(p) <= max_len:
-                buf = p
-            else:
-                # 長すぎる場合は強制スライス
-                start = 0
-                while start < len(p):
-                    chunks.append(p[start : start + max_len])
-                    start += max_len
-                buf = ""
-    if buf:
-        chunks.append(buf)
-    if not chunks:
-        chunks = [text]
-    return chunks
-
-
-def _mechanical_format(text: str, limit: int = 35) -> str:
-    """
-    機械的に句読点優先で改行するフォールバック。
-    - 句読点（。！？、）で行を切る
-    - どうしても超える場合は limit で強制改行
-    """
-    out_lines: List[str] = []
-    buf = ""
-    for ch in text.replace("\r\n", "\n").replace("\r", "\n"):
-        if ch == "\n":
-            if buf:
-                out_lines.append(buf)
-                buf = ""
-            out_lines.append("")  # 段落区切り
-            continue
-        buf += ch
-        if len(buf) >= limit or ch in {"。", "！", "？", "、"}:
-            out_lines.append(buf)
-            buf = ""
-    if buf:
-        out_lines.append(buf)
-    # 段落区切りを統一（空行は1つだけ）
-    res: List[str] = []
-    prev_empty = False
-    for line in out_lines:
-        if line == "":
-            if not prev_empty:
-                res.append("")
-            prev_empty = True
-        else:
-            res.append(line)
-            prev_empty = False
-    return "\n".join(res).strip()
-
-
-def _validate_subtitle_format(raw_text: str, out_text: str, limit: int = 29) -> Tuple[bool, str]:
-    """
-    LLM出力が字幕ルールを満たすか検査する:
-      - 改行位置が 句読点直後 か 元の改行位置 だけであること
-      - 各行が limit 文字以下であること
-      - 元テキスト比で極端に文字数が減っていないこと（50%未満ならNG）
-    """
-    raw_text_norm = raw_text.replace("\r\n", "\n").replace("\r", "\n").rstrip("\n")
-    out_norm = out_text.replace("\r\n", "\n").replace("\r", "\n").rstrip("\n")
-
-    raw_no_nl, raw_breaks = _build_raw_no_nl_and_raw_breaks(raw_text_norm)
-    raw_no_nl = raw_no_nl.rstrip("\n")
-
-    pos = 0
-    line_len = 0
-    line_no = 1
-    problems: List[str] = []
-    prev_char = ""
-
-    for ch in out_norm:
-        if ch == "\n":
-            # 改行位置: 元の改行 or 出力側の直前文字が句読点
-            if pos < len(raw_no_nl):
-                if (pos not in raw_breaks) and (prev_char not in _SUBTITLE_ALLOWED_PUNCTS):
-                    problems.append(f"改行位置が不正（{line_no}行目）")
-            if line_len > limit:
-                problems.append(f"{line_no}行目が{line_len}文字（上限{limit}）")
-            line_len = 0
-            line_no += 1
-            continue
-
-        # 通常一致
-        if pos < len(raw_no_nl) and ch == raw_no_nl[pos]:
-            pos += 1
-            line_len += 1
-            prev_char = ch
-            if line_len > limit:
-                problems.append(f"{line_no}行目が{line_len}文字（上限{limit}）")
-            continue
-
-        # 読点「、」の挿入は許可（raw側は進めない）
-        if ch == "、":
-            line_len += 1
-            prev_char = ch
-            if line_len > limit:
-                problems.append(f"{line_no}行目が{line_len}文字（上限{limit}）")
-            continue
-
-        # それ以外の差分は即NG
-        if pos >= len(raw_no_nl):
-            return False, f"出力が長すぎます（{line_no}行目付近）"
-        return False, f"文字列が一致しません（{line_no}行目付近）"
-
-    if line_len > limit:
-        problems.append(f"{line_no}行目が{line_len}文字（上限{limit}）")
-
-    raw_len = len(raw_no_nl)
-    out_len = len(out_norm.replace("\n", ""))
-    if raw_len > 0 and out_len < raw_len * 0.5:
-        return False, f"文字数が半分以下に減少しています（元:{raw_len}, 出力:{out_len}）"
-
-    if problems:
-        over_count = sum(1 for p in problems if "文字（上限" in p)
-        bad_breaks = sum(1 for p in problems if "改行位置が不正" in p)
-        msgs: List[str] = []
-        if over_count:
-            msgs.append(f"行長オーバーが {over_count} 行あります。句読点ごとに改行し、全行29字以内にしてください。")
-        if bad_breaks:
-            msgs.append("改行位置が句読点以外の場所にあります。句読点直後だけで改行してください。")
-        if not msgs:
-            msgs.append("ルール違反があります。句読点直後で必ず改行し、全行29字以内にしてください。")
-        return False, " ".join(msgs)
-    return True, ""
 
 
 def _load_sources(channel: str) -> Dict[str, Any]:
@@ -388,29 +130,18 @@ def _merge_metadata(st: Status, extra: Dict[str, Any]) -> None:
 
 def _resolve_llm_options(stage: str, llm_cfg: Dict[str, Any], templates: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Resolve template path/model/provider/heading:
-      1. stage profile (llm_stage_profiles.yaml)
-      2. template definition
-      3. inline llm cfg
+    Resolve template path/heading.
+
+    NOTE: provider/model selection is handled by `factory_common.llm_client.LLMClient`
+    via `configs/llm.yml` (task → tier → model chain). Do not re-introduce
+    per-stage hardcoding here.
     """
-    registry_payload = _load_registry_payload()
-    registry = registry_payload.get("models") or {}
     tmpl_key = llm_cfg.get("template")
     tmpl = templates.get(tmpl_key) if tmpl_key else {}
 
     heading = llm_cfg.get("heading") or (tmpl.get("heading") if tmpl else None)
     template_path = llm_cfg.get("path") or (tmpl.get("path") if tmpl else None)
-
-    provider = llm_cfg.get("provider") or (tmpl.get("provider") if tmpl else None)
-    model = llm_cfg.get("model") or (tmpl.get("model") if tmpl else None)
-    if not model:
-        model = os.getenv("SCRIPT_PIPELINE_DEFAULT_MODEL") or registry_payload.get("default_model")
-    if not model and registry:
-        model = next(iter(registry.keys()))
-    if model and not provider:
-        provider = (registry.get(model) or {}).get("provider")
-
-    return {"heading": heading, "template_path": template_path, "provider": provider, "model": model}
+    return {"heading": heading, "template_path": template_path}
 
 
 def _replace_tokens(path: str, channel: str, video: str) -> str:
@@ -948,8 +679,45 @@ def _safe_remove(path: Path) -> None:
         pass
 
 
+def _collect_llm_sources(placeholders: Dict[str, Any], base: Path, st: Status) -> List[SourceFile]:
+    import hashlib
+
+    def _sha1_text(text: str) -> str:
+        h = hashlib.sha1()
+        norm = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+        h.update(norm.encode("utf-8"))
+        return h.hexdigest()
+
+    sources: Dict[str, SourceFile] = {}
+    for key, raw in (placeholders or {}).items():
+        if key == "__log_suffix":
+            continue
+        try:
+            resolved = _resolve_placeholder_value(str(raw), base, st, st.channel, st.video)
+        except Exception:
+            continue
+        if resolved.startswith("@"):
+            p = Path(resolved[1:])
+            sha1 = sha1_file(p) if p.exists() else "MISSING"
+            sources[str(p)] = SourceFile(path=str(p), sha1=sha1)
+        else:
+            sources[f"inline:{key}"] = SourceFile(path=f"inline:{key}", sha1=_sha1_text(resolved))
+    return list(sources.values())
+
+
+def _sources_signature(sources: List[SourceFile]) -> Dict[str, str]:
+    return {s.path: s.sha1 for s in (sources or [])}
+
+
 def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: Dict[str, Dict[str, Any]], extra_placeholders: Dict[str, str] | None = None, output_override: Path | None = None) -> bool:
-    """Attempt to run llm_runner using LLMRouter; return True if succeeded."""
+    """
+    Run an LLM-backed stage and write its primary output.
+
+    Artifact-driven contract (THINK/API共通):
+    - If `artifacts/llm/*.json` exists and `status=ready`, write `content` to output and skip API.
+    - If `status=pending`, stop and ask the operator to fill the artifact.
+    - On THINK/AGENT (SystemExit) or API failure, emit `status=pending` artifact then stop.
+    """
     if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
         return False
     
@@ -971,51 +739,74 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         return False
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Resolve options (mostly for template path now, as model/provider are handled by router)
+    task_name = llm_cfg.get("task")
+    if not task_name:
+        raise SystemExit(f"[{stage}] llm.task is required (stages.yaml/templates.yaml を確認してください)")
+
+    log_suffix = ""
+    if extra_placeholders and "__log_suffix" in extra_placeholders:
+        log_suffix = str(extra_placeholders.get("__log_suffix") or "")
+
+    placeholders = llm_cfg.get("placeholders") or {}
+    if extra_placeholders:
+        placeholders = {**placeholders, **extra_placeholders}
+    sources = _collect_llm_sources(placeholders, base, st)
+    artifact_path = artifact_path_for_output(base_dir=base, stage=stage, output_path=out_path, log_suffix=log_suffix)
+
+    if artifact_path.exists():
+        try:
+            art = load_llm_text_artifact(artifact_path)
+        except Exception as e:  # noqa: BLE001
+            raise SystemExit(f"[{stage}] invalid LLM artifact: {artifact_path} ({e})")
+        if art.stage != stage or art.task != task_name:
+            raise SystemExit(
+                f"[{stage}] LLM artifact mismatch: {artifact_path}\n"
+                f"- expected: stage={stage} task={task_name}\n"
+                f"- got: stage={art.stage} task={art.task}\n"
+                "artifact を削除して再生成してください。"
+            )
+        if _sources_signature(art.sources) != _sources_signature(sources):
+            raise SystemExit(
+                f"[{stage}] LLM artifact sources changed: {artifact_path}\n"
+                "入力が変わっています（事故防止のため停止）。artifact を削除して再生成してください。"
+            )
+        if art.status != "ready":
+            raise SystemExit(
+                f"[{stage}] LLM artifact pending: {artifact_path}\n"
+                "content を埋めて status=ready にしてから同じコマンドを再実行してください。"
+            )
+        if not art.content.strip():
+            raise SystemExit(f"[{stage}] LLM artifact is ready but content is empty: {artifact_path}")
+        out_path.write_text(art.content.rstrip("\n") + "\n", encoding="utf-8")
+        _normalize_llm_output(out_path, stage)
+        return True
+
+    # Resolve template (model/provider are handled by router via llm.task)
     resolved = _resolve_llm_options(stage, llm_cfg, templates)
     template_path_str = resolved.get("template_path")
     if not template_path_str:
-        return False
+        raise SystemExit(f"[{stage}] template path unresolved (llm.template / templates.yaml を確認してください)")
     candidate = Path(template_path_str)
     if not candidate.is_absolute():
         candidate = PROJECT_ROOT / template_path_str
     if not candidate.exists():
-        return False
+        raise SystemExit(f"[{stage}] template file not found: {candidate}")
 
     # 2. Prepare Prompt
-    placeholders = llm_cfg.get("placeholders") or {}
-    if extra_placeholders:
-        placeholders = {**placeholders, **extra_placeholders}
     ph_values: Dict[str, str] = {}
     for k, v in placeholders.items():
-        ph_values[k] = _resolve_placeholder_value(str(v), base, st, st.channel, st.video)
-        if ph_values[k].startswith("@"):
+        if k == "__log_suffix":
+            continue
+        resolved_val = _resolve_placeholder_value(str(v), base, st, st.channel, st.video)
+        if resolved_val.startswith("@"):
             try:
-                ph_values[k] = Path(ph_values[k][1:]).read_text(encoding="utf-8")
+                resolved_val = Path(resolved_val[1:]).read_text(encoding="utf-8")
             except Exception:
-                ph_values[k] = ""
+                resolved_val = ""
+        ph_values[k] = resolved_val
 
     prompt_text = _render_template(candidate, ph_values)
     as_messages_flag = llm_cfg.get("as_messages", False)
-
-    # Legacy: script_draft_format specific logic for system/user split
-    if stage == "script_draft_format":
-        # script_draft_format は system/user メッセージ構造を強制し、RAW_TEXT は user に分離する
-        rules_text = _render_template(candidate, {k: v for k, v in ph_values.items() if k != "RAW_TEXT"})
-        raw_val = ph_values.get("RAW_TEXT", "")
-        fail_hint_val = ph_values.get("FAIL_HINT", "").strip()
-        msgs: List[Dict[str, str]] = [{"role": "system", "content": rules_text.strip()}]
-        if fail_hint_val:
-            msgs.append({"role": "system", "content": fail_hint_val})
-        msgs.append({"role": "user", "content": raw_val})
-        prompt_text = json.dumps(msgs, ensure_ascii=False, indent=2)
-        as_messages_flag = True
-
-    # 3. Call LLM
-    task_name = llm_cfg.get("task")
-    if not task_name:
-        # タスク未指定は許容しない（ルータ経由を必須化）
-        raise RuntimeError(f"[{stage}] llm.task is required; stages.yaml/templates.yaml に task を明示してください")
 
     messages: List[Dict[str, str]] = []
     if as_messages_flag or (prompt_text.strip().startswith("[") and prompt_text.strip().endswith("]")):
@@ -1031,9 +822,6 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         messages = [{"role": "user", "content": prompt_text}]
 
     # Log path preparation
-    log_suffix = ""
-    if extra_placeholders and "__log_suffix" in extra_placeholders:
-        log_suffix = str(extra_placeholders.get("__log_suffix") or "")
     stage_log_dir = base / "logs"
     stage_log_dir.mkdir(parents=True, exist_ok=True)
     prompt_log = stage_log_dir / f"{stage}{log_suffix}_prompt.txt"
@@ -1070,14 +858,19 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
             raise RuntimeError("LLM returned empty content")
 
         # Success - Save Output
-        out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content + "\n", encoding="utf-8")
         
         # Log response
         try:
             resp_log.write_text(
                 json.dumps(
-                    {"task": task_name, "response": content, "usage": llm_result.usage},
+                    {
+                        "task": task_name,
+                        "provider": llm_result.provider,
+                        "model": llm_result.model,
+                        "response": content,
+                        "usage": llm_result.usage,
+                    },
                     ensure_ascii=False,
                     indent=2,
                 ),
@@ -1087,7 +880,44 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
             pass
 
         _normalize_llm_output(out_path, stage)
+        try:
+            write_llm_text_artifact(
+                artifact_path,
+                build_ready_artifact(
+                    stage=stage,
+                    task=task_name,
+                    channel=st.channel,
+                    video=st.video,
+                    output_path=out_path,
+                    content=content,
+                    sources=sources,
+                    llm_meta={"provider": llm_result.provider, "model": llm_result.model, "usage": llm_result.usage},
+                    notes=f"prompt_log={prompt_log}",
+                ),
+            )
+        except Exception:
+            pass
         return True
+
+    except SystemExit as e:
+        # THINK/AGENT または failover_to_think の pending を、固定パスartifactにも落とす
+        try:
+            write_llm_text_artifact(
+                artifact_path,
+                build_pending_artifact(
+                    stage=stage,
+                    task=task_name,
+                    channel=st.channel,
+                    video=st.video,
+                    output_path=out_path,
+                    sources=sources,
+                    llm_meta={"system_exit": str(e), "prompt_log": str(prompt_log), "resp_log": str(resp_log)},
+                    notes="Fill `content` and set `status=ready`, then rerun the same command.",
+                ),
+            )
+        except Exception:
+            pass
+        raise
 
     except Exception as e:
         # Log error
@@ -1099,7 +929,23 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         
         # Propagate warnings to status
         st.stages[stage].details.setdefault("warnings", []).append(f"LLM Error: {str(e)}")
-        return False
+        try:
+            write_llm_text_artifact(
+                artifact_path,
+                build_pending_artifact(
+                    stage=stage,
+                    task=task_name,
+                    channel=st.channel,
+                    video=st.video,
+                    output_path=out_path,
+                    sources=sources,
+                    llm_meta={"error": str(e), "prompt_log": str(prompt_log), "resp_log": str(resp_log)},
+                    notes="LLM failed. Fix the error or fill `content` manually, then set `status=ready` and rerun.",
+                ),
+            )
+        except Exception:
+            pass
+        raise SystemExit(f"[{stage}] LLM call failed; pending artifact written: {artifact_path}")
 
 
 def _all_stages_completed(st: Status) -> bool:
@@ -1364,118 +1210,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             }
             ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=extra_ph, output_override=out_path) or ran_llm
             gen_paths.append(str(out_path.relative_to(base)))
-        st.stages[stage_name].details["generated"] = gen_paths
-    elif stage_name == "script_draft_format":
-        chapters_dir = base / "content" / "chapters"
-        formatted_dir = base / "content" / "chapters_formatted"
-        if not chapters_dir.exists():
-            st.stages[stage_name].status = "pending"
-            st.stages[stage_name].details["error"] = "chapters_missing"
-            save_status(st)
-            return st
-        outputs = sd.get("outputs") or []
-        if not outputs:
-            st.stages[stage_name].status = "completed"
-            save_status(st)
-            return st
-
-        formatted_dir.mkdir(parents=True, exist_ok=True)
-        gen_paths: List[str] = []
-        # このステージでは warnings は残さない（フォールバック込みで完了扱いにする）
-        st.stages[stage_name].details["warnings"] = []
-        chapter_files = sorted(chapters_dir.glob("chapter_*.md"))
-        for chap_file in chapter_files:
-            name = chap_file.name
-            out_path = formatted_dir / name
-            raw_text = chap_file.read_text(encoding="utf-8")
-
-            # 空章はそのまま
-            if not raw_text.strip():
-                out_path.write_text("", encoding="utf-8")
-                gen_paths.append(str(out_path.relative_to(base)))
-                continue
-
-            paragraphs = raw_text.replace("\r\n", "\n").replace("\r", "\n").split("\n\n")
-            formatted_paras: List[str] = []
-
-            for p_idx, para in enumerate(paragraphs):
-                chunks = _split_into_chunks(para, max_len=FORMAT_CHUNK_LEN)
-                chunk_results: List[str] = []
-                for c_idx, chunk in enumerate(chunks):
-                    tmp_out = out_path.parent / f"{name}.para{p_idx+1}.chunk{c_idx+1}.fmt.tmp"
-                    attempts = 1
-                    success = False
-                    last_text = ""
-                    raw_len = len(chunk.replace("\r", "").replace("\n", ""))
-                    fail_reason = ""
-
-                    for attempt in range(1, attempts + 1):
-                        extra_ph = {
-                            "RAW_TEXT": chunk,
-                            "RAW_TEXT_LEN": str(raw_len),
-                            "FAIL_HINT": (
-                                "改行がほとんど無い、または行長オーバーでした。\n"
-                                "句読点ごとに改行し、29文字超があれば読点を追加してでも29文字以内に分割してください。\n"
-                                f"前回エラー: {fail_reason}"
-                                if fail_reason
-                                else ""
-                            ),
-                            "__log_suffix": f"_{name}_para{p_idx+1}_chunk{c_idx+1}_try{attempt}",
-                        }
-                        ran_llm = _run_llm(
-                            stage_name,
-                            base,
-                            st,
-                            sd,
-                            templates,
-                            extra_placeholders=extra_ph,
-                            output_override=tmp_out,
-                        ) or ran_llm
-
-                        candidate_raw = tmp_out.read_text(encoding="utf-8") if tmp_out.exists() else ""
-                        candidate = candidate_raw
-                        # JSONっぽい場合は lines 配列を取り出して結合する
-                        try:
-                            data = json.loads(candidate_raw)
-                            if isinstance(data, dict) and isinstance(data.get("lines"), list):
-                                candidate = "\n".join(str(x) for x in data.get("lines") if x is not None)
-                            elif isinstance(data, str):
-                                inner = json.loads(data)
-                                if isinstance(inner, dict) and isinstance(inner.get("lines"), list):
-                                    candidate = "\n".join(str(x) for x in inner.get("lines") if x is not None)
-                        except Exception:
-                            pass
-
-                        # 空出力は即失敗扱い
-                        if not candidate.strip():
-                            ok = False
-                            reason = "出力が空です。改行済みの本文を返してください。"
-                            last_text = candidate
-                        else:
-                            last_text = candidate.replace("\r\n", "\n").replace("\r", "\n")
-                            ok, reason = _validate_subtitle_format(chunk, last_text, limit=35)
-                        if ok:
-                            success = True
-                            fail_reason = ""
-                            break
-                        fail_reason = reason or "ルール違反があります"
-
-                    if tmp_out.exists():
-                        _safe_remove(tmp_out)
-                    if not success:
-                        st.stages[stage_name].details.setdefault("warnings", []).append(
-                            f"{name} paragraph {p_idx+1} chunk {c_idx+1}: {fail_reason}"
-                        )
-                        # フォールバックはせず、生テキストを採用
-                        last_text = chunk
-
-                    chunk_results.append(last_text)
-
-                formatted_paras.append("\n".join(chunk_results))
-
-            out_path.write_text("\n\n".join(formatted_paras) + "\n", encoding="utf-8")
-            gen_paths.append(str(out_path.relative_to(base)))
-
         st.stages[stage_name].details["generated"] = gen_paths
     elif stage_name == "script_review":
         # run CTA generation, then assemble chapters + CTA, and write scenes.json + cta.txt

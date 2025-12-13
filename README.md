@@ -8,7 +8,7 @@ factory_commentary/
 ├─ packages/                       # Target: Pythonパッケージ（当面は互換symlink）
 ├─ workspaces/                     # Target: SoT+生成物（当面は互換symlink）
 ├─ legacy/                         # 旧資産/退避（当面は互換symlinkを残す）
-├─ progress/                       # 企画/進捗 SoT（channels CSV, personas）
+├─ progress/                       # 企画/進捗 SoT（互換symlink → workspaces/planning）
 ├─ script_pipeline/                # 台本 SoT + runner（data/CHxx/NNN）
 ├─ audio_tts_v2/                   # 音声/TTS（artifacts/final が下流参照の正本）
 ├─ commentary_02_srt2images_timeline/  # SRT→画像→CapCut（output/<run_id>）
@@ -18,8 +18,8 @@ factory_commentary/
 ├─ logs/                           # グローバルログ（gitignore）
 ├─ ssot/                           # Single Source of Truth（設計/運用/計画）
 ├─ remotion/                       # experimental（現行未運用）
-├─ 50_tools/ docs/ idea/           # 互換symlink → legacy/
-├─ 00_research/                    # research（互換symlink: workspaces/research）
+├─ idea/                           # 人間用メモ（互換symlink → legacy/idea）
+├─ 00_research/                    # research（互換symlink → workspaces/research）
 ├─ _old/                           # local退避（gitignore）
 └─ ...
 ```
@@ -71,4 +71,4 @@ factory_commentary/
 - 詳細: `scripts/youtube_publisher/README.md`
 
 ---
-最終更新: 2025-12-12
+最終更新: 2025-12-13

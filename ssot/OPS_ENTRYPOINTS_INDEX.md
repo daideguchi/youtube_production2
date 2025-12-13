@@ -49,6 +49,8 @@
 - `commentary_02_srt2images_timeline/tools/auto_capcut_run.py`
 - `commentary_02_srt2images_timeline/tools/run_pipeline.py`
 - `commentary_02_srt2images_timeline/tools/srt_to_capcut_complete.py`（旧統合版・運用は要確認）
+- `commentary_02_srt2images_timeline/tools/bootstrap_placeholder_run_dir.py`（run_dir を cues+images でブートストラップ。THINK MODE では `visual_image_cues_plan` が pending 化）
+- `commentary_02_srt2images_timeline/tools/build_ch02_drafts_range.py`（CH02の一括ドラフト生成ラッパー）
 - `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py`（run_dir の cue を final SRT に retime / LLMなし）
 - `commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py`（テンプレdraftに audio/subtitles を SoT(manifest) から注入）
 - `commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py`（CH02 draft 破壊検知: belt/voice/subtitles）
@@ -68,6 +70,9 @@
 - `scripts/purge_audio_prep_binaries.py`（prep重複wav/srt削除）
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）
 - `scripts/purge_audio_final_chunks.py`（final/chunks削除）
+- `scripts/cleanup_data.py --run`（script_pipeline の古い中間生成物/ログを削除）
+- `scripts/ops/cleanup_logs.py --run`（logs 直下の L3 ログを日数ローテで削除）
+- `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 
 ---
@@ -83,7 +88,9 @@
 - `audio_tts_v2/scripts/sync_voicevox_user_dict.py`
 - `commentary_02_srt2images_timeline/tools/auto_capcut_run.py`
 - `commentary_02_srt2images_timeline/tools/capcut_bulk_insert.py`
+- `commentary_02_srt2images_timeline/tools/bootstrap_placeholder_run_dir.py`
 - `commentary_02_srt2images_timeline/tools/factory.py`
+- `commentary_02_srt2images_timeline/tools/build_ch02_drafts_range.py`
 - `commentary_02_srt2images_timeline/tools/run_pipeline.py`
 - `commentary_02_srt2images_timeline/tools/srt_to_capcut_complete.py`
 - `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py`

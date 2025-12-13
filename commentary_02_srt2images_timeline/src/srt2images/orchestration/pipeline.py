@@ -12,6 +12,11 @@ from config.channel_resolver import (
 )
 from srt2images.srt_parser import parse_srt
 from srt2images.cue_maker import make_cues
+from srt2images.cues_plan import (
+    is_think_or_agent_mode,
+    make_cues_from_sections,
+    plan_sections_via_router,
+)
 from srt2images.llm_context_analyzer import LLMContextAnalyzer
 from srt2images.prompt_builder import build_prompt_from_template
 from srt2images.llm_prompt_refiner import PromptRefiner
@@ -22,6 +27,14 @@ from srt2images.engines.capcut_engine import build_capcut_draft
 from srt2images.orchestration.utils import ensure_out_dirs, setup_logging, save_json, parse_size
 from srt2images.nanobanana_client import QuotaExhaustedError
 from srt2images.visual_bible import VisualBibleGenerator
+from factory_common.artifacts.srt_segments import build_srt_segments_artifact, write_srt_segments_artifact
+from factory_common.artifacts.visual_cues_plan import (
+    build_visual_cues_plan_artifact,
+    load_visual_cues_plan,
+    write_visual_cues_plan,
+)
+from factory_common.artifacts.utils import utc_now_iso
+from factory_common.timeline_manifest import parse_episode_id, sha1_file
 
 def run_pipeline(args):
     resolver = ChannelPresetResolver()
@@ -102,16 +115,36 @@ def run_pipeline(args):
 
     # 1) Parse SRT
     logging.info("Parsing SRT: %s", args.srt)
-    segments = parse_srt(Path(args.srt))
+    srt_path = Path(args.srt)
+    segments = parse_srt(srt_path)
     logging.info("Parsed %d segments", len(segments))
+    try:
+        episode = parse_episode_id(str(srt_path))
+        episode_id = episode.episode if episode else None
+        seg_art = build_srt_segments_artifact(srt_path=srt_path, segments=segments, episode=episode_id)
+        write_srt_segments_artifact(out_dir / "srt_segments.json", seg_art)
+        logging.info("Wrote %s", out_dir / "srt_segments.json")
+    except Exception as e:
+        logging.warning("Failed to write srt_segments.json (non-fatal): %s", e)
+
+    # Decide cue planning strategy:
+    # - Default: existing multi-step pipeline (visual_bible + visual_section_plan + prompt builder)
+    # - THINK/AGENT mode: single-task cue planning to avoid repeated stop/resume loops
+    use_cues_plan = is_think_or_agent_mode() or (os.getenv("SRT2IMAGES_CUES_PLAN_MODE") or "").strip().lower() in (
+        "1",
+        "true",
+        "plan",
+    )
 
     # 1.5) Generate Visual Bible (Before cues)
     persona_text = ""
-    if args.cue_mode != "per_segment":
+    visual_bible_data = None
+    if args.cue_mode != "per_segment" and not use_cues_plan:
         logging.info("Generating/Loading Visual Bible...")
         try:
             bible_gen = VisualBibleGenerator()
-            bible_data = bible_gen.generate(segments)
+            bible_data = bible_gen.generate(segments, out_dir=out_dir)
+            visual_bible_data = bible_data
             
             # Convert to persona text for legacy prompt refiner compatibility
             chars = bible_data.get("characters", [])
@@ -127,9 +160,16 @@ def run_pipeline(args):
             else:
                 logging.info("Visual Bible empty/no-characters.")
                 
+        except SystemExit as e:
+            # LLM failover-to-think may raise SystemExit to stop the process for queued tasks.
+            # Visual Bible is optional; do not abort the whole pipeline.
+            logging.warning("Visual Bible generation halted (SystemExit=%s); continuing without it.", e)
+            persona_text = ""
+            visual_bible_data = None
         except Exception as e:
             logging.warning(f"Visual Bible generation failed: {e}")
             persona_text = ""
+            visual_bible_data = None
 
     # 2) Build cues
     if args.cue_mode == "per_segment":
@@ -159,9 +199,134 @@ def run_pipeline(args):
                 "use_persona": False,  # per-segmentモードはデフォルトで人物一貫性オフ
             })
     else:
-        logging.info("Building image cues (target ~%.2fs, crossfade %.2fs, fps=%d)", args.imgdur, args.crossfade, args.fps)
-        # make_cues will initialize LLMContextAnalyzer, which now reads the Visual Bible we just generated.
-        cues = make_cues(segments, target_imgdur=args.imgdur, fps=args.fps, channel_id=args.channel)
+        if use_cues_plan:
+            # Single-task cue planning (THINK MODE friendly): segments -> planned sections -> cues.
+            base_seconds = 30.0
+            try:
+                if (args.channel or "").upper() == "CH01":
+                    base_seconds = 12.0
+                elif channel_preset and channel_preset.config_model and getattr(channel_preset.config_model, "image_generation", None):
+                    cfg_period = float(channel_preset.config_model.image_generation.base_period or 0)
+                    if cfg_period > 0:
+                        base_seconds = cfg_period
+            except Exception:
+                pass
+
+            style_hint_parts = []
+            if channel_preset:
+                if channel_preset.style:
+                    style_hint_parts.append(f"Style: {channel_preset.style}")
+                if channel_preset.tone_profile:
+                    style_hint_parts.append(f"Tone: {channel_preset.tone_profile}")
+                if channel_preset.prompt_suffix:
+                    style_hint_parts.append(f"Visual Guidelines: {channel_preset.prompt_suffix}")
+            style_hint = "\n".join(style_hint_parts)
+
+            logging.info("Building image cues via cues_plan (base_seconds=%.1f, fps=%d)", base_seconds, args.fps)
+            plan_path = out_dir / "visual_cues_plan.json"
+            force_plan = (os.getenv("SRT2IMAGES_FORCE_CUES_PLAN") or "").strip().lower() in {"1", "true", "yes", "on"}
+
+            planned_sections = None
+            if plan_path.exists() and not force_plan:
+                try:
+                    plan = load_visual_cues_plan(plan_path, expected_srt_path=srt_path)
+                    if plan.status != "ready":
+                        raise ValueError(f"status={plan.status} (fill sections then rerun)")
+                    from srt2images.cues_plan import PlannedSection as _PlannedSection
+
+                    planned_sections = [
+                        _PlannedSection(
+                            start_segment=s.start_segment,
+                            end_segment=s.end_segment,
+                            summary=s.summary,
+                            visual_focus=s.visual_focus,
+                            emotional_tone=s.emotional_tone,
+                            persona_needed=bool(s.persona_needed),
+                            role_tag=s.role_tag,
+                            section_type=s.section_type,
+                        )
+                        for s in plan.sections
+                    ]
+                    logging.info("Loaded %d sections from %s", len(planned_sections), plan_path)
+                except Exception as e:
+                    raise SystemExit(
+                        f"❌ visual_cues_plan.json invalid: {e}\n"
+                        f"- path: {plan_path}\n"
+                        f"- fix the file, or set SRT2IMAGES_FORCE_CUES_PLAN=1 to regenerate."
+                    )
+
+            if planned_sections is None:
+                try:
+                    planned_sections = plan_sections_via_router(
+                        segments=segments,
+                        channel_id=args.channel,
+                        base_seconds=base_seconds,
+                        style_hint=style_hint,
+                    )
+                    episode = parse_episode_id(str(srt_path))
+                    episode_id = episode.episode if episode else None
+                    plan_art = build_visual_cues_plan_artifact(
+                        srt_path=srt_path,
+                        segment_count=len(segments),
+                        base_seconds=base_seconds,
+                        sections=[
+                            {
+                                "start_segment": s.start_segment,
+                                "end_segment": s.end_segment,
+                                "summary": s.summary,
+                                "visual_focus": s.visual_focus,
+                                "emotional_tone": s.emotional_tone,
+                                "persona_needed": bool(s.persona_needed),
+                                "role_tag": s.role_tag,
+                                "section_type": s.section_type,
+                            }
+                            for s in planned_sections
+                        ],
+                        episode=episode_id,
+                        style_hint=style_hint,
+                        status="ready",
+                        llm_task={"task": "visual_image_cues_plan"},
+                    )
+                    write_visual_cues_plan(plan_path, plan_art)
+                    logging.info("Wrote %s (status=ready)", plan_path)
+                except SystemExit as e:
+                    # THINK/AGENT mode: create a skeleton plan file for operators to fill.
+                    if not plan_path.exists():
+                        import re as _re
+                        msg = str(e)
+                        m = _re.search(r"task_id:\\s*([A-Za-z0-9_\\-]+)", msg)
+                        task_id = m.group(1) if m else ""
+                        episode = parse_episode_id(str(srt_path))
+                        episode_id = episode.episode if episode else None
+                        plan_art = build_visual_cues_plan_artifact(
+                            srt_path=srt_path,
+                            segment_count=len(segments),
+                            base_seconds=base_seconds,
+                            sections=[],
+                            episode=episode_id,
+                            style_hint=style_hint,
+                            status="pending",
+                            llm_task={
+                                "task": "visual_image_cues_plan",
+                                "task_id": task_id,
+                                "note": "THINK/AGENT pending created; fill sections or complete agent task then rerun.",
+                            },
+                            meta={"pending_reason": msg},
+                        )
+                        write_visual_cues_plan(plan_path, plan_art)
+                        logging.info("Wrote %s (status=pending)", plan_path)
+                    raise
+            cues = make_cues_from_sections(segments=segments, sections=planned_sections, fps=args.fps)
+        else:
+            logging.info("Building image cues (target ~%.2fs, crossfade %.2fs, fps=%d)", args.imgdur, args.crossfade, args.fps)
+            # make_cues will initialize LLMContextAnalyzer, which now reads the Visual Bible we just generated.
+            cues = make_cues(
+                segments,
+                target_imgdur=args.imgdur,
+                fps=args.fps,
+                channel_id=args.channel,
+                visual_bible=visual_bible_data,
+            )
 
     # 2.2) Contextual prompt refinement (LLM)
     # Prepare common style string
@@ -175,17 +340,20 @@ def run_pipeline(args):
             common_style_parts.append(f"Visual Guidelines: {channel_preset.prompt_suffix}")
     common_style_str = "\n".join(common_style_parts)
 
-    try:
-        refiner = PromptRefiner()
-        cues = refiner.refine(
-            cues, 
-            channel_id=args.channel, 
-            window=1,
-            common_style=common_style_str,
-            persona=persona_text # Pass the persona text derived from Visual Bible
-        )
-    except Exception as e:
-        logging.warning("Prompt refinement skipped due to error: %s", e)
+    if not use_cues_plan:
+        try:
+            refiner = PromptRefiner()
+            cues = refiner.refine(
+                cues,
+                channel_id=args.channel,
+                window=1,
+                common_style=common_style_str,
+                persona=persona_text,  # Pass the persona text derived from Visual Bible
+            )
+        except Exception as e:
+            logging.warning("Prompt refinement skipped due to error: %s", e)
+    else:
+        logging.info("Skipping PromptRefiner (cues_plan mode)")
 
     # 2.3) Attach role-based assets (channel-specific, non-invasive)
     router = RoleAssetRouter(Path(__file__).resolve().parents[2])
@@ -323,6 +491,9 @@ def run_pipeline(args):
     # 4) Write image_cues.json
     cues_json_path = out_dir / "image_cues.json"
     save_json(cues_json_path, {
+        "schema": "ytm.image_cues.v1",
+        "generated_at": utc_now_iso(),
+        "source_srt": {"path": str(srt_path), "sha1": sha1_file(srt_path)},
         "fps": args.fps,
         "size": size,
         "crossfade": args.crossfade,

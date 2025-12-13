@@ -25,6 +25,7 @@
 - `OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm.yml`）。
 - `OPS_ENV_VARS.md`: 環境変数・キー管理の原則と必須一覧。
 - `OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
+- `OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の原則）。
 - `OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
 - `OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
@@ -32,6 +33,7 @@
 - `OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
 - `IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
+- `OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わないための運用ルール（lock/SoT/削除/パッチ）。
 
 ## 3. 計画書（PLAN_*.md）
 

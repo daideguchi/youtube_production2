@@ -62,6 +62,56 @@ def _truncate_summary(text: str, limit: int = 60) -> str:
     return sanitized[: max(0, limit - 1)] + "…"
 
 DEFAULT_DRAFT_ROOT = Path.home() / "Movies/CapCut/User Data/Projects/com.lveditor.draft"
+FALLBACK_LOCAL_DRAFT_ROOT = PROJECT_ROOT / "_capcut_drafts"
+
+
+def _ensure_writable_draft_root(
+    draft_root: Path,
+    *,
+    template_name: str,
+    default_root: Path = DEFAULT_DRAFT_ROOT,
+    fallback_root: Path = FALLBACK_LOCAL_DRAFT_ROOT,
+) -> Path:
+    """
+    Ensure draft_root is writable.
+
+    On environments without macOS Full Disk Access, $HOME/Movies/CapCut/... is readable but not writable
+    (Operation not permitted). In that case we fall back to a repo-local draft root so the pipeline can
+    still produce drafts deterministically.
+
+    Note: CapCut UI will NOT auto-pick drafts from the fallback root. Users must copy the folder into
+    the CapCut draft root (or run this tool from a Terminal with Full Disk Access).
+    """
+    draft_root = draft_root.expanduser().resolve()
+    default_root = default_root.expanduser().resolve()
+
+    if draft_root != default_root:
+        return draft_root
+
+    if os.access(str(draft_root), os.W_OK):
+        return draft_root
+
+    fallback_root = fallback_root.expanduser().resolve()
+    fallback_root.mkdir(parents=True, exist_ok=True)
+
+    # Mirror template into fallback root (read-only from CapCut root is OK).
+    src_template = default_root / template_name
+    dst_template = fallback_root / template_name
+    if template_name and not dst_template.exists():
+        if not src_template.exists():
+            raise FileNotFoundError(f"CapCut template not found: {src_template}")
+        import shutil
+
+        shutil.copytree(src_template, dst_template)
+        print(f"ℹ️ Copied CapCut template into local draft root: {dst_template}")
+
+    print(
+        "ℹ️ CapCut draft root is not writable in this environment. "
+        f"Writing drafts to local root instead: {fallback_root}\n"
+        "   To use in CapCut: copy the generated draft folder into "
+        f"`{default_root}` (requires Full Disk Access)."
+    )
+    return fallback_root
 
 
 def run(cmd, env, cwd, exit_on_error=True, timeout=None, abort_patterns=None):
@@ -203,10 +253,13 @@ def generate_title_from_cues(cues_path: Path) -> str:
     )
     content = prompt + joined
 
-    # Optional: disable text LLM usage (e.g., quota exhausted) and use deterministic fallback.
+    # Disabling text LLM and falling back to heuristics is forbidden.
+    # Use THINK/AGENT mode instead if you want to avoid API calls.
     if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
-        fallback = summaries[0][:28] if summaries else cues_path.stem
-        return fallback
+        raise RuntimeError(
+            "SRT2IMAGES_DISABLE_TEXT_LLM=1 is set, but heuristic title fallback is forbidden. "
+            "Unset it and rerun (or set LLM_MODE=think to use the agent queue)."
+        )
 
     # Use LLMRouter instead of direct google.genai
     try:
@@ -223,14 +276,7 @@ def generate_title_from_cues(cues_path: Path) -> str:
             raise RuntimeError("LLM returned empty title")
         return title
     except Exception as e:
-        print(f"⚠️  Title generation failed: {e}, using deterministic fallback")
-        # Deterministic fallback: use最初のサマリを18-28文字でカット、なければファイル名
-        fallback = ""
-        if summaries:
-            fallback = summaries[0][:28]
-        if not fallback:
-            fallback = cues_path.stem
-        return fallback
+        raise RuntimeError(f"Title generation failed (no fallback): {e}") from e
 
 
 def load_channel_preset(channel_id: str):
@@ -321,6 +367,12 @@ def main():
     ap.add_argument("--timeout-ms", type=int, default=0, help="Timeout per command (ms) (default: 0 = unlimited)")
     ap.add_argument("--abort-on-log", help="Comma-separated patterns; abort if any appears in child stdout/stderr")
     ap.add_argument(
+        "--draft-name-policy",
+        choices=["planning", "run"],
+        default="planning",
+        help="CapCut draft folder naming policy: planning (use progress/channels CSV title) or run (use --run-name/_draft)",
+    )
+    ap.add_argument(
         "--draft-name-with-title",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -370,7 +422,10 @@ def main():
 
     # config has already populated os.environ
     env = os.environ.copy()
-    env["PYTHONPATH"] = f"{PROJECT_ROOT}:{PROJECT_ROOT / 'src'}"
+    # Important: do NOT force PYTHONPATH for subprocesses.
+    # On Homebrew Python this can flip sys.prefix to the Cellar path and hide
+    # /opt/homebrew/lib/pythonX.Y/site-packages (e.g., pydantic), causing runtime failures.
+    env.pop("PYTHONPATH", None)
     if args.suppress_warnings:
         env.setdefault("PYTHONWARNINGS", "ignore::DeprecationWarning")
     
@@ -417,6 +472,15 @@ def main():
     ok, msg = validate_preset_minimum(args.channel, preset)
     if not ok:
         print(f"❌ Preset invalid: {msg}")
+        sys.exit(1)
+
+    # macOS Full Disk Access workaround: default CapCut draft root may be read-only from this process.
+    # If so, write into a local draft root and mirror the required template automatically.
+    try:
+        resolved_root = _ensure_writable_draft_root(Path(args.draft_root), template_name=template_override)
+        args.draft_root = str(resolved_root)
+    except Exception as e:
+        print(f"❌ Failed to prepare draft root: {e}")
         sys.exit(1)
 
     # Fast-fail if CapCut template is missing on disk to avoid long waits later
@@ -534,6 +598,12 @@ def main():
     # 2) belt_config generation (optional)
     labels = args.labels or preset.get("belt_labels") or ""
 
+    resolved_belt_mode = args.belt_mode
+    if resolved_belt_mode == "auto":
+        belt_cfg = preset.get("belt", {}) or {}
+        requires_cfg = bool(belt_cfg.get("requires_config", False))
+        resolved_belt_mode = "llm" if requires_cfg else "existing"
+
     def validate_labels_text(label_str: str):
         parts = [x.strip() for x in label_str.split(",") if x.strip()]
         if not parts:
@@ -546,7 +616,7 @@ def main():
             sys.exit(1)
         return parts
 
-    if args.belt_mode == "equal":
+    if resolved_belt_mode == "equal":
         if not labels:
             print("❌ labels required for belt generation (equal).")
             sys.exit(1)
@@ -555,49 +625,12 @@ def main():
     def build_equal():
         make_equal_split_belt(run_dir, labels, opening_offset=opening_offset)
 
-    def build_deterministic_from_cues(target_sections: int = 4):
-        """Deterministic belt generation without LLM: equal time split + first summary."""
-        cues_path = run_dir / "image_cues.json"
-        try:
-            cues_data = json.loads(cues_path.read_text(encoding="utf-8"))
-            cues_list = cues_data.get("cues", [])
-        except Exception:
-            cues_list = []
-        total_duration = max((c.get("end_sec", 0) for c in cues_list), default=0.0)
-        sections = max(1, int(target_sections))
-        span = total_duration / sections if sections else total_duration
-        belts = []
-        for i in range(sections):
-            start = span * i
-            end = total_duration if i == sections - 1 else span * (i + 1)
-            # pick first cue summary in this range
-            title_src = ""
-            for c in cues_list:
-                st = float(c.get("start_sec", 0))
-                if st >= start and st < end:
-                    title_src = (c.get("summary") or c.get("text") or "").strip()
-                    break
-            short = "".join(title_src.split())
-            if len(short) > 10:
-                short = short[:10]
-            text = f"{i+1}. {short}" if short else f"{i+1}. セクション{i+1}"
-            belts.append({"text": text, "start": round(start, 3), "end": round(end, 3)})
-        out = {
-            "episode": "",
-            "total_duration": round(total_duration, 3),
-            "belts": belts,
-            "opening_offset": opening_offset,
-            "main_title": None,
-        }
-        (run_dir / "belt_config.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-        return out
-
-    if args.belt_mode == "existing":
+    if resolved_belt_mode == "existing":
         if not (run_dir / "belt_config.json").exists():
             print("ℹ️ belt_mode=existing: belt_config.json not found, skipping belt generation.")
-    elif args.belt_mode == "equal":
+    elif resolved_belt_mode == "equal":
         build_equal()
-    elif args.belt_mode == "grouped":
+    elif resolved_belt_mode == "grouped":
         # require chapters.json + episode_info.json; no fallback allowed
         chapters = run_dir / "chapters.json"
         epi = run_dir / "episode_info.json"
@@ -625,27 +658,32 @@ def main():
                 labels,
             ]
         run(belt_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
-    elif args.belt_mode == "llm":
+    elif resolved_belt_mode == "llm":
         if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
-            # default to 4 sections unless preset caps it elsewhere
-            build_deterministic_from_cues(target_sections=4)
-        else:
-            make_llm_belt_from_cues(run_dir, opening_offset=opening_offset, sections=4, channel_id=args.channel)
+            raise SystemExit(
+                "SRT2IMAGES_DISABLE_TEXT_LLM=1 is set, but deterministic belt fallback is forbidden. "
+                "Unset it and rerun, or use --belt-mode existing/equal/grouped (or LLM_MODE=think)."
+            )
+        make_llm_belt_from_cues(run_dir, opening_offset=opening_offset, sections=4, channel_id=args.channel)
     else:
         print(f"❌ Unknown belt_mode: {args.belt_mode}")
         sys.exit(1)
 
     if args.dry_run:
-        print("✅ Dry-run: Skipped draft build and title injection")
+        print("✅ Dry-run: Skipped draft build")
         return
 
     if args.sleep_after_generation > 0:
         time.sleep(args.sleep_after_generation)
 
     # 3) CapCut draft build
-    # Generate title via LLM if not provided
+    # Title priority:
+    # 1) --title (manual override)
+    # 2) progress/channels/<CH>.csv (Planning SoT)
+    # 3) LLM title generation (fallback only)
     generated_title = None
-    if not args.title:
+    planning_title = resolve_title_from_planning_csv(episode) if episode else None
+    if not args.title and not planning_title:
         try:
             cues_path = run_dir / "image_cues.json"
             generated_title = generate_title_from_cues(cues_path)
@@ -653,23 +691,27 @@ def main():
         except Exception as e:
             print(f"❌ Title generation failed: {e}")
             sys.exit(1)
-    effective_title = args.title or generated_title or Path(args.srt).stem
+    effective_title = args.title or planning_title or generated_title or Path(args.srt).stem
 
-    # Draft directory name: by default, keep it stable and derived only from run_name.
-    # Optionally append a sanitized title suffix for human readability.
-    draft_base = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
-    draft_name = draft_base
-    if args.draft_name_with_title:
-        # Keep it filesystem-safe and predictable.
-        # - Replace path separators and control-ish chars.
-        # - Collapse whitespace.
-        # - Limit length to avoid overly long draft names.
-        safe = re.sub(r"[\\/:*?\"<>|]", "_", str(effective_title))
+    def _sanitize_capcut_name(value: str, *, max_len: int = 220) -> str:
+        safe = re.sub(r"[\\/:*?\"<>|]", "_", str(value))
         safe = " ".join(safe.split())
         safe = re.sub(r"[_\\s]+", "_", safe).strip("_")
-        safe = safe[:48]
-        if safe:
-            draft_name = f"{draft_base}__{safe}"
+        return safe[:max_len]
+
+    # Draft directory name:
+    # - planning: Prefer a stable SoT name from planning CSV when episode is resolvable.
+    # - run: Always use run_name-based draft (regen/debug workflows).
+    draft_name = ""
+    if args.draft_name_policy == "planning" and episode and planning_title:
+        draft_name = _sanitize_capcut_name(f"★{episode.episode}-{planning_title}")
+    if not draft_name:
+        draft_base = run_name if run_name.endswith("_draft") else f"{run_name}_draft"
+        draft_name = draft_base
+        if args.draft_name_with_title:
+            safe = _sanitize_capcut_name(str(effective_title), max_len=120)
+            if safe:
+                draft_name = f"{draft_base}__{safe}"
 
     # Ensure belt_config (if exists) carries the effective title as main belt
     belt_path = run_dir / "belt_config.json"
@@ -683,6 +725,16 @@ def main():
                 belt_path.write_text(json.dumps(belt_data, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception as e:
             print(f"⚠️ Failed to update belt_config with title: {e}")
+
+    # Position/scale defaults from preset to avoid cross-channel wiring bugs.
+    pos = preset.get("position", {}) if isinstance(preset, dict) else {}
+    tx = str(pos.get("tx", 0.0))
+    ty = str(pos.get("ty", 0.0))
+    scale = str(pos.get("scale", args.scale))
+
+    belt_arg = []
+    if belt_path.exists():
+        belt_arg = ["--belt-config", str(belt_path)]
 
     draft_cmd = [
         sys.executable,
@@ -703,14 +755,13 @@ def main():
         "--srt-file",
         str(srt_copy),
         *(["--voice-file", str(effective_wav_path)] if (args.insert_audio and effective_wav_path and not args.dry_run) else []),
-        "--belt-config",
-        str(run_dir / "belt_config.json"),
+        *belt_arg,
         "--tx",
-        "0.0",
+        tx,
         "--ty",
-        "0.0",
+        ty,
         "--scale",
-        "1.03",
+        scale,
         "--crossfade",
         args.crossfade,
         "--opening-offset",

@@ -69,7 +69,11 @@ def srt_end_seconds(path: Path) -> float:
 
 def srt_entry_count(path: Path) -> int:
     text = path.read_text(encoding="utf-8", errors="ignore")
-    return len(_SRT_TC_RE.findall(text))
+    count = 0
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        if _SRT_TC_RE.match(line.strip()):
+            count += 1
+    return count
 
 
 @dataclass(frozen=True)
@@ -257,4 +261,3 @@ def write_timeline_manifest(
     out = run_dir.resolve() / filename
     out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     return out
-

@@ -12,4 +12,5 @@ task_prefix:
   belt_: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md
 
 # Optional: override specific tasks explicitly
-task_exact: {}
+task_exact:
+  visual_image_cues_plan: ssot/agent_runbooks/RUNBOOK_VISUAL_CUES_PLAN.md

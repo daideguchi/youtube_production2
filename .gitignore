@@ -108,3 +108,7 @@ script_pipeline/data/openrouter_models_snapshot.json
 
 # Old specification documents (not to be pushed)
 ssot_old/
+
+# Local scratch
+tmp/
+commentary_02_srt2images_timeline/_capcut_drafts/

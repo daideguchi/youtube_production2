@@ -254,22 +254,6 @@ def resolve_readings_strict(
                 print(f"[ARBITER] Loaded local_token_overrides.json ({len(local_overrides)} sections)")
             except Exception as e:
                 print(f"[WARN] Failed to load local_token_overrides.json: {e}")
-    # 動画ローカル辞書（audio_prep/local_reading_dict.json）があればマージ
-    if channel and video:
-        repo_root = Path(__file__).resolve().parents[2]
-        local_dict_path = (
-            repo_root / "script_pipeline" / "data" / channel / video / "audio_prep" / "local_reading_dict.json"
-        )
-        if local_dict_path.exists():
-            try:
-                local_dict = json.loads(local_dict_path.read_text(encoding="utf-8"))
-                for k, v in local_dict.items():
-                    if not is_banned_surface(k):
-                        kb.words[k] = v
-                print(f"[ARBITER] Loaded local_reading_dict.json ({len(local_dict)} entries)")
-            except Exception as e:
-                print(f"[WARN] Failed to load local_reading_dict.json: {e}")
-
     # 2. 初期化
     for seg in segments:
         seg.text_for_check = seg.text

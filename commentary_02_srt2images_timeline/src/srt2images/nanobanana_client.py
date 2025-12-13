@@ -16,6 +16,7 @@ from factory_common.image_client import (
     ImageGenerationError,
     ImageTaskOptions,
 )
+from factory_common.paths import repo_root
 
 try:
     from commentary_02_srt2images_timeline.src.core.config import config
@@ -87,7 +88,7 @@ def _increment_success_counter():
     _reset_429_counter()
 
 # SSOT: UI保存時に書き出されるフェーズ別モデル定義
-LLM_REGISTRY_PATH = Path(__file__).resolve().parents[3] / "configs" / "llm_registry.json"
+LLM_REGISTRY_PATH = repo_root() / "configs" / "llm_registry.json"
 
 
 def _which(cmd: str) -> str | None:

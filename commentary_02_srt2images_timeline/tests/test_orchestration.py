@@ -84,13 +84,17 @@ out = "test_output"
         self.assertEqual(args.srt, "override.srt")
 
 class TestPipeline(unittest.TestCase):
+    @unittest.mock.patch('srt2images.orchestration.pipeline.VisualBibleGenerator')
     @unittest.mock.patch('srt2images.orchestration.pipeline.parse_srt')
     @unittest.mock.patch('srt2images.orchestration.pipeline.make_cues')
     @unittest.mock.patch('srt2images.orchestration.pipeline.get_image_generator')
     @unittest.mock.patch('srt2images.orchestration.pipeline.build_capcut_draft')
-    def test_pipeline_capcut(self, mock_build_capcut_draft, mock_get_image_generator, mock_make_cues, mock_parse_srt):
+    def test_pipeline_capcut(self, mock_build_capcut_draft, mock_get_image_generator, mock_make_cues, mock_parse_srt, mock_bible_gen):
         from srt2images.orchestration.pipeline import run_pipeline
         from argparse import Namespace
+
+        # Visual Bible is optional; mock it to keep the test offline/deterministic.
+        mock_bible_gen.return_value.generate.return_value = {"characters": []}
 
         # Mock return values
         mock_parse_srt.return_value = [{"start": 0, "end": 1, "text": "hello"}]
@@ -98,8 +102,12 @@ class TestPipeline(unittest.TestCase):
         mock_generator = unittest.mock.MagicMock()
         mock_get_image_generator.return_value = mock_generator
 
+        srt_path = Path("dummy.srt")
+        srt_path.write_text("1\n00:00:00,000 --> 00:00:01,000\nhello\n\n", encoding="utf-8")
+        prompt_template_path = project_root / "templates" / "default.txt"
+
         args = Namespace(
-            srt="dummy.srt",
+            srt=str(srt_path),
             out="dummy_output",
             engine="capcut",
             channel=None,
@@ -111,7 +119,7 @@ class TestPipeline(unittest.TestCase):
             nanobanana='direct',
             nanobanana_bin='',
             nanobanana_timeout=300,
-            prompt_template='templates/default.txt',
+            prompt_template=str(prompt_template_path),
             style='',
             negative='',
             concurrency=1,
@@ -140,6 +148,8 @@ class TestPipeline(unittest.TestCase):
         
         if out_dir.exists():
             shutil.rmtree(out_dir)
+        if srt_path.exists():
+            srt_path.unlink()
 
 if __name__ == '__main__':
     unittest.main()

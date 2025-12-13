@@ -57,6 +57,7 @@
 - `OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査フロー（全候補確認・辞書/位置パッチ・証跡記録）。
 - `OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
+- `OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わない運用ルール（lock/SoT/削除/パッチ）。
 
 ## 参照仕様
 - `REFERENCE_ssot_このプロダクト設計について`: 最上位の設計意図。

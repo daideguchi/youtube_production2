@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 import math
 import logging
 import os
@@ -10,7 +10,13 @@ def _truncate_summary(text: str, limit: int = 150) -> str:
     return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
 
 
-def make_cues(segments: List[Dict], target_imgdur: float = 20.0, fps: int = 30, channel_id: Optional[str] = None) -> List[Dict]:
+def make_cues(
+    segments: List[Dict],
+    target_imgdur: float = 20.0,
+    fps: int = 30,
+    channel_id: Optional[str] = None,
+    visual_bible: Optional[Dict[str, Any]] = None,
+) -> List[Dict]:
     """
     LLM文脈理解による自然なセクション分割
     
@@ -34,10 +40,16 @@ def make_cues(segments: List[Dict], target_imgdur: float = 20.0, fps: int = 30, 
     # 🚨 重要：LLM文脈理解システムを使用
     # 機械的20秒分割は廃止され、ストーリーベースの自然な分割を実行
     logging.info("🧠 LLM文脈理解システム使用: 自然なセクション分割を実行")
-    return _make_cues_with_llm_context(segments, target_imgdur, fps, channel_id=channel_id)
+    return _make_cues_with_llm_context(segments, target_imgdur, fps, channel_id=channel_id, visual_bible=visual_bible)
 
 
-def _make_cues_with_llm_context(segments: List[Dict], target_imgdur: float, fps: int, channel_id: Optional[str] = None) -> List[Dict]:
+def _make_cues_with_llm_context(
+    segments: List[Dict],
+    target_imgdur: float,
+    fps: int,
+    channel_id: Optional[str] = None,
+    visual_bible: Optional[Dict[str, Any]] = None,
+) -> List[Dict]:
     """LLM文脈理解による自然なセクション分割"""
     from .llm_context_analyzer import LLMContextAnalyzer
     from config.channel_resolver import ChannelPresetResolver
@@ -76,7 +88,7 @@ def _make_cues_with_llm_context(segments: List[Dict], target_imgdur: float, fps:
         logging.info("📊 動画時間: %.1f分, 目標セクション数: %d", total_duration/60, target_sections)
         
         # LLM分析実行
-        analyzer = LLMContextAnalyzer(channel_id=channel_id)
+        analyzer = LLMContextAnalyzer(channel_id=channel_id, visual_bible=visual_bible)
         section_breaks = analyzer.analyze_story_sections(segments, target_sections)
         
         cues = []
@@ -178,4 +190,3 @@ def _create_context_cue(
     cue["use_persona"] = bool(persona_needed or (section_type in ("story", "dialogue")))
 
     return cue
-

@@ -18,10 +18,13 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
+REPO_ROOT = PROJECT_ROOT.parent
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # CapCut API path
 # Ensure pyJianYingDraft is importable in local environments
@@ -32,7 +35,7 @@ if env_api_root:
     _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
 _CANDIDATE_API_PATHS.extend([
     Path.home() / "capcut_api",
-    Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
+    REPO_ROOT / "packages" / "capcut_api",
 ])
 
 for _candidate in _CANDIDATE_API_PATHS:
@@ -363,12 +366,20 @@ def pre_flight_check(args, logger: logging.Logger) -> list[str]:
 
     # 5. Write permission check
     if not os.access(args.draft_root, os.W_OK):
-        errors.append(f"❌ No write permission to draft root: {args.draft_root}")
+        hint = ""
+        try:
+            p = Path(args.draft_root).expanduser().resolve()
+            home = Path.home().resolve()
+            if str(p).startswith(str(home)):
+                hint = " (macOSのプライバシー設定でブロックされている可能性: Terminal/Pythonにフルディスクアクセスを付与して再実行)"
+        except Exception:
+            hint = ""
+        errors.append(f"❌ No write permission to draft root: {args.draft_root}{hint}")
 
     # 6. Draft name conflict check
     new_draft_path = draft_root / args.new
     if new_draft_path.exists():
-        logger.warning(f"⚠️  Draft '{args.new}' already exists and will be replaced")
+        logger.info(f"ℹ️ Draft '{args.new}' already exists; it will be replaced")
 
     return errors
 
@@ -749,121 +760,124 @@ def _apply_common_subtitle_style(draft_dir: Path) -> None:
       - content: JSON string with {text, styles:[{size:5.0, fill:white, strokes:[{width:0.00016, black}]}]}
       - clip.transform: x=0.0, y=-0.8 ; clip.scale: 1.0
     """
-    try:
-        cfg = {
-            "alignment": 1,  # center
-            "line_max_width": 0.82,
-            "line_spacing": 0.12,
-            "background_style": 1,
-            "background_color": "#000000",
-            "background_alpha": 1.0,
-            "text_size": 30,
-            "font_size": 15.0,
-            "border_width": 0.06,
-            # Observed: these are empty strings; actual colors come from content.styles
-            "border_color": "",
-            "text_color": "",
-            "force_apply_line_max_width": False,
-            "clip_transform_x": 0.0,
-            "clip_transform_y": -0.8,
-            "clip_scale_x": 1.0,
-            "clip_scale_y": 1.0,
-            "style_size": 5.0,
-            "stroke_width": 0.00016,
+    cfg = {
+        "alignment": 1,  # center
+        "line_max_width": 0.82,
+        "line_spacing": 0.12,
+        "background_style": 1,
+        "background_color": "#000000",
+        "background_alpha": 1.0,
+        "text_size": 30,
+        "font_size": 15.0,
+        "border_width": 0.06,
+        # Observed: these are empty strings; actual colors come from content.styles
+        "border_color": "",
+        "text_color": "",
+        "force_apply_line_max_width": False,
+        "clip_transform_x": 0.0,
+        "clip_transform_y": -0.8,
+        "clip_scale_x": 1.0,
+        "clip_scale_y": 1.0,
+        "style_size": 5.0,
+        "stroke_width": 0.00016,
+    }
+
+    def _extract_text_from_content(content_field) -> str:
+        if isinstance(content_field, dict):
+            text = content_field.get("text")
+            return text if isinstance(text, str) else ""
+        if isinstance(content_field, str):
+            try:
+                parsed = json.loads(content_field)
+            except Exception:
+                return content_field
+            if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
+                return parsed.get("text") or ""
+            return content_field
+        return ""
+
+    def _default_style_content(text: str) -> dict:
+        text = text or ""
+        return {
+            "text": text,
+            "styles": [
+                {
+                    "range": [0, len(text)],
+                    "size": cfg["style_size"],
+                    "bold": False,
+                    "italic": False,
+                    "underline": False,
+                    "fill": {
+                        "alpha": 1.0,
+                        "content": {"render_type": "solid", "solid": {"alpha": 1.0, "color": [1.0, 1.0, 1.0]}},
+                    },
+                    "strokes": [
+                        {
+                            "content": {"solid": {"alpha": 1.0, "color": [0.0, 0.0, 0.0]}},
+                            "width": cfg["stroke_width"],
+                        }
+                    ],
+                }
+            ],
         }
 
-        def _extract_text_from_content(content_field) -> str:
-            if isinstance(content_field, dict):
-                text = content_field.get("text")
-                return text if isinstance(text, str) else ""
-            if isinstance(content_field, str):
-                try:
-                    parsed = json.loads(content_field)
-                except Exception:
-                    return content_field
-                if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
-                    return parsed.get("text") or ""
-                return content_field
-            return ""
+    touched = False
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        tracks = [t for t in data.get("tracks", []) if t.get("name") == "subtitles_text"]
+        if not tracks:
+            continue
+        touched = True
 
-        def _default_style_content(text: str) -> dict:
-            text = text or ""
-            return {
-                "text": text,
-                "styles": [
-                    {
-                        "range": [0, len(text)],
-                        "size": cfg["style_size"],
-                        "bold": False,
-                        "italic": False,
-                        "underline": False,
-                        "fill": {
-                            "alpha": 1.0,
-                            "content": {"render_type": "solid", "solid": {"alpha": 1.0, "color": [1.0, 1.0, 1.0]}},
-                        },
-                        "strokes": [
-                            {
-                                "content": {"solid": {"alpha": 1.0, "color": [0.0, 0.0, 0.0]}},
-                                "width": cfg["stroke_width"],
-                            }
-                        ],
-                    }
-                ],
-            }
+        sub_mat_ids = set()
+        for t in tracks:
+            for seg in t.get("segments", []):
+                mid = seg.get("material_id")
+                if mid:
+                    sub_mat_ids.add(mid)
+                clip = seg.setdefault("clip", {})
+                clip.setdefault("flip", {"horizontal": False, "vertical": False})
+                clip.setdefault("transform", {})
+                clip.setdefault("scale", {})
+                clip["alpha"] = 1.0
+                clip["rotation"] = 0.0
+                clip["transform"]["x"] = cfg["clip_transform_x"]
+                clip["transform"]["y"] = cfg["clip_transform_y"]
+                clip["scale"]["x"] = cfg["clip_scale_x"]
+                clip["scale"]["y"] = cfg["clip_scale_y"]
 
-        for fname in ("draft_content.json", "draft_info.json"):
-            path = draft_dir / fname
-            if not path.exists():
+        mats = data.get("materials", {}).get("texts", [])
+        for m in mats:
+            if m.get("id") not in sub_mat_ids:
                 continue
-            data = json.loads(path.read_text(encoding="utf-8"))
-            tracks = [t for t in data.get("tracks", []) if t.get("name") == "subtitles_text"]
-            if not tracks:
-                continue
+            m["alignment"] = cfg["alignment"]
+            m["line_max_width"] = cfg["line_max_width"]
+            m["line_spacing"] = cfg["line_spacing"]
+            m["background_style"] = cfg["background_style"]
+            m["background_color"] = cfg["background_color"]
+            m["background_alpha"] = cfg["background_alpha"]
+            m["text_size"] = cfg["text_size"]
+            m["font_size"] = cfg["font_size"]
+            m["border_width"] = cfg["border_width"]
+            m["border_color"] = cfg["border_color"]
+            m["text_color"] = cfg["text_color"]
+            m["force_apply_line_max_width"] = cfg["force_apply_line_max_width"]
 
-            sub_mat_ids = set()
-            for t in tracks:
-                for seg in t.get("segments", []):
-                    mid = seg.get("material_id")
-                    if mid:
-                        sub_mat_ids.add(mid)
-                    clip = seg.setdefault("clip", {})
-                    clip.setdefault("flip", {"horizontal": False, "vertical": False})
-                    clip.setdefault("transform", {})
-                    clip.setdefault("scale", {})
-                    clip["alpha"] = 1.0
-                    clip["rotation"] = 0.0
-                    clip["transform"]["x"] = cfg["clip_transform_x"]
-                    clip["transform"]["y"] = cfg["clip_transform_y"]
-                    clip["scale"]["x"] = cfg["clip_scale_x"]
-                    clip["scale"]["y"] = cfg["clip_scale_y"]
+            text_val = _extract_text_from_content(m.get("content"))
+            if not text_val:
+                bc = m.get("base_content")
+                if isinstance(bc, str) and bc:
+                    text_val = bc
+            m["content"] = json.dumps(_default_style_content(text_val), ensure_ascii=False)
 
-            mats = data.get("materials", {}).get("texts", [])
-            for m in mats:
-                if m.get("id") not in sub_mat_ids:
-                    continue
-                m["alignment"] = cfg["alignment"]
-                m["line_max_width"] = cfg["line_max_width"]
-                m["line_spacing"] = cfg["line_spacing"]
-                m["background_style"] = cfg["background_style"]
-                m["background_color"] = cfg["background_color"]
-                m["background_alpha"] = cfg["background_alpha"]
-                m["text_size"] = cfg["text_size"]
-                m["font_size"] = cfg["font_size"]
-                m["border_width"] = cfg["border_width"]
-                m["border_color"] = cfg["border_color"]
-                m["text_color"] = cfg["text_color"]
-                m["force_apply_line_max_width"] = cfg["force_apply_line_max_width"]
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
-                text_val = _extract_text_from_content(m.get("content"))
-                if not text_val:
-                    bc = m.get("base_content")
-                    if isinstance(bc, str) and bc:
-                        text_val = bc
-                m["content"] = json.dumps(_default_style_content(text_val), ensure_ascii=False)
-
-            path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception as exc:  # pragma: no cover
-        logger.warning(f"Subtitle style normalization failed: {exc}")
+    # No subtitles_text track present; not an error.
+    if not touched:
+        return
 
 
 def _restore_template_belt_design(
@@ -1976,6 +1990,123 @@ def _shift_existing_segments(script, offset_us: int):
         logger.warning("Failed to shift existing segments by offset %s", offset_us)
 
 
+_GENERIC_TEMPLATE_TRACK_RE = re.compile(r"^(video|text)_\d+$")
+
+
+def _purge_generic_template_placeholders(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Templates often keep placeholder media/text on generic tracks like video_2/text_2.
+    If we add srt2images/subtitles on top without purging, CapCut ends up with duplicated
+    image layers and unrelated placeholder text.
+
+    Policy:
+      - Purge only (type in {video,text}) AND name matches ^(video|text)_\\d+$.
+      - Never touch our managed tracks: srt2images_*, subtitles_text, title_text, voiceover.
+    """
+    removed: list[tuple[str, str, int]] = []
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        tracks = data.get("tracks", []) or []
+        if not isinstance(tracks, list):
+            continue
+        changed = False
+        for tr in tracks:
+            if not isinstance(tr, dict):
+                continue
+            name = (tr.get("name") or "").strip()
+            ttype = (tr.get("type") or "").strip()
+            if not name:
+                continue
+            if name.startswith(("srt2images_", "subtitles_text", "title_text")) or name in ("voiceover",):
+                continue
+            if ttype not in ("video", "text"):
+                continue
+            if not _GENERIC_TEMPLATE_TRACK_RE.match(name):
+                continue
+            segs = tr.get("segments") or []
+            if isinstance(segs, list) and segs:
+                removed.append((ttype, name, len(segs)))
+                tr["segments"] = []
+                changed = True
+        if changed:
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if removed:
+        uniq = {}
+        for ttype, name, cnt in removed:
+            uniq[(ttype, name)] = max(cnt, uniq.get((ttype, name), 0))
+        pretty = ", ".join(f"{name}({cnt})" for (_t, name), cnt in sorted(uniq.items(), key=lambda x: x[0][1]))
+        logger.info(f"🧹 Purged generic template placeholder tracks: {pretty}")
+
+
+def _post_flight_validate_draft(
+    draft_dir: Path,
+    *,
+    expect_voice: bool,
+    expect_subtitles: bool,
+    logger: logging.Logger,
+) -> None:
+    """
+    Safety net: ensure template placeholders did not leak into the generated draft.
+
+    Prevents the known failure mode where templates ship with placeholder tracks
+    (e.g. video_2/text_2) and we accidentally keep them alongside srt2images/subtitles,
+    producing duplicated layers and unrelated placeholder text.
+    """
+    content_path = draft_dir / "draft_content.json"
+    if not content_path.exists():
+        raise FileNotFoundError(f"draft_content.json not found: {content_path}")
+
+    data = json.loads(content_path.read_text(encoding="utf-8"))
+    tracks = data.get("tracks", []) or []
+    if not isinstance(tracks, list):
+        raise ValueError("draft_content.json tracks is not a list")
+
+    problems: list[str] = []
+    srt2_tracks = 0
+    have_voiceover = False
+    have_subtitles = False
+
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        name = (tr.get("name") or "").strip()
+        ttype = (tr.get("type") or "").strip()
+        segs = tr.get("segments") or []
+        seg_count = len(segs) if isinstance(segs, list) else 0
+
+        if ttype == "video" and name.startswith("srt2images_"):
+            srt2_tracks += 1
+
+        if ttype == "audio" and name == "voiceover":
+            have_voiceover = True
+            if expect_voice and seg_count != 1:
+                problems.append(f"audio:voiceover({seg_count})")
+
+        if ttype == "text" and name == "subtitles_text":
+            have_subtitles = True
+            if expect_subtitles and seg_count <= 0:
+                problems.append(f"text:subtitles_text({seg_count})")
+
+        if ttype in ("video", "text") and _GENERIC_TEMPLATE_TRACK_RE.match(name):
+            if seg_count > 0:
+                problems.append(f"{ttype}:{name}({seg_count})")
+
+    if srt2_tracks != 1:
+        problems.append(f"video:srt2images_* track_count={srt2_tracks}")
+    if expect_voice and not have_voiceover:
+        problems.append("missing audio:voiceover")
+    if expect_subtitles and not have_subtitles:
+        problems.append("missing text:subtitles_text")
+
+    if problems:
+        raise RuntimeError("Post-flight draft validation failed: " + ", ".join(problems))
+    logger.info("✅ Post-flight validation: draft structure OK")
+
+
 def _shift_audio_in_json(draft_dir: Path, offset_us: int):
     """
     Post-process draft_content.json and draft_info.json to shift audio tracks
@@ -2293,6 +2424,10 @@ def main():
 
     # Normalize JSON + track names BEFORE loading with pyJianYingDraft.
     _normalize_draft_dir_for_pyjiaying(draft_dir)
+
+    # Purge generic placeholder tracks from template BEFORE loading with pyJianYingDraft.
+    # (If we purge after load, in-memory script.content will overwrite the JSON back.)
+    _purge_generic_template_placeholders(draft_dir, logger)
 
     script = df.load_template(args.new)
     assets_dir = draft_dir / 'assets' / 'image'
@@ -2791,10 +2926,8 @@ def main():
                 if opening_offset_us > 0:
                     _shift_tracks_in_json(draft_dir, opening_offset_us)
                 
-                # 字幕スタイルの強制修正 (Adapter-based).
-                # CH02はCapCutデフォルト黒背景スタイルに統一するため、ここでは適用しない。
-                if channel_id != "CH02":
-                    fix_subtitle_style_direct(str(draft_dir / "draft_info.json"), adapter)
+                # 字幕スタイルは最終段で CapCut デフォルト（黒背景）に統一する。
+                # ここでは adapter-based の直接修正は行わない（ブレと警告の温床になる）。
 
                 if sync_draft_info_with_content(draft_dir):
                     logger.info("✅ ドラフト作成完了 (帯/字幕反映)")
@@ -2829,18 +2962,36 @@ def main():
     except Exception:
         logger.warning("Could not update draft_info.json with name/id")
 
-    # FINAL POSTPROCESS (CH02):
-    # - Enforce CapCut default subtitle style (black background)
-    # - Restore template belt styling (clip/extra_material_refs/effects) from CH02-テンプレ
+    # FINAL POSTPROCESS:
+    # - Enforce CapCut default subtitle style (black background) across channels.
+    # - Restore template belt styling only for CH02 (some styling lives only in draft_info.json).
     # Must run AFTER all sync/post-processing so it won't be wiped.
+    try:
+        _apply_common_subtitle_style(draft_dir)
+        logger.info("✅ Subtitle style normalized (CapCut default: black background)")
+    except Exception as exc:
+        logger.error(f"❌ Subtitle style normalization failed: {exc}")
+        sys.exit(1)
+
     if channel_id == "CH02":
         try:
-            _apply_common_subtitle_style(draft_dir)
             _restore_template_belt_design(draft_dir, template_dir=Path(args.draft_root) / template_name)
-            logger.info("✅ CH02 final postprocess applied (subtitles default + belt design restored)")
+            logger.info("✅ CH02 belt design restored from template")
         except Exception as exc:
-            logger.error(f"❌ CH02 final postprocess failed: {exc}")
+            logger.error(f"❌ CH02 belt design restore failed: {exc}")
             sys.exit(1)
+
+    # Post-flight validation: fail hard if template placeholders leaked into the draft.
+    try:
+        _post_flight_validate_draft(
+            draft_dir,
+            expect_voice=bool(getattr(args, "voice_file", None)),
+            expect_subtitles=bool(getattr(args, "srt_file", None)),
+            logger=logger,
+        )
+    except Exception as exc:
+        logger.error(f"❌ Post-flight validation failed: {exc}")
+        sys.exit(1)
 
     # Update root_meta_info.json so CapCut UI can list the draft
     try:

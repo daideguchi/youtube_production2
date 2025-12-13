@@ -61,27 +61,6 @@ def run_strict_pipeline(
     else:
         print(f"[CONFIG] No specific voice config found. Using defaults.")
 
-    # ローカル位置オーバーライド（contextual LLM の出力）を先読みしておく
-    local_overrides: Dict[int, Dict[int, str]] = {}
-    if channel and video_no:
-        repo_root = Path(__file__).resolve().parents[2]
-        local_tok_path = (
-            repo_root / "script_pipeline" / "data" / channel / video_no / "audio_prep" / "local_token_overrides.json"
-        )
-        if local_tok_path.exists():
-            try:
-                data = json.loads(local_tok_path.read_text(encoding="utf-8"))
-                for item in data:
-                    sid = int(item.get("section_id", -1))
-                    tidx = int(item.get("token_index", -1))
-                    reading = item.get("reading") or ""
-                    if sid < 0 or tidx < 0 or not reading:
-                        continue
-                    local_overrides.setdefault(sid, {})[tidx] = reading
-                print(f"[PREPASS] Loaded local_token_overrides.json ({len(local_overrides)} sections)")
-            except Exception as e:
-                print(f"[WARN] Failed to load local_token_overrides.json: {e}")
-
     # 0. Setup Engine Client
     vv_client = None
     speaker_id = 0

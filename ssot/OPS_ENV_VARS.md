@@ -57,6 +57,13 @@ Runbook/キュー運用の正本: `ssot/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `sso
   - `export LLM_AGENT_TASK_PREFIXES=script_`
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033`
 
+### srt2images（CapCut/画像）向け補足
+- THINK MODE 時の cues 計画は `visual_image_cues_plan` に集約（複数回 stop/resume しないため）。
+- 任意: `SRT2IMAGES_CUES_PLAN_MODE=plan` を設定すると、通常モードでも cues 計画を single-task 経路へ寄せられる。
+- 任意: `SRT2IMAGES_TARGET_SECTIONS=12` のように指定すると、cues 計画の目標セクション数を上書きできる（最低5）。
+- 任意: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
+- 任意: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
+
 ## 重要ルール: API LLM が死んだら THINK MODE で続行
 - `LLM_API_FAILOVER_TO_THINK`（任意）:
   - **デフォルト有効**（未設定でもON）

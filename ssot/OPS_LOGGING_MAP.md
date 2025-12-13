@@ -426,6 +426,10 @@ Stage1（paths SSOT）で上記 root を getter 化し、Stage2で物理移設�
 - `logs/regression/*.log`: **30日ローテ**
 - `logs/swap/*.log`, `logs/repair/*.log`: **30日ローテ**
 
+実行（手動/cron）:
+- `python scripts/ops/cleanup_logs.py --run --keep-days 30`（logs 直下の L3 を日数ローテ）
+- `python scripts/cleanup_data.py --run --keep-days 14`（script_pipeline/data の L3+一部L2）
+
 ---
 
 ## 5. 次の確定タスク（ログ整理のための追加調査）

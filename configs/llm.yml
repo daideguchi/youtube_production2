@@ -1,6 +1,34 @@
 # Unified LLM configuration (models, tiers, tasks)
 # This file consolidates legacy llm_router.yaml + llm_registry.json + llm_model_registry.yaml
 # into a single source of truth for the new LLMClient.
+#
+# -------------------------------------------------------------------
+# 2025-12-13 01:59:12 +0900
+# Low-cost 3-rank routing (user directive; OpenRouter model IDs verified via /api/v1/models).
+#
+# Rank A (thinking):
+#   deepseek/deepseek-r1
+#   → deepseek/deepseek-r1-0528
+#   → openai/o3-mini
+#   → openai/gpt-4o-mini
+#
+# Rank B (general):
+#   openai/gpt-4o-mini
+#   → qwen/qwen-2.5-7b-instruct
+#   → tencent/hunyuan-a13b-instruct
+#   → google/gemma-3n-e2b-it:free
+#
+# Rank C (free-first):
+#   google/gemma-3n-e2b-it:free
+#   → tencent/hunyuan-a13b-instruct
+#   → mistralai/mistral-7b-instruct:free
+#   → qwen/qwen-2.5-7b-instruct
+#
+# NOTE: "Cypher Alpha (free)" was not present on OpenRouter at this timestamp,
+# so Rank C fallback #2 uses `mistralai/mistral-7b-instruct:free`.
+# NOTE: OpenRouter did not expose a `:free` variant for `tencent/hunyuan-a13b-instruct`
+# at this timestamp (paid/low-cost), but it matches the "low cost" intent.
+# -------------------------------------------------------------------
 
 providers:
   azure:
@@ -75,13 +103,90 @@ models:
   or_deepseek_r1:
     provider: openrouter
     api_type: chat
-    model: "deepseek/deepseek-r1:free"
+    model: "deepseek/deepseek-r1"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 8192
+
+  or_deepseek_r1_0528:
+    provider: openrouter
+    api_type: chat
+    model: "deepseek/deepseek-r1-0528"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 8192
+
+  or_o3_mini:
+    provider: openrouter
+    api_type: chat
+    model: "openai/o3-mini"
     capabilities:
       allow_reasoning: true
-      allow_json_mode: false
+      allow_json_mode: true
       allow_temperature: false
       allow_stop: false
+      max_output_tokens: 16384
+
+  or_gpt_4o_mini:
+    provider: openrouter
+    api_type: chat
+    model: "openai/gpt-4o-mini"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 16384
+
+  or_qwen_2_5_7b_instruct:
+    provider: openrouter
+    api_type: chat
+    model: "qwen/qwen-2.5-7b-instruct"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: false
+      allow_temperature: true
+      allow_stop: true
       max_output_tokens: 8192
+
+  or_hunyuan_a13b_instruct:
+    provider: openrouter
+    api_type: chat
+    model: "tencent/hunyuan-a13b-instruct"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 16384
+
+  or_gemma_3n_e2b_it_free:
+    provider: openrouter
+    api_type: chat
+    model: "google/gemma-3n-e2b-it:free"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 2048
+
+  or_mistral_7b_instruct_free:
+    provider: openrouter
+    api_type: chat
+    model: "mistralai/mistral-7b-instruct:free"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 4096
 
   gemini_2_5_flash_image:
     provider: gemini
@@ -96,18 +201,22 @@ models:
 
 tiers:
   heavy_reasoning:
-    - azure_gpt5_mini   # 運用中
-    # 以下は登録のみ（運用停止中）
-    # - or_deepseek_r1
-    # - or_qwen_free
-    # - or_llama_free
+    - or_deepseek_r1
+    - or_deepseek_r1_0528
+    - or_o3_mini
+    - or_gpt_4o_mini
 
   standard:
-    - azure_gpt5_mini   # 運用中
-    # - or_qwen_free     # 登録のみ
+    - or_gpt_4o_mini
+    - or_qwen_2_5_7b_instruct
+    - or_hunyuan_a13b_instruct
+    - or_gemma_3n_e2b_it_free
 
   cheap:
-    - azure_gpt5_mini   # 運用中
+    - or_gemma_3n_e2b_it_free
+    - or_hunyuan_a13b_instruct
+    - or_mistral_7b_instruct_free
+    - or_qwen_2_5_7b_instruct
 
   image_gen:
     - gemini_2_5_flash_image
@@ -214,24 +323,28 @@ tasks:
     defaults:
       timeout: 30
       response_format: json_object
+      max_output_tokens: 1400
 
   tts_text_prepare:
     tier: standard
     defaults:
       timeout: 60
       response_format: json_object
+      max_output_tokens: 1500
 
   tts_segment:
     tier: standard
     defaults:
       timeout: 30
       response_format: json_object
+      max_output_tokens: 1500
 
   tts_pause:
     tier: standard
     defaults:
       timeout: 30
       response_format: json_object
+      max_output_tokens: 1200
 
   tts_reading:
     tier: heavy_reasoning
@@ -246,16 +359,35 @@ tasks:
     tier: heavy_reasoning
     defaults:
       timeout: 120
+      max_output_tokens: 8000
+
+  # One-shot cue planning (segments → cue ranges + visual_focus)
+  # Used to keep THINK MODE to a single pending task for srt2images.
+  visual_image_cues_plan:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      response_format: json_object
+      max_output_tokens: 8000
 
   visual_persona:
     tier: heavy_reasoning
     defaults:
       timeout: 60
+      max_output_tokens: 900
+
+  visual_bible:
+    tier: heavy_reasoning
+    defaults:
+      timeout: 180
+      response_format: json_object
+      max_output_tokens: 3200
 
   visual_prompt_refine:
     tier: heavy_reasoning
     defaults:
       timeout: 60
+      max_output_tokens: 1200
 
   visual_image_gen:
     tier: image_gen
@@ -270,11 +402,13 @@ tasks:
     defaults:
       timeout: 120
       response_format: json_object
+      max_output_tokens: 1800
 
   title_generation:
     tier: standard
     defaults:
       timeout: 60
+      max_output_tokens: 256
 
   # Thumbnails / captions (legacy)
   caption:

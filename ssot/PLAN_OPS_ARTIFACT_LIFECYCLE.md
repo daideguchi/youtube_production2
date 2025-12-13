@@ -6,12 +6,12 @@
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: `script_pipeline/data`, `audio_tts_v2/artifacts`, `commentary_02_srt2images_timeline/input|output`, `remotion/input|out`, `logs/**`, `output/**` 等の生成物と中間生成物
 - **非対象 (Out of Scope)**: 生成アルゴリズムそのものの変更、UI/CLIの新機能追加（cleanup 導線の薄い追加は含む）
-- **関連 SoT/依存**: `ssot/DATA_LAYOUT.md`, `ssot/REFERENCE_ssot_このプロダクト設計について`, `scripts/cleanup_data.py`, `audio_tts_v2/scripts/run_tts.py`
+- **関連 SoT/依存**: `ssot/DATA_LAYOUT.md`, `ssot/REFERENCE_ssot_このプロダクト設計について`, `scripts/cleanup_data.py`, `scripts/ops/cleanup_logs.py`, `audio_tts_v2/scripts/run_tts.py`
 - **最終更新日**: 2025-12-12
 
 ## 1. 背景と目的
 - 現状、各工程の**中間生成物が長期的に溜まり続ける**ため、ディスク肥大・探索ノイズ・誤参照が発生している。
-- 既に `scripts/cleanup_data.py` で `audio_prep` と一部ログの削除はあるが、
+- 既に `scripts/cleanup_data.py --run` で `audio_prep` と一部ログの削除はあるが、
   - audio_tts_v2 の `chunks/` や `artifacts/audio/`、
   - commentary_02 の `output/<run>/` の大量 run、
   - remotion の `out/`,
@@ -77,7 +77,7 @@
     - `--purge-intermediate` 指定時に削除。
 - `status.json.stage >= audio_synthesis`（音声生成済み）になったら:
   - `content/outline.md` は L2→L1 に昇格（台本の再編集で参照価値が高い）。
-- L3 ログは現状どおり 14 日ローテーション（`scripts/cleanup_data.py`）。
+- L3 ログは `scripts/cleanup_data.py --run --keep-days 14` を基準（script_pipeline の state logs）。
 
 ### 3.3 音声/TTS（script_pipeline/audio_prep + audio_tts_v2/artifacts）
 
@@ -175,7 +175,9 @@
   - `logs/tts_voicevox_reading.jsonl`（読みの追跡）
 
 **削除基準**
-- L3 は 14 日（既存に準拠）。例外 L1 は無期限保持。
+- script_pipeline の state logs は 14 日（`scripts/cleanup_data.py --run --keep-days 14`）。
+- ルート `logs/` の L3 は 30 日（`scripts/ops/cleanup_logs.py --run --keep-days 30`）。
+- 例外 L1 は無期限保持。
 
 ## 4. 自動クリーンアップ実装方針
 

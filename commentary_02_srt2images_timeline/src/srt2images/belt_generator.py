@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, TypedDict, Any
 import sys
 
 from factory_common.llm_router import get_router
+from factory_common.paths import video_pkg_root
 
 logger = logging.getLogger(__name__)
 
@@ -368,9 +369,7 @@ def _load_channel_preset(channel_id: str) -> Optional[Dict[str, Any]]:
         Channel preset configuration or None if file not found
     """
     try:
-        # Define the project root as 3 levels up from the current module
-        project_root = Path(__file__).resolve().parents[3]
-        config_path = project_root / "commentary_02_srt2images_timeline" / "config" / "channel_presets.json"
+        config_path = video_pkg_root() / "config" / "channel_presets.json"
 
         if not config_path.exists():
             logger.warning(f"Channel preset file not found: {config_path}")

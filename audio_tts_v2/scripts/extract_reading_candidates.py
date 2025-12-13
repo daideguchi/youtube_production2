@@ -4,6 +4,7 @@ from pathlib import Path
 import unicodedata
 import difflib
 import re
+from datetime import datetime, timezone
 
 FORCE_SURFACES = {"NO", "SNS", "微調整", "肩甲骨"}
 MAX_CANDIDATES = 200
@@ -104,7 +105,14 @@ def extract_candidates(log_path: Path, out_path: Path, max_candidates: int = MAX
             section_map[sid]["candidates"].append(cand)
     sections_final = [v for v in section_map.values() if v["candidates"]]
 
-    out_data = {"channel": channel, "video": video, "sections": sections_final}
+    out_data = {
+        "schema": "ytm.reading_candidates.v1",
+        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "source_log": {"path": str(log_path)},
+        "channel": channel,
+        "video": video,
+        "sections": sections_final,
+    }
     out_path.write_text(json.dumps(out_data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[CANDIDATES] channel={channel} video={video} sections={len(sections_final)} candidates={len(selected)} -> {out_path}")
 

@@ -1198,7 +1198,7 @@ VALID_STAGE_STATUSES = {"pending", "in_progress", "blocked", "review", "complete
 MAX_STATUS_LENGTH = 64
 LOCK_METRICS = {"timeout": 0, "unexpected": 0}
 LOCK_HISTORY: deque[dict] = deque(maxlen=50)
-LOCK_DB_PATH = PROJECT_ROOT / "logs" / "lock_metrics.db"
+LOCK_DB_PATH = LOGS_ROOT / "lock_metrics.db"
 LOCK_ALERT_CONFIG_PATH = PROJECT_ROOT / "configs" / "ui_lock_alerts.json"
 LOCK_ALERT_CONFIG = {
     "enabled": False,

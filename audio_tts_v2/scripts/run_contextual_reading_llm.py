@@ -2,8 +2,10 @@ import json
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any
+import os
 from factory_common.llm_router import get_router
 from datetime import datetime
+from datetime import timezone
 
 # Config
 BATCH_SECTIONS = 20  # number of sections per call (tune as needed)
@@ -13,6 +15,9 @@ FORCE_SURFACES = {"NO", "SNS", "微調整", "肩甲骨"}
 
 def chunk_sections(sections: List[Dict[str, Any]], size: int) -> List[List[Dict[str, Any]]]:
     return [sections[i : i + size] for i in range(0, len(sections), size)]
+
+def _is_think_or_agent_mode() -> bool:
+    return (os.getenv("LLM_MODE") or "").strip().lower() in ("think", "agent")
 
 
 def _parse_router_response(content: Any) -> Dict[str, Any]:
@@ -102,7 +107,9 @@ def main():
     video = data.get("video")
     sections = data.get("sections", [])
 
-    batches = chunk_sections(sections, BATCH_SECTIONS)
+    # THINK/AGENT mode: avoid multiple stop/resume loops by issuing a single task.
+    # In API mode, keep chunking to avoid context/token blowups.
+    batches = [sections] if _is_think_or_agent_mode() else chunk_sections(sections, BATCH_SECTIONS)
     decisions: List[Dict[str, Any]] = []
     llm_meta_logs: List[Dict[str, Any]] = []
     for batch in batches:
@@ -124,7 +131,21 @@ def main():
             print(f"[WARN] batch skipped after retries")
 
     out_path = Path(args.out) if args.out else cand_path.parent / "contextual_decisions.json"
-    out_path.write_text(json.dumps({"channel": channel, "video": video, "decisions": decisions}, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_path.write_text(
+        json.dumps(
+            {
+                "schema": "ytm.contextual_reading_decisions.v1",
+                "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                "source_candidates": {"path": str(cand_path)},
+                "channel": channel,
+                "video": video,
+                "decisions": decisions,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"[LLM] decisions={len(decisions)} -> {out_path}")
     # log meta if any
     if llm_meta_logs:

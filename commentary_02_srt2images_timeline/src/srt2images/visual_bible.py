@@ -8,10 +8,22 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from factory_common.llm_router import get_router
+from factory_common.paths import repo_root
 
 logger = logging.getLogger("VisualBible")
 
-VISUAL_BIBLE_PATH = Path(__file__).resolve().parents[3] / "data" / "visual_bible.json"
+_LEGACY_GLOBAL_BIBLE_PATH = repo_root() / "data" / "visual_bible.json"
+
+
+def _resolve_visual_bible_path(out_dir: Path | None) -> Path:
+    """
+    Prefer per-run storage to avoid cross-channel leakage.
+    Falls back to legacy global path only when out_dir is not provided.
+    """
+    if out_dir:
+        return out_dir / "visual_bible.json"
+    logger.warning("VisualBible: out_dir not provided; using legacy global cache (deprecated): %s", _LEGACY_GLOBAL_BIBLE_PATH)
+    return _LEGACY_GLOBAL_BIBLE_PATH
 
 BIBLE_GEN_PROMPT = """
 You are an expert art director creating a 'Visual Bible' for an illustrated video series.
@@ -52,19 +64,19 @@ class VisualBibleGenerator:
     def __init__(self):
         self.router = get_router()
 
-    def generate(self, segments: List[Dict], force_refresh: bool = False) -> Dict[str, Any]:
+    def generate(self, segments: List[Dict], out_dir: Path | None = None, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Generate or load visual bible.
         If file exists and not force_refresh, return loaded data.
         Otherwise, call LLM to generate.
         """
-        # Ensure data dir exists
-        VISUAL_BIBLE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        bible_path = _resolve_visual_bible_path(out_dir)
+        bible_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if VISUAL_BIBLE_PATH.exists() and not force_refresh:
+        if bible_path.exists() and not force_refresh:
             try:
-                data = json.loads(VISUAL_BIBLE_PATH.read_text(encoding="utf-8"))
-                logger.info(f"Loaded existing Visual Bible from {VISUAL_BIBLE_PATH}")
+                data = json.loads(bible_path.read_text(encoding="utf-8"))
+                logger.info("Loaded existing Visual Bible from %s", bible_path)
                 return data
             except Exception as e:
                 logger.warning(f"Failed to load existing bible: {e}. Regenerating.")
@@ -96,8 +108,8 @@ class VisualBibleGenerator:
             bible_data = self._parse_response(response)
             
             # Save
-            VISUAL_BIBLE_PATH.write_text(json.dumps(bible_data, ensure_ascii=False, indent=2), encoding="utf-8")
-            logger.info(f"Saved Visual Bible to {VISUAL_BIBLE_PATH}")
+            bible_path.write_text(json.dumps(bible_data, ensure_ascii=False, indent=2), encoding="utf-8")
+            logger.info("Saved Visual Bible to %s", bible_path)
             return bible_data
 
         except Exception as e:

@@ -7,6 +7,8 @@ from typing import Optional
 # Setup logging
 logger = logging.getLogger(__name__)
 
+from factory_common.paths import repo_root
+
 class AppConfig:
     """
     Single Source of Truth (SSOT) for application configuration and environment variables.
@@ -27,8 +29,7 @@ class AppConfig:
         # so we load files and set only if not set.
         
         # 1. Project Root .env
-        # Assuming we are in src/core/config.py, project root is 3 levels up
-        project_root = Path(__file__).resolve().parents[3]
+        project_root = repo_root()
         self._load_from_file(project_root / ".env")
 
         # 2. Local User .env
@@ -69,7 +70,7 @@ class AppConfig:
 
     @property
     def PROJECT_ROOT(self) -> Path:
-        return Path(__file__).resolve().parents[3]
+        return repo_root()
 
 # Global instance
 config = AppConfig()

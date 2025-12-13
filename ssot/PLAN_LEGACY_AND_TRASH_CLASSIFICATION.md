@@ -24,6 +24,8 @@
 - 2025-12-12: `factory_commentary.egg-info/` と `commentary_02_srt2images_timeline/{src,ui/src}/memory/` を確実ゴミとして削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-12: `commentary_02_srt2images_timeline/**/runtime/logs/notifications.jsonl` を参照ゼロのコミット残骸として削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-13: `commentary_02_srt2images_timeline/` 直下の残骸（`PROJ.json`, `channel_preset.json`, `persona.txt`, `image_cues.json`）を削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`。バックアップ作成済み）。
+- 2025-12-13: 旧PoC/旧静的物（`legacy/50_tools`, `legacy/docs_old`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 2025-12-13: legacyアーカイブ（`audio_tts_v2/legacy_archive`, `commentary_02_srt2images_timeline/tools/archive`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 
 ---
 
@@ -50,12 +52,10 @@
 
 ### 2.2 Legacy隔離（現行依存ゼロ、ただし履歴/参照として残す）
 - `_old/`：旧仕様/退避物。現行コード参照なし。
-- `50_tools/`：旧PoC群（Remotion旧版/旧SRTライン等）。現行コード参照なし。
 - `idea/`：思考メモ/試作。現行参照なし。
-- `docs/`：旧静的ビルド/メモ（`docs/static/*` 等）。現行UIは別導線。
 - `factory_commentary.egg-info/`：開発時生成のメタ情報（再生成可能。確実ゴミとして削除済み）
 
-> これらは Stage3 で `legacy/` 配下に「copy→verify→mv→symlink(optional)」で隔離する。
+> Stage3で隔離済み。`50_tools/` / `docs/` は過去に存在したが、現在は **アーカイブ後に削除済み**（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 
 ### 2.3 Trash候補（削除対象・ただし条件3の確認待ち）
 - `.venv/`：環境依存。不要なら削除可（条件3待ち）。
@@ -77,7 +77,7 @@
 - `src/`, `tools/`（archive除く）, `ui/`, `config/`, `templates/`, `input/`, `output/`, `progress/audio_sync_status.json`, `logs/`, `memory/`
 
 **Legacy隔離**
-- `tools/archive/`：`capcut_bulk_insert_versions/*` 等の過去版。参照ゼロ。
+- （削除済み）`tools/archive/`：過去版。参照ゼロのためアーカイブ後に削除済み（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - `docs/spec_updates/*`：旧設計書/統合前の履歴。
 - `backups/`：過去退避（運用で必要なら legacy へ移すだけ）。
 
@@ -93,7 +93,7 @@
 - `scripts/`, `tts/`, `artifacts/`, `data/reading_dict/`, `docs/`, `tests/`
 
 **Legacy隔離**
-- `legacy_archive/`：旧strict移行前のスクリプト/tts実装。現行依存ゼロ。
+- （削除済み）`legacy_archive/`：現行依存ゼロのためアーカイブ後に削除済み（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 
 **Trash候補（生成物レベル、PLAN_OPS_ARTIFACT_LIFECYCLE準拠で後日削除）**
 - `artifacts/audio/*`（古い中間run）
@@ -149,6 +149,7 @@
 1. **Stage1（paths SSOT）前後で“確実ゴミ（条件1-3確定済み）”のみ削除**
    - 例: `__pycache__`, `.pytest_cache`, `.DS_Store`, root `output/*` など（既に実施済み）
 2. **Stage3（legacy隔離）で `_old/`, `50_tools/`, `docs/`, `idea/`, `audio_tts_v2/legacy_archive/`, `commentary_02/tools/archive/` を read‑only 移設**
+   - ※ `50_tools/`, `docs/`, `legacy_archive`, `tools/archive` は既にアーカイブ後に削除済み。
 3. **Stage6（cleanup自動化）で L2/L3 生成物をステータス連動で整理**
 4. **最後に Trash候補（条件3待ち）を管理者確認の上で削除**
 

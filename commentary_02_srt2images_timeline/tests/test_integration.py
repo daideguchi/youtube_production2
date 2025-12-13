@@ -6,6 +6,7 @@ Integration Test for SRT2Images Timeline UI System
 import sys
 import os
 from pathlib import Path
+import pytest
 
 # プロジェクトルートをパスに追加
 project_root = Path(__file__).parent.parent
@@ -52,12 +53,9 @@ def test_template_managers():
             print(f"   ファイル: {jp_visual.file}")
         else:
             print("⚠️ 日本語ビジュアルテンプレートが見つかりません")
-        
-        return True
-        
+
     except Exception as e:
-        print(f"❌ テンプレート管理システムテストエラー: {e}")
-        return False
+        pytest.fail(f"テンプレート管理システムテストエラー: {e}")
 
 def test_srt_files():
     """SRTファイルの利用可能性テスト"""
@@ -89,11 +87,8 @@ def test_srt_files():
                 
             except Exception as e:
                 print(f"⚠️ {srt_file.name}: 読み込みエラー - {e}")
-        
-        return True
     else:
-        print("❌ SRTファイルが見つかりません")
-        return False
+        pytest.skip("SRTファイルが見つかりません（examples/input/output をスキップ）")
 
 def test_workflow_dependencies():
     """ワークフロー依存関係テスト"""
@@ -108,29 +103,22 @@ def test_workflow_dependencies():
     ]
     
     for required_dir in required_dirs:
-        if required_dir.exists():
-            print(f"✅ {required_dir.name}: 存在")
-        else:
-            print(f"❌ {required_dir.name}: 見つかりません")
+        assert required_dir.exists(), f"missing required directory: {required_dir}"
+        print(f"✅ {required_dir.name}: 存在")
     
     # 重要なスクリプトの確認
     important_scripts = [
         project_root / "tools" / "capcut_bulk_insert.py",
-        project_root / "tools" / "ensure_canvas_16x9.py",
-        project_root / "src" / "srt2images" / "cli.py"
+        project_root / "src" / "srt2images" / "orchestration" / "pipeline.py"
     ]
     
     for script in important_scripts:
-        if script.exists():
-            print(f"✅ {script.name}: 存在")
-        else:
-            print(f"❌ {script.name}: 見つかりません")
+        assert script.exists(), f"missing important script: {script}"
+        print(f"✅ {script.name}: 存在")
     
     # テンプレートファイルの確認
     template_files = list((project_root / "templates").glob("*.txt"))
     print(f"✅ テンプレートファイル数: {len(template_files)}")
-    
-    return True
 
 def test_environment():
     """環境変数テスト"""
@@ -146,8 +134,8 @@ def test_environment():
             print(f"✅ {env_var}: 設定済み")
         else:
             print(f"⚠️ {env_var}: 未設定")
-    
-    return True
+
+    # NOTE: 環境変数の有無でテストを落とさない（実行環境差異があるため）。
 
 def main():
     """メインテスト関数"""

@@ -1,7 +1,8 @@
 # OPS_PLANNING_CSV_WORKFLOW — 企画/進捗CSV（Planning SoT）の運用手順
 
 目的:
-- `progress/channels/CHxx.csv` を **Planning の正本（SoT）** として安全に更新し、台本/音声/動画工程の迷子と破壊を防ぐ。
+- `workspaces/planning/channels/CHxx.csv` を **Planning の正本（SoT）** として安全に更新し、台本/音声/動画工程の迷子と破壊を防ぐ。
+  - 互換: `progress/channels/CHxx.csv`（symlink）
 
 関連:
 - 確定フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
@@ -12,7 +13,7 @@
 
 ## 0. 正本の定義
 
-- Planning SoT（正本）: `progress/channels/CHxx.csv`
+- Planning SoT（正本）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 - Script SoT（正本）: `script_pipeline/data/{CH}/{NNN}/status.json`
 - Audio SoT（下流参照の正本）: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`
 
@@ -40,7 +41,7 @@ CSV 側は列名の揺れがあるため、最低限次のどれかが存在す�
 - 外部で CSV を編集した場合は、UI から `POST /api/planning/refresh` を実行して再読込する。
 
 ### 2.2 手動編集（許可・ただし厳守）
-1) 対象 CSV を直接編集: `progress/channels/CHxx.csv`
+1) 対象 CSV を直接編集: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
 2) `動画番号` / `動画ID`（または同等列）を壊さない
 3) 変更後、UI を開いて一覧が意図通りに表示されることを確認する
 
@@ -87,4 +88,3 @@ Planning CSV を更新しても、既に生成済みの台本/音声/動画は�
 - `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）`
 
 ヘッダ例は `ssot/OPS_IO_SCHEMAS.md` を参照。
-

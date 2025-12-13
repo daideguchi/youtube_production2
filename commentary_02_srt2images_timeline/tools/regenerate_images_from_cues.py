@@ -1,0 +1,256 @@
+#!/usr/bin/env python3
+"""
+Regenerate real images for an existing srt2images run_dir that already has `image_cues.json`.
+
+Why this exists (CH02 issue):
+- Some CH02 drafts were built in placeholder mode (noise PNGs) to avoid image API calls.
+- The CapCut draft *does* have an image track, but the assets are noise placeholders, which looks like "no images".
+- This tool fills `cue.prompt` using the channel preset template/style and regenerates PNGs via ImageClient (Gemini).
+
+No text LLM calls are made here. It only uses the image generation API.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+if str(PROJECT_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
+from srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
+from srt2images.nanobanana_client import generate_image_batch  # noqa: E402
+
+
+def _read_json(path: Path) -> Dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_json(path: Path, obj: Dict[str, Any]) -> None:
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _infer_channel_from_run_dir(run_dir: Path) -> Optional[str]:
+    m = re.search(r"(CH\\d{2})", run_dir.name.upper())
+    if m:
+        return m.group(1)
+    # fallback: try path scan
+    return infer_channel_id_from_path(str(run_dir))
+
+
+def _truncate(text: str, limit: int = 120) -> str:
+    t = " ".join((text or "").split())
+    return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
+
+
+def _load_template_text(path: Optional[str]) -> str:
+    if not path:
+        return (
+            "Scene: {summary}\\n"
+            "Style: {style}\\n"
+            "Composition: clear subject, cinematic, no text\\n"
+            "Resolution: {size}\\n"
+        )
+    p = Path(path)
+    if not p.is_absolute():
+        p = (PROJECT_ROOT / p).resolve()
+    if not p.exists():
+        return (
+            "Scene: {summary}\\n"
+            "Style: {style}\\n"
+            "Composition: clear subject, cinematic, no text\\n"
+            "Resolution: {size}\\n"
+        )
+    return p.read_text(encoding="utf-8")
+
+
+def _build_prompt(
+    cue: Dict[str, Any],
+    *,
+    template_text: str,
+    style: str,
+    negative: str,
+    size_str: str,
+    extra_suffix: str,
+) -> str:
+    # Mirror the pipeline prompt assembly, but keep it deterministic and LLM-free.
+    parts: List[str] = []
+    refined = (cue.get("refined_prompt") or "").strip()
+    if refined:
+        parts.append(refined)
+    else:
+        vf = (cue.get("visual_focus") or "").strip()
+        if vf:
+            parts.append(f"Visual Focus: {vf}")
+        summary = (cue.get("summary") or "").strip()
+        if summary:
+            parts.append(f"Scene: {summary}")
+        tone = (cue.get("emotional_tone") or "").strip()
+        if tone:
+            parts.append(f"Tone: {tone}")
+        role_tag = (cue.get("role_tag") or "").strip()
+        if role_tag:
+            parts.append(f"Role: {role_tag}")
+        section_type = (cue.get("section_type") or "").strip()
+        if section_type:
+            parts.append(f"Section Type: {section_type}")
+        txt = (cue.get("text") or "").strip()
+        if txt:
+            parts.append(f"Script excerpt: {_truncate(txt, 120)}")
+
+    if extra_suffix:
+        parts.append(extra_suffix)
+
+    diversity = (cue.get("diversity_note") or "").strip()
+    if diversity:
+        parts.append(diversity)
+
+    summary_for_prompt = " \\n".join([p for p in parts if p.strip()])
+    return build_prompt_from_template(
+        template_text,
+        prepend_summary=False,
+        summary=summary_for_prompt,
+        style=style or "",
+        seed=0,
+        size=size_str,
+        negative=negative or "",
+    )
+
+
+def _delete_existing_pngs(images_dir: Path) -> int:
+    count = 0
+    for p in images_dir.glob("*.png"):
+        try:
+            p.unlink()
+            count += 1
+        except Exception:
+            pass
+    return count
+
+
+def _verify_images(images_dir: Path, expected: int) -> Tuple[bool, List[int]]:
+    missing: List[int] = []
+    for i in range(1, expected + 1):
+        p = images_dir / f"{i:04d}.png"
+        if not p.exists():
+            missing.append(i)
+    return (len(missing) == 0), missing
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", required=True, help="srt2images output run dir (contains image_cues.json)")
+    ap.add_argument("--channel", help="Override channel id (e.g., CH02). If omitted, inferred from run_dir name.")
+    ap.add_argument("--force", action="store_true", help="Delete existing images/*.png before regeneration")
+    ap.add_argument("--max", type=int, default=0, help="Limit number of cues/images to generate (0 = all)")
+    ap.add_argument("--prompt-template", help="Override prompt template path")
+    ap.add_argument("--style", help="Override style string")
+    ap.add_argument("--negative", default="", help="Optional negative prompt string")
+    ap.add_argument("--timeout-sec", type=int, default=300, help="Per-image timeout seconds")
+    ap.add_argument("--retry-until-success", action="store_true", help="Do not write placeholders when generation fails")
+    ap.add_argument("--max-retries", type=int, default=6, help="Max retries per image (used by generator)")
+    args = ap.parse_args()
+
+    run_dir = Path(args.run).resolve()
+    cues_path = run_dir / "image_cues.json"
+    if not cues_path.exists():
+        raise SystemExit(f"Missing image_cues.json: {cues_path}")
+
+    channel = (args.channel or _infer_channel_from_run_dir(run_dir) or "").upper()
+    if not channel:
+        raise SystemExit("Failed to infer --channel; pass --channel explicitly")
+
+    preset = ChannelPresetResolver().resolve(channel)
+    tpl_path = args.prompt_template
+    if not tpl_path and preset and preset.prompt_template:
+        tpl_path = preset.resolved_prompt_template()
+    style = args.style or (preset.style if preset and preset.style else "")
+
+    extra_suffix_parts: List[str] = []
+    if preset and preset.prompt_suffix:
+        extra_suffix_parts.append(str(preset.prompt_suffix))
+    if preset and preset.character_note:
+        extra_suffix_parts.append(str(preset.character_note))
+    extra_suffix = "\n".join([x for x in extra_suffix_parts if x.strip()])
+
+    payload = _read_json(cues_path)
+    cues = payload.get("cues") or []
+    if not isinstance(cues, list) or not cues:
+        raise SystemExit(f"No cues in {cues_path}")
+
+    size = payload.get("size") or {}
+    width = int(size.get("width") or 1920)
+    height = int(size.get("height") or 1080)
+    size_str = f"{width}x{height}"
+    template_text = _load_template_text(tpl_path)
+
+    total = len(cues)
+    limit = int(args.max or 0)
+    if limit > 0:
+        total = min(total, limit)
+
+    images_dir = run_dir / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+    if args.force:
+        deleted = _delete_existing_pngs(images_dir)
+        print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
+
+    # Fill prompts + image_path for the subset we generate.
+    gen_cues: List[Dict[str, Any]] = []
+    for i in range(1, total + 1):
+        cue = cues[i - 1]
+        if not isinstance(cue, dict):
+            continue
+        prompt = _build_prompt(
+            cue,
+            template_text=template_text,
+            style=style,
+            negative=args.negative,
+            size_str=size_str,
+            extra_suffix=extra_suffix,
+        )
+        cue["prompt"] = prompt
+        cue["image_path"] = str(images_dir / f"{i:04d}.png")
+        gen_cues.append(cue)
+
+    # Persist prompts back to image_cues.json (so future tools can reuse them).
+    _write_json(cues_path, payload)
+    print(f"[PROMPTS] updated={len(gen_cues)} cues_path={cues_path}")
+
+    # Generate images (rate-limited inside nanobanana_client)
+    generate_image_batch(
+        gen_cues,
+        mode="direct",
+        concurrency=1,
+        force=True,
+        width=width,
+        height=height,
+        timeout_sec=int(args.timeout_sec),
+        config_path=None,
+        retry_until_success=bool(args.retry_until_success),
+        max_retries=int(args.max_retries),
+        placeholder_text=None,
+    )
+
+    ok, missing = _verify_images(images_dir, expected=total)
+    if not ok:
+        raise SystemExit(f"Image generation incomplete: missing={missing[:10]} (total_missing={len(missing)})")
+    print(f"[DONE] images={total} dir={images_dir}")
+
+
+if __name__ == "__main__":
+    main()
+

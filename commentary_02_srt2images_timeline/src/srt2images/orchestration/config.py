@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import toml
 
+from factory_common.paths import video_pkg_root
+
 def get_args():
     parser = argparse.ArgumentParser(description="SRT -> images timeline & engine deployer")
     parser.add_argument("--config", default="config.toml", help="Path to config.toml file")
@@ -67,7 +69,7 @@ def get_args():
     args.nanobanana_bin = ''  # deprecated
     args.nanobanana_timeout = args.nanobanana_timeout or get_config_val('image_generation.nanobanana_timeout', 300)
     
-    default_prompt_template = str(Path(__file__).resolve().parents[3] / "templates" / "default.txt")
+    default_prompt_template = str(video_pkg_root() / "templates" / "default.txt")
     args.prompt_template = args.prompt_template or get_config_val('image_generation.prompt_template', default_prompt_template)
 
     args.style = args.style or get_config_val('image_generation.style', '')

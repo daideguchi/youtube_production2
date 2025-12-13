@@ -39,6 +39,7 @@ PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py \
 - 前提
   - `commentary_02_srt2images_timeline/config/channel_presets.json` に各CHの capcut_template / layout / opening_offset / prompt_template が定義済み。
   - CapCutのテンプレートフォルダが `--draft-root` 配下に存在すること（例: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH01-UNK_道標_最新テンプレ`）。
+  - **macOS権限注意**: 実行環境によっては CapCut の draft root（`~/Movies/CapCut/.../com.lveditor.draft`）が **読めても書けない**（`Operation not permitted`）ことがある。この場合 `tools/auto_capcut_run.py` は自動で `commentary_02_srt2images_timeline/_capcut_drafts/` にフォールバックして生成する。CapCutで使うには、そのドラフトフォルダを CapCut draft root にコピーする（= Full Disk Access が必要）。
   - SRT は任意のパスでOK（デフォルトで `--prefer-tts-final=true` のため、episode を特定できれば `audio_tts_v2/artifacts/final/{CH}/{NNN}/{CH}-{NNN}.srt` を優先して使用）。
 - 実行コマンド例（ディレクトリ `commentary_02_srt2images_timeline/` で実行）
 ```
@@ -63,6 +64,8 @@ python tools/auto_capcut_run.py \
     - **SRT正本**: デフォルトで `--prefer-tts-final=true`。指定した `--srt` が別場所でも、episode を特定できれば final を優先して使う（古いSRTでドラフト作る事故を防止）。  
     - **整合チェック（推奨）**: `timeline_manifest.json` が生成されていること（`wav長 ≒ srt終端 ≒ cues終端` を厳格検証し、ズレ事故を検知する“契約”）。  
     - **CapCutテンプレ自動修復**: テンプレが `draft_info.json` のみ／空トラック名／重複トラック名でも、`tools/capcut_bulk_insert.py` が **複製直後に `draft_content.json`/`draft_info.json` を復元し、トラック名を正規化してからロード**する（レイヤ落ち・別テンプレ混入事故の根治）。監査は `commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only`。  
+    - **テンプレのプレースホルダ掃除（重要）**: テンプレ内に残っている `video_2` / `text_2` などの **汎用名トラック**（`^(video|text)_\\d+$`）は、複製直後に **必ず segments を空にしてから** srt2images/subtitles を挿入する（画像レイヤ二重化・無関係テキスト混入事故を根絶）。重要レイヤは必ず固有名（例: `logo`, `main_belt`, `dreamy_confetti`）にして汎用名にしない。  
+    - **ドラフト名のSoT（重要）**: `tools/auto_capcut_run.py` は `progress/channels/{CH}.csv` の `タイトル` を使い、`★{CH}-{NNN}-{タイトル}` の **安定名で上書き生成**する（timestamp draft を量産しない／誤ドラフトを開く事故を防ぐ）。  
     - **テンプレ本体の恒久クリーン**（推奨）:
       - 正規化（backup付き）: `python3 commentary_02_srt2images_timeline/tools/normalize_capcut_templates.py --active-only --run`
       - 厳格監査（empty/dup を許さない）: `python3 commentary_02_srt2images_timeline/tools/validate_capcut_templates.py --active-only --strict-names`
@@ -73,6 +76,7 @@ python tools/auto_capcut_run.py \
     - ベルト: 既定は `belt_mode=llm`。既存を使う場合のみ `--belt-mode existing`（belt_config.json が無い場合はスキップされる）。均等4分割は `equal`+labels、日本語必須。章構成から作る場合は `grouped`+chapters/episode_info.json。  
     - 再実行/部分更新: `--resume` で既存 run_dir の cues/images を再利用。`--fallback-if-missing-cues` で欠損時のみ再生成。  
     - 確認: 出力先 `output/{run_name}/` に `image_cues.json`, `capcut_draft/`, `capcut_draft_info.json`, `auto_run_info.json` が揃っていることを確認。
+    - **古い/壊れたドラフト整理（推奨）**: 完成版（`★CHxx-...`）と active template 以外を CapCut root から退避する → `python tools/clean_capcut_channel_drafts.py --channel CH05 --apply`（`~/Movies/CapCut/Archive_*/CH05/` に移動）
 
 ### 補足: チャンネル別挙動・テンプレSSOT
 - CH01の「220」系ロジックは生存中。`src/srt2images/cue_maker.py` でCH01のみ `base_seconds=12` を強制し、LLM文脈分割を使って細かいカットを作る（機械20s分割はフォールバック扱い）。他CHは `channel_presets.image_generation.base_period` を参照（デフォルト30s、CH02はconfigで9s）。

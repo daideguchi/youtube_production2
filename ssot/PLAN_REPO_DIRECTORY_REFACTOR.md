@@ -7,11 +7,11 @@
 - **対象範囲 (In Scope)**: リポジトリ全体（Python/Node/シェル/SSOT/UI/生成物/旧資産）
 - **非対象 (Out of Scope)**: LLMロジック・生成品質・パイプラインのアルゴリズム改変（パス変更に伴う薄い修正は含む）
 - **関連 SoT/依存**: `script_pipeline/data`, `progress/channels`, `audio_tts_v2/artifacts`, `commentary_02_srt2images_timeline/output`, `thumbnails/assets`, `ui/backend`, `scripts/start_all.sh`
-- **最終更新日**: 2025-12-12
+- **最終更新日**: 2025-12-13
 
 ## 1. 背景と目的
 - 生成物/ログ/旧作業物/複数のサブプロジェクトが同一階層に混在し、**「どこが正本でどこが捨てても良い生成物か」**が判別しづらい。
-- 旧ロジック（`commentary_01_srtfile_v2` など）やレガシー試作（`50_tools`, `_old`）が現行コードと並列に残り、探索コストと誤参照リスクが高い。
+- 旧ロジック（`commentary_01_srtfile_v2` など）やレガシー試作（`_old` など）が現行コードと並列に残り、探索コストと誤参照リスクが高い。
 - 目標は **機能を壊さず** に、(1)コード/アプリ/SoT/生成物/レガシーを明確に分離し、(2)パス参照の単一化で将来の整理を容易にすること。
 
 ## 2. 成果物と成功条件 (Definition of Done)
@@ -70,10 +70,9 @@
   - `.venv/`, `__pycache__/`, `.pytest_cache/` など環境由来
 - **レガシー/研究/退避**
   - `_old/`（archive/spec/ssot_old など）
-  - `50_tools/`（旧 PoC 群。remotion_auto_video/srt2images-timeline 等の重複実装）
   - `00_research/`（ベンチ/参考台本）
   - `idea/`（メモ/下書き）
-  - `docs/`（旧静的ビルド・履歴）
+  - （削除済み）`50_tools/`（旧PoC群）/ `docs/`（旧静的ビルド）はアーカイブ後に削除済み（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
   - ルート `tools/`（チャンネル別のアドホック保守スクリプト）
 
 **サイズ（2025-12-12 観測: `du -sh`）**
@@ -102,8 +101,8 @@
 | `data` | 0.00 | 2025-12-12 17:21:17 | 2025-12-11 |  |
 | `asset` | 0.04 | 2025-12-11 14:04:35 | 2025-12-11 |  |
 | `00_research` | 0.00 | 2025-12-09 21:11:52 | 2025-12-10 |  |
-| `docs` | 0.00 | 2025-12-11 13:54:07 | 2025-12-11 | legacy/research |
-| `50_tools` | 0.03 | 2025-11-27 13:41:50 | 2025-12-10 | legacy/research |
+| `docs` | - | - | - | DELETED (archived) |
+| `50_tools` | - | - | - | DELETED (archived) |
 | `_old` | 1.65 | 2025-12-11 09:41:03 | - | legacy/research |
 | `idea` | 0.00 | 2025-12-12 09:04:46 | 2025-12-11 | legacy/research |
 | `backups` | 0.00 | 2025-12-12 22:37:22 | - |  |
@@ -298,8 +297,7 @@ workspaces/
 ```
 legacy/
 ├─ _old/                       # 旧退避物
-├─ 50_tools/                   # PoC/旧実装（実行禁止）
-├─ docs_old/                   # 旧 docs/ 静的ビルド
+├─ idea/                       # 人間用メモ（参照専用）
 └─ commentary_01_srtfile_v2/   # 必要なら stub + README のみ
 ```
 
@@ -445,6 +443,7 @@ legacy/
 - 2025-12-13: 追加の legacy 隔離（`audio_tts_v2/legacy_archive`, `commentary_02_srt2images_timeline/tools/archive`）+ 互換symlink（commit `0a4ed311`）
 - 2025-12-13: `packages/factory_common` と `workspaces/research` の互換symlinkを追加（commit `2dfe251f`）
 - 2025-12-13: ルート `README.md` を新レイアウト（`packages/`/`workspaces/`/`legacy/`）に追従（commit `0963a21f`）
+- 2025-12-13: 旧PoC/旧静的物/参照ゼロのアーカイブをアーカイブ後に削除（`legacy/50_tools`, `legacy/docs_old`, `legacy_archive`, `tools/archive` 等）。記録は `ssot/OPS_CLEANUP_EXECUTION_LOG.md` を正とする。
 
 ### Stage 0: Preflight / 保護
 - [ ] 現行 `main` の git tag を付与（例: `pre-refactor-YYYYMMDD`）。
@@ -476,10 +475,9 @@ legacy/
 > 各サブステップは **copy → verify → mv → symlink → smoke** の 5 フェーズで実施。
 
 2.1 planning
-- [ ] `workspaces/planning/` 作成。
-- [ ] `progress/{channels,personas,templates,analytics}` を copy。
-- [ ] 件数/ハッシュ一致を確認。
-- [ ] `progress` を `legacy/` に mv、旧 `progress` を symlink。
+- [x] `workspaces/planning/` 実体化（旧 `progress` は互換symlink）。
+- [x] アーカイブ（復元用）: `backups/graveyard/20251213_133445_progress.tar.gz`
+- [x] 実行: `rm workspaces/planning && mv progress workspaces/planning && ln -s workspaces/planning progress`
 - [ ] UI の planning/workspace 画面を smoke。
 
 2.2 scripts (台本 SoT)
@@ -515,16 +513,17 @@ legacy/
 - [ ] 旧 `logs` を symlink。
 
 2.7 research
-- [ ] `workspaces/research/` 作成。
-- [ ] `00_research/*` を copy → mv → symlink。
+- [x] `workspaces/research/` 実体化（旧 `00_research` は互換symlink）。
+- [x] アーカイブ（復元用）: `backups/graveyard/20251213_133243_00_research.tar.gz`
+- [x] 実行: `rm workspaces/research && mv 00_research workspaces/research && ln -s workspaces/research 00_research`
 
 ### Stage 3: `legacy/` への低リスク隔離
-- [ ] `legacy/` 作成。
-- [ ] `_old/` → `legacy/_old/`
-- [ ] `50_tools/` → `legacy/50_tools/`
-- [ ] `docs/`（旧静的物）→ `legacy/docs_old/`
-- [ ] `idea/` → `legacy/idea/`
-- [ ] 各 README/SSOT の参照を `legacy/...` に修正し “参照専用” を明示。
+- [x] `legacy/` 作成。
+- [x] `_old/` → `legacy/_old/`
+- [x] `idea/` → `legacy/idea/`
+- [x] `50_tools/` → `legacy/50_tools/` → アーカイブ後に削除（hard delete）
+- [x] `docs/`（旧静的物）→ `legacy/docs_old/` → アーカイブ後に削除（hard delete）
+- [x] 各 README/SSOT の参照を `legacy/...` に修正し “参照専用” を明示。
 
 ### Stage 4: `packages/` への Python パッケージ移動
 > import 名を変えずに物理位置だけ変える。

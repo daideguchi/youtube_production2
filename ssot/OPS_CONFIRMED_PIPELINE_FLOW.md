@@ -19,7 +19,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - **Artifacts（生成物）**: 中間/最終成果物。保持/削除ルールは `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` が正本。
 
 ### 0.2 ルートの実体（現行）
-- **Planning SoT**: `progress/channels/CHxx.csv`
+- **Planning SoT**: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
   - 企画/タイトル/タグ/リテイクフラグ等の正本。  
   - `script_pipeline/tools/planning_store.py` が常にこれを都度読み込み。
 - **Script SoT**: `script_pipeline/data/{CH}/{NNN}/status.json`
@@ -71,12 +71,12 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 ### Phase A. Planning（企画）
 
 **Entry points**
-- 人間が `progress/channels/CHxx.csv` を更新（ローカル or Google Sheets→CSV反映）。
+- 人間が `workspaces/planning/channels/CHxx.csv` を更新（互換: `progress/channels/CHxx.csv`）。
 - UI `/progress` でCSVを閲覧/編集（UIはCSVを直接読む）。
 
 **Inputs**
-- `progress/channels/CHxx.csv`（正本）
-- `progress/personas/CHxx_PERSONA.md`（人格/トーン）
+- `workspaces/planning/channels/CHxx.csv`（正本）
+- `workspaces/planning/personas/CHxx_PERSONA.md`（人格/トーン）
 - `script_pipeline/config/sources.yaml`（CSV/Persona/Promptの解決表）
 
 **Outputs**
@@ -99,8 +99,11 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **SoT / Inputs**
 - `script_pipeline/data/{CH}/{NNN}/status.json`（正本）
-- `progress/channels/{CH}.csv`（企画SoT、planning_storeで参照）
-- `progress/personas/{CH}_PERSONA.md`
+- LLMテキスト出力SoT: `script_pipeline/data/{CH}/{NNN}/artifacts/llm/*.json`
+  - schema: `ytm.llm_text_output.v1`
+  - `status=pending` は未完（埋めて `ready` にしてから再実行）
+- `workspaces/planning/channels/{CH}.csv`（企画SoT。互換: `progress/channels/{CH}.csv`）
+- `workspaces/planning/personas/{CH}_PERSONA.md`
 - `script_pipeline/channels/*/script_prompt.txt` または `script_pipeline/channels/CHxx_script_prompt.txt`
 - LLM設定:
   - `factory_common/llm_client.py` が `.env` と `configs/llm.yml` を参照してモデル解決。
@@ -173,7 +176,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - run_tts が必ず最新を同期するため、**下流はここだけ読めばよい**。
 
 **CSV更新（運用）**
-- `progress/channels/{CH}.csv` の該当行を手動で更新:
+- `workspaces/planning/channels/{CH}.csv` の該当行を手動で更新（互換: `progress/channels/{CH}.csv`）:
   - 音声整形/検証/生成/品質の列を `済/完了 YYYY-MM-DD` に更新（`ssot/【消さないで！人間用】確定ロジック` が正本）。
 
 **Downstream dependencies**
@@ -204,12 +207,19 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **内部順序（確定, auto_capcut_run）**
 1. `run_pipeline` 実行（cue生成＋画像生成）
+   - cues 計画の分岐:
+     - 通常: Visual Bible → `LLMContextAnalyzer`（文脈分割）→ `PromptRefiner`（近傍整合）
+     - THINK/AGENT（`LLM_MODE=think|agent`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
+       - `visual_image_cues_plan`（single-task）で区間計画→ cues 化
+       - `PromptRefiner` はスキップ（stop/resume ループ回避）
    - Outputs:
+     - `output/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
      - `output/{run_id}/image_cues.json`
      - `output/{run_id}/images/0001.png ...`
      - `output/{run_id}/persona.txt` / `channel_preset.json`（存在時）
+     - `output/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
-2. ベルト生成（belt_mode既定=llm）
+2. ベルト生成（belt_mode既定=auto）
    - Outputs:
      - `output/{run_id}/belt_config.json`（日本語4本が正）
 3. CapCut draft生成
@@ -217,6 +227,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
      - `output/{run_id}/capcut_draft/`（テンプレ複製＋字幕/画像挿入）
      - `capcut_draft_info.json`
 4. タイトルJSON注入
+   - タイトル優先順位: `--title` → `workspaces/planning/channels/{CH}.csv`（該当行の「タイトル」）→ LLM生成（最後のfallback）
    - Outputs:
      - `auto_run_info.json`（実行メタ/モデル/パラメータ）
 5. `timeline_manifest.json` 生成（可能な場合）
@@ -234,6 +245,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - 推奨（再現性/監査）:
   - `auto_run_info.json`（実行メタ）
   - `channel_preset.json`, `persona.txt`（存在する場合）
+  - `srt_segments.json`（SRT→segments のSoT。入力取り違え検知に使う）
+  - `visual_cues_plan.json`（cues plan のSoT。status=pending の場合は埋めてから再実行）
   - `timeline_manifest.json`（存在する場合）
 - belt_mode を使う場合:
   - `belt_config.json`
@@ -246,7 +259,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **CH06固有（CH06-テンプレ固定）**
 - CH06 はテンプレのレイヤ構造（BGM多段・メイン帯・ドリーミー紙吹雪）を壊さないことが最優先。
 - 推奨手順（画像タイムライン→音声/字幕の順でSoT反映）:
-  - `python3 commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv progress/channels/CH06.csv --videos 2-30`
+  - `python3 commentary_02_srt2images_timeline/tools/rebuild_ch06_drafts_from_template.py --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root commentary_02_srt2images_timeline/output --channel-csv workspaces/planning/channels/CH06.csv --videos 2-30`
   - `python3 commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1`（002〜030を同様に実行）
   - 仕上げ: `timeline_manifest.json`（wav/srt/cues整合）を確認し、CapCutで目視確認して mp4 書き出し。
 
@@ -363,7 +376,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 4.1 Legacyとみなす根拠
 - 実体の無い `commentary_01_srtfile_v2` 参照（tests/, scripts/, docs/に残存）。
-- `_old/`, `50_tools/`, `00_research/` 配下の試作/履歴。
+- `_old/`（互換symlink）, `legacy/idea/`（人間用メモ）, `00_research/` 配下の試作/履歴。
+- 既に削除済みの旧資産（旧PoC/旧静的ビルド等）は `ssot/OPS_CLEANUP_EXECUTION_LOG.md` を正として扱う（復元は `backups/graveyard/`）。
 
 ### 4.2 ただし削除禁止のもの
 - 現行コードやUIから参照されるディレクトリ/ファイルは **Legacyでも即削除不可**。

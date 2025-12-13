@@ -3,10 +3,12 @@ from pathlib import Path
 from typing import Dict, Optional
 from src.core.domain.style_schema import VideoStyle, TextStyle
 
+from factory_common.paths import repo_root
+
 # Default path to the master styles SSOT
 # Resolved relative to project root (commentary_02)
 # src/config/style_resolver.py -> src/config -> src -> commentary_02 -> factory_commentary -> ssot
-DEFAULT_STYLE_PATH = Path(__file__).resolve().parents[3] / "ssot" / "master_styles.json"
+DEFAULT_STYLE_PATH = repo_root() / "ssot" / "master_styles.json"
 # Fallback path to local config copy
 FALLBACK_STYLE_PATH = Path(__file__).resolve().parents[2] / "config" / "master_styles.json"
 

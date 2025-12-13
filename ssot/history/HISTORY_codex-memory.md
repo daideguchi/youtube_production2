@@ -24,5 +24,12 @@
 - UI の storage アクセスを non-DOM ビルドでも落ちないように安全化（`apps/ui-frontend/src/utils/safeStorage.ts`, `apps/ui-frontend/src/utils/workspaceSelection.ts`）。
 - コア共通層のログ/設定/queue を `repo_root()`/`logs_root()` 経由に統一し、`packages/`/`workspaces/` 実体化に備えた（`factory_common/*`）。
 - エントリポイントの一部を repo-root 安全化（`script_pipeline/validator.py` の DATA_ROOT を `script_data_root()` へ、`audio_tts_v2/scripts/run_tts.py` の `.env` 検出を pyproject 探索へ、`scripts/think.sh` のデフォルトを `workspaces/logs/agent_tasks` へ）。
+- `./start.sh` の起動前チェックで Azure キー未設定でもブロックしないように変更（`scripts/check_env.py` を Azure 任意に、注意喚起は WARN のみに変更。併せて `configs/README.md`, `ssot/OPS_ENV_VARS.md` を更新）。
+- THINK/AGENT 互換: `audio_tts_v2/scripts/run_contextual_reading_llm.py` を single-task 化（THINK/AGENT時はchunkせず1回で投げ、stop/resumeループを減らす）。
+- THINK MODE 強化: srt2images の cues 計画を single-task 化（`visual_image_cues_plan`）し、機械分割ブートストラップを廃止。Visual Bible は per-run にスコープし cross-channel 混入を防止（`commentary_02_srt2images_timeline/src/srt2images/orchestration/pipeline.py`, `commentary_02_srt2images_timeline/src/srt2images/cues_plan.py`, `commentary_02_srt2images_timeline/tools/bootstrap_placeholder_run_dir.py`, `commentary_02_srt2images_timeline/src/srt2images/visual_bible.py`, `commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py`）。
+- CapCut運用の安定化: タイトルは Planning CSV を優先し、テンプレ由来の汎用プレースホルダー（video_2/text_2等）を自動除去、字幕は最終段で黒背景スタイルへ正規化（`commentary_02_srt2images_timeline/tools/auto_capcut_run.py`, `commentary_02_srt2images_timeline/tools/capcut_bulk_insert.py`）。
+- ゴミ削除: キャッシュ（`__pycache__`, `.pytest_cache`, `.DS_Store`）を除去し、旧PoC/旧静的ビルド（`legacy/50_tools`, `legacy/docs_old`）をアーカイブ後に削除（詳細: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- マルチエージェント運用の下地: `AGENTS.md` と `ssot/OPS_AGENT_PLAYBOOK.md` を追加し、lock/SoT/削除/パッチ運用を明文化。運用コマンドを `scripts/ops/*` に集約。
 - 設計/進捗の下地を強化（`ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` に進捗追記、`README.md` のディレクトリ概要更新、`tests/test_paths.py` を新レイアウトに追従）。
-- 検証: `python3 -m pytest -q tests/test_paths.py` / `npm -C apps/ui-frontend run build`
+- 検証: `python3 -m pytest -q tests/test_paths.py tests/test_llm_router.py tests/test_llm_client.py commentary_02_srt2images_timeline/tests/test_orchestration.py`
+- Git備考: この環境では `.git` への新規書込みが拒否されるため、差分はパッチとして `backups/patches/*_stage2_cues_plan_paths.patch`, `backups/patches/*_stage3_capcut_tools.patch` に保存。

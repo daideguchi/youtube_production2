@@ -2,6 +2,39 @@
 # ここで task ごとに tier/models/options/system_prompt を上書きできる。
 # 未設定の場合は llm_router.yaml の定義を使用する。
 tasks:
+  # NOTE:
+  # OpenRouter may be unreachable in some environments (connection errors).
+  # Route critical visual planning tasks to Azure gpt-5-mini so the pipeline can run end-to-end.
+  visual_bible:
+    models: [azure_gpt5_mini]
+    options:
+      temperature: 0.3
+      response_format: json_object
+
+  visual_section_plan:
+    models: [azure_gpt5_mini]
+    options:
+      temperature: 0.3
+      response_format: json_object
+
+  visual_image_cues_plan:
+    models: [azure_gpt5_mini]
+    options:
+      temperature: 0.3
+      response_format: json_object
+
+  visual_persona:
+    models: [azure_gpt5_mini]
+    options:
+      temperature: 0.3
+      response_format: json_object
+
+  visual_prompt_refine:
+    models: [azure_gpt5_mini]
+    options:
+      temperature: 0.3
+      response_format: json_object
+
   # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
   # script_outline:
   #   models: [gpt-5-mini]

@@ -1,5 +1,9 @@
 # LLM Router Configuration
 # Defines providers, models, tiers, and task mappings.
+#
+# 2025-12-13:
+# Default routing updated to OpenRouter low-cost chain (Rank A/B/C style).
+# Azure remains optional/registered but is not selected by default tiers.
 
 providers:
   azure:
@@ -38,44 +42,99 @@ models:
       json_mode: false
 
   # --- OpenRouter Models ---
-  or_qwen_free:
+  or_deepseek_r1:
     provider: openrouter
-    model_name: "qwen/qwen-2.5-72b-instruct:free"
+    model_name: "deepseek/deepseek-r1"
     capabilities:
       mode: chat
       reasoning: false
-      json_mode: false
-      max_tokens: 4096
+      json_mode: true
+      max_tokens: 8192
 
-  or_deepseek_r1:
+  or_deepseek_r1_0528:
     provider: openrouter
-    model_name: "deepseek/deepseek-r1:free"
+    model_name: "deepseek/deepseek-r1-0528"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 8192
+
+  or_o3_mini:
+    provider: openrouter
+    model_name: "openai/o3-mini"
     capabilities:
       mode: chat
       reasoning: true
-      max_tokens: 8192
+      json_mode: true
+      max_tokens: 16384
 
-  or_llama_free:
+  or_gpt_4o_mini:
     provider: openrouter
-    model_name: "meta-llama/llama-3.3-70b-instruct:free"
+    model_name: "openai/gpt-4o-mini"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 16384
+
+  or_qwen_2_5_7b_instruct:
+    provider: openrouter
+    model_name: "qwen/qwen-2.5-7b-instruct"
     capabilities:
       mode: chat
       reasoning: false
       json_mode: false
+      max_tokens: 8192
+
+  or_hunyuan_a13b_instruct:
+    provider: openrouter
+    model_name: "tencent/hunyuan-a13b-instruct"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 16384
+
+  or_gemma_3n_e2b_it_free:
+    provider: openrouter
+    model_name: "google/gemma-3n-e2b-it:free"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 2048
+
+  or_mistral_7b_instruct_free:
+    provider: openrouter
+    model_name: "mistralai/mistral-7b-instruct:free"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
       max_tokens: 4096
 
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
-    - azure_gpt5_mini   # 現在はこれのみ運用（他は待機・登録のみ）
+    - or_deepseek_r1
+    - or_deepseek_r1_0528
+    - or_o3_mini
+    - or_gpt_4o_mini
   
   # Standard tasks
   standard:
-    - azure_gpt5_mini   # 現在はこれのみ運用（他は待機・登録のみ）
+    - or_gpt_4o_mini
+    - or_qwen_2_5_7b_instruct
+    - or_hunyuan_a13b_instruct
+    - or_gemma_3n_e2b_it_free
 
   # Cost effective
   cheap:
-    - azure_gpt5_mini   # 現在はこれのみ運用
+    - or_gemma_3n_e2b_it_free
+    - or_hunyuan_a13b_instruct
+    - or_mistral_7b_instruct_free
+    - or_qwen_2_5_7b_instruct
 
   # Special purpose: Image generation ONLY
   image_gen:
@@ -144,6 +203,14 @@ tasks:
   visual_section_plan:
     tier: heavy_reasoning
     timeout: 120
+
+  # One-shot cue planning (segments → cue ranges + visual_focus)
+  # Used to keep THINK MODE to a single pending task for srt2images.
+  visual_image_cues_plan:
+    tier: heavy_reasoning
+    timeout: 180
+    defaults:
+      response_format: "json_object"
 
   visual_persona:
     tier: heavy_reasoning

@@ -255,6 +255,105 @@ def _validate_voiceover(draft_content: Dict[str, Any], draft_dir: Path) -> List[
     return errors
 
 
+def _validate_images(draft_content: Dict[str, Any], draft_dir: Path) -> List[str]:
+    """
+    Validate that srt2images photo segments exist and their asset files are present.
+
+    Also flags a common failure mode for CH02 placeholder runs:
+    - all photo assets are near-identical large PNG sizes (noise placeholders)
+    """
+    errors: List[str] = []
+    tracks = draft_content.get("tracks") or []
+    if not isinstance(tracks, list):
+        return ["images: tracks missing"]
+
+    srt_tracks = [
+        t
+        for t in tracks
+        if isinstance(t, dict) and isinstance(t.get("name"), str) and t.get("name", "").startswith("srt2images_")
+    ]
+    if not srt_tracks:
+        return ["images: srt2images_* track missing"]
+
+    segs: List[Dict[str, Any]] = []
+    for t in srt_tracks:
+        t_segs = t.get("segments") or []
+        if isinstance(t_segs, list):
+            segs.extend([s for s in t_segs if isinstance(s, dict)])
+    if not segs:
+        return ["images: srt2images_* track has no segments"]
+
+    mats = draft_content.get("materials") or {}
+    videos = mats.get("videos") if isinstance(mats, dict) else None
+    if not isinstance(videos, list):
+        return ["images: materials.videos missing"]
+
+    by_id: Dict[str, Dict[str, Any]] = {}
+    for m in videos:
+        if not isinstance(m, dict):
+            continue
+        mid = m.get("id")
+        if isinstance(mid, str) and mid:
+            by_id[mid] = m
+
+    seg_ids: List[str] = []
+    for s in segs:
+        mid = s.get("material_id")
+        if isinstance(mid, str) and mid:
+            seg_ids.append(mid)
+    if not seg_ids:
+        errors.append("images: no material_id in srt2images segments")
+        return errors
+
+    missing_material = [mid for mid in seg_ids if mid not in by_id]
+    if missing_material:
+        errors.append(f"images: missing materials.videos for {len(missing_material)} segment ids (sample={missing_material[:3]})")
+        # Continue to surface more diagnostics
+
+    missing_files = 0
+    photo_paths: List[Path] = []
+    non_photo = 0
+    for mid in seg_ids:
+        mat = by_id.get(mid)
+        if not mat:
+            continue
+        if mat.get("type") != "photo":
+            non_photo += 1
+        p = mat.get("path")
+        if isinstance(p, str) and p:
+            fp = Path(p)
+            photo_paths.append(fp)
+            if not fp.exists():
+                missing_files += 1
+    if non_photo:
+        errors.append(f"images: {non_photo} segment materials are not type=photo")
+    if missing_files:
+        errors.append(f"images: {missing_files} photo files missing on disk (sample={str(photo_paths[0]) if photo_paths else 'n/a'})")
+
+    # assets/image directory presence (CapCut expects copied assets there)
+    assets_dir = draft_dir / "assets" / "image"
+    if not assets_dir.exists():
+        errors.append("images: draft assets/image directory missing")
+    else:
+        pngs = list(assets_dir.glob("*.png"))
+        if not pngs:
+            errors.append("images: no .png found under draft assets/image")
+
+    # Heuristic: flag noise-placeholder batches (uniform huge PNG sizes)
+    existing = [p for p in photo_paths if p.exists()]
+    sample = existing[: min(12, len(existing))]
+    if len(sample) >= 5:
+        sizes = [p.stat().st_size for p in sample]
+        min_sz, max_sz = min(sizes), max(sizes)
+        # Noise placeholders tend to be ~5.7MB and extremely uniform.
+        if min_sz > 4_000_000 and (max_sz - min_sz) / max_sz < 0.02:
+            errors.append(
+                f"images: looks like placeholder noise images (uniform large PNG sizes ~{min_sz/1_000_000:.2f}-{max_sz/1_000_000:.2f}MB)"
+            )
+
+    return errors
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--draft-root", type=Path, default=CAPCUT_DRAFT_ROOT)
@@ -308,6 +407,7 @@ def main() -> None:
         errs.extend(_validate_subtitles(info, label="info"))
         errs.extend(_validate_subtitles(content, label="content"))
         errs.extend(_validate_voiceover(content, d))
+        errs.extend(_validate_images(content, d))
 
         if errs:
             any_fail = True

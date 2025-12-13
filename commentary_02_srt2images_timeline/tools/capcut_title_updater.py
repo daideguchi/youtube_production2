@@ -11,7 +11,7 @@ if env_api_root:
     _candidates.append(Path(env_api_root).expanduser())
 _candidates.extend([
     Path.home() / "capcut_api",
-    Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
+    Path(__file__).resolve().parents[2] / "packages" / "capcut_api",
 ])
 for _cand in _candidates:
     if _cand.exists():

@@ -22,7 +22,7 @@ if env_api_root:
     _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
 _CANDIDATE_API_PATHS.extend([
     Path.home() / "capcut_api",
-    Path(__file__).resolve().parents[2] / "50_tools" / "50_1_capcut_api",
+    Path(__file__).resolve().parents[2] / "packages" / "capcut_api",
 ])
 for _candidate in _CANDIDATE_API_PATHS:
     if _candidate.exists():
