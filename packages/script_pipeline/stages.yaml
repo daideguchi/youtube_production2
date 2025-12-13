@@ -130,9 +130,9 @@ stages:
         required: true
       - path: audio_prep/chunks
         required: false
-      - path: ../../../audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.wav
+      - path: ../../../audio/final/CHxx/NNN/CHxx-NNN.wav
         required: true
-      - path: ../../../audio_tts_v2/artifacts/final/CHxx/NNN/CHxx-NNN.srt
+      - path: ../../../audio/final/CHxx/NNN/CHxx-NNN.srt
         required: true
     llm:
       task: tts_reading

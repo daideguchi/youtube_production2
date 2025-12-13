@@ -1,29 +1,30 @@
 #!/usr/bin/env python3
-"""Run progress_manager validate-status across channels CSV."""
+"""Validate script_pipeline status.json + required outputs across planning CSV.
+
+This replaces the legacy `commentary_01_srtfile_v2` validate-status sweep.
+It only checks videos that already have `workspaces/scripts/{CH}/{NNN}/status.json`.
+"""
 
 from __future__ import annotations
 
 import argparse
+import csv
 import json
-import subprocess
 import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-COMMENTARY_ROOT = PROJECT_ROOT / "commentary_01_srtfile_v2"
-DATA_ROOT = COMMENTARY_ROOT / "data"
-PLANNING_PATH = PROJECT_ROOT / "progress" / "channels CSV"
-PROGRESS_MANAGER = COMMENTARY_ROOT / "core" / "tools" / "progress_manager.py"
-LOGS_DIR = PROJECT_ROOT / "logs"
-PROGRESS_CACHE = DATA_ROOT / "_progress" / "processing_status.json"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-if str(COMMENTARY_ROOT) not in sys.path:
-    sys.path.insert(0, str(COMMENTARY_ROOT))
+from factory_common.paths import logs_root, planning_root
 
-from core.tools import planning_store  # type: ignore
+from script_pipeline.runner import reconcile_status, _load_stage_defs  # type: ignore
+from script_pipeline.sot import status_path
+from script_pipeline.validator import validate_completed_outputs
 
 
 def _normalize_channel(value: Optional[str]) -> Optional[str]:
@@ -35,19 +36,17 @@ def _normalize_channel(value: Optional[str]) -> Optional[str]:
 def _normalize_video(value: Optional[str]) -> Optional[str]:
     if not value:
         return None
-    token = value.strip()
+    token = str(value).strip()
     if not token:
         return None
-    if token.isdigit():
-        return f"{int(token):03d}"
+    digits = "".join(ch for ch in token if ch.isdigit())
+    if digits:
+        return f"{int(digits):03d}"
     return token
 
 
 def _planning_sources() -> List[Path]:
-    sources = planning_store.list_planning_sources()
-    if sources:
-        return [Path(path) for path in sources]
-    return [PLANNING_PATH]
+    return sorted((planning_root() / "channels").glob("*.csv"))
 
 
 def _iter_planning_rows(
@@ -56,158 +55,73 @@ def _iter_planning_rows(
     exclude_channels: Optional[Iterable[str]] = None,
     video_filter: Optional[str] = None,
 ) -> Iterator[Tuple[int, Dict[str, str]]]:
-    channels = {_normalize_channel(code or "") for code in channel_filter or [] if code}
-    excludes = {_normalize_channel(code or "") for code in exclude_channels or [] if code}
+    channels = {_normalize_channel(code or "") for code in (channel_filter or []) if code}
+    excludes = {_normalize_channel(code or "") for code in (exclude_channels or []) if code}
     video = _normalize_video(video_filter)
 
-    planning_store.refresh(force=True)
-    available_channels: Sequence[str] = planning_store.list_channels()
-    target_channels: List[str]
-    if channels:
-        target_channels = [code for code in available_channels if code in channels]
-    else:
-        target_channels = list(available_channels)
-
-    for channel in sorted(target_channels):
+    for csv_path in _planning_sources():
+        channel = csv_path.stem.upper()
+        if channels and channel not in channels:
+            continue
         if excludes and channel in excludes:
             continue
-        for row in planning_store.get_rows(channel):
-            video_number = row.video_number
-            if video and video_number != video:
-                continue
-            yield row.row_number, {
-                "channel_code": channel,
-                "video_number": video_number,
-                "row_number": row.row_number,
-                "title": row.raw.get("タイトル") or row.raw.get("title") or "",
-                "progress": row.raw.get("進捗") or row.raw.get("progress") or "",
-            }
-
-
-def _run_validate_status(channel: str, video: str, *, context: Optional[str]) -> Dict:
-    cmd = [
-        sys.executable,
-        str(PROGRESS_MANAGER),
-        "validate-status",
-        "--channel-code",
-        channel,
-        "--video-number",
-        video,
-        "--json",
-    ]
-    if context:
-        cmd.extend(["--context", context])
-    result = subprocess.run(
-        cmd,
-        cwd=str(COMMENTARY_ROOT),
-        capture_output=True,
-        text=True,
-    )
-    stdout = result.stdout.strip()
-    payload: Dict = {}
-    if stdout:
         try:
-            payload = json.loads(stdout)
-        except json.JSONDecodeError:
-            payload = {
-                "channel_code": channel,
-                "video_number": video,
-                "success": False,
-                "issues": ["JSON decode error"],
-                "raw_output": stdout,
-            }
-    else:
-        payload = {
-            "channel_code": channel,
-            "video_number": video,
-            "success": False,
-            "issues": ["validate-status produced no output"],
-        }
-    payload["returncode"] = result.returncode
-    stderr = result.stderr.strip()
-    if stderr:
-        payload["stderr"] = stderr
-    return payload
-
-
-def _apply_global_status_fix(status_path: Path, script_id: str, new_status: str) -> bool:
-    if not status_path.exists():
-        return False
-    try:
-        payload = json.loads(status_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return False
-    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    payload["status"] = new_status
-    payload["updated_at"] = now
-    if new_status == "completed":
-        payload.setdefault("completed_at", now)
-    else:
-        payload.pop("completed_at", None)
-    status_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    if PROGRESS_CACHE.exists():
-        try:
-            cache_payload = json.loads(PROGRESS_CACHE.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            cache_payload = {}
-        if cache_payload.get("script_id") == script_id:
-            cache_payload["status"] = new_status
-            cache_payload["updated_at"] = now
-            if new_status == "completed":
-                cache_payload.setdefault("completed_at", now)
-            else:
-                cache_payload.pop("completed_at", None)
-            PROGRESS_CACHE.write_text(
-                json.dumps(cache_payload, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
-    return True
+            with csv_path.open("r", encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                for row_no, row in enumerate(reader, start=2):  # header=1
+                    video_number = _normalize_video(row.get("動画番号") or row.get("VideoNumber") or row.get("No."))
+                    if not video_number:
+                        continue
+                    if video and video_number != video:
+                        continue
+                    yield row_no, {
+                        "channel_code": channel,
+                        "video_number": video_number,
+                        "row_number": str(row_no),
+                        "title": (row.get("タイトル") or row.get("title") or "").strip(),
+                        "progress": (row.get("進捗") or row.get("progress") or "").strip(),
+                    }
+        except FileNotFoundError:
+            continue
 
 
 def _build_summary(records: List[Dict]) -> Dict[str, object]:
-    summary: Dict[str, object] = {}
     total = len(records)
+    skipped = sum(1 for item in records if item.get("skipped"))
     success = sum(1 for item in records if item.get("success"))
-    failures = total - success
-    warning_only = sum(
-        1 for item in records if item.get("success") and item.get("warnings")
-    )
-    summary["total"] = total
-    summary["success"] = success
-    summary["failures"] = failures
-    summary["warning_only"] = warning_only
-
     per_channel = Counter(item.get("channel_code") for item in records if item.get("channel_code"))
-    summary["per_channel_counts"] = dict(per_channel)
-    failure_details = [
+    failures_detail = [
         {
             "channel_code": item.get("channel_code"),
             "video_number": item.get("video_number"),
             "issues": item.get("issues") or [],
         }
         for item in records
-        if not item.get("success")
+        if item.get("success") is False and not item.get("skipped")
     ]
-    summary["failures_detail"] = failure_details
-    return summary
+    return {
+        "total": total,
+        "checked": total - skipped,
+        "skipped": skipped,
+        "success": success,
+        "failures": len(failures_detail),
+        "per_channel_counts": dict(per_channel),
+        "failures_detail": failures_detail,
+    }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Sweep validate-status across channels CSV")
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Sweep validate status.json across planning CSV")
     parser.add_argument("--channel-code", action="append", help="Channel code filter (repeatable)")
     parser.add_argument("--video-number", help="Video number filter (requires channel filter)")
-    parser.add_argument(
-        "--exclude-channel",
-        action="append",
-        help="Channel codes to skip (repeatable)",
-    )
+    parser.add_argument("--exclude-channel", action="append", help="Channel codes to skip (repeatable)")
     parser.add_argument("--context", default="sweep", help="Context label recorded in guard logs")
     parser.add_argument("--limit", type=int, help="Stop after N rows")
     parser.add_argument("--output", help="Explicit output path")
     parser.add_argument(
         "--repair-global",
         action="store_true",
-        help="Automatically align status.json top-level status with derived result",
+        help="Reconcile status.json before validation (best-effort, allow downgrade)",
     )
     args = parser.parse_args()
 
@@ -222,46 +136,80 @@ def main() -> None:
         targets = targets[: args.limit]
     if not targets:
         print("No planning rows matched the provided filters.")
-        return
+        return 0
 
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    stage_defs = _load_stage_defs()
+    log_dir = logs_root()
+    log_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_path = Path(args.output) if args.output else LOGS_DIR / f"validate_status_full_{timestamp}.json"
+    output_path = Path(args.output) if args.output else (log_dir / f"validate_status_full_{timestamp}.json")
 
     results: List[Dict] = []
     repairs: List[Dict[str, str]] = []
     for _, meta in targets:
-        payload = _run_validate_status(meta["channel_code"], meta["video_number"], context=args.context)
-        global_status = payload.get("global_status")
-        derived_status = payload.get("derived_status")
-        status_path_str = payload.get("status_path")
-        if (
-            args.repair_global
-            and global_status
-            and derived_status
-            and derived_status != global_status
-            and status_path_str
-        ):
-            fixed = _apply_global_status_fix(Path(status_path_str), payload.get("script_id") or "", derived_status)
-            if fixed:
+        ch = meta["channel_code"]
+        no = meta["video_number"]
+        p = status_path(ch, no)
+        if not p.exists():
+            results.append(
+                {
+                    "channel_code": ch,
+                    "video_number": no,
+                    "skipped": True,
+                    "reason": "status.json missing",
+                    "status_path": str(p),
+                    "planning_row": {
+                        "row_number": meta["row_number"],
+                        "title": meta["title"],
+                        "progress": meta["progress"],
+                    },
+                }
+            )
+            continue
+
+        before_status = None
+        try:
+            before_status = json.loads(p.read_text(encoding="utf-8")).get("status")
+        except Exception:
+            before_status = None
+
+        if args.repair_global:
+            st = reconcile_status(ch, no, allow_downgrade=True)
+            after_status = st.status
+            if before_status and after_status != before_status:
                 repairs.append(
                     {
-                        "channel_code": payload.get("channel_code"),
-                        "video_number": payload.get("video_number"),
-                        "before": global_status,
-                        "after": derived_status,
+                        "channel_code": ch,
+                        "video_number": no,
+                        "before": str(before_status),
+                        "after": str(after_status),
                     }
                 )
-                payload = _run_validate_status(meta["channel_code"], meta["video_number"], context=args.context)
-        payload["planning_row"] = {
-            "row_number": meta["row_number"],
-            "title": meta["title"],
-            "progress": meta["progress"],
-        }
-        results.append(payload)
+        try:
+            after_status_value = json.loads(p.read_text(encoding="utf-8")).get("status")
+        except Exception:
+            after_status_value = None
+
+        issues = validate_completed_outputs(ch, no, stage_defs)
+        success = not issues
+        results.append(
+            {
+                "channel_code": ch,
+                "video_number": no,
+                "status_path": str(p),
+                "global_status_before": before_status,
+                "global_status_after": after_status_value,
+                "success": success,
+                "issues": issues,
+                "planning_row": {
+                    "row_number": meta["row_number"],
+                    "title": meta["title"],
+                    "progress": meta["progress"],
+                },
+            }
+        )
 
     summary = _build_summary(results)
-    summary["repairs_applied"] = len(repairs)
     artifact = {
         "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "context": args.context,
@@ -271,14 +219,15 @@ def main() -> None:
         "summary": summary,
     }
     output_path.write_text(json.dumps(artifact, ensure_ascii=False, indent=2), encoding="utf-8")
-    latest_path = LOGS_DIR / "validate_status_full_latest.json"
+    latest_path = log_dir / "validate_status_full_latest.json"
     latest_path.write_text(json.dumps(artifact, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print("=== validate-status sweep summary ===")
     print(f"Rows     : {summary['total']}")
+    print(f"Checked  : {summary['checked']}")
+    print(f"Skipped  : {summary['skipped']}")
     print(f"Success  : {summary['success']}")
-    print(f"Failures : {summary['failures']}")
-    print(f"Warnings : {summary['warning_only']}")
+    print(f"Failures : {len(summary['failures_detail'])}")
     if summary["failures_detail"]:
         print("\nFailures:")
         for item in summary["failures_detail"][:10]:
@@ -289,6 +238,8 @@ def main() -> None:
     print(f"\nOutput   : {output_path}")
     print(f"Latest   : {latest_path}")
 
+    return 1 if summary["failures_detail"] else 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

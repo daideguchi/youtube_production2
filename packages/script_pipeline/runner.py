@@ -18,7 +18,7 @@ from factory_common.artifacts.llm_text_output import (
     write_llm_text_artifact,
 )
 from factory_common.llm_client import LLMClient
-from factory_common.paths import repo_root, script_pkg_root, script_data_root
+from factory_common.paths import audio_final_dir, repo_root, script_pkg_root, script_data_root
 from factory_common.timeline_manifest import sha1_file
 
 PROJECT_ROOT = repo_root()
@@ -245,7 +245,7 @@ def next_pending_stage(st: Status, stage_defs: List[Dict[str, Any]]) -> Tuple[st
     return None, None
 
 
-def reconcile_status(channel: str, video: str) -> Status:
+def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False) -> Status:
     """
     Reconcile status.json with existing outputs (manual edits).
     - Skip指定ステージはcompleted/skippedにする
@@ -256,6 +256,29 @@ def reconcile_status(channel: str, video: str) -> Status:
     base = DATA_ROOT / channel / video
     stage_defs = _load_stage_defs()
     changed = False
+
+    def _file_ok(path: Path) -> bool:
+        if not path.exists():
+            return False
+        try:
+            return (not path.is_file()) or path.stat().st_size > 0
+        except Exception:
+            return False
+
+    def _assembled_ok() -> bool:
+        candidates = [base / "content" / "final" / "assembled.md", base / "content" / "assembled.md"]
+        return any(_file_ok(p) for p in candidates)
+
+    def _audio_final_ok() -> bool:
+        ch = str(channel).upper()
+        no = str(video).zfill(3)
+        final_dir = audio_final_dir(ch, no)
+        wav_path = final_dir / f"{ch}-{no}.wav"
+        srt_path = final_dir / f"{ch}-{no}.srt"
+        return _file_ok(wav_path) and _file_ok(srt_path)
+
+    # Milestones (artifact-driven): intermediates may be purged after these are satisfied.
+    assembled_ok = _assembled_ok()
 
     for sd in stage_defs:
         name = sd.get("name")
@@ -273,15 +296,83 @@ def reconcile_status(channel: str, video: str) -> Status:
                 changed = True
             continue
         outputs = sd.get("outputs") or []
-        if outputs and _reconciled_outputs_ok(base, channel, video, outputs):
+
+        # Once assembled is present, upstream intermediates are allowed missing.
+        if assembled_ok and name in {"topic_research", "script_outline", "chapter_brief", "script_draft"}:
+            continue
+        # quality_check output may be archived after final validation.
+        if (
+            name == "quality_check"
+            and st.stages.get("script_validation")
+            and st.stages["script_validation"].status == "completed"
+        ):
+            continue
+
+        stage_ok = False
+        if name == "script_review":
+            stage_ok = assembled_ok
+        elif name == "audio_synthesis":
+            stage_ok = _audio_final_ok()
+        elif name == "script_draft":
+            # dynamic chapters: require all chapters present (only when assembled isn't ready)
+            outline = base / "content" / "outline.md"
+            chapters: List[Path] = []
+            if outline.exists():
+                import re
+
+                pat = re.compile(r"^##\\s*第(\\d+)章")
+                nums = []
+                for line in outline.read_text(encoding="utf-8").splitlines():
+                    m = pat.match(line.strip())
+                    if m:
+                        try:
+                            nums.append(int(m.group(1)))
+                        except Exception:
+                            pass
+                if nums:
+                    for n in nums:
+                        chapters.append(base / f"content/chapters/chapter_{n}.md")
+            if not chapters:
+                chapters.append(base / "content/chapters/chapter_1.md")
+            stage_ok = all(_file_ok(p) for p in chapters)
+        else:
+            if not outputs:
+                # No durable output signals to reconcile; leave as-is.
+                continue
+            stage_ok = _reconciled_outputs_ok(base, channel, video, outputs)
+
+        if stage_ok:
             if state.status != "completed":
                 state.status = "completed"
                 state.details["reconciled"] = True
                 changed = True
+        elif allow_downgrade and state.status == "completed":
+            state.status = "pending"
+            state.details["reconciled_downgrade"] = True
+            changed = True
 
-    # bump top-level status if reviewも揃っている
-    if st.stages.get("script_review") and st.stages["script_review"].status == "completed":
-        if st.status != "script_completed":
+    script_review_completed = bool(st.stages.get("script_review") and st.stages["script_review"].status == "completed")
+
+    if allow_downgrade:
+        # Align global status with durable artifacts and stage milestones.
+        desired = st.status
+        if _audio_final_ok():
+            desired = "completed"
+        elif st.stages.get("script_validation") and st.stages["script_validation"].status == "completed":
+            desired = "script_validated"
+        elif script_review_completed or assembled_ok:
+            desired = "script_completed"
+        elif any(s.status in {"completed", "processing"} for s in st.stages.values()):
+            desired = "script_in_progress"
+        else:
+            desired = "pending"
+
+        if desired != st.status:
+            st.status = desired
+            changed = True
+    else:
+        # Only bump (never downgrade) for compatibility.
+        if script_review_completed and st.status in {"pending", "script_in_progress", "processing", "unknown", "failed"}:
             st.status = "script_completed"
             changed = True
 

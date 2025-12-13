@@ -1,113 +1,202 @@
 #!/usr/bin/env python3
-"""Force asset-driven progress sync.
+"""Force asset-driven status reconciliation for script_pipeline.
 
-This script treats the on-disk SoT (status.json +成果物) as the single truth and
-invokes `progress_manager.py repair-status --auto-complete` for every planning
-row (or filtered subset). Use this whenever planning.csv and UI state need to be
-hard-aligned with the local assets.
+Legacy `commentary_01_srtfile_v2` repair-status is removed; this script now:
+- Reads `workspaces/planning/channels/*.csv`
+- For videos that already have `workspaces/scripts/{CH}/{NNN}/status.json`:
+  - (default) runs `script_pipeline.runner.reconcile_status` (best-effort, allow downgrade)
+  - validates completed-stage outputs (`script_pipeline.validator.validate_completed_outputs`)
+
+`--dry-run` skips reconciliation and only validates.
 """
 from __future__ import annotations
 
 import argparse
-import subprocess
+import csv
+import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from commentary_01_srtfile_v2.core.tools import planning_store  # type: ignore
+from factory_common.paths import logs_root, planning_root
 
-PROGRESS_MANAGER = ROOT / "commentary_01_srtfile_v2" / "core" / "tools" / "progress_manager.py"
-LOG_ROOT = ROOT / "logs" / "regression"
+from script_pipeline.runner import reconcile_status, _load_stage_defs  # type: ignore
+from script_pipeline.sot import status_path
+from script_pipeline.validator import validate_completed_outputs
+
+LOG_ROOT = logs_root() / "regression"
 
 
 def _normalize_channel(code: str) -> str:
     return (code or "").strip().upper()
 
 
-def _load_rows(channel: Optional[str], exclude: Optional[List[str]] = None) -> Iterable[dict]:
-    planning_store.refresh(force=True)
-    excludes = {_normalize_channel(code) for code in (exclude or []) if code}
-    if channel:
-        channels = [_normalize_channel(channel)]
-    else:
-        channels = list(planning_store.list_channels())
-    for ch in channels:
-        if excludes and ch in excludes:
+def _normalize_video(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    token = str(value).strip()
+    if not token:
+        return None
+    digits = "".join(ch for ch in token if ch.isdigit())
+    if digits:
+        return f"{int(digits):03d}"
+    return token
+
+
+def _planning_sources() -> List[Path]:
+    return sorted((planning_root() / "channels").glob("*.csv"))
+
+
+def _iter_planning_rows(
+    *,
+    channel_filter: Optional[Iterable[str]] = None,
+    exclude_channels: Optional[Iterable[str]] = None,
+    video_filter: Optional[str] = None,
+) -> Iterator[Tuple[int, Dict[str, str]]]:
+    channels = {_normalize_channel(code or "") for code in (channel_filter or []) if code}
+    excludes = {_normalize_channel(code or "") for code in (exclude_channels or []) if code}
+    video = _normalize_video(video_filter)
+
+    for csv_path in _planning_sources():
+        channel = csv_path.stem.upper()
+        if channels and channel not in channels:
             continue
-        for row in planning_store.get_rows(ch, force_refresh=False):
-            yield row.raw
-
-
-def _run_repair(channel: str, video: str, dry_run: bool) -> subprocess.CompletedProcess:
-    cmd: List[str] = [
-        "python3",
-        str(PROGRESS_MANAGER),
-        "repair-status",
-        "--channel-code",
-        channel,
-        "--video-number",
-        video,
-    ]
-    if dry_run:
-        cmd.append("--dry-run")
-    cmd.append("--auto-complete")
-    return subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+        if excludes and channel in excludes:
+            continue
+        try:
+            with csv_path.open("r", encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                for row_no, row in enumerate(reader, start=2):  # header=1
+                    video_number = _normalize_video(row.get("動画番号") or row.get("VideoNumber") or row.get("No."))
+                    if not video_number:
+                        continue
+                    if video and video_number != video:
+                        continue
+                    yield row_no, {
+                        "channel_code": channel,
+                        "video_number": video_number,
+                        "row_number": str(row_no),
+                        "title": (row.get("タイトル") or row.get("title") or "").strip(),
+                        "progress": (row.get("進捗") or row.get("progress") or "").strip(),
+                    }
+        except FileNotFoundError:
+            continue
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Force asset state onto planning/status via repair-status")
+    parser = argparse.ArgumentParser(description="Force asset state onto script_pipeline status.json (reconcile + validate)")
     parser.add_argument("--channel-code", help="対象チャンネル (例: CH06)。省略時は全件")
     parser.add_argument("--exclude-channel", action="append", help="除外するチャンネルコード（繰り返し可）")
     parser.add_argument("--video-number", help="特定動画番号 (例: 016)。チャンネル指定が必要")
     parser.add_argument("--limit", type=int, help="上限件数")
-    parser.add_argument("--dry-run", action="store_true", help="repair-status を dry-run で実行")
+    parser.add_argument("--dry-run", action="store_true", help="reconcile を実行せず validate のみ")
     args = parser.parse_args()
 
-    rows = list(_load_rows(args.channel_code, exclude=args.exclude_channel))
-    if args.video_number:
-        rows = [row for row in rows if row.get("動画番号") == args.video_number]
-    if args.limit:
-        rows = rows[: args.limit]
+    targets = list(
+        _iter_planning_rows(
+            channel_filter=[args.channel_code] if args.channel_code else None,
+            exclude_channels=args.exclude_channel,
+            video_filter=args.video_number,
+        )
+    )
+    if args.limit is not None:
+        targets = targets[: args.limit]
 
-    if not rows:
+    if not targets:
         print("該当する行がありません。")
         return 0
 
-    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    log_path = LOG_ROOT / f"asset_sync_{timestamp}.log"
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    log_path = LOG_ROOT / f"asset_sync_{timestamp}.json"
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    successes = 0
-    with log_path.open("w", encoding="utf-8") as log_file:
-        log_file.write(f"Asset sync started at {timestamp}\n")
-        log_file.write(f"Rows: {len(rows)} dry_run={args.dry_run}\n\n")
-        for idx, row in enumerate(rows, 1):
-            channel = (row.get("チャンネル") or row.get("channel") or "").strip()
-            video = (row.get("動画番号") or row.get("video_number") or "").strip()
-            script_id = row.get("台本番号") or row.get("script_id") or ""
-            if not channel or not video:
-                log_file.write(f"[{idx}/{len(rows)}] skip: channel/video missing (row={script_id})\n")
-                continue
-            proc = _run_repair(channel, video, args.dry_run)
-            if proc.returncode == 0:
-                successes += 1
-                status = "OK"
-            else:
-                status = f"FAIL ({proc.returncode})"
-            log_file.write(f"[{idx}/{len(rows)}] {channel}-{video} {status}\n")
-            if proc.stdout:
-                log_file.write(proc.stdout + "\n")
-            if proc.stderr:
-                log_file.write(proc.stderr + "\n")
-            log_file.write("-" * 40 + "\n")
+    stage_defs = _load_stage_defs()
+    results: List[Dict[str, object]] = []
+    repairs: List[Dict[str, str]] = []
+    skipped = 0
 
-    print(f"Completed {len(rows)} rows (success={successes}). Log: {log_path}")
-    return 0 if successes == len(rows) else 1
+    for _, meta in targets:
+        ch = meta["channel_code"]
+        no = meta["video_number"]
+        p = status_path(ch, no)
+        if not p.exists():
+            skipped += 1
+            results.append(
+                {
+                    "channel_code": ch,
+                    "video_number": no,
+                    "skipped": True,
+                    "reason": "status.json missing",
+                    "status_path": str(p),
+                    "planning_row": {
+                        "row_number": meta["row_number"],
+                        "title": meta["title"],
+                        "progress": meta["progress"],
+                    },
+                }
+            )
+            continue
+
+        before_status = None
+        try:
+            before_status = json.loads(p.read_text(encoding="utf-8")).get("status")
+        except Exception:
+            before_status = None
+
+        if not args.dry_run:
+            st = reconcile_status(ch, no, allow_downgrade=True)
+            after_status = st.status
+            if before_status and after_status != before_status:
+                repairs.append(
+                    {
+                        "channel_code": ch,
+                        "video_number": no,
+                        "before": str(before_status),
+                        "after": str(after_status),
+                    }
+                )
+
+        issues = validate_completed_outputs(ch, no, stage_defs)
+        results.append(
+            {
+                "channel_code": ch,
+                "video_number": no,
+                "status_path": str(p),
+                "success": not issues,
+                "issues": issues,
+                "planning_row": {
+                    "row_number": meta["row_number"],
+                    "title": meta["title"],
+                    "progress": meta["progress"],
+                },
+            }
+        )
+
+    failures = [r for r in results if r.get("success") is False]
+    artifact = {
+        "generated_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+        "dry_run": bool(args.dry_run),
+        "planning_sources": [str(path) for path in _planning_sources()],
+        "repairs": repairs,
+        "results": results,
+        "summary": {
+            "total": len(results),
+            "checked": len(results) - skipped,
+            "skipped": skipped,
+            "failures": len(failures),
+            "repairs_applied": len(repairs),
+        },
+    }
+    log_path.write_text(json.dumps(artifact, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"Completed {len(results)} rows (checked={len(results)-skipped}, failures={len(failures)}, skipped={skipped}).")
+    print(f"Log: {log_path}")
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
