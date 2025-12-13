@@ -436,6 +436,16 @@ legacy/
 
 ## 7. マイルストーン / 実装ステップ（超詳細）
 
+### 7.0 進捗（実施済み・安全な前進）
+
+この計画は **壊さない段階移行**（symlink互換を残す）で進める。直近の実施内容は以下。
+
+- 2025-12-13: `packages/`, `workspaces/`, `legacy/` の scaffold + 互換symlink（commit `958add92`）
+- 2025-12-13: `legacy/` へ隔離（`50_tools/`, `docs/`, `idea/`）+ 互換symlink（commit `bad4051e`）
+- 2025-12-13: 追加の legacy 隔離（`audio_tts_v2/legacy_archive`, `commentary_02_srt2images_timeline/tools/archive`）+ 互換symlink（commit `0a4ed311`）
+- 2025-12-13: `packages/factory_common` と `workspaces/research` の互換symlinkを追加（commit `2dfe251f`）
+- 2025-12-13: ルート `README.md` を新レイアウト（`packages/`/`workspaces/`/`legacy/`）に追従（commit `0963a21f`）
+
 ### Stage 0: Preflight / 保護
 - [ ] 現行 `main` の git tag を付与（例: `pre-refactor-YYYYMMDD`）。
 - [ ] `workspaces_backup/<date>/` を作り、SoT 全域をコピー（planning/scripts/audio/video/thumbnails）。
