@@ -49,6 +49,7 @@ import "./workspace-clean.css";
 import "./channel-clean.css";
 import "./audio-clean.css";
 import "./thumbnail-clean.css";
+import "./remotion-clean.css";
 
 export type ReadyFilter = "all" | "ready" | "not_ready";
 
@@ -1183,6 +1184,9 @@ export function AppShell() {
   const workspaceModifiers: string[] = [];
   if (view === "thumbnails") {
     workspaceModifiers.push("workspace--thumbnail-clean");
+  }
+  if (view === "remotion") {
+    workspaceModifiers.push("workspace--remotion-clean");
   }
   const workspaceClass = ["workspace", ...workspaceModifiers].join(" ");
 
