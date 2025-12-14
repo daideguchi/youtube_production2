@@ -25,8 +25,13 @@ from urllib import request as urllib_request
 
 # Directory constants ---------------------------------------------------------
 
-UI_DIR = Path(__file__).resolve().parents[1]
-YTM_ROOT = UI_DIR.parent
+# File is now at apps/ui-backend/tools/start_manager.py
+# parents[0] = apps/ui-backend/tools/
+# parents[1] = apps/ui-backend/
+# parents[2] = apps/
+# parents[3] = repo root
+UI_DIR = Path(__file__).resolve().parents[1]  # apps/ui-backend/
+YTM_ROOT = UI_DIR.parents[1]  # repo root
 APPS_ROOT = YTM_ROOT / "apps"
 BACKEND_DIR = APPS_ROOT / "ui-backend" / "backend"
 FRONTEND_DIR = APPS_ROOT / "ui-frontend"
