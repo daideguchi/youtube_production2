@@ -29,10 +29,10 @@ AIエージェント（あなた）がBテキストを作成するモード。
     - ヘッダーは削除せず、システムの正規表現ロジックが拾える形式、または明確に改行で分離しておく。
 3. **Trigger TTS**:
     ```bash
-    PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+    PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
       --channel {channel} \
       --video {video_id} \
-      --input script_pipeline/data/{channel}/{video_id}/audio_prep/script_corrected.txt \
+      --input workspaces/scripts/{channel}/{video_id}/audio_prep/script_corrected.txt \
       --skip-annotation
     ```
 
@@ -41,10 +41,10 @@ AIエージェント（あなた）がBテキストを作成するモード。
 
 1. **Trigger TTS**:
     ```bash
-    PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+    PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
       --channel {channel} \
       --video {video_id} \
-      --input script_pipeline/data/{channel}/{video_id}/content/assembled.md
+      --input workspaces/scripts/{channel}/{video_id}/content/assembled.md
     ```
     - LLM Prompt (`SRT_SEGMENT_PROMPT`) により、見出しを必ず別セグメントとして出力させる。
     - Pythonロジック (`orchestrator.py`) が正規表現で見出しを検出し、機械的にポーズを適用する。

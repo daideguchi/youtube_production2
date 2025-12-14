@@ -7,12 +7,12 @@ To regenerate audio for a video (or multiple videos), use the `run_tts.py` scrip
 ### Strict Auto Mode (Recommended)
 This mode enforces mechanical segmentation, fixed pauses, and mandatory B-Text generation.
 ```bash
-PYTHONPATH=audio_tts_v2 \
-python3 audio_tts_v2/scripts/run_tts.py \
+PYTHONPATH=".:packages" \
+python3 -m audio_tts_v2.scripts.run_tts \
   --mode auto \
   --channel <CHANNEL> \
   --video <VIDEO_ID> \
-  --input content/assembled.md \
+  --input workspaces/scripts/<CHANNEL>/<VIDEO_ID>/content/assembled.md \
   --phase full
 ```
 
@@ -21,7 +21,9 @@ Use a loop or specific batch script if available.
 Common usage for CH06 regeneration:
 ```bash
 # Example for CH06-001
-python3 audio_tts_v2/scripts/run_tts.py --channel CH06 --video 001 --input audio_tts_v2/artifacts/final/CH06/001/a_text.txt
+PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
+  --channel CH06 --video 001 \
+  --input workspaces/audio/final/CH06/001/a_text.txt
 ```
 
 **Note:** The script will automatically perform:

@@ -19,7 +19,7 @@
 ### Step 1: Aテキスト読み込み・分析
 
 ```
-ファイル: script_pipeline/data/<CH>/<VIDEO>/content/assembled.md
+ファイル: workspaces/scripts/<CH>/<VIDEO>/content/assembled.md
 ```
 
 **分析項目:**
@@ -29,7 +29,7 @@
 
 ### Step 2: Bテキスト作成
 
-**出力先:** `script_pipeline/data/<CH>/<VIDEO>/audio_prep/script_corrected.txt`
+**出力先:** `workspaces/scripts/<CH>/<VIDEO>/audio_prep/script_corrected.txt`
 
 **変換ルール:**
 
@@ -44,10 +44,10 @@
 ### Step 3: TTS実行
 
 ```bash
-PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
   --channel <CH> \
   --video <VIDEO> \
-  --input script_pipeline/data/<CH>/<VIDEO>/audio_prep/script_corrected.txt \
+  --input workspaces/scripts/<CH>/<VIDEO>/audio_prep/script_corrected.txt \
   --skip-annotation
 ```
 
@@ -56,7 +56,7 @@ PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
 ### Step 4: 出力確認
 
 ```
-audio_tts_v2/artifacts/final/<CH>/<VIDEO>/
+workspaces/audio/final/<CH>/<VIDEO>/
 ├── <CH>-<VIDEO>.wav    # 音声ファイル
 ├── <CH>-<VIDEO>.srt    # 字幕（Aテキスト表示）
 └── log.json            # 処理ログ
@@ -74,9 +74,9 @@ audio_tts_v2/artifacts/final/<CH>/<VIDEO>/
 ```bash
 # 例: CH06の002-010を処理
 for vid in 002 003 004 005 006 007 008 009 010; do
-  PYTHONPATH=audio_tts_v2 python audio_tts_v2/scripts/run_tts.py \
+  PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
     --channel CH06 --video $vid \
-    --input script_pipeline/data/CH06/$vid/audio_prep/script_corrected.txt \
+    --input workspaces/scripts/CH06/$vid/audio_prep/script_corrected.txt \
     --skip-annotation
 done
 ```
@@ -105,21 +105,3 @@ done
 - [ ] Bテキスト（script_corrected.txt）を自分で作成した
 - [ ] `--skip-annotation` を付けてTTS実行した
 - [ ] 中黒除去は固有名詞のみ（意味区切りは除去禁止）
-
----
-
-## 現在の進捗
-
-### CH06 (33本)
-- [x] 001 - 完了
-- [x] 002 - 完了
-- [/] 003 - TTS実行中
-- [ ] 004 - Bテキスト作成済み
-- [ ] 005 - Bテキスト作成済み
-- [ ] 006-033 - 未処理
-
-### CH02 (82本)
-- [ ] 001-082 - 未処理
-
-### CH04 (30本)
-- [ ] 001-030 - 未処理

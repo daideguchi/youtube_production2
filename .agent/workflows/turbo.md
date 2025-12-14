@@ -16,7 +16,7 @@ or
 
 ## Logic Steps
 
-1.  **Environment Setup**: Ensure `PYTHONPATH` includes `audio_tts_v2`.
+1.  **Environment Setup**: Ensure `PYTHONPATH=".:packages"` is set.
 2.  **Loop Execution**:
     - Run `dump_segments.py`.
     - Run `local_inference.py` (MeCab).
@@ -26,7 +26,7 @@ or
 
 ```bash
 # Example for a specific list
-export PYTHONPATH=$(pwd)
+export PYTHONPATH=".:packages"
 for vid in {START..END}; do
     # Pad with zeros
     v=$(printf "%03d" $vid)
@@ -35,19 +35,19 @@ for vid in {START..END}; do
     echo "============================================"
     
     # 1. Dump
-    python audio_tts_v2/scripts/dump_segments.py --channel ${CHANNEL} --video $v
+    python3 -m audio_tts_v2.scripts.dump_segments --channel ${CHANNEL} --video $v
     
     # 2. Local Inference (The "Trick")
-    python audio_tts_v2/scripts/local_inference.py temp_srt_blocks_${CHANNEL}_$v.json
+    python3 -m audio_tts_v2.scripts.local_inference temp_srt_blocks_${CHANNEL}_$v.json
 
     # 2.5. AI Audit (Refining)
     echo "🔍 AI Reviewing..."
-    python audio_tts_v2/scripts/audit_b_text.py audio_tts_v2/artifacts/final/${CHANNEL}/$v/srt_blocks.json
+    python3 -m audio_tts_v2.scripts.audit_b_text workspaces/audio/final/${CHANNEL}/$v/srt_blocks.json
     
     # 3. Synthesize
     # Ensure specific speaker IDs if needed (e.g. CH05=9)
     # Default fallback is usually fine via routing.json
-    python audio_tts_v2/scripts/run_tts.py --channel ${CHANNEL} --video $v
+    python3 -m audio_tts_v2.scripts.run_tts --channel ${CHANNEL} --video $v
 done
 ```
 
