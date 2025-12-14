@@ -10,13 +10,13 @@ Why:
 
 What it does:
   1) Resolves episode_id from run_dir name (e.g., CH06-002_capcut_v1 -> CH06-002).
-  2) Loads audio_tts_v2/artifacts/final/<CH>/<NNN>/<CH>-<NNN>.srt/.wav as SoT.
+  2) Loads workspaces/audio/final/<CH>/<NNN>/<CH>-<NNN>.srt/.wav as SoT.
   3) Copies the final SRT into run_dir as <CH>-<NNN>.srt (backing up any differing prior copy).
   4) Retimes each cue (start/end/frame) by mapping cue.text -> final SRT segment range.
   5) Overwrites image_cues.json (backup created) and writes timeline_manifest.json (strict validation).
 
 Usage:
-  python3 tools/align_run_dir_to_tts_final.py --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1
+  python3 tools/align_run_dir_to_tts_final.py --run workspaces/video/runs/CH06-002_capcut_v1
 """
 
 from __future__ import annotations

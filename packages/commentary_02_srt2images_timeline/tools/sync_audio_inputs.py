@@ -2,10 +2,10 @@
 """
 Sync finished audio_tts_v2 artifacts (srt/wav) into commentary input for auto-draft.
 
-- Scans audio_tts_v2/artifacts/final/<CH>/<video>/ for .srt/.wav
-- Copies missing files to commentary_02_srt2images_timeline/input/<CH>_<PresetName>/
+- Scans workspaces/audio/final/<CH>/<video>/ for .srt/.wav
+- Copies missing files to workspaces/video/input/<CH>_<PresetName>/
 - Never overwrites existing files
-- Maintains manifest progress/audio_sync_status.json with checked flag preserved
+- Maintains progress/audio_sync_status.json with checked flag preserved
 
 Usage:
     python3 tools/sync_audio_inputs.py [--dry-run]
