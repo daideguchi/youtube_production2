@@ -56,7 +56,7 @@ PY
 まず **現状のドラフトを機械検証**して、ノイズが入っている動画番号を確定する。
 
 ```bash
-python commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
   --channel CH02 \
   --videos 034,035,036,037,038,039,040,041
 ```
@@ -90,7 +90,7 @@ run_dir は:
 まずは 1枚だけで疎通確認（推奨）:
 
 ```bash
-python commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
   --run workspaces/video/runs/CH02-034_regen_20251213_091300 \
   --channel CH02 \
   --force \
@@ -100,7 +100,7 @@ python commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
 問題なければ全枚数:
 
 ```bash
-python commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
   --run workspaces/video/runs/CH02-034_regen_20251213_091300 \
   --channel CH02 \
   --force
@@ -119,7 +119,7 @@ SoT の SRT は必ず final を使う:
 - 旧パス `audio_tts_v2/artifacts/final/...` は互換 symlink（正本は `workspaces/audio/final/...`）。
 
 ```bash
-python commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
   --channel CH02 \
   --srt workspaces/audio/final/CH02/034/CH02-034.srt \
   --run-name CH02-034_regen_20251213_091300 \
@@ -137,7 +137,7 @@ python commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
 
 ### 3.4 メイン帯テキスト同期（念のため毎回）
 ```bash
-python commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
   --channel CH02 \
   --videos 034 \
   --update-run-belt-config
@@ -145,7 +145,7 @@ python commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
 
 ### 3.5 機械検証（必須）
 ```bash
-python commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
   --channel CH02 \
   --videos 034
 ```
@@ -164,7 +164,7 @@ python commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
 既存run_dirが壊れている場合のみ検討。
 
 ```bash
-python commentary_02_srt2images_timeline/tools/build_ch02_drafts_range.py \
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/build_ch02_drafts_range.py \
   --channel CH02 \
   --videos 034-080 \
   --mode images

@@ -13,7 +13,7 @@
 ## 1. 事前検証ログ
 
 ```bash
-python commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py --channel CH02 --videos 034,035,036,037,038,039,040,041
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py --channel CH02 --videos 034,035,036,037,038,039,040,041
 ```
 
 - 結果貼り付け:
