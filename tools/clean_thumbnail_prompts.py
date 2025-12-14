@@ -84,5 +84,5 @@ def clean_prompts(file_path):
     print(df[target_column].dropna().head(3).values)
 
 if __name__ == "__main__":
-    file_path = 'progress/channels/CH02.csv'
+    file_path = 'workspaces/planning/channels/CH02.csv'
     clean_prompts(file_path)

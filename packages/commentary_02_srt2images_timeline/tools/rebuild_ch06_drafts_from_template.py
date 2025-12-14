@@ -26,7 +26,7 @@ Usage:
     --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" \
     --template "CH06-テンプレ" \
     --runs-root commentary_02_srt2images_timeline/output \
-    --channel-csv progress/channels/CH06.csv \
+    --channel-csv workspaces/planning/channels/CH06.csv \
     --videos 2-30
 """
 
@@ -456,7 +456,7 @@ def main() -> None:
     ap.add_argument("--draft-root", required=True)
     ap.add_argument("--template", required=True, help="Template folder name under draft-root (must be CH06-テンプレ)")
     ap.add_argument("--runs-root", required=True, help="commentary output root containing CH06-XXX_capcut_v1 dirs")
-    ap.add_argument("--channel-csv", required=True, help="progress/channels/CH06.csv")
+    ap.add_argument("--channel-csv", required=True, help="workspaces/planning/channels/CH06.csv")
     ap.add_argument("--videos", default="2-30", help="Range like 2-30 or comma list")
     args = ap.parse_args()
 

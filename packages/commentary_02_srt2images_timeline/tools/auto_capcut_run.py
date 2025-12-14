@@ -400,7 +400,7 @@ def main():
         "--prefer-tts-final",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Prefer audio_tts_v2/artifacts/final/<CH>/<NNN>/<CH>-<NNN>.srt when resolvable (default: true)",
+        help="Prefer workspaces/audio/final/<CH>/<NNN>/<CH>-<NNN>.srt when resolvable (default: true)",
     )
     ap.add_argument(
         "--insert-audio",
@@ -441,7 +441,7 @@ def main():
         "--draft-name-policy",
         choices=["planning", "run"],
         default="planning",
-        help="CapCut draft folder naming policy: planning (use progress/channels CSV title) or run (use --run-name/_draft)",
+        help="CapCut draft folder naming policy: planning (use workspaces/planning/channels CSV title) or run (use --run-name/_draft)",
     )
     ap.add_argument(
         "--draft-name-with-title",

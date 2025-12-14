@@ -60,5 +60,5 @@ def enhance_prompts(file_path):
         print(prompt[:300] + "..." if len(prompt) > 300 else prompt)
 
 if __name__ == "__main__":
-    file_path = 'progress/channels/CH02.csv'
+    file_path = 'workspaces/planning/channels/CH02.csv'
     enhance_prompts(file_path)

@@ -2,7 +2,7 @@
 """
 Rebuild CapCut drafts for a channel/video range using:
   - Existing run_dir assets (image_cues.json + images/)
-  - Final TTS artifacts as SoT (audio_tts_v2/artifacts/final/<CH>/<NNN>/<CH>-<NNN>.srt)
+  - Final TTS artifacts as SoT (workspaces/audio/final/<CH>/<NNN>/<CH>-<NNN>.srt)
 
 Defaults are "no LLM / no image generation":
   - Uses --resume

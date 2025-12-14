@@ -461,7 +461,7 @@ def _sanitize_filename_component(text: str) -> str:
 
 def _load_title_from_channel_csv(channel_id: Optional[str], video_id: Optional[str]) -> Optional[str]:
     """
-    Lookup タイトル (or タイトル_サニタイズ) from progress/channels/<channel>.csv by 動画ID.
+    Lookup タイトル (or タイトル_サニタイズ) from workspaces/planning/channels/<channel>.csv by 動画ID.
     """
     if not channel_id or not video_id:
         return None
@@ -2358,7 +2358,7 @@ def main():
     ap.add_argument("--crossfade", type=float, default=0.5)
     ap.add_argument("--fade-duration", type=float, default=None, help="Fade duration between CapCut image segments (defaults to --crossfade)")
     ap.add_argument("--disable-auto-fade", action="store_true", help="Skip automatic CapCut fade injection")
-    ap.add_argument("--auto-name-from-csv", action="store_true", help="If set, derive draft name from channel CSV title (progress/channels/<channel>.csv)")
+    ap.add_argument("--auto-name-from-csv", action="store_true", help="If set, derive draft name from channel CSV title (workspaces/planning/channels/<channel>.csv)")
     # Position/scale defaults (corrected for exact user coordinates: X=-313, Y=217, Scale=59%)
     ap.add_argument("--tx", type=float, default=-0.3125, help="transform_x (half-canvas units)")
     # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y

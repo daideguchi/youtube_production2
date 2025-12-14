@@ -9336,7 +9336,7 @@ def list_recent_audio_checks(limit: int = 10):
     if not DATA_ROOT.exists():
         return []
     
-    # Search for log.json files in script_pipeline/data/CHxx/xxx/audio_prep/log.json
+    # Search for log.json files in workspaces/scripts/CHxx/xxx/audio_prep/log.json
     for channel_dir in DATA_ROOT.iterdir():
         if not channel_dir.is_dir() or not channel_dir.name.startswith("CH"):
             continue
@@ -9367,7 +9367,7 @@ def list_recent_audio_checks(limit: int = 10):
 def get_audio_integrity_log(channel_id: str, video_id: str):
     """Retrieve audio integrity logs from log.json."""
     # SCRIPT_PIPELINE_DATA_ROOT is defined in ui/server/main.py but not here.
-    # Re-derive it or use DATA_ROOT which is script_pipeline/data
+    # Re-derive it or use DATA_ROOT which is workspaces/scripts
     log_path = DATA_ROOT / channel_id / video_id / "audio_prep" / "log.json"
     if not log_path.exists():
         raise HTTPException(status_code=404, detail="Audio log not found. Run Strict Pipeline first.")

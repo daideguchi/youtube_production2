@@ -76,13 +76,13 @@ def run_agent_inference(missing_videos):
             
         # Write JSON
         target_json = prep_dir / "srt_blocks.json"
-        # We write to audio_tts_v2/artifacts/final/.../srt_blocks.json because run_tts looks there for REGEN?
+        # We write to workspaces/audio/final/.../srt_blocks.json because run_tts looks there for REGEN?
         # run_tts logic: artifact_root = final_root / args.video
         # if regenerate_from_json: srt_json_path = artifact_root / "srt_blocks.json"
         # So we must write to the ARTIFACT location (or the auto-detected location).
         
         # Auto-detect location logic in my recent run_tts.py update:
-        # If input is in script_pipeline/data, artifact_root is audio_prep.
+        # If input is in workspaces/scripts, artifact_root is audio_prep.
         # So yes, writing to prep_dir / "srt_blocks.json" is correct!
         
         target_json.write_text(json.dumps(full_blocks, ensure_ascii=False, indent=2), encoding="utf-8")
