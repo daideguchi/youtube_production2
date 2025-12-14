@@ -5292,6 +5292,7 @@ def _resolve_library_asset_path(channel_code: str, asset_identifier: str) -> tup
     channel_root = THUMBNAIL_ASSETS_DIR / channel_code.upper()
     candidate_dirs = _channel_library_dirs(channel_code)
 
+
     def _locate(candidate: Path) -> Optional[tuple[Path, Path]]:
         for base_dir in candidate_dirs:
             try:
@@ -5674,9 +5675,13 @@ except Exception as e:
     logger.error("Failed to load agent_org router: %s", e)
 
 # 静的に thumbnails ディレクトリを配信
+# NOTE: 静的マウントはAPI routes (/thumbnails/library/, /thumbnails/assets/) より先に
+# 処理されるため、ここでマウントするとAPI routesが機能しない。
+# 代わりに /thumbnails/library/ と /thumbnails/assets/ のAPIルートを使用する。
+# 静的配信が必要な場合はファイル末尾でマウントするか、別のパスを使用する。
 thumb_dir = PROJECT_ROOT / "thumbnails"
-if thumb_dir.exists():
-    app.mount("/thumbnails", StaticFiles(directory=thumb_dir), name="thumbnails")
+# if thumb_dir.exists():
+#     app.mount("/thumbnails", StaticFiles(directory=thumb_dir), name="thumbnails")
 
 
 @app.get("/api/redo/summary", response_model=List[RedoSummaryItem])
