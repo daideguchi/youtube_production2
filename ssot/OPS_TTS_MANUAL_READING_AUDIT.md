@@ -69,7 +69,7 @@
    ```bash
    cd /Users/dd/10_YouTube_Automation/factory_commentary
    SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
-   python audio_tts_v2/scripts/run_tts.py \
+   PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
      --channel {CH} --video {VID} \
      --input workspaces/scripts/{CH}/{VID}/content/{assembled_human_or_assembled}.md
    ```
@@ -77,7 +77,7 @@
    - `audio_prep/chunks/` が残っていれば `--resume` で復帰:
      ```bash
      SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
-     python audio_tts_v2/scripts/run_tts.py \
+     PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
        --channel {CH} --video {VID} --input ... --resume
      ```
 3. 生成物確認:

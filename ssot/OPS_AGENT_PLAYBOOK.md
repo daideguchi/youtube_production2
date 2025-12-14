@@ -69,9 +69,9 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本: `python -m script_pipeline.cli ...`
-- 音声: `python audio_tts_v2/scripts/run_tts.py ...`
-- 動画/CapCut: `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...`
+- 台本: `PYTHONPATH=".:packages" python3 -m script_pipeline.cli ...`
+- 音声: `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts ...`
+- 動画/CapCut: `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run ...`
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash

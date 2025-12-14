@@ -73,7 +73,7 @@
 
 ### 3.3 入口（Entry points）
 - `python -m script_pipeline.cli audio --channel CHxx --video NNN [--resume]`
-- `python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input <assembled.md>`
+- `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --channel CHxx --video NNN --input <assembled.md>`
 
 ---
 
@@ -92,8 +92,8 @@
 - チャンネルpreset: `commentary_02_srt2images_timeline/src/config/channel_presets.json`
 
 ### 4.3 入口（Entry points）
-- `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...`
-- `python commentary_02_srt2images_timeline/tools/factory.py ...`（UI/ジョブからも呼ばれる）
+- `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run ...`
+- `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory ...`（UI/ジョブからも呼ばれる）
 
 ---
 

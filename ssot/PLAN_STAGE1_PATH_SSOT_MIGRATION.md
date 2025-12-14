@@ -23,8 +23,8 @@
 - 旧絶対パス `/Users/dd/...` と旧名 `commentary_01_srtfile_v2` が、実行コード層から消えている（Docs/Legacy/生成物は残ってOK）。
 - 主要入口の help/import smoke が通る（物理移動前のベースライン維持）:
   - `python -m script_pipeline.cli --help`
-  - `python audio_tts_v2/scripts/run_tts.py --help`
-  - `python commentary_02_srt2images_timeline/tools/factory.py --help`
+  - `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --help`
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory --help`
   - `scripts/start_all.sh start`（Remotion preview 失敗は non‑blocking）
 
 ---
@@ -101,7 +101,7 @@
 - Legacy 直書きがある `audio_tts_v2/legacy_archive/scripts/*` は **Stage3で legacy 隔離**するまで置換しない。
 
 ゲート:
-- `python audio_tts_v2/scripts/run_tts.py --help`
+- `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --help`
 - `python -m script_pipeline.cli audio --channel CH01 --video 001 --help`
 
 ### 3.3 Stage1-3: `commentary_02_srt2images_timeline`（CapCut主線）
@@ -115,7 +115,7 @@
 - `commentary_02_srt2images_timeline/tools/*`（analysis/maintenance含む、archive除外）
 
 ゲート:
-- `python commentary_02_srt2images_timeline/tools/factory.py --help`
+- `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory --help`
 
 ### 3.4 Stage1-4: UI backend（paths SSOT への一本化）
 対象（`script_pipeline/data` / `progress/channels` / `audio_tts_v2/artifacts` / `thumbnails/assets` / `commentary_02/output` / Remotion preview path）:

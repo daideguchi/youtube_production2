@@ -150,7 +150,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI（正規）:
-  - `PYTHONPATH=. python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`（互換: `script_pipeline/data/...`）
+  - `PYTHONPATH=. PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`（互換: `script_pipeline/data/...`）
   - `python -m script_pipeline.cli audio --channel CHxx --video NNN`（run_tts wrapper）
 - UI（補助）:
   - `/api/redo` / `/api/channels/{ch}/videos/{no}/redo`（リテイク管理）
@@ -188,9 +188,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI（正規/推奨）:
-  - `python commentary_02_srt2images_timeline/tools/factory.py ...`
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory ...`
 - CLI（詳細制御）:
-  - `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`（互換: `commentary_02_srt2images_timeline/output/<run_id>`）
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`（互換: `commentary_02_srt2images_timeline/output/<run_id>`）
 - UI:
   - `/api/auto-draft/*`（SRT選択→ドラフト生成）
   - `/api/video-production/*`（プロジェクト管理/画像再生成/ベルト編集/設定更新）

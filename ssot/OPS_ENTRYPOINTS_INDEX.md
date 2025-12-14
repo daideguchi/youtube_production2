@@ -14,10 +14,10 @@
 - 台本（Script）: `python -m script_pipeline.cli ...`（`script_pipeline/cli.py`）
 - 音声（Audio/TTS）:
   - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）
-  - 直叩き: `python audio_tts_v2/scripts/run_tts.py ...`
+  - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts ...`
 - 動画（SRT→画像→CapCut）:
-  - `python commentary_02_srt2images_timeline/tools/auto_capcut_run.py ...`
-  - `python commentary_02_srt2images_timeline/tools/factory.py ...`（UI/ジョブ運用からも呼ばれる）
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run ...`
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
 

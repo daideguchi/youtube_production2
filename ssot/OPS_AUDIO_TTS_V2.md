@@ -34,14 +34,14 @@
   - 途中再開（chunksを再利用）: `... --resume`
 
 ### 1.2 直叩き（audio_tts_v2）
-- `python audio_tts_v2/scripts/run_tts.py --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled.md`（互換: `script_pipeline/data/...`）
+- `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled.md`（互換: `script_pipeline/data/...`）
 
 ---
 
 ## 2. 使い方（よくある運用）
 
 ### 2.1 読みだけ先に確認（prepass）
-- `python audio_tts_v2/scripts/run_tts.py ... --prepass`
+- `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts ... --prepass`
   - 目的: wavを作らず `log.json` を作って読み候補を監査する
   - 監査手順は `ssot/OPS_TTS_MANUAL_READING_AUDIT.md`
 

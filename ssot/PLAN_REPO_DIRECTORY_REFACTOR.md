@@ -450,8 +450,8 @@ legacy/
 - [ ] `workspaces_backup/<date>/` を作り、SoT 全域をコピー（planning/scripts/audio/video/thumbnails）。
 - [ ] 既存の “唯一の入口 CLI” を再確認し baseline を SSOT に記録:
   - `python -m script_pipeline.cli status --channel CHxx --video NNN`
-  - `python audio_tts_v2/scripts/run_tts.py --channel CHxx --video NNN --prepass`
-  - `python commentary_02_srt2images_timeline/tools/factory.py --help`
+  - `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --channel CHxx --video NNN --prepass`
+  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory --help`
   - `scripts/start_all.sh start`（Remotion preview は起動できれば尚良いが失敗してもブロックしない）
 - [ ] 以後、移動/削除は必ず **dry-run → archive-first → run** の順で実施。
 
