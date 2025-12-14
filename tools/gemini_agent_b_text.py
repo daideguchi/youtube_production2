@@ -12,7 +12,10 @@ import dotenv
 dotenv.load_dotenv(override=True)
 
 # Add project root to path for imports
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+
+from factory_common.paths import script_data_root
 from audio_tts_v2.tts.orchestrator import _raw_sentence_blocks_for_srt, _merge_numeric_blocks
 from audio_tts_v2.tts.llm_adapter import B_TEXT_GEN_PROMPT
 
@@ -26,7 +29,7 @@ def run_agent_inference(missing_videos):
     # No genai configure needed
     # model = genai.GenerativeModel('gemini-1.5-flash') 
 
-    base_data = Path("script_pipeline/data")
+    base_data = script_data_root()
     
     for ch, vid in missing_videos:
         print(f"\n[AGENT] Generating B-Text for {ch}-{vid}...")
