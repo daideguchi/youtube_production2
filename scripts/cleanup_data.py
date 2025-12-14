@@ -1,5 +1,5 @@
 """
-script_pipeline/data 配下の中間生成物と古いログをクリーンアップする。
+workspaces/scripts 配下の中間生成物と古いログをクリーンアップする。
 
 安全のため:
 - default は dry-run（削除しない）

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Cleanup script_pipeline/data/**/audio_prep/ chunk artifacts safely.
+Cleanup workspaces/scripts/**/audio_prep/ chunk artifacts safely.
 
 Design goals:
-- Never delete final SoT artifacts (audio_tts_v2/artifacts/final/**).
+- Never delete final SoT artifacts (workspaces/audio/final/**).
 - Delete only rebuildable chunk WAVs under audio_prep/chunks/ when a final WAV exists.
 - Skip very recent chunk dirs to avoid interfering with an in-progress synthesis.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Purge duplicate WAV/SRT binaries under script_pipeline/data/**/audio_prep/
-when audio_tts_v2/artifacts/final/** already contains the final artifacts.
+Purge duplicate WAV/SRT binaries under workspaces/scripts/**/audio_prep/
+when workspaces/audio/final/** already contains the final artifacts.
 
 Goal:
 - Keep text/json inputs in audio_prep (B-text, overrides, logs, etc.)

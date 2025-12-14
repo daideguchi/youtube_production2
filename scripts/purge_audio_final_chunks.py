@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Purge rebuildable chunk WAVs under audio_tts_v2/artifacts/final/**/chunks safely.
+Purge rebuildable chunk WAVs under workspaces/audio/final/**/chunks safely.
 
 Goal:
 - Keep final SoT artifacts (wav/srt/log.json/etc.)

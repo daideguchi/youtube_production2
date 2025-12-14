@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-One-shot sync: copy audio outputs from script_pipeline/data/**/audio_prep/ into
-audio_tts_v2/artifacts/final/** when final artifacts are missing.
+One-shot sync: copy audio outputs from workspaces/scripts/**/audio_prep/ into
+workspaces/audio/final/** when final artifacts are missing.
 
 Rationale:
-- Downstream (CapCut / auto-draft / UI) treats audio_tts_v2/artifacts/final as canonical.
+- Downstream (CapCut / auto-draft / UI) treats workspaces/audio/final as canonical.
 - Older runs may have WAV/SRT only under audio_prep.
 
 Safety:

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regenerate CH05 audio/SRT from latest assembled scripts WITHOUT LLM cost.
 # - Uses SKIP_TTS_READING=1 to skip auditor/LLM (dictionary-only).
-# - Writes outputs to audio_tts_v2/artifacts/final/CH05/<video>/CH05-<video>.{wav,srt,log.json}
+# - Writes outputs to workspaces/audio/final/CH05/<video>/CH05-<video>.{wav,srt,log.json}
 #
 # Usage:
 #   ./scripts/with_ytm_env.sh bash scripts/regenerate_ch05_audio_no_llm.sh
