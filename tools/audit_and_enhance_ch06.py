@@ -1,7 +1,14 @@
 import os
 import re
+import sys
+from pathlib import Path
 
-base_dir = "script_pipeline/data/CH06"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+
+from factory_common.paths import script_data_root
+
+base_dir = script_data_root() / "CH06"
 target_char_count = 7000 # Minimum target for high quality
 
 print(f"{'ID':<5} {'Chars':<8} {'Chapters':<8} {'Status':<10} {'Title (First 20)'}")
@@ -11,9 +18,9 @@ enhance_targets = []
 
 for i in range(1, 35):
     num = f"{i:03d}"
-    path = f"{base_dir}/{num}/content/assembled.md"
+    path = base_dir / num / "content" / "assembled.md"
     
-    if not os.path.exists(path):
+    if not path.exists():
         continue
         
     with open(path, 'r') as f:

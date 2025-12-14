@@ -2,6 +2,13 @@ import sys
 import csv
 import json
 import os
+from pathlib import Path
+
+# Add project root for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+
+from factory_common.paths import channels_csv_path, video_root
 
 def check_consistency(channel_id, video_number):
     # Normalize video number (e.g., "31" -> "031")
@@ -11,8 +18,8 @@ def check_consistency(channel_id, video_number):
     print(f"🔍 Checking consistency for {video_id}...")
 
     # 1. Get SoT Title from CSV
-    csv_path = f"progress/channels/{channel_id}.csv"
-    if not os.path.exists(csv_path):
+    csv_path = channels_csv_path(channel_id)
+    if not csv_path.exists():
         print(f"❌ CSV not found: {csv_path}")
         return False
 
@@ -39,11 +46,11 @@ def check_consistency(channel_id, video_number):
     print(f"✅ SoT Title (CSV): {sot_title}")
 
     # 2. Check status.json
-    base_dir = f"script_pipeline/data/{channel_id}/{video_number_str}"
-    status_path = f"{base_dir}/status.json"
+    base_dir = video_root(channel_id, video_number_str)
+    status_path = base_dir / "status.json"
     
     status_ok = True
-    if os.path.exists(status_path):
+    if status_path.exists():
         try:
             with open(status_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -66,9 +73,9 @@ def check_consistency(channel_id, video_number):
     # 3. Check Content Files for Theme Consistency
     # We check if the file exists and if it contains keywords from the title
     content_files = [
-        f"{base_dir}/content/outline.md",
-        f"{base_dir}/content/analysis/research/research_brief.md",
-        f"{base_dir}/content/final/assembled.md"
+        base_dir / "content" / "outline.md",
+        base_dir / "content" / "analysis" / "research" / "research_brief.md",
+        base_dir / "content" / "final" / "assembled.md"
     ]
     
     # Extract keywords from title (simple heuristic: split by space/brackets, take long words)
@@ -76,17 +83,17 @@ def check_consistency(channel_id, video_number):
     
     content_issues = False
     for fpath in content_files:
-        if os.path.exists(fpath):
+        if fpath.exists():
             try:
                 with open(fpath, 'r', encoding='utf-8') as f:
                     content = f.read()
                     # Check if title is present in the first 500 chars (usually header)
                     if sot_title not in content[:1000]:
-                        print(f"⚠️ [WARNING] Exact title not found in {os.path.basename(fpath)}")
+                        print(f"⚠️ [WARNING] Exact title not found in {fpath.name}")
                         print(f"   File header: {content[:100].replace(chr(10), ' ')}...")
                         # Don't fail automatically, but warn heavily
                     else:
-                        print(f"✅ Title found in {os.path.basename(fpath)}")
+                        print(f"✅ Title found in {fpath.name}")
             except Exception as e:
                 print(f"❌ Error reading {fpath}: {e}")
 

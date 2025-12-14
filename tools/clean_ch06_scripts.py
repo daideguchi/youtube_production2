@@ -1,15 +1,22 @@
 import os
 import glob
+import sys
+from pathlib import Path
 
-base_dir = "script_pipeline/data/CH06"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+
+from factory_common.paths import script_data_root
+
+base_dir = script_data_root() / "CH06"
 cta_pattern = ["チャンネル登録", "高評価", "コメント", "登録をお願い", "評価をお願い"]
 hook_pattern = ["ご存知でしょうか", "いかがでしたか", "驚きですよね"]
 
 for i in range(1, 35):
     num = f"{i:03d}"
-    path = f"{base_dir}/{num}/content/assembled.md"
+    path = base_dir / num / "content" / "assembled.md"
     
-    if not os.path.exists(path):
+    if not path.exists():
         continue
         
     with open(path, 'r') as f:
