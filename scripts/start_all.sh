@@ -110,15 +110,18 @@ main() {
   command="$1"
   shift || true
 
-    info "Delegating to ui.tools.start_manager ($command)"
+    info "Delegating to start_manager ($command)"
+
+  # Direct path to avoid needing root ui/ package
+  START_MANAGER="$YTM_ROOT/apps/ui-backend/tools/start_manager.py"
 
   case "$command" in
     start|restart)
       start_remotion_studio
-      exec "$PYTHON_BIN" -m ui.tools.start_manager "$command" --env-file "$ENV_FILE" "$@"
+      exec "$PYTHON_BIN" "$START_MANAGER" "$command" --env-file "$ENV_FILE" "$@"
       ;;
     *)
-      exec "$PYTHON_BIN" -m ui.tools.start_manager "$command" "$@"
+      exec "$PYTHON_BIN" "$START_MANAGER" "$command" "$@"
       ;;
   esac
 }
