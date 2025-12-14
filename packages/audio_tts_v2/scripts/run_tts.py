@@ -206,7 +206,7 @@ def main() -> None:
 
             # --- Final artifacts sync -------------------------------------------------
             # Regardless of where --out-wav points, always sync latest outputs to
-            # audio_tts_v2/artifacts/final/<CH>/<VIDEO>/ so downstream tools
+            # workspaces/audio/final/<CH>/<VIDEO>/ so downstream tools
             # (CapCut, AutoDraft, UI preview) never pick stale audio/SRT.
             final_dir = audio_final_dir(args.channel, args.video)
             final_dir.mkdir(parents=True, exist_ok=True)
