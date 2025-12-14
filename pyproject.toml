@@ -69,3 +69,12 @@ where = ["packages"]
 include = ["factory_common*", "commentary_02_srt2images_timeline*", "audio_tts_v2*", "script_pipeline*"]
 # Don't search in these directories
 exclude = ["tests*", "docs*", "logs*", "output*", "data*", "asset*", "thumbnails*", "remotion*"]
+
+# pytest configuration - ensure packages/ is in path
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "packages"
+]
+testpaths = ["tests"]
+asyncio_mode = "strict"
