@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Query
 from factory_common.paths import research_root, script_data_root
 
 FILE_PATH = Path(__file__).resolve()
-PROJECT_ROOT = FILE_PATH.parents[3]
+PROJECT_ROOT = FILE_PATH.parents[4]  # apps/ui-backend/backend/routers/ -> repo root
 
 router = APIRouter(prefix="/api/research", tags=["research"])
 

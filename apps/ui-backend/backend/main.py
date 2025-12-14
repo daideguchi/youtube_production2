@@ -8951,7 +8951,7 @@ class TtsV2Request(BaseModel):
 
 
 def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = REPO_ROOT  # Use constant defined at top
     script = repo_root / "audio_tts_v2" / "scripts" / "run_tts.py"
     if not script.exists():
         raise HTTPException(status_code=500, detail="run_tts.py not found")
@@ -9078,7 +9078,7 @@ def api_audio_tts_v2_run(payload: TtsV2Request):
     resolved = _resolve_final_tts_input_path(channel_code, video_no)
 
     provided = Path(payload.input_path)
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = REPO_ROOT  # Use constant defined at top
     if not provided.is_absolute():
         provided = (repo_root / provided).resolve()
 
@@ -9124,7 +9124,7 @@ def api_audio_tts_v2_run_batch(payload: List[TtsV2BatchItem]):
             video_no = normalize_video_number(item.video)
             resolved = _resolve_final_tts_input_path(channel_code, video_no)
             provided = Path(item.input_path)
-            repo_root = Path(__file__).resolve().parents[2]
+            repo_root = REPO_ROOT  # Use constant defined at top
             if not provided.is_absolute():
                 provided = (repo_root / provided).resolve()
             if provided.resolve() != resolved.resolve():
@@ -9383,7 +9383,7 @@ def get_audio_integrity_log(channel_id: str, video_id: str):
 def get_knowledge_base():
     """Retrieve Global Knowledge Base."""
     # Resolve path dynamically to ensure correct root
-    root = Path(__file__).resolve().parents[2]
+    root = REPO_ROOT  # Use constant defined at top
     real_kb_path = root / "audio_tts_v2" / "data" / "global_knowledge_base.json"
     
     if not real_kb_path.exists():
@@ -9451,7 +9451,7 @@ def upsert_knowledge_base_entry(payload: KnowledgeBaseUpsertRequest):
 @app.delete("/api/kb/{entry_key}")
 def delete_knowledge_base_entry(entry_key: str):
     """Delete an entry from GKB."""
-    root = Path(__file__).resolve().parents[2]
+    root = REPO_ROOT  # Use constant defined at top
     real_kb_path = root / "audio_tts_v2" / "data" / "global_knowledge_base.json"
 
     if not real_kb_path.exists():
@@ -9822,7 +9822,7 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
 # Progress CSV expose
 @app.get("/api/progress/channels/{channel_code}")
 def api_progress_channel(channel_code: str):
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = REPO_ROOT  # Use constant defined at top
     csv_path = repo_root / "progress" / "channels" / f"{channel_code}.csv"
     if not csv_path.exists():
         raise HTTPException(status_code=404, detail="progress csv not found")

@@ -3524,24 +3524,24 @@
     "type": "srt",
     "checked": false,
     "src": "workspaces/audio/final/CH02/037/CH02-037.srt",
-    "size": 33613,
-    "hash": "a31bb56bd707733a36bdcdde61fde5d983e86a70"
+    "size": 34558,
+    "hash": "d38129645db13d0e63e84a9e792dc2e256fe6f5c"
   },
   "workspaces/video/input/CH02_哲学系/CH02-038.srt": {
     "path": "workspaces/video/input/CH02_哲学系/CH02-038.srt",
     "type": "srt",
     "checked": false,
     "src": "workspaces/audio/final/CH02/038/CH02-038.srt",
-    "size": 35175,
-    "hash": "fd03e13a5f71a5b405b96dfcd8cd3a6e4860fdc4"
+    "size": 36135,
+    "hash": "af1ac06ffebcd0442a5002bf8c07e7e5ae7c7d86"
   },
   "workspaces/video/input/CH02_哲学系/CH02-039.srt": {
     "path": "workspaces/video/input/CH02_哲学系/CH02-039.srt",
     "type": "srt",
     "checked": false,
     "src": "workspaces/audio/final/CH02/039/CH02-039.srt",
-    "size": 36105,
-    "hash": "7e320dfd1be5170f8134b1e9e65f62611a04ee69"
+    "size": 37755,
+    "hash": "f4b51c56df73bd54a42bc889cbd15b5d87eb6e69"
   },
   "workspaces/video/input/CH02_哲学系/CH02-051.srt": {
     "path": "workspaces/video/input/CH02_哲学系/CH02-051.srt",
@@ -6406,5 +6406,61 @@
     "src": "workspaces/audio/final/CHTEST/CHTEST-003.wav",
     "size": 578092,
     "hash": "24e1c5965c11e99c59a861044bdf49e22fe0a6ee"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-037.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-037.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/037/CH02-037.wav",
+    "size": 58993324,
+    "hash": "3fe036a7df666768e727034f11b9a663923aaa0d"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-038.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-038.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/038/CH02-038.wav",
+    "size": 60794348,
+    "hash": "ca92b64fd47e47d0f7e134a3bcf672930961ba7f"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-039.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-039.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/039/CH02-039.wav",
+    "size": 65208044,
+    "hash": "c298ec37592461605a104f23144d6a310ff7cbd7"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-040.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-040.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/040/CH02-040.srt",
+    "size": 35783,
+    "hash": "a541613104bc5beb9996df95d53d2926c2b3377a"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-040.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-040.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/040/CH02-040.wav",
+    "size": 61025644,
+    "hash": "2d7f563e467cbe983aa0da6835f291bd5e839b24"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-041.srt": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-041.srt",
+    "type": "srt",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/041/CH02-041.srt",
+    "size": 32268,
+    "hash": "a88b3800d0e311fae430303b96435bf53f89b6b5"
+  },
+  "workspaces/video/input/CH02_哲学系/CH02-041.wav": {
+    "path": "workspaces/video/input/CH02_哲学系/CH02-041.wav",
+    "type": "wav",
+    "checked": false,
+    "src": "workspaces/audio/final/CH02/041/CH02-041.wav",
+    "size": 55558956,
+    "hash": "9f0acba46b034b9459a527e7a27695e253a95ec2"
   }
 }

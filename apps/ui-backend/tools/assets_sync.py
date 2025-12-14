@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 # Allow running as a script (not only `python -m ...`) after removing root symlinks.
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]  # moved from ui/tools/ to apps/ui-backend/tools/
 PACKAGES_ROOT = REPO_ROOT / "packages"
 for p in (REPO_ROOT, PACKAGES_ROOT):
     p_str = str(p)

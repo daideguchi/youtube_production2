@@ -10,7 +10,7 @@ from factory_common.paths import script_pkg_root
 
 
 # NOTE: this module lives at apps/ui-backend/backend/core/tools/channel_profile.py
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = Path(__file__).resolve().parents[5]  # core/tools/ -> repo root
 CHANNELS_ROOT = script_pkg_root() / "channels"
 
 

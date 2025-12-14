@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 from typing import Iterable, Optional
 
-YTM_ROOT = Path(__file__).resolve().parents[2]
+YTM_ROOT = Path(__file__).resolve().parents[3]  # moved from ui/tools/ to apps/ui-backend/tools/
 
 
 def run(cmd, cwd: Path) -> None:

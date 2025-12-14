@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Iterable, Optional
 
-YTM_ROOT = Path(__file__).resolve().parents[2]
+YTM_ROOT = Path(__file__).resolve().parents[3]  # moved from ui/tools/ to apps/ui-backend/tools/
 LOG_ROOT = YTM_ROOT / "logs" / "ui_hub"
 COMPONENT_LOGS = {
     "backend": LOG_ROOT / "backend.log",
