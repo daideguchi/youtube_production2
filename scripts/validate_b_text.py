@@ -14,6 +14,8 @@ assembled.mdとscript_corrected.txtの品質問題を検出する。
 import re
 import sys
 from pathlib import Path
+
+from factory_common.paths import script_data_root
 from typing import Optional
 
 
@@ -169,7 +171,7 @@ def main():
     parser.add_argument("--fix", action="store_true", help="自動修正可能な問題を修正")
     args = parser.parse_args()
     
-    base_path = Path(__file__).parent.parent / "script_pipeline" / "data"
+    base_path = script_data_root()
     
     if args.all:
         channels = [d for d in base_path.iterdir() if d.is_dir() and d.name.startswith('CH')]

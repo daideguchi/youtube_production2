@@ -8,10 +8,12 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+
+from factory_common.paths import script_data_root
 from typing import Dict, Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT / "script_pipeline" / "data"
+DATA_ROOT = script_data_root()
 
 
 def load_status(path: Path) -> Dict[str, Any]:

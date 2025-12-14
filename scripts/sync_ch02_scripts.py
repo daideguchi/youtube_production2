@@ -1,12 +1,14 @@
 import csv
 import json
 from pathlib import Path
+
+from factory_common.paths import script_data_root
 from typing import Dict, List
 
 CH_CODE = "CH02"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = REPO_ROOT / "progress" / "channels" / f"{CH_CODE}.csv"
-DATA_DIR = REPO_ROOT / "script_pipeline" / "data" / CH_CODE
+DATA_DIR = script_data_root() / CH_CODE
 
 
 def load_csv() -> List[Dict[str, str]]:
