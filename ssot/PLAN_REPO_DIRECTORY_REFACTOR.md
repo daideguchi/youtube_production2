@@ -2,7 +2,7 @@
 
 ## Plan metadata
 - **Plan ID**: PLAN_REPO_DIRECTORY_REFACTOR
-- **ステータス**: Draft
+- **ステータス**: In Progress (Stage 1 Complete)
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: リポジトリ全体（Python/Node/シェル/SSOT/UI/生成物/旧資産）
 - **非対象 (Out of Scope)**: LLMロジック・生成品質・パイプラインのアルゴリズム改変（パス変更に伴う薄い修正は含む）
@@ -457,19 +457,19 @@ legacy/
 
 ### Stage 1: Path SSOT 導入（物理移動なし）
 1. `factory_common/paths.py` を新設（現行位置。Stage 4 で `packages/` へ移動）
-   - [ ] `repo_root()`（pyproject探索 + env override）
-   - [ ] `workspace_root()`（`YTM_WORKSPACE_ROOT`）
-   - [ ] planning/scripts/audio/video/thumbnails/logs 用 getter を全実装
-   - [ ] unit test `tests/test_paths.py` を追加（env override/相対→絶対解決）
+   - [x] `repo_root()`（pyproject探索 + env override）
+   - [x] `workspace_root()`（`YTM_WORKSPACE_ROOT`）
+   - [x] planning/scripts/audio/video/thumbnails/logs 用 getter を全実装
+   - [x] unit test `tests/test_paths.py` を追加（env override/相対→絶対解決）
 2. 直書きパスの置換（物理移動はまだしない）
-   - [ ] `ui/backend/main.py` の `PROJECT_ROOT/"script_pipeline"` 等を paths 経由へ
-   - [ ] `script_pipeline/*.py` / `script_pipeline/tools/*`
-   - [ ] `audio_tts_v2/scripts/*.py` / `audio_tts_v2/tts/*`
-   - [ ] `commentary_02_srt2images_timeline/src|tools|ui/*`
-   - [ ] ルート `scripts/*.py`, `tools/*.py`, `*.sh`
-   - [ ] 絶対パス残存チェック: `rg "/Users/dd/|script_pipeline/data|commentary_02_srt2images_timeline/output|audio_tts_v2/artifacts|progress/channels|thumbnails/assets"`.
+   - [x] `ui/backend/main.py` の `PROJECT_ROOT/"script_pipeline"` 等を paths 経由へ
+   - [x] `script_pipeline/*.py` / `script_pipeline/tools/*`
+   - [x] `audio_tts_v2/scripts/*.py` / `audio_tts_v2/tts/*`
+   - [x] `commentary_02_srt2images_timeline/src|tools|ui/*`
+   - [x] ルート `scripts/*.py`, `tools/*.py`, `*.sh`
+   - [x] 絶対パス残存チェック: `rg` で旧パス/絶対パスがヒットしない（docstring除く）。
 3. stage1 smoke
-   - [ ] 主要テスト（import smoke + 既存 unit）を実行し green を確認。
+   - [x] 主要テスト（import smoke + 既存 unit）を実行し green を確認。
 
 ### Stage 2: `workspaces/` 抽出（SoT/生成物の段階移設）
 > 各サブステップは **copy → verify → mv → symlink → smoke** の 5 フェーズで実施。
