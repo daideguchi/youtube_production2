@@ -24,6 +24,8 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+from factory_common.paths import audio_final_dir
 from typing import Any, Dict, Optional, Tuple
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -176,7 +178,7 @@ def _resolve_audio_wav(run_dir: Path, channel: Optional[str], video: Optional[st
     if channel and video:
         ch = channel.strip().upper()
         no = str(video).zfill(3)
-        wav = (_repo_root() / "audio_tts_v2" / "artifacts" / "final" / ch / no / f"{ch}-{no}.wav").resolve()
+        wav = audio_final_dir(ch, no) / f"{ch}-{no}.wav"
         if wav.exists():
             return wav
 

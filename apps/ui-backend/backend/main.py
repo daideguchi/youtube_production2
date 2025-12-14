@@ -8975,7 +8975,7 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     ]
 
     # Always write to artifacts/final so downstream CapCut uses latest audio/SRT.
-    final_dir = repo_root / "audio_tts_v2" / "artifacts" / "final" / req.channel / req.video
+    final_dir = audio_final_dir(req.channel, req.video)
     final_dir.mkdir(parents=True, exist_ok=True)
     final_wav_path = final_dir / f"{req.channel}-{req.video}.wav"
     final_log_path = final_dir / "log.json"
