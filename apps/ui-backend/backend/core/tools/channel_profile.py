@@ -1,4 +1,4 @@
-# Channel profile loader (SoT: script_pipeline/channels/CHxx-*/channel_info.json)
+# Channel profile loader (SoT: packages/script_pipeline/channels/CHxx-*/channel_info.json)
 from __future__ import annotations
 
 import json
@@ -6,11 +6,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+from factory_common.paths import script_pkg_root
 
-# NOTE: this module lives at ui/backend/core/tools/channel_profile.py
-# parents[0]=tools, [1]=core, [2]=backend, [3]=ui, [4]=project root
+
+# NOTE: this module lives at apps/ui-backend/backend/core/tools/channel_profile.py
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
-CHANNELS_ROOT = PROJECT_ROOT / "script_pipeline" / "channels"
+CHANNELS_ROOT = script_pkg_root() / "channels"
 
 
 @dataclass

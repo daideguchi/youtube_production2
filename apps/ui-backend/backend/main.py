@@ -8846,7 +8846,7 @@ def _resolve_script_pipeline_input_path(channel: str, video: str) -> Path:
     """
     旧式の解決（後方互換）。呼び出し元は _resolve_final_tts_input_path を優先すること。
     """
-    base = PROJECT_ROOT / "script_pipeline" / "data" / channel / video
+    base = DATA_ROOT / channel / video
     candidates = [
         base / "audio_prep" / "script_sanitized.txt",
         base / "content" / "assembled.md",
@@ -8869,7 +8869,7 @@ def _resolve_final_tts_input_path(channel: str, video: str) -> Path:
     6) content/assembled.md
     見つからない場合は 404 を返す。
     """
-    base = PROJECT_ROOT / "script_pipeline" / "data" / channel / video
+    base = DATA_ROOT / channel / video
     candidates = [
         base / "audio_prep" / "script_audio_human.txt",
         base / "content" / "script_audio_human.txt",
@@ -8889,7 +8889,7 @@ def _resolve_a_text_display_path(channel: str, video: str) -> Path:
     Aテキスト（表示用）用に解決するパス。
     優先: content/assembled_human.md -> content/assembled.md -> audio_prep/script_sanitized.txt
     """
-    base = PROJECT_ROOT / "script_pipeline" / "data" / channel / video
+    base = DATA_ROOT / channel / video
     candidates = [
         base / "content" / "assembled_human.md",
         base / "content" / "assembled.md",
