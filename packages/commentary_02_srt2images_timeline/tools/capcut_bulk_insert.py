@@ -108,7 +108,8 @@ def _apply_ch02_overrides(draft_dir: Path, belt_text: Optional[str] = None):
 CHANNEL_HOOKS["CH02"] = _apply_ch02_overrides
 
 try:
-    from fix_fade_transitions_correct import (
+    # NOTE: helper lives under this package's tools/ directory.
+    from commentary_02_srt2images_timeline.tools.fix_fade_transitions_correct import (
         add_crossfade_transitions as _auto_add_crossfade_transitions,
         backup_file as _auto_backup_file,
         load_json as _auto_load_fade_json,
@@ -139,7 +140,7 @@ except Exception:
 
 def validate_template(draft_root: Path, template_name: str) -> tuple[bool, str]:
     """
-    Validate template existence and at least one draft JSON presence.
+    Validate template existence and basic draft structure.
 
     Returns:
         (is_valid, error_message)
@@ -159,6 +160,22 @@ def validate_template(draft_root: Path, template_name: str) -> tuple[bool, str]:
     has_info = draft_info.exists() and draft_info.stat().st_size > 0
     if not has_content and not has_info:
         return False, f"❌ Template '{template_name}' is not a valid CapCut draft (no JSON files)"
+
+    # Reject "empty" templates that have JSON but no tracks.
+    # These produce broken drafts (missing audio/effects/belt layers) and are a major source of
+    # 'which one is the correct draft?' chaos.
+    try:
+        src = draft_content if has_content else draft_info
+        data = json.loads(src.read_text(encoding="utf-8"))
+        tracks = data.get("tracks", None) if isinstance(data, dict) else None
+        if not isinstance(tracks, list) or len(tracks) == 0:
+            return (
+                False,
+                f"❌ Template '{template_name}' looks empty (tracks[] is missing/empty): {src}. "
+                "Use a template project that already contains the required layers.",
+            )
+    except Exception as exc:
+        return False, f"❌ Template '{template_name}' JSON is not readable: {type(exc).__name__}: {exc}"
 
     return True, ""
 
@@ -362,6 +379,29 @@ def pre_flight_check(args, logger: logging.Logger) -> list[str]:
         image_cues = run_dir / "image_cues.json"
         if not image_cues.exists():
             errors.append(f"❌ image_cues.json not found in {args.run}")
+        else:
+            # Guardrail: prevent "too few images for a long video" (common cause of mismatched drafts).
+            # This catches the catastrophic case where a long episode is mistakenly forced to ~10 images.
+            if (os.getenv("CAPCUT_PREFLIGHT_DISABLE_CUE_DENSITY_CHECK") or "").strip().lower() not in {"1", "true", "yes", "on"}:
+                try:
+                    data = json.loads(image_cues.read_text(encoding="utf-8"))
+                    cues = data.get("cues") or []
+                    if cues:
+                        end_sec = max(float(c.get("end_sec") or 0.0) for c in cues)
+                        avg_sec = end_sec / max(1, len(cues))
+                        # Default: for 10+ min videos, average image duration above ~60s is suspicious.
+                        max_avg = float(os.getenv("CAPCUT_PREFLIGHT_MAX_AVG_IMG_SEC") or "60")
+                        if end_sec >= 600 and avg_sec > max_avg:
+                            errors.append(
+                                "❌ image_cues density looks wrong: "
+                                f"end_sec={end_sec:.1f}s cues={len(cues)} avg={avg_sec:.1f}s (> {max_avg:.0f}s). "
+                                "Refuse to build a draft from an under-segmented cue plan."
+                            )
+                            errors.append(
+                                "   (Override: set CAPCUT_PREFLIGHT_DISABLE_CUE_DENSITY_CHECK=1)"
+                            )
+                except Exception as exc:
+                    logger.warning("Cue density preflight skipped (parse error): %s", exc)
 
         images_dir = run_dir / "images"
         if not images_dir.exists():
@@ -1402,24 +1442,67 @@ def _fallback_set_main_belt_title(draft_dir: Path, title: str) -> None:
         logger.warning(f"Fallback belt title inject failed: {exc}")
 
 
-def _force_video_scale(draft_dir: Path, scale: float):
-    """Force clip.scale for all video segments to the given scale (CapCut sometimes resets)."""
+def _force_video_scale(draft_dir: Path, scale: float) -> None:
+    """
+    Force clip.scale for srt2images-generated image segments only.
+
+    Why:
+    - Some templates include video layers (e.g., logo/belt backgrounds) whose clip.scale
+      must NOT be overwritten.
+    - CapCut sometimes resets image segment scale; we enforce only on segments whose
+      material path looks like our numbered assets (0001.png, ...).
+    """
+
+    def _is_numbered_asset(path_str: str) -> bool:
+        try:
+            name = Path(str(path_str)).name
+        except Exception:
+            return False
+        return bool(re.match(r"^\d{4}\.(png|jpg|jpeg|webp)$", name, flags=re.IGNORECASE))
+
     try:
         content_path = draft_dir / "draft_content.json"
         if not content_path.exists():
             return
         data = _json2.loads(content_path.read_text(encoding="utf-8"))
+        mats = data.get("materials") or {}
+        id_to_path: dict[str, str] = {}
+        for key in ("videos", "images"):
+            items = mats.get(key) or []
+            if not isinstance(items, list):
+                continue
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                mid = it.get("id")
+                mpath = it.get("path") or it.get("file_path")
+                if isinstance(mid, str) and mid and isinstance(mpath, str) and mpath:
+                    id_to_path[mid] = mpath
+
         changed = False
         for tr in data.get("tracks", []):
             if tr.get("type") != "video":
                 continue
             for seg in tr.get("segments", []):
+                if not isinstance(seg, dict):
+                    continue
+                mid = seg.get("material_id")
+                if not isinstance(mid, str) or not mid:
+                    continue
+                mpath = id_to_path.get(mid)
+                if not (isinstance(mpath, str) and mpath and _is_numbered_asset(mpath)):
+                    continue
                 clip = seg.setdefault("clip", {})
+                if not isinstance(clip, dict):
+                    seg["clip"] = {}
+                    clip = seg["clip"]
                 clip.setdefault("scale", {})
-                clip.setdefault("transform", {})
+                if not isinstance(clip.get("scale"), dict):
+                    clip["scale"] = {}
                 clip["scale"]["x"] = scale
                 clip["scale"]["y"] = scale
                 changed = True
+
         if changed:
             content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
@@ -2157,6 +2240,75 @@ def _purge_generic_template_placeholders(
         logger.info(f"🧹 Purged generic template placeholder tracks: {pretty}")
 
 
+def _purge_stale_managed_tracks_in_template_copy(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Defensive cleanup: sometimes a CapCut *template* gets accidentally saved after running automation,
+    leaving managed tracks inside the template (e.g. srt2images_*, subtitles_text*, voiceover*).
+
+    If we duplicate such a template and inject again, we end up with multiple managed tracks and the
+    generated draft becomes ambiguous/broken. We remove these tracks from BOTH draft_content.json and
+    draft_info.json *before* pyJianYingDraft loads the duplicated draft directory.
+    """
+    removed: list[tuple[str, str, str, int]] = []
+
+    def _get_tracks_ref(data: dict) -> tuple[list, callable] | None:
+        if isinstance(data.get("tracks"), list):
+            return data["tracks"], lambda v: data.__setitem__("tracks", v)
+        if isinstance(data.get("script"), dict) and isinstance(data["script"].get("tracks"), list):
+            return data["script"]["tracks"], lambda v: data["script"].__setitem__("tracks", v)
+        return None
+
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        ref = _get_tracks_ref(data) if isinstance(data, dict) else None
+        if not ref:
+            continue
+        tracks, set_tracks = ref
+        if not isinstance(tracks, list):
+            continue
+
+        kept: list = []
+        changed = False
+        for tr in tracks:
+            if not isinstance(tr, dict):
+                kept.append(tr)
+                continue
+            name = (tr.get("name") or "").strip()
+            ttype = (tr.get("type") or "").strip()
+            segs = tr.get("segments") or []
+            seg_count = len(segs) if isinstance(segs, list) else 0
+
+            is_managed = (
+                (ttype == "video" and name.startswith("srt2images_"))
+                or (ttype == "text" and name.startswith(("subtitles_text", "title_text")))
+                or (ttype == "audio" and name.startswith("voiceover"))
+            )
+            if is_managed:
+                removed.append((fname, ttype, name, seg_count))
+                changed = True
+                continue
+            kept.append(tr)
+
+        if not changed:
+            continue
+        set_tracks(kept)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if removed:
+        uniq: dict[tuple[str, str], int] = {}
+        for _fname, ttype, name, seg_count in removed:
+            uniq[(ttype, name)] = max(seg_count, uniq.get((ttype, name), 0))
+        pretty = ", ".join(f"{name}({cnt})" for (_t, name), cnt in sorted(uniq.items(), key=lambda x: x[0][1]))
+        logger.info(f"🧼 Removed stale managed tracks from template copy: {pretty}")
+
+
 def _post_flight_validate_draft(
     draft_dir: Path,
     *,
@@ -2364,7 +2516,7 @@ def main():
     # NOTE: In CapCut, positive transform_y moves UP. UI Y=+pixels (down) => negative transform_y
     ap.add_argument("--ty", type=float, default=0.20555555555, help="transform_y (half-canvas units)")
     # Global rule: keep images slightly zoomed-in to allow gentle motion without showing borders.
-    ap.add_argument("--scale", type=float, default=1.05)
+    ap.add_argument("--scale", type=float, default=1.03)
     ap.add_argument("--title", help="Left-top title text to set")
     ap.add_argument("--title-duration", type=float, default=30.0, help="Title display duration (seconds)")
     ap.add_argument("--skip-title", action="store_true", help="Skip title insertion (useful when a JSON post-processor will inject it)")
@@ -2550,6 +2702,7 @@ def main():
     # Purge generic placeholder tracks from template BEFORE loading with pyJianYingDraft.
     # (If we purge after load, in-memory script.content will overwrite the JSON back.)
     _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_text_tracks)
+    _purge_stale_managed_tracks_in_template_copy(draft_dir, logger)
 
     script = df.load_template(args.new)
     assets_dir = draft_dir / 'assets' / 'image'

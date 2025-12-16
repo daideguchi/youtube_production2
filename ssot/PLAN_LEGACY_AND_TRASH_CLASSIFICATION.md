@@ -74,7 +74,8 @@
 - `commentary_02_srt2images_timeline/examples/` は **存在しない**（現行ツリーにディレクトリ自体が無い）。
 
 **Keep（現行依存あり）**
-- `src/`, `tools/`（archive除く）, `ui/`, `config/`, `templates/`, `input/`, `output/`, `progress/audio_sync_status.json`, `logs/`, `memory/`
+- `src/`, `tools/`（archive除く）, `ui/`, `config/`, `templates/`, `input/`, `output/`, `logs/`, `memory/`
+- `audio_sync_status.json` は `workspaces/video/_state/audio_sync_status.json` が正本（legacy: `packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json`）
 
 **Legacy隔離**
 - （削除済み）`tools/archive/`：過去版。参照ゼロのためアーカイブ後に削除済み（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。

@@ -5,6 +5,7 @@ import logging
 import math
 import os
 import re
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -350,6 +351,432 @@ Script:
     return _coerce_sections(data, segment_count=len(segments))
 
 
+_TRANSITION_PREFIXES: tuple[str, ...] = (
+    "さて",
+    "では",
+    "次に",
+    "そして",
+    "さらに",
+    "一方",
+    "ところで",
+    "しかし",
+    "つまり",
+    "結論",
+    "まとめ",
+    "最後に",
+    "まず",
+    "ここで",
+    "ここから",
+)
+
+_LIST_MARKERS: tuple[str, ...] = (
+    "一つ目",
+    "二つ目",
+    "三つ目",
+    "四つ目",
+    "五つ目",
+    "第一",
+    "第二",
+    "第三",
+    "ポイント",
+    "方法",
+    "理由",
+)
+
+_JA_STOPWORDS: set[str] = {
+    "これ",
+    "それ",
+    "あれ",
+    "ここ",
+    "そこ",
+    "あそこ",
+    "そして",
+    "しかし",
+    "だから",
+    "つまり",
+    "また",
+    "なので",
+    "ため",
+    "よう",
+    "こと",
+    "もの",
+    "ところ",
+    "とき",
+    "時",
+    "私",
+    "あなた",
+    "皆",
+    "みな",
+    "さん",
+    "人",
+    "自分",
+    "感じ",
+    "気",
+    "的",
+    "的な",
+    "今日",
+    "今",
+    "いま",
+    "何",
+    "何度",
+    "全部",
+    "全て",
+    "すべて",
+    "など",
+}
+
+# Map common abstract narration keywords to concrete, drawable motifs.
+# NOTE: Keep this small and generic; we still derive variation from section keywords.
+_VISUAL_FOCUS_MAP: dict[str, str] = {
+    "宇宙": "starry galaxy sky, gentle nebula clouds",
+    "星": "starry night sky, soft glowing constellations",
+    "次元": "abstract layered light planes, depth and perspective",
+    "意識": "floating light threads, subtle aura particles",
+    "エネルギー": "glowing particles around a crystal, soft light bloom",
+    "魂": "soft luminous orb, quiet ethereal atmosphere",
+    "現実": "everyday room with warm lamp light, calm realism",
+    "時間": "antique pocket watch on wooden desk, warm lamp glow",
+    "時計": "antique clockwork details, macro close-up",
+    "扉": "mysterious door slightly open, light leaking",
+    "鍵": "old key on a notebook, shallow depth of field",
+    "鏡": "old mirror with soft reflection, muted colors",
+    "道": "forest path at dawn, morning mist",
+    "森": "misty forest, soft sun rays through trees",
+    "窓": "window with curtains, gentle morning light",
+    "光": "warm lantern glow in dim room, cozy mood",
+    "呼吸": "steam rising from a cup, calm air movement",
+    "瞑想": "empty cushion in a quiet room, soft shadows",
+    "夢": "surreal floating objects, soft dreamy haze",
+    "記憶": "old photographs scattered on desk, nostalgic tone",
+    "罠": "dark corridor with subtle warning atmosphere",
+    "危険": "tense shadows, dramatic contrast but still watercolor",
+}
+
+
+def _tokenize_loose(text: str) -> List[str]:
+    """
+    Lightweight tokenization that works reasonably for Japanese narration text without external NLP deps.
+    - Extracts kanji/kana/latin runs.
+    - Removes common particles/stopwords.
+    - Keeps medium-length tokens to capture topic changes.
+    """
+    if not text:
+        return []
+    raw = str(text)
+    # NOTE: Avoid hiragana-only tokens (mostly grammatical in narration); keep kanji/katakana/latin.
+    toks = re.findall(r"[A-Za-z]{2,}|[一-龠]+|[ァ-ンー]{2,}", raw)
+    out: List[str] = []
+    for t in toks:
+        t = t.strip()
+        if not t:
+            continue
+        if t.isascii():
+            t = t.lower()
+        # filter digits-only / tiny kana
+        if re.fullmatch(r"\d+", t):
+            continue
+        if t in _JA_STOPWORDS:
+            continue
+        # Filter out noisy single-character tokens unless they are useful drawable motifs.
+        if len(t) == 1 and not t.isascii():
+            if t not in _VISUAL_FOCUS_MAP and t not in {"心", "光", "闇", "夢", "道", "森", "海", "月", "星", "鍵", "扉", "鏡", "魂"}:
+                continue
+        out.append(t)
+    return out
+
+
+def _jaccard(a: set[str], b: set[str]) -> float:
+    if not a and not b:
+        return 0.0
+    return len(a & b) / max(1, len(a | b))
+
+
+def _boundary_score(
+    *,
+    idx: int,
+    tokens_per_seg: List[set[str]],
+    texts: List[str],
+    window: int = 3,
+) -> float:
+    """
+    Score a boundary between segment idx and idx+1.
+    Higher means "better cut point" (topic/role transition).
+    """
+    n = len(tokens_per_seg)
+    if idx < 0 or idx >= n - 1:
+        return 0.0
+
+    left_start = max(0, idx - window + 1)
+    right_end = min(n, idx + 1 + window)
+    left = set().union(*tokens_per_seg[left_start : idx + 1])
+    right = set().union(*tokens_per_seg[idx + 1 : right_end])
+
+    # topic shift
+    shift = 1.0 - _jaccard(left, right)
+
+    # rhetorical markers (prefer cutting right before a "now, next, conclusion" etc.)
+    nxt = (texts[idx + 1] or "").strip()
+    prv = (texts[idx] or "").strip()
+
+    bonus = 0.0
+    if nxt:
+        for p in _TRANSITION_PREFIXES:
+            if nxt.startswith(p):
+                bonus += 0.35
+                break
+        for m in _LIST_MARKERS:
+            if m in nxt[:12]:
+                bonus += 0.25
+                break
+    if prv.endswith(("。", "！", "？")):
+        bonus += 0.05
+
+    return shift + bonus
+
+
+def _classify_role_and_section(text: str) -> tuple[str, str]:
+    t = (text or "").strip()
+    if not t:
+        return "", "other"
+    head = t[:40]
+    if any(head.startswith(x) for x in ("こんばんは", "こんにちは", "おはよう")):
+        return "hook", "context"
+    if any(x in head for x in ("チャンネル登録", "フォロー", "高評価")):
+        return "cta", "instruction"
+    if any(x in head for x in ("まとめ", "結論", "最後に")):
+        return "recap", "analysis"
+    if any(x in head for x in _LIST_MARKERS) or re.search(r"(一つ目|二つ目|三つ目|第一|第二|第三)", head):
+        return "list_item", "list"
+    if "「" in t and "」" in t:
+        return "quote", "dialogue"
+    if any(x in t for x in ("あなた", "皆さん", "みなさん")):
+        return "viewer_address", "exposition"
+    return "explanation", "exposition"
+
+
+def _infer_emotional_tone(tokens: List[str], text: str) -> str:
+    blob = " ".join(tokens) + " " + (text or "")
+    if any(x in blob for x in ("恐怖", "不安", "闇", "危険", "罠", "悪用")):
+        return "tense"
+    if any(x in blob for x in ("安心", "癒", "温か", "やさし", "希望", "光")):
+        return "warm"
+    if any(x in blob for x in ("宇宙", "次元", "神秘", "霊", "魂")):
+        return "mysterious"
+    return "calm"
+
+
+def _build_summary(tokens: List[str], text: str) -> str:
+    """
+    Build a short Japanese label (<=30 chars) from keywords.
+    """
+    if not tokens:
+        return _truncate(text, 30)
+    top = []
+    for t, _c in Counter(tokens).most_common(6):
+        if t in _JA_STOPWORDS:
+            continue
+        top.append(t)
+        if len(top) >= 3:
+            break
+    if not top:
+        return _truncate(text, 30)
+    # Prefer concise label
+    joined = "・".join(top[:2]) if len(top) >= 2 else top[0]
+    return _truncate(joined, 30)
+
+
+def _build_visual_focus(tokens: List[str], text: str, *, prev_focus: str = "") -> str:
+    """
+    Build a concrete visual focus line. Keep it drawable and avoid embedded text.
+    """
+    # Prefer mapped motifs when matching keywords appear.
+    chosen = ""
+    for t, _c in Counter(tokens).most_common(12):
+        if t in _VISUAL_FOCUS_MAP:
+            chosen = _VISUAL_FOCUS_MAP[t]
+            break
+
+    if not chosen:
+        # Fall back to a keyword-driven, but still concrete motif.
+        # Rotate through a small pool deterministically to avoid repeating the same fallback.
+        pool = [
+            "warm desk lamp with open notebook, quiet room",
+            "misty forest path, soft morning light",
+            "window-side table with journal and coffee cup, calm atmosphere",
+            "moonlit clouds over a silent town, muted colors",
+            "abstract soft light particles drifting in dark space",
+            "old bookshelf and scattered papers, nostalgic tone",
+        ]
+        seed = 0
+        for t in tokens[:8]:
+            seed = (seed * 131 + sum(ord(ch) for ch in t)) % 9973
+        chosen = pool[seed % len(pool)]
+
+    # Ensure adjacent variation.
+    if prev_focus and chosen == prev_focus:
+        chosen = "close-up of " + chosen
+
+    # Avoid accidental meta/quotes
+    chosen = chosen.replace("[", "").replace("]", "").replace("(", "").replace(")", "")
+    return _truncate(chosen, 140)
+
+
+def plan_sections_heuristic(
+    *,
+    segments: List[Dict[str, Any]],
+    base_seconds: float,
+) -> List[PlannedSection]:
+    """
+    Non-LLM section planning for THINK MODE.
+
+    Goals:
+    - Variable number of sections based on duration (NOT fixed 10).
+    - Context-based boundaries (topic/role transition scoring), not equal spacing.
+    - Provide concrete visual_focus strings to drive prompt building.
+    """
+    if not segments:
+        return []
+
+    texts = [str(s.get("text") or "").strip() for s in segments]
+    tokens_list = [_tokenize_loose(t) for t in texts]
+    tokens_per_seg = [set(toks) for toks in tokens_list]
+
+    # Target number of sections derived from duration.
+    target = _default_target_sections(segments=segments, base_seconds=base_seconds)
+    target = max(5, min(target, len(segments)))  # at least 5, at most 1 segment per section
+
+    starts = [float(s.get("start") or 0.0) for s in segments]
+    ends = [float(s.get("end") or 0.0) for s in segments]
+    total_end = ends[-1] if ends else 0.0
+
+    # Precompute boundary scores.
+    b_scores = [
+        _boundary_score(idx=i, tokens_per_seg=tokens_per_seg, texts=texts, window=3)
+        for i in range(len(segments) - 1)
+    ]
+
+    sections: List[PlannedSection] = []
+    start_idx = 0
+    prev_focus = ""
+
+    for sec_i in range(target):
+        remaining_sections = target - sec_i
+        # Last section: consume rest.
+        if remaining_sections <= 1:
+            end_idx = len(segments) - 1
+        else:
+            remaining_duration = max(0.0, total_end - starts[start_idx])
+            ideal = remaining_duration / max(1, remaining_sections)
+            # keep some pacing variation around base_seconds
+            ideal = max(base_seconds * 0.6, min(base_seconds * 1.6, ideal))
+            min_dur = max(8.0, ideal * 0.5)
+            max_dur = max(min_dur, ideal * 1.8)
+
+            earliest_t = starts[start_idx] + min_dur
+            latest_t = starts[start_idx] + max_dur
+
+            # Ensure we leave at least 1 segment for each remaining section.
+            max_end_idx = len(segments) - remaining_sections
+            max_end_idx = max(start_idx, max_end_idx)
+
+            candidates: List[int] = []
+            for j in range(start_idx, max_end_idx + 1):
+                if ends[j] < earliest_t:
+                    continue
+                if ends[j] > latest_t:
+                    break
+                candidates.append(j)
+
+            if not candidates:
+                # Fallback: pick the nearest feasible end around ideal.
+                desired_t = starts[start_idx] + ideal
+                best_j = start_idx
+                best_dt = float("inf")
+                for j in range(start_idx, max_end_idx + 1):
+                    dt = abs(ends[j] - desired_t)
+                    if dt < best_dt:
+                        best_dt = dt
+                        best_j = j
+                    if ends[j] > desired_t and dt > best_dt:
+                        break
+                end_idx = best_j
+            else:
+                # Choose candidate maximizing (boundary_score - duration_penalty)
+                desired_t = starts[start_idx] + ideal
+                best_obj = -1e9
+                best_j = candidates[-1]
+                for j in candidates:
+                    dur = max(0.001, ends[j] - starts[start_idx])
+                    penalty = abs(ends[j] - desired_t) / max(1e-6, ideal)
+                    boundary = b_scores[j] if j < len(b_scores) else 0.0
+                    obj = boundary * 1.4 - penalty
+                    if obj > best_obj:
+                        best_obj = obj
+                        best_j = j
+                end_idx = best_j
+
+        slice_segs = segments[start_idx : end_idx + 1]
+        slice_tokens = [t for seg_tokens in tokens_list[start_idx : end_idx + 1] for t in seg_tokens]
+        text_joined = " ".join((texts[k] for k in range(start_idx, end_idx + 1) if texts[k])).strip()
+
+        role_tag, section_type = _classify_role_and_section(text_joined)
+        summary = _build_summary(slice_tokens, text_joined)
+        focus = _build_visual_focus(slice_tokens, text_joined, prev_focus=prev_focus)
+        tone = _infer_emotional_tone(slice_tokens, text_joined)
+
+        sections.append(
+            PlannedSection(
+                start_segment=start_idx + 1,
+                end_segment=end_idx + 1,
+                summary=summary,
+                visual_focus=focus,
+                emotional_tone=tone,
+                persona_needed=False,
+                role_tag=role_tag,
+                section_type=section_type,
+            )
+        )
+        prev_focus = focus
+        start_idx = end_idx + 1
+        if start_idx >= len(segments):
+            break
+
+    # Normalize to full coverage with strict consecutiveness.
+    if not sections:
+        return []
+    # Expand last section to end if needed.
+    if sections[-1].end_segment < len(segments):
+        last = sections[-1]
+        sections[-1] = PlannedSection(
+            start_segment=last.start_segment,
+            end_segment=len(segments),
+            summary=last.summary,
+            visual_focus=last.visual_focus,
+            emotional_tone=last.emotional_tone,
+            persona_needed=last.persona_needed,
+            role_tag=last.role_tag,
+            section_type=last.section_type,
+        )
+
+    # Coerce through shared normalization/validation logic.
+    return _coerce_sections(
+        {"sections": [
+            [
+                s.start_segment,
+                s.end_segment,
+                s.summary,
+                s.visual_focus,
+                s.emotional_tone,
+                s.persona_needed,
+                s.role_tag,
+                s.section_type,
+            ]
+            for s in sections
+        ]},
+        segment_count=len(segments),
+    )
+
+
 def make_cues_from_sections(
     *,
     segments: List[Dict[str, Any]],
@@ -389,5 +816,25 @@ def make_cues_from_sections(
         cue["end_frame"] = int(round(cue["end_sec"] * fps))
         cue["duration_frames"] = max(1, cue["end_frame"] - cue["start_frame"])
         cues.append(cue)
-    return cues
 
+    # CRITICAL: Ensure continuity (no gaps/overlaps) between cues.
+    # CapCut transition injection expects consecutive segments (within ~20ms).
+    for idx in range(len(cues) - 1):
+        cur_start = float(cues[idx].get("start_sec") or 0.0)
+        next_start = float(cues[idx + 1].get("start_sec") or 0.0)
+        if next_start < cur_start:
+            logger.warning(
+                "cues_plan continuity skipped (next_start < cur_start): idx=%d cur_start=%.3f next_start=%.3f",
+                idx,
+                cur_start,
+                next_start,
+            )
+            continue
+        cues[idx]["end_sec"] = round(next_start, 3)
+        cues[idx]["duration_sec"] = round(float(cues[idx]["end_sec"]) - float(cues[idx]["start_sec"]), 3)
+
+    for cue in cues:
+        cue["start_frame"] = int(round(float(cue["start_sec"]) * fps))
+        cue["end_frame"] = int(round(float(cue["end_sec"]) * fps))
+        cue["duration_frames"] = max(1, cue["end_frame"] - cue["start_frame"])
+    return cues

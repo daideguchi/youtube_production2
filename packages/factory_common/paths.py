@@ -167,6 +167,35 @@ def video_input_root() -> Path:
     return _prefer_new(old, ws)
 
 
+def video_state_root() -> Path:
+    """
+    Root for stateful, machine-generated video pipeline metadata.
+    Env override:
+      - YTM_VIDEO_STATE_ROOT
+    """
+    override = os.getenv("YTM_VIDEO_STATE_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    return workspace_root() / "video" / "_state"
+
+
+def video_audio_sync_status_path() -> Path:
+    """
+    Manifest for audio->video input sync status (checked flags, hashes, etc).
+    Preferred location:
+      - workspaces/video/_state/audio_sync_status.json
+    Legacy location:
+      - packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json
+    """
+    new = video_state_root() / "audio_sync_status.json"
+    old = video_pkg_root() / "progress" / "audio_sync_status.json"
+    if new.exists():
+        return new
+    if old.exists():
+        return old
+    return new
+
+
 # ---------------------------------------------------------------------------
 # Thumbnails roots
 # ---------------------------------------------------------------------------
@@ -193,4 +222,3 @@ def logs_root() -> Path:
     ws = workspace_root() / "logs"
     old = repo_root() / "logs"
     return _prefer_new(old, ws)
-

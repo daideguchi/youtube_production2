@@ -15,6 +15,7 @@ from srt2images.cue_maker import make_cues
 from srt2images.cues_plan import (
     is_think_or_agent_mode,
     make_cues_from_sections,
+    plan_sections_heuristic,
     plan_sections_via_router,
 )
 from srt2images.llm_context_analyzer import LLMContextAnalyzer
@@ -258,12 +259,31 @@ def run_pipeline(args):
 
             if planned_sections is None:
                 try:
-                    planned_sections = plan_sections_via_router(
-                        segments=segments,
-                        channel_id=args.channel,
-                        base_seconds=base_seconds,
-                        style_hint=style_hint,
-                    )
+                    plan_impl = (os.getenv("SRT2IMAGES_CUES_PLAN_IMPL") or "").strip().lower()
+                    use_heuristic = False
+                    if plan_impl in {"heuristic", "local"}:
+                        use_heuristic = True
+                    elif is_think_or_agent_mode() and plan_impl not in {"router", "llm", "api"}:
+                        # THINK/AGENT mode default: avoid queueing LLM tasks; plan locally.
+                        use_heuristic = True
+
+                    if use_heuristic:
+                        planned_sections = plan_sections_heuristic(
+                            segments=segments,
+                            base_seconds=base_seconds,
+                        )
+                        llm_task = {
+                            "task": "visual_image_cues_plan",
+                            "note": "heuristic (no-LLM, think-mode default)",
+                        }
+                    else:
+                        planned_sections = plan_sections_via_router(
+                            segments=segments,
+                            channel_id=args.channel,
+                            base_seconds=base_seconds,
+                            style_hint=style_hint,
+                        )
+                        llm_task = {"task": "visual_image_cues_plan"}
                     episode = parse_episode_id(str(srt_path))
                     episode_id = episode.episode if episode else None
                     plan_art = build_visual_cues_plan_artifact(
@@ -286,7 +306,7 @@ def run_pipeline(args):
                         episode=episode_id,
                         style_hint=style_hint,
                         status="ready",
-                        llm_task={"task": "visual_image_cues_plan"},
+                        llm_task=llm_task,
                     )
                     write_visual_cues_plan(plan_path, plan_art)
                     logging.info("Wrote %s (status=ready)", plan_path)

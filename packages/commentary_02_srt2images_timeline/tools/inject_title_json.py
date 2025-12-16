@@ -85,6 +85,8 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
                 if mat.get("id") == mat_id:
                     # Preserve template styling by updating only the inner `text` field
                     # (CapCut stores rich text as JSON string under `content`).
+                    if isinstance(mat.get("base_content"), str):
+                        mat["base_content"] = title
                     content_key = "content" if "content" in mat else ("text" if "text" in mat else None)
                     if content_key and isinstance(mat.get(content_key), str):
                         try:
@@ -104,6 +106,7 @@ def inject_title(draft_dir: Path, title: str, duration_sec: float, start_sec: fl
                 texts = [t for t in texts if t.get("id") != mat_id] + [{
                     "id": mat_id,
                     "type": "text",
+                    "base_content": title,
                     "content": json.dumps({"text": title}, ensure_ascii=False),
                 }]
             materials["texts"] = texts

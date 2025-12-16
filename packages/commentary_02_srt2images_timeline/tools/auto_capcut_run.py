@@ -415,7 +415,7 @@ def main():
     ap.add_argument("--imgdur", default="20", help="Target img duration (seconds)")
     ap.add_argument("--fps", default="30", help="FPS")
     ap.add_argument("--crossfade", default="0.5", help="Crossfade seconds")
-    ap.add_argument("--scale", type=float, default=1.05, help="Global image scale (default: 1.05)")
+    ap.add_argument("--scale", type=float, default=1.03, help="Global image scale (default: 1.03)")
     ap.add_argument("--draft-root", default=str(DEFAULT_DRAFT_ROOT), help="CapCut draft root")
     ap.add_argument("--template", help="Explicit CapCut template name (optional, otherwise preset capcut_template)")
     ap.add_argument("--prompt-template", help="Explicit prompt template path (optional, otherwise preset prompt_template)")
@@ -794,7 +794,7 @@ def main():
             if isinstance(belt_data, dict):
                 if "belt_lower" in belt_data and isinstance(belt_data["belt_lower"], dict):
                     belt_data["belt_lower"]["text"] = effective_belt_title
-                belt_data.setdefault("main_title", effective_belt_title)
+                belt_data["main_title"] = effective_belt_title
                 belt_path.write_text(json.dumps(belt_data, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception as e:
             print(f"⚠️ Failed to update belt_config with title: {e}")

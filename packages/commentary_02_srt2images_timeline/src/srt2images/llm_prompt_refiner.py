@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from pathlib import Path
+import re
 from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -19,15 +19,51 @@ def _env_flag(name: str, default: bool = True) -> bool:
         return default
     return val.strip().lower() not in ("0", "false", "no", "off")
 
+def _llm_mode() -> str:
+    return (os.getenv("LLM_MODE") or "api").strip().lower()
+
+
+def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, dict) else None
+    except Exception:
+        pass
+
+    # Strip common code fences
+    raw = re.sub(r"^```(?:json)?\s*", "", raw, flags=re.IGNORECASE).strip()
+    raw = re.sub(r"\s*```$", "", raw).strip()
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, dict) else None
+    except Exception:
+        pass
+
+    # Best-effort: extract the first {...} block
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start >= 0 and end > start:
+        snippet = raw[start : end + 1]
+        try:
+            parsed = json.loads(snippet)
+            return parsed if isinstance(parsed, dict) else None
+        except Exception:
+            return None
+    return None
+
 
 class PromptRefiner:
     def __init__(self, model: Optional[str] = None, api_key: Optional[str] = None) -> None:
-        # デフォルトモデルを gemini-2.5-pro に変更 (gemini-3-pro-preview は429頻発のため回避)
-        self.model = model or os.getenv("SRT2IMAGES_PROMPT_MODEL") or "gemini-2.5-pro"
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        # NOTE: Prompt refinement is routed via factory_common.llm_router (LLM_MODE aware).
+        # Keep constructor args for backward compatibility, but routing is task-based.
+        self.model = model or os.getenv("SRT2IMAGES_PROMPT_MODEL") or ""
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or ""
         self.enabled = _env_flag("SRT2IMAGES_REFINE_PROMPTS", False)
         if self.enabled:
-            logger.info("PromptRefiner is ENABLED. Using model: %s", self.model)
+            logger.info("PromptRefiner is ENABLED. Using task: visual_prompt_refine")
         else:
             logger.info("PromptRefiner is DISABLED.")
         
@@ -44,16 +80,20 @@ class PromptRefiner:
     def refine(self, cues: List[Dict[str, Any]], channel_id: Optional[str] = None, window: int = 1, common_style: str = "", persona: str = "") -> List[Dict[str, Any]]:
         if not self.enabled:
             return cues
-        if not self.api_key:
-            logger.warning("PromptRefiner: GEMINI_API_KEY missing; skipping refine.")
-            return cues
-        try:
-            from google import genai  # type: ignore
-        except Exception as exc:  # pragma: no cover
-            logger.warning("PromptRefiner: google-genai not installed (%s); skipping refine.", exc)
+
+        # Per-cue refinement + agent/think mode would create many pending tasks (operator pain).
+        # Keep refinement API-only; cues_plan already provides a single-task planning route.
+        if _llm_mode() in {"agent", "think"}:
+            logger.info("PromptRefiner: LLM_MODE=%s; skipping per-cue refine.", _llm_mode())
             return cues
 
-        client = genai.Client(api_key=self.api_key)
+        try:
+            from factory_common.llm_router import get_router
+        except Exception as exc:  # pragma: no cover
+            logger.warning("PromptRefiner: failed to import LLMRouter (%s); skipping refine.", exc)
+            return cues
+
+        router = get_router()
         # CH01は文脈のズレを抑えるため広めの窓＋環境変数で上書き可
         win_env = os.getenv("SRT2IMAGES_REFINE_WINDOW")
         if win_env:
@@ -107,16 +147,13 @@ Return only JSON on one line:
 {{"refined_prompt": "<=320 chars with action+pose+setting+props+lighting+camera (no text in scene, no markdown)"}}
 """
             try:
-                resp = client.models.generate_content(
-                    model=self.model,
-                    contents=[prompt],
-                    config={"response_mime_type": "application/json"},
+                result = router.call_with_raw(
+                    task="visual_prompt_refine",
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format="json_object",
                 )
-                text = getattr(resp, "text", "") or ""
-                if not text:
-                    continue
-                parsed = json.loads(text)
-                refined = parsed.get("refined_prompt") if isinstance(parsed, dict) else None
+                parsed = _parse_json_object(str(result.get("content", "") or ""))
+                refined = parsed.get("refined_prompt") if parsed else None
                 if refined:
                     cue["refined_prompt"] = refined.strip()
                     refined_any = True

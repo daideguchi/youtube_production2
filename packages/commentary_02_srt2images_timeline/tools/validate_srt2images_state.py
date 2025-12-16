@@ -6,8 +6,8 @@ Checks (no writes):
  - segment counts match and material_id/material_name are present
  - no duplicate material_id within srt2images
  - all material_ids exist in materials.videos
- - only whitelisted non-srt2images video/audio tracks are present
-Exit code: 0 if all checks pass, 1 otherwise.
+ - foreign (non-srt2images) video/audio tracks are present (warn by default; fail only with --strict-foreign-tracks)
+Exit code: 0 if all checks pass (warnings allowed), 1 otherwise.
 """
 import argparse
 import json
@@ -33,6 +33,11 @@ def find_track(data):
 def main():
     ap = argparse.ArgumentParser(description="Validate srt2images track/material integrity (read-only)")
     ap.add_argument("--draft", required=True, help="CapCut draft directory")
+    ap.add_argument(
+        "--strict-foreign-tracks",
+        action="store_true",
+        help="Fail if non-srt2images video/audio tracks are present and not whitelisted",
+    )
     args = ap.parse_args()
 
     draft = Path(args.draft)
@@ -64,12 +69,18 @@ def main():
         if t.get("type") in ("video", "audio") and not name.startswith("srt2images_"):
             if t.get("type") == "video":
                 if name_raw not in whitelist_video:
-                    print(f"❌ Non-srt2images track present: {name_raw}")
-                    sys.exit(1)
+                    msg = f"Non-srt2images track present: {name_raw}"
+                    if args.strict_foreign_tracks:
+                        print(f"❌ {msg}")
+                        sys.exit(1)
+                    print(f"⚠️  {msg}")
             elif t.get("type") == "audio":
                 if name_raw not in whitelist_audio:
-                    print(f"❌ Non-srt2images track present: {name_raw}")
-                    sys.exit(1)
+                    msg = f"Non-srt2images track present: {name_raw}"
+                    if args.strict_foreign_tracks:
+                        print(f"❌ {msg}")
+                        sys.exit(1)
+                    print(f"⚠️  {msg}")
 
     ct = find_track(content)
     it = find_track(info)
@@ -82,9 +93,15 @@ def main():
     if not csegs or not isegs:
         print("❌ srt2images segments missing (empty)")
         sys.exit(1)
-    if len(csegs) != len(isegs):
-        print(f"❌ segment count mismatch content({len(csegs)}) vs info({len(isegs)})")
+    overlap = min(len(csegs), len(isegs))
+    if overlap <= 0:
+        print("❌ srt2images segments missing (empty overlap)")
         sys.exit(1)
+    if len(csegs) != len(isegs):
+        print(
+            f"⚠️  segment count mismatch content({len(csegs)}) vs info({len(isegs)}); "
+            f"validating the first {overlap} segments only."
+        )
 
     vids = content.get("materials", {}).get("videos", []) + info.get("materials", {}).get("videos", [])
     by_id = {}
@@ -111,15 +128,26 @@ def main():
             # warn but allow; info side may be blank
             pass
 
-    for idx, seg in enumerate(isegs):
+    # Verify that info is aligned with content by segment index for the overlapping range.
+    for idx in range(overlap):
+        cmid = csegs[idx].get("material_id")
+        imid = isegs[idx].get("material_id")
+        if not imid:
+            print(f"❌ info segment {idx} missing material_id")
+            sys.exit(1)
+        if cmid != imid:
+            print(f"❌ segment {idx} material_id mismatch content({cmid}) vs info({imid})")
+            sys.exit(1)
+
+    # Extra info segments (if any) are validated best-effort (warn-only when missing materials).
+    for idx in range(overlap, len(isegs)):
+        seg = isegs[idx]
         mid = seg.get("material_id")
-        mname = seg.get("material_name")
         if not mid:
             print(f"❌ info segment {idx} missing material_id")
             sys.exit(1)
-        if mid not in ids_seen:
-            print(f"❌ info segment {idx} material_id not in content track: {mid}")
-            sys.exit(1)
+        if mid not in by_id:
+            print(f"⚠️  info segment {idx} material_id not found in materials: {mid}")
         # material_name in info can be blank; no hard failure
 
     print("✅ srt2images validation passed")

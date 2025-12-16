@@ -222,10 +222,97 @@ def retime_cues_to_final_srt(
     return out
 
 
+def _is_num(x: Any) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def retime_cues_by_scale(
+    cues_payload: dict[str, Any],
+    final_segments: List[dict[str, Any]],
+) -> dict[str, Any]:
+    """
+    Fallback retiming when cue.text no longer matches the final SRT sufficiently.
+
+    Strategy:
+      - Keep the relative timing of the existing cues, but scale them so that the
+        last cue ends exactly at the final SRT end time.
+      - Enforce continuity (no gaps/overlaps) and recompute frames/durations.
+
+    This does NOT attempt semantic/text alignment; it is deterministic and LLM-free.
+    """
+    cues = list(cues_payload.get("cues") or [])
+    if not cues:
+        raise RuntimeError("image_cues.json has no cues")
+    if not final_segments:
+        raise RuntimeError("final SRT has no segments")
+    fps = int(cues_payload.get("fps") or 30)
+
+    new_end = float(final_segments[-1]["end"])
+
+    old_end = 0.0
+    for cue in cues:
+        end_sec = cue.get("end_sec")
+        if _is_num(end_sec):
+            old_end = max(old_end, float(end_sec))
+            continue
+        end_frame = cue.get("end_frame")
+        if _is_num(end_frame):
+            old_end = max(old_end, float(end_frame) / max(1.0, float(fps)))
+
+    if old_end <= 0.0:
+        raise RuntimeError("Could not determine cues_end_sec for scale retiming")
+
+    ratio = new_end / old_end
+
+    # Scale start/end while preserving order.
+    cues.sort(key=lambda c: int(c.get("index") or 0))
+    for cue in cues:
+        start_sec = cue.get("start_sec")
+        end_sec = cue.get("end_sec")
+        if not _is_num(start_sec):
+            sf = cue.get("start_frame")
+            start_sec = float(sf) / max(1.0, float(fps)) if _is_num(sf) else 0.0
+        if not _is_num(end_sec):
+            ef = cue.get("end_frame")
+            end_sec = float(ef) / max(1.0, float(fps)) if _is_num(ef) else float(start_sec)
+        start_sec = float(start_sec) * ratio
+        end_sec = float(end_sec) * ratio
+        cue["start_sec"] = round(max(0.0, start_sec), 3)
+        cue["end_sec"] = round(max(0.0, end_sec), 3)
+
+    # Enforce continuity (no gaps/overlaps) and exact final end.
+    if cues:
+        cues[0]["start_sec"] = 0.0
+    for i in range(len(cues) - 1):
+        next_start = float(cues[i + 1]["start_sec"])
+        cues[i]["end_sec"] = round(next_start, 3)
+    cues[-1]["end_sec"] = round(new_end, 3)
+
+    # Recompute durations/frames.
+    for cue in cues:
+        start_sec = float(cue.get("start_sec", 0.0))
+        end_sec = float(cue.get("end_sec", start_sec))
+        if end_sec < start_sec:
+            end_sec = start_sec
+        cue["duration_sec"] = round(end_sec - start_sec, 3)
+        cue["start_frame"] = int(round(start_sec * fps))
+        cue["end_frame"] = int(round(end_sec * fps))
+        cue["duration_frames"] = max(1, cue["end_frame"] - cue["start_frame"])
+
+    out = dict(cues_payload)
+    out["cues"] = cues
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, help="run_dir containing image_cues.json and images/")
     ap.add_argument("--min-score", type=float, default=0.72, help="minimum alignment score threshold (default: 0.72)")
+    ap.add_argument(
+        "--fallback-scale",
+        action="store_true",
+        help="If text alignment fails, retime cues by scaling to final SRT end time (deterministic; no LLM)",
+    )
     args = ap.parse_args()
 
     run_dir = Path(args.run).expanduser().resolve()
@@ -257,7 +344,14 @@ def main() -> None:
     # Retiming is computed first; only if successful do we rotate files on disk.
     cues_payload = _read_json(cues_path)
     final_segments = parse_srt_segments(target_srt)
-    new_cues = retime_cues_to_final_srt(cues_payload, final_segments, min_score=float(args.min_score))
+    mode = "text"
+    try:
+        new_cues = retime_cues_to_final_srt(cues_payload, final_segments, min_score=float(args.min_score))
+    except Exception:
+        if not args.fallback_scale:
+            raise
+        mode = "scale"
+        new_cues = retime_cues_by_scale(cues_payload, final_segments)
 
     tag = _now_tag()
     legacy_cues = run_dir / f"image_cues.legacy.{tag}.json"
@@ -274,12 +368,13 @@ def main() -> None:
         audio_srt=target_srt,
         image_cues_path=cues_path,
         belt_config_path=(run_dir / "belt_config.json") if (run_dir / "belt_config.json").exists() else None,
-        notes="align_run_dir_to_tts_final (retime cues via text alignment; no LLM)",
+        notes=f"align_run_dir_to_tts_final (retime cues via {mode}; no LLM)",
         validate=True,
     )
     write_timeline_manifest(run_dir, manifest)
 
     print(f"✅ aligned: {run_dir.name}")
+    print(f"  - mode: {mode}")
     print(f"  - SRT: {target_srt.name}")
     print(f"  - cues: image_cues.json (backup: {legacy_cues.name})")
     print(f"  - manifest: {run_dir / 'timeline_manifest.json'}")
