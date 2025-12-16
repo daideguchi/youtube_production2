@@ -195,11 +195,16 @@ from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
-from types import SimpleNamespace
 import urllib.parse
 import subprocess
 import os
 
+from backend.tools.optional_fields_registry import (
+    OPTIONAL_FIELDS,
+    FIELD_KEYS,
+    get_planning_section,
+    update_planning_from_row,
+)
 from audio import pause_tags, wav_tools
 from audio.script_loader import iterate_sections
 from core.tools import workflow_precheck as workflow_precheck_tools
@@ -301,7 +306,6 @@ from core.llm import LLMFactory, ModelPhase, ModelConfig, LLMProvider
 OPENAI_CAPTION_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_CAPTION_MODEL", "gpt-5-chat")
 DEFAULT_CAPTION_PROVIDER = os.getenv("THUMBNAIL_CAPTION_PROVIDER", "openai")
 DEFAULT_OPENAI_CAPTION_MODEL = os.getenv("OPENAI_DEFAULT_CAPTION_MODEL", OPENAI_CAPTION_DEFAULT_MODEL)
-NATURAL_COMMAND_DEFAULT_MODEL = "deepseek/deepseek-chat-v3.1:free"
 
 SETTINGS_LOCK = threading.Lock()
 DEFAULT_UI_SETTINGS: Dict[str, Any] = {
@@ -607,6 +611,7 @@ def _ensure_openrouter_api_key() -> str:
         settings = copy.deepcopy(DEFAULT_UI_SETTINGS)
     value = settings.get("llm", {}).get("openrouter_api_key")
     if value:
+        os.environ.setdefault("OPENROUTER_API_KEY", value)
         return value
     value = os.getenv("OPENROUTER_API_KEY") or _load_env_value("OPENROUTER_API_KEY")
     if value:
@@ -1334,14 +1339,6 @@ YOUTUBE_BRANDING_TTL = timedelta(
     hours=float(os.getenv("YOUTUBE_BRANDING_TTL_HOURS", "24"))
 )
 YOUTUBE_BRANDING_BACKOFF: Dict[str, datetime] = {}
-THUMBNAIL_CAPTION_DEFAULT_MODEL = "qwen/qwen2.5-vl-32b-instruct:free"
-THUMBNAIL_CAPTION_FALLBACK_MODELS = [
-    "qwen/qwen3-vl-8b-instruct:free",
-    "qwen/qwen3-vl-8b-instruct",
-    "qwen/qwen3-vl-30b-a3b-instruct",
-    "qwen/qwen2.5-vl-32b-instruct",
-    "qwen/qwen-2.5-vl-7b-instruct",
-]
 
 if not os.getenv("YOUTUBE_API_KEY"):
     _load_env_value("YOUTUBE_API_KEY")
@@ -2961,6 +2958,117 @@ def _inject_audio_completion_from_artifacts(
     return stages_copy, audio_exists, srt_exists
 
 
+def _summarize_video_detail_artifacts(
+    channel_code: str,
+    video_number: str,
+    *,
+    base_dir: Path,
+    content_dir: Path,
+    audio_prep_dir: Path,
+    assembled_path: Path,
+    assembled_human_path: Path,
+    b_text_with_pauses_path: Path,
+    audio_path: Optional[Path],
+    srt_path: Optional[Path],
+) -> Dict[str, Any]:
+    def _iso_mtime(mtime: float) -> str:
+        return datetime.fromtimestamp(mtime, timezone.utc).isoformat().replace("+00:00", "Z")
+
+    def _count_dir_children(path: Path, *, max_items: int = 10_000) -> Optional[int]:
+        if not path.exists() or not path.is_dir():
+            return None
+        try:
+            count = 0
+            for _ in path.iterdir():
+                count += 1
+                if count >= max_items:
+                    break
+            return count
+        except OSError:
+            return None
+
+    def _entry(
+        *,
+        key: str,
+        label: str,
+        path: Path,
+        kind: Literal["file", "dir"] = "file",
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        exists = False
+        size_bytes = None
+        modified_time = None
+        try:
+            exists = path.exists()
+        except OSError:
+            exists = False
+        if exists:
+            try:
+                stat = path.stat()
+                size_bytes = stat.st_size
+                modified_time = _iso_mtime(stat.st_mtime)
+            except OSError:
+                pass
+        return {
+            "key": key,
+            "label": label,
+            "path": safe_relative_path(path) or str(path),
+            "kind": kind,
+            "exists": exists,
+            "size_bytes": size_bytes,
+            "modified_time": modified_time,
+            "meta": meta,
+        }
+
+    project_dir_label = safe_relative_path(base_dir) or str(base_dir)
+
+    items: List[Dict[str, Any]] = []
+    items.append(_entry(key="status", label="status.json", path=base_dir / "status.json"))
+
+    items.append(
+        _entry(
+            key="content_dir",
+            label="content/",
+            path=content_dir,
+            kind="dir",
+            meta={"count": _count_dir_children(content_dir)},
+        )
+    )
+    items.append(_entry(key="assembled_human", label="assembled_human.md", path=assembled_human_path))
+    items.append(_entry(key="assembled", label="assembled.md", path=assembled_path))
+
+    items.append(
+        _entry(
+            key="audio_prep_dir",
+            label="audio_prep/",
+            path=audio_prep_dir,
+            kind="dir",
+            meta={"count": _count_dir_children(audio_prep_dir)},
+        )
+    )
+    items.append(_entry(key="b_text_with_pauses", label="b_text_with_pauses.txt", path=b_text_with_pauses_path))
+    items.append(_entry(key="audio_prep_log", label="audio_prep/log.json", path=audio_prep_dir / "log.json"))
+
+    final_dir = audio_final_dir(channel_code, video_number)
+    items.append(
+        _entry(
+            key="audio_final_dir",
+            label="audio_tts_v2 final/",
+            path=final_dir,
+            kind="dir",
+            meta={"count": _count_dir_children(final_dir)},
+        )
+    )
+    expected_wav = final_dir / f"{channel_code}-{video_number}.wav"
+    expected_srt = final_dir / f"{channel_code}-{video_number}.srt"
+    items.append(_entry(key="final_wav", label="final wav", path=audio_path or expected_wav))
+    items.append(_entry(key="final_srt", label="final srt", path=srt_path or expected_srt))
+    items.append(_entry(key="final_log", label="final log.json", path=final_dir / "log.json"))
+    items.append(_entry(key="final_a_text", label="final a_text.txt", path=final_dir / "a_text.txt"))
+
+    return {"project_dir": project_dir_label, "items": items}
+
+
 def _extract_script_summary(channel_code: str, video_number: str) -> Optional[str]:
     """Assembled台本の先頭パラグラフを短く切り出す。"""
     base_dir = video_base_dir(channel_code, video_number)
@@ -3413,9 +3521,6 @@ def _heuristic_natural_command(command: str, tts_content: str) -> Tuple[List[Nat
 
 
 def _call_llm_for_command(command: str, tts_content: str) -> Tuple[List[NaturalCommandAction], str]:
-    if NATURAL_COMMAND_MODEL is None:
-        raise RuntimeError("LLM model is not available")
-
     truncated_tts = tts_content[:4000]
     prompt = f"""
 あなたは台本編集アシスタントです。以下の音声用テキストに対してユーザーの指示を構造化されたアクションとして返してください。
@@ -3451,31 +3556,18 @@ def _call_llm_for_command(command: str, tts_content: str) -> Tuple[List[NaturalC
 
 ユーザーコマンド: {command}
 """
+    try:
+        from factory_common.llm_router import get_router
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        raise RuntimeError(f"LLMRouter is not available: {exc}") from exc
 
-    provider, model = NATURAL_COMMAND_MODEL
-    if provider == "gemini":
-        response = model.generate_content(prompt)
-        response_text = response.text.strip()
-    elif provider == "openrouter":
-        client, model_name = model
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "あなたは台本編集アシスタントです。指示をJSONで返してください。",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
-            temperature=0.3,
-            max_tokens=800,
-        )
-        response_text = response.choices[0].message.content.strip()
-    else:  # pragma: no cover - unexpected provider
-        raise RuntimeError("Unsupported LLM provider")
+    router = get_router()
+    result = router.call_with_raw(
+        task="tts_natural_command",
+        messages=[{"role": "user", "content": prompt}],
+        response_format="json_object",
+    )
+    response_text = str(result.get("content") or "").strip()
 
     if response_text.startswith("```"):
         response_text = response_text.strip("`").strip()
@@ -3520,11 +3612,14 @@ def interpret_natural_command(command: str, tts_content: str) -> Tuple[List[Natu
         actions, message = _call_llm_for_command(command, tts_content)
         if actions:
             return actions, message
+    except SystemExit as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except Exception as exc:
         logger.warning("Natural command LLM failed: %s", exc)
 
     # fallback to heuristic parser
     return _heuristic_natural_command(command, tts_content)
+
 
 def resolve_text_file(path: Path) -> Optional[str]:
     """正規パスのみを読む。フォールバック禁止。"""
@@ -3856,139 +3951,6 @@ def ensure_channel_branding(
 refresh_channel_info(force=True)
 init_lock_storage()
 CONTENT_PROCESSOR = ContentProcessor(PROJECT_ROOT)
-
-
-class RequestsOpenRouterClient:
-    """Minimal OpenRouter chat client that mirrors the parts of openai.OpenAI we use."""
-
-    def __init__(self, api_key: str, *, base_url: str = "https://openrouter.ai/api/v1", timeout: float = 60.0) -> None:
-        self.api_key = api_key
-        self.base_url = base_url.rstrip("/")
-        self.timeout = timeout
-        referer = _load_env_value("OPENROUTER_REFERRER") or os.getenv("OPENROUTER_REFERRER")
-        title = _load_env_value("OPENROUTER_TITLE") or os.getenv("OPENROUTER_TITLE")
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        if referer:
-            headers["HTTP-Referer"] = referer
-        if title:
-            headers["X-Title"] = title
-        self.headers = headers
-        self.session = requests.Session()
-        self.chat = SimpleNamespace(completions=self._ChatCompletions(self))
-
-    class _ChatCompletions:
-        def __init__(self, outer: "RequestsOpenRouterClient") -> None:
-            self._outer = outer
-
-        def create(
-            self,
-            *,
-            model: str,
-            messages: List[Dict[str, object]],
-            temperature: float = 0.3,
-            max_tokens: int = 800,
-        ):
-            payload = {
-                "model": model,
-                "messages": messages,
-                "temperature": temperature,
-                "max_tokens": max_tokens,
-            }
-            response = self._outer.session.post(
-                f"{self._outer.base_url}/chat/completions",
-                json=payload,
-                headers=self._outer.headers,
-                timeout=self._outer.timeout,
-            )
-            if not response.ok:
-                raise RuntimeError(f"OpenRouter request failed ({response.status_code}): {response.text}")
-            data = response.json()
-            try:
-                content = data["choices"][0]["message"]["content"]
-            except (KeyError, IndexError, TypeError) as exc:  # pragma: no cover - malformed payload
-                raise RuntimeError(f"Unexpected OpenRouter response: {data}") from exc
-            if isinstance(content, list):
-                text = " ".join(part.get("text", "") for part in content if isinstance(part, dict)).strip()
-            else:
-                text = str(content or "").strip()
-            if not text:
-                raise RuntimeError("OpenRouter response did not include any content")
-            return SimpleNamespace(
-                choices=[SimpleNamespace(message=SimpleNamespace(content=text))],
-            )
-
-
-def _init_natural_command_model():
-    llm = _get_ui_settings().get("llm", {})
-    phase_provider, phase_model = _resolve_phase_choice(
-        llm,
-        "natural_command",
-        default_provider="openrouter",
-        default_model=_load_env_value("OPENROUTER_COMMAND_MODEL") or NATURAL_COMMAND_DEFAULT_MODEL,
-        allowed_providers={"openai", "openrouter"},
-    )
-    preferred_provider = phase_provider
-    preferred_model = phase_model
-    # 1) OpenAI優先指定なら、まずOpenAIだけを試す（OpenRouterキー未設定でも通す）
-    if preferred_provider == "openai":
-        openai_key = _get_effective_openai_key()
-        if openai_key and OpenAI is not None:
-            try:
-                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-                if azure_endpoint:
-                    client = OpenAI(
-                        api_key=openai_key,
-                        base_url=azure_endpoint.rstrip("/"),
-                        default_headers={"api-key": openai_key},
-                    )
-                else:
-                    client = OpenAI(api_key=openai_key)
-                logger.info("Natural command LLM initialized (OpenAI): %s", preferred_model)
-                return ("openai", (client, preferred_model))
-            except Exception as exc:  # pragma: no cover
-                logger.warning("Failed to initialize OpenAI for natural command (%s): %s", preferred_model, exc)
-        # OpenAI指定だがキーなし/初期化失敗 → OpenRouterへフォールバック
-
-    # 2) OpenRouterを試す（キーが無ければ None を返してヒューリスティックへ）
-    try:
-        openrouter_key = _get_effective_openrouter_key()
-    except Exception as exc:  # pragma: no cover - missing key
-        logger.info("Natural command OpenRouter key not available: %s", exc)
-        return None
-
-    model_name = preferred_model
-    if OpenAI is not None:
-        try:
-            client = OpenAI(api_key=openrouter_key, base_url="https://openrouter.ai/api/v1")
-            logger.info("Natural command LLM initialized (OpenRouter): %s", model_name)
-            return ("openrouter", (client, model_name))
-        except Exception as exc:  # pragma: no cover - initialization failure
-            message = str(exc)
-            if isinstance(exc, TypeError) and "proxies" in message:
-                logger.info(
-                    "OpenAI SDK/httpx mismatch detected; falling back to REST client for %s (%s)",
-                    model_name,
-                    message,
-                )
-            else:
-                logger.warning("Failed to initialize OpenRouter model via openai SDK (%s): %s", model_name, exc)
-
-    try:
-        client = RequestsOpenRouterClient(openrouter_key)
-        logger.info("Natural command LLM initialized (OpenRouter REST): %s", model_name)
-        return ("openrouter", (client, model_name))
-    except Exception as exc:  # pragma: no cover - initialization failure
-        logger.error("Failed to initialize OpenRouter REST client (%s): %s", model_name, exc)
-
-    if not openrouter_key:
-        logger.info("No LLM API key configured; natural command will use heuristic parser.")
-    return None
-
-
-NATURAL_COMMAND_MODEL = _init_natural_command_model()
 
 
 class StageStatus(BaseModel):
@@ -4440,6 +4402,22 @@ class BatchQueueRequest(BaseModel):
         return cleaned
 
 
+class ArtifactEntryResponse(BaseModel):
+    key: str
+    label: str
+    path: str
+    kind: Literal["file", "dir"] = "file"
+    exists: bool
+    size_bytes: Optional[int] = None
+    modified_time: Optional[str] = None
+    meta: Optional[Dict[str, Any]] = None
+
+
+class ArtifactsSummaryResponse(BaseModel):
+    project_dir: Optional[str] = None
+    items: List[ArtifactEntryResponse] = Field(default_factory=list)
+
+
 class VideoDetailResponse(BaseModel):
     channel: str
     video: str
@@ -4482,6 +4460,7 @@ class VideoDetailResponse(BaseModel):
     planning: Optional[PlanningInfoResponse] = None
     youtube_description: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
+    artifacts: Optional[ArtifactsSummaryResponse] = None
 
 
 class RedoUpdateRequest(BaseModel):
@@ -5448,159 +5427,6 @@ def _read_thumbnail_quick_history(channel_code: Optional[str], limit: int) -> Li
     return entries
 
 
-def _describe_image_with_openrouter(
-    image_path: Path, api_key: str, preferred_model: Optional[str] = None
-) -> tuple[str, str]:
-    if not api_key:
-        logger.error("OpenRouter API key is not configured; cannot caption %s", image_path)
-        raise HTTPException(status_code=503, detail="OpenRouter APIキーが未設定のため画像説明を生成できません。")
-    try:
-        raw_bytes = image_path.read_bytes()
-    except OSError as exc:
-        logger.warning("Failed to read image for caption: %s", exc)
-        raise HTTPException(status_code=500, detail=f"画像の読み込みに失敗しました: {exc}")
-    mime_type = mimetypes.guess_type(image_path.name)[0] or "image/png"
-    data_url = f"data:{mime_type};base64,{base64.b64encode(raw_bytes).decode('ascii')}"
-    prompt = (
-        "以下のYouTubeサムネイル画像の内容を80文字前後の日本語で説明してください。"
-        "人物・背景・文字・雰囲気を具体的に触れてください。"
-    )
-    configured_model = (preferred_model or _load_env_value("THUMBNAIL_CAPTION_MODEL") or "").strip()
-    caption_models: List[str] = []
-    if configured_model:
-        caption_models.append(configured_model)
-    if THUMBNAIL_CAPTION_DEFAULT_MODEL not in caption_models:
-        caption_models.append(THUMBNAIL_CAPTION_DEFAULT_MODEL)
-    for fallback in THUMBNAIL_CAPTION_FALLBACK_MODELS:
-        if fallback not in caption_models:
-            caption_models.append(fallback)
-    base_payload = {
-        "max_tokens": 300,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": data_url}},
-                ],
-            }
-        ],
-    }
-    headers = {"Authorization": f"Bearer {api_key}"}
-    invalid_models: List[tuple[str, str]] = []
-    for model_name in caption_models:
-        payload = dict(base_payload)
-        payload["model"] = model_name
-        try:
-            response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                json=payload,
-                headers=headers,
-                timeout=60,
-            )
-        except requests.RequestException as exc:  # pragma: no cover - network failure
-            logger.error("OpenRouter captioning request failed (%s): %s", model_name, exc)
-            raise HTTPException(status_code=502, detail=f"OpenRouter captioning failed: {exc}") from exc
-
-        if response.ok:
-            try:
-                data = response.json()
-            except ValueError as exc:
-                logger.error("OpenRouter caption response not JSON for %s: %s", model_name, exc)
-                raise HTTPException(status_code=502, detail="OpenRouter応答が無効でした。") from exc
-
-            try:
-                content = data["choices"][0]["message"]["content"]
-                if isinstance(content, list):
-                    text = " ".join(part.get("text", "") for part in content if isinstance(part, dict)).strip()
-                else:
-                    text = str(content).strip()
-            except (KeyError, IndexError, AttributeError) as exc:
-                logger.error("OpenRouter caption response malformed (%s): %s", model_name, data)
-                raise HTTPException(status_code=502, detail="OpenRouter応答が不正です。") from exc
-
-            if not text:
-                raise HTTPException(status_code=502, detail="OpenRouter応答に説明文が含まれていません。")
-            return text, model_name
-
-        detail_text = response.text
-        lowered = detail_text.lower()
-        if response.status_code in (400, 404) and (
-            "not a valid model" in lowered or "no endpoints found" in lowered
-        ):
-            logger.warning("Thumbnail caption model %s rejected: %s", model_name, detail_text)
-            invalid_models.append((model_name, detail_text))
-            continue
-        try:
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.error("OpenRouter captioning failed (%s): %s", model_name, detail_text)
-            raise HTTPException(status_code=502, detail=f"OpenRouter captioning failed: {detail_text}") from None
-
-    summary = "; ".join(f"{model}: {detail}" for model, detail in invalid_models) or "no caption model accepted"
-    logger.error("All thumbnail caption model candidates failed: %s", summary)
-    raise HTTPException(
-        status_code=502,
-        detail=f"OpenRouter captioning failed for all models ({summary}).",
-    )
-
-
-def _describe_image_with_openai(image_path: Path, api_key: str, model_name: str) -> tuple[str, str]:
-    if not OpenAI:
-        raise HTTPException(status_code=503, detail="OpenAI SDK がインストールされていません。")
-    try:
-        raw_bytes = image_path.read_bytes()
-    except OSError as exc:
-        logger.warning("Failed to read image for caption: %s", exc)
-        raise HTTPException(status_code=500, detail=f"画像の読み込みに失敗しました: {exc}") from exc
-    mime_type = mimetypes.guess_type(image_path.name)[0] or "image/png"
-    data_url = f"data:{mime_type};base64,{base64.b64encode(raw_bytes).decode('ascii')}"
-    prompt = (
-        "以下のYouTubeサムネイル画像の内容を80文字前後の日本語で説明してください。"
-        "人物・背景・文字・雰囲気を具体的に触れてください。"
-    )
-    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-    if azure_endpoint:
-        client = OpenAI(
-            api_key=api_key,
-            base_url=azure_endpoint.rstrip("/"),
-            default_headers={"api-key": api_key},
-        )
-    else:
-        client = OpenAI(api_key=api_key)
-    try:
-        response = client.chat.completions.create(
-            model=model_name,
-            max_tokens=400,
-            temperature=0.2,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "あなたはYouTubeサムネイルの要約者です。短く具体的に記述してください。",
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {"url": data_url}},
-                    ],
-                },
-            ],
-        )
-    except Exception as exc:  # pragma: no cover - network/SDK errors
-        logger.error("OpenAI captioning request failed (%s): %s", model_name, exc)
-        raise HTTPException(status_code=502, detail=f"OpenAI captioning failed: {exc}") from exc
-
-    choice = response.choices[0].message.content
-    if isinstance(choice, list):
-        text = " ".join(part.get("text", "") for part in choice if isinstance(part, dict)).strip()
-    else:
-        text = str(choice or "").strip()
-    if not text:
-        raise HTTPException(status_code=502, detail="OpenAI応答に説明文が含まれていません。")
-    return text, model_name
-
-
 def _color_name(rgb: tuple[int, int, int]) -> str:
     r, g, b = rgb
     if max(rgb) < 60:
@@ -5673,6 +5499,13 @@ try:
     app.include_router(agent_org.router)
 except Exception as e:
     logger.error("Failed to load agent_org router: %s", e)
+
+try:
+    from backend.routers import pipeline_boxes
+
+    app.include_router(pipeline_boxes.router)
+except Exception as e:
+    logger.error("Failed to load pipeline_boxes router: %s", e)
 
 # 静的に thumbnails ディレクトリを配信
 # NOTE: 静的マウントはAPI routes (/thumbnails/library/, /thumbnails/assets/) より先に
@@ -7977,6 +7810,18 @@ def get_video_detail(channel: str, video: str):
         planning=build_planning_payload(metadata),
         youtube_description=youtube_description,
         warnings=warnings,
+        artifacts=_summarize_video_detail_artifacts(
+            channel_code,
+            video_number,
+            base_dir=base_dir,
+            content_dir=content_dir,
+            audio_prep_dir=base_dir / "audio_prep",
+            assembled_path=assembled_path,
+            assembled_human_path=assembled_human_path,
+            b_text_with_pauses_path=b_with_pauses,
+            audio_path=audio_path,
+            srt_path=srt_path,
+        ),
     )
 
 
@@ -9607,57 +9452,78 @@ def main(argv: Optional[List[str]] = None) -> None:
 
 if __name__ == "__main__":
     main()
-from ui.backend.tools.optional_fields_registry import (
-    OPTIONAL_FIELDS,
-    FIELD_KEYS,
-    get_planning_section,
-    update_planning_from_row,
-)
-SPREADSHEET_EXPORT_DIR = PROJECT_ROOT / "exports" / "spreadsheets"
-def _generate_thumbnail_caption(image_path: Path) -> tuple[str, str, str]:
-    settings = _get_ui_settings()
-    llm = settings.get("llm", {})
-    preferred_provider = (llm.get("caption_provider") or DEFAULT_CAPTION_PROVIDER).lower()
-    # フェーズ設定で上書き（caption 用）
-    phase_provider, phase_model = _resolve_phase_choice(
-        llm,
-        "caption",
-        default_provider=preferred_provider,
-        default_model=llm.get("openai_caption_model") or DEFAULT_OPENAI_CAPTION_MODEL,
-        allowed_providers={"openai", "openrouter"},
+
+
+def _generate_thumbnail_caption(image_path: Path) -> tuple[str, Optional[str], str]:
+    prompt = (
+        "以下のYouTubeサムネイル画像の内容を80文字前後の日本語で説明してください。"
+        "人物・背景・文字・雰囲気を具体的に触れてください。"
     )
-    if phase_provider in {"openai", "openrouter"}:
-        preferred_provider = phase_provider
-    sequence: List[str] = []
-    if preferred_provider == "openrouter":
-        sequence = ["openrouter", "openai"]
+    try:
+        raw_bytes = image_path.read_bytes()
+    except OSError as exc:
+        logger.warning("Failed to read image for caption: %s", exc)
+        raise HTTPException(status_code=500, detail=f"画像の読み込みに失敗しました: {exc}") from exc
+
+    mime_type = mimetypes.guess_type(image_path.name)[0] or "image/png"
+    data_url = f"data:{mime_type};base64,{base64.b64encode(raw_bytes).decode('ascii')}"
+    messages: List[Dict[str, object]] = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {"type": "image_url", "image_url": {"url": data_url}},
+            ],
+        }
+    ]
+
+    try:
+        from factory_common.llm_router import get_router
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        logger.warning("LLMRouter is not available for thumbnail caption: %s", exc)
+        return _generate_heuristic_thumbnail_description(image_path), None, "heuristic"
+
+    router = get_router()
+    try:
+        result = router.call_with_raw(
+            task="visual_thumbnail_caption",
+            messages=messages,
+        )
+    except SystemExit as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.warning("Thumbnail caption LLM failed; falling back to heuristic: %s", exc)
+        return _generate_heuristic_thumbnail_description(image_path), None, "heuristic"
+
+    provider = str(result.get("provider") or "").strip().lower()
+    if provider == "agent":
+        raise HTTPException(status_code=409, detail="THINK MODE の結果がまだありません。agent_runner で完了してください。")
+
+    content = result.get("content")
+    if isinstance(content, list):
+        text = " ".join(part.get("text", "") for part in content if isinstance(part, dict)).strip()
     else:
-        sequence = ["openai", "openrouter"]
-    errors: List[str] = []
-    for provider in sequence:
-        if provider == "openai":
-            api_key = _get_effective_openai_key()
-            model_name = phase_model if preferred_provider == "openai" else (llm.get("openai_caption_model") or DEFAULT_OPENAI_CAPTION_MODEL)
-            if not api_key:
-                errors.append("OpenAI APIキーが未設定です。")
-                continue
-            try:
-                text, model = _describe_image_with_openai(image_path, api_key, model_name)
-                return text, model, "openai"
-            except HTTPException as exc:
-                errors.append(f"OpenAI: {exc.detail}")
-        else:
-            api_key = _get_effective_openrouter_key()
-            model_name = llm.get("openrouter_caption_model") or THUMBNAIL_CAPTION_DEFAULT_MODEL
-            if not api_key:
-                errors.append("OpenRouter APIキーが未設定です。")
-                continue
-            try:
-                text, model = _describe_image_with_openrouter(image_path, api_key, model_name)
-                return text, model, "openrouter"
-            except HTTPException as exc:
-                errors.append(f"OpenRouter: {exc.detail}")
-    raise HTTPException(status_code=503, detail="; ".join(errors) or "サムネイル説明に失敗しました。")
+        text = str(content or "").strip()
+    if not text:
+        return _generate_heuristic_thumbnail_description(image_path), None, "heuristic"
+
+    model_key = str(result.get("model") or "").strip()
+    model_name: Optional[str] = model_key or None
+    try:
+        model_conf = (router.config.get("models", {}) or {}).get(model_key, {}) if model_key else {}
+        if isinstance(model_conf, dict):
+            if provider == "azure":
+                model_name = model_conf.get("deployment") or model_name
+            else:
+                model_name = model_conf.get("model_name") or model_name
+    except Exception:
+        pass
+
+    if provider == "azure":
+        source = "openai"
+    else:
+        source = "openrouter"
+    return text, model_name, source
 
 
 def _build_llm_settings_response() -> LLMSettingsResponse:
@@ -9731,8 +9597,8 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
                 "label": "サムネキャプション",
                 "role": "画像キャプション生成",
                 "path": "ui/backend/main.py::_generate_thumbnail_caption",
-                "prompt_source": "コード内(system+user)",
-                "endpoint": "OpenAI(Azure) or OpenRouter",
+                "prompt_source": "コード内 + configs/llm_router.yaml (tasks.visual_thumbnail_caption)",
+                "endpoint": "LLMRouter (API) + THINK failover",
             },
             "script_rewrite": {
                 "label": "台本リライト",
@@ -9743,9 +9609,9 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
             "natural_command": {
                 "label": "ナチュラルコマンド",
                 "role": "自然言語コマンド解釈",
-                "path": "ui/backend/main.py::_init_natural_command_model",
-                "prompt_source": "コード内 (短いシステム/ユーザ)",
-                "endpoint": "OpenAI(Azure)/OpenRouter",
+                "path": "ui/backend/main.py::_call_llm_for_command",
+                "prompt_source": "コード内 + configs/llm_router.yaml (tasks.tts_natural_command)",
+                "endpoint": "LLMRouter (API) + THINK failover",
             },
             "research": {
                 "label": "リサーチ",

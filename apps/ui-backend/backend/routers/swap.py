@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
+import re
 import subprocess
+import sys
 import time
 import uuid
 import shutil
@@ -21,6 +24,7 @@ PROJECT_ROOT = ssot_repo_root()
 SAFE_SWAP = video_pkg_root() / "tools" / "safe_image_swap.py"
 LOG_DIR = logs_root() / "swap"
 HISTORY_ROOT = LOG_DIR / "history"
+THUMB_CACHE_DIR = LOG_DIR / "thumb_cache"
 WHITELIST_PATH = video_pkg_root() / "config" / "track_whitelist.json"
 IMAGE_ASSET_SUBDIR = "assets/image"
 _env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
@@ -32,7 +36,8 @@ CAPCUT_ROOT = (
 OUTPUT_ROOT = video_runs_root()
 IMAGE_CUES_NAME = "image_cues.json"
 PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"
-PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"
+
+_EPISODE_TOKEN_RE = re.compile(r"(CH\d{2})[-_](\d{3})", re.IGNORECASE)
 
 
 def _ensure_paths() -> None:
@@ -40,6 +45,7 @@ def _ensure_paths() -> None:
         raise HTTPException(status_code=500, detail=f"safe_image_swap.py not found: {SAFE_SWAP}")
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     HISTORY_ROOT.mkdir(parents=True, exist_ok=True)
+    THUMB_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     WHITELIST_PATH.parent.mkdir(parents=True, exist_ok=True)
     CAPCUT_ROOT.mkdir(parents=True, exist_ok=True)
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -77,6 +83,18 @@ def swap_images(
     if not run.exists():
         raise HTTPException(status_code=400, detail=f"run_dir not found: {run}")
 
+    draft_episode = _extract_episode_token(draft.name)
+    run_episode = _extract_episode_token(run.name)
+    if draft_episode and run_episode and draft_episode != run_episode:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "draft/run_dir mismatch. run_dir を選び直してください。\n"
+                f"- draft: {draft_episode}\n"
+                f"- run_dir: {run_episode}"
+            ),
+        )
+
     if isinstance(indices, str):
         try:
             indices_list = [int(x.strip()) for x in indices.split(",") if x.strip()]
@@ -99,13 +117,9 @@ def swap_images(
         _snapshot_prompts(run, indices_list)
     except Exception:
         pass
-    try:
-        _snapshot_prompts(run, indices_list)
-    except Exception:
-        pass
 
     cmd = [
-        "python3",
+        sys.executable,
         str(SAFE_SWAP),
         "--run-dir",
         str(run),
@@ -425,8 +439,9 @@ def list_draft_images(draft_path: str) -> Dict[str, Any]:
 
 
 @router.get("/images/file")
-def get_image_file(draft_path: str, material_name: str):
+def get_image_file(draft_path: str, material_name: str, max_dim: Optional[int] = Query(default=None, ge=64, le=2048)):
     """Serve image file from draft assets/image. material_name is sanitized to a filename."""
+    _ensure_paths()
     draft = Path(draft_path).expanduser().resolve()
     if not draft.exists():
         raise HTTPException(status_code=400, detail="draft not found")
@@ -435,7 +450,37 @@ def get_image_file(draft_path: str, material_name: str):
     img_path = draft / IMAGE_ASSET_SUBDIR / material_name
     if not img_path.exists():
         raise HTTPException(status_code=404, detail="image not found")
-    return FileResponse(img_path)
+
+    if not max_dim:
+        return FileResponse(img_path)
+
+    try:
+        draft_key = hashlib.sha256(str(draft).encode("utf-8")).hexdigest()[:16]
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", material_name)
+        thumb_dir = THUMB_CACHE_DIR / draft_key / str(max_dim)
+        thumb_path = thumb_dir / f"{safe_name}.jpg"
+
+        if thumb_path.exists():
+            try:
+                src_stat = img_path.stat()
+                thumb_stat = thumb_path.stat()
+                if thumb_stat.st_mtime_ns >= src_stat.st_mtime_ns:
+                    return FileResponse(thumb_path, media_type="image/jpeg")
+            except Exception:
+                # fallthrough to regenerate
+                pass
+
+        thumb_dir.mkdir(parents=True, exist_ok=True)
+        tmp_path = thumb_path.with_name(f"{thumb_path.name}.tmp_{uuid.uuid4().hex}")
+        with Image.open(img_path) as im:
+            im = im.convert("RGB")
+            im.thumbnail((max_dim, max_dim), Image.LANCZOS)
+            im.save(tmp_path, format="JPEG", quality=85, optimize=True)
+        tmp_path.replace(thumb_path)
+        return FileResponse(thumb_path, media_type="image/jpeg")
+    except Exception:
+        # UIプレビュー用の軽量化が失敗しても、元画像を返して操作を止めない。
+        return FileResponse(img_path)
 
 
 @router.get("/image-cues")
@@ -528,50 +573,54 @@ def rollback_image(
         raise HTTPException(status_code=500, detail="rollback failed (could not swap ids)")
     return {"ok": True}
 def _auto_run_dir_for_draft(draft_name: str) -> Optional[str]:
-    # simple heuristic: find a run dir whose name contains draft_name prefix digits
     if not draft_name:
         return None
-    prefix = None
+
+    episode = _extract_episode_token(draft_name)
+    candidates = sorted(
+        [p for p in OUTPUT_ROOT.iterdir() if p.is_dir()],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if not candidates:
+        return None
+
+    if episode:
+        token = episode
+        token_alt = token.replace("-", "_")
+        for cand in candidates:
+            name_upper = cand.name.upper()
+            if name_upper.startswith(token) or name_upper.startswith(token_alt):
+                return str(cand)
+        for cand in candidates:
+            name_upper = cand.name.upper()
+            if token in name_upper or token_alt in name_upper:
+                return str(cand)
+
+    # Fallback: keep the previous behavior (match by isolated numeric token if present).
+    prefix: Optional[str] = None
     for token in draft_name.replace("【", "_").replace("】", "_").split("_"):
         if token.isdigit():
             prefix = token
             break
-    candidates = sorted([p for p in OUTPUT_ROOT.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
-    for cand in candidates:
-        if prefix and prefix in cand.name:
-            return str(cand)
-    return candidates[0].as_posix() if candidates else None
+    if prefix:
+        for cand in candidates:
+            if prefix in cand.name:
+                return str(cand)
+
+    return str(candidates[0])
 
 
-def _snapshot_prompts(run_dir: Path, indices: List[int]) -> None:
-    """Best-effort: append prompts for given indices to run_dir/prompt_snapshots.json."""
-    cues_path = run_dir / IMAGE_CUES_NAME
-    if not cues_path.exists():
-        return
-    try:
-        data = json.loads(cues_path.read_text(encoding="utf-8"))
-    except Exception:
-        return
-    cues = data.get("cues") or data.get("sections") or []
-    by_idx: Dict[int, str] = {}
-    for i, cue in enumerate(cues, start=1):
-        prompt = cue.get("prompt") or cue.get("raw_prompt") or cue.get("positive") or ""
-        by_idx[i] = prompt
-    rows = []
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    for idx in indices:
-        rows.append({"index": idx, "prompt": by_idx.get(idx, ""), "timestamp": ts})
-    snap_path = run_dir / PROMPT_SNAPSHOT_NAME
-    try:
-        existing = []
-        if snap_path.exists():
-            existing = json.loads(snap_path.read_text(encoding="utf-8"))
-            if not isinstance(existing, list):
-                existing = []
-        existing.extend(rows)
-        snap_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception:
-        return
+def _extract_episode_token(text: str) -> Optional[str]:
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    match = _EPISODE_TOKEN_RE.search(raw)
+    if not match:
+        return None
+    channel = match.group(1).upper()
+    video = match.group(2).zfill(3)
+    return f"{channel}-{video}"
 
 
 def _snapshot_prompts(run_dir: Path, indices: List[int]) -> None:

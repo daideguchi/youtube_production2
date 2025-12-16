@@ -82,6 +82,13 @@ import {
   RedoUpdateResponse,
   RedoSummaryItem,
   ThumbnailLookupResponse,
+  ScriptManifest,
+  LlmArtifactListItem,
+  LlmTextArtifact,
+  LlmTextArtifactUpdatePayload,
+  SrtSegmentsArtifact,
+  VisualCuesPlanArtifact,
+  VisualCuesPlanUpdatePayload,
 } from "./types";
 
 import { apiUrl } from "../utils/apiClient";
@@ -366,6 +373,55 @@ export function updateHumanScripts(
     method: "PUT",
     body: JSON.stringify(body),
   });
+}
+
+export function fetchScriptManifest(channel: string, video: string): Promise<ScriptManifest> {
+  return request<ScriptManifest>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/script-manifest`
+  );
+}
+
+export function refreshScriptManifest(channel: string, video: string): Promise<ScriptManifest> {
+  return request<ScriptManifest>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/script-manifest/refresh`,
+    { method: "POST" }
+  );
+}
+
+export function listLlmArtifacts(channel: string, video: string): Promise<LlmArtifactListItem[]> {
+  return request<LlmArtifactListItem[]>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/llm-artifacts`
+  );
+}
+
+export function fetchLlmArtifact(channel: string, video: string, artifactName: string): Promise<LlmTextArtifact> {
+  return request<LlmTextArtifact>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/llm-artifacts/${encodeURIComponent(
+      artifactName
+    )}`
+  );
+}
+
+export function updateLlmArtifact(
+  channel: string,
+  video: string,
+  artifactName: string,
+  payload: LlmTextArtifactUpdatePayload
+): Promise<LlmTextArtifact> {
+  return request<LlmTextArtifact>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/llm-artifacts/${encodeURIComponent(
+      artifactName
+    )}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        status: payload.status,
+        content: payload.content,
+        notes: payload.notes ?? undefined,
+        apply_output: payload.applyOutput ?? false,
+      }),
+    }
+  );
 }
 
 export function fetchWorkflowPrecheck(
@@ -1749,6 +1805,33 @@ export async function fetchVideoProjectDetail(projectId: string): Promise<VideoP
     generationOptions: normalizeGenerationOptions(generation_options),
     capcut: normalizeCapcutSettings(capcut),
   };
+}
+
+export function fetchProjectSrtSegments(projectId: string): Promise<SrtSegmentsArtifact> {
+  return request<SrtSegmentsArtifact>(`/api/video-production/projects/${encodeURIComponent(projectId)}/srt-segments`);
+}
+
+export function fetchProjectVisualCuesPlan(projectId: string): Promise<VisualCuesPlanArtifact> {
+  return request<VisualCuesPlanArtifact>(
+    `/api/video-production/projects/${encodeURIComponent(projectId)}/visual-cues-plan`
+  );
+}
+
+export function updateProjectVisualCuesPlan(
+  projectId: string,
+  payload: VisualCuesPlanUpdatePayload
+): Promise<VisualCuesPlanArtifact> {
+  return request<VisualCuesPlanArtifact>(
+    `/api/video-production/projects/${encodeURIComponent(projectId)}/visual-cues-plan`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        status: payload.status,
+        sections: payload.sections,
+        style_hint: payload.styleHint ?? undefined,
+      }),
+    }
+  );
 }
 
 export function updateVideoGenerationOptions(

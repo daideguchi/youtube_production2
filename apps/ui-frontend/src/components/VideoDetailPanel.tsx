@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
+  LlmArtifactListItem,
+  LlmTextArtifact,
   SrtVerifyResponse,
   TtsReplaceResponse,
   TtsSaveResponse,
@@ -13,8 +15,11 @@ import {
 import {
   API_BASE_URL,
   enhanceTts,
+  fetchLlmArtifact,
   fetchPlainTtsScript,
   fetchHumanScripts,
+  listLlmArtifacts,
+  updateLlmArtifact,
   updateHumanScripts,
   fetchAText,
   updateVideoRedo,
@@ -134,6 +139,19 @@ const [aTextModalOpen, setATextModalOpen] = useState(false);
 const [aTextModalContent, setATextModalContent] = useState<string>("");
 const [aTextModalLoading, setATextModalLoading] = useState(false);
 const [aTextModalError, setATextModalError] = useState<string | null>(null);
+const [llmBoxesOpen, setLlmBoxesOpen] = useState(false);
+const [llmArtifacts, setLlmArtifacts] = useState<LlmArtifactListItem[]>([]);
+const [llmArtifactsLoading, setLlmArtifactsLoading] = useState(false);
+const [llmArtifactsError, setLlmArtifactsError] = useState<string | null>(null);
+const [llmEditorOpen, setLlmEditorOpen] = useState(false);
+const [llmEditorName, setLlmEditorName] = useState<string | null>(null);
+const [llmEditorLoading, setLlmEditorLoading] = useState(false);
+const [llmEditorSaving, setLlmEditorSaving] = useState(false);
+const [llmEditorError, setLlmEditorError] = useState<string | null>(null);
+const [llmEditorArtifact, setLlmEditorArtifact] = useState<LlmTextArtifact | null>(null);
+const [llmEditorStatus, setLlmEditorStatus] = useState<"pending" | "ready">("pending");
+const [llmEditorApplyOutput, setLlmEditorApplyOutput] = useState(true);
+const [llmEditorContent, setLlmEditorContent] = useState<string>("");
 
   // 音声タブの操作を常時有効にするため、人手チェックフラグは常に true で扱う
   const [audioReviewed, setAudioReviewed] = useState<boolean>(true);
@@ -191,6 +209,84 @@ const openATextModal = useCallback(async () => {
   }
 }, [detail.channel, detail.video]);
 
+const refreshLlmArtifacts = useCallback(async () => {
+  setLlmArtifactsLoading(true);
+  setLlmArtifactsError(null);
+  try {
+    const items = await listLlmArtifacts(detail.channel, detail.video);
+    setLlmArtifacts(items);
+    if (items.some((item) => item.status === "pending")) {
+      setLlmBoxesOpen(true);
+    }
+  } catch (err) {
+    setLlmArtifactsError(err instanceof Error ? err.message : String(err));
+  } finally {
+    setLlmArtifactsLoading(false);
+  }
+}, [detail.channel, detail.video]);
+
+const openLlmEditor = useCallback(
+  async (artifactName: string) => {
+    setLlmEditorOpen(true);
+    setLlmEditorName(artifactName);
+    setLlmEditorLoading(true);
+    setLlmEditorError(null);
+    setLlmEditorArtifact(null);
+    setLlmEditorContent("");
+    try {
+      const art = await fetchLlmArtifact(detail.channel, detail.video, artifactName);
+      setLlmEditorArtifact(art);
+      setLlmEditorContent(art.content ?? "");
+      setLlmEditorStatus(art.status === "ready" ? "ready" : "pending");
+      setLlmEditorApplyOutput(true);
+    } catch (err) {
+      setLlmEditorError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLlmEditorLoading(false);
+    }
+  },
+  [detail.channel, detail.video]
+);
+
+const saveLlmEditor = useCallback(async () => {
+  if (!llmEditorName) {
+    return;
+  }
+  setLlmEditorSaving(true);
+  setLlmEditorError(null);
+  try {
+    const updated = await updateLlmArtifact(detail.channel, detail.video, llmEditorName, {
+      status: llmEditorStatus,
+      content: llmEditorContent,
+      applyOutput: llmEditorApplyOutput && llmEditorStatus === "ready",
+    });
+    setLlmEditorArtifact(updated);
+    setMessage("LLM Box を保存しました");
+    setLlmEditorOpen(false);
+    await refreshLlmArtifacts();
+  } catch (err) {
+    setLlmEditorError(err instanceof Error ? err.message : String(err));
+  } finally {
+    setLlmEditorSaving(false);
+  }
+}, [
+  detail.channel,
+  detail.video,
+  llmEditorApplyOutput,
+  llmEditorContent,
+  llmEditorName,
+  llmEditorStatus,
+  refreshLlmArtifacts,
+]);
+
+useEffect(() => {
+  const currentTab = activeTabProp ?? activeTabInternal;
+  if (currentTab !== "script") {
+    return;
+  }
+  void refreshLlmArtifacts();
+}, [activeTabProp, activeTabInternal, refreshLlmArtifacts]);
+
   const ttsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const detailKeyRef = useRef<string | null>(null);
 
@@ -200,6 +296,10 @@ const openATextModal = useCallback(async () => {
     [audioReviewed, audioReviewedBase, ttsBase, ttsDraft]
   );
   const ttsDirty = assembledDirty || audioDirty;
+  const llmPendingCount = useMemo(
+    () => llmArtifacts.filter((item) => item.status === "pending").length,
+    [llmArtifacts]
+  );
   const redoDirty =
     redoScript !== (detail.redo_script ?? true) ||
     redoAudio !== (detail.redo_audio ?? true) ||
@@ -1117,6 +1217,78 @@ const openATextModal = useCallback(async () => {
                 <strong>未整備:</strong> {warningMessages.join(" / ")}
               </div>
             ) : null}
+            <CollapseCard
+              title="LLM Boxes（埋める箱）"
+              subtitle={
+                llmArtifactsLoading
+                  ? "読み込み中…"
+                  : llmArtifactsError
+                    ? "取得失敗"
+                    : llmArtifacts.length === 0
+                      ? "なし"
+                      : llmPendingCount > 0
+                        ? `pending ${llmPendingCount}`
+                        : `ready ${llmArtifacts.length}`
+              }
+              open={llmBoxesOpen}
+              onToggle={setLlmBoxesOpen}
+              highlight={llmPendingCount > 0}
+            >
+              <p className="muted small-text">
+                THINK/AGENT などで止まった LLM 出力（箱）を UI から埋めて <code>status=ready</code> にできます。
+              </p>
+              <div className="actions actions--compact">
+                <button type="button" onClick={() => void refreshLlmArtifacts()} disabled={llmArtifactsLoading}>
+                  更新
+                </button>
+              </div>
+              {llmArtifactsError ? <p className="error">{llmArtifactsError}</p> : null}
+              {!llmArtifactsLoading && llmArtifacts.length === 0 ? (
+                <p className="muted small-text">この動画の LLM Boxes はありません。</p>
+              ) : null}
+              {llmArtifacts.length > 0 ? (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {llmArtifacts
+                    .slice()
+                    .sort((a, b) => {
+                      const rank = (status: string) =>
+                        status === "pending" ? 0 : status === "ready" ? 1 : 2;
+                      const byStatus = rank(a.status) - rank(b.status);
+                      if (byStatus !== 0) return byStatus;
+                      const byStage = String(a.stage ?? "").localeCompare(String(b.stage ?? ""));
+                      if (byStage !== 0) return byStage;
+                      return a.name.localeCompare(b.name);
+                    })
+                    .map((item) => (
+                      <div key={item.name} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <strong style={{ fontSize: 13 }}>
+                            {item.stage ?? item.name}
+                            {item.task ? ` / ${item.task}` : ""}
+                          </strong>
+                          {item.output_path ? (
+                            <div className="muted small-text" style={{ wordBreak: "break-all" }}>
+                              <code>{item.output_path}</code>
+                            </div>
+                          ) : null}
+                          {item.error ? <div className="error small-text">{item.error}</div> : null}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span className="muted small-text">{item.status}</span>
+                          <button
+                            type="button"
+                            className="workspace-button workspace-button--ghost workspace-button--sm"
+                            onClick={() => void openLlmEditor(item.name)}
+                            disabled={item.status === "error"}
+                          >
+                            編集
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : null}
+            </CollapseCard>
             {/* AI生成版は非表示 */}
             {SHOW_AI_SECTION && (
               <div className="script-row">
@@ -1449,6 +1621,91 @@ const openATextModal = useCallback(async () => {
         {message && <span className="success">{message}</span>}
         {error && <span className="error">{error}</span>}
       </footer>
+      {llmEditorOpen ? (
+        <div className="modal-backdrop" onClick={() => setLlmEditorOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <header className="modal__header">
+              <h3>LLM Box</h3>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="workspace-button workspace-button--ghost" onClick={() => setLlmEditorOpen(false)}>
+                  閉じる
+                </button>
+                <button
+                  className="workspace-button workspace-button--primary"
+                  onClick={() => void saveLlmEditor()}
+                  disabled={
+                    llmEditorSaving ||
+                    llmEditorLoading ||
+                    (llmEditorStatus === "ready" && llmEditorContent.trim().length === 0)
+                  }
+                >
+                  {llmEditorSaving ? "保存中..." : "保存"}
+                </button>
+              </div>
+            </header>
+            <div className="modal__body" style={{ maxHeight: "70vh", overflow: "auto" }}>
+              {llmEditorLoading ? <p>読み込み中…</p> : null}
+              {llmEditorError ? <p className="error">{llmEditorError}</p> : null}
+              {llmEditorArtifact ? (
+                <div style={{ display: "grid", gap: 10 }}>
+                  <div className="muted small-text" style={{ wordBreak: "break-all" }}>
+                    {llmEditorName ? (
+                      <div>
+                        <strong>artifact:</strong> <code>{llmEditorName}</code>
+                      </div>
+                    ) : null}
+                    <div>
+                      <strong>stage/task:</strong> {llmEditorArtifact.stage} / {llmEditorArtifact.task}
+                    </div>
+                    {llmEditorArtifact.output?.path ? (
+                      <div>
+                        <strong>output:</strong> <code>{llmEditorArtifact.output.path}</code>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                    <label className="muted small-text">
+                      status{" "}
+                      <select
+                        value={llmEditorStatus}
+                        onChange={(event) => setLlmEditorStatus(event.target.value as "pending" | "ready")}
+                        disabled={llmEditorSaving || llmEditorLoading}
+                      >
+                        <option value="pending">pending</option>
+                        <option value="ready">ready</option>
+                      </select>
+                    </label>
+                    <label className="muted small-text">
+                      <input
+                        type="checkbox"
+                        checked={llmEditorApplyOutput}
+                        onChange={(event) => setLlmEditorApplyOutput(event.target.checked)}
+                        disabled={llmEditorSaving || llmEditorLoading || llmEditorStatus !== "ready"}
+                      />{" "}
+                      出力ファイルへ反映（推奨）
+                    </label>
+                    <span className="muted small-text">
+                      文字数: {llmEditorContent.replace(/\r/g, "").replace(/\n/g, "").length.toLocaleString("ja-JP")}
+                    </span>
+                  </div>
+                  {llmEditorStatus === "ready" && llmEditorContent.trim().length === 0 ? (
+                    <p className="error small-text">status=ready の場合は content が必須です。</p>
+                  ) : null}
+                  <textarea
+                    className="script-editor__textarea"
+                    value={llmEditorContent}
+                    onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setLlmEditorContent(event.target.value)}
+                    aria-label="LLM Box content"
+                    placeholder="ここに内容を貼り付け/編集してください"
+                    style={{ minHeight: "40vh" }}
+                    disabled={llmEditorSaving || llmEditorLoading}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
       {aTextModalOpen ? (
         <div className="modal-backdrop" onClick={() => setATextModalOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>

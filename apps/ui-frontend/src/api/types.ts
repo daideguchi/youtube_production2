@@ -301,6 +301,7 @@ export interface VideoDetail {
   redo_script?: boolean;
   redo_audio?: boolean;
   redo_note?: string | null;
+  artifacts?: ArtifactsSummary | null;
 }
 
 export interface HumanScriptResponse {
@@ -322,6 +323,50 @@ export interface HumanScriptUpdatePayload {
   script_audio_human?: string | null;
   audio_reviewed?: boolean;
   expectedUpdatedAt?: string | null;
+}
+
+export type ScriptManifest = Record<string, unknown>;
+
+export interface LlmArtifactListItem {
+  name: string;
+  status: string;
+  stage?: string | null;
+  task?: string | null;
+  generated_at?: string | null;
+  output_path?: string | null;
+  output_sha1?: string | null;
+  content_chars?: number | null;
+  error?: string | null;
+}
+
+export interface LlmTextArtifactSourceFile {
+  path: string;
+  sha1: string;
+}
+
+export interface LlmTextArtifact {
+  schema: string;
+  generated_at: string;
+  status: string;
+  stage: string;
+  task: string;
+  channel?: string | null;
+  video?: string | null;
+  output: {
+    path: string;
+    sha1?: string | null;
+  };
+  content: string;
+  sources: LlmTextArtifactSourceFile[];
+  llm_meta?: Record<string, unknown>;
+  notes?: string;
+}
+
+export interface LlmTextArtifactUpdatePayload {
+  status: "pending" | "ready";
+  content: string;
+  notes?: string | null;
+  applyOutput?: boolean;
 }
 
 export interface ScriptTextResponse {
@@ -934,6 +979,78 @@ export interface VideoProjectLayer {
   segments: VideoProjectLayerSegment[];
 }
 
+export interface ArtifactEntry {
+  key: string;
+  label: string;
+  path: string;
+  kind: "file" | "dir";
+  exists: boolean;
+  size_bytes?: number | null;
+  modified_time?: string | null;
+  meta?: Record<string, unknown>;
+}
+
+export interface ArtifactsSummary {
+  project_dir?: string | null;
+  items: ArtifactEntry[];
+}
+
+export type VideoProjectArtifactEntry = ArtifactEntry;
+export type VideoProjectArtifacts = ArtifactsSummary;
+
+export interface SrtSegment {
+  index: number;
+  start_sec: number;
+  end_sec: number;
+  text: string;
+}
+
+export interface SrtSegmentsArtifact {
+  schema: string;
+  generated_at?: string | null;
+  episode?: string | null;
+  source_srt: {
+    path: string;
+    sha1: string;
+  };
+  segments: SrtSegment[];
+  meta?: Record<string, unknown>;
+}
+
+export interface VisualCuesPlanSection {
+  start_segment: number;
+  end_segment: number;
+  summary: string;
+  visual_focus: string;
+  emotional_tone: string;
+  persona_needed: boolean;
+  role_tag: string;
+  section_type: string;
+}
+
+export interface VisualCuesPlanArtifact {
+  schema: string;
+  generated_at: string;
+  status: "pending" | "ready";
+  source_srt: {
+    path: string;
+    sha1: string;
+  };
+  segment_count: number;
+  base_seconds: number;
+  sections: VisualCuesPlanSection[];
+  episode?: string | null;
+  style_hint?: string;
+  llm_task?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+export interface VisualCuesPlanUpdatePayload {
+  status: "pending" | "ready";
+  sections: VisualCuesPlanSection[];
+  styleHint?: string | null;
+}
+
 export interface VideoProjectDetail {
   summary: VideoProjectSummary;
   images?: VideoProjectImageAsset[];
@@ -949,6 +1066,7 @@ export interface VideoProjectDetail {
   sourceStatus?: SourceStatus | null;
   generationOptions?: VideoGenerationOptions | null;
   capcut?: VideoProjectCapcutSettings | null;
+  artifacts?: VideoProjectArtifacts | null;
 }
 
 export interface VideoGenerationOptions {

@@ -18,7 +18,10 @@ import {
   fetchVideoProductionChannels,
   fetchVideoProjectDetail,
   fetchVideoProjects,
+  fetchProjectSrtSegments,
+  fetchProjectVisualCuesPlan,
   fetchProjectSrtContent,
+  updateProjectVisualCuesPlan,
   updateProjectSrtContent,
   replaceProjectImage,
   regenerateProjectImage,
@@ -43,6 +46,9 @@ import type {
   SourceStatus,
   VideoGenerationOptions,
   ChannelPresetUpdatePayload,
+  SrtSegmentsArtifact,
+  VisualCuesPlanArtifact,
+  VisualCuesPlanSection,
 } from "../api/types";
 import { INTEGRITY_LABEL, getIntegrityStatusLabel } from "../copy/videoProduction";
 import { loadWorkspaceSelection, saveWorkspaceSelection } from "../utils/workspaceSelection";
@@ -1257,6 +1263,93 @@ function DraftWorkspace({
   onReplace: (assetPath: string, file: File) => Promise<void>;
   onSelectImage: (index: number | null) => void;
 }) {
+  const projectId = project?.summary?.id ?? null;
+  const [visualPlan, setVisualPlan] = useState<VisualCuesPlanArtifact | null>(null);
+  const [visualPlanDraft, setVisualPlanDraft] = useState<VisualCuesPlanSection[]>([]);
+  const [visualPlanStyleHint, setVisualPlanStyleHint] = useState("");
+  const [visualPlanLoading, setVisualPlanLoading] = useState(false);
+  const [visualPlanSaving, setVisualPlanSaving] = useState(false);
+  const [visualPlanError, setVisualPlanError] = useState<string | null>(null);
+  const [srtSegments, setSrtSegments] = useState<SrtSegmentsArtifact | null>(null);
+  const [srtSegmentsLoading, setSrtSegmentsLoading] = useState(false);
+  const [srtSegmentsError, setSrtSegmentsError] = useState<string | null>(null);
+
+  const visualPlanDirty = useMemo(() => {
+    const baseSections = visualPlan?.sections ?? [];
+    const baseStyle = visualPlan?.style_hint ?? "";
+    return JSON.stringify(baseSections) !== JSON.stringify(visualPlanDraft) || baseStyle !== visualPlanStyleHint;
+  }, [visualPlan, visualPlanDraft, visualPlanStyleHint]);
+
+  const reloadVisualPlan = useCallback(async () => {
+    if (!projectId) {
+      setVisualPlan(null);
+      setVisualPlanDraft([]);
+      setVisualPlanStyleHint("");
+      return;
+    }
+    setVisualPlanLoading(true);
+    setVisualPlanError(null);
+    try {
+      const plan = await fetchProjectVisualCuesPlan(projectId);
+      setVisualPlan(plan);
+      setVisualPlanDraft(plan.sections ?? []);
+      setVisualPlanStyleHint(plan.style_hint ?? "");
+    } catch (error) {
+      setVisualPlan(null);
+      setVisualPlanDraft([]);
+      setVisualPlanStyleHint("");
+      setVisualPlanError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setVisualPlanLoading(false);
+    }
+  }, [projectId]);
+
+  const reloadSrtSegments = useCallback(async () => {
+    if (!projectId) {
+      setSrtSegments(null);
+      return;
+    }
+    setSrtSegmentsLoading(true);
+    setSrtSegmentsError(null);
+    try {
+      const data = await fetchProjectSrtSegments(projectId);
+      setSrtSegments(data);
+    } catch (error) {
+      setSrtSegments(null);
+      setSrtSegmentsError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSrtSegmentsLoading(false);
+    }
+  }, [projectId]);
+
+  const saveVisualPlan = useCallback(
+    async (status: "pending" | "ready") => {
+      if (!projectId) return;
+      setVisualPlanSaving(true);
+      setVisualPlanError(null);
+      try {
+        const updated = await updateProjectVisualCuesPlan(projectId, {
+          status,
+          sections: visualPlanDraft,
+          styleHint: visualPlanStyleHint || null,
+        });
+        setVisualPlan(updated);
+        setVisualPlanDraft(updated.sections ?? []);
+        setVisualPlanStyleHint(updated.style_hint ?? "");
+      } catch (error) {
+        setVisualPlanError(error instanceof Error ? error.message : String(error));
+      } finally {
+        setVisualPlanSaving(false);
+      }
+    },
+    [projectId, visualPlanDraft, visualPlanStyleHint]
+  );
+
+  useEffect(() => {
+    void reloadVisualPlan();
+    void reloadSrtSegments();
+  }, [reloadSrtSegments, reloadVisualPlan]);
+
   if (loading && !project && !selectedDraft) {
     return (
       <section className="vp-workspace">
@@ -1288,6 +1381,38 @@ function DraftWorkspace({
       channel: channelId ?? undefined,
       ...extra,
     });
+
+  const visualPlanSegmentCount = visualPlan?.segment_count ?? srtSegments?.segments?.length ?? null;
+
+  const updatePlanSection = (index: number, patch: Partial<VisualCuesPlanSection>) => {
+    setVisualPlanDraft((current) =>
+      current.map((section, idx) => (idx === index ? { ...section, ...patch } : section))
+    );
+  };
+
+  const removePlanSection = (index: number) => {
+    setVisualPlanDraft((current) => current.filter((_, idx) => idx !== index));
+  };
+
+  const addPlanSection = () => {
+    setVisualPlanDraft((current) => {
+      const last = current[current.length - 1];
+      const start = Math.max(1, Number(last?.end_segment ?? 0) + 1);
+      const clampedStart =
+        typeof visualPlanSegmentCount === "number" ? Math.min(start, visualPlanSegmentCount) : start;
+      const next: VisualCuesPlanSection = {
+        start_segment: clampedStart,
+        end_segment: clampedStart,
+        summary: "",
+        visual_focus: "",
+        emotional_tone: "",
+        persona_needed: false,
+        role_tag: "",
+        section_type: "",
+      };
+      return [...current, next];
+    });
+  };
 
   return (
     <section className="vp-workspace">
@@ -1381,6 +1506,284 @@ function DraftWorkspace({
           onClick={() => runJob("build_capcut_draft")}
         />
       </div>
+      {project?.artifacts?.items?.length ? (
+        <div className="vp-draft-segments" style={{ marginTop: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+            <strong>Artifacts</strong>
+            {project.artifacts.project_dir ? (
+              <span className="vp-draft-meta" style={{ textAlign: "right" }}>
+                {project.artifacts.project_dir}
+              </span>
+            ) : null}
+          </div>
+          {project.artifacts.items.map((item) => {
+            const metaText = formatArtifactMeta(item.meta);
+            const statusClass = item.exists ? "is-linked" : "is-warning";
+            const statusLabel = item.exists ? "OK" : "MISSING";
+            return (
+              <div key={item.key} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: 13 }}>{item.label}</strong>{" "}
+                  <span className="vp-draft-meta" style={{ display: "inline" }}>
+                    {item.path}
+                  </span>
+                  {metaText ? <span className="vp-draft-meta">{metaText}</span> : null}
+                </div>
+                <span className={`vp-draft-status ${statusClass}`}>{statusLabel}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+      {project ? (
+        <details className="vp-draft-segments" style={{ marginTop: 12 }}>
+          <summary>
+            Visual cues plan（箱）
+            {visualPlan ? ` / ${visualPlan.status}` : ""}
+            {visualPlanDirty ? " / 未保存" : ""}
+          </summary>
+          <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+            <p className="vp-draft-meta">
+              セクション分割（start/end）と要約・視覚指示をここで確定すると、後続ジョブが機械的に進められます（等間隔分割ではなく文脈ベースで調整してください）。
+            </p>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+              <div className="vp-draft-meta" style={{ minWidth: 0 }}>
+                {visualPlan ? (
+                  <>
+                    segments: {visualPlan.segment_count} / base: {visualPlan.base_seconds.toFixed(2)}s{" "}
+                    <span style={{ wordBreak: "break-all" }}>
+                      / srt: <code>{visualPlan.source_srt?.path}</code>
+                    </span>
+                  </>
+                ) : (
+                  <span>visual_cues_plan.json が未生成（または取得できません）</span>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button type="button" onClick={() => void reloadVisualPlan()} disabled={visualPlanLoading || visualPlanSaving}>
+                  再読込
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void saveVisualPlan("pending")}
+                  disabled={!visualPlan || visualPlanLoading || visualPlanSaving || !visualPlanDirty}
+                >
+                  下書き保存（pending）
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void saveVisualPlan("ready")}
+                  disabled={!visualPlan || visualPlanLoading || visualPlanSaving}
+                >
+                  確定保存（ready）
+                </button>
+              </div>
+            </div>
+            {visualPlanLoading ? <p className="vp-draft-meta">読み込み中…</p> : null}
+            {visualPlanError ? <p className="error">{visualPlanError}</p> : null}
+            {!visualPlan && !visualPlanLoading ? (
+              <p className="muted">
+                先に cues plan 経路（THINK/AGENT or <code>SRT2IMAGES_CUES_PLAN_MODE=plan</code>）で{" "}
+                <code>visual_cues_plan.json</code> を作ってから、ここで埋めてください。
+              </p>
+            ) : null}
+            {visualPlan ? (
+              <>
+                <label className="vp-draft-meta" style={{ display: "grid", gap: 4 }}>
+                  style_hint
+                  <input
+                    value={visualPlanStyleHint}
+                    onChange={(event) => setVisualPlanStyleHint(event.target.value)}
+                    disabled={visualPlanSaving || visualPlanLoading}
+                    style={{
+                      width: "100%",
+                      borderRadius: 10,
+                      border: "1px solid #cbd5e1",
+                      padding: "8px 10px",
+                      background: "#fff",
+                    }}
+                    placeholder="（任意）このrunの画作りのヒント"
+                  />
+                </label>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+                  <strong>Sections</strong>
+                  <button type="button" onClick={() => addPlanSection()} disabled={visualPlanSaving || visualPlanLoading}>
+                    + 追加
+                  </button>
+                </div>
+                {visualPlanDraft.length === 0 ? (
+                  <p className="muted">sections が空です。まずセクションを追加してください。</p>
+                ) : null}
+                <div style={{ display: "grid", gap: 10 }}>
+                  {visualPlanDraft.map((section, index) => (
+                    <div
+                      key={`visual-plan-${index}`}
+                      style={{
+                        border: "1px solid #cbd5e1",
+                        borderRadius: 12,
+                        padding: 12,
+                        background: "#fff",
+                      }}
+                    >
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                        <label className="vp-draft-meta">
+                          start
+                          <input
+                            type="number"
+                            min={1}
+                            value={section.start_segment}
+                            onChange={(event) => {
+                              const nextStart = Math.max(1, Number.parseInt(event.target.value || "1", 10));
+                              const end = Math.max(nextStart, section.end_segment);
+                              updatePlanSection(index, { start_segment: nextStart, end_segment: end });
+                            }}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{ width: 88, marginLeft: 6 }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta">
+                          end
+                          <input
+                            type="number"
+                            min={1}
+                            value={section.end_segment}
+                            onChange={(event) => {
+                              const nextEnd = Math.max(1, Number.parseInt(event.target.value || "1", 10));
+                              const start = Math.min(section.start_segment, nextEnd);
+                              updatePlanSection(index, { start_segment: start, end_segment: nextEnd });
+                            }}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{ width: 88, marginLeft: 6 }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta">
+                          <input
+                            type="checkbox"
+                            checked={section.persona_needed}
+                            onChange={(event) => updatePlanSection(index, { persona_needed: event.target.checked })}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                          />{" "}
+                          persona_needed
+                        </label>
+                        <label className="vp-draft-meta">
+                          role_tag
+                          <input
+                            value={section.role_tag}
+                            onChange={(event) => updatePlanSection(index, { role_tag: event.target.value })}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{ width: 160, marginLeft: 6 }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta">
+                          section_type
+                          <input
+                            value={section.section_type}
+                            onChange={(event) => updatePlanSection(index, { section_type: event.target.value })}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{ width: 160, marginLeft: 6 }}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => removePlanSection(index)}
+                          disabled={visualPlanSaving || visualPlanLoading}
+                        >
+                          削除
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+                        <label className="vp-draft-meta" style={{ display: "grid", gap: 4 }}>
+                          summary
+                          <textarea
+                            value={section.summary}
+                            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                              updatePlanSection(index, { summary: event.target.value })
+                            }
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            rows={2}
+                            style={{
+                              width: "100%",
+                              borderRadius: 10,
+                              border: "1px solid #cbd5e1",
+                              padding: "8px 10px",
+                            }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta" style={{ display: "grid", gap: 4 }}>
+                          visual_focus
+                          <input
+                            value={section.visual_focus}
+                            onChange={(event) => updatePlanSection(index, { visual_focus: event.target.value })}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{
+                              width: "100%",
+                              borderRadius: 10,
+                              border: "1px solid #cbd5e1",
+                              padding: "8px 10px",
+                            }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta" style={{ display: "grid", gap: 4 }}>
+                          emotional_tone
+                          <input
+                            value={section.emotional_tone}
+                            onChange={(event) => updatePlanSection(index, { emotional_tone: event.target.value })}
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            style={{
+                              width: "100%",
+                              borderRadius: 10,
+                              border: "1px solid #cbd5e1",
+                              padding: "8px 10px",
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <details style={{ marginTop: 10 }}>
+                  <summary>
+                    SRT segments（参考）{srtSegments?.segments?.length ? `: ${srtSegments.segments.length}` : ""}
+                  </summary>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                    <button type="button" onClick={() => void reloadSrtSegments()} disabled={srtSegmentsLoading}>
+                      segments を再読込
+                    </button>
+                  </div>
+                  {srtSegmentsLoading ? <p className="vp-draft-meta">読み込み中…</p> : null}
+                  {srtSegmentsError ? <p className="error">{srtSegmentsError}</p> : null}
+                  {srtSegments?.segments?.length ? (
+                    <div
+                      style={{
+                        maxHeight: 240,
+                        overflow: "auto",
+                        borderRadius: 12,
+                        border: "1px solid #cbd5e1",
+                        padding: 12,
+                        background: "#fff",
+                        fontFamily: "SFMono-Regular, Menlo, Consolas, monospace",
+                        fontSize: 12,
+                        whiteSpace: "pre-wrap",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {srtSegments.segments.map((seg) => (
+                        <div key={seg.index}>
+                          <span style={{ color: "#64748b" }}>
+                            #{seg.index} {formatTime(seg.start_sec)}-{formatTime(seg.end_sec)}
+                          </span>{" "}
+                          <span>{seg.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </details>
+              </>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
       {guardIssues.length ? (
         <ul className="vp-guard-issues">
           {guardIssues.slice(0, 4).map((issue) => (
@@ -2270,6 +2673,33 @@ function formatTime(value: number) {
     .toString()
     .padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+function formatArtifactMeta(meta?: Record<string, unknown> | null): string | null {
+  if (!meta) {
+    return null;
+  }
+  const entries = Object.entries(meta).filter(([, value]) => value !== null && value !== undefined && value !== "");
+  if (!entries.length) {
+    return null;
+  }
+  const parts = entries.map(([key, value]) => {
+    if (Array.isArray(value)) {
+      const shown = value.slice(0, 3).map((item) => String(item));
+      const suffix = value.length > shown.length ? ", …" : "";
+      return `${key}=[${shown.join(", ")}${suffix}]`;
+    }
+    if (typeof value === "object") {
+      try {
+        return `${key}=${JSON.stringify(value)}`;
+      } catch (error) {
+        return `${key}=[object]`;
+      }
+    }
+    return `${key}=${String(value)}`;
+  });
+  const joined = parts.join(", ");
+  return joined.length > 140 ? `${joined.slice(0, 137)}…` : joined;
 }
 
 function formatJobTimestamp(value?: string | null) {

@@ -140,6 +140,10 @@ tiers:
   image_gen:
     - gemini_2_5_flash_image
 
+  # Special purpose: Vision captioning (image + text)
+  vision_caption:
+    - or_gpt_4o_mini
+
 tasks:
   # --- Script Pipeline ---
   script_topic_research:
@@ -199,7 +203,24 @@ tasks:
     tier: heavy_reasoning
     timeout: 60
 
+  tts_natural_command:
+    tier: standard
+    timeout: 60
+    system_prompt_override: "あなたは台本編集アシスタントです。指示をJSONで返してください。"
+    defaults:
+      response_format: "json_object"
+      temperature: 0.3
+      max_tokens: 800
+
   # --- Visual Pipeline ---
+  visual_thumbnail_caption:
+    tier: vision_caption
+    timeout: 60
+    system_prompt_override: "あなたはYouTubeサムネイルの要約者です。短く具体的に記述してください。"
+    defaults:
+      temperature: 0.2
+      max_tokens: 300
+
   visual_section_plan:
     tier: heavy_reasoning
     timeout: 120

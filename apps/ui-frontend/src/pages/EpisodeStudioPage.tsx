@@ -31,6 +31,33 @@ function formatDateTime(value?: string | null): string {
   return date.toLocaleString("ja-JP");
 }
 
+function formatArtifactMeta(meta?: Record<string, unknown> | null): string | null {
+  if (!meta) {
+    return null;
+  }
+  const entries = Object.entries(meta).filter(([, value]) => value !== null && value !== undefined && value !== "");
+  if (!entries.length) {
+    return null;
+  }
+  const parts = entries.map(([key, value]) => {
+    if (Array.isArray(value)) {
+      const shown = value.slice(0, 3).map((item) => String(item));
+      const suffix = value.length > shown.length ? ", …" : "";
+      return `${key}=[${shown.join(", ")}${suffix}]`;
+    }
+    if (typeof value === "object") {
+      try {
+        return `${key}=${JSON.stringify(value)}`;
+      } catch (error) {
+        return `${key}=[object]`;
+      }
+    }
+    return `${key}=${String(value)}`;
+  });
+  const joined = parts.join(", ");
+  return joined.length > 180 ? `${joined.slice(0, 177)}…` : joined;
+}
+
 export function EpisodeStudioPage() {
   const {
     channels,
@@ -570,15 +597,44 @@ export function EpisodeStudioPage() {
                 {ttsRunError ? <div className="main-alert main-alert--error">{ttsRunError}</div> : null}
                 {audioUrl ? (
                   <audio controls src={audioUrl} style={{ width: "100%" }} />
-                ) : (
-                  <div className="main-alert">音声URLが未確定です。</div>
-                )}
-                <div className="muted">最終更新: {formatDateTime(videoDetail?.audio_updated_at ?? videoDetail?.updated_at) || "—"}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+	                ) : (
+	                  <div className="main-alert">音声URLが未確定です。</div>
+	                )}
+	                <div className="muted">最終更新: {formatDateTime(videoDetail?.audio_updated_at ?? videoDetail?.updated_at) || "—"}</div>
+	              </div>
+	            </div>
+	
+	            <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
+	              <h3 style={{ marginTop: 0 }}>Artifacts（チェック）</h3>
+	              {videoDetail?.artifacts?.project_dir ? (
+	                <div className="muted">dir: {videoDetail.artifacts.project_dir}</div>
+	              ) : null}
+	              {videoDetail?.artifacts?.items?.length ? (
+	                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+	                  {videoDetail.artifacts.items.map((item) => {
+	                    const metaText = formatArtifactMeta(item.meta ?? null);
+	                    return (
+	                      <div key={item.key} style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+	                        <div style={{ minWidth: 0 }}>
+	                          <div className={`status-chip ${item.exists ? "" : "status-chip--warning"}`}>
+	                            {item.label}: {item.path}
+	                          </div>
+	                          {metaText ? <div className="muted">{metaText}</div> : null}
+	                        </div>
+	                        <span className={`status-chip ${item.exists ? "" : "status-chip--warning"}`}>
+	                          {item.exists ? "OK" : "MISSING"}
+	                        </span>
+	                      </div>
+	                    );
+	                  })}
+	                </div>
+	              ) : (
+	                <div className="main-alert">artifacts は未取得です（チャンネル/動画を選択してください）。</div>
+	              )}
+	            </div>
+	          </div>
+	        </div>
+	      </section>
 
       <section className="capcut-edit-page__section" id="episode-video">
         <div className="shell-panel shell-panel--placeholder">
@@ -617,19 +673,48 @@ export function EpisodeStudioPage() {
                 </details>
               ) : null}
 
-              {videoProject.log_excerpt?.length ? (
-                <details>
-                  <summary>Project log excerpt</summary>
-                  <pre style={{ whiteSpace: "pre-wrap", background: "#0b1020", color: "#e6e6e6", padding: 12, borderRadius: 10, maxHeight: 360, overflow: "auto" }}>
-                    {videoProject.log_excerpt.join("\n")}
-                  </pre>
-                </details>
-              ) : null}
+	              {videoProject.log_excerpt?.length ? (
+	                <details>
+	                  <summary>Project log excerpt</summary>
+	                  <pre style={{ whiteSpace: "pre-wrap", background: "#0b1020", color: "#e6e6e6", padding: 12, borderRadius: 10, maxHeight: 360, overflow: "auto" }}>
+	                    {videoProject.log_excerpt.join("\n")}
+	                  </pre>
+	                </details>
+	              ) : null}
+	
+	              {videoProject.artifacts?.items?.length ? (
+	                <details>
+	                  <summary>Artifacts（run_dir）</summary>
+	                  {videoProject.artifacts.project_dir ? (
+	                    <div className="muted" style={{ marginTop: 8 }}>
+	                      dir: {videoProject.artifacts.project_dir}
+	                    </div>
+	                  ) : null}
+	                  <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+	                    {videoProject.artifacts.items.map((item) => {
+	                      const metaText = formatArtifactMeta(item.meta ?? null);
+	                      return (
+	                        <div key={item.key} style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+	                          <div style={{ minWidth: 0 }}>
+	                            <div className={`status-chip ${item.exists ? "" : "status-chip--warning"}`}>
+	                              {item.label}: {item.path}
+	                            </div>
+	                            {metaText ? <div className="muted">{metaText}</div> : null}
+	                          </div>
+	                          <span className={`status-chip ${item.exists ? "" : "status-chip--warning"}`}>
+	                            {item.exists ? "OK" : "MISSING"}
+	                          </span>
+	                        </div>
+	                      );
+	                    })}
+	                  </div>
+	                </details>
+	              ) : null}
 
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link className="button" to={videoProductionLink}>
-                  プロジェクト管理へ
-                </Link>
+	              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+	                <Link className="button" to={videoProductionLink}>
+	                  プロジェクト管理へ
+	                </Link>
                 <Link className="button button--ghost" to={capcutDraftLink}>
                   AutoDraft へ
                 </Link>

@@ -18,6 +18,8 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 
+from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
+from factory_common.artifacts.visual_cues_plan import VisualCuesPlanArtifactV1, VisualCuesPlanSection
 from factory_common.paths import (
     audio_artifacts_root,
     logs_root,
@@ -97,6 +99,13 @@ class ChannelPresetUpdatePayload(BaseModel):
     belt: Optional[ChannelPresetBeltPayload] = None
     notes: Optional[str] = None
     status: Optional[str] = None
+
+
+class VisualCuesPlanUpdatePayload(BaseModel):
+    status: Literal["pending", "ready"]
+    sections: List[VisualCuesPlanSection]
+    style_hint: Optional[str] = None
+
 
 if COMMENTARY02_ROOT.exists():
     for candidate in (COMMENTARY02_ROOT, COMMENTARY02_ROOT / "src", COMMENTARY02_ROOT / "ui"):
@@ -206,7 +215,66 @@ else:
         payload["capcut"] = _load_capcut_settings(project_dir)
         payload["source_status"] = _compute_source_status(project_id)
         payload["generation_options"] = _load_generation_options(project_id)
+        payload["artifacts"] = _summarize_project_artifacts(project_dir)
         return payload
+
+    @video_router.get("/projects/{project_id}/srt-segments")
+    def get_project_srt_segments(project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)]):
+        project_dir = _resolve_project_dir(project_id)
+        seg_path = project_dir / "srt_segments.json"
+        if not seg_path.exists():
+            raise HTTPException(status_code=404, detail="srt_segments.json not found")
+        data = _safe_read_json_limited(seg_path)
+        if not data:
+            raise HTTPException(status_code=400, detail="srt_segments.json is invalid or too large")
+        return data
+
+    @video_router.get("/projects/{project_id}/visual-cues-plan")
+    def get_project_visual_cues_plan(project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)]):
+        project_dir = _resolve_project_dir(project_id)
+        plan_path = project_dir / "visual_cues_plan.json"
+        if not plan_path.exists():
+            raise HTTPException(status_code=404, detail="visual_cues_plan.json not found")
+        data = _safe_read_json_limited(plan_path)
+        if not data:
+            raise HTTPException(status_code=400, detail="visual_cues_plan.json is invalid or too large")
+        try:
+            plan = VisualCuesPlanArtifactV1.model_validate(data)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=400, detail=f"invalid visual cues plan: {exc}") from exc
+        return plan.model_dump(mode="json", by_alias=True)
+
+    @video_router.put("/projects/{project_id}/visual-cues-plan")
+    def update_project_visual_cues_plan(
+        project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)],
+        payload: VisualCuesPlanUpdatePayload,
+    ):
+        project_dir = _resolve_project_dir(project_id)
+        plan_path = project_dir / "visual_cues_plan.json"
+        if not plan_path.exists():
+            raise HTTPException(status_code=404, detail="visual_cues_plan.json not found")
+        current_obj = _safe_read_json_limited(plan_path)
+        if not current_obj:
+            raise HTTPException(status_code=400, detail="visual_cues_plan.json is invalid or too large")
+        try:
+            current = VisualCuesPlanArtifactV1.model_validate(current_obj)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=400, detail=f"invalid visual cues plan: {exc}") from exc
+
+        updated_obj = current.model_dump(mode="json", by_alias=True)
+        updated_obj["generated_at"] = utc_now_iso()
+        updated_obj["status"] = payload.status
+        updated_obj["sections"] = [s.model_dump(mode="json") for s in payload.sections]
+        if payload.style_hint is not None:
+            updated_obj["style_hint"] = payload.style_hint
+
+        try:
+            updated = VisualCuesPlanArtifactV1.model_validate(updated_obj)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=400, detail=f"invalid visual cues plan: {exc}") from exc
+
+        atomic_write_json(plan_path, updated.model_dump(mode="json", by_alias=True))
+        return updated.model_dump(mode="json", by_alias=True)
 
     @video_router.get("/projects/{project_id}/generation-options")
     def read_generation_options(project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)]):
@@ -876,6 +944,236 @@ else:
                 return json.load(handle)
         except Exception:
             return {}
+
+    def _safe_read_json_limited(path: Path, *, max_bytes: int = 2_000_000) -> Dict[str, Any]:
+        if not path.exists():
+            return {}
+        try:
+            stat = path.stat()
+            if stat.st_size > max_bytes:
+                return {}
+            with path.open("r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except Exception:
+            return {}
+
+    _IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+
+    def _summarize_project_artifacts(project_dir: Path) -> Dict[str, Any]:
+        def _file_entry(
+            *,
+            key: str,
+            label: str,
+            rel_path: str,
+            meta: Optional[Dict[str, Any]] = None,
+        ) -> Dict[str, Any]:
+            path = project_dir / rel_path
+            exists = _path_exists(path)
+            size_info = _stat_path(path) if exists and path and path.is_file() else None
+            out: Dict[str, Any] = {
+                "key": key,
+                "label": label,
+                "path": rel_path,
+                "kind": "file",
+                "exists": exists,
+                "size_bytes": size_info[0] if size_info else None,
+                "modified_time": datetime.fromtimestamp(size_info[1]).isoformat() if size_info else None,
+            }
+            if meta:
+                out["meta"] = meta
+            return out
+
+        def _dir_entry(
+            *,
+            key: str,
+            label: str,
+            rel_path: str,
+            meta: Optional[Dict[str, Any]] = None,
+        ) -> Dict[str, Any]:
+            path = project_dir / rel_path
+            exists = _path_exists(path)
+            size_info = _stat_path(path) if exists else None
+            out: Dict[str, Any] = {
+                "key": key,
+                "label": label,
+                "path": rel_path,
+                "kind": "dir",
+                "exists": exists,
+                "size_bytes": size_info[0] if size_info else None,
+                "modified_time": datetime.fromtimestamp(size_info[1]).isoformat() if size_info else None,
+            }
+            if meta:
+                out["meta"] = meta
+            return out
+
+        def _srt_entry() -> Dict[str, Any]:
+            srts = sorted([p for p in project_dir.glob("*.srt") if p.is_file()])
+            if not srts:
+                return {
+                    "key": "srt",
+                    "label": "SRT",
+                    "path": "*.srt",
+                    "kind": "file",
+                    "exists": False,
+                    "size_bytes": None,
+                    "modified_time": None,
+                }
+            newest = max(srts, key=lambda p: p.stat().st_mtime)
+            stat = newest.stat()
+            return {
+                "key": "srt",
+                "label": "SRT",
+                "path": newest.name,
+                "kind": "file",
+                "exists": True,
+                "size_bytes": stat.st_size,
+                "modified_time": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                "meta": {"count": len(srts), "files": [p.name for p in srts[:5]]},
+            }
+
+        def _json_meta(path: Path) -> Dict[str, Any]:
+            data = _safe_read_json_limited(path)
+            return data if isinstance(data, dict) else {}
+
+        items: List[Dict[str, Any]] = []
+
+        items.append(_srt_entry())
+
+        capcut_info_path = project_dir / "capcut_draft_info.json"
+        capcut_meta = {}
+        capcut_info = _json_meta(capcut_info_path)
+        if capcut_info:
+            capcut_meta = {
+                "template_used": capcut_info.get("template_used"),
+                "draft_name": capcut_info.get("draft_name"),
+                "draft_path": capcut_info.get("draft_path"),
+            }
+        items.append(
+            _file_entry(
+                key="capcut_draft_info",
+                label="CapCut draft info",
+                rel_path="capcut_draft_info.json",
+                meta=capcut_meta or None,
+            )
+        )
+
+        seg_meta = {}
+        seg_obj = _json_meta(project_dir / "srt_segments.json")
+        segs = seg_obj.get("segments") if isinstance(seg_obj, dict) else None
+        if isinstance(segs, list):
+            seg_meta = {"segment_count": len(segs)}
+        items.append(
+            _file_entry(
+                key="srt_segments",
+                label="SRT segments",
+                rel_path="srt_segments.json",
+                meta=seg_meta or None,
+            )
+        )
+
+        plan_meta = {}
+        plan_obj = _json_meta(project_dir / "visual_cues_plan.json")
+        if plan_obj:
+            secs = plan_obj.get("sections")
+            plan_meta = {
+                "status": plan_obj.get("status"),
+                "section_count": len(secs) if isinstance(secs, list) else None,
+                "base_seconds": plan_obj.get("base_seconds"),
+            }
+        items.append(
+            _file_entry(
+                key="visual_cues_plan",
+                label="Visual cues plan",
+                rel_path="visual_cues_plan.json",
+                meta=plan_meta or None,
+            )
+        )
+
+        cues_meta = {}
+        cues_obj = _json_meta(project_dir / "image_cues.json")
+        cues_arr = cues_obj.get("cues") if isinstance(cues_obj, dict) else None
+        if isinstance(cues_arr, list):
+            cues_meta = {
+                "cue_count": len(cues_arr),
+                "fps": cues_obj.get("fps"),
+                "imgdur": cues_obj.get("imgdur"),
+                "crossfade": cues_obj.get("crossfade"),
+            }
+        items.append(
+            _file_entry(
+                key="image_cues",
+                label="Image cues",
+                rel_path="image_cues.json",
+                meta=cues_meta or None,
+            )
+        )
+
+        belt_meta = {}
+        belt_obj = _json_meta(project_dir / "belt_config.json")
+        belts = belt_obj.get("belts") if isinstance(belt_obj, dict) else None
+        if isinstance(belts, list):
+            belt_meta = {"belt_count": len(belts)}
+        items.append(
+            _file_entry(
+                key="belt_config",
+                label="Belt config",
+                rel_path="belt_config.json",
+                meta=belt_meta or None,
+            )
+        )
+
+        persona_path = project_dir / "persona.txt"
+        persona_stat = _stat_path(persona_path) if _path_exists(persona_path) and persona_path.is_file() else None
+        items.append(
+            {
+                "key": "persona",
+                "label": "Persona",
+                "path": "persona.txt",
+                "kind": "file",
+                "exists": bool(persona_stat),
+                "size_bytes": persona_stat[0] if persona_stat else None,
+                "modified_time": datetime.fromtimestamp(persona_stat[1]).isoformat() if persona_stat else None,
+            }
+        )
+
+        images_dir = project_dir / "images"
+        image_count = None
+        if _path_exists(images_dir) and images_dir.is_dir():
+            try:
+                image_count = len(
+                    [
+                        child
+                        for child in images_dir.iterdir()
+                        if child.is_file() and child.suffix.lower() in _IMAGE_EXTENSIONS
+                    ]
+                )
+            except OSError:
+                image_count = None
+        items.append(
+            _dir_entry(
+                key="images",
+                label="Images",
+                rel_path="images",
+                meta={"count": image_count} if image_count is not None else None,
+            )
+        )
+
+        items.append(
+            _file_entry(
+                key="timeline_manifest",
+                label="Timeline manifest",
+                rel_path="timeline_manifest.json",
+            )
+        )
+        items.append(
+            _dir_entry(
+                key="capcut_draft",
+                label="CapCut draft folder",
+                rel_path="capcut_draft",
+            )
+        )
+
+        return {"project_dir": str(project_dir), "items": items}
 
     def _resolve_repo_path(candidate: Optional[str]) -> Optional[Path]:
         if not candidate:

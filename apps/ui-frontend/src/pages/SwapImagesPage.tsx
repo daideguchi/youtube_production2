@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 type SwapRequest = {
   draft_path: string;
@@ -23,6 +23,39 @@ type ImageItem = {
   prompt?: string;
   prompt_source?: "snapshot" | "cues_only" | "missing";
   prompt_timestamp?: string;
+};
+
+const parseIndexQuery = (raw: string) => {
+  const indices = new Set<number>();
+  let hasInvalid = false;
+  const text = raw.trim();
+  if (!text) return { indices, hasInvalid };
+
+  const tokens = text
+    .split(/[,\s]+/g)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  for (const token of tokens) {
+    const match = token.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+    if (!match) {
+      hasInvalid = true;
+      continue;
+    }
+    const start = Number(match[1]);
+    const end = match[2] ? Number(match[2]) : start;
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start <= 0 || end <= 0) {
+      hasInvalid = true;
+      continue;
+    }
+    const from = Math.min(start, end);
+    const to = Math.max(start, end);
+    if (to - from > 2000) {
+      hasInvalid = true;
+      continue;
+    }
+    for (let i = from; i <= to; i += 1) indices.add(i);
+  }
+  return { indices, hasInvalid };
 };
 
 const formatHM = (sec: number | null | undefined) => {
@@ -61,8 +94,25 @@ export const SwapImagesPage: React.FC = () => {
   const [toast, setToast] = useState("");
   const [running, setRunning] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [visibleCount, setVisibleCount] = useState(24);
+  const [indexQuery, setIndexQuery] = useState("");
+  const [useThumbnails, setUseThumbnails] = useState(true);
+  const [thumbnailMaxDim, setThumbnailMaxDim] = useState(640);
 
-  // 初期ロード: ドラフト一覧取得＋最初のドラフトを自動選択→run_dir推定→画像読み込み
+  const indexQueryParsed = useMemo(() => parseIndexQuery(indexQuery), [indexQuery]);
+  const filteredImages = useMemo(() => {
+    if (!indexQuery.trim()) return images;
+    if (indexQueryParsed.indices.size === 0) return [];
+    return images.filter((it) => indexQueryParsed.indices.has(it.index));
+  }, [images, indexQuery, indexQueryParsed.indices]);
+  const renderImages = useMemo(() => {
+    if (indexQuery.trim()) return filteredImages;
+    if (visibleCount <= 0) return filteredImages;
+    return filteredImages.slice(0, visibleCount);
+  }, [filteredImages, indexQuery, visibleCount]);
+  const hasMore = !indexQuery.trim() && visibleCount > 0 && renderImages.length < filteredImages.length;
+
+  // 初期ロード: ドラフト一覧取得＋最初のドラフトを自動選択→run_dir推定（画像はユーザー操作でロード）
   useEffect(() => {
     fetch(`${API_BASE}/api/swap/drafts`)
       .then((r) => r.json())
@@ -79,7 +129,7 @@ export const SwapImagesPage: React.FC = () => {
           fetch(`${API_BASE}/api/swap/auto-run-dir?draft_name=${encodeURIComponent(first.name)}`)
             .then((res) => res.json())
             .then((rd) => setForm((f) => ({ ...f, run_dir: rd.run_dir || f.run_dir })))
-            .finally(() => loadImages(first.path));
+            .finally(() => setToast("ドラフトを選択しました。必要なときだけ「画像を読み込む」を押してください。"));
         }
       })
       .catch(() => setDrafts([]));
@@ -93,6 +143,9 @@ export const SwapImagesPage: React.FC = () => {
     }
     setToast("読み込み中...");
     setImages([]);
+    setExpanded(new Set());
+    setVisibleCount(24);
+    setIndexQuery("");
     try {
       let runDir = form.run_dir;
       if (!runDir) {
@@ -246,11 +299,84 @@ export const SwapImagesPage: React.FC = () => {
       {images.length === 0 ? (
         <div style={{ padding: 20, border: "1px dashed #d1d5db", borderRadius: 12, background: "#fff", color: "#6b7280" }}>画像がありません。ドラフトを選んで「画像を読み込む」を押してください。</div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-          {images.map((item) => {
-            const imgSrc = item.material_name
-              ? `${API_BASE}/api/swap/images/file?draft_path=${encodeURIComponent(form.draft_path)}&material_name=${encodeURIComponent(item.material_name)}`
-              : undefined;
+        <>
+          <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 12, background: "#fff", marginBottom: 14, display: "grid", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+              <label style={{ display: "grid", gap: 4 }}>
+                表示するカット（例: 13,15,20-24）
+                <input
+                  value={indexQuery}
+                  onChange={(e) => setIndexQuery(e.target.value)}
+                  placeholder="未入力: 先頭から表示"
+                  style={{ width: 280, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4 }}>
+                初期表示件数
+                <select
+                  value={visibleCount}
+                  onChange={(e) => setVisibleCount(Number(e.target.value))}
+                  style={{ width: 180, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  disabled={Boolean(indexQuery.trim())}
+                >
+                  <option value={24}>24</option>
+                  <option value={48}>48</option>
+                  <option value={96}>96</option>
+                  <option value={0}>全部（重い）</option>
+                </select>
+              </label>
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input type="checkbox" checked={useThumbnails} onChange={(e) => setUseThumbnails(e.target.checked)} />
+                <span>サムネ表示（軽量）</span>
+              </label>
+              <label style={{ display: "grid", gap: 4 }}>
+                サムネ最大サイズ
+                <select
+                  value={thumbnailMaxDim}
+                  onChange={(e) => setThumbnailMaxDim(Number(e.target.value))}
+                  style={{ width: 180, padding: "8px 10px", borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  disabled={!useThumbnails}
+                >
+                  <option value={320}>320</option>
+                  <option value={480}>480</option>
+                  <option value={640}>640</option>
+                </select>
+              </label>
+              {hasMore ? (
+                <button
+                  onClick={() => setVisibleCount((prev) => (prev <= 0 ? prev : Math.min(prev + 24, filteredImages.length)))}
+                  disabled={running}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #e5e7eb",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontWeight: 700,
+                  }}
+                >
+                  さらに表示
+                </button>
+              ) : null}
+              <div style={{ fontSize: 12, color: "#6b7280" }}>
+                表示: {renderImages.length} / {filteredImages.length}
+              </div>
+              {indexQuery.trim() && indexQueryParsed.indices.size === 0 ? (
+                <div style={{ fontSize: 12, color: "#b91c1c", background: "#fee2e2", padding: "4px 8px", borderRadius: 8, border: "1px solid #fecaca" }}>
+                  表示するカットの指定が解釈できません（例: 13,15,20-24）
+                </div>
+              ) : null}
+              {indexQueryParsed.hasInvalid ? <div style={{ fontSize: 12, color: "#92400e" }}>※一部の入力は無視されました</div> : null}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+            {renderImages.map((item) => {
+              const baseSrc = item.material_name
+                ? `${API_BASE}/api/swap/images/file?draft_path=${encodeURIComponent(form.draft_path)}&material_name=${encodeURIComponent(item.material_name)}`
+                : undefined;
+              const imgSrc =
+                baseSrc && useThumbnails && thumbnailMaxDim > 0 ? `${baseSrc}&max_dim=${thumbnailMaxDim}` : baseSrc;
             const startSecNum = item.start_ms != null ? item.start_ms / 1000 : null;
             const endSecNum = item.start_ms != null && item.duration_ms != null ? (item.start_ms + item.duration_ms) / 1000 : null;
             return (
@@ -276,7 +402,15 @@ export const SwapImagesPage: React.FC = () => {
                   </div>
                 </div>
                 {imgSrc ? (
-                  <img src={imgSrc} alt={item.material_name} style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 10 }} />
+                  <a href={baseSrc} target="_blank" rel="noreferrer" style={{ display: "block" }}>
+                    <img
+                      src={imgSrc}
+                      alt={item.material_name}
+                      loading="lazy"
+                      decoding="async"
+                      style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 10, background: "#f3f4f6" }}
+                    />
+                  </a>
                 ) : (
                   <div style={{ height: 160, background: "#f3f4f6", borderRadius: 10, display: "grid", placeItems: "center", color: "#9ca3af" }}>画像なし</div>
                 )}
@@ -383,7 +517,8 @@ export const SwapImagesPage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

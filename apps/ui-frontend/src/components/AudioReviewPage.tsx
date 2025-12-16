@@ -766,7 +766,7 @@ export function AudioReviewPage() {
                   <audio
                     className="audio-card__audio"
                     controls
-                    preload="metadata"
+                    preload="none"
                     src={audioSrc}
                     aria-label={`${item.channel}-${item.video} の音声を再生`}
                     ref={(element) => {

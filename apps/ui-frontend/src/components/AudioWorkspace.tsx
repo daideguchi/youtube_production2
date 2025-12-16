@@ -513,6 +513,25 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
         </div>
       </header>
 
+      {detail.artifacts?.items?.length ? (
+        <details style={{ margin: "12px 0" }}>
+          <summary>Artifacts</summary>
+          {detail.artifacts.project_dir ? <p className="muted small-text">dir: {detail.artifacts.project_dir}</p> : null}
+          <div style={{ display: "grid", gap: 6 }}>
+            {detail.artifacts.items.map((item) => (
+              <div key={item.key} style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <span className={`status-chip ${item.exists ? "" : "status-chip--warning"}`} style={{ minWidth: 0 }}>
+                  {item.label}: {item.path}
+                </span>
+                <span className={`status-chip ${item.exists ? "" : "status-chip--warning"}`}>
+                  {item.exists ? "OK" : "MISSING"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
+      ) : null}
+
       <section className="audio-workspace__editor-panel audio-workspace__editor-panel--primary" aria-label="音声用台本 (B)">
         <label className="audio-workspace__editor-field">
           <span className="audio-workspace__editor-label">音声用台本（B / 読み上げ専用）</span>
