@@ -37,3 +37,32 @@
 - UI backend のログDB参照を `logs_root()` に統一（`apps/ui-backend/backend/main.py`）。
 - 検証: `python3 -m pytest -q tests/test_paths.py tests/test_llm_router.py tests/test_llm_client.py commentary_02_srt2images_timeline/tests/test_orchestration.py`
 - Git備考: この環境では `.git` への新規書込みが拒否されるため、差分はパッチとして `backups/patches/*_stage2_cues_plan_paths.patch`, `backups/patches/*_stage3_capcut_tools.patch` に保存。
+
+## 2025-12-14
+- A/B/音声/SRT/run の“正本”を迷わないため、Aテキスト（assembled_human優先）とAudio final（a_text/b_text含む）をSSOTへ明記（`ssot/OPS_SCRIPT_SOURCE_MAP.md`, `workspaces/scripts/README.md`）。
+- エピソード単位の1:1管理ツールを追加（`scripts/episode_ssot.py`）。`metadata.video_run_id` の自動/手動設定と `workspaces/episodes/{CH}/{NNN}/`（symlink + manifest）生成を提供。
+- 生成物ライフサイクルの run 採用SoTを `status.json.metadata.video_run_id` に統一（`ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`）。
+- `workspaces/episodes/` をgitignoreしつつ README は保持（`workspaces/.gitignore`, `workspaces/README.md`, `workspaces/episodes/README.md`）。
+
+## 2025-12-15
+- CH06のCapCutドラフト混乱（音声/字幕不一致・完成版不明）を解消するため、run_dir を final SRT に再整合し、ドラフトへ音声WAV/字幕を manifest 正本から再注入（`commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py`, `commentary_02_srt2images_timeline/tools/patch_draft_audio_subtitles_from_manifest.py`）。
+- 壊れた `capcut_draft` symlink を修復し、欠損していた CH06-031/032/033 のドラフトを再生成。Planning CSV の CH06-031 タイトル不整合も修正し、命名/参照のブレを抑制。CH06-テンプレの汚染（srt2images/subtitles/voiceover残骸）を除去し、再生成を安定化。
+- CH06 の採用 run を `status.json.metadata.video_run_id` に固定し、未採用 run を `workspaces/video/_archive/` へ追加退避（詳細は `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- `workspaces/video/input` の同期を「既存でも不一致なら退避→更新」に修正し、stale SRT/WAV を一括で正本（audio/final）へ揃えた（`commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`, 記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 既存CapCutドラフトの画像差し替え（再生成）で run_dir 推定が誤る問題を修正し、draft/run_dir 不一致は明示エラーにした（`apps/ui-backend/backend/routers/swap.py`）。併せて、既存ドラフトの validator が落ち続けないように foreign tracks をデフォルトWARN化し、必要時のみ strict で落とせるようにした（`packages/commentary_02_srt2images_timeline/tools/validate_srt2images_state.py`）。
+- UIフリーズ対策: SwapImagesPage の画像を「手動ロード + 表示件数制限/カット指定 + lazy + サムネ」に変更し、backend 側も `/api/swap/images/file?max_dim=` でサムネを返せるようにした（`apps/ui-frontend/src/pages/SwapImagesPage.tsx`, `apps/ui-backend/backend/routers/swap.py`）。AudioReviewPage の `<audio preload>` を `none` にして一覧表示で大量 `/audio` Range が走らないようにした（`apps/ui-frontend/src/components/AudioReviewPage.tsx`）。
+- 検証: `python3 -m py_compile apps/ui-backend/backend/routers/swap.py` / `npm -C apps/ui-frontend run build`
+
+## 2025-12-16
+- 全チャンネル共通の読み台本（Aテキスト）品質ルールをSSOT化（`ssot/OPS_A_TEXT_GLOBAL_RULES.md`）。`---` のみをポーズ挿入として許可し、`「」/（）` 多用・冗長/反復・URL/脚注混入などの事故要因を固定で禁止。
+- 台本運用SSOTを更新し、Aテキストのグローバルルール参照と区切り記号の扱いを明文化（`ssot/OPS_SCRIPT_GUIDE.md`, `ssot/【消さないで！人間用】確定ロジック`）。
+- チャンネルの固定コンテキストを1つに寄せるため、`configs/sources.yaml` を拡張し、planning/persona に加えて `channel_prompt` / `chapter_count` / 文字数目安を登録（全CHの参照点を統一）。
+- script_pipeline の sources 読み込みを `configs/sources.yaml` 優先に切替え、既存 status.json にも欠損メタ（style/persona/prompt/表示名等）を安全に補完できるようにした（`packages/script_pipeline/runner.py`, `packages/script_pipeline/config/sources.yaml`）。
+- 章生成プロンプトをTTS前提の自然さに寄せ、強制的な問いかけ/比喩のノルマを撤廃し、グローバルAテキストルールを注入（`packages/script_pipeline/prompts/chapter_prompt.txt`）。
+- TTSのポーズマーカーを `---` のみに限定（`packages/audio_tts_v2/tts/strict_segmenter.py`）。
+- Aテキストの品質チェック/拡張のための運用スクリプトを追加（`scripts/lint_a_text.py`, `scripts/expand_a_text.py`）。
+
+## 2025-12-17
+- `audio_sync_status.json` を code階層（packages）から排除し、状態ファイルとして `workspaces/video/_state/` に移設（`factory_common.paths.video_audio_sync_status_path()` + `commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`）。差分ノイズと誤参照を削減。
+- CapCut運用ツールを整理/強化（`commentary_02_srt2images_timeline/tools/*`）。画像スケール適用の点検ツールを追加（`capcut_apply_image_scale.py`）。
+- Planning SoT を更新（`workspaces/planning/channels/CH02.csv`, `CH05.csv`, `CH06.csv`, `CH07.csv`）。
