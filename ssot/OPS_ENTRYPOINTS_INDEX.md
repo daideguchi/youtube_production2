@@ -62,6 +62,9 @@
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
 - `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用）
 
+### 3.5 Episode（A→B→音声→SRT→run の1:1整備）
+- `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
+
 ---
 
 ## 4. 生成物の掃除（容量/混乱対策）

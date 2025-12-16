@@ -133,7 +133,10 @@
 - **L2/Intermediate**
   - `workspaces/video/runs/<run>/assets/image/*`（draft 用コピー）
   - `workspaces/video/runs/<run>/chapters.json`, `sections.json`, `prompt_dump.json` 等
-  - `workspaces/video/input/<channel>/<video>.*`（SRT/音声同期済みのコピー。互換: `commentary_02_srt2images_timeline/input/...`）
+  - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**。互換: `commentary_02_srt2images_timeline/input/...`）
+    - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
+    - 同期: `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs`
+    - 不一致が見つかった場合は、古いコピーを `workspaces/video/_archive/<timestamp>/<CH>/video_input/` へ退避し、final を再同期して 1:1 を維持する。
 - **L3/Logs**
   - `commentary_02_srt2images_timeline/logs/*`
   - `workspaces/video/runs/<run>/logs/*`（run単位ログ。run_dir と一緒に管理する。互換: `commentary_02_srt2images_timeline/output/<run>/logs/*`）
@@ -141,7 +144,9 @@
 
 **削除/圧縮基準**
 - 1 video に対し run が複数ある場合:
-  - `workspaces/planning/channels` で採用 run を `video_run_id` として SoT に記録する
+  - 採用 run は `workspaces/scripts/{CH}/{NNN}/status.json` の `metadata.video_run_id` に記録する（SoT）
+    - 補助: `python3 scripts/episode_ssot.py auto-select-run --channel CHxx --videos ...`
+    - 未採用 run の退避: `python3 scripts/episode_ssot.py archive-runs --channel CHxx --all-selected --mode run`
   - 採用 run 以外は L2 として 30 日後に `workspaces/video/_archive/<timestamp>/` へ移動
 - `video: published` になったら:
   - 採用 run は L1→L0 に昇格、不要な `assets/image/` と L2 JSON を削除。

@@ -17,6 +17,10 @@
 ## 例外（未移行）
 - `workspaces/thumbnails/` → `thumbnails/`（現状はサムネが別動線のため、移行は慎重に進める）
 
+## 追加: エピソードのリンク集（SoTではない）
+- `workspaces/episodes/{CH}/{NNN}/` は「A→B→音声→SRT→run」を迷わず辿るための集約ビュー（symlink + manifest）。
+  - 生成: `python3 scripts/episode_ssot.py materialize --channel CHxx --video NNN`
+
 パス解決は `factory_common/paths.py` が正本です（`workspaces/` が実体化した時に自動で新パスへ寄ります）。
 
 Stage2（scripts/audio/video/logs）の切替は `python scripts/ops/stage2_cutover_workspaces.py --run` が正本。
