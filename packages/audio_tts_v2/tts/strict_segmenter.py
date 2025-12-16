@@ -7,6 +7,7 @@ PAUSE_H1 = 1.0
 PAUSE_H2 = 0.8
 PAUSE_H3 = 0.8
 PAUSE_PARAGRAPH = 0.8
+PAUSE_MARKER = 1.0  # Explicit pause marker (e.g. '---')
 PAUSE_SENTENCE = 0.1  # 文末に0.1秒のポーズを挿入（聞きやすさのため）
 PAUSE_COMMA = 0.0 # Voicevox handles commas naturally, so 0 explicit pause usually.
 
@@ -14,6 +15,27 @@ PAUSE_COMMA = 0.0 # Voicevox handles commas naturally, so 0 explicit pause usual
 # Split by 。, !, ? but keep the delimiter.
 # Also handle "。」" or "！" etc.
 RE_SPLIT = re.compile(r'([^。！？\n]+[。！？])')
+RE_PAUSE_MARKER = re.compile(r"^-{3,}$")
+
+
+def _apply_min_post_pause(segments: List[AudioSegment], pause_sec: float) -> None:
+    if not segments:
+        return
+    if segments[-1].post_pause_sec < pause_sec:
+        segments[-1].post_pause_sec = pause_sec
+
+
+def _is_pause_marker(line: str) -> bool:
+    """
+    Treat explicit pause markers as non-spoken separators.
+    SSOT: `---` is the only allowed pause marker in A-text.
+    Examples:
+      - --- / - - -
+    """
+    compact = re.sub(r"\s+", "", line)
+    if not compact:
+        return False
+    return bool(RE_PAUSE_MARKER.fullmatch(compact))
 
 def strict_segmentation(text: str) -> List[AudioSegment]:
     segments: List[AudioSegment] = []
@@ -22,10 +44,19 @@ def strict_segmentation(text: str) -> List[AudioSegment]:
     for i, line in enumerate(lines):
         line = line.strip()
         if not line:
+            # Blank line -> paragraph break (increase pause of previous segment)
+            _apply_min_post_pause(segments, PAUSE_PARAGRAPH)
+            continue
+
+        # Explicit pause marker line (e.g. '---') -> do not speak it
+        if _is_pause_marker(line):
+            _apply_min_post_pause(segments, PAUSE_MARKER)
             continue
             
         # Heading Check
         if line.startswith("#"):
+            # Add a paragraph-like pause before the heading when it follows normal text.
+            _apply_min_post_pause(segments, PAUSE_PARAGRAPH)
             level = len(line) - len(line.lstrip("#"))
             content = line.lstrip("#").strip()
             

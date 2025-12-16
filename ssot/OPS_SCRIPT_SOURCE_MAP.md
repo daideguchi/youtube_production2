@@ -44,8 +44,12 @@
   - ステージ状態（pending/completed）と出力ファイルの存在が正本
 
 ### 2.2 Human-editable（人間が直すならここ）
-- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本。互換: `script_pipeline/data/...`）
-  - `assembled_temp.md` 等は中間の可能性があるため、運用上は `assembled.md` を採用する（例外はSSOTに記録）
+- **Aテキスト（正本）**:
+  - 優先: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+  - 代替: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（互換: `script_pipeline/data/...`）
+  - ルール:
+    - `assembled_human.md` が存在する場合は **それが正本**（以降の音声生成もこれを優先）。
+    - `assembled.md` は **ミラー/互換入力**。`assembled_human.md` がある状態での手動編集は禁止（混乱の元）。
 
 ### 2.3 Generated（派生物）
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（L3: 証跡/デバッグ。互換: `script_pipeline/data/...`）
@@ -63,6 +67,8 @@
 - `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/{CH}/{NNN}/`）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
+  - `a_text.txt`（音声生成時点のAテキスト・スナップショット）
+  - `b_text.txt` / `b_text_with_pauses.txt`（派生Bテキスト）
   - `log.json`（証跡）
 
 ### 3.2 Intermediate（作業残骸：消して良い）
@@ -84,6 +90,10 @@
   - `image_cues.json`
   - `capcut_draft/`（採用ドラフト）
   - `belt_config.json`, `auto_run_info.json`（再現/監査に必要）
+
+**採用run（1:1の入口）**
+- 1エピソードにrunが複数ある場合、採用runは `workspaces/scripts/{CH}/{NNN}/status.json` の `metadata.video_run_id` を正本にする。
+- 補助（リンク集）: `workspaces/episodes/{CH}/{NNN}/`（`scripts/episode_ssot.py materialize` が生成）
 
 ### 4.2 Inputs（上流からのソース）
 - SRT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt`（互換: `audio_tts_v2/artifacts/final/...`）

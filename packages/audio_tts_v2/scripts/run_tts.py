@@ -179,6 +179,20 @@ def main() -> None:
     }
     
     input_text = args.input.read_text(encoding="utf-8")
+    # Always materialize a sanitized TTS input under audio_prep/ (required by SSOT).
+    # This strips meta citations/URLs that must never be spoken or shown in subtitles.
+    try:
+        from factory_common.text_sanitizer import strip_meta_from_script
+
+        sanitized = strip_meta_from_script(input_text)
+        if sanitized.removed_counts:
+            print(f"[SANITIZE] Removed meta tokens from input: {sanitized.removed_counts}")
+        sanitized_path = artifact_root / "script_sanitized.txt"
+        sanitized_path.write_text(sanitized.text, encoding="utf-8")
+        input_text = sanitized.text
+    except Exception as exc:
+        print(f"[WARN] Failed to sanitize input text; continuing with raw input: {exc}")
+        sanitized_path = None
 
     # Import Lazy to avoid circular dependency if any
     from tts.strict_orchestrator import run_strict_pipeline
@@ -240,9 +254,85 @@ def main() -> None:
 
             try:
                 # Keep a_text.txt (authoritative input) alongside final artifacts
-                shutil.copy2(args.input, final_dir / "a_text.txt")
+                if sanitized_path is not None and sanitized_path.exists():
+                    shutil.copy2(sanitized_path, final_dir / "a_text.txt")
+                else:
+                    shutil.copy2(args.input, final_dir / "a_text.txt")
             except Exception:
                 pass
+            # --- Contract manifest (final_dir SoT summary) -------------------------
+            # This must never change the synthesis result; it only records pointers
+            # + checksums so downstream can run mechanically with consistent inputs.
+            try:
+                import json
+                from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
+                from factory_common.paths import repo_root as ssot_repo_root
+                from factory_common.timeline_manifest import (
+                    sha1_file,
+                    wav_duration_seconds,
+                    srt_end_seconds,
+                    srt_entry_count,
+                )
+
+                repo_root_path = ssot_repo_root()
+
+                def _safe_relpath(path: Path) -> str:
+                    try:
+                        return str(path.resolve().relative_to(repo_root_path.resolve()))
+                    except Exception:
+                        return str(path)
+
+                a_text_path = final_dir / "a_text.txt"
+                manifest = {
+                    "schema": "ytm.audio_manifest.v1",
+                    "generated_at": utc_now_iso(),
+                    "repo_root": str(repo_root_path),
+                    "episode": {
+                        "id": f"{args.channel}-{args.video}",
+                        "channel": args.channel,
+                        "video": args.video,
+                    },
+                    "final_dir": _safe_relpath(final_dir),
+                    "source": {
+                        "a_text": {
+                            "path": _safe_relpath(a_text_path),
+                            "sha1": sha1_file(a_text_path) if a_text_path.exists() else None,
+                        },
+                    },
+                    "artifacts": {
+                        "wav": {
+                            "path": _safe_relpath(final_wav),
+                            "sha1": sha1_file(final_wav) if final_wav.exists() else None,
+                            "duration_sec": wav_duration_seconds(final_wav) if final_wav.exists() else None,
+                        },
+                        "srt": {
+                            "path": _safe_relpath(final_srt),
+                            "sha1": sha1_file(final_srt) if final_srt.exists() else None,
+                            "end_sec": srt_end_seconds(final_srt) if final_srt.exists() else None,
+                            "entries": srt_entry_count(final_srt) if final_srt.exists() else None,
+                        },
+                        "log": {
+                            "path": _safe_relpath(final_log),
+                            "sha1": sha1_file(final_log) if final_log.exists() else None,
+                        },
+                    },
+                    "notes": "",
+                }
+
+                try:
+                    if final_log.exists():
+                        log_obj = json.loads(final_log.read_text(encoding="utf-8"))
+                        if isinstance(log_obj, dict):
+                            manifest["log_summary"] = {
+                                "engine": log_obj.get("engine") or (log_obj.get("audio") or {}).get("engine"),
+                                "timestamp": log_obj.get("timestamp"),
+                            }
+                except Exception:
+                    pass
+
+                atomic_write_json(final_dir / "audio_manifest.json", manifest)
+            except Exception as e:
+                print(f"[WARN] Failed to write audio_manifest.json: {e}", file=sys.stderr)
 
         # Metadata
         from datetime import datetime

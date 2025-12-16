@@ -99,6 +99,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **SoT / Inputs**
 - `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/script_manifest.json`（契約。UI表示/検証の基礎）
+  - schema: `ytm.script_manifest.v1`
 - LLMテキスト出力SoT: `workspaces/scripts/{CH}/{NNN}/artifacts/llm/*.json`（互換: `script_pipeline/data/...`）
   - schema: `ytm.llm_text_output.v1`
   - `status=pending` は未完（埋めて `ready` にしてから再実行）
@@ -106,7 +108,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - `workspaces/planning/personas/{CH}_PERSONA.md`
 - `script_pipeline/channels/*/script_prompt.txt` または `script_pipeline/channels/CHxx_script_prompt.txt`
 - LLM設定:
-  - `factory_common/llm_client.py` が `.env` と `configs/llm.yml` を参照してモデル解決。
+  - `factory_common/llm_router.py` が `.env` と `configs/llm_router*.yaml` / `configs/llm_task_overrides.yaml` を参照して task→tier→model を解決。
+  - `LLM_MODE=api|think|agent` の2ルート（API実行 or pendingキュー）。
 
 **Stages と Outputs（現行 stages.yaml）**
 1. `topic_research`
@@ -159,8 +162,12 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **Inputs**
 - Aテキスト: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（互換: `script_pipeline/data/...`）
   - もし `assembled_human.md` が存在し内容差分があれば、run_tts が自動で `assembled.md` に同期（human版が正本）。
-- LLM Reading Resolution:
-  - `audio_tts_v2/tts/reading_resolver/*` が `factory_common/llm_client.py` 経由でモデル解決。
+  - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
+    - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
+    - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する
+    - 混入している場合は `scripts/sanitize_a_text.py` で退避→除去→同期してから再生成する
+- LLM（読み/分割/ポーズ等）:
+  - `audio_tts_v2/tts/llm_adapter.py` → `factory_common/llm_router.py`（tasks: `tts_*`）
 - Voiceエンジン:
   - VOICEVOX / Voicepeak / ElevenLabs を `audio_tts_v2/tts/routing.py` で決定。
 
@@ -173,6 +180,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - `{CH}-{NNN}.srt`
   - `log.json`
   - `a_text.txt`（入力Aテキストのスナップショット）
+  - `audio_manifest.json`（契約。schema: `ytm.audio_manifest.v1`）
   - run_tts が必ず最新を同期するため、**下流はここだけ読めばよい**。
 
 **CSV更新（運用）**

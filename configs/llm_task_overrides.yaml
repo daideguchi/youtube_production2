@@ -3,36 +3,17 @@
 # 未設定の場合は llm_router.yaml の定義を使用する。
 tasks:
   # NOTE:
-  # OpenRouter may be unreachable in some environments (connection errors).
-  # Route critical visual planning tasks to Azure gpt-5-mini so the pipeline can run end-to-end.
+  # Azure is optional. In this repo, AZURE_OPENAI_API_KEY may be intentionally disabled
+  # (e.g. set to a non-ASCII placeholder), which makes Azure calls fail at the HTTP layer.
+  # Prefer the default tier routing (OpenRouter) unless you explicitly want to force Azure.
+  #
+  # If you want to force Azure for a task, add:
+  #   models: [azure_gpt5_mini]
+  # BUT only when AZURE_OPENAI_API_KEY is a valid ASCII key.
   visual_bible:
-    models: [azure_gpt5_mini]
+    tier: heavy_reasoning
     options:
-      temperature: 0.3
-      response_format: json_object
-
-  visual_section_plan:
-    models: [azure_gpt5_mini]
-    options:
-      temperature: 0.3
-      response_format: json_object
-
-  visual_image_cues_plan:
-    models: [azure_gpt5_mini]
-    options:
-      temperature: 0.3
-      response_format: json_object
-
-  visual_persona:
-    models: [azure_gpt5_mini]
-    options:
-      temperature: 0.3
-      response_format: json_object
-
-  visual_prompt_refine:
-    models: [azure_gpt5_mini]
-    options:
-      temperature: 0.3
+      temperature: 0.2
       response_format: json_object
 
   # 例: ここでは gpt-5-mini のみ利用する前提で models を固定

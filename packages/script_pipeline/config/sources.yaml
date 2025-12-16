@@ -1,4 +1,7 @@
 channels:
+  # NOTE:
+  # - 正本は repo 直下 `configs/sources.yaml`（全チャンネルの planning/persona/prompt/章数/文字数など）。
+  # - このファイルは互換/局所上書き用（runner は configs → ここ の順でマージする）。
   CH06:
     planning_csv: workspaces/planning/channels/CH06.csv
     persona: workspaces/planning/personas/CH06_PERSONA.md

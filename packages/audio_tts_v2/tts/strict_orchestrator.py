@@ -14,6 +14,7 @@ import json
 from .routing import load_routing_config, resolve_voicevox_speaker_id
 
 from factory_common.paths import audio_pkg_root, script_pkg_root, video_root
+from factory_common.text_sanitizer import strip_meta_from_script
 
 # Need to load voice_config.json manually because routing.py doesn't handle it fully
 def load_channel_voice_config(channel: str) -> Optional[Dict[str, Any]]:
@@ -76,6 +77,10 @@ def run_strict_pipeline(
     
     # 1. Segmentation
     print("[STEP 1] Segmentation & Pause Planning")
+    sanitized = strip_meta_from_script(input_text)
+    if sanitized.removed_counts:
+        print(f"[SANITIZE] Removed meta tokens from input: {sanitized.removed_counts}")
+        input_text = sanitized.text
     segments = strict_segmentation(input_text)
     print(f"-> Generated {len(segments)} segments.")
     

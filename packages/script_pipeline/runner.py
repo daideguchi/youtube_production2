@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple, Any, Set
 from .sot import load_status, save_status, init_status, status_path, Status, StageState
 from .validator import validate_stage
 from .tools import optional_fields_registry as opt_fields
+from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
 from factory_common.artifacts.llm_text_output import (
     SourceFile,
     artifact_path_for_output,
@@ -17,8 +18,15 @@ from factory_common.artifacts.llm_text_output import (
     load_llm_text_artifact,
     write_llm_text_artifact,
 )
-from factory_common.llm_client import LLMClient
-from factory_common.paths import audio_final_dir, repo_root, script_pkg_root, script_data_root
+from factory_common.llm_router import get_router
+from factory_common.paths import (
+    audio_final_dir,
+    channels_csv_path,
+    persona_path as persona_md_path,
+    repo_root,
+    script_pkg_root,
+    script_data_root,
+)
 from factory_common.timeline_manifest import sha1_file
 
 PROJECT_ROOT = repo_root()
@@ -26,6 +34,118 @@ SCRIPT_PKG_ROOT = script_pkg_root()
 DATA_ROOT = script_data_root()
 
 _ENV_LOADED = False
+SCRIPT_MANIFEST_FILENAME = "script_manifest.json"
+SCRIPT_MANIFEST_SCHEMA = "ytm.script_manifest.v1"
+
+
+def _safe_relpath(path: Path, root: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(root.resolve()))
+    except Exception:
+        return str(path)
+
+
+def _file_entry(path: Path, root: Path) -> Dict[str, Any]:
+    resolved = path.resolve() if path.exists() else path
+    entry: Dict[str, Any] = {"path": _safe_relpath(resolved, root)}
+    if not path.exists():
+        entry["type"] = "missing"
+        return entry
+    if path.is_dir():
+        entry["type"] = "dir"
+        try:
+            entry["items"] = len(list(path.iterdir()))
+        except Exception:
+            entry["items"] = None
+        return entry
+    entry["type"] = "file"
+    try:
+        entry["bytes"] = int(path.stat().st_size)
+    except Exception:
+        entry["bytes"] = None
+    try:
+        entry["sha1"] = sha1_file(path)
+    except Exception:
+        entry["sha1"] = None
+    return entry
+
+
+def _collect_llm_artifact_entries(base: Path, root: Path) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    artifacts_dir = base / "artifacts" / "llm"
+    if not artifacts_dir.exists():
+        return out
+    for p in sorted(artifacts_dir.glob("*.json")):
+        try:
+            art = load_llm_text_artifact(p)
+        except Exception:
+            out.append({"path": _safe_relpath(p, root), "error": "invalid_llm_artifact"})
+            continue
+        out.append(
+            {
+                "path": _safe_relpath(p, root),
+                "schema": getattr(art, "schema_id", None),
+                "stage": art.stage,
+                "task": art.task,
+                "status": art.status,
+                "output_path": art.output.path,
+                "output_sha1": art.output.sha1,
+                "generated_at": art.generated_at,
+            }
+        )
+    return out
+
+
+def _write_script_manifest(base: Path, st: Status, stage_defs: List[Dict[str, Any]]) -> None:
+    root = PROJECT_ROOT
+    status_json = status_path(st.channel, st.video)
+    assembled_candidates = [
+        base / "content" / "final" / "assembled.md",
+        base / "content" / "assembled.md",
+    ]
+    assembled_path = next((p for p in assembled_candidates if p.exists()), assembled_candidates[-1])
+
+    expected: List[Dict[str, Any]] = []
+    for sd in stage_defs:
+        stage_name = sd.get("name") or ""
+        outputs = sd.get("outputs") or []
+        resolved_outputs: List[Dict[str, Any]] = []
+        for out in outputs:
+            out_path = out.get("path")
+            if not out_path:
+                continue
+            resolved_str = _replace_tokens(str(out_path), st.channel, st.video)
+            resolved_outputs.append(
+                {
+                    "path": resolved_str,
+                    "required": bool(out.get("required")),
+                }
+            )
+        expected.append({"stage": stage_name, "outputs": resolved_outputs})
+
+    manifest: Dict[str, Any] = {
+        "schema": SCRIPT_MANIFEST_SCHEMA,
+        "generated_at": utc_now_iso(),
+        "repo_root": str(root),
+        "episode": {"id": f"{st.channel}-{st.video}", "channel": st.channel, "video": st.video},
+        "contract": {
+            "stages_yaml": _file_entry(STAGE_DEF_PATH, root),
+            "templates_yaml": _file_entry(TEMPLATE_DEF_PATH, root),
+        },
+        "sot": {
+            "status_json": _file_entry(status_json, root),
+            "status": st.status,
+            "stages": {k: {"status": v.status, "details": v.details} for k, v in st.stages.items()},
+            "metadata": dict(st.metadata or {}),
+        },
+        "outputs": {
+            "assembled_md": _file_entry(assembled_path, root),
+        },
+        "expected_outputs": expected,
+        "llm_artifacts": _collect_llm_artifact_entries(base, root),
+        "notes": "",
+    }
+    atomic_write_json(base / SCRIPT_MANIFEST_FILENAME, manifest)
 
 
 def _autoload_env(env_path: Path | None = None) -> None:
@@ -60,7 +180,9 @@ def _autoload_env(env_path: Path | None = None) -> None:
 
 STAGE_DEF_PATH = SCRIPT_PKG_ROOT / "stages.yaml"
 TEMPLATE_DEF_PATH = SCRIPT_PKG_ROOT / "templates.yaml"
-SOURCES_PATH = SCRIPT_PKG_ROOT / "config" / "sources.yaml"
+GLOBAL_SOURCES_PATH = PROJECT_ROOT / "configs" / "sources.yaml"
+LOCAL_SOURCES_PATH = SCRIPT_PKG_ROOT / "config" / "sources.yaml"
+CHANNELS_REGISTRY_PATH = SCRIPT_PKG_ROOT / "channels" / "channels.json"
 CONFIG_ROOT = PROJECT_ROOT / "configs"
 # stages to skip (no LLM formatting run) — none by default
 SKIP_STAGES: Set[str] = set()
@@ -69,8 +191,8 @@ SKIP_STAGES: Set[str] = set()
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
 FORMAT_CHUNK_LEN = int(os.getenv("SCRIPT_FORMAT_CHUNK_LEN", "600"))
 
-# Shared LLM client (task→tier→model resolution via configs/llm.yml)
-router_client = LLMClient()
+# Shared LLM router (task→tier→model resolution via configs/llm_router*.yaml)
+router_client = get_router()
 
 
 def _load_stage_defs() -> List[Dict[str, Any]]:
@@ -94,13 +216,65 @@ def _render_template(template_path: Path, ph_map: Dict[str, str]) -> str:
     return text
 
 
-def _load_sources(channel: str) -> Dict[str, Any]:
+def _deep_merge_dict(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (overlay or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge_dict(out[k], v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
+
+
+def _load_yaml_optional(path: Path) -> Dict[str, Any]:
     import yaml
 
-    if not SOURCES_PATH.exists():
+    if not path.exists():
         return {}
-    data = yaml.safe_load(SOURCES_PATH.read_text(encoding="utf-8")) or {}
-    return (data.get("channels") or {}).get(channel.upper()) or {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _load_sources_doc() -> Dict[str, Any]:
+    """
+    Channel registry for script generation.
+    Canonical: repo-root `configs/sources.yaml`
+    Local overrides: `packages/script_pipeline/config/sources.yaml`
+    """
+    doc = _load_yaml_optional(GLOBAL_SOURCES_PATH)
+    local = _load_yaml_optional(LOCAL_SOURCES_PATH)
+    return _deep_merge_dict(doc, local)
+
+
+def _load_sources(channel: str) -> Dict[str, Any]:
+    doc = _load_sources_doc()
+    return (doc.get("channels") or {}).get(channel.upper()) or {}
+
+
+def _load_script_globals() -> Dict[str, Any]:
+    doc = _load_sources_doc()
+    return doc.get("script_globals") or {}
+
+
+def _load_channel_display_name(channel: str) -> str | None:
+    if not CHANNELS_REGISTRY_PATH.exists():
+        return None
+    try:
+        payload = json.loads(CHANNELS_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    key = str(channel).strip().lower()
+    info = payload.get(key)
+    if isinstance(info, dict):
+        name = info.get("name")
+        if isinstance(name, str) and name.strip():
+            return name.strip()
+    return None
 
 
 def _resolve_repo_path(value: str) -> Path:
@@ -143,8 +317,8 @@ def _resolve_llm_options(stage: str, llm_cfg: Dict[str, Any], templates: Dict[st
     """
     Resolve template path/heading.
 
-    NOTE: provider/model selection is handled by `factory_common.llm_client.LLMClient`
-    via `configs/llm.yml` (task → tier → model chain). Do not re-introduce
+    NOTE: provider/model selection is handled by `factory_common.llm_router.LLMRouter`
+    via `configs/llm_router*.yaml` (task → tier → model chain). Do not re-introduce
     per-stage hardcoding here.
     """
     tmpl_key = llm_cfg.get("template")
@@ -179,12 +353,73 @@ def _reconciled_outputs_ok(base: Path, channel: str, video: str, outputs: List[D
 
 
 def ensure_status(channel: str, video: str, title: str | None) -> Status:
-    if status_path(channel, video).exists():
-        return load_status(channel, video)
-    # load metadata from sources (CSV/persona/channel_prompt)
     sources = _load_sources(channel)
+    script_globals = _load_script_globals()
+
+    # If status.json already exists, backfill missing metadata from SSOT/config
+    # without changing title/content (safe, non-destructive).
+    if status_path(channel, video).exists():
+        st = load_status(channel, video)
+        changed = False
+
+        # Global A-text rules
+        a_text_rules_path = script_globals.get("a_text_rules") if isinstance(script_globals, dict) else None
+        if a_text_rules_path:
+            resolved_rules = _resolve_repo_path(str(a_text_rules_path))
+            if resolved_rules.exists() and not st.metadata.get("style"):
+                st.metadata["style"] = resolved_rules.read_text(encoding="utf-8")
+                st.metadata["a_text_rules_path"] = str(resolved_rules)
+                changed = True
+
+        # Channel display name
+        display_name = _load_channel_display_name(channel)
+        if display_name:
+            cur = st.metadata.get("channel_display_name")
+            if not cur or str(cur).strip().upper() == str(channel).strip().upper():
+                st.metadata["channel_display_name"] = display_name
+                changed = True
+
+        # Persona (if missing)
+        persona_path = sources.get("persona") or persona_md_path(channel)
+        if persona_path and not st.metadata.get("persona"):
+            resolved_persona = _resolve_repo_path(str(persona_path))
+            if resolved_persona.exists():
+                st.metadata["persona"] = resolved_persona.read_text(encoding="utf-8")
+                changed = True
+
+        # Channel prompt (if missing)
+        script_prompt_path = sources.get("channel_prompt")
+        if script_prompt_path and not st.metadata.get("script_prompt"):
+            resolved_prompt = _resolve_repo_path(str(script_prompt_path))
+            if resolved_prompt.exists():
+                st.metadata["script_prompt"] = resolved_prompt.read_text(encoding="utf-8")
+                st.metadata["script_prompt_path"] = str(resolved_prompt)
+                changed = True
+
+        # Chapter count / length targets
+        if sources.get("chapter_count") and not st.metadata.get("chapter_count"):
+            st.metadata["chapter_count"] = sources.get("chapter_count")
+            changed = True
+        for key in ("target_chars_min", "target_chars_max"):
+            if key in sources and sources.get(key) not in (None, "") and key not in st.metadata:
+                st.metadata[key] = sources.get(key)
+                changed = True
+        if not st.metadata.get("target_word_count"):
+            try:
+                twc = int(st.metadata.get("target_chars_max") or st.metadata.get("target_chars_min") or 0)
+            except Exception:
+                twc = 0
+            if twc > 0:
+                st.metadata["target_word_count"] = twc
+                changed = True
+
+        if changed:
+            save_status(st)
+        return st
+
+    # load metadata from sources (CSV/persona/channel_prompt)
     extra_meta: Dict[str, Any] = {}
-    csv_path = sources.get("planning_csv")
+    csv_path = sources.get("planning_csv") or channels_csv_path(channel)
     if csv_path:
         csv_row = _load_csv_row(_resolve_repo_path(str(csv_path)), video)
         if csv_row:
@@ -212,7 +447,7 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
             for key in ("concept_intent", "content_notes", "content_summary", "outline_notes", "script_sample", "script_body"):
                 if key not in extra_meta and planning_section.get(key):
                     extra_meta[key] = planning_section.get(key)
-    persona_path = sources.get("persona")
+    persona_path = sources.get("persona") or persona_md_path(channel)
     if persona_path:
         resolved_persona = _resolve_repo_path(str(persona_path))
         if resolved_persona.exists():
@@ -223,9 +458,35 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
         resolved_prompt = _resolve_repo_path(str(script_prompt_path))
         if resolved_prompt.exists():
             extra_meta["script_prompt"] = resolved_prompt.read_text(encoding="utf-8")
+            extra_meta["script_prompt_path"] = str(resolved_prompt)
     chapter_count = sources.get("chapter_count")
     if chapter_count:
         extra_meta["chapter_count"] = chapter_count
+
+    # Global A-text rules (all channels): inject into `style` for prompt templates.
+    a_text_rules_path = script_globals.get("a_text_rules") if isinstance(script_globals, dict) else None
+    if a_text_rules_path:
+        resolved_rules = _resolve_repo_path(str(a_text_rules_path))
+        if resolved_rules.exists():
+            extra_meta["style"] = resolved_rules.read_text(encoding="utf-8")
+            extra_meta["a_text_rules_path"] = str(resolved_rules)
+
+    # Channel display name for prompts (avoid "CH07" etc).
+    display_name = _load_channel_display_name(channel)
+    if display_name:
+        extra_meta["channel_display_name"] = display_name
+
+    # Optional length targets (used by validators/tools; safe to store even if not enforced here).
+    for key in ("target_chars_min", "target_chars_max"):
+        if key in sources and sources.get(key) not in (None, ""):
+            extra_meta[key] = sources.get(key)
+    if "target_word_count" not in extra_meta:
+        try:
+            twc = int(extra_meta.get("target_chars_max") or extra_meta.get("target_chars_min") or 0)
+        except Exception:
+            twc = 0
+        if twc > 0:
+            extra_meta["target_word_count"] = twc
 
     init_title = extra_meta.get("title") or title
     if not init_title:
@@ -234,6 +495,12 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
     st = init_status(channel, video, init_title, stage_names)
     _merge_metadata(st, extra_meta)
     save_status(st)
+    try:
+        stage_defs = _load_stage_defs()
+        base = DATA_ROOT / st.channel / st.video
+        _write_script_manifest(base, st, stage_defs)
+    except Exception:
+        pass
     return st
 
 
@@ -953,13 +1220,19 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         if llm_cfg.get("timeout"):
             call_kwargs["timeout"] = llm_cfg.get("timeout")
 
-        llm_result = router_client.call(
+        result = router_client.call_with_raw(
             task=task_name,
             messages=messages,
             **call_kwargs,
         )
 
-        content = llm_result.content
+        content_obj = result.get("content")
+        if isinstance(content_obj, list):
+            content = " ".join(
+                str(part.get("text", "")).strip() for part in content_obj if isinstance(part, dict)
+            ).strip()
+        else:
+            content = str(content_obj or "").strip()
         if not content:
             raise RuntimeError("LLM returned empty content")
 
@@ -972,10 +1245,13 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
                 json.dumps(
                     {
                         "task": task_name,
-                        "provider": llm_result.provider,
-                        "model": llm_result.model,
+                        "provider": result.get("provider"),
+                        "model": result.get("model"),
+                        "request_id": result.get("request_id"),
+                        "chain": result.get("chain"),
+                        "latency_ms": result.get("latency_ms"),
                         "response": content,
-                        "usage": llm_result.usage,
+                        "usage": result.get("usage") or {},
                     },
                     ensure_ascii=False,
                     indent=2,
@@ -987,6 +1263,15 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
 
         _normalize_llm_output(out_path, stage)
         try:
+            llm_meta = {
+                "provider": result.get("provider"),
+                "model": result.get("model"),
+                "request_id": result.get("request_id"),
+                "chain": result.get("chain"),
+                "latency_ms": result.get("latency_ms"),
+                "usage": result.get("usage") or {},
+                "finish_reason": result.get("finish_reason"),
+            }
             write_llm_text_artifact(
                 artifact_path,
                 build_ready_artifact(
@@ -997,7 +1282,7 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
                     output_path=out_path,
                     content=content,
                     sources=sources,
-                    llm_meta={"provider": llm_result.provider, "model": llm_result.model, "usage": llm_result.usage},
+                    llm_meta=llm_meta,
                     notes=f"prompt_log={prompt_log}",
                 ),
             )
@@ -1181,6 +1466,10 @@ def reset_video(channel: str, video: str, *, wipe_research: bool = False) -> Sta
             if tr_outputs:
                 st.stages["topic_research"].details["generated"] = tr_outputs
     save_status(st)
+    try:
+        _write_script_manifest(base, st, stage_defs)
+    except Exception:
+        pass
     return st
 
 
@@ -1313,6 +1602,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "OUTLINE_TEXT": f"@{(base / 'content/outline.md').resolve()}",
                 "META_JSON": json.dumps(st.metadata, ensure_ascii=False),
                 "BRIEF_JSON": json.dumps(brief_obj, ensure_ascii=False) if brief_obj else "{}",
+                "CHANNEL_STYLE_GUIDE": "from_style",
             }
             ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=extra_ph, output_override=out_path) or ran_llm
             gen_paths.append(str(out_path.relative_to(base)))
@@ -1353,6 +1643,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         assembled_body = "\n\n".join(assembled_body_parts).strip()
         assembled_path.parent.mkdir(parents=True, exist_ok=True)
         assembled_path.write_text((assembled_body + "\n") if assembled_body else "", encoding="utf-8")
+        # Final guard: strip meta citations/URLs from the spoken script.
+        # (These must never appear in subtitles / TTS output.)
+        try:
+            from factory_common.text_sanitizer import strip_meta_from_script
+
+            sanitized = strip_meta_from_script(assembled_path.read_text(encoding="utf-8"))
+            if sanitized.removed_counts:
+                assembled_path.write_text(sanitized.text, encoding="utf-8")
+                st.stages[stage_name].details["meta_sanitized"] = sanitized.removed_counts
+        except Exception:
+            pass
         cta_path.parent.mkdir(parents=True, exist_ok=True)
         cta_path.write_text((cta_text + "\n") if (cta_text and include_cta) else "", encoding="utf-8")
         scenes_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1387,6 +1688,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
     st.stages[stage_name].status = "completed"
     st.status = "completed" if _all_stages_completed(st) else "script_in_progress"
     save_status(st)
+    try:
+        _write_script_manifest(base, st, stage_defs)
+    except Exception:
+        pass
     return st
 
 
@@ -1398,5 +1703,10 @@ def run_next(channel: str, video: str, title: str | None = None) -> Status:
     if not stage_name:
         st.status = "completed"
         save_status(st)
+        try:
+            base = DATA_ROOT / st.channel / st.video
+            _write_script_manifest(base, st, stage_defs)
+        except Exception:
+            pass
         return st
     return run_stage(channel, video, stage_name, title=st.metadata.get("title") or title)

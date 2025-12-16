@@ -67,7 +67,23 @@
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
 
-### 2.3 status.json（観測スキーマ）
+### 2.3 script_manifest.json（契約 / 仕組み化の核）
+用途:
+- Scriptフェーズの入力/出力/依存（status.json・assembled.md・LLM artifacts）を **1ファイルに固定**し、UI表示・移設・検証の基礎にする。
+
+場所（期待）:
+- `workspaces/scripts/{CH}/{NNN}/script_manifest.json`
+
+トップレベル（期待）:
+- `schema`: `"ytm.script_manifest.v1"`
+- `generated_at`: string（UTC ISO）
+- `repo_root`: string（repo absolute path）
+- `episode`: dict（`id`, `channel`, `video`）
+- `sot`: dict（`status_json` 等）
+- `outputs`: dict（`assembled_md` 等）
+- `notes`: string（任意）
+
+### 2.4 status.json（観測スキーマ）
 必須（期待）:
 - `script_id`: `CHxx-NNN`
 - `channel`: `CHxx`
@@ -94,7 +110,24 @@ stage_state（観測）:
   - `log.json`
   - `a_text.txt`
 
-### 3.2 log.json（観測スキーマ）
+### 3.2 audio_manifest.json（契約 / 仕組み化の核）
+用途:
+- Audioフェーズの **最終参照正本（final）** を1ファイルで要約し、下流（Video/UI/検証）が機械的に参照できるようにする。
+
+場所（期待）:
+- `workspaces/audio/final/{CH}/{NNN}/audio_manifest.json`
+
+トップレベル（期待）:
+- `schema`: `"ytm.audio_manifest.v1"`
+- `generated_at`: string（UTC ISO）
+- `repo_root`: string（repo absolute path）
+- `episode`: dict（`id`, `channel`, `video`）
+- `final_dir`: string（repo相対）
+- `source`: dict（`a_text` 等）
+- `artifacts`: dict（`wav`, `srt`, `log` 等）
+- `notes`: string（任意）
+
+### 3.3 log.json（観測スキーマ）
 トップレベル（必須）:
 - `channel`: `CHxx`
 - `video`: `NNN`

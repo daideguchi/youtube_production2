@@ -3,6 +3,12 @@
 ### 1. 音声生成準備
 - `script_pipeline/data/{チャンネル}/{動画番号}/content/assembled.md` が存在することを確認
 - `assembled_human.md` がある場合はそれが正本（run_tts が必要に応じて `assembled.md` に同期して事故を防止）
+- **台本本文に出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
+  - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
+  - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する
+  - 既に混入している場合は `scripts/sanitize_a_text.py` で退避→除去→同期してから再生成する
+- **ポーズ挿入の区切り記号は `---` のみ**（1行単独）。`***` / `___` / `///` 等は使わない（TTSが不自然に途切れる原因）。
+  - 全チャンネル共通のAテキスト品質ルール: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
 
 ### 2. 音声生成実行（SoT=final）
 - 推奨: **final 配下に直接出力**（下流はここだけ参照すれば良い）
