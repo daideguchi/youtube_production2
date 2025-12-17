@@ -74,3 +74,6 @@
 - 検証: `npm -C apps/ui-frontend run build` / `python3 -m py_compile apps/ui-backend/backend/main.py` / `python3 -m py_compile scripts/sync_all_scripts.py scripts/sync_ch02_scripts.py`
 - レガシー削除: `scripts/maintain_consciousness.py` を archive-first で削除し、`ssot/OPS_CLEANUP_EXECUTION_LOG.md` に記録（Step 39）。
 - Planning テンプレも正規化: `workspaces/planning/templates/CH07..CH10_planning_template.csv` の台本パスを `workspaces/scripts/...`（repo相対）へ修正。
+- SSOT追加: `ssot/master_styles.json` を repo に追加し、CapCutスタイル/タイムライン設定の正本を明示（`style_resolver.py` の default）。
+- 新チャンネル立ち上げ: CH12–CH16 の planning CSV + persona と、まとめて init/メタ補完する `scripts/buddha_senior_5ch_prepare.py` を追加（`workspaces/planning/buddha_senior_5ch_setup.md`）。
+- 画像系プロンプトの絶対パス除去: `packages/commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt` の repo root 記載を `<REPO_ROOT>` に置換。
