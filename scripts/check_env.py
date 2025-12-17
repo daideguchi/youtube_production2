@@ -31,6 +31,16 @@ OPTIONAL_PAIRS = [
     ("AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT"),
 ]
 
+def _find_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+DEFAULT_ENV_FILE = str(_find_repo_root(Path(__file__).resolve()) / ".env")
+
 
 def parse_env_file(path: Path) -> dict:
     env = {}
@@ -49,13 +59,25 @@ def parse_env_file(path: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate required environment variables for start_all")
-    parser.add_argument("--env-file", default=str(Path.cwd() / ".env"), help="Path to .env file (default: ./ .env)")
+    parser.add_argument(
+        "--env-file",
+        default=DEFAULT_ENV_FILE,
+        help="Path to .env file (default: <repo_root>/.env)",
+    )
     parser.add_argument(
         "--keys",
         nargs="+",
         help="Override the required key list (default: all REQUIRED_KEYS)",
     )
     args = parser.parse_args()
+
+    # Warn about global PYTHONPATH pollution (legacy repos can shadow imports).
+    pythonpath = os.environ.get("PYTHONPATH") or ""
+    if pythonpath:
+        legacy_markers = ["youtube_master", "commentary_01_srtfile_v2"]
+        if any(m in pythonpath for m in legacy_markers):
+            print("⚠️  Detected global PYTHONPATH containing legacy paths. Consider `unset PYTHONPATH`.")
+            print("    Safer: run via `./scripts/with_ytm_env.sh ...` which prepends the correct repo paths.")
 
     env_path = Path(args.env_file)
     try:

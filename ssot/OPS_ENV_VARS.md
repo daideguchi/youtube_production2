@@ -3,6 +3,7 @@
 ## 原則
 - 秘密鍵はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
 - `.env.example` をベースに必要キーを埋める。既にシェルで export 済みの値があればそちらが優先される。
+- グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
 
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
