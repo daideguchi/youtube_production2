@@ -77,7 +77,7 @@ export function ChannelListSection({
   }, [channelStats]);
 
   const handleSelect = (code: string) => {
-    if (selectedChannel === code) {
+    if (variant !== "dashboard" && selectedChannel === code) {
       return;
     }
     onSelectChannel(code);

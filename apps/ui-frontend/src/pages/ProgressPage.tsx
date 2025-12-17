@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { fetchChannels, fetchProgressCsv, updateVideoRedo, fetchRedoSummary, lookupThumbnails, refreshPlanningStore, markVideoPublishedLocked } from "../api/client";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import {
+  fetchProgressCsv,
+  updateVideoRedo,
+  fetchRedoSummary,
+  lookupThumbnails,
+  refreshPlanningStore,
+  markVideoPublishedLocked,
+} from "../api/client";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
 import { RedoBadge } from "../components/RedoBadge";
+import type { ShellOutletContext } from "../layouts/AppShell";
 import "./ProgressPage.css";
 
 type Row = Record<string, string>;
-const CHANNELS = ["CH01","CH02","CH03","CH04","CH05","CH06","CH07","CH08","CH09","CH10","CH11"];
 
 const CHANNEL_META: Record<string, { icon: string; color: string }> = {
   CH01: { icon: "🎯", color: "chip-cyan" },
@@ -21,6 +28,37 @@ const CHANNEL_META: Record<string, { icon: string; color: string }> = {
   CH10: { icon: "🧠", color: "chip-orange" },
   CH11: { icon: "📜", color: "chip-teal" },
 };
+
+const META_COLOR_FALLBACK = [
+  "chip-cyan",
+  "chip-blue",
+  "chip-green",
+  "chip-indigo",
+  "chip-pink",
+  "chip-purple",
+  "chip-emerald",
+  "chip-slate",
+  "chip-amber",
+  "chip-orange",
+  "chip-teal",
+];
+
+function compareChannelCode(a: string, b: string): number {
+  const an = Number.parseInt(a.replace(/[^0-9]/g, ""), 10);
+  const bn = Number.parseInt(b.replace(/[^0-9]/g, ""), 10);
+  const aNum = Number.isFinite(an);
+  const bNum = Number.isFinite(bn);
+  if (aNum && bNum) {
+    return an - bn;
+  }
+  if (aNum) return -1;
+  if (bNum) return 1;
+  return a.localeCompare(b, "ja-JP");
+}
+
+function normalizeChannelCode(value: string | null): string {
+  return (value ?? "").trim().toUpperCase();
+}
 
 const LONG_COLUMNS = new Set([
   "企画意図",
@@ -87,7 +125,37 @@ const normalizeVideo = (value: any): string => {
 
 export function ProgressPage() {
   const navigate = useNavigate();
-  const [channel, setChannel] = useState<string>("CH02");
+  const { channels: availableChannels } = useOutletContext<ShellOutletContext>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const channel = useMemo(() => normalizeChannelCode(searchParams.get("channel")), [searchParams]);
+  const channelCodes = useMemo(() => {
+    const codes = (availableChannels ?? [])
+      .map((item) => item.code)
+      .filter((code): code is string => typeof code === "string" && code.length > 0);
+    const unique = Array.from(new Set(codes));
+    unique.sort(compareChannelCode);
+    return unique.length ? unique : Object.keys(CHANNEL_META).sort(compareChannelCode);
+  }, [availableChannels]);
+  const channelMap = useMemo(() => {
+    const map: Record<string, ChannelSummary> = {};
+    (availableChannels ?? []).forEach((item) => {
+      map[item.code] = item;
+    });
+    return map;
+  }, [availableChannels]);
+  const applyChannel = useCallback(
+    (nextRaw: string) => {
+      const next = normalizeChannelCode(nextRaw);
+      const params = new URLSearchParams(searchParams);
+      if (next) {
+        params.set("channel", next);
+      } else {
+        params.delete("channel");
+      }
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, setSearchParams]
+  );
   const [rows, setRows] = useState<Row[]>([]);
   const [filteredRows, setFilteredRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
@@ -95,7 +163,6 @@ export function ProgressPage() {
   const [showAll, setShowAll] = useState(false);
   const [redoOnly, setRedoOnly] = useState(false);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
-  const [channelMap, setChannelMap] = useState<Record<string, ChannelSummary>>({});
   const [saving, setSaving] = useState(false);
   const [redoScriptValue, setRedoScriptValue] = useState<boolean>(true);
   const [redoAudioValue, setRedoAudioValue] = useState<boolean>(true);
@@ -261,36 +328,42 @@ export function ProgressPage() {
   }, [thumbMap]);
 
   useEffect(() => {
-    // load channel metadata for icons
-    fetchChannels()
-      .then((list) => {
-        const map: Record<string, ChannelSummary> = {};
-        list.forEach((c) => {
-          map[c.code] = c;
-        });
-        setChannelMap(map);
-      })
-      .catch(() => {
-        /* non-blocking */
-      });
-  }, []);
+    let cancelled = false;
+    if (!channel) {
+      setRows([]);
+      setRedoSummary(null);
+      setDetailRow(null);
+      setError(null);
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
 
-  useEffect(() => {
     const load = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetchProgressCsv(channel);
+        if (cancelled) return;
         setRows(res.rows || []);
         const summary = await fetchRedoSummary(channel);
+        if (cancelled) return;
         setRedoSummary(summary[0] ?? null);
       } catch (e: any) {
-        setError(e?.message || "読み込みに失敗しました");
+        if (!cancelled) {
+          setError(e?.message || "読み込みに失敗しました");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
-    load();
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [channel]);
 
   useEffect(() => {
@@ -342,19 +415,27 @@ export function ProgressPage() {
       <div className="progress-page__controls">
         <label>
           チャンネル:
-          <select value={channel} onChange={(e) => setChannel(e.target.value)}>
-            {CHANNELS.map((c) => (
-              <option key={c} value={c}>{c}</option>
+          <select value={channel} onChange={(e) => applyChannel(e.target.value)}>
+            <option value="">未選択</option>
+            {channelCodes.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </label>
         <div className="progress-page__channel-icons">
-          {CHANNELS.map((c) => (
+          {channelCodes.map((c, index) => {
+            const meta = CHANNEL_META[c] ?? {
+              icon: "📺",
+              color: META_COLOR_FALLBACK[index % META_COLOR_FALLBACK.length],
+            };
+            return (
             <button
               key={c}
               type="button"
-              className={`progress-page__chip ${channel === c ? "is-active" : ""} ${CHANNEL_META[c]?.color || ""}`}
-              onClick={() => setChannel(c)}
+              className={`progress-page__chip ${channel === c ? "is-active" : ""} ${meta.color}`}
+              onClick={() => applyChannel(c)}
               title={c}
             >
               {channelMap[c]?.branding?.avatar_url ? (
@@ -365,12 +446,13 @@ export function ProgressPage() {
                 />
               ) : (
                 <span className="progress-page__chip-icon" aria-hidden="true">
-                  {CHANNEL_META[c]?.icon || "●"}
+                  {meta.icon}
                 </span>
               )}
               <span className="progress-page__chip-text">{c}</span>
             </button>
-          ))}
+            );
+          })}
         </div>
         <label className="progress-page__toggle">
           <input
@@ -392,6 +474,7 @@ export function ProgressPage() {
           type="button"
           className="progress-page__refresh"
           onClick={async () => {
+            if (!channel) return;
             setLoading(true);
             setError(null);
             try {
@@ -406,7 +489,7 @@ export function ProgressPage() {
               setLoading(false);
             }
           }}
-          disabled={loading}
+          disabled={loading || !channel}
           title="外部で編集した企画CSVを強制再読込します"
         >
           企画を再読込
@@ -422,6 +505,12 @@ export function ProgressPage() {
         {error && <span className="progress-page__error">{error}</span>}
       </div>
       <div className="progress-page__table-wrapper">
+        {!channel ? (
+          <div className="shell-panel shell-panel--placeholder" style={{ border: "none", boxShadow: "none" }}>
+            <h2>チャンネルを選択してください</h2>
+            <p className="shell-panel__subtitle">上のチャンネル選択から企画CSVを読み込みます。</p>
+          </div>
+        ) : (
         <table className="progress-page__table">
           <thead>
             <tr>
@@ -611,6 +700,7 @@ export function ProgressPage() {
             ))}
           </tbody>
         </table>
+        )}
       </div>
 
       {detailRow && (

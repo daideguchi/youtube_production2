@@ -476,7 +476,7 @@ export function AppShell() {
         if (current && data.some((item) => item.code === current)) {
           return current;
         }
-        return data[0]?.code ?? null;
+        return null;
       });
     } catch (error) {
       setChannelsError(error instanceof Error ? error.message : String(error));
@@ -1145,6 +1145,13 @@ export function AppShell() {
     return "/audio-integrity";
   }, [selectedChannel, selectedVideo]);
 
+  const progressLink = useMemo(() => {
+    if (!selectedChannel) {
+      return "/progress";
+    }
+    return `/progress?channel=${encodeURIComponent(selectedChannel)}`;
+  }, [selectedChannel]);
+
   type NavItem = { key: WorkspaceView; label: string; icon: string; path: string };
   type NavSection = { title: string; items: NavItem[] };
 
@@ -1165,7 +1172,7 @@ export function AppShell() {
         items: [
           { key: "studio", label: "Episode Studio", icon: "🎛️", path: "/studio" },
           { key: "workflow", label: "制作フロー", icon: "🧭", path: "/workflow" },
-          { key: "progress", label: "企画CSV", icon: "🗂️", path: "/progress" },
+          { key: "progress", label: "企画CSV", icon: "🗂️", path: progressLink },
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
           { key: "audioTtsV2", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts-v2" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
@@ -1186,7 +1193,7 @@ export function AppShell() {
         ],
       },
     ],
-    [audioIntegrityLink]
+    [audioIntegrityLink, progressLink]
   );
 
   const channelStats = dashboardOverview?.channels;
