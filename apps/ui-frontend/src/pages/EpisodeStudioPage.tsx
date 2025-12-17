@@ -80,6 +80,9 @@ export function EpisodeStudioPage() {
   const scriptOk = Boolean(videoDetail?.assembled_human_path || videoDetail?.assembled_path);
   const audioState = useMemo(() => (videoDetail ? resolveAudioSubtitleState(videoDetail) : "pending"), [videoDetail]);
   const audioOk = audioState === "completed";
+  const alignmentStatus = videoDetail?.alignment_status ?? null;
+  const alignmentReason = videoDetail?.alignment_reason ?? null;
+  const alignmentOk = alignmentStatus === null || alignmentStatus === "OK" || alignmentStatus === "要確認";
 
   const episodeBaseLink =
     channel && video ? `/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}` : null;
@@ -277,8 +280,10 @@ export function EpisodeStudioPage() {
     setProjectCreateMessage(null);
     setProjectCreateError(null);
     try {
-      const srtPath =
-        videoDetail?.srt_path ?? `audio_tts_v2/artifacts/final/${channel}/${video}/${episodeId}.srt`;
+      const srtPath = videoDetail?.srt_path;
+      if (!srtPath) {
+        throw new Error("final SRT が見つかりません。先に TTS を実行して音声/SRT（final）を生成してください。");
+      }
 
       const res = await createVideoProject({
         projectId: episodeId,
@@ -390,6 +395,9 @@ export function EpisodeStudioPage() {
             <span className={`status-chip ${scriptOk ? "" : "status-chip--warning"}`}>
               台本: {scriptOk ? "OK" : "未確認"}
             </span>
+            <span className={`status-chip ${alignmentStatus === "OK" ? "" : "status-chip--warning"}`}>
+              整合: {alignmentStatus ?? "未計測"}
+            </span>
             <span className={`status-chip ${audioOk ? "" : "status-chip--warning"}`}>
               音声/SRT: {audioOk ? "OK" : audioState}
             </span>
@@ -406,6 +414,12 @@ export function EpisodeStudioPage() {
           </div>
 
           {!episodeId ? <div className="main-alert">まずエピソードを選択してください。</div> : null}
+          {alignmentStatus && alignmentStatus !== "OK" ? (
+            <div className="main-alert main-alert--warning" role="alert">
+              整合: {alignmentStatus}
+              {alignmentReason ? ` / ${alignmentReason}` : ""}
+            </div>
+          ) : null}
           {videoProjectError ? <div className="main-alert main-alert--error">{videoProjectError}</div> : null}
         </div>
       </section>
@@ -589,10 +603,19 @@ export function EpisodeStudioPage() {
                   <a className="button button--ghost" href={audioLogUrl ?? undefined} target="_blank" rel="noreferrer">
                     log.json
                   </a>
-                  <button className="button" onClick={handleRunTts} disabled={!episodeId || ttsRunBusy}>
+                  <button className="button" onClick={handleRunTts} disabled={!episodeId || ttsRunBusy || !scriptOk || !alignmentOk}>
                     {ttsRunBusy ? "TTS実行中…" : "TTS実行"}
                   </button>
                 </div>
+                {!scriptOk ? (
+                  <div className="main-alert main-alert--warning" role="alert">
+                    台本が無いので TTS は実行できません（先に台本を作成してください）。
+                  </div>
+                ) : !alignmentOk ? (
+                  <div className="main-alert main-alert--warning" role="alert">
+                    整合が OK ではないため TTS をブロックしています（整合スタンプ更新後に実行してください）。
+                  </div>
+                ) : null}
                 {ttsRunMessage ? <div className="main-alert">{ttsRunMessage}</div> : null}
                 {ttsRunError ? <div className="main-alert main-alert--error">{ttsRunError}</div> : null}
                 {audioUrl ? (
@@ -723,7 +746,7 @@ export function EpisodeStudioPage() {
           ) : (
             <div style={{ display: "grid", gap: 10 }}>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button className="button" onClick={handleCreateVideoProject} disabled={!episodeId || projectCreateBusy}>
+                <button className="button" onClick={handleCreateVideoProject} disabled={!episodeId || projectCreateBusy || !videoDetail?.srt_path}>
                   {projectCreateBusy ? "プロジェクト作成中…" : "プロジェクト作成（final SRT）"}
                 </button>
                 <Link className="button button--ghost" to={videoProductionLink}>
@@ -733,6 +756,11 @@ export function EpisodeStudioPage() {
                   AutoDraft へ
                 </Link>
               </div>
+              {!videoDetail?.srt_path ? (
+                <div className="main-alert main-alert--warning" role="alert">
+                  final SRT が無いのでプロジェクト作成はできません（先に TTS を完了してください）。
+                </div>
+              ) : null}
               {projectCreateMessage ? <div className="main-alert">{projectCreateMessage}</div> : null}
               {projectCreateError ? <div className="main-alert main-alert--error">{projectCreateError}</div> : null}
             </div>

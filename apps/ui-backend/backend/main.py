@@ -4437,6 +4437,8 @@ class VideoDetailResponse(BaseModel):
     redo_script: bool = True
     redo_audio: bool = True
     redo_note: Optional[str] = None
+    alignment_status: Optional[str] = None
+    alignment_reason: Optional[str] = None
     assembled_path: Optional[str]
     assembled_content: Optional[str]
     assembled_human_path: Optional[str] = None
@@ -7786,6 +7788,77 @@ def get_video_detail(channel: str, video: str):
     if not srt_path:
         warnings.append(f"srt missing for {channel_code}-{video_number}")
 
+    # Alignment guard: surface planning/title drift explicitly in Episode Studio.
+    alignment_status: Optional[str] = None
+    alignment_reason: Optional[str] = None
+    try:
+        planning_raw = planning_row.raw if planning_row else None
+        script_path = base_dir / "content" / "assembled_human.md"
+        if not script_path.exists():
+            script_path = base_dir / "content" / "assembled.md"
+
+        status_value_align = "未計測"
+        reasons: List[str] = []
+
+        if not script_path.exists():
+            status_value_align = "台本なし"
+        elif not isinstance(planning_raw, dict):
+            status_value_align = "未計測"
+            reasons.append("planning行が見つかりません")
+        else:
+            planning_hash = planning_hash_from_row(planning_raw)
+            catches = {c for c in iter_thumbnail_catches_from_row(planning_raw)}
+
+            align_meta = metadata.get("alignment") if isinstance(metadata, dict) else None
+            stored_planning_hash = None
+            stored_script_hash = None
+            if isinstance(align_meta, dict):
+                stored_planning_hash = align_meta.get("planning_hash")
+                stored_script_hash = align_meta.get("script_hash")
+
+            if len(catches) > 1:
+                status_value_align = "NG"
+                reasons.append("サムネプロンプト先頭行が不一致")
+            elif isinstance(stored_planning_hash, str) and isinstance(stored_script_hash, str):
+                script_hash = sha1_file_bytes(script_path)
+                mismatch: List[str] = []
+                if planning_hash != stored_planning_hash:
+                    mismatch.append("タイトル/サムネ")
+                if script_hash != stored_script_hash:
+                    mismatch.append("台本")
+                if mismatch:
+                    status_value_align = "NG"
+                    reasons.append("変更検出: " + " & ".join(mismatch))
+                else:
+                    status_value_align = "OK"
+            else:
+                status_value_align = "未計測"
+
+            if isinstance(align_meta, dict) and bool(align_meta.get("suspect")):
+                if status_value_align == "OK":
+                    status_value_align = "要確認"
+                suspect_reason = str(align_meta.get("suspect_reason") or "").strip()
+                if suspect_reason:
+                    reasons.append(suspect_reason)
+
+            # Heuristic semantic sanity check (no LLM).
+            try:
+                planning_title = str(planning_raw.get("タイトル") or "").strip()
+                preview = script_path.read_text(encoding="utf-8")[:6000]
+                if planning_title and not bracket_topic_overlaps(planning_title, preview):
+                    ratio = title_script_token_overlap_ratio(planning_title, preview)
+                    if status_value_align == "OK":
+                        status_value_align = "要確認"
+                    reasons.append(f"主要語の一致が弱い (overlap={ratio:.2f})")
+            except Exception:
+                pass
+
+        alignment_status = status_value_align
+        alignment_reason = " / ".join(reasons) if reasons else None
+    except Exception:
+        alignment_status = None
+        alignment_reason = None
+
     return VideoDetailResponse(
         channel=channel_code,
         video=video_number,
@@ -7797,6 +7870,8 @@ def get_video_detail(channel: str, video: str):
         redo_script=bool(redo_script),
         redo_audio=bool(redo_audio),
         redo_note=redo_note,
+        alignment_status=alignment_status,
+        alignment_reason=alignment_reason,
         # A：人間編集版のみ（なければ空）。パスは human があればそれ、無ければ assembled を返す
         assembled_path=safe_relative_path(assembled_human_path) if assembled_human_path.exists() else (safe_relative_path(assembled_path) if assembled_path.exists() else None),
         assembled_content=assembled_content,
