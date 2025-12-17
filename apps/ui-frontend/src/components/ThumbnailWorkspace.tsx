@@ -45,6 +45,8 @@ import {
 
 type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "archived";
 
+type ThumbnailWorkspaceTab = "projects" | "templates" | "library" | "channel";
+
 type VariantFormState = {
   projectKey: string;
   label: string;
@@ -142,6 +144,13 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: "review", label: "レビュー" },
   { key: "approved", label: "承認済み" },
   { key: "archived", label: "アーカイブ" },
+];
+
+const THUMBNAIL_WORKSPACE_TABS: { key: ThumbnailWorkspaceTab; label: string; description?: string }[] = [
+  { key: "projects", label: "案件", description: "サムネ案の登録・生成・採用" },
+  { key: "templates", label: "テンプレ", description: "チャンネルの型（AI生成用）" },
+  { key: "library", label: "ライブラリ", description: "参考サムネの登録・紐付け" },
+  { key: "channel", label: "チャンネル", description: "KPI / 最新動画プレビュー" },
 ];
 
 const PROJECT_STATUS_OPTIONS: { value: ThumbnailProjectStatus; label: string }[] = [
@@ -305,6 +314,7 @@ function isSupportedThumbnailFile(file: File): boolean {
 export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = {}) {
   const [overview, setOverview] = useState<ThumbnailOverview | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("projects");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -1867,20 +1877,133 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     </section>
   );
 
-  const channelContextPanel = activeChannel ? (
+  const templatesPanel = activeChannel ? (
+    <section className="thumbnail-library-panel thumbnail-library-panel--templates">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>サムネテンプレ（型）</h3>
+          <p>
+            チャンネルごとに「型」を登録して、手動でAI生成できます。置換キー:
+            <code> {"{{title}} {{thumbnail_upper}} {{thumbnail_title}} {{thumbnail_lower}} {{thumbnail_prompt}}"} </code>
+          </p>
+        </div>
+        <div className="thumbnail-library-panel__header-actions">
+          <button type="button" onClick={handleTemplatesRefresh} disabled={templatesLoading || templatesStatus.pending}>
+            {templatesLoading ? "読込中…" : "再読み込み"}
+          </button>
+          <button type="button" onClick={handleAddTemplate} disabled={templatesStatus.pending}>
+            追加
+          </button>
+          <button type="button" onClick={handleSaveTemplates} disabled={templatesStatus.pending || !templatesDirty}>
+            {templatesStatus.pending ? "保存中…" : "保存"}
+          </button>
+        </div>
+      </div>
+      {imageModelsError ? <p className="thumbnail-library__alert">{imageModelsError}</p> : null}
+      {templatesStatus.error ? <p className="thumbnail-library__alert">{templatesStatus.error}</p> : null}
+      {templatesStatus.success ? (
+        <p className="thumbnail-library__message thumbnail-library__message--success">{templatesStatus.success}</p>
+      ) : null}
+      {!channelTemplates || channelTemplates.templates.length === 0 ? (
+        <p className="thumbnail-library__placeholder">テンプレがまだありません。「追加」→「保存」で登録します。</p>
+      ) : (
+        <div className="thumbnail-library-panel__cards">
+          {channelTemplates.templates.map((tpl) => {
+            const isDefault = channelTemplates.default_template_id === tpl.id;
+            return (
+              <details key={tpl.id} className="thumbnail-library-panel__card">
+                <summary>
+                  <label style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                    <input
+                      type="radio"
+                      name="thumbnail_default_template"
+                      checked={isDefault}
+                      onChange={() => handleTemplateDefaultChange(tpl.id)}
+                    />
+                    <strong>{tpl.name}</strong>
+                  </label>
+                  <span style={{ marginLeft: 8, color: "#64748b" }}>{tpl.image_model_key}</span>
+                </summary>
+                <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                  <label>
+                    <span>テンプレ名</span>
+                    <input
+                      type="text"
+                      value={tpl.name}
+                      onChange={(event) => handleTemplateFieldChange(tpl.id, "name", event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span>画像モデル</span>
+                    <select
+                      value={tpl.image_model_key}
+                      onChange={(event) => handleTemplateFieldChange(tpl.id, "image_model_key", event.target.value)}
+                    >
+                      <option value="">選択してください</option>
+                      {imageModels.map((model) => {
+                        const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
+                        const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
+                        return (
+                          <option key={model.key} value={model.key}>
+                            {model.key} ({model.provider}{costSuffix})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </label>
+                  <label>
+                    <span>プロンプトテンプレ</span>
+                    <textarea
+                      value={tpl.prompt_template}
+                      onChange={(event) => handleTemplateFieldChange(tpl.id, "prompt_template", event.target.value)}
+                      rows={6}
+                    />
+                  </label>
+                  <label>
+                    <span>ネガティブ（任意）</span>
+                    <textarea
+                      value={tpl.negative_prompt ?? ""}
+                      onChange={(event) => handleTemplateFieldChange(tpl.id, "negative_prompt", event.target.value)}
+                      rows={2}
+                    />
+                  </label>
+                  <label>
+                    <span>メモ（任意）</span>
+                    <textarea
+                      value={tpl.notes ?? ""}
+                      onChange={(event) => handleTemplateFieldChange(tpl.id, "notes", event.target.value)}
+                      rows={2}
+                    />
+                  </label>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <button type="button" onClick={() => handleDeleteTemplate(tpl.id)}>
+                      削除
+                    </button>
+                  </div>
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  ) : (
+    <section className="thumbnail-library-panel thumbnail-library-panel--templates">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>サムネテンプレ（型）</h3>
+          <p>チャンネルを選択するとテンプレが表示されます。</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const channelInfoPanel = activeChannel ? (
     <section className="channel-profile-panel">
       <div className="channel-profile-panel__header">
         <div>
           <h2>{activeChannelName ?? activeChannel.channel}</h2>
           <p className="channel-profile-panel__subtitle">チャンネルの概況</p>
-        </div>
-        <div className="channel-profile-panel__header-actions">
-          <button type="button" className="thumbnail-refresh-button" onClick={handleRefresh} disabled={loading}>
-            {loading ? "再取得中…" : "更新"}
-          </button>
-          <button type="button" className="thumbnail-refresh-button" onClick={handleLibraryRefresh} disabled={libraryLoading}>
-            {libraryLoading ? "同期中…" : "ライブラリ反映"}
-          </button>
         </div>
       </div>
       {summary ? (
@@ -1905,121 +2028,15 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           ) : null}
         </div>
       ) : null}
-      <section className="thumbnail-library-panel thumbnail-library-panel--templates">
-        <div className="thumbnail-library-panel__header">
-          <div>
-            <h3>サムネテンプレ（型）</h3>
-            <p>
-              チャンネルごとに「型」を登録して、手動でAI生成できます。置換キー:
-              <code> {"{{title}} {{thumbnail_upper}} {{thumbnail_title}} {{thumbnail_lower}} {{thumbnail_prompt}}"} </code>
-            </p>
-          </div>
-          <div className="thumbnail-library-panel__header-actions">
-            <button type="button" onClick={handleTemplatesRefresh} disabled={templatesLoading || templatesStatus.pending}>
-              {templatesLoading ? "読込中…" : "再読み込み"}
-            </button>
-            <button type="button" onClick={handleAddTemplate} disabled={templatesStatus.pending}>
-              追加
-            </button>
-            <button type="button" onClick={handleSaveTemplates} disabled={templatesStatus.pending || !templatesDirty}>
-              {templatesStatus.pending ? "保存中…" : "保存"}
-            </button>
-          </div>
-        </div>
-        {imageModelsError ? <p className="thumbnail-library__alert">{imageModelsError}</p> : null}
-        {templatesStatus.error ? <p className="thumbnail-library__alert">{templatesStatus.error}</p> : null}
-        {templatesStatus.success ? (
-          <p className="thumbnail-library__message thumbnail-library__message--success">{templatesStatus.success}</p>
-        ) : null}
-        {!channelTemplates || channelTemplates.templates.length === 0 ? (
-          <p className="thumbnail-library__placeholder">テンプレがまだありません。「追加」→「保存」で登録します。</p>
-        ) : (
-          <div className="thumbnail-library-panel__cards">
-            {channelTemplates.templates.map((tpl) => {
-              const isDefault = channelTemplates.default_template_id === tpl.id;
-              return (
-                <details key={tpl.id} className="thumbnail-library-panel__card">
-                  <summary>
-                    <label style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-                      <input
-                        type="radio"
-                        name="thumbnail_default_template"
-                        checked={isDefault}
-                        onChange={() => handleTemplateDefaultChange(tpl.id)}
-                      />
-                      <strong>{tpl.name}</strong>
-                    </label>
-                    <span style={{ marginLeft: 8, color: "#64748b" }}>{tpl.image_model_key}</span>
-                  </summary>
-                  <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                    <label>
-                      <span>テンプレ名</span>
-                      <input
-                        type="text"
-                        value={tpl.name}
-                        onChange={(event) => handleTemplateFieldChange(tpl.id, "name", event.target.value)}
-                      />
-                    </label>
-                    <label>
-                      <span>画像モデル</span>
-                        <select
-                          value={tpl.image_model_key}
-                          onChange={(event) => handleTemplateFieldChange(tpl.id, "image_model_key", event.target.value)}
-                        >
-                          <option value="">選択してください</option>
-                        {imageModels.map((model) => {
-                          const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
-                          const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
-                          return (
-                            <option key={model.key} value={model.key}>
-                              {model.key} ({model.provider}{costSuffix})
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </label>
-                    <label>
-                      <span>プロンプトテンプレ</span>
-                      <textarea
-                        value={tpl.prompt_template}
-                        onChange={(event) => handleTemplateFieldChange(tpl.id, "prompt_template", event.target.value)}
-                        rows={6}
-                      />
-                    </label>
-                    <label>
-                      <span>ネガティブ（任意）</span>
-                      <textarea
-                        value={tpl.negative_prompt ?? ""}
-                        onChange={(event) => handleTemplateFieldChange(tpl.id, "negative_prompt", event.target.value)}
-                        rows={2}
-                      />
-                    </label>
-                    <label>
-                      <span>メモ（任意）</span>
-                      <textarea
-                        value={tpl.notes ?? ""}
-                        onChange={(event) => handleTemplateFieldChange(tpl.id, "notes", event.target.value)}
-                        rows={2}
-                      />
-                    </label>
-                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                      <button type="button" onClick={() => handleDeleteTemplate(tpl.id)}>
-                        削除
-                      </button>
-                    </div>
-                  </div>
-                </details>
-              );
-            })}
-          </div>
-        )}
-      </section>
       {channelVideos.length > 0 ? (
         <section className="thumbnail-channel-videos">
           <div className="thumbnail-channel-videos__header">
             <h3>最新動画プレビュー</h3>
             <span>{channelVideos.length} 件</span>
           </div>
+          <p className="thumbnail-library__placeholder">
+            ※案件で「案を登録」フォームを開いた状態のときに「このサムネを案に取り込む」が使えます。
+          </p>
           <div className="thumbnail-channel-videos__list">
             {channelVideos.map((video) => {
               const disableApply = !variantForm;
@@ -2062,7 +2079,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       <div className="channel-profile-panel__header">
         <div>
           <h2>チャンネルを選択</h2>
-          <p className="channel-profile-panel__subtitle">左のタブでチャンネルを選ぶと KPI が表示されます。</p>
+          <p className="channel-profile-panel__subtitle">上のタブでチャンネルを選択してください。</p>
         </div>
       </div>
     </section>
@@ -2101,19 +2118,54 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             <button type="button" className="thumbnail-refresh-button" onClick={handleRefresh} disabled={loading}>
               最新の情報を再取得
             </button>
-            <button
-              type="button"
-              className="workspace-button workspace-button--primary"
-              onClick={handleStartNewVariant}
-              disabled={loading || filteredProjects.length === 0}
-            >
-              新しい案を作成
-            </button>
+            {activeTab === "projects" ? (
+              <button
+                type="button"
+                className="workspace-button workspace-button--primary"
+                onClick={handleStartNewVariant}
+                disabled={loading || filteredProjects.length === 0}
+              >
+                新しい案を作成
+              </button>
+            ) : null}
           </div>
         </header>
-        <div className="thumbnail-workspace__panes thumbnail-workspace__panes--tri">
-          <aside className="thumbnail-workspace__column thumbnail-workspace__column--library">{libraryPanel}</aside>
-          <section className="thumbnail-workspace__column thumbnail-workspace__column--main">
+        <div className="thumbnail-hub">
+          {overview && overview.channels.length > 1 ? (
+            <nav className="thumbnail-hub__tabs thumbnail-hub__tabs--channels" aria-label="チャンネル選択">
+              {overview.channels.map((channel) => {
+                const isActive = channel.channel === activeChannel?.channel;
+                return (
+                  <button
+                    key={channel.channel}
+                    type="button"
+                    className={`thumbnail-hub__tab ${isActive ? "thumbnail-hub__tab--active" : ""}`}
+                    onClick={() => setSelectedChannel(channel.channel)}
+                  >
+                    {channel.channel_title ? `${channel.channel} ${channel.channel_title}` : channel.channel}
+                    <span className="thumbnail-hub__tab-count">{channel.summary.total}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          ) : null}
+          <nav className="thumbnail-hub__tabs thumbnail-hub__tabs--views" aria-label="表示切替">
+            {THUMBNAIL_WORKSPACE_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`thumbnail-hub__tab ${activeTab === tab.key ? "thumbnail-hub__tab--active" : ""}`}
+                onClick={() => setActiveTab(tab.key)}
+                aria-pressed={activeTab === tab.key}
+                title={tab.description}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+          <div className="thumbnail-hub__panes">
+            {activeTab === "projects" ? (
+              <section className="thumbnail-hub__pane thumbnail-hub__pane--projects">
             <div className="thumbnail-actions">
               <div className="thumbnail-actions__left">
                 <h3 className="thumbnail-actions__title">{activeChannelName ?? "チャンネル一覧"}</h3>
@@ -2127,25 +2179,6 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 />
               </div>
             </div>
-            {overview && overview.channels.length > 0 ? (
-              <nav className="thumbnail-channel-tabs" aria-label="チャンネル選択">
-                {overview.channels.map((channel) => {
-                  const isActive = channel.channel === selectedChannel;
-                  return (
-                    <button
-                      key={channel.channel}
-                      type="button"
-                      className={`thumbnail-channel-tabs__button ${isActive ? "is-active" : ""}`}
-                      onClick={() => setSelectedChannel(channel.channel)}
-                    >
-                      <span className="thumbnail-channel-tabs__code">{channel.channel}</span>
-                      <span className="thumbnail-channel-tabs__name">{channel.channel_title ?? channel.channel}</span>
-                      <span className="thumbnail-channel-tabs__count">{channel.summary.total}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-            ) : null}
             <div className="thumbnail-toolbar thumbnail-toolbar--filters">
               <div className="thumbnail-toolbar__filters">
                 {STATUS_FILTERS.map((filter) => (
@@ -2517,7 +2550,17 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
               })}
             </div>
           </section>
-          <aside className="thumbnail-workspace__column thumbnail-workspace__column--context">{channelContextPanel}</aside>
+        ) : null}
+            {activeTab === "templates" ? (
+              <div className="thumbnail-hub__pane thumbnail-hub__pane--templates">{templatesPanel}</div>
+            ) : null}
+            {activeTab === "library" ? (
+              <div className="thumbnail-hub__pane thumbnail-hub__pane--library">{libraryPanel}</div>
+            ) : null}
+            {activeTab === "channel" ? (
+              <div className="thumbnail-hub__pane thumbnail-hub__pane--channel">{channelInfoPanel}</div>
+            ) : null}
+          </div>
         </div>
       </section>
       {planningDialog ? (
