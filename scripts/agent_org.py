@@ -13,7 +13,15 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -37,7 +45,16 @@ def _parse_iso(dt_str: str | None) -> datetime | None:
 
 def _agent_name(args: argparse.Namespace) -> str | None:
     raw = (getattr(args, "agent_name", None) or os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip()
-    return raw or None
+    if raw:
+        return raw
+    # Fallback to a stable local identity to avoid created_by="unknown" everywhere.
+    fallback = (os.getenv("USER") or os.getenv("LOGNAME") or "").strip()
+    if fallback:
+        return fallback
+    try:
+        return os.getlogin()
+    except Exception:
+        return None
 
 
 def _atomic_write_json(path: Path, payload: dict) -> None:
@@ -604,6 +621,221 @@ def cmd_locks(args: argparse.Namespace) -> int:
     print("status\tlock_id\tmode\tcreated_by\tcreated_at\texpires_at\tscopes\tnote")
     for r in rows:
         print("\t".join(r))
+    return 0
+
+
+def _find_locks(q: Path, *, include_expired: bool) -> list[dict]:
+    d = _locks_dir(q)
+    d.mkdir(parents=True, exist_ok=True)
+    now = datetime.now(timezone.utc)
+    out: list[dict] = []
+    for fp in sorted(d.glob("*.json")):
+        obj = _load_json_maybe(fp)
+        if not obj:
+            continue
+        obj["_path"] = str(fp)
+        exp_dt = _parse_iso(obj.get("expires_at"))
+        expired = bool(exp_dt and exp_dt <= now)
+        if expired and not include_expired:
+            continue
+        obj["_status"] = "expired" if expired else "active"
+        out.append(obj)
+    return out
+
+
+def _find_memos(q: Path, *, limit: int | None) -> list[dict]:
+    d = _memos_dir(q)
+    d.mkdir(parents=True, exist_ok=True)
+    out: list[dict] = []
+    for fp in sorted(d.glob("*.json"), reverse=True):
+        obj = _load_json_maybe(fp)
+        if not obj:
+            continue
+        obj["_path"] = str(fp)
+        out.append(obj)
+        if limit is not None and len(out) >= int(limit):
+            break
+    return out
+
+
+def _find_assignments(q: Path) -> list[dict]:
+    d = _assignments_dir(q)
+    d.mkdir(parents=True, exist_ok=True)
+    out: list[dict] = []
+    for fp in sorted(d.glob("*.json"), reverse=True):
+        obj = _load_json_maybe(fp)
+        if not obj:
+            continue
+        obj["_path"] = str(fp)
+        out.append(obj)
+    return out
+
+
+def cmd_overview(args: argparse.Namespace) -> int:
+    """
+    Human-friendly "who is doing what" overview:
+    - agents (heartbeat)
+    - active locks (grouped by created_by)
+    - recent memos (grouped by from)
+    - assignments (by agent_id)
+    """
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    stale_sec = int(args.stale_sec)
+    limit_memos = int(args.limit_memos)
+    include_expired_locks = bool(args.include_expired_locks)
+    json_mode = bool(args.json)
+
+    now = datetime.now(timezone.utc)
+    agents = _find_agents(q)
+    locks = _find_locks(q, include_expired=include_expired_locks)
+    memos = _find_memos(q, limit=max(200, limit_memos * 20))
+    assignments = _find_assignments(q)
+
+    agents_by_name: dict[str, list[dict]] = {}
+    agents_by_id: dict[str, dict] = {}
+    for a in agents:
+        name = str(a.get("name") or "").strip()
+        if name:
+            agents_by_name.setdefault(name, []).append(a)
+        aid = str(a.get("id") or "").strip()
+        if aid:
+            agents_by_id[aid] = a
+
+    locks_by_actor: dict[str, list[dict]] = {}
+    for lk in locks:
+        actor = str(lk.get("created_by") or "unknown").strip() or "unknown"
+        locks_by_actor.setdefault(actor, []).append(lk)
+
+    memos_by_from: dict[str, list[dict]] = {}
+    for m in memos:
+        actor = str(m.get("from") or "unknown").strip() or "unknown"
+        if limit_memos <= 0:
+            continue
+        bucket = memos_by_from.setdefault(actor, [])
+        if len(bucket) < limit_memos:
+            bucket.append(m)
+
+    assigns_by_agent_id: dict[str, list[dict]] = {}
+    for a in assignments:
+        agent_id = str(a.get("agent_id") or "").strip()
+        if not agent_id:
+            continue
+        assigns_by_agent_id.setdefault(agent_id, []).append(a)
+
+    actors: set[str] = set()
+    actors.update(agents_by_name.keys())
+    actors.update(locks_by_actor.keys())
+    actors.update(memos_by_from.keys())
+
+    def _agent_status(agent_obj: dict) -> str:
+        last_dt = _parse_iso(agent_obj.get("last_seen_at"))
+        age = None
+        if last_dt:
+            try:
+                age = int((now - last_dt).total_seconds())
+            except Exception:
+                age = None
+        pid = agent_obj.get("pid")
+        pid_alive = False
+        try:
+            pid_alive = bool(pid and _pid_is_alive(int(pid)))
+        except Exception:
+            pid_alive = False
+
+        status = "active"
+        if age is not None and age > stale_sec:
+            status = "stale"
+        if pid and not pid_alive:
+            status = "dead"
+        return status
+
+    summaries: list[dict] = []
+    for actor in sorted(actors):
+        recs = agents_by_name.get(actor, [])
+        best_rec = None
+        if recs:
+            best_rec = max(recs, key=lambda r: str(r.get("last_seen_at") or ""))
+        status = _agent_status(best_rec) if best_rec else "unregistered"
+        actor_locks = locks_by_actor.get(actor, [])
+        actor_memos = memos_by_from.get(actor, [])
+
+        actor_assignments: list[dict] = []
+        if best_rec:
+            aid = str(best_rec.get("id") or "").strip()
+            if aid and aid in assigns_by_agent_id:
+                actor_assignments = assigns_by_agent_id.get(aid, [])
+
+        summaries.append(
+            {
+                "actor": actor,
+                "status": status,
+                "agent_records": recs,
+                "locks": sorted(actor_locks, key=lambda r: str(r.get("created_at") or "")),
+                "recent_memos": actor_memos,
+                "assignments": actor_assignments,
+            }
+        )
+
+    summaries.sort(key=lambda s: (-len(s.get("locks") or []), str(s.get("status") or ""), str(s.get("actor") or "")))
+
+    payload = {
+        "generated_at": _now_iso_utc(),
+        "queue_dir": str(q),
+        "counts": {
+            "actors": len(summaries),
+            "agents": len(agents),
+            "locks": len(locks),
+            "memos_scanned": len(memos),
+            "assignments": len(assignments),
+        },
+        "actors": summaries,
+    }
+
+    if json_mode:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"[agent_org overview] queue_dir={payload['queue_dir']} actors={payload['counts']['actors']} locks={payload['counts']['locks']}")
+    for s in summaries:
+        actor = str(s.get("actor") or "-")
+        status = str(s.get("status") or "-")
+        lock_n = len(s.get("locks") or [])
+        memo_n = len(s.get("recent_memos") or [])
+        agent_n = len(s.get("agent_records") or [])
+        print(f"- {actor} status={status} agents={agent_n} locks={lock_n} recent_memos={memo_n}")
+
+        best = None
+        if s.get("agent_records"):
+            best = max(s["agent_records"], key=lambda r: str(r.get("last_seen_at") or ""))
+        if best:
+            pid = best.get("pid")
+            role = best.get("assigned_role") or best.get("role") or "-"
+            last_seen = best.get("last_seen_at") or "-"
+            print(f"  agent: id={best.get('id') or '-'} role={role} pid={pid or '-'} last_seen_at={last_seen}")
+
+        for lk in (s.get("locks") or [])[:10]:
+            lid = lk.get("id") or Path(str(lk.get("_path") or "")).stem
+            scopes = lk.get("scopes") or []
+            if not isinstance(scopes, list):
+                scopes = [str(scopes)]
+            scopes_str = ",".join(str(x) for x in scopes[:6])
+            if len(scopes) > 6:
+                scopes_str += ",..."
+            print(
+                f"  lock: {lid} mode={lk.get('mode') or '-'} "
+                f"expires_at={lk.get('expires_at') or '-'} scopes={scopes_str} note={lk.get('note') or '-'}"
+            )
+        if lock_n > 10:
+            print(f"  lock: ... ({lock_n - 10} more)")
+
+        for m in (s.get("recent_memos") or [])[:limit_memos]:
+            mid = m.get("id") or Path(str(m.get("_path") or "")).stem
+            created = m.get("created_at") or "-"
+            subject = str(m.get("subject") or "-")
+            if len(subject) > 120:
+                subject = subject[:117] + "..."
+            print(f"  memo: {mid} created_at={created} subject={subject}")
+
     return 0
 
 
@@ -1461,6 +1693,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("unlock", help="remove a lock by id")
     sp.add_argument("lock_id")
     sp.set_defaults(func=cmd_unlock)
+
+    # Overview
+    sp = sub.add_parser("overview", help="show who-is-doing-what overview (agents + locks + memos)")
+    sp.add_argument("--stale-sec", default=30, type=int, help="mark stale after N seconds (default: 30)")
+    sp.add_argument("--limit-memos", default=3, type=int, help="include N recent memos per actor (default: 3)")
+    sp.add_argument("--include-expired-locks", action="store_true", help="include expired locks")
+    sp.add_argument("--json", action="store_true", help="emit JSON payload")
+    sp.set_defaults(func=cmd_overview)
 
     # Agents
     sp = sub.add_parser("agents", help="agent registry + heartbeat")

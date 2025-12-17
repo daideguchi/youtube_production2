@@ -228,6 +228,190 @@ def list_agents(stale_sec: int = Query(30, ge=1, le=3600)) -> Dict[str, Any]:
     return {"count": len(agents), "agents": agents, "queue_dir": str(q)}
 
 
+@router.get("/overview")
+def get_overview(
+    stale_sec: int = Query(30, ge=1, le=3600),
+    limit_memos: int = Query(3, ge=0, le=50),
+    include_expired_locks: bool = Query(False),
+) -> Dict[str, Any]:
+    """
+    Aggregated "who is doing what" view for UI:
+    - agents (heartbeat + pid alive)
+    - locks (grouped by created_by)
+    - memos (grouped by from; limited per actor)
+    - assignments (attached by agent_id)
+    """
+    q = _queue_dir()
+    coord = _coord_dir()
+    now = datetime.now(timezone.utc)
+
+    # Agents (raw records)
+    agents_dir = coord / "agents"
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    agent_records: List[Dict[str, Any]] = []
+    for fp in sorted(agents_dir.glob("*.json")):
+        obj = _read_json(fp)
+        if not obj:
+            continue
+        obj["_path"] = str(fp)
+        agent_records.append(obj)
+
+    agents_by_name: Dict[str, List[Dict[str, Any]]] = {}
+    agents_by_id: Dict[str, Dict[str, Any]] = {}
+    for a in agent_records:
+        name = str(a.get("name") or "").strip()
+        if name:
+            agents_by_name.setdefault(name, []).append(a)
+        aid = str(a.get("id") or "").strip()
+        if aid:
+            agents_by_id[aid] = a
+
+    def _status_for_agent(a: Dict[str, Any]) -> str:
+        last = _parse_iso(a.get("last_seen_at"))
+        age = None
+        if last:
+            try:
+                age = int((now - last).total_seconds())
+            except Exception:
+                age = None
+
+        pid = None
+        try:
+            pid = int(a.get("pid")) if a.get("pid") is not None else None
+        except Exception:
+            pid = None
+        pid_alive = _pid_is_alive(pid)
+
+        status = "active"
+        if age is not None and age > int(stale_sec):
+            status = "stale"
+        if pid and not pid_alive:
+            status = "dead"
+        return status
+
+    # Locks (grouped by created_by)
+    locks_dir = coord / "locks"
+    locks_dir.mkdir(parents=True, exist_ok=True)
+    locks_by_actor: Dict[str, List[Dict[str, Any]]] = {}
+    lock_count = 0
+
+    for fp in sorted(locks_dir.glob("*.json")):
+        obj = _read_json(fp)
+        if not obj:
+            continue
+        exp_dt = _parse_iso(obj.get("expires_at"))
+        expired = bool(exp_dt and exp_dt <= now)
+        if expired and not include_expired_locks:
+            continue
+        status = "expired" if expired else "active"
+
+        actor = str(obj.get("created_by") or "unknown").strip() or "unknown"
+        locks_by_actor.setdefault(actor, []).append(
+            {
+                "status": status,
+                "id": obj.get("id") or fp.stem,
+                "mode": obj.get("mode"),
+                "created_by": obj.get("created_by"),
+                "created_at": obj.get("created_at"),
+                "expires_at": obj.get("expires_at"),
+                "scopes": obj.get("scopes") or [],
+                "note": obj.get("note"),
+                "_path": str(fp),
+            }
+        )
+        lock_count += 1
+
+    # Memos (grouped by from; limited per actor)
+    memos_dir = coord / "memos"
+    memos_dir.mkdir(parents=True, exist_ok=True)
+    memos_by_actor: Dict[str, List[Dict[str, Any]]] = {}
+    memos_scanned = 0
+    scan_limit = max(200, int(limit_memos) * 50) if limit_memos > 0 else 0
+
+    for fp in sorted(memos_dir.glob("*.json"), reverse=True):
+        if scan_limit and memos_scanned >= scan_limit:
+            break
+        obj = _read_json(fp)
+        if not obj:
+            continue
+        memos_scanned += 1
+        actor = str(obj.get("from") or "unknown").strip() or "unknown"
+        bucket = memos_by_actor.setdefault(actor, [])
+        if limit_memos > 0 and len(bucket) < int(limit_memos):
+            bucket.append(
+                {
+                    "id": obj.get("id") or fp.stem,
+                    "created_at": obj.get("created_at"),
+                    "from": obj.get("from"),
+                    "to": obj.get("to"),
+                    "subject": obj.get("subject"),
+                    "related_task_id": obj.get("related_task_id"),
+                    "_path": str(fp),
+                }
+            )
+
+    # Assignments (attach by agent_id when possible)
+    assigns_dir = coord / "assignments"
+    assigns_dir.mkdir(parents=True, exist_ok=True)
+    assigns_by_agent_id: Dict[str, List[Dict[str, Any]]] = {}
+    assignment_count = 0
+    for fp in sorted(assigns_dir.glob("*.json"), reverse=True):
+        obj = _read_json(fp)
+        if not obj:
+            continue
+        assignment_count += 1
+        agent_id = str(obj.get("agent_id") or "").strip()
+        if not agent_id:
+            continue
+        assigns_by_agent_id.setdefault(agent_id, []).append(obj)
+
+    actors: set[str] = set()
+    actors.update(agents_by_name.keys())
+    actors.update(locks_by_actor.keys())
+    actors.update(memos_by_actor.keys())
+
+    rows: List[Dict[str, Any]] = []
+    for actor in sorted(actors):
+        recs = agents_by_name.get(actor, [])
+        best = None
+        if recs:
+            best = max(recs, key=lambda r: str(r.get("last_seen_at") or ""))
+        status = _status_for_agent(best) if best else "unregistered"
+        locks = locks_by_actor.get(actor, [])
+        memos = memos_by_actor.get(actor, [])
+        assignments: List[Dict[str, Any]] = []
+        if best:
+            aid = str(best.get("id") or "").strip()
+            if aid and aid in assigns_by_agent_id:
+                assignments = assigns_by_agent_id.get(aid, [])
+
+        rows.append(
+            {
+                "actor": actor,
+                "status": status,
+                "agent_records": recs,
+                "locks": sorted(locks, key=lambda r: str(r.get("created_at") or "")),
+                "recent_memos": memos,
+                "assignments": assignments,
+            }
+        )
+
+    rows.sort(key=lambda r: (-len(r.get("locks") or []), str(r.get("status") or ""), str(r.get("actor") or "")))
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "queue_dir": str(q),
+        "counts": {
+            "actors": len(rows),
+            "agents": len(agent_records),
+            "locks": lock_count,
+            "memos_scanned": memos_scanned,
+            "assignments": assignment_count,
+        },
+        "actors": rows,
+    }
+
+
 @router.get("/memos")
 def list_memos(
     limit: int = Query(200, ge=1, le=2000),
