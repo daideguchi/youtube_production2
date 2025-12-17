@@ -583,3 +583,12 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
   - `packages/commentary_02_srt2images_timeline/memory/`
 - 判定:
   - 参照ゼロ（例: `rg "manual_edit_baseline_191_3|backup_draft_info\\.json" -S .` がヒットしない）
+
+### 37) `commentary_02` package 内の `bin/` を削除（repo tracked）
+
+意図: 旧個別シェル（`/Users/...` 直書きなど）を排除し、正本入口を `ssot/OPS_ENTRYPOINTS_INDEX.md` に一本化する。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251217_022233_commentary02_bin_legacy.tar.gz`
+- 削除（git rm）:
+  - `packages/commentary_02_srt2images_timeline/bin/`

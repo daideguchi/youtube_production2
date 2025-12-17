@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-cd "$(dirname "$0")/.." || exit 1
-if [ -f final.mp4 ]; then
-  if command -v open >/dev/null 2>&1; then open final.mp4; else echo "final.mp4"; fi
-else
-  echo "No final.mp4 found. Run bin/lsoutputs to list outputs." >&2
-  exit 1
-fi
