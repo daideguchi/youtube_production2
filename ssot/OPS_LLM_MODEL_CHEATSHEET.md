@@ -82,3 +82,21 @@
 
 - `commentary_02_srt2images_timeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
+
+### 4.1 Azure/非Azure 50/50 ルーティング（運用レバー）
+
+目的: コスト/品質比較のため、同一タスクを Azure とそれ以外で **約半々**に振り分ける。
+
+- 有効化: `LLM_AZURE_SPLIT_RATIO=0.5`
+- ルーティングキー: `LLM_ROUTING_KEY`
+  - `script_pipeline` は 1エピソード単位で固定になるよう `LLM_ROUTING_KEY={CH}-{NNN}` を自動設定する（同一動画の全ステージが同じ系統になりやすい）。
+- 無効化: `LLM_AZURE_SPLIT_RATIO` を未設定（または `0`）
+
+※ 実体ルーター（現行）: `packages/factory_common/llm_router.py`（設定: `configs/llm_router.yaml`）
+
+### 4.2 「どのLLMが書いたか」を確実に残す（証跡）
+
+- 正本: `workspaces/scripts/{CH}/{NNN}/status.json`
+  - `stages.*.details.llm_calls[]` に provider/model/request_id/chain などを記録する。
+- 参照用マニフェスト: `workspaces/scripts/{CH}/{NNN}/script_manifest.json`
+  - status の内容と、`artifacts/llm/*.json` を同梱して追跡できるようにする。

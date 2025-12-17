@@ -2,6 +2,7 @@ import os
 import yaml
 import time
 import json
+import hashlib
 import logging
 from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
@@ -111,6 +112,30 @@ FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
 DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
+
+
+def _parse_ratio_env(name: str) -> Optional[float]:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return None
+    try:
+        val = float(raw)
+    except Exception:
+        return None
+    if val <= 0:
+        return 0.0
+    if val >= 1:
+        return 1.0
+    return val
+
+
+def _split_bucket(key: str) -> float:
+    """
+    Return a stable bucket in [0, 1) for a given key (no secrets; key is hashed).
+    """
+    digest = hashlib.sha1((key or "").encode("utf-8")).digest()
+    n = int.from_bytes(digest[:2], "big")  # 0..65535
+    return n / 65536.0
 
 def _load_env_forced():
     """Load .env file and OVERWRITE existing env vars to ensure SSOT."""
@@ -491,6 +516,39 @@ class LLMRouter:
                     "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
                 }
 
+        # Optional: split traffic between Azure and non-Azure providers (roughly).
+        # - Enable via env: LLM_AZURE_SPLIT_RATIO=0.5
+        # - Use a stable routing key when provided (env: LLM_ROUTING_KEY); otherwise fall back to task_id hash.
+        routing: Dict[str, Any] | None = None
+        ratio = _parse_ratio_env("LLM_AZURE_SPLIT_RATIO")
+        if ratio is not None:
+            azure_models: List[str] = []
+            other_models: List[str] = []
+            for mk in models:
+                conf = (self.config.get("models", {}) or {}).get(mk) or {}
+                provider = conf.get("provider")
+                if provider == "azure":
+                    azure_models.append(mk)
+                else:
+                    other_models.append(mk)
+            if azure_models and other_models:
+                route_key = (os.getenv("LLM_ROUTING_KEY") or "").strip()
+                if not route_key:
+                    try:
+                        route_key = _api_cache_task_id(task, messages, base_options)
+                    except Exception:
+                        route_key = f"{task}:{len(messages)}"
+                bucket = _split_bucket(route_key)
+                prefer_azure = bucket < float(ratio)
+                models = (azure_models + other_models) if prefer_azure else (other_models + azure_models)
+                routing = {
+                    "policy": "azure_split_ratio",
+                    "ratio": float(ratio),
+                    "bucket": bucket,
+                    "preferred_provider": "azure" if prefer_azure else "non_azure",
+                    "routing_key": route_key,
+                }
+
         tried = []
         total_wait = 0.0
         status_counts = {}
@@ -649,6 +707,8 @@ class LLMRouter:
                     "finish_reason": finish_reason,
                     "timestamp": time.time(),
                 }
+                if routing:
+                    log_payload["routing"] = routing
                 if retry_meta:
                     log_payload["retry"] = retry_meta
                 if cache_write_path:
@@ -668,6 +728,7 @@ class LLMRouter:
                     "finish_reason": finish_reason,
                     "retry": retry_meta,
                     "cache": {"write": True, "path": str(cache_write_path)} if cache_write_path else None,
+                    "routing": routing,
                 }
             except Exception as e:
                 status = _extract_status(e)

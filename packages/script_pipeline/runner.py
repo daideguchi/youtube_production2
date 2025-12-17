@@ -1116,6 +1116,29 @@ def _sources_signature(sources: List[SourceFile]) -> Dict[str, str]:
     return {s.path: s.sha1 for s in (sources or [])}
 
 
+def _rel_to_base(path: Path, base: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(base.resolve()))
+    except Exception:
+        return str(path)
+
+
+def _append_llm_call(st: Status, stage: str, payload: Dict[str, Any]) -> None:
+    try:
+        state = st.stages.get(stage)
+        if state is None:
+            state = StageState()
+            st.stages[stage] = state
+        calls = state.details.get("llm_calls")
+        if not isinstance(calls, list):
+            calls = []
+        calls.append(payload)
+        state.details["llm_calls"] = calls
+    except Exception:
+        # best-effort only
+        pass
+
+
 def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: Dict[str, Dict[str, Any]], extra_placeholders: Dict[str, str] | None = None, output_override: Path | None = None) -> bool:
     """
     Run an LLM-backed stage and write its primary output.
@@ -1186,6 +1209,19 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
             raise SystemExit(f"[{stage}] LLM artifact is ready but content is empty: {artifact_path}")
         out_path.write_text(art.content.rstrip("\n") + "\n", encoding="utf-8")
         _normalize_llm_output(out_path, stage)
+        _append_llm_call(
+            st,
+            stage,
+            {
+                "source": "artifact",
+                "stage": stage,
+                "task": task_name,
+                "output": _rel_to_base(out_path, base),
+                "artifact": _rel_to_base(artifact_path, base),
+                "generated_at": getattr(art, "generated_at", None),
+                "llm_meta": dict(getattr(art, "llm_meta", {}) or {}),
+            },
+        )
         return True
 
     # Resolve template (model/provider are handled by router via llm.task)
@@ -1254,11 +1290,20 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         if llm_cfg.get("timeout"):
             call_kwargs["timeout"] = llm_cfg.get("timeout")
 
-        result = router_client.call_with_raw(
-            task=task_name,
-            messages=messages,
-            **call_kwargs,
-        )
+        # Stable routing key (episode-level): used by router for Azure/non-Azure split.
+        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+        try:
+            result = router_client.call_with_raw(
+                task=task_name,
+                messages=messages,
+                **call_kwargs,
+            )
+        finally:
+            if prev_routing_key is None:
+                os.environ.pop("LLM_ROUTING_KEY", None)
+            else:
+                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
 
         content_obj = result.get("content")
         if isinstance(content_obj, list):
@@ -1305,6 +1350,8 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
                 "latency_ms": result.get("latency_ms"),
                 "usage": result.get("usage") or {},
                 "finish_reason": result.get("finish_reason"),
+                "routing": result.get("routing"),
+                "cache": result.get("cache"),
             }
             write_llm_text_artifact(
                 artifact_path,
@@ -1322,6 +1369,28 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
             )
         except Exception:
             pass
+        _append_llm_call(
+            st,
+            stage,
+            {
+                "source": "api",
+                "stage": stage,
+                "task": task_name,
+                "output": _rel_to_base(out_path, base),
+                "artifact": _rel_to_base(artifact_path, base),
+                "provider": result.get("provider"),
+                "model": result.get("model"),
+                "request_id": result.get("request_id"),
+                "chain": result.get("chain"),
+                "latency_ms": result.get("latency_ms"),
+                "usage": result.get("usage") or {},
+                "finish_reason": result.get("finish_reason"),
+                "routing": result.get("routing"),
+                "cache": result.get("cache"),
+                "prompt_log": _rel_to_base(prompt_log, base),
+                "resp_log": _rel_to_base(resp_log, base),
+            },
+        )
         return True
 
     except SystemExit as e:
@@ -1450,9 +1519,9 @@ def reset_video(channel: str, video: str, *, wipe_research: bool = False) -> Sta
     # merge sources metadata (planning CSV / persona / prompt)
     sources = _load_sources(channel)
     extra_meta: Dict[str, Any] = {}
-    csv_path = sources.get("planning_csv")
+    csv_path = sources.get("planning_csv") or channels_csv_path(channel)
     if csv_path:
-        csv_row = _load_csv_row(Path(csv_path), video)
+        csv_row = _load_csv_row(_resolve_repo_path(str(csv_path)), video)
         if csv_row:
             extra_meta.update(
                 {
