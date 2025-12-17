@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate script_pipeline status.json + required outputs across planning CSV.
 
-This replaces the legacy `commentary_01_srtfile_v2` validate-status sweep.
+This replaces the previous validate-status sweep.
 It only checks videos that already have `workspaces/scripts/{CH}/{NNN}/status.json`.
 """
 

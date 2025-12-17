@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Force asset-driven status reconciliation for script_pipeline.
 
-Legacy `commentary_01_srtfile_v2` repair-status is removed; this script now:
+Legacy repair-status flow is removed; this script now:
 - Reads `workspaces/planning/channels/*.csv`
 - For videos that already have `workspaces/scripts/{CH}/{NNN}/status.json`:
   - (default) runs `script_pipeline.runner.reconcile_status` (best-effort, allow downgrade)
