@@ -2,7 +2,7 @@
 コード修正エージェントです。
 
 リポジトリ root:
-  /Users/dd/10_YouTube_Automation/factory_commentary
+  <REPO_ROOT>
 
 対象は主にこのあたりです：
   - commentary_02_srt2images_timeline/tools/factory.py
