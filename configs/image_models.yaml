@@ -4,6 +4,9 @@
 providers:
   gemini:
     env_api_key: GEMINI_API_KEY
+  openrouter:
+    env_api_key: OPENROUTER_API_KEY
+    base_url: "https://openrouter.ai/api/v1"
 
 models:
   gemini_3_pro_image_preview:
@@ -26,11 +29,63 @@ models:
       supports_seed: true
       max_batch_n: 1
 
+  openrouter_gemini_2_5_flash_image_preview:
+    provider: openrouter
+    model_name: google/gemini-2.5-flash-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gemini_2_5_flash_image:
+    provider: openrouter
+    model_name: google/gemini-2.5-flash-image
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gemini_3_pro_image_preview:
+    provider: openrouter
+    model_name: google/gemini-3-pro-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gpt_5_image:
+    provider: openrouter
+    model_name: openai/gpt-5-image
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gpt_5_image_mini:
+    provider: openrouter
+    model_name: openai/gpt-5-image-mini
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
 # Tier-to-model resolution. The first entry is treated as the primary candidate.
 tiers:
   image_gen:
     - gemini_2_5_flash_image
     # - gemini_3_pro_image_preview  # emergency fallback (disabled by default)
+  thumbnail_image_gen:
+    - openrouter_gemini_2_5_flash_image_preview
 
 # Task-level defaults. Options provided at call time override these values.
 tasks:
@@ -41,6 +96,12 @@ tasks:
       n: 1
   visual_image_gen:
     tier: image_gen
+    defaults:
+      aspect_ratio: "16:9"
+      n: 1
+  thumbnail_image_gen:
+    tier: thumbnail_image_gen
+    retries_per_model: 0
     defaults:
       aspect_ratio: "16:9"
       n: 1

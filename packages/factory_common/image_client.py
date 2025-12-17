@@ -13,6 +13,7 @@ import time
 
 import google.genai as genai
 from google.genai import types as genai_types
+import requests
 import yaml
 
 from factory_common import paths as repo_paths
@@ -79,7 +80,70 @@ class ImageClient:
         if not candidates:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
+        forced_model_key: Optional[str] = None
+        if isinstance(options.extra, dict):
+            raw_forced = options.extra.get("model_key")
+            if isinstance(raw_forced, str) and raw_forced.strip():
+                forced_model_key = raw_forced.strip()
+
         errors: List[Tuple[str, Exception]] = []
+        if forced_model_key:
+            model_conf = self._config.get("models", {}).get(forced_model_key)
+            if not model_conf:
+                raise ImageGenerationError(f"Forced model '{forced_model_key}' not found in image model configuration")
+
+            capabilities = model_conf.get("capabilities", {})
+            resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
+            max_attempts = int(task_conf.get("retries_per_model", 1)) + 1
+            for sub_attempt in range(max_attempts):
+                try:
+                    adapter = self._get_adapter(forced_model_key, model_conf)
+                    result = adapter.generate(model_conf, resolved)
+                    duration_ms = int((time.perf_counter() - started_at) * 1000)
+                    self._log_usage(
+                        success=True,
+                        task=options.task,
+                        tier=tier_name,
+                        model_key=forced_model_key,
+                        provider=model_conf.get("provider"),
+                        request_id=result.request_id,
+                        duration_ms=duration_ms,
+                        prompt_hash=self._hash_prompt(options.prompt),
+                        attempt=1,
+                    )
+                    return result
+                except Exception as exc:  # noqa: BLE001
+                    errors.append((forced_model_key, exc))
+                    logging.warning(
+                        "ImageClient: forced model %s failed for %s (attempt %d/%d, %s)",
+                        forced_model_key,
+                        options.task,
+                        sub_attempt + 1,
+                        max_attempts,
+                        exc,
+                    )
+                    if sub_attempt + 1 >= max_attempts:
+                        break
+                    time.sleep(0.25)
+
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+            self._log_usage(
+                success=False,
+                task=options.task,
+                tier=tier_name,
+                model_key=forced_model_key,
+                provider=model_conf.get("provider"),
+                request_id=None,
+                duration_ms=duration_ms,
+                prompt_hash=self._hash_prompt(options.prompt),
+                errors=[{"model": k, "error": str(e)} for k, e in errors],
+                attempt=1,
+            )
+            raise ImageGenerationError(
+                f"Forced image model '{forced_model_key}' failed for task '{options.task}': "
+                + "; ".join([f"{k}: {e}" for k, e in errors])
+            )
+
         for attempt_idx, model_key in enumerate(self._rotate_candidates(tier_name, candidates)):
             model_conf = self._config.get("models", {}).get(model_key)
             if not model_conf:
@@ -207,6 +271,8 @@ class ImageClient:
         provider = model_conf.get("provider")
         if provider == "gemini":
             return GeminiImageAdapter(self._config.get("providers", {}))
+        if provider == "openrouter":
+            return OpenRouterImageAdapter(self._config.get("providers", {}))
 
         raise ImageGenerationError(f"Unsupported image provider: {provider}")
 
@@ -403,3 +469,140 @@ class GeminiImageAdapter:
                     logging.warning("Unexpected image payload type from Gemini: %s", type(data))
 
         return extracted
+
+
+class OpenRouterImageAdapter:
+    def __init__(self, provider_conf: Dict[str, Any]):
+        conf = provider_conf.get("openrouter", {}) or {}
+        if not isinstance(conf, dict):
+            conf = {}
+        self.provider_conf = conf
+        api_key_env = str(self.provider_conf.get("env_api_key") or "OPENROUTER_API_KEY")
+        api_key = GeminiImageAdapter._resolve_api_key(api_key_env)
+        if not api_key:
+            raise ImageGenerationError(
+                f"OpenRouter API key not found. Please set environment variable '{api_key_env}'."
+            )
+        self.api_key = api_key
+        self.base_url = str(self.provider_conf.get("base_url") or "https://openrouter.ai/api/v1").rstrip("/")
+
+    def generate(self, model_conf: Dict[str, Any], options: ImageTaskOptions) -> ImageResult:
+        model_name = model_conf.get("model_name")
+        if not model_name:
+            raise ImageGenerationError("OpenRouter model name is missing from configuration")
+
+        timeout_sec = 120
+        if isinstance(options.extra, dict):
+            raw_timeout = options.extra.get("timeout_sec")
+            if isinstance(raw_timeout, (int, float)) and raw_timeout > 0:
+                timeout_sec = int(raw_timeout)
+
+        payload: Dict[str, Any] = {
+            "model": model_name,
+            "messages": [{"role": "user", "content": options.prompt}],
+            "modalities": ["image", "text"],
+        }
+
+        url = f"{self.base_url}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            resp = requests.post(url, headers=headers, json=payload, timeout=timeout_sec)
+        except requests.RequestException as exc:  # pragma: no cover - network faults
+            raise ImageGenerationError(f"OpenRouter request failed: {exc}") from exc
+
+        request_id: Optional[str] = None
+        try:
+            data = resp.json()
+        except ValueError:  # pragma: no cover - unexpected non-json
+            data = None
+
+        if resp.status_code >= 400:
+            detail = None
+            if isinstance(data, dict):
+                detail = data.get("error") or data
+            if detail is None:
+                detail = (resp.text or "").strip()
+            raise ImageGenerationError(f"OpenRouter error {resp.status_code}: {detail}")
+
+        if not isinstance(data, dict):
+            raise ImageGenerationError("OpenRouter returned invalid response payload")
+
+        request_id = str(data.get("id") or "").strip() or None
+        images = self._extract_images(data, timeout_sec=timeout_sec)
+        if not images:
+            raise ImageGenerationError("OpenRouter response did not return any image data")
+
+        return ImageResult(
+            images=images,
+            provider="openrouter",
+            model=str(model_name),
+            request_id=request_id,
+            metadata={
+                "n": len(images),
+                "aspect_ratio": options.aspect_ratio,
+                "size": options.size,
+                "seed": options.seed,
+                "negative_prompt": options.negative_prompt,
+            },
+        )
+
+    @staticmethod
+    def _extract_images(payload: Dict[str, Any], *, timeout_sec: int) -> List[bytes]:
+        extracted: List[bytes] = []
+        choices = payload.get("choices") or []
+        if not isinstance(choices, list):
+            return extracted
+        for choice in choices:
+            if not isinstance(choice, dict):
+                continue
+            message = choice.get("message") or {}
+            if not isinstance(message, dict):
+                continue
+            images = message.get("images") or []
+            if not isinstance(images, list):
+                continue
+            for image in images:
+                if not isinstance(image, dict):
+                    continue
+                image_url = image.get("image_url") or {}
+                if not isinstance(image_url, dict):
+                    continue
+                url = image_url.get("url")
+                if not isinstance(url, str) or not url:
+                    continue
+                data = OpenRouterImageAdapter._decode_image_url(url, timeout_sec=timeout_sec)
+                if data:
+                    extracted.append(data)
+        return extracted
+
+    @staticmethod
+    def _decode_image_url(url: str, *, timeout_sec: int) -> Optional[bytes]:
+        trimmed = url.strip()
+        if not trimmed:
+            return None
+        if trimmed.startswith("data:"):
+            try:
+                header, b64_data = trimmed.split(",", 1)
+            except ValueError:
+                return None
+            if ";base64" not in header:
+                return None
+            try:
+                return base64.b64decode(b64_data)
+            except Exception:
+                return None
+
+        # Some providers return presigned HTTPS URLs. Fetch them when possible.
+        if trimmed.startswith("http://") or trimmed.startswith("https://"):
+            try:
+                resp = requests.get(trimmed, timeout=min(30, timeout_sec))
+                resp.raise_for_status()
+                return resp.content
+            except Exception:
+                return None
+
+        return None
