@@ -750,3 +750,31 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `--video-unscoped-only` のため episode の run には触れない
 - レポート:
   - `workspaces/video/_archive/20251217T114542Z/archive_report.json`
+
+### 49) `workspaces/scripts/**` の古い `audio_prep/` と per-video `logs/` を削除（untracked）
+
+意図: `workspaces/scripts/**/audio_prep` と per-video `logs/` は再生成可能な中間物（L3/L2）であり、一定期間経過後は探索ノイズになるため削除する。
+
+- 実行（run）:
+  - `python3 scripts/cleanup_workspace.py --scripts --run --scripts-keep-days 14`
+- 結果:
+  - 削除: 80 paths（主に `CH03/*/audio_prep` と `CH03/*/logs`、一部 `CH06/001/logs`, `CH99/001/audio_prep`）
+- 安全条件:
+  - `--keep-days 14`（全ファイルが14日以上古い sub-tree のみ対象）
+  - coordination locks があるスコープは自動スキップ（lock-aware cleanup）
+
+### 50) 音声の「確実残骸」を統合 cleanup で追加削除（untracked）
+
+意図: 前回 cleanup 後に残っていた `chunks/` と `audio_prep` の重複バイナリを追加で削除し、容量と探索ノイズを抑える。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --all --dry-run --keep-recent-minutes 360`
+  - `python3 scripts/cleanup_workspace.py --all --run --yes --keep-recent-minutes 360`
+- 削除内容（run）:
+  - `workspaces/scripts/**/audio_prep/chunks/`（3件 / 約137.8MB）
+  - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（重複6ファイル / 約141.4MB）
+  - `workspaces/audio/final/**/chunks/`（1件 / 約46.0MB）
+- 安全条件:
+  - final wav が存在するもののみ対象（final SoT を削除しない）
+  - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ
+  - coordination locks があるスコープは自動スキップ（例: `skipped_locked=9`）
