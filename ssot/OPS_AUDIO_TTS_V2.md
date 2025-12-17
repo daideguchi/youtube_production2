@@ -95,3 +95,11 @@ backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベ
 対処:
 - まず `status.json` を確認し、意図して未完了か判定する
 - 必要なら `--resume` で再開して final を作ってから cleanup する
+
+---
+
+## 6. ポーズ（strict の解釈）
+
+- 通常のつなぎ（文末の最小ポーズ）: **0.1秒**
+- `---`（1行単独）: **0.5秒**
+- 空行/改行: ポーズ指示として扱わない（文章の整形用途）

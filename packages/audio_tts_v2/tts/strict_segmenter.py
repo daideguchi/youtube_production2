@@ -6,9 +6,9 @@ from .strict_structure import AudioSegment
 PAUSE_H1 = 1.0
 PAUSE_H2 = 0.8
 PAUSE_H3 = 0.8
-PAUSE_PARAGRAPH = 0.8
-PAUSE_MARKER = 1.0  # Explicit pause marker (e.g. '---')
-PAUSE_SENTENCE = 0.1  # 文末に0.1秒のポーズを挿入（聞きやすさのため）
+PAUSE_PARAGRAPH = 0.0  # SSOT: blank lines must not act as pause markers
+PAUSE_MARKER = 0.5  # Explicit pause marker (e.g. '---')
+PAUSE_SENTENCE = 0.1  # SSOT: default connector pause
 PAUSE_COMMA = 0.0 # Voicevox handles commas naturally, so 0 explicit pause usually.
 
 # Segmentation Regex
