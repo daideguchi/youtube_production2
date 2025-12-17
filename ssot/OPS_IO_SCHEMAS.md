@@ -96,6 +96,20 @@
 - `channel_code`, `video_number`
 - `created_at`, `updated_at`
 
+`metadata`（観測/任意）:
+- `sheet_title`: string（Planning CSVのタイトルスナップショット）
+- `alignment`: dict（Planning↔Scriptの整合スタンプ。UIの `整合` 列や下流ガードの根拠）
+  - `schema`: `"ytm.alignment.v1"`
+  - `computed_at`: string（UTC ISO, `Z`）
+  - `planning_hash`: string（sha1）
+  - `script_hash`: string（sha1）
+  - `planning`: dict
+    - `title`: string
+    - `thumbnail_catch`: string（サムネプロンプト先頭行の『...』抽出。無い場合は空）
+  - 例外系（疑義/未確定としてマーキングする場合）:
+    - `suspect`: bool
+    - `suspect_reason`: string
+
 stage_state（観測）:
 - `status`: `"pending" | "processing" | "completed" | "failed"`
 - `details`: dict（存在する場合）

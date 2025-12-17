@@ -65,6 +65,10 @@
 ### 3.5 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
 
+### 3.6 Alignment（Planning↔Script 整合スタンプ）
+- `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
+  - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
+
 ---
 
 ## 4. 生成物の掃除（容量/混乱対策）

@@ -43,6 +43,8 @@
 推奨:
 - [ ] `metadata.title` と Planning CSV の `タイトル` が一致（差分がある場合は「どちらが正か」を決めて reset する）
 - [ ] `updated_at` が更新されている（いつ作られたか追える）
+- [ ] `metadata.alignment.schema == "ytm.alignment.v1"` が入っている（Planning↔Scriptの整合スタンプ）
+  - 更新が入ったら再スタンプする: `python scripts/enforce_alignment.py --channels CHxx --apply`
 
 ---
 
