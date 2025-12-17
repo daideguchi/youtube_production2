@@ -778,3 +778,13 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - final wav が存在するもののみ対象（final SoT を削除しない）
   - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ
   - coordination locks があるスコープは自動スキップ（例: `skipped_locked=9`）
+
+### 51) `workspaces/video/runs/` 直下の stray files を SoT へ移設（untracked）
+
+意図: `runs/` 直下にファイル（json/png）が残っていると、run 探索/UIの誤参照/cleanup 判定のノイズになるため、正しい置き場へ移す。
+
+- 実行:
+  - `workspaces/video/runs/CH04_alignment_report*.json` → `workspaces/video/_state/reports/`
+  - `workspaces/video/runs/test_single_image.png` を削除（参照ゼロ）
+- 結果:
+  - `workspaces/video/runs/` 直下は directory のみ（`.gitkeep` を除く）
