@@ -228,8 +228,16 @@ function formatUsdAmount(value: number): string {
   if (abs < 1e-6) {
     return `$${value.toExponential(2)}`;
   }
-  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 3 : 6;
-  return `$${value.toFixed(decimals)}`;
+  if (abs < 0.0001) {
+    return `$${value.toFixed(8)}`;
+  }
+  if (abs < 0.01) {
+    return `$${value.toFixed(6)}`;
+  }
+  if (abs < 1) {
+    return `$${value.toFixed(3)}`;
+  }
+  return `$${value.toFixed(2)}`;
 }
 
 function formatUsdPerMillionTokens(pricePerToken: number): string {
@@ -1899,6 +1907,56 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           </button>
         </div>
       </div>
+      {imageModels.some((model) => model.provider === "openrouter") ? (
+        <details className="thumbnail-library-panel__pricing">
+          <summary>料金（OpenRouter /models）</summary>
+          <div className="thumbnail-library-panel__pricing-body">
+            <p className="thumbnail-library__placeholder">
+              OpenRouter の <code>/api/v1/models</code> から取得した単価です（USD/token・USD/request・USD/image(unit)）。この画面のAI生成は{" "}
+              <strong>1枚=1 request（N枚ならN回）</strong> で送信します。概算: <code>request</code> + <code>image</code> +（入力tok×
+              <code>prompt</code>）+（出力tok×<code>completion</code>）
+            </p>
+            <table className="thumbnail-pricing-table">
+              <thead>
+                <tr>
+                  <th>model_key</th>
+                  <th>model_name</th>
+                  <th>image</th>
+                  <th>request</th>
+                  <th>prompt</th>
+                  <th>completion</th>
+                  <th>更新</th>
+                </tr>
+              </thead>
+              <tbody>
+                {imageModels
+                  .filter((model) => model.provider === "openrouter")
+                  .map((model) => {
+                    const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
+                    const requestUnit = parsePricingNumber(model.pricing?.request ?? null);
+                    const promptUnit = parsePricingNumber(model.pricing?.prompt ?? null);
+                    const completionUnit = parsePricingNumber(model.pricing?.completion ?? null);
+                    return (
+                      <tr key={model.key}>
+                        <td>
+                          <code>{model.key}</code>
+                        </td>
+                        <td>
+                          <code>{model.model_name}</code>
+                        </td>
+                        <td>{imageUnit !== null ? `${formatUsdAmount(imageUnit)}/unit` : "—"}</td>
+                        <td>{requestUnit !== null ? `${formatUsdAmount(requestUnit)}/req` : "—"}</td>
+                        <td>{promptUnit !== null ? formatUsdPerMillionTokens(promptUnit) : "—"}</td>
+                        <td>{completionUnit !== null ? formatUsdPerMillionTokens(completionUnit) : "—"}</td>
+                        <td>{model.pricing_updated_at ? formatDate(model.pricing_updated_at) : "—"}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      ) : null}
       {imageModelsError ? <p className="thumbnail-library__alert">{imageModelsError}</p> : null}
       {templatesStatus.error ? <p className="thumbnail-library__alert">{templatesStatus.error}</p> : null}
       {templatesStatus.success ? (
