@@ -69,12 +69,14 @@
 ### 3.1 `commentary_02_srt2images_timeline/`
 
 **ユーザー指摘の「ゴミ候補」検証（結論）**
-- `commentary_02_srt2images_timeline/ui/` は **ゴミではない**:
-  - `apps/ui-backend/backend/video_production.py` から `commentary_02_srt2images_timeline.ui.server.jobs` を参照しているため、削除すると UI ジョブ運用が破綻する（互換: `ui/backend` は symlink）。
+- `commentary_02_srt2images_timeline/ui/` は **互換shimのみ**（削除判断は慎重に）:
+  - 現行の正本実装: `commentary_02_srt2images_timeline/server/jobs.py`
+  - 互換shim: `commentary_02_srt2images_timeline/ui/server/jobs.py`（旧import互換のため残す）
 - `commentary_02_srt2images_timeline/examples/` は **存在しない**（現行ツリーにディレクトリ自体が無い）。
 
 **Keep（現行依存あり）**
-- `src/`, `tools/`（archive除く）, `ui/`, `config/`, `templates/`, `input/`, `output/`, `logs/`, `memory/`
+- `src/`, `tools/`（archive除く）, `server/`, `config/`, `templates/`, `input/`, `output/`, `logs/`, `memory/`
+- `ui/` は互換shim（実体は `server/` へ移設済み）
 - `audio_sync_status.json` は `workspaces/video/_state/audio_sync_status.json` が正本（legacy: `packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json`）
 
 **Legacy隔離**
@@ -86,7 +88,6 @@
 > `rg`参照ゼロ・SoTフロー外。管理者確認後に削除。
 - `commentary_02_srt2images_timeline/images/`（root直下の残骸）
 - `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
-- `commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
 
 ### 3.2 `audio_tts_v2/`
 

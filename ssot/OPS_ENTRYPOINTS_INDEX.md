@@ -28,7 +28,7 @@
 - FastAPI backend: `apps/ui-backend/backend/main.py`（互換: `ui/backend/main.py` は symlink）
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
-    - `commentary_02_srt2images_timeline/ui/server/jobs` を呼び出す
+    - `commentary_02_srt2images_timeline/server/jobs.py` を呼び出す（互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
 - Frontend (React): `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 
 ---

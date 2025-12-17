@@ -134,7 +134,7 @@
   - 種別: **L3 / 状態ファイル**
 
 - `logs/ui_hub/video_production/<job_id>.log`  
-  - Writer: `commentary_02_srt2images_timeline/ui/server/jobs.py`（FastAPI経由ジョブ）
+  - Writer: `commentary_02_srt2images_timeline/server/jobs.py`（FastAPI経由ジョブ。互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
   - 種別: **L3（job単位）**
 
 - `logs/ui/ui_tasks.db`  
@@ -358,11 +358,11 @@ logs/ui/ui_tasks.db
   - 種別: **L3（Legacy）**
 
 - `commentary_02_srt2images_timeline/logs/swap/swap_<timestamp>.log`
-  - Writer: `commentary_02_srt2images_timeline/ui/gradio_app.py`（Legacy Swap UI）
+  - Writer: `legacy/commentary_02_srt2images_timeline/ui/gradio_app.py`（Legacy Swap UI）
   - 現状: UI Hub（`/api/swap`）のログ正本は `logs/swap/swap_<timestamp>.log`。
   - 種別: **L3（Legacy）**
 
-- `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`, `commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`
+- `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`, `legacy/commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`
   - 現状: コード参照が確認できない（ログのコミット残骸の可能性）。
   - 方針: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の基準で Trash 候補（削除/ignore を計画化）。
   - 種別: **L3（Legacy/Trash候補）**

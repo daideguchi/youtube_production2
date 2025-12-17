@@ -108,14 +108,14 @@ class VisualCuesPlanUpdatePayload(BaseModel):
 
 
 if COMMENTARY02_ROOT.exists():
-    for candidate in (COMMENTARY02_ROOT, COMMENTARY02_ROOT / "src", COMMENTARY02_ROOT / "ui"):
+    for candidate in (COMMENTARY02_ROOT, COMMENTARY02_ROOT / "src"):
         candidate_str = str(candidate)
         if candidate_str not in sys.path:
             sys.path.insert(0, candidate_str)
 
 try:
     from src.data.projects import list_projects, load_project_detail  # type: ignore
-    from commentary_02_srt2images_timeline.ui.server.jobs import (  # type: ignore
+    from commentary_02_srt2images_timeline.server.jobs import (  # type: ignore
         JobManager,
         evaluate_capcut_guard,
         job_to_dict,
