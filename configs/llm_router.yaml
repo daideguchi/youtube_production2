@@ -40,6 +40,26 @@ models:
       json_mode: false
 
   # --- OpenRouter Models ---
+  # Low-cost / high-quality general model (preferred for script writing)
+  or_deepseek_v3_2_exp:
+    provider: openrouter
+    model_name: "deepseek/deepseek-v3.2-exp"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 16384
+
+  # Low-cost reasoning-ish fallback (distill)
+  or_deepseek_r1_distill_qwen_32b:
+    provider: openrouter
+    model_name: "deepseek/deepseek-r1-distill-qwen-32b"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 16384
+
   or_deepseek_r1:
     provider: openrouter
     model_name: "deepseek/deepseek-r1"
@@ -67,15 +87,6 @@ models:
       json_mode: true
       max_tokens: 16384
 
-  or_gpt_4o_mini:
-    provider: openrouter
-    model_name: "openai/gpt-4o-mini"
-    capabilities:
-      mode: chat
-      reasoning: false
-      json_mode: true
-      max_tokens: 16384
-
   or_qwen_2_5_7b_instruct:
     provider: openrouter
     model_name: "qwen/qwen-2.5-7b-instruct"
@@ -93,6 +104,16 @@ models:
       reasoning: false
       json_mode: true
       max_tokens: 16384
+
+  # Vision (image + text → text) — for thumbnail captioning
+  or_qwen_2_5_vl_72b_instruct:
+    provider: openrouter
+    model_name: "qwen/qwen2.5-vl-72b-instruct"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 8192
 
   or_gemma_3n_e2b_it_free:
     provider: openrouter
@@ -115,17 +136,19 @@ models:
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
+    - or_deepseek_v3_2_exp
+    - or_deepseek_r1_distill_qwen_32b
     - or_deepseek_r1
     - or_deepseek_r1_0528
-    - or_o3_mini
+    # - or_o3_mini  # expensive; keep commented out by default
     # Keep Azure as optional fallback / A-B test; default is OpenRouter-first for cost.
     - azure_gpt5_mini
   
   # Standard tasks
   standard:
-    - or_gpt_4o_mini
-    - or_qwen_2_5_7b_instruct
+    - or_deepseek_v3_2_exp
     - or_hunyuan_a13b_instruct
+    - or_qwen_2_5_7b_instruct
     - or_gemma_3n_e2b_it_free
     - azure_gpt5_mini
 
@@ -142,7 +165,7 @@ tiers:
 
   # Special purpose: Vision captioning (image + text)
   vision_caption:
-    - or_gpt_4o_mini
+    - or_qwen_2_5_vl_72b_instruct
 
 tasks:
   # --- Script Pipeline ---

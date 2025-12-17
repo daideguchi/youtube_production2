@@ -94,10 +94,10 @@
 
 ※ 実体ルーター（現行）: `packages/factory_common/llm_router.py`（設定: `configs/llm_router.yaml`）
 
-#### 4.1.1 重要: heavy_reasoning に「汎用モデル」を混ぜない
+#### 4.1.1 重要: heavy_reasoning は「台本品質」枠（高コスパ優先）
 
-- `heavy_reasoning` は **推論特化（reasoning）系のみ** を置く（例: `deepseek-r1` / `o3-mini` / Azureの推論モデル）。
-- `gpt-4o-mini` のような **汎用・高速枠** は `standard` 側に置く（heavy_reasoning に入れると品質/コスト設計が崩れる）。
+- `heavy_reasoning` は **台本生成/構成/整合チェック**の主力。まず **OpenRouter の高品質・低コスト枠**（例: DeepSeek V3 系）を優先する。
+- OpenAI系の高コスト枠は **コストが跳ねやすい**ため、原則 `heavy_reasoning` には入れない（入れる場合もコメントアウトで温存し、必要時だけ有効化する）。
 
 ### 4.2 「どのLLMが書いたか」を確実に残す（証跡）
 
