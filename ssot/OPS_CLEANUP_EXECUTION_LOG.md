@@ -620,3 +620,13 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
   - `scripts/maintain_consciousness.py`
 - 判定:
   - 参照ゼロ（例: `rg "maintain_consciousness" -S .` がヒットしない）
+
+### 40) `success_config.json` を legacy へ隔離（repo tracked）
+
+意図: `packages/` 配下に「旧実行コマンド（絶対パス）」などの残骸があると誤参照の原因になるため。現行フローでは参照されないので legacy へ隔離する。
+
+- 参照確認:
+  - `rg "success_config\\.json" -S packages/commentary_02_srt2images_timeline` がヒットしない
+- 移動（git mv）:
+  - `packages/commentary_02_srt2images_timeline/config/success_config.json`
+  - → `legacy/commentary_02_srt2images_timeline/config/success_config.json`
