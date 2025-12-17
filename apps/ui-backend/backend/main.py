@@ -6186,6 +6186,10 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
                 _record_change(changes, "youtube.source", youtube_info.get("source"), resolved.channel_id)
                 youtube_info["source"] = resolved.channel_id
                 info_changed = True
+            if resolved.title and youtube_info.get("title") != resolved.title:
+                _record_change(changes, "youtube.title", youtube_info.get("title"), resolved.title)
+                youtube_info["title"] = resolved.title
+                info_changed = True
 
             branding_info = info_payload.setdefault("branding", {})
             if branding_info.get("handle") != resolved.handle:
@@ -6196,6 +6200,19 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
             if branding_info.get("url") != resolved.url:
                 _record_change(changes, "branding.url", branding_info.get("url"), resolved.url)
                 branding_info["url"] = resolved.url
+                info_changed = True
+            if resolved.title and branding_info.get("title") != resolved.title:
+                _record_change(changes, "branding.title", branding_info.get("title"), resolved.title)
+                branding_info["title"] = resolved.title
+                info_changed = True
+            if resolved.avatar_url and branding_info.get("avatar_url") != resolved.avatar_url:
+                _record_change(
+                    changes,
+                    "branding.avatar_url",
+                    branding_info.get("avatar_url"),
+                    resolved.avatar_url,
+                )
+                branding_info["avatar_url"] = resolved.avatar_url
                 info_changed = True
         else:
             # Allow clearing handle explicitly.
