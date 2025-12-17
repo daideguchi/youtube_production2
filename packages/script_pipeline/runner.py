@@ -199,6 +199,10 @@ CONFIG_ROOT = PROJECT_ROOT / "configs"
 # stages to skip (no LLM formatting run) — none by default
 SKIP_STAGES: Set[str] = set()
 
+# LLM quality gate prompts (Judge -> Fixer) for script_validation
+A_TEXT_QUALITY_JUDGE_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_judge_prompt.txt"
+A_TEXT_QUALITY_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_fix_prompt.txt"
+
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
 FORMAT_CHUNK_LEN = int(os.getenv("SCRIPT_FORMAT_CHUNK_LEN", "600"))
@@ -226,6 +230,84 @@ def _render_template(template_path: Path, ph_map: Dict[str, str]) -> str:
     for k, v in ph_map.items():
         text = text.replace(f"<<{k}>>", v)
     return text
+
+
+def _utc_now_compact() -> str:
+    # Example: 2025-12-17T21:59:00Z -> 20251217T215900Z
+    return utc_now_iso().replace("-", "").replace(":", "").replace(".", "")
+
+
+def _truthy_env(name: str, default: str = "1") -> bool:
+    raw = os.getenv(name, default)
+    return str(raw).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _extract_llm_text_content(result: Dict[str, Any]) -> str:
+    content = result.get("content")
+    if isinstance(content, list):
+        parts: List[str] = []
+        for part in content:
+            if isinstance(part, dict):
+                parts.append(str(part.get("text", "")).strip())
+        return " ".join([p for p in parts if p]).strip()
+    return str(content or "").strip()
+
+
+def _parse_json_lenient(text: str) -> Dict[str, Any]:
+    raw = (text or "").strip()
+    if not raw:
+        raise ValueError("empty json")
+    try:
+        obj = json.loads(raw)
+        if isinstance(obj, dict):
+            return obj
+    except Exception:
+        pass
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start >= 0 and end > start:
+        obj = json.loads(raw[start : end + 1])
+        if isinstance(obj, dict):
+            return obj
+    raise ValueError("invalid json")
+
+
+def _a_text_rules_summary(meta: Dict[str, Any]) -> str:
+    style = meta.get("style") if isinstance(meta, dict) else None
+    if isinstance(style, str) and style.strip():
+        lines = [ln.rstrip() for ln in style.splitlines() if ln.strip()]
+        return "\n".join(lines[:80]).strip()
+    return "\n".join(
+        [
+            "- URL/脚注/参照番号/箇条書き/番号リスト/見出し/制作メタは禁止",
+            "- ポーズは `---` のみ（1行単独）。他の区切り記号は禁止",
+            "- 事実確認できない固有名詞/数値/研究断定はしない（安全な一般論に留める）",
+            "- 水増し禁止: 同趣旨の言い換え連打や空疎な一般論で埋めない",
+        ]
+    )
+
+
+def _build_planning_hint(meta: Dict[str, Any]) -> str:
+    if not isinstance(meta, dict):
+        return ""
+    planning = opt_fields.get_planning_section(meta)
+    fields = [
+        ("concept_intent", planning.get("concept_intent") or meta.get("concept_intent")),
+        ("target_audience", planning.get("target_audience") or meta.get("target_audience")),
+        ("main_tag", planning.get("primary_pain_tag") or meta.get("main_tag")),
+        ("sub_tag", planning.get("secondary_pain_tag") or meta.get("sub_tag")),
+        ("key_concept", planning.get("key_concept") or meta.get("key_concept")),
+        ("benefit", planning.get("benefit_blurb") or meta.get("benefit")),
+        ("thumbnail_upper", planning.get("thumbnail_upper") or meta.get("thumbnail_title_top")),
+        ("thumbnail_title", planning.get("thumbnail_title") or meta.get("expected_title") or meta.get("title")),
+        ("thumbnail_lower", planning.get("thumbnail_lower") or meta.get("thumbnail_title_bottom")),
+        ("thumbnail_prompt", planning.get("thumbnail_prompt") or meta.get("thumbnail_prompt")),
+    ]
+    lines: List[str] = []
+    for key, value in fields:
+        if isinstance(value, str) and value.strip():
+            lines.append(f"- {key}: {value.strip()}")
+    return "\n".join(lines).strip()
 
 
 def _deep_merge_dict(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
@@ -1889,6 +1971,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             return st
 
         issues, stats = validate_a_text(a_text, st.metadata or {})
+        planning_row: Dict[str, Any] | None = None
 
         # Planning↔Script alignment gate: prevent "validated" status when the episode is
         # clearly mismatched or stale relative to Planning SoT.
@@ -1939,6 +2022,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 }
                             )
                         else:
+                            planning_row = csv_row
                             current = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
                             if current.planning_hash != stored_planning_hash:
                                 issues.append(
@@ -2025,6 +2109,259 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             except Exception:
                 pass
             return st
+
+        # LLM quality gate (Judge -> Fixer): prevent "length-only pass" scripts.
+        llm_gate_enabled = _truthy_env("SCRIPT_VALIDATION_LLM_QUALITY_GATE", "1") and os.getenv(
+            "SCRIPT_PIPELINE_DRY", "0"
+        ) != "1"
+        llm_gate_details: Dict[str, Any] = {"enabled": bool(llm_gate_enabled)}
+        stage_details["llm_quality_gate"] = llm_gate_details
+
+        final_text = a_text
+        if llm_gate_enabled:
+            judge_task = os.getenv("SCRIPT_VALIDATION_QUALITY_JUDGE_TASK", "script_a_text_quality_judge").strip()
+            fix_task = os.getenv("SCRIPT_VALIDATION_QUALITY_FIX_TASK", "script_a_text_quality_fix").strip()
+            try:
+                max_rounds = max(1, int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "3")))
+            except Exception:
+                max_rounds = 3
+
+            quality_dir = content_dir / "analysis" / "quality_gate"
+            quality_dir.mkdir(parents=True, exist_ok=True)
+            judge_latest_path = quality_dir / "judge_latest.json"
+            fix_latest_path = quality_dir / "fix_latest.md"
+
+            placeholders_base = {
+                "CHANNEL_CODE": str(st.channel),
+                "VIDEO_ID": f"{st.channel}-{st.video}",
+                "TITLE": str(st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id),
+                "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
+                "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                "PLANNING_HINT": _build_planning_hint(st.metadata or {}),
+                "PERSONA": str(st.metadata.get("persona") or ""),
+                "CHANNEL_PROMPT": str(st.metadata.get("script_prompt") or ""),
+                "A_TEXT_RULES_SUMMARY": _a_text_rules_summary(st.metadata or {}),
+            }
+
+            current_text = a_text
+            judge_obj: Dict[str, Any] = {}
+            for round_no in range(1, max_rounds + 1):
+                judge_prompt = _render_template(
+                    A_TEXT_QUALITY_JUDGE_PROMPT_PATH,
+                    {**placeholders_base, "A_TEXT": (current_text or "").strip()},
+                )
+
+                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                try:
+                    judge_result = router_client.call_with_raw(
+                        task=judge_task,
+                        messages=[{"role": "user", "content": judge_prompt}],
+                        response_format="json_object",
+                        max_tokens=2200,
+                        temperature=0.2,
+                    )
+                finally:
+                    if prev_routing_key is None:
+                        os.environ.pop("LLM_ROUTING_KEY", None)
+                    else:
+                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                judge_raw = _extract_llm_text_content(judge_result)
+                try:
+                    judge_obj = _parse_json_lenient(judge_raw)
+                except Exception:
+                    judge_obj = {}
+                verdict = str(judge_obj.get("verdict") or "").strip().lower()
+
+                try:
+                    atomic_write_json(
+                        judge_latest_path,
+                        {
+                            "schema": "ytm.a_text_quality_judge.v1",
+                            "generated_at": utc_now_iso(),
+                            "episode": {"channel": st.channel, "video": st.video},
+                            "llm_meta": {
+                                "provider": judge_result.get("provider"),
+                                "model": judge_result.get("model"),
+                                "request_id": judge_result.get("request_id"),
+                                "chain": judge_result.get("chain"),
+                                "latency_ms": judge_result.get("latency_ms"),
+                                "usage": judge_result.get("usage") or {},
+                                "finish_reason": judge_result.get("finish_reason"),
+                                "routing": judge_result.get("routing"),
+                                "cache": judge_result.get("cache"),
+                            },
+                            "judge": judge_obj,
+                            "raw": judge_raw,
+                        },
+                    )
+                except Exception:
+                    pass
+
+                llm_gate_details.update(
+                    {
+                        "judge_task": judge_task,
+                        "fix_task": fix_task,
+                        "max_rounds": max_rounds,
+                        "round": round_no,
+                        "verdict": verdict or "unknown",
+                        "judge_report": str(judge_latest_path.relative_to(base)),
+                    }
+                )
+
+                # Pass: accept as-is (subject to hard validator which already passed above).
+                if verdict == "pass":
+                    final_text = current_text
+                    break
+
+                # Fail on last round.
+                if round_no >= max_rounds:
+                    stage_details["error"] = "llm_quality_gate_failed"
+                    stage_details["error_codes"] = sorted(
+                        set(stage_details.get("error_codes") or []) | {"llm_quality_gate_failed"}
+                    )
+                    stage_details["fix_hints"] = [
+                        "LLM Judge が flow/filler を理由に不合格と判断しました。judge_latest.json の must_fix / fix_brief を確認してください。",
+                        f"judge_report: {judge_latest_path.relative_to(base)}",
+                    ]
+                    st.stages[stage_name].status = "pending"
+                    st.status = "script_in_progress"
+                    save_status(st)
+                    try:
+                        _write_script_manifest(base, st, stage_defs)
+                    except Exception:
+                        pass
+                    return st
+
+                fixer_prompt = _render_template(
+                    A_TEXT_QUALITY_FIX_PROMPT_PATH,
+                    {
+                        **placeholders_base,
+                        "A_TEXT": (current_text or "").strip(),
+                        "JUDGE_JSON": json.dumps(judge_obj, ensure_ascii=False, indent=2),
+                    },
+                )
+
+                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                try:
+                    fix_result = router_client.call_with_raw(
+                        task=fix_task,
+                        messages=[{"role": "user", "content": fixer_prompt}],
+                        max_tokens=16384,
+                        temperature=0.4,
+                    )
+                finally:
+                    if prev_routing_key is None:
+                        os.environ.pop("LLM_ROUTING_KEY", None)
+                    else:
+                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                fixed = _extract_llm_text_content(fix_result)
+                if not fixed:
+                    continue
+                current_text = fixed.strip() + "\n"
+                try:
+                    fix_latest_path.write_text(current_text, encoding="utf-8")
+                    llm_gate_details["fix_output"] = str(fix_latest_path.relative_to(base))
+                    llm_gate_details["fix_llm_meta"] = {
+                        "provider": fix_result.get("provider"),
+                        "model": fix_result.get("model"),
+                        "request_id": fix_result.get("request_id"),
+                        "chain": fix_result.get("chain"),
+                        "latency_ms": fix_result.get("latency_ms"),
+                        "usage": fix_result.get("usage") or {},
+                        "finish_reason": fix_result.get("finish_reason"),
+                        "routing": fix_result.get("routing"),
+                        "cache": fix_result.get("cache"),
+                    }
+                except Exception:
+                    pass
+
+        # If the LLM gate produced a new draft, re-run the deterministic validator before writing.
+        if final_text != a_text:
+            re_issues, re_stats = validate_a_text(final_text, st.metadata or {})
+            re_errors = [
+                it for it in re_issues if str((it or {}).get("severity") or "error").lower() != "warning"
+            ]
+            if re_errors:
+                stage_details["error"] = "validation_failed_after_llm"
+                stage_details["error_codes"] = sorted(
+                    {str(it.get("code")) for it in re_errors if isinstance(it, dict) and it.get("code")}
+                )
+                stage_details["issues"] = re_errors[:50]
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
+            stage_details["stats"] = re_stats
+
+            analysis_dir = content_dir / "analysis" / "quality_gate"
+            analysis_dir.mkdir(parents=True, exist_ok=True)
+            backup_path = analysis_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
+            try:
+                if a_text.strip():
+                    backup_path.write_text(a_text.strip() + "\n", encoding="utf-8")
+                    llm_gate_details["backup_path"] = str(backup_path.relative_to(base))
+            except Exception:
+                pass
+
+            try:
+                canonical_path.parent.mkdir(parents=True, exist_ok=True)
+                canonical_path.write_text(final_text.strip() + "\n", encoding="utf-8")
+                # Keep mirror `assembled.md` in sync when canonical is `assembled_human.md`.
+                if canonical_path.resolve() != assembled_path.resolve():
+                    assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                    assembled_path.write_text(final_text.strip() + "\n", encoding="utf-8")
+                # Legacy mirror guard: keep it consistent if it still exists.
+                if legacy_final.exists():
+                    legacy_final.write_text(final_text.strip() + "\n", encoding="utf-8")
+
+                stage_details["rewritten_by_llm_gate"] = True
+                try:
+                    note = str(st.metadata.get("redo_note") or "").strip()
+                    msg = "LLM品質ゲートでAテキストが自動修正されました"
+                    if not note:
+                        st.metadata["redo_note"] = msg
+                    elif msg not in note:
+                        st.metadata["redo_note"] = f"{note} / {msg}"
+                    st.metadata["redo_audio"] = True
+                except Exception:
+                    pass
+            except Exception as exc:
+                stage_details["error"] = "cannot_write_a_text"
+                stage_details["exception"] = str(exc)
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                return st
+
+            # Re-stamp alignment on success (keeps run_tts guard consistent) when possible.
+            if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+                align = st.metadata.get("alignment") if isinstance(st.metadata, dict) else None
+                if isinstance(align, dict) and align.get("schema") == ALIGNMENT_SCHEMA and not align.get("suspect") and planning_row:
+                    try:
+                        stamp = build_alignment_stamp(planning_row=planning_row, script_path=canonical_path)
+                        st.metadata["alignment"] = stamp.as_dict()
+                        planning_title = stamp.planning.get("title")
+                        if isinstance(planning_title, str) and planning_title.strip():
+                            st.metadata["sheet_title"] = planning_title.strip()
+                        stage_details["alignment_restamped"] = True
+                    except Exception:
+                        stage_details["error"] = "alignment_restamp_failed"
+                        st.stages[stage_name].status = "pending"
+                        st.status = "script_in_progress"
+                        save_status(st)
+                        try:
+                            _write_script_manifest(base, st, stage_defs)
+                        except Exception:
+                            pass
+                        return st
 
         # Success: clear stale failure markers and bump global status.
         stage_details.pop("error", None)

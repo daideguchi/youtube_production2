@@ -57,12 +57,15 @@ UI側でも「詰まったらまずここ」を固定する。
   - `script_validation 実行`（API: `POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation`）
 - `script_validation` が NG の場合:
   - `status.json: stages.script_validation.details.error_codes / issues / fix_hints` を読み、`assembled_human.md`（なければ `assembled.md`）を修正してから再実行する。
+  - 追加の品質ゲート（LLM Judge/Fixer）が有効な場合は、`content/analysis/quality_gate/` の judge/fix レポートも確認する（どこが不自然か／何を直せば良いかが残る）。
 
 ### 3.1 Script Validation（品質ゲート）
 
 - 実行: `python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`
 - NG時: `status.json: stages.script_validation.details.error_codes / issues` に理由が残る（UIにも表示される想定）。修正後に同じコマンドを再実行する。
-- 判定基準（正本）: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
+- 判定基準（正本）:
+  - `ssot/OPS_A_TEXT_GLOBAL_RULES.md`（禁則・TTS事故防止の下限）
+  - `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`（字数合格だけを禁止。LLM Judge→Fixer の2段階）
 
 ---
 

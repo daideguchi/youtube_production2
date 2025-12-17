@@ -16,6 +16,29 @@ tasks:
       temperature: 0.2
       response_format: json_object
 
+  # A-text quality gate (script_validation): reasoning Judge + Fixer
+  script_a_text_quality_judge:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_r1_distill_qwen_32b
+      - or_deepseek_r1_0528
+      - or_deepseek_r1
+      - or_deepseek_v3_2_exp
+    options:
+      temperature: 0.2
+      response_format: json_object
+
+  script_a_text_quality_fix:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_r1_distill_qwen_32b
+      - or_deepseek_v3_2_exp
+      - or_deepseek_r1_0528
+      - or_deepseek_r1
+    options:
+      temperature: 0.4
+      max_tokens: 16384
+
   # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
   # script_outline:
   #   models: [gpt-5-mini]

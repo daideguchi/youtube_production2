@@ -140,9 +140,13 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
      - `content/analysis/research/quality_review.md` (required)
 8. `script_validation`
    - Outputs: なし（status.json の stage details に結果を記録）
-   - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`）
+   - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`, `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`）
      - チェック対象: `content/assembled_human.md`（優先）→ `content/assembled.md`
-     - 禁止混入（URL/脚注/箇条書き/番号リスト/見出し/区切り記号など）を検出したら **pending のまま停止**し、UI/人間が修正して再実行する。
+     - ハード禁則（URL/脚注/箇条書き/番号リスト/見出し/区切り記号など）を検出したら **pending のまま停止**（事故防止のため自動修正しない）。修正後に再実行する。
+     - 追加ゲート（必須）: **LLM Judge による品質判定**（機械判定ではなく推論で合否）。
+       - NG の場合は **LLM Fixer** が “必要最小限の加除修正” を行い、再度 Judge を回す（最大N回）。
+       - 目的: 「字数だけ満たす低品質」「不自然な流れ」「同趣旨の水増し」を構造的に排除する。
+       - 証跡: `status.json: stages.script_validation.details` と、`content/analysis/quality_gate/` に judge/fix レポートを保存する。
      - 企画↔台本の整合も検証する（alignment freshness gate）
        - `status.json: metadata.alignment` が missing/suspect/不一致（Planning行 or Aテキストが変更された）なら **pending のまま停止**
        - 修復: `python scripts/enforce_alignment.py --channels CHxx --apply`（または `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
