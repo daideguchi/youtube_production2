@@ -44,6 +44,7 @@
 - `script_pipeline/cli.py`
 - `script_pipeline/job_runner.py`
 - `script_pipeline/tools/channel_prompt_sync.py`
+- `script_pipeline/tools/channel_registry.py`（新チャンネル追加: handle→channel_id 解決 + sources.yaml/CSV/Persona 雛形生成）
 - `scripts/buddha_senior_5ch_prepare.py`（CH12–CH16: status init + metadata補完）
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 
