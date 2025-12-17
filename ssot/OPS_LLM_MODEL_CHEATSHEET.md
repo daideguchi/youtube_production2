@@ -94,6 +94,11 @@
 
 ※ 実体ルーター（現行）: `packages/factory_common/llm_router.py`（設定: `configs/llm_router.yaml`）
 
+#### 4.1.1 重要: heavy_reasoning に「汎用モデル」を混ぜない
+
+- `heavy_reasoning` は **推論特化（reasoning）系のみ** を置く（例: `deepseek-r1` / `o3-mini` / Azureの推論モデル）。
+- `gpt-4o-mini` のような **汎用・高速枠** は `standard` 側に置く（heavy_reasoning に入れると品質/コスト設計が崩れる）。
+
 ### 4.2 「どのLLMが書いたか」を確実に残す（証跡）
 
 - 正本: `workspaces/scripts/{CH}/{NNN}/status.json`

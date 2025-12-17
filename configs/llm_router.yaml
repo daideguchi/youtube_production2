@@ -118,7 +118,6 @@ tiers:
     - or_deepseek_r1
     - or_deepseek_r1_0528
     - or_o3_mini
-    - or_gpt_4o_mini
     # Keep Azure as optional fallback / A-B test; default is OpenRouter-first for cost.
     - azure_gpt5_mini
   
