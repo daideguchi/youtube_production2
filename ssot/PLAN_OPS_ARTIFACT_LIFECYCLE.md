@@ -153,11 +153,11 @@
 
 ### 3.5 サムネ（thumbnails）
 - **L0/SoT**
-  - `thumbnails/projects.json`
-  - `thumbnails/assets/<CH>/<VIDEO>/*`
+  - `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
+  - `workspaces/thumbnails/assets/<CH>/<VIDEO>/*`（互換: `thumbnails/assets/...`）
 - **L2**
   - 未採用バリアント（projects.json で `archived` 扱い）  
-    → 90 日後に `thumbnails/_archive/<timestamp>/` に移動。
+    → 90 日後に `workspaces/thumbnails/_archive/<timestamp>/` に移動。
 
 ### 3.6 Remotion（remotion）
 - **L1/Final**

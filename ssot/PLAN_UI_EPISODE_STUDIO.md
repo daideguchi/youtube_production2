@@ -126,7 +126,7 @@
   - guard ok（整合通過）+ CapCut draft生成済み
 
 ### Phase F: Thumbnail（独立動線）
-- **SoT**: `thumbnails/projects.json`（独立・別動線）
+- **SoT**: `workspaces/thumbnails/projects.json`（独立・別動線。互換: `thumbnails/projects.json`）
 - **UI操作**:
   - 候補表示、override設定、資産管理
 - **完了条件**:

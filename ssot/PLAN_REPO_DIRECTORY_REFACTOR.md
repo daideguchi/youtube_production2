@@ -6,7 +6,7 @@
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: リポジトリ全体（Python/Node/シェル/SSOT/UI/生成物/旧資産）
 - **非対象 (Out of Scope)**: LLMロジック・生成品質・パイプラインのアルゴリズム改変（パス変更に伴う薄い修正は含む）
-- **関連 SoT/依存**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/planning/channels`（互換: `progress/channels`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/runs`（互換: `commentary_02_srt2images_timeline/output`）, `thumbnails/assets`, `apps/ui-backend/backend`（互換: `ui/backend`）, `scripts/start_all.sh`
+- **関連 SoT/依存**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/planning/channels`（互換: `progress/channels`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/runs`（互換: `commentary_02_srt2images_timeline/output`）, `workspaces/thumbnails/assets`（互換: `thumbnails/assets`）, `apps/ui-backend/backend`（互換: `ui/backend`）, `scripts/start_all.sh`
 - **最終更新日**: 2025-12-13
 
 ## 1. 背景と目的
@@ -136,7 +136,7 @@
 4. 画像/動画ドラフト:
    - 入力: `workspaces/video/input/`（互換: `commentary_02_srt2images_timeline/input/`。SRT/音声同期）
    - 出力: `workspaces/video/runs/<run>/`（互換: `commentary_02_srt2images_timeline/output/...`。image_cues.json, capcut_draft 等）
-5. サムネ SoT: `thumbnails/projects.json`（画像実体は `thumbnails/assets/<CH>/<video>/` に寄せる想定。旧 `thumbnails/CHxx_<name>/...` は移行/アーカイブ対象）
+5. サムネ SoT: `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`。画像実体は `workspaces/thumbnails/assets/<CH>/<video>/` に寄せる想定。旧 `workspaces/thumbnails/CHxx_<name>/...` は移行/アーカイブ対象）
 6. Remotion:
    - 入力: `remotion/input/`
    - 出力: `remotion/out/`
@@ -415,7 +415,7 @@ legacy/
 - **UI backend**: `apps/ui-backend/backend/main.py`, `apps/ui-backend/backend/video_production.py`, `apps/ui-backend/backend/routers/*`（互換: `ui/backend/*` は symlink 経由）
   - `PROJECT_ROOT/"script_pipeline"`, `"commentary_02_srt2images_timeline"`, `"progress"`, `"thumbnails"` の参照を paths SSOT に置換。
 - **UI frontend**: `apps/ui-frontend/src/components/*`（互換: `ui/frontend/src/*` は symlink 経由）
-  - `00_research`, `thumbnails/assets`, `script_pipeline/data` 表示パスの更新。
+  - `00_research`, `workspaces/thumbnails/assets`（互換: `thumbnails/assets`）, `script_pipeline/data` 表示パスの更新。
 - **ルート scripts/tools**: `scripts/*.py`, `tools/*.py`, `scripts/*.sh`
   - `Path("script_pipeline/data")`, `commentary_02_srt2images_timeline/output` 等の直書きを置換。
 - **各パッケージ内部**
@@ -497,11 +497,10 @@ legacy/
 - [ ] swap/auto_draft/UI の run 一覧が動くか smoke（CapCut主線）。Remotion系の smoke は現行未使用のため optional。
 
 2.5 thumbnails
-- [ ] `workspaces/thumbnails/{assets,_archive}` 作成。
-- [ ] `thumbnails/projects.json` と（存在する場合）`thumbnails/assets/`、旧資産 `thumbnails/CH??_*/*` を copy。
+- [x] `workspaces/thumbnails/` を正本化し、root `thumbnails/` は互換 symlink に切替。
+- [x] `workspaces/thumbnails/_archive/` を作成（archive-first の受け皿）。
 - [ ] `projects.json` の `variants[].image_path` が指す物理パスを spot check（必要なら移行スクリプトで正規化）。
 - [ ] UI ThumbnailWorkspace を smoke。
-- [ ] 旧 `thumbnails` を mv、symlink。
 
 2.6 logs
 - [x] `logs` → `workspaces/logs/` を **mv + symlink cutover**（正本: `scripts/ops/stage2_cutover_workspaces.py`）。

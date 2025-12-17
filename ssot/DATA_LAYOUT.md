@@ -110,25 +110,25 @@ CH01.csvのカラム例:
 
 ### 2.5 thumbnails
 
-* ルート: `thumbnails/`
+* ルート（正本）: `workspaces/thumbnails/`（互換: `thumbnails/` は symlink）
 
 代表例として、CH01の画像ディレクトリ:
 
 ```text
-thumbnails/CH01_人生の道標/192/2.png
-thumbnails/CH01_人生の道標/192/1.png
-thumbnails/CH01_人生の道標/192.zip
-thumbnails/CH01_人生の道標/ch01_207 (2)/2.png
-thumbnails/CH01_人生の道標/ch01_207 (2)/1.png
-thumbnails/CH01_人生の道標/ChatGPT Image 2025年12月10日 21_01_09.png
-thumbnails/projects.json
-thumbnails/README.md
+workspaces/thumbnails/CH01_人生の道標/192/2.png
+workspaces/thumbnails/CH01_人生の道標/192/1.png
+workspaces/thumbnails/CH01_人生の道標/192.zip
+workspaces/thumbnails/CH01_人生の道標/ch01_207 (2)/2.png
+workspaces/thumbnails/CH01_人生の道標/ch01_207 (2)/1.png
+workspaces/thumbnails/CH01_人生の道標/ChatGPT Image 2025年12月10日 21_01_09.png
+workspaces/thumbnails/projects.json
+workspaces/thumbnails/README.md
 ```
 
 補足:
-- サムネの追跡SoTは `thumbnails/projects.json`（採用/バリアント/画像パス等）。
-- UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `thumbnails/assets/...` に寄せる想定（未整備/移行中の可能性あり）。
-- `thumbnails/CHxx_<チャンネル名>/...` は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
+- サムネの追跡SoTは `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）。
+- UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...`（互換: `thumbnails/assets/...`）を正とする。
+- `workspaces/thumbnails/CHxx_<チャンネル名>/...`（互換: `thumbnails/CHxx_<...>/...`）は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
 
 ## 3. UI / API とファイルパスの対応
 
@@ -143,8 +143,8 @@ thumbnails/README.md
 | `GET /api/channels/{channel}/videos/{video}/audio` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.wav`（互換: `audio_tts_v2/artifacts/final/...`） | 下流参照の音声SoT |
 | `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt`（互換: `audio_tts_v2/artifacts/final/...`） | 字幕SoT（UI編集可） |
 | `POST /api/auto-draft/create` | `workspaces/video/runs/<run_id>/...`（互換: `commentary_02_srt2images_timeline/output/...`） | SRT→画像→CapCutドラフト生成 |
-| `GET /api/workspaces/thumbnails` | `thumbnails/projects.json` | サムネSoT |
-| `GET /thumbnails/assets/{...}` | `thumbnails/assets/...` | 静的配信（移行中の可能性あり） |
+| `GET /api/workspaces/thumbnails` | `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`） | サムネSoT |
+| `GET /thumbnails/assets/{...}` | `workspaces/thumbnails/assets/...`（互換: `thumbnails/assets/...`） | 静的配信（移行中の可能性あり） |
 
 ## 4. 注意点・既知の問題
 

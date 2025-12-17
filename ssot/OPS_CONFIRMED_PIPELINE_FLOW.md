@@ -33,7 +33,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - `image_cues.json` / `images/` / `belt_config.json` / `capcut_draft/` 等を含むrun単位の正本。
 - **Remotion SoT（レンダリング/実験ライン）**: `remotion/out/` + run_dir内の remotion関連JSON
   - コード/UI/preview は存在するが、**現行の本番運用では未使用（将来/研究用）**。CapCut主線の代替候補。
-- **Thumbnail SoT**: `thumbnails/projects.json`
+- **Thumbnail SoT**: `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
   - サムネ案の追跡正本。UIはこれを読み書きする。
 - **Publish SoT（Google Sheets）**: `YT_PUBLISH_SHEET`（外部SoT）
   - ローカル側は参照/反映のみ。  
@@ -336,7 +336,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - `POST /api/thumbnails/{ch}/{video}/assets`
 
 **Inputs**
-- `thumbnails/projects.json`（正本）
+- `workspaces/thumbnails/projects.json`（正本。互換: `thumbnails/projects.json`）
 - `thumbnails/assets/{CH}/{video}/*`（画像実体, UIが配置）
 - 企画CSVのタイトル/タグはUI表示補助に利用（正本はprojects.json）。
 

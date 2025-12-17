@@ -86,12 +86,12 @@
 ## E. Thumbnails（独立動線）
 
 対象（SoT）:
-- `thumbnails/projects.json`
+- `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
 
 最低条件:
 - [ ] `projects.json` が JSON として読める
 - [ ] 各案件に `channel`, `video`, `variants[]` がある
 
 推奨:
-- [ ] `variants[].image_path` が実ファイルへ辿れる（`thumbnails/assets/` or 旧資産ディレクトリ）
+- [ ] `variants[].image_path` が実ファイルへ辿れる（`workspaces/thumbnails/assets/` or 旧資産ディレクトリ）
 - [ ] 選定/承認の履歴を残す（`ssot/history/HISTORY_codex-memory.md`）

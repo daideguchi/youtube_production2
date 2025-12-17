@@ -109,6 +109,6 @@
 
 ## 5. Thumbnails（サムネ）— 独立動線の正本
 
-- SoT: `thumbnails/projects.json`
-- 画像: `thumbnails/assets/{CH}/{NNN}/...`
+- SoT: `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
+- 画像: `workspaces/thumbnails/assets/{CH}/{NNN}/...`（互換: `thumbnails/assets/...`）
 - ※サムネは音声/SRT→CapCutの主動線とは独立（ただし企画CSVを参照する場合がある）

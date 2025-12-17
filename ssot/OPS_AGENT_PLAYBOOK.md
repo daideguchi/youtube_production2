@@ -52,7 +52,7 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 - Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`（互換: `script_pipeline/data/...`）
 - Audio SoT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`（互換: `audio_tts_v2/artifacts/final/...`）
 - Video run SoT: `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/...`）
-- Thumbnail SoT: `thumbnails/projects.json` と `thumbnails/assets/{CH}/{NNN}/`
+- Thumbnail SoT: `workspaces/thumbnails/projects.json` と `workspaces/thumbnails/assets/{CH}/{NNN}/`（互換: `thumbnails/*` は symlink）
 
 ### 3.2 パス直書き禁止（移設耐性）
 - `Path(__file__).resolve().parents[...]` を新規に増やさない。
@@ -89,6 +89,10 @@ untracked キャッシュはいつでも削除してよい:
 ```bash
 bash scripts/ops/cleanup_caches.sh
 ```
+
+補足:
+- `cleanup_*` 系スクリプトは coordination locks を尊重し、lock 下のパスは自動でスキップする（安全優先）。
+- 例外的に無視する場合は各スクリプトの `--ignore-locks` を使う（危険。Orchestrator 合意が前提）。
 
 ---
 

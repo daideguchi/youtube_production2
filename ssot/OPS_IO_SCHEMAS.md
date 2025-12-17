@@ -301,7 +301,7 @@ strict validation（期待ルール）:
 ## 5. Thumbnails（サムネ）— projects.json
 
 ### 5.1 SoT
-- `thumbnails/projects.json`
+- `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
 
 ### 5.2 projects.json（観測の形）
 トップレベル:
@@ -320,5 +320,5 @@ variants[*]（観測キー例）:
 - `image_url`: string（外部URLを使う場合）
 
 ### 5.3 物理配置（重要）
-- UI/Backend は `/thumbnails/assets/{image_path}` を配信する設計のため、物理ファイルは `thumbnails/assets/{image_path}` に寄せる。
-- 旧来の `thumbnails/CHxx_<チャンネル名>/...` は Legacy 資産として移行/アーカイブ対象。
+- UI/Backend は `/thumbnails/assets/{image_path}` を配信する設計のため、物理ファイルは `workspaces/thumbnails/assets/{image_path}`（互換: `thumbnails/assets/{image_path}`）に寄せる。
+- 旧来の `workspaces/thumbnails/CHxx_<チャンネル名>/...`（互換: `thumbnails/CHxx_<...>/...`）は Legacy 資産として移行/アーカイブ対象。
