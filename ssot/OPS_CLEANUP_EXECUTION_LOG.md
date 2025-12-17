@@ -802,3 +802,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `git rm packages/commentary_02_srt2images_timeline/tests/test_integration.py`
 - 追従更新（SSOT/Plan）:
   - `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`
+
+### 53) `commentary_02_srt2images_timeline/env/.env.example` を archive-first で削除（repo tracked）
+
+意図: `.env` は repo root（`factory_commentary/.env`）を正本とし、パッケージ配下の `.env*` は誤参照の原因になるため削除する。
+
+- 参照確認:
+  - `find . -maxdepth 4 -type f -name '.env*'` で当該ファイル以外のパッケージ内 `.env*` が無いことを確認
+- 退避（archive-first）:
+  - `backups/graveyard/20251217T143510Z_commentary02_env_example.tar.gz`
+- 削除（git rm）:
+  - `git rm packages/commentary_02_srt2images_timeline/env/.env.example`
