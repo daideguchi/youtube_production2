@@ -1,7 +1,7 @@
 # job_runner 常駐化サンプル（systemd / cron）
 
 ## 前提
-- `/Users/dd/10_YouTube_Automation/factory_commentary` がプロジェクトルート
+- `<REPO_ROOT>`（このリポジトリの絶対パス）がプロジェクトルート
 - `.env` をプロジェクト直下に配置済み（キー設定済み）
 - Python はシステムデフォルトを想定（必要ならvenvを指定）
 
@@ -24,13 +24,13 @@
     <string>--max-parallel</string><string>1</string>
     <string>--sleep</string><string>10</string>
   </array>
-  <key>WorkingDirectory</key><string>/Users/dd/10_YouTube_Automation/factory_commentary</string>
+  <key>WorkingDirectory</key><string><REPO_ROOT></string>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>PYTHONPATH</key><string>/Users/dd/10_YouTube_Automation/factory_commentary</string>
+    <key>PYTHONPATH</key><string><REPO_ROOT></string>
   </dict>
-  <key>StandardOutPath</key><string>/Users/dd/10_YouTube_Automation/factory_commentary/logs/job_runner.out</string>
-  <key>StandardErrorPath</key><string>/Users/dd/10_YouTube_Automation/factory_commentary/logs/job_runner.err</string>
+  <key>StandardOutPath</key><string><REPO_ROOT>/logs/job_runner.out</string>
+  <key>StandardErrorPath</key><string><REPO_ROOT>/logs/job_runner.err</string>
   <key>RunAtLoad</key><true/>
   <key>StartInterval</key><integer>60</integer> <!-- 60秒ごとに起動 -->
 </dict>
@@ -41,7 +41,7 @@
 
 ## cron の例（毎分起動）
 ```
-* * * * * cd /Users/dd/10_YouTube_Automation/factory_commentary && PYTHONPATH="/Users/dd/10_YouTube_Automation/factory_commentary" /usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 20 --max-parallel 1 --sleep 10 >> logs/job_runner.cron.log 2>&1
+* * * * * cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>" /usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 20 --max-parallel 1 --sleep 10 >> logs/job_runner.cron.log 2>&1
 ```
 
 ## Render 等のホスティング
