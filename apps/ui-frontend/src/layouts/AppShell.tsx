@@ -299,11 +299,13 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   },
   scriptFactory: {
     title: "台本作成（バッチ）",
-    description: "progress/channels/CHxx.csv（planning_store）を直接参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
+    description:
+      "workspaces/planning/channels/CHxx.csv（planning_store / 互換: progress/channels/CHxx.csv）を参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
   },
   progress: {
     title: "企画CSVビューア",
-    description: "progress/channels/ 配下のSoTをUIで直接確認し、台本・音声の揺れを防ぎます。台本パスや企画意図も列で確認できます。",
+    description:
+      "workspaces/planning/channels/（互換: progress/channels/）配下のSoTをUIで直接確認し、台本・音声の揺れを防ぎます。台本パスや企画意図も列で確認できます。",
   },
   dictionary: {
     title: "読み辞書 管理",
@@ -1146,11 +1148,8 @@ export function AppShell() {
   }, [selectedChannel, selectedVideo]);
 
   const progressLink = useMemo(() => {
-    if (!selectedChannel) {
-      return "/progress";
-    }
-    return `/progress?channel=${encodeURIComponent(selectedChannel)}`;
-  }, [selectedChannel]);
+    return "/progress";
+  }, []);
 
   type NavItem = { key: WorkspaceView; label: string; icon: string; path: string };
   type NavSection = { title: string; items: NavItem[] };

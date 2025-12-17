@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useOutletContext, useSearchParams } from "react-router-dom";
 import { runAudioTtsV2FromScript } from "../api/client";
+import type { ChannelSummary } from "../api/types";
+import type { ShellOutletContext } from "../layouts/AppShell";
 
 interface ChannelProgress {
   channel: string;
@@ -15,19 +18,57 @@ interface TtsProgressResponse {
   overall_progress: number;
 }
 
-const CHANNELS = [
-  { id: "CH06", name: "闇の雑学", engine: "voicevox" },
-  { id: "CH02", name: "人生の道標", engine: "voicevox" },
-  { id: "CH04", name: "世界のミステリー", engine: "voicevox" },
-];
+function compareChannelCode(a: string, b: string): number {
+  const an = Number.parseInt(a.replace(/[^0-9]/g, ""), 10);
+  const bn = Number.parseInt(b.replace(/[^0-9]/g, ""), 10);
+  const aNum = Number.isFinite(an);
+  const bNum = Number.isFinite(bn);
+  if (aNum && bNum) return an - bn;
+  if (aNum) return -1;
+  if (bNum) return 1;
+  return a.localeCompare(b, "ja-JP");
+}
+
+function normalizeChannelCode(value: string | null): string | null {
+  const s = (value ?? "").trim().toUpperCase();
+  return s ? s : null;
+}
 
 export const AudioTtsV2Page: React.FC = () => {
+  const { channels: availableChannels, selectedChannel: globalSelectedChannel } = useOutletContext<ShellOutletContext>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlChannel = useMemo(() => normalizeChannelCode(searchParams.get("channel")), [searchParams]);
+
   const [progress, setProgress] = useState<TtsProgressResponse | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<string>("CH06");
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(urlChannel ?? globalSelectedChannel ?? null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentEpisode, setCurrentEpisode] = useState<string | null>(null);
   const [generationLog, setGenerationLog] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const channelLabelMap = useMemo(() => {
+    const map = new Map<string, string>();
+    (availableChannels ?? []).forEach((c: ChannelSummary) => {
+      const label = c.name ?? c.youtube_title ?? c.branding?.title ?? c.code;
+      map.set(c.code, label);
+    });
+    return map;
+  }, [availableChannels]);
+
+  const channelOptions = useMemo(() => {
+    const codesFromChannels = (availableChannels ?? [])
+      .map((c) => c.code)
+      .filter((code): code is string => typeof code === "string" && code.trim().length > 0)
+      .map((code) => code.trim().toUpperCase());
+    const fallbackCodesFromProgress = (progress?.channels ?? [])
+      .map((c) => c.channel)
+      .filter((code): code is string => typeof code === "string" && code.trim().length > 0)
+      .map((code) => code.trim().toUpperCase());
+    const base = codesFromChannels.length ? codesFromChannels : fallbackCodesFromProgress;
+    const unique = Array.from(new Set(base));
+    unique.sort(compareChannelCode);
+    return unique.map((code) => ({ code, label: channelLabelMap.get(code) ?? code }));
+  }, [availableChannels, channelLabelMap, progress?.channels]);
 
   // 進捗を取得
   const fetchProgress = useCallback(async () => {
@@ -48,17 +89,36 @@ export const AudioTtsV2Page: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchProgress]);
 
+  useEffect(() => {
+    if (!urlChannel) {
+      return;
+    }
+    setSelectedChannel((current) => (current === urlChannel ? current : urlChannel));
+  }, [urlChannel]);
+
+  const handleSelectChannel = useCallback(
+    (channelCode: string) => {
+      if (isGenerating) {
+        return;
+      }
+      setSelectedChannel(channelCode);
+      setError(null);
+      const next = new URLSearchParams(searchParams);
+      next.set("channel", channelCode);
+      setSearchParams(next, { replace: true });
+    },
+    [isGenerating, searchParams, setSearchParams]
+  );
+
   // 単一エピソード生成
   const generateSingle = async (channel: string, video: string) => {
     setCurrentEpisode(`${channel}-${video}`);
     setGenerationLog((prev) => [...prev, `🎙️ ${channel}-${video} 生成開始...`]);
 
     try {
-      const channelConfig = CHANNELS.find(c => c.id === channel);
       await runAudioTtsV2FromScript({
         channel,
         video,
-        engine_override: channelConfig?.engine,
       });
       setGenerationLog((prev) => [...prev, `✅ ${channel}-${video} 完了`]);
       return true;
@@ -69,7 +129,11 @@ export const AudioTtsV2Page: React.FC = () => {
   };
 
   // チャンネル全体を再生成
-  const regenerateChannel = async (channel: string) => {
+  const regenerateChannel = async (channel: string | null) => {
+    if (!channel) {
+      setError("チャンネルを選択してください");
+      return;
+    }
     setIsGenerating(true);
     setError(null);
     setGenerationLog([`📁 ${channel} の全エピソードを再生成します...`]);
@@ -104,7 +168,11 @@ export const AudioTtsV2Page: React.FC = () => {
   };
 
   // 未生成分のみ生成
-  const generateMissing = async (channel: string) => {
+  const generateMissing = async (channel: string | null) => {
+    if (!channel) {
+      setError("チャンネルを選択してください");
+      return;
+    }
     setIsGenerating(true);
     setError(null);
 
@@ -153,22 +221,36 @@ export const AudioTtsV2Page: React.FC = () => {
         <p style={{ color: "#666", margin: 0 }}>
           修正済みBテキストから音声を生成します
         </p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+          <span className="status-chip">
+            SoT: <code>workspaces/audio/final/{"{CH}"}/{"{NNN}"}/</code>
+          </span>
+          <Link className="action-chip" to="/audio-review">
+            音声レビュー
+          </Link>
+          <Link className="action-chip" to={selectedChannel ? `/progress?channel=${encodeURIComponent(selectedChannel)}` : "/progress"}>
+            企画CSV
+          </Link>
+          <Link className="action-chip" to={selectedChannel ? `/channels/${encodeURIComponent(selectedChannel)}` : "/dashboard"}>
+            チャンネル案件
+          </Link>
+        </div>
       </div>
 
       {/* チャンネル選択カード */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20, marginBottom: 32 }}>
-        {CHANNELS.map((ch) => {
-          const channelProgress = progress?.channels.find(c => c.channel === ch.id);
+        {channelOptions.map((ch) => {
+          const channelProgress = progress?.channels.find((c) => c.channel === ch.code);
           const percent = channelProgress?.progress_percent ?? 0;
           const total = channelProgress?.total_episodes ?? 0;
           const completed = channelProgress?.completed_episodes ?? 0;
           const missing = channelProgress?.missing_ids.length ?? 0;
-          const isSelected = selectedChannel === ch.id;
+          const isSelected = selectedChannel === ch.code;
 
           return (
             <div
-              key={ch.id}
-              onClick={() => !isGenerating && setSelectedChannel(ch.id)}
+              key={ch.code}
+              onClick={() => handleSelectChannel(ch.code)}
               style={{
                 background: isSelected ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "#fff",
                 color: isSelected ? "#fff" : "#333",
@@ -182,8 +264,8 @@ export const AudioTtsV2Page: React.FC = () => {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 20, fontWeight: 600 }}>{ch.id}</div>
-                  <div style={{ fontSize: 14, opacity: 0.8 }}>{ch.name}</div>
+                  <div style={{ fontSize: 20, fontWeight: 600 }}>{ch.code}</div>
+                  <div style={{ fontSize: 14, opacity: 0.8 }}>{ch.label}</div>
                 </div>
                 <div
                   style={{
@@ -226,7 +308,7 @@ export const AudioTtsV2Page: React.FC = () => {
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
           <button
             onClick={() => regenerateChannel(selectedChannel)}
-            disabled={isGenerating}
+            disabled={isGenerating || !selectedChannel}
             style={{
               padding: "16px 32px",
               fontSize: 16,
@@ -239,12 +321,12 @@ export const AudioTtsV2Page: React.FC = () => {
               boxShadow: isGenerating ? "none" : "0 4px 16px rgba(239, 68, 68, 0.3)",
             }}
           >
-            {isGenerating ? "生成中..." : `🔄 ${selectedChannel} 全て再生成`}
+            {isGenerating ? "生成中..." : selectedChannel ? `🔄 ${selectedChannel} 全て再生成` : "🔄 チャンネルを選択"}
           </button>
 
           <button
             onClick={() => generateMissing(selectedChannel)}
-            disabled={isGenerating}
+            disabled={isGenerating || !selectedChannel}
             style={{
               padding: "16px 32px",
               fontSize: 16,
@@ -257,7 +339,7 @@ export const AudioTtsV2Page: React.FC = () => {
               boxShadow: isGenerating ? "none" : "0 4px 16px rgba(34, 197, 94, 0.3)",
             }}
           >
-            {isGenerating ? "生成中..." : `➕ ${selectedChannel} 未生成分のみ`}
+            {isGenerating ? "生成中..." : selectedChannel ? `➕ ${selectedChannel} 未生成分のみ` : "➕ チャンネルを選択"}
           </button>
 
           <button

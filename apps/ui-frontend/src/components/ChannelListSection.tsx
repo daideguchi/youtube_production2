@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { ChannelSummary, DashboardChannelSummary } from "../api/types";
 
 interface ChannelListSectionProps {
@@ -103,11 +104,16 @@ export function ChannelListSection({
             <h2 className="shell-panel__title">チャンネル一覧</h2>
             <p className="shell-panel__subtitle">全 {formatNumber(channels.length)} チャンネル</p>
           </div>
-          {selectedChannel ? (
-            <button type="button" className="shell-link" onClick={handleClear}>
-              すべて表示
-            </button>
-          ) : null}
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <Link className="shell-link" to="/channel-settings?add=1">
+              ＋追加
+            </Link>
+            {selectedChannel ? (
+              <button type="button" className="shell-link" onClick={handleClear}>
+                すべて表示
+              </button>
+            ) : null}
+          </div>
         </header>
       ) : (
         <header className="channel-list__header">

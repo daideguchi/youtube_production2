@@ -158,6 +158,9 @@ export function EpisodeStudioPage() {
   const audioEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=audio` : "/channel-workspace";
   const workflowLink =
     channel && video ? `/workflow?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/workflow";
+  const planningLink =
+    channel && video ? `/progress?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/progress";
+  const ttsListLink = channel ? `/audio-tts-v2?channel=${encodeURIComponent(channel)}` : "/audio-tts-v2";
   const capcutDraftLink =
     channel && video
       ? `/capcut-edit/draft?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}`
@@ -675,6 +678,18 @@ export function EpisodeStudioPage() {
 
           <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
+              <h3 style={{ marginTop: 0, marginBottom: 8 }}>企画 / タイトル</h3>
+              <p style={{ marginTop: 0, color: "var(--color-text-muted)" }}>
+                企画行（タイトル/タグ/サムネ/プロンプト）を確認・修正します。
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link className="button" to={planningLink}>
+                  企画CSVを開く
+                </Link>
+              </div>
+            </div>
+
+            <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
               <h3 style={{ marginTop: 0, marginBottom: 8 }}>台本</h3>
               <p style={{ marginTop: 0, color: "var(--color-text-muted)" }}>
                 {scriptOk ? "台本が存在します。必要なら修正へ。" : "台本が見つかりません。作成/生成へ。"}
@@ -698,7 +713,7 @@ export function EpisodeStudioPage() {
                 <Link className="button" to={audioEditLink}>
                   音声/字幕を開く
                 </Link>
-                <Link className="button button--ghost" to="/audio-tts-v2">
+                <Link className="button button--ghost" to={ttsListLink}>
                   TTS生成（一覧）
                 </Link>
               </div>
@@ -755,11 +770,16 @@ export function EpisodeStudioPage() {
           <p className="shell-panel__subtitle">このエピソードで参照する“正本”と、ダウンロード導線です。</p>
 
           <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}>
-            <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
-              <h3 style={{ marginTop: 0 }}>企画（CSV）</h3>
-              {videoDetail?.planning ? (
-                <details>
-                  <summary>企画情報を開く</summary>
+	            <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
+	              <h3 style={{ marginTop: 0 }}>企画（CSV）</h3>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+                  <Link className="button" to={planningLink}>
+                    企画CSVを開く
+                  </Link>
+                </div>
+	              {videoDetail?.planning ? (
+	                <details>
+	                  <summary>企画情報を開く</summary>
                   <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
                     <div>
                       <span className="status-chip">creation_flag: {videoDetail.planning.creation_flag ?? "—"}</span>
@@ -827,14 +847,14 @@ export function EpisodeStudioPage() {
                   wav:{" "}
                   {videoDetail?.audio_path ??
                     (episodeId && channel && video
-                      ? `audio_tts_v2/artifacts/final/${channel}/${video}/${episodeId}.wav`
+                      ? `workspaces/audio/final/${channel}/${video}/${episodeId}.wav`
                       : "(unknown)")}
                 </div>
                 <div className="status-chip">
                   srt:{" "}
                   {videoDetail?.srt_path ??
                     (episodeId && channel && video
-                      ? `audio_tts_v2/artifacts/final/${channel}/${video}/${episodeId}.srt`
+                      ? `workspaces/audio/final/${channel}/${video}/${episodeId}.srt`
                       : "(unknown)")}
                 </div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

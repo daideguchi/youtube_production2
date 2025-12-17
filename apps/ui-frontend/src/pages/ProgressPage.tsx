@@ -128,6 +128,7 @@ export function ProgressPage() {
   const { channels: availableChannels } = useOutletContext<ShellOutletContext>();
   const [searchParams, setSearchParams] = useSearchParams();
   const channel = useMemo(() => normalizeChannelCode(searchParams.get("channel")), [searchParams]);
+  const videoParam = useMemo(() => normalizeVideo(searchParams.get("video")), [searchParams]);
   const channelCodes = useMemo(() => {
     const codes = (availableChannels ?? [])
       .map((item) => item.code)
@@ -151,6 +152,20 @@ export function ProgressPage() {
         params.set("channel", next);
       } else {
         params.delete("channel");
+      }
+      params.delete("video");
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, setSearchParams]
+  );
+  const applyVideo = useCallback(
+    (nextRaw: string | null) => {
+      const next = normalizeVideo(nextRaw);
+      const params = new URLSearchParams(searchParams);
+      if (next) {
+        params.set("video", next);
+      } else {
+        params.delete("video");
       }
       setSearchParams(params, { replace: true });
     },
@@ -176,6 +191,7 @@ export function ProgressPage() {
   const [publishingKey, setPublishingKey] = useState<string | null>(null);
   const [copiedTitleKey, setCopiedTitleKey] = useState<string | null>(null);
   const thumbRequestedRef = useRef<Set<string>>(new Set());
+  const deepLinkAppliedRef = useRef<string | null>(null);
   const copiedTitleTimerRef = useRef<number | null>(null);
   const goToVideoPage = useCallback(
     (channelCode: string, videoRaw: string) => {
@@ -186,6 +202,20 @@ export function ProgressPage() {
     },
     [navigate]
   );
+  const openDetailRow = useCallback(
+    (row: Row) => {
+      setDetailRow(row);
+      const token = normalizeVideo(row["動画番号"] || row["video"] || "");
+      if (token) {
+        applyVideo(token);
+      }
+    },
+    [applyVideo]
+  );
+  const closeDetailRow = useCallback(() => {
+    setDetailRow(null);
+    applyVideo(null);
+  }, [applyVideo]);
 
   const copyToClipboard = useCallback(async (text: string): Promise<boolean> => {
     const value = String(text ?? "");
@@ -367,6 +397,25 @@ export function ProgressPage() {
   }, [channel]);
 
   useEffect(() => {
+    if (!channel || !videoParam) {
+      return;
+    }
+    if (loading) {
+      return;
+    }
+    const key = `${channel}-${videoParam}`;
+    if (deepLinkAppliedRef.current === key) {
+      return;
+    }
+    const match = rows.find((row) => normalizeVideo(row["動画番号"] || row["video"] || "") === videoParam);
+    if (match) {
+      setDetailRow(match);
+      requestThumbForRow(match);
+    }
+    deepLinkAppliedRef.current = key;
+  }, [channel, videoParam, loading, requestThumbForRow, rows]);
+
+  useEffect(() => {
     const next = redoOnly
       ? rows.filter((row) => toBool(row["redo_script"], true) || toBool(row["redo_audio"], true))
       : rows;
@@ -520,12 +569,12 @@ export function ProgressPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredRows.map((row, idx) => (
-              <tr
-                key={idx}
-                className="progress-page__row"
-                onClick={() => setDetailRow(row)}
-              >
+	            {filteredRows.map((row, idx) => (
+	              <tr
+	                key={idx}
+	                className="progress-page__row"
+	                onClick={() => openDetailRow(row)}
+	              >
                 {columns.map((col) => {
                   const isRedo = toBool(row["redo_script"], true) || toBool(row["redo_audio"], true);
                   const isLong = LONG_COLUMNS.has(col);
@@ -704,13 +753,56 @@ export function ProgressPage() {
       </div>
 
       {detailRow && (
-        <div className="progress-page__overlay" onClick={() => setDetailRow(null)}>
+        <div className="progress-page__overlay" onClick={closeDetailRow}>
           <div className="progress-page__detail" onClick={(e) => e.stopPropagation()}>
             <div className="progress-page__detail-header">
               <div className="progress-page__detail-title">
                 {detailRow["動画ID"] || detailRow["動画番号"] || ""} {detailRow["タイトル"] || ""}
               </div>
-              <button className="progress-page__close" onClick={() => setDetailRow(null)}>× 閉じる</button>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="progress-page__close"
+                  onClick={() => {
+                    const ch = detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel;
+                    const vid = detailRow["動画番号"] || detailRow["video"] || "";
+                    goToVideoPage(ch, vid);
+                  }}
+                >
+                  案件ページへ
+                </button>
+                <button
+                  type="button"
+                  className="progress-page__close"
+                  onClick={() => {
+                    const rawCh = detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel;
+                    const rawVid = detailRow["動画番号"] || detailRow["video"] || "";
+                    const ch = String(rawCh || "").toUpperCase();
+                    const vid = normalizeVideo(rawVid);
+                    if (!ch || !vid) return;
+                    navigate(`/workflow?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(vid)}`);
+                  }}
+                >
+                  制作フロー
+                </button>
+                <button
+                  type="button"
+                  className="progress-page__close"
+                  onClick={() => {
+                    const rawCh = detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel;
+                    const rawVid = detailRow["動画番号"] || detailRow["video"] || "";
+                    const ch = String(rawCh || "").toUpperCase();
+                    const vid = normalizeVideo(rawVid);
+                    if (!ch || !vid) return;
+                    navigate(`/studio?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(vid)}`);
+                  }}
+                >
+                  Studio
+                </button>
+                <button type="button" className="progress-page__close" onClick={closeDetailRow}>
+                  × 閉じる
+                </button>
+              </div>
             </div>
             <div className="progress-page__detail-body">
               {(() => {

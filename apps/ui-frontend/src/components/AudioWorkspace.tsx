@@ -235,7 +235,7 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
   }, [detail.channel, detail.video, latestSrtUrl, versionToken]);
 
   const displayedSrtPath = useMemo(() => {
-    const fallback = `audio_tts_v2/artifacts/final/${detail.channel}/${detail.video}/${detail.channel}-${detail.video}.srt`;
+    const fallback = `workspaces/audio/final/${detail.channel}/${detail.video}/${detail.channel}-${detail.video}.srt`;
     return detail.srt_path ?? fallback;
   }, [detail.channel, detail.video, detail.srt_path]);
 

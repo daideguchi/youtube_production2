@@ -771,6 +771,13 @@ useEffect(() => {
     return date.toLocaleString("ja-JP");
   }, [detail.updated_at]);
 
+  const planningLink = useMemo(() => {
+    return `/progress?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
+  }, [detail.channel, detail.video]);
+  const studioLink = useMemo(() => {
+    return `/studio?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
+  }, [detail.channel, detail.video]);
+
   const completedLabel = useMemo(() => {
     if (!detail.completed_at) {
       return null;
@@ -1041,6 +1048,24 @@ useEffect(() => {
           ) : null}
         </div>
         <div className="detail-action-bar__right">
+          <Link className="action-chip" to={planningLink}>
+            企画CSV
+          </Link>
+          <Link className="action-chip" to={workflowLink}>
+            制作フロー
+          </Link>
+          <Link className="action-chip" to={studioLink}>
+            Studio
+          </Link>
+          <Link className="action-chip" to={capcutDraftLink}>
+            CapCutドラフト
+          </Link>
+          <Link className="action-chip" to={videoProductionLink}>
+            CapCut管理
+          </Link>
+          <Link className="action-chip" to="/thumbnails">
+            サムネ
+          </Link>
           {activeTab === "audio" && audioHistoryAvailable ? (
             <button
               type="button"
@@ -1592,7 +1617,7 @@ useEffect(() => {
               </div>
               {!detail.srt_path ? (
                 <p className="muted" style={{ marginTop: 10 }}>
-                  先に音声生成で SRT を作成してください（SoT: <code>audio_tts_v2/artifacts/final</code>）。
+                  先に音声生成で SRT を作成してください（SoT: <code>workspaces/audio/final</code> / 互換: <code>audio_tts_v2/artifacts/final</code>）。
                 </p>
               ) : null}
             </section>

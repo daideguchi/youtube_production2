@@ -15,11 +15,17 @@ import {
   createPlanningRow,
   createThumbnailVariant,
   describeThumbnailLibraryAsset,
+  fetchProgressCsv,
+  fetchThumbnailImageModels,
   fetchThumbnailLibrary,
   fetchThumbnailOverview,
+  fetchThumbnailTemplates,
+  generateThumbnailVariants,
   importThumbnailLibraryAsset,
   resolveApiUrl,
+  updatePlanning,
   updateThumbnailProject,
+  updateThumbnailTemplates,
   uploadThumbnailVariantAsset,
   uploadThumbnailLibraryAssets,
 } from "../api/client";
@@ -27,6 +33,8 @@ import {
   PlanningCreatePayload,
   ThumbnailChannelBlock,
   ThumbnailChannelVideo,
+  ThumbnailChannelTemplates,
+  ThumbnailImageModelInfo,
   ThumbnailLibraryAsset,
   ThumbnailOverview,
   ThumbnailProject,
@@ -82,6 +90,29 @@ type PlanningDialogState = {
   analogy: string;
   descriptionLead: string;
   descriptionTakeaways: string;
+  saving: boolean;
+  error?: string;
+};
+
+type GenerateDialogState = {
+  projectKey: string;
+  channel: string;
+  video: string;
+  templateId: string;
+  prompt: string;
+  sourceTitle: string;
+  thumbnailPrompt: string;
+  imageModelKey: string;
+  count: number;
+  label: string;
+  copyUpper: string;
+  copyTitle: string;
+  copyLower: string;
+  saveToPlanning: boolean;
+  status: ThumbnailVariantStatus;
+  makeSelected: boolean;
+  tags: string;
+  notes: string;
   saving: boolean;
   error?: string;
 };
@@ -160,6 +191,46 @@ const normalizeVideoInput = (value?: string | null): string => {
   }
   return String(parseInt(trimmed, 10));
 };
+
+function renderPromptTemplate(template: string, context: Record<string, string>): string {
+  let rendered = template ?? "";
+  Object.entries(context).forEach(([key, value]) => {
+    rendered = rendered.split(`{{${key}}}`).join(value ?? "");
+  });
+  return rendered;
+}
+
+function parsePricingNumber(value?: string | null): number | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatUsdAmount(value: number): string {
+  if (!Number.isFinite(value)) {
+    return "—";
+  }
+  if (value === 0) {
+    return "$0";
+  }
+  const abs = Math.abs(value);
+  if (abs < 1e-6) {
+    return `$${value.toExponential(2)}`;
+  }
+  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 3 : 6;
+  return `$${value.toFixed(decimals)}`;
+}
+
+function formatUsdPerMillionTokens(pricePerToken: number): string {
+  if (!Number.isFinite(pricePerToken)) {
+    return "—";
+  }
+  const perMillion = pricePerToken * 1_000_000;
+  const decimals = perMillion >= 10 ? 0 : perMillion >= 1 ? 2 : 3;
+  return `$${perMillion.toFixed(decimals)}/1Mtok`;
+}
 
 function formatDate(value?: string | null): string {
   if (!value) {
@@ -267,6 +338,20 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const dropzoneFileInputs = useRef(new Map<string, HTMLInputElement>());
   const [activeDropProject, setActiveDropProject] = useState<string | null>(null);
   const libraryRequestRef = useRef(0);
+  const [imageModels, setImageModels] = useState<ThumbnailImageModelInfo[]>([]);
+  const [imageModelsError, setImageModelsError] = useState<string | null>(null);
+  const [channelTemplates, setChannelTemplates] = useState<ThumbnailChannelTemplates | null>(null);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templatesDirty, setTemplatesDirty] = useState(false);
+  const [templatesStatus, setTemplatesStatus] = useState<{
+    pending: boolean;
+    error: string | null;
+    success: string | null;
+  }>({ pending: false, error: null, success: null });
+  const [generateDialog, setGenerateDialog] = useState<GenerateDialogState | null>(null);
+  const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
+  const [planningLoading, setPlanningLoading] = useState(false);
+  const [planningError, setPlanningError] = useState<string | null>(null);
 
   const handleCopyAssetPath = useCallback((path: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
@@ -426,6 +511,33 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     []
   );
 
+  const loadTemplates = useCallback(
+    async (channelCode: string, options?: { silent?: boolean }) => {
+      const silent = options?.silent ?? false;
+      if (!silent) {
+        setTemplatesLoading(true);
+        setTemplatesStatus({ pending: false, error: null, success: null });
+      }
+      try {
+        const templates = await fetchThumbnailTemplates(channelCode);
+        setChannelTemplates(templates);
+        setTemplatesDirty(false);
+        return templates;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!silent) {
+          setTemplatesStatus({ pending: false, error: message, success: null });
+        }
+        throw error;
+      } finally {
+        if (!silent) {
+          setTemplatesLoading(false);
+        }
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (!activeChannel?.channel) {
       setLibraryAssets([]);
@@ -444,6 +556,65 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       // エラーは fetchData 内で処理済み
     });
   }, [fetchData]);
+
+  useEffect(() => {
+    fetchThumbnailImageModels()
+      .then((models) => {
+        setImageModels(models);
+        setImageModelsError(null);
+      })
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        setImageModelsError(message);
+      });
+  }, []);
+
+  useEffect(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      setChannelTemplates(null);
+      setTemplatesDirty(false);
+      setTemplatesLoading(false);
+      setTemplatesStatus({ pending: false, error: null, success: null });
+      return;
+    }
+    loadTemplates(channelCode).catch(() => {
+      // loadTemplates 内でエラー表示済み
+    });
+  }, [activeChannel?.channel, loadTemplates]);
+
+  useEffect(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      setPlanningRowsByVideo({});
+      setPlanningLoading(false);
+      setPlanningError(null);
+      return;
+    }
+    setPlanningLoading(true);
+    setPlanningError(null);
+    fetchProgressCsv(channelCode)
+      .then((result) => {
+        const map: Record<string, Record<string, string>> = {};
+        (result.rows ?? []).forEach((row) => {
+          const rawVideo = row["動画番号"] ?? row["VideoNumber"] ?? "";
+          const normalizedVideo = normalizeVideoInput(rawVideo);
+          if (!normalizedVideo) {
+            return;
+          }
+          map[normalizedVideo] = row;
+        });
+        setPlanningRowsByVideo(map);
+      })
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        setPlanningError(message);
+        setPlanningRowsByVideo({});
+      })
+      .finally(() => {
+        setPlanningLoading(false);
+      });
+  }, [activeChannel?.channel]);
 
   const handleLibraryVideoChange = useCallback((assetId: string, value: string) => {
     setLibraryForms((current) => {
@@ -608,6 +779,342 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       // loadLibrary 内でエラー表示済み
     });
   }, [activeChannel, loadLibrary]);
+
+  const handleTemplatesRefresh = useCallback(() => {
+    if (!activeChannel?.channel) {
+      return;
+    }
+    loadTemplates(activeChannel.channel).catch(() => {
+      // loadTemplates 内でエラー表示済み
+    });
+  }, [activeChannel, loadTemplates]);
+
+  const handleAddTemplate = useCallback(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+    const defaultModelKey = imageModels[0]?.key ?? "";
+    const now = Date.now();
+    const newTemplate = {
+      id: `tmpl_ui_${now.toString(16)}`,
+      name: "新規テンプレ",
+      image_model_key: defaultModelKey,
+      prompt_template:
+        "YouTubeサムネ(16:9)を生成してください。テーマ: {{title}}\n"
+        + "文字要素(あれば): {{thumbnail_upper}} / {{thumbnail_lower}}\n"
+        + "構図: 強いコントラスト、視認性優先、人物 or シンボルを大きく。\n"
+        + "出力: サムネとして使える鮮明な画像。",
+      negative_prompt: "",
+      notes: "",
+      created_at: null,
+      updated_at: null,
+    };
+    setChannelTemplates((current) => {
+      const base: ThumbnailChannelTemplates =
+        current && current.channel === channelCode
+          ? current
+          : { channel: channelCode, default_template_id: null, templates: [] };
+      return { ...base, templates: [...(base.templates ?? []), newTemplate] };
+    });
+    setTemplatesDirty(true);
+    setTemplatesStatus({ pending: false, error: null, success: null });
+  }, [activeChannel, imageModels]);
+
+  const handleDeleteTemplate = useCallback((templateId: string) => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+    setChannelTemplates((current) => {
+      const base: ThumbnailChannelTemplates =
+        current && current.channel === channelCode
+          ? current
+          : { channel: channelCode, default_template_id: null, templates: [] };
+      const nextTemplates = (base.templates ?? []).filter((tpl) => tpl.id !== templateId);
+      const nextDefault =
+        base.default_template_id && base.default_template_id === templateId ? null : base.default_template_id ?? null;
+      return {
+        ...base,
+        templates: nextTemplates,
+        default_template_id: nextDefault,
+      };
+    });
+    setTemplatesDirty(true);
+    setTemplatesStatus({ pending: false, error: null, success: null });
+  }, [activeChannel]);
+
+  const handleTemplateFieldChange = useCallback(
+    (
+      templateId: string,
+      field: "name" | "image_model_key" | "prompt_template" | "negative_prompt" | "notes",
+      value: string
+    ) => {
+      const channelCode = activeChannel?.channel;
+      if (!channelCode) {
+        return;
+      }
+      setChannelTemplates((current) => {
+        const base: ThumbnailChannelTemplates =
+          current && current.channel === channelCode
+            ? current
+            : { channel: channelCode, default_template_id: null, templates: [] };
+        const nextTemplates = (base.templates ?? []).map((tpl) => {
+          if (tpl.id !== templateId) {
+            return tpl;
+          }
+          return { ...tpl, [field]: value };
+        });
+        return { ...base, templates: nextTemplates };
+      });
+      setTemplatesDirty(true);
+      setTemplatesStatus({ pending: false, error: null, success: null });
+    },
+    [activeChannel]
+  );
+
+  const handleTemplateDefaultChange = useCallback((templateId: string | null) => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+    setChannelTemplates((current) => {
+      const base: ThumbnailChannelTemplates =
+        current && current.channel === channelCode
+          ? current
+          : { channel: channelCode, default_template_id: null, templates: [] };
+      return { ...base, default_template_id: templateId };
+    });
+    setTemplatesDirty(true);
+    setTemplatesStatus({ pending: false, error: null, success: null });
+  }, [activeChannel]);
+
+  const handleSaveTemplates = useCallback(async () => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode || !channelTemplates || channelTemplates.channel !== channelCode) {
+      return;
+    }
+    const templates = channelTemplates.templates ?? [];
+    for (const tpl of templates) {
+      if (!tpl.name?.trim()) {
+        setTemplatesStatus({ pending: false, error: "テンプレ名が空です。", success: null });
+        return;
+      }
+      if (!tpl.image_model_key?.trim()) {
+        setTemplatesStatus({ pending: false, error: "画像モデルキーが未選択のテンプレがあります。", success: null });
+        return;
+      }
+      if (!tpl.prompt_template?.trim()) {
+        setTemplatesStatus({ pending: false, error: "プロンプトテンプレが空のテンプレがあります。", success: null });
+        return;
+      }
+    }
+    const defaultTemplateId = channelTemplates.default_template_id ?? null;
+    if (defaultTemplateId && !templates.some((tpl) => tpl.id === defaultTemplateId)) {
+      setTemplatesStatus({ pending: false, error: "デフォルトテンプレが templates に含まれていません。", success: null });
+      return;
+    }
+
+    setTemplatesStatus({ pending: true, error: null, success: null });
+    try {
+      const updated = await updateThumbnailTemplates(channelCode, {
+        default_template_id: defaultTemplateId,
+        templates: templates.map((tpl) => ({
+          id: tpl.id,
+          name: tpl.name,
+          image_model_key: tpl.image_model_key,
+          prompt_template: tpl.prompt_template,
+          negative_prompt: tpl.negative_prompt?.trim() ? tpl.negative_prompt : null,
+          notes: tpl.notes?.trim() ? tpl.notes : null,
+        })),
+      });
+      setChannelTemplates(updated);
+      setTemplatesDirty(false);
+      setTemplatesStatus({ pending: false, error: null, success: "テンプレを保存しました。" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setTemplatesStatus({ pending: false, error: message, success: null });
+    }
+  }, [activeChannel, channelTemplates]);
+
+  const handleOpenGenerateDialog = useCallback(
+    (project: ThumbnailProject) => {
+      const channelCode = project.channel;
+      const normalizedVideo = normalizeVideoInput(project.video);
+      const planningRow = normalizedVideo ? planningRowsByVideo[normalizedVideo] : undefined;
+      const defaultUpper = planningRow?.["サムネタイトル上"] ?? "";
+      const defaultTitle = planningRow?.["サムネタイトル"] ?? "";
+      const defaultLower = planningRow?.["サムネタイトル下"] ?? "";
+      const defaultSourceTitle = planningRow?.["タイトル"] ?? project.title ?? project.sheet_title ?? "";
+      const defaultThumbnailPrompt =
+        planningRow?.["サムネ画像プロンプト（URL・テキスト指示込み）"] ?? planningRow?.["サムネ画像プロンプト"] ?? "";
+
+      const defaultTemplateId =
+        (channelTemplates?.channel === channelCode ? channelTemplates.default_template_id : null)
+          ?? (channelTemplates?.channel === channelCode ? channelTemplates.templates?.[0]?.id : null)
+          ?? "";
+      const selectedTemplate =
+        channelTemplates?.channel === channelCode
+          ? channelTemplates.templates.find((tpl) => tpl.id === defaultTemplateId)
+          : undefined;
+      const defaultModelKey = selectedTemplate?.image_model_key ?? imageModels[0]?.key ?? "";
+      setGenerateDialog({
+        projectKey: getProjectKey(project),
+        channel: project.channel,
+        video: project.video,
+        templateId: defaultTemplateId,
+        prompt: "",
+        sourceTitle: defaultSourceTitle,
+        thumbnailPrompt: defaultThumbnailPrompt,
+        imageModelKey: defaultModelKey,
+        count: 1,
+        label: "",
+        copyUpper: defaultUpper,
+        copyTitle: defaultTitle,
+        copyLower: defaultLower,
+        saveToPlanning: false,
+        status: "draft",
+        makeSelected: project.variants.length === 0,
+        tags: (project.tags ?? []).join(", "),
+        notes: "",
+        saving: false,
+        error: undefined,
+      });
+    },
+    [channelTemplates, imageModels, planningRowsByVideo]
+  );
+
+  const handleCloseGenerateDialog = useCallback(() => {
+    setGenerateDialog(null);
+  }, []);
+
+  const handleGenerateDialogFieldChange = useCallback(
+    (
+      field: keyof Omit<GenerateDialogState, "projectKey" | "channel" | "video" | "saving" | "error">,
+      value: string | number | boolean
+    ) => {
+      setGenerateDialog((current) => {
+        if (!current) {
+          return current;
+        }
+        return { ...current, [field]: value };
+      });
+    },
+    []
+  );
+
+  const handleGenerateDialogSubmit = useCallback(
+    async (event?: FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      if (!generateDialog) {
+        return;
+      }
+      const trimmedPrompt = generateDialog.prompt.trim();
+      const templateId = generateDialog.templateId.trim();
+      const modelKey = generateDialog.imageModelKey.trim();
+      const selectedTemplate =
+        templateId && channelTemplates?.channel === generateDialog.channel
+          ? channelTemplates.templates.find((tpl) => tpl.id === templateId)
+          : undefined;
+      const resolvedModelKey = modelKey || selectedTemplate?.image_model_key?.trim() || "";
+      if (!templateId && !trimmedPrompt) {
+        setGenerateDialog((current) => (current ? { ...current, error: "テンプレまたはプロンプトを指定してください。" } : current));
+        return;
+      }
+      if (!templateId && !resolvedModelKey) {
+        setGenerateDialog((current) => (current ? { ...current, error: "テンプレなしの場合は画像モデルを選択してください。" } : current));
+        return;
+      }
+
+      setGenerateDialog((current) => (current ? { ...current, saving: true, error: undefined } : current));
+
+      const tags = generateDialog.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+
+      try {
+        if (generateDialog.saveToPlanning) {
+          const normalizeField = (value: string): string | null => {
+            const trimmed = value.trim();
+            return trimmed ? trimmed : null;
+          };
+          await updatePlanning(generateDialog.channel, generateDialog.video, {
+            fields: {
+              thumbnail_upper: normalizeField(generateDialog.copyUpper),
+              thumbnail_title: normalizeField(generateDialog.copyTitle),
+              thumbnail_lower: normalizeField(generateDialog.copyLower),
+              thumbnail_prompt: normalizeField(generateDialog.thumbnailPrompt),
+            },
+          });
+          const normalizedVideo = normalizeVideoInput(generateDialog.video);
+          if (normalizedVideo) {
+            setPlanningRowsByVideo((current) => {
+              const existing = current[normalizedVideo] ?? {};
+              return {
+                ...current,
+                [normalizedVideo]: {
+                  ...existing,
+                  サムネタイトル上: generateDialog.copyUpper,
+                  サムネタイトル: generateDialog.copyTitle,
+                  サムネタイトル下: generateDialog.copyLower,
+                  "サムネ画像プロンプト（URL・テキスト指示込み）": generateDialog.thumbnailPrompt,
+                },
+              };
+            });
+          }
+        }
+
+        let finalPrompt = trimmedPrompt;
+        if (!finalPrompt) {
+          if (!selectedTemplate) {
+            throw new Error("テンプレが見つかりませんでした。テンプレを再読み込みしてください。");
+          }
+          const ctx: Record<string, string> = {
+            channel: generateDialog.channel,
+            video: normalizeVideoInput(generateDialog.video) || generateDialog.video,
+            title: generateDialog.sourceTitle,
+            thumbnail_upper: generateDialog.copyUpper,
+            thumbnail_title: generateDialog.copyTitle,
+            thumbnail_lower: generateDialog.copyLower,
+            thumbnail_prompt: generateDialog.thumbnailPrompt,
+          };
+          finalPrompt = renderPromptTemplate(selectedTemplate.prompt_template, ctx).trim();
+          const negative = selectedTemplate.negative_prompt?.trim();
+          if (negative) {
+            finalPrompt = `${finalPrompt}\n\n【避けるべき要素】\n${negative}`.trim();
+          }
+        }
+        if (!finalPrompt) {
+          throw new Error("プロンプトが空です。");
+        }
+
+        const payload = {
+          template_id: templateId || undefined,
+          image_model_key: resolvedModelKey || undefined,
+          prompt: finalPrompt,
+          count: generateDialog.count,
+          label: generateDialog.label.trim() || undefined,
+          status: generateDialog.status,
+          make_selected: generateDialog.makeSelected,
+          notes: generateDialog.notes.trim() || undefined,
+          tags: tags.length ? tags : undefined,
+        };
+        await generateThumbnailVariants(generateDialog.channel, generateDialog.video, payload);
+        setProjectFeedback(generateDialog.projectKey, {
+          type: "success",
+          message: `AI生成が完了しました（${generateDialog.count}件）。`,
+          timestamp: Date.now(),
+        });
+        setGenerateDialog(null);
+        await fetchData({ silent: true });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setGenerateDialog((current) => (current ? { ...current, saving: false, error: message } : current));
+      }
+    },
+    [channelTemplates, fetchData, generateDialog, setProjectFeedback]
+  );
 
   const filteredProjects: ThumbnailProject[] = useMemo(() => {
     if (!activeChannel) {
@@ -1398,6 +1905,115 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           ) : null}
         </div>
       ) : null}
+      <section className="thumbnail-library-panel thumbnail-library-panel--templates">
+        <div className="thumbnail-library-panel__header">
+          <div>
+            <h3>サムネテンプレ（型）</h3>
+            <p>
+              チャンネルごとに「型」を登録して、手動でAI生成できます。置換キー:
+              <code> {"{{title}} {{thumbnail_upper}} {{thumbnail_title}} {{thumbnail_lower}} {{thumbnail_prompt}}"} </code>
+            </p>
+          </div>
+          <div className="thumbnail-library-panel__header-actions">
+            <button type="button" onClick={handleTemplatesRefresh} disabled={templatesLoading || templatesStatus.pending}>
+              {templatesLoading ? "読込中…" : "再読み込み"}
+            </button>
+            <button type="button" onClick={handleAddTemplate} disabled={templatesStatus.pending}>
+              追加
+            </button>
+            <button type="button" onClick={handleSaveTemplates} disabled={templatesStatus.pending || !templatesDirty}>
+              {templatesStatus.pending ? "保存中…" : "保存"}
+            </button>
+          </div>
+        </div>
+        {imageModelsError ? <p className="thumbnail-library__alert">{imageModelsError}</p> : null}
+        {templatesStatus.error ? <p className="thumbnail-library__alert">{templatesStatus.error}</p> : null}
+        {templatesStatus.success ? (
+          <p className="thumbnail-library__message thumbnail-library__message--success">{templatesStatus.success}</p>
+        ) : null}
+        {!channelTemplates || channelTemplates.templates.length === 0 ? (
+          <p className="thumbnail-library__placeholder">テンプレがまだありません。「追加」→「保存」で登録します。</p>
+        ) : (
+          <div className="thumbnail-library-panel__cards">
+            {channelTemplates.templates.map((tpl) => {
+              const isDefault = channelTemplates.default_template_id === tpl.id;
+              return (
+                <details key={tpl.id} className="thumbnail-library-panel__card">
+                  <summary>
+                    <label style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                      <input
+                        type="radio"
+                        name="thumbnail_default_template"
+                        checked={isDefault}
+                        onChange={() => handleTemplateDefaultChange(tpl.id)}
+                      />
+                      <strong>{tpl.name}</strong>
+                    </label>
+                    <span style={{ marginLeft: 8, color: "#64748b" }}>{tpl.image_model_key}</span>
+                  </summary>
+                  <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                    <label>
+                      <span>テンプレ名</span>
+                      <input
+                        type="text"
+                        value={tpl.name}
+                        onChange={(event) => handleTemplateFieldChange(tpl.id, "name", event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>画像モデル</span>
+                        <select
+                          value={tpl.image_model_key}
+                          onChange={(event) => handleTemplateFieldChange(tpl.id, "image_model_key", event.target.value)}
+                        >
+                          <option value="">選択してください</option>
+                        {imageModels.map((model) => {
+                          const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
+                          const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
+                          return (
+                            <option key={model.key} value={model.key}>
+                              {model.key} ({model.provider}{costSuffix})
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </label>
+                    <label>
+                      <span>プロンプトテンプレ</span>
+                      <textarea
+                        value={tpl.prompt_template}
+                        onChange={(event) => handleTemplateFieldChange(tpl.id, "prompt_template", event.target.value)}
+                        rows={6}
+                      />
+                    </label>
+                    <label>
+                      <span>ネガティブ（任意）</span>
+                      <textarea
+                        value={tpl.negative_prompt ?? ""}
+                        onChange={(event) => handleTemplateFieldChange(tpl.id, "negative_prompt", event.target.value)}
+                        rows={2}
+                      />
+                    </label>
+                    <label>
+                      <span>メモ（任意）</span>
+                      <textarea
+                        value={tpl.notes ?? ""}
+                        onChange={(event) => handleTemplateFieldChange(tpl.id, "notes", event.target.value)}
+                        rows={2}
+                      />
+                    </label>
+                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                      <button type="button" onClick={() => handleDeleteTemplate(tpl.id)}>
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        )}
+      </section>
       {channelVideos.length > 0 ? (
         <section className="thumbnail-channel-videos">
           <div className="thumbnail-channel-videos__header">
@@ -1451,6 +2067,27 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       </div>
     </section>
   );
+
+  const generateDialogTemplate =
+    generateDialog && channelTemplates?.channel === generateDialog.channel
+      ? channelTemplates.templates.find((tpl) => tpl.id === generateDialog.templateId)
+      : undefined;
+  const generateDialogResolvedModelKey = generateDialog
+    ? (generateDialog.imageModelKey.trim() || generateDialogTemplate?.image_model_key?.trim() || "")
+    : "";
+  const generateDialogResolvedModel = generateDialogResolvedModelKey
+    ? imageModels.find((model) => model.key === generateDialogResolvedModelKey)
+    : undefined;
+  const generateDialogResolvedPricing = generateDialogResolvedModel?.pricing ?? null;
+  const generateDialogResolvedPricingUpdatedAt = generateDialogResolvedModel?.pricing_updated_at ?? null;
+  const generateDialogImageUnitUsd = parsePricingNumber(generateDialogResolvedPricing?.image ?? null);
+  const generateDialogRequestUnitUsd = parsePricingNumber(generateDialogResolvedPricing?.request ?? null);
+  const generateDialogPromptTokenUsd = parsePricingNumber(generateDialogResolvedPricing?.prompt ?? null);
+  const generateDialogCompletionTokenUsd = parsePricingNumber(generateDialogResolvedPricing?.completion ?? null);
+  const generateDialogImageSubtotalUsd =
+    generateDialog && generateDialogImageUnitUsd !== null ? generateDialogImageUnitUsd * generateDialog.count : null;
+  const generateDialogRequestSubtotalUsd =
+    generateDialog && generateDialogRequestUnitUsd !== null ? generateDialogRequestUnitUsd * generateDialog.count : null;
 
   return (
     <>
@@ -1615,8 +2252,11 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                         >
                           画像を差し替える
                         </button>
+                        <button type="button" onClick={() => handleOpenGenerateDialog(project)} disabled={disableVariantActions}>
+                          AI生成
+                        </button>
                         <button type="button" onClick={() => handleOpenVariantForm(project)} disabled={disableVariantActions}>
-                          AI案を追加
+                          案を登録
                         </button>
                         <button
                           type="button"
@@ -2070,6 +2710,245 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 </button>
                 <button type="submit" className="thumbnail-planning-form__submit" disabled={planningDialog.saving}>
                   {planningDialog.saving ? "作成中…" : "企画行を作成"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+      {generateDialog ? (
+        <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
+          <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseGenerateDialog} />
+          <div className="thumbnail-planning-dialog__panel">
+            <header className="thumbnail-planning-dialog__header">
+              <div className="thumbnail-planning-dialog__eyebrow">
+                {generateDialog.channel} / {generateDialog.video}
+              </div>
+              <h2>AIでサムネを生成</h2>
+            </header>
+            <form className="thumbnail-planning-form" onSubmit={(event) => handleGenerateDialogSubmit(event)}>
+              <div className="thumbnail-planning-form__grid">
+                <label>
+                  <span>テンプレ</span>
+                  <select
+                    value={generateDialog.templateId}
+                    onChange={(event) => {
+                      const nextId = event.target.value;
+                      setGenerateDialog((current) => {
+                        if (!current) {
+                          return current;
+                        }
+                        const selected =
+                          channelTemplates?.channel === current.channel
+                            ? channelTemplates.templates.find((tpl) => tpl.id === nextId)
+                            : undefined;
+                        return {
+                          ...current,
+                          templateId: nextId,
+                          imageModelKey: selected?.image_model_key ?? current.imageModelKey,
+                        };
+                      });
+                    }}
+                  >
+                    <option value="">（テンプレなし）</option>
+                    {(channelTemplates?.channel === generateDialog.channel ? channelTemplates.templates : []).map((tpl) => (
+                      <option key={tpl.id} value={tpl.id}>
+                        {tpl.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>枚数</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={4}
+                    value={generateDialog.count}
+                    onChange={(event) => handleGenerateDialogFieldChange("count", Number(event.target.value))}
+                  />
+                </label>
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>ラベル（任意）</span>
+                  <input
+                    type="text"
+                    value={generateDialog.label}
+                    onChange={(event) => handleGenerateDialogFieldChange("label", event.target.value)}
+                    placeholder="空なら自動で命名"
+                  />
+                </label>
+              </div>
+              {planningLoading ? <p className="thumbnail-library__placeholder">企画CSV読込中…</p> : null}
+              {planningError ? <p className="thumbnail-library__alert">{planningError}</p> : null}
+              <div className="thumbnail-planning-form__grid">
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>上段（赤）</span>
+                  <input
+                    type="text"
+                    value={generateDialog.copyUpper}
+                    onChange={(event) => handleGenerateDialogFieldChange("copyUpper", event.target.value)}
+                    placeholder="例: 知らないと危険"
+                  />
+                </label>
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>中段（黄）</span>
+                  <input
+                    type="text"
+                    value={generateDialog.copyTitle}
+                    onChange={(event) => handleGenerateDialogFieldChange("copyTitle", event.target.value)}
+                    placeholder="例: 99%が誤解"
+                  />
+                </label>
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>下段（白）</span>
+                  <input
+                    type="text"
+                    value={generateDialog.copyLower}
+                    onChange={(event) => handleGenerateDialogFieldChange("copyLower", event.target.value)}
+                    placeholder="例: 人間関係の本質"
+                  />
+                </label>
+              </div>
+              <label className="thumbnail-planning-form__field--stacked">
+                <span>個別指示（企画CSV: サムネ画像プロンプト）</span>
+                <textarea
+                  value={generateDialog.thumbnailPrompt}
+                  onChange={(event) => handleGenerateDialogFieldChange("thumbnailPrompt", event.target.value)}
+                  rows={3}
+                  placeholder="空でもOK。URLや追加の指示があれば記入。"
+                />
+              </label>
+              <label className="thumbnail-planning-form__field--stacked" style={{ flexDirection: "row", gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={generateDialog.saveToPlanning}
+                  onChange={(event) => handleGenerateDialogFieldChange("saveToPlanning", event.target.checked)}
+                />
+                <span>この内容を企画CSVに保存してから生成する</span>
+              </label>
+              <label className="thumbnail-planning-form__field--stacked">
+                <span>プロンプト（任意）</span>
+                <textarea
+                  value={generateDialog.prompt}
+                  onChange={(event) => handleGenerateDialogFieldChange("prompt", event.target.value)}
+                  rows={6}
+                  placeholder="空ならテンプレ + 企画CSVの値から組み立てます（上の3段テキスト等）。"
+                />
+              </label>
+              <label className="thumbnail-planning-form__field--stacked">
+                <span>画像モデル（任意）</span>
+                <select
+                  value={generateDialog.imageModelKey}
+                  onChange={(event) => handleGenerateDialogFieldChange("imageModelKey", event.target.value)}
+                >
+                  <option value="">（テンプレの指定を使う）</option>
+                  {imageModels.map((model) => {
+                    const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
+                    const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
+                    return (
+                      <option key={model.key} value={model.key}>
+                        {model.key} ({model.provider}{costSuffix})
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+              {generateDialogResolvedModelKey ? (
+                generateDialogResolvedModel ? (
+                  generateDialogResolvedModel.provider === "openrouter" ? (
+                    generateDialogResolvedPricing ? (
+                      <p className="thumbnail-library__placeholder">
+                        料金(OpenRouter, USD): 画像{" "}
+                        {generateDialogImageUnitUsd !== null ? `${formatUsdAmount(generateDialogImageUnitUsd)}/img` : "—"}
+                        {generateDialogRequestUnitUsd !== null
+                          ? `, request ${formatUsdAmount(generateDialogRequestUnitUsd)}/req`
+                          : ""}
+                        {generateDialogPromptTokenUsd !== null
+                          ? `, 入力 ${formatUsdPerMillionTokens(generateDialogPromptTokenUsd)}`
+                          : ""}
+                        {generateDialogCompletionTokenUsd !== null
+                          ? `, 出力 ${formatUsdPerMillionTokens(generateDialogCompletionTokenUsd)}`
+                          : ""}
+                        {generateDialogImageSubtotalUsd !== null
+                          ? ` / 今回(${generateDialog.count}枚)の画像単価分: ${formatUsdAmount(generateDialogImageSubtotalUsd)}`
+                          : ""}
+                        {generateDialogRequestSubtotalUsd !== null && generateDialogRequestSubtotalUsd !== 0
+                          ? ` (request合計: ${formatUsdAmount(generateDialogRequestSubtotalUsd)})`
+                          : ""}
+                        {generateDialogResolvedPricingUpdatedAt
+                          ? ` (単価更新: ${formatDate(generateDialogResolvedPricingUpdatedAt)})`
+                          : ""}
+                        {" ※トークン分はプロンプト長で変動"}
+                      </p>
+                    ) : (
+                      <p className="thumbnail-library__placeholder">
+                        料金(OpenRouter): 単価情報を取得できませんでした（{generateDialogResolvedModelKey}）。
+                      </p>
+                    )
+                  ) : (
+                    <p className="thumbnail-library__placeholder">
+                      料金: {generateDialogResolvedModelKey} は OpenRouter 以外のプロバイダ（{generateDialogResolvedModel.provider}）のため、単価表示対象外です。
+                    </p>
+                  )
+                ) : (
+                  <p className="thumbnail-library__placeholder">
+                    料金: モデル情報が見つかりませんでした（{generateDialogResolvedModelKey}）。
+                  </p>
+                )
+              ) : null}
+              <div className="thumbnail-planning-form__grid">
+                <label>
+                  <span>ステータス</span>
+                  <select
+                    value={generateDialog.status}
+                    onChange={(event) =>
+                      handleGenerateDialogFieldChange("status", event.target.value as ThumbnailVariantStatus)
+                    }
+                  >
+                    {VARIANT_STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>タグ（カンマ区切り）</span>
+                  <input
+                    type="text"
+                    value={generateDialog.tags}
+                    onChange={(event) => handleGenerateDialogFieldChange("tags", event.target.value)}
+                    placeholder="例: 人物, 共感"
+                  />
+                </label>
+              </div>
+              <label className="thumbnail-planning-form__field--stacked">
+                <span>メモ（任意）</span>
+                <textarea
+                  value={generateDialog.notes}
+                  onChange={(event) => handleGenerateDialogFieldChange("notes", event.target.value)}
+                  rows={2}
+                />
+              </label>
+              <label className="thumbnail-planning-form__field--stacked" style={{ flexDirection: "row", gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={generateDialog.makeSelected}
+                  onChange={(event) => handleGenerateDialogFieldChange("makeSelected", event.target.checked)}
+                />
+                <span>生成した1枚目を「採用中」にする</span>
+              </label>
+              {generateDialog.error ? (
+                <div className="thumbnail-planning-form__error" role="alert">
+                  {generateDialog.error}
+                </div>
+              ) : null}
+              <div className="thumbnail-planning-form__actions">
+                <button type="button" onClick={handleCloseGenerateDialog} disabled={generateDialog.saving}>
+                  キャンセル
+                </button>
+                <button type="submit" className="thumbnail-planning-form__submit" disabled={generateDialog.saving}>
+                  {generateDialog.saving ? "生成中…" : "生成"}
                 </button>
               </div>
             </form>

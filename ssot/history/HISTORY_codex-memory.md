@@ -88,3 +88,21 @@
 - Video runs 復旧/完全整理: `scripts/ops/restore_video_runs.py` を追加し、`archive_report.json` から run dir を確実に戻せるようにした。unscoped/legacy run（numeric/api/jinsei/ui_* 等）を `_archive/` へ退避して `workspaces/video/runs/` のディレクトリを episode-keyed のみに整理（記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 47-48, 正本: `ssot/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`）。
 - Audio 辞書参照の正本化: hazard 辞書を `repo_root()/data/hazard_readings.yaml` 優先で読むよう修正し、二重管理による“効いてない辞書”問題を解消（`packages/audio_tts_v2/tts/risk_utils.py`, `packages/audio_tts_v2/tests/test_risk_utils.py`）。
 - UI改善: `/progress` を `?channel=CHxx` で深リンクできるようにし、サイドバーも選択チャンネルに追従（`apps/ui-frontend/src/pages/ProgressPage.tsx`, `apps/ui-frontend/src/layouts/AppShell.tsx`）。
+
+## 2025-12-17
+- UI改善: ダッシュボード/サイドバーのチャンネル一覧に「＋追加」導線を追加し、`/channel-settings?add=1` で新規チャンネル登録へ直行できるようにした（`apps/ui-frontend/src/pages/DashboardPage.tsx`, `apps/ui-frontend/src/components/ChannelListSection.tsx`）。
+- UI改善: SoT パス表記を `workspaces/` 正本に統一し、互換パスは補足表記に寄せた（`apps/ui-frontend/src/layouts/AppShell.tsx`, `apps/ui-frontend/src/pages/ProjectsPage.tsx`, `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx`, `apps/ui-frontend/src/pages/AutoDraftPage.tsx`, `apps/ui-frontend/src/components/VideoProductionWorkspace.tsx`, `apps/ui-frontend/src/components/VideoDetailPanel.tsx`, `apps/ui-frontend/src/pages/EpisodeStudioPage.tsx`, `apps/ui-frontend/src/components/AudioWorkspace.tsx`）。
+- UI改善: TTS周りのハードコード（CH02/CH04/CH06固定・既定選択）を廃止し、動的なチャンネル一覧 + 明示選択に変更（`apps/ui-frontend/src/pages/AudioTtsV2Page.tsx`, `apps/ui-frontend/src/components/BatchTtsProgressPanel.tsx`, `apps/ui-frontend/src/components/AudioReviewPage.tsx`）。
+- UI改善: 企画CSV（`/progress`）を `?channel=CHxx&video=NNN` で深リンクし、行詳細の自動オープン/URL同期と「案件ページへ」導線を追加（`apps/ui-frontend/src/pages/ProgressPage.tsx`）。
+- 検証: `npx -C apps/ui-frontend tsc -p tsconfig.json --noEmit`
+- UI改善: 「企画CSV」サイドバーリンクは常に未選択状態で開くようにし、ダッシュボードのチャンネルカードはクリックで案件ページ（`/channels/CHxx`）へ確実に遷移するようにした（`apps/ui-frontend/src/layouts/AppShell.tsx`, `apps/ui-frontend/src/pages/DashboardPage.tsx`）。
+- UI改善: ダッシュボードに「制作フロー I/O」カード（企画/台本/音声/動画/サムネ）を追加し、正本パスと入口を同時に把握できるようにした（`apps/ui-frontend/src/pages/DashboardPage.tsx`）。
+- UI改善: `/agent-org` は `?tab=&from=&q=&auto=` をURL同期し、リンクコピー/locksに created_by 表示を追加して協調運用を迷わない形にした（`apps/ui-frontend/src/pages/AgentOrgPage.tsx`）。
+- UI改善: チャンネル登録カードの説明文をパス誤解が起きない表現へ修正（`apps/ui-frontend/src/pages/ChannelSettingsPage.tsx`）。
+- 修正: `ThumbnailWorkspace` の generate dialog state 初期化に必須フィールド（`sourceTitle`/`thumbnailPrompt`）を追加し、フロントの型チェック失敗でUIが起動不能になる事故を防止（`apps/ui-frontend/src/components/ThumbnailWorkspace.tsx`）。
+- UI改善: 企画CSVの行詳細から `制作フロー` / `Studio` へ直行ボタンを追加し、企画→実行の往復を1クリックに短縮（`apps/ui-frontend/src/pages/ProgressPage.tsx`）。
+- UI改善: `制作フロー` / `Episode Studio` で「企画CSVを開く」導線を追加し、企画（SoT）→台本/音声/動画の往復を迷わない形にした（`apps/ui-frontend/src/pages/WorkflowPage.tsx`, `apps/ui-frontend/src/pages/EpisodeStudioPage.tsx`）。
+- UI改善: 案件ページ（VideoDetail）に `企画CSV/制作フロー/Studio/CapCut/サムネ` のクイックリンクを追加（`apps/ui-frontend/src/components/VideoDetailPanel.tsx`）。
+- UI改善: `TTS音声生成` は `?channel=CHxx` をURL同期し、選択状態を共有/復帰しやすくした（`apps/ui-frontend/src/pages/AudioTtsV2Page.tsx`）。`制作フロー`/`Studio` からは `channel` 付きで遷移。
+- UI改善: サムネページ上部に SoT 表示と主要導線を追加（`apps/ui-frontend/src/pages/ThumbnailsPage.tsx`）。
+- 検証: `npm -C apps/ui-frontend run build`

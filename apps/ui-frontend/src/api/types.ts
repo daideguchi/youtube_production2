@@ -823,6 +823,57 @@ export interface ThumbnailDescriptionResponse {
   source: "openai" | "openrouter" | "heuristic";
 }
 
+export interface ThumbnailImageModelInfo {
+  key: string;
+  provider: string;
+  model_name: string;
+  pricing?: Record<string, string> | null;
+  pricing_updated_at?: string | null;
+}
+
+export interface ThumbnailTemplate {
+  id: string;
+  name: string;
+  image_model_key: string;
+  prompt_template: string;
+  negative_prompt?: string | null;
+  notes?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface ThumbnailTemplatePayload {
+  id?: string | null;
+  name: string;
+  image_model_key: string;
+  prompt_template: string;
+  negative_prompt?: string | null;
+  notes?: string | null;
+}
+
+export interface ThumbnailChannelTemplates {
+  channel: string;
+  default_template_id?: string | null;
+  templates: ThumbnailTemplate[];
+}
+
+export interface ThumbnailChannelTemplatesUpdate {
+  default_template_id?: string | null;
+  templates: ThumbnailTemplatePayload[];
+}
+
+export interface ThumbnailVariantGeneratePayload {
+  template_id?: string | null;
+  image_model_key?: string | null;
+  prompt?: string | null;
+  count?: number;
+  label?: string | null;
+  status?: ThumbnailVariantStatus;
+  make_selected?: boolean;
+  notes?: string | null;
+  tags?: string[];
+}
+
 export interface LlmConfig {
   caption_provider: "openai" | "openrouter";
   openai_caption_model?: string | null;

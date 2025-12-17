@@ -502,7 +502,9 @@ export function AutoDraftPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <div>
               <strong>SRTを選択</strong>
-              <div style={{ fontSize: 12, color: "#64748b" }}>audio_tts_v2/artifacts/final 配下の .srt を列挙します</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>
+                SoT: workspaces/audio/final（互換: audio_tts_v2/artifacts/final）配下の .srt を列挙します
+              </div>
             </div>
             <button
               onClick={handleRefresh}
@@ -530,7 +532,7 @@ export function AutoDraftPage() {
           {loading ? (
             <div style={{ color: "#94a3b8" }}>読み込み中...</div>
           ) : filteredSrts.length === 0 ? (
-            <div style={{ color: "#ef4444" }}>audio_tts_v2/artifacts/final に SRT が見つかりません</div>
+            <div style={{ color: "#ef4444" }}>workspaces/audio/final（互換: audio_tts_v2/artifacts/final）に SRT が見つかりません</div>
           ) : (
             <div style={{ display: "grid", gap: 8, maxHeight: 520, overflow: "auto" }}>
               {groupedSrts.map((group) => {

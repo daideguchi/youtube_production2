@@ -56,9 +56,29 @@ FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エン
 - `GET|PUT /api/workspaces/thumbnails/{channel}/templates` : チャンネル別のサムネテンプレ（templates.json）を取得・更新。
 - `PATCH /api/workspaces/thumbnails/{channel}/{video}` : 企画メタ（status/notes/tags/selected_variant 等）を更新。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants` : バリアント登録（URL/メタのみ）。
+- `POST /api/workspaces/thumbnails/{channel}/{video}/variants/generate` : テンプレ/プロンプトから画像生成→ `assets/{CHxx}/{video}/` に保存しバリアント化。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload` : 画像アップロード→ `thumbnails/assets/{CHxx}/{video}/` に保存しバリアント化。
 - `GET /thumbnails/assets/{channel}/{video}/{asset_path}` : `assets/` 配下の静的ファイル配信。
 - 補助: `GET /api/thumbnails/lookup`（thumbnails/ 配下からスコア検索）
+
+## テンプレ（型）と企画CSVの連携
+
+- チャンネル共通の「型」は `templates.json`（UI: サムネテンプレ（型）パネル）で管理します。
+- 企画ごとのコピー/指示は Planning CSV（`workspaces/planning/channels/CHxx.csv`）の optional fields を正本にします:
+  - `thumbnail_upper` → サムネタイトル上
+  - `thumbnail_title` → サムネタイトル（3段の中段）
+  - `thumbnail_lower` → サムネタイトル下
+  - `thumbnail_prompt` → サムネ画像プロンプト（URL・テキスト指示込み）
+- UI の「AI生成」では上記を読み込み、必要なら「企画CSVに保存してから生成する」にチェックして書き戻せます（コスト/誤動作防止のため手動操作前提）。
+
+### プロンプトテンプレ置換キー
+
+`prompt_template` 内で以下を `{{...}}` で使用できます:
+
+- `{{title}}`（企画タイトル）
+- `{{thumbnail_upper}}` / `{{thumbnail_title}}` / `{{thumbnail_lower}}`
+- `{{thumbnail_prompt}}`
+- `{{channel}}` / `{{video}}`
 
 ## フロントエンド連携
 

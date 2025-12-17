@@ -942,7 +942,7 @@ export function ChannelSettingsPage() {
 
       <SectionCard
         title="新規チャンネル登録（ハンドル必須）"
-        description="YouTubeハンドル(@name)だけで一意特定し、channels/channel_info + planning/persona + sources.yaml を自動生成します。"
+        description="YouTubeハンドル(@name)だけで一意特定し、channel_info / persona / prompt / sources.yaml を自動生成します。"
         id="channel-register"
         open={registerSectionOpen}
         onOpenChange={setRegisterSectionOpen}

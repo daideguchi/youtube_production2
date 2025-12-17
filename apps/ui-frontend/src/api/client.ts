@@ -27,10 +27,14 @@ import {
   ThumbnailLibraryAsset,
   ThumbnailLibraryAssignResponse,
   ThumbnailDescriptionResponse,
+  ThumbnailImageModelInfo,
+  ThumbnailChannelTemplates,
+  ThumbnailChannelTemplatesUpdate,
   ThumbnailQuickHistoryEntry,
   ThumbnailOverview,
   ThumbnailProjectStatus,
   ThumbnailVariant,
+  ThumbnailVariantGeneratePayload,
   ThumbnailVariantStatus,
   TtsReplaceRequestPayload,
   TtsReplaceResponse,
@@ -971,6 +975,29 @@ export function fetchThumbnailOverview(): Promise<ThumbnailOverview> {
   return request<ThumbnailOverview>("/api/workspaces/thumbnails");
 }
 
+export function fetchThumbnailImageModels(): Promise<ThumbnailImageModelInfo[]> {
+  return request<ThumbnailImageModelInfo[]>("/api/workspaces/thumbnails/image-models");
+}
+
+export function fetchThumbnailTemplates(channel: string): Promise<ThumbnailChannelTemplates> {
+  return request<ThumbnailChannelTemplates>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/templates`
+  );
+}
+
+export function updateThumbnailTemplates(
+  channel: string,
+  payload: ThumbnailChannelTemplatesUpdate
+): Promise<ThumbnailChannelTemplates> {
+  return request<ThumbnailChannelTemplates>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/templates`,
+    {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
 export function updateThumbnailProject(
   channel: string,
   video: string,
@@ -1011,6 +1038,20 @@ export function updateThumbnailProject(
     {
       method: "PATCH",
       body: JSON.stringify(body),
+    }
+  );
+}
+
+export function generateThumbnailVariants(
+  channel: string,
+  video: string,
+  payload: ThumbnailVariantGeneratePayload
+): Promise<ThumbnailVariant[]> {
+  return request<ThumbnailVariant[]>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/variants/generate`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
     }
   );
 }

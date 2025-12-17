@@ -929,7 +929,7 @@ useEffect(() => {
               <div>
                 <h2>CSV ビュー（企画一覧）</h2>
                 <p className="muted small-text">
-                  作成フラグと任意列は progress/channels/CHxx.csv（planning_store）を直接参照しています。チェックボックスは量産 API へそのまま渡されます。
+                  作成フラグと任意列は workspaces/planning/channels/CHxx.csv（planning_store / 互換: progress/channels/CHxx.csv）を参照しています。チェックボックスは量産 API へそのまま渡されます。
                 </p>
                 {selectedChannelSummary ? (
                   <p className="muted small-text">

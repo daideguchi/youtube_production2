@@ -436,7 +436,7 @@ export function AudioReviewPage() {
         </div>
       </header>
 
-      <BatchTtsProgressPanel />
+      <BatchTtsProgressPanel channels={channels} channelsLoading={channelLoading} />
 
       <section className="audio-review__notice message message--info">
         <p className="muted">

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./AgentOrgPage.css";
 
 type OrchestratorStatus = {
@@ -116,6 +117,13 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 }
 
 export function AgentOrgPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const urlTab = searchParams.get("tab");
+  const urlFrom = searchParams.get("from");
+  const urlQuery = searchParams.get("q");
+  const urlAuto = searchParams.get("auto");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
@@ -126,6 +134,10 @@ export function AgentOrgPage() {
   const copyNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [actorName, setActorName] = useState(() => {
+    const fromParam = (urlFrom ?? "").trim();
+    if (fromParam) {
+      return fromParam;
+    }
     try {
       return localStorage.getItem("agent_org_actor") || "dd";
     } catch {
@@ -134,6 +146,9 @@ export function AgentOrgPage() {
   });
 
   const [tab, setTab] = useState<TabKey>(() => {
+    if (isTabKey(urlTab)) {
+      return urlTab;
+    }
     try {
       const stored = localStorage.getItem("agent_org_tab");
       if (isTabKey(stored)) {
@@ -145,8 +160,14 @@ export function AgentOrgPage() {
     return "overview";
   });
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => urlQuery ?? "");
   const [autoRefresh, setAutoRefresh] = useState(() => {
+    if (urlAuto === "1") {
+      return true;
+    }
+    if (urlAuto === "0") {
+      return false;
+    }
     try {
       return localStorage.getItem("agent_org_auto_refresh") === "1";
     } catch {
@@ -173,7 +194,7 @@ export function AgentOrgPage() {
   const [assignAgentId, setAssignAgentId] = useState("");
   const [assignNote, setAssignNote] = useState("");
 
-  const [lockScopes, setLockScopes] = useState("ui/**");
+  const [lockScopes, setLockScopes] = useState("apps/ui-frontend/**");
   const [lockMode, setLockMode] = useState("no_touch");
   const [lockTtlMin, setLockTtlMin] = useState("60");
   const [lockNote, setLockNote] = useState("");
@@ -235,6 +256,58 @@ export function AgentOrgPage() {
       /* ignore */
     }
   }, [autoRefresh]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParamsString);
+    const tabParam = params.get("tab");
+    const desiredTab: TabKey = isTabKey(tabParam) ? tabParam : "overview";
+    const desiredFrom = (params.get("from") ?? "").trim() || "dd";
+    const desiredQuery = params.get("q") ?? "";
+    const desiredAuto = params.get("auto") === "1";
+
+    setTab((current) => (current === desiredTab ? current : desiredTab));
+    setActorName((current) => (current === desiredFrom ? current : desiredFrom));
+    setQuery((current) => (current === desiredQuery ? current : desiredQuery));
+    setAutoRefresh((current) => (current === desiredAuto ? current : desiredAuto));
+  }, [searchParamsString]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const next = new URLSearchParams(window.location.search);
+    const normalizedActor = actorName.trim();
+    const normalizedQuery = query.trim();
+
+    if (tab && tab !== "overview") {
+      next.set("tab", tab);
+    } else {
+      next.delete("tab");
+    }
+
+    if (normalizedActor && normalizedActor !== "dd") {
+      next.set("from", normalizedActor);
+    } else {
+      next.delete("from");
+    }
+
+    if (normalizedQuery) {
+      next.set("q", normalizedQuery);
+    } else {
+      next.delete("q");
+    }
+
+    if (autoRefresh) {
+      next.set("auto", "1");
+    } else {
+      next.delete("auto");
+    }
+
+    if (next.toString() === window.location.search.replace(/^\?/, "")) {
+      return;
+    }
+    setSearchParams(next, { replace: true });
+  }, [actorName, autoRefresh, query, setSearchParams, tab]);
 
   useEffect(() => {
     if (!autoRefresh) {
@@ -550,6 +623,17 @@ export function AgentOrgPage() {
           <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} /> 自動更新(10s)
         </label>
 
+        <button
+          type="button"
+          className="action-button"
+          onClick={() => {
+            if (typeof window === "undefined") return;
+            handleCopy(window.location.href, "link");
+          }}
+        >
+          リンクコピー
+        </button>
+
         {tab !== "actions" ? (
           <div className="agent-org-page__search" aria-label="Search">
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchPlaceholder} />
@@ -692,6 +776,7 @@ export function AgentOrgPage() {
                   <tr>
                     <th>Status</th>
                     <th>Mode</th>
+                    <th>By</th>
                     <th>Scopes</th>
                     <th>Expires</th>
                     <th>Note</th>
@@ -706,6 +791,7 @@ export function AgentOrgPage() {
                         <span className={lockBadgeClass(l.status)}>{l.status}</span>
                       </td>
                       <td>{l.mode ?? "-"}</td>
+                      <td className="agent-org-page__mono">{l.created_by ?? "-"}</td>
                       <td className="agent-org-page__mono">{(l.scopes ?? []).join(", ")}</td>
                       <td>{formatDateTime(l.expires_at)}</td>
                       <td>{l.note ?? "-"}</td>

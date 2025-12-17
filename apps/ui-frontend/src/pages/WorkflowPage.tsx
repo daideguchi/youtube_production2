@@ -94,6 +94,9 @@ export function WorkflowPage() {
   const scriptEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=script` : "/channel-workspace";
   const audioEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=audio` : "/channel-workspace";
   const audioIntegrityLink = channel && video ? `/audio-integrity?channel=${channel}&video=${video}` : "/audio-integrity";
+  const planningLink =
+    channel && video ? `/progress?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/progress";
+  const ttsListLink = channel ? `/audio-tts-v2?channel=${encodeURIComponent(channel)}` : "/audio-tts-v2";
   const capcutDraftLink = expectedSrtRelPath
     ? `/capcut-edit/draft?srt=${encodeURIComponent(expectedSrtRelPath)}`
     : "/capcut-edit/draft";
@@ -216,6 +219,18 @@ export function WorkflowPage() {
 
           <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
+              <h3 style={{ marginTop: 0, marginBottom: 8 }}>企画 / タイトル</h3>
+              <p style={{ marginTop: 0, color: "var(--color-text-muted)" }}>
+                企画行（タイトル/タグ/サムネ/プロンプト/進捗）を最初に整えると、下流の迷いが減ります。
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link className="button" to={planningLink}>
+                  企画CSVを開く
+                </Link>
+              </div>
+            </div>
+
+            <div style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 14 }}>
               <h3 style={{ marginTop: 0, marginBottom: 8 }}>台本</h3>
               <p style={{ marginTop: 0, color: "var(--color-text-muted)" }}>
                 {scriptOk ? "既に台本が存在します。必要なら修正へ。" : "まだ台本が見つかりません。生成/作成へ。"}
@@ -244,7 +259,7 @@ export function WorkflowPage() {
                 <Link className="button button--ghost" to={audioIntegrityLink}>
                   整合性チェック
                 </Link>
-                <Link className="button button--ghost" to="/audio-tts-v2">
+                <Link className="button button--ghost" to={ttsListLink}>
                   TTS生成（一覧）
                 </Link>
               </div>

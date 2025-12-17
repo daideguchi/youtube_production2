@@ -1,4 +1,20 @@
 {
   "version": 1,
-  "channels": {}
+  "channels": {
+    "CH07": {
+      "default_template_id": "ch07_buddha_left_3line_v1",
+      "templates": [
+        {
+          "id": "ch07_buddha_left_3line_v1",
+          "name": "CH07: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH07の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-17T00:00:00Z",
+          "updated_at": "2025-12-17T00:00:00Z"
+        }
+      ]
+    }
+  }
 }

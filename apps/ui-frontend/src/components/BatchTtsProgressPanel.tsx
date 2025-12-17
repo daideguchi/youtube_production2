@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_BASE_URL } from "../api/client";
+import type { ChannelSummary } from "../api/types";
 
 interface ChannelProgress {
     total: number;
@@ -59,20 +60,76 @@ async function resetBatch(): Promise<void> {
     }
 }
 
-const CHANNEL_CONFIG = [
-    { code: "CH06", name: "禁断の知恵袋", count: 33 },
-    { code: "CH02", name: "人生の道標", count: 82 },
-    { code: "CH04", name: "闘志の炎", count: 30 },
-];
+type BatchTtsProgressPanelProps = {
+    channels?: ChannelSummary[];
+    channelsLoading?: boolean;
+};
 
-export function BatchTtsProgressPanel() {
+function compareChannelCode(a: string, b: string): number {
+    const an = Number.parseInt(a.replace(/[^0-9]/g, ""), 10);
+    const bn = Number.parseInt(b.replace(/[^0-9]/g, ""), 10);
+    const aNum = Number.isFinite(an);
+    const bNum = Number.isFinite(bn);
+    if (aNum && bNum) return an - bn;
+    if (aNum) return -1;
+    if (bNum) return 1;
+    return a.localeCompare(b, "ja-JP");
+}
+
+function loadSavedSelection(): Set<string> {
+    try {
+        const raw = localStorage.getItem("ui.batch_tts.selected_channels");
+        if (!raw) return new Set();
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return new Set();
+        const values = arr
+            .map((v) => String(v ?? "").trim().toUpperCase())
+            .filter((v) => /^CH\\d+$/.test(v));
+        return new Set(values);
+    } catch {
+        return new Set();
+    }
+}
+
+export function BatchTtsProgressPanel({
+    channels: availableChannels = [],
+    channelsLoading = false,
+}: BatchTtsProgressPanelProps) {
     const [progress, setProgress] = useState<BatchTtsProgress | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [starting, setStarting] = useState(false);
-    const [selectedChannels, setSelectedChannels] = useState<Set<string>>(new Set(["CH06", "CH02", "CH04"]));
+    const [selectedChannels, setSelectedChannels] = useState<Set<string>>(() => loadSavedSelection());
     const [showLog, setShowLog] = useState(false);
     const [logContent, setLogContent] = useState<string>("");
     const [collapsed, setCollapsed] = useState(false);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem("ui.batch_tts.selected_channels", JSON.stringify(Array.from(selectedChannels)));
+        } catch {
+            /* ignore */
+        }
+    }, [selectedChannels]);
+
+    const channelOptions = useMemo(() => {
+        const map = new Map<string, ChannelSummary>();
+        availableChannels.forEach((c) => map.set(c.code, c));
+        const codes = Array.from(map.keys());
+        codes.sort(compareChannelCode);
+        return codes.map((code) => {
+            const c = map.get(code);
+            const label = c?.name ?? c?.youtube_title ?? c?.branding?.title ?? code;
+            return { code, label };
+        });
+    }, [availableChannels]);
+
+    useEffect(() => {
+        if (channelOptions.length === 0) {
+            return;
+        }
+        const valid = new Set(channelOptions.map((c) => c.code));
+        setSelectedChannels((prev) => new Set(Array.from(prev).filter((code) => valid.has(code))));
+    }, [channelOptions]);
 
     const refresh = useCallback(async () => {
         try {
@@ -104,7 +161,7 @@ export function BatchTtsProgressPanel() {
         setStarting(true);
         setError(null);
         try {
-            await startBatchRegeneration(Array.from(selectedChannels));
+            await startBatchRegeneration(Array.from(selectedChannels).sort(compareChannelCode));
             await refresh();
             setShowLog(true);
         } catch (err) {
@@ -226,8 +283,15 @@ export function BatchTtsProgressPanel() {
             {isIdle && (
                 <section className="batch-panel__section">
                     <h4 className="batch-panel__section-title">対象チャンネルを選択</h4>
+                    {channelsLoading ? <div className="muted small-text">チャンネルを読み込み中…</div> : null}
+                    {!channelsLoading && channelOptions.length === 0 ? (
+                        <div className="muted small-text">チャンネルが見つかりません（先に「チャンネル設定」から登録してください）</div>
+                    ) : null}
                     <div className="batch-panel__channel-grid">
-                        {CHANNEL_CONFIG.map(ch => (
+                        {channelOptions.map((ch) => {
+                            const stats = progress?.channels?.[ch.code] ?? null;
+                            const countLabel = stats ? `${stats.total} 本 (完了 ${stats.completed})` : "—";
+                            return (
                             <label
                                 key={ch.code}
                                 className={`batch-panel__channel-card ${selectedChannels.has(ch.code) ? "batch-panel__channel-card--selected" : ""}`}
@@ -239,11 +303,12 @@ export function BatchTtsProgressPanel() {
                                 />
                                 <div className="batch-panel__channel-info">
                                     <span className="batch-panel__channel-code">{ch.code}</span>
-                                    <span className="batch-panel__channel-name">{ch.name}</span>
-                                    <span className="batch-panel__channel-count">{ch.count} 本</span>
+                                    <span className="batch-panel__channel-name">{ch.label}</span>
+                                    <span className="batch-panel__channel-count">{countLabel}</span>
                                 </div>
                             </label>
-                        ))}
+                            );
+                        })}
                     </div>
                     <div className="batch-panel__action-row">
                         <button
