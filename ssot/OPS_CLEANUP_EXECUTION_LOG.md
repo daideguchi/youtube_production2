@@ -813,3 +813,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251217T143510Z_commentary02_env_example.tar.gz`
 - 削除（git rm）:
   - `git rm packages/commentary_02_srt2images_timeline/env/.env.example`
+
+### 54) `commentary_02_srt2images_timeline/configs/.openrouter_config` を archive-first で削除（repo tracked）
+
+意図: OpenRouter の設定/キーは repo root `.env` / `credentials/` を正本とし、パッケージ配下の隠し設定ファイルは誤参照・漏洩リスクの温床になるため削除する（コードは `OPENROUTER_API_KEY` を参照）。
+
+- 参照確認:
+  - `find . -name '.openrouter_config'` が当該ファイル以外にヒットしない
+  - `rg -n "openrouter_config" -S .` がヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251217T215754Z_commentary02_openrouter_config.tar.gz`
+- 削除（git rm）:
+  - `git rm packages/commentary_02_srt2images_timeline/configs/.openrouter_config`
