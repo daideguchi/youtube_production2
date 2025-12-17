@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html as html_lib
 import re
 from dataclasses import dataclass
 from typing import Set
@@ -15,6 +16,14 @@ _OG_URL_RE = re.compile(
     re.IGNORECASE,
 )
 _CANONICAL_CHANNEL_RE = re.compile(r"https://www\.youtube\.com/channel/(UC[a-zA-Z0-9_-]{22})")
+_OG_TITLE_RE = re.compile(
+    r"property=[\"']og:title[\"'][^>]*content=[\"']([^\"']+)[\"']",
+    re.IGNORECASE,
+)
+_OG_IMAGE_RE = re.compile(
+    r"property=[\"']og:image[\"'][^>]*content=[\"']([^\"']+)[\"']",
+    re.IGNORECASE,
+)
 
 
 class YouTubeHandleResolutionError(RuntimeError):
@@ -75,11 +84,42 @@ def find_channel_ids_in_youtube_html(html: str) -> Set[str]:
     return {cid for cid in ids if _CHANNEL_ID_PATTERN.match(cid)}
 
 
+def extract_youtube_og_title_and_image(html: str) -> tuple[str | None, str | None]:
+    """
+    Extract title and avatar image from a YouTube HTML page via OpenGraph meta tags.
+
+    This is a quota-free fallback for cases where YouTube Data API is unavailable.
+    """
+
+    text = html or ""
+    title: str | None = None
+    avatar_url: str | None = None
+
+    match = _OG_TITLE_RE.search(text)
+    if match:
+        raw_title = html_lib.unescape(match.group(1)).strip()
+        # Typical format is "<Channel Name> - YouTube".
+        for suffix in (" - YouTube", " – YouTube"):
+            if raw_title.endswith(suffix):
+                raw_title = raw_title[: -len(suffix)].rstrip()
+                break
+        title = raw_title or None
+
+    match = _OG_IMAGE_RE.search(text)
+    if match:
+        raw_image = html_lib.unescape(match.group(1)).strip()
+        avatar_url = raw_image or None
+
+    return title, avatar_url
+
+
 @dataclass(frozen=True)
 class YouTubeHandleResolution:
     handle: str
     channel_id: str
     url: str
+    title: str | None = None
+    avatar_url: str | None = None
 
 
 def resolve_youtube_channel_id_from_handle(handle: str, *, timeout_sec: int = 20) -> YouTubeHandleResolution:
@@ -113,6 +153,8 @@ def resolve_youtube_channel_id_from_handle(handle: str, *, timeout_sec: int = 20
     except Exception as exc:  # noqa: BLE001
         raise YouTubeHandleResolutionError(f"Unexpected error for {handle_url}: {exc}") from exc
 
+    title, avatar_url = extract_youtube_og_title_and_image(html)
+
     og_ids = set(_OG_URL_RE.findall(html))
     if len(og_ids) == 1:
         channel_id = next(iter(og_ids))
@@ -120,6 +162,8 @@ def resolve_youtube_channel_id_from_handle(handle: str, *, timeout_sec: int = 20
             handle=normalized,
             channel_id=channel_id,
             url=f"https://www.youtube.com/channel/{channel_id}",
+            title=title,
+            avatar_url=avatar_url,
         )
     if len(og_ids) > 1:
         raise YouTubeHandleResolutionError(f"og:url resolved to multiple channel IDs: {normalized} -> {sorted(og_ids)}")
@@ -131,6 +175,8 @@ def resolve_youtube_channel_id_from_handle(handle: str, *, timeout_sec: int = 20
             handle=normalized,
             channel_id=channel_id,
             url=f"https://www.youtube.com/channel/{channel_id}",
+            title=title,
+            avatar_url=avatar_url,
         )
     if len(external_ids) > 1:
         raise YouTubeHandleResolutionError(
@@ -147,5 +193,6 @@ def resolve_youtube_channel_id_from_handle(handle: str, *, timeout_sec: int = 20
         handle=normalized,
         channel_id=channel_id,
         url=f"https://www.youtube.com/channel/{channel_id}",
+        title=title,
+        avatar_url=avatar_url,
     )
-
