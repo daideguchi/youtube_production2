@@ -115,19 +115,20 @@ models:
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
-    - azure_gpt5_mini
     - or_deepseek_r1
     - or_deepseek_r1_0528
     - or_o3_mini
     - or_gpt_4o_mini
+    # Keep Azure as optional fallback / A-B test; default is OpenRouter-first for cost.
+    - azure_gpt5_mini
   
   # Standard tasks
   standard:
-    - azure_gpt5_mini
     - or_gpt_4o_mini
     - or_qwen_2_5_7b_instruct
     - or_hunyuan_a13b_instruct
     - or_gemma_3n_e2b_it_free
+    - azure_gpt5_mini
 
   # Cost effective
   cheap:

@@ -129,7 +129,7 @@ def main() -> None:
         "--azure-split-ratio",
         type=float,
         default=None,
-        help="When --mode api: split ratio for Azure vs non-Azure (e.g. 0.5). Default: 0.5",
+        help="When --mode api: optional split ratio for Azure vs non-Azure (e.g. 0.5). If omitted, keep OpenRouter-first.",
     )
     parser.add_argument("--force", action="store_true", help="Run stages even if already completed (costly in API mode)")
     parser.add_argument("--skip-prepare", action="store_true", help="Skip status init/metadata backfill step")
@@ -144,9 +144,11 @@ def main() -> None:
     else:
         # API mode
         os.environ.pop("SCRIPT_PIPELINE_DRY", None)
-        ratio = 0.5 if args.azure_split_ratio is None else float(args.azure_split_ratio)
         # Router reads this env to split Azure/non-Azure roughly (stable by episode key).
-        os.environ["LLM_AZURE_SPLIT_RATIO"] = str(ratio)
+        if args.azure_split_ratio is not None:
+            os.environ["LLM_AZURE_SPLIT_RATIO"] = str(float(args.azure_split_ratio))
+        else:
+            os.environ.pop("LLM_AZURE_SPLIT_RATIO", None)
 
     if not args.skip_prepare:
         _run_prepare(channels, videos)
