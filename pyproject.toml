@@ -77,4 +77,3 @@ pythonpath = [
     "packages"
 ]
 testpaths = ["tests"]
-asyncio_mode = "strict"
