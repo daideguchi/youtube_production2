@@ -5,11 +5,16 @@
   "persona_path": "progress/personas/CH12_PERSONA.md",
   "template_path": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt",
   "branding": {
-    "avatar_url": "https://yt3.googleusercontent.com/WlucfBCHZ3a-9xgzy2YajiDfUO5O2gnpZBgdZgx3vtR0cfwYtDaoh1fvtQj8ntPZcje_HCEr=s900-c-k-c0x00ffffff-no-rj",
+    "avatar_url": "https://yt3.ggpht.com/WlucfBCHZ3a-9xgzy2YajiDfUO5O2gnpZBgdZgx3vtR0cfwYtDaoh1fvtQj8ntPZcje_HCEr=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
     "title": "ブッダの教え【人生が輝く知恵】",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
     "custom_url": "@buddha-a001",
     "handle": "@buddha-a001",
-    "url": "https://www.youtube.com/channel/UCY2W5huV0xtLYNt9xpq70HA"
+    "url": "https://www.youtube.com/channel/UCY2W5huV0xtLYNt9xpq70HA",
+    "updated_at": "2025-12-17T05:37:25.798899Z"
   },
   "youtube": {
     "channel_id": "UCY2W5huV0xtLYNt9xpq70HA",
@@ -17,7 +22,11 @@
     "custom_url": "@buddha-a001",
     "handle": "@buddha-a001",
     "url": "https://www.youtube.com/channel/UCY2W5huV0xtLYNt9xpq70HA",
-    "source": "UCY2W5huV0xtLYNt9xpq70HA"
+    "source": "UCY2W5huV0xtLYNt9xpq70HA",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2025-12-17T07:26:26.566452+00:00"
   },
   "script_prompt": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt"
 }
