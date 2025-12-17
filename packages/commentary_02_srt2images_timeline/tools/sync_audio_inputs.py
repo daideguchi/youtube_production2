@@ -3,7 +3,7 @@
 Sync finished audio_tts_v2 artifacts (srt/wav) into commentary input for auto-draft.
 
 - Scans workspaces/audio/final/<CH>/<video>/ for .srt/.wav
-- Copies missing files to workspaces/video/input/<CH>_<PresetName>/
+- Copies missing files to workspaces/video/input/<CH>_<PresetName>/ (or symlinks wav when configured)
 - Keeps workspaces/video/input as a **mirror** of audio final SoT:
   - Copy missing files
   - If a file exists but differs from final, archive+replace (default)
@@ -14,12 +14,14 @@ Usage:
     python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs [--dry-run]
 """
 import json
+import os
 import shutil
 from pathlib import Path
 import argparse
 import hashlib
 from datetime import datetime, timezone
 
+from factory_common import locks as coordination_locks
 from factory_common.paths import (
     repo_root,
     workspace_root,
@@ -38,6 +40,17 @@ MANIFEST = video_audio_sync_status_path()
 
 def _utc_now_compact() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _symlink_to(src: Path, dst: Path) -> None:
+    """
+    Create `dst` as a symlink to `src` (relative when possible).
+    """
+    try:
+        rel = os.path.relpath(str(src), start=str(dst.parent))
+        dst.symlink_to(rel)
+    except Exception:
+        dst.symlink_to(src)
 
 
 def load_channel_names():
@@ -133,6 +146,18 @@ def main():
     ap.add_argument("--archive-root", help="Override archive root (default: workspaces/video/_archive/<timestamp>)")
     ap.add_argument("--hash-wav", action="store_true", help="Also compare sha1 for .wav (slower; default=size-only)")
     ap.add_argument(
+        "--wav-policy",
+        choices=["copy", "symlink", "skip"],
+        default="copy",
+        help="How to materialize .wav into workspaces/video/input (default: copy).",
+    )
+    ap.add_argument(
+        "--wav-dedupe",
+        action="store_true",
+        help="When --wav-policy=symlink, replace existing matching wav copies with symlinks.",
+    )
+    ap.add_argument("--ignore-locks", action="store_true", help="Do not respect coordination locks (DANGEROUS).")
+    ap.add_argument(
         "--orphan-policy",
         choices=["keep", "archive"],
         default="keep",
@@ -146,6 +171,7 @@ def main():
 
     channel_names = load_channel_names()
     manifest = load_manifest()
+    active_locks = [] if args.ignore_locks else coordination_locks.default_active_locks_for_mutation()
 
     copied: list[str] = []
     skipped: list[str] = []
@@ -153,12 +179,47 @@ def main():
     mismatched: list[str] = []
     archived: list[str] = []
     orphaned: list[str] = []
+    skipped_locked: list[str] = []
 
     archive_root = (
         Path(args.archive_root).expanduser().resolve()
         if args.archive_root
         else (workspace_root() / "video" / "_archive" / _utc_now_compact())
     )
+
+    def _is_locked(path: Path) -> bool:
+        if not active_locks:
+            return False
+        lock = coordination_locks.find_blocking_lock(path, active_locks)
+        if not lock:
+            return False
+        try:
+            rel = str(path.resolve().relative_to(BASE))
+        except Exception:
+            rel = str(path)
+        skipped_locked.append(f"{rel} (lock={lock.lock_id}, mode={lock.mode})")
+        return True
+
+    def _is_same_symlink_target(dst: Path, src: Path) -> bool:
+        if not dst.is_symlink():
+            return False
+        try:
+            return dst.resolve() == src.resolve()
+        except Exception:
+            return False
+
+    def _materialize(src: Path, dst: Path) -> bool:
+        """
+        Return True when dst is created/updated, False when skipped.
+        """
+        if src.suffix.lower() == ".wav":
+            if args.wav_policy == "skip":
+                return False
+            if args.wav_policy == "symlink":
+                _symlink_to(src, dst)
+                return True
+        shutil.copy2(src, dst)
+        return True
 
     for ch_dir in sorted(ART_ROOT.glob("*")):
         if not ch_dir.is_dir():
@@ -185,30 +246,72 @@ def main():
                 entry["hash"] = entry.get("hash") or ""
 
             if target.exists():
-                if _files_match(f, target, hash_wav=args.hash_wav):
+                if (
+                    f.suffix.lower() == ".wav"
+                    and args.wav_policy == "symlink"
+                    and args.wav_dedupe
+                    and not _is_same_symlink_target(target, f)
+                    and _files_match(f, target, hash_wav=args.hash_wav)
+                ):
+                    # Deduplicate: replace matching wav copies with a symlink.
+                    did_update = (mode == "dry-run")
+                    if mode == "run":
+                        if _is_locked(f) or _is_locked(target):
+                            did_update = False
+                            skipped.append(rel)
+                        else:
+                            target_dir.mkdir(parents=True, exist_ok=True)
+                            try:
+                                target.unlink()
+                            except Exception:
+                                pass
+                            _materialize(f, target)
+                            did_update = True
+                    if did_update:
+                        updated.append(rel)
+                        entry["checked"] = False
+                        entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                elif _files_match(f, target, hash_wav=args.hash_wav):
                     skipped.append(rel)
                 else:
                     mismatched.append(rel)
                     if args.on_mismatch == "skip":
                         skipped.append(rel)
                     else:
-                        if mode == "run":
-                            target_dir.mkdir(parents=True, exist_ok=True)
-                            if args.on_mismatch == "archive-replace":
-                                dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
-                                dest.parent.mkdir(parents=True, exist_ok=True)
-                                shutil.move(str(target), str(dest))
-                                archived.append(str(dest.relative_to(BASE)))
-                            shutil.copy2(f, target)
-                        updated.append(rel)
-                        # content changed; checked flag no longer valid
-                        entry["checked"] = False
-                        entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                        did_update = (mode == "dry-run")
+                        if f.suffix.lower() == ".wav" and args.wav_policy == "skip":
+                            did_update = False
+                        elif mode == "run":
+                            if _is_locked(f) or _is_locked(target):
+                                did_update = False
+                            else:
+                                target_dir.mkdir(parents=True, exist_ok=True)
+                                if args.on_mismatch == "archive-replace":
+                                    dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
+                                    dest.parent.mkdir(parents=True, exist_ok=True)
+                                    shutil.move(str(target), str(dest))
+                                    archived.append(str(dest.relative_to(BASE)))
+                                did_update = _materialize(f, target)
+                        if did_update:
+                            updated.append(rel)
+                            # content changed; checked flag no longer valid
+                            entry["checked"] = False
+                            entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             else:
-                if mode == "run":
-                    target_dir.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(f, target)
-                copied.append(rel)
+                if f.suffix.lower() == ".wav" and args.wav_policy == "skip":
+                    skipped.append(rel)
+                else:
+                    if mode == "run":
+                        if _is_locked(f) or _is_locked(target_dir):
+                            skipped.append(rel)
+                        else:
+                            target_dir.mkdir(parents=True, exist_ok=True)
+                            if _materialize(f, target):
+                                copied.append(rel)
+                            else:
+                                skipped.append(rel)
+                    else:
+                        copied.append(rel)
             manifest[rel] = entry
         for video_dir in sorted(ch_dir.glob("*")):
             if not video_dir.is_dir():
@@ -229,29 +332,70 @@ def main():
                     entry["hash"] = entry.get("hash") or ""
 
                 if target.exists():
-                    if _files_match(f, target, hash_wav=args.hash_wav):
+                    if (
+                        f.suffix.lower() == ".wav"
+                        and args.wav_policy == "symlink"
+                        and args.wav_dedupe
+                        and not _is_same_symlink_target(target, f)
+                        and _files_match(f, target, hash_wav=args.hash_wav)
+                    ):
+                        did_update = (mode == "dry-run")
+                        if mode == "run":
+                            if _is_locked(f) or _is_locked(target):
+                                did_update = False
+                                skipped.append(rel)
+                            else:
+                                target_dir.mkdir(parents=True, exist_ok=True)
+                                try:
+                                    target.unlink()
+                                except Exception:
+                                    pass
+                                _materialize(f, target)
+                                did_update = True
+                        if did_update:
+                            updated.append(rel)
+                            entry["checked"] = False
+                            entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                    elif _files_match(f, target, hash_wav=args.hash_wav):
                         skipped.append(rel)
                     else:
                         mismatched.append(rel)
                         if args.on_mismatch == "skip":
                             skipped.append(rel)
                         else:
-                            if mode == "run":
-                                target_dir.mkdir(parents=True, exist_ok=True)
-                                if args.on_mismatch == "archive-replace":
-                                    dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
-                                    dest.parent.mkdir(parents=True, exist_ok=True)
-                                    shutil.move(str(target), str(dest))
-                                    archived.append(str(dest.relative_to(BASE)))
-                                shutil.copy2(f, target)
-                            updated.append(rel)
-                            entry["checked"] = False
-                            entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                            did_update = (mode == "dry-run")
+                            if f.suffix.lower() == ".wav" and args.wav_policy == "skip":
+                                did_update = False
+                            elif mode == "run":
+                                if _is_locked(f) or _is_locked(target):
+                                    did_update = False
+                                else:
+                                    target_dir.mkdir(parents=True, exist_ok=True)
+                                    if args.on_mismatch == "archive-replace":
+                                        dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
+                                        dest.parent.mkdir(parents=True, exist_ok=True)
+                                        shutil.move(str(target), str(dest))
+                                        archived.append(str(dest.relative_to(BASE)))
+                                    did_update = _materialize(f, target)
+                            if did_update:
+                                updated.append(rel)
+                                entry["checked"] = False
+                                entry["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                 else:
-                    if mode == "run":
-                        target_dir.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(f, target)
-                    copied.append(rel)
+                    if f.suffix.lower() == ".wav" and args.wav_policy == "skip":
+                        skipped.append(rel)
+                    else:
+                        if mode == "run":
+                            if _is_locked(f) or _is_locked(target_dir):
+                                skipped.append(rel)
+                            else:
+                                target_dir.mkdir(parents=True, exist_ok=True)
+                                if _materialize(f, target):
+                                    copied.append(rel)
+                                else:
+                                    skipped.append(rel)
+                        else:
+                            copied.append(rel)
                 manifest[rel] = entry
 
         if args.orphan_policy != "keep" and target_dir.exists():
@@ -262,6 +406,9 @@ def main():
                 rel = str(f.relative_to(BASE))
                 orphaned.append(rel)
                 if args.orphan_policy == "archive" and mode == "run":
+                    if _is_locked(f):
+                        skipped.append(rel)
+                        continue
                     dest = _archive_path_for(f, channel=ch, archive_root=archive_root)
                     dest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -290,6 +437,8 @@ def main():
         print(f"archived: {len(archived)} | archive_root: {archive_root}")
     if orphaned:
         print(f"orphans: {len(orphaned)} | orphan_policy: {args.orphan_policy}")
+    if skipped_locked:
+        print(f"skipped_locked: {len(skipped_locked)}")
     if copied:
         print("copied samples:", copied[:5])
     if updated:
