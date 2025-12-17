@@ -101,7 +101,10 @@ def main() -> None:
 
         base_dir = repo_root()
         packages_dir = base_dir / "packages"
-        input_path = video_root(ch, no) / "content" / "assembled.md"
+        content_dir = video_root(ch, no) / "content"
+        human_path = content_dir / "assembled_human.md"
+        assembled_path = content_dir / "assembled.md"
+        input_path = assembled_path
 
         # Safety: require script_validation before TTS unless explicitly overridden.
         if not getattr(args, "allow_unvalidated", False):
@@ -117,8 +120,18 @@ def main() -> None:
                     f"(or pass --allow-unvalidated to override)."
                 )
         
+        # Ensure assembled.md exists when only assembled_human.md is present (human is authoritative; assembled is mirror).
+        if not assembled_path.exists() and human_path.exists():
+            try:
+                assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                assembled_path.write_text(human_path.read_text(encoding="utf-8"), encoding="utf-8")
+            except Exception as exc:
+                raise SystemExit(
+                    f"Error: Failed to materialize {assembled_path} from {human_path}: {exc}"
+                ) from exc
+
         if not input_path.exists():
-            print(f"Error: Input file not found: {input_path}")
+            print(f"Error: Input file not found: {input_path} (and no {human_path} to mirror)")
             return
 
         cmd = [

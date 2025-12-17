@@ -23,11 +23,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from factory_common.alignment import (
     ALIGNMENT_SCHEMA,
-    bracket_topic_overlaps,
+    alignment_suspect_reason,
     build_alignment_stamp,
-    iter_thumbnail_catches_from_row,
     planning_signature_from_row,
-    title_script_token_overlap_ratio,
     utc_now_iso,
 )
 from factory_common.paths import channels_csv_path, planning_root, status_path, video_root
@@ -99,14 +97,9 @@ def _check_episode(row: dict[str, str], *, channel: str) -> EpisodeCheck:
     if not video:
         return EpisodeCheck(channel=channel, video="(missing)", ok_to_stamp=False, reason="動画番号が取得できません")
 
-    planning_title = str(row.get("タイトル") or "").strip()
     script_path = _resolve_script_path(channel, video)
     if not script_path:
         return EpisodeCheck(channel=channel, video=video, ok_to_stamp=False, reason="台本が存在しません")
-
-    catches = {c for c in iter_thumbnail_catches_from_row(row)}
-    if len(catches) > 1:
-        return EpisodeCheck(channel=channel, video=video, ok_to_stamp=False, reason="サムネプロンプト先頭行が不一致")
 
     # Heuristic: if bracket-topic never overlaps, treat as suspect (likely planning drift).
     try:
@@ -114,13 +107,13 @@ def _check_episode(row: dict[str, str], *, channel: str) -> EpisodeCheck:
     except Exception:
         preview = ""
 
-    if planning_title and not bracket_topic_overlaps(planning_title, preview):
-        ratio = title_script_token_overlap_ratio(planning_title, preview)
+    suspect_reason = alignment_suspect_reason(row, preview)
+    if suspect_reason:
         return EpisodeCheck(
             channel=channel,
             video=video,
             ok_to_stamp=False,
-            reason=f"タイトル主要語が台本に出現しません (overlap={ratio:.2f})",
+            reason=suspect_reason,
         )
 
     # If there is no title, still allow stamping (it will be stored as empty).

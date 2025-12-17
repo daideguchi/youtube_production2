@@ -24,7 +24,11 @@ from factory_common.artifacts.llm_text_output import (
     write_llm_text_artifact,
 )
 from factory_common.llm_router import get_router
-from factory_common.alignment import build_alignment_stamp
+from factory_common.alignment import (
+    ALIGNMENT_SCHEMA,
+    alignment_suspect_reason,
+    build_alignment_stamp,
+)
 from factory_common.paths import (
     audio_final_dir,
     channels_csv_path,
@@ -1810,11 +1814,40 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         try:
             csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(st.channel))), st.video)
             if csv_row and assembled_path.exists():
-                stamp = build_alignment_stamp(planning_row=csv_row, script_path=assembled_path)
-                st.metadata["alignment"] = stamp.as_dict()
-                planning_title = stamp.planning.get("title")
-                if isinstance(planning_title, str) and planning_title.strip():
-                    st.metadata["sheet_title"] = planning_title.strip()
+                planning_title = str(csv_row.get("タイトル") or "").strip()
+                if planning_title:
+                    st.metadata["sheet_title"] = planning_title
+                try:
+                    preview = assembled_path.read_text(encoding="utf-8")[:6000]
+                except Exception:
+                    preview = ""
+                suspect_reason = alignment_suspect_reason(csv_row, preview)
+
+                if suspect_reason:
+                    # Mark as suspect (do NOT write hashes) so downstream (run_tts) stops safely.
+                    st.metadata["alignment"] = {
+                        "schema": ALIGNMENT_SCHEMA,
+                        "computed_at": utc_now_iso(),
+                        "suspect": True,
+                        "suspect_reason": suspect_reason,
+                    }
+                    # Also annotate redo flags for visibility in UI/ops.
+                    note = str(st.metadata.get("redo_note") or "").strip()
+                    msg = f"整合NG: {suspect_reason}"
+                    if not note:
+                        st.metadata["redo_note"] = msg
+                    elif msg not in note:
+                        st.metadata["redo_note"] = f"{note} / {msg}"
+                    st.metadata.setdefault("redo_script", True)
+                    st.metadata.setdefault("redo_audio", True)
+                    st.stages[stage_name].details["alignment_suspect"] = suspect_reason
+                else:
+                    stamp = build_alignment_stamp(planning_row=csv_row, script_path=assembled_path)
+                    st.metadata["alignment"] = stamp.as_dict()
+                    planning_title = stamp.planning.get("title")
+                    if isinstance(planning_title, str) and planning_title.strip():
+                        st.metadata["sheet_title"] = planning_title.strip()
+
                 planning_section = opt_fields.get_planning_section(st.metadata)
                 opt_fields.update_planning_from_row(planning_section, csv_row)
         except Exception:
@@ -1856,6 +1889,81 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             return st
 
         issues, stats = validate_a_text(a_text, st.metadata or {})
+
+        # Planning↔Script alignment gate: prevent "validated" status when the episode is
+        # clearly mismatched or stale relative to Planning SoT.
+        #
+        # NOTE: Offline mode may run without a full Planning context; skip alignment checks there.
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            align = st.metadata.get("alignment") if isinstance(st.metadata, dict) else None
+            if not (isinstance(align, dict) and align.get("schema") == ALIGNMENT_SCHEMA):
+                issues.append(
+                    {
+                        "code": "alignment_missing",
+                        "message": "Alignment stamp missing (run enforce_alignment or regenerate script_review)",
+                        "severity": "error",
+                    }
+                )
+            elif align.get("suspect"):
+                reason = str(align.get("suspect_reason") or "").strip()
+                issues.append(
+                    {
+                        "code": "alignment_suspect",
+                        "message": f"Alignment marked suspect: {reason}" if reason else "Alignment marked suspect",
+                        "severity": "error",
+                    }
+                )
+            else:
+                stored_planning_hash = align.get("planning_hash")
+                stored_script_hash = align.get("script_hash")
+                if not (isinstance(stored_planning_hash, str) and isinstance(stored_script_hash, str)):
+                    issues.append(
+                        {
+                            "code": "alignment_incomplete",
+                            "message": "Alignment stamp missing hashes (re-stamp alignment)",
+                            "severity": "error",
+                        }
+                    )
+                else:
+                    try:
+                        csv_row = _load_csv_row(
+                            _resolve_repo_path(str(channels_csv_path(st.channel))),
+                            st.video,
+                        )
+                        if not csv_row:
+                            issues.append(
+                                {
+                                    "code": "alignment_planning_row_missing",
+                                    "message": "Planning row not found; cannot verify alignment",
+                                    "severity": "error",
+                                }
+                            )
+                        else:
+                            current = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                            if current.planning_hash != stored_planning_hash:
+                                issues.append(
+                                    {
+                                        "code": "alignment_planning_hash_mismatch",
+                                        "message": "Planning changed after stamping (re-stamp alignment)",
+                                        "severity": "error",
+                                    }
+                                )
+                            if current.script_hash != stored_script_hash:
+                                issues.append(
+                                    {
+                                        "code": "alignment_script_hash_mismatch",
+                                        "message": "Script changed after stamping (re-stamp alignment)",
+                                        "severity": "error",
+                                    }
+                                )
+                    except Exception as exc:
+                        issues.append(
+                            {
+                                "code": "alignment_check_failed",
+                                "message": f"Alignment check failed: {exc}",
+                                "severity": "error",
+                            }
+                        )
 
         # Legacy mirror guard (must not diverge; workspaces/scripts/README.md forbids this mirror).
         legacy_final = content_dir / "final" / "assembled.md"

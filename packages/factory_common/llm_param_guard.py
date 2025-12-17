@@ -1,7 +1,7 @@
 """
 Minimal, side-effect free helpers to normalize LLM call parameters before hitting a provider adapter.
 
-⚠️ 現時点では呼び出し元へは未配線。安全な統合用の下準備として配置。
+LLMRouter/LLMClient から呼ばれる前提で、副作用なし・安全側の正規化のみを担当する。
 """
 
 from typing import Dict, Any

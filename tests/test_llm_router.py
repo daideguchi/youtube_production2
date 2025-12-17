@@ -41,6 +41,9 @@ class TestLLMRouter(unittest.TestCase):
     def setUp(self):
         # Unit tests should not depend on or pollute disk cache.
         os.environ["LLM_API_CACHE_DISABLE"] = "1"
+        os.environ.pop("LLM_FORCE_MODELS", None)
+        os.environ.pop("LLM_FORCE_MODEL", None)
+        os.environ.pop("LLM_FORCE_TASK_MODELS_JSON", None)
         # Reset singleton to avoid cross-test contamination.
         LLMRouter._instance = None
 
@@ -81,6 +84,66 @@ class TestLLMRouter(unittest.TestCase):
         self.assertEqual(out["content"], "openrouter")
         self.assertEqual(out["chain"], ["m_fail", "m_ok"])
         self.assertGreaterEqual(dummy.calls, 2)
+
+    def test_force_models_override(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
+                "m_b": {"provider": "openrouter", "model_name": "y", "capabilities": {"mode": "chat"}},
+            },
+            "tiers": {"standard": ["m_a", "m_b"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "m_b"
+        self.assertEqual(router.get_models_for_task("general"), ["m_b"])
+
+    def test_force_task_models_override_wins(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
+                "m_b": {"provider": "openrouter", "model_name": "y", "capabilities": {"mode": "chat"}},
+            },
+            "tiers": {"standard": ["m_a"]},
+            "tasks": {"general": {"tier": "standard"}, "other": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "m_a"
+        os.environ["LLM_FORCE_TASK_MODELS_JSON"] = '{"general":["m_b"]}'
+        self.assertEqual(router.get_models_for_task("general"), ["m_b"])
+        self.assertEqual(router.get_models_for_task("other"), ["m_a"])
+
+    def test_force_models_unknown_falls_back(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
+            },
+            "tiers": {"standard": ["m_a"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "does_not_exist"
+        self.assertEqual(router.get_models_for_task("general"), ["m_a"])
+
+    def test_force_task_models_invalid_json_falls_back(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
+            },
+            "tiers": {"standard": ["m_a"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_TASK_MODELS_JSON"] = "{"
+        self.assertEqual(router.get_models_for_task("general"), ["m_a"])
 
 
 if __name__ == "__main__":

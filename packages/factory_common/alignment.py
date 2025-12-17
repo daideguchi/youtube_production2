@@ -165,6 +165,29 @@ def bracket_topic_overlaps(title: str | None, script_text: str | None) -> bool:
     return bool(topic_tokens & script_tokens)
 
 
+def alignment_suspect_reason(planning_row: Dict[str, Any], script_text_preview: str | None) -> Optional[str]:
+    """
+    Decide whether a Planning↔Script pair looks suspect (likely mismatch) and return a human-readable reason.
+
+    Notes:
+    - This is a heuristic "safety gate" to prevent stamping hashes for obviously mismatched pairs.
+    - It should be cheap and deterministic (no network, no model calls).
+    """
+    try:
+        catches = {c for c in iter_thumbnail_catches_from_row(planning_row)}
+    except Exception:
+        catches = set()
+    if len(catches) > 1:
+        return "サムネプロンプト先頭行が不一致"
+
+    planning_title = str(planning_row.get("タイトル") or "").strip()
+    if planning_title and not bracket_topic_overlaps(planning_title, script_text_preview or ""):
+        ratio = title_script_token_overlap_ratio(planning_title, script_text_preview or "")
+        return f"タイトル主要語が台本に出現しません (overlap={ratio:.2f})"
+
+    return None
+
+
 @dataclass(frozen=True)
 class AlignmentStamp:
     schema: str
@@ -192,4 +215,3 @@ def build_alignment_stamp(*, planning_row: Dict[str, Any], script_path: Path) ->
         script_hash=sha1_file(script_path),
         planning=sig,
     )
-

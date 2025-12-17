@@ -140,6 +140,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
    - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`）
      - チェック対象: `content/assembled_human.md`（優先）→ `content/assembled.md`
      - 禁止混入（URL/脚注/箇条書き/番号リスト/見出し/区切り記号など）を検出したら **pending のまま停止**し、UI/人間が修正して再実行する。
+     - 企画↔台本の整合も検証する（alignment freshness gate）
+       - `status.json: metadata.alignment` が missing/suspect/不一致（Planning行 or Aテキストが変更された）なら **pending のまま停止**
+       - 修復: `python scripts/enforce_alignment.py --channels CHxx --apply`（または `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
      - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
 9. `audio_synthesis`（Audioフェーズ呼び出し口）
    - Outputs（参照先はAudio側で確定）:

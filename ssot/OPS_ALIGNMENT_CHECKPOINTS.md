@@ -45,6 +45,7 @@
 - [ ] `updated_at` が更新されている（いつ作られたか追える）
 - [ ] `metadata.alignment.schema == "ytm.alignment.v1"` が入っている（Planning↔Scriptの整合スタンプ）
   - 更新が入ったら再スタンプする: `python scripts/enforce_alignment.py --channels CHxx --apply`
+  - `script_validation` / `run_tts` は **missing/suspect/不一致なら停止**（誤台本で音声を作らない）
 
 ---
 
