@@ -13,14 +13,28 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from factory_common.paths import planning_root, script_data_root
 
 CHANNELS_DIR = planning_root() / "channels"
 DATA_ROOT = script_data_root()
+
+def _to_repo_relative(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(PROJECT_ROOT).as_posix()
+    except Exception:
+        return path.as_posix()
 
 
 def load_csv(path: Path) -> Tuple[List[Dict[str, str]], List[str]]:
@@ -79,15 +93,16 @@ def sync_one(code: str, no: int, rows: List[Dict[str, str]], fieldnames: List[st
     row = ensure_row(rows, fieldnames, code, no)
     if not row.get("タイトル"):
         row["タイトル"] = title
-    row["台本"] = content_path.as_posix()
-    row["台本パス"] = content_path.as_posix()
+    content_rel = _to_repo_relative(content_path)
+    row["台本"] = content_rel
+    row["台本パス"] = content_rel
     row["文字数"] = length
     row.setdefault("進捗", "script_validated")
 
     status_path = data_dir / f"{no:03d}" / "status.json"
     status = read_status(status_path)
     md = status.get("metadata") if isinstance(status.get("metadata"), dict) else {}
-    md.setdefault("assembled_path", content_path.as_posix())
+    md.setdefault("assembled_path", content_rel)
     md.setdefault("assembled_characters", len(text))
     if title:
         md["title"] = title

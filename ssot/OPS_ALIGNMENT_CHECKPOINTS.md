@@ -24,6 +24,7 @@
 
 推奨（迷子/再生成ミスが激減する）:
 - [ ] `台本` または `台本パス` が `workspaces/scripts/{CH}/{NNN}/content/assembled.md` を指す（互換: `script_pipeline/data/...`）
+  - 形式は **repo 相対パス** を推奨（絶対パス混入は誤参照/移設事故の原因）
 - [ ] 企画更新後に下流を再生成する運用が守られている（`OPS_PLANNING_CSV_WORKFLOW.md`）
 
 ---

@@ -53,8 +53,8 @@ factory_commentary/
 - トークン: `credentials/drive_oauth_token.json`（`scripts/drive_oauth_setup.py` で生成・更新）
 - .env 必須キー:  
   - `DRIVE_UPLOAD_MODE=oauth`  
-  - `DRIVE_OAUTH_CLIENT_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/configs/drive_oauth_client.json`  
-  - `DRIVE_OAUTH_TOKEN_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/credentials/drive_oauth_token.json`  
+  - `DRIVE_OAUTH_CLIENT_PATH=<REPO_ROOT>/configs/drive_oauth_client.json`  
+  - `DRIVE_OAUTH_TOKEN_PATH=<REPO_ROOT>/credentials/drive_oauth_token.json`  
   - `DRIVE_FOLDER_ID=1gSkBU59NFC1ioQTvRDK57nZ51hDRLjfJ`（000_YouTube）
 - 初回（またはトークン破損時）: `python3 scripts/drive_oauth_setup.py` → ブラウザで許可
 - アップロード: `python3 scripts/drive_upload_oauth.py --file <ローカルファイル>`（フォルダ変更時のみ `--folder <id>`）

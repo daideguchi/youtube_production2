@@ -1,7 +1,7 @@
 # Codex 誓約書（script_pipeline 専用）
 
 作成日: 2025-11-27（JST, `date` 実行で確認）
-場所: /Users/dd/10_YouTube_Automation/factory_commentary/script_pipeline（このファイルの実在パス）
+場所: <REPO_ROOT>/packages/script_pipeline（このファイルの実在パス）
 
 ## 1. 目的
 本リポジトリの改変・実行に伴う不具合や遅延について、責任を回避する言動を防ぎ、常に自分自身の設計・実装を見直すための誓約を明文化する。

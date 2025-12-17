@@ -53,7 +53,8 @@
 
 ### 1.3 I/O上の注意
 - `動画番号` は `NNN`（3桁ゼロ埋め）として他SoTと突合する。
-- `台本パス` 等、旧パスが混入しやすい列は **paths SSOT導入後に正規化**する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
+- `台本` / `台本パス` は **repo 相対パス**（例: `workspaces/scripts/CH01/001/content/assembled.md`）を正とする。
+  - 絶対パスが混入している場合は、repo ルート配下であることを確認した上で相対へ正規化する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
 
 ---
 

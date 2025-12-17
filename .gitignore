@@ -50,6 +50,12 @@ credentials/
 _old
 .pytest*
 .remotion*
+
+# Remotion runtime artifacts (generated; do not commit)
+apps/remotion/input/
+apps/remotion/out/
+apps/remotion/public/_auto/
+apps/remotion/public/_bgm/
 audio_tts_v2/artifacts
 packages/audio_tts_v2/artifacts
 backups
@@ -67,8 +73,8 @@ _old
 *_KEY*
 
 # Authentication and authorization
-*.json
-!*.json  # 全てのJSONを無視しないようにするための例外
+# NOTE: JSON を一律で ignore しない（必要な JSON は repo に含める）。
+# 機密/トークン系は以下の個別パターンで除外する。
 credentials/
 *.credentials
 credential/
@@ -127,3 +133,6 @@ ssot_old/
 # Local scratch
 tmp/
 commentary_02_srt2images_timeline/_capcut_drafts/
+
+# Local caches (generated; keep out of git)
+data/visual_bible*.json

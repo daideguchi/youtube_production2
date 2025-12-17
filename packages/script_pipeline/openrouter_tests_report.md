@@ -54,12 +54,11 @@
 4. モデル切替時のパラメータ管理は `openrouter_models.json` のメタを活用（`supported_parameters`, `default_parameters`, `context_length`, `max_completion_tokens` 推定を自動化）。
 
 ## 参考コマンド（例）
-- OpenRouter メタ再取得（無料のみ）:
-  ```bash
-  cd /Users/dd/10_YouTube_Automation/factory_commentary
-  set -a && source /Users/dd/youtube_master/.env && set +a
-  python -m script_pipeline.tools.openrouter_models --free-only
-  ```
+  - OpenRouter メタ再取得（無料のみ）:
+    ```bash
+    cd <REPO_ROOT>
+    ./scripts/with_ytm_env.sh python -m script_pipeline.tools.openrouter_models --free-only
+    ```
 - Grok 4.1 Fast 短文 QA:
   ```bash
   MODEL="x-ai/grok-4.1-fast:free"

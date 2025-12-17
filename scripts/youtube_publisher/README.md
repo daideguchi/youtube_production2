@@ -14,7 +14,7 @@ Drive・Sheets・YouTube をまとめて OAuth する前提で、シートの行
 
 ## 初回セットアップ
 ```bash
-cd /Users/dd/10_YouTube_Automation/factory_commentary
+cd <REPO_ROOT>
 python3 scripts/youtube_publisher/oauth_setup.py
 ```
 ブラウザで許可 → `credentials/youtube_publisher_token.json` が生成されます。

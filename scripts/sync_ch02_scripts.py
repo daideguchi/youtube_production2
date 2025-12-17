@@ -1,14 +1,33 @@
 import csv
 import json
+import sys
 from pathlib import Path
-
-from factory_common.paths import script_data_root
 from typing import Dict, List
 
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from factory_common.paths import channels_csv_path, script_data_root
+
 CH_CODE = "CH02"
-REPO_ROOT = Path(__file__).resolve().parents[1]
-CSV_PATH = REPO_ROOT / "progress" / "channels" / f"{CH_CODE}.csv"
+CSV_PATH = channels_csv_path(CH_CODE)
 DATA_DIR = script_data_root() / CH_CODE
+
+
+def _to_repo_relative(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(PROJECT_ROOT).as_posix()
+    except Exception:
+        return path.as_posix()
 
 
 def load_csv() -> List[Dict[str, str]]:
@@ -60,15 +79,16 @@ def sync_one(no: int, rows: List[Dict[str, str]], fieldnames: List[str]) -> None
     length = str(len(text))
     row = ensure_row(rows, fieldnames, no)
     row["タイトル"] = row.get("タイトル") or title
-    row["台本"] = content_path.as_posix()
-    row["台本パス"] = content_path.as_posix()
+    content_rel = _to_repo_relative(content_path)
+    row["台本"] = content_rel
+    row["台本パス"] = content_rel
     row["文字数"] = length
     row.setdefault("進捗", "script_validated")
 
     status_path = DATA_DIR / f"{no:03d}" / "status.json"
     status = read_status(status_path)
     md = status.get("metadata") if isinstance(status.get("metadata"), dict) else {}
-    md.setdefault("assembled_path", content_path.as_posix())
+    md.setdefault("assembled_path", content_rel)
     md.setdefault("assembled_characters", len(text))
     md["title"] = title if title else md.get("title", "")
     md["title_sanitized"] = md.get("title")

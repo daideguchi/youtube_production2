@@ -67,7 +67,7 @@
 ### 3.1 LLMなし合成（strict TTS）
 1. リポジトリルートで実行:
    ```bash
-   cd /Users/dd/10_YouTube_Automation/factory_commentary
+   cd <REPO_ROOT>
    SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
    PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
      --channel {CH} --video {VID} \
