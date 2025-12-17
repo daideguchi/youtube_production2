@@ -70,6 +70,26 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
      - `script_prompt.txt` に不要な空行や未置換のプレースホルダがないかを確認。
      - `channel_info.json` に `template_path` / `script_prompt` / `persona_path` が揃っていることを確認。
 
+### Step F. チャンネル登録（YouTubeハンドルで一意特定 / UI+エージェント共通）
+- 目的: 新しい CHxx を追加する際に「どのファイルを作る？どこに書く？」の迷いを無くし、YouTube側の特定も **ハンドル(@name)だけ** で確実に行う。
+- 入力（最低限）
+  - `channel_code`: `CH17` のようなコード
+  - `channel_name`: 内部表示名（`packages/script_pipeline/channels/CHxx-<ここ>` の suffix）
+  - `youtube_handle`: `@name`（必須・重複禁止）
+- 実行方法（どちらか）
+  1. UI: `/channel-settings` → 「新規チャンネル登録（ハンドル必須）」から登録 → 自動でページ再読み込み
+  2. CLI:
+     - `python3 -m script_pipeline.tools.channel_registry create --channel CH17 --name "<表示名>" --youtube-handle "@name"`
+- 自動で作成/更新されるもの
+  - `packages/script_pipeline/channels/CHxx-*/channel_info.json` + `script_prompt.txt`
+  - `workspaces/scripts/CHxx/`（UIのチャンネル一覧に出るため）
+  - `workspaces/planning/channels/CHxx.csv`（ヘッダーのみ）
+  - `workspaces/planning/personas/CHxx_PERSONA.md`（スタブ）
+  - `configs/sources.yaml`（planning/persona/prompt + chapter_count/文字数の任意項目）
+- 補足
+  - YouTubeの `channel_id`/タイトル/アイコンは、ハンドルページのメタ情報（OpenGraph）から取得するため、APIキー/検索に依存しない（重複事故を避ける）。
+  - 企画30本（CSVの中身）自体は Step C 以降で作る（この登録は“入口の整備”）。
+
 ## 4. 運用ルール
 - 企画 CSV への手動編集はこの手順のみ許可。台本/音声ステージの列は CLI が更新するため触らない。
 - 新しいルールや NG が出たら `CHxx_PERSONA.md` に追記し、更新日時を必ず書き換える。
