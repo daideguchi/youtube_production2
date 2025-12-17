@@ -53,7 +53,7 @@
 
 ### 1.3 I/O上の注意
 - `動画番号` は `NNN`（3桁ゼロ埋め）として他SoTと突合する。
-- `台本パス` 等、旧パスが混入しやすい列は **paths SSOT導入後に正規化**する（`ssot/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
+- `台本パス` 等、旧パスが混入しやすい列は **paths SSOT導入後に正規化**する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
 
 ---
 

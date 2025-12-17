@@ -155,5 +155,5 @@ thumbnails/README.md
 ## 5. 改善アイデア（任意）
 
 * ディレクトリ構造を標準化し、すべての動画で同じファイル構造を持つように統一すると管理しやすくなる
-* データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
+* データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
 * 現行構造を維持しつつ、薄い抽象化レイヤーを導入してAPIとファイルパスの対応関係を明確化する

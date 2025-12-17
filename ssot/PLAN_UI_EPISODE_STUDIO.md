@@ -11,7 +11,7 @@
   - I/Oスキーマ: `ssot/OPS_IO_SCHEMAS.md`
   - 入口一覧: `ssot/OPS_ENTRYPOINTS_INDEX.md`
   - ログ: `ssot/OPS_LOGGING_MAP.md`
-  - パス統一: `ssot/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
+  - パス統一: `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
   - ディレクトリ再編: `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`
 - **最終更新日**: 2025-12-13
 

@@ -19,7 +19,6 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 
 ## Draft（設計中）
 - `PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-12）: モノレポ全体のディレクトリ再編（段階移行）。
-- `PLAN_STAGE1_PATH_SSOT_MIGRATION.md`（最終更新 2025-12-12）: Path SSOT 導入（物理移動なし）と直書きパス置換。
 - `PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-12）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
 - `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-12）: レガシー隔離/確実ゴミ判定の基準と段階実行。
 - `PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。
@@ -29,7 +28,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 
 - `completed/LLM_LAYER_REFACTOR_PLAN.md`
 - `completed/LLM_ROUTING_PLAN.md`
+- `completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
 
 ## Template
 - `PLAN_TEMPLATE.md`: 新規計画書のテンプレ。
-

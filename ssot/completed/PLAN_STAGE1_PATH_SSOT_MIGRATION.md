@@ -2,12 +2,12 @@
 
 ## Plan metadata
 - **Plan ID**: PLAN_STAGE1_PATH_SSOT_MIGRATION
-- **ステータス**: Draft
+- **ステータス**: Closed
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: `factory_common/paths.py` 新設と、全実行コードの直書きパス置換（物理移動は含まない）
 - **非対象 (Out of Scope)**: workspaces/legacy/apps/packages の物理移設、生成品質ロジック変更
 - **関連 SoT/依存**: `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`, `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
-- **最終更新日**: 2025-12-12
+- **最終更新日**: 2025-12-17
 
 ---
 

@@ -43,7 +43,7 @@
 
 ### 3.1 Repo / 構造
 - `PLAN_REPO_DIRECTORY_REFACTOR.md`: モノレポ全体のディレクトリ/生成物/レガシー再編計画。
-- `PLAN_STAGE1_PATH_SSOT_MIGRATION.md`: Stage1（物理移動なし）Path SSOT導入と置換順序の正本。
+- `completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md` (Legacy/Reference): Stage1（物理移動なし）Path SSOT導入と置換順序の正本（完了済み）。
 - `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`: レガシー隔離/確実ゴミ判定の正本。
 
 ### 3.2 LLM / ルーティング
@@ -56,6 +56,7 @@
 #### 完了/参照（completed）
 - `completed/LLM_LAYER_REFACTOR_PLAN.md` (Legacy/Reference): LLMレイヤー再設計の詳細（必要に応じて `PLAN_LLM_PIPELINE_REFACTOR.md` に統合）。
 - `completed/LLM_ROUTING_PLAN.md` (Legacy/Reference): 旧ルーティング方針の履歴。
+- `completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md` (Legacy/Reference): Path SSOT導入（Stage1）の超詳細手順（完了済み）。
 
 ### 3.3 UI / ワークスペース
 - `PLAN_UI_WORKSPACE_CLEANUP.md` (Active): UI整理と辞書ハブ化の計画。
