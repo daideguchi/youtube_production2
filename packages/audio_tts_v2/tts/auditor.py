@@ -392,7 +392,21 @@ def _apply_ruby_overrides(
             except Exception:
                 print("[WARN] Ruby LLM response empty/invalid; skipping batch")
                 continue
-            for item in parsed.get("items", []) or []:
+            items = []
+            if isinstance(parsed, dict):
+                items = parsed.get("items") or []
+            elif isinstance(parsed, list):
+                # Some providers may return a top-level list despite response_format=json_object.
+                items = parsed
+            else:
+                print("[WARN] Ruby LLM response has unexpected shape; skipping batch")
+                continue
+            if not isinstance(items, list):
+                print("[WARN] Ruby LLM response items not a list; skipping batch")
+                continue
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
                 surface = item.get("surface") or ""
                 decision = str(item.get("decision") or "").lower()
                 reading = item.get("correct_kana") or ""
