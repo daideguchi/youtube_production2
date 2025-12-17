@@ -53,6 +53,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Allow TTS even when script_validation is not completed (not recommended).",
     )
+
+    align_p = sub.add_parser("semantic-align", parents=[common], help="Check/fix semantic alignment (title/thumbnail ↔ script)")
+    align_p.add_argument("--apply", action="store_true", help="Rewrite A-text when mismatch is obvious")
+    align_p.add_argument("--also-fix-minor", action="store_true", help="Also rewrite when verdict is minor")
+    align_p.add_argument("--dry-run", action="store_true", help="Do not write files (still calls LLM)")
+    align_p.add_argument("--no-validate", action="store_true", help="Skip script_validation after applying fixes")
     
     return parser.parse_args()
 
@@ -171,6 +177,33 @@ def main() -> None:
         except subprocess.CalledProcessError as e:
             print(f"Audio synthesis failed with exit code {e.returncode}")
             sys.exit(e.returncode)
+        return
+
+    if args.command == "semantic-align":
+        from .tools.semantic_alignment import run_semantic_alignment
+
+        out = run_semantic_alignment(
+            ch,
+            no,
+            apply=bool(getattr(args, "apply", False)),
+            also_fix_minor=bool(getattr(args, "also_fix_minor", False)),
+            dry_run=bool(getattr(args, "dry_run", False)),
+            validate_after=(not bool(getattr(args, "no_validate", False))),
+        )
+        print(
+            json.dumps(
+                {
+                    "channel": ch,
+                    "video": no,
+                    "verdict": out.verdict,
+                    "applied": out.applied,
+                    "report_path": str(out.report_path),
+                    "a_text_path": str(out.canonical_path),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return
 
     if args.command == "init":

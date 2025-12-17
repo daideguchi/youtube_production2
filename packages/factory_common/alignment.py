@@ -180,11 +180,6 @@ def alignment_suspect_reason(planning_row: Dict[str, Any], script_text_preview: 
     if len(catches) > 1:
         return "サムネプロンプト先頭行が不一致"
 
-    planning_title = str(planning_row.get("タイトル") or "").strip()
-    if planning_title and not bracket_topic_overlaps(planning_title, script_text_preview or ""):
-        ratio = title_script_token_overlap_ratio(planning_title, script_text_preview or "")
-        return f"タイトル主要語が台本に出現しません (overlap={ratio:.2f})"
-
     return None
 
 

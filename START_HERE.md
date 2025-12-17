@@ -5,6 +5,7 @@
 - 台本パイプライン導線: `ssot/OPS_SCRIPT_SOURCE_MAP.md`
 - モデル使い分け: `ssot/OPS_LLM_MODEL_CHEATSHEET.md`
 - 環境・キー設定: `ssot/OPS_ENV_VARS.md`
+- タイトル/サムネ↔台本の意味整合: `ssot/OPS_SEMANTIC_ALIGNMENT.md`
 - 低知能エージェント運用: `ssot/OPS_AGENT_PLAYBOOK.md`（repo全体のルールは `AGENTS.md`）
 - 索引: `ssot/DOCS_INDEX.md`
 - キー管理: `GEMINI_API_KEY` などはリポジトリ直下の `.env`（または環境変数）に一元管理。`.gemini_config` や credentials 配下に複製しない。

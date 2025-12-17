@@ -200,6 +200,22 @@ tasks:
     tier: heavy_reasoning
     timeout: 300
 
+  # Semantic alignment: title/thumbnail promise ↔ A-text core message
+  script_semantic_alignment_check:
+    tier: standard
+    timeout: 90
+    defaults:
+      response_format: "json_object"
+      temperature: 0.2
+      max_tokens: 1200
+
+  script_semantic_alignment_fix:
+    tier: heavy_reasoning
+    timeout: 240
+    defaults:
+      temperature: 0.4
+      max_tokens: 16384
+
   script_format:
     tier: standard
     timeout: 60
