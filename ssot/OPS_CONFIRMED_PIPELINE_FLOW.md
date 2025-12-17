@@ -35,6 +35,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - コード/UI/preview は存在するが、**現行の本番運用では未使用（将来/研究用）**。CapCut主線の代替候補。
 - **Thumbnail SoT**: `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
   - サムネ案の追跡正本。UIはこれを読み書きする。
+- **Assets SoT（静的素材 / git管理）**: `asset/`
+  - BGM/ロゴ/オーバーレイ/チャンネル別 role assets 等の **静的素材の正本（L0）**。
+  - 参照例: `apps/remotion`（`staticFile("asset/...")`）, `commentary_02_srt2images_timeline` の role asset attach。
 - **Publish SoT（Google Sheets）**: `YT_PUBLISH_SHEET`（外部SoT）
   - ローカル側は参照/反映のみ。  
   - 実装: `scripts/youtube_publisher/publish_from_sheet.py`

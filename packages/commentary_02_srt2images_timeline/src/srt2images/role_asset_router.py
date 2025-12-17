@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Optional
 
+from factory_common import paths
+
 
 @dataclass
 class RoleAssetRule:
@@ -33,14 +35,17 @@ class RoleAssetRouter:
     """セクション役割タグに応じてアセットをcueへ付与する."""
 
     def __init__(self, project_root: Path):
+        # NOTE: `project_root` was historically passed from a package-local root.
+        # Static assets are repo-tracked SoT under `asset/`, so we resolve via paths SSOT.
         self.project_root = project_root
+        self.assets_root = paths.assets_root()
         self.configs: Dict[str, RoleAssetConfig] = self._load_default_configs()
 
     def _load_default_configs(self) -> Dict[str, RoleAssetConfig]:
         configs: Dict[str, RoleAssetConfig] = {}
 
         # CH01: 視聴者への語りかけ(viewer_address)パートに既存の動画アセットを提示
-        ch01_assets = self.project_root / "asset" / "ch01"
+        ch01_assets = self.assets_root / "ch01"
         if ch01_assets.exists():
             configs["CH01"] = RoleAssetConfig(
                 channel_id="CH01",

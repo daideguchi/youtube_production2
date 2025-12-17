@@ -130,6 +130,28 @@ workspaces/thumbnails/README.md
 - UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...`（互換: `thumbnails/assets/...`）を正とする。
 - `workspaces/thumbnails/CHxx_<チャンネル名>/...`（互換: `thumbnails/CHxx_<...>/...`）は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
 
+### 2.6 asset（静的素材 / git管理）
+
+* ルート（正本）: `asset/`
+* 役割: BGM/ロゴ/オーバーレイ/チャンネル別 role assets 等の **静的素材（L0/SoT）**。
+  - 生成物ではないため `workspaces/` ではなく、gitで管理する。
+
+実在する例（抜粋）:
+
+```text
+asset
+├── 01_神秘的幻想的Shadows on the Water.mp3
+├── 06_お寺の雰囲気.mp3
+├── ch01
+│   ├── buddha_01.mp4
+│   ├── buddha_02.mp4
+│   ├── buddha_03.mp4
+│   ├── ch01_logo.png
+│   └── ch01_opening.mp4
+└── ch06
+    └── logo.png
+```
+
 ## 3. UI / API とファイルパスの対応
 
 `ui/backend` 以下の FastAPI コードを読み、主要エンドポイントと対応する実際のファイルパスの対応表:

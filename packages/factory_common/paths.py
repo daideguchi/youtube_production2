@@ -228,6 +228,21 @@ def thumbnail_assets_dir(channel: str, video: str) -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Static assets (repo tracked)
+# ---------------------------------------------------------------------------
+
+
+def assets_root() -> Path:
+    """
+    Root for repo-tracked static assets (BGM/logo/overlays/etc).
+
+    This is NOT a workspace-generated artifact; it is treated as L0/SoT and is
+    intentionally tracked in git.
+    """
+    return repo_root() / "asset"
+
+
+# ---------------------------------------------------------------------------
 # Logs roots
 # ---------------------------------------------------------------------------
 

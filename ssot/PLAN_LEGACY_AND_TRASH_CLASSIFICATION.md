@@ -46,7 +46,7 @@
 - `ssot/`：設計/運用の正本。
 - `00_research/`：研究/ベンチ資料（UI `/research` が参照）。
 - `data/`：固定資産（Visual Bible正本・hazard辞書など。現行コード参照あり）。
-- `asset/`：Remotion実験ラインの静的素材参照あり（`remotion/src/Timeline.tsx`）。
+- `asset/`：BGM/ロゴ/オーバーレイ等の **静的素材の正本（L0, git管理）**。Remotion（`staticFile("asset/...")`）と role asset attach で参照。
 - `remotion/`：実験/未使用ラインだが UI/preview/コード入口があるため保持。
 - `logs/`：運用ログの集約（L3だが運用上参照されるため保持）。
 

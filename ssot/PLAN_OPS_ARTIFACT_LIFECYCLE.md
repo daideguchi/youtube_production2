@@ -24,6 +24,7 @@
 
 1. **L0: SoT / 永続正本**
    - 進捗・最終台本・最終音声・最終画像/動画・サムネ等。
+   - 静的素材（git管理）: `asset/`（BGM/ロゴ/オーバーレイ/role assets 等）。
    - **削除禁止**。移設/アーカイブ時は必ずバックアップ + 履歴ログ。
 
 2. **L1: Final Artifacts（最終成果物）**
@@ -183,6 +184,15 @@
 - script_pipeline の state logs は 14 日（`scripts/cleanup_data.py --run --keep-days 14`）。
 - `workspaces/logs/`（互換: `logs/`）の L3 は 30 日（`scripts/ops/cleanup_logs.py --run --keep-days 30`）。
 - 例外 L1 は無期限保持。
+
+### 3.8 静的アセット（asset/）
+- **L0/SoT（絶対保持）**
+  - `asset/**`（BGM/ロゴ/オーバーレイ/チャンネル別素材）
+- **ルール**
+  - `asset/` は生成物ではなく **gitで管理する静的素材の正本**。cleanup 対象外。
+  - 参照例:
+    - Remotion: `staticFile("asset/...")`
+    - 画像run: role asset attach（`RoleAssetRouter`）
 
 ## 4. 自動クリーンアップ実装方針
 
