@@ -10,6 +10,15 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root / "src"))
 
+def _find_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+repo_root = _find_repo_root(Path(__file__).resolve())
+
 print("=" * 60)
 print("Gemini APIキーの確認")
 print("=" * 60)
@@ -35,9 +44,8 @@ except Exception as e:
 # 3. .envファイルを確認（プロジェクトとホーム）
 print(f"\n3. .envファイルを確認:")
 env_files = [
-    project_root / ".env",
+    repo_root / ".env",
     Path.home() / ".env",
-    Path("/Users/dd/10_YouTube_Automation/factory_commentary/.env"),
 ]
 
 for env_file in env_files:
@@ -68,4 +76,3 @@ if config_key:
         print(f"   ✅ 環境変数とconfig.pyのキーは一致しています")
 else:
     print("❌ キーを読み込めませんでした")
-
