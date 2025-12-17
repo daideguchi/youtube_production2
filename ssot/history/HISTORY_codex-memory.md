@@ -67,3 +67,8 @@
 - CapCut運用ツールを整理/強化（`commentary_02_srt2images_timeline/tools/*`）。画像スケール適用の点検ツールを追加（`capcut_apply_image_scale.py`）。
 - Planning SoT を更新（`workspaces/planning/channels/CH02.csv`, `CH05.csv`, `CH06.csv`, `CH07.csv`）。
 - 投稿済みロックを追加: `進捗=投稿済み` を最終固定とし、UI（Progress詳細）から `投稿済みにする（ロック）` をワンクリック実行できるようにした。内部APIは `POST /api/channels/{CH}/videos/{NNN}/published`（`factory_common/publish_lock.py`, `apps/ui-backend/backend/main.py`, `apps/ui-frontend/src/pages/ProgressPage.tsx`）。
+- Cleanup（Remotion）: `apps/remotion/` 配下の未使用サンプルrun資産（画像/JSON）を archive-first 後に削除（記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- Planning CSV の絶対パスを repo 相対へ正規化（CH01/02/03/05-11。CH04はロック中で保留）。`scripts/sync_all_scripts.py` / `scripts/sync_ch02_scripts.py` も今後は相対パスを書き出すよう更新。
+- ドキュメント/運用例の `/Users/dd/...` を除去し、`<REPO_ROOT>` へ置換（`README.md`, `scripts/cleanup_data.md`, `scripts/youtube_publisher/README.md`, `ssot/OPS_TTS_MANUAL_READING_AUDIT.md`, `packages/script_pipeline/openrouter_tests_report.md` など）。
+- `.gitignore` を整理: JSON を一律 ignore しない方針へ修正し、Remotionの生成物/ローカルキャッシュ（`apps/remotion/{input,out}` 等）と `data/visual_bible*.json` は個別に ignore。
+- 検証: `npm -C apps/ui-frontend run build` / `python3 -m py_compile apps/ui-backend/backend/main.py` / `python3 -m py_compile scripts/sync_all_scripts.py scripts/sync_ch02_scripts.py`
