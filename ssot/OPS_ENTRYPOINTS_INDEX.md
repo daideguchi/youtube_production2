@@ -29,6 +29,8 @@
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
     - `commentary_02_srt2images_timeline/server/jobs.py` を呼び出す（互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
+  - チャンネル登録（scaffold）:
+    - `POST /api/channels/register`（handle→channel_id 解決 + channels/planning/persona/sources.yaml 雛形生成）
   - Script pipeline 運用補助（pipeline-boxes）
     - `GET /api/channels/{ch}/videos/{video}/script-manifest`（ステージ一覧/出力）
     - `GET|PUT /api/channels/{ch}/videos/{video}/llm-artifacts/*`（THINK MODEでの手動補正→出力反映）

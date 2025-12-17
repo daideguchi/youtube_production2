@@ -218,6 +218,28 @@ export function ChannelSettingsPage() {
     success: null,
     error: null,
   });
+  const [channelRegister, setChannelRegister] = useState<{
+    channelCode: string;
+    channelName: string;
+    youtubeHandle: string;
+    description: string;
+    chapterCount: string;
+    targetCharsMin: string;
+    targetCharsMax: string;
+  }>({
+    channelCode: "",
+    channelName: "",
+    youtubeHandle: "",
+    description: "",
+    chapterCount: "",
+    targetCharsMin: "",
+    targetCharsMax: "",
+  });
+  const [channelRegisterStatus, setChannelRegisterStatus] = useState<{
+    pending: boolean;
+    success: string | null;
+    error: string | null;
+  }>({ pending: false, success: null, error: null });
   const [libraryAssets, setLibraryAssets] = useState<ThumbnailLibraryAsset[]>([]);
   const [libraryForms, setLibraryForms] = useState<
     Record<string, { video: string; pending: boolean; error?: string; success?: string }>
@@ -765,6 +787,70 @@ export function ChannelSettingsPage() {
     }
   }, [selectedChannel]);
 
+  const handleRegisterChannel = useCallback(async () => {
+    const trimmedCode = channelRegister.channelCode.trim();
+    const trimmedName = channelRegister.channelName.trim();
+    const trimmedHandle = channelRegister.youtubeHandle.trim();
+    if (!trimmedCode || !trimmedName || !trimmedHandle) {
+      setChannelRegisterStatus({
+        pending: false,
+        success: null,
+        error: "CHコード / 表示名 / YouTubeハンドルは必須です。",
+      });
+      return;
+    }
+    const numericOrNull = (value: string): number | null => {
+      const raw = value.trim();
+      if (!raw) return null;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    setChannelRegisterStatus({ pending: true, success: null, error: null });
+    try {
+      const response = await fetch(resolveApiUrl("/api/channels/register"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel_code: trimmedCode,
+          channel_name: trimmedName,
+          youtube_handle: trimmedHandle,
+          description: channelRegister.description.trim() || null,
+          chapter_count: numericOrNull(channelRegister.chapterCount),
+          target_chars_min: numericOrNull(channelRegister.targetCharsMin),
+          target_chars_max: numericOrNull(channelRegister.targetCharsMax),
+        }),
+      });
+      if (!response.ok) {
+        let detail = `HTTP ${response.status}`;
+        try {
+          const data = await response.json();
+          detail = (data?.detail as string) ?? detail;
+        } catch {
+          try {
+            detail = (await response.text()) || detail;
+          } catch {
+            /* no-op */
+          }
+        }
+        throw new Error(detail);
+      }
+      const profile = (await response.json()) as ChannelProfileResponse;
+      setChannelRegisterStatus({
+        pending: false,
+        success: `${profile.channel_code} を登録しました。ページを再読み込みします…`,
+        error: null,
+      });
+      window.setTimeout(() => window.location.reload(), 900);
+    } catch (error) {
+      setChannelRegisterStatus({
+        pending: false,
+        success: null,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }, [channelRegister]);
+
   // クイック登録は非表示のため処理を無効化
 
   return (
@@ -807,6 +893,104 @@ export function ChannelSettingsPage() {
           </button>
         ))}
       </div>
+
+      <SectionCard
+        title="新規チャンネル登録（ハンドル必須）"
+        description="YouTubeハンドル(@name)だけで一意特定し、channels/channel_info + planning/persona + sources.yaml を自動生成します。"
+        defaultOpen={false}
+      >
+        <div className="channel-settings-page__library-filters">
+          <label>
+            <span>CHコード</span>
+            <input
+              type="text"
+              value={channelRegister.channelCode}
+              onChange={(event) =>
+                setChannelRegister((current) => ({ ...current, channelCode: event.target.value.toUpperCase() }))
+              }
+              placeholder="例: CH17"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>表示名</span>
+            <input
+              type="text"
+              value={channelRegister.channelName}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, channelName: event.target.value }))}
+              placeholder="例: ブッダの◯◯"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>YouTubeハンドル</span>
+            <input
+              type="text"
+              value={channelRegister.youtubeHandle}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, youtubeHandle: event.target.value }))}
+              placeholder="例: @buddha-a001"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>説明（任意）</span>
+            <input
+              type="text"
+              value={channelRegister.description}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, description: event.target.value }))}
+              placeholder="チャンネルの一言説明"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>chapter_count（任意）</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={channelRegister.chapterCount}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, chapterCount: event.target.value }))}
+              placeholder="例: 8"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>target_chars_min（任意）</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={channelRegister.targetCharsMin}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, targetCharsMin: event.target.value }))}
+              placeholder="例: 6500"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>target_chars_max（任意）</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={channelRegister.targetCharsMax}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, targetCharsMax: event.target.value }))}
+              placeholder="例: 8500"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <div>
+            <button
+              type="button"
+              className="channel-settings-page__button channel-settings-page__button--primary"
+              onClick={handleRegisterChannel}
+              disabled={channelRegisterStatus.pending}
+            >
+              {channelRegisterStatus.pending ? "登録中…" : "登録する"}
+            </button>
+          </div>
+        </div>
+        {channelRegisterStatus.error ? <p className="channel-settings-page__warning">{channelRegisterStatus.error}</p> : null}
+        {channelRegisterStatus.success ? (
+          <p className="channel-settings-page__success">{channelRegisterStatus.success}</p>
+        ) : null}
+      </SectionCard>
 
       {!selectedChannel ? (
         <p className="channel-settings-page__placeholder">左上のプルダウンからチャンネルを選択してください。</p>

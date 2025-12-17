@@ -4797,6 +4797,17 @@ class ChannelProfileUpdateRequest(BaseModel):
     )
     audio: Optional[ChannelProfileUpdateAudio] = None
 
+
+class ChannelRegisterRequest(BaseModel):
+    channel_code: str = Field(..., description="新規チャンネルコード (例: CH17)")
+    channel_name: str = Field(..., description="内部表示名（チャンネルディレクトリの suffix に使用）")
+    youtube_handle: str = Field(..., description="YouTubeハンドル (@name)")
+    description: Optional[str] = Field(None, description="チャンネル説明文（任意）")
+    chapter_count: Optional[int] = Field(None, ge=1, description="章数（任意。sources.yaml に反映）")
+    target_chars_min: Optional[int] = Field(None, ge=0, description="目標文字数min（任意。sources.yaml に反映）")
+    target_chars_max: Optional[int] = Field(None, ge=0, description="目標文字数max（任意。sources.yaml に反映）")
+
+
 class ChannelBranding(BaseModel):
     avatar_url: Optional[str] = None
     banner_url: Optional[str] = None
@@ -5904,6 +5915,53 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
         youtube_handle=info.get("youtube", {}).get("handle"),
         genre=infer_channel_genre(info),
     )
+
+
+@app.post("/api/channels/register", response_model=ChannelProfileResponse, status_code=201)
+def register_channel(payload: ChannelRegisterRequest):
+    """
+    Create a new channel scaffold from a YouTube handle (deterministic, quota-free).
+
+    This creates:
+    - packages/script_pipeline/channels/CHxx-*/channel_info.json + script_prompt.txt
+    - workspaces/scripts/CHxx/ (so UI can list the channel)
+    - workspaces/planning/channels/CHxx.csv (header-only)
+    - workspaces/planning/personas/CHxx_PERSONA.md (stub)
+    - configs/sources.yaml entry (planning/persona/prompt + optional targets)
+    """
+
+    raw_code = (payload.channel_code or "").strip()
+    if not raw_code or Path(raw_code).name != raw_code:
+        raise HTTPException(status_code=400, detail="Invalid channel identifier")
+    channel_code = raw_code.upper()
+    if not re.match(r"^CH\d+$", channel_code):
+        raise HTTPException(status_code=400, detail="Invalid channel identifier")
+    if (DATA_ROOT / channel_code).exists():
+        raise HTTPException(status_code=400, detail=f"Channel {channel_code} already exists")
+    try:
+        from script_pipeline.tools.channel_registry import create_channel_scaffold
+
+        create_channel_scaffold(
+            channel=channel_code,
+            name=payload.channel_name,
+            youtube_handle=payload.youtube_handle,
+            description=payload.description,
+            chapter_count=payload.chapter_count,
+            target_chars_min=payload.target_chars_min,
+            target_chars_max=payload.target_chars_max,
+            overwrite=False,
+        )
+    except (ValueError, FileExistsError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except YouTubeHandleResolutionError as exc:
+        raise HTTPException(status_code=400, detail=f"YouTubeハンドル解決に失敗しました: {exc}") from exc
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("Failed to register channel %s: %s", channel_code, exc)
+        raise HTTPException(status_code=500, detail="チャンネル登録に失敗しました。ログを確認してください。") from exc
+
+    planning_requirements.clear_persona_cache()
+    refresh_channel_info(force=True)
+    return _build_channel_profile_response(channel_code)
 
 
 @app.get("/api/channels", response_model=List[ChannelSummaryResponse])
