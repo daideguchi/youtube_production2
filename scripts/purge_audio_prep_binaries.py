@@ -28,6 +28,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from factory_common.paths import audio_final_dir, script_data_root  # noqa: E402
+from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -89,10 +90,13 @@ def collect_items(
     channels: Optional[list[str]],
     videos: Optional[list[str]],
     keep_recent_minutes: int,
-) -> list[PurgeItem]:
+    ignore_locks: bool,
+) -> tuple[list[PurgeItem], int]:
     root = script_data_root()
     cutoff = _now_utc() - timedelta(minutes=keep_recent_minutes)
     out: list[PurgeItem] = []
+    locks = [] if ignore_locks else default_active_locks_for_mutation()
+    skipped_locked = 0
 
     for ch_dir in _iter_channels(root, channels):
         ch = ch_dir.name.upper()
@@ -100,6 +104,9 @@ def collect_items(
             v = str(v_dir.name).zfill(3)
             prep_dir = v_dir / "audio_prep"
             if not prep_dir.is_dir():
+                continue
+            if locks and find_blocking_lock(prep_dir, locks):
+                skipped_locked += 1
                 continue
 
             prep_wav = prep_dir / f"{ch}-{v}.wav"
@@ -138,7 +145,7 @@ def collect_items(
                 )
             )
 
-    return out
+    return out, skipped_locked
 
 
 def main() -> int:
@@ -148,6 +155,11 @@ def main() -> int:
     ap.add_argument("--channel", action="append", help="Target channel (repeatable). e.g. CH02")
     ap.add_argument("--video", action="append", help="Target video (repeatable). Requires --channel.")
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recently modified files.")
+    ap.add_argument(
+        "--ignore-locks",
+        action="store_true",
+        help="Do not respect coordination locks (dangerous; default: respect locks).",
+    )
     args = ap.parse_args()
 
     if args.video and not args.channel:
@@ -156,9 +168,15 @@ def main() -> int:
     do_run = bool(args.run)
     dry_run = bool(args.dry_run) or not do_run
 
-    items = collect_items(channels=args.channel, videos=args.video, keep_recent_minutes=args.keep_recent_minutes)
+    items, skipped_locked = collect_items(
+        channels=args.channel,
+        videos=args.video,
+        keep_recent_minutes=args.keep_recent_minutes,
+        ignore_locks=bool(args.ignore_locks),
+    )
     total = sum(i.size_bytes for i in items)
-    print(f"[purge_audio_prep_binaries] items={len(items)} total={_fmt_bytes(total)} dry_run={dry_run}")
+    suffix = f" skipped_locked={skipped_locked}" if skipped_locked else ""
+    print(f"[purge_audio_prep_binaries] items={len(items)} total={_fmt_bytes(total)} dry_run={dry_run}{suffix}")
 
     if dry_run:
         for it in items[:20]:
@@ -186,4 +204,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

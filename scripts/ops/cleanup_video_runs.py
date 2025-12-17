@@ -46,6 +46,7 @@ from factory_common.paths import (  # noqa: E402
     video_runs_root,
     workspace_root,
 )
+from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock  # noqa: E402
 from factory_common.timeline_manifest import parse_episode_id  # noqa: E402
 
 
@@ -293,6 +294,11 @@ def main() -> int:
     ap.add_argument("--include-hidden-runs", action="store_true", help="Include runs starting with _ or .")
     ap.add_argument("--archive-root", help="Override archive root (default: workspaces/video/_archive/<timestamp>).")
     ap.add_argument("--exclude-run-glob", action="append", help="Skip run dirs matching these globs (repeatable).")
+    ap.add_argument(
+        "--ignore-locks",
+        action="store_true",
+        help="Do not respect coordination locks (dangerous; default: respect locks).",
+    )
     args = ap.parse_args()
 
     if args.unscoped_only and args.video:
@@ -320,6 +326,8 @@ def main() -> int:
     keep_last = max(1, int(args.keep_last_runs))
     do_run = bool(args.run)
     unscoped_only = bool(args.unscoped_only)
+    locks = [] if bool(args.ignore_locks) else default_active_locks_for_mutation()
+    skipped_locked: list[str] = []
 
     runs = _iter_runs(include_hidden_runs=include_hidden)
     exclude_globs = [str(x).strip() for x in (args.exclude_run_glob or []) if str(x).strip()]
@@ -384,6 +392,10 @@ def main() -> int:
                         skipped_keep.append(r.run_id)
                     continue
 
+                if locks and find_blocking_lock(r.run_dir, locks):
+                    skipped_locked.append(r.run_id)
+                    continue
+
                 dest = archive_root / (r.channel or "_unknown") / "runs" / r.run_id
                 record = {
                     "run_id": r.run_id,
@@ -425,6 +437,10 @@ def main() -> int:
             if not reason:
                 continue
 
+            if locks and find_blocking_lock(r.run_dir, locks):
+                skipped_locked.append(r.run_id)
+                continue
+
             dest = archive_root / "_unscoped" / "runs" / r.run_id
             record = {
                 "run_id": r.run_id,
@@ -445,6 +461,12 @@ def main() -> int:
                 except Exception as exc:
                     warnings.append(f"failed to archive {r.run_id}: {exc}")
 
+    skipped_locked_unique = sorted(set(skipped_locked))
+    skipped_locked_truncated = False
+    if len(skipped_locked_unique) > 500:
+        skipped_locked_truncated = True
+        skipped_locked_unique = skipped_locked_unique[:500]
+
     report = {
         "schema": REPORT_SCHEMA,
         "generated_at": _utc_now_iso(),
@@ -462,6 +484,7 @@ def main() -> int:
             "archive_unscoped": bool(args.archive_unscoped),
             "archive_unscoped_legacy": bool(args.archive_unscoped_legacy),
             "unscoped_only": bool(unscoped_only),
+            "respect_locks": not bool(args.ignore_locks),
         },
         "archive_root": str(archive_root),
         "counters": {
@@ -472,8 +495,11 @@ def main() -> int:
             "planned_moves": len(moves),
             "skipped_recent": len(set(skipped_recent)),
             "skipped_keep": len(set(skipped_keep)),
+            "skipped_locked": len(set(skipped_locked)),
             "warnings": len(warnings),
         },
+        "skipped_locked": skipped_locked_unique,
+        "skipped_locked_truncated": bool(skipped_locked_truncated),
         "warnings": warnings,
         "moves": moves,
     }

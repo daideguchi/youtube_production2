@@ -27,6 +27,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from factory_common import paths as repo_paths
+from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
 
 
 @dataclass(frozen=True)
@@ -82,17 +83,22 @@ def _script_state_logs_dir(data_root: Path) -> Path:
     return data_root / "_state" / "logs"
 
 
-def collect_candidates(*, keep_days: int) -> list[DeletionCandidate]:
+def collect_candidates(*, keep_days: int, ignore_locks: bool) -> tuple[list[DeletionCandidate], int]:
     cutoff = _now() - timedelta(days=int(keep_days))
     data_root = _script_data_root()
     state_logs_dir = _script_state_logs_dir(data_root)
 
     candidates: list[DeletionCandidate] = []
+    locks = [] if ignore_locks else default_active_locks_for_mutation()
+    skipped_locked = 0
 
     # 1) script_pipeline state logs (L3, keep-days rotation)
     if state_logs_dir.exists():
         for p in sorted(state_logs_dir.glob("*.log")):
             if _is_older_than(p, cutoff):
+                if locks and find_blocking_lock(p, locks):
+                    skipped_locked += 1
+                    continue
                 candidates.append(DeletionCandidate(p, f"script_state_log_older_than_{keep_days}d"))
 
     # 2) per-video intermediates (audio_prep, logs) older than keep-days
@@ -108,9 +114,12 @@ def collect_candidates(*, keep_days: int) -> list[DeletionCandidate]:
                     if not target.exists():
                         continue
                     if _subtree_is_older_than(target, cutoff):
+                        if locks and find_blocking_lock(target, locks):
+                            skipped_locked += 1
+                            continue
                         candidates.append(DeletionCandidate(target, f"{sub}_older_than_{keep_days}d"))
 
-    return candidates
+    return candidates, skipped_locked
 
 
 def _delete_path(path: Path) -> None:
@@ -125,6 +134,11 @@ def main() -> int:
     parser.add_argument("--run", action="store_true", help="Actually delete files (default: dry-run)")
     parser.add_argument("--keep-days", type=int, default=14, help="Keep files newer than this many days (default: 14)")
     parser.add_argument(
+        "--ignore-locks",
+        action="store_true",
+        help="Do not respect coordination locks (dangerous; default: respect locks).",
+    )
+    parser.add_argument(
         "--max-print",
         type=int,
         default=200,
@@ -136,9 +150,12 @@ def main() -> int:
     if keep_days < 1:
         raise SystemExit("--keep-days must be >= 1")
 
-    candidates = collect_candidates(keep_days=keep_days)
+    candidates, skipped_locked = collect_candidates(keep_days=keep_days, ignore_locks=bool(args.ignore_locks))
     if not candidates:
-        print("[cleanup_data] nothing to do")
+        msg = "[cleanup_data] nothing to do"
+        if skipped_locked:
+            msg += f" (skipped_locked={skipped_locked})"
+        print(msg)
         return 0
 
     max_print = max(0, int(args.max_print))
@@ -152,7 +169,10 @@ def main() -> int:
             print(f"{prefix} {c.path}  ({c.reason})")
 
     if not args.run:
-        print("[cleanup_data] dry-run complete (pass --run to delete)")
+        msg = "[cleanup_data] dry-run complete (pass --run to delete)"
+        if skipped_locked:
+            msg += f" (skipped_locked={skipped_locked})"
+        print(msg)
         return 0
 
     deleted = 0
@@ -163,7 +183,10 @@ def main() -> int:
         except Exception:
             continue
 
-    print(f"[cleanup_data] deleted {deleted} paths")
+    msg = f"[cleanup_data] deleted {deleted} paths"
+    if skipped_locked:
+        msg += f" (skipped_locked={skipped_locked})"
+    print(msg)
     return 0
 
 

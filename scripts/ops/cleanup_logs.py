@@ -29,6 +29,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from factory_common import paths as repo_paths
+from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
 
 
 @dataclass(frozen=True)
@@ -105,12 +106,19 @@ def _should_keep(path: Path) -> bool:
     return False
 
 
-def collect_candidates(*, keep_days: int, include_llm_api_cache: bool) -> list[DeletionCandidate]:
+def collect_candidates(
+    *,
+    keep_days: int,
+    include_llm_api_cache: bool,
+    ignore_locks: bool,
+) -> tuple[list[DeletionCandidate], int]:
     keep_days = int(keep_days)
     cutoff = _now() - timedelta(days=keep_days)
     logs_root = repo_paths.logs_root()
 
     candidates: list[DeletionCandidate] = []
+    locks = [] if ignore_locks else default_active_locks_for_mutation()
+    skipped_locked = 0
 
     # Root-level L3 files
     for p in sorted(logs_root.iterdir() if logs_root.exists() else []):
@@ -121,6 +129,9 @@ def collect_candidates(*, keep_days: int, include_llm_api_cache: bool) -> list[D
         if p.suffix not in {".log", ".out", ".txt", ".json", ".png"}:
             continue
         if _is_older_than(p, cutoff):
+            if locks and find_blocking_lock(p, locks):
+                skipped_locked += 1
+                continue
             candidates.append(DeletionCandidate(p, f"logs_root_file_older_than_{keep_days}d"))
 
     # Known L3 subdirectories
@@ -135,6 +146,9 @@ def collect_candidates(*, keep_days: int, include_llm_api_cache: bool) -> list[D
             if p.suffix not in allowed_suffixes:
                 continue
             if _is_older_than(p, cutoff):
+                if locks and find_blocking_lock(p, locks):
+                    skipped_locked += 1
+                    continue
                 candidates.append(DeletionCandidate(p, f"{rel}_older_than_{keep_days}d"))
 
     # Optional: LLM API cache (safe to rebuild)
@@ -144,9 +158,12 @@ def collect_candidates(*, keep_days: int, include_llm_api_cache: bool) -> list[D
             if _should_keep(p):
                 continue
             if _is_older_than(p, cutoff):
+                if locks and find_blocking_lock(p, locks):
+                    skipped_locked += 1
+                    continue
                 candidates.append(DeletionCandidate(p, f"llm_api_cache_older_than_{keep_days}d"))
 
-    return candidates
+    return candidates, skipped_locked
 
 
 def _delete_file(path: Path) -> None:
@@ -162,15 +179,27 @@ def main() -> int:
         action="store_true",
         help="Also prune logs/llm_api_cache (default: keep)",
     )
+    parser.add_argument(
+        "--ignore-locks",
+        action="store_true",
+        help="Do not respect coordination locks (dangerous; default: respect locks).",
+    )
     args = parser.parse_args()
 
     keep_days = int(args.keep_days)
     if keep_days < 1:
         raise SystemExit("--keep-days must be >= 1")
 
-    candidates = collect_candidates(keep_days=keep_days, include_llm_api_cache=bool(args.include_llm_api_cache))
+    candidates, skipped_locked = collect_candidates(
+        keep_days=keep_days,
+        include_llm_api_cache=bool(args.include_llm_api_cache),
+        ignore_locks=bool(args.ignore_locks),
+    )
     if not candidates:
-        print("[cleanup_logs] nothing to do")
+        msg = "[cleanup_logs] nothing to do"
+        if skipped_locked:
+            msg += f" (skipped_locked={skipped_locked})"
+        print(msg)
         return 0
 
     for c in candidates:
@@ -178,7 +207,10 @@ def main() -> int:
         print(f"{prefix} {c.path}  ({c.reason})")
 
     if not args.run:
-        print("[cleanup_logs] dry-run complete (pass --run to delete)")
+        msg = "[cleanup_logs] dry-run complete (pass --run to delete)"
+        if skipped_locked:
+            msg += f" (skipped_locked={skipped_locked})"
+        print(msg)
         return 0
 
     deleted = 0
@@ -189,7 +221,10 @@ def main() -> int:
         except Exception:
             continue
 
-    print(f"[cleanup_logs] deleted {deleted} files")
+    msg = f"[cleanup_logs] deleted {deleted} files"
+    if skipped_locked:
+        msg += f" (skipped_locked={skipped_locked})"
+    print(msg)
     return 0
 
 
