@@ -160,8 +160,8 @@
 
 ## 5. 未確定/要確認ポイント（次の調査タスク）
 
-- `data/hazard_readings.yaml` の参照経路が二重化しており、現行 `audio_tts_v2/tts/risk_utils.py` は `audio_tts_v2/data/` を探索するため **root data のhazard辞書が実際には使われていない可能性**。  
-  → Stage1後に paths SSOT に寄せて正本位置を1箇所に確定する。
+- `data/hazard_readings.yaml` の参照経路が二重化していたが、`audio_tts_v2/tts/risk_utils.py` を修正して **repo root の hazard 辞書を優先**するようにした（2025-12-17）。  
+  → 現在は `repo_root()/data/hazard_readings.yaml` → `audio_pkg_root()/data/hazard_readings.yaml` の順で探索する。
 - `commentary_02/data/visual_bible.json` と root `data/visual_bible.json` の二重管理。  
   → 画像パイプライン側の正本を Stage4/LLM統合のタイミングで確定。
 - `scripts/` と `tools/` の中に旧ライン（route1/route2 等）が混在。  

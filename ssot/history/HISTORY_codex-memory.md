@@ -85,3 +85,6 @@
 - レガシー削除: `packages/commentary_02_srt2images_timeline/ui/`（互換shim）を archive-first 後に削除し、「どっちが正本？」の混乱を低減（記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 46）。
 - Aテキスト品質: `%/％/パーセント` を統計捏造の入口として禁止し、`script_validation` で確実に落とすガードを追加（`packages/script_pipeline/validator.py`, `tests/test_a_text_validator.py`, `ssot/OPS_A_TEXT_GLOBAL_RULES.md`）。CH07の prompt も同方針に追従。
 - UI改善: `/agent-org` を tabs + 検索 + auto-refresh で見やすく刷新し、チャンネル未選択時に `/channel-settings` への「新規登録」導線を追加（`apps/ui-frontend/src/pages/AgentOrgPage.tsx`, `apps/ui-frontend/src/pages/ChannelOverviewPage.tsx`, `apps/ui-frontend/src/pages/ChannelSettingsPage.tsx`）。
+- Video runs 復旧/完全整理: `scripts/ops/restore_video_runs.py` を追加し、`archive_report.json` から run dir を確実に戻せるようにした。unscoped/legacy run（numeric/api/jinsei/ui_* 等）を `_archive/` へ退避して `workspaces/video/runs/` のディレクトリを episode-keyed のみに整理（記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 47-48, 正本: `ssot/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`）。
+- Audio 辞書参照の正本化: hazard 辞書を `repo_root()/data/hazard_readings.yaml` 優先で読むよう修正し、二重管理による“効いてない辞書”問題を解消（`packages/audio_tts_v2/tts/risk_utils.py`, `packages/audio_tts_v2/tests/test_risk_utils.py`）。
+- UI改善: `/progress` を `?channel=CHxx` で深リンクできるようにし、サイドバーも選択チャンネルに追従（`apps/ui-frontend/src/pages/ProgressPage.tsx`, `apps/ui-frontend/src/layouts/AppShell.tsx`）。
