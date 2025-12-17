@@ -32,10 +32,10 @@ CH02-015 について、
 
 4. その結果として、以下が確認できること：
 
-   - `factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt new`
+   - `factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt new`
      を実行すると、最後まで成功し、
 
-     - `commentary_02_srt2images_timeline/output/CH02-015_YYYYMMDD_HHMMSS/`
+     - `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/`
        の下に
        - `image_cues.json`
        - `images/00xx.png` （実データ。placeholder ではなく）
@@ -82,7 +82,7 @@ CH02-015 について、
    - トップレベルに `cues` 配列がある前提
    - cue の中の key 名・入れ子構造
 
-4. `output/CHxx-YYY_YYYYMMDD_HHMMSS/images/` の構造
+4. `workspaces/video/runs/CHxx-YYY_YYYYMMDD_HHMMSS/images/` の構造
    - `images/0001.png`, `0002.png` という連番ファイル名
    - `images/` 直下に PNG が並ぶ前提
 
@@ -107,9 +107,9 @@ CLI や run_dir の整理・CapCutドラフト生成のために
 例：
 
 ```bash
-factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt new
-factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt check
-factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/CH02-015.srt draft
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt new
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt check
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
 ```
 
 ### 2. run_dir の命名と配置
@@ -119,7 +119,7 @@ factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/C
 * run_dir は：
 
   ```text
-  commentary_02_srt2images_timeline/output/CH02-015_YYYYMMDD_HHMMSS/
+  workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/
   ```
 
 * このディレクトリ配下に最低限：
@@ -137,7 +137,7 @@ factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/C
 ### 3. run_dir の選び方ルール
 
 * `find_latest_run_dir(video_id, output_dir)` のような関数で、
-  `output/` 以下の `"{VIDEO_ID}_YYYYMMDD_HHMMSS"` 形式ディレクトリのうち、
+  `workspaces/video/runs/` 以下の `"{VIDEO_ID}_YYYYMMDD_HHMMSS"` 形式ディレクトリのうち、
 
   * `image_cues.json` が存在するものだけを候補にし、
   * タイムスタンプでソートして **一番新しいもの** を「現在の有効 run」とする。
@@ -160,9 +160,9 @@ factory-commentary CH02 commentary_02_srt2images_timeline/input/CH02_哲学系/C
 
 3. `factory-commentary ... new` が終わった時点で、
 
-   * `output/CH02-015_YYYYMMDD_HHMMSS/image_cues.json`
-   * `output/CH02-015_YYYYMMDD_HHMMSS/images/0001.png` など
-   * `output/CH02-015_YYYYMMDD_HHMMSS/belt_config.json`
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/image_cues.json`
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/images/0001.png` など
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/belt_config.json`
    * CapCutドラフト
      が揃っている状態にすること
 

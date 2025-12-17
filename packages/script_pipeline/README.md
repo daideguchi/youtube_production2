@@ -7,7 +7,7 @@
 - Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/{CH}/{NNN}/status.json`）
 - Planning SoT: `workspaces/planning/channels/{CH}.csv`
 - Persona: `workspaces/planning/personas/{CH}_PERSONA.md`
-- LLM: `configs/llm.yml`（ルーティング）+ `configs/*`（候補/上書き）
+- LLM: `configs/llm_router*.yaml` / `configs/llm_task_overrides.yaml`（タスク→tier→model ルーティング）
 - Env: リポジトリ直下 `.env`（`sitecustomize.py` / runner がロード）
 
 ## Stages（`stages.yaml`）

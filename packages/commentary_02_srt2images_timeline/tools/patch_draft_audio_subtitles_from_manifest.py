@@ -11,7 +11,7 @@ Design goals:
 
 Usage:
   python3 tools/patch_draft_audio_subtitles_from_manifest.py \\
-    --run commentary_02_srt2images_timeline/output/CH06-002_capcut_v1
+    --run workspaces/video/runs/CH06-002_capcut_v1
 """
 
 from __future__ import annotations

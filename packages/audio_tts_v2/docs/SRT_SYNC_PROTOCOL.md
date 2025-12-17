@@ -49,6 +49,13 @@ When troubleshooting sync issues, verify in this order:
 3.  **SRT**: Does the `.srt` file match `srt_blocks.json`?
 
 ## 5. Artifact Locations
-*   **Audio**: `audio_tts_v2/artifacts/final/[CHANNEL]/[ID]/chunks/*.wav`
-*   **Metadata**: `audio_tts_v2/artifacts/final/[CHANNEL]/[ID]/srt_blocks.json`
-*   **SRT**: `audio_tts_v2/artifacts/final/[CHANNEL]/[ID]/[ID].srt`
+*   **Intermediate chunks (L2)**: `workspaces/scripts/[CHANNEL]/[NNN]/audio_prep/chunks/*.wav`
+*   **Metadata (L2)**: `workspaces/scripts/[CHANNEL]/[NNN]/audio_prep/srt_blocks.json`
+*   **Final (SoT, L1)**:
+    * `workspaces/audio/final/[CHANNEL]/[NNN]/[CHANNEL]-[NNN].wav`
+    * `workspaces/audio/final/[CHANNEL]/[NNN]/[CHANNEL]-[NNN].srt`
+    * `workspaces/audio/final/[CHANNEL]/[NNN]/log.json`
+    * `workspaces/audio/final/[CHANNEL]/[NNN]/audio_manifest.json`
+
+Legacy (互換):
+- `audio_tts_v2/artifacts/**`（workspaces 実体化前の古いパス）

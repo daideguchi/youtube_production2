@@ -137,7 +137,7 @@ def main() -> None:
         except Exception as e:
             raise SystemExit(f"[ERROR] Failed to sync assembled_human.md -> assembled.md: {e}")
 
-    # Output to script_pipeline/data/... (or workspaces/scripts after Stage2)
+    # Output to workspaces/scripts/... (legacy: script_pipeline/data/...).
     artifact_root = video_root(args.channel, args.video) / "audio_prep"
 
     def _latest_mtime(path: Path) -> float:

@@ -26,5 +26,6 @@ ui/.venv/
 .DS_Store
 
 # Local scratch
+_capcut_drafts
 _capcut_drafts/
 tmp/

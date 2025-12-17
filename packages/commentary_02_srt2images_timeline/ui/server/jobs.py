@@ -823,8 +823,8 @@ def evaluate_capcut_guard(
         "project_dir": str(run_dir),
         "image_dir": str(run_dir / "images"),
         "recommended_commands": [
-            "./scripts/run_srt2images.sh --srt <input/CHxx_xxx.srt> --out commentary_02_srt2images_timeline/output/<project> --force",
-            "python3 commentary_02_srt2images_timeline/tools/generate_belt_layers.py --episode-info output/<project>/episode_info.json --chapters output/<project>/chapters.json --output output/<project>/belt_config.json",
+            'PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.run_pipeline --srt <workspaces/video/input/.../*.srt> --out workspaces/video/runs/<project> --force',
+            'PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.generate_belt_layers --episode-info workspaces/video/runs/<project>/episode_info.json --chapters workspaces/video/runs/<project>/chapters.json --output workspaces/video/runs/<project>/belt_config.json',
         ],
     }
 

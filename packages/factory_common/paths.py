@@ -167,6 +167,20 @@ def video_input_root() -> Path:
     return _prefer_new(old, ws)
 
 
+def video_capcut_local_drafts_root() -> Path:
+    """
+    Local writable CapCut draft root (fallback when the real CapCut root is not writable).
+
+    Preferred location:
+      - workspaces/video/_capcut_drafts
+    Legacy location:
+      - packages/commentary_02_srt2images_timeline/_capcut_drafts
+    """
+    ws = workspace_root() / "video" / "_capcut_drafts"
+    old = video_pkg_root() / "_capcut_drafts"
+    return _prefer_new(old, ws)
+
+
 def video_state_root() -> Path:
     """
     Root for stateful, machine-generated video pipeline metadata.

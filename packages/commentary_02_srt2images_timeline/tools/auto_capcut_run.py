@@ -45,6 +45,7 @@ from factory_common.paths import (  # noqa: E402
     audio_artifacts_root,
     channels_csv_path,
     repo_root,
+    video_capcut_local_drafts_root,
     video_pkg_root,
     video_runs_root,
 )
@@ -80,7 +81,7 @@ def _truncate_summary(text: str, limit: int = 60) -> str:
     return sanitized[: max(0, limit - 1)] + "…"
 
 DEFAULT_DRAFT_ROOT = Path.home() / "Movies/CapCut/User Data/Projects/com.lveditor.draft"
-FALLBACK_LOCAL_DRAFT_ROOT = PROJECT_ROOT / "_capcut_drafts"
+FALLBACK_LOCAL_DRAFT_ROOT = video_capcut_local_drafts_root()
 
 
 def _ensure_writable_draft_root(

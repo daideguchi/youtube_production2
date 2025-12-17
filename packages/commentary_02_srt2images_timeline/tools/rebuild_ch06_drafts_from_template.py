@@ -25,7 +25,7 @@ Usage:
   python tools/rebuild_ch06_drafts_from_template.py \
     --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" \
     --template "CH06-テンプレ" \
-    --runs-root commentary_02_srt2images_timeline/output \
+    --runs-root workspaces/video/runs \
     --channel-csv workspaces/planning/channels/CH06.csv \
     --videos 2-30
 """
