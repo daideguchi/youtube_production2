@@ -338,7 +338,12 @@ def create_channel_scaffold(
     headers = _default_planning_headers()
     csv_content = ",".join(headers) + "\n"
     _write_text(ws_planning_csv, csv_content, overwrite=overwrite)
-    if legacy_planning_csv.parent.exists():
+    # If progress/ is a symlink to workspaces/planning, skip the duplicate write.
+    try:
+        legacy_same = legacy_planning_csv.resolve() == ws_planning_csv.resolve()
+    except Exception:
+        legacy_same = False
+    if legacy_planning_csv.parent.exists() and not legacy_same:
         _write_text(legacy_planning_csv, csv_content, overwrite=overwrite)
 
     # persona stub
@@ -357,7 +362,11 @@ def create_channel_scaffold(
         f"- {datetime.now().strftime('%Y-%m-%d')} created by channel_registry\n"
     )
     _write_text(ws_persona, persona_body, overwrite=overwrite)
-    if legacy_persona.parent.exists():
+    try:
+        persona_same = legacy_persona.resolve() == ws_persona.resolve()
+    except Exception:
+        persona_same = False
+    if legacy_persona.parent.exists() and not persona_same:
         _write_text(legacy_persona, persona_body, overwrite=overwrite)
 
     # script_prompt stub (store content in channel_info.json for UI consumers)
@@ -497,4 +506,3 @@ def main(argv: Optional[List[str]] = None) -> None:
 
 if __name__ == "__main__":
     main()
-
