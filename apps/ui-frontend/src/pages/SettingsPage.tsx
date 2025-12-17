@@ -346,7 +346,7 @@ export function SettingsPage() {
                 list="openai-models"
                 value={openaiModel}
                 onChange={(event) => setOpenaiModel(event.target.value)}
-                placeholder="例: gpt-5.1 / gpt-4o-mini"
+                placeholder="例: gpt-5-mini / gpt-5-chat"
               />
               <datalist id="openai-models">
                 {openaiSelectOptions.map((model) => (

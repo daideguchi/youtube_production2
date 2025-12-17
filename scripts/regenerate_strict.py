@@ -18,9 +18,6 @@ def regenerate_audio_srt_strict_ch10_001():
     channel = "CH10"
     video_no = "001"
     engine = "voicevox"
-    llm_model = "gpt-4o"
-    # LLM_API_KEYは環境変数から取得される想定
-    llm_api_key = "dummy"  # 実際には環境変数から取得されるはず
 
     video_dir = video_root(channel, video_no)
 
@@ -54,8 +51,6 @@ def regenerate_audio_srt_strict_ch10_001():
         output_wav=output_wav,
         output_log=output_log,
         engine=engine,
-        llm_model=llm_model,
-        llm_api_key=llm_api_key,
         voicepeak_config=voicepeak_config,
         artifact_root=artifact_root
     )

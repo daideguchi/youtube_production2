@@ -73,7 +73,7 @@
     "iq": 108,
     "knowledge_metric": { "name": "MMLU-Redux", "value": 83.9, "source": "https://www.alibabacloud.com/blog/601786" },
     "specialist_metric": { "name": "LiveCodeBench", "value": 51.2, "source": "https://www.alibabacloud.com/blog/601786" },
-    "notes": "32B 帯で GPT-4o mini クラスの汎用性。",
+    "notes": "32B 帯で小型汎用モデル相当の扱いやすさ。",
     "last_updated": "2025-11-17T02:40:00+09:00"
   },
   {

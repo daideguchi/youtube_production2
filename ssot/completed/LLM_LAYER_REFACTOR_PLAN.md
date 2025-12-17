@@ -8,7 +8,7 @@
 
 ## 2. 現状の構成と処理フロー（調査結果）
 ### 2.1 設定ファイルとレジストリ
-- **現行で運用してよいモデル**: テキストは `azure/gpt-5-mini`、画像は `gemini-2.5-flash-image` のみ。`gpt_4o_mini` や `azure_gpt_5` のような存在しない/旧名モデルは使わない（設定に残っていれば掃除対象）。
+- **現行で運用してよいモデル**: テキストは `azure/gpt-5-mini`、画像は `gemini-2.5-flash-image` のみ。存在しない/旧名モデルは使わない（設定に残っていれば掃除対象）。
 - **登録ポリシー**: レジストリには将来使う候補（OpenRouter など）を残してよいが、運用で使うかどうかは tier リストで制御する。現状の tier は gpt-5-mini／gemini-2.5-flash-image のみに絞っており、他候補は「登録のみ・未運用」。
 - `configs/llm_registry.json`: 業務タスク→provider/model を 1:1 で紐付け。台本系・TTS 系ともほぼ全て `azure/gpt-5-mini` 固定。thinkingLevel / max_output_tokens がタスクに直書きされている。【F:configs/llm_registry.json†L1-L74】
 - `configs/llm_model_registry.yaml`: モデル仕様レジストリ。Azure（gpt-5-mini / gpt-5-chat / tts_primary / gemini-3-pro-preview）と OpenRouter 無料枠、OpenAI 互換を定義。Azure の `use_responses_api` や `allow_reasoning_effort` フラグを持つが、family は chat に固定、image 系は未整備。【F:configs/llm_model_registry.yaml†L1-L71】

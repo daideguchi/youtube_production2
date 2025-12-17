@@ -62,13 +62,13 @@ class TestLLMRouter(unittest.TestCase):
             "models": {
                 "m_fail": {
                     "provider": "openrouter",
-                    "model_name": "openai/gpt-4o-mini",
+                    "model_name": "deepseek/deepseek-v3.2-exp",
                     "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
                     "defaults": {"temperature": 0.2, "max_tokens": 32},
                 },
                 "m_ok": {
                     "provider": "openrouter",
-                    "model_name": "openai/gpt-4o-mini",
+                    "model_name": "deepseek/deepseek-v3.2-exp",
                     "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
                     "defaults": {"temperature": 0.2, "max_tokens": 32},
                 },
@@ -85,4 +85,3 @@ class TestLLMRouter(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

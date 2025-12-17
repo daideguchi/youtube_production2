@@ -6,14 +6,14 @@
 # 2025-12-13 01:59:12 +0900
 # Low-cost 3-rank routing (user directive; OpenRouter model IDs verified via /api/v1/models).
 #
-# Rank A (thinking):
-#   deepseek/deepseek-r1
+# Rank A (reasoning-heavy):
+#   deepseek/deepseek-r1-distill-qwen-32b
 #   → deepseek/deepseek-r1-0528
-#   → openai/o3-mini
-#   → openai/gpt-4o-mini
+#   → deepseek/deepseek-r1
+#   → deepseek/deepseek-v3.2-exp
 #
 # Rank B (general):
-#   openai/gpt-4o-mini
+#   deepseek/deepseek-v3.2-exp
 #   → qwen/qwen-2.5-7b-instruct
 #   → tencent/hunyuan-a13b-instruct
 #   → google/gemma-3n-e2b-it:free
@@ -122,6 +122,28 @@ models:
       allow_stop: true
       max_output_tokens: 8192
 
+  or_deepseek_r1_distill_qwen_32b:
+    provider: openrouter
+    api_type: chat
+    model: "deepseek/deepseek-r1-distill-qwen-32b"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 8192
+
+  or_deepseek_v3_2_exp:
+    provider: openrouter
+    api_type: chat
+    model: "deepseek/deepseek-v3.2-exp"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 8192
+
   or_o3_mini:
     provider: openrouter
     api_type: chat
@@ -131,17 +153,6 @@ models:
       allow_json_mode: true
       allow_temperature: false
       allow_stop: false
-      max_output_tokens: 16384
-
-  or_gpt_4o_mini:
-    provider: openrouter
-    api_type: chat
-    model: "openai/gpt-4o-mini"
-    capabilities:
-      allow_reasoning: false
-      allow_json_mode: true
-      allow_temperature: true
-      allow_stop: true
       max_output_tokens: 16384
 
   or_qwen_2_5_7b_instruct:
@@ -188,6 +199,18 @@ models:
       allow_stop: true
       max_output_tokens: 4096
 
+  # Vision (image + text -> text), used for thumbnail captioning.
+  or_qwen_2_5_vl_72b_instruct:
+    provider: openrouter
+    api_type: chat
+    model: "qwen/qwen2.5-vl-72b-instruct"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: false
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 8192
+
   gemini_2_5_flash_image:
     provider: gemini
     api_type: image
@@ -201,13 +224,15 @@ models:
 
 tiers:
   heavy_reasoning:
-    - or_deepseek_r1
     - or_deepseek_r1_0528
-    - or_o3_mini
-    - or_gpt_4o_mini
+    - or_deepseek_r1
+    - or_deepseek_r1_distill_qwen_32b
+    - or_deepseek_v3_2_exp
+    - azure_gpt5_mini
+    # - or_o3_mini  # disabled by default (cost)
 
   standard:
-    - or_gpt_4o_mini
+    - or_deepseek_v3_2_exp
     - or_qwen_2_5_7b_instruct
     - or_hunyuan_a13b_instruct
     - or_gemma_3n_e2b_it_free
@@ -217,6 +242,9 @@ tiers:
     - or_hunyuan_a13b_instruct
     - or_mistral_7b_instruct_free
     - or_qwen_2_5_7b_instruct
+
+  vision_caption:
+    - or_qwen_2_5_vl_72b_instruct
 
   image_gen:
     - gemini_2_5_flash_image
@@ -412,12 +440,12 @@ tasks:
 
   # Thumbnails / captions (legacy)
   caption:
-    tier: standard
+    tier: vision_caption
     defaults:
       max_output_tokens: 4096
 
   thumbnail_caption:
-    tier: standard
+    tier: vision_caption
     defaults:
       max_output_tokens: 4096
 

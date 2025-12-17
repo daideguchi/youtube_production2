@@ -109,7 +109,7 @@ models:
   or_ok:
     provider: openrouter
     api_type: chat
-    model: "openai/gpt-4o-mini"
+    model: "deepseek/deepseek-v3.2-exp"
     capabilities:
       allow_reasoning: false
       allow_json_mode: true
