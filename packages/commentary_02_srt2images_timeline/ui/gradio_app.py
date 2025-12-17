@@ -14,6 +14,21 @@ from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 import sys
 
+# Make repo-root imports work regardless of CWD.
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+_REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from factory_common.paths import logs_root  # noqa: E402
+
 # プロジェクトルート
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.append(str(PROJECT_ROOT / "src"))
@@ -371,7 +386,7 @@ def run_swap_images(
 
     env = os.environ.copy()
     progress(0, desc="safe_image_swap 実行中...")
-    log_dir = PROJECT_ROOT / "logs" / "swap"
+    log_dir = logs_root() / "swap"
     log_dir.mkdir(parents=True, exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
     log_path = log_dir / f"swap_{ts}.log"
@@ -426,7 +441,7 @@ def save_whitelist(video_list: str, audio_list: str) -> str:
 
 
 def list_swap_logs() -> List[str]:
-    log_dir = PROJECT_ROOT / "logs" / "swap"
+    log_dir = logs_root() / "swap"
     if not log_dir.exists():
         return []
     files = sorted(log_dir.glob("swap_*.log"), reverse=True)
@@ -446,7 +461,7 @@ def is_fail_log(log_path: Path) -> bool:
 
 
 def read_swap_log(log_name: str) -> str:
-    log_dir = PROJECT_ROOT / "logs" / "swap"
+    log_dir = logs_root() / "swap"
     log_path = log_dir / log_name
     if not log_path.exists():
         return "⚠️ ログが見つかりません"
@@ -689,7 +704,7 @@ with gr.Blocks(title="🎬 SRT2Images CapCut自動生成", theme=gr.themes.Soft(
         if filter_mode == "fail_only":
             filtered = []
             for ln in logs:
-                lp = (PROJECT_ROOT / "logs" / "swap" / ln)
+                lp = (logs_root() / "swap" / ln)
                 if is_fail_log(lp):
                     filtered.append(ln)
             logs = filtered
