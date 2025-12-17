@@ -609,3 +609,14 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
   - `apps/remotion/input/192/192.srt`
 - 判定:
   - 参照ゼロ（例: `rg "tmp_run_192|_auto/192|input/192" -S apps/remotion` がヒットしない）
+
+### 39) `scripts/maintain_consciousness.py` を削除（repo tracked）
+
+意図: Route2 時代の自動承認トークン生成スクリプトであり、現行の確定フロー/入口（`ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/OPS_ENTRYPOINTS_INDEX.md`）では使用しない。残っていると誤実行の原因になるため。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251217_121820_scripts_maintain_consciousness.tar.gz`
+- 削除（git rm）:
+  - `scripts/maintain_consciousness.py`
+- 判定:
+  - 参照ゼロ（例: `rg "maintain_consciousness" -S .` がヒットしない）
