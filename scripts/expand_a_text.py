@@ -518,7 +518,7 @@ def main() -> int:
         draft, min_chars=min_chars, max_chars=max_chars, max_quotes=max_quotes, max_parens=max_parens
     )
     for attempt in range(1, max(1, int(args.max_attempts)) + 1):
-        if last_validation.ok and _chars_no_newlines(draft) >= min_chars:
+        if (not args.force) and last_validation.ok and _chars_no_newlines(draft) >= min_chars:
             break
 
         cur_len = _chars_no_newlines(draft)
