@@ -73,7 +73,8 @@
 ### 3.4 Agent/THINK MODE（複数AIエージェント運用）
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
-- `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用）
+- `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用。`overview` で「誰が何を触っているか」俯瞰可能）
+  - UI: `GET /api/agent-org/overview`（Agents+Locks+Memos を統合表示）
 
 ### 3.5 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
@@ -81,6 +82,9 @@
 ### 3.6 Alignment（Planning↔Script 整合スタンプ）
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
   - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
+- `scripts/audit_alignment_semantic.py`（read-only。タイトル/サムネcatch ↔ 台本文脈の語彙整合を監査。`--out` でJSON保存可）
+- `python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
+  - 運用SoT: `ssot/OPS_SEMANTIC_ALIGNMENT.md`
 
 ---
 
@@ -103,6 +107,12 @@
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
+
+## 4.1 SSOTメンテ（索引/計画書の整合）
+
+- `python3 scripts/ops/ssot_audit.py`（SSOT索引/PLAN_STATUS の整合チェック）
+  - 監査ログを残す: `python3 scripts/ops/ssot_audit.py --write`
+  - completed も厳密に索引化する: `python3 scripts/ops/ssot_audit.py --strict`
 
 ---
 
