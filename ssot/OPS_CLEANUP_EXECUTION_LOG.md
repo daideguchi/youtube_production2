@@ -718,3 +718,35 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `git rm -r packages/commentary_02_srt2images_timeline/ui`
 - 追従更新（SSOT/Docs）:
   - `ssot/OPS_ENTRYPOINTS_INDEX.md`, `ssot/OPS_LOGGING_MAP.md`, `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`, `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `legacy/commentary_02_srt2images_timeline/README.md`
+
+### 47) unscoped/legacy run をまとめて `_archive/` へ退避（untracked）
+
+意図: `workspaces/video/runs/` 直下に残る numeric run / `api_*` / `jinsei*` / `CHxx-` 等の legacy run をまとめて退避し、run 探索と UI の見通しを改善する（削除ではなく移動）。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440`
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --run --yes --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440`
+- 変更内容（run）:
+  - アーカイブ件数: 45 dirs（例: `192*`, `233_*`, `api_*`, `jinsei*`, `CH01_人生の道標_220`, `CH06-`）
+- 安全条件:
+  - 直近24時間（keep-recent-minutes=1440）の更新物はスキップ
+  - `.keep` マーカーは保護
+  - `--video-unscoped-only` のため episode の run（`CHxx-NNN*`）には触れない
+- レポート:
+  - `workspaces/video/_archive/20251217T114250Z/archive_report.json`
+
+### 48) `runs/` 直下の “ui_* / grouped_* / default” demo run を退避（untracked）
+
+意図: episode に紐付かない UI 検証・デモ用 run が残っていると、run 探索が混乱するため `_archive/` へ退避する。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped-legacy --keep-recent-minutes 1440`
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --run --yes --video-unscoped-only --video-archive-unscoped-legacy --keep-recent-minutes 1440`
+- 変更内容（run）:
+  - アーカイブ件数: 17 dirs（`default`, `grouped_demo*`, `ui_*`）
+- 安全条件:
+  - 直近24時間の更新物はスキップ
+  - `.keep` マーカーは保護
+  - `--video-unscoped-only` のため episode の run には触れない
+- レポート:
+  - `workspaces/video/_archive/20251217T114542Z/archive_report.json`

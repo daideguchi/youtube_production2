@@ -60,7 +60,7 @@ python3 scripts/cleanup_workspace.py --video-runs --run --channel CHxx --video N
 ```
 
 ### 4.2 unscoped/legacy run をまとめて退避（まず “戻せる” 前提で）
-> 数字run（`192` 等）、`api_*`、`jinsei*`、`CHxx-` など、episode と 1:1 で紐付いていない run が対象。
+> 数字run（`192` 等）、`api_*`、`jinsei*`、`CHxx-`、`ui_*` / `grouped_*` / `default` など、episode と 1:1 で紐付いていない run が対象。
 
 ```
 python3 scripts/cleanup_workspace.py --video-runs --all --dry-run \
@@ -106,4 +106,3 @@ python3 scripts/ops/restore_video_runs.py --report /path/to/archive_report.json 
 - 退避の内容（何をどこへ移動したか）: `archive_report.json`
 - 退避の実行記録（なぜ/どう実行したか）: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 - 差分確認: `git diff ssot/OPS_CLEANUP_EXECUTION_LOG.md`
-

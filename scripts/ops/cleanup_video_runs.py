@@ -180,6 +180,12 @@ def _is_unscoped_legacy_candidate(name: str) -> bool:
     if _RE_NUMERIC_RUN.match(name):
         return True
     lower = name.lower()
+    if lower in {"default"}:
+        return True
+    if lower.startswith(("ui_", "ui")):
+        return True
+    if lower.startswith(("grouped_", "grouped-demo", "grouped_demo")):
+        return True
     if lower.startswith(("api_", "jinsei")):
         return True
     if _RE_CH_WITH_DIGITS.match(name):
