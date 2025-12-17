@@ -5,9 +5,7 @@
 現行の正本:
 - code: `packages/commentary_02_srt2images_timeline/`
 - server integration: `packages/commentary_02_srt2images_timeline/server/`
-- UI shim（互換）: `packages/commentary_02_srt2images_timeline/ui/`
 
 内容:
 - `ui/`: 旧 UI 試作（Gradio/React など）
 - `config/`: 旧運用メモ/成功設定（コード参照なし）
-

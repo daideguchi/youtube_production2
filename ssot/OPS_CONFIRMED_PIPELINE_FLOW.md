@@ -406,7 +406,7 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 4.2 ただし削除禁止のもの
 - 現行コードやUIから参照されるディレクトリ/ファイルは **Legacyでも即削除不可**。
-  - 例: `commentary_02_srt2images_timeline/server/` は `apps/ui-backend/backend/video_production.py` が参照するため現行依存あり（`commentary_02_srt2images_timeline/ui/` は互換shimのみ）。
+  - 例: `commentary_02_srt2images_timeline/server/` は `apps/ui-backend/backend/video_production.py` が参照するため現行依存あり。
 
 ### 4.3 確実ゴミの定義（削除許可条件）
 - ① 現行SoTフローのどのフェーズにも入力/参照されない  

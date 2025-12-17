@@ -658,3 +658,63 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - 削除件数: 65 files
 - 備考:
   - `llm_api_cache` は今回は対象外（必要なら `--include-llm-api-cache` で追加）
+
+### 43) Video runs の旧runをアーカイブ（untracked）
+
+意図: `workspaces/video/runs/` の run dir が増えると容量/探索ノイズが急増するため、**削除はせず** `_archive/` へ移動して整理する。
+
+- 実行（run）:
+  - `python3 scripts/cleanup_workspace.py --video-runs --run --channel CH01 --keep-recent-minutes 720`
+- 変更内容:
+  - `CH01-249` の重複run 5件を `workspaces/video/_archive/20251217T104426Z/CH01/runs/` へ移動
+- 安全条件:
+  - `keep-last-runs=2` を保持（各episodeで最低2 runは残す）
+  - 直近12時間（keep-recent-minutes=720）の更新物はスキップ
+  - `.keep` マーカーは保護
+- レポート:
+  - `workspaces/video/_archive/20251217T104426Z/archive_report.json`
+
+### 44) Video runs を全体スキャンして重複run/テストrunをアーカイブ（untracked）
+
+意図: CH単位の整理に加えて、`runs/` 直下に残るテスト/デバッグrunや重複runをまとめて `_archive/` へ移動し、探索ノイズを減らす。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --dry-run --video-archive-unscoped --keep-recent-minutes 720`
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --run --yes --video-archive-unscoped --keep-recent-minutes 720`
+- 変更内容（run）:
+  - アーカイブ件数: 9 dirs（例: `CH05-001` の重複run、`test_*` / `debug_*` run）
+- 安全条件:
+  - `keep-last-runs=2` を保持
+  - 直近12時間の更新物はスキップ
+  - `.keep` マーカーは保護
+- レポート:
+  - `workspaces/video/_archive/20251217T104710Z/archive_report.json`
+
+### 45) hidden run（`_failed/_tmp_*` 等）をアーカイブして runs/ を清掃（untracked）
+
+意図: `runs/` 直下の hidden run（`_failed` 等）は実運用の SoT ではないため、まとめて `_archive/_unscoped/` に退避して見通しを良くする。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --dry-run --video-archive-unscoped --video-include-hidden-runs --keep-recent-minutes 720`
+  - `python3 scripts/cleanup_workspace.py --video-runs --all --run --yes --video-archive-unscoped --video-include-hidden-runs --keep-recent-minutes 720`
+- 変更内容（run）:
+  - アーカイブ件数: 7 dirs（`_failed`, `_tmp_*`, 旧ネスト `CH01/` など）
+  - 追加で untracked の `_tmp_*.png` を `workspaces/video/runs/` 直下から削除
+- 安全条件:
+  - 直近12時間の更新物はスキップ
+  - `.keep` マーカーは保護
+- レポート:
+  - `workspaces/video/_archive/20251217T105031Z/archive_report.json`
+
+### 46) `commentary_02_srt2images_timeline/ui/`（互換shim）を archive-first で削除（repo tracked）
+
+意図: 互換shim が残っていると「どっちが正本？」の混乱を招くため。現行コード参照ゼロを確認したうえで、graveyard に退避してから repo から削除する。
+
+- 参照確認:
+  - `rg "commentary_02_srt2images_timeline\\.ui" -S .` がヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251217T105500Z_commentary02_ui_shim.tar.gz`
+- 削除（git rm）:
+  - `git rm -r packages/commentary_02_srt2images_timeline/ui`
+- 追従更新（SSOT/Docs）:
+  - `ssot/OPS_ENTRYPOINTS_INDEX.md`, `ssot/OPS_LOGGING_MAP.md`, `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`, `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `legacy/commentary_02_srt2images_timeline/README.md`

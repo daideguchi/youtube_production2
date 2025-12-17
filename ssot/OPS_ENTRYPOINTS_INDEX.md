@@ -28,7 +28,7 @@
 - FastAPI backend: `apps/ui-backend/backend/main.py`（互換: `ui/backend/main.py` は symlink）
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
-    - `commentary_02_srt2images_timeline/server/jobs.py` を呼び出す（互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
+    - `commentary_02_srt2images_timeline/server/jobs.py` を呼び出す
   - チャンネル登録（scaffold）:
     - `POST /api/channels/register`（handle→channel_id 解決 + channels/planning/persona/sources.yaml 雛形生成）
   - Script pipeline 運用補助（pipeline-boxes）
@@ -89,6 +89,7 @@
 - 統合 cleanup（推奨）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
+  - video runs（unscoped/hiddenも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-archive-unscoped --video-include-hidden-runs` → OKなら `--run --yes`
   - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
   - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）

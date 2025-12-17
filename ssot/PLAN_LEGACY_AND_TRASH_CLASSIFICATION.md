@@ -69,14 +69,13 @@
 ### 3.1 `commentary_02_srt2images_timeline/`
 
 **ユーザー指摘の「ゴミ候補」検証（結論）**
-- `commentary_02_srt2images_timeline/ui/` は **互換shimのみ**（削除判断は慎重に）:
-  - 現行の正本実装: `commentary_02_srt2images_timeline/server/jobs.py`
-  - 互換shim: `commentary_02_srt2images_timeline/ui/server/jobs.py`（旧import互換のため残す）
+- `commentary_02_srt2images_timeline/ui/` は **参照ゼロの互換shim**（現行コードは `server/` を参照）:
+  - 確認: `rg "commentary_02_srt2images_timeline\\.ui" -S .` がヒットしない
+  - 対応: archive-first（`backups/graveyard/*_commentary02_ui_shim.tar.gz`）のうえ repo から削除（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
 - `commentary_02_srt2images_timeline/examples/` は **存在しない**（現行ツリーにディレクトリ自体が無い）。
 
 **Keep（現行依存あり）**
 - `src/`, `tools/`（archive除く）, `server/`, `config/`, `templates/`, `input/`, `output/`, `logs/`, `memory/`
-- `ui/` は互換shim（実体は `server/` へ移設済み）
 - `audio_sync_status.json` は `workspaces/video/_state/audio_sync_status.json` が正本（legacy: `packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json`）
 
 **Legacy隔離**

@@ -152,7 +152,7 @@
   - 種別: **L3 / 状態ファイル**
 
 - `logs/ui_hub/video_production/<job_id>.log`  
-  - Writer: `packages/commentary_02_srt2images_timeline/server/jobs.py`（FastAPI経由ジョブ。互換: `packages/commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
+  - Writer: `packages/commentary_02_srt2images_timeline/server/jobs.py`（FastAPI経由ジョブ）
   - 種別: **L3（job単位）**
 
 - `logs/ui/ui_tasks.db`  

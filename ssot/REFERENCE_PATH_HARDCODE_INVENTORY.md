@@ -88,7 +88,6 @@
 - `scripts/create_image_cues_from_srt.py`
 - `scripts/run_pipeline_skip_llm.py`
 - `apps/ui-backend/backend/routers/swap.py`
-- `commentary_02_srt2images_timeline/ui/server/jobs.py`
 - `commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt`（Docs/運用）
 - `apps/ui-frontend/src/components/RemotionWorkspace.tsx`（experimental UI）
 - `ssot/*`（Docs）

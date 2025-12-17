@@ -143,12 +143,14 @@ def _selected_run_id(channel: str, video: str) -> Optional[str]:
     return None
 
 
-_LEGACY_CH_DIR_RE = re.compile(r"^CH\\d{2}$")
+_LEGACY_CH_DIR_RE = re.compile(r"^CH\d{2}$")
 
 
 def _is_definitely_unscoped_trash(name: str) -> bool:
     n = name.lower()
     if n.startswith(("_tmp", "tmp_", "_failed", "failed_", ".tmp", "_test", "test_", "debug_", "_debug")):
+        return True
+    if n.startswith("_") and any(token in n for token in ("test", "smoke", "logtest", "remotion")):
         return True
     if _LEGACY_CH_DIR_RE.match(name):
         return True
@@ -415,4 +417,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

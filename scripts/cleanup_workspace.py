@@ -82,6 +82,7 @@ def main() -> int:
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recently modified artifacts.")
     ap.add_argument("--video-keep-last-runs", type=int, default=2, help="Keep at least N run dirs per episode (video domain).")
     ap.add_argument("--video-archive-unscoped", action="store_true", help="Also archive unscoped run dirs that look like trash (video domain; requires --all).")
+    ap.add_argument("--video-include-hidden-runs", action="store_true", help="Include runs starting with _ or . (video domain).")
     ap.add_argument("--logs-keep-days", type=int, default=30, help="Keep logs newer than this many days (default: 30).")
     ap.add_argument("--scripts-keep-days", type=int, default=14, help="Keep script intermediates newer than this many days (default: 14).")
     ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune logs/llm_api_cache (default: keep).")
@@ -142,7 +143,7 @@ def main() -> int:
     if "video_runs" in domains:
         print(
             f"[cleanup_workspace] video.keep_last_runs={int(args.video_keep_last_runs)} "
-            f"archive_unscoped={bool(args.video_archive_unscoped)}",
+            f"archive_unscoped={bool(args.video_archive_unscoped)} include_hidden={bool(args.video_include_hidden_runs)}",
             flush=True,
         )
 
@@ -193,6 +194,8 @@ def main() -> int:
             args_video += ["--keep-last-runs", str(int(args.video_keep_last_runs))]
             if args.video_archive_unscoped:
                 args_video.append("--archive-unscoped")
+            if args.video_include_hidden_runs:
+                args_video.append("--include-hidden-runs")
             if channels:
                 for ch in channels:
                     args_video += ["--channel", ch]
