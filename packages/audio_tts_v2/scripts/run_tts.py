@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import json
 from pathlib import Path
 import os
 import sys
@@ -109,11 +111,70 @@ def main() -> None:
             raise SystemExit(f"[ERROR] Voicevox not reachable at {vv_url}: {e}")
 
     # IO Setup (SSOT paths)
-    from factory_common.paths import repo_root, video_root, audio_final_dir
+    from factory_common.paths import repo_root, video_root, audio_final_dir, channels_csv_path, status_path
+    from factory_common.alignment import ALIGNMENT_SCHEMA, planning_hash_from_row, sha1_file as sha1_file_bytes
 
     base_dir = repo_root()
     if not args.input.exists():
         raise SystemExit(f"[ERROR] Input file not found: {args.input}")
+
+    # --- Alignment guard: Planning(title/thumbnail) <-> Script(A-text) -----------------
+    # Prevent generating audio from a script that drifted from the current planning title/thumbnail.
+    try:
+        st_path = status_path(args.channel, args.video)
+        if st_path.exists():
+            payload = json.loads(st_path.read_text(encoding="utf-8"))
+            meta = payload.get("metadata") if isinstance(payload, dict) else None
+            align = meta.get("alignment") if isinstance(meta, dict) else None
+            if not (isinstance(align, dict) and align.get("schema") == ALIGNMENT_SCHEMA):
+                raise SystemExit(
+                    f"[ALIGN] alignment stamp missing. Run `python scripts/enforce_alignment.py --channels {args.channel} --apply` "
+                    f"or `python -m script_pipeline.cli reconcile --channel {args.channel} --video {args.video}`."
+                )
+            stored_planning_hash = align.get("planning_hash")
+            stored_script_hash = align.get("script_hash")
+            if not (isinstance(stored_planning_hash, str) and isinstance(stored_script_hash, str)):
+                raise SystemExit("[ALIGN] alignment stamp incomplete (missing hashes). Re-stamp alignment.")
+
+            # Current planning hash (CSV)
+            csv_path = channels_csv_path(args.channel)
+            planning_row: dict[str, str] = {}
+            if csv_path.exists():
+                with csv_path.open("r", encoding="utf-8", newline="") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        v = row.get("動画番号") or row.get("No.") or ""
+                        digits = "".join(ch for ch in str(v) if ch.isdigit())
+                        if digits and f"{int(digits):03d}" == args.video:
+                            planning_row = dict(row)
+                            break
+            if not planning_row:
+                raise SystemExit(f"[ALIGN] planning row not found in {csv_path} for video={args.video}")
+            current_planning_hash = planning_hash_from_row(planning_row)
+
+            # Current script hash (A-text SoT)
+            content_dir = video_root(args.channel, args.video) / "content"
+            current_script_path = content_dir / "assembled_human.md"
+            if not current_script_path.exists():
+                current_script_path = content_dir / "assembled.md"
+            if not current_script_path.exists():
+                raise SystemExit(f"[ALIGN] script not found: {current_script_path}")
+            current_script_hash = sha1_file_bytes(current_script_path)
+
+            mismatches = []
+            if current_planning_hash != stored_planning_hash:
+                mismatches.append("planning(title/thumbnail)")
+            if current_script_hash != stored_script_hash:
+                mismatches.append("script(A-text)")
+            if mismatches:
+                raise SystemExit(
+                    "[ALIGN] mismatch detected (" + " & ".join(mismatches) + "). "
+                    "Regenerate/reconcile the script and re-run alignment stamping before TTS."
+                )
+    except SystemExit:
+        raise
+    except Exception as exc:
+        raise SystemExit(f"[ALIGN] failed to verify alignment: {exc}")
 
     # --- Global guard: assemble the right script before synthesis -----------------
     # ルール:
@@ -264,7 +325,6 @@ def main() -> None:
             # This must never change the synthesis result; it only records pointers
             # + checksums so downstream can run mechanically with consistent inputs.
             try:
-                import json
                 from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
                 from factory_common.paths import repo_root as ssot_repo_root
                 from factory_common.timeline_manifest import (
