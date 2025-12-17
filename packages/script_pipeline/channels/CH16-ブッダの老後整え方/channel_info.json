@@ -5,16 +5,19 @@
   "persona_path": "progress/personas/CH16_PERSONA.md",
   "template_path": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt",
   "branding": {
+    "avatar_url": "https://yt3.googleusercontent.com/pulmgrEu6P89x1iGnFw_l8MaXWxF2nc00EclsDu5z4u2v5_V-4yx_NwpkO98021Y5oMVqJcsrAQ=s900-c-k-c0x00ffffff-no-rj",
+    "title": "ブッダの教え【心を整える】",
     "custom_url": "@buddha-e001",
     "handle": "@buddha-e001",
-    "url": "https://www.youtube.com/@buddha-e001"
+    "url": "https://www.youtube.com/channel/UCBCHIgXDxk9yP851zxScNtg"
   },
   "youtube": {
+    "channel_id": "UCBCHIgXDxk9yP851zxScNtg",
+    "title": "ブッダの教え【心を整える】",
     "custom_url": "@buddha-e001",
     "handle": "@buddha-e001",
-    "url": "https://www.youtube.com/@buddha-e001",
-    "source": "@buddha-e001"
+    "url": "https://www.youtube.com/channel/UCBCHIgXDxk9yP851zxScNtg",
+    "source": "UCBCHIgXDxk9yP851zxScNtg"
   },
   "script_prompt": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt"
 }
-

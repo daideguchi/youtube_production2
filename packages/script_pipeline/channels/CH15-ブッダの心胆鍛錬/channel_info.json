@@ -5,16 +5,19 @@
   "persona_path": "progress/personas/CH15_PERSONA.md",
   "template_path": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt",
   "branding": {
+    "avatar_url": "https://yt3.googleusercontent.com/Z73_muYtBPCRS71-Rz5smt0G_yDaATqufRxaUHufaviS6TPBWO1YKh6C3m6qf6lRS-uy9nhzhg=s900-c-k-c0x00ffffff-no-rj",
+    "title": "ブッダの心胆鍛錬",
     "custom_url": "@buddha-d001",
     "handle": "@buddha-d001",
-    "url": "https://www.youtube.com/@buddha-d001"
+    "url": "https://www.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q"
   },
   "youtube": {
+    "channel_id": "UCJZpBqczQs-Y2yi9g32Qt7Q",
+    "title": "ブッダの心胆鍛錬",
     "custom_url": "@buddha-d001",
     "handle": "@buddha-d001",
-    "url": "https://www.youtube.com/@buddha-d001",
-    "source": "@buddha-d001"
+    "url": "https://www.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q",
+    "source": "UCJZpBqczQs-Y2yi9g32Qt7Q"
   },
   "script_prompt": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt"
 }
-

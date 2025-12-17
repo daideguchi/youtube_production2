@@ -5,16 +5,19 @@
   "persona_path": "progress/personas/CH14_PERSONA.md",
   "template_path": "script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt",
   "branding": {
+    "avatar_url": "https://yt3.googleusercontent.com/Gfn2vsw4oG2zpDf5yX_YzbCfU2gQtl1iy2YHf1A3-f7YLy4a-KBMFLFnfLlCioYN43HcTtPpUg=s900-c-k-c0x00ffffff-no-rj",
+    "title": "ブッダの教え【執着からの解放】",
     "custom_url": "@buddha-c001",
     "handle": "@buddha-c001",
-    "url": "https://www.youtube.com/@buddha-c001"
+    "url": "https://www.youtube.com/channel/UCoKMmvWzqZyNlgQ7YPxIGvQ"
   },
   "youtube": {
+    "channel_id": "UCoKMmvWzqZyNlgQ7YPxIGvQ",
+    "title": "ブッダの教え【執着からの解放】",
     "custom_url": "@buddha-c001",
     "handle": "@buddha-c001",
-    "url": "https://www.youtube.com/@buddha-c001",
-    "source": "@buddha-c001"
+    "url": "https://www.youtube.com/channel/UCoKMmvWzqZyNlgQ7YPxIGvQ",
+    "source": "UCoKMmvWzqZyNlgQ7YPxIGvQ"
   },
   "script_prompt": "script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt"
 }
-

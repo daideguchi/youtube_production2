@@ -5,16 +5,19 @@
   "persona_path": "progress/personas/CH12_PERSONA.md",
   "template_path": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt",
   "branding": {
+    "avatar_url": "https://yt3.googleusercontent.com/WlucfBCHZ3a-9xgzy2YajiDfUO5O2gnpZBgdZgx3vtR0cfwYtDaoh1fvtQj8ntPZcje_HCEr=s900-c-k-c0x00ffffff-no-rj",
+    "title": "ブッダの教え【人生が輝く知恵】",
     "custom_url": "@buddha-a001",
     "handle": "@buddha-a001",
-    "url": "https://www.youtube.com/@buddha-a001"
+    "url": "https://www.youtube.com/channel/UCY2W5huV0xtLYNt9xpq70HA"
   },
   "youtube": {
+    "channel_id": "UCY2W5huV0xtLYNt9xpq70HA",
+    "title": "ブッダの教え【人生が輝く知恵】",
     "custom_url": "@buddha-a001",
     "handle": "@buddha-a001",
-    "url": "https://www.youtube.com/@buddha-a001",
-    "source": "@buddha-a001"
+    "url": "https://www.youtube.com/channel/UCY2W5huV0xtLYNt9xpq70HA",
+    "source": "UCY2W5huV0xtLYNt9xpq70HA"
   },
   "script_prompt": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt"
 }
-

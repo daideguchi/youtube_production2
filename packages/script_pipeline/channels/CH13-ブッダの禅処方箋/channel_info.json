@@ -5,16 +5,19 @@
   "persona_path": "progress/personas/CH13_PERSONA.md",
   "template_path": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt",
   "branding": {
+    "avatar_url": "https://yt3.googleusercontent.com/Scg2PbSOdS-MTAz84BrZJm4T1OAyOmC4yawbFHBkZe6jThOvpIqit5AcY8k_rj1Gt7ws32kgkw=s900-c-k-c0x00ffffff-no-rj",
+    "title": "ブッダの禅処方箋",
     "custom_url": "@buddha-b001",
     "handle": "@buddha-b001",
-    "url": "https://www.youtube.com/@buddha-b001"
+    "url": "https://www.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A"
   },
   "youtube": {
+    "channel_id": "UCLl4VOZ21zq9Fexo0822w7A",
+    "title": "ブッダの禅処方箋",
     "custom_url": "@buddha-b001",
     "handle": "@buddha-b001",
-    "url": "https://www.youtube.com/@buddha-b001",
-    "source": "@buddha-b001"
+    "url": "https://www.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A",
+    "source": "UCLl4VOZ21zq9Fexo0822w7A"
   },
   "script_prompt": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt"
 }
-
