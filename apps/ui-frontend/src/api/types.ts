@@ -267,6 +267,7 @@ export interface VideoDetail {
   status: string;
   ready_for_audio: boolean;
   stages: Record<string, string>;
+  stage_details?: Record<string, Record<string, unknown>> | null;
   alignment_status?: string | null;
   alignment_reason?: string | null;
   assembled_path?: string | null;

@@ -19,6 +19,55 @@ info() { printf '\e[32m[INFO]\e[0m %s\n' "$*"; }
 warn() { printf '\e[33m[WARN]\e[0m %s\n' "$*"; }
 err()  { printf '\e[31m[ERR ]\e[0m %s\n' "$*"; }
 
+# Load a dotenv-style env file (KEY=VALUE) without executing it as shell code.
+# This prevents syntax errors when values contain characters like ';'.
+load_env_file() {
+  local env_path="$1"
+  local line key value first_char last_char
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Trim CRLF and surrounding whitespace
+    line="${line%$'\r'}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+
+    [ -z "$line" ] && continue
+    case "$line" in
+      \#*) continue ;;
+    esac
+
+    # Support optional leading "export "
+    if [[ "$line" == export[[:space:]]* ]]; then
+      line="${line#export }"
+      line="${line#"${line%%[![:space:]]*}"}"
+    fi
+
+    [[ "$line" == *"="* ]] || continue
+    key="${line%%=*}"
+    value="${line#*=}"
+
+    # Trim spaces around key/value (dotenv semantics)
+    key="${key#"${key%%[![:space:]]*}"}"
+    key="${key%"${key##*[![:space:]]}"}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+
+    # Skip invalid keys
+    [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+
+    # Strip a single pair of surrounding quotes if present.
+    if [ "${#value}" -ge 2 ]; then
+      first_char="${value:0:1}"
+      last_char="${value: -1}"
+      if { [ "$first_char" = "\"" ] && [ "$last_char" = "\"" ]; } || { [ "$first_char" = "'" ] && [ "$last_char" = "'" ]; }; then
+        value="${value:1:${#value}-2}"
+      fi
+    fi
+
+    export "$key=$value"
+  done < "$env_path"
+}
+
 # optional: start remotion preview server (port 3100) for Studio iframe
 start_remotion_studio() {
   local remotion_dir="$YTM_ROOT/apps/remotion"
@@ -95,10 +144,7 @@ main() {
 
   if [ -f "$ENV_FILE" ]; then
     info "Loading environment from $ENV_FILE"
-    set -a
-    # shellcheck disable=SC1090
-    source "$ENV_FILE"
-    set +a
+    load_env_file "$ENV_FILE" || warn "Failed to parse $ENV_FILE; continuing without sourcing"
   else
     warn "ENV file $ENV_FILE not found; continuing without sourcing"
   fi

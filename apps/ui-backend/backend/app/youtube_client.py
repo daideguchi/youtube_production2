@@ -11,6 +11,8 @@ import requests
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any
 
+from factory_common.youtube_handle import YouTubeHandleResolutionError, resolve_youtube_channel_id_from_handle
+
 
 class YouTubeDataAPIError(Exception):
     pass
@@ -134,6 +136,7 @@ class YouTubeDataClient:
         channel_id = None
         handle = None
         url = None
+        handle_token_re = re.compile(r"^[A-Za-z0-9._-]{3,}$")
 
         if ident.startswith("http"):
             url = ident
@@ -151,10 +154,10 @@ class YouTubeDataClient:
             channel_id = ident
             url = f"https://www.youtube.com/channel/{ident}"
         else:
-            handle = ident if ident else None
-            if handle:
-                url = f"https://www.youtube.com/@{handle.lstrip('@')}"
-                handle = "@" + handle.lstrip("@")
+            # Treat as handle only if it looks like a handle token; otherwise treat as search query.
+            if ident and handle_token_re.match(ident.lstrip("@")):
+                handle = "@" + ident.lstrip("@")
+                url = f"https://www.youtube.com/{handle}"
         return {"channel_id": channel_id, "handle": handle, "url": url}
 
     def fetch_channel(self, identifier: str) -> ChannelMetadata:
@@ -164,10 +167,15 @@ class YouTubeDataClient:
         url = parsed["url"]
 
         if not channel_id and handle:
-            channel_id = self._search_channel_id(handle)
-        if not channel_id and handle:
-            channel_id = self._search_channel_id(handle.lstrip("@"))
-        if not channel_id and not handle:
+            try:
+                resolved = resolve_youtube_channel_id_from_handle(handle)
+            except YouTubeHandleResolutionError as exc:
+                raise YouTubeDataAPIError(f"ハンドルから channel_id を特定できませんでした: {exc}") from exc
+            channel_id = resolved.channel_id
+            url = resolved.url
+            handle = resolved.handle
+
+        if not channel_id:
             channel_id = self._search_channel_id(identifier)
 
         if not channel_id:

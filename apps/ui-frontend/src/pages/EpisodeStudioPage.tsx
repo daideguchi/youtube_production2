@@ -58,6 +58,55 @@ function formatArtifactMeta(meta?: Record<string, unknown> | null): string | nul
   return joined.length > 180 ? `${joined.slice(0, 177)}…` : joined;
 }
 
+const DEFAULT_STAGE_ORDER = [
+  "topic_research",
+  "script_outline",
+  "chapter_brief",
+  "script_draft",
+  "script_enhancement",
+  "script_review",
+  "quality_check",
+  "script_validation",
+  "audio_synthesis",
+] as const;
+
+const STAGE_LABELS: Record<string, string> = {
+  topic_research: "リサーチ",
+  script_outline: "アウトライン",
+  chapter_brief: "章ブリーフ",
+  script_draft: "章ドラフト",
+  script_enhancement: "改善",
+  script_review: "組み立て",
+  quality_check: "品質チェック",
+  script_validation: "最終バリデーション",
+  audio_synthesis: "音声生成（入口）",
+};
+
+function formatStageStatus(status: string): string {
+  switch (status) {
+    case "completed":
+      return "完了";
+    case "processing":
+      return "実行中";
+    case "failed":
+      return "失敗";
+    case "pending":
+      return "待機";
+    default:
+      return status || "unknown";
+  }
+}
+
+function stageChipClass(status: string): string {
+  if (status === "completed") {
+    return "status-chip";
+  }
+  if (status === "failed") {
+    return "status-chip status-chip--danger";
+  }
+  return "status-chip status-chip--warning";
+}
+
 export function EpisodeStudioPage() {
   const {
     channels,
@@ -83,6 +132,17 @@ export function EpisodeStudioPage() {
   const alignmentStatus = videoDetail?.alignment_status ?? null;
   const alignmentReason = videoDetail?.alignment_reason ?? null;
   const alignmentOk = alignmentStatus === null || alignmentStatus === "OK" || alignmentStatus === "要確認";
+  const stageStatuses = videoDetail?.stages ?? {};
+  const stageDetails = videoDetail?.stage_details ?? null;
+  const stageOrder = useMemo(() => {
+    const statuses = videoDetail?.stages ?? {};
+    const details = videoDetail?.stage_details ?? null;
+    const known = DEFAULT_STAGE_ORDER.filter((key) => key in statuses || Boolean(details?.[key]));
+    const rest = Object.keys(statuses)
+      .filter((key) => !DEFAULT_STAGE_ORDER.includes(key as (typeof DEFAULT_STAGE_ORDER)[number]))
+      .sort();
+    return [...known, ...rest];
+  }, [videoDetail?.stages, videoDetail?.stage_details]);
 
   const episodeBaseLink =
     channel && video ? `/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}` : null;
@@ -419,6 +479,127 @@ export function EpisodeStudioPage() {
               整合: {alignmentStatus}
               {alignmentReason ? ` / ${alignmentReason}` : ""}
             </div>
+          ) : null}
+
+          {episodeId && videoDetail ? (
+            <details style={{ marginTop: 14 }}>
+              <summary style={{ cursor: "pointer" }}>パイプライン（ステージ）</summary>
+              <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+                {stageOrder.length ? (
+                  stageOrder.map((stageName) => {
+                    const status = stageStatuses[stageName] ?? "pending";
+                    const detail = stageDetails?.[stageName] ?? null;
+                    const detailObj =
+                      detail && typeof detail === "object" && !Array.isArray(detail)
+                        ? (detail as Record<string, unknown>)
+                        : null;
+
+                    const error = typeof detailObj?.error === "string" ? detailObj.error : null;
+                    const errorCodesCandidate = detailObj?.error_codes;
+                    const errorCodes = Array.isArray(errorCodesCandidate) ? errorCodesCandidate : null;
+
+                    const issuesCandidate = detailObj?.issues;
+                    const issues = Array.isArray(issuesCandidate) ? issuesCandidate : [];
+
+                    const fixHintsCandidate = detailObj?.fix_hints;
+                    const fixHints = Array.isArray(fixHintsCandidate) ? fixHintsCandidate : [];
+
+                    const warningsCandidate = detailObj?.warnings;
+                    const warnings = Array.isArray(warningsCandidate) ? warningsCandidate : [];
+                    const checkedPath = typeof detailObj?.checked_path === "string" ? detailObj.checked_path : null;
+                    const stats =
+                      detailObj?.stats && typeof detailObj.stats === "object" && !Array.isArray(detailObj.stats)
+                        ? (detailObj.stats as Record<string, unknown>)
+                        : null;
+
+                    return (
+                      <div
+                        key={stageName}
+                        style={{
+                          border: "1px solid var(--color-border-muted)",
+                          borderRadius: 14,
+                          padding: 14,
+                          background: "var(--color-bg)",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                          <div style={{ fontWeight: 700 }}>
+                            {STAGE_LABELS[stageName] ?? stageName}
+                            <span style={{ marginLeft: 8, fontSize: 12, color: "var(--color-text-muted)" }}>
+                              {stageName}
+                            </span>
+                          </div>
+                          <span className={stageChipClass(status)}>{formatStageStatus(status)}</span>
+                        </div>
+
+                        {checkedPath ? (
+                          <div style={{ marginTop: 8, color: "var(--color-text-muted)", fontSize: 13 }}>
+                            対象: <code>{checkedPath}</code>
+                          </div>
+                        ) : null}
+                        {stats ? (
+                          <div style={{ marginTop: 8, color: "var(--color-text-muted)", fontSize: 13 }}>
+                            統計: <code>{formatArtifactMeta(stats)}</code>
+                          </div>
+                        ) : null}
+
+                        {error || errorCodes ? (
+                          <div className="main-alert main-alert--warning" style={{ marginTop: 12 }}>
+                            {error ? <div>エラー: {error}</div> : null}
+                            {errorCodes ? <div>コード: {(errorCodes as unknown[]).map(String).join(", ")}</div> : null}
+                          </div>
+                        ) : null}
+
+                        {warnings.length ? (
+                          <div className="main-alert" style={{ marginTop: 12 }}>
+                            <div style={{ fontWeight: 600, marginBottom: 6 }}>Warnings</div>
+                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                              {warnings.slice(0, 5).map((w, idx) => (
+                                <li key={idx} style={{ overflowWrap: "anywhere" }}>
+                                  {String(w)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+
+                        {issues.length ? (
+                          <div style={{ marginTop: 12 }}>
+                            <div style={{ fontWeight: 600, marginBottom: 6 }}>検出内容（先頭のみ）</div>
+                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                              {issues.slice(0, 5).map((it, idx) => (
+                                <li key={idx} style={{ overflowWrap: "anywhere" }}>
+                                  {typeof it === "string"
+                                    ? it
+                                    : typeof it === "object" && it
+                                      ? `${String((it as any).code || "")}${(it as any).line ? `:${String((it as any).line)}` : ""} ${(it as any).message ? `- ${String((it as any).message)}` : ""}`
+                                      : String(it)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+
+                        {fixHints.length ? (
+                          <div style={{ marginTop: 12 }}>
+                            <div style={{ fontWeight: 600, marginBottom: 6 }}>修正ヒント</div>
+                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                              {fixHints.slice(0, 6).map((h, idx) => (
+                                <li key={idx} style={{ overflowWrap: "anywhere" }}>
+                                  {String(h)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="main-alert">ステージ情報が見つかりません。</div>
+                )}
+              </div>
+            </details>
           ) : null}
           {videoProjectError ? <div className="main-alert main-alert--error">{videoProjectError}</div> : null}
         </div>

@@ -240,6 +240,11 @@ from factory_common.paths import (
     thumbnails_root as ssot_thumbnails_root,
     video_pkg_root,
 )
+from factory_common.youtube_handle import (
+    YouTubeHandleResolutionError,
+    normalize_youtube_handle,
+    resolve_youtube_channel_id_from_handle,
+)
 
 _llm_usage_import_error: Exception | None = None
 try:
@@ -1663,6 +1668,38 @@ def _clean_default_tags(values: Optional[List[str]]) -> Optional[List[str]]:
     if len(cleaned) > 50:
         raise HTTPException(status_code=400, detail="タグは最大50件までです。")
     return cleaned
+
+
+def _normalize_youtube_handle_key(value: str) -> str:
+    return normalize_youtube_handle(value).lower()
+
+
+def _ensure_unique_youtube_handle(channel_code: str, handle: str, channel_info_map: Dict[str, dict]) -> None:
+    """
+    Ensure a YouTube handle maps to exactly one internal channel (accident prevention).
+    """
+
+    target = _normalize_youtube_handle_key(handle)
+    conflicts: List[str] = []
+    for code, info in (channel_info_map or {}).items():
+        if code.upper() == channel_code.upper():
+            continue
+        youtube_info = info.get("youtube") or {}
+        other = youtube_info.get("handle") or youtube_info.get("custom_url") or ""
+        if not other:
+            continue
+        try:
+            other_key = _normalize_youtube_handle_key(str(other))
+        except Exception:
+            continue
+        if other_key == target:
+            conflicts.append(code.upper())
+    if conflicts:
+        conflicts_s = ", ".join(sorted(set(conflicts)))
+        raise HTTPException(
+            status_code=400,
+            detail=f"YouTubeハンドル {normalize_youtube_handle(handle)} が複数チャンネルに重複しています: {conflicts_s}",
+        )
 
 
 def _checksum_text(value: Optional[str]) -> str:
@@ -4434,6 +4471,7 @@ class VideoDetailResponse(BaseModel):
     status: str
     ready_for_audio: bool
     stages: Dict[str, str]
+    stage_details: Optional[Dict[str, Any]] = None
     redo_script: bool = True
     redo_audio: bool = True
     redo_note: Optional[str] = None
@@ -6113,11 +6151,59 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
                 info_payload.pop("youtube_description", None)
                 info_changed = True
     if payload.youtube_handle is not None:
-        new_handle = payload.youtube_handle.strip()
-        if youtube_info.get("handle") != new_handle:
-            _record_change(changes, "youtube.handle", youtube_info.get("handle"), new_handle)
-            youtube_info["handle"] = new_handle
-            info_changed = True
+        new_handle_raw = payload.youtube_handle.strip()
+        if new_handle_raw:
+            try:
+                normalized_handle = normalize_youtube_handle(new_handle_raw)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=f"YouTubeハンドルが不正です: {exc}") from exc
+
+            channel_info_map = refresh_channel_info(force=True)
+            _ensure_unique_youtube_handle(channel_code, normalized_handle, channel_info_map)
+
+            try:
+                resolved = resolve_youtube_channel_id_from_handle(normalized_handle)
+            except YouTubeHandleResolutionError as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"YouTubeハンドルから channel_id を特定できませんでした: {exc}",
+                ) from exc
+
+            if youtube_info.get("handle") != resolved.handle:
+                _record_change(changes, "youtube.handle", youtube_info.get("handle"), resolved.handle)
+                youtube_info["handle"] = resolved.handle
+                youtube_info["custom_url"] = resolved.handle
+                info_changed = True
+            if youtube_info.get("channel_id") != resolved.channel_id:
+                _record_change(changes, "youtube.channel_id", youtube_info.get("channel_id"), resolved.channel_id)
+                youtube_info["channel_id"] = resolved.channel_id
+                info_changed = True
+            if youtube_info.get("url") != resolved.url:
+                _record_change(changes, "youtube.url", youtube_info.get("url"), resolved.url)
+                youtube_info["url"] = resolved.url
+                info_changed = True
+            if youtube_info.get("source") != resolved.channel_id:
+                _record_change(changes, "youtube.source", youtube_info.get("source"), resolved.channel_id)
+                youtube_info["source"] = resolved.channel_id
+                info_changed = True
+
+            branding_info = info_payload.setdefault("branding", {})
+            if branding_info.get("handle") != resolved.handle:
+                _record_change(changes, "branding.handle", branding_info.get("handle"), resolved.handle)
+                branding_info["handle"] = resolved.handle
+                branding_info["custom_url"] = resolved.handle
+                info_changed = True
+            if branding_info.get("url") != resolved.url:
+                _record_change(changes, "branding.url", branding_info.get("url"), resolved.url)
+                branding_info["url"] = resolved.url
+                info_changed = True
+        else:
+            # Allow clearing handle explicitly.
+            if youtube_info.get("handle"):
+                _record_change(changes, "youtube.handle", youtube_info.get("handle"), None)
+                youtube_info.pop("handle", None)
+                youtube_info.pop("custom_url", None)
+                info_changed = True
         info_payload.pop("youtube_handle", None)
 
     audio_changed = False
@@ -7703,6 +7789,35 @@ def get_video_detail(channel: str, video: str):
     stages_meta = status.get("stages", {}) or {}
     stages_meta, audio_exists, srt_exists = _inject_audio_completion_from_artifacts(channel_code, video_number, stages_meta, metadata)
     stages = {key: value.get("status", "pending") for key, value in stages_meta.items()} if stages_meta else {}
+    stage_details: Optional[Dict[str, Any]] = None
+    if stages_meta:
+        details_out: Dict[str, Any] = {}
+        for stage_name, stage_payload in stages_meta.items():
+            if not isinstance(stage_payload, dict):
+                continue
+            details = stage_payload.get("details")
+            if not isinstance(details, dict) or not details:
+                continue
+            subset: Dict[str, Any] = {}
+            for key in (
+                "error",
+                "error_codes",
+                "issues",
+                "fix_hints",
+                "checked_path",
+                "stats",
+                "warnings",
+                "warning_codes",
+                "warning_issues",
+                "manual_entrypoint",
+            ):
+                val = details.get(key)
+                if val in (None, "", [], {}):
+                    continue
+                subset[key] = val
+            if subset:
+                details_out[stage_name] = subset
+        stage_details = details_out or None
     status_value = status.get("status", "unknown")
     if audio_exists and srt_exists and status_value != "completed":
         status_value = "completed"
@@ -7867,6 +7982,7 @@ def get_video_detail(channel: str, video: str):
         status=status_value,
         ready_for_audio=bool(metadata.get("ready_for_audio", False)),
         stages=stages,
+        stage_details=stage_details,
         redo_script=bool(redo_script),
         redo_audio=bool(redo_audio),
         redo_note=redo_note,
