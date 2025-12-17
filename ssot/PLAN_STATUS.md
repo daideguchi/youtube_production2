@@ -10,7 +10,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 ---
 
 ## Active（進行中）
-- `PLAN_UI_EPISODE_STUDIO.md`（最終更新 2025-12-13）: 企画→台本→音声→動画を UI だけで完結させる統合スタジオ。
+- `PLAN_UI_EPISODE_STUDIO.md`（最終更新 2025-12-17）: 企画→台本→音声→動画を UI だけで完結させる統合スタジオ。
 - `PLAN_UI_WORKSPACE_CLEANUP.md`（最終更新 2025-12-12）: UI の導線整理と辞書/ハブ化。
 - `PLAN_OPS_VOICEVOX_READING_REFORM.md`（最終更新 2025-12-11）: VOICEVOX 読み誤り対策（実装/運用 TODO 管理の正本）。
 - `PLAN_LLM_PIPELINE_REFACTOR.md`（最終更新 2025-12-10）: 台本/TTS/画像の LLM 呼び出し統合。

@@ -29,6 +29,11 @@
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
     - `commentary_02_srt2images_timeline/server/jobs.py` を呼び出す（互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
+  - Script pipeline 運用補助（pipeline-boxes）
+    - `GET /api/channels/{ch}/videos/{video}/script-manifest`（ステージ一覧/出力）
+    - `GET|PUT /api/channels/{ch}/videos/{video}/llm-artifacts/*`（THINK MODEでの手動補正→出力反映）
+    - `POST /api/channels/{ch}/videos/{video}/script-pipeline/reconcile`（既存出力から status.json を補正）
+    - `POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation`（Aテキスト品質ゲートを再実行）
 - Frontend (React): `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 
 ---

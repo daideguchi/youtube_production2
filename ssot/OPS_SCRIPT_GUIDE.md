@@ -48,6 +48,16 @@
 - `python -m script_pipeline.cli validate --channel CH06 --video 033`
 - `python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
 
+### 3.0 UI（Episode Studio）での復旧
+
+UI側でも「詰まったらまずここ」を固定する。
+
+- `Episode Studio` → `パイプライン（ステージ）` から実行:
+  - `Reconcile（status補正）`（API: `POST /api/channels/{ch}/videos/{video}/script-pipeline/reconcile`）
+  - `script_validation 実行`（API: `POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation`）
+- `script_validation` が NG の場合:
+  - `status.json: stages.script_validation.details.error_codes / issues / fix_hints` を読み、`assembled_human.md`（なければ `assembled.md`）を修正してから再実行する。
+
 ### 3.1 Script Validation（品質ゲート）
 
 - 実行: `python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`

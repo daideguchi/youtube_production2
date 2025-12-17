@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext, useSearchParams } from "react-router-dom";
 
-import { createVideoProject, fetchVideoJobs, fetchVideoProjectDetail, runAudioTtsV2FromScript } from "../api/client";
+import {
+  createVideoProject,
+  fetchVideoJobs,
+  fetchVideoProjectDetail,
+  reconcileScriptPipeline,
+  runAudioTtsV2FromScript,
+  runScriptPipelineStage,
+} from "../api/client";
 import type { VideoJobRecord, VideoProjectDetail } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
 import { apiUrl } from "../utils/apiClient";
@@ -118,6 +125,7 @@ export function EpisodeStudioPage() {
     videoDetail,
     detailLoading,
     detailError,
+    refreshCurrentDetail,
   } = useOutletContext<ShellOutletContext>();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -290,6 +298,48 @@ export function EpisodeStudioPage() {
 
   const handleRefresh = () => {
     setRefreshToken((value) => value + 1);
+  };
+
+  const [pipelineBusy, setPipelineBusy] = useState(false);
+  const [pipelineMessage, setPipelineMessage] = useState<string | null>(null);
+  const [pipelineError, setPipelineError] = useState<string | null>(null);
+
+  const handlePipelineReconcile = async () => {
+    if (!channel || !video) {
+      setPipelineError("チャンネル/動画が未選択です。");
+      return;
+    }
+    setPipelineBusy(true);
+    setPipelineMessage(null);
+    setPipelineError(null);
+    try {
+      await reconcileScriptPipeline(channel, video);
+      setPipelineMessage("status.json を reconcile しました。");
+      await refreshCurrentDetail();
+    } catch (err) {
+      setPipelineError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setPipelineBusy(false);
+    }
+  };
+
+  const handleRunScriptValidation = async () => {
+    if (!channel || !video) {
+      setPipelineError("チャンネル/動画が未選択です。");
+      return;
+    }
+    setPipelineBusy(true);
+    setPipelineMessage(null);
+    setPipelineError(null);
+    try {
+      await runScriptPipelineStage(channel, video, "script_validation");
+      setPipelineMessage("script_validation を実行しました。");
+      await refreshCurrentDetail();
+    } catch (err) {
+      setPipelineError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setPipelineBusy(false);
+    }
   };
 
   const [ttsRunBusy, setTtsRunBusy] = useState(false);
@@ -484,6 +534,19 @@ export function EpisodeStudioPage() {
           {episodeId && videoDetail ? (
             <details style={{ marginTop: 14 }}>
               <summary style={{ cursor: "pointer" }}>パイプライン（ステージ）</summary>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+                <button className="button button--ghost" onClick={handlePipelineReconcile} disabled={!episodeId || pipelineBusy}>
+                  {pipelineBusy ? "処理中…" : "Reconcile（status補正）"}
+                </button>
+                <button className="button" onClick={handleRunScriptValidation} disabled={!episodeId || pipelineBusy}>
+                  {pipelineBusy ? "処理中…" : "script_validation 実行"}
+                </button>
+                <Link className="button button--ghost" to={scriptEditLink}>
+                  台本修正へ
+                </Link>
+              </div>
+              {pipelineMessage ? <div className="main-alert" style={{ marginTop: 12 }}>{pipelineMessage}</div> : null}
+              {pipelineError ? <div className="main-alert main-alert--error" style={{ marginTop: 12 }}>{pipelineError}</div> : null}
               <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
                 {stageOrder.length ? (
                   stageOrder.map((stageName) => {

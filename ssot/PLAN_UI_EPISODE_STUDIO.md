@@ -13,7 +13,7 @@
   - ログ: `ssot/OPS_LOGGING_MAP.md`
   - パス統一: `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
   - ディレクトリ再編: `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`
-- **最終更新日**: 2025-12-13
+- **最終更新日**: 2025-12-17
 
 ---
 
@@ -139,6 +139,11 @@
 ### 5.1 既存の主なAPI（現状）
 - エピソード詳細: `GET /api/channels/{ch}/videos/{video}`
 - 音声/字幕取得: `GET /api/channels/{ch}/videos/{video}/audio|srt|log`
+- Script pipeline（運用補助 / pipeline-boxes）:
+  - `GET /api/channels/{ch}/videos/{video}/script-manifest`
+  - `GET|PUT /api/channels/{ch}/videos/{video}/llm-artifacts/*`
+  - `POST /api/channels/{ch}/videos/{video}/script-pipeline/reconcile`
+  - `POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation`
 - AutoDraft: `/api/auto-draft/*`
 - VideoProduction: `/api/video-production/*`
 
@@ -181,10 +186,10 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 - VideoProduction Workspace をUI導線に復帰し、プロジェクト作成UIを追加。
 - UI Backend のパス解決を `factory_common.paths` に寄せ、音声/SRT/log の参照正本を final に統一。
 
-### Phase 1（次）
-- Episode Studioページを新設（最初は“リンク集 + 状態表示”でOK）
-  - Script/Audio/Video/Thumbnail へワンクリック導線
-  - next_actions の暫定ロジック（フロント計算でも可）
+### Phase 1（進行中）
+- Episode Studio（リンク集 + 状態表示）を実装し、パイプラインの詰まりを UI で可視化/復旧できるようにする
+  - ステージ詳細（error_codes / issues / fix_hints）表示
+  - `Reconcile（status補正）` と `script_validation` の UI 実行ボタン
 
 ### Phase 2
 - Episode Studio 内で実行系を統合（安全な順序）

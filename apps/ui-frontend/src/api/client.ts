@@ -390,6 +390,22 @@ export function refreshScriptManifest(channel: string, video: string): Promise<S
   );
 }
 
+export function reconcileScriptPipeline(channel: string, video: string): Promise<JsonMap> {
+  return request<JsonMap>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/script-pipeline/reconcile`,
+    { method: "POST" }
+  );
+}
+
+export function runScriptPipelineStage(channel: string, video: string, stage: string): Promise<JsonMap> {
+  return request<JsonMap>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/script-pipeline/run/${encodeURIComponent(
+      stage
+    )}`,
+    { method: "POST" }
+  );
+}
+
 export function listLlmArtifacts(channel: string, video: string): Promise<LlmArtifactListItem[]> {
   return request<LlmArtifactListItem[]>(
     `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/llm-artifacts`

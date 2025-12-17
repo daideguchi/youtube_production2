@@ -111,6 +111,7 @@ export type ShellOutletContext = {
   videoDetail: VideoDetail | null;
   detailLoading: boolean;
   detailError: string | null;
+  refreshCurrentDetail: () => Promise<void>;
   detailTab: DetailTab;
   setDetailTab: (tab: DetailTab) => void;
   shouldShowDetailPanel: boolean;
@@ -527,6 +528,13 @@ export function AppShell() {
     },
     []
   );
+
+  const refreshCurrentDetail = useCallback(async () => {
+    if (!selectedChannel || !selectedVideo) {
+      return;
+    }
+    await refreshDetail(selectedChannel, selectedVideo);
+  }, [refreshDetail, selectedChannel, selectedVideo]);
 
   const refreshDashboardOverview = useCallback(async () => {
     setDashboardLoading(true);
@@ -1112,6 +1120,7 @@ export function AppShell() {
     videoDetail,
     detailLoading,
     detailError,
+    refreshCurrentDetail,
     detailTab,
     setDetailTab: applyDetailTab,
     shouldShowDetailPanel,

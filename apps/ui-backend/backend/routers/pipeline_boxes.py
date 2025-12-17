@@ -14,13 +14,22 @@ from factory_common.paths import script_data_root
 from factory_common.timeline_manifest import sha1_file
 
 try:
-    from script_pipeline.runner import SCRIPT_MANIFEST_FILENAME, _load_stage_defs, _normalize_llm_output, _write_script_manifest
+    from script_pipeline.runner import (
+        SCRIPT_MANIFEST_FILENAME,
+        _load_stage_defs,
+        _normalize_llm_output,
+        _write_script_manifest,
+        reconcile_status as reconcile_script_status,
+        run_stage as run_script_stage,
+    )
     from script_pipeline.sot import load_status
 except Exception:  # pragma: no cover - optional in limited envs
     SCRIPT_MANIFEST_FILENAME = "script_manifest.json"
     _load_stage_defs = None  # type: ignore[assignment]
     _normalize_llm_output = None  # type: ignore[assignment]
     _write_script_manifest = None  # type: ignore[assignment]
+    reconcile_script_status = None  # type: ignore[assignment]
+    run_script_stage = None  # type: ignore[assignment]
     load_status = None  # type: ignore[assignment]
 
 router = APIRouter(tags=["pipeline-boxes"])
@@ -104,6 +113,54 @@ def refresh_script_manifest(channel: str, video: str) -> Dict[str, Any]:
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"failed to write script manifest: {exc}") from exc
     return _read_json_limited(base / SCRIPT_MANIFEST_FILENAME)
+
+
+@router.post("/api/channels/{channel}/videos/{video}/script-pipeline/reconcile")
+def reconcile_script_pipeline(channel: str, video: str) -> Dict[str, Any]:
+    if reconcile_script_status is None:
+        raise HTTPException(status_code=503, detail="script_pipeline is not available in this environment")
+    ch = _normalize_channel(channel)
+    no = _normalize_video(video)
+    base = _script_base_dir(ch, no)
+    try:
+        st = reconcile_script_status(ch, no, allow_downgrade=True)
+        if _load_stage_defs is not None and _write_script_manifest is not None:
+            try:
+                stage_defs = _load_stage_defs()
+                _write_script_manifest(base, st, stage_defs)
+            except Exception:
+                pass
+    except SystemExit as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"reconcile failed: {exc}") from exc
+    return _read_json_limited(base / "status.json")
+
+
+@router.post("/api/channels/{channel}/videos/{video}/script-pipeline/run/{stage}")
+def run_script_pipeline_stage(channel: str, video: str, stage: str) -> Dict[str, Any]:
+    if run_script_stage is None:
+        raise HTTPException(status_code=503, detail="script_pipeline is not available in this environment")
+    ch = _normalize_channel(channel)
+    no = _normalize_video(video)
+    base = _script_base_dir(ch, no)
+    stage_name = (stage or "").strip()
+    if stage_name != "script_validation":
+        raise HTTPException(status_code=400, detail="only script_validation can be executed via API")
+    status_path = base / "status.json"
+    if not status_path.exists():
+        raise HTTPException(status_code=404, detail="status.json not found")
+    try:
+        run_script_stage(ch, no, stage_name)
+    except SystemExit as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"stage run failed: {exc}") from exc
+    return _read_json_limited(status_path)
 
 
 class LlmArtifactListItem(BaseModel):
@@ -239,4 +296,3 @@ def update_llm_artifact(
 
     atomic_write_json(path, updated.model_dump(mode="json", by_alias=True))
     return updated.model_dump(mode="json", by_alias=True)
-
