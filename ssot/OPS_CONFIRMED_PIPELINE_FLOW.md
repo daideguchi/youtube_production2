@@ -136,7 +136,11 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
    - Outputs:
      - `content/analysis/research/quality_review.md` (required)
 8. `script_validation`
-   - Outputs: なし（最終整合チェック）
+   - Outputs: なし（status.json の stage details に結果を記録）
+   - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`）
+     - チェック対象: `content/assembled_human.md`（優先）→ `content/assembled.md`
+     - 禁止混入（URL/脚注/箇条書き/番号リスト/見出し/区切り記号など）を検出したら **pending のまま停止**し、UI/人間が修正して再実行する。
+     - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
 9. `audio_synthesis`（Audioフェーズ呼び出し口）
    - Outputs（参照先はAudio側で確定）:
      - `audio_prep/script_sanitized.txt` (required)

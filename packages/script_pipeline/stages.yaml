@@ -110,19 +110,13 @@ stages:
       template: quality
       max_tokens: 64000
       placeholders:
-        SCRIPT_CONTENT: "@content/final/assembled.md"
+        SCRIPT_CONTENT: "@content/assembled.md"
         CHANNEL_CONTEXT: from_channel_name
         AUDIENCE_PROFILE: from_persona
         CHANNEL_STYLE_GUIDE: from_style
   - name: script_validation
-    description: Final validation (no additional outputs; SoT=content/final/assembled.md)
+    description: Final validation (A-text quality gate; SoT=content/assembled_human.md preferred, else content/assembled.md)
     outputs: []
-    llm:
-      task: script_global_consistency
-      template: consistency
-      max_tokens: 4096
-      placeholders:
-        SCRIPT_CONTENT: "@content/assembled.md"
   - name: audio_synthesis
     description: Generate audio and subtitles
     outputs:

@@ -48,6 +48,12 @@
 - `python -m script_pipeline.cli validate --channel CH06 --video 033`
 - `python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
 
+### 3.1 Script Validation（品質ゲート）
+
+- 実行: `python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`
+- NG時: `status.json: stages.script_validation.details.error_codes / issues` に理由が残る（UIにも表示される想定）。修正後に同じコマンドを再実行する。
+- 判定基準（正本）: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
+
 ---
 
 ## 4. やり直し（Redo / Reset）

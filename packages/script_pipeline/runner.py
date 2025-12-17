@@ -12,7 +12,7 @@ from .offline_generator import (
     generate_chapter_drafts_offline,
     generate_outline_offline,
 )
-from .validator import validate_stage
+from .validator import validate_stage, validate_a_text
 from .tools import optional_fields_registry as opt_fields
 from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
 from factory_common.artifacts.llm_text_output import (
@@ -106,10 +106,11 @@ def _write_script_manifest(base: Path, st: Status, stage_defs: List[Dict[str, An
     root = PROJECT_ROOT
     status_json = status_path(st.channel, st.video)
     assembled_candidates = [
-        base / "content" / "final" / "assembled.md",
+        base / "content" / "assembled_human.md",
         base / "content" / "assembled.md",
     ]
     assembled_path = next((p for p in assembled_candidates if p.exists()), assembled_candidates[-1])
+    legacy_final_assembled = base / "content" / "final" / "assembled.md"
 
     expected: List[Dict[str, Any]] = []
     for sd in stage_defs:
@@ -146,6 +147,7 @@ def _write_script_manifest(base: Path, st: Status, stage_defs: List[Dict[str, An
         },
         "outputs": {
             "assembled_md": _file_entry(assembled_path, root),
+            "legacy_final_assembled_md": _file_entry(legacy_final_assembled, root),
         },
         "expected_outputs": expected,
         "llm_artifacts": _collect_llm_artifact_entries(base, root),
@@ -554,7 +556,12 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
             return False
 
     def _assembled_ok() -> bool:
-        candidates = [base / "content" / "final" / "assembled.md", base / "content" / "assembled.md"]
+        candidates = [
+            base / "content" / "assembled_human.md",
+            base / "content" / "assembled.md",
+            # Legacy (for backward-compat only; should be removed)
+            base / "content" / "final" / "assembled.md",
+        ]
         return any(_file_ok(p) for p in candidates)
 
     def _audio_final_ok() -> bool:
@@ -736,7 +743,7 @@ def _generate_stage_outputs(stage: str, base: Path, st: Status, outputs: List[Di
         qc.write_text(f"# Quality Review\n\nOK for {title}\n", encoding="utf-8")
         return
     if stage == "script_validation":
-        # 台本出力ファイルは生成しない（SoT は content/final/assembled.md）
+        # 台本出力ファイルは生成しない（SoT は content/assembled_human.md 優先、なければ content/assembled.md）
         return
     # default: placeholders
     for out in outputs:
@@ -1822,6 +1829,108 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             str(cta_path.relative_to(base)),
             str(scenes_path.relative_to(base)),
         ]
+    elif stage_name == "script_validation":
+        # Deterministic quality gate for A-text (SSOT: OPS_A_TEXT_GLOBAL_RULES.md).
+        content_dir = base / "content"
+        human_path = content_dir / "assembled_human.md"
+        assembled_path = content_dir / "assembled.md"
+        canonical_path = human_path if human_path.exists() else assembled_path
+
+        if not canonical_path.exists():
+            st.stages[stage_name].status = "pending"
+            st.stages[stage_name].details["error"] = "missing_a_text"
+            st.stages[stage_name].details["checked_path"] = str(canonical_path.relative_to(base))
+            st.status = "script_in_progress"
+            save_status(st)
+            return st
+
+        try:
+            a_text = canonical_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            st.stages[stage_name].status = "pending"
+            st.stages[stage_name].details["error"] = "cannot_read_a_text"
+            st.stages[stage_name].details["checked_path"] = str(canonical_path.relative_to(base))
+            st.stages[stage_name].details["exception"] = str(exc)
+            st.status = "script_in_progress"
+            save_status(st)
+            return st
+
+        issues, stats = validate_a_text(a_text, st.metadata or {})
+
+        # Legacy mirror guard (must not diverge; workspaces/scripts/README.md forbids this mirror).
+        legacy_final = content_dir / "final" / "assembled.md"
+        legacy_warning = None
+        if legacy_final.exists():
+            try:
+                legacy_text = legacy_final.read_text(encoding="utf-8")
+            except Exception:
+                legacy_text = ""
+            if legacy_text.strip() and legacy_text.strip() != a_text.strip():
+                issues.append(
+                    {
+                        "code": "legacy_mirror_diverged",
+                        "message": f"legacy mirror differs: {legacy_final}",
+                        "severity": "error",
+                    }
+                )
+            else:
+                legacy_warning = f"legacy mirror present (should be removed): {legacy_final}"
+
+        stage_details = st.stages[stage_name].details
+        stage_details["checked_path"] = str(canonical_path.relative_to(base))
+        stage_details["stats"] = stats
+        if legacy_warning:
+            stage_details.setdefault("warnings", []).append(legacy_warning)
+
+        errors = [
+            it
+            for it in issues
+            if str((it or {}).get("severity") or "error").lower() != "warning"
+        ]
+        warnings = [
+            it
+            for it in issues
+            if str((it or {}).get("severity") or "").lower() == "warning"
+        ]
+        if warnings:
+            stage_details["warning_codes"] = sorted(
+                {str(it.get("code")) for it in warnings if isinstance(it, dict) and it.get("code")}
+            )
+            stage_details["warning_issues"] = warnings[:20]
+
+        if errors:
+            stage_details["error"] = "validation_failed"
+            stage_details["error_codes"] = sorted(
+                {str(it.get("code")) for it in errors if isinstance(it, dict) and it.get("code")}
+            )
+            stage_details["issues"] = errors[:50]
+            stage_details["fix_hints"] = [
+                "Aテキスト（assembled_human/assembled）からURL/脚注/箇条書き/番号リスト/見出しを除去する",
+                "ポーズは `---` を1行単独で置く（他の区切り記号は禁止）",
+                f"メタ除去が必要なら: python scripts/sanitize_a_text.py --channel {st.channel} --videos {st.video} --mode run",
+            ]
+            st.stages[stage_name].status = "pending"
+            st.status = "script_in_progress"
+            save_status(st)
+            try:
+                _write_script_manifest(base, st, stage_defs)
+            except Exception:
+                pass
+            return st
+
+        # Success: clear stale failure markers and bump global status.
+        stage_details.pop("error", None)
+        stage_details.pop("issues", None)
+        stage_details.pop("error_codes", None)
+        stage_details.pop("fix_hints", None)
+        st.stages[stage_name].status = "completed"
+        st.status = "script_validated"
+        save_status(st)
+        try:
+            _write_script_manifest(base, st, stage_defs)
+        except Exception:
+            pass
+        return st
     else:
         ran_llm = _run_llm(stage_name, base, st, sd, templates)
         if not ran_llm:
