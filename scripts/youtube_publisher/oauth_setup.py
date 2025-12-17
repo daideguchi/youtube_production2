@@ -13,7 +13,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from factory_common.paths import repo_root
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -27,8 +26,28 @@ SCOPES = [
 ]
 
 
+def _fallback_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+try:
+    from factory_common.paths import repo_root as _repo_root  # type: ignore
+except Exception:
+    _repo_root = None  # type: ignore
+
+
+def _resolve_repo_root() -> Path:
+    if _repo_root is not None:
+        return _repo_root()  # type: ignore[misc]
+    return _fallback_repo_root(Path(__file__).resolve())
+
+
 def main() -> None:
-    base_dir = repo_root()
+    base_dir = _resolve_repo_root()
     client_path = Path(
         os.environ.get("YT_OAUTH_CLIENT_PATH")
         or (base_dir / "configs" / "drive_oauth_client.json")
