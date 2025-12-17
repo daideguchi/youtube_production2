@@ -26,6 +26,7 @@
 - 2025-12-13: `commentary_02_srt2images_timeline/` 直下の残骸（`PROJ.json`, `channel_preset.json`, `persona.txt`, `image_cues.json`）を削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`。バックアップ作成済み）。
 - 2025-12-13: 旧PoC/旧静的物（`legacy/50_tools`, `legacy/docs_old`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-13: legacyアーカイブ（`audio_tts_v2/legacy_archive`, `commentary_02_srt2images_timeline/tools/archive`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 2025-12-17: `commentary_02_srt2images_timeline/src/ui/`（旧テンプレート管理UI）と `tests/test_integration.py` を **archive-first** で削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 
 ---
 

@@ -788,3 +788,17 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `workspaces/video/runs/test_single_image.png` を削除（参照ゼロ）
 - 結果:
   - `workspaces/video/runs/` 直下は directory のみ（`.gitkeep` を除く）
+
+### 52) `commentary_02_srt2images_timeline/src/ui/`（旧テンプレ管理UI）を archive-first で削除（repo tracked）
+
+意図: `src/ui` 配下のテンプレ管理クラスと統合テストは、現行の CapCut 主線/サーバ実装から参照されておらず（参照ゼロ）、探索ノイズと誤参照の原因になるため。復旧できるよう graveyard に退避してから repo から削除する。
+
+- 参照確認:
+  - `rg "CapCutTemplateManager|ImageTemplateManager" -S packages/commentary_02_srt2images_timeline` が `tests/test_integration.py` 以外にヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251217T140031Z_commentary02_src_ui_legacy.tar.gz`
+- 削除（git rm）:
+  - `git rm -r packages/commentary_02_srt2images_timeline/src/ui`
+  - `git rm packages/commentary_02_srt2images_timeline/tests/test_integration.py`
+- 追従更新（SSOT/Plan）:
+  - `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`
