@@ -592,3 +592,20 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
   - `backups/graveyard/20251217_022233_commentary02_bin_legacy.tar.gz`
 - 削除（git rm）:
   - `packages/commentary_02_srt2images_timeline/bin/`
+
+### 38) Remotion のサンプル run 資産を削除（repo tracked）
+
+意図: Remotion は現行本番運用では未使用であり、`apps/remotion/` 配下に大容量のサンプル run（画像群）が残ると探索ノイズ/容量圧迫/誤参照の原因になるため。
+
+- アーカイブ（復元用 / local）:
+  - `backups/graveyard/20251217_114547_remotion_sample_run_assets.tar.gz`
+  - 備考: 大容量のため git には追加せず（`backups/` は gitignore）。復元は archive 展開 or git 履歴から復旧。
+- 削除（git rm）:
+  - `apps/remotion/input/192/`（画像 + JSON のサンプル）
+  - `apps/remotion/public/_auto/`（サンプル画像）
+  - `apps/remotion/public/tmp_run_192/`（サンプル画像）
+- 追加削除（untracked）:
+  - `apps/remotion/input/192/192.wav`
+  - `apps/remotion/input/192/192.srt`
+- 判定:
+  - 参照ゼロ（例: `rg "tmp_run_192|_auto/192|input/192" -S apps/remotion` がヒットしない）
