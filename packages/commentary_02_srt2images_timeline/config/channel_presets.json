@@ -24,10 +24,10 @@
     "CH02": {
       "name": "哲学系",
       "prompt_template": "templates/watercolor_gold_blue_ch02.txt",
-      "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、水彩＋薄い線画＋和紙テクスチャを厳格適用。写実寄りの水彩に薄い油彩グレーズで艶と深みを足す。文字/看板/ロゴは禁止。",
-      "tone_profile": "トーン: 静寂・内省・幻想的。写実寄りの水彩＋薄い油彩グレーズ、低〜中彩度、柔らかいハイライトと薄い霧。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
+      "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、静かな油絵寄り（薄い下塗り＋油彩グレーズ、キャンバス目、柔らかな筆致）。余白と象徴モチーフで哲学的な余韻を作る。文字/看板/ロゴは禁止。",
+      "tone_profile": "トーン: 静寂・内省・哲学的・象徴的。油絵（薄塗り＋グレーズ）のブラシ質感、低〜中彩度、柔らかいゴールド光と薄い霧。影はブルーグレーで静かに深く。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
       "character_note": "人物ポリシー: デフォルト無人。人物が出る場合は台本に沿う一人/少数のみで、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラや現場作業員・道具（赤い鉢巻・鎌等）は禁止。",
-      "style": "realistic-leaning watercolor + soft oil glaze, warm-gold light vs cool blue-gray stone, no text, no cartoon, consistent characters",
+      "style": "quiet philosophical oil painting, metaphorical symbolism, muted palette, warm-gold highlights vs cool blue-gray shadows, soft haze, no text, no photorealism, consistent characters",
       "capcut_template": "CH02-テンプレ",
       "position": {"tx": 0.0, "ty": 0.0, "scale": 1.03},
       "layout": {"beltTopPct": 82, "beltHeightPct": 16, "subtitleBottomPx": 120, "subtitleMaxWidthPct": 80, "subtitleFontSize": 34},
