@@ -72,3 +72,5 @@
 - ドキュメント/運用例の `/Users/dd/...` を除去し、`<REPO_ROOT>` へ置換（`README.md`, `scripts/cleanup_data.md`, `scripts/youtube_publisher/README.md`, `ssot/OPS_TTS_MANUAL_READING_AUDIT.md`, `packages/script_pipeline/openrouter_tests_report.md` など）。
 - `.gitignore` を整理: JSON を一律 ignore しない方針へ修正し、Remotionの生成物/ローカルキャッシュ（`apps/remotion/{input,out}` 等）と `data/visual_bible*.json` は個別に ignore。
 - 検証: `npm -C apps/ui-frontend run build` / `python3 -m py_compile apps/ui-backend/backend/main.py` / `python3 -m py_compile scripts/sync_all_scripts.py scripts/sync_ch02_scripts.py`
+- レガシー削除: `scripts/maintain_consciousness.py` を archive-first で削除し、`ssot/OPS_CLEANUP_EXECUTION_LOG.md` に記録（Step 39）。
+- Planning テンプレも正規化: `workspaces/planning/templates/CH07..CH10_planning_template.csv` の台本パスを `workspaces/scripts/...`（repo相対）へ修正。
