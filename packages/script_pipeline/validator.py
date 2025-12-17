@@ -21,6 +21,7 @@ _RE_NUMBERED_LINE = re.compile(r"^\s*\d+\s*[.)）:、]\s+")
 _RE_MD_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _RE_BAD_SEPARATOR = re.compile(r"^\s*(?:\*{3,}|_{3,}|/{3,}|={3,}|-{4,})\s*$")
 _RE_TEMPLATE_TOKEN = re.compile(r"<<[A-Z0-9_]{2,}>>")
+_RE_PERCENT_OR_PERCENT_WORD = re.compile(r"[%％]|パーセント")
 
 
 def _canonical_a_text_path(base: Path) -> Path:
@@ -178,6 +179,16 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 {
                     "code": "forbidden_url",
                     "message": "URLs must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        if _RE_PERCENT_OR_PERCENT_WORD.search(line):
+            issues.append(
+                {
+                    "code": "forbidden_statistics",
+                    "message": "Percent/statistical claims must not appear in A-text",
                     "line": idx,
                     "severity": "error",
                 }
