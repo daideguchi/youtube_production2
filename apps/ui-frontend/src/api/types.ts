@@ -435,6 +435,19 @@ export interface ThumbnailOverrideResponse {
   updated_at: string;
 }
 
+export interface PublishLockPayload {
+  force_complete?: boolean;
+  published_at?: string | null;
+}
+
+export interface PublishLockResponse {
+  status: string;
+  channel: string;
+  video: string;
+  published_at: string;
+  updated_at: string;
+}
+
 export interface RedoSummaryItem {
   channel: string;
   redo_script: number;

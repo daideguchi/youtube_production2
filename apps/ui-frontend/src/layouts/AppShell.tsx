@@ -1142,6 +1142,16 @@ export function AppShell() {
   const navSections = useMemo<NavSection[]>(
     () => [
       {
+        title: "編集/品質",
+        items: [
+          { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
+          { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
+          { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },
+          { key: "audioIntegrity", label: "音声整合性", icon: "🩺", path: audioIntegrityLink },
+          { key: "dictionary", label: "辞書", icon: "📖", path: "/dictionary" },
+        ],
+      },
+      {
         title: "制作フロー",
         items: [
           { key: "studio", label: "Episode Studio", icon: "🎛️", path: "/studio" },
@@ -1152,16 +1162,6 @@ export function AppShell() {
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
           { key: "remotion", label: "動画(Remotion)", icon: "🎞️", path: "/video-remotion" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
-        ],
-      },
-      {
-        title: "編集/品質",
-        items: [
-          { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
-          { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
-          { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },
-          { key: "audioIntegrity", label: "音声整合性", icon: "🩺", path: audioIntegrityLink },
-          { key: "dictionary", label: "辞書", icon: "📖", path: "/dictionary" },
         ],
       },
       {

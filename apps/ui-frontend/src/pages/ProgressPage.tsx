@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchChannels, fetchProgressCsv, updateVideoRedo, fetchRedoSummary, lookupThumbnails, refreshPlanningStore } from "../api/client";
+import { fetchChannels, fetchProgressCsv, updateVideoRedo, fetchRedoSummary, lookupThumbnails, refreshPlanningStore, markVideoPublishedLocked } from "../api/client";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
 import { RedoBadge } from "../components/RedoBadge";
 import "./ProgressPage.css";
@@ -36,7 +36,7 @@ const LONG_COLUMNS = new Set([
   "動画内挿絵AI向けプロンプト（10個）",
 ]);
 
-const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗"]);
+const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "投稿完了"]);
 const MEDIUM_COLUMNS = new Set(["タイトル", "音声生成", "音声品質", "納品"]);
 const THUMB_COLUMNS = new Set(["サムネ"]);
 
@@ -46,6 +46,7 @@ const COMPACT_PRIORITY = [
   "タイトル",
   "サムネ",
   "進捗",
+  "投稿完了",
   "更新日時",
   "台本パス",
   "企画意図",
@@ -76,6 +77,12 @@ const toBool = (v: any, fallback = true) => {
   return fallback;
 };
 
+const normalizeVideo = (value: any): string => {
+  const digits = String(value ?? "").replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  return digits.padStart(3, "0");
+};
+
 export function ProgressPage() {
   const [channel, setChannel] = useState<string>("CH02");
   const [rows, setRows] = useState<Row[]>([]);
@@ -96,6 +103,7 @@ export function ProgressPage() {
   const [thumbPreviewItems, setThumbPreviewItems] = useState<ThumbnailLookupItem[] | null>(null);
   const [thumbPreviewIndex, setThumbPreviewIndex] = useState<number>(0);
   const [selectedCell, setSelectedCell] = useState<{ key: string; value: string } | null>(null);
+  const [publishingKey, setPublishingKey] = useState<string | null>(null);
   const thumbRequestedRef = useRef<Set<string>>(new Set());
 
   const findThumbOverride = useCallback((row: Row): string | null => {
@@ -153,6 +161,37 @@ export function ProgressPage() {
     [channel, findThumbOverride]
   );
 
+  const markPublished = useCallback(
+    async (channelCode: string, videoRaw: string) => {
+      const videoToken = normalizeVideo(videoRaw);
+      if (!channelCode || !videoToken) return;
+      const key = `${channelCode}-${videoToken}`;
+      setPublishingKey(key);
+      setError(null);
+      try {
+        await markVideoPublishedLocked(channelCode, videoToken, { force_complete: true });
+        const res = await fetchProgressCsv(channelCode);
+        const nextRows = res.rows || [];
+        setRows(nextRows);
+        const summary = await fetchRedoSummary(channelCode);
+        setRedoSummary(summary[0] ?? null);
+        setDetailRow((prev) => {
+          if (!prev) return prev;
+          const prevCh = prev["チャンネル"] || prev["チャンネルコード"] || channelCode;
+          const prevVid = normalizeVideo(prev["動画番号"] || prev["video"] || "");
+          if (prevCh !== channelCode || prevVid !== videoToken) return prev;
+          const updated = nextRows.find((r) => normalizeVideo(r["動画番号"] || r["video"] || "") === videoToken);
+          return updated ?? prev;
+        });
+      } catch (e: any) {
+        setError(e?.message || "投稿済みの反映に失敗しました");
+      } finally {
+        setPublishingKey(null);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     Object.keys(thumbMap).forEach((key) => thumbRequestedRef.current.add(key));
   }, [thumbMap]);
@@ -201,7 +240,7 @@ export function ProgressPage() {
 
   const columns = useMemo(() => {
     const first = rows[0];
-    if (!first) return ["動画番号", "タイトル", "進捗", "更新日時", "台本パス"];
+    if (!first) return ["動画番号", "タイトル", "進捗", "投稿完了", "更新日時", "台本パス"];
     const all = Object.keys(first);
     const priority = COMPACT_PRIORITY.filter((c) => all.includes(c));
     const rest = all.filter((c) => !priority.includes(c));
@@ -212,6 +251,14 @@ export function ProgressPage() {
         ordered.splice(titleIndex + 1, 0, "サムネ");
       } else {
         ordered.unshift("サムネ");
+      }
+    }
+    if (!ordered.includes("投稿完了")) {
+      const progressIndex = ordered.indexOf("進捗");
+      if (progressIndex >= 0) {
+        ordered.splice(progressIndex + 1, 0, "投稿完了");
+      } else {
+        ordered.unshift("投稿完了");
       }
     }
     if (showAll) return ordered;
@@ -352,7 +399,39 @@ export function ProgressPage() {
                           aria-label="リテイク対象"
                         />
                       ) : null}
-                      {col === "サムネ" ? (
+                      {col === "投稿完了" ? (
+                        (() => {
+                          const progress = String(row["進捗"] ?? row["progress"] ?? "");
+                          const locked =
+                            toBool((row as any)["published_lock"], false) ||
+                            progress.includes("投稿済み") ||
+                            progress.includes("公開済み");
+                          const ch = row["チャンネル"] || channel;
+                          const vid = row["動画番号"] || row["video"] || "";
+                          const token = normalizeVideo(vid);
+                          const key = `${ch}-${token}`;
+                          const isPublishing = publishingKey === key;
+                          return (
+                            <label
+                              className="progress-page__toggle"
+                              onClick={(e) => e.stopPropagation()}
+                              title={locked ? "投稿済み（ロック中）" : "チェックで投稿済みにする（ロック）"}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={locked || isPublishing}
+                                disabled={locked || isPublishing}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  if (locked) return;
+                                  if (!e.target.checked) return;
+                                  markPublished(ch, vid);
+                                }}
+                              />
+                            </label>
+                          );
+                        })()
+                      ) : col === "サムネ" ? (
                         thumbs.length ? (
                           <button
                             type="button"
@@ -409,90 +488,131 @@ export function ProgressPage() {
               <button className="progress-page__close" onClick={() => setDetailRow(null)}>× 閉じる</button>
             </div>
             <div className="progress-page__detail-body">
-              <div className="progress-page__detail-row">
-                <div className="progress-page__detail-key">リテイク（台本）</div>
-                <div className="progress-page__detail-value">
-                  <label className="progress-page__toggle">
-                    <input
-                      type="checkbox"
-                      checked={redoScriptValue}
-                      onChange={(e) => setRedoScriptValue(e.target.checked)}
-                    />
-                    再作成が必要
-                  </label>
-                </div>
-              </div>
-              <div className="progress-page__detail-row">
-                <div className="progress-page__detail-key">リテイク（音声）</div>
-                <div className="progress-page__detail-value">
-                  <label className="progress-page__toggle">
-                    <input
-                      type="checkbox"
-                      checked={redoAudioValue}
-                      onChange={(e) => setRedoAudioValue(e.target.checked)}
-                    />
-                    再収録が必要
-                  </label>
-                </div>
-              </div>
-              <div className="progress-page__detail-row">
-                <div className="progress-page__detail-key">リテイクメモ</div>
-                <div className="progress-page__detail-value">
-                  <textarea
-                    className="progress-page__note"
-                    value={redoNoteValue}
-                    onChange={(e) => setRedoNoteValue(e.target.value)}
-                    rows={3}
-                  />
-                  <div className="progress-page__note-actions">
-                    <button
-                      className="progress-page__save"
-                      onClick={async () => {
-                        if (!detailRow) return;
-                        setSaving(true);
-                        try {
-                          await updateVideoRedo(
-                            detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel,
-                            detailRow["動画番号"] || detailRow["video"] || "",
-                            {
-                              redo_script: redoScriptValue,
-                              redo_audio: redoAudioValue,
-                              redo_note: redoNoteValue,
-                            }
-                          );
-                          setRows((prev) =>
-                            prev.map((r) =>
-                              (r["動画番号"] || r["video"]) === (detailRow["動画番号"] || detailRow["video"])
-                                ? {
-                                    ...r,
-                                    redo_script: redoScriptValue ? "true" : "false",
-                                    redo_audio: redoAudioValue ? "true" : "false",
+              {(() => {
+                const progress = String(detailRow["進捗"] ?? "");
+                const locked =
+                  toBool((detailRow as any)["published_lock"], false) ||
+                  progress.includes("投稿済み") ||
+                  progress.includes("公開済み");
+                const ch = detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel;
+                const vid = detailRow["動画番号"] || detailRow["video"] || "";
+                const token = normalizeVideo(vid);
+                const key = `${ch}-${token}`;
+                const isPublishing = publishingKey === key;
+                return (
+                  <>
+                    <div className="progress-page__detail-row">
+                      <div className="progress-page__detail-key">投稿完了</div>
+                      <div className="progress-page__detail-value">
+                        <label
+                          className="progress-page__toggle"
+                          title="チェックで投稿済みにする（ロック）（以後は原則触らない指標）"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={locked || isPublishing}
+                            disabled={locked || isPublishing}
+                            onChange={(e) => {
+                              if (locked) return;
+                              if (!e.target.checked) return;
+                              markPublished(ch, vid);
+                            }}
+                          />
+                          投稿済みにする（ロック）
+                        </label>
+                        {isPublishing ? <span className="progress-page__cell-text muted">処理中...</span> : null}
+                      </div>
+                    </div>
+                    <div className="progress-page__detail-row">
+                      <div className="progress-page__detail-key">リテイク（台本）</div>
+                      <div className="progress-page__detail-value">
+                        <label className="progress-page__toggle">
+                          <input
+                            type="checkbox"
+                            checked={redoScriptValue}
+                            disabled={locked}
+                            onChange={(e) => setRedoScriptValue(e.target.checked)}
+                          />
+                          再作成が必要
+                        </label>
+                      </div>
+                    </div>
+                    <div className="progress-page__detail-row">
+                      <div className="progress-page__detail-key">リテイク（音声）</div>
+                      <div className="progress-page__detail-value">
+                        <label className="progress-page__toggle">
+                          <input
+                            type="checkbox"
+                            checked={redoAudioValue}
+                            disabled={locked}
+                            onChange={(e) => setRedoAudioValue(e.target.checked)}
+                          />
+                          再収録が必要
+                        </label>
+                      </div>
+                    </div>
+                    <div className="progress-page__detail-row">
+                      <div className="progress-page__detail-key">リテイクメモ</div>
+                      <div className="progress-page__detail-value">
+                        <textarea
+                          className="progress-page__note"
+                          value={redoNoteValue}
+                          disabled={locked}
+                          onChange={(e) => setRedoNoteValue(e.target.value)}
+                          rows={3}
+                        />
+                        <div className="progress-page__note-actions">
+                          <button
+                            className="progress-page__save"
+                            onClick={async () => {
+                              if (!detailRow) return;
+                              setSaving(true);
+                              try {
+                                await updateVideoRedo(
+                                  detailRow["チャンネル"] || detailRow["チャンネルコード"] || channel,
+                                  detailRow["動画番号"] || detailRow["video"] || "",
+                                  {
+                                    redo_script: redoScriptValue,
+                                    redo_audio: redoAudioValue,
                                     redo_note: redoNoteValue,
                                   }
-                                : r
-                            )
-                          );
-                          setDetailRow((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  redo_script: redoScriptValue ? "true" : "false",
-                                  redo_audio: redoAudioValue ? "true" : "false",
-                                  redo_note: redoNoteValue,
-                                }
-                              : prev
-                          );
-                        } finally {
-                          setSaving(false);
-                        }
-                      }}
-                      disabled={saving}
-                    >
-                      {saving ? "保存中..." : "保存"}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                                );
+                                setRows((prev) =>
+                                  prev.map((r) =>
+                                    normalizeVideo(r["動画番号"] || r["video"]) === normalizeVideo(detailRow["動画番号"] || detailRow["video"])
+                                      ? {
+                                          ...r,
+                                          redo_script: redoScriptValue ? "true" : "false",
+                                          redo_audio: redoAudioValue ? "true" : "false",
+                                          redo_note: redoNoteValue,
+                                        }
+                                      : r
+                                  )
+                                );
+                                setDetailRow((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        redo_script: redoScriptValue ? "true" : "false",
+                                        redo_audio: redoAudioValue ? "true" : "false",
+                                        redo_note: redoNoteValue,
+                                      }
+                                    : prev
+                                );
+                              } finally {
+                                setSaving(false);
+                              }
+                            }}
+                            disabled={saving || locked}
+                          >
+                            {saving ? "保存中..." : locked ? "ロック中" : "保存"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
               {Object.entries(detailRow).map(([k, v]) => (
                 <div key={k} className="progress-page__detail-row">
                   <div className="progress-page__detail-key">{k}</div>

@@ -5999,21 +5999,21 @@ button:hover:not(:disabled) {
 }
 
 .shell-sidebar {
-  position: sticky;
-  top: 0;
+  position: static;
+  top: auto;
   align-self: start;
-  height: 100vh;
+  height: auto;
   background: #111318;
   color: #f8fafc;
   border-radius: 0;
   padding: 16px;
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .shell-sidebar__scroll {
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .shell-nav {

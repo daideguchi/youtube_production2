@@ -78,6 +78,8 @@ import {
   UiParamsResponse,
   AudioIntegrityItem,
   AudioAnalysis,
+  PublishLockPayload,
+  PublishLockResponse,
   RedoUpdatePayload,
   RedoUpdateResponse,
   RedoSummaryItem,
@@ -650,6 +652,27 @@ export function updateVideoRedo(
     {
       method: "PATCH",
       body: JSON.stringify(payload),
+    }
+  );
+}
+
+export function markVideoPublishedLocked(
+  channel: string,
+  video: string,
+  payload: PublishLockPayload = {}
+): Promise<PublishLockResponse> {
+  const body: Record<string, unknown> = {};
+  if (payload.force_complete !== undefined) {
+    body.force_complete = payload.force_complete;
+  }
+  if (payload.published_at !== undefined) {
+    body.published_at = payload.published_at;
+  }
+  return request<PublishLockResponse>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/published`,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
     }
   );
 }

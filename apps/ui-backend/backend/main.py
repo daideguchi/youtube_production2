@@ -219,6 +219,7 @@ from app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
+from factory_common.publish_lock import is_episode_published_locked, mark_episode_published_locked
 from factory_common.paths import (
     audio_final_dir,
     audio_pkg_root,
@@ -4506,6 +4507,19 @@ class ThumbnailOverrideResponse(BaseModel):
     updated_at: str
 
 
+class PublishLockRequest(BaseModel):
+    force_complete: bool = True
+    published_at: Optional[str] = None
+
+
+class PublishLockResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    published_at: str
+    updated_at: str
+
+
 
 
 class AudioIntegrityItem(BaseModel):
@@ -7829,8 +7843,11 @@ def get_video_detail(channel: str, video: str):
 def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    st = load_status(channel_code, video_number)
-    meta = st.metadata or {}
+    if is_episode_published_locked(channel_code, video_number):
+        raise HTTPException(status_code=423, detail="投稿済みロック中のためリテイク設定は変更できません。")
+
+    status = load_status(channel_code, video_number)
+    meta = status.setdefault("metadata", {})
 
     redo_script = payload.redo_script if payload.redo_script is not None else meta.get("redo_script", True)
     redo_audio = payload.redo_audio if payload.redo_audio is not None else meta.get("redo_audio", True)
@@ -7840,10 +7857,11 @@ def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
     meta["redo_audio"] = bool(redo_audio)
     if redo_note is not None:
         meta["redo_note"] = redo_note
-    st.metadata = meta
-    save_status(st)
+    status["metadata"] = meta
+    updated_at = current_timestamp()
+    status["updated_at"] = updated_at
+    save_status(channel_code, video_number, status)
 
-    updated_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     return RedoUpdateResponse(
         status="ok",
         redo_script=bool(redo_script),
@@ -7857,17 +7875,18 @@ def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
 def update_video_thumbnail_override(channel: str, video: str, payload: ThumbnailOverrideRequest):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    st = load_status(channel_code, video_number)
-    meta = st.metadata or {}
+    status = load_status(channel_code, video_number)
+    meta = status.setdefault("metadata", {})
 
     meta["thumbnail_url_override"] = payload.thumbnail_url
     if payload.thumbnail_path is not None:
         meta["thumbnail_path_override"] = payload.thumbnail_path
 
-    st.metadata = meta
-    save_status(st)
+    status["metadata"] = meta
+    updated_at = current_timestamp()
+    status["updated_at"] = updated_at
+    save_status(channel_code, video_number, status)
 
-    updated_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     return ThumbnailOverrideResponse(
         status="ok",
         thumbnail_url=payload.thumbnail_url,
@@ -7883,17 +7902,37 @@ def _clear_redo_flags(channel: str, video: str, *, redo_script: Optional[bool] =
     try:
         channel_code = normalize_channel_code(channel)
         video_number = normalize_video_number(video)
-        st = load_status(channel_code, video_number)
-        meta = st.metadata or {}
+        status = load_status(channel_code, video_number)
+        meta = status.setdefault("metadata", {})
         if redo_script is not None:
             meta["redo_script"] = bool(redo_script)
         if redo_audio is not None:
             meta["redo_audio"] = bool(redo_audio)
-        st.metadata = meta
-        save_status(st)
+        status["metadata"] = meta
+        status["updated_at"] = current_timestamp()
+        save_status(channel_code, video_number, status)
     except Exception:
         # ベストエフォートなので握りつぶす
         pass
+
+
+@app.post("/api/channels/{channel}/videos/{video}/published", response_model=PublishLockResponse)
+def mark_video_published(channel: str, video: str, payload: PublishLockRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    result = mark_episode_published_locked(
+        channel_code,
+        video_number,
+        force_complete=bool(payload.force_complete),
+        published_at=payload.published_at,
+    )
+    return PublishLockResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        published_at=result.published_at,
+        updated_at=current_timestamp(),
+    )
 
 
 def _find_thumbnails(channel: str, video: Optional[str] = None, title: Optional[str] = None, limit: int = 3) -> List[Dict[str, str]]:
@@ -9693,8 +9732,8 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
 # Progress CSV expose
 @app.get("/api/progress/channels/{channel_code}")
 def api_progress_channel(channel_code: str):
-    repo_root = REPO_ROOT  # Use constant defined at top
-    csv_path = repo_root / "progress" / "channels" / f"{channel_code}.csv"
+    channel_code = normalize_channel_code(channel_code)
+    csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
     if not csv_path.exists():
         raise HTTPException(status_code=404, detail="progress csv not found")
     try:
@@ -9711,20 +9750,30 @@ def api_progress_channel(channel_code: str):
             meta: Dict[str, Any] = {}
             try:
                 st = load_status(channel_code, norm_video)
-                meta = st.metadata or {}
-                redo_script = meta.get("redo_script")
-                redo_audio = meta.get("redo_audio")
+                meta = st.get("metadata", {}) if isinstance(st, dict) else {}
+                redo_script = meta.get("redo_script") if isinstance(meta, dict) else None
+                redo_audio = meta.get("redo_audio") if isinstance(meta, dict) else None
                 if redo_script is None:
                     redo_script = True
                 if redo_audio is None:
                     redo_audio = True
                 row["redo_script"] = bool(redo_script)
                 row["redo_audio"] = bool(redo_audio)
-                if meta.get("redo_note"):
+                if isinstance(meta, dict) and meta.get("redo_note"):
                     row["redo_note"] = meta.get("redo_note")
             except Exception:
                 row["redo_script"] = True
                 row["redo_audio"] = True
+
+            # 投稿済みロック: ここから先は触らない指標（redoも強制OFF）
+            progress_value = str(row.get("進捗") or row.get("progress") or "").strip()
+            published_locked = ("投稿済み" in progress_value) or ("公開済み" in progress_value)
+            if not published_locked:
+                published_locked = is_episode_published_locked(channel_code, norm_video)
+            row["published_lock"] = bool(published_locked)
+            if published_locked:
+                row["redo_script"] = False
+                row["redo_audio"] = False
             # thumbnail autofill (if not explicitly provided)
             has_thumb = False
             for key in ["thumbnail_url", "サムネURL", "サムネ画像URL", "サムネ画像"]:
