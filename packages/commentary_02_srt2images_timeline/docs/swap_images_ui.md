@@ -7,7 +7,7 @@ python3 legacy/commentary_02_srt2images_timeline/ui/gradio_app.py
 ブラウザで表示される Gradio 画面の「🔄 画像差し替え」セクションを使う。
 
 ### 2. 入力項目
-- CapCutドラフトパス: 例 `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】`
+- CapCutドラフトパス: 例 `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft_dir>`
 - run_dir: 例 `workspaces/video/runs/jinsei195_v1`（images/ を含むディレクトリ）
 - 差し替えインデックス: カンマ区切り（例 `4,5,6`）
 - custom_prompt: 任意。空ならなし。

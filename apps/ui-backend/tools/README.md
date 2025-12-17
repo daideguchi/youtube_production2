@@ -23,8 +23,8 @@
 UI スタックの起動制御と補助ツールを提供するエントリポイントです。
 
 ```
-cd /Users/dd/youtube_master/ui
-./start.sh start        # start_manager.py start --env-file ../.env
+cd <REPO_ROOT>
+./start.sh start
 python -m ui.tools.start_manager status
 python -m ui.tools.start_manager restart --force
 python -m ui.tools.start_manager logs --component backend --lines 120
@@ -38,7 +38,7 @@ python -m ui.tools.start_manager healthcheck --with-guards
 
 ### assets_sync.py
 
-`thumbnails/assets/{CH}/{video}` の階層を `progress/planning.csv` と同期する補助 CLI です。
+`thumbnails/assets/{CH}/{video}` の階層を planning SoT（`workspaces/planning/channels/*.csv`。互換: `progress/`）と同期する補助 CLI です。
 
 ```
 # CH01 だけ dry-run で確認

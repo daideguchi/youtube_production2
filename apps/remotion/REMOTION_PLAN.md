@@ -12,13 +12,13 @@
 - 非スコープ（初期版）: 音声合成、BGM/MIX、テロップ装飾（Remotion上のテキスト配置のみ）。
 
 ## 前提・依存
-- `.env` は `/Users/dd/youtube_master/.env` を唯一参照（GEMINI/OPENROUTER等）。
+- `.env` は **リポジトリ直下**を正本とする（`ssot/OPS_ENV_VARS.md`）。Node 実行は `scripts/with_ytm_env.sh <cmd>` 経由で読み込む。
 - 画像生成は既存 `run_pipeline.py` 経由で得た静止画をそのまま使う（Remotion側は再生成しない）。
 - 帯（4本、日本語）は `belt_config.json` に従う。英語/ASCIIは拒否。
 - キャラ一貫・トーン: `config/channel_presets.json` とテンプレート群を参照（アニメ誇張禁止）。
 
 ## 成功条件（受け入れ基準）
-1) `node ./remotion/scripts/render.js --run output/xxx --draft-name 192_draft` のようなワンショットで動画ファイルが得られる。  
+1) `node apps/remotion/scripts/render.js --run workspaces/video/runs/<run_id> --out apps/remotion/out/<run_id>.mp4` のようなワンショットで動画ファイルが得られる。  
 2) 帯・字幕・画像位置がCapCutドラフトとほぼ一致し、スケール=1基準で破綻がない。  
 3) ログに使用バージョン（preset、belt、cues、画像枚数、所要時間）が残る。  
 4) どのチャンネル・SRTでも、SRT差し替えだけで実行できる（追加設定不要）。  
@@ -74,7 +74,7 @@
 
 ## フォルダ構成（初期案）
 ```
-remotion/
+apps/remotion/
   package.json
   tsconfig.json
   src/
