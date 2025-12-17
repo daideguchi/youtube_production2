@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional
 
-CONFIG_PATH = Path(__file__).resolve().parents[1] / "configs" / "routing.json"
+from factory_common.paths import audio_pkg_root
+
+CONFIG_PATH = audio_pkg_root() / "configs" / "routing.json"
 
 
 @dataclass

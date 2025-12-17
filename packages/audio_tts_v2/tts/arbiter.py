@@ -23,7 +23,7 @@ from .reading_structs import KanaPatch
 
 from factory_common.paths import audio_pkg_root, logs_root, video_root
 
-KB_PATH = Path(__file__).resolve().parents[1] / "data" / "global_knowledge_base.json"
+KB_PATH = audio_pkg_root() / "data" / "global_knowledge_base.json"
 LEARNING_DICT_PATH = audio_pkg_root() / "configs" / "learning_dict.json"
 LLM_LOG_PATH = logs_root() / "tts_llm_usage.log"
 

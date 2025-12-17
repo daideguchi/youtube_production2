@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional
 
+from factory_common.paths import audio_pkg_root
+
 # yaml is optional; dictionaries are best-effort when missing.
 try:
     import yaml  # type: ignore
@@ -14,7 +16,7 @@ except Exception:  # pragma: no cover
     yaml = None  # type: ignore
 
 
-READING_DICT_ROOT = Path(__file__).resolve().parents[1] / "data" / "reading_dict"
+READING_DICT_ROOT = audio_pkg_root() / "data" / "reading_dict"
 AMBIGUOUS_SURFACES = {
     # 文脈によって読みが揺れるため、辞書登録禁止
     "今日",

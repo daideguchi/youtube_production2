@@ -25,6 +25,7 @@ import shutil
 import base64
 import unicodedata
 import requests
+import yaml
 from PIL import Image, ImageStat
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -33,6 +34,7 @@ from collections import deque
 from enum import Enum
 import sqlite3
 import threading
+import time
 
 import logging
 
@@ -221,11 +223,9 @@ from backend.routers import swap
 from backend.routers import params
 from factory_common.publish_lock import is_episode_published_locked, mark_episode_published_locked
 from factory_common.alignment import (
-    bracket_topic_overlaps,
     iter_thumbnail_catches_from_row,
     planning_hash_from_row,
     sha1_file as sha1_file_bytes,
-    title_script_token_overlap_ratio,
 )
 from factory_common.paths import (
     audio_final_dir,
@@ -287,9 +287,17 @@ SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
 THUMBNAIL_PROJECTS_CANDIDATES = [
     ssot_thumbnails_root() / "projects.json",
 ]
+THUMBNAIL_TEMPLATES_CANDIDATES = [
+    ssot_thumbnails_root() / "templates.json",
+]
 THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 THUMBNAIL_SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 THUMBNAIL_PROJECTS_LOCK = threading.Lock()
+THUMBNAIL_TEMPLATES_LOCK = threading.Lock()
+OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
+OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
+OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {}}
+OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
 UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
 LLM_REGISTRY_PATH = PROJECT_ROOT / "configs" / "llm_registry.json"
 PROMPT_TEMPLATES_ROOT = COMMENTARY_PROMPTS_ROOT / "templates"
@@ -5070,6 +5078,18 @@ class ThumbnailVariantCreateRequest(BaseModel):
         return self
 
 
+class ThumbnailVariantGenerateRequest(BaseModel):
+    template_id: Optional[str] = None
+    image_model_key: Optional[str] = None
+    prompt: Optional[str] = None
+    count: int = Field(default=1, ge=1, le=4)
+    label: Optional[str] = None
+    status: Optional[str] = Field(default="draft")
+    make_selected: Optional[bool] = False
+    notes: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+
 class ThumbnailLibraryImportRequest(BaseModel):
     url: str = Field(..., min_length=1)
     file_name: Optional[str] = None
@@ -5079,6 +5099,65 @@ class ThumbnailDescriptionResponse(BaseModel):
     description: str
     model: Optional[str] = None
     source: Literal["openai", "openrouter", "heuristic"]
+
+
+class ThumbnailTemplatePayload(BaseModel):
+    id: Optional[str] = None
+    name: str = Field(..., min_length=1, max_length=160)
+    image_model_key: str = Field(..., min_length=1, max_length=160)
+    prompt_template: str = Field(..., min_length=1)
+    negative_prompt: Optional[str] = None
+    notes: Optional[str] = None
+
+    @field_validator("id")
+    @classmethod
+    def _normalize_id(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("invalid template id")
+        trimmed = value.strip()
+        return trimmed or None
+
+    @field_validator("image_model_key")
+    @classmethod
+    def _normalize_model_key(cls, value: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("invalid model key")
+        trimmed = value.strip()
+        if not trimmed:
+            raise ValueError("model key is required")
+        return trimmed
+
+
+class ThumbnailTemplateResponse(BaseModel):
+    id: str
+    name: str
+    image_model_key: str
+    prompt_template: str
+    negative_prompt: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class ThumbnailChannelTemplatesResponse(BaseModel):
+    channel: str
+    default_template_id: Optional[str] = None
+    templates: List[ThumbnailTemplateResponse]
+
+
+class ThumbnailChannelTemplatesUpdateRequest(BaseModel):
+    default_template_id: Optional[str] = None
+    templates: List[ThumbnailTemplatePayload] = Field(default_factory=list)
+
+
+class ThumbnailImageModelInfoResponse(BaseModel):
+    key: str
+    provider: str
+    model_name: str
+    pricing: Optional[Dict[str, str]] = None
+    pricing_updated_at: Optional[str] = None
 
 
 class LLMConfig(BaseModel):
@@ -7038,6 +7117,13 @@ def _resolve_thumbnail_projects_path() -> Path:
     return THUMBNAIL_PROJECTS_CANDIDATES[0]
 
 
+def _resolve_thumbnail_templates_path() -> Path:
+    for candidate in THUMBNAIL_TEMPLATES_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    return THUMBNAIL_TEMPLATES_CANDIDATES[0]
+
+
 def _load_thumbnail_projects_document() -> tuple[Path, dict]:
     path = _resolve_thumbnail_projects_path()
     payload: dict
@@ -7061,6 +7147,35 @@ def _load_thumbnail_projects_document() -> tuple[Path, dict]:
 
 
 def _write_thumbnail_projects_document(path: Path, payload: dict) -> None:
+    payload["updated_at"] = datetime.now(timezone.utc).isoformat()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=2)
+
+
+def _load_thumbnail_templates_document() -> tuple[Path, dict]:
+    path = _resolve_thumbnail_templates_path()
+    payload: dict
+    if path.exists():
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+        except json.JSONDecodeError as exc:
+            logger.warning("Failed to parse %s: %s. Recreating file.", path, exc)
+            payload = {}
+    else:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    payload.setdefault("version", 1)
+    channels = payload.get("channels")
+    if not isinstance(channels, dict):
+        channels = {}
+    payload["channels"] = channels
+    return path, payload
+
+
+def _write_thumbnail_templates_document(path: Path, payload: dict) -> None:
     payload["updated_at"] = datetime.now(timezone.utc).isoformat()
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as fh:
@@ -7165,6 +7280,104 @@ def _ensure_unique_filename(directory: Path, filename: str) -> Path:
         counter += 1
 
 
+def _build_thumbnail_template_context(channel_code: str, video_number: str) -> Dict[str, str]:
+    ctx: Dict[str, str] = {
+        "channel": channel_code,
+        "video": video_number,
+        "title": "",
+        "sheet_title": "",
+        "thumbnail_upper": "",
+        "thumbnail_lower": "",
+        "thumbnail_prompt": "",
+        "dalle_prompt": "",
+        "summary": "",
+        "notes": "",
+    }
+
+    # status.json (if present)
+    try:
+        status = load_status(channel_code, video_number)
+        metadata = status.get("metadata") if isinstance(status, dict) else None
+        if isinstance(metadata, dict):
+            ctx["title"] = str(metadata.get("title") or metadata.get("video_title") or "") or ctx["title"]
+            ctx["sheet_title"] = str(metadata.get("sheet_title") or "") or ctx["sheet_title"]
+            ctx["summary"] = str(metadata.get("summary") or "") or ctx["summary"]
+            ctx["notes"] = str(metadata.get("notes") or "") or ctx["notes"]
+    except Exception:
+        pass
+
+    # Planning CSV (if present)
+    try:
+        for row in planning_store.get_rows(channel_code, force_refresh=True):
+            if normalize_video_number(row.video_number or "") != video_number:
+                continue
+            raw = row.raw
+            if not isinstance(raw, dict):
+                break
+            ctx["title"] = str(raw.get("タイトル") or "") or ctx["title"]
+            ctx["thumbnail_upper"] = str(raw.get("サムネタイトル上") or "") or ctx["thumbnail_upper"]
+            ctx["thumbnail_lower"] = str(raw.get("サムネタイトル下") or "") or ctx["thumbnail_lower"]
+            ctx["thumbnail_prompt"] = str(raw.get("サムネ画像プロンプト（URL・テキスト指示込み）") or "") or ctx["thumbnail_prompt"]
+            ctx["dalle_prompt"] = str(raw.get("DALL-Eプロンプト（URL・テキスト指示込み）") or "") or ctx["dalle_prompt"]
+            break
+    except Exception:
+        pass
+
+    # Fill title from sheet_title if needed
+    if not ctx["title"] and ctx["sheet_title"]:
+        ctx["title"] = ctx["sheet_title"]
+
+    # Normalize whitespace
+    for key, value in list(ctx.items()):
+        if value is None:
+            ctx[key] = ""
+            continue
+        ctx[key] = str(value).strip()
+    return ctx
+
+
+def _render_thumbnail_prompt_template(template: str, context: Dict[str, str]) -> str:
+    """
+    Simple placeholder rendering: replaces `{{key}}` with values from context.
+    """
+    rendered = template or ""
+    for key, value in context.items():
+        rendered = rendered.replace(f"{{{{{key}}}}}", value or "")
+    return rendered
+
+
+def _normalize_thumbnail_image_bytes(image_bytes: bytes, *, width: int = 1280, height: int = 720) -> bytes:
+    """
+    Normalize arbitrary generated images to a YouTube thumbnail-friendly 16:9 PNG.
+    - center-crop to 16:9
+    - resize to 1280x720
+    """
+    try:
+        with Image.open(io.BytesIO(image_bytes)) as img:
+            img = img.convert("RGB")
+            src_w, src_h = img.size
+            if src_w <= 0 or src_h <= 0:
+                raise ValueError("invalid image size")
+            target_ratio = width / height
+            src_ratio = src_w / src_h
+            if src_ratio > target_ratio:
+                # too wide → crop left/right
+                new_w = int(src_h * target_ratio)
+                left = max(0, (src_w - new_w) // 2)
+                img = img.crop((left, 0, left + new_w, src_h))
+            elif src_ratio < target_ratio:
+                # too tall → crop top/bottom
+                new_h = int(src_w / target_ratio)
+                top = max(0, (src_h - new_h) // 2)
+                img = img.crop((0, top, src_w, top + new_h))
+            img = img.resize((width, height), Image.LANCZOS)
+            out = io.BytesIO()
+            img.save(out, format="PNG", optimize=True)
+            return out.getvalue()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"生成画像の正規化に失敗しました: {exc}") from exc
+
+
 def _sanitize_library_filename(name: str, *, default_prefix: str) -> str:
     safe_name = Path(name or "").name
     if not safe_name:
@@ -7240,6 +7453,256 @@ def _persist_thumbnail_variant(
         created_at=now,
         updated_at=now,
     )
+
+
+def _get_openrouter_pricing_by_model_id(
+    *, max_age_sec: int = OPENROUTER_MODELS_CACHE_TTL_SEC, timeout_sec: int = 10
+) -> Tuple[Dict[str, Dict[str, str]], float]:
+    """
+    Fetch OpenRouter model pricing table (best-effort) from `/api/v1/models`.
+
+    Returns:
+      - pricing_by_id: { model_id: { pricing_key: unit_price_str } }
+      - fetched_at_epoch: seconds since epoch (UTC)
+    """
+    now = time.time()
+    with OPENROUTER_MODELS_CACHE_LOCK:
+        fetched_at = float(OPENROUTER_MODELS_CACHE.get("fetched_at") or 0.0)
+        cached = OPENROUTER_MODELS_CACHE.get("pricing_by_id")
+        if isinstance(cached, dict) and cached and (now - fetched_at) < max_age_sec:
+            return cached, fetched_at
+
+    try:
+        resp = requests.get(OPENROUTER_MODELS_URL, timeout=timeout_sec)
+        resp.raise_for_status()
+        payload = resp.json()
+    except Exception:
+        with OPENROUTER_MODELS_CACHE_LOCK:
+            fetched_at = float(OPENROUTER_MODELS_CACHE.get("fetched_at") or 0.0)
+            cached = OPENROUTER_MODELS_CACHE.get("pricing_by_id")
+            if isinstance(cached, dict) and cached:
+                return cached, fetched_at
+        return {}, 0.0
+
+    models = payload.get("data") if isinstance(payload, dict) else None
+    pricing_by_id: Dict[str, Dict[str, str]] = {}
+    if isinstance(models, list):
+        for model in models:
+            if not isinstance(model, dict):
+                continue
+            model_id = str(model.get("id") or "").strip()
+            if not model_id:
+                continue
+            pricing = model.get("pricing")
+            if not isinstance(pricing, dict):
+                continue
+            normalized: Dict[str, str] = {}
+            for key, val in pricing.items():
+                if val is None:
+                    continue
+                if isinstance(val, (int, float)):
+                    normalized[str(key)] = str(val)
+                elif isinstance(val, str):
+                    normalized[str(key)] = val
+            if normalized:
+                pricing_by_id[model_id] = normalized
+
+    with OPENROUTER_MODELS_CACHE_LOCK:
+        OPENROUTER_MODELS_CACHE["fetched_at"] = now
+        OPENROUTER_MODELS_CACHE["pricing_by_id"] = pricing_by_id
+
+    return pricing_by_id, now
+
+
+@app.get(
+    "/api/workspaces/thumbnails/image-models",
+    response_model=List[ThumbnailImageModelInfoResponse],
+)
+def list_thumbnail_image_models():
+    """
+    List available image model keys from `configs/image_models.yaml`.
+
+    Intended for UI/template configuration (manual operation only).
+    """
+    config_path = PROJECT_ROOT / "configs" / "image_models.yaml"
+    try:
+        with config_path.open("r", encoding="utf-8") as fh:
+            conf = yaml.safe_load(fh) or {}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="image model config not found")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to load image model config: {exc}") from exc
+
+    models = conf.get("models") if isinstance(conf, dict) else None
+    if not isinstance(models, dict):
+        return []
+
+    pricing_by_id: Dict[str, Dict[str, str]] = {}
+    pricing_updated_at: Optional[str] = None
+    pricing_by_id, fetched_at = _get_openrouter_pricing_by_model_id()
+    if fetched_at:
+        pricing_updated_at = datetime.fromtimestamp(fetched_at, timezone.utc).isoformat()
+
+    out: List[ThumbnailImageModelInfoResponse] = []
+    for key, model_conf in sorted(models.items(), key=lambda kv: str(kv[0])):
+        if not isinstance(model_conf, dict):
+            continue
+        provider = str(model_conf.get("provider") or "").strip()
+        model_name = str(model_conf.get("model_name") or "").strip()
+        if not provider or not model_name:
+            continue
+        model_pricing: Optional[Dict[str, str]] = None
+        model_pricing_updated_at: Optional[str] = None
+        if provider == "openrouter" and pricing_updated_at:
+            model_pricing = pricing_by_id.get(model_name)
+            if model_pricing:
+                model_pricing_updated_at = pricing_updated_at
+        out.append(
+            ThumbnailImageModelInfoResponse(
+                key=str(key),
+                provider=provider,
+                model_name=model_name,
+                pricing=model_pricing,
+                pricing_updated_at=model_pricing_updated_at,
+            )
+        )
+    return out
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/templates",
+    response_model=ThumbnailChannelTemplatesResponse,
+)
+def get_thumbnail_channel_templates(channel: str):
+    channel_code = normalize_channel_code(channel)
+    with THUMBNAIL_TEMPLATES_LOCK:
+        _, payload = _load_thumbnail_templates_document()
+        channels = payload.get("channels") if isinstance(payload, dict) else None
+        channel_payload = channels.get(channel_code) if isinstance(channels, dict) else None
+
+    if not isinstance(channel_payload, dict):
+        channel_payload = {}
+
+    raw_templates = channel_payload.get("templates") or []
+    templates: List[ThumbnailTemplateResponse] = []
+    for raw in raw_templates:
+        if not isinstance(raw, dict):
+            continue
+        template_id = str(raw.get("id") or "").strip()
+        if not template_id:
+            continue
+        templates.append(
+            ThumbnailTemplateResponse(
+                id=template_id,
+                name=raw.get("name") or "",
+                image_model_key=raw.get("image_model_key") or "",
+                prompt_template=raw.get("prompt_template") or "",
+                negative_prompt=raw.get("negative_prompt"),
+                notes=raw.get("notes"),
+                created_at=raw.get("created_at"),
+                updated_at=raw.get("updated_at"),
+            )
+        )
+
+    templates.sort(key=lambda tpl: (tpl.updated_at or "", tpl.created_at or "", tpl.name), reverse=True)
+    template_ids = {tpl.id for tpl in templates}
+
+    default_template_id = channel_payload.get("default_template_id")
+    if isinstance(default_template_id, str):
+        default_template_id = default_template_id.strip() or None
+    else:
+        default_template_id = None
+    if default_template_id and default_template_id not in template_ids:
+        default_template_id = None
+
+    return ThumbnailChannelTemplatesResponse(
+        channel=channel_code,
+        default_template_id=default_template_id,
+        templates=templates,
+    )
+
+
+@app.put(
+    "/api/workspaces/thumbnails/{channel}/templates",
+    response_model=ThumbnailChannelTemplatesResponse,
+)
+def upsert_thumbnail_channel_templates(channel: str, request: ThumbnailChannelTemplatesUpdateRequest):
+    channel_code = normalize_channel_code(channel)
+
+    model_keys: set[str] = set()
+    config_path = PROJECT_ROOT / "configs" / "image_models.yaml"
+    try:
+        with config_path.open("r", encoding="utf-8") as fh:
+            conf = yaml.safe_load(fh) or {}
+        models = conf.get("models") if isinstance(conf, dict) else None
+        if isinstance(models, dict):
+            model_keys = {str(key) for key in models.keys()}
+    except Exception:
+        model_keys = set()
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    with THUMBNAIL_TEMPLATES_LOCK:
+        path, payload = _load_thumbnail_templates_document()
+        channels = payload.get("channels")
+        if not isinstance(channels, dict):
+            channels = {}
+            payload["channels"] = channels
+
+        existing_by_id: Dict[str, dict] = {}
+        existing_channel = channels.get(channel_code)
+        if isinstance(existing_channel, dict):
+            for raw in existing_channel.get("templates") or []:
+                if not isinstance(raw, dict):
+                    continue
+                template_id = str(raw.get("id") or "").strip()
+                if template_id:
+                    existing_by_id[template_id] = raw
+
+        templates_out: List[dict] = []
+        seen_ids: set[str] = set()
+        for tpl in request.templates:
+            template_id = (tpl.id or "").strip()
+            if not template_id:
+                template_id = f"tmpl::{uuid.uuid4().hex[:12]}"
+            if template_id in seen_ids:
+                raise HTTPException(status_code=400, detail=f"duplicate template id: {template_id}")
+            seen_ids.add(template_id)
+
+            model_key = (tpl.image_model_key or "").strip()
+            if model_keys and model_key not in model_keys:
+                raise HTTPException(status_code=400, detail=f"unknown image_model_key: {model_key}")
+
+            existing = existing_by_id.get(template_id, {})
+            created_at = existing.get("created_at") or now
+            templates_out.append(
+                {
+                    "id": template_id,
+                    "name": tpl.name.strip(),
+                    "image_model_key": model_key,
+                    "prompt_template": tpl.prompt_template,
+                    "negative_prompt": tpl.negative_prompt,
+                    "notes": tpl.notes,
+                    "created_at": created_at,
+                    "updated_at": now,
+                }
+            )
+
+        default_template_id = request.default_template_id
+        if isinstance(default_template_id, str):
+            default_template_id = default_template_id.strip() or None
+        else:
+            default_template_id = None
+        if default_template_id and default_template_id not in seen_ids:
+            raise HTTPException(status_code=400, detail="default_template_id not found in templates")
+
+        channels[channel_code] = {
+            "default_template_id": default_template_id,
+            "templates": templates_out,
+        }
+        _write_thumbnail_templates_document(path, payload)
+
+    return get_thumbnail_channel_templates(channel_code)
 
 
 @app.get("/api/workspaces/thumbnails", response_model=ThumbnailOverviewResponse)
@@ -7556,6 +8019,150 @@ def create_thumbnail_variant_entry(channel: str, video: str, payload: ThumbnailV
         make_selected=bool(payload.make_selected),
     )
     return variant
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/variants/generate",
+    response_model=List[ThumbnailVariantResponse],
+    status_code=201,
+)
+def generate_thumbnail_variant_images(channel: str, video: str, payload: ThumbnailVariantGenerateRequest):
+    """
+    Generate thumbnail images via ImageClient (OpenRouter/Gemini) and persist as variants.
+
+    Notes:
+    - Manual operation only (intended for UI / Swagger usage).
+    - No automatic model fallback: the request must resolve to exactly one image model key.
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+
+    template: Optional[dict] = None
+    template_name: str = ""
+    template_id: Optional[str] = payload.template_id.strip() if payload.template_id else None
+
+    if template_id or not (payload.prompt and payload.prompt.strip()):
+        with THUMBNAIL_TEMPLATES_LOCK:
+            _, doc = _load_thumbnail_templates_document()
+            channels = doc.get("channels") if isinstance(doc, dict) else None
+            channel_doc = channels.get(channel_code) if isinstance(channels, dict) else None
+        if isinstance(channel_doc, dict):
+            if not template_id:
+                default_id = channel_doc.get("default_template_id")
+                if isinstance(default_id, str) and default_id.strip():
+                    template_id = default_id.strip()
+            raw_templates = channel_doc.get("templates") or []
+            if template_id and isinstance(raw_templates, list):
+                for raw in raw_templates:
+                    if not isinstance(raw, dict):
+                        continue
+                    if str(raw.get("id") or "").strip() == template_id:
+                        template = raw
+                        template_name = str(raw.get("name") or "").strip()
+                        break
+
+    if template_id and template is None:
+        raise HTTPException(status_code=404, detail=f"template not found: {template_id}")
+
+    model_key = payload.image_model_key.strip() if payload.image_model_key else ""
+    if not model_key and isinstance(template, dict):
+        model_key = str(template.get("image_model_key") or "").strip()
+    if not model_key:
+        raise HTTPException(status_code=400, detail="image_model_key is required (or set it in the template)")
+
+    config_path = PROJECT_ROOT / "configs" / "image_models.yaml"
+    try:
+        with config_path.open("r", encoding="utf-8") as fh:
+            conf = yaml.safe_load(fh) or {}
+        models = conf.get("models") if isinstance(conf, dict) else None
+        if isinstance(models, dict) and model_key not in {str(key) for key in models.keys()}:
+            raise HTTPException(status_code=400, detail=f"unknown image_model_key: {model_key}")
+    except HTTPException:
+        raise
+    except Exception:
+        # If config cannot be loaded, skip validation here (ImageClient will error if invalid).
+        pass
+
+    prompt = payload.prompt.strip() if payload.prompt else ""
+    if not prompt:
+        if not isinstance(template, dict):
+            raise HTTPException(status_code=400, detail="prompt is required when no template is selected")
+        template_text = str(template.get("prompt_template") or "")
+        if not template_text.strip():
+            raise HTTPException(status_code=400, detail="template.prompt_template is empty")
+        ctx = _build_thumbnail_template_context(channel_code, video_number)
+        prompt = _render_thumbnail_prompt_template(template_text, ctx).strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="prompt is empty after rendering")
+
+    label_base = payload.label.strip() if payload.label else ""
+    notes = payload.notes.strip() if isinstance(payload.notes, str) and payload.notes.strip() else None
+    tags = payload.tags
+
+    try:
+        from factory_common.image_client import ImageClient, ImageTaskOptions, ImageGenerationError
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        raise HTTPException(status_code=500, detail=f"ImageClient is not available: {exc}") from exc
+
+    try:
+        image_client = ImageClient()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"ImageClient initialization failed: {exc}") from exc
+
+    variants: List[ThumbnailVariantResponse] = []
+    for idx in range(payload.count):
+        try:
+            result = image_client.generate(
+                ImageTaskOptions(
+                    task="thumbnail_image_gen",
+                    prompt=prompt,
+                    aspect_ratio="16:9",
+                    n=1,
+                    extra={"model_key": model_key},
+                )
+            )
+        except ImageGenerationError as exc:
+            raise HTTPException(status_code=502, detail=f"image generation failed: {exc}") from exc
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"image generation failed: {exc}") from exc
+
+        image_data = result.images[0] if result.images else None
+        if not image_data:
+            raise HTTPException(status_code=502, detail="image generation returned no image bytes")
+
+        png_bytes = _normalize_thumbnail_image_bytes(image_data)
+
+        dest_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number
+        filename = f"ai_{uuid.uuid4().hex[:12]}.png"
+        destination = _ensure_unique_filename(dest_dir, filename)
+        try:
+            destination.write_bytes(png_bytes)
+        except OSError as exc:
+            raise HTTPException(status_code=500, detail=f"failed to write thumbnail asset: {exc}") from exc
+
+        rel_path = f"{channel_code}/{video_number}/{destination.name}"
+        label = label_base
+        if not label:
+            label = "AI"
+            if template_name:
+                label = f"{label} {template_name}"
+            if payload.count > 1:
+                label = f"{label} {idx + 1}"
+
+        variant = _persist_thumbnail_variant(
+            channel_code,
+            video_number,
+            label=label,
+            status=payload.status,
+            image_path=rel_path,
+            notes=notes,
+            tags=tags,
+            prompt=prompt,
+            make_selected=bool(payload.make_selected) and idx == 0,
+        )
+        variants.append(variant)
+
+    return variants
 
 
 @app.post(
@@ -8030,18 +8637,6 @@ def get_video_detail(channel: str, video: str):
                 suspect_reason = str(align_meta.get("suspect_reason") or "").strip()
                 if suspect_reason:
                     reasons.append(suspect_reason)
-
-            # Heuristic semantic sanity check (no LLM).
-            try:
-                planning_title = str(planning_raw.get("タイトル") or "").strip()
-                preview = script_path.read_text(encoding="utf-8")[:6000]
-                if planning_title and not bracket_topic_overlaps(planning_title, preview):
-                    ratio = title_script_token_overlap_ratio(planning_title, preview)
-                    if status_value_align == "OK":
-                        status_value_align = "要確認"
-                    reasons.append(f"主要語の一致が弱い (overlap={ratio:.2f})")
-            except Exception:
-                pass
 
         alignment_status = status_value_align
         alignment_reason = " / ".join(reasons) if reasons else None
@@ -10162,20 +10757,6 @@ def api_progress_channel(channel_code: str):
                     suspect_reason = str(align_meta.get("suspect_reason") or "").strip()
                     if suspect_reason:
                         reasons.append(suspect_reason)
-
-                # Heuristic semantic sanity check (no LLM): if the bracket-topic never appears in the script,
-                # flag as "要確認" (often means planning/title drift vs script).
-                if script_path.exists():
-                    try:
-                        planning_title = str(row.get("タイトル") or "").strip()
-                        preview = script_path.read_text(encoding="utf-8")[:6000]
-                        if planning_title and not bracket_topic_overlaps(planning_title, preview):
-                            ratio = title_script_token_overlap_ratio(planning_title, preview)
-                            if status_value == "OK":
-                                status_value = "要確認"
-                            reasons.append(f"主要語の一致が弱い (overlap={ratio:.2f})")
-                    except Exception:
-                        pass
 
                 row["整合"] = status_value
                 if reasons:

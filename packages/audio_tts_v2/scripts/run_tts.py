@@ -30,9 +30,20 @@ def _discover_repo_root(start: Path) -> Path:
             return candidate.resolve()
     return cur.resolve()
 
+def _discover_tts_root(start: Path) -> Path:
+    """
+    Resolve audio_tts_v2 package root by searching for `tts/` and `configs/`.
+    Avoid relying on fixed directory depth (`parents[N]`).
+    """
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "tts").is_dir() and (candidate / "configs").is_dir():
+            return candidate.resolve()
+    return cur.resolve()
+
 # Ensure project root and audio_tts_v2 are in sys.path
 _PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
-_TTS_ROOT = Path(__file__).resolve().parents[1]
+_TTS_ROOT = _discover_tts_root(Path(__file__).resolve())
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 if str(_TTS_ROOT) not in sys.path:
@@ -52,6 +63,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out-wav", type=Path, help="Output WAV path override")
     p.add_argument("--log", type=Path, help="Output Log path override")
     p.add_argument("--engine-override", choices=["voicevox", "voicepeak", "elevenlabs"], help="Force specific engine")
+    p.add_argument(
+        "--reading-source",
+        choices=["mecab", "voicevox"],
+        help="Reading source override (currently informational for STRICT pipeline; used by legacy kana selection).",
+    )
     
     # LLM Settings (Now managed via .env and Router)
     p.add_argument("--llm-model", help="Force LLM router model key(s) for this run (comma-separated).")
@@ -97,6 +113,10 @@ def main() -> None:
                 os.environ[k.strip()] = v.strip().strip("\"'")
     skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
+    if args.reading_source:
+        # STRICT pipeline currently uses MeCab tokenization for readings; keep this flag
+        # for compatibility with UI/backends that pass it (future support).
+        print(f"[INFO] reading_source override requested: {args.reading_source}")
 
     # Optional: allow CLI-driven model overrides without editing router config.
     if args.llm_model:
