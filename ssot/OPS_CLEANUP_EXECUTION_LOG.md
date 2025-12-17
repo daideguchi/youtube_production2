@@ -630,3 +630,19 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
 - 移動（git mv）:
   - `packages/commentary_02_srt2images_timeline/config/success_config.json`
   - → `legacy/commentary_02_srt2images_timeline/config/success_config.json`
+
+### 41) 音声の「確実残骸」を統合 cleanup で削除（untracked）
+
+意図: 音声生成後に残る `chunks/` や `audio_prep` 内の重複バイナリは、容量と探索ノイズの主因になる。  
+final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまとめて削除する。
+
+- 実行（dry-run → run）:
+  - `python3 -m scripts.cleanup_workspace --all --dry-run --keep-recent-minutes 360`
+  - `python3 -m scripts.cleanup_workspace --all --run --yes --keep-recent-minutes 360`
+- 削除内容:
+  - `workspaces/scripts/**/audio_prep/chunks/`（1件 / 約54MB）
+  - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（重複6ファイル / 約141MB）
+  - `workspaces/audio/final/**/chunks/`（94件 / 約4.9GB）
+- 安全条件:
+  - final wav が存在するもののみ対象（final SoT を削除しない）
+  - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ（実行中の synthesis を妨害しない）

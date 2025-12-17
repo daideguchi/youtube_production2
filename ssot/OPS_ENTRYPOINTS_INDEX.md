@@ -80,6 +80,7 @@
 
 ## 4. 生成物の掃除（容量/混乱対策）
 
+- 統合 cleanup（推奨）: `python -m scripts.cleanup_workspace --dry-run` → 問題なければ `--run`
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）
 - `scripts/purge_audio_prep_binaries.py`（prep重複wav/srt削除）
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）

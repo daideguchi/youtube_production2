@@ -188,15 +188,24 @@
 
 ### 4.1 コマンド設計（案）
 新設: `python -m scripts.cleanup_workspace`
+
+実装状況（2025-12-17）:
+- `scripts/cleanup_workspace.py` を追加（まずは audio ドメインのみ）。
+  - `workspaces/scripts/**/audio_prep/chunks/` の削除
+  - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（finalと重複するバイナリ）の削除
+  - `workspaces/audio/final/**/chunks/` の削除
+  - 既定は dry-run（`--run` 指定で実行、`--all --run` は `--yes` 必須）
+
 ```
-cleanup_workspace \
-  --channel CH06 --video 033 \
-  --mode {dry-run|run} \
-  --purge-level {L2,L3,all} \
-  --respect-status \
-  --keep-last-runs 1 \
-  --archive-dir workspaces/_archive/<date>
+python -m scripts.cleanup_workspace --channel CH06 --video 033 --dry-run
+python -m scripts.cleanup_workspace --channel CH06 --video 033 --run
+
+# 全体走査（危険なので --run は --yes 必須）
+python -m scripts.cleanup_workspace --all --dry-run
+python -m scripts.cleanup_workspace --all --run --yes
 ```
+
+※ `--purge-level/--respect-status/--archive-dir` 等の高度なフラグは今後拡張（下の 4.2/7 を参照）。
 
 ### 4.2 ステータス連動
 - `status.json.stage` と `workspaces/planning/channels` の進捗を組み合わせて安全判定。
@@ -219,6 +228,6 @@ cleanup_workspace \
   → 互換 symlink 期間中は cleanup 対象を新パスに限定する。
 
 ## 7. 次のアクション
-1. `cleanup_workspace` の設計確定（flag/対象/ガード）
-2. `status.json` と CSV の判定ロジックを共通 util 化
-3. dry-run で全チャンネルを走査し、削除候補のサイズ/件数をレポート
+1. `cleanup_workspace` の対象拡張（Script/Video/Logs）とフラグ設計の確定
+2. `status.json` と CSV の判定ロジックを共通 util 化（採用run/公開済み判定など）
+3. dry-run で全チャンネルを走査し、削除候補のサイズ/件数をレポート（UIに表示できる形へ）
