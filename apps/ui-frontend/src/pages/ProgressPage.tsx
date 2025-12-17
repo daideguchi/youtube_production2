@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchChannels, fetchProgressCsv, updateVideoRedo, fetchRedoSummary, lookupThumbnails, refreshPlanningStore, markVideoPublishedLocked } from "../api/client";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
 import { RedoBadge } from "../components/RedoBadge";
@@ -36,7 +37,7 @@ const LONG_COLUMNS = new Set([
   "動画内挿絵AI向けプロンプト（10個）",
 ]);
 
-const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "投稿完了"]);
+const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "整合", "投稿完了"]);
 const MEDIUM_COLUMNS = new Set(["タイトル", "音声生成", "音声品質", "納品"]);
 const THUMB_COLUMNS = new Set(["サムネ"]);
 
@@ -46,6 +47,7 @@ const COMPACT_PRIORITY = [
   "タイトル",
   "サムネ",
   "進捗",
+  "整合",
   "投稿完了",
   "更新日時",
   "台本パス",
@@ -84,6 +86,7 @@ const normalizeVideo = (value: any): string => {
 };
 
 export function ProgressPage() {
+  const navigate = useNavigate();
   const [channel, setChannel] = useState<string>("CH02");
   const [rows, setRows] = useState<Row[]>([]);
   const [filteredRows, setFilteredRows] = useState<Row[]>([]);
@@ -104,7 +107,68 @@ export function ProgressPage() {
   const [thumbPreviewIndex, setThumbPreviewIndex] = useState<number>(0);
   const [selectedCell, setSelectedCell] = useState<{ key: string; value: string } | null>(null);
   const [publishingKey, setPublishingKey] = useState<string | null>(null);
+  const [copiedTitleKey, setCopiedTitleKey] = useState<string | null>(null);
   const thumbRequestedRef = useRef<Set<string>>(new Set());
+  const copiedTitleTimerRef = useRef<number | null>(null);
+  const goToVideoPage = useCallback(
+    (channelCode: string, videoRaw: string) => {
+      const ch = String(channelCode || "").toUpperCase();
+      const token = normalizeVideo(videoRaw);
+      if (!ch || !token) return;
+      navigate(`/channels/${encodeURIComponent(ch)}/videos/${encodeURIComponent(token)}`);
+    },
+    [navigate]
+  );
+
+  const copyToClipboard = useCallback(async (text: string): Promise<boolean> => {
+    const value = String(text ?? "");
+    if (!value) return false;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch {
+      // fallback below
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "true");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const copyTitle = useCallback(
+    async (key: string, title: string) => {
+      const value = String(title ?? "").trim();
+      if (!value) return;
+      const ok = await copyToClipboard(value);
+      if (!ok) {
+        setError("タイトルのコピーに失敗しました");
+        return;
+      }
+      setCopiedTitleKey(key);
+      if (copiedTitleTimerRef.current) {
+        window.clearTimeout(copiedTitleTimerRef.current);
+      }
+      copiedTitleTimerRef.current = window.setTimeout(() => {
+        setCopiedTitleKey(null);
+        copiedTitleTimerRef.current = null;
+      }, 900);
+    },
+    [copyToClipboard]
+  );
 
   const findThumbOverride = useCallback((row: Row): string | null => {
     // 明示的なサムネ列を優先
@@ -431,6 +495,51 @@ export function ProgressPage() {
                             </label>
                           );
                         })()
+                      ) : col === "整合" ? (
+                        (() => {
+                          const value = String(row[col] ?? "");
+                          const reason = String(row["整合理由"] ?? "");
+                          const label = value || "未計測";
+                          const cls =
+                            value === "OK"
+                              ? "progress-page__align progress-page__align--ok"
+                              : value === "NG"
+                                ? "progress-page__align progress-page__align--ng"
+                                : value === "要確認"
+                                  ? "progress-page__align progress-page__align--warn"
+                                  : "progress-page__align progress-page__align--unknown";
+                          return (
+                            <span className={cls} title={reason || label}>
+                              {label}
+                            </span>
+                          );
+                        })()
+                      ) : col === "動画ID" ? (
+                        (() => {
+                          const ch = row["チャンネル"] || channel;
+                          const vid = row["動画番号"] || row["video"] || "";
+                          const token = normalizeVideo(vid);
+                          const hasLink = Boolean(ch && token);
+                          return (
+                            <span className="progress-page__video-cell">
+                              <span className="progress-page__cell-text progress-page__cell-text--flex">{row[col] ?? ""}</span>
+                              {hasLink ? (
+                                <button
+                                  type="button"
+                                  className="progress-page__open"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    goToVideoPage(ch, vid);
+                                  }}
+                                  title="台本ページへ"
+                                  aria-label="台本ページへ"
+                                >
+                                  📝
+                                </button>
+                              ) : null}
+                            </span>
+                          );
+                        })()
                       ) : col === "サムネ" ? (
                         thumbs.length ? (
                           <button
@@ -452,6 +561,32 @@ export function ProgressPage() {
                         ) : (
                           <span className="progress-page__cell-text muted">なし</span>
                         )
+                      ) : col === "タイトル" ? (
+                        (() => {
+                          const title = String(row["タイトル"] ?? "");
+                          const ch = row["チャンネル"] || channel;
+                          const vid = row["動画番号"] || row["video"] || "";
+                          const token = normalizeVideo(vid);
+                          const key = `${ch}-${token || String(vid)}`;
+                          const copied = copiedTitleKey === key;
+                          return (
+                            <span className="progress-page__title-cell">
+                              <span className="progress-page__cell-text progress-page__cell-text--flex">{title}</span>
+                              <button
+                                type="button"
+                                className={`progress-page__copy ${copied ? "is-copied" : ""}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyTitle(key, title);
+                                }}
+                                title={copied ? "コピーしました" : "タイトルをコピー"}
+                                aria-label="タイトルをコピー"
+                              >
+                                {copied ? "✓" : "📋"}
+                              </button>
+                            </span>
+                          );
+                        })()
                       ) : (
                         <span className="progress-page__cell-text" title={row[col] ?? ""}>
                           {row[col] ?? ""}

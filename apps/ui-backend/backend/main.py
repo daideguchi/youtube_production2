@@ -220,6 +220,13 @@ from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
 from factory_common.publish_lock import is_episode_published_locked, mark_episode_published_locked
+from factory_common.alignment import (
+    bracket_topic_overlaps,
+    iter_thumbnail_catches_from_row,
+    planning_hash_from_row,
+    sha1_file as sha1_file_bytes,
+    title_script_token_overlap_ratio,
+)
 from factory_common.paths import (
     audio_final_dir,
     audio_pkg_root,
@@ -9799,6 +9806,75 @@ def api_progress_channel(channel_code: str):
                         row["thumbnail_path"] = thumbs[0]["path"]
                 except Exception:
                     pass
+
+            # === Alignment guard (title/thumbnail/script) ===
+            # Goal: prevent "どれが完成版？" confusion by making misalignment explicit.
+            try:
+                base_dir = DATA_ROOT / channel_code / norm_video
+                script_path = base_dir / "content" / "assembled_human.md"
+                if not script_path.exists():
+                    script_path = base_dir / "content" / "assembled.md"
+
+                planning_hash = planning_hash_from_row(row)
+                catches = {c for c in iter_thumbnail_catches_from_row(row)}
+
+                align_meta = meta.get("alignment") if isinstance(meta, dict) else None
+                stored_planning_hash = None
+                stored_script_hash = None
+                if isinstance(align_meta, dict):
+                    stored_planning_hash = align_meta.get("planning_hash")
+                    stored_script_hash = align_meta.get("script_hash")
+
+                status_value = "未計測"
+                reasons: list[str] = []
+
+                if not script_path.exists():
+                    status_value = "台本なし"
+                elif len(catches) > 1:
+                    status_value = "NG"
+                    reasons.append("サムネプロンプト先頭行が不一致")
+                elif isinstance(stored_planning_hash, str) and isinstance(stored_script_hash, str):
+                    script_hash = sha1_file_bytes(script_path)
+                    mismatch: list[str] = []
+                    if planning_hash != stored_planning_hash:
+                        mismatch.append("タイトル/サムネ")
+                    if script_hash != stored_script_hash:
+                        mismatch.append("台本")
+                    if mismatch:
+                        status_value = "NG"
+                        reasons.append("変更検出: " + " & ".join(mismatch))
+                    else:
+                        status_value = "OK"
+                else:
+                    status_value = "未計測"
+
+                if isinstance(align_meta, dict) and bool(align_meta.get("suspect")):
+                    if status_value == "OK":
+                        status_value = "要確認"
+                    suspect_reason = str(align_meta.get("suspect_reason") or "").strip()
+                    if suspect_reason:
+                        reasons.append(suspect_reason)
+
+                # Heuristic semantic sanity check (no LLM): if the bracket-topic never appears in the script,
+                # flag as "要確認" (often means planning/title drift vs script).
+                if script_path.exists():
+                    try:
+                        planning_title = str(row.get("タイトル") or "").strip()
+                        preview = script_path.read_text(encoding="utf-8")[:6000]
+                        if planning_title and not bracket_topic_overlaps(planning_title, preview):
+                            ratio = title_script_token_overlap_ratio(planning_title, preview)
+                            if status_value == "OK":
+                                status_value = "要確認"
+                            reasons.append(f"主要語の一致が弱い (overlap={ratio:.2f})")
+                    except Exception:
+                        pass
+
+                row["整合"] = status_value
+                if reasons:
+                    row["整合理由"] = " / ".join(reasons)
+            except Exception:
+                # never break progress listing
+                row["整合"] = row.get("整合") or "未計測"
         return {"channel": channel_code, "rows": rows}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"failed to read csv: {e}")
