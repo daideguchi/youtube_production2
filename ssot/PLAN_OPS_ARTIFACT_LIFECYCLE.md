@@ -190,10 +190,11 @@
 新設: `python -m scripts.cleanup_workspace`
 
 実装状況（2025-12-17）:
-- `scripts/cleanup_workspace.py` を追加（audio/logs/scripts を統合。video は未対応）。
+- `scripts/cleanup_workspace.py` を追加（audio/logs/scripts/video を統合）。
   - `workspaces/scripts/**/audio_prep/chunks/` の削除
   - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（finalと重複するバイナリ）の削除
   - `workspaces/audio/final/**/chunks/` の削除
+  - `--video-runs` で `scripts/ops/cleanup_video_runs.py` を呼び出し（run dir は削除せず `_archive/` へ移動）
   - `--logs` で `scripts/ops/cleanup_logs.py` を呼び出し（L3ログのローテ）
   - `--scripts` で `scripts/cleanup_data.py` を呼び出し（workspaces/scripts の古い中間生成物/ログ）
   - 既定は dry-run（`--run` 指定で実行、`--all --run` は `--yes` 必須）
@@ -201,6 +202,10 @@
 ```
 python -m scripts.cleanup_workspace --channel CH06 --video 033 --dry-run
 python -m scripts.cleanup_workspace --channel CH06 --video 033 --run
+
+# video runs（runディレクトリ整理。削除ではなくアーカイブ）
+python -m scripts.cleanup_workspace --video-runs --channel CH06 --video 033 --dry-run
+python -m scripts.cleanup_workspace --video-runs --channel CH06 --video 033 --run
 
 # logs（L3ローテ）
 python -m scripts.cleanup_workspace --logs --dry-run

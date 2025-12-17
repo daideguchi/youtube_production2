@@ -88,6 +88,7 @@
 
 - 統合 cleanup（推奨）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
+  - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
   - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）

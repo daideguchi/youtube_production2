@@ -11,6 +11,8 @@ Currently covered:
   - workspaces/scripts/**/audio_prep/chunks/            (rebuildable chunk WAVs)
   - workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav/srt (duplicate binaries)
   - workspaces/audio/final/**/chunks/                   (rebuildable chunk WAVs)
+- video domain:
+  - workspaces/video/runs/{run_id}/                     (archive older, non-selected runs)
 - logs domain (L3 only):
   - workspaces/logs/** (excluding L1 JSONL/DB + agent queues)
 - scripts domain:
@@ -60,6 +62,7 @@ def _run_script(script_path: Path, args: list[str]) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--audio", action="store_true", help="Cleanup audio artifacts (default when no domain is specified).")
+    ap.add_argument("--video-runs", action="store_true", help="Archive older video run dirs under workspaces/video/runs.")
     ap.add_argument("--logs", action="store_true", help="Cleanup L3 logs under logs_root().")
     ap.add_argument("--scripts", action="store_true", help="Cleanup workspaces/scripts intermediates/logs (L3).")
     ap.add_argument("--dry-run", action="store_true", help="Print actions (default).")
@@ -77,6 +80,8 @@ def main() -> int:
     ap.add_argument("--channel", action="append", help="Target channel (repeatable). e.g. CH02")
     ap.add_argument("--video", action="append", help="Target video (repeatable). Requires --channel unless --all.")
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recently modified artifacts.")
+    ap.add_argument("--video-keep-last-runs", type=int, default=2, help="Keep at least N run dirs per episode (video domain).")
+    ap.add_argument("--video-archive-unscoped", action="store_true", help="Also archive unscoped run dirs that look like trash (video domain; requires --all).")
     ap.add_argument("--logs-keep-days", type=int, default=30, help="Keep logs newer than this many days (default: 30).")
     ap.add_argument("--scripts-keep-days", type=int, default=14, help="Keep script intermediates newer than this many days (default: 14).")
     ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune logs/llm_api_cache (default: keep).")
@@ -86,20 +91,23 @@ def main() -> int:
     dry_run = bool(args.dry_run) or not do_run
 
     domains: set[str] = set()
+    if args.video_runs:
+        domains.add("video_runs")
     if args.logs:
         domains.add("logs")
     if args.scripts:
         domains.add("scripts")
-    if args.audio or (not args.logs and not args.scripts):
+    if args.audio or (not args.video_runs and not args.logs and not args.scripts):
         domains.add("audio")
 
-    if "audio" in domains:
-        if args.video and not args.channel and not args.all:
-            ap.error("--video requires --channel (or use --all)")
-        if not args.all and not args.channel:
-            ap.error("provide --channel (repeatable) or use --all")
-        if do_run and args.all and not args.yes:
-            ap.error("--run --all requires --yes")
+    if args.video and not args.channel and not args.all:
+        ap.error("--video requires --channel (or use --all)")
+    if "audio" in domains and not args.all and not args.channel:
+        ap.error("provide --channel (repeatable) or use --all")
+    if "video_runs" in domains and not args.all and not args.channel:
+        ap.error("provide --channel (repeatable) or use --all")
+    if do_run and args.all and not args.yes and ("audio" in domains or "video_runs" in domains):
+        ap.error("--run --all requires --yes")
 
     channels: list[str] | None = None
     videos: list[str] | None = None
@@ -131,6 +139,12 @@ def main() -> int:
         print(f"[cleanup_workspace] logs.keep_days={int(args.logs_keep_days)} include_llm_api_cache={bool(args.include_llm_api_cache)}", flush=True)
     if "scripts" in domains:
         print(f"[cleanup_workspace] scripts.keep_days={int(args.scripts_keep_days)}", flush=True)
+    if "video_runs" in domains:
+        print(
+            f"[cleanup_workspace] video.keep_last_runs={int(args.video_keep_last_runs)} "
+            f"archive_unscoped={bool(args.video_archive_unscoped)}",
+            flush=True,
+        )
 
     worst = 0
 
@@ -160,6 +174,32 @@ def main() -> int:
                 args_scripts.append("--run")
             args_scripts += ["--keep-days", str(int(args.scripts_keep_days))]
             rc = _run_script(script_path, args_scripts)
+            worst = max(worst, rc)
+
+    if "video_runs" in domains:
+        script_path = REPO_ROOT / "scripts" / "ops" / "cleanup_video_runs.py"
+        if not script_path.exists():
+            print(f"[cleanup_workspace] WARN missing script: {script_path}")
+            worst = max(worst, 2)
+        else:
+            args_video: list[str] = []
+            if do_run and not dry_run:
+                args_video.append("--run")
+            if args.all:
+                args_video.append("--all")
+            if args.yes:
+                args_video.append("--yes")
+            args_video += ["--keep-recent-minutes", keep_recent]
+            args_video += ["--keep-last-runs", str(int(args.video_keep_last_runs))]
+            if args.video_archive_unscoped:
+                args_video.append("--archive-unscoped")
+            if channels:
+                for ch in channels:
+                    args_video += ["--channel", ch]
+            if videos:
+                for v in videos:
+                    args_video += ["--video", v]
+            rc = _run_script(script_path, args_video)
             worst = max(worst, rc)
 
     if "audio" in domains:

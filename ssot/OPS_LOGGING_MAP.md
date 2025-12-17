@@ -178,6 +178,8 @@
     - `apps/ui-backend/backend/main.py`（`channel_profile_edit_YYYYMMDD.log`）
     - `scripts/api_health_check.py`（`api_health_<timestamp>.log`）
     - `apps/ui-backend/backend/main.py`（`thumbnail_quick_history.jsonl` / `ssot_sync/*`）
+    - `scripts/episode_ssot.py`（`archive_video_runs_dryrun_<CH>_<timestamp>.json`）
+    - `scripts/ops/cleanup_video_runs.py`（`video_runs_cleanup_dryrun_<timestamp>.json`）
   - 種別:
     - `thumbnail_quick_history.jsonl` は **L1**（履歴価値あり）
     - それ以外は **L3**
