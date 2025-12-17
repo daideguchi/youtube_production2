@@ -11,7 +11,7 @@ import csv
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 def _discover_repo_root(start: Path) -> Path:
     cur = start if start.is_dir() else start.parent
@@ -36,6 +36,46 @@ def _to_repo_relative(path: Path) -> str:
     except Exception:
         return path.as_posix()
 
+def _parse_int_no(value: Optional[str]) -> Optional[int]:
+    if value is None:
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def sort_rows_inplace(csv_path: Path, rows: List[Dict[str, str]]) -> None:
+    """
+    Sort planning rows by numeric 'No.' while keeping non-numeric rows
+    (memos/separators) immediately after the previous numeric row.
+    """
+    last_numeric = 0
+    keyed: List[Tuple[Tuple[int, int, int], Dict[str, str]]] = []
+    non_numeric_count = 0
+
+    for idx, row in enumerate(rows):
+        raw_no = row.get("No.")
+        parsed = _parse_int_no(raw_no)
+        if parsed is None:
+            if raw_no and raw_no.strip():
+                non_numeric_count += 1
+            keyed.append(((last_numeric, 1, idx), row))
+            continue
+        last_numeric = parsed
+        keyed.append(((parsed, 0, idx), row))
+
+    keyed.sort(key=lambda item: item[0])
+    rows[:] = [row for _, row in keyed]
+    if non_numeric_count:
+        print(
+            f"[WARN] {csv_path.name}: found {non_numeric_count} non-numeric 'No.' rows; preserved as memo/separator rows",
+            file=sys.stderr,
+        )
+
 
 def load_csv(path: Path) -> Tuple[List[Dict[str, str]], List[str]]:
     with path.open(encoding="utf-8", newline="") as f:
@@ -55,7 +95,7 @@ def save_csv(path: Path, rows: List[Dict[str, str]], fieldnames: List[str]) -> N
         if key not in all_fields:
             all_fields.append(key)
     with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=all_fields)
+        writer = csv.DictWriter(f, fieldnames=all_fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -128,7 +168,7 @@ def sync_channel(csv_path: Path) -> None:
         if entry.is_dir() and entry.name.isdigit():
             no = int(entry.name)
             sync_one(code, no, rows, fieldnames, data_dir)
-    rows.sort(key=lambda r: int(r.get("No.") or 0))
+    sort_rows_inplace(csv_path, rows)
     save_csv(csv_path, rows, fieldnames)
 
 

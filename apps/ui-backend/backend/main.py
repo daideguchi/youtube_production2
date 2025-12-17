@@ -764,7 +764,7 @@ def _write_csv_with_lock(path: Path, fieldnames: List[str], rows: List[Dict[str,
             encoding="utf-8",
             timeout=LOCK_TIMEOUT_SECONDS,
         ) as handle:
-            writer = csv.DictWriter(handle, fieldnames=fieldnames)
+            writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
             writer.writeheader()
             writer.writerows(serialised)
             handle.flush()

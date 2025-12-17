@@ -65,7 +65,7 @@ def _write_csv_rows(path: Path, fieldnames: list[str], rows: list[dict[str, str]
     serialised = [{key: (row.get(key) or "") for key in fieldnames} for row in rows]
     if portalocker is None:
         with path.open("w", encoding="utf-8", newline="") as handle:  # pragma: no cover - fallback
-            writer = csv.DictWriter(handle, fieldnames=fieldnames)
+            writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
             writer.writeheader()
             writer.writerows(serialised)
         return
@@ -76,7 +76,7 @@ def _write_csv_rows(path: Path, fieldnames: list[str], rows: list[dict[str, str]
         encoding="utf-8",
         timeout=_LOCK_TIMEOUT_SECONDS,
     ) as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(serialised)
         handle.flush()
@@ -216,4 +216,3 @@ def mark_episode_published_locked(
         updated_csv_paths=tuple(updated_csv_paths),
         status_updated=status_updated,
     )
-

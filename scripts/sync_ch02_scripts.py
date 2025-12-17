@@ -42,7 +42,7 @@ def load_csv() -> List[Dict[str, str]]:
 
 def save_csv(rows: List[Dict[str, str]], fieldnames: List[str]) -> None:
     with CSV_PATH.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

@@ -40,7 +40,7 @@ with open(file_path, 'r', encoding='utf-8') as f:
             new_row = new_row[:len(header)]
 
 with open(file_path, 'a', encoding='utf-8', newline='') as f:
-    writer = csv.writer(f)
+    writer = csv.writer(f, lineterminator="\n")
     writer.writerow(new_row)
 
 print("Row appended successfully.")

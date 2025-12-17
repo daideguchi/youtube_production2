@@ -54,6 +54,6 @@ if len(new_row) != len(rows[0]):
 else:
     rows.append(new_row)
     with open(file_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerows(rows)
     print("Fixed row appended successfully.")
