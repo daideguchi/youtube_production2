@@ -19,8 +19,10 @@
 ## 2. 運用マニュアル / OPS
 - `OPS_CHANNEL_LAUNCH_MANUAL.md`: チャンネル立ち上げ・企画CSV整備・運用手順。
 - `OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `OPS_REPO_DIRECTORY_SSOT.md`: リポジトリのディレクトリ構造（正本）。配置/移設/互換symlink方針の基準。
 - `OPS_SCRIPT_SOURCE_MAP.md`: 台本/音声/動画の“ソース元”対応表（SoT→生成物）。
 - `OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
+- `OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。
 - `OPS_AUDIO_TTS_V2.md`: 音声（TTS v2）運用手順とSoT/cleanup。
 - `OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
 - `OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm.yml`）。
@@ -28,6 +30,7 @@
 - `OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
 - `OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の原則）。
 - `OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
+- `OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
 - `OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
 - `OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。

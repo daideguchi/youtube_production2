@@ -5,27 +5,28 @@
 ## ディレクトリ概要（現行）
 ```
 factory_commentary/
-├─ packages/                       # Target: Pythonパッケージ（当面は互換symlink）
-├─ workspaces/                     # Target: SoT+生成物（当面は互換symlink）
-├─ legacy/                         # 旧資産/退避（当面は互換symlinkを残す）
-├─ progress/                       # 企画/進捗 SoT（互換symlink → workspaces/planning）
-├─ script_pipeline/                # 台本 SoT + runner（data/CHxx/NNN）
-├─ audio_tts_v2/                   # 音声/TTS（artifacts/final が下流参照の正本）
-├─ commentary_02_srt2images_timeline/  # SRT→画像→CapCut（output/<run_id>）
-├─ ui/                             # 運用UI（FastAPI + React）
-├─ thumbnails/                     # サムネ SoT（projects.json + 旧資産ディレクトリ）
-├─ scripts/                        # 運用CLI群（Drive/YT/監査/同期など）
-├─ logs/                           # グローバルログ（gitignore）
-├─ ssot/                           # Single Source of Truth（設計/運用/計画）
-├─ remotion/                       # experimental（現行未運用）
-├─ 00_research/                    # research（互換symlink → workspaces/research）
-└─ ...
+├─ apps/                           # 実行アプリ（UI/サーバ/動画）
+├─ packages/                       # Pythonパッケージ群（生成物は置かない）
+├─ workspaces/                     # SoT + 生成物（唯一の置き場）
+├─ asset/                          # 静的素材（L0/SoT, git管理）
+├─ configs/                        # 設定正本（非機密）
+├─ prompts/                        # 横断プロンプト
+├─ scripts/                        # 運用CLI群（入口を薄く）
+├─ ssot/                           # SSOT（設計/運用/計画の正本）
+├─ legacy/                         # 旧資産/旧ロジック（参照専用）
+├─ backups/                        # archive-first 退避/patch保存（実行入口にしない）
+├─ credentials/                    # 機密/トークン（git管理しない）
+├─ data/                           # 固定データ（辞書/素材など）
+└─ tests/                          # 現行対象テスト
 ```
+
+互換（段階移行中のsymlink）と方針は `ssot/OPS_REPO_DIRECTORY_SSOT.md` を正とします。
 
 ## SSOT Quick Links
 | カテゴリ | ファイル |
 | --- | --- |
 | プロジェクト基礎 | `ssot/README.md` |
+| ディレクトリ正本 | `ssot/OPS_REPO_DIRECTORY_SSOT.md` |
 | Alignment / Checklist | `ssot/OPS_ALIGNMENT_CHECKPOINTS.md` |
 | 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
 | 環境変数 | `ssot/OPS_ENV_VARS.md` |
