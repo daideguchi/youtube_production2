@@ -31,7 +31,7 @@
 ---
 
 注意:
-- **正本のログルートは `factory_common/paths.py:logs_root()`**（現行: `workspaces/logs/` → `logs/` への symlink）。  
+- **正本のログルートは `packages/factory_common/paths.py:logs_root()`**（現行: `workspaces/logs/` が実体 / `logs/` は symlink）。  
   この文書中の `logs/...` 記載は **`logs_root()/...` の意味**で読む（Stage2 で `workspaces/logs/` が実体化しても設計が壊れないようにする）。
 - ルート `logs/` は gitignore 対象（`.gitignore: logs/`）のため、運用するとログが増えても git 差分に出にくい。
 - “残す/消す/退避” の判断は本マップ（L1/L3）と `PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正本にする。
@@ -42,21 +42,21 @@
 
 - `logs/llm_usage.jsonl`  
   - Writer:
-    - `factory_common/llm_client.py`（LLMClient。legacy スキーマ: `ts`, `task`, `provider`, `model`, `usage`）
-    - `factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `retry?`, `cache?`, `routing?`, `timestamp`）
-    - `factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`）
+    - `packages/factory_common/llm_client.py`（LLMClient。legacy スキーマ: `ts`, `task`, `provider`, `model`, `usage`）
+    - `packages/factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `retry?`, `cache?`, `routing?`, `timestamp`）
+    - `packages/factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`）
   - 形式: 1行JSON（複数スキーマ混在。将来的に schema_version で統一予定）
   - `routing`（任意）:
     - `LLM_AZURE_SPLIT_RATIO` が設定されている場合、Azure/非Azure の振り分け情報（policy/ratio/bucket/preferred_provider/routing_key）を出力する
-  - Reader/UI: `ui/backend/routers/llm_usage.py`, `scripts/aggregate_llm_usage.py`
+  - Reader/UI: `apps/ui-backend/backend/routers/llm_usage.py`, `scripts/aggregate_llm_usage.py`
   - 種別: **L1**
 
 - `logs/agent_tasks/{pending,results,completed}/*.json`  
-  - Writer: `factory_common/agent_mode.py`, `scripts/agent_runner.py`, `factory_common/llm_api_failover.py`
+  - Writer: `packages/factory_common/agent_mode.py`, `scripts/agent_runner.py`, `packages/factory_common/llm_api_failover.py`
   - 役割: agent/think-mode の **キュー/結果キャッシュ**（enqueue → complete → rerun）
   - 関連:
     - `logs/agent_tasks/coordination/memos/*.json`（申し送り/フォールバック通知）
-      - Writer: `factory_common/llm_api_failover.py`, `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
+      - Writer: `packages/factory_common/llm_api_failover.py`, `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
       - Reader: `python scripts/agent_org.py memos`, `python scripts/agent_org.py memo-show <MEMO_ID>`
     - `logs/agent_tasks/coordination/locks/*.json`（任意: 作業スコープロック）
       - Writer/Reader: `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
@@ -72,15 +72,21 @@
   - 種別: **L1（運用SoT）**
 
 - `logs/image_usage.log`  
-  - Writer: `factory_common/image_client.py`（Gemini ImageClient）
+  - Writer: `packages/factory_common/image_client.py`（Gemini ImageClient）
   - 形式: 1行JSON
     - `timestamp`, `success`, `task`, `tier`, `model`, `provider`, `request_id`, `duration_ms`, `prompt_sha256`, `attempt?`, `errors?`
   - Reader: `scripts/image_usage_report.py`
   - 種別: **L1**
 
 - `logs/image_rr_state.json`  
-  - Writer: `factory_common/image_client.py`（round‑robin state）
+  - Writer: `packages/factory_common/image_client.py`（round‑robin state）
   - 種別: **状態ファイル（L3扱い）**
+
+- `logs/llm_api_cache/<task>/<cache_key>.json`  
+  - Writer: `packages/factory_common/llm_api_cache.py`
+  - 役割: LLM 呼び出しの **再利用キャッシュ**（同一入力の再実行を高速化/低コスト化）
+  - 形式: JSON（レスポンス/メタデータ）
+  - 種別: **L3（安全に削除可能。必要なら再生成される）**
 
 ### 1.2 Audio/TTS（グローバル）
 
@@ -124,42 +130,61 @@
   - Reader: UI（Swap/CapCut 修復）/ `GET /api/swap/logs*`
   - 種別: **L3（30日ローテ）**
 
+- `logs/swap/history/<draft>/<index>/<timestamp>/*.png`  
+  - Writer: `apps/ui-backend/backend/routers/swap.py`（swap 前の assets バックアップ。rollback 用）
+  - Reader: UI（Swap の履歴表示/rollback）/ `GET /api/swap/images/history*`
+  - 種別: **L3（短期保持。肥大しやすいのでローテ対象）**
+
+- `logs/swap/thumb_cache/<draft_key>/<max_dim>/*.png`  
+  - Writer: `apps/ui-backend/backend/routers/swap.py`（画像プレビューのサムネキャッシュ）
+  - Reader: UI（画像一覧プレビュー）
+  - 種別: **L3（安全に削除可能。必要なら再生成される）**
+
 ### 1.4 UI / Ops（グローバル）
 
 - `logs/ui_hub/backend.log`, `backend.manual.log`, `frontend.log`, `frontend.manual.log`, `remotion_studio.log`, `start_all.nohup.log`  
-  - Writer: `ui/tools/start_manager.py`, `scripts/start_all.sh`
+  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`
   - 形式: stdout/stderr 合流ログ（起動ごとに上書き）
   - 種別: **L3 / keep-last‑N**
 
 - `logs/ui_hub/*.pid`  
-  - Writer: `ui/tools/start_manager.py`, `scripts/start_all.sh`
+  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`
   - 種別: **L3 / 状態ファイル**
 
 - `logs/ui_hub/video_production/<job_id>.log`  
-  - Writer: `commentary_02_srt2images_timeline/server/jobs.py`（FastAPI経由ジョブ。互換: `commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
+  - Writer: `packages/commentary_02_srt2images_timeline/server/jobs.py`（FastAPI経由ジョブ。互換: `packages/commentary_02_srt2images_timeline/ui/server/jobs.py` は shim）
   - 種別: **L3（job単位）**
 
 - `logs/ui/ui_tasks.db`  
-  - Writer: `ui/backend/main.py`（BatchWorkflow のキュー/タスク状態）
+  - Writer: `apps/ui-backend/backend/main.py`（BatchWorkflow のキュー/タスク状態）
   - 種別: **L1（UI運用SoTに近い）**
 
 - `logs/lock_metrics.db`  
-  - Writer: `ui/backend/main.py`（ロック/並列制御のメトリクス蓄積）
+  - Writer: `apps/ui-backend/backend/main.py`（ロック/並列制御のメトリクス蓄積）
   - Reader: `GET /api/admin/lock-metrics`
   - 種別: **L3（状態DB。肥大するならローテ/アーカイブ対象）**
 
 - `logs/ui/batch_workflow/<timestamp>_<CH>_<task_id>.log`  
-  - Writer: `ui/backend/main.py`（BatchWorkflow実行ログ）
+  - Writer: `apps/ui-backend/backend/main.py`（BatchWorkflow実行ログ）
   - 種別: **L3**
+
+- `logs/ui/batch_tts_progress.json`, `logs/ui/batch_tts_regeneration.log`  
+  - Writer: `apps/ui-backend/backend/main.py`（BatchTTS start/progress/log API）, `scripts/batch_regenerate_tts.py`（バックグラウンド実行）
+  - Reader: UI（BatchTtsProgressPanel）/ `GET /api/batch-tts/progress`, `GET /api/batch-tts/log`
+  - 種別: **L3（短期保持。ローテ対象）**
 
 - `logs/regression/*`  
   - Writer例:
-    - `ui/backend/main.py`（`channel_profile_edit_YYYYMMDD.log`）
+    - `apps/ui-backend/backend/main.py`（`channel_profile_edit_YYYYMMDD.log`）
     - `scripts/api_health_check.py`（`api_health_<timestamp>.log`）
-    - `ui/backend/main.py`（`thumbnail_quick_history.jsonl` / `ssot_sync/*`）
+    - `apps/ui-backend/backend/main.py`（`thumbnail_quick_history.jsonl` / `ssot_sync/*`）
   - 種別:
     - `thumbnail_quick_history.jsonl` は **L1**（履歴価値あり）
     - それ以外は **L3**
+
+- `logs/ops/<operation>/<...>.log`  
+  - Writer: 手動/単発の運用スクリプト（例: CapCutテンプレ正規化, 大量修復, 検証などの stdout リダイレクト）
+  - 種別: **L3（短期保持。ローテ対象）**
 
 ### 1.5 Ad‑hoc scripts（単発/運用ログ）
 
@@ -191,111 +216,36 @@
 
 ---
 
-### 1.6 現状スナップショット（2025-12-13 観測）
+### 1.6 現状スナップショット（2025-12-17 観測）
 
-ルート `logs/` の “今” の状態（サイズ/件数）は、cleanup計画の優先度付けに使う。
+このセクションは cleanup 優先度のための “観測値”。値は日々変動するため、最新は `scripts/ops/logs_snapshot.py` を正とする。  
+（Writer/Reader/L1-L3 の確定は上の各項目を正とする）
 
-- file_count: 90
-- top-by-size（上位）:
-  - `logs/ui_hub/frontend.log`（約11.64MB）
-  - `logs/tts_voicevox_reading.jsonl`（約5.48MB）
-  - `logs/image_usage.log`（約1.16MB）
-  - `logs/ui_hub/start_all.nohup.log`（約1.05MB）
+- file_count（logs_root 配下、全階層）: 例）791
+- top-level file counts（例）:
+  - llm_api_cache: 478
+  - agent_tasks: 142
+  - (root): 46
+  - repair: 35
+  - ops: 28
+  - agent_tasks_ch04: 18
+  - regression: 13
+  - swap: 12
+  - ui_hub: 9
+  - ui: 1
+- top-by-size（上位・例）:
+  - `logs/tts_voicevox_reading.jsonl`（約6.09MB）
+  - `logs/swap/history/.../0002.png`（約2.96MB）
+  - `logs/image_usage.log`（約1.63MB）
+  - `logs/ui_hub/start_all.nohup.log`（約1.04MB）
+  - `logs/llm_usage.jsonl`（約0.66MB）
   - `logs/ui_hub/frontend.manual.log`（約0.55MB）
+  - `logs/ui_hub/backend.log`（約0.50MB）
   - `logs/audit_report_global.txt`（約0.49MB）
+  - `logs/validate_status_full_latest.json`（約0.40MB）
 
-#### 1.6.1 observed paths（2025-12-13）
-再生成: `find logs -type f -maxdepth 4 -print | sort`
-```
-logs/agent_tasks/coordination/memos/memo__20251212T171830Z__5652e1e9.json
-logs/agent_tasks/pending/script_outline__8e80cdc248e86c11d627743fbdbafa1a.json
-logs/agent_tasks/pending/visual_section_plan__556282e7af8a39e130cb42a2b427509a.json
-logs/annot_raw_fail.json
-logs/annot_raw.json
-logs/audit_global_execution.log
-logs/audit_report_global.txt
-logs/auto_approve.log
-logs/batch_repair_20251207_v2.log
-logs/batch_repair_20251207.log
-logs/ch03_batch.out
-logs/ch05_regen_no_llm_20251212_151631.log
-logs/check_quality_029_fix.log
-logs/check_quality_029.log
-logs/debug_route2.log
-logs/fast_batch_repair.log
-logs/image_rr_state.json
-logs/image_usage.log
-logs/llm_context_analyzer.log
-logs/llm_usage_summary.txt
-logs/llm_usage.jsonl
-logs/lock_metrics.db
-logs/manual_ch06_002.log
-logs/manual_ch06_003.log
-logs/manual_ch06_004.log
-logs/mass_generation.log
-logs/pipeline_memo.txt
-logs/regression/channel_profile_edit_20251128.log
-logs/repair/CH02-001.log
-logs/repair/CH02-002.log
-logs/repair/CH02-003.log
-logs/repair/CH02-004.log
-logs/repair/CH02-005.log
-logs/repair/CH02-006.log
-logs/repair/CH06-005.log
-logs/repair/CH06-006.log
-logs/repair/CH06-007.log
-logs/repair/CH06-008.log
-logs/repair/CH06-009.log
-logs/repair/CH06-010.log
-logs/repair/CH06-011.log
-logs/repair/CH06-012.log
-logs/repair/CH06-013.log
-logs/repair/CH06-014.log
-logs/repair/CH06-015.log
-logs/repair/CH06-016.log
-logs/repair/CH06-017.log
-logs/repair/CH06-018.log
-logs/repair/CH06-019.log
-logs/repair/CH06-020.log
-logs/repair/CH06-021.log
-logs/repair/CH06-022.log
-logs/repair/CH06-023.log
-logs/repair/CH06-024.log
-logs/repair/CH06-025.log
-logs/repair/CH06-026.log
-logs/repair/CH06-027.log
-logs/repair/CH06-028.log
-logs/repair/CH06-029.log
-logs/repair/CH06-030.log
-logs/repair/CH06-031.log
-logs/repair/CH06-032.log
-logs/repair/CH06-033.log
-logs/sequential_repair_20251207.log
-logs/srt_validation_failures.txt
-logs/swap/swap_20251202_062745.log
-logs/swap/swap_20251202_062756.log
-logs/swap/swap_20251202_062830.log
-logs/swap/swap_20251202_062858.log
-logs/swap/swap_20251202_063549.log
-logs/swap/swap_20251202_063916.log
-logs/test_ch02_001_excerpt.json
-logs/tts_CH02_020.log
-logs/tts_llm_usage.log
-logs/tts_resume_CH02_019.log
-logs/tts_retry_CH02_019.log
-logs/tts_retry2_CH02_019.log
-logs/tts_voicevox_reading.jsonl
-logs/ui_hub/backend.log
-logs/ui_hub/backend.manual.log
-logs/ui_hub/backend.pid
-logs/ui_hub/frontend.log
-logs/ui_hub/frontend.manual.log
-logs/ui_hub/frontend.pid
-logs/ui_hub/remotion_studio.log
-logs/ui_hub/remotion_studio.pid
-logs/ui_hub/start_all.nohup.log
-logs/ui/ui_tasks.db
-```
+再生成（スナップショット更新）:
+- `python3 scripts/ops/logs_snapshot.py`
 
 ## 2. SoT配下（ドメイン/Run/Video単位のログ）
 
@@ -375,42 +325,32 @@ logs/ui/ui_tasks.db
 
 ---
 
-## 3. Target（リファクタ後のログ正本配置）
+## 3. Stable（現行=Target: `workspaces/logs/`）
 
-`PLAN_REPO_DIRECTORY_REFACTOR.md` の Stage2/5 完了後、ログは以下に収束させる。
+Stage2（cutover）は完了しており、ログの実体は **`workspaces/logs/` に集約済み**。  
+互換のため `logs/` は `workspaces/logs/` への symlink として残す（= `logs_root()` が正本）。
 
 ```
 workspaces/logs/
-├─ pipeline/                    # Cross-cutting usage / domain global
-│  ├─ llm_usage.jsonl
-│  ├─ image_usage.log
-│  ├─ tts_llm_usage.log
-│  ├─ tts_voicevox_reading.jsonl
-│  └─ llm_context_analyzer.log
-├─ ui/
-│  ├─ hub/                      # backend/frontend/remotion preview logs + pid
-│  ├─ batch_workflow/           # UI batch logs + configs + queue state
-│  └─ regression/               # quick_history / ssot_sync / health logs
-├─ jobs/
-│  ├─ script_pipeline/          # job_runner logs
-│  └─ video_production/         # CapCut/Swap jobs
-└─ _archive/                    # month/day zip
+├─ llm_usage.jsonl              # L1: LLM usage (router/client/failover)
+├─ image_usage.log              # L1: image usage
+├─ tts_llm_usage.log            # L1: TTS LLM meta
+├─ tts_voicevox_reading.jsonl   # L1: VOICEVOX reading events
+├─ llm_context_analyzer.log     # L3: video context analyzer
+├─ lock_metrics.db              # L3/L1: UI lock metrics DB
+├─ ui_hub/                      # L3: backend/frontend/remotion logs + pid
+├─ ui/                          # L1/L3: ui_tasks.db + batch_workflow logs
+├─ regression/                  # L1/L3: quick_history + health/ssot_sync logs
+├─ swap/                        # L3: swap logs + rollback history + thumb cache
+├─ repair/                      # L3: repair logs
+├─ ops/                         # L3: one-off ops logs
+├─ llm_api_cache/               # L3: cache (safe to purge)
+└─ agent_tasks/                 # L1: agent queue/coordination SoT
 ```
 
-### 3.1 既存→Target マッピング
-- `logs/llm_usage.jsonl` → `workspaces/logs/pipeline/llm_usage.jsonl`
-- `logs/image_usage.log` → `workspaces/logs/pipeline/image_usage.log`
-- `logs/tts_llm_usage.log` → `workspaces/logs/pipeline/tts_llm_usage.log`
-- `logs/tts_voicevox_reading.jsonl` → `workspaces/logs/pipeline/tts_voicevox_reading.jsonl`
-- `logs/llm_context_analyzer.log` → `workspaces/logs/pipeline/llm_context_analyzer.log`
-- `logs/ui_hub/*` → `workspaces/logs/ui/hub/*`
-- `logs/ui/*` → `workspaces/logs/ui/batch_workflow/*`
-- `logs/regression/*` → `workspaces/logs/ui/regression/*`
-- `script_pipeline/data/_state/logs/*` → `workspaces/logs/jobs/script_pipeline/*`
-- `logs/ui_hub/video_production/*` → `workspaces/logs/jobs/video_production/*`
-- run_dir `output/{run_id}/logs/*` は **run_dir内に残す**（`workspaces/video/runs/{run_id}/logs/*` へ自然移動）
-
-Stage1（paths SSOT）で上記 root を getter 化し、Stage2で物理移設＋symlink互換。
+### 3.1 互換/境界
+- `logs_root()` を使い、相対パス `logs/...` の直書きは避ける（起動cwd差で壊れるため）。
+- run_dir/logs は **run_dir 内に残す**（`workspaces/video/runs/{run_id}/logs/*`）。
 
 ---
 
@@ -424,19 +364,23 @@ Stage1（paths SSOT）で上記 root を getter 化し、Stage2で物理移設�
 ### 4.2 L3（短期）
 - run/video/job単位ログ（`*/logs/*.log`）: **30日ローテ**
 - `logs/ui_hub/*`: **keep‑last‑10 起動分**（起動時に上書きなので、Stage6で世代保存に寄せる）
-- `script_pipeline/data/_state/logs/*.log`: **14日ローテ（現行維持）**
+- `workspaces/scripts/_state/logs/*.log`（= `script_data_root()/_state/logs`）: **14日ローテ**
 - `logs/regression/*.log`: **30日ローテ**
-- `logs/swap/*.log`, `logs/repair/*.log`: **30日ローテ**
+- `logs/swap/*.log`, `logs/swap/history/**`, `logs/swap/thumb_cache/**`: **30日ローテ**
+- `logs/repair/*.log`: **30日ローテ**
+- `logs/ops/**`: **30日ローテ**
+- `logs/llm_api_cache/**`: **必要なら 30日ローテ（キャッシュなので安全に削除可能）**
 
 実行（手動/cron）:
-- `python scripts/ops/cleanup_logs.py --run --keep-days 30`（logs 直下の L3 を日数ローテ）
-- `python scripts/cleanup_data.py --run --keep-days 14`（script_pipeline/data の L3+一部L2）
+- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30`（logs 直下の L3 を日数ローテ）
+- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30 --include-llm-api-cache`（llm_api_cache も含める）
+- `python3 scripts/cleanup_data.py --run --keep-days 14`（workspaces/scripts の L3+一部L2）
 
 ---
 
 ## 5. 次の確定タスク（ログ整理のための追加調査）
 
 - `scripts/` / `tools/` の ad‑hoc ログ生成箇所を **ファイル単位で Active/Legacy 判定**し、
-  Stage3後に `workspaces/logs/pipeline/ops/` へ寄せる（必要なら新しい OPS log を作る）。
-- `batch_tts_regeneration.log`（repo直下）を paths SSOT 経由で `logs/ui/batch_workflow/` に統一（Stage1対象）。
+  `workspaces/logs/ops/` へ寄せる（必要なら新しい OPS log を作る）。
+- BatchTTS の progress/log は `logs/ui/` に統一済み。ローテは `scripts/ops/cleanup_logs.py` の対象。
 - 2025-12-12: `commentary_02_srt2images_timeline/{src,ui/src}/memory/**` は参照ゼロの確実ゴミとして削除済み（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。

@@ -62,6 +62,9 @@ SKIP_DIRS = {
     "agent_tasks_ch04",
     "agent_tasks_test",
     "agent_tasks_tmp",
+    # UI queue SoT/configs (do not purge here)
+    "queue_configs",
+    "queue_progress",
 }
 
 
@@ -121,12 +124,15 @@ def collect_candidates(*, keep_days: int, include_llm_api_cache: bool) -> list[D
             candidates.append(DeletionCandidate(p, f"logs_root_file_older_than_{keep_days}d"))
 
     # Known L3 subdirectories
-    for rel in ("repair", "swap", "regression", "ui_hub"):
+    for rel in ("repair", "swap", "regression", "ui_hub", "ops", "ui"):
         base = logs_root / rel
         for p in sorted(_iter_files(base)):
             if _should_keep(p):
                 continue
-            if p.suffix not in {".log", ".out", ".txt", ".json"}:
+            allowed_suffixes = {".log", ".out", ".txt", ".json"}
+            if rel == "swap":
+                allowed_suffixes |= {".png"}
+            if p.suffix not in allowed_suffixes:
                 continue
             if _is_older_than(p, cutoff):
                 candidates.append(DeletionCandidate(p, f"{rel}_older_than_{keep_days}d"))
@@ -189,4 +195,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

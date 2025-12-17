@@ -646,3 +646,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 安全条件:
   - final wav が存在するもののみ対象（final SoT を削除しない）
   - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ（実行中の synthesis を妨害しない）
+
+### 42) L3ログの短期ローテ cleanup を実行（untracked）
+
+意図: `workspaces/logs/` の L3（デバッグ/作業ログ）が増えると探索が重くなるため、7日より古いものを削除して整理する（L1 JSONL/DB と agent queue は保護）。
+
+- 実行（run）:
+  - `python3 scripts/cleanup_workspace.py --logs --run --logs-keep-days 7`
+- 削除内容:
+  - `logs_root()` 直下の L3（`.log/.txt/.json/.out` など） + `logs/{repair,swap,regression,ui_hub}/` の古いログ
+  - 削除件数: 65 files
+- 備考:
+  - `llm_api_cache` は今回は対象外（必要なら `--include-llm-api-cache` で追加）

@@ -190,15 +190,25 @@
 新設: `python -m scripts.cleanup_workspace`
 
 実装状況（2025-12-17）:
-- `scripts/cleanup_workspace.py` を追加（まずは audio ドメインのみ）。
+- `scripts/cleanup_workspace.py` を追加（audio/logs/scripts を統合。video は未対応）。
   - `workspaces/scripts/**/audio_prep/chunks/` の削除
   - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（finalと重複するバイナリ）の削除
   - `workspaces/audio/final/**/chunks/` の削除
+  - `--logs` で `scripts/ops/cleanup_logs.py` を呼び出し（L3ログのローテ）
+  - `--scripts` で `scripts/cleanup_data.py` を呼び出し（workspaces/scripts の古い中間生成物/ログ）
   - 既定は dry-run（`--run` 指定で実行、`--all --run` は `--yes` 必須）
 
 ```
 python -m scripts.cleanup_workspace --channel CH06 --video 033 --dry-run
 python -m scripts.cleanup_workspace --channel CH06 --video 033 --run
+
+# logs（L3ローテ）
+python -m scripts.cleanup_workspace --logs --dry-run
+python -m scripts.cleanup_workspace --logs --run --logs-keep-days 30
+
+# scripts（workspaces/scripts の L3/一部L2）
+python -m scripts.cleanup_workspace --scripts --dry-run
+python -m scripts.cleanup_workspace --scripts --run --scripts-keep-days 14
 
 # 全体走査（危険なので --run は --yes 必須）
 python -m scripts.cleanup_workspace --all --dry-run
@@ -228,6 +238,6 @@ python -m scripts.cleanup_workspace --all --run --yes
   → 互換 symlink 期間中は cleanup 対象を新パスに限定する。
 
 ## 7. 次のアクション
-1. `cleanup_workspace` の対象拡張（Script/Video/Logs）とフラグ設計の確定
+1. `cleanup_workspace` の対象拡張（Video）とフラグ設計の確定
 2. `status.json` と CSV の判定ロジックを共通 util 化（採用run/公開済み判定など）
 3. dry-run で全チャンネルを走査し、削除候補のサイズ/件数をレポート（UIに表示できる形へ）

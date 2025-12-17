@@ -1,14 +1,15 @@
-from pathlib import Path
 from typing import List, Dict, Any
 
 from fastapi import APIRouter, HTTPException, Query
 import json
 import yaml
 
-LOG_PATH = Path("logs/llm_usage.jsonl")
-OVERRIDE_PATH = Path("configs/llm_task_overrides.yaml")
-MODEL_REGISTRY_PATH = Path("configs/llm_model_registry.yaml")
-IMAGE_MODELS_PATH = Path("configs/image_models.yaml")
+from factory_common.paths import logs_root, repo_root
+
+LOG_PATH = logs_root() / "llm_usage.jsonl"
+OVERRIDE_PATH = repo_root() / "configs" / "llm_task_overrides.yaml"
+MODEL_REGISTRY_PATH = repo_root() / "configs" / "llm_model_registry.yaml"
+IMAGE_MODELS_PATH = repo_root() / "configs" / "image_models.yaml"
 
 router = APIRouter(prefix="/llm-usage", tags=["llm_usage"])
 

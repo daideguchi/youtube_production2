@@ -36,6 +36,9 @@
     - `GET|PUT /api/channels/{ch}/videos/{video}/llm-artifacts/*`（THINK MODEでの手動補正→出力反映）
     - `POST /api/channels/{ch}/videos/{video}/script-pipeline/reconcile`（既存出力から status.json を補正）
     - `POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation`（Aテキスト品質ゲートを再実行）
+  - BatchTTS（UIパネル）:
+    - `POST /api/batch-tts/start`（backend が `scripts/batch_regenerate_tts.py` を起動）
+    - `GET /api/batch-tts/progress`, `GET /api/batch-tts/log`, `POST /api/batch-tts/reset`
 - Frontend (React): `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 
 ---
@@ -83,13 +86,17 @@
 
 ## 4. 生成物の掃除（容量/混乱対策）
 
-- 統合 cleanup（推奨）: `python -m scripts.cleanup_workspace --dry-run` → 問題なければ `--run`
+- 統合 cleanup（推奨）:
+  - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
+  - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
+  - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）
 - `scripts/purge_audio_prep_binaries.py`（prep重複wav/srt削除）
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）
 - `scripts/purge_audio_final_chunks.py`（final/chunks削除）
 - `scripts/cleanup_data.py --run`（script_pipeline の古い中間生成物/ログを削除）
 - `scripts/ops/cleanup_logs.py --run`（logs 直下の L3 ログを日数ローテで削除）
+- `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 
