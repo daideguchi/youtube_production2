@@ -571,3 +571,15 @@ cue を必ず隙間ゼロ（連続）に正規化し、CH06-004 は `A_text → 
     - `packages/commentary_02_srt2images_timeline/.gitignore` に `progress/` を追加（再混入防止）
 - repo から削除:
   - `packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json`
+
+### 36) `commentary_02` package 内の `backups/` と `memory/` を削除（repo tracked）
+
+意図: `packages/` はコードのみを原則とし、バックアップ/メモを code tree に残さない（探索ノイズと誤参照を防ぐ）。
+
+- アーカイブ（復元用）:
+  - `backups/graveyard/20251217_021441_commentary02_package_extras.tar.gz`
+- 削除（git rm）:
+  - `packages/commentary_02_srt2images_timeline/backups/`
+  - `packages/commentary_02_srt2images_timeline/memory/`
+- 判定:
+  - 参照ゼロ（例: `rg "manual_edit_baseline_191_3|backup_draft_info\\.json" -S .` がヒットしない）
