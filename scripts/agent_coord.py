@@ -13,12 +13,19 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 
-from factory_common.paths import repo_root
+
+def _find_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
 
 
 def main() -> int:
-    root = repo_root()
+    root = _find_repo_root(Path(__file__).resolve())
     target = root / "scripts" / "agent_org.py"
     cmd = [sys.executable, str(target), *sys.argv[1:]]
     return subprocess.call(cmd, cwd=root)
@@ -26,4 +33,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

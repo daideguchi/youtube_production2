@@ -2,9 +2,25 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
+def _find_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+PROJECT_ROOT = _find_repo_root(Path(__file__).resolve())
+PACKAGES_ROOT = PROJECT_ROOT / "packages"
+for p in (PROJECT_ROOT, PACKAGES_ROOT):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
 from factory_common.paths import repo_root, workspace_root
 

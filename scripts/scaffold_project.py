@@ -4,13 +4,21 @@ import os
 import sys
 from pathlib import Path
 
-from factory_common.paths import repo_root
-
 # Configuration
 # Legacy helper: scaffolds a separate "production" workspace outside this repo.
 # Override with:
 #   - YTM_PRODUCTION_ROOT=/path/to/production
-PRODUCTION_ROOT = Path(os.getenv("YTM_PRODUCTION_ROOT") or (repo_root().parent / "production")).expanduser().resolve()
+
+def _find_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+REPO_ROOT = _find_repo_root(Path(__file__).resolve())
+PRODUCTION_ROOT = Path(os.getenv("YTM_PRODUCTION_ROOT") or (REPO_ROOT.parent / "production")).expanduser().resolve()
 MANAGEMENT_DIR = PRODUCTION_ROOT / "_management"
 MASTER_CSV_PATH = MANAGEMENT_DIR / "master_planning.csv"
 CHANNELS_CSV_PATH = MANAGEMENT_DIR / "channels.csv"
