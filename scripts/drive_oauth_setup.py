@@ -3,14 +3,16 @@
 Drive OAuth setup script.
 - ブラウザで認可してトークンを保存します。
 - `.env` で設定する場合:
-    DRIVE_OAUTH_CLIENT_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/configs/drive_oauth_client.json
-    DRIVE_OAUTH_TOKEN_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/credentials/drive_oauth_token.json
+    DRIVE_OAUTH_CLIENT_PATH=<repo_root>/configs/drive_oauth_client.json
+    DRIVE_OAUTH_TOKEN_PATH=<repo_root>/credentials/drive_oauth_token.json
+  ※未指定時は上記パスがデフォルトになります。
 """
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
+from factory_common.paths import repo_root
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
@@ -25,18 +27,14 @@ SCOPES = [
 
 
 def main() -> None:
-    base_dir = Path(__file__).resolve().parents[1]
+    base_dir = repo_root()
     client_path = Path(
-        os.environ.get(
-            "DRIVE_OAUTH_CLIENT_PATH",
-            base_dir / "configs" / "drive_oauth_client.json",
-        )
+        os.environ.get("DRIVE_OAUTH_CLIENT_PATH")
+        or (base_dir / "configs" / "drive_oauth_client.json")
     )
     token_path = Path(
-        os.environ.get(
-            "DRIVE_OAUTH_TOKEN_PATH",
-            base_dir / "credentials" / "drive_oauth_token.json",
-        )
+        os.environ.get("DRIVE_OAUTH_TOKEN_PATH")
+        or (base_dir / "credentials" / "drive_oauth_token.json")
     )
 
     if not client_path.exists():

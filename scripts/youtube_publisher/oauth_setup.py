@@ -4,14 +4,16 @@ YouTube Publisher 用 OAuth セットアップ。
 Drive + Sheets + YouTube (upload) を一括で許可するトークンを作成します。
 
 環境変数（.env 推奨）:
-  YT_OAUTH_CLIENT_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/configs/drive_oauth_client.json
-  YT_OAUTH_TOKEN_PATH=/Users/dd/10_YouTube_Automation/factory_commentary/credentials/youtube_publisher_token.json
+  YT_OAUTH_CLIENT_PATH=<repo_root>/configs/drive_oauth_client.json
+  YT_OAUTH_TOKEN_PATH=<repo_root>/credentials/youtube_publisher_token.json
+  ※未指定時は上記パスがデフォルトになります。
 """
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
+from factory_common.paths import repo_root
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -26,18 +28,14 @@ SCOPES = [
 
 
 def main() -> None:
-    base_dir = Path(__file__).resolve().parents[2]
+    base_dir = repo_root()
     client_path = Path(
-        os.environ.get(
-            "YT_OAUTH_CLIENT_PATH",
-            base_dir / "configs" / "drive_oauth_client.json",
-        )
+        os.environ.get("YT_OAUTH_CLIENT_PATH")
+        or (base_dir / "configs" / "drive_oauth_client.json")
     )
     token_path = Path(
-        os.environ.get(
-            "YT_OAUTH_TOKEN_PATH",
-            base_dir / "credentials" / "youtube_publisher_token.json",
-        )
+        os.environ.get("YT_OAUTH_TOKEN_PATH")
+        or (base_dir / "credentials" / "youtube_publisher_token.json")
     )
 
     if not client_path.exists():
