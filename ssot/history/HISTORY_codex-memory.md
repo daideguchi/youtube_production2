@@ -78,3 +78,4 @@
 - 新チャンネル立ち上げ: CH12–CH16 の planning CSV + persona と、まとめて init/メタ補完する `scripts/buddha_senior_5ch_prepare.py` を追加（`workspaces/planning/buddha_senior_5ch_setup.md`）。
 - 画像系プロンプトの絶対パス除去: `packages/commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt` の repo root 記載を `<REPO_ROOT>` に置換。
 - CH12–CH16: UI/台本ライン用のチャンネル情報（script_prompt/channel_info）を追加し、YouTubeハンドルを `@buddha-a001`〜`@buddha-e001` で登録（`packages/script_pipeline/channels/CH12-*`〜`CH16-*`, `configs/sources.yaml`, `workspaces/planning/buddha_senior_5ch_setup.md`）。
+- LLM/音声ガード強化: `LLM_FORCE_MODELS` / `LLM_FORCE_TASK_MODELS_JSON` による実行時モデル上書きと、`script_pipeline.cli`/`audio_tts_v2.scripts.run_tts` の `--llm-model/--llm-task-model` 対応を追加。`run_tts` は `script_validation` 未完了なら停止（`--allow-unvalidated` で例外）。SSOTも追記（`ssot/OPS_LLM_MODEL_CHEATSHEET.md`, `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`）。

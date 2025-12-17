@@ -83,6 +83,18 @@
 - `commentary_02_srt2images_timeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
 
+### 4.0 CLI/Env での一時上書き（ルーター改造なしで可変にする）
+
+目的: 実験/比較/コスト最適化のため、**設定ファイルを編集せず**に「この実行だけ」モデルを差し替える。
+
+- 全タスク共通（model chain を固定）:
+  - `LLM_FORCE_MODELS="or_deepseek_r1_0528,azure_gpt5_mini"`（カンマ区切り。モデルキーは `configs/llm_router.yaml: models` のキー）
+- タスク別（task→model chain）:
+  - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["or_deepseek_r1_0528"],"tts_annotate":["or_deepseek_v3_2_exp"]}'`
+- CLI対応（入口側が上記 env を自動セット）:
+  - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --llm-model or_deepseek_r1_0528`
+  - `PYTHONPATH=".:packages" python -m audio_tts_v2.scripts.run_tts --channel CH06 --video 033 --input ... --llm-model or_deepseek_v3_2_exp`
+
 ### 4.1 Azure/非Azure 50/50 ルーティング（運用レバー）
 
 目的: コスト/品質比較のため、同一タスクを Azure とそれ以外で **約半々**に振り分ける。

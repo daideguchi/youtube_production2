@@ -54,9 +54,19 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--engine-override", choices=["voicevox", "voicepeak", "elevenlabs"], help="Force specific engine")
     
     # LLM Settings (Now managed via .env and Router)
-    p.add_argument("--llm-model", help="[Deprecated] LLM model key (Ignored, uses Router)")
+    p.add_argument("--llm-model", help="Force LLM router model key(s) for this run (comma-separated).")
+    p.add_argument(
+        "--llm-task-model",
+        action="append",
+        help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
+    )
     p.add_argument("--llm-api-key", help="[Deprecated] LLM API Key (Ignored, uses Router)")
     p.add_argument("--llm-timeout", type=int, default=120)
+    p.add_argument(
+        "--allow-unvalidated",
+        action="store_true",
+        help="Allow TTS even when script_validation is not completed (not recommended).",
+    )
 
     # Voicepeak specific (Optional, maybe move to config later)
     p.add_argument("--voicepeak-narrator")
@@ -87,6 +97,28 @@ def main() -> None:
                 os.environ[k.strip()] = v.strip().strip("\"'")
     skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
+
+    # Optional: allow CLI-driven model overrides without editing router config.
+    if args.llm_model:
+        os.environ["LLM_FORCE_MODELS"] = str(args.llm_model).strip()
+    if args.llm_task_model:
+        mapping: dict[str, list[str]] = {}
+        for raw in args.llm_task_model or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-model must be TASK=MODELKEY[,MODELKEY...]; got: {spec}")
+            task, models = spec.split("=", 1)
+            task = task.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-model task is empty: {spec}")
+            model_keys = [m.strip() for m in models.split(",") if m.strip()]
+            if not model_keys:
+                raise SystemExit(f"--llm-task-model models are empty: {spec}")
+            mapping[task] = model_keys
+        if mapping:
+            os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
     if len(args.video) != 3 or not args.video.isdigit():
         raise SystemExit(f"Video number must be 3 digits (e.g., 001); got '{args.video}'")
@@ -131,6 +163,16 @@ def main() -> None:
                     f"[ALIGN] alignment stamp missing. Run `python scripts/enforce_alignment.py --channels {args.channel} --apply` "
                     f"or `python -m script_pipeline.cli reconcile --channel {args.channel} --video {args.video}`."
                 )
+            if not args.allow_unvalidated:
+                stages = payload.get("stages") if isinstance(payload, dict) else None
+                sv = stages.get("script_validation") if isinstance(stages, dict) else None
+                sv_status = sv.get("status") if isinstance(sv, dict) else None
+                if sv_status != "completed":
+                    raise SystemExit(
+                        f"[VALIDATION] script_validation is not completed for {args.channel}-{args.video}. "
+                        f"Run `python -m script_pipeline.cli run --channel {args.channel} --video {args.video} --stage script_validation` "
+                        "or pass --allow-unvalidated."
+                    )
             stored_planning_hash = align.get("planning_hash")
             stored_script_hash = align.get("script_hash")
             if not (isinstance(stored_planning_hash, str) and isinstance(stored_script_hash, str)):

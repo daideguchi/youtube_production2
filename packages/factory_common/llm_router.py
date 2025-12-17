@@ -286,6 +286,50 @@ class LLMRouter:
                 self.clients["gemini"] = "configured" # Client is static
 
     def get_models_for_task(self, task: str) -> List[str]:
+        # Runtime overrides (CLI/UI):
+        # - LLM_FORCE_MODELS="model_key1,model_key2"
+        # - LLM_FORCE_TASK_MODELS_JSON='{"task_name":["model_key1","model_key2"]}'
+        # These allow swapping models without editing router configs.
+        models_conf = self.config.get("models", {}) or {}
+
+        def _split_model_keys(raw: object) -> List[str]:
+            if raw is None:
+                return []
+            if isinstance(raw, list):
+                out: List[str] = []
+                for item in raw:
+                    tok = str(item).strip()
+                    if tok:
+                        out.append(tok)
+                return out
+            text = str(raw).strip()
+            if not text:
+                return []
+            return [p.strip() for p in text.split(",") if p.strip()]
+
+        forced_task_json = (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
+        if forced_task_json:
+            try:
+                mapping = json.loads(forced_task_json)
+                if isinstance(mapping, dict) and task in mapping:
+                    forced = _split_model_keys(mapping.get(task))
+                    forced_valid = [mk for mk in forced if mk in models_conf]
+                    if forced_valid:
+                        return forced_valid
+                    if forced:
+                        logger.warning("LLM_FORCE_TASK_MODELS_JSON: unknown model keys for task=%s: %s", task, forced)
+            except Exception as e:
+                logger.warning("LLM_FORCE_TASK_MODELS_JSON parse failed; ignoring override: %s", e)
+
+        forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
+        if forced_all:
+            forced = _split_model_keys(forced_all)
+            forced_valid = [mk for mk in forced if mk in models_conf]
+            if forced_valid:
+                return forced_valid
+            if forced:
+                logger.warning("LLM_FORCE_MODELS: unknown model keys: %s", forced)
+
         task_conf = self.config.get("tasks", {}).get(task, {})
         override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
         tier = override_conf.get("tier") or task_conf.get("tier") or "standard"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -21,6 +22,16 @@ def parse_args() -> argparse.Namespace:
     common.add_argument("--channel", required=True, help="Channel code, e.g., CH06")
     common.add_argument("--video", required=True, help="Video number, e.g., 033")
     common.add_argument("--title", help="Title (required when initializing a missing status)")
+    common.add_argument(
+        "--llm-model",
+        action="append",
+        help="Force LLM router model key(s) for this run (comma-separated). Can be repeated.",
+    )
+    common.add_argument(
+        "--llm-task-model",
+        action="append",
+        help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
+    )
 
     sub.add_parser("init", parents=[common], help="Initialize status.json if missing")
     run_p = sub.add_parser("run", parents=[common], help="Run specific stage")
@@ -37,6 +48,11 @@ def parse_args() -> argparse.Namespace:
     # Audio command wrapper
     audio_p = sub.add_parser("audio", parents=[common], help="Run audio synthesis")
     audio_p.add_argument("--resume", action="store_true", help="Resume from existing chunks")
+    audio_p.add_argument(
+        "--allow-unvalidated",
+        action="store_true",
+        help="Allow TTS even when script_validation is not completed (not recommended).",
+    )
     
     return parser.parse_args()
 
@@ -47,6 +63,36 @@ def main() -> None:
     no = args.video.zfill(3)
     title = args.title
 
+    # Apply optional LLM overrides for this CLI process.
+    if getattr(args, "llm_model", None):
+        flattened: list[str] = []
+        for raw in args.llm_model or []:
+            for part in str(raw).split(","):
+                part = part.strip()
+                if part:
+                    flattened.append(part)
+        if flattened:
+            os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
+
+    if getattr(args, "llm_task_model", None):
+        mapping: dict[str, list[str]] = {}
+        for raw in args.llm_task_model or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-model must be TASK=MODELKEY[,MODELKEY...]; got: {spec}")
+            task, models = spec.split("=", 1)
+            task = task.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-model task is empty: {spec}")
+            model_keys = [m.strip() for m in models.split(",") if m.strip()]
+            if not model_keys:
+                raise SystemExit(f"--llm-task-model models are empty: {spec}")
+            mapping[task] = model_keys
+        if mapping:
+            os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
+
     if args.command == "audio":
         import subprocess
         
@@ -56,6 +102,20 @@ def main() -> None:
         base_dir = repo_root()
         packages_dir = base_dir / "packages"
         input_path = video_root(ch, no) / "content" / "assembled.md"
+
+        # Safety: require script_validation before TTS unless explicitly overridden.
+        if not getattr(args, "allow_unvalidated", False):
+            try:
+                st = load_status(ch, no)
+            except Exception as exc:
+                raise SystemExit(f"Error: status.json not found for {ch}-{no}: {exc}") from exc
+            sv = st.stages.get("script_validation")
+            if sv is None or sv.status != "completed":
+                raise SystemExit(
+                    f"Error: script_validation is not completed for {ch}-{no}. "
+                    f"Run: python -m script_pipeline.cli run --channel {ch} --video {no} --stage script_validation "
+                    f"(or pass --allow-unvalidated to override)."
+                )
         
         if not input_path.exists():
             print(f"Error: Input file not found: {input_path}")
@@ -69,6 +129,8 @@ def main() -> None:
             "--video", no,
             "--input", str(input_path),
         ]
+        if getattr(args, "allow_unvalidated", False):
+            cmd.append("--allow-unvalidated")
 
         # Write to artifacts/final by default so CapCut/preview always use latest audio/SRT.
         final_dir = audio_final_dir(ch, no)

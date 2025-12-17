@@ -170,6 +170,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
     - `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment.schema == "ytm.alignment.v1"`
     - `run_tts` は **無い/不一致なら停止**（誤台本で音声を作らないため）
     - 修復: `python scripts/enforce_alignment.py --channels CHxx --apply`（または `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
+  - Script品質ゲート（推奨=主線の安全ガード）:
+    - `workspaces/scripts/{CH}/{NNN}/status.json: stages.script_validation.status == "completed"`
+    - `run_tts` / `script_pipeline.cli audio` は未完了なら停止（例外が必要な場合のみ `--allow-unvalidated`）
   - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
     - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
     - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する
