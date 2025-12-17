@@ -89,9 +89,11 @@
 - 統合 cleanup（推奨）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
-  - video runs（unscoped/hiddenも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-archive-unscoped --video-include-hidden-runs` → OKなら `--run --yes`
+  - video runs（unscoped/legacyも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440` → OKなら `--run --yes`
   - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
   - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
+- 復旧（run dir を戻す）:
+  - `python scripts/ops/restore_video_runs.py --report workspaces/video/_archive/<timestamp>/archive_report.json` → OKなら `--run`
 - `scripts/sync_audio_prep_to_final.py`（prep→final不足同期）
 - `scripts/purge_audio_prep_binaries.py`（prep重複wav/srt削除）
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）

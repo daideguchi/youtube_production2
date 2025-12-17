@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+import fnmatch
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -79,6 +80,15 @@ def _move_dir(src: Path, dest: Path) -> None:
         import shutil
 
         shutil.move(str(src), str(dest))
+
+
+def _safe_readlink(path: Path) -> Optional[str]:
+    try:
+        if not path.is_symlink():
+            return None
+        return os.readlink(path)
+    except OSError:
+        return None
 
 
 def _safe_mtime(path: Path) -> float:
@@ -157,6 +167,28 @@ def _is_definitely_unscoped_trash(name: str) -> bool:
     return False
 
 
+_RE_NUMERIC_RUN = re.compile(r"^\d{3}(?:_\d{8}_\d{6})?$")
+_RE_CH_WITH_DIGITS = re.compile(r"^CH\d{2}[^0-9]*\d{3}.*$", re.IGNORECASE)
+
+
+def _is_unscoped_legacy_candidate(name: str) -> bool:
+    """
+    "Legacy" (not necessarily trash) run dirs that are unscoped but commonly safe to archive.
+
+    This is opt-in via --archive-unscoped-legacy.
+    """
+    if _RE_NUMERIC_RUN.match(name):
+        return True
+    lower = name.lower()
+    if lower.startswith(("api_", "jinsei")):
+        return True
+    if _RE_CH_WITH_DIGITS.match(name):
+        return True
+    if re.match(r"^CH\d{2}-$", name, re.IGNORECASE):
+        return True
+    return False
+
+
 @dataclass(frozen=True)
 class RunInfo:
     run_id: str
@@ -171,6 +203,8 @@ class RunInfo:
     has_belt_config: bool
     activity_mtime: float
     draft_info_mtime: float
+    capcut_draft_target: Optional[str]
+    capcut_draft_target_exists: bool
 
     def sort_key(self) -> tuple[Any, ...]:
         return (self.has_capcut_draft, self.draft_info_mtime, self.activity_mtime, self.run_id)
@@ -187,6 +221,8 @@ class RunInfo:
             "has_belt_config": self.has_belt_config,
             "activity_mtime": self.activity_mtime,
             "draft_info_mtime": self.draft_info_mtime,
+            "capcut_draft_target": self.capcut_draft_target,
+            "capcut_draft_target_exists": self.capcut_draft_target_exists,
         }
 
 
@@ -203,6 +239,13 @@ def _iter_runs(*, include_hidden_runs: bool) -> list[RunInfo]:
         vid = ep_key[1] if ep_key else None
         episode = f"{ch}-{vid}" if (ch and vid) else None
         capcut_link = run_dir / "capcut_draft"
+        capcut_target = _safe_readlink(capcut_link)
+        capcut_target_exists = False
+        if capcut_target:
+            target_path = Path(capcut_target)
+            if not target_path.is_absolute():
+                target_path = (capcut_link.parent / target_path).resolve()
+            capcut_target_exists = target_path.exists()
         draft_info = run_dir / "capcut_draft_info.json"
         out.append(
             RunInfo(
@@ -218,6 +261,8 @@ def _iter_runs(*, include_hidden_runs: bool) -> list[RunInfo]:
                 has_belt_config=(run_dir / "belt_config.json").exists(),
                 activity_mtime=_activity_mtime(run_dir),
                 draft_info_mtime=_safe_mtime(draft_info) if draft_info.exists() else 0.0,
+                capcut_draft_target=capcut_target,
+                capcut_draft_target_exists=capcut_target_exists,
             )
         )
     return out
@@ -232,17 +277,26 @@ def main() -> int:
     ap.add_argument("--video", action="append", help="Target video (repeatable). Requires --channel unless --all.")
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recently active runs (default: 360).")
     ap.add_argument("--keep-last-runs", type=int, default=2, help="Keep at least N top candidates per episode (default: 2).")
-    ap.add_argument("--archive-unscoped", action="store_true", help="Also archive unscoped dirs that look like trash.")
+    ap.add_argument("--archive-unscoped", action="store_true", help="Also archive unscoped dirs that look like definite trash.")
+    ap.add_argument(
+        "--archive-unscoped-legacy",
+        action="store_true",
+        help="Also archive unscoped legacy dirs (numeric/api_/jinsei*/CHxx... patterns).",
+    )
+    ap.add_argument("--unscoped-only", action="store_true", help="Only process unscoped dirs (do not archive scoped runs).")
     ap.add_argument("--include-hidden-runs", action="store_true", help="Include runs starting with _ or .")
     ap.add_argument("--archive-root", help="Override archive root (default: workspaces/video/_archive/<timestamp>).")
+    ap.add_argument("--exclude-run-glob", action="append", help="Skip run dirs matching these globs (repeatable).")
     args = ap.parse_args()
 
+    if args.unscoped_only and args.video:
+        ap.error("--unscoped-only cannot be combined with --video")
     if args.video and not args.channel and not args.all:
         ap.error("--video requires --channel (or use --all)")
-    if not args.all and not args.channel:
+    if not args.all and not args.channel and not args.unscoped_only:
         ap.error("provide --channel (repeatable) or use --all")
-    if args.run and args.all and not args.yes:
-        ap.error("--run --all requires --yes")
+    if args.run and (args.all or args.unscoped_only) and not args.yes:
+        ap.error("--run requires --yes when using --all or --unscoped-only")
 
     channels = {str(ch).strip().upper() for ch in (args.channel or []) if str(ch).strip()}
     videos = {str(v).strip().zfill(3) for v in (args.video or []) if str(v).strip()}
@@ -259,8 +313,12 @@ def main() -> int:
     include_hidden = bool(args.include_hidden_runs)
     keep_last = max(1, int(args.keep_last_runs))
     do_run = bool(args.run)
+    unscoped_only = bool(args.unscoped_only)
 
     runs = _iter_runs(include_hidden_runs=include_hidden)
+    exclude_globs = [str(x).strip() for x in (args.exclude_run_glob or []) if str(x).strip()]
+    if exclude_globs:
+        runs = [r for r in runs if not any(fnmatch.fnmatchcase(r.run_id, g) for g in exclude_globs)]
 
     # Filter runs to requested channels/videos (scoped runs only).
     scoped: list[RunInfo] = []
@@ -290,58 +348,61 @@ def main() -> int:
     def is_recent(run: RunInfo) -> bool:
         return bool(keep_recent_sec and (now - run.activity_mtime) < keep_recent_sec)
 
-    for episode, items in sorted(groups.items()):
-        ch, vid = (episode.split("-", 1) + [""])[:2]
-        selected = _selected_run_id(ch, vid) if ch and vid else None
-        protected: set[str] = set()
-        if selected:
-            protected.add(selected)
+    if not unscoped_only:
+        for episode, items in sorted(groups.items()):
+            ch, vid = (episode.split("-", 1) + [""])[:2]
+            selected = _selected_run_id(ch, vid) if ch and vid else None
+            protected: set[str] = set()
+            if selected:
+                protected.add(selected)
 
-        # Always keep recent runs.
-        for r in items:
-            if is_recent(r):
-                protected.add(r.run_id)
-
-        # Keep top-N candidates for safety (even if not recent).
-        for r in items[:keep_last]:
-            protected.add(r.run_id)
-
-        for r in items:
-            if (r.run_dir / ".keep").exists():
-                protected.add(r.run_id)
-                continue
-
-        for r in items:
-            if r.run_id in protected:
+            # Always keep recent runs.
+            for r in items:
                 if is_recent(r):
-                    skipped_recent.append(r.run_id)
-                else:
-                    skipped_keep.append(r.run_id)
-                continue
+                    protected.add(r.run_id)
 
-            dest = archive_root / (r.channel or "_unknown") / "runs" / r.run_id
-            record = {
-                "run_id": r.run_id,
-                "episode": episode,
-                "src": str(r.run_dir),
-                "dest": str(dest),
-                "reason": "episode_unselected",
-                "selected_run_id": selected,
-                "has_capcut_draft": r.has_capcut_draft,
-                "draft_info_mtime": r.draft_info_mtime,
-                "activity_mtime": r.activity_mtime,
-            }
-            moves.append(record)
-            if do_run:
-                try:
-                    _move_dir(r.run_dir, dest)
-                except Exception as exc:
-                    warnings.append(f"failed to archive {r.run_id}: {exc}")
+            # Keep top-N candidates for safety (even if not recent).
+            for r in items[:keep_last]:
+                protected.add(r.run_id)
 
-    if args.archive_unscoped:
+            for r in items:
+                if (r.run_dir / ".keep").exists():
+                    protected.add(r.run_id)
+                    continue
+
+            for r in items:
+                if r.run_id in protected:
+                    if is_recent(r):
+                        skipped_recent.append(r.run_id)
+                    else:
+                        skipped_keep.append(r.run_id)
+                    continue
+
+                dest = archive_root / (r.channel or "_unknown") / "runs" / r.run_id
+                record = {
+                    "run_id": r.run_id,
+                    "episode": episode,
+                    "src": str(r.run_dir),
+                    "dest": str(dest),
+                    "reason": "episode_unselected",
+                    "selected_run_id": selected,
+                    "has_capcut_draft": r.has_capcut_draft,
+                    "capcut_draft_target": r.capcut_draft_target,
+                    "capcut_draft_target_exists": r.capcut_draft_target_exists,
+                    "draft_info_mtime": r.draft_info_mtime,
+                    "activity_mtime": r.activity_mtime,
+                }
+                moves.append(record)
+                if do_run:
+                    try:
+                        _move_dir(r.run_dir, dest)
+                    except Exception as exc:
+                        warnings.append(f"failed to archive {r.run_id}: {exc}")
+
+    if args.archive_unscoped or args.archive_unscoped_legacy:
         for r in unscoped:
-            if not args.all:
-                # Unscoped cannot be reliably filtered by channel; only allow in --all mode.
+            if not args.all and not unscoped_only:
+                # Unscoped cannot be reliably filtered by channel; require --all unless explicitly unscoped-only.
                 continue
             if (r.run_dir / ".keep").exists():
                 skipped_keep.append(r.run_id)
@@ -349,7 +410,13 @@ def main() -> int:
             if is_recent(r):
                 skipped_recent.append(r.run_id)
                 continue
-            if not _is_definitely_unscoped_trash(r.run_id):
+
+            reason = None
+            if args.archive_unscoped and _is_definitely_unscoped_trash(r.run_id):
+                reason = "unscoped_definite"
+            elif args.archive_unscoped_legacy and _is_unscoped_legacy_candidate(r.run_id):
+                reason = "unscoped_legacy"
+            if not reason:
                 continue
 
             dest = archive_root / "_unscoped" / "runs" / r.run_id
@@ -358,8 +425,10 @@ def main() -> int:
                 "episode": None,
                 "src": str(r.run_dir),
                 "dest": str(dest),
-                "reason": "unscoped_definite",
+                "reason": reason,
                 "has_capcut_draft": r.has_capcut_draft,
+                "capcut_draft_target": r.capcut_draft_target,
+                "capcut_draft_target_exists": r.capcut_draft_target_exists,
                 "draft_info_mtime": r.draft_info_mtime,
                 "activity_mtime": r.activity_mtime,
             }
@@ -379,11 +448,14 @@ def main() -> int:
             "channels": sorted(channels),
             "videos": sorted(videos),
             "include_hidden_runs": include_hidden,
+            "exclude_run_globs": exclude_globs,
         },
         "policy": {
             "keep_recent_minutes": int(args.keep_recent_minutes),
             "keep_last_runs": keep_last,
             "archive_unscoped": bool(args.archive_unscoped),
+            "archive_unscoped_legacy": bool(args.archive_unscoped_legacy),
+            "unscoped_only": bool(unscoped_only),
         },
         "archive_root": str(archive_root),
         "counters": {

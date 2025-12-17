@@ -82,7 +82,14 @@ def main() -> int:
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recently modified artifacts.")
     ap.add_argument("--video-keep-last-runs", type=int, default=2, help="Keep at least N run dirs per episode (video domain).")
     ap.add_argument("--video-archive-unscoped", action="store_true", help="Also archive unscoped run dirs that look like trash (video domain; requires --all).")
+    ap.add_argument(
+        "--video-archive-unscoped-legacy",
+        action="store_true",
+        help="Also archive unscoped legacy run dirs (numeric/api_/jinsei*/CHxx... patterns; video domain; requires --all).",
+    )
+    ap.add_argument("--video-unscoped-only", action="store_true", help="Only process unscoped dirs (video domain).")
     ap.add_argument("--video-include-hidden-runs", action="store_true", help="Include runs starting with _ or . (video domain).")
+    ap.add_argument("--video-exclude-run-glob", action="append", help="Skip run dirs matching these globs (repeatable; video domain).")
     ap.add_argument("--logs-keep-days", type=int, default=30, help="Keep logs newer than this many days (default: 30).")
     ap.add_argument("--scripts-keep-days", type=int, default=14, help="Keep script intermediates newer than this many days (default: 14).")
     ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune logs/llm_api_cache (default: keep).")
@@ -105,10 +112,13 @@ def main() -> int:
         ap.error("--video requires --channel (or use --all)")
     if "audio" in domains and not args.all and not args.channel:
         ap.error("provide --channel (repeatable) or use --all")
-    if "video_runs" in domains and not args.all and not args.channel:
+    if "video_runs" in domains and not args.all and not args.channel and not args.video_unscoped_only:
         ap.error("provide --channel (repeatable) or use --all")
-    if do_run and args.all and not args.yes and ("audio" in domains or "video_runs" in domains):
-        ap.error("--run --all requires --yes")
+    if do_run and not args.yes and ("audio" in domains or "video_runs" in domains):
+        if args.all:
+            ap.error("--run --all requires --yes")
+        if "video_runs" in domains and args.video_unscoped_only:
+            ap.error("--run --video-unscoped-only requires --yes")
 
     channels: list[str] | None = None
     videos: list[str] | None = None
@@ -143,7 +153,10 @@ def main() -> int:
     if "video_runs" in domains:
         print(
             f"[cleanup_workspace] video.keep_last_runs={int(args.video_keep_last_runs)} "
-            f"archive_unscoped={bool(args.video_archive_unscoped)} include_hidden={bool(args.video_include_hidden_runs)}",
+            f"archive_unscoped={bool(args.video_archive_unscoped)} "
+            f"archive_unscoped_legacy={bool(args.video_archive_unscoped_legacy)} "
+            f"unscoped_only={bool(args.video_unscoped_only)} "
+            f"include_hidden={bool(args.video_include_hidden_runs)}",
             flush=True,
         )
 
@@ -194,8 +207,15 @@ def main() -> int:
             args_video += ["--keep-last-runs", str(int(args.video_keep_last_runs))]
             if args.video_archive_unscoped:
                 args_video.append("--archive-unscoped")
+            if args.video_archive_unscoped_legacy:
+                args_video.append("--archive-unscoped-legacy")
+            if args.video_unscoped_only:
+                args_video.append("--unscoped-only")
             if args.video_include_hidden_runs:
                 args_video.append("--include-hidden-runs")
+            if args.video_exclude_run_glob:
+                for glob in args.video_exclude_run_glob:
+                    args_video += ["--exclude-run-glob", str(glob)]
             if channels:
                 for ch in channels:
                     args_video += ["--channel", ch]

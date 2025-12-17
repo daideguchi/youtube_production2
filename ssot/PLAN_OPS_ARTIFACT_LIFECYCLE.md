@@ -207,9 +207,9 @@ python -m scripts.cleanup_workspace --channel CH06 --video 033 --run
 python -m scripts.cleanup_workspace --video-runs --channel CH06 --video 033 --dry-run
 python -m scripts.cleanup_workspace --video-runs --channel CH06 --video 033 --run
 
-# video runs（unscoped/hidden のテスト残骸も対象にする場合）
-python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-archive-unscoped --video-include-hidden-runs
-python -m scripts.cleanup_workspace --video-runs --all --run --yes --video-archive-unscoped --video-include-hidden-runs
+# video runs（unscoped/legacy run をまとめて退避する場合）
+python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440
+python -m scripts.cleanup_workspace --video-runs --all --run --yes --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440
 
 # logs（L3ローテ）
 python -m scripts.cleanup_workspace --logs --dry-run
