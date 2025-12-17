@@ -11389,6 +11389,21 @@ button:hover:not(:disabled) {
   font-size: 24px;
   color: #0f172a;
 }
+
+.channel-settings-page__controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.channel-settings-page__select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #475569;
+}
 .channel-settings-page__controls select {
   min-width: 140px;
   border-radius: 8px;

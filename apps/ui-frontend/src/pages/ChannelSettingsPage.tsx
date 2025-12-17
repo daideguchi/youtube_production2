@@ -108,16 +108,33 @@ function SectionCard({
   actions,
   children,
   defaultOpen = true,
+  open: openOverride,
+  onOpenChange,
+  id,
 }: {
   title: string;
   description?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  id?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const isControlled = openOverride !== undefined;
+  const effectiveOpen = isControlled ? Boolean(openOverride) : open;
+  const handleSetOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) {
+        setOpen(next);
+      }
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange]
+  );
   return (
-    <section className={`channel-settings-card${open ? " is-open" : ""}`}>
+    <section id={id} className={`channel-settings-card${effectiveOpen ? " is-open" : ""}`}>
       <header className="channel-settings-card__header">
         <div>
           <h3>{title}</h3>
@@ -128,13 +145,13 @@ function SectionCard({
           <button
             type="button"
             className="channel-settings-card__toggle"
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => handleSetOpen(!effectiveOpen)}
           >
-            {open ? "最小化" : "展開"}
+            {effectiveOpen ? "最小化" : "展開"}
           </button>
         </div>
       </header>
-      {open ? <div className="channel-settings-card__body">{children}</div> : null}
+      {effectiveOpen ? <div className="channel-settings-card__body">{children}</div> : null}
     </section>
   );
 }
@@ -218,6 +235,7 @@ export function ChannelSettingsPage() {
     success: null,
     error: null,
   });
+  const [registerSectionOpen, setRegisterSectionOpen] = useState(false);
   const [channelRegister, setChannelRegister] = useState<{
     channelCode: string;
     channelName: string;
@@ -871,6 +889,19 @@ export function ChannelSettingsPage() {
               ))}
             </select>
           </label>
+          <button
+            type="button"
+            className="channel-settings-page__button channel-settings-page__button--primary"
+            onClick={() => {
+              setRegisterSectionOpen(true);
+              window.setTimeout(() => {
+                const el = document.getElementById("channel-register");
+                el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 0);
+            }}
+          >
+            ＋ 新規チャンネル追加
+          </button>
         </div>
       </header>
 
@@ -897,11 +928,17 @@ export function ChannelSettingsPage() {
       <SectionCard
         title="新規チャンネル登録（ハンドル必須）"
         description="YouTubeハンドル(@name)だけで一意特定し、channels/channel_info + planning/persona + sources.yaml を自動生成します。"
+        id="channel-register"
+        open={registerSectionOpen}
+        onOpenChange={setRegisterSectionOpen}
         defaultOpen={false}
       >
-        <div className="channel-settings-page__library-filters">
+        <p className="channel-settings-page__quick-add-description">
+          入力は「CHコード / 表示名 / YouTubeハンドル」の3つが必須です。登録後にページを再読み込みします。
+        </p>
+        <div className="channel-settings-page__quick-add-form">
           <label>
-            <span>CHコード</span>
+            <span>CHコード（必須）</span>
             <input
               type="text"
               value={channelRegister.channelCode}
@@ -913,7 +950,7 @@ export function ChannelSettingsPage() {
             />
           </label>
           <label>
-            <span>表示名</span>
+            <span>表示名（必須）</span>
             <input
               type="text"
               value={channelRegister.channelName}
@@ -923,7 +960,7 @@ export function ChannelSettingsPage() {
             />
           </label>
           <label>
-            <span>YouTubeハンドル</span>
+            <span>YouTubeハンドル（必須）</span>
             <input
               type="text"
               value={channelRegister.youtubeHandle}
