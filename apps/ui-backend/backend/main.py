@@ -9350,7 +9350,7 @@ class BatchTtsProgressResponse(BaseModel):
 @app.get("/api/batch-tts/progress", response_model=BatchTtsProgressResponse)
 def get_batch_tts_progress():
     """バッチTTS再生成の進捗を取得"""
-    progress_file = PROJECT_ROOT / "batch_tts_progress.json"
+    progress_file = UI_LOG_DIR / "batch_tts_progress.json"
     if not progress_file.exists():
         return BatchTtsProgressResponse(
             status="idle",
@@ -9378,7 +9378,9 @@ async def start_batch_tts_regeneration(
     background_tasks: BackgroundTasks = None,
 ):
     """バッチTTS再生成をバックグラウンドで開始"""
-    progress_file = PROJECT_ROOT / "batch_tts_progress.json"
+    UI_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    progress_file = UI_LOG_DIR / "batch_tts_progress.json"
+    log_file = UI_LOG_DIR / "batch_tts_regeneration.log"
     # 既に実行中かチェック
     if progress_file.exists():
         try:
@@ -9388,31 +9390,66 @@ async def start_batch_tts_regeneration(
         except json.JSONDecodeError:
             pass
     
+    channels_norm = [str(ch).strip().upper() for ch in (channels or []) if str(ch).strip()]
+    if not channels_norm:
+        raise HTTPException(status_code=400, detail="channels is empty")
+
+    # Count targets (best-effort) so UI can show a realistic progress bar immediately.
+    per_channel_totals: Dict[str, Any] = {}
+    total_targets = 0
+    for ch in channels_norm:
+        count = 0
+        try:
+            ch_dir = DATA_ROOT / ch
+            if ch_dir.exists():
+                for p in ch_dir.iterdir():
+                    if p.is_dir() and p.name.isdigit():
+                        count += 1
+        except Exception:
+            count = 0
+        per_channel_totals[ch] = {"total": count, "completed": 0, "success": 0, "failed": 0}
+        total_targets += count
+
     # 進捗初期化
     initial_progress = {
         "status": "running",
         "current_channel": None,
         "current_video": None,
         "completed": 0,
-        "total": 145,
+        "total": int(total_targets),
         "success": 0,
         "failed": 0,
         "current_step": "開始中...",
         "errors": [],
         "updated_at": datetime.now().isoformat(),
-        "channels": {
-            "CH06": {"total": 33, "completed": 0, "success": 0, "failed": 0},
-            "CH02": {"total": 82, "completed": 0, "success": 0, "failed": 0},
-            "CH04": {"total": 30, "completed": 0, "success": 0, "failed": 0},
-        },
+        "channels": per_channel_totals,
     }
     progress_file.write_text(json.dumps(initial_progress, ensure_ascii=False, indent=2), encoding="utf-8")
     
+    # Clear previous log so the UI shows the current run only.
+    try:
+        log_file.write_text("", encoding="utf-8")
+    except Exception:
+        pass
+
     # バックグラウンドでスクリプト実行
     env = os.environ.copy()
-    env["PYTHONPATH"] = str(PROJECT_ROOT / "audio_tts_v2")
+    pythonpath = env.get("PYTHONPATH", "")
+    base_paths = [str(PROJECT_ROOT), str(PROJECT_ROOT / "packages")]
+    if pythonpath:
+        base_paths.append(pythonpath)
+    env["PYTHONPATH"] = os.pathsep.join(base_paths)
+    runner = PROJECT_ROOT / "scripts" / "batch_regenerate_tts.py"
     subprocess.Popen(
-        [sys.executable, str(PROJECT_ROOT / "batch_regenerate_tts.py")],
+        [
+            sys.executable,
+            str(runner),
+            "--progress-path",
+            str(progress_file),
+            "--log-path",
+            str(log_file),
+            *[arg for ch in channels_norm for arg in ("--channel", ch)],
+        ],
         cwd=str(PROJECT_ROOT),
         env=env,
         stdout=subprocess.DEVNULL,
@@ -9425,7 +9462,7 @@ async def start_batch_tts_regeneration(
 @app.get("/api/batch-tts/log")
 def get_batch_tts_log(tail: int = Query(100, ge=10, le=1000)):
     """バッチTTS再生成のログを取得"""
-    log_file = PROJECT_ROOT / "batch_tts_regeneration.log"
+    log_file = UI_LOG_DIR / "batch_tts_regeneration.log"
     if not log_file.exists():
         return PlainTextResponse("ログファイルがありません。バッチを開始してください。")
     try:
@@ -9438,7 +9475,8 @@ def get_batch_tts_log(tail: int = Query(100, ge=10, le=1000)):
 @app.post("/api/batch-tts/reset")
 def reset_batch_tts_progress():
     """バッチTTS進捗をリセット（待機状態に戻す）"""
-    progress_file = PROJECT_ROOT / "batch_tts_progress.json"
+    progress_file = UI_LOG_DIR / "batch_tts_progress.json"
+    log_file = UI_LOG_DIR / "batch_tts_regeneration.log"
     if progress_file.exists():
         try:
             data = json.loads(progress_file.read_text(encoding="utf-8"))
@@ -9448,6 +9486,10 @@ def reset_batch_tts_progress():
         except json.JSONDecodeError:
             pass
         progress_file.unlink()
+    try:
+        log_file.unlink()
+    except Exception:
+        pass
     return {"status": "reset", "message": "バッチ進捗をリセットしました。"}
 
 

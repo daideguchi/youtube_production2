@@ -51,6 +51,14 @@ async function fetchBatchLog(): Promise<string> {
     }
 }
 
+async function resetBatch(): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/api/batch-tts/reset`, { method: "POST" });
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Failed: ${res.status}`);
+    }
+}
+
 const CHANNEL_CONFIG = [
     { code: "CH06", name: "禁断の知恵袋", count: 33 },
     { code: "CH02", name: "人生の道標", count: 82 },
@@ -105,6 +113,17 @@ export function BatchTtsProgressPanel() {
             setStarting(false);
         }
     }, [selectedChannels, refresh]);
+
+    const handleReset = useCallback(async () => {
+        try {
+            await resetBatch();
+            setShowLog(false);
+            setLogContent("");
+            await refresh();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
+        }
+    }, [refresh]);
 
     const toggleChannel = (code: string) => {
         setSelectedChannels(prev => {
@@ -323,10 +342,7 @@ export function BatchTtsProgressPanel() {
                     )}
                     <button
                         className="batch-panel__btn batch-panel__btn--primary"
-                        onClick={() => {
-                            // リセット（新しいバッチを開始可能に）
-                            setProgress({ ...progress, status: "idle" });
-                        }}
+                        onClick={() => void handleReset()}
                     >
                         新しいバッチを開始
                     </button>
