@@ -1,9 +1,10 @@
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChannelOverviewPanel } from "../components/ChannelOverviewPanel";
 import { ChannelProjectList } from "../components/ChannelProjectList";
 import type { ShellOutletContext } from "../layouts/AppShell";
 
 export function ChannelOverviewPage() {
+  const navigate = useNavigate();
   const {
     selectedChannel,
     selectedChannelSummary,
@@ -30,6 +31,22 @@ export function ChannelOverviewPage() {
         <div className="shell-panel shell-panel--placeholder">
           <h2>チャンネルを選択してください</h2>
           <p className="shell-panel__subtitle">サイドバーからチャンネルを選ぶと案件一覧が表示されます。</p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+            <button
+              type="button"
+              className="workspace-button workspace-button--primary"
+              onClick={() => navigate("/channel-settings?add=1#channel-register")}
+            >
+              ＋ 新規チャンネル登録
+            </button>
+            <button
+              type="button"
+              className="workspace-button workspace-button--ghost"
+              onClick={() => navigate("/channel-settings")}
+            >
+              チャンネル設定を開く
+            </button>
+          </div>
         </div>
       </section>
     );

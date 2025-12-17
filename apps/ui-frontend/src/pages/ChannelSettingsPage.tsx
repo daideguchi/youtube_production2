@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { ChannelProfilePanel } from "../components/ChannelProfilePanel";
 import {
   fetchPlanningRows,
@@ -192,6 +192,7 @@ function extractProfileSummary(profile: ChannelProfileResponse | null) {
 
 export function ChannelSettingsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     channels,
     selectedChannel,
@@ -292,6 +293,20 @@ export function ChannelSettingsPage() {
         }, 3200);
       });
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const shouldOpen =
+      location.hash === "#channel-register" || params.get("open") === "register" || params.get("add") === "1";
+    if (!shouldOpen) {
+      return;
+    }
+    setRegisterSectionOpen(true);
+    window.setTimeout(() => {
+      const el = document.getElementById("channel-register");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, [location.hash, location.search]);
 
   const targetColumns = useMemo(
     () => [
