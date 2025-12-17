@@ -13,6 +13,8 @@ except Exception:  # pragma: no cover
 
 from .reading_structs import RiskySpan, RubyToken
 
+from factory_common.paths import audio_pkg_root, repo_root
+
 
 def _normalize(text: str) -> str:
     table = str.maketrans("０１２３４５６７８９．，", "0123456789.,")
@@ -95,7 +97,11 @@ def load_hazard_terms(path: Path | None = None) -> Set[str]:
     """Load hazard entries from YAML. Returns a set of surfaces."""
 
     if path is None:
-        path = Path(__file__).resolve().parents[1] / "data" / "hazard_readings.yaml"
+        candidates = [
+            repo_root() / "data" / "hazard_readings.yaml",
+            audio_pkg_root() / "data" / "hazard_readings.yaml",
+        ]
+        path = next((p for p in candidates if p.exists()), candidates[0])
     if not path.exists():
         return set()
     if yaml is None:

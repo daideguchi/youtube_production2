@@ -78,3 +78,25 @@ def test_group_risky_terms_limits_examples():
     grouped = risk_utils.group_risky_terms(spans, max_examples=2)
     # single key, capped examples
     assert grouped[("AI", "hazard:AI")] == [0, 1]
+
+
+def test_load_hazard_terms_prefers_repo_root_data(tmp_path, monkeypatch):
+    from factory_common import paths as fc_paths
+
+    hazard_dir = tmp_path / "data"
+    hazard_dir.mkdir(parents=True, exist_ok=True)
+    (hazard_dir / "hazard_readings.yaml").write_text(
+        "entries:\n"
+        "  - term: \"テスト\"\n"
+        "    reading: \"てすと\"\n"
+        "    score: 0.9\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("YTM_REPO_ROOT", str(tmp_path))
+    fc_paths.repo_root.cache_clear()
+    try:
+        terms = risk_utils.load_hazard_terms()
+        assert "テスト" in terms
+    finally:
+        fc_paths.repo_root.cache_clear()
