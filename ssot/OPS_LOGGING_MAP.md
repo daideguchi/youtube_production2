@@ -43,9 +43,11 @@
 - `logs/llm_usage.jsonl`  
   - Writer:
     - `factory_common/llm_client.py`（LLMClient。legacy スキーマ: `ts`, `task`, `provider`, `model`, `usage`）
-    - `factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `timestamp`）
+    - `factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `retry?`, `cache?`, `routing?`, `timestamp`）
     - `factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`）
   - 形式: 1行JSON（複数スキーマ混在。将来的に schema_version で統一予定）
+  - `routing`（任意）:
+    - `LLM_AZURE_SPLIT_RATIO` が設定されている場合、Azure/非Azure の振り分け情報（policy/ratio/bucket/preferred_provider/routing_key）を出力する
   - Reader/UI: `ui/backend/routers/llm_usage.py`, `scripts/aggregate_llm_usage.py`
   - 種別: **L1**
 

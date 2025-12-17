@@ -162,6 +162,10 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **Inputs**
 - Aテキスト: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（互換: `script_pipeline/data/...`）
   - もし `assembled_human.md` が存在し内容差分があれば、run_tts が自動で `assembled.md` に同期（human版が正本）。
+  - Planning ↔ Script の整合スタンプ（必須）:
+    - `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment.schema == "ytm.alignment.v1"`
+    - `run_tts` は **無い/不一致なら停止**（誤台本で音声を作らないため）
+    - 修復: `python scripts/enforce_alignment.py --channels CHxx --apply`（または `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
   - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
     - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
     - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する

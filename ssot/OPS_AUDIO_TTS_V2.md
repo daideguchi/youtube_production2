@@ -36,6 +36,12 @@
 ### 1.2 直叩き（audio_tts_v2）
 - `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled.md`（互換: `script_pipeline/data/...`）
 
+### 1.3 整合ガード（Planning ↔ Script）
+- `run_tts` は `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment`（schema=`ytm.alignment.v1`）を検証し、**無い/不一致なら停止**する（誤台本で音声を作らないため）。
+- 修復:
+  - `python scripts/enforce_alignment.py --channels CHxx --apply`（整合スタンプを再作成）
+  - もしくは `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`（台本/進捗の再整合→スタンプ更新）
+
 ---
 
 ## 2. 使い方（よくある運用）

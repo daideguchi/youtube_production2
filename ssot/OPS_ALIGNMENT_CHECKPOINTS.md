@@ -61,6 +61,8 @@
 推奨:
 - [ ] `log.json` の `channel/video` とディレクトリ `{CH}/{NNN}` が一致する
 - [ ] 中間生成物（`workspaces/scripts/.../audio_prep/`。互換: `script_pipeline/data/...`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
+- [ ] `run_tts` 実行前に `status.json: metadata.alignment` が最新である（無い/不一致なら `run_tts` が停止する）
+  - 再スタンプ: `python scripts/enforce_alignment.py --channels CHxx --apply`
 
 ---
 
