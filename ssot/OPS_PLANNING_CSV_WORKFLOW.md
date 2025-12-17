@@ -88,3 +88,22 @@ Planning CSV を更新しても、既に生成済みの台本/音声/動画は�
 - `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）`
 
 ヘッダ例は `ssot/OPS_IO_SCHEMAS.md` を参照。
+
+---
+
+## 6. 投稿済みロック（最終固定 / 触らない指標）
+
+- Planning CSV の `進捗=投稿済み` は **公開済みロック**（以後は原則触らない）。
+- ロックを立てると、UI/運用上は「この動画は完了。リテイク対象外」と見なせる。
+
+### 6.1 UI から投稿済みにする（推奨）
+- 画面: `Progress` → 行クリック → 詳細モーダル → `投稿済みにする（ロック）`
+- 効果:
+  - `進捗=投稿済み`
+  - `納品` / `音声整形` / `音声検証` / `音声生成` / `音声品質` を **空欄なら強制埋め**（"forced" と明示）
+  - `status.json` が存在する場合は `metadata.published_lock=true` と `redo_* = false` を付与
+  - ロック中は `redo_script/redo_audio` の UI 変更を禁止（誤操作防止）
+
+### 6.2 API（UI内部利用）
+- `POST /api/channels/{CH}/videos/{NNN}/published`
+  - payload: `{ "force_complete": true, "published_at": "YYYY-MM-DD" }`（`published_at` は省略可）

@@ -355,6 +355,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - Status=`uploaded`
   - YouTube Video ID
   - UpdatedAt
+- ローカル側の最終固定（推奨）:
+  - Planning CSV の該当行を `進捗=投稿済み` にして **投稿済みロック**（以後は原則触らない指標）
+  - UI: `Progress` 画面の `投稿済みにする（ロック）`（内部API: `POST /api/channels/{CH}/videos/{NNN}/published`）
 
 ---
 
