@@ -11,10 +11,32 @@ import path from "path";
 import dotenv from "dotenv";
 
 (() => {
-  const p = path.join(process.cwd(), ".env");
-  if (fs.existsSync(p)) dotenv.config({ path: p });
-  const alt = "/Users/dd/youtube_master/.env";
-  if (fs.existsSync(alt)) dotenv.config({ path: alt, override: false });
+  const findRepoRoot = (startDir) => {
+    let dir = startDir;
+    for (let i = 0; i < 12; i++) {
+      if (fs.existsSync(path.join(dir, "pyproject.toml"))) return dir;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    return null;
+  };
+
+  const candidates = [];
+  const repoRoot = findRepoRoot(process.cwd());
+  if (repoRoot) candidates.push(path.join(repoRoot, ".env"));
+  candidates.push(path.join(process.cwd(), ".env"));
+
+  const home = process.env.HOME || process.env.USERPROFILE;
+  if (home) candidates.push(path.join(home, ".env"));
+
+  const extra = process.env.YTM_ENV_PATH;
+  if (extra) candidates.push(extra);
+
+  for (const p of candidates) {
+    if (!p) continue;
+    if (fs.existsSync(p)) dotenv.config({ path: p, override: false });
+  }
 })();
 
 function parseArgs() {
