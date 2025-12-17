@@ -5,6 +5,7 @@
 ## ディレクトリ構成
 
 - `projects.json`: サムネイル管理のメインデータストア。各チャンネル・各企画のサムネイル案とステータスを保持します。
+- `templates.json`: チャンネルごとの「サムネの型（テンプレ）」管理ストア。AI生成用のプロンプト雛形・使用モデルキーなどを保持します。
 - `assets/`: サムネイル画像ファイルを配置する予定のパス。UI からドラッグ＆ドロップでアップロードすると `assets/{CHxx}/{video}/` が自動生成され、`projects.json` の `image_path` で相対指定すると `/thumbnails/assets/...` から配信されます。
 - `ui/`: UI 実装メモやコンポーネント設計など、フロントエンド側の補助資料を配置。
 - `automation/`（任意）：サムネイル自動生成のためのスクリプトを追加していく想定。
@@ -51,6 +52,8 @@
 FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エンドポイントを提供します。
 
 - `GET /api/workspaces/thumbnails` : 全チャンネルのサムネイル概要（projects.json統合）を返却。
+- `GET /api/workspaces/thumbnails/image-models` : `configs/image_models.yaml` から画像生成モデルキー一覧を取得（テンプレ作成補助）。
+- `GET|PUT /api/workspaces/thumbnails/{channel}/templates` : チャンネル別のサムネテンプレ（templates.json）を取得・更新。
 - `PATCH /api/workspaces/thumbnails/{channel}/{video}` : 企画メタ（status/notes/tags/selected_variant 等）を更新。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants` : バリアント登録（URL/メタのみ）。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload` : 画像アップロード→ `thumbnails/assets/{CHxx}/{video}/` に保存しバリアント化。
