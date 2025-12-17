@@ -141,3 +141,11 @@ planning を増やしたら:
   - `chapter_count=8`（固定8パートに対応）
   - `target_word_count=8500〜9000`（長尺の厚み確保）
   - `channel_display_name` / `script_prompt` を status.json に補完
+
+台本を一括生成（APIなし / thinkで手元生成）:
+- `./.venv/bin/python scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16の全150本を生成）
+- 例（範囲指定）: `./.venv/bin/python scripts/buddha_senior_5ch_generate_scripts.py --channels CH12 --videos 1-5`
+- 既に下準備が済んでいる場合: `--skip-prepare`
+
+生成される正本（Aテキスト）:
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`

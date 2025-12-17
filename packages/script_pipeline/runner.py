@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Any, Set
 
 from .sot import load_status, save_status, init_status, status_path, Status, StageState
+from .offline_generator import (
+    generate_chapter_briefs_offline,
+    generate_chapter_drafts_offline,
+    generate_outline_offline,
+)
 from .validator import validate_stage
 from .tools import optional_fields_registry as opt_fields
 from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
@@ -19,6 +24,7 @@ from factory_common.artifacts.llm_text_output import (
     write_llm_text_artifact,
 )
 from factory_common.llm_router import get_router
+from factory_common.alignment import build_alignment_stamp
 from factory_common.paths import (
     audio_final_dir,
     channels_csv_path,
@@ -658,6 +664,27 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
             st.status = "script_completed"
             changed = True
 
+    # Reconcile should also refresh the alignment stamp when artifacts exist,
+    # so manual edits don't silently drift from Planning SoT.
+    try:
+        assembled_path = base / "content" / "assembled_human.md"
+        if not assembled_path.exists():
+            assembled_path = base / "content" / "assembled.md"
+        csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(channel))), video)
+        if csv_row and assembled_path.exists():
+            stamp = build_alignment_stamp(planning_row=csv_row, script_path=assembled_path).as_dict()
+            prev = st.metadata.get("alignment")
+            if prev != stamp:
+                st.metadata["alignment"] = stamp
+                planning_title = str(stamp.get("planning", {}).get("title") or "").strip()
+                if planning_title:
+                    st.metadata["sheet_title"] = planning_title
+                planning_section = opt_fields.get_planning_section(st.metadata)
+                opt_fields.update_planning_from_row(planning_section, csv_row)
+                changed = True
+    except Exception:
+        pass
+
     if changed:
         save_status(st)
     return st
@@ -901,6 +928,13 @@ def _ensure_references(base: Path, st: Status | None = None) -> None:
             }
         )
     if not entries:
+        # Offline/dry runs may not have real research. Keep references empty rather than injecting unrelated defaults.
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
+            if st is not None and "topic_research" in getattr(st, "stages", {}):
+                st.stages["topic_research"].details["references_warning"] = "offline_no_references"
+            refs_path.parent.mkdir(parents=True, exist_ok=True)
+            refs_path.write_text("[]\n", encoding="utf-8")
+            return
         fallback = [
             {
                 "title": "Göbekli Tepe - Wikipedia",
@@ -1508,6 +1542,14 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=outline_extra)
         if ran_llm:
             _normalize_llm_output(base / outputs[0].get("path"), stage_name)
+        if not ran_llm:
+            # Offline/deterministic fallback: keep manual outline if valid, otherwise generate.
+            try:
+                if not _ensure_outline_structure(base, st):
+                    generate_outline_offline(base, st)
+                    st.stages[stage_name].details["offline"] = True
+            except Exception:
+                pass
         _ensure_missing_outputs(stage_name, base, st, outputs)
         has_structure = _ensure_outline_structure(base, st)
         if not has_structure:
@@ -1536,6 +1578,16 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
     elif stage_name == "chapter_brief":
         brief_extra = {"WORD_TARGET_TOTAL": str(_total_word_target(st))}
         ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=brief_extra)
+        if not ran_llm:
+            try:
+                chapters = _parse_outline_chapters(base)
+                if not chapters:
+                    chapters = generate_outline_offline(base, st)
+                if chapters and not _load_all_chapter_briefs(base):
+                    generate_chapter_briefs_offline(base, st, chapters)
+                    st.stages[stage_name].details["offline"] = True
+            except Exception:
+                pass
         _ensure_missing_outputs(stage_name, base, st, outputs)
         chapters = _parse_outline_chapters(base)
         briefs = _load_all_chapter_briefs(base)
@@ -1591,31 +1643,47 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             total_words = default_total
         per_chapter = max(400, int(total_words / max(len(chapters), 1)))
         per_chapter = min(per_chapter, CHAPTER_WORD_CAP)
-        for num, heading in chapters:
-            out_path = base / "content" / "chapters" / f"chapter_{num}.md"
-            brief_obj = _load_chapter_brief(base, num)
-            extra_ph = {
-                "CHAPTER_NUMBER": str(num),
-                "CHAPTER_TITLE": heading,
-                "WORD_TARGET": str(per_chapter),
-                "CHAPTER_JSON": json.dumps({"heading": heading}, ensure_ascii=False),
-                "OUTLINE_TEXT": f"@{(base / 'content/outline.md').resolve()}",
-                "META_JSON": json.dumps(st.metadata, ensure_ascii=False),
-                "BRIEF_JSON": json.dumps(brief_obj, ensure_ascii=False) if brief_obj else "{}",
-                "CHANNEL_STYLE_GUIDE": "from_style",
-            }
-            ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=extra_ph, output_override=out_path) or ran_llm
-            gen_paths.append(str(out_path.relative_to(base)))
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
+            gen_paths = generate_chapter_drafts_offline(base, st, chapters, per_chapter_target=per_chapter)
+            st.stages[stage_name].details["offline"] = True
+        else:
+            for num, heading in chapters:
+                out_path = base / "content" / "chapters" / f"chapter_{num}.md"
+                brief_obj = _load_chapter_brief(base, num)
+                extra_ph = {
+                    "CHAPTER_NUMBER": str(num),
+                    "CHAPTER_TITLE": heading,
+                    "WORD_TARGET": str(per_chapter),
+                    "CHAPTER_JSON": json.dumps({"heading": heading}, ensure_ascii=False),
+                    "OUTLINE_TEXT": f"@{(base / 'content/outline.md').resolve()}",
+                    "META_JSON": json.dumps(st.metadata, ensure_ascii=False),
+                    "BRIEF_JSON": json.dumps(brief_obj, ensure_ascii=False) if brief_obj else "{}",
+                    "CHANNEL_STYLE_GUIDE": "from_style",
+                }
+                ran_llm = (
+                    _run_llm(stage_name, base, st, sd, templates, extra_placeholders=extra_ph, output_override=out_path)
+                    or ran_llm
+                )
+                gen_paths.append(str(out_path.relative_to(base)))
         st.stages[stage_name].details["generated"] = gen_paths
+    elif stage_name == "audio_synthesis":
+        # Do not auto-generate placeholder .wav/.srt. Use the dedicated audio entrypoint instead.
+        st.stages[stage_name].status = "pending"
+        st.stages[stage_name].details["manual_entrypoint"] = (
+            f"python -m script_pipeline.cli audio --channel {st.channel} --video {st.video}"
+        )
+        st.status = "script_in_progress"
+        save_status(st)
+        return st
     elif stage_name == "script_review":
         # run CTA generation, then assemble chapters + CTA, and write scenes.json + cta.txt
         outputs = sd.get("outputs") or []
         assembled_path = base / "content" / "assembled.md"
         scenes_path = base / "content" / "final" / "scenes.json"
         cta_path = base / "content" / "final" / "cta.txt"
-        ran_llm = _run_llm(stage_name, base, st, sd, templates, output_override=assembled_path)
+        ran_llm = _run_llm(stage_name, base, st, sd, templates, output_override=cta_path)
         if ran_llm:
-            _normalize_llm_output(assembled_path, stage_name)
+            _normalize_llm_output(cta_path, stage_name)
         # collect chapters（フォーマットを消したので生章をそのまま使う）
         chapters_dir = base / "content" / "chapters_formatted"
         if not chapters_dir.exists():
@@ -1631,12 +1699,19 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     continue
         cta_text = ""
         # CH04/CH05 はCTAを本文に含めない（cta.txtは空で生成）
-        include_cta = st.channel not in {"CH04", "CH05"} and assembled_path.exists()
-        if include_cta:
+        include_cta = st.channel not in {"CH04", "CH05"}
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
+            # Offline mode: do not carry over CTA (avoid stale/accidental duplication).
+            include_cta = False
+        if include_cta and cta_path.exists():
             try:
-                cta_text = assembled_path.read_text(encoding="utf-8").strip()
+                cta_text = cta_path.read_text(encoding="utf-8").strip()
             except Exception:
                 cta_text = ""
+        # Safety: ignore suspiciously long CTA (likely mis-generated / accidental content).
+        if include_cta and cta_text and len(cta_text) > 800:
+            st.stages[stage_name].details["cta_warning"] = "cta_too_long_ignored"
+            cta_text = ""
         assembled_body_parts = [t for t in chapter_texts if t]
         if cta_text and include_cta:
             assembled_body_parts.append(cta_text)
@@ -1652,6 +1727,20 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             if sanitized.removed_counts:
                 assembled_path.write_text(sanitized.text, encoding="utf-8")
                 st.stages[stage_name].details["meta_sanitized"] = sanitized.removed_counts
+        except Exception:
+            pass
+        # Alignment stamp: tie Planning(title/thumbnail) <-> Script(A-text) deterministically.
+        # Any later Planning/script edits should be treated as misalignment until regenerated/stamped again.
+        try:
+            csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(st.channel))), st.video)
+            if csv_row and assembled_path.exists():
+                stamp = build_alignment_stamp(planning_row=csv_row, script_path=assembled_path)
+                st.metadata["alignment"] = stamp.as_dict()
+                planning_title = stamp.planning.get("title")
+                if isinstance(planning_title, str) and planning_title.strip():
+                    st.metadata["sheet_title"] = planning_title.strip()
+                planning_section = opt_fields.get_planning_section(st.metadata)
+                opt_fields.update_planning_from_row(planning_section, csv_row)
         except Exception:
             pass
         cta_path.parent.mkdir(parents=True, exist_ok=True)

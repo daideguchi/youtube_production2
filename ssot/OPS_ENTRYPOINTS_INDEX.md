@@ -39,6 +39,8 @@
 - `script_pipeline/cli.py`
 - `script_pipeline/job_runner.py`
 - `script_pipeline/tools/channel_prompt_sync.py`
+- `scripts/buddha_senior_5ch_prepare.py`（CH12–CH16: status init + metadata補完）
+- `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 
 ### 3.2 Audio/TTS
 - `audio_tts_v2/scripts/run_tts.py`
