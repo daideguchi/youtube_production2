@@ -10,9 +10,9 @@ def test_imports():
     """Test that we can import the image generation modules."""
     try:
         from commentary_02_srt2images_timeline.tools.factory import main
-        return True
     except ImportError:
         pytest.skip("commentary_02_srt2images_timeline not available")
+    assert callable(main)
 
 
 def test_rate_limiting_logic():
