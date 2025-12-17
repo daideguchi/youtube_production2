@@ -1,0 +1,20 @@
+{
+  "channel_id": "CH16",
+  "name": "ブッダの老後整え方",
+  "description": "老後の不安を煽らず、安心が増える“整える順番”を渡す。",
+  "persona_path": "progress/personas/CH16_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt",
+  "branding": {
+    "custom_url": "@buddha-e001",
+    "handle": "@buddha-e001",
+    "url": "https://www.youtube.com/@buddha-e001"
+  },
+  "youtube": {
+    "custom_url": "@buddha-e001",
+    "handle": "@buddha-e001",
+    "url": "https://www.youtube.com/@buddha-e001",
+    "source": "@buddha-e001"
+  },
+  "script_prompt": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt"
+}
+

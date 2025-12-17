@@ -78,3 +78,38 @@ channels:
     persona: workspaces/planning/personas/CH11_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH11-ブッダの法話/script_prompt.txt
     chapter_count: 5
+  CH12:
+    planning_csv: workspaces/planning/channels/CH12.csv
+    persona: workspaces/planning/personas/CH12_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt
+    chapter_count: 8
+    target_chars_min: 7000
+    target_chars_max: 9000
+  CH13:
+    planning_csv: workspaces/planning/channels/CH13.csv
+    persona: workspaces/planning/personas/CH13_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt
+    chapter_count: 8
+    target_chars_min: 6500
+    target_chars_max: 8500
+  CH14:
+    planning_csv: workspaces/planning/channels/CH14.csv
+    persona: workspaces/planning/personas/CH14_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt
+    chapter_count: 8
+    target_chars_min: 7000
+    target_chars_max: 9000
+  CH15:
+    planning_csv: workspaces/planning/channels/CH15.csv
+    persona: workspaces/planning/personas/CH15_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt
+    chapter_count: 8
+    target_chars_min: 6500
+    target_chars_max: 8500
+  CH16:
+    planning_csv: workspaces/planning/channels/CH16.csv
+    persona: workspaces/planning/personas/CH16_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt
+    chapter_count: 8
+    target_chars_min: 6500
+    target_chars_max: 8500

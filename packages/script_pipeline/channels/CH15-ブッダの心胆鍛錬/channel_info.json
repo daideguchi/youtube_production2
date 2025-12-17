@@ -1,0 +1,20 @@
+{
+  "channel_id": "CH15",
+  "name": "ブッダの心胆鍛錬",
+  "description": "根性論ではなく、心の体力を“整えて鍛える”。",
+  "persona_path": "progress/personas/CH15_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt",
+  "branding": {
+    "custom_url": "@buddha-d001",
+    "handle": "@buddha-d001",
+    "url": "https://www.youtube.com/@buddha-d001"
+  },
+  "youtube": {
+    "custom_url": "@buddha-d001",
+    "handle": "@buddha-d001",
+    "url": "https://www.youtube.com/@buddha-d001",
+    "source": "@buddha-d001"
+  },
+  "script_prompt": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt"
+}
+

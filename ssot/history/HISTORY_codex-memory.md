@@ -77,3 +77,4 @@
 - SSOT追加: `ssot/master_styles.json` を repo に追加し、CapCutスタイル/タイムライン設定の正本を明示（`style_resolver.py` の default）。
 - 新チャンネル立ち上げ: CH12–CH16 の planning CSV + persona と、まとめて init/メタ補完する `scripts/buddha_senior_5ch_prepare.py` を追加（`workspaces/planning/buddha_senior_5ch_setup.md`）。
 - 画像系プロンプトの絶対パス除去: `packages/commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt` の repo root 記載を `<REPO_ROOT>` に置換。
+- CH12–CH16: UI/台本ライン用のチャンネル情報（script_prompt/channel_info）を追加し、YouTubeハンドルを `@buddha-a001`〜`@buddha-e001` で登録（`packages/script_pipeline/channels/CH12-*`〜`CH16-*`, `configs/sources.yaml`, `workspaces/planning/buddha_senior_5ch_setup.md`）。

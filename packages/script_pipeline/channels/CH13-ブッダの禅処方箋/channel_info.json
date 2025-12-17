@@ -1,0 +1,20 @@
+{
+  "channel_id": "CH13",
+  "name": "ブッダの禅処方箋",
+  "description": "家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。",
+  "persona_path": "progress/personas/CH13_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt",
+  "branding": {
+    "custom_url": "@buddha-b001",
+    "handle": "@buddha-b001",
+    "url": "https://www.youtube.com/@buddha-b001"
+  },
+  "youtube": {
+    "custom_url": "@buddha-b001",
+    "handle": "@buddha-b001",
+    "url": "https://www.youtube.com/@buddha-b001",
+    "source": "@buddha-b001"
+  },
+  "script_prompt": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt"
+}
+

@@ -50,9 +50,10 @@
 - **タスク→tier→model** マッピング（例 YAML）:
 ```yaml
 tiers:
-  heavy_reasoning: [azure:gpt-5, openrouter:kimi-k2, gemini:2.5-pro]
-  standard: [azure:gpt-4o-mini, openrouter:qwen3-14b:free, gemini:1.5-pro]
-  cheap: [openrouter:gpt-3.5-turbo-free]
+  heavy_reasoning: [openrouter:deepseek-v3.2-exp, openrouter:deepseek-r1-distill-qwen-32b, azure:gpt-5-mini]
+  standard: [openrouter:deepseek-v3.2-exp, openrouter:tencent/hunyuan-a13b-instruct, openrouter:qwen-2.5-7b-instruct]
+  cheap: [openrouter:google/gemma-3n-e2b-it:free, openrouter:mistralai/mistral-7b-instruct:free]
+  vision_caption: [openrouter:qwen2.5-vl-72b-instruct]
   image: [gemini:2.5-flash-image]
 
 tasks:

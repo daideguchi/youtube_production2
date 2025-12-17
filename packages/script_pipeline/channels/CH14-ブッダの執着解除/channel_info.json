@@ -1,0 +1,20 @@
+{
+  "channel_id": "CH14",
+  "name": "ブッダの執着解除",
+  "description": "後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。",
+  "persona_path": "progress/personas/CH14_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt",
+  "branding": {
+    "custom_url": "@buddha-c001",
+    "handle": "@buddha-c001",
+    "url": "https://www.youtube.com/@buddha-c001"
+  },
+  "youtube": {
+    "custom_url": "@buddha-c001",
+    "handle": "@buddha-c001",
+    "url": "https://www.youtube.com/@buddha-c001",
+    "source": "@buddha-c001"
+  },
+  "script_prompt": "script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt"
+}
+

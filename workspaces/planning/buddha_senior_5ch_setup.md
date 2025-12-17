@@ -58,12 +58,12 @@ CH15 ブッダの心胆鍛錬（習慣/回復/心の体力）
 CH16 ブッダの老後整え方（お金/健康/片づけ/見通し不安）
 > 老後の不安は、情報より先に「整える順番」があります。お金・健康・家の乱れ・家族との距離…ブッダの教えを現代語に翻訳し、安心が増える一手を渡します。断定や煽りはせず、今日からできる実践で静かに整えます。
 
-### 2.2 ハンドル候補（確定はブラウザで）
-- `@buddha_yowa` / `@buddha_yowa_yawa`
-- `@buddha_zen_rx` / `@buddha_zen_shohosen`
-- `@buddha_release` / `@buddha_detach`
-- `@buddha_training` / `@buddha_shintan`
-- `@buddha_rougo` / `@buddha_seiton`
+### 2.2 ハンドル（確定）
+- CH12（A）: `@buddha-a001`
+- CH13（B）: `@buddha-b001`
+- CH14（C）: `@buddha-c001`
+- CH15（D）: `@buddha-d001`
+- CH16（E）: `@buddha-e001`
 
 ### 2.3 デフォルト説明文（動画ごと）
 ```
