@@ -1,5 +1,8 @@
 # Commentary Video Automation Pipeline
 
+> **Note (SSOT)**: 本番運用の入口/コマンドは `ssot/OPS_ENTRYPOINTS_INDEX.md` を正とします。  
+> この README は開発者向けの補助情報であり、SSOT と矛盾する場合は SSOT を優先してください。
+
 ## 🚀 Quick Start (The Golden Path)
 
 **All production tasks should be executed via the Factory CLI.**
@@ -8,19 +11,19 @@ Do not run `auto_capcut_run.py` or `run_pipeline.py` directly unless you are deb
 ### 1. New Production (Images -> Belt -> Draft)
 標準フロー。Gemini 2.5 Flash Image を使い、CapCutドラフトまで生成。
 ```bash
-python3 tools/factory.py CH01 input/CH01/script.srt --nanobanana direct
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory CH01 workspaces/video/input/CH01_<PresetName>/CH01-001.srt --nanobanana direct
 ```
 
 ### 2. Resume / Re-Draft (Skip Image Gen)
 画像を再生成せず、最新 run_dir からドラフト/ベルトを再構築。
 ```bash
-python3 tools/factory.py CH01 input/CH01/script.srt draft
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory CH01 workspaces/video/input/CH01_<PresetName>/CH01-001.srt draft
 ```
 
 ### 3. Validation Only (No Images)
 画像生成なしでセクション/Belt/タイトルのみチェック。
 ```bash
-python3 tools/factory.py CH01 input/CH01/script.srt check --nanobanana none
+PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory CH01 workspaces/video/input/CH01_<PresetName>/CH01-001.srt check --nanobanana none
 ```
 
 ---
