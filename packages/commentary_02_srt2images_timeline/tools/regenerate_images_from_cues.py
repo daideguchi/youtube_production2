@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -46,6 +47,74 @@ if str(PROJECT_ROOT / "src") not in sys.path:
 from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
 from srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
 from srt2images.nanobanana_client import generate_image_batch  # noqa: E402
+
+
+DEFAULT_CH02_NEGATIVE = (
+    "people, human, face, portrait, body, hands, crowd, child, man, woman, elderly, old man, old woman, "
+    "grandfather, grandmother, senior, wrinkles, japanese, asian, character design, mascot, "
+    "text, letters, subtitle, caption, logo, watermark, UI, interface, signage, poster, typography"
+)
+
+
+def _is_ch02(channel: str) -> bool:
+    return str(channel).upper() == "CH02"
+
+
+def _write_persona_mode_off(run_dir: Path) -> None:
+    # Ensure persona never leaks into CH02 prompts even if persona.txt exists.
+    try:
+        (run_dir / "persona_mode.txt").write_text("off\n", encoding="utf-8")
+    except Exception:
+        pass
+
+
+_CH02_MOTIF_RULES: list[tuple[str, str]] = [
+    (r"(電話|通話|受話器|コール|call)", "phone receiver, warm glow, empty room"),
+    (r"(スマホ|通知|SNS|DM|メッセージ|scroll|timeline|feed)", "glowing smartphone, dark table, quiet haze"),
+    (r"(仮面|マスク|キャラ|演じ|役割|persona|mask)", "mask on chair, empty stage, soft spotlight"),
+    (r"(記憶|思い出|過去|改竄|書き換え|偽の記憶|memory)", "faded photograph, smudged ink, eraser dust"),
+    (r"(鏡|反射|自己|自分|mirror|reflection)", "fogged mirror, dim corridor, pale light"),
+    (r"(扉|ドア|鍵|door|key)", "closed door, thin beam of light, dust in air"),
+    (r"(時間|時計|clock|time)", "clock shadow, long hands, late dusk"),
+    (r"(天秤|秤|balance|scale)", "balance scale, empty tray, quiet tension"),
+    (r"(霧|霞|haze|fog)", "hazy hallway, blue-gray shadows, stillness"),
+    (r"(光|希望|beam of light|sunbeam)", "single light beam, dust motes, deep shadow"),
+    (r"(深夜|ベッド|眠|寝室|night|bed)", "empty bed, rumpled sheets, small warm light"),
+    (r"(本|書物|ページ|book|page)", "closed book, blank pages, candlelight"),
+]
+
+_CH02_HUMAN_PATTERNS = re.compile(
+    r"(老人|高齢|おじい|おばあ|老夫婦|年寄|爺|婆|老女|老婆|"
+    r"\b(elderly|old man|old woman|grandfather|grandmother|senior|man|woman|boy|girl|person|people|portrait|face)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _derive_ch02_visual_focus(cue: Dict[str, Any]) -> str:
+    # Prefer an object/metaphor motif. If cue.visual_focus looks human-centric, override it.
+    raw = " ".join(
+        [
+            str(cue.get("visual_focus") or ""),
+            str(cue.get("summary") or ""),
+            str(cue.get("text") or ""),
+        ]
+    )
+
+    if raw and not _CH02_HUMAN_PATTERNS.search(raw):
+        vf = str(cue.get("visual_focus") or "").strip()
+        if vf:
+            return vf
+
+    for pattern, motif in _CH02_MOTIF_RULES:
+        if re.search(pattern, raw, flags=re.IGNORECASE):
+            return motif
+
+    return "symbolic object motif, negative space, soft gold light"
+
+
+def _derive_ch02_main_character(_: Dict[str, Any]) -> str:
+    return "None (personless scene; do not draw humans)"
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -98,6 +167,9 @@ def _build_prompt(
     negative: str,
     size_str: str,
     extra_suffix: str,
+    include_script_excerpt: bool,
+    visual_focus: str,
+    main_character: str,
 ) -> str:
     # Mirror the pipeline prompt assembly, but keep it deterministic and LLM-free.
     parts: List[str] = []
@@ -120,9 +192,10 @@ def _build_prompt(
         section_type = (cue.get("section_type") or "").strip()
         if section_type:
             parts.append(f"Section Type: {section_type}")
-        txt = (cue.get("text") or "").strip()
-        if txt:
-            parts.append(f"Script excerpt: {_truncate(txt, 120)}")
+        if include_script_excerpt:
+            txt = (cue.get("text") or "").strip()
+            if txt:
+                parts.append(f"Script excerpt: {_truncate(txt, 120)}")
 
     if extra_suffix:
         parts.append(extra_suffix)
@@ -136,6 +209,8 @@ def _build_prompt(
         template_text,
         prepend_summary=False,
         summary=summary_for_prompt,
+        visual_focus=visual_focus,
+        main_character=main_character,
         style=style or "",
         seed=0,
         size=size_str,
@@ -152,6 +227,26 @@ def _delete_existing_pngs(images_dir: Path) -> int:
         except Exception:
             pass
     return count
+
+
+def _utc_stamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _backup_existing_pngs(images_dir: Path) -> Tuple[int, Optional[Path]]:
+    pngs = sorted([p for p in images_dir.glob("*.png") if p.is_file()])
+    if not pngs:
+        return 0, None
+    backup_dir = images_dir / f"_backup_{_utc_stamp()}"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    moved = 0
+    for p in pngs:
+        try:
+            p.rename(backup_dir / p.name)
+            moved += 1
+        except Exception:
+            pass
+    return moved, backup_dir if moved else None
 
 
 def _verify_images(images_dir: Path, expected: int) -> Tuple[bool, List[int]]:
@@ -210,6 +305,11 @@ def main() -> None:
     size_str = f"{width}x{height}"
     template_text = _load_template_text(tpl_path)
 
+    if _is_ch02(channel):
+        _write_persona_mode_off(run_dir)
+        if not (args.negative or "").strip():
+            args.negative = DEFAULT_CH02_NEGATIVE
+
     total = len(cues)
     limit = int(args.max or 0)
     if limit > 0:
@@ -218,8 +318,12 @@ def main() -> None:
     images_dir = run_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     if args.force:
-        deleted = _delete_existing_pngs(images_dir)
-        print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
+        moved, backup_dir = _backup_existing_pngs(images_dir)
+        if moved and backup_dir:
+            print(f"[BACKUP] moved_pngs={moved} backup_dir={backup_dir}")
+        else:
+            deleted = _delete_existing_pngs(images_dir)
+            print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
 
     # Fill prompts + image_path for the subset we generate.
     gen_cues: List[Dict[str, Any]] = []
@@ -227,6 +331,17 @@ def main() -> None:
         cue = cues[i - 1]
         if not isinstance(cue, dict):
             continue
+
+        include_script_excerpt = True
+        visual_focus = (cue.get("visual_focus") or "").strip()
+        main_character = ""
+        if _is_ch02(channel):
+            include_script_excerpt = False
+            visual_focus = _derive_ch02_visual_focus(cue)
+            main_character = _derive_ch02_main_character(cue)
+            cue["use_persona"] = False
+            cue["visual_focus"] = visual_focus
+
         prompt = _build_prompt(
             cue,
             template_text=template_text,
@@ -234,6 +349,9 @@ def main() -> None:
             negative=args.negative,
             size_str=size_str,
             extra_suffix=extra_suffix,
+            include_script_excerpt=include_script_excerpt,
+            visual_focus=visual_focus,
+            main_character=main_character,
         )
         cue["prompt"] = prompt
         cue["image_path"] = str(images_dir / f"{i:04d}.png")

@@ -6,8 +6,9 @@ from commentary_02_srt2images_timeline.src.srt2images import nanobanana_client a
 def test_nanobanana_mode_forces_direct(tmp_path, monkeypatch):
     called = {"run_direct": False}
 
-    def fake_run_direct(prompt, output_path, width, height, config_path, timeout_sec, input_images=None):
+    def fake_run_direct(prompt, output_path, width, height, config_path, timeout_sec, input_images=None, *, max_retries=3):
         called["run_direct"] = True
+        assert max_retries == 1
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         Path(output_path).write_bytes(b"img")
         return True

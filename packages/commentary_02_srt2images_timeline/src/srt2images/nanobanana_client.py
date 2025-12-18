@@ -373,7 +373,17 @@ def _run_mcp(prompt: str, output_path: str, width: int, height: int) -> bool:
     return False
 
 
-def _run_direct(prompt: str, output_path: str, width: int, height: int, config_path: str | None, timeout_sec: int, input_images: list[str] | None = None) -> bool:
+def _run_direct(
+    prompt: str,
+    output_path: str,
+    width: int,
+    height: int,
+    config_path: str | None,
+    timeout_sec: int,
+    input_images: list[str] | None = None,
+    *,
+    max_retries: int = 3,
+) -> bool:
     image_client: ImageClient | None = None
     router = None
 
@@ -388,16 +398,12 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
 
         router = get_router()
     
-    # Retry configuration (削減: 5→3)
-    max_retries = 3
-    
-    messages = [
-        {"role": "user", "content": prompt}
-    ]
+    # Legacy chat payload removed; ImageClient handles prompt-only image generation.
 
     aspect_ratio = f"{width}:{height}" if width and height else None
 
-    for attempt in range(max_retries + 1):
+    max_retries = max(1, int(max_retries))
+    for attempt in range(max_retries):
         try:
             if image_client is not None:
                 options = ImageTaskOptions(
@@ -405,6 +411,7 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
                     prompt=prompt,
                     aspect_ratio=aspect_ratio,
                     n=1,
+                    extra={"timeout_sec": int(timeout_sec)} if timeout_sec else {},
                 )
                 result = image_client.generate(options)
                 image_data = result.images[0] if result.images else None
@@ -441,12 +448,12 @@ def _run_direct(prompt: str, output_path: str, width: int, height: int, config_p
                 max_retries,
                 exc,
             )
-            image_client = None
         except Exception as exc:
             logging.error("Unexpected error from ImageClient: %s", exc)
-            image_client = None
 
-        # Legacy router path removed; if ImageClient failed, retry loop continues
+        # Backoff before retrying
+        if attempt + 1 < max_retries:
+            time.sleep(min(10.0, 0.5 * (2 ** attempt)))
 
     return False
 
@@ -505,7 +512,16 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         return
 
     # Only direct path (ImageClient)
-    ok = _run_direct(prompt, out_path, width, height, config_path, timeout_sec, input_images=input_images)
+    ok = _run_direct(
+        prompt,
+        out_path,
+        width,
+        height,
+        config_path,
+        timeout_sec,
+        input_images=input_images,
+        max_retries=max_retries,
+    )
         
     # Log image generation status for direct mode
     if ok:
@@ -513,7 +529,7 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         # Count how many PNG files are in the images directory
         images_dir = Path(out_path).parent
         png_count = len([f for f in images_dir.glob("*.png") if f.is_file()])
-        logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
+        logging.info(f"[{run_dir_name}][image_gen][OK] engine=image_client images={png_count} dir={images_dir}")
 
     if ok:
         # Convert to 16:9 aspect ratio if needed - handle multiple generated images
