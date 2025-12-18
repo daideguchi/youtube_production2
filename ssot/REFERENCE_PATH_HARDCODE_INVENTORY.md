@@ -136,7 +136,7 @@
 - `tools/clean_thumbnail_prompts.py`
 - `scripts/fix_ch02_row.py`
 - `scripts/append_ch02_row.py`
-- `ui/tools/assets_sync.py`
+- `apps/ui-backend/tools/assets_sync.py`（互換: `ui/tools/assets_sync.py`）
 - `configs/sources.yaml`
 - `script_pipeline/config/sources.yaml`
 - `commentary_02_srt2images_timeline/tools/capcut_bulk_insert.py`
@@ -153,7 +153,7 @@
 
 - `apps/ui-backend/backend/main.py`
 - `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx`
-- `ui/tools/assets_sync.py`
+- `apps/ui-backend/tools/assets_sync.py`（互換: `ui/tools/assets_sync.py`）
 - `ui/tools/README.md`（Docs）
 - `thumbnails/README.md`（Docs）
 - `thumbnails/ui/thumbnail_workspace_plan.md`（Docs）
