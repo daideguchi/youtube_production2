@@ -35,13 +35,11 @@ export type TimelineProps = {
   };
 };
 
-const DEFAULT_RUN = "192";
 const FPS = 30;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
 export const RemotionRoot: React.FC = () => {
-  const [ready, setReady] = useState(false);
   const [inputProps, setInputProps] = useState<TimelineProps>({
     scenes: [],
     belt: { belts: [] },
@@ -57,7 +55,9 @@ export const RemotionRoot: React.FC = () => {
   useEffect(() => {
     void (async () => {
       try {
-        const run = new URLSearchParams(window.location.search).get("run") || DEFAULT_RUN;
+        if (typeof window === "undefined") return;
+        const run = new URLSearchParams(window.location.search).get("run");
+        if (!run) return;
         const base = `input/${run}`;
 
         const fetchJson = async (rel: string) => {
@@ -137,7 +137,7 @@ export const RemotionRoot: React.FC = () => {
           scenes,
           belt: { ...belt, opening_offset: belt.opening_offset ?? openingOffset },
           subtitles,
-          title: belt.episode ?? "",
+          title: "",
           crossfade: 0.5,
           openingOffset,
           layout: {
@@ -154,19 +154,13 @@ export const RemotionRoot: React.FC = () => {
             fadeSec: 1.5,
           },
         });
-        setReady(true);
       } catch (e) {
         console.error("Failed to load run data for preview:", e);
-        setReady(false);
       }
     })();
   }, []);
 
   const durationInFrames = useMemo(() => Math.max(1, Math.round(durationSec * FPS)), [durationSec]);
-
-  if (!ready) {
-    return null;
-  }
 
   return (
     <>

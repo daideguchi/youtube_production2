@@ -269,8 +269,25 @@ async function renderInChunks({
     renderedThisRun++;
   }
 
-  const missing = chunkFiles.filter((f) => !fs.existsSync(f) || fs.statSync(f).size === 0);
-  if (missing.length === 0) {
+  // Only consider chunks up to the last rendered/available chunk (avoid "phantom" missing entries
+  // when maxChunksPerRun stops early).
+  let lastExisting = -1;
+  for (let i = 0; i < chunkFiles.length; i++) {
+    try {
+      if (fs.existsSync(chunkFiles[i]) && fs.statSync(chunkFiles[i]).size > 0) {
+        lastExisting = i;
+      } else {
+        break;
+      }
+    } catch {
+      break;
+    }
+  }
+  const stitchedChunks = lastExisting >= 0 ? chunkFiles.slice(0, lastExisting + 1) : [];
+  const missingWithinStitched = stitchedChunks.filter((f) => !fs.existsSync(f) || fs.statSync(f).size === 0);
+  const missingAll = chunkFiles.filter((f) => !fs.existsSync(f) || fs.statSync(f).size === 0);
+
+  if (missingAll.length === 0) {
     await stitchChunks(chunkFiles, outputLocation);
     return {
       chunkSec,
@@ -285,7 +302,26 @@ async function renderInChunks({
     };
   }
 
-  console.warn(`⚠️ Chunk render incomplete: missing ${missing.length}/${chunkFiles.length} chunks. Skipping stitch.`);
+  if (stitchedChunks.length > 0 && missingWithinStitched.length === 0) {
+    const partialOut = outputLocation.replace(/\.mp4$/i, "") + "_partial.mp4";
+    await stitchChunks(stitchedChunks, partialOut);
+    console.warn(
+      `⚠️ Chunk render incomplete: missing ${missingAll.length}/${chunkFiles.length} chunks. Stitched partial preview: ${partialOut}`,
+    );
+    return {
+      chunkSec,
+      chunkCount,
+      chunkDir,
+      chunks: chunkFiles,
+      stitchedTo: partialOut,
+      resumed: resume,
+      renderedThisRun,
+      finished: false,
+      missingChunks: missingAll,
+    };
+  }
+
+  console.warn(`⚠️ Chunk render incomplete: missing ${missingAll.length}/${chunkFiles.length} chunks. Skipping stitch.`);
   return {
     chunkSec,
     chunkCount,
@@ -295,7 +331,7 @@ async function renderInChunks({
     resumed: resume,
     renderedThisRun,
     finished: false,
-    missingChunks: missing,
+    missingChunks: missingAll,
   };
 }
 
@@ -549,7 +585,7 @@ function resolveAudioRequired(opts, runDir) {
   }
   return {
     src: resolved,
-    volume: Number.isFinite(opts.bgmVolume) ? opts.bgmVolume : 0.4,
+    volume: Number.isFinite(opts.bgmVolume) ? opts.bgmVolume : 0.32,
     fadeSec: Number.isFinite(opts.bgmFade) ? opts.bgmFade : 1.5,
   };
 }

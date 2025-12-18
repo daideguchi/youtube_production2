@@ -17,7 +17,15 @@ export const SubtitleLayer: React.FC<Props> = ({ cues, bottomPx = 50, maxWidthPc
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
-  const current = cues.find((c) => t >= c.start && t <= c.end + 0.01);
+  let current: { start: number; end: number; text: string } | undefined;
+  // Prefer the latest-starting cue in case of overlaps, and avoid lingering past end to prevent perceived "fade".
+  for (let i = cues.length - 1; i >= 0; i--) {
+    const c = cues[i];
+    if (t >= c.start && t < c.end) {
+      current = c;
+      break;
+    }
+  }
 
   if (!current) return null;
 
@@ -46,6 +54,7 @@ export const SubtitleLayer: React.FC<Props> = ({ cues, bottomPx = 50, maxWidthPc
           textAlign: "center",
           maxWidth: `${maxWidthPct}%`,
           opacity,
+          transition: "none",
           fontFamily: "\"Yomogi\", \"RocknRoll One\", \"Noto Sans JP\", system-ui, sans-serif",
           fontWeight: 800,
           letterSpacing: "0.02em",

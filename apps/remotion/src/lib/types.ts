@@ -19,6 +19,7 @@ export type BeltConfig = {
   opening_offset?: number;
   total_duration?: number;
   episode?: string;
+  main_title?: string;
 };
 
 export type EpisodeInfo = {
@@ -56,6 +57,7 @@ export type Position = {
 export type LayoutConfig = {
   beltTopPct?: number; // default 82
   beltHeightPct?: number; // default 16
+  beltInsetPx?: number; // when beltTopPct is near 0 (top-left anchor)
   subtitleBottomPx?: number; // default 120
   subtitleMaxWidthPct?: number; // default 80
   subtitleFontSize?: number; // default 34

@@ -49,13 +49,29 @@ export const Timeline: React.FC<Props> = ({
     belt?.total_duration ?? (belt?.belts?.length ? Math.max(...belt.belts.map((b) => b.end)) : 0) ?? 0;
   const subtitleDuration = subtitles.length ? Math.max(...subtitles.map((s) => s.end)) : 0;
   const contentDuration = Math.max(sceneDuration, beltDuration, subtitleDuration);
-  const mainLabel = title || belt?.episode || "";
+  const mainLabel = belt?.main_title || title || belt?.episode || "";
   const subBelts = belt?.belts ?? [];
   const mainScale = layout?.beltMainScale ?? 1.3;
   const subScale = layout?.beltSubScale ?? 1.25;
   const gapScale = layout?.beltGapScale ?? 1.15;
-  const beltTopPct = layout?.beltTopPct ?? 82;
-  const beltHeightPct = layout?.beltHeightPct ?? 16;
+  const beltTopPct = layout?.beltTopPct ?? 0;
+  const mainBeltShadowX = Math.round(8 * mainScale);
+  const mainBeltShadowY = Math.round(10 * mainScale);
+  const mainBeltShadowBlur = Math.round(10 * mainScale);
+  const mainBeltShadow = `${mainBeltShadowX}px ${mainBeltShadowY}px ${mainBeltShadowBlur}px rgba(0,0,0,0.36)`;
+  // If beltTopPct is near 0, anchor to the top-left with a small inset.
+  // Default inset ensures the belt's shadow isn't visibly clipped on the top/left edges.
+  const computedInsetPx = Math.round(
+    Math.max(
+      2,
+      Math.min(16, Math.max(mainBeltShadowBlur - mainBeltShadowX, mainBeltShadowBlur - mainBeltShadowY) + 2),
+    ),
+  );
+  const beltInsetPx = Math.round(layout?.beltInsetPx ?? computedInsetPx);
+  const beltAnchoredTopLeft = beltTopPct <= 2;
+  const beltTop = beltAnchoredTopLeft ? beltInsetPx : `${beltTopPct}%`;
+  const beltLeft = beltAnchoredTopLeft ? beltInsetPx : 0;
+  const beltMaxWidth = beltAnchoredTopLeft ? `calc(100% - ${beltInsetPx * 2}px)` : "92%";
   const firstSubtitle = React.useMemo(() => {
     if (!subtitles || subtitles.length === 0) return "";
     const sorted = [...subtitles].sort((a, b) => a.start - b.start);
@@ -78,6 +94,15 @@ export const Timeline: React.FC<Props> = ({
   const blurNext = shouldBlend
     ? interpolate(sceneTime, [next.start - crossfade, next.start], [8, 0], { extrapolateRight: "clamp" })
     : 0;
+
+  const sceneProgress = (scene?: SceneItem) => {
+    if (!scene) return 0;
+    const duration = Math.max(0.001, scene.end - scene.start);
+    const p = (sceneTime - scene.start) / duration;
+    return Math.min(1, Math.max(0, p));
+  };
+  const currentProgress = sceneProgress(current);
+  const nextProgress = sceneProgress(next);
 
   const formatBeltLabel = (label: string | undefined) => {
     const base = (label ?? "").trim();
@@ -111,10 +136,8 @@ export const Timeline: React.FC<Props> = ({
       <div
         style={{
           position: "absolute",
-          top: `${beltTopPct}%`,
-          height: `${beltHeightPct}%`,
-          left: 0,
-          right: 0,
+          top: beltTop,
+          left: beltLeft,
           zIndex: 4,
           display: "flex",
           flexDirection: "column",
@@ -122,7 +145,8 @@ export const Timeline: React.FC<Props> = ({
           pointerEvents: "none",
           justifyContent: "flex-start",
           alignItems: "flex-start",
-          padding: "0 12px",
+          maxWidth: beltMaxWidth,
+          boxSizing: "border-box",
         }}
       >
         {t >= openingOffset && (
@@ -134,7 +158,7 @@ export const Timeline: React.FC<Props> = ({
               display: "inline-flex",
               background: "linear-gradient(180deg, #f3b25a 0%, #d37726 100%)",
               borderRadius: 14 * mainScale,
-              boxShadow: "0 6px 14px rgba(0,0,0,0.36)",
+              boxShadow: mainBeltShadow,
               border: `${1.8 * mainScale}px solid #e59500`,
             }}
           >
@@ -211,6 +235,8 @@ export const Timeline: React.FC<Props> = ({
           opacity={currentAlpha}
           position={current.position}
           blur={blurCurrent}
+          progress={currentProgress}
+          seed={current.idx}
         />
       )}
       {shouldBlend && next && (
@@ -220,8 +246,12 @@ export const Timeline: React.FC<Props> = ({
           opacity={nextAlpha}
           position={next.position}
           blur={blurNext}
+          progress={nextProgress}
+          seed={next.idx}
         />
       )}
+
+      <SubtleScreenFx />
 
       <SubtitleLayer
         cues={subtitles}
@@ -273,6 +303,37 @@ export const Timeline: React.FC<Props> = ({
         </AbsoluteFill>
       )}
       {title && t >= openingOffset && t < openingOffset + 3 && <TitleCard title={title} />}
+    </AbsoluteFill>
+  );
+};
+
+const SubtleScreenFx: React.FC = () => {
+  const frame = useCurrentFrame();
+  const seed = Math.floor(frame / 15);
+  return (
+    <AbsoluteFill
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 2,
+        pointerEvents: "none",
+      }}
+    >
+      <AbsoluteFill
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.24) 100%)",
+          opacity: 0.18,
+          mixBlendMode: "multiply",
+        }}
+      />
+      <AbsoluteFill style={{ opacity: 0.07, mixBlendMode: "soft-light" }}>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="3" seed={seed} />
+          </filter>
+          <rect width="100" height="100" filter="url(#grain)" opacity="0.8" />
+        </svg>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
