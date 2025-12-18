@@ -106,3 +106,8 @@
 - UI改善: `TTS音声生成` は `?channel=CHxx` をURL同期し、選択状態を共有/復帰しやすくした（`apps/ui-frontend/src/pages/AudioTtsV2Page.tsx`）。`制作フロー`/`Studio` からは `channel` 付きで遷移。
 - UI改善: サムネページ上部に SoT 表示と主要導線を追加（`apps/ui-frontend/src/pages/ThumbnailsPage.tsx`）。
 - 検証: `npm -C apps/ui-frontend run build`
+
+## 2025-12-18
+- scripts 起動の安定化: `scripts/_bootstrap.py` を導入し、`Path(__file__).parents[...]` の直書きを `pyproject.toml` 探索ベースへ統一（scripts/ops も同様）。`workspaces/logs` への出力は `factory_common.paths.logs_root()` を優先。
+- Remotion preview 入力を正本へ: `apps/remotion/input` を `workspaces/video/input` へ symlink し、`apps/remotion/public/input` から正しい入力が参照されるようにした。
+- logs の分散抑制: `scripts/validate_status_sweep.py` の timestamped レポートを `logs/regression/validate_status/` へ集約し、`logs/validate_status_full_latest.json` は互換のため root に維持（SSOT: `ssot/OPS_LOGGING_MAP.md`）。
