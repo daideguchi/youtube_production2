@@ -135,6 +135,13 @@
 - **L2/Intermediate**
   - `workspaces/video/runs/<run>/assets/image/*`（draft 用コピー）
   - `workspaces/video/runs/<run>/chapters.json`, `sections.json`, `prompt_dump.json` 等
+  - `workspaces/video/_capcut_drafts/`（CapCut draft root のローカルフォールバック。SoTではない）
+    - `auto_capcut_run.py` が実draft root（`~/Movies/CapCut/.../com.lveditor.draft`）に書けない場合にここへ生成する。
+    - CapCutで使うには、該当ドラフト dir を実draft root へコピーする（Full Disk Access が必要な場合あり）。
+    - 生成済み/コピー済みの重複を整理（推奨）:
+      - `python3 scripts/ops/archive_capcut_local_drafts.py --dry-run` → OKなら `--run`
+      - 退避先: `workspaces/video/_capcut_drafts/_archive/<timestamp>/`（削除ではなく移動）
+      - report: `workspaces/logs/regression/capcut_local_drafts_archive/`
   - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**。互換: `commentary_02_srt2images_timeline/input/...`）
     - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
     - 同期: `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs`

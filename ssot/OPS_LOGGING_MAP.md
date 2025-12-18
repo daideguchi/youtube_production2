@@ -181,6 +181,7 @@
     - `scripts/episode_ssot.py`（`archive_video_runs_dryrun_<CH>_<timestamp>.json`）
     - `scripts/ops/cleanup_video_runs.py`（`video_runs_cleanup_dryrun_<timestamp>.json`）
     - `scripts/ops/cleanup_broken_symlinks.py`（`broken_symlinks_<timestamp>.json` under `logs/regression/broken_symlinks/`）
+    - `scripts/ops/archive_capcut_local_drafts.py`（`capcut_local_drafts_archive_<timestamp>.json` under `logs/regression/capcut_local_drafts_archive/`）
     - `scripts/ops/restore_video_runs.py`（`restore_video_runs_dryrun_<timestamp>.json` / `restore_report_<timestamp>.json`）
   - 種別:
     - `thumbnail_quick_history.jsonl` は **L1**（履歴価値あり）
