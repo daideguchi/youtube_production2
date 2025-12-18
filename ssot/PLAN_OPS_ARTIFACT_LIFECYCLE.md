@@ -7,11 +7,11 @@
 - **対象範囲 (In Scope)**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/{input,runs}`（互換: `commentary_02_srt2images_timeline/{input,output}`）, `apps/remotion/{input,out}`, `workspaces/logs/**`（互換: `logs/**`）等の生成物と中間生成物
 - **非対象 (Out of Scope)**: 生成アルゴリズムそのものの変更、UI/CLIの新機能追加（cleanup 導線の薄い追加は含む）
 - **関連 SoT/依存**: `ssot/DATA_LAYOUT.md`, `ssot/REFERENCE_ssot_このプロダクト設計について`, `scripts/cleanup_data.py`, `scripts/ops/cleanup_logs.py`, `audio_tts_v2/scripts/run_tts.py`
-- **最終更新日**: 2025-12-12
+- **最終更新日**: 2025-12-18
 
 ## 1. 背景と目的
 - 現状、各工程の**中間生成物が長期的に溜まり続ける**ため、ディスク肥大・探索ノイズ・誤参照が発生している。
-- 既に `scripts/cleanup_data.py --run` で `audio_prep` と一部ログの削除はあるが、
+- 既に `scripts/cleanup_data.py --run` で（final 音声が揃った動画の）`audio_prep` と一部ログの削除はあるが、
   - `workspaces/audio/final/**/chunks/`（互換: `audio_tts_v2/artifacts/final/**/chunks/`）、
   - `workspaces/video/runs/<run>/`（互換: `commentary_02_srt2images_timeline/output/<run>/`）の大量 run、
   - remotion の `out/`,

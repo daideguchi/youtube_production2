@@ -5,6 +5,7 @@ workspaces/scripts 配下の中間生成物と古いログをクリーンアッ�
 - default は dry-run（削除しない）
 - `--run` 指定時のみ削除する
 - `--keep-days` より新しいものは削除しない
+- `audio_prep/` は final 音声が揃っている動画のみ削除対象にする（誤って未完了の入力を消さない）
 
 SSOT:
 - `ssot/OPS_LOGGING_MAP.md`
@@ -83,6 +84,17 @@ def _script_state_logs_dir(data_root: Path) -> Path:
     return data_root / "_state" / "logs"
 
 
+def _final_audio_pair_exists(channel: str, video: str) -> bool:
+    ch = (channel or "").upper()
+    v = str(video or "").zfill(3)
+    if not ch.startswith("CH") or not v.isdigit():
+        return False
+    final_dir = repo_paths.audio_final_dir(ch, v)
+    wav = final_dir / f"{ch}-{v}.wav"
+    srt = final_dir / f"{ch}-{v}.srt"
+    return wav.exists() and srt.exists()
+
+
 def collect_candidates(*, keep_days: int, ignore_locks: bool) -> tuple[list[DeletionCandidate], int]:
     cutoff = _now() - timedelta(days=int(keep_days))
     data_root = _script_data_root()
@@ -107,11 +119,13 @@ def collect_candidates(*, keep_days: int, ignore_locks: bool) -> tuple[list[Dele
             if not channel_dir.is_dir() or channel_dir.name.startswith("_"):
                 continue
             for video_dir in sorted(channel_dir.iterdir()):
-                if not video_dir.is_dir():
+                if not video_dir.is_dir() or not video_dir.name.isdigit():
                     continue
                 for sub in ("audio_prep", "logs"):
                     target = video_dir / sub
                     if not target.exists():
+                        continue
+                    if sub == "audio_prep" and not _final_audio_pair_exists(channel_dir.name, video_dir.name):
                         continue
                     if _subtree_is_older_than(target, cutoff):
                         if locks and find_blocking_lock(target, locks):
