@@ -288,8 +288,10 @@ def validate_stage(channel: str, video: str, stage_defs: List[Dict[str, Any]]) -
             if assembled.exists():
                 try:
                     txt = assembled.read_text(encoding="utf-8")
-                    if "・" in txt:
-                        errors.append(f"[{name}] forbidden bullet '・' found in {assembled}")
+                    # Only treat "・" as a forbidden bullet when it is used as a list marker
+                    # (line-leading), not as a middle dot in proper nouns (e.g., ハンナ・アーレント).
+                    if re.search(r"(?m)^\\s*・\\s+", txt):
+                        errors.append(f"[{name}] forbidden bullet list marker '・' found in {assembled}")
                 except Exception as exc:  # pragma: no cover
                     errors.append(f"[{name}] cannot read {assembled}: {exc}")
         # dynamic chapters: require all chapters present
