@@ -928,3 +928,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218_142524_legacy_commentary02_ui.tar.gz`
 - 削除（git rm）:
   - `git rm -r legacy/commentary_02_srt2images_timeline`
+
+### 63) `legacy/scripts/agent_coord.py` を archive-first で削除（repo tracked）
+
+意図: `agent_org.py` が正本であり、`legacy/scripts/agent_coord.py` は参照ゼロの旧残骸。探索ノイズ削減のため退避した上で削除する。
+
+- 参照確認:
+  - `rg -n "legacy/scripts/agent_coord\\.py" -S .` がヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251218_143327_legacy_agent_coord/agent_coord.py`
+- 削除（git rm）:
+  - `git rm legacy/scripts/agent_coord.py`
