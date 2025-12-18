@@ -95,9 +95,9 @@ def collect_candidates(
     include_archive: bool,
     include_episodes: bool,
     ignore_locks: bool,
-) -> tuple[list[BrokenSymlink], int]:
+) -> tuple[list[BrokenSymlink], list[dict[str, Any]]]:
     candidates: list[BrokenSymlink] = []
-    skipped_locked = 0
+    skipped_locked: list[dict[str, Any]] = []
     locks = [] if ignore_locks else default_active_locks_for_mutation()
 
     roots: list[Path] = []
@@ -116,8 +116,17 @@ def collect_candidates(
             # Path.exists() follows the link; broken links return False.
             if p.exists():
                 continue
-            if locks and find_blocking_lock(p, locks):
-                skipped_locked += 1
+            blocking = find_blocking_lock(p, locks) if locks else None
+            if blocking:
+                skipped_locked.append(
+                    {
+                        "path": str(p),
+                        "lock_id": blocking.lock_id,
+                        "created_by": blocking.created_by,
+                        "mode": blocking.mode,
+                        "expires_at": blocking.expires_at.isoformat() if blocking.expires_at else None,
+                    }
+                )
                 continue
             link_target = _safe_readlink(p)
             resolved_target = _resolve_link_target(p, link_target) if link_target else None
@@ -201,16 +210,17 @@ def main() -> int:
         },
         "counts": {
             "candidates": len(candidates),
-            "skipped_locked": int(skipped_locked),
+            "skipped_locked": len(skipped_locked),
         },
         "candidates": [c.as_dict() for c in candidates],
+        "skipped_locked": skipped_locked,
     }
 
     if not args.run:
         report_path = _write_report(report)
         msg = f"[cleanup_broken_symlinks] dry-run complete candidates={len(candidates)}"
         if skipped_locked:
-            msg += f" skipped_locked={skipped_locked}"
+            msg += f" skipped_locked={len(skipped_locked)}"
         msg += f" report={report_path}"
         print(msg)
         return 0
@@ -227,11 +237,10 @@ def main() -> int:
     report_path = _write_report(report)
     msg = f"[cleanup_broken_symlinks] deleted={deleted} (candidates={len(candidates)}) report={report_path}"
     if skipped_locked:
-        msg += f" skipped_locked={skipped_locked}"
+        msg += f" skipped_locked={len(skipped_locked)}"
     print(msg)
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
