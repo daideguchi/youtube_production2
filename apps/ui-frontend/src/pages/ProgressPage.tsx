@@ -7,6 +7,7 @@ import {
   lookupThumbnails,
   refreshPlanningStore,
   markVideoPublishedLocked,
+  unmarkVideoPublishedLocked,
 } from "../api/client";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
 import { RedoBadge } from "../components/RedoBadge";
@@ -189,6 +190,7 @@ export function ProgressPage() {
   const [thumbPreviewIndex, setThumbPreviewIndex] = useState<number>(0);
   const [selectedCell, setSelectedCell] = useState<{ key: string; value: string } | null>(null);
   const [publishingKey, setPublishingKey] = useState<string | null>(null);
+  const [unpublishingKey, setUnpublishingKey] = useState<string | null>(null);
   const [copiedTitleKey, setCopiedTitleKey] = useState<string | null>(null);
   const thumbRequestedRef = useRef<Set<string>>(new Set());
   const deepLinkAppliedRef = useRef<string | null>(null);
@@ -352,6 +354,35 @@ export function ProgressPage() {
     },
     []
   );
+
+  const unmarkPublished = useCallback(async (channelCode: string, videoRaw: string) => {
+    const videoToken = normalizeVideo(videoRaw);
+    if (!channelCode || !videoToken) return;
+    const key = `${channelCode}-${videoToken}`;
+    if (!window.confirm(`投稿済みロックを解除しますか？ (${key})`)) return;
+    setUnpublishingKey(key);
+    setError(null);
+    try {
+      await unmarkVideoPublishedLocked(channelCode, videoToken);
+      const res = await fetchProgressCsv(channelCode);
+      const nextRows = res.rows || [];
+      setRows(nextRows);
+      const summary = await fetchRedoSummary(channelCode);
+      setRedoSummary(summary[0] ?? null);
+      setDetailRow((prev) => {
+        if (!prev) return prev;
+        const prevCh = prev["チャンネル"] || prev["チャンネルコード"] || channelCode;
+        const prevVid = normalizeVideo(prev["動画番号"] || prev["video"] || "");
+        if (prevCh !== channelCode || prevVid !== videoToken) return prev;
+        const updated = nextRows.find((r) => normalizeVideo(r["動画番号"] || r["video"] || "") === videoToken);
+        return updated ?? prev;
+      });
+    } catch (e: any) {
+      setError(e?.message || "投稿済みロックの解除に失敗しました");
+    } finally {
+      setUnpublishingKey(null);
+    }
+  }, []);
 
   useEffect(() => {
     Object.keys(thumbMap).forEach((key) => thumbRequestedRef.current.add(key));
@@ -613,21 +644,32 @@ export function ProgressPage() {
                           const token = normalizeVideo(vid);
                           const key = `${ch}-${token}`;
                           const isPublishing = publishingKey === key;
+                          const isUnpublishing = unpublishingKey === key;
+                          const isBusy = isPublishing || isUnpublishing;
                           return (
                             <label
                               className="progress-page__toggle"
                               onClick={(e) => e.stopPropagation()}
-                              title={locked ? "投稿済み（ロック中）" : "チェックで投稿済みにする（ロック）"}
+                              title={
+                                locked
+                                  ? "投稿済み（ロック中）: クリックで解除できます"
+                                  : "チェックで投稿済みにする（ロック）"
+                              }
                             >
                               <input
                                 type="checkbox"
-                                checked={locked || isPublishing}
-                                disabled={locked || isPublishing}
+                                checked={locked || isBusy}
+                                disabled={isBusy}
                                 onChange={(e) => {
                                   e.stopPropagation();
-                                  if (locked) return;
-                                  if (!e.target.checked) return;
-                                  markPublished(ch, vid);
+                                  const next = e.target.checked;
+                                  if (next && !locked) {
+                                    markPublished(ch, vid);
+                                    return;
+                                  }
+                                  if (!next && locked) {
+                                    unmarkPublished(ch, vid);
+                                  }
                                 }}
                               />
                             </label>
@@ -816,6 +858,8 @@ export function ProgressPage() {
                 const token = normalizeVideo(vid);
                 const key = `${ch}-${token}`;
                 const isPublishing = publishingKey === key;
+                const isUnpublishing = unpublishingKey === key;
+                const isBusy = isPublishing || isUnpublishing;
                 return (
                   <>
                     <div className="progress-page__detail-row">
@@ -823,21 +867,30 @@ export function ProgressPage() {
                       <div className="progress-page__detail-value">
                         <label
                           className="progress-page__toggle"
-                          title="チェックで投稿済みにする（ロック）（以後は原則触らない指標）"
+                          title={
+                            locked
+                              ? "投稿済み（ロック中）: クリックで解除できます"
+                              : "チェックで投稿済みにする（ロック）（以後は原則触らない指標）"
+                          }
                         >
                           <input
                             type="checkbox"
-                            checked={locked || isPublishing}
-                            disabled={locked || isPublishing}
+                            checked={locked || isBusy}
+                            disabled={isBusy}
                             onChange={(e) => {
-                              if (locked) return;
-                              if (!e.target.checked) return;
-                              markPublished(ch, vid);
+                              const next = e.target.checked;
+                              if (next && !locked) {
+                                markPublished(ch, vid);
+                                return;
+                              }
+                              if (!next && locked) {
+                                unmarkPublished(ch, vid);
+                              }
                             }}
                           />
-                          投稿済みにする（ロック）
+                          {locked ? "投稿済み（ロック中）" : "投稿済みにする（ロック）"}
                         </label>
-                        {isPublishing ? <span className="progress-page__cell-text muted">処理中...</span> : null}
+                        {isBusy ? <span className="progress-page__cell-text muted">処理中...</span> : null}
                       </div>
                     </div>
                     <div className="progress-page__detail-row">
