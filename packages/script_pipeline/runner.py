@@ -204,6 +204,8 @@ SKIP_STAGES: Set[str] = set()
 A_TEXT_QUALITY_JUDGE_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_judge_prompt.txt"
 A_TEXT_QUALITY_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_fix_prompt.txt"
 A_TEXT_QUALITY_EXTEND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_extend_prompt.txt"
+A_TEXT_REBUILD_PLAN_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_plan_prompt.txt"
+A_TEXT_REBUILD_DRAFT_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_draft_prompt.txt"
 
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
@@ -2258,11 +2260,18 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             except Exception:
                 hard_fix_max = 2
 
+            rebuild_enabled = _truthy_env("SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL", "1")
+            rebuild_attempted = False
+            rebuild_plan_task = os.getenv("SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK", "script_a_text_rebuild_plan").strip()
+            rebuild_draft_task = os.getenv("SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK", "script_a_text_rebuild_draft").strip()
+
             quality_dir = content_dir / "analysis" / "quality_gate"
             quality_dir.mkdir(parents=True, exist_ok=True)
             judge_latest_path = quality_dir / "judge_latest.json"
             fix_latest_path = quality_dir / "fix_latest.md"
             extend_latest_path = quality_dir / "extend_latest.json"
+            rebuild_plan_latest_path = quality_dir / "rebuild_plan_latest.json"
+            rebuild_draft_latest_path = quality_dir / "rebuild_draft_latest.md"
 
             # Prefer Planning/CSV title over any accidentally-mirrored A-text excerpt.
             planning_title = ""
@@ -2294,6 +2303,110 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "CHANNEL_PROMPT": str(st.metadata.get("script_prompt") or ""),
                 "A_TEXT_RULES_SUMMARY": _a_text_rules_summary(st.metadata or {}),
             }
+
+            def _try_rebuild_a_text(seed_text: str, last_judge: Dict[str, Any]) -> str | None:
+                nonlocal rebuild_attempted
+                if not rebuild_enabled or rebuild_attempted:
+                    return None
+                rebuild_attempted = True
+
+                plan_prompt = _render_template(
+                    A_TEXT_REBUILD_PLAN_PROMPT_PATH,
+                    {
+                        **placeholders_base,
+                        "A_TEXT": (seed_text or "").strip(),
+                        "JUDGE_JSON": json.dumps(last_judge or {}, ensure_ascii=False, indent=2),
+                        "LENGTH_FEEDBACK": _a_text_length_feedback(seed_text or "", st.metadata or {}),
+                    },
+                )
+
+                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                try:
+                    plan_result = router_client.call_with_raw(
+                        task=rebuild_plan_task,
+                        messages=[{"role": "user", "content": plan_prompt}],
+                        max_tokens=1800,
+                        temperature=0.2,
+                        response_format="json_object",
+                    )
+                finally:
+                    if prev_routing_key is None:
+                        os.environ.pop("LLM_ROUTING_KEY", None)
+                    else:
+                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                plan_raw = _extract_llm_text_content(plan_result) or ""
+                try:
+                    plan_obj = _parse_json_lenient(plan_raw)
+                except Exception:
+                    plan_obj = {}
+
+                try:
+                    rebuild_plan_latest_path.write_text(
+                        json.dumps(plan_obj or {}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                    )
+                    llm_gate_details["rebuild_plan_report"] = str(rebuild_plan_latest_path.relative_to(base))
+                    llm_gate_details["rebuild_plan_llm_meta"] = {
+                        "provider": plan_result.get("provider"),
+                        "model": plan_result.get("model"),
+                        "request_id": plan_result.get("request_id"),
+                        "chain": plan_result.get("chain"),
+                        "latency_ms": plan_result.get("latency_ms"),
+                        "usage": plan_result.get("usage") or {},
+                        "finish_reason": plan_result.get("finish_reason"),
+                        "routing": plan_result.get("routing"),
+                        "cache": plan_result.get("cache"),
+                    }
+                except Exception:
+                    pass
+
+                draft_prompt = _render_template(
+                    A_TEXT_REBUILD_DRAFT_PROMPT_PATH,
+                    {
+                        **placeholders_base,
+                        "PLAN_JSON": json.dumps(plan_obj or {}, ensure_ascii=False, indent=2),
+                    },
+                )
+
+                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                try:
+                    draft_result = router_client.call_with_raw(
+                        task=rebuild_draft_task,
+                        messages=[{"role": "user", "content": draft_prompt}],
+                        max_tokens=16384,
+                        temperature=0.25,
+                    )
+                finally:
+                    if prev_routing_key is None:
+                        os.environ.pop("LLM_ROUTING_KEY", None)
+                    else:
+                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                draft_text = _extract_llm_text_content(draft_result) or ""
+                if not draft_text.strip():
+                    return None
+                candidate_text = draft_text.strip() + "\n"
+
+                try:
+                    rebuild_draft_latest_path.write_text(candidate_text, encoding="utf-8")
+                    llm_gate_details["rebuild_draft_output"] = str(rebuild_draft_latest_path.relative_to(base))
+                    llm_gate_details["rebuild_draft_llm_meta"] = {
+                        "provider": draft_result.get("provider"),
+                        "model": draft_result.get("model"),
+                        "request_id": draft_result.get("request_id"),
+                        "chain": draft_result.get("chain"),
+                        "latency_ms": draft_result.get("latency_ms"),
+                        "usage": draft_result.get("usage") or {},
+                        "finish_reason": draft_result.get("finish_reason"),
+                        "routing": draft_result.get("routing"),
+                        "cache": draft_result.get("cache"),
+                    }
+                except Exception:
+                    pass
+
+                return candidate_text
 
             current_text = a_text
             judge_obj: Dict[str, Any] = {}
@@ -2373,6 +2486,79 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                 # Fail on last round.
                 if round_no >= max_rounds:
+                    # Last resort: rebuild from plan and re-judge once.
+                    rebuilt = _try_rebuild_a_text(current_text or "", judge_obj or {})
+                    if rebuilt:
+                        re_issues, _re_stats = validate_a_text(rebuilt, st.metadata or {})
+                        re_errors = [
+                            it
+                            for it in re_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        if not re_errors:
+                            rebuild_judge_prompt = _render_template(
+                                A_TEXT_QUALITY_JUDGE_PROMPT_PATH,
+                                {
+                                    **placeholders_base,
+                                    "A_TEXT": rebuilt.strip(),
+                                    "LENGTH_FEEDBACK": _a_text_length_feedback(rebuilt, st.metadata or {}),
+                                },
+                            )
+
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                rebuild_judge_result = router_client.call_with_raw(
+                                    task=judge_task,
+                                    messages=[{"role": "user", "content": rebuild_judge_prompt}],
+                                    max_tokens=2200,
+                                    temperature=0.2,
+                                    response_format="json_object",
+                                )
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                            rebuild_judge_raw = _extract_llm_text_content(rebuild_judge_result) or ""
+                            try:
+                                rebuild_judge_obj = _parse_json_lenient(rebuild_judge_raw)
+                            except Exception:
+                                rebuild_judge_obj = {}
+
+                            try:
+                                atomic_write_json(
+                                    judge_latest_path,
+                                    {
+                                        "schema": "ytm.a_text_quality_judge.v1",
+                                        "generated_at": utc_now_iso(),
+                                        "episode": {"channel": st.channel, "video": st.video},
+                                        "llm_meta": {
+                                            "provider": rebuild_judge_result.get("provider"),
+                                            "model": rebuild_judge_result.get("model"),
+                                            "request_id": rebuild_judge_result.get("request_id"),
+                                            "chain": rebuild_judge_result.get("chain"),
+                                            "latency_ms": rebuild_judge_result.get("latency_ms"),
+                                            "usage": rebuild_judge_result.get("usage") or {},
+                                            "finish_reason": rebuild_judge_result.get("finish_reason"),
+                                            "routing": rebuild_judge_result.get("routing"),
+                                            "cache": rebuild_judge_result.get("cache"),
+                                        },
+                                        "judge": rebuild_judge_obj,
+                                        "raw": rebuild_judge_raw,
+                                    },
+                                )
+                            except Exception:
+                                pass
+
+                            verdict2 = str((rebuild_judge_obj or {}).get("verdict") or "").strip().lower()
+                            if verdict2 == "pass":
+                                llm_gate_details["round"] = round_no
+                                llm_gate_details["verdict"] = "pass"
+                                final_text = rebuilt
+                                break
+
                     stage_details["error"] = "llm_quality_gate_failed"
                     stage_details["error_codes"] = sorted(
                         set(stage_details.get("error_codes") or []) | {"llm_quality_gate_failed"}
@@ -2461,6 +2647,24 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             continue
 
                     if hard_round >= hard_fix_max + 1:
+                        # Last resort: rebuild from plan when the Fixer cannot satisfy hard constraints.
+                        rebuilt = _try_rebuild_a_text(current_text or "", judge_obj or {})
+                        if rebuilt:
+                            re_issues, _re_stats = validate_a_text(rebuilt, st.metadata or {})
+                            re_errors = [
+                                it
+                                for it in re_issues
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            if not re_errors:
+                                candidate = rebuilt.strip() + "\n"
+                                try:
+                                    fix_latest_path.write_text(candidate, encoding="utf-8")
+                                except Exception:
+                                    pass
+                                hard_errors = []
+                                break
+
                         stage_details["error"] = "llm_quality_gate_invalid_fix"
                         stage_details["error_codes"] = sorted(
                             set(stage_details.get("error_codes") or [])
@@ -2506,7 +2710,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         if isinstance(it, dict) and it.get("code")
                     }
                     only_length_short = hard_codes == {"length_too_short"} and isinstance(shortage, int) and shortage > 0
-                    if only_length_short and isinstance(shortage, int) and shortage <= 1200:
+                    # Keep extend-only small: large additions are more likely to become "abstract filler" and may overflow JSON output.
+                    if only_length_short and isinstance(shortage, int) and shortage <= 500:
                         extend_task = os.getenv(
                             "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
                         ).strip()
@@ -2519,57 +2724,64 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             },
                         )
 
+                        extend_result: Dict[str, Any] | None = None
                         prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                         os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
                         try:
-                            extend_result = router_client.call_with_raw(
-                                task=extend_task,
-                                messages=[{"role": "user", "content": extend_prompt}],
-                                max_tokens=900,
-                                temperature=0.2,
-                                response_format="json_object",
-                            )
+                            try:
+                                extend_result = router_client.call_with_raw(
+                                    task=extend_task,
+                                    messages=[{"role": "user", "content": extend_prompt}],
+                                    max_tokens=600,
+                                    temperature=0.2,
+                                    response_format="json_object",
+                                )
+                            except Exception:
+                                extend_result = None
                         finally:
                             if prev_routing_key is None:
                                 os.environ.pop("LLM_ROUTING_KEY", None)
                             else:
                                 os.environ["LLM_ROUTING_KEY"] = prev_routing_key
 
-                        extend_raw = _extract_llm_text_content(extend_result) or ""
+                        extend_raw = _extract_llm_text_content(extend_result) if extend_result else ""
                         try:
                             extend_obj = _parse_json_lenient(extend_raw)
                         except Exception:
                             extend_obj = {}
 
-                        after_pause_index = (extend_obj or {}).get("after_pause_index", 0)
-                        addition = str((extend_obj or {}).get("addition") or "").strip()
-                        candidate = _insert_addition_after_pause(base_text, after_pause_index, addition).strip() + "\n"
-                        try:
-                            fix_latest_path.write_text(candidate, encoding="utf-8")
-                        except Exception:
-                            pass
-                        try:
-                            extend_latest_path.write_text(
-                                json.dumps(extend_obj or {}, ensure_ascii=False, indent=2) + "\n",
-                                encoding="utf-8",
+                        if extend_result:
+                            after_pause_index = (extend_obj or {}).get("after_pause_index", 0)
+                            addition = str((extend_obj or {}).get("addition") or "").strip()
+                            candidate = (
+                                _insert_addition_after_pause(base_text, after_pause_index, addition).strip() + "\n"
                             )
-                            llm_gate_details["extend_report"] = str(extend_latest_path.relative_to(base))
-                            llm_gate_details["extend_llm_meta"] = {
-                                "provider": extend_result.get("provider"),
-                                "model": extend_result.get("model"),
-                                "request_id": extend_result.get("request_id"),
-                                "chain": extend_result.get("chain"),
-                                "latency_ms": extend_result.get("latency_ms"),
-                                "usage": extend_result.get("usage") or {},
-                                "finish_reason": extend_result.get("finish_reason"),
-                                "routing": extend_result.get("routing"),
-                                "cache": extend_result.get("cache"),
-                            }
-                        except Exception:
-                            pass
+                            try:
+                                fix_latest_path.write_text(candidate, encoding="utf-8")
+                            except Exception:
+                                pass
+                            try:
+                                extend_latest_path.write_text(
+                                    json.dumps(extend_obj or {}, ensure_ascii=False, indent=2) + "\n",
+                                    encoding="utf-8",
+                                )
+                                llm_gate_details["extend_report"] = str(extend_latest_path.relative_to(base))
+                                llm_gate_details["extend_llm_meta"] = {
+                                    "provider": extend_result.get("provider"),
+                                    "model": extend_result.get("model"),
+                                    "request_id": extend_result.get("request_id"),
+                                    "chain": extend_result.get("chain"),
+                                    "latency_ms": extend_result.get("latency_ms"),
+                                    "usage": extend_result.get("usage") or {},
+                                    "finish_reason": extend_result.get("finish_reason"),
+                                    "routing": extend_result.get("routing"),
+                                    "cache": extend_result.get("cache"),
+                                }
+                            except Exception:
+                                pass
 
-                        # Re-validate after insertion (next loop iteration).
-                        continue
+                            # Re-validate after insertion (next loop iteration).
+                            continue
 
                     has_length_short = any(
                         isinstance(it, dict) and str(it.get("code")) == "length_too_short" for it in hard_errors

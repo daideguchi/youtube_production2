@@ -223,7 +223,23 @@ tasks:
     defaults:
       response_format: "json_object"
       temperature: 0.2
-      max_tokens: 900
+      max_tokens: 1800
+
+  # A-text rebuild (plan -> draft): last-resort for non-converging scripts
+  script_a_text_rebuild_plan:
+    tier: heavy_reasoning
+    timeout: 120
+    defaults:
+      response_format: "json_object"
+      temperature: 0.2
+      max_tokens: 1800
+
+  script_a_text_rebuild_draft:
+    tier: heavy_reasoning
+    timeout: 300
+    defaults:
+      temperature: 0.25
+      max_tokens: 16384
 
   # Semantic alignment: title/thumbnail promise ↔ A-text core message
   script_semantic_alignment_check:

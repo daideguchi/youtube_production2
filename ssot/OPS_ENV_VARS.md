@@ -31,6 +31,9 @@
 - `SCRIPT_VALIDATION_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_FIX_TASK`（default: `script_a_text_quality_fix`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_EXTEND_TASK`（default: `script_a_text_quality_extend`）: 字数不足のみを「追記専用」で救済する task key。
+- `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL`（default: `1`）: Fixerで収束しない場合に、最終手段として「設計→再執筆（Rebuild）」を試す。無効化は `0`。
+- `SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK`（default: `script_a_text_rebuild_plan`）: Rebuildの「設計図（JSON）生成」task key。
+- `SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK`（default: `script_a_text_rebuild_draft`）: Rebuildの「本文生成」task key。
 
 注:
 - task key の実体（tier/model/options）は `configs/llm_router.yaml` と `configs/llm_task_overrides.yaml` を正とする。

@@ -36,6 +36,10 @@
 6) 読み上げ適性: 一文が長すぎないか、`---` の置き方が文脈ベースか、`「」`/`（）` の多用がないか
 7) “作り物感”: 不自然に硬い言い回し、メタっぽい断定、説明のための説明がないか
 8) 事実リスク: 根拠のない統計/割合/研究断定や、確認不能な固有名詞の断定がないか
+9) 抽象の水増し: 雰囲気・情景・比喩で“それっぽく”埋めた段落がないか（内容理解が増えないのに長い）
+   - NG例の特徴: 朝の光/湯気/天井/港/波紋などの情景や比喩が中心で、具体的な理解（何をどうする/なぜ効く/どこで迷う）が増えない
+   - NG例の特徴: 「温かさ」「優しさ」「穏やかさ」「安心」など抽象語が多いのに、行動・判断・場面の情報が薄い
+   - こうした段落がある場合は `poetic_filler` として fail を推奨する
 
 【合否の基準】
 - pass: このまま音声化して問題ない（細部の小修正は任意にする）
@@ -47,7 +51,7 @@
   "summary": "合否の理由を2〜4文で短く",
   "must_fix": [
     {
-      "type": "flow_break | filler | repetition | tone_mismatch | channel_requirement | tts_hazard | factual_risk | meta_leak",
+      "type": "flow_break | filler | repetition | poetic_filler | tone_mismatch | channel_requirement | tts_hazard | factual_risk | meta_leak",
       "severity": "critical | major | minor",
       "location_hint": "該当箇所の短い抜粋 or どのあたりか（段落の特徴）",
       "why_bad": "なぜ視聴者にストレス/違和感になるか（1〜2文）",

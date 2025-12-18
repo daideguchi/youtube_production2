@@ -49,7 +49,29 @@ tasks:
     options:
       temperature: 0.2
       response_format: json_object
-      max_tokens: 900
+      max_tokens: 1800
+
+  # A-text rebuild (plan -> draft): last-resort for non-converging scripts
+  script_a_text_rebuild_plan:
+    tier: heavy_reasoning
+    models:
+      - or_o3_mini
+      - or_deepseek_r1_0528
+      - or_deepseek_v3_2_exp
+    options:
+      temperature: 0.2
+      response_format: json_object
+      max_tokens: 1800
+
+  script_a_text_rebuild_draft:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_deepseek_r1_0528
+      - or_o3_mini
+    options:
+      temperature: 0.25
+      max_tokens: 16384
 
   # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
   # script_outline:
