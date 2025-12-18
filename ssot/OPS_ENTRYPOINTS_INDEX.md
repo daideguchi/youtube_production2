@@ -108,6 +108,7 @@
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `logs/regression/broken_symlinks/`）
+- `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `logs/regression/video_runs_legacy_prune/`）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 

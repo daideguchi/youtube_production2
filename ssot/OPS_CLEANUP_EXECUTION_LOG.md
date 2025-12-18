@@ -1001,3 +1001,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - report: `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T073604Z.json`
 - 結果:
   - deleted=185 / skipped_locked=63（CH02画像regenのlock対象はスキップ）
+
+### 69) Remotion 生成物（`apps/remotion/out` + `apps/remotion/public/_bgm`）を keep-days ローテで削除
+
+意図: Remotion のテスト生成物（mp4/chunks/tmp wav 等）が `apps/remotion/out` に溜まると容量/探索ノイズになる。古いものを keep-days 基準で削除し、現行作業の邪魔をしない状態に保つ。
+
+- dry-run:
+  - `python3 scripts/ops/cleanup_remotion_artifacts.py --keep-days 14 --max-print 0`
+- 実行:
+  - `python3 scripts/ops/cleanup_remotion_artifacts.py --keep-days 14 --run --max-print 0 --ignore-locks`（※自分で該当スコープをlockしている場合のみ。基本は lock 尊重のまま実行）
+  - report: `logs/regression/remotion_cleanup/remotion_cleanup_20251218T075050Z.json`
+- 結果:
+  - `apps/remotion/out` を空にし、`apps/remotion/public/_bgm` の古い wav を削除（合計約1.5GB削減）
