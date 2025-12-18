@@ -7,5 +7,5 @@
   - 音声/SRT/Bテキスト: `workspaces/audio/final/{CH}/{NNN}/`
   - 動画run/CapCutドラフト: `workspaces/video/runs/{run_id}/`（`capcut_draft` は外部CapCutプロジェクトへのsymlink）
 - このディレクトリ配下は `scripts/episode_ssot.py materialize` が **symlink + manifest** を生成します。
+  - 再実行すると、存在しないリンク（壊れsymlink）は自動で削除されます（探索ノイズを残さない）。
 - ここは “便利な入口” であり、編集対象（SoT）ではありません。
-

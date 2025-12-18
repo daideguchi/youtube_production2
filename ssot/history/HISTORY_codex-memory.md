@@ -120,3 +120,4 @@
 - 確実ゴミ削除（archive-first）: 参照ゼロの `legacy/scripts/agent_coord.py` を退避した上で削除（協調運用は `scripts/agent_org.py` が正本）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
 - UI改善: サムネの「量産（Canva）」を実運用向けに強化（BulkPanel + channel_style の表示/ルール提示）。フロントの TS build エラー（hook順/型）を解消し、テンプレ正本（`workspaces/thumbnails/templates.json`）の style 情報を API で返すようにした（`apps/ui-backend/backend/main.py`, `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx` ほか）。検証: `npm -C apps/ui-frontend run build`。
 - 運用改善: 壊れた `capcut_draft` symlink の掃除ツールを追加し、coordination lock が symlink でも効くように修正（`scripts/ops/cleanup_broken_symlinks.py`, `packages/factory_common/locks.py`）。掃除レポートは `logs/regression/broken_symlinks/`。
+- 運用改善: `workspaces/episodes/` の materialize を「存在しないリンクは残さない」挙動に変更し、壊れたsymlinkを掃除してリンク集のノイズを低減（`scripts/episode_ssot.py`, `workspaces/episodes/README.md`）。

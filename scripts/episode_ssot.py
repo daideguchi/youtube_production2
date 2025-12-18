@@ -651,8 +651,18 @@ def cmd_materialize(args: argparse.Namespace) -> int:
         if capcut.exists():
             links.append(("capcut_draft", capcut))
 
-    for name, target in links:
-        _ensure_symlink(out_dir / name, target)
+    desired = {name: target for name, target in links}
+    managed_names = {"A_text.md", "audio_final", "audio.wav", "audio.srt", "run", "capcut_draft"}
+
+    # Ensure desired symlinks, and remove stale/broken ones (noise reduction).
+    for name in sorted(managed_names):
+        dest = out_dir / name
+        target = desired.get(name)
+        if target is None:
+            if dest.is_symlink():
+                dest.unlink()
+            continue
+        _ensure_symlink(dest, target)
 
     print(f"[OK] materialized: {out_dir} (manifest: {manifest_path})")
     if manifest.get("warnings"):

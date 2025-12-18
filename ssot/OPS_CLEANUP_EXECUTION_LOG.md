@@ -952,3 +952,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 安全条件:
   - symlink のみ unlink（target/生成物は削除しない）
   - coordination locks があるスコープは自動スキップ（生成中の run を守る）
+
+### 65) `workspaces/episodes/**` の壊れsymlinkを掃除（untracked / safe）
+
+意図: `workspaces/episodes/` は「正本へのリンク集」だが、過去に生成された symlink が壊れると探索ノイズになる。`episode_manifest.json` が不足を示せるため、壊れたリンク自体は削除して問題ない。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name capcut_draft`
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name capcut_draft --run --max-print 0`
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name audio.wav --run --max-print 0`
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name audio.srt --run --max-print 0`
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name A_text.md --run --max-print 0`
+- レポート:
+  - `logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
