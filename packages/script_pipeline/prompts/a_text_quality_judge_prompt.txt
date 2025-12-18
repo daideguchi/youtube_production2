@@ -9,6 +9,9 @@
 - 企画タイトル: <<TITLE>>
 - 目標文字数（改行除外）: min=<<TARGET_CHARS_MIN>> / max=<<TARGET_CHARS_MAX>>
 
+【文字数状況（機械計測）】
+<<LENGTH_FEEDBACK>>
+
 【企画メモ（planning/metadataから抜粋）】
 <<PLANNING_HINT>>
 
@@ -61,4 +64,3 @@
   "fix_brief": "Fixer向けに、何を残し、何を削り、何を足すかを200〜350字で要約",
   "confidence": "high | medium | low"
 }
-

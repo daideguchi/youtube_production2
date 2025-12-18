@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Set
 
@@ -202,6 +203,7 @@ SKIP_STAGES: Set[str] = set()
 # LLM quality gate prompts (Judge -> Fixer) for script_validation
 A_TEXT_QUALITY_JUDGE_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_judge_prompt.txt"
 A_TEXT_QUALITY_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_fix_prompt.txt"
+A_TEXT_QUALITY_EXTEND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_extend_prompt.txt"
 
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
@@ -285,6 +287,132 @@ def _a_text_rules_summary(meta: Dict[str, Any]) -> str:
             "- 水増し禁止: 同趣旨の言い換え連打や空疎な一般論で埋めない",
         ]
     )
+
+
+def _a_text_length_feedback(text: str, meta: Dict[str, Any]) -> str:
+    """
+    Deterministic length/format feedback for Judge/Fixer prompts.
+
+    Notes:
+    - char_count matches validate_a_text() (whitespace/newlines/--- excluded)
+    - Include hard error codes so the Fixer can self-correct without guesswork.
+    """
+    issues, stats = validate_a_text(text or "", meta or {})
+    char_count = stats.get("char_count")
+    target_min = stats.get("target_chars_min")
+    target_max = stats.get("target_chars_max")
+
+    lines: List[str] = []
+    lines.append(f"- char_count（改行/空白/---除外）: {char_count}")
+    lines.append(
+        f"- target: min={target_min if target_min is not None else ''} / max={target_max if target_max is not None else ''}"
+    )
+
+    within = True
+    try:
+        if isinstance(target_min, int) and isinstance(char_count, int) and char_count < target_min:
+            within = False
+            lines.append(f"- 字数: 不足（{target_min - char_count}字不足）")
+        if isinstance(target_max, int) and isinstance(char_count, int) and char_count > target_max:
+            within = False
+            lines.append(f"- 字数: 超過（{char_count - target_max}字超過）")
+    except Exception:
+        within = True
+
+    if within:
+        lines.append("- 字数: 範囲内（削る場合も下限割れに注意）")
+
+    hard_errors = [
+        it
+        for it in issues
+        if str((it or {}).get("severity") or "error").lower() != "warning"
+    ]
+    if hard_errors:
+        codes = sorted(
+            {
+                str(it.get("code"))
+                for it in hard_errors
+                if isinstance(it, dict) and it.get("code")
+            }
+        )
+        lines.append(f"- ハード違反: {', '.join(codes) if codes else 'あり'}")
+        for it in hard_errors[:6]:
+            if not isinstance(it, dict):
+                continue
+            code = str(it.get("code") or "").strip()
+            msg = str(it.get("message") or "").strip()
+            line_no = it.get("line")
+            loc = f"L{line_no}" if isinstance(line_no, int) else ""
+            detail = " / ".join([p for p in (code, loc, msg) if p]).strip()
+            if detail:
+                lines.append(f"  - {detail}")
+    else:
+        lines.append("- ハード違反: なし")
+
+    return "\n".join(lines).strip()
+
+
+def _sanitize_a_text_markdown_headings(text: str) -> str:
+    """
+    Best-effort: convert markdown headings (`# ...`) into plain lines.
+    This is a format-only repair; content is preserved.
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    out_lines: List[str] = []
+    changed = False
+    for ln in normalized.split("\n"):
+        m = re.match(r"^\s*#{1,6}\s+(\S.*)$", ln)
+        if m:
+            out_lines.append(m.group(1).strip())
+            changed = True
+        else:
+            out_lines.append(ln)
+    if not changed:
+        return (text or "")
+    return "\n".join(out_lines).rstrip() + "\n"
+
+
+def _insert_addition_after_pause(a_text: str, after_pause_index: Any, addition: str) -> str:
+    """
+    Insert `addition` as a single paragraph right after the Nth pause marker (`---`).
+    If no pause markers exist, insert after the first paragraph break (fallback).
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    add_norm = (addition or "").replace("\r\n", "\n").replace("\r", "\n")
+    add_lines = [ln.strip() for ln in add_norm.split("\n") if ln.strip()]
+    add_para = "".join(add_lines).strip()
+    if not add_para:
+        return normalized.rstrip() + "\n"
+
+    try:
+        idx_int = int(after_pause_index)
+    except Exception:
+        idx_int = 0
+
+    lines = normalized.split("\n")
+    pause_idxs = [i for i, ln in enumerate(lines) if ln.strip() == "---"]
+    if pause_idxs:
+        idx_int = max(0, min(idx_int, len(pause_idxs) - 1))
+        insert_at = pause_idxs[idx_int] + 1
+        while insert_at < len(lines) and not lines[insert_at].strip():
+            insert_at += 1
+        lines[insert_at:insert_at] = [add_para, ""]
+        return "\n".join(lines).rstrip() + "\n"
+
+    # Fallback: insert after first paragraph (first blank line after non-empty).
+    insert_at = 0
+    seen_text = False
+    for i, ln in enumerate(lines):
+        if ln.strip():
+            seen_text = True
+            continue
+        if seen_text and not ln.strip():
+            insert_at = i + 1
+            break
+    if insert_at <= 0:
+        insert_at = len(lines)
+    lines[insert_at:insert_at] = [add_para, ""]
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _build_planning_hint(meta: Dict[str, Any]) -> str:
@@ -2125,16 +2253,40 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 max_rounds = max(1, int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "3")))
             except Exception:
                 max_rounds = 3
+            try:
+                hard_fix_max = max(0, int(os.getenv("SCRIPT_VALIDATION_LLM_HARD_FIX_MAX", "2")))
+            except Exception:
+                hard_fix_max = 2
 
             quality_dir = content_dir / "analysis" / "quality_gate"
             quality_dir.mkdir(parents=True, exist_ok=True)
             judge_latest_path = quality_dir / "judge_latest.json"
             fix_latest_path = quality_dir / "fix_latest.md"
+            extend_latest_path = quality_dir / "extend_latest.json"
+
+            # Prefer Planning/CSV title over any accidentally-mirrored A-text excerpt.
+            planning_title = ""
+            try:
+                planning_title = str(st.metadata.get("sheet_title") or "").strip()
+            except Exception:
+                planning_title = ""
+            if not planning_title:
+                try:
+                    align = st.metadata.get("alignment") if isinstance(st.metadata, dict) else None
+                    if isinstance(align, dict):
+                        planning = align.get("planning")
+                        if isinstance(planning, dict):
+                            planning_title = str(planning.get("title") or "").strip()
+                except Exception:
+                    planning_title = ""
+            title_for_llm = planning_title or str(
+                st.metadata.get("expected_title") or st.metadata.get("title") or st.script_id
+            )
 
             placeholders_base = {
                 "CHANNEL_CODE": str(st.channel),
                 "VIDEO_ID": f"{st.channel}-{st.video}",
-                "TITLE": str(st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id),
+                "TITLE": title_for_llm,
                 "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
                 "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
                 "PLANNING_HINT": _build_planning_hint(st.metadata or {}),
@@ -2148,7 +2300,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             for round_no in range(1, max_rounds + 1):
                 judge_prompt = _render_template(
                     A_TEXT_QUALITY_JUDGE_PROMPT_PATH,
-                    {**placeholders_base, "A_TEXT": (current_text or "").strip()},
+                    {
+                        **placeholders_base,
+                        "A_TEXT": (current_text or "").strip(),
+                        "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
+                    },
                 )
 
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
@@ -2240,6 +2396,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         **placeholders_base,
                         "A_TEXT": (current_text or "").strip(),
                         "JUDGE_JSON": json.dumps(judge_obj, ensure_ascii=False, indent=2),
+                        "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
                     },
                 )
 
@@ -2250,7 +2407,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         task=fix_task,
                         messages=[{"role": "user", "content": fixer_prompt}],
                         max_tokens=16384,
-                        temperature=0.4,
+                        temperature=0.25,
                     )
                 finally:
                     if prev_routing_key is None:
@@ -2261,9 +2418,9 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 fixed = _extract_llm_text_content(fix_result)
                 if not fixed:
                     continue
-                current_text = fixed.strip() + "\n"
+                candidate = fixed.strip() + "\n"
                 try:
-                    fix_latest_path.write_text(current_text, encoding="utf-8")
+                    fix_latest_path.write_text(candidate, encoding="utf-8")
                     llm_gate_details["fix_output"] = str(fix_latest_path.relative_to(base))
                     llm_gate_details["fix_llm_meta"] = {
                         "provider": fix_result.get("provider"),
@@ -2278,6 +2435,223 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     }
                 except Exception:
                     pass
+
+                # Hard validator guard: do not ask Judge to evaluate an invalid draft.
+                hard_errors: List[Dict[str, Any]] = []
+                for hard_round in range(1, hard_fix_max + 2):
+                    hard_issues, hard_stats = validate_a_text(candidate, st.metadata or {})
+                    hard_errors = [
+                        it
+                        for it in hard_issues
+                        if str((it or {}).get("severity") or "error").lower() != "warning"
+                    ]
+                    if not hard_errors:
+                        break
+
+                    # Fast format-only repair: remove markdown headings without LLM calls.
+                    if any(isinstance(it, dict) and str(it.get("code")) == "markdown_heading" for it in hard_errors):
+                        sanitized = _sanitize_a_text_markdown_headings(candidate)
+                        if sanitized.strip() and sanitized != candidate:
+                            candidate = sanitized.strip() + "\n"
+                            try:
+                                fix_latest_path.write_text(candidate, encoding="utf-8")
+                            except Exception:
+                                pass
+                            # Re-validate next loop iteration.
+                            continue
+
+                    if hard_round >= hard_fix_max + 1:
+                        stage_details["error"] = "llm_quality_gate_invalid_fix"
+                        stage_details["error_codes"] = sorted(
+                            set(stage_details.get("error_codes") or [])
+                            | {"llm_quality_gate_invalid_fix"}
+                            | {str(it.get("code")) for it in hard_errors if isinstance(it, dict) and it.get("code")}
+                        )
+                        stage_details["issues"] = hard_errors[:50]
+                        stage_details["fix_hints"] = [
+                            "Fixer がハード禁則/字数条件を満たせませんでした。fix_latest.md と judge_latest.json を確認してください。",
+                            f"fix_output: {fix_latest_path.relative_to(base)}",
+                            f"judge_report: {judge_latest_path.relative_to(base)}",
+                        ]
+                        st.stages[stage_name].status = "pending"
+                        st.status = "script_in_progress"
+                        save_status(st)
+                        try:
+                            _write_script_manifest(base, st, stage_defs)
+                        except Exception:
+                            pass
+                        return st
+
+                    hard_judge = dict(judge_obj) if isinstance(judge_obj, dict) else {}
+                    hard_judge["hard_validator"] = {
+                        "errors": hard_errors[:20],
+                        "stats": hard_stats,
+                    }
+                    # If the last Fixer output violated hard constraints, guide it deterministically.
+                    base_text = candidate
+                    hard_char = hard_stats.get("char_count")
+                    hard_min = hard_stats.get("target_chars_min")
+                    hard_max = hard_stats.get("target_chars_max")
+                    shortage: int | None = None
+                    if isinstance(hard_min, int) and isinstance(hard_char, int) and hard_char < hard_min:
+                        shortage = hard_min - hard_char
+                    excess: int | None = None
+                    if isinstance(hard_max, int) and isinstance(hard_char, int) and hard_char > hard_max:
+                        excess = hard_char - hard_max
+
+                    # Extend-only rescue: if the ONLY hard error is length shortage, add one paragraph without rewriting.
+                    hard_codes = {
+                        str(it.get("code"))
+                        for it in hard_errors
+                        if isinstance(it, dict) and it.get("code")
+                    }
+                    only_length_short = hard_codes == {"length_too_short"} and isinstance(shortage, int) and shortage > 0
+                    if only_length_short and isinstance(shortage, int) and shortage <= 1200:
+                        extend_task = os.getenv(
+                            "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                        ).strip()
+                        extend_prompt = _render_template(
+                            A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                            {
+                                **placeholders_base,
+                                "A_TEXT": base_text.strip(),
+                                "LENGTH_FEEDBACK": _a_text_length_feedback(base_text, st.metadata or {}),
+                            },
+                        )
+
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            extend_result = router_client.call_with_raw(
+                                task=extend_task,
+                                messages=[{"role": "user", "content": extend_prompt}],
+                                max_tokens=900,
+                                temperature=0.2,
+                                response_format="json_object",
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        extend_raw = _extract_llm_text_content(extend_result) or ""
+                        try:
+                            extend_obj = _parse_json_lenient(extend_raw)
+                        except Exception:
+                            extend_obj = {}
+
+                        after_pause_index = (extend_obj or {}).get("after_pause_index", 0)
+                        addition = str((extend_obj or {}).get("addition") or "").strip()
+                        candidate = _insert_addition_after_pause(base_text, after_pause_index, addition).strip() + "\n"
+                        try:
+                            fix_latest_path.write_text(candidate, encoding="utf-8")
+                        except Exception:
+                            pass
+                        try:
+                            extend_latest_path.write_text(
+                                json.dumps(extend_obj or {}, ensure_ascii=False, indent=2) + "\n",
+                                encoding="utf-8",
+                            )
+                            llm_gate_details["extend_report"] = str(extend_latest_path.relative_to(base))
+                            llm_gate_details["extend_llm_meta"] = {
+                                "provider": extend_result.get("provider"),
+                                "model": extend_result.get("model"),
+                                "request_id": extend_result.get("request_id"),
+                                "chain": extend_result.get("chain"),
+                                "latency_ms": extend_result.get("latency_ms"),
+                                "usage": extend_result.get("usage") or {},
+                                "finish_reason": extend_result.get("finish_reason"),
+                                "routing": extend_result.get("routing"),
+                                "cache": extend_result.get("cache"),
+                            }
+                        except Exception:
+                            pass
+
+                        # Re-validate after insertion (next loop iteration).
+                        continue
+
+                    has_length_short = any(
+                        isinstance(it, dict) and str(it.get("code")) == "length_too_short" for it in hard_errors
+                    )
+                    small_extension_hint = ""
+                    if has_length_short:
+                        # When shortage is small, prefer minimally inserting one paragraph.
+                        if isinstance(shortage, int) and shortage <= 1200:
+                            base_text = candidate
+                            small_extension_hint = (
+                                "不足が小さいため、本文を大きく作り替えずに埋めます。"
+                                "`---` の直後など文脈が切り替わる位置に、追加段落を1つだけ挿入し、残りの本文はできるだけ保持してください。"
+                                f"追加段落は不足分（{shortage}字）を必ず埋め切るため、改行/空白を除いた本文文字で {shortage + 300}字前後を目安に書いてください。"
+                                "追加段落は中心テーマの理解が増える内容に限定し、水増しの言い換えで埋めないでください。"
+                            )
+                        else:
+                            # When shortage is large, rebase on the last known-good thick draft.
+                            base_text = current_text or candidate
+                            small_extension_hint = (
+                                "不足が大きいため、直前の短い出力をベースにせず、厚みのある本文を保ったまま修正してください。"
+                                "字数を下限未満に落とさないこと。"
+                            )
+
+                    hard_judge["hard_retry"] = hard_round
+                    hard_judge["hard_instruction"] = (
+                        "直前のFixer出力がハードバリデータに違反しました。"
+                        f"char_count={hard_char} / min={hard_min} / max={hard_max}。"
+                        + (f" 不足={shortage}字。" if shortage is not None else "")
+                        + (f" 超過={excess}字。" if excess is not None else "")
+                        + f" retry={hard_round}/{hard_fix_max}。"
+                        + "次の出力は必ず min〜max に収めてください。"
+                        "水増しはせず、中心の場面/教えの深掘りで厚みを作ります。"
+                        "特に不足の場合は、終盤に例を足すのではなく、中心の場面の理解が増える具体を追加してください。"
+                        + (small_extension_hint or "")
+                    )
+                    hard_prompt = _render_template(
+                        A_TEXT_QUALITY_FIX_PROMPT_PATH,
+                        {
+                            **placeholders_base,
+                            "A_TEXT": base_text.strip(),
+                            "JUDGE_JSON": json.dumps(hard_judge, ensure_ascii=False, indent=2),
+                            "LENGTH_FEEDBACK": _a_text_length_feedback(base_text, st.metadata or {}),
+                        },
+                    )
+
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        fix_result = router_client.call_with_raw(
+                            task=fix_task,
+                            messages=[{"role": "user", "content": hard_prompt}],
+                            max_tokens=16384,
+                            temperature=0.2,
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    fixed = _extract_llm_text_content(fix_result)
+                    if not fixed:
+                        continue
+                    candidate = fixed.strip() + "\n"
+                    try:
+                        fix_latest_path.write_text(candidate, encoding="utf-8")
+                        llm_gate_details["fix_output"] = str(fix_latest_path.relative_to(base))
+                        llm_gate_details["fix_llm_meta"] = {
+                            "provider": fix_result.get("provider"),
+                            "model": fix_result.get("model"),
+                            "request_id": fix_result.get("request_id"),
+                            "chain": fix_result.get("chain"),
+                            "latency_ms": fix_result.get("latency_ms"),
+                            "usage": fix_result.get("usage") or {},
+                            "finish_reason": fix_result.get("finish_reason"),
+                            "routing": fix_result.get("routing"),
+                            "cache": fix_result.get("cache"),
+                        }
+                    except Exception:
+                        pass
+
+                current_text = candidate
 
         # If the LLM gate produced a new draft, re-run the deterministic validator before writing.
         if final_text != a_text:

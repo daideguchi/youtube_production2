@@ -216,6 +216,15 @@ tasks:
       temperature: 0.4
       max_tokens: 16384
 
+  # A-text hard rescue: extend-only (length shortage)
+  script_a_text_quality_extend:
+    tier: heavy_reasoning
+    timeout: 120
+    defaults:
+      response_format: "json_object"
+      temperature: 0.2
+      max_tokens: 900
+
   # Semantic alignment: title/thumbnail promise ↔ A-text core message
   script_semantic_alignment_check:
     tier: standard

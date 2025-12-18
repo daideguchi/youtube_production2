@@ -12,6 +12,7 @@
 - **ハードコード禁止**: コードにモデル名（例: `gpt-5-mini`）を直書きしない。
 - **タスクキーで呼ぶ**: `LLMClient.call(task=..., messages=...)` の `task` がSoT。
 - **切替は設定で**: モデル切替/コスト最適化は `configs/*.yml|*.yaml` 側で完結させる。
+- **無断でモデルを追加/切替しない**: `configs/llm*.yml` / `configs/image_models.yaml` の tier 候補やモデルキーを、指示なしで増やしたり順序変更しない（特に画像生成は運用/課金/品質に直結するため厳禁）。例外は SSOT 更新 + 人間レビュー承認後のみ。
 - **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計。互換: `logs/llm_usage.jsonl`）に集約し、他の散発ログはL3として短期保持。
 
 ---
@@ -44,6 +45,7 @@
 ### 2.2 画像生成（SRT→画像）
 - `image_gen` / `image`
   - primary: `gemini_2_5_flash_image`（Gemini / `gemini-2.5-flash-image`）
+  - **運用固定**: CapCutドラフト用の画像生成は原則このモデルに固定し、`gemini_3_*` 等へ勝手に切替しない。クォータ/障害時も「黙って別モデルに逃がさず」原因（キー/課金/クォータ）を先に解決する。
 
 ---
 
