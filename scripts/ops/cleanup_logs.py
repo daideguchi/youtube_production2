@@ -9,6 +9,7 @@ L3 ログ（短期保持）のクリーンアップ。
 安全のため:
 - default は dry-run（削除しない）
 - `--run` 指定時のみ削除する
+- いつ何を削除したかの追跡のため、JSON report を `logs/regression/logs_cleanup/` に出力する
 
 SSOT:
 - `ssot/OPS_LOGGING_MAP.md`
@@ -17,12 +18,12 @@ SSOT:
 from __future__ import annotations
 
 import argparse
+import json
 import os
-import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 from _bootstrap import bootstrap
 
@@ -30,6 +31,9 @@ PROJECT_ROOT = bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths
 from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
+
+
+REPORT_SCHEMA = "ytm.logs_cleanup_report.v1"
 
 
 @dataclass(frozen=True)
@@ -111,14 +115,14 @@ def collect_candidates(
     keep_days: int,
     include_llm_api_cache: bool,
     ignore_locks: bool,
-) -> tuple[list[DeletionCandidate], int]:
+) -> tuple[list[DeletionCandidate], list[Path]]:
     keep_days = int(keep_days)
     cutoff = _now() - timedelta(days=keep_days)
     logs_root = repo_paths.logs_root()
 
     candidates: list[DeletionCandidate] = []
     locks = [] if ignore_locks else default_active_locks_for_mutation()
-    skipped_locked = 0
+    skipped_locked: list[Path] = []
 
     # Root-level L3 files
     for p in sorted(logs_root.iterdir() if logs_root.exists() else []):
@@ -130,7 +134,7 @@ def collect_candidates(
             continue
         if _is_older_than(p, cutoff):
             if locks and find_blocking_lock(p, locks):
-                skipped_locked += 1
+                skipped_locked.append(p)
                 continue
             candidates.append(DeletionCandidate(p, f"logs_root_file_older_than_{keep_days}d"))
 
@@ -147,7 +151,7 @@ def collect_candidates(
                 continue
             if _is_older_than(p, cutoff):
                 if locks and find_blocking_lock(p, locks):
-                    skipped_locked += 1
+                    skipped_locked.append(p)
                     continue
                 candidates.append(DeletionCandidate(p, f"{rel}_older_than_{keep_days}d"))
 
@@ -159,7 +163,7 @@ def collect_candidates(
                 continue
             if _is_older_than(p, cutoff):
                 if locks and find_blocking_lock(p, locks):
-                    skipped_locked += 1
+                    skipped_locked.append(p)
                     continue
                 candidates.append(DeletionCandidate(p, f"llm_api_cache_older_than_{keep_days}d"))
 
@@ -170,10 +174,34 @@ def _delete_file(path: Path) -> None:
     path.unlink(missing_ok=True)
 
 
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _utc_now_compact() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _rel(path: Path) -> str:
+    try:
+        return path.relative_to(PROJECT_ROOT).as_posix()
+    except Exception:
+        return str(path)
+
+
+def _write_report(payload: dict[str, Any]) -> Path:
+    out_dir = repo_paths.logs_root() / "regression" / "logs_cleanup"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"logs_cleanup_{_utc_now_compact()}.json"
+    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Cleanup L3 logs under logs_root (safe dry-run by default)")
     parser.add_argument("--run", action="store_true", help="Actually delete files (default: dry-run)")
     parser.add_argument("--keep-days", type=int, default=30, help="Keep files newer than this many days (default: 30)")
+    parser.add_argument("--max-print", type=int, default=40, help="Max candidates to print (default: 40).")
     parser.add_argument(
         "--include-llm-api-cache",
         action="store_true",
@@ -195,37 +223,62 @@ def main() -> int:
         include_llm_api_cache=bool(args.include_llm_api_cache),
         ignore_locks=bool(args.ignore_locks),
     )
-    if not candidates:
-        msg = "[cleanup_logs] nothing to do"
-        if skipped_locked:
-            msg += f" (skipped_locked={skipped_locked})"
-        print(msg)
-        return 0
+    max_print = max(0, int(args.max_print))
 
-    for c in candidates:
-        prefix = "[RUN]" if args.run else "[DRY]"
-        print(f"{prefix} {c.path}  ({c.reason})")
+    payload: dict[str, Any] = {
+        "schema": REPORT_SCHEMA,
+        "created_at": _utc_now_iso(),
+        "mode": "run" if args.run else "dry_run",
+        "keep_days": keep_days,
+        "include_llm_api_cache": bool(args.include_llm_api_cache),
+        "ignore_locks": bool(args.ignore_locks),
+        "counts": {
+            "candidates": len(candidates),
+            "skipped_locked": len(skipped_locked),
+            "deleted": 0,
+            "failed": 0,
+        },
+        "candidates": [{"path": _rel(c.path), "reason": c.reason} for c in candidates],
+        "skipped_locked": [_rel(p) for p in skipped_locked],
+        "deleted": [],
+        "failed": [],
+    }
+
+    print(f"[cleanup_logs] candidates={len(candidates)} skipped_locked={len(skipped_locked)} dry_run={not args.run}")
+    if max_print and candidates:
+        for i, c in enumerate(candidates[:max_print], start=1):
+            prefix = "[RUN]" if args.run else "[DRY]"
+            print(f"{prefix} {i:>4}/{len(candidates)} {_rel(c.path)}  ({c.reason})")
+        if len(candidates) > max_print:
+            print(f"... ({len(candidates) - max_print} more)")
 
     if not args.run:
-        msg = "[cleanup_logs] dry-run complete (pass --run to delete)"
-        if skipped_locked:
-            msg += f" (skipped_locked={skipped_locked})"
-        print(msg)
+        report_path = _write_report(payload)
+        print(f"[cleanup_logs] dry-run complete report={report_path}")
         return 0
 
-    deleted = 0
+    deleted: list[str] = []
+    failed: list[dict[str, str]] = []
     for c in candidates:
         try:
             _delete_file(c.path)
-            deleted += 1
-        except Exception:
-            continue
+            deleted.append(_rel(c.path))
+        except Exception as exc:
+            failed.append({"path": _rel(c.path), "error": str(exc)})
 
-    msg = f"[cleanup_logs] deleted {deleted} files"
+    payload["counts"]["deleted"] = len(deleted)
+    payload["counts"]["failed"] = len(failed)
+    payload["deleted"] = deleted
+    payload["failed"] = failed
+
+    report_path = _write_report(payload)
+    msg = f"[cleanup_logs] deleted={len(deleted)} planned={len(candidates)} report={report_path}"
+    if failed:
+        msg += f" failed={len(failed)}"
     if skipped_locked:
-        msg += f" (skipped_locked={skipped_locked})"
+        msg += f" skipped_locked={len(skipped_locked)}"
     print(msg)
-    return 0
+    return 0 if not failed else 2
 
 
 if __name__ == "__main__":

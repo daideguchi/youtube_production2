@@ -378,8 +378,8 @@ workspaces/logs/
 - `logs/llm_api_cache/**`: **必要なら 30日ローテ（キャッシュなので安全に削除可能）**
 
 実行（手動/cron）:
-- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30`（logs 直下の L3 を日数ローテ）
-- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30 --include-llm-api-cache`（llm_api_cache も含める）
+- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30`（logs 直下の L3 を日数ローテ。report: `logs/regression/logs_cleanup/`）
+- `python3 scripts/ops/cleanup_logs.py --run --keep-days 30 --include-llm-api-cache`（llm_api_cache も含める。report: `logs/regression/logs_cleanup/`）
 - `python3 scripts/cleanup_data.py --run --keep-days 14`（workspaces/scripts の L3+一部L2）
 
 ---

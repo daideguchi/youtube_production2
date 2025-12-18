@@ -104,7 +104,7 @@
 - `scripts/cleanup_audio_prep.py`（prep/chunks削除）
 - `scripts/purge_audio_final_chunks.py`（final/chunks削除）
 - `scripts/cleanup_data.py --run`（script_pipeline の古い中間生成物/ログを削除）
-- `scripts/ops/cleanup_logs.py --run`（logs 直下の L3 ログを日数ローテで削除）
+- `scripts/ops/cleanup_logs.py --run`（logs 直下の L3 ログを日数ローテで削除。report: `logs/regression/logs_cleanup/`）
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `logs/regression/broken_symlinks/`）
