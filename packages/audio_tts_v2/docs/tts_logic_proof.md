@@ -4,13 +4,13 @@
 All modes (Auto/Interactive) share this indestructible processing core.
 
 ### A. Reading Logic (Hybrid 3-Layer)
-Based on `audio_tts_v2/tts/llm_adapter.py` and `validators.py`.
+Based on `audio_tts_v2/tts/llm_adapter.py` (prompt rules) + the TTS pipeline’s downstream constraints.
 1.  **Layer 1: User Priority**: `Text（Reading）` -> Extracted to `Reading`. (Code: Prompt Rule #2)
 2.  **Layer 2: LLM Correction**: Numbers, English, Symbols, Heteronyms -> Converted to Kana. (Code: Prompt Rule #3, #4)
 3.  **Layer 3: MeCab Standard**: Common Kanji -> Left as Kanji for Voicevox natural intonation. (Code: Prompt Rule #1)
-4.  **Safety Valve (Validator)**:
-    - **Anti-Robot**: Rejects outputs that are 100% Katakana (if input had Kanji).
-    - **Anti-Latin**: Rejects outputs containing `[a-zA-Z]`.
+4.  **Validation / Guard (現状)**:
+    - 実行時に強制する「Validator」は未統合（設計はあるが、フローに組み込まれていない）。
+    - 現状は `tests/` と運用監査（SSOTの読み監査）で “おかしな読み” を検出する。
 
 ### B. Pause Logic (Strict Mechanical)
 Based on `audio_tts_v2/tts/orchestrator.py`.
@@ -29,7 +29,7 @@ Based on `audio_tts_v2/tts/orchestrator.py`.
 **Flow**:
 1.  **Input**: `a_text.txt`.
 2.  **Split**: Mechanical segmentation (SRT blocks).
-3.  **Reading**: LLM applies "100-Point" logic. Validator enforces quality.
+3.  **Reading**: LLM applies "100-Point" logic.
 4.  **Synthesis**: Voicevox generates audio.
 5.  **Output**: WAV + SRT (Synchronized).
 
@@ -50,7 +50,6 @@ Based on `audio_tts_v2/tts/orchestrator.py`.
 
 ### Code Evidence
 - **Prompt**: `llm_adapter.py` Lines 737-750 (Strict Rules).
-- **Validator**: `llm_adapter.py` Line 800 (Calls `validate_reading_quality`).
 - **Headings**: `orchestrator.py` (Validation of `#`).
 
 ### Artifact Evidence

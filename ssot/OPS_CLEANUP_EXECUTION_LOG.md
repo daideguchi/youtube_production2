@@ -851,3 +851,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218T011358Z_commentary02_test_gemini_25_flash_image.tar.gz`
 - 削除（git rm）:
   - `git rm packages/commentary_02_srt2images_timeline/test_gemini_25_flash_image.py`
+
+### 57) 未使用の `audio_tts_v2/tts/validators.py` を archive-first で削除し、設計ドキュメントを現行実装へ同期
+
+意図: `validators.py` は現行コードから参照されておらず、かつ `sys.path.append("audio_tts_v2")` など旧構造前提の記述が残っているため、誤解・誤参照の温床になる。復旧できるよう退避した上で削除し、関連ドキュメントの記述を現行実装に合わせて更新する。
+
+- 参照確認:
+  - `rg -n "tts\.validators|validate_reading_quality" -S packages/audio_tts_v2` で実行コード側の参照が無いことを確認
+- 退避（archive-first）:
+  - `backups/graveyard/20251218T011645Z_audio_tts_v2_validators_and_doc_precleanup.tar.gz`
+- 削除（git rm）:
+  - `git rm packages/audio_tts_v2/tts/validators.py`
+- 追従（docs）:
+  - `packages/audio_tts_v2/docs/tts_logic_proof.md` の Validator 記述を削除し、現行実装（未統合）として明記
