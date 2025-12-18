@@ -14,7 +14,10 @@ def test_persona_document_roundtrip(planning_test_env):
     assert response.status_code == 200
     data = response.json()
     assert data["channel"] == "CH01"
-    assert data["path"].endswith("progress/personas/CH01_PERSONA.md")
+    normalized_path = str(data["path"]).replace("\\", "/")
+    assert normalized_path.endswith(
+        "workspaces/planning/personas/CH01_PERSONA.md"
+    ) or normalized_path.endswith("progress/personas/CH01_PERSONA.md")
     assert "仏教の整理術" in data["content"]
 
     new_content = "# Persona\n> 新しいペルソナテキスト。\n"

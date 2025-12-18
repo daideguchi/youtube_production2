@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from ui.backend import main
 from ui.backend.main import app
 from script_pipeline.tools import planning_requirements
+from factory_common import paths as fc_paths
 
 
 def _read_planning_header() -> str:
@@ -18,18 +19,23 @@ def _read_planning_header() -> str:
 
 @pytest.fixture()
 def planning_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
-    progress_dir = tmp_path / "progress"
-    channels_dir = progress_dir / "channels"
+    monkeypatch.setenv("YTM_REPO_ROOT", str(tmp_path))
+    monkeypatch.setenv("YTM_WORKSPACE_ROOT", str(tmp_path / "workspaces"))
+    fc_paths.repo_root.cache_clear()
+    fc_paths.workspace_root.cache_clear()
+
+    planning_root = tmp_path / "workspaces" / "planning"
+    channels_dir = planning_root / "channels"
     channels_dir.mkdir(parents=True, exist_ok=True)
     planning_csv = channels_dir / "CH01.csv"
     planning_csv.write_text(_read_planning_header() + "\n", encoding="utf-8")
 
-    persona_dir = tmp_path / "progress" / "personas"
+    persona_dir = planning_root / "personas"
     persona_dir.mkdir(parents=True, exist_ok=True)
     persona_text = "他人の目や言葉に振り回されがちな40〜60代。真面目で優しいがゆえに、人間関係・老後・お金・孤独の不安を抱え、仏教の整理術で心を軽くしたいと願っている人。"
     (persona_dir / "CH01_PERSONA.md").write_text(f"# Persona\n> {persona_text}\n", encoding="utf-8")
 
-    templates_dir = tmp_path / "progress" / "templates"
+    templates_dir = planning_root / "templates"
     templates_dir.mkdir(parents=True, exist_ok=True)
     (templates_dir / "CH01_planning_template.csv").write_text(
         "チャンネル,No.,悩みタグ_メイン\nCH01,001,人間関係\n",
@@ -51,6 +57,9 @@ def planning_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
             "persona_text": persona_text,
             "persona_text_path": str(persona_dir / "CH01_PERSONA.md"),
         }
+
+    fc_paths.repo_root.cache_clear()
+    fc_paths.workspace_root.cache_clear()
 
 
 def test_create_planning_entry_requires_required_fields(planning_test_env):
