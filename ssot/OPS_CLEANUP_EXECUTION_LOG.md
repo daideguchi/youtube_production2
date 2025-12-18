@@ -1075,3 +1075,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - protected_name=3（テンプレ系） / recent=1（直近更新）
 - レポート:
   - `logs/regression/capcut_local_drafts_archive/capcut_local_drafts_archive_20251218T095722Z.json`
+
+### 75) `workspaces/video/runs/**` の `*.legacy.*` 残骸を追加 prune（archive-first + lock尊重）
+
+意図: CH02画像regenなどで `*.legacy.*` が追加生成されることがある。既存の prune から時間が経った後に再実行し、未ロック範囲の探索ノイズだけ追加で除去する（ロック中の run は安全にスキップ）。
+
+- 実行:
+  - `python3 scripts/ops/prune_video_run_legacy_files.py --run --max-print 0`
+- 結果:
+  - deleted=46 / skipped_locked=17
+  - archive: `backups/graveyard/20251218T101737Z_video_runs_legacy_files.tar.gz`
+- レポート:
+  - `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T101738Z.json`
