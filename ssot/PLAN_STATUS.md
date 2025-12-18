@@ -18,7 +18,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `PLAN_AGENT_ORG_COORDINATION.md`（最終更新 2025-12-12）: Orchestrator + Workers 協調（スコープロック/申し送り/割当）。
 
 ## Draft（設計中）
-- `PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-12）: モノレポ全体のディレクトリ再編（段階移行）。
+- `PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-18）: モノレポ全体のディレクトリ再編（段階移行）。
 - `PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-17）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
 - `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-17）: レガシー隔離/確実ゴミ判定の基準と段階実行。
 - `PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。

@@ -2,12 +2,26 @@
 
 ## Plan metadata
 - **Plan ID**: PLAN_REPO_DIRECTORY_REFACTOR
-- **ステータス**: In Progress (Stage 1 Complete)
+- **ステータス**: In Progress (Stage 3 Complete / Stage 4 Ongoing)
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: リポジトリ全体（Python/Node/シェル/SSOT/UI/生成物/旧資産）
 - **非対象 (Out of Scope)**: LLMロジック・生成品質・パイプラインのアルゴリズム改変（パス変更に伴う薄い修正は含む）
 - **関連 SoT/依存**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/planning/channels`（互換: `progress/channels`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/runs`（互換: `commentary_02_srt2images_timeline/output`）, `workspaces/thumbnails/assets`（互換: `thumbnails/assets`）, `apps/ui-backend/backend`（互換: `ui/backend`）, `scripts/start_all.sh`
-- **最終更新日**: 2025-12-13
+- **最終更新日**: 2025-12-18
+
+## 0. 現在地（超要約）
+すでに大枠の移行（SoTの正本切替・互換symlink・cleanup導線整備）までは完了している。いま必要なのは「散らかり続ける生成物/ログ/旧runの整理を、確定ルールのもとで自動化・習慣化」して、低知能エージェントでも事故らない状態に固定すること。
+
+- ✅ 完了（主なもの）
+  - Stage1: Path SSOT 導入（旧パス直書き排除）
+  - Stage2: `workspaces/` 正本化（planning/scripts/audio/video/thumbnails/logs/research を切替 + compat symlink）
+  - Stage3: `legacy/` へ隔離（旧資産/PoC/退避の分離）
+  - cleanup/ops の整備（archive-first / lock尊重 / report出力）
+- 🔄 進行中（Stage4）
+  - 「確実ゴミ」削除の継続（`workspaces/*` の中間物/ログ/旧run）
+  - SSOTの継続整理（索引・運用ルール・I/Oの固定）
+  - 互換symlinkの撤去計画（参照0確認 → archive-first → 削除）
+  - UI統合導線は別PLAN（`PLAN_UI_EPISODE_STUDIO.md`）で段階実装
 
 ## 1. 背景と目的
 - 生成物/ログ/旧作業物/複数のサブプロジェクトが同一階層に混在し、**「どこが正本でどこが捨てても良い生成物か」**が判別しづらい。
