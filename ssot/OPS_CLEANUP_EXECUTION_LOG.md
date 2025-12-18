@@ -1087,3 +1087,30 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - archive: `backups/graveyard/20251218T101737Z_video_runs_legacy_files.tar.gz`
 - レポート:
   - `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T101738Z.json`
+
+### 76) CH02の画像regen後に残った `*.legacy.*` を追加 prune（lock解除後・lock尊重）
+
+意図: CH02-021/022/023/025 の lock が解除されたため、`*.legacy.*` の探索ノイズを追加で除去する。CH02-024 は別lockが残っているため自動スキップ（壊さない）。
+
+- dry-run:
+  - `python3 scripts/ops/prune_video_run_legacy_files.py --max-print 0`
+- 実行:
+  - `python3 scripts/ops/prune_video_run_legacy_files.py --run --max-print 0`
+- 結果:
+  - deleted=14 / skipped_locked=3（CH02-024）
+  - archive: `backups/graveyard/20251218T110038Z_video_runs_legacy_files.tar.gz`
+- レポート:
+  - `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T110038Z.json`
+
+### 77) CH02の壊れた `capcut_draft` symlink を削除（lock解除後）
+
+意図: `capcut_draft` の壊れた symlink（target無）は探索ノイズで誤認の温床。`capcut_draft_info.json` が証跡として残るため、壊れたリンク自体は削除して問題ない。CH02-021/022/023/025 を対象に削除。
+
+- dry-run:
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --max-print 0`
+- 実行:
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --run --max-print 0`
+- 結果:
+  - deleted=4
+- レポート:
+  - `logs/regression/broken_symlinks/broken_symlinks_20251218T110055Z.json`
