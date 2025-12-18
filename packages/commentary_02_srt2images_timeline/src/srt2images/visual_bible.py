@@ -36,8 +36,8 @@ Schema:
 {{
   "characters": [
     {{
-      "name": "Name or Role (e.g. 'Old Man', 'Yuki')",
-      "description": "Visual description (Age, ethnicity, hair style/color, clothing style/color, distinct features). Be specific and concise.",
+      "name": "Name or Role (e.g. 'Narrator', 'Person A')",
+      "description": "Visual description (ONLY include age/ethnicity if explicitly stated; otherwise omit or mark as unspecified. Include hair/clothing/distinct features if present). Be specific and concise.",
       "consistency_rules": "Key traits to never change (e.g. 'Always wears red scarf', 'Round glasses')."
     }}
   ],
@@ -55,6 +55,7 @@ Rules:
 3. Use English for descriptions (better for image generation prompts).
 4. Keep descriptions concrete and visual (avoid abstract personality traits unless they affect appearance).
 5. If no specific characters appear (abstract narration), return empty arrays.
+6. Do NOT invent default characters. Do NOT guess "elderly" or "Japanese" unless the script explicitly says so.
 
 Script:
 {script_text}

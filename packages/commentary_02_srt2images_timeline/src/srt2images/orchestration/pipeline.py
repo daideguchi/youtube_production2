@@ -141,7 +141,15 @@ def run_pipeline(args):
     # 1.5) Generate Visual Bible (Before cues)
     persona_text = ""
     visual_bible_data = None
-    if args.cue_mode != "per_segment" and not use_cues_plan:
+
+    # CH02 is personless by default; do not generate/use Visual Bible persona unless explicitly needed.
+    if channel_upper == "CH02":
+        try:
+            (out_dir / "persona_mode.txt").write_text("off\n", encoding="utf-8")
+        except Exception:
+            pass
+
+    if args.cue_mode != "per_segment" and not use_cues_plan and channel_upper != "CH02":
         logging.info("Generating/Loading Visual Bible...")
         try:
             bible_gen = VisualBibleGenerator()

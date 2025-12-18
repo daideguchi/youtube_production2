@@ -106,7 +106,8 @@ def _make_cues_with_llm_context(
                 visual_focus=section.visual_focus,
                 section_type=section.section_type,
                 persona_needed=section.persona_needed,
-                role_tag=section.role_tag
+                role_tag=section.role_tag,
+                channel_id=channel_id,
             )
             cues.append(cue)
 
@@ -147,6 +148,7 @@ def _create_context_cue(
     section_type: str | None = None,
     persona_needed: bool = False,
     role_tag: str | None = None,
+    channel_id: str | None = None,
 ) -> Dict:
     """文脈を考慮したcue作成"""
     if not segments:
@@ -187,6 +189,10 @@ def _create_context_cue(
     if role_tag:
         cue["role_tag"] = role_tag
     # use_persona: 物語/対話などキャラ一貫が必要な場合のみオン
-    cue["use_persona"] = bool(persona_needed or (section_type in ("story", "dialogue")))
+    use_persona = bool(persona_needed or (section_type in ("story", "dialogue")))
+    # CH02 is personless by default; do not auto-enable persona for "story/dialogue".
+    if (channel_id or "").upper() == "CH02":
+        use_persona = bool(persona_needed)
+    cue["use_persona"] = use_persona
 
     return cue

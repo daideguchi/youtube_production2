@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import re
+
 GLOBAL_IMAGE_GUARDRAILS = (
-    "人物描写は動画全体で一貫させる。登場人物の人種・性別・年齢層・髪型・服装・体型・雰囲気を毎枚そろえる。"
+    "人物が出る場合は動画全体で一貫させる。登場人物の人種・性別・年齢層・髪型・服装・体型・雰囲気を毎枚そろえる。"
+    " 人物が不要なシーンでは人を描かない。"
     " 画像の中にテキスト・字幕・サイン・看板・UI・ロゴ・スタンプなどの文字要素を絶対に描かない。"
 )
 
@@ -11,6 +14,8 @@ def build_prompt_from_template(template_text: str, prepend_summary: bool = False
     summary = kwargs.get("summary", "")
     placeholders = {
         "summary": summary,
+        "visual_focus": kwargs.get("visual_focus", ""),
+        "main_character": kwargs.get("main_character", ""),
         "style": kwargs.get("style", ""),
         "seed": kwargs.get("seed", ""),
         "size": kwargs.get("size", ""),
@@ -21,6 +26,9 @@ def build_prompt_from_template(template_text: str, prepend_summary: bool = False
     out = template_text
     for k, v in placeholders.items():
         out = out.replace("{" + k + "}", str(v))
+
+    # Drop any unreplaced placeholders to avoid leaking "{...}" into prompts
+    out = re.sub(r"\{[a-zA-Z0-9_]+\}", "", out)
     
     # Subject-First reordering (Critical for preventing style override)
     if prepend_summary and summary:

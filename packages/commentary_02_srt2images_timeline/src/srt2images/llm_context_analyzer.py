@@ -311,6 +311,7 @@ Script excerpts:
     def _create_analysis_prompt(self, story: str, min_sections: int, max_sections: int) -> str:
         """LLM分析用のプロンプトを作成"""
         extra_rapid = ""
+        extra_ch02 = ""
         # Increase target sections for CH01 to ensure rapid pacing
         if (self.channel_id or "").upper() == "CH01":
             min_sections = int(min_sections * 1.5)
@@ -322,6 +323,14 @@ Script excerpts:
                 "- **VISUAL VARIETY:** Adjacent sections MUST have distinctly different `visual_focus`. Change angle, subject, distance, or lighting.\n"
                 "- If a segment expresses desire, regret, or a list, split it into rapid-fire short cuts (3-5s).\n"
             )
+        elif (self.channel_id or "").upper() == "CH02":
+            extra_ch02 = (
+                "\n"
+                "- **CRITICAL FOR CH02:** Default to personless symbolic imagery. Avoid depicting humans/faces/bodies unless the script explicitly requires it.\n"
+                "- Prefer quiet metaphorical motifs (mask, mirror, empty chair, door, clock shadow, haze, light beam) over literal character scenes.\n"
+                "- `persona_needed` should be false unless a recurring character is explicitly described in the script.\n"
+                "- `visual_focus` should be object/space focused (not a person) and must differ from adjacent sections.\n"
+            )
 
         return f"""
 You are preparing storyboards for a narrated YouTube video.
@@ -331,8 +340,8 @@ Each section must:
   • Cover consecutive SRT segments (no overlap, no gaps).
   • Run roughly 10–15 seconds (never longer than 20 seconds).
   • Capture a single idea the viewer should picture (example, anecdote, list item, metaphor, scene change, or emotional beat).
-  • Be easy to illustrate without text, describing concrete people, objects, settings whenever possible.
-{extra_rapid}
+  • Be easy to illustrate without text, describing concrete subjects, objects, settings whenever possible (people only when the script requires it).
+{extra_rapid}{extra_ch02}
 
 Use the [index@timestamp] markers to reference SRT segments.
 
