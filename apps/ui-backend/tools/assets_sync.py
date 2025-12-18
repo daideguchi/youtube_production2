@@ -24,14 +24,26 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
+def _find_repo_root(start: Path) -> Path:
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
 # Allow running as a script (not only `python -m ...`) after removing root symlinks.
-REPO_ROOT = Path(__file__).resolve().parents[3]  # moved from ui/tools/ to apps/ui-backend/tools/
+REPO_ROOT = _find_repo_root(Path(__file__).resolve())
 PACKAGES_ROOT = REPO_ROOT / "packages"
 for p in (REPO_ROOT, PACKAGES_ROOT):
     p_str = str(p)

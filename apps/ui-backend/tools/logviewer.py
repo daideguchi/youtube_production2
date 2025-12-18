@@ -6,12 +6,32 @@ from __future__ import annotations
 import argparse
 import collections
 import os
+import sys
 import time
 from pathlib import Path
 from typing import Iterable, Optional
 
-YTM_ROOT = Path(__file__).resolve().parents[3]  # moved from ui/tools/ to apps/ui-backend/tools/
-LOG_ROOT = YTM_ROOT / "logs" / "ui_hub"
+
+def _find_repo_root(start: Path) -> Path:
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+YTM_ROOT = _find_repo_root(Path(__file__).resolve())
+for candidate in (YTM_ROOT, YTM_ROOT / "packages"):
+    candidate_str = str(candidate)
+    if candidate_str not in sys.path:
+        sys.path.insert(0, candidate_str)
+
+from factory_common import paths as repo_paths  # noqa: E402
+
+LOG_ROOT = repo_paths.logs_root() / "ui_hub"
 COMPONENT_LOGS = {
     "backend": LOG_ROOT / "backend.log",
     "frontend": LOG_ROOT / "frontend.log",

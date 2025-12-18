@@ -25,14 +25,20 @@ from urllib import request as urllib_request
 
 # Directory constants ---------------------------------------------------------
 
-# File is now at apps/ui-backend/tools/start_manager.py
-# parents[0] = apps/ui-backend/tools/
-# parents[1] = apps/ui-backend/
-# parents[2] = apps/
-# parents[3] = repo root
-UI_DIR = Path(__file__).resolve().parents[1]  # apps/ui-backend/
-YTM_ROOT = UI_DIR.parents[1]  # repo root
+def _find_repo_root(start: Path) -> Path:
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+YTM_ROOT = _find_repo_root(Path(__file__).resolve())
 APPS_ROOT = YTM_ROOT / "apps"
+UI_DIR = APPS_ROOT / "ui-backend"
 BACKEND_DIR = APPS_ROOT / "ui-backend" / "backend"
 FRONTEND_DIR = APPS_ROOT / "ui-frontend"
 LOG_ROOT = YTM_ROOT / "workspaces" / "logs" / "ui_hub"

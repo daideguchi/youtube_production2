@@ -17,6 +17,24 @@ import sys
 from pathlib import Path
 
 
+def _find_repo_root(start: Path) -> Path:
+    """
+    Best-effort repo root discovery.
+
+    Avoid hardcoding `Path(__file__).parents[...]` because this repo is actively
+    being reorganized and we want imports to survive moves.
+    """
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
 def _load_env_files(paths: list[Path]) -> None:
     for env_path in paths:
         if not env_path.exists():
@@ -34,7 +52,7 @@ def _load_env_files(paths: list[Path]) -> None:
             continue
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = _find_repo_root(Path(__file__).resolve())
 PACKAGES_ROOT = PROJECT_ROOT / "packages"
 
 for candidate in (PROJECT_ROOT, PACKAGES_ROOT):
