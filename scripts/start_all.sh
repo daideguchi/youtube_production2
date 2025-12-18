@@ -90,6 +90,8 @@ start_remotion_studio() {
     warn "remotion dir not found: $remotion_dir"
     return
   fi
+  # Ensure workspaces video input exists (Remotion preview reads from it via apps/remotion/input symlink).
+  mkdir -p "$YTM_ROOT/workspaces/video/input" 2>/dev/null || true
   # Ensure public/input is available (symlink to ../input for preview)
   if [ ! -e "$remotion_dir/public/input" ]; then
     ln -s ../input "$remotion_dir/public/input" 2>/dev/null || true
