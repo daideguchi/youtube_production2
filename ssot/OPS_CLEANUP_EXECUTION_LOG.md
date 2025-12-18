@@ -965,3 +965,26 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name A_text.md --run --max-print 0`
 - レポート:
   - `logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
+
+### 66) CH02-024 の欠損SoTを安全に復元（checksum一致）
+
+意図: `episode_ssot show` が CH02-024 の A text / audio final の欠損を検知した。ところが `workspaces/video/input/` に同一ファイルが存在し、`workspaces/audio/final/CH02/024/audio_manifest.json` の sha1 と一致しているため、**安全に正本（audio/final + scripts/content）へ復元**できる。
+
+- 事前確認:
+  - `shasum -a 1 workspaces/video/input/CH02_哲学系/CH02-024.wav`
+  - `shasum -a 1 workspaces/video/input/CH02_哲学系/CH02-024.srt`
+  - `cat workspaces/audio/final/CH02/024/audio_manifest.json` の sha1 と一致すること
+- 復元:
+  - `cp workspaces/video/input/CH02_哲学系/CH02-024.wav workspaces/audio/final/CH02/024/CH02-024.wav`
+  - `cp workspaces/video/input/CH02_哲学系/CH02-024.srt workspaces/audio/final/CH02/024/CH02-024.srt`
+  - `cp workspaces/audio/final/CH02/024/a_text.txt workspaces/scripts/CH02/024/content/assembled.md`
+  - `cp workspaces/audio/final/CH02/024/a_text.txt workspaces/scripts/CH02/024/content/assembled_human.md`
+- 検証:
+  - `python3 scripts/episode_ssot.py show --channel CH02 --video 024` で warning が消えること
+
+### 67) ローカルキャッシュ（`__pycache__` / `.pytest_cache` / `.DS_Store`）を掃除（untracked / safe）
+
+意図: キャッシュ類は探索ノイズと誤判定を増やすため、定期的に除去して repo を「見通しの良い状態」に保つ。
+
+- 実行:
+  - `bash scripts/ops/cleanup_caches.sh`
