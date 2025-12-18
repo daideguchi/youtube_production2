@@ -538,8 +538,8 @@ legacy/
 - [x] `ui/backend` → `apps/ui-backend/backend`（互換: `ui/backend` は symlink）
 - [x] `ui/frontend` → `apps/ui-frontend`（互換: `ui/frontend` は symlink）
 - [x] `remotion/` → `apps/remotion`（互換: `remotion` は symlink）
-- [ ] `scripts/start_all.sh` / `ui/tools/start_manager.py` の参照パス更新。
-- [ ] Remotion `public/input` の symlink を `workspaces/video/input` へ向ける。
+- [x] `scripts/start_all.sh` / `ui/tools/start_manager.py` の参照パス更新。
+- [x] Remotion preview の入力を `workspaces/video/input` へ統一（`apps/remotion/input` → `workspaces/video/input` symlink。`public/input` は `../input` を参照）。
 
 ### Stage 6: Cleanup / deprecation 完了
 - [ ] symlink 期間（1–2ヶ月）終了後に旧パスを削除。
