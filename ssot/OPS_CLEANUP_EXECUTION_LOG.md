@@ -988,3 +988,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 
 - 実行:
   - `bash scripts/ops/cleanup_caches.sh`
+
+### 68) `workspaces/video/runs/**` の `*.legacy.*` 残骸を prune（archive-first + lock尊重）
+
+意図: run_dir 直下に残る `*.legacy.*` は「どれが正本？」の誤認を誘発する探索ノイズ。現行フローの入力として使わないため、**退避（tar.gz）→削除**でクリーン化する。
+
+- dry-run:
+  - `python3 scripts/ops/prune_video_run_legacy_files.py --max-print 0`
+- 実行（archive-first → delete）:
+  - `python3 scripts/ops/prune_video_run_legacy_files.py --run --max-print 0`
+  - archive: `backups/graveyard/20251218T073604Z_video_runs_legacy_files.tar.gz`
+  - report: `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T073604Z.json`
+- 結果:
+  - deleted=185 / skipped_locked=63（CH02画像regenのlock対象はスキップ）
