@@ -906,3 +906,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218_141306_deprecated_route_audio_stubs/run_route2_agent.py`
 - 削除（git rm）:
   - `git rm scripts/_core_audio.py scripts/run_route1_batch.py scripts/run_route2_agent.py`
+
+### 61) `legacy/scripts/route_audio/` を archive-first で削除（repo tracked）
+
+意図: `legacy/scripts/route_audio/` は旧Route（batch/agent）時代のスクリプト群で、現行の `audio_tts_v2/scripts/run_tts.py` の引数仕様ともズレており **実行不能**。参照ゼロで探索ノイズになるため、退避した上で削除する。
+
+- 参照確認:
+  - `rg -n "legacy/scripts/route_audio" -S .` が当該ディレクトリ内のみ
+- 退避（archive-first）:
+  - `backups/graveyard/20251218_141802_legacy_route_audio.tar.gz`
+- 削除（git rm）:
+  - `git rm -r legacy/scripts/route_audio`
