@@ -94,6 +94,7 @@
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs（unscoped/legacyも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440` → OKなら `--run --yes`
+  - broken symlinks: `python -m scripts.cleanup_workspace --broken-symlinks --dry-run` → OKなら `--run`（必要なら `--symlinks-include-episodes`）
   - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
   - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
 - 復旧（run dir を戻す）:

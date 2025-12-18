@@ -66,6 +66,7 @@ def main() -> int:
     ap.add_argument("--video-runs", action="store_true", help="Archive older video run dirs under workspaces/video/runs.")
     ap.add_argument("--logs", action="store_true", help="Cleanup L3 logs under logs_root().")
     ap.add_argument("--scripts", action="store_true", help="Cleanup workspaces/scripts intermediates/logs (L3).")
+    ap.add_argument("--broken-symlinks", action="store_true", help="Cleanup broken symlinks (capcut_draft, etc).")
     ap.add_argument("--dry-run", action="store_true", help="Print actions (default).")
     ap.add_argument("--run", action="store_true", help="Actually delete.")
     ap.add_argument(
@@ -94,6 +95,16 @@ def main() -> int:
     ap.add_argument("--logs-keep-days", type=int, default=30, help="Keep logs newer than this many days (default: 30).")
     ap.add_argument("--scripts-keep-days", type=int, default=14, help="Keep script intermediates newer than this many days (default: 14).")
     ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune logs/llm_api_cache (default: keep).")
+    ap.add_argument(
+        "--symlinks-name",
+        action="append",
+        help="Symlink basename to cleanup (repeatable; default: capcut_draft). Used with --broken-symlinks.",
+    )
+    ap.add_argument(
+        "--symlinks-include-episodes",
+        action="store_true",
+        help="Also scan workspaces/episodes (default: off). Used with --broken-symlinks.",
+    )
     args = ap.parse_args()
 
     do_run = bool(args.run)
@@ -106,7 +117,9 @@ def main() -> int:
         domains.add("logs")
     if args.scripts:
         domains.add("scripts")
-    if args.audio or (not args.video_runs and not args.logs and not args.scripts):
+    if args.broken_symlinks:
+        domains.add("broken_symlinks")
+    if args.audio or (not args.video_runs and not args.logs and not args.scripts and not args.broken_symlinks):
         domains.add("audio")
 
     if args.video and not args.channel and not args.all:
@@ -160,8 +173,30 @@ def main() -> int:
             f"include_hidden={bool(args.video_include_hidden_runs)}",
             flush=True,
         )
+    if "broken_symlinks" in domains:
+        print(
+            f"[cleanup_workspace] symlinks.name={args.symlinks_name or ['capcut_draft']} "
+            f"include_episodes={bool(args.symlinks_include_episodes)}",
+            flush=True,
+        )
 
     worst = 0
+
+    if "broken_symlinks" in domains:
+        script_path = REPO_ROOT / "scripts" / "ops" / "cleanup_broken_symlinks.py"
+        if not script_path.exists():
+            print(f"[cleanup_workspace] WARN missing script: {script_path}")
+            worst = max(worst, 2)
+        else:
+            names = args.symlinks_name or ["capcut_draft"]
+            for name in names:
+                args_symlinks: list[str] = ["--name", str(name), "--max-print", "0"]
+                if args.symlinks_include_episodes:
+                    args_symlinks.append("--include-episodes")
+                if do_run and not dry_run:
+                    args_symlinks.append("--run")
+                rc = _run_script(script_path, args_symlinks)
+                worst = max(worst, rc)
 
     if "logs" in domains:
         script_path = REPO_ROOT / "scripts" / "ops" / "cleanup_logs.py"
