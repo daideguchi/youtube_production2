@@ -122,3 +122,4 @@
 - 運用改善: 壊れた `capcut_draft` symlink の掃除ツールを追加し、coordination lock が symlink でも効くように修正（`scripts/ops/cleanup_broken_symlinks.py`, `packages/factory_common/locks.py`）。掃除レポートは `logs/regression/broken_symlinks/`。
 - 運用改善: `workspaces/episodes/` の materialize を「存在しないリンクは残さない」挙動に変更し、壊れたsymlinkを掃除してリンク集のノイズを低減（`scripts/episode_ssot.py`, `workspaces/episodes/README.md`）。
 - lock衛生: `python scripts/agent_org.py locks-prune` を追加し、期限切れ lock JSON を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避できるようにした（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`, `ssot/OPS_LOGGING_MAP.md`）。検証: `python -m py_compile scripts/agent_org.py`, `python scripts/ops/ssot_audit.py --strict`（commit `8d9cff1b`）。
+- 共同運用: 複数エージェントが **1ファイル** に状態/申し送りを書き込める Shared Board を追加（`python scripts/agent_org.py board show|set|note`）。実体: `logs/agent_tasks/coordination/board.json`（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`, `ssot/OPS_LOGGING_MAP.md`, `ssot/OPS_ENTRYPOINTS_INDEX.md`）。

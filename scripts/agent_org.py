@@ -153,6 +153,9 @@ def _memos_dir(q: Path) -> Path:
 def _locks_dir(q: Path) -> Path:
     return _coord_dir(q) / "locks"
 
+def _board_path(q: Path) -> Path:
+    return _coord_dir(q) / "board.json"
+
 
 def _agents_dir(q: Path) -> Path:
     return _coord_dir(q) / "agents"
@@ -716,6 +719,236 @@ def cmd_locks_prune(args: argparse.Namespace) -> int:
         f"done (dry_run={dry_run}) archived={len(to_archive)} deleted={len(to_delete)} "
         f"skipped_no_expiry={len(skipped_no_expiry)}"
     )
+    return 0
+
+
+def _board_default_payload() -> dict:
+    return {
+        "schema_version": 1,
+        "kind": "agent_board",
+        "updated_at": _now_iso_utc(),
+        "agents": {},
+        "log": [],
+    }
+
+
+def _board_ensure_shape(obj: dict) -> dict:
+    if not isinstance(obj, dict):
+        obj = {}
+    base = _board_default_payload()
+    obj.setdefault("schema_version", base["schema_version"])
+    obj.setdefault("kind", base["kind"])
+    obj.setdefault("updated_at", base["updated_at"])
+    obj.setdefault("agents", {})
+    obj.setdefault("log", [])
+    if not isinstance(obj.get("agents"), dict):
+        obj["agents"] = {}
+    if not isinstance(obj.get("log"), list):
+        obj["log"] = []
+    return obj
+
+
+def _parse_tags_csv(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    tags: list[str] = []
+    for part in str(raw).split(","):
+        t = part.strip()
+        if t:
+            tags.append(t)
+    return tags
+
+
+def cmd_board_show(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+
+    if args.json:
+        print(json.dumps(obj, ensure_ascii=False, indent=2))
+        return 0
+
+    agents = obj.get("agents") or {}
+    if not isinstance(agents, dict) or not agents:
+        print("(board has no agent statuses yet)")
+    else:
+        rows: list[tuple[str, str, str, str, str]] = []
+        for name, st in agents.items():
+            if not isinstance(st, dict):
+                st = {}
+            updated_at = str(st.get("updated_at") or "-")
+            doing = str(st.get("doing") or "-").replace("\t", " ").replace("\n", "\\n")
+            blocked = str(st.get("blocked") or "-").replace("\t", " ").replace("\n", "\\n")
+            nxt = str(st.get("next") or "-").replace("\t", " ").replace("\n", "\\n")
+            rows.append((str(name), doing, blocked, nxt, updated_at))
+        rows.sort(key=lambda r: r[4], reverse=True)
+
+        print("agent\tdoing\tblocked\tnext\tupdated_at")
+        for r in rows:
+            print("\t".join(r))
+
+    try:
+        tail = int(args.tail)
+    except Exception:
+        tail = 5
+    if tail <= 0:
+        return 0
+
+    log = obj.get("log") or []
+    if not isinstance(log, list) or not log:
+        return 0
+
+    print("\nrecent_log_ts\tagent\ttopic\tmessage")
+    for e in log[-tail:]:
+        if not isinstance(e, dict):
+            continue
+        ts = str(e.get("ts") or "-")
+        agent = str(e.get("agent") or "-")
+        topic = str(e.get("topic") or "-")
+        msg = str(e.get("message") or "-").replace("\t", " ").replace("\n", "\\n")
+        if len(msg) > 240:
+            msg = msg[:240] + "…"
+        print(f"{ts}\t{agent}\t{topic}\t{msg}")
+
+    return 0
+
+
+def cmd_board_set(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _agent_name(args) or "unknown"
+    p = _board_path(q)
+    now = _now_iso_utc()
+    tags = _parse_tags_csv(getattr(args, "tags", None))
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {})
+        agents = cur.get("agents") if isinstance(cur.get("agents"), dict) else {}
+        if not isinstance(agents, dict):
+            agents = {}
+
+        if args.clear:
+            agents.pop(agent, None)
+            cur["agents"] = agents
+            cur["updated_at"] = now
+            return cur
+
+        st = agents.get(agent)
+        if not isinstance(st, dict):
+            st = {}
+
+        if args.doing is not None:
+            st["doing"] = str(args.doing)
+        if args.blocked is not None:
+            st["blocked"] = str(args.blocked)
+        if args.next is not None:
+            st["next"] = str(args.next)
+        if args.note is not None:
+            st["note"] = str(args.note)
+        if tags:
+            st["tags"] = tags
+
+        st["updated_at"] = now
+        agents[agent] = st
+        cur["agents"] = agents
+        cur["updated_at"] = now
+        return cur
+
+    _locked_update_json(p, _update)
+
+    _append_event(
+        q,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "event",
+            "created_at": now,
+            "actor": agent,
+            "action": "board_set",
+            "board_path": str(p),
+        },
+    )
+    print(str(p))
+    return 0
+
+
+def cmd_board_note(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _agent_name(args) or "unknown"
+    p = _board_path(q)
+    now = _now_iso_utc()
+    tags = _parse_tags_csv(getattr(args, "tags", None))
+
+    msg = None
+    if getattr(args, "message_file", None):
+        msg = Path(str(args.message_file)).read_text(encoding="utf-8")
+    elif getattr(args, "message", None):
+        msg = str(args.message)
+    else:
+        raw = sys.stdin.read()
+        if raw and raw.strip():
+            msg = raw
+
+    if not msg or not str(msg).strip():
+        print("message is required (use --message, --message-file, or stdin)")
+        return 2
+
+    topic = str(args.topic).strip()
+    if not topic:
+        print("topic is required")
+        return 2
+
+    entry = {
+        "ts": now,
+        "agent": agent,
+        "topic": topic,
+        "message": str(msg).strip(),
+        "tags": tags,
+    }
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {})
+        agents = cur.get("agents") if isinstance(cur.get("agents"), dict) else {}
+        if not isinstance(agents, dict):
+            agents = {}
+        st = agents.get(agent)
+        if not isinstance(st, dict):
+            st = {}
+        st["last_note_at"] = now
+        st.setdefault("updated_at", now)
+        agents[agent] = st
+        cur["agents"] = agents
+
+        log = cur.get("log") if isinstance(cur.get("log"), list) else []
+        if not isinstance(log, list):
+            log = []
+        log.append(entry)
+        max_log = 200
+        if len(log) > max_log:
+            log = log[-max_log:]
+        cur["log"] = log
+        cur["updated_at"] = now
+        return cur
+
+    _locked_update_json(p, _update)
+
+    _append_event(
+        q,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "event",
+            "created_at": now,
+            "actor": agent,
+            "action": "board_note",
+            "board_path": str(p),
+            "topic": topic,
+        },
+    )
+
+    print(str(p))
     return 0
 
 
@@ -1794,6 +2027,31 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("unlock", help="remove a lock by id")
     sp.add_argument("lock_id")
     sp.set_defaults(func=cmd_unlock)
+
+    # Shared board (single file)
+    sp = sub.add_parser("board", help="shared board (single file) for multi-agent collaboration")
+    board_sub = sp.add_subparsers(dest="board_cmd", required=True)
+
+    sp2 = board_sub.add_parser("show", help="show board status and recent notes")
+    sp2.add_argument("--json", action="store_true", help="emit raw JSON")
+    sp2.add_argument("--tail", default=5, type=int, help="show last N log entries (default: 5; 0 disables)")
+    sp2.set_defaults(func=cmd_board_show)
+
+    sp2 = board_sub.add_parser("set", help="update my status on the board")
+    sp2.add_argument("--doing", default=None, help="what I'm doing now")
+    sp2.add_argument("--blocked", default=None, help="what I'm blocked on")
+    sp2.add_argument("--next", default=None, help="what I'll do next")
+    sp2.add_argument("--note", default=None, help="free-form note (optional)")
+    sp2.add_argument("--tags", default=None, help="comma-separated tags")
+    sp2.add_argument("--clear", action="store_true", help="remove my status entry from the board")
+    sp2.set_defaults(func=cmd_board_set)
+
+    sp2 = board_sub.add_parser("note", help="append a note to the board log")
+    sp2.add_argument("--topic", required=True, help="short topic/title")
+    sp2.add_argument("--message", default=None, help="note body (if omitted, read stdin or --message-file)")
+    sp2.add_argument("--message-file", default=None, help="file containing note body (utf-8)")
+    sp2.add_argument("--tags", default=None, help="comma-separated tags")
+    sp2.set_defaults(func=cmd_board_note)
 
     # Overview
     sp = sub.add_parser("overview", help="show who-is-doing-what overview (agents + locks + memos)")

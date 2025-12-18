@@ -74,6 +74,7 @@
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
 - `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用。`overview` で「誰が何を触っているか」俯瞰可能）
+  - Shared Board（単一ファイルで共同）: `python scripts/agent_org.py board show|set|note`
   - UI: `GET /api/agent-org/overview`（Agents+Locks+Memos を統合表示）
 
 ### 3.5 Episode（A→B→音声→SRT→run の1:1整備）

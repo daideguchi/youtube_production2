@@ -50,6 +50,18 @@ python scripts/agent_org.py locks-prune --older-than-days 30
 
 lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/PLAN_AGENT_ORG_COORDINATION.md`）。
 
+### 2.3 共同メモ（単一ファイル / Shared Board）
+複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。
+内部は **1ファイル（JSON）** で、更新はファイルロック付きの read-modify-write なので並列でも壊れにくい。
+
+```bash
+python scripts/agent_org.py board show
+python scripts/agent_org.py board set --doing "cleanup: logs整理" --next "ssot更新" --tags cleanup,ssot
+python scripts/agent_org.py board note --topic "CH02-024 lock中" --message "lock解除後に prune_video_run_legacy_files を走らせる"
+```
+
+ファイル実体: `logs/agent_tasks/coordination/board.json`（= `logs_root()/agent_tasks/coordination/board.json`）
+
 ---
 
 ## 3. “壊さない”ための不変条件（強制）
