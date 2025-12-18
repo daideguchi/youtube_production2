@@ -295,6 +295,7 @@ THUMBNAIL_SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 THUMBNAIL_PROJECTS_LOCK = threading.Lock()
 THUMBNAIL_TEMPLATES_LOCK = threading.Lock()
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
+OPENROUTER_GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
 OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {}}
 OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
@@ -4930,6 +4931,12 @@ class ThumbnailVariantResponse(BaseModel):
     preview_url: Optional[str] = None
     notes: Optional[str] = None
     tags: Optional[List[str]] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    model_key: Optional[str] = None
+    openrouter_generation_id: Optional[str] = None
+    cost_usd: Optional[float] = None
+    usage: Optional[Dict[str, Any]] = None
     is_selected: Optional[bool] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -5141,10 +5148,20 @@ class ThumbnailTemplateResponse(BaseModel):
     updated_at: Optional[str] = None
 
 
+class ThumbnailChannelStyleResponse(BaseModel):
+    name: Optional[str] = None
+    benchmark_path: Optional[str] = None
+    preview_upper: Optional[str] = None
+    preview_title: Optional[str] = None
+    preview_lower: Optional[str] = None
+    rules: Optional[List[str]] = None
+
+
 class ThumbnailChannelTemplatesResponse(BaseModel):
     channel: str
     default_template_id: Optional[str] = None
     templates: List[ThumbnailTemplateResponse]
+    channel_style: Optional[ThumbnailChannelStyleResponse] = None
 
 
 class ThumbnailChannelTemplatesUpdateRequest(BaseModel):
@@ -7406,6 +7423,12 @@ def _persist_thumbnail_variant(
     notes: Optional[str] = None,
     tags: Optional[Iterable[str]] = None,
     prompt: Optional[str] = None,
+    provider: Optional[str] = None,
+    model: Optional[str] = None,
+    model_key: Optional[str] = None,
+    openrouter_generation_id: Optional[str] = None,
+    cost_usd: Optional[float] = None,
+    usage: Optional[Dict[str, Any]] = None,
     make_selected: bool = False,
 ) -> ThumbnailVariantResponse:
     normalized_status = _normalize_thumbnail_status(status)
@@ -7431,6 +7454,18 @@ def _persist_thumbnail_variant(
         "created_at": now,
         "updated_at": now,
     }
+    if provider:
+        variant_doc["provider"] = str(provider)
+    if model:
+        variant_doc["model"] = str(model)
+    if model_key:
+        variant_doc["model_key"] = str(model_key)
+    if openrouter_generation_id:
+        variant_doc["openrouter_generation_id"] = str(openrouter_generation_id)
+    if cost_usd is not None:
+        variant_doc["cost_usd"] = float(cost_usd)
+    if usage:
+        variant_doc["usage"] = usage
     with THUMBNAIL_PROJECTS_LOCK:
         path, payload = _load_thumbnail_projects_document()
         project = _get_or_create_thumbnail_project(payload, channel_code, video_number)
@@ -7449,6 +7484,12 @@ def _persist_thumbnail_variant(
         preview_url=image_url,
         notes=notes,
         tags=normalized_tags,
+        provider=variant_doc.get("provider"),
+        model=variant_doc.get("model"),
+        model_key=variant_doc.get("model_key"),
+        openrouter_generation_id=variant_doc.get("openrouter_generation_id"),
+        cost_usd=variant_doc.get("cost_usd"),
+        usage=variant_doc.get("usage"),
         is_selected=make_selected,
         created_at=now,
         updated_at=now,
@@ -7512,6 +7553,33 @@ def _get_openrouter_pricing_by_model_id(
         OPENROUTER_MODELS_CACHE["pricing_by_id"] = pricing_by_id
 
     return pricing_by_id, now
+
+
+def _fetch_openrouter_generation(gen_id: str, *, timeout_sec: int = 10) -> Optional[Dict[str, Any]]:
+    """
+    Fetch OpenRouter generation metadata (includes billed cost) from `/api/v1/generation`.
+
+    Docs: https://openrouter.ai/docs/api-reference/get-a-generation
+    """
+    if not gen_id:
+        return None
+    key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_TOKEN") or _load_env_value("OPENROUTER_API_KEY")
+    if not key:
+        return None
+    try:
+        resp = requests.get(
+            OPENROUTER_GENERATION_URL,
+            headers={"Authorization": f"Bearer {key}"},
+            params={"id": gen_id},
+            timeout=timeout_sec,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        if isinstance(payload, dict) and isinstance(payload.get("data"), dict):
+            return payload["data"]
+        return payload if isinstance(payload, dict) else None
+    except Exception:
+        return None
 
 
 @app.get(
@@ -7615,10 +7683,36 @@ def get_thumbnail_channel_templates(channel: str):
     if default_template_id and default_template_id not in template_ids:
         default_template_id = None
 
+    raw_style = channel_payload.get("channel_style") if isinstance(channel_payload, dict) else None
+    channel_style: Optional[ThumbnailChannelStyleResponse] = None
+    if isinstance(raw_style, dict):
+        rules_payload = raw_style.get("rules")
+        rules: Optional[List[str]] = None
+        if isinstance(rules_payload, list):
+            filtered = [str(item).strip() for item in rules_payload if isinstance(item, str) and str(item).strip()]
+            rules = filtered or None
+        channel_style = ThumbnailChannelStyleResponse(
+            name=(str(raw_style.get("name")).strip() if isinstance(raw_style.get("name"), str) else None),
+            benchmark_path=(
+                str(raw_style.get("benchmark_path")).strip() if isinstance(raw_style.get("benchmark_path"), str) else None
+            ),
+            preview_upper=(
+                str(raw_style.get("preview_upper")).strip() if isinstance(raw_style.get("preview_upper"), str) else None
+            ),
+            preview_title=(
+                str(raw_style.get("preview_title")).strip() if isinstance(raw_style.get("preview_title"), str) else None
+            ),
+            preview_lower=(
+                str(raw_style.get("preview_lower")).strip() if isinstance(raw_style.get("preview_lower"), str) else None
+            ),
+            rules=rules,
+        )
+
     return ThumbnailChannelTemplatesResponse(
         channel=channel_code,
         default_template_id=default_template_id,
         templates=templates,
+        channel_style=channel_style,
     )
 
 
@@ -7696,10 +7790,14 @@ def upsert_thumbnail_channel_templates(channel: str, request: ThumbnailChannelTe
         if default_template_id and default_template_id not in seen_ids:
             raise HTTPException(status_code=400, detail="default_template_id not found in templates")
 
-        channels[channel_code] = {
-            "default_template_id": default_template_id,
-            "templates": templates_out,
-        }
+        merged_channel: Dict[str, Any] = dict(existing_channel) if isinstance(existing_channel, dict) else {}
+        merged_channel.update(
+            {
+                "default_template_id": default_template_id,
+                "templates": templates_out,
+            }
+        )
+        channels[channel_code] = merged_channel
         _write_thumbnail_templates_document(path, payload)
 
     return get_thumbnail_channel_templates(channel_code)
@@ -7757,6 +7855,12 @@ def get_thumbnail_overview():
                     preview_url=raw_variant.get("preview_url"),
                     notes=raw_variant.get("notes"),
                     tags=(tags_list or None),
+                    provider=raw_variant.get("provider"),
+                    model=raw_variant.get("model"),
+                    model_key=raw_variant.get("model_key"),
+                    openrouter_generation_id=raw_variant.get("openrouter_generation_id"),
+                    cost_usd=raw_variant.get("cost_usd"),
+                    usage=raw_variant.get("usage"),
                     is_selected=selected_variant_id == variant_id,
                     created_at=raw_variant.get("created_at"),
                     updated_at=raw_variant.get("updated_at"),

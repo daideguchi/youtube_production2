@@ -29,6 +29,7 @@ import {
   uploadThumbnailVariantAsset,
   uploadThumbnailLibraryAssets,
 } from "../api/client";
+import { ThumbnailBulkPanel } from "./ThumbnailBulkPanel";
 import {
   PlanningCreatePayload,
   ThumbnailChannelBlock,
@@ -45,7 +46,7 @@ import {
 
 type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "archived";
 
-type ThumbnailWorkspaceTab = "projects" | "templates" | "library" | "channel";
+type ThumbnailWorkspaceTab = "bulk" | "projects" | "templates" | "library" | "channel";
 
 type VariantFormState = {
   projectKey: string;
@@ -147,6 +148,7 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
 ];
 
 const THUMBNAIL_WORKSPACE_TABS: { key: ThumbnailWorkspaceTab; label: string; description?: string }[] = [
+  { key: "bulk", label: "量産", description: "コピー編集→Canva一括CSV" },
   { key: "projects", label: "案件", description: "サムネ案の登録・生成・採用" },
   { key: "templates", label: "テンプレ", description: "チャンネルの型（AI生成用）" },
   { key: "library", label: "ライブラリ", description: "参考サムネの登録・紐付け" },
@@ -322,7 +324,7 @@ function isSupportedThumbnailFile(file: File): boolean {
 export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = {}) {
   const [overview, setOverview] = useState<ThumbnailOverview | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("projects");
+  const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("bulk");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -371,6 +373,85 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
 
+  const activeChannel: ThumbnailChannelBlock | undefined = useMemo(() => {
+    if (!overview || overview.channels.length === 0) {
+      return undefined;
+    }
+    const firstChannel = overview.channels[0];
+    if (!selectedChannel) {
+      return firstChannel;
+    }
+    return overview.channels.find((item) => item.channel === selectedChannel) ?? firstChannel;
+  }, [overview, selectedChannel]);
+
+  const summary = activeChannel?.summary;
+  const activeChannelName = activeChannel?.channel_title ?? activeChannel?.channel ?? null;
+  const channelVideos = activeChannel?.videos ?? [];
+
+  const loadPlanning = useCallback(
+    async (channelCode: string, options?: { silent?: boolean }) => {
+      const silent = options?.silent ?? false;
+      if (!silent) {
+        setPlanningLoading(true);
+        setPlanningError(null);
+      }
+      try {
+        const result = await fetchProgressCsv(channelCode);
+        const map: Record<string, Record<string, string>> = {};
+        (result.rows ?? []).forEach((row) => {
+          const rawVideo = row["動画番号"] ?? row["VideoNumber"] ?? "";
+          const normalizedVideo = normalizeVideoInput(rawVideo);
+          if (!normalizedVideo) {
+            return;
+          }
+          map[normalizedVideo] = row;
+        });
+        setPlanningRowsByVideo(map);
+        return map;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setPlanningError(message);
+        setPlanningRowsByVideo({});
+        throw error;
+      } finally {
+        if (!silent) {
+          setPlanningLoading(false);
+        }
+      }
+    },
+    []
+  );
+
+  const handleRefreshPlanning = useCallback(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+    loadPlanning(channelCode).catch(() => {
+      // error is shown in planningError
+    });
+  }, [activeChannel?.channel, loadPlanning]);
+
+  const handleUpdateLocalPlanningRow = useCallback((video: string, patch: Partial<Record<string, string>>) => {
+    setPlanningRowsByVideo((current) => {
+      const existing = current[video];
+      const nextRow: Record<string, string> = { ...(existing ?? {}) } as Record<string, string>;
+
+      Object.entries(patch).forEach(([key, value]) => {
+        if (value === undefined) {
+          return;
+        }
+        nextRow[key] = value;
+      });
+      return {
+        ...current,
+        [video]: {
+          ...nextRow,
+        },
+      };
+    });
+  }, []);
+
   const handleCopyAssetPath = useCallback((path: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(path).catch(() => {
@@ -390,21 +471,6 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       document.body.removeChild(textarea);
     }
   }, []);
-
-  const activeChannel: ThumbnailChannelBlock | undefined = useMemo(() => {
-    if (!overview || overview.channels.length === 0) {
-      return undefined;
-    }
-    const firstChannel = overview.channels[0];
-    if (!selectedChannel) {
-      return firstChannel;
-    }
-    return overview.channels.find((item) => item.channel === selectedChannel) ?? firstChannel;
-  }, [overview, selectedChannel]);
-
-  const summary = activeChannel?.summary;
-  const activeChannelName = activeChannel?.channel_title ?? activeChannel?.channel ?? null;
-  const channelVideos = activeChannel?.videos ?? [];
 
   const setProjectFeedback = useCallback((projectKey: string, feedback: CardFeedback | null) => {
     setCardFeedback((current) => {
@@ -609,30 +675,32 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       setPlanningError(null);
       return;
     }
-    setPlanningLoading(true);
-    setPlanningError(null);
-    fetchProgressCsv(channelCode)
-      .then((result) => {
-        const map: Record<string, Record<string, string>> = {};
-        (result.rows ?? []).forEach((row) => {
-          const rawVideo = row["動画番号"] ?? row["VideoNumber"] ?? "";
-          const normalizedVideo = normalizeVideoInput(rawVideo);
-          if (!normalizedVideo) {
-            return;
-          }
-          map[normalizedVideo] = row;
-        });
-        setPlanningRowsByVideo(map);
-      })
-      .catch((error) => {
-        const message = error instanceof Error ? error.message : String(error);
-        setPlanningError(message);
-        setPlanningRowsByVideo({});
-      })
-      .finally(() => {
-        setPlanningLoading(false);
-      });
-  }, [activeChannel?.channel]);
+    loadPlanning(channelCode).catch(() => {
+      // error is shown in planningError
+    });
+  }, [activeChannel?.channel, loadPlanning]);
+
+  const bulkPanel = activeChannel ? (
+    <ThumbnailBulkPanel
+      channel={activeChannel.channel}
+      channelName={activeChannel.channel_title}
+      channelTemplates={channelTemplates}
+      planningRowsByVideo={planningRowsByVideo}
+      planningLoading={planningLoading}
+      planningError={planningError}
+      onRefreshPlanning={handleRefreshPlanning}
+      onUpdateLocalPlanningRow={handleUpdateLocalPlanningRow}
+    />
+  ) : (
+    <section className="thumbnail-library-panel">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>量産（Canva）</h3>
+          <p>チャンネルを選択すると企画CSVからコピー一覧を読み込みます。</p>
+        </div>
+      </div>
+    </section>
+  );
 
   const handleLibraryVideoChange = useCallback((assetId: string, value: string) => {
     setLibraryForms((current) => {
@@ -2170,7 +2238,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         <header className="thumbnail-workspace__header">
           <div>
             <h2 className="thumbnail-workspace__title">サムネイル管理</h2>
-            <p className="thumbnail-workspace__subtitle">サムネ登録→案件検討→企画反映までをこの画面で完結できます。</p>
+            <p className="thumbnail-workspace__subtitle">コピー編集→Canva用CSV→採用サムネ紐付け（必要ならAI生成）まで。</p>
           </div>
           <div className="thumbnail-workspace__header-actions">
             <button type="button" className="thumbnail-refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -2222,6 +2290,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             ))}
           </nav>
           <div className="thumbnail-hub__panes">
+            {activeTab === "bulk" ? <div className="thumbnail-hub__pane thumbnail-hub__pane--bulk">{bulkPanel}</div> : null}
             {activeTab === "projects" ? (
               <section className="thumbnail-hub__pane thumbnail-hub__pane--projects">
             <div className="thumbnail-actions">

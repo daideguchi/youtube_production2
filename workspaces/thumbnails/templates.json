@@ -3,6 +3,20 @@
   "channels": {
     "CH07": {
       "default_template_id": "ch07_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "放置は危険",
+        "preview_title": "夜の不安",
+        "preview_lower": "今夜眠れる",
+        "rules": [
+          "3段の役割を固定: 上=危機/禁止/断言、中=テーマ名詞、下=利益/解決",
+          "短く強い言い切り（〜だけ／今日で終わり／まずこれ／許さなくていい）",
+          "数字で具体化（7つ／3選／最初に1つ）",
+          "語尾を切ってリズムを作る（例: そのまま損／今夜で終わり）",
+          "スマホ視認性最優先（短文・太字・黒フチ・余白確保）"
+        ]
+      },
       "templates": [
         {
           "id": "ch07_buddha_left_3line_v1",
@@ -13,6 +27,116 @@
           "notes": "CH07の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
           "created_at": "2025-12-17T00:00:00Z",
           "updated_at": "2025-12-17T00:00:00Z"
+        }
+      ]
+    },
+    "CH12": {
+      "default_template_id": "ch12_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "放置は危険",
+        "preview_title": "夜の不安",
+        "preview_lower": "今夜眠れる"
+      },
+      "templates": [
+        {
+          "id": "ch12_buddha_left_3line_v1",
+          "name": "CH12: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH12の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-18T00:00:00Z",
+          "updated_at": "2025-12-18T00:00:00Z"
+        }
+      ]
+    },
+    "CH13": {
+      "default_template_id": "ch13_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "そのまま損",
+        "preview_title": "執着",
+        "preview_lower": "ほどける"
+      },
+      "templates": [
+        {
+          "id": "ch13_buddha_left_3line_v1",
+          "name": "CH13: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH13の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-18T00:00:00Z",
+          "updated_at": "2025-12-18T00:00:00Z"
+        }
+      ]
+    },
+    "CH14": {
+      "default_template_id": "ch14_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "そのまま損",
+        "preview_title": "強い執着",
+        "preview_lower": "ほどける"
+      },
+      "templates": [
+        {
+          "id": "ch14_buddha_left_3line_v1",
+          "name": "CH14: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH14の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-18T00:00:00Z",
+          "updated_at": "2025-12-18T00:00:00Z"
+        }
+      ]
+    },
+    "CH15": {
+      "default_template_id": "ch15_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "やるほど逆効果",
+        "preview_title": "心配",
+        "preview_lower": "静まる"
+      },
+      "templates": [
+        {
+          "id": "ch15_buddha_left_3line_v1",
+          "name": "CH15: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH15の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-18T00:00:00Z",
+          "updated_at": "2025-12-18T00:00:00Z"
+        }
+      ]
+    },
+    "CH16": {
+      "default_template_id": "ch16_buddha_left_3line_v1",
+      "channel_style": {
+        "name": "ブッダ左＋3段コピー（赤/黄/白）v1",
+        "benchmark_path": "workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md",
+        "preview_upper": "どうでもいい",
+        "preview_title": "ほど上手い",
+        "preview_lower": "上手くいく"
+      },
+      "templates": [
+        {
+          "id": "ch16_buddha_left_3line_v1",
+          "name": "CH16: ブッダ左＋3段テキスト（赤/黄/白）",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
+          "notes": "CH16の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
+          "created_at": "2025-12-18T00:00:00Z",
+          "updated_at": "2025-12-18T00:00:00Z"
         }
       ]
     }
