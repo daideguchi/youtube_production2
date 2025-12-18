@@ -315,13 +315,13 @@
   - 種別: **L3（Legacy）**
 
 - `commentary_02_srt2images_timeline/logs/swap/swap_<timestamp>.log`
-  - Writer: `legacy/commentary_02_srt2images_timeline/ui/gradio_app.py`（Legacy Swap UI）
-  - 現状: UI Hub（`/api/swap`）のログ正本は `logs/swap/swap_<timestamp>.log`。
-  - 種別: **L3（Legacy）**
+  - Writer: （旧）`legacy/commentary_02_srt2images_timeline/ui/gradio_app.py`（Legacy Swap UI。削除済み）
+  - 現状: Swap のログ正本は `logs/swap/swap_<timestamp>.log`（UI Hub: `/api/swap`）。
+  - 種別: **L3（Legacy。存在したらTrash候補）**
 
-- `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`, `legacy/commentary_02_srt2images_timeline/ui/src/runtime/logs/notifications.jsonl`
-  - 現状: コード参照が確認できない（ログのコミット残骸の可能性）。
-  - 方針: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の基準で Trash 候補（削除/ignore を計画化）。
+- `commentary_02_srt2images_timeline/src/runtime/logs/notifications.jsonl`
+  - 現状: コード参照が確認できない（過去のコミット残骸の可能性）。legacy 側の同名ログも削除済み。
+  - 方針: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の基準で Trash 候補（再出現したら削除/ignore）。
   - 種別: **L3（Legacy/Trash候補）**
 
 - `audio_tts_v2/logs/*.log`

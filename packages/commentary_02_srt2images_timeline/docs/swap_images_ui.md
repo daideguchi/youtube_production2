@@ -1,10 +1,11 @@
 ## 画像差し替えUI（safe_image_swap）手順と注意
 
 ### 1. 起動
-```
-python3 legacy/commentary_02_srt2images_timeline/ui/gradio_app.py
-```
-ブラウザで表示される Gradio 画面の「🔄 画像差し替え」セクションを使う。
+- まず UI を起動する（推奨）:
+  - `bash scripts/start_all.sh`
+- ブラウザで `http://localhost:5173/capcut-edit/swap` を開き、「既存ドラフトの画像差し替え」を使う。
+
+※ 旧 Gradio UI（`legacy/commentary_02_srt2images_timeline/ui/gradio_app.py`）は探索ノイズ削減のため削除済み。現行は React UI + `/api/swap` が正本。
 
 ### 2. 入力項目
 - CapCutドラフトパス: 例 `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft_dir>`
@@ -16,12 +17,12 @@ python3 legacy/commentary_02_srt2images_timeline/ui/gradio_app.py
 - apply チェック: OFFなら dry-run（バックアップなし・書き込みなし）、ONなら実行
 
 ### 3. 実行とログ
-- ボタン押下で safe_image_swap を実行
-- ログは画面に表示し、同時に `logs/swap/swap_<timestamp>.log` に保存
-- apply ON かつ実行成功時は追加で `validate_srt2images_state.py` を自動実行。失敗するとエラーメッセージを返す（ロールバックはしない）。
+- UI の実行ボタンで `/api/swap` を叩いて `safe_image_swap` 系の処理を実行する。
+- ログは UI に表示され、同時に `logs/swap/swap_<timestamp>.log`（L3）へ保存される。
+- 失敗時の復旧用に、swap 前の画像バックアップが `logs/swap/history/<draft>/<index>/<timestamp>/` に残る（UI から履歴/rollback を操作可能）。
 
 ### 4. 安全ガード（safe_image_swap 側）
-- 非ホワイトリストの video/audio トラックがあると即中断（背景/BGMの既知IDのみ許可）
+- 非ホワイトリストの video/audio トラックがある場合は注意喚起（必要ならホワイトリスト更新）
 - srt2images トラックが content/info 両方に存在し、セグメント数が一致しないと中断
 - 生成失敗や部分成功なら非0終了（同期しない）
 - `--apply` 無しはドライランのみ

@@ -116,3 +116,4 @@
 - 確実ゴミ削除（archive-first）: CH10-001 固定の one-off 再生成スクリプト（`scripts/regenerate_audio.py`, `scripts/regenerate_strict.py`）を退避した上で repo から削除し、棚卸しと実行ログを更新（`ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 確実ゴミ削除（archive-first）: 旧Route audio の deprecation stub（`scripts/_core_audio.py`, `scripts/run_route1_batch.py`, `scripts/run_route2_agent.py`）を退避した上で削除（実行しても exit するだけの探索ノイズのため）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
 - 確実ゴミ削除（archive-first）: 実行不能で参照ゼロの `legacy/scripts/route_audio/` を tar 退避した上で削除（探索ノイズ削減）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
+- 確実ゴミ削除（archive-first）: 旧 `commentary_02` の Legacy UI/設定（`legacy/commentary_02_srt2images_timeline/`）を tar 退避した上で削除し、差し替えUIドキュメントを現行 React UI（`/capcut-edit/swap`）へ更新。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。

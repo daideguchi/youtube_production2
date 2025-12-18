@@ -917,3 +917,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218_141802_legacy_route_audio.tar.gz`
 - 削除（git rm）:
   - `git rm -r legacy/scripts/route_audio`
+
+### 62) 旧 `commentary_02` の Legacy UI/設定を archive-first で削除（repo tracked）
+
+意図: `legacy/commentary_02_srt2images_timeline/`（Gradio/React 試作 + 旧設定）は現行フロー/入口索引に含まれず参照も無いため、探索ノイズ削減のため退避した上で削除する。現行の差し替えUIは React UI（`/capcut-edit/swap`）+ `/api/swap` が正本。
+
+- 参照確認:
+  - `rg -n "legacy/commentary_02_srt2images_timeline/ui|gradio_app\\.py" -S .` の参照が docs/SSOT のみであることを確認し、ドキュメント側は現行UI導線へ更新
+- 退避（archive-first）:
+  - `backups/graveyard/20251218_142524_legacy_commentary02_ui.tar.gz`
+- 削除（git rm）:
+  - `git rm -r legacy/commentary_02_srt2images_timeline`

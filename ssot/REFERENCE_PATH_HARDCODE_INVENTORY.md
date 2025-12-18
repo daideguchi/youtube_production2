@@ -27,7 +27,6 @@
 - `commentary_02_srt2images_timeline/src/capcut_ui/core/draft_manager.py`
 - `commentary_02_srt2images_timeline/src/config/llm_resolver.py`
 - `commentary_02_srt2images_timeline/src/ui/capcut_template_manager.py`
-- `commentary_02_srt2images_timeline/ui/gradio_app.py`
 - `scripts/create_image_cues_from_srt.py`
 - `scripts/fix_ch02_row.py`
 - `scripts/check_ch02_content.py`
