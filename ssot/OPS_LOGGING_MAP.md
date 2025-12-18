@@ -219,33 +219,34 @@
 
 ---
 
-### 1.6 現状スナップショット（2025-12-17 観測）
+### 1.6 現状スナップショット（2025-12-18 観測）
 
 このセクションは cleanup 優先度のための “観測値”。値は日々変動するため、最新は `scripts/ops/logs_snapshot.py` を正とする。  
 （Writer/Reader/L1-L3 の確定は上の各項目を正とする）
 
-- file_count（logs_root 配下、全階層）: 例）791
-- top-level file counts（例）:
-  - llm_api_cache: 478
-  - agent_tasks: 142
-  - (root): 46
-  - repair: 35
+- file_count（logs_root 配下、全階層）: 1249
+- top-level file counts:
+  - llm_api_cache: 960
+  - agent_tasks: 177
   - ops: 28
+  - (root): 26
+  - regression: 25
   - agent_tasks_ch04: 18
-  - regression: 13
-  - swap: 12
-  - ui_hub: 9
+  - swap: 6
+  - ui_hub: 6
   - ui: 1
-- top-by-size（上位・例）:
-  - `logs/tts_voicevox_reading.jsonl`（約6.09MB）
+  - agent_tasks_tmp: 1
+  - agent_tasks_test: 1
+- top-by-size（上位）:
+  - `logs/tts_voicevox_reading.jsonl`（約6.90MB）
   - `logs/swap/history/.../0002.png`（約2.96MB）
-  - `logs/image_usage.log`（約1.63MB）
-  - `logs/ui_hub/start_all.nohup.log`（約1.04MB）
-  - `logs/llm_usage.jsonl`（約0.66MB）
-  - `logs/ui_hub/frontend.manual.log`（約0.55MB）
-  - `logs/ui_hub/backend.log`（約0.50MB）
+  - `logs/image_usage.log`（約2.21MB）
+  - `logs/llm_usage.jsonl`（約1.00MB）
+  - `logs/ui_hub/backend.log`（約0.95MB）
   - `logs/audit_report_global.txt`（約0.49MB）
   - `logs/validate_status_full_latest.json`（約0.40MB）
+  - `logs/ui_hub/frontend.log`（約0.32MB）
+  - `logs/agent_tasks/coordination/events.jsonl`（約0.31MB）
 
 再生成（スナップショット更新）:
 - `python3 scripts/ops/logs_snapshot.py`
