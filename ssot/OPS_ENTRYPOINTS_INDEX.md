@@ -110,6 +110,8 @@
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `logs/regression/broken_symlinks/`）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `logs/regression/video_runs_legacy_prune/`）
+- `scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（`workspaces/thumbnails/CHxx_*|CHxx-*` の旧ディレクトリを `_archive/<timestamp>/` へ退避して探索ノイズを削減。report: `logs/regression/thumbnails_legacy_archive/`）
+- `scripts/ops/purge_legacy_agent_task_queues.py --run`（旧 `logs/agent_tasks_*`（実験残骸）を archive-first で削除。report: `logs/regression/agent_tasks_legacy_purge/`）
 - `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --wav-policy symlink --wav-dedupe`（`workspaces/video/input` の wav を symlink 化して重複を減らす。必要なら `--hash-wav`）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 

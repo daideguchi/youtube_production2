@@ -226,29 +226,26 @@
 このセクションは cleanup 優先度のための “観測値”。値は日々変動するため、最新は `scripts/ops/logs_snapshot.py` を正とする。  
 （Writer/Reader/L1-L3 の確定は上の各項目を正とする）
 
-- file_count（logs_root 配下、全階層）: 1424
+- file_count（logs_root 配下、全階層）: 1480
 - top-level file counts:
-  - llm_api_cache: 1093
-  - agent_tasks: 204
-  - regression: 44
+  - llm_api_cache: 1153
+  - agent_tasks: 202
+  - regression: 62
   - ops: 28
   - (root): 21
-  - agent_tasks_ch04: 18
   - swap: 6
   - ui_hub: 6
   - ui: 1
   - ssot: 1
-  - agent_tasks_tmp: 1
-  - agent_tasks_test: 1
 - top-by-size（上位）:
   - `logs/tts_voicevox_reading.jsonl`（約6.90MB）
   - `logs/swap/history/.../0002.png`（約2.96MB）
-  - `logs/image_usage.log`（約2.36MB）
-  - `logs/llm_usage.jsonl`（約1.12MB）
+  - `logs/image_usage.log`（約2.57MB）
+  - `logs/llm_usage.jsonl`（約1.18MB）
   - `logs/audit_report_global.txt`（約0.49MB）
   - `logs/validate_status_full_latest.json`（約0.40MB）
   - `logs/regression/validate_status/validate_status_full_20251213T105617Z.json`（約0.40MB）
-  - `logs/agent_tasks/coordination/events.jsonl`（約0.34MB）
+  - `logs/agent_tasks/coordination/events.jsonl`（約0.36MB）
   - `logs/ui_hub/backend.log`（約0.12MB）
   - `logs/pipeline_memo.txt`（約0.10MB）
 

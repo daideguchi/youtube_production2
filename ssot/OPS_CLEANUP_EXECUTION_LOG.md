@@ -1026,3 +1026,38 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - updated=288（wav を symlink に置換）
   - orphan=2（archive: `workspaces/video/_archive/20251218T080912Z/<CH>/video_input/...`）
   - `workspaces/video/input` が約14GB → 約14MB に縮小
+
+### 71) サムネ旧ディレクトリ（`workspaces/thumbnails/CHxx_*|CHxx-*`）を `_archive` に退避（untracked / safe）
+
+意図: 旧形式のサムネ資産ディレクトリ（例: `CH01_人生の道標/`）がトップ階層に残っていると、**どれが現行SoTか**が分かりづらく、低知能エージェントほど誤参照しやすい。現行UI/コードは `assets/<CH>/<VIDEO>/` を正とするため、旧ディレクトリは `_archive` に退避して探索ノイズを除去する。
+
+- dry-run:
+  - `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --max-print 10`
+- 実行:
+  - `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run --max-print 0 --ignore-locks`（※自分で該当スコープをlockしている場合のみ）
+- 結果:
+  - 5 dirs（約384MB）を `workspaces/thumbnails/_archive/20251218T091034Z/` へ移動
+- レポート:
+  - `logs/regression/thumbnails_legacy_archive/thumbnails_legacy_archive_20251218T091034Z.json`
+
+### 72) 旧 `logs/agent_tasks_*` キュー（実験残骸）を purge（archive-first）
+
+意図: `workspaces/logs/agent_tasks/` が正本。過去の実験で作られた `agent_tasks_ch04/tmp/test` 等が残っていると「どれが現行のキューか」を誤認しやすい。小容量だが事故原因になるため、**退避（tar.gz）→削除**でクリーン化する。
+
+- dry-run:
+  - `python3 scripts/ops/purge_legacy_agent_task_queues.py --ignore-locks`
+- 実行（archive-first → delete）:
+  - `python3 scripts/ops/purge_legacy_agent_task_queues.py --run --ignore-locks`（※自分で該当スコープをlockしている場合のみ）
+  - archive: `backups/graveyard/20251218T091319Z_legacy_agent_task_queues.tar.gz`
+  - report: `logs/regression/agent_tasks_legacy_purge/agent_tasks_legacy_purge_20251218T091319Z.json`
+- 結果:
+  - deleted_dirs=3（`agent_tasks_ch04` / `agent_tasks_tmp` / `agent_tasks_test`）
+
+### 73) audio final の再生成可能 chunks を削除（untracked / safe）
+
+意図: `workspaces/audio/final/**/chunks/` は最終wavが存在すれば再生成可能な中間物。容量/探索ノイズになるため、生成から十分時間が経過したものは削除してよい（`YTM_TTS_KEEP_CHUNKS=1` の場合は残す）。
+
+- 実行:
+  - `python3 scripts/purge_audio_final_chunks.py --run --keep-recent-minutes 360`
+- 結果:
+  - deleted=1（例: `workspaces/audio/final/CH07/001/chunks` 約42.8MB）

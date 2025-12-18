@@ -162,6 +162,8 @@
 - **L2**
   - 未採用バリアント（projects.json で `archived` 扱い）  
     → 90 日後に `workspaces/thumbnails/_archive/<timestamp>/` に移動。
+  - 旧形式のチャンネル別ディレクトリ（例: `workspaces/thumbnails/CH01_人生の道標/`）は Legacy（現行UI/コード非参照）。  
+    → 参照用に残したい場合のみ `_archive/<timestamp>/` に退避し、トップ階層からは排除する（探索ノイズ/誤参照防止）。
 
 ### 3.6 Remotion（remotion）
 - **L1/Final**
