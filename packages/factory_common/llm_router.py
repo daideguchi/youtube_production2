@@ -343,7 +343,7 @@ class LLMRouter:
             tier_models = self.config.get("tiers", {}).get(tier, [])
             # Allow tier override from llm_tier_candidates.yaml (opt-in)
             enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in ("1", "true", "yes", "on")
-            config_dir = CONFIG_PATH.parents[0]
+            config_dir = CONFIG_PATH.parent
             local_candidates = config_dir / "llm_tier_candidates.local.yaml"
             candidates_path = local_candidates if local_candidates.exists() else (config_dir / "llm_tier_candidates.yaml")
             if enable_candidates_override and candidates_path.exists():
