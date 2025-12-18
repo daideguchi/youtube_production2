@@ -11,7 +11,7 @@ from _bootstrap import bootstrap
 
 REPO_ROOT = bootstrap()
 
-from factory_common.paths import script_data_root
+from factory_common.paths import audio_artifacts_root
 
 def get_wav_duration(wav_path):
     try:
@@ -48,11 +48,18 @@ def parse_srt_last_timestamp(srt_path):
     return last_end_sec
 
 def verify_sync(channel=None):
-    root = script_data_root()
+    """
+    Verify that final WAV duration roughly matches final SRT end timestamp.
+
+    SoT:
+      - workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav
+      - workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt
+    """
+    root = audio_artifacts_root() / "final"
     if channel:
-        search_pattern = str(root / channel / "*" / "audio_prep")
+        search_pattern = str(root / channel / "*")
     else:
-        search_pattern = str(root / "CH*" / "*" / "audio_prep")
+        search_pattern = str(root / "CH*" / "*")
         
     prep_dirs = glob.glob(search_pattern)
     prep_dirs.sort()
@@ -65,9 +72,10 @@ def verify_sync(channel=None):
     
     for d in prep_dirs:
         dpath = Path(d)
-        video_dir = dpath.parent
-        channel_name = video_dir.parent.name
-        video_name = video_dir.name
+        if not dpath.is_dir():
+            continue
+        channel_name = dpath.parent.name.upper()
+        video_name = dpath.name
         
         wav_path = dpath / f"{channel_name}-{video_name}.wav"
         srt_path = dpath / f"{channel_name}-{video_name}.srt"

@@ -112,3 +112,4 @@
 - Remotion preview 入力を正本へ: `apps/remotion/input` を `workspaces/video/input` へ symlink し、`apps/remotion/public/input` から正しい入力が参照されるようにした。
 - logs の分散抑制: `scripts/validate_status_sweep.py` の timestamped レポートを `logs/regression/validate_status/` へ集約し、`logs/validate_status_full_latest.json` は互換のため root に維持（SSOT: `ssot/OPS_LOGGING_MAP.md`）。
 - 旧Qwen/core-tools導線の誤参照を解消: `packages/script_pipeline/prompts/{phase2_audio_prompt,orchestrator_prompt}.txt` を現行CLI/SoT/agent_orgメモ運用に更新し、`README.md` から `QWEN.md` 参照を削除。
+- SRT/音声監査のSoTを final 基準に統一: `scripts/verify_srt_sync.py` と `scripts/audio_integrity_report.py` を `workspaces/audio/final/` 参照へ更新し、`scripts/check_all_srt.sh` は旧フラグを廃止して検査ログを `logs/regression/srt_validation/` に集約（SSOT: `ssot/OPS_LOGGING_MAP.md`）。

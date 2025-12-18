@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """
-音声アセット整合性のCLIレポート。
-必須ファイル (b_text_with_pauses.txt / CHxx-xxx.wav / CHxx-xxx.srt / log.json / pause_map.json / engine_metadata.json)
-の有無と音声・SRTの長さ差分をチェックします。
+音声アセット整合性のCLIレポート（final SoT 基準）。
+
+必須ファイル:
+- a_text.txt
+- audio_manifest.json
+- CHxx-xxx.wav
+- CHxx-xxx.srt
+- log.json
+
+おまけ:
+- WAV と SRT の終端時刻差分（大きい場合は desync 疑い）
 """
 from __future__ import annotations
 
@@ -18,15 +26,15 @@ from _bootstrap import bootstrap
 
 bootstrap()
 
-from factory_common.paths import script_data_root
+from factory_common.paths import audio_artifacts_root
 
-DATA_ROOT = script_data_root()
+FINAL_ROOT = audio_artifacts_root() / "final"
 
 
 def iter_video_dirs() -> Iterable[tuple[str, str, Path]]:
-    if not DATA_ROOT.exists():
+    if not FINAL_ROOT.exists():
         return []
-    for ch_dir in sorted(DATA_ROOT.iterdir()):
+    for ch_dir in sorted(FINAL_ROOT.iterdir()):
         if not ch_dir.is_dir():
             continue
         ch = ch_dir.name.upper()
@@ -36,6 +44,8 @@ def iter_video_dirs() -> Iterable[tuple[str, str, Path]]:
             if not vid_dir.is_dir():
                 continue
             vid = vid_dir.name
+            if not vid.isdigit():
+                continue
             yield ch, vid, vid_dir
 
 
@@ -76,16 +86,20 @@ def main() -> None:
 
     rows: List[Dict[str, Any]] = []
     for ch, vid, vid_dir in iter_video_dirs():
-        ap_dir = vid_dir / "audio_prep"
-        b = ap_dir / "b_text_with_pauses.txt"
-        wav = ap_dir / f"{ch}-{vid}.wav"
-        srt = ap_dir / f"{ch}-{vid}.srt"
-        log = ap_dir / "log.json"
-        pm = ap_dir / "pause_map.json"
-        em = ap_dir / "engine_metadata.json"
+        a_text = vid_dir / "a_text.txt"
+        manifest = vid_dir / "audio_manifest.json"
+        wav = vid_dir / f"{ch}-{vid}.wav"
+        srt = vid_dir / f"{ch}-{vid}.srt"
+        log = vid_dir / "log.json"
 
         missing: List[str] = []
-        for p, name in [(b, "b_text_with_pauses.txt"), (wav, wav.name), (srt, srt.name), (log, log.name), (pm, pm.name), (em, em.name)]:
+        for p, name in [
+            (a_text, "a_text.txt"),
+            (manifest, "audio_manifest.json"),
+            (wav, wav.name),
+            (srt, srt.name),
+            (log, "log.json"),
+        ]:
             if not p.exists():
                 missing.append(name)
 
@@ -104,12 +118,11 @@ def main() -> None:
                 "srt_duration": srt_dur,
                 "duration_diff": diff,
                 "paths": {
-                    "b_text": str(b) if b.exists() else None,
+                    "a_text": str(a_text) if a_text.exists() else None,
+                    "audio_manifest": str(manifest) if manifest.exists() else None,
                     "wav": str(wav) if wav.exists() else None,
                     "srt": str(srt) if srt.exists() else None,
                     "log": str(log) if log.exists() else None,
-                    "pause_map": str(pm) if pm.exists() else None,
-                    "engine_metadata": str(em) if em.exists() else None,
                 },
             }
         )

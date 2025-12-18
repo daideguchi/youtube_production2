@@ -197,7 +197,7 @@
   - 生成元: 監査/バッチ系の stdout リダイレクトの可能性が高い（コード参照は未確認）
   - 種別: **L1（監査ログとして保持）**
 - `scripts/validate_status_sweep.py` → `logs/regression/validate_status/validate_status_full_<ts>.json` + `logs/validate_status_full_latest.json`（L3 / latest は上書き）
-- `scripts/check_all_srt.sh` → `logs/srt_validation_<ts>.log` / `logs/srt_validation_failures.txt`（L3）
+- `scripts/check_all_srt.sh` → `logs/regression/srt_validation/srt_validation_<ts>.log` / `logs/regression/srt_validation/srt_validation_failures_<ts>.txt` + `logs/srt_validation_failures.txt`（latest, L3）
 - `scripts/mass_regenerate_strict.sh` → `logs/mass_regenerate_<ts>.log`（L3）
 - `scripts/repair_manager.py` → `logs/repair/{CH}-{NNN}.log`（L3）
 - `scripts/run_ch03_batch.sh` → `logs/ch03_batch.log`（L3）
