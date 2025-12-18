@@ -159,16 +159,38 @@ def relpath_intersects_scope(relpath: str, scope: str) -> bool:
 def find_blocking_lock(path: Path, locks: Iterable[CoordinationLock]) -> Optional[CoordinationLock]:
     """
     Return the first lock that intersects the given path, else None.
+
+    Note:
+    - For symlinks we prefer matching on the symlink *path* (inside the repo),
+      not only the resolved target (which can be outside the repo).
+    - When the resolved target is also inside the repo, we check both.
     """
+    repo_root = repo_paths.repo_root()
+    rel_candidates: list[str] = []
+
+    # 1) Non-resolving (symlink-safe) repo-relative path.
     try:
-        rel = path.resolve().relative_to(repo_paths.repo_root()).as_posix()
+        base = path.absolute() if path.is_absolute() else (repo_root / path).absolute()
+        rel_candidates.append(base.relative_to(repo_root).as_posix())
     except Exception:
+        pass
+
+    # 2) Resolved target path (when also inside repo).
+    try:
+        rel_resolved = path.resolve().relative_to(repo_root).as_posix()
+        if rel_resolved not in rel_candidates:
+            rel_candidates.append(rel_resolved)
+    except Exception:
+        pass
+
+    if not rel_candidates:
         return None
 
-    for lock in locks:
-        for scope in lock.scopes:
-            if relpath_intersects_scope(rel, scope):
-                return lock
+    for rel in rel_candidates:
+        for lock in locks:
+            for scope in lock.scopes:
+                if relpath_intersects_scope(rel, scope):
+                    return lock
     return None
 
 
@@ -179,4 +201,3 @@ def default_active_locks_for_mutation() -> list[CoordinationLock]:
     - If the current process has an agent name, ignore locks created by itself.
     """
     return load_active_locks(ignore_created_by=_agent_name())
-
