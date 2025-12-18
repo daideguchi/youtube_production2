@@ -624,6 +624,101 @@ def cmd_locks(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_locks_prune(args: argparse.Namespace) -> int:
+    """
+    Archive (or delete) expired locks that have been expired for N days.
+
+    This keeps coordination/locks from growing unbounded while preserving safety:
+    - active locks are never touched
+    - no-expiry locks are never touched (they require manual review)
+    """
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    d = _locks_dir(q)
+    d.mkdir(parents=True, exist_ok=True)
+
+    try:
+        older_than_days = float(args.older_than_days)
+    except Exception:
+        older_than_days = 30.0
+    threshold = timedelta(days=max(0.0, older_than_days))
+
+    dry_run = bool(args.dry_run)
+    delete_mode = bool(args.delete)
+
+    now = datetime.now(timezone.utc)
+    to_archive: list[tuple[Path, Path]] = []
+    to_delete: list[Path] = []
+    skipped_no_expiry: list[str] = []
+
+    for fp in sorted(d.glob("*.json")):
+        obj = _load_json_maybe(fp)
+        if not obj:
+            continue
+        exp_dt = _parse_iso(obj.get("expires_at"))
+        if exp_dt is None:
+            skipped_no_expiry.append(fp.name)
+            continue
+        if exp_dt > now:
+            continue  # active
+        if (now - exp_dt) < threshold:
+            continue  # recently expired
+
+        if delete_mode:
+            to_delete.append(fp)
+            continue
+
+        yyyymm = exp_dt.strftime("%Y%m")
+        dest_dir = d / "_archive" / yyyymm
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest = dest_dir / fp.name
+        if dest.exists():
+            dest = dest_dir / f"{fp.stem}__{secrets.token_hex(2)}.json"
+        to_archive.append((fp, dest))
+
+    if not to_archive and not to_delete:
+        if skipped_no_expiry:
+            print(f"(no expired locks to prune; {len(skipped_no_expiry)} no-expiry locks need manual review)")
+        else:
+            print("(no expired locks to prune)")
+        return 0
+
+    for fp in to_delete:
+        if dry_run:
+            print(f"DELETE\t{fp}")
+        else:
+            fp.unlink(missing_ok=True)
+
+    for src, dst in to_archive:
+        if dry_run:
+            print(f"ARCHIVE\t{src}\t->\t{dst}")
+        else:
+            src.replace(dst)
+
+    agent = _agent_name(args) or "unknown"
+    _append_event(
+        q,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "event",
+            "created_at": _now_iso_utc(),
+            "actor": agent,
+            "action": "locks_pruned",
+            "dry_run": dry_run,
+            "delete": delete_mode,
+            "older_than_days": older_than_days,
+            "archived_count": len(to_archive),
+            "deleted_count": len(to_delete),
+            "skipped_no_expiry_count": len(skipped_no_expiry),
+        },
+    )
+
+    print(
+        f"done (dry_run={dry_run}) archived={len(to_archive)} deleted={len(to_delete)} "
+        f"skipped_no_expiry={len(skipped_no_expiry)}"
+    )
+    return 0
+
+
 def _find_locks(q: Path, *, include_expired: bool) -> list[dict]:
     d = _locks_dir(q)
     d.mkdir(parents=True, exist_ok=True)
@@ -1682,6 +1777,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--all", action="store_true", help="include expired locks")
     sp.add_argument("--path", default=None, help="filter locks affecting this repo-relative path")
     sp.set_defaults(func=cmd_locks)
+
+    sp = sub.add_parser("locks-prune", help="archive old expired locks (housekeeping)")
+    sp.add_argument("--older-than-days", default=30, help="prune locks expired for >= N days (default: 30)")
+    sp.add_argument("--dry-run", action="store_true", help="print actions without modifying files")
+    sp.add_argument("--delete", action="store_true", help="permanently delete instead of archiving")
+    sp.set_defaults(func=cmd_locks_prune)
 
     sp = sub.add_parser("lock", help="create a lock")
     sp.add_argument("scopes", nargs="+", help="repo-relative paths or globs (e.g. ui/**)")

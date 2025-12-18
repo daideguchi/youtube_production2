@@ -41,6 +41,13 @@ python scripts/agent_org.py locks --path commentary_02_srt2images_timeline/tools
 python scripts/agent_org.py lock 'commentary_02_srt2images_timeline/tools/**' --mode no_touch --ttl-min 60 --note 'working'
 ```
 
+3) lock の履歴（JSON）が増えすぎたら（任意: 整理）:
+```bash
+python scripts/agent_org.py locks-prune --older-than-days 30 --dry-run
+python scripts/agent_org.py locks-prune --older-than-days 30
+```
+期限切れ lock を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する（active/no-expiry は触らない）。
+
 lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/PLAN_AGENT_ORG_COORDINATION.md`）。
 
 ---
