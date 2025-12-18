@@ -1012,4 +1012,4 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/ops/cleanup_remotion_artifacts.py --keep-days 14 --run --max-print 0 --ignore-locks`（※自分で該当スコープをlockしている場合のみ。基本は lock 尊重のまま実行）
   - report: `logs/regression/remotion_cleanup/remotion_cleanup_20251218T075050Z.json`
 - 結果:
-  - `apps/remotion/out` を空にし、`apps/remotion/public/_bgm` の古い wav を削除（合計約1.5GB削減）
+  - `apps/remotion/out` の巨大生成物を削除（tracked の `belt_config.generated.json` / `belt_llm_raw.json` は保持）、`apps/remotion/public/_bgm` の古い wav を削除（合計約1.5GB削減）

@@ -39,6 +39,12 @@ from factory_common.locks import default_active_locks_for_mutation, find_blockin
 
 REPORT_SCHEMA = "ytm.remotion_artifacts_cleanup_report.v1"
 
+# Tracked or intentionally kept files (avoid deleting even if old).
+KEEP_ALWAYS_OUT_FILENAMES = {
+    "belt_config.generated.json",
+    "belt_llm_raw.json",
+}
+
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -161,6 +167,8 @@ def collect_candidates(
             if child.is_dir():
                 if _subtree_is_older_than(child, cutoff):
                     add_dir(child, f"out_subtree_older_than_{keep_days}d")
+                continue
+            if child.name in KEEP_ALWAYS_OUT_FILENAMES:
                 continue
             if _mtime_utc(child) < cutoff:
                 add_file(child, f"out_file_older_than_{keep_days}d")
@@ -358,4 +366,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
