@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(ROOT))
 
 from audio_tts_v2.tts.auditor import _build_vocab_requests
 from audio_tts_v2.tts.reading_structs import RiskySpan, RubyToken
