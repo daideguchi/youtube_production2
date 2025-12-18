@@ -41,7 +41,7 @@ from factory_common.locks import default_active_locks_for_mutation, find_blockin
 
 
 REPORT_SCHEMA = "ytm.capcut.local_drafts_archive.v1"
-EP_RE = re.compile(r"(CH\\d{2}-\\d{3})")
+EP_RE = re.compile(r"(CH\d{2}-\d{3})")
 
 
 def _utc_now_compact() -> str:
@@ -323,4 +323,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1061,3 +1061,17 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/purge_audio_final_chunks.py --run --keep-recent-minutes 360`
 - 結果:
   - deleted=1（例: `workspaces/audio/final/CH07/001/chunks` 約42.8MB）
+
+### 74) CapCut ローカル退避ドラフト（`workspaces/video/_capcut_drafts`）を `_archive` に退避（untracked / safe）
+
+意図: `workspaces/video/_capcut_drafts/` は CapCut 実draft root に書けない環境でのフォールバック生成先。実draft root にコピー済みの重複が溜まると探索ノイズになり、低知能エージェントが「どれが正本か」を誤認しやすい。削除ではなく **`_archive/<timestamp>/` へ移動**してトップ階層をクリーンにする。
+
+- dry-run:
+  - `python3 scripts/ops/archive_capcut_local_drafts.py --ignore-locks --max-print 10`
+- 実行:
+  - `python3 scripts/ops/archive_capcut_local_drafts.py --run --ignore-locks --max-print 0`（※自分で `workspaces/video/_capcut_drafts/**` を lock している場合のみ）
+- 結果:
+  - moved=30（CH05-001..030 を `workspaces/video/_capcut_drafts/_archive/20251218T095722Z/` に移動）
+  - protected_name=3（テンプレ系） / recent=1（直近更新）
+- レポート:
+  - `logs/regression/capcut_local_drafts_archive/capcut_local_drafts_archive_20251218T095722Z.json`
