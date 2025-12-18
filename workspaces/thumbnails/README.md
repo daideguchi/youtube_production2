@@ -71,6 +71,17 @@ FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エン
   - `thumbnail_prompt` → サムネ画像プロンプト（URL・テキスト指示込み）
 - UI の「AI生成」では上記を読み込み、必要なら「企画CSVに保存してから生成する」にチェックして書き戻せます（コスト/誤動作防止のため手動操作前提）。
 
+## 量産（Canva）
+
+- UI の「量産（Canva）」タブは、企画CSV（progress）を読み込み、**3段コピーを一覧で編集**できます。
+- 「Canva用CSV」ボタンで、Canva の Bulk create に渡す CSV を生成します（1行=1サムネ）。
+  - 推奨列: `page_name, channel, video, title, thumb_upper, thumb_title, thumb_lower`
+
+## コスト（OpenRouter）
+
+- UI の「料金（OpenRouter /models）」は `https://openrouter.ai/api/v1/models` の単価テーブルを表示します（USD/token・USD/request・USD/image(unit)）。
+- OpenRouter 経由の AI 生成は **生成後に** `https://openrouter.ai/api/v1/generation` の `total_cost` を取得し、variant に `cost_usd` として保存します（UI 上は「実コスト」表示）。
+
 ### プロンプトテンプレ置換キー
 
 `prompt_template` 内で以下を `{{...}}` で使用できます:

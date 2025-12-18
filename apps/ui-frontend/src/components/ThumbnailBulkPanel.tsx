@@ -266,6 +266,7 @@ export function ThumbnailBulkPanel({
             </div>
             <div className="thumbnail-bulk-style__meta">
               <span className="status-chip">{channelName ? `${channel} ${channelName}` : channel}</span>
+              <span className="status-chip">AI生成: 生成後に実コスト表示</span>
               {style.benchmark_path ? (
                 <span className="status-chip">
                   ベンチマーク: <code>{style.benchmark_path}</code>

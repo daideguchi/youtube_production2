@@ -1004,25 +1004,41 @@ type OutputsProps = {
 };
 
 function RemotionOutputs({ outputs, onCopy }: OutputsProps) {
+  const latest = outputs[0] ?? null;
+  const latestUrl = latest?.url ? resolveApiUrl(latest.url) : null;
   return (
     <div className="remotion-section">
       <h3>成果物</h3>
       {outputs.length === 0 ? (
         <p className="remotion-text-muted">まだ mp4 が生成されていません。</p>
       ) : (
-        <ul className="remotion-output-list">
-          {outputs.map((output) => (
-            <li key={output.path}>
-              <div>
-                <strong>{output.fileName}</strong>
-                <span className="remotion-text-muted">{formatSize(output.sizeBytes)} · {formatDate(output.modifiedTime)}</span>
-              </div>
-              <button type="button" className="remotion-link" onClick={() => onCopy(output.path)}>
-                パスをコピー
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          {latestUrl ? (
+            <div className="remotion-output-preview">
+              <video className="remotion-output-video" src={latestUrl} controls preload="metadata" />
+            </div>
+          ) : null}
+          <ul className="remotion-output-list">
+            {outputs.map((output) => (
+              <li key={output.path}>
+                <div>
+                  <strong>{output.fileName}</strong>
+                  <span className="remotion-text-muted">{formatSize(output.sizeBytes)} · {formatDate(output.modifiedTime)}</span>
+                </div>
+                <div className="remotion-output-actions">
+                  {output.url ? (
+                    <a className="remotion-link" href={resolveApiUrl(output.url)} target="_blank" rel="noreferrer">
+                      開く
+                    </a>
+                  ) : null}
+                  <button type="button" className="remotion-link" onClick={() => onCopy(output.path)}>
+                    パスをコピー
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

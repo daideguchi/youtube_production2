@@ -1186,10 +1186,17 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           notes: generateDialog.notes.trim() || undefined,
           tags: tags.length ? tags : undefined,
         };
-        await generateThumbnailVariants(generateDialog.channel, generateDialog.video, payload);
+        const generated = await generateThumbnailVariants(generateDialog.channel, generateDialog.video, payload);
+        const totalCostUsd = (generated ?? []).reduce((sum, variant) => {
+          if (typeof variant.cost_usd === "number" && Number.isFinite(variant.cost_usd)) {
+            return sum + variant.cost_usd;
+          }
+          return sum;
+        }, 0);
+        const hasCost = (generated ?? []).some((variant) => typeof variant.cost_usd === "number" && Number.isFinite(variant.cost_usd));
         setProjectFeedback(generateDialog.projectKey, {
           type: "success",
-          message: `AI生成が完了しました（${generateDialog.count}件）。`,
+          message: `AI生成が完了しました（${generateDialog.count}件${hasCost ? ` / 実コスト ${formatUsdAmount(totalCostUsd)}` : ""}）。`,
           timestamp: Date.now(),
         });
         setGenerateDialog(null);
@@ -1982,7 +1989,8 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             <p className="thumbnail-library__placeholder">
               OpenRouter の <code>/api/v1/models</code> から取得した単価です（USD/token・USD/request・USD/image(unit)）。この画面のAI生成は{" "}
               <strong>1枚=1 request（N枚ならN回）</strong> で送信します。概算: <code>request</code> + <code>image</code> +（入力tok×
-              <code>prompt</code>）+（出力tok×<code>completion</code>）
+              <code>prompt</code>）+（出力tok×<code>completion</code>）。生成後は <code>/api/v1/generation</code> の <code>total_cost</code>{" "}
+              を「実コスト」として保存します。
             </p>
             <table className="thumbnail-pricing-table">
               <thead>
@@ -2068,7 +2076,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                       <option value="">選択してください</option>
                       {imageModels.map((model) => {
                         const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
-                        const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
+                        const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/unit` : "";
                         return (
                           <option key={model.key} value={model.key}>
                             {model.key} ({model.provider}{costSuffix})
@@ -2499,6 +2507,14 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                                       {VARIANT_STATUS_LABELS[variant.status]}
                                     </div>
                                   </div>
+                                  {typeof variant.cost_usd === "number" && Number.isFinite(variant.cost_usd) ? (
+                                    <div
+                                      className="thumbnail-variant-tile__meta"
+                                      title={variant.model_key ?? variant.model ?? undefined}
+                                    >
+                                      実コスト {formatUsdAmount(variant.cost_usd)}
+                                    </div>
+                                  ) : null}
                                 </button>
                               );
                             })}
@@ -3014,7 +3030,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                   <option value="">（テンプレの指定を使う）</option>
                   {imageModels.map((model) => {
                     const imageUnit = parsePricingNumber(model.pricing?.image ?? null);
-                    const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/img` : "";
+                    const costSuffix = imageUnit !== null ? ` / ${formatUsdAmount(imageUnit)}/unit` : "";
                     return (
                       <option key={model.key} value={model.key}>
                         {model.key} ({model.provider}{costSuffix})
@@ -3025,11 +3041,11 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
               </label>
               {generateDialogResolvedModelKey ? (
                 generateDialogResolvedModel ? (
-                  generateDialogResolvedModel.provider === "openrouter" ? (
-                    generateDialogResolvedPricing ? (
+                    generateDialogResolvedModel.provider === "openrouter" ? (
+                      generateDialogResolvedPricing ? (
                       <p className="thumbnail-library__placeholder">
-                        料金(OpenRouter, USD): 画像{" "}
-                        {generateDialogImageUnitUsd !== null ? `${formatUsdAmount(generateDialogImageUnitUsd)}/img` : "—"}
+                        料金(OpenRouter /models, USD): image{" "}
+                        {generateDialogImageUnitUsd !== null ? `${formatUsdAmount(generateDialogImageUnitUsd)}/unit` : "—"}
                         {generateDialogRequestUnitUsd !== null
                           ? `, request ${formatUsdAmount(generateDialogRequestUnitUsd)}/req`
                           : ""}
@@ -3040,7 +3056,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                           ? `, 出力 ${formatUsdPerMillionTokens(generateDialogCompletionTokenUsd)}`
                           : ""}
                         {generateDialogImageSubtotalUsd !== null
-                          ? ` / 今回(${generateDialog.count}枚)の画像単価分: ${formatUsdAmount(generateDialogImageSubtotalUsd)}`
+                          ? ` / 今回(${generateDialog.count}枚)のimage単価分: ${formatUsdAmount(generateDialogImageSubtotalUsd)}`
                           : ""}
                         {generateDialogRequestSubtotalUsd !== null && generateDialogRequestSubtotalUsd !== 0
                           ? ` (request合計: ${formatUsdAmount(generateDialogRequestSubtotalUsd)})`
@@ -3048,7 +3064,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                         {generateDialogResolvedPricingUpdatedAt
                           ? ` (単価更新: ${formatDate(generateDialogResolvedPricingUpdatedAt)})`
                           : ""}
-                        {" ※トークン分はプロンプト長で変動"}
+                        {" ※実コストは生成後に variants の「実コスト」に記録"}
                       </p>
                     ) : (
                       <p className="thumbnail-library__placeholder">

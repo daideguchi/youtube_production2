@@ -8230,6 +8230,29 @@ def generate_thumbnail_variant_images(channel: str, video: str, payload: Thumbna
         except Exception as exc:
             raise HTTPException(status_code=502, detail=f"image generation failed: {exc}") from exc
 
+        cost_usd: Optional[float] = None
+        openrouter_generation_id: Optional[str] = None
+        usage: Optional[Dict[str, Any]] = None
+        if result.provider == "openrouter" and result.request_id:
+            openrouter_generation_id = result.request_id
+            gen = _fetch_openrouter_generation(result.request_id)
+            if isinstance(gen, dict):
+                openrouter_generation_id = str(gen.get("id") or "").strip() or result.request_id
+                total_cost = gen.get("total_cost")
+                if isinstance(total_cost, (int, float)):
+                    cost_usd = float(total_cost)
+                elif isinstance(total_cost, str):
+                    try:
+                        cost_usd = float(total_cost)
+                    except ValueError:
+                        cost_usd = None
+                usage = {
+                    "total_cost": cost_usd,
+                    "native_tokens_prompt": gen.get("native_tokens_prompt"),
+                    "native_tokens_completion": gen.get("native_tokens_completion"),
+                    "native_tokens_completion_images": gen.get("native_tokens_completion_images"),
+                }
+
         image_data = result.images[0] if result.images else None
         if not image_data:
             raise HTTPException(status_code=502, detail="image generation returned no image bytes")
@@ -8262,6 +8285,12 @@ def generate_thumbnail_variant_images(channel: str, video: str, payload: Thumbna
             notes=notes,
             tags=tags,
             prompt=prompt,
+            provider=result.provider,
+            model=result.model,
+            model_key=model_key,
+            openrouter_generation_id=openrouter_generation_id,
+            cost_usd=cost_usd,
+            usage=usage,
             make_selected=bool(payload.make_selected) and idx == 0,
         )
         variants.append(variant)

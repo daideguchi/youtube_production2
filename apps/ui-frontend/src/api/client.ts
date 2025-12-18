@@ -1567,6 +1567,7 @@ type RemotionProjectSummaryResponse = {
   }>;
   outputs?: Array<{
     path: string;
+    url?: string | null;
     file_name?: string;
     size_bytes?: number | null;
     modified_time?: string | null;
@@ -1623,6 +1624,7 @@ function normalizeRemotionProject(raw: RemotionProjectSummaryResponse): Remotion
     outputs:
       raw.outputs?.map((entry) => ({
         path: entry.path,
+        url: entry.url ?? null,
         fileName: entry.file_name ?? (entry.path ? entry.path.split(/[/\\]/).pop() ?? entry.path : entry.path),
         sizeBytes: entry.size_bytes ?? null,
         modifiedTime: entry.modified_time ?? null,

@@ -1341,10 +1341,20 @@ else:
                     continue
                 seen_names.add(mp4.name)
                 stat_info = _stat_path(mp4)
+                rel = None
+                url = None
+                try:
+                    rel = mp4.relative_to(OUTPUT_ROOT).as_posix()
+                    url = f"/api/video-production/assets/{rel}"
+                except Exception:
+                    rel = None
+                    url = None
                 outputs.append(
                     {
                         "path": str(mp4),
                         "file_name": mp4.name,
+                        "url": url,
+                        "rel_path": rel,
                         "size_bytes": stat_info[0] if stat_info else None,
                         "modified_time": datetime.fromtimestamp(stat_info[1]).isoformat() if stat_info else None,
                     }

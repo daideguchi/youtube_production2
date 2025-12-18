@@ -1,10 +1,11 @@
 # サムネイル UI
 
-`/thumbnails` ナビゲーションで表示する UI コンポーネントを配置する場所です。現在は
-`ui/frontend/src/components/ThumbnailWorkspace.tsx` が実装され、バックエンドの
-`/api/thumbnails/*` エンドポイントと連携して以下を提供します。
+`/thumbnails` ナビゲーションで表示する UI の補助資料を配置する場所です。
+実装は `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx` と
+`apps/ui-frontend/src/components/ThumbnailBulkPanel.tsx` が中心です。
 
 - チャンネル別のサムネイル案件一覧
+- 量産（Canva）: 企画CSVの3段コピー編集 + Canva CSV出力
 - バリアント（案）のプレビュー／採用切り替え
 - 進捗ステータス（draft / review / approved 等）の更新
 - タグ、メモ、担当者などの補助情報表示
@@ -15,5 +16,5 @@
 - 選択中のバリアントやステータス変更は `projects.json` に書き戻され、再読み込みで反映。
 - CSS は `App.css` に `thumbnail-*` プレフィックスでスタイルを追加済み。
 
-今後 UI を拡張する際は、同コンポーネントを分割したり、状態管理フックを `thumbnails/ui`
-配下にまとめるなどして保守性を高めてください。
+ベンチマーク（コピー強化の型）:
+- `workspaces/thumbnails/ui/buddha_thumbnail_copy_benchmark.md`

@@ -734,6 +734,12 @@ export interface ThumbnailVariant {
   preview_url?: string | null;
   notes?: string | null;
   tags?: string[] | null;
+  provider?: string | null;
+  model?: string | null;
+  model_key?: string | null;
+  openrouter_generation_id?: string | null;
+  cost_usd?: number | null;
+  usage?: Record<string, any> | null;
   is_selected?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
@@ -851,10 +857,20 @@ export interface ThumbnailTemplatePayload {
   notes?: string | null;
 }
 
+export interface ThumbnailChannelStyle {
+  name?: string | null;
+  benchmark_path?: string | null;
+  preview_upper?: string | null;
+  preview_title?: string | null;
+  preview_lower?: string | null;
+  rules?: string[] | null;
+}
+
 export interface ThumbnailChannelTemplates {
   channel: string;
   default_template_id?: string | null;
   templates: ThumbnailTemplate[];
+  channel_style?: ThumbnailChannelStyle | null;
 }
 
 export interface ThumbnailChannelTemplatesUpdate {
@@ -1398,6 +1414,7 @@ export interface RemotionAssetStatus {
 
 export interface RemotionRenderOutput {
   path: string;
+  url?: string | null;
   fileName: string;
   sizeBytes?: number | null;
   modifiedTime?: string | null;
