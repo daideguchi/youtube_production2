@@ -139,7 +139,9 @@ def main() -> int:
         return 0
 
     stage_defs = _load_stage_defs()
-    log_dir = logs_root()
+    root_log_dir = logs_root()
+    root_log_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = root_log_dir / "regression" / "validate_status"
     log_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     output_path = Path(args.output) if args.output else (log_dir / f"validate_status_full_{timestamp}.json")
@@ -219,7 +221,7 @@ def main() -> int:
         "summary": summary,
     }
     output_path.write_text(json.dumps(artifact, ensure_ascii=False, indent=2), encoding="utf-8")
-    latest_path = log_dir / "validate_status_full_latest.json"
+    latest_path = root_log_dir / "validate_status_full_latest.json"
     latest_path.write_text(json.dumps(artifact, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print("=== validate-status sweep summary ===")
