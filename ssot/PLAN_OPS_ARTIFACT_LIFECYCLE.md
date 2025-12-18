@@ -138,6 +138,8 @@
   - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**。互換: `commentary_02_srt2images_timeline/input/...`）
     - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
     - 同期: `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs`
+      - 容量削減（推奨）: wav を symlink でミラーする（挙動は同じで重複を避けられる）
+        - `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip`
     - 不一致が見つかった場合は、古いコピーを `workspaces/video/_archive/<timestamp>/<CH>/video_input/` へ退避し、final を再同期して 1:1 を維持する。
 - **L3/Logs**
   - `commentary_02_srt2images_timeline/logs/*`

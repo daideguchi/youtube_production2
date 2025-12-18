@@ -110,6 +110,7 @@
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `logs/regression/broken_symlinks/`）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `logs/regression/video_runs_legacy_prune/`）
+- `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --wav-policy symlink --wav-dedupe`（`workspaces/video/input` の wav を symlink 化して重複を減らす。必要なら `--hash-wav`）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 
 ## 4.1 SSOTメンテ（索引/計画書の整合）

@@ -1013,3 +1013,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - report: `logs/regression/remotion_cleanup/remotion_cleanup_20251218T075050Z.json`
 - 結果:
   - `apps/remotion/out` の巨大生成物を削除（tracked の `belt_config.generated.json` / `belt_llm_raw.json` は保持）、`apps/remotion/public/_bgm` の古い wav を削除（合計約1.5GB削減）
+
+### 70) `workspaces/video/input` の wav を symlink 化して重複を解消（約14GB→14MB）
+
+意図: `workspaces/video/input` は audio final のミラーだが、wav をコピーで保持すると `workspaces/audio/final` と **二重に容量を消費**する。内容一致のものだけ symlink に置換して、容量と探索ノイズを削減する。
+
+- dry-run:
+  - `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --mode dry-run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip --orphan-policy archive`
+- 実行:
+  - `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip --orphan-policy archive --ignore-locks`（※自分で該当スコープをlockしている場合のみ）
+- 結果:
+  - updated=288（wav を symlink に置換）
+  - orphan=2（archive: `workspaces/video/_archive/20251218T080912Z/<CH>/video_input/...`）
+  - `workspaces/video/input` が約14GB → 約14MB に縮小
