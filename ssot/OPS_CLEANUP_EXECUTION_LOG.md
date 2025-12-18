@@ -880,3 +880,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - final wav が存在するもののみ対象（final SoT を削除しない）
   - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ
   - coordination locks があるスコープは自動スキップ
+
+### 59) CH10-001 固定の one-off 音声再生成スクリプトを archive-first で削除（repo tracked）
+
+意図: CH10-001 固定で `audio_prep/` を直書きする one-off は現行 SoT（`workspaces/audio/final/`）と矛盾し、誤参照の温床になる。現行の入口は `python -m script_pipeline.cli audio ...` が正本。
+
+- 参照確認:
+  - `rg -n "regenerate_audio_and_srt_ch10_001|regenerate_audio_srt_strict_ch10_001" -S .` が当該ファイル以外にヒットしない
+  - 言及は `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md` のみ
+- 退避（archive-first）:
+  - `backups/graveyard/20251218_135849_ch10_oneoff_tts_scripts/regenerate_audio.py`
+  - `backups/graveyard/20251218_135849_ch10_oneoff_tts_scripts/regenerate_strict.py`
+- 削除（git rm）:
+  - `git rm scripts/regenerate_audio.py scripts/regenerate_strict.py`

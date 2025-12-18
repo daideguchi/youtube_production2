@@ -54,28 +54,34 @@
 
 `rg --files-with-matches "script_pipeline/data"` の結果（全件）。
 
-- `apps/ui-backend/backend/main.py`（互換: `ui/backend/*` は symlink）
-- `apps/ui-backend/backend/routers/tts_progress.py`
-- `apps/ui-frontend/src/api/client.ts`（互換: `ui/frontend/src/...` は symlink）
-- `apps/ui-frontend/src/components/ResearchWorkspace.tsx`
-- `audio_tts_v2/scripts/run_tts.py`
-- `audio_tts_v2/legacy_archive/scripts/prepare_inputs.py`（Legacy）
-- `script_pipeline/sot.py`
-- `script_pipeline/job_runner.py`
-- `scripts/check_ch02_quality.py`
-- `scripts/check_ch02_content.py`
-- `scripts/regenerate_audio.py`
-- `scripts/regenerate_strict.py`
-- `scripts/run_ch03_batch.sh`
-- `scripts/regenerate_ch05_audio_no_llm.sh`
-- `scripts/verify_srt_sync.py`
-- `scripts/apply_reading_corrections.py`
-- `scripts/sync_all_scripts.py`
+- `README.md`
+- `packages/audio_tts_v2/scripts/run_tts.py`
+- `packages/script_pipeline/README.md`
 - `scripts/job_runner_service.md`（Docs）
-- `ssot/history/HISTORY_tts_reading_audit.md`（Docs）
-- `docs/static/js/main.281eca7e.js` / `.map`（ビルド生成物）
-- `progress/channels/*.csv`, `progress/templates/*.csv`（SoT/テンプレ）
-- `ssot/*`（Docs）
+- `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`（Docs）
+- `ssot/DATA_LAYOUT.md`（Docs）
+- `ssot/OPS_AGENT_PLAYBOOK.md`（Docs）
+- `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`（Docs）
+- `ssot/OPS_ARTIFACT_DRIVEN_PIPELINES.md`（Docs）
+- `ssot/OPS_AUDIO_TTS_V2.md`（Docs）
+- `ssot/OPS_CLEANUP_EXECUTION_LOG.md`（Docs）
+- `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`（Docs）
+- `ssot/OPS_IO_SCHEMAS.md`（Docs）
+- `ssot/OPS_LOGGING_MAP.md`（Docs）
+- `ssot/OPS_PLANNING_CSV_WORKFLOW.md`（Docs）
+- `ssot/OPS_SCRIPT_GUIDE.md`（Docs）
+- `ssot/OPS_SCRIPT_SOURCE_MAP.md`（Docs）
+- `ssot/OPS_TTS_MANUAL_READING_AUDIT.md`（Docs）
+- `ssot/PLAN_LLM_PIPELINE_REFACTOR.md`（Docs）
+- `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（Docs）
+- `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`（Docs）
+- `ssot/PLAN_UI_EPISODE_STUDIO.md`（Docs）
+- `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`（Docs）
+- `ssot/REFERENCE_ssot_このプロダクト設計について`（Docs）
+- `ssot/【消さないで！人間用】確定ロジック`（Docs）
+- `workspaces/README.md`（Docs）
+- `workspaces/planning/README.md`（Docs）
+- `workspaces/planning/channels/CH03.csv`（SoT/Planning）
 
 置換先: `factory_common.paths.script_data_root()` / `video_root(ch, vid)` / `status_path(ch, vid)` を使用。
 
