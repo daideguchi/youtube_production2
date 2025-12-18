@@ -58,7 +58,7 @@
   - `progress/`（channels CSV/personas/templates/analytics）
   - `thumbnails/`（projects.json + assets（移行先） + 旧 `CHxx_<name>/` 資産）
   - `configs/`（LLM/画像/Drive/YT/設定正本）
-  - `prompts/`（Qwen/説明文など）
+  - `prompts/`（横断プロンプト: 説明文など）
   - `credentials/`（OAuth token 等）
   - `ssot/`（設計/運用の正本）
 - **生成物/作業物が混在**

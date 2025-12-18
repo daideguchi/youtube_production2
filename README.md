@@ -30,7 +30,7 @@ factory_commentary/
 | Alignment / Checklist | `ssot/OPS_ALIGNMENT_CHECKPOINTS.md` |
 | 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
 | 環境変数 | `ssot/OPS_ENV_VARS.md` |
-| Qwen 対話モード | `QWEN.md` / `prompts/README.md` |
+| Agent/THINK mode | `ssot/OPS_AGENT_PLAYBOOK.md` / `ssot/agent_runbooks/README.md` / `prompts/README.md` |
 | 台本ソースマップ | `ssot/OPS_SCRIPT_SOURCE_MAP.md` |
 | スタートガイド | `START_HERE.md` |
 | ドキュメント索引 | `ssot/DOCS_INDEX.md` |

@@ -111,3 +111,4 @@
 - scripts 起動の安定化: `scripts/_bootstrap.py` を導入し、`Path(__file__).parents[...]` の直書きを `pyproject.toml` 探索ベースへ統一（scripts/ops も同様）。`workspaces/logs` への出力は `factory_common.paths.logs_root()` を優先。
 - Remotion preview 入力を正本へ: `apps/remotion/input` を `workspaces/video/input` へ symlink し、`apps/remotion/public/input` から正しい入力が参照されるようにした。
 - logs の分散抑制: `scripts/validate_status_sweep.py` の timestamped レポートを `logs/regression/validate_status/` へ集約し、`logs/validate_status_full_latest.json` は互換のため root に維持（SSOT: `ssot/OPS_LOGGING_MAP.md`）。
+- 旧Qwen/core-tools導線の誤参照を解消: `packages/script_pipeline/prompts/{phase2_audio_prompt,orchestrator_prompt}.txt` を現行CLI/SoT/agent_orgメモ運用に更新し、`README.md` から `QWEN.md` 参照を削除。
