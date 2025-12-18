@@ -1,11 +1,9 @@
 import os
 import glob
 import re
-import sys
-from pathlib import Path
+from _bootstrap import ensure_monorepo_imports
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+ensure_monorepo_imports()
 
 from factory_common.paths import script_data_root
 
@@ -50,4 +48,3 @@ for i in range(1, 35):
         print(f"  WARNING: Cheap hook found near start.")
     if has_chapters < 7:
         print(f"  WARNING: Chapter count {has_chapters} < 7")
-

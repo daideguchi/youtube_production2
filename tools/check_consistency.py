@@ -2,11 +2,10 @@ import sys
 import csv
 import json
 import os
-from pathlib import Path
 
-# Add project root for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+from _bootstrap import ensure_monorepo_imports
+
+ensure_monorepo_imports()
 
 from factory_common.paths import channels_csv_path, video_root
 

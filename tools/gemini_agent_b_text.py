@@ -1,19 +1,17 @@
 
 import os
-import sys
 import json
 import re
 import subprocess
-from pathlib import Path
 import google.generativeai as genai
 import dotenv
 
 # Load env
 dotenv.load_dotenv(override=True)
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages"))
+from _bootstrap import ensure_monorepo_imports
+
+ensure_monorepo_imports()
 
 from factory_common.paths import script_data_root
 from audio_tts_v2.tts.orchestrator import _raw_sentence_blocks_for_srt, _merge_numeric_blocks
