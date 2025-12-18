@@ -1114,3 +1114,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - deleted=4
 - レポート:
   - `logs/regression/broken_symlinks/broken_symlinks_20251218T110055Z.json`
+
+### 78) `audio_prep` の重複バイナリ（`*-regenerated.*` 等）を purge（untracked / safe）
+
+意図: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` が揃っている場合、`workspaces/scripts/{CH}/{NNN}/audio_prep/` に残る `*.wav/.srt` は重複で探索ノイズになる。特に `*-regenerated.wav/.srt` のような命名が残っていると「どれが正本か」を誤認しやすいので、final を正本に固定したうえで削除する。
+
+- dry-run:
+  - `python3 scripts/purge_audio_prep_binaries.py --dry-run --channel CH10 --video 001 --keep-recent-minutes 360`
+- 実行:
+  - `python3 scripts/purge_audio_prep_binaries.py --run --channel CH10 --video 001 --keep-recent-minutes 360`
+- 結果:
+  - deleted_files=2（`CH10-001-regenerated.wav` / `CH10-001-regenerated.srt`）

@@ -5,9 +5,11 @@ when workspaces/audio/final/** already contains the final artifacts.
 
 Goal:
 - Keep text/json inputs in audio_prep (B-text, overrides, logs, etc.)
-- Remove only large duplicate binaries:
-    audio_prep/{CH}-{NNN}.wav
-    audio_prep/{CH}-{NNN}.srt
+- Remove only large duplicate binaries that mirror the final artifacts:
+    audio_prep/{CH}-{NNN}*.wav
+    audio_prep/{CH}-{NNN}*.srt
+  (Example: `{CH}-{NNN}-regenerated.wav/.srt` are considered duplicates once
+  `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` exist.)
 
 Safety:
 - Never deletes final artifacts.
@@ -35,8 +37,8 @@ from factory_common.locks import default_active_locks_for_mutation, find_blockin
 class PurgeItem:
     channel: str
     video: str
-    prep_wav: Path
-    prep_srt: Path
+    wav: Path
+    srt: Path
     size_bytes: int
     latest_mtime: datetime
 
@@ -109,41 +111,44 @@ def collect_items(
                 skipped_locked += 1
                 continue
 
-            prep_wav = prep_dir / f"{ch}-{v}.wav"
-            prep_srt = prep_dir / f"{ch}-{v}.srt"
-            if not (prep_wav.exists() and prep_srt.exists()):
-                continue
-
             final_dir = audio_final_dir(ch, v)
-            final_wav = final_dir / prep_wav.name
-            final_srt = final_dir / prep_srt.name
+            final_wav = final_dir / f"{ch}-{v}.wav"
+            final_srt = final_dir / f"{ch}-{v}.srt"
             if not (final_wav.exists() and final_srt.exists()):
                 continue
 
-            latest = max(_mtime_utc(prep_wav), _mtime_utc(prep_srt))
-            if latest >= cutoff:
-                continue
+            # Collect (wav,srt) pairs under audio_prep/ that match this episode.
+            # We only consider top-level files to avoid deleting actual chunk parts.
+            wav_candidates = sorted(prep_dir.glob(f"{ch}-{v}*.wav"))
+            for wav in wav_candidates:
+                srt = prep_dir / f"{wav.stem}.srt"
+                if not srt.exists():
+                    continue
 
-            size = 0
-            try:
-                size += prep_wav.stat().st_size
-            except Exception:
-                pass
-            try:
-                size += prep_srt.stat().st_size
-            except Exception:
-                pass
+                latest = max(_mtime_utc(wav), _mtime_utc(srt))
+                if latest >= cutoff:
+                    continue
 
-            out.append(
-                PurgeItem(
-                    channel=ch,
-                    video=v,
-                    prep_wav=prep_wav,
-                    prep_srt=prep_srt,
-                    size_bytes=size,
-                    latest_mtime=latest,
+                size = 0
+                try:
+                    size += wav.stat().st_size
+                except Exception:
+                    pass
+                try:
+                    size += srt.stat().st_size
+                except Exception:
+                    pass
+
+                out.append(
+                    PurgeItem(
+                        channel=ch,
+                        video=v,
+                        wav=wav,
+                        srt=srt,
+                        size_bytes=size,
+                        latest_mtime=latest,
+                    )
                 )
-            )
 
     return out, skipped_locked
 
@@ -181,7 +186,7 @@ def main() -> int:
     if dry_run:
         for it in items[:20]:
             age_h = (_now_utc() - it.latest_mtime).total_seconds() / 3600.0
-            print(f"  - {it.channel}-{it.video} size={_fmt_bytes(it.size_bytes)} age={age_h:.1f}h")
+            print(f"  - {it.channel}-{it.video} {it.wav.name} size={_fmt_bytes(it.size_bytes)} age={age_h:.1f}h")
         if len(items) > 20:
             print(f"  ... ({len(items)-20} more)")
         print("[purge_audio_prep_binaries] dry-run only; pass --run to delete")
@@ -190,7 +195,7 @@ def main() -> int:
     deleted = 0
     failed = 0
     for it in items:
-        for p in (it.prep_wav, it.prep_srt):
+        for p in (it.wav, it.srt):
             try:
                 p.unlink()
                 deleted += 1

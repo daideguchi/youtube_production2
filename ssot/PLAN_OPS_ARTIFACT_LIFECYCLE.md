@@ -110,14 +110,14 @@
 
 **現行の補助スクリプト（安全ガード付き）**
 - `scripts/sync_audio_prep_to_final.py`: prep→final の不足ファイルのみ同期（上書きしない）
-- `scripts/purge_audio_prep_binaries.py`: final が揃っている動画の audio_prep 直下 wav/srt を削除
+- `scripts/purge_audio_prep_binaries.py`: final が揃っている動画の audio_prep 直下の重複 wav/srt（`{CH}-{NNN}*.wav/.srt`）を削除（例: `*-regenerated.*`）
 - `scripts/cleanup_audio_prep.py`: audio_prep/chunks を削除（recent window で生成中を保護）
 - `scripts/purge_audio_final_chunks.py`: final/chunks を削除（recent window で生成中を保護）
 
 **現行の自動cleanup（UI/Backend 経由の TTS 成功時）**
 - backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベストエフォートで以下を実行する:
   - `workspaces/scripts/.../audio_prep/chunks/` を削除（互換: `script_pipeline/data/...`）
-  - `workspaces/scripts/.../audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
+  - `workspaces/scripts/.../audio_prep/{CH}-{NNN}*.wav|.srt`（finalと重複するバイナリ。例: `*-regenerated.*`）を削除
   - `workspaces/audio/final/.../chunks/` を削除（互換: `audio_tts_v2/artifacts/final/...`）
     - 無効化: `YTM_TTS_KEEP_CHUNKS=1`
 
@@ -214,7 +214,7 @@
 実装状況（2025-12-17）:
 - `scripts/cleanup_workspace.py` を追加（audio/logs/scripts/video を統合）。
   - `workspaces/scripts/**/audio_prep/chunks/` の削除
-  - `workspaces/scripts/**/audio_prep/{CH}-{NNN}.wav|.srt`（finalと重複するバイナリ）の削除
+  - `workspaces/scripts/**/audio_prep/{CH}-{NNN}*.wav|.srt`（finalと重複するバイナリ。例: `*-regenerated.*`）の削除
   - `workspaces/audio/final/**/chunks/` の削除
   - `--video-runs` で `scripts/ops/cleanup_video_runs.py` を呼び出し（run dir は削除せず `_archive/` へ移動）
   - `--logs` で `scripts/ops/cleanup_logs.py` を呼び出し（L3ログのローテ）

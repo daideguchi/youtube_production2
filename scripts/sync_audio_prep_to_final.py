@@ -31,6 +31,7 @@ from _bootstrap import bootstrap
 REPO_ROOT = bootstrap()
 
 from factory_common.paths import audio_final_dir, script_data_root  # noqa: E402
+from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,8 @@ class SyncItem:
     video: str
     prep_dir: Path
     final_dir: Path
+    src_wav: Path
+    src_srt: Path
     wav: bool
     srt: bool
     log: bool
@@ -97,15 +100,47 @@ def _read_a_text(video_dir: Path) -> Optional[str]:
     return None
 
 
+def _pick_prep_pair(prep_dir: Path, *, channel: str, video: str) -> Optional[tuple[Path, Path]]:
+    """
+    Pick a (wav,srt) pair under audio_prep for this episode.
+
+    Prefer the canonical names:
+      {CH}-{NNN}.wav/.srt
+
+    Fallback:
+      any top-level pair matching {CH}-{NNN}*.wav/.srt (same stem), newest wins.
+    """
+    ch = channel.upper()
+    v = str(video).zfill(3)
+    canonical_wav = prep_dir / f"{ch}-{v}.wav"
+    canonical_srt = prep_dir / f"{ch}-{v}.srt"
+    if canonical_wav.exists() and canonical_srt.exists():
+        return canonical_wav, canonical_srt
+
+    best: Optional[tuple[datetime, Path, Path]] = None
+    for wav in sorted(prep_dir.glob(f"{ch}-{v}*.wav")):
+        srt = prep_dir / f"{wav.stem}.srt"
+        if not srt.exists():
+            continue
+        latest = max(_mtime_utc(wav), _mtime_utc(srt))
+        if best is None or latest > best[0]:
+            best = (latest, wav, srt)
+    if best is None:
+        return None
+    return best[1], best[2]
+
+
 def collect_items(
     *,
     channels: Optional[list[str]],
     videos: Optional[list[str]],
     keep_recent_minutes: int,
+    ignore_locks: bool,
 ) -> list[SyncItem]:
     root = script_data_root()
     cutoff = _now_utc() - timedelta(minutes=keep_recent_minutes)
     out: list[SyncItem] = []
+    locks = [] if ignore_locks else default_active_locks_for_mutation()
 
     for ch_dir in _iter_channels(root, channels):
         ch = ch_dir.name.upper()
@@ -115,19 +150,21 @@ def collect_items(
             if not prep_dir.is_dir():
                 continue
 
-            prep_wav = prep_dir / f"{ch}-{v}.wav"
-            prep_srt = prep_dir / f"{ch}-{v}.srt"
-            if not (prep_wav.exists() and prep_srt.exists()):
+            pair = _pick_prep_pair(prep_dir, channel=ch, video=v)
+            if pair is None:
+                continue
+            src_wav, src_srt = pair
+            if locks and find_blocking_lock(prep_dir, locks):
                 continue
 
             # Skip very recent synthesis outputs (avoid in-progress runs).
-            latest = max(_mtime_utc(prep_wav), _mtime_utc(prep_srt), _mtime_utc(prep_dir / "log.json"))
+            latest = max(_mtime_utc(src_wav), _mtime_utc(src_srt), _mtime_utc(prep_dir / "log.json"))
             if latest >= cutoff:
                 continue
 
             final_dir = audio_final_dir(ch, v)
-            final_wav = final_dir / prep_wav.name
-            final_srt = final_dir / prep_srt.name
+            final_wav = final_dir / f"{ch}-{v}.wav"
+            final_srt = final_dir / f"{ch}-{v}.srt"
             final_log = final_dir / "log.json"
             final_a_text = final_dir / "a_text.txt"
 
@@ -138,6 +175,8 @@ def collect_items(
 
             if not (wav_missing or srt_missing or log_missing or a_text_missing):
                 continue
+            if locks and find_blocking_lock(final_dir, locks):
+                continue
 
             out.append(
                 SyncItem(
@@ -145,6 +184,8 @@ def collect_items(
                     video=v,
                     prep_dir=prep_dir,
                     final_dir=final_dir,
+                    src_wav=src_wav,
+                    src_srt=src_srt,
                     wav=wav_missing,
                     srt=srt_missing,
                     log=log_missing,
@@ -163,6 +204,11 @@ def main() -> int:
     ap.add_argument("--channel", action="append", help="Target channel (repeatable). e.g. CH08")
     ap.add_argument("--video", action="append", help="Target video (repeatable). Requires --channel.")
     ap.add_argument("--keep-recent-minutes", type=int, default=360, help="Skip recent directories (avoid in-progress).")
+    ap.add_argument(
+        "--ignore-locks",
+        action="store_true",
+        help="Do not respect coordination locks (dangerous; default: respect locks).",
+    )
     args = ap.parse_args()
 
     if args.video and not args.channel:
@@ -171,13 +217,19 @@ def main() -> int:
     do_run = bool(args.run)
     dry_run = bool(args.dry_run) or not do_run
 
-    items = collect_items(channels=args.channel, videos=args.video, keep_recent_minutes=args.keep_recent_minutes)
+    items = collect_items(
+        channels=args.channel,
+        videos=args.video,
+        keep_recent_minutes=args.keep_recent_minutes,
+        ignore_locks=bool(args.ignore_locks),
+    )
     print(f"[sync_audio_prep_to_final] items={len(items)} dry_run={dry_run} keep_recent_minutes={args.keep_recent_minutes}")
 
     if dry_run:
         for it in items[:40]:
             flags = ",".join([k for k, v in (("wav", it.wav), ("srt", it.srt), ("log", it.log), ("a_text", it.a_text)) if v])
-            print(f"  - {it.channel}-{it.video} -> {it.final_dir} ({flags})")
+            src = f"{it.src_wav.name},{it.src_srt.name}"
+            print(f"  - {it.channel}-{it.video} src=({src}) -> {it.final_dir} ({flags})")
         if len(items) > 40:
             print(f"  ... ({len(items)-40} more)")
         print("[sync_audio_prep_to_final] dry-run only; pass --run to copy")
@@ -187,16 +239,14 @@ def main() -> int:
     for it in items:
         it.final_dir.mkdir(parents=True, exist_ok=True)
         ch, v = it.channel, it.video
-        prep_wav = it.prep_dir / f"{ch}-{v}.wav"
-        prep_srt = it.prep_dir / f"{ch}-{v}.srt"
-        final_wav = it.final_dir / prep_wav.name
-        final_srt = it.final_dir / prep_srt.name
+        final_wav = it.final_dir / f"{ch}-{v}.wav"
+        final_srt = it.final_dir / f"{ch}-{v}.srt"
 
-        if it.wav and prep_wav.exists() and not final_wav.exists():
-            shutil.copy2(prep_wav, final_wav)
+        if it.wav and it.src_wav.exists() and not final_wav.exists():
+            shutil.copy2(it.src_wav, final_wav)
             copied += 1
-        if it.srt and prep_srt.exists() and not final_srt.exists():
-            shutil.copy2(prep_srt, final_srt)
+        if it.srt and it.src_srt.exists() and not final_srt.exists():
+            shutil.copy2(it.src_srt, final_srt)
             copied += 1
 
         prep_log = it.prep_dir / "log.json"
