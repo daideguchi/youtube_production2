@@ -864,3 +864,19 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `git rm packages/audio_tts_v2/tts/validators.py`
 - 追従（docs）:
   - `packages/audio_tts_v2/docs/tts_logic_proof.md` の Validator 記述を削除し、現行実装（未統合）として明記
+
+### 58) audio の rebuildable artifacts を一括削除（untracked / safe）
+
+意図: 音声生成後に残る `audio_prep/chunks` や `final/chunks`、重複バイナリは再生成可能で探索ノイズ・容量を増やすため、保持期限ルールに従って削除する。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/cleanup_workspace.py --audio --all --dry-run --keep-recent-minutes 360`
+  - `python3 scripts/cleanup_workspace.py --audio --all --run --yes --keep-recent-minutes 360`
+- 削除内容（run）:
+  - `workspaces/scripts/CH04/**/audio_prep/chunks/`（9件 / 約402.6MB）
+  - `workspaces/scripts/CH04/**/audio_prep/{CH}-{NNN}.wav|.srt`（重複18ファイル / 約412.4MB）
+  - `workspaces/audio/final/**/chunks/`（31件 / 約1.4GB）
+- 安全条件:
+  - final wav が存在するもののみ対象（final SoT を削除しない）
+  - 直近 6 時間（keep-recent-minutes=360）の更新物はスキップ
+  - coordination locks があるスコープは自動スキップ
