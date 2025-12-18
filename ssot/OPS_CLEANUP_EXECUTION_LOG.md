@@ -840,3 +840,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `git rm packages/commentary_02_srt2images_timeline/test_key_validity.py`
 - 重要:
   - `test_key_validity.py` に API キーが直書きされていたため、該当キーはローテーション推奨（以後は `.env` / `credentials/` の正規ルートへ）
+
+### 56) `commentary_02_srt2images_timeline/test_gemini_25_flash_image.py` を archive-first で削除（repo tracked）
+
+意図: Gemini 画像APIの手動検証用スクリプトは現行フロー/入口索引に含まれておらず参照も無いため、探索ノイズを減らす目的で退避した上で削除する。
+
+- 参照確認:
+  - `rg -n "test_gemini_25_flash_image" -S .` が当該ファイル以外にヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251218T011358Z_commentary02_test_gemini_25_flash_image.tar.gz`
+- 削除（git rm）:
+  - `git rm packages/commentary_02_srt2images_timeline/test_gemini_25_flash_image.py`
