@@ -825,3 +825,18 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251217T215754Z_commentary02_openrouter_config.tar.gz`
 - 削除（git rm）:
   - `git rm packages/commentary_02_srt2images_timeline/configs/.openrouter_config`
+
+### 55) 不要な試験スクリプト（直書きキー含む）を archive-first で削除（repo tracked）
+
+意図: 参照されていない “試験用の残骸” は探索ノイズになり、特に API キー直書きは漏洩リスクの温床になるため、復旧用に退避した上で repo から削除する。
+
+- 参照確認:
+  - `rg -n "test_ambig\\.py|test_key_validity\\.py" -S .` が当該ファイル以外にヒットしない
+- 退避（archive-first）:
+  - `backups/graveyard/20251218T004727Z_audio_tts_v2_test_ambig_unused.tar.gz`
+  - `backups/graveyard/20251218T004727Z_commentary02_test_key_validity_leaked_key.tar.gz`
+- 削除（git rm）:
+  - `git rm packages/audio_tts_v2/test_ambig.py`
+  - `git rm packages/commentary_02_srt2images_timeline/test_key_validity.py`
+- 重要:
+  - `test_key_validity.py` に API キーが直書きされていたため、該当キーはローテーション推奨（以後は `.env` / `credentials/` の正規ルートへ）
