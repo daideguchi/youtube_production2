@@ -451,6 +451,13 @@ export interface PublishLockResponse {
   updated_at: string;
 }
 
+export interface PublishUnlockResponse {
+  status: string;
+  channel: string;
+  video: string;
+  updated_at: string;
+}
+
 export interface RedoSummaryItem {
   channel: string;
   redo_script: number;

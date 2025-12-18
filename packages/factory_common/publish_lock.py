@@ -216,3 +216,81 @@ def mark_episode_published_locked(
         updated_csv_paths=tuple(updated_csv_paths),
         status_updated=status_updated,
     )
+
+
+@dataclass(frozen=True)
+class PublishUnlockResult:
+    channel: str
+    video: str
+    updated_csv_paths: tuple[str, ...]
+    status_updated: bool
+
+
+def unmark_episode_published_locked(
+    channel: str,
+    video: str,
+    *,
+    restore_progress: Optional[str] = None,
+    update_legacy_progress_csv: bool = True,
+    update_status_json: bool = True,
+) -> PublishUnlockResult:
+    """
+    Clear the "published_lock" guard when it was set by mistake.
+
+    Policy:
+      - If planning/legacy CSV "進捗" is marked as 投稿済み/公開済み, clear it (or set restore_progress).
+      - Always clear status.json metadata.published_lock when update_status_json=True.
+      - This is an operator override; it does NOT attempt to reconstruct prior progress fields.
+    """
+    ch = str(channel).upper()
+    token = _normalize_video_token(video)
+    if not token:
+        raise ValueError(f"invalid video: {video}")
+
+    paths: list[Path] = [channels_csv_path(ch)]
+    if update_legacy_progress_csv:
+        paths.append(_legacy_progress_csv_path(ch))
+
+    updated_csv_paths: list[str] = []
+    for path in paths:
+        if not path.exists():
+            continue
+        fieldnames, rows = _read_csv_rows(path)
+        row = _find_row(rows, token)
+        if not row:
+            continue
+        progress = row.get("進捗")
+        if _is_published_progress(progress):
+            row["進捗"] = (restore_progress or "").strip()
+            if "更新日時" in fieldnames:
+                row["更新日時"] = _utc_now_iso()
+            _write_csv_rows(path, fieldnames, rows)
+            updated_csv_paths.append(str(path))
+
+    status_updated = False
+    if update_status_json:
+        sp = status_path(ch, token)
+        if sp.exists():
+            try:
+                payload = json.loads(sp.read_text(encoding="utf-8"))
+            except Exception:
+                payload = {}
+            if not isinstance(payload, dict):
+                payload = {}
+            meta = payload.get("metadata")
+            if not isinstance(meta, dict):
+                meta = {}
+            meta["published_lock"] = False
+            meta.pop("published_at", None)
+            payload["metadata"] = meta
+            payload["updated_at"] = _utc_now_iso()
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            sp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            status_updated = True
+
+    return PublishUnlockResult(
+        channel=ch,
+        video=token,
+        updated_csv_paths=tuple(updated_csv_paths),
+        status_updated=status_updated,
+    )

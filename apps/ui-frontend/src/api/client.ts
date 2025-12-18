@@ -84,6 +84,7 @@ import {
   AudioAnalysis,
   PublishLockPayload,
   PublishLockResponse,
+  PublishUnlockResponse,
   RedoUpdatePayload,
   RedoUpdateResponse,
   RedoSummaryItem,
@@ -693,6 +694,15 @@ export function markVideoPublishedLocked(
     {
       method: "POST",
       body: JSON.stringify(body),
+    }
+  );
+}
+
+export function unmarkVideoPublishedLocked(channel: string, video: string): Promise<PublishUnlockResponse> {
+  return request<PublishUnlockResponse>(
+    `/api/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}/published`,
+    {
+      method: "DELETE",
     }
   );
 }

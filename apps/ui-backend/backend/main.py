@@ -221,7 +221,11 @@ from app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
-from factory_common.publish_lock import is_episode_published_locked, mark_episode_published_locked
+from factory_common.publish_lock import (
+    is_episode_published_locked,
+    mark_episode_published_locked,
+    unmark_episode_published_locked,
+)
 from factory_common.alignment import (
     iter_thumbnail_catches_from_row,
     planning_hash_from_row,
@@ -4573,6 +4577,13 @@ class PublishLockResponse(BaseModel):
     channel: str
     video: str
     published_at: str
+    updated_at: str
+
+
+class PublishUnlockResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
     updated_at: str
 
 
@@ -8932,6 +8943,19 @@ def mark_video_published(channel: str, video: str, payload: PublishLockRequest):
         channel=channel_code,
         video=video_number,
         published_at=result.published_at,
+        updated_at=current_timestamp(),
+    )
+
+
+@app.delete("/api/channels/{channel}/videos/{video}/published", response_model=PublishUnlockResponse)
+def unmark_video_published(channel: str, video: str):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    unmark_episode_published_locked(channel_code, video_number)
+    return PublishUnlockResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
         updated_at=current_timestamp(),
     )
 
