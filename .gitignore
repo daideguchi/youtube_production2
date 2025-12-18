@@ -56,6 +56,9 @@ apps/remotion/input/
 apps/remotion/out/
 apps/remotion/public/_auto/
 apps/remotion/public/_bgm/
+
+# Frontend build output (generated; do not commit)
+apps/ui-frontend/build/
 audio_tts_v2/artifacts
 packages/audio_tts_v2/artifacts
 backups

@@ -59,6 +59,7 @@
 - `TOOLS_LLM_USAGE.md`: LLM利用の集計・可視化ツールの仕様。
 
 #### 完了/参照（completed）
+- `completed/README.md`: Completed（完了/参照）配下の索引。
 - `completed/LLM_LAYER_REFACTOR_PLAN.md` (Legacy/Reference): LLMレイヤー再設計の詳細（必要に応じて `PLAN_LLM_PIPELINE_REFACTOR.md` に統合）。
 - `completed/LLM_ROUTING_PLAN.md` (Legacy/Reference): 旧ルーティング方針の履歴。
 - `completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md` (Legacy/Reference): Path SSOT導入（Stage1）の超詳細手順（完了済み）。
