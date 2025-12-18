@@ -114,3 +114,4 @@
 - 旧Qwen/core-tools導線の誤参照を解消: `packages/script_pipeline/prompts/{phase2_audio_prompt,orchestrator_prompt}.txt` を現行CLI/SoT/agent_orgメモ運用に更新し、`README.md` から `QWEN.md` 参照を削除。
 - SRT/音声監査のSoTを final 基準に統一: `scripts/verify_srt_sync.py` と `scripts/audio_integrity_report.py` を `workspaces/audio/final/` 参照へ更新し、`scripts/check_all_srt.sh` は旧フラグを廃止して検査ログを `logs/regression/srt_validation/` に集約（SSOT: `ssot/OPS_LOGGING_MAP.md`）。
 - 確実ゴミ削除（archive-first）: CH10-001 固定の one-off 再生成スクリプト（`scripts/regenerate_audio.py`, `scripts/regenerate_strict.py`）を退避した上で repo から削除し、棚卸しと実行ログを更新（`ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 確実ゴミ削除（archive-first）: 旧Route audio の deprecation stub（`scripts/_core_audio.py`, `scripts/run_route1_batch.py`, `scripts/run_route2_agent.py`）を退避した上で削除（実行しても exit するだけの探索ノイズのため）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。

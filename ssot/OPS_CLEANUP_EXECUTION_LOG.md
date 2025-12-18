@@ -893,3 +893,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218_135849_ch10_oneoff_tts_scripts/regenerate_strict.py`
 - 削除（git rm）:
   - `git rm scripts/regenerate_audio.py scripts/regenerate_strict.py`
+
+### 60) 旧Route audio の deprecation stub を archive-first で削除（repo tracked）
+
+意図: `scripts/` 直下に「DEPRECATED / no longer supported」な stub（実行しても exit=2 するだけ）が残っていると、探索ノイズになり低知能エージェントが誤って叩く原因になる。現行の入口は `ssot/OPS_ENTRYPOINTS_INDEX.md` を正とする。
+
+- 参照確認:
+  - `rg -n "scripts/(run_route1_batch|run_route2_agent|_core_audio)\\.py" -S .` の参照が legacy 配下のみであることを確認
+- 退避（archive-first）:
+  - `backups/graveyard/20251218_141306_deprecated_route_audio_stubs/_core_audio.py`
+  - `backups/graveyard/20251218_141306_deprecated_route_audio_stubs/run_route1_batch.py`
+  - `backups/graveyard/20251218_141306_deprecated_route_audio_stubs/run_route2_agent.py`
+- 削除（git rm）:
+  - `git rm scripts/_core_audio.py scripts/run_route1_batch.py scripts/run_route2_agent.py`
