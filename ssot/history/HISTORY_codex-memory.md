@@ -118,3 +118,5 @@
 - 確実ゴミ削除（archive-first）: 実行不能で参照ゼロの `legacy/scripts/route_audio/` を tar 退避した上で削除（探索ノイズ削減）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
 - 確実ゴミ削除（archive-first）: 旧 `commentary_02` の Legacy UI/設定（`legacy/commentary_02_srt2images_timeline/`）を tar 退避した上で削除し、差し替えUIドキュメントを現行 React UI（`/capcut-edit/swap`）へ更新。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
 - 確実ゴミ削除（archive-first）: 参照ゼロの `legacy/scripts/agent_coord.py` を退避した上で削除（協調運用は `scripts/agent_org.py` が正本）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
+- UI改善: サムネの「量産（Canva）」を実運用向けに強化（BulkPanel + channel_style の表示/ルール提示）。フロントの TS build エラー（hook順/型）を解消し、テンプレ正本（`workspaces/thumbnails/templates.json`）の style 情報を API で返すようにした（`apps/ui-backend/backend/main.py`, `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx` ほか）。検証: `npm -C apps/ui-frontend run build`。
+- 運用改善: 壊れた `capcut_draft` symlink の掃除ツールを追加し、coordination lock が symlink でも効くように修正（`scripts/ops/cleanup_broken_symlinks.py`, `packages/factory_common/locks.py`）。掃除レポートは `logs/regression/broken_symlinks/`。

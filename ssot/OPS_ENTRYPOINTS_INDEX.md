@@ -106,6 +106,7 @@
 - `scripts/ops/cleanup_logs.py --run`（logs 直下の L3 ログを日数ローテで削除）
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
+- `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `logs/regression/broken_symlinks/`）
 - 実行ログ: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
 
 ## 4.1 SSOTメンテ（索引/計画書の整合）

@@ -173,6 +173,7 @@ segments[*]（観測キー例）:
 - `image_cues.json`
 - `images/*.png`
 - `capcut_draft`（CapCut projects への symlink）
+  - 生成前は存在しない/壊れている（target無）ことがある。壊れたリンクの掃除は `scripts/ops/cleanup_broken_symlinks.py`。
 - `capcut_draft_info.json`
 - `auto_run_info.json`
 - `belt_config.json`（run により存在しない場合あり）

@@ -126,6 +126,7 @@
 - **L0/SoT**
   - `workspaces/video/runs/<run>/image_cues.json`（互換: `commentary_02_srt2images_timeline/output/<run>/...`）
   - `workspaces/video/runs/<run>/capcut_draft/`（採用ドラフト。互換: `commentary_02_srt2images_timeline/output/<run>/...`）
+    - 備考: `capcut_draft` は symlink のことがある（target無=ドラフト未生成）。壊れたリンクは `scripts/ops/cleanup_broken_symlinks.py` で除去。
   - `workspaces/video/runs/<run>/episode_info.json`（互換: `commentary_02_srt2images_timeline/output/<run>/...`）
 - **L1/Final**
   - `workspaces/video/runs/<run>/belt_config.json`

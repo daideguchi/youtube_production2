@@ -939,3 +939,16 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251218_143327_legacy_agent_coord/agent_coord.py`
 - 削除（git rm）:
   - `git rm legacy/scripts/agent_coord.py`
+
+### 64) 壊れた `capcut_draft` symlink を一括削除（untracked / safe）
+
+意図: `workspaces/video/**/capcut_draft` の壊れた symlink（target 無）は探索ノイズになり、低知能エージェントが「ドラフトがある」と誤認しやすい。`capcut_draft_info.json` が証跡として残るため、壊れたリンク自体は削除して問題ない。
+
+- 実行（dry-run → run）:
+  - `python3 scripts/ops/cleanup_broken_symlinks.py`
+  - `python3 scripts/ops/cleanup_broken_symlinks.py --run --max-print 0`
+- レポート:
+  - `logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
+- 安全条件:
+  - symlink のみ unlink（target/生成物は削除しない）
+  - coordination locks があるスコープは自動スキップ（生成中の run を守る）
