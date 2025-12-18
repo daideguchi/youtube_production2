@@ -19,6 +19,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap(load_env=False)
+
 
 def _utc_now_compact() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -154,8 +158,7 @@ def main() -> int:
     else:
         # Write next to stdout for review under logs/ (safe).
         # Avoid writing into archive roots on dry-run to reduce clutter.
-        repo_root = Path(__file__).resolve().parents[2]
-        log_dir = repo_root / "workspaces" / "logs" / "regression"
+        log_dir = REPO_ROOT / "workspaces" / "logs" / "regression"
         log_dir.mkdir(parents=True, exist_ok=True)
         dest = log_dir / f"restore_video_runs_dryrun_{_utc_now_compact()}.json"
         _save_json(dest, out)
@@ -166,4 +169,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

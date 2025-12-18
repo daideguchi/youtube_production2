@@ -35,7 +35,15 @@ def load_env_files(paths: list[Path]) -> None:
             continue
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
 PACKAGES_ROOT = REPO_ROOT / "packages"
 
 for p in (REPO_ROOT, PACKAGES_ROOT):
@@ -44,4 +52,3 @@ for p in (REPO_ROOT, PACKAGES_ROOT):
         sys.path.insert(0, p_str)
 
 load_env_files([REPO_ROOT / ".env", Path.home() / ".env"])
-

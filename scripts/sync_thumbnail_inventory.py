@@ -8,8 +8,13 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-THUMB_ROOT = PROJECT_ROOT / "thumbnails"
+from _bootstrap import bootstrap
+
+bootstrap()
+
+from factory_common.paths import thumbnails_root
+
+THUMB_ROOT = thumbnails_root()
 PROJECTS_PATH = THUMB_ROOT / "projects.json"
 ASSETS_ROOT = THUMB_ROOT / "assets"
 

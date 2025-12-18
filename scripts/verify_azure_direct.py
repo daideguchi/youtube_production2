@@ -3,8 +3,11 @@ import requests
 import json
 from pathlib import Path
 
+from _bootstrap import bootstrap
+
 def load_env():
-    env_path = Path(__file__).resolve().parents[1] / ".env"
+    repo_root = bootstrap()
+    env_path = repo_root / ".env"
     if env_path.exists():
         for line in env_path.read_text(encoding="utf-8").splitlines():
             if "=" in line and not line.startswith("#"):

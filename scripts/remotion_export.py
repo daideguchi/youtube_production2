@@ -25,6 +25,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap()
+
 from factory_common.paths import audio_final_dir
 from typing import Any, Dict, Optional, Tuple
 
@@ -51,7 +55,7 @@ def _drive_libs():
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return REPO_ROOT
 
 
 def _read_json(path: Path) -> Optional[Dict[str, Any]]:

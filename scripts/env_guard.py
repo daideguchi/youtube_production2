@@ -28,7 +28,21 @@ def ensure_openrouter_key() -> None:
     if os.getenv("OPENROUTER_API_KEY"):
         return
 
-    root = Path(__file__).resolve().parents[1]
+    try:
+        from factory_common.paths import repo_root  # type: ignore
+
+        root = repo_root()
+    except Exception:
+        # Fallback: best-effort discovery for contexts where monorepo imports are not configured.
+        start = Path.cwd().resolve()
+        root = None
+        for candidate in (start, *start.parents, *Path(__file__).resolve().parents):
+            if (candidate / "pyproject.toml").exists():
+                root = candidate.resolve()
+                break
+        if root is None:
+            root = start
+
     env_path = root / ".env"
     _load_dotenv(env_path)
 

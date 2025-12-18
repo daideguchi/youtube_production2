@@ -15,11 +15,13 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from _bootstrap import bootstrap
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 
+REPO_ROOT = bootstrap()
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
@@ -68,11 +70,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    base_dir = Path(__file__).resolve().parents[1]
     token_path = Path(
         os.environ.get(
             "DRIVE_OAUTH_TOKEN_PATH",
-            base_dir / "credentials" / "drive_oauth_token.json",
+            REPO_ROOT / "credentials" / "drive_oauth_token.json",
         )
     )
     folder_id = args.folder or os.environ.get("DRIVE_FOLDER_ID")

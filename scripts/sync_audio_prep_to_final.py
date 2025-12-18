@@ -26,9 +26,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap()
 
 from factory_common.paths import audio_final_dir, script_data_root  # noqa: E402
 

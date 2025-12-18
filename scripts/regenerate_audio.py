@@ -7,9 +7,9 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap()
 
 from audio_tts_v2.tts.synthesis import voicevox_synthesis_chunks
 from audio_tts_v2.tts.routing import load_routing_config

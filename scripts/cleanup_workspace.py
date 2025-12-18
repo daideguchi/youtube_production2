@@ -29,8 +29,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from _bootstrap import bootstrap
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = bootstrap(load_env=False)
 PYTHON_BIN = sys.executable or "python3"
 
 

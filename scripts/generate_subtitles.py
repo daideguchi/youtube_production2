@@ -24,10 +24,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from _bootstrap import bootstrap
 
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+PROJECT_ROOT = bootstrap()
 
 from factory_common.paths import audio_final_dir, video_root
 

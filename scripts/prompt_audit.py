@@ -16,10 +16,9 @@ try:
 except ImportError:  # pragma: no cover
     portalocker = None  # type: ignore
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+from _bootstrap import bootstrap
 
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+REPO_ROOT = bootstrap()
 
 from factory_common.paths import logs_root, script_data_root, script_pkg_root
 

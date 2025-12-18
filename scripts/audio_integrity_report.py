@@ -12,10 +12,14 @@ import re
 import wave
 from pathlib import Path
 
-from factory_common.paths import script_data_root
 from typing import Iterable, List, Dict, Any
 
-ROOT = Path(__file__).resolve().parents[1]
+from _bootstrap import bootstrap
+
+bootstrap()
+
+from factory_common.paths import script_data_root
+
 DATA_ROOT = script_data_root()
 
 

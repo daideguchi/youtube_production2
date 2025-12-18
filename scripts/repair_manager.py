@@ -5,9 +5,9 @@ import os
 import json
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap()
 
 from factory_common.paths import audio_final_dir, audio_pkg_root, logs_root, repo_root
 

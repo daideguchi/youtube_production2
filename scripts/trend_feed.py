@@ -9,7 +9,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-BASE_DIR = Path(__file__).resolve().parents[1]
+from _bootstrap import bootstrap
+
+BASE_DIR = bootstrap(load_env=False)
 FEED_PATH = BASE_DIR / "data" / "trends" / "thumbnail_feed.json"
 DEFAULT_SOURCES_PATH = BASE_DIR / "configs" / "trend_sources.json"
 
@@ -133,4 +135,3 @@ def find_entry(feed: Dict[str, Any], entry_id: Optional[str], index: int = 0) ->
         return None
     safe_index = max(0, min(index, len(items) - 1))
     return items[safe_index]
-

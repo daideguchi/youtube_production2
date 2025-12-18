@@ -10,11 +10,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from _bootstrap import bootstrap
 
-from core.tools.openrouter_models import get_free_model_candidates  # noqa: E402
+REPO_ROOT = bootstrap()
+
+from script_pipeline.tools.openrouter_models import get_free_model_candidates  # noqa: E402
 from scripts.env_guard import ensure_openrouter_key  # noqa: E402
 
 

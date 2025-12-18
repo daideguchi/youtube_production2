@@ -11,7 +11,9 @@ from typing import Iterable, List
 
 import requests
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap()
 DEFAULT_MODEL = "qwen/qwen2.5-vl-32b-instruct:free"
 FALLBACK_MODELS = [
     "qwen/qwen3-vl-8b-instruct:free",

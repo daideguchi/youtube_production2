@@ -20,14 +20,14 @@ from typing import Dict, List, Optional
 import urllib.request
 import urllib.error
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from _bootstrap import bootstrap
 
-from factory_common.paths import planning_root
+PROJECT_ROOT = bootstrap()
+
+from factory_common.paths import logs_root, planning_root
 from script_pipeline.tools import planning_store
 
-LOG_ROOT = PROJECT_ROOT / "logs" / "regression"
+LOG_ROOT = logs_root() / "regression"
 DEFAULT_ENDPOINTS = [
     "/api/healthz",
     "/api/prompts",

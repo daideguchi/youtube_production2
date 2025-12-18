@@ -13,13 +13,12 @@ logs_snapshot — logs_root の現状スナップショット（件数/サイズ
 from __future__ import annotations
 
 import argparse
-import sys
 from collections import Counter
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from _bootstrap import bootstrap
+
+PROJECT_ROOT = bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths
 
@@ -70,4 +69,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

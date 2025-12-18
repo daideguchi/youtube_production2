@@ -8,9 +8,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from _bootstrap import bootstrap
+
+PROJECT_ROOT = bootstrap()
 
 from factory_common.agent_mode import (
     get_queue_dir,
@@ -286,7 +286,7 @@ def cmd_bundle(args: argparse.Namespace) -> int:
     if args.include_runbook and runbook and runbook != "-":
         rb_path = Path(runbook)
         if not rb_path.is_absolute():
-            rb_path = (Path(__file__).resolve().parents[1] / rb_path).resolve()
+            rb_path = (PROJECT_ROOT / rb_path).resolve()
         if rb_path.exists():
             try:
                 lines.append("## Runbook")
