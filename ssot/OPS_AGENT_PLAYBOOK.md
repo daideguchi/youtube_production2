@@ -65,7 +65,7 @@ python scripts/agent_org.py board set --doing "cleanup: logs整理" --next "ssot
 #### BEP-1（共通記法ルール）
 **目的**: “何が起きた/何が必要/次に何をする” を誰でも即時に判断できるようにする（低知能エージェントでも事故らない）。
 
-- `topic` の先頭に必ず種別を付ける: `[Q]` / `[DECISION]` / `[BLOCKER]` / `[FYI]` / `[DONE]`
+- `topic` の先頭に必ず種別を付ける: `[Q]` / `[DECISION]` / `[BLOCKER]` / `[FYI]` / `[REVIEW]` / `[DONE]`
 - 必須の情報（note本文に含める）:
   - `scope`: 触った/触る予定のパス（repo-relative）
   - `locks`: lock_id or “(none)”（必要なら「lock作成コマンド」も併記）
@@ -98,9 +98,15 @@ EOF
 #### note の参照（正確に追えるように）
 - `python scripts/agent_org.py board show --tail 20` で `note_id` を確認
 - `python scripts/agent_org.py board note-show <note_id>` で全文を表示
+- `python scripts/agent_org.py board note --reply-to <note_id> ...` で返信（同スレッド）
+- `python scripts/agent_org.py board threads` / `python scripts/agent_org.py board thread-show <thread_id|note_id>` でスレッド単位に追える
+
+#### 担当（Ownership）の共有（誰がどこを持つか）
+- `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` で担当/レビュー担当を固定
+- `python scripts/agent_org.py board areas` で一覧化（「誰が何を担当？」の正本）
 
 #### 推奨タグ（tags）
-`refactor,cleanup,ssot,ui,llm,tts,capcut,remotion,video,blocking,decision,question,done`
+`refactor,cleanup,ssot,ui,llm,tts,capcut,remotion,video,review,blocking,decision,question,done`
 
 ---
 

@@ -62,7 +62,7 @@
       - Writer/Reader: `scripts/agent_org.py`（旧: `scripts/agent_coord.py`）
       - Housekeeping: `python scripts/agent_org.py locks-prune` が期限切れ lock を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する
     - `logs/agent_tasks/coordination/board.json`（Shared Board: 共同メモ/状態の単一ファイル）
-      - Writer/Reader: `python scripts/agent_org.py board {show,set,note,note-show,template}`（noteは `note_id` を持つ）
+      - Writer/Reader: `python scripts/agent_org.py board {show,set,note,note-show,threads,thread-show,areas,area-set,template}`（noteは `note_id` を持つ）
     - `logs/agent_tasks/coordination/events.jsonl`（協調イベントログ: append-only）
       - Writer/Reader: `scripts/agent_org.py`
     - `logs/agent_tasks/coordination/agents/*.json`（agent registry: name/pid/heartbeat）

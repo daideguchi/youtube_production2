@@ -728,6 +728,7 @@ def _board_default_payload() -> dict:
         "kind": "agent_board",
         "updated_at": _now_iso_utc(),
         "agents": {},
+        "areas": {},
         "log": [],
     }
 
@@ -740,9 +741,12 @@ def _board_ensure_shape(obj: dict) -> dict:
     obj.setdefault("kind", base["kind"])
     obj.setdefault("updated_at", base["updated_at"])
     obj.setdefault("agents", {})
+    obj.setdefault("areas", {})
     obj.setdefault("log", [])
     if not isinstance(obj.get("agents"), dict):
         obj["agents"] = {}
+    if not isinstance(obj.get("areas"), dict):
+        obj["areas"] = {}
     if not isinstance(obj.get("log"), list):
         obj["log"] = []
     return obj
@@ -769,6 +773,25 @@ def _parse_tags_csv(raw: str | None) -> list[str]:
     return tags
 
 
+def _parse_reviewers_csv(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    reviewers: list[str] = []
+    for part in str(raw).split(","):
+        name = part.strip()
+        if name:
+            reviewers.append(name)
+    # de-dup preserve order
+    out: list[str] = []
+    seen: set[str] = set()
+    for r in reviewers:
+        if r in seen:
+            continue
+        out.append(r)
+        seen.add(r)
+    return out
+
+
 def cmd_board_template(args: argparse.Namespace) -> int:
     """
     Print a common notation template for board usage.
@@ -783,9 +806,12 @@ python scripts/agent_org.py board set --doing "<AREA>: <WHAT>" --blocked "<BLOCK
 例:
 python scripts/agent_org.py board set --doing "remotion: CH08 rerender prep" --blocked "-" --next "render loop start" --tags remotion,video
 
+## 1.5) Ownership (board area-set)
+python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv> --note "<optional>"
+
 ## 2) Notes (board note)
 topic は必ず先頭に種別を付ける:
-[Q]=質問 / [DECISION]=決定 / [BLOCKER]=停止 / [FYI]=共有 / [DONE]=完了
+[Q]=質問 / [DECISION]=決定 / [BLOCKER]=停止 / [FYI]=共有 / [REVIEW]=レビュー / [DONE]=完了
 
 zshでの安全な投稿（展開事故を防ぐ）:
 python scripts/agent_org.py board note --topic "[Q][remotion] ..." <<'EOF'
@@ -808,6 +834,12 @@ EOF
 
 ※ backtick(`) や $(...) はシェルが展開するので、--message="..." 直書きは避ける。
    どうしても1行で渡すなら **単引用符** を使う（例: --message '...`...`...'）。
+
+## 3) Threads
+- `board show` で note_id を確認
+- `board note-show <note_id>` で全文
+- `board note --reply-to <note_id>` で同スレッドに返信
+- `board threads` / `board thread-show <thread_id|note_id>` でスレッド単位に閲覧
 """
     )
     return 0
@@ -844,6 +876,27 @@ def cmd_board_show(args: argparse.Namespace) -> int:
 
         print("agent\tdoing\tblocked\tnext\tupdated_at")
         for r in rows:
+            print("\t".join(r))
+
+    areas = obj.get("areas") or {}
+    if isinstance(areas, dict) and areas:
+        area_rows: list[tuple[str, str, str, str, str]] = []
+        for area, st in areas.items():
+            if not isinstance(st, dict):
+                st = {}
+            owner = str(st.get("owner") or "-")
+            reviewers = st.get("reviewers") or []
+            if not isinstance(reviewers, list):
+                reviewers = [str(reviewers)]
+            reviewers_str = ",".join(str(x) for x in reviewers) if reviewers else "-"
+            updated_at = str(st.get("updated_at") or "-")
+            note = str(st.get("note") or "-").replace("\t", " ").replace("\n", "\\n")
+            if len(note) > 120:
+                note = note[:117] + "..."
+            area_rows.append((str(area), owner, reviewers_str, updated_at, note))
+        area_rows.sort(key=lambda r: r[3], reverse=True)
+        print("\narea\towner\treviewers\tupdated_at\tnote")
+        for r in area_rows:
             print("\t".join(r))
 
     try:
@@ -927,6 +980,163 @@ def cmd_board_note_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_board_threads(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+
+    want_tag = str(getattr(args, "tag", "") or "").strip()
+
+    log = obj.get("log") or []
+    if not isinstance(log, list) or not log:
+        print("(no threads)")
+        return 0
+
+    threads: dict[str, dict] = {}
+    for e in log:
+        if not isinstance(e, dict):
+            continue
+        eid = str(e.get("id") or "").strip()
+        tid = str(e.get("thread_id") or eid).strip()
+        if not tid:
+            continue
+        if want_tag:
+            tags = e.get("tags") or []
+            if not isinstance(tags, list):
+                tags = [str(tags)]
+            if want_tag not in [str(t) for t in tags]:
+                continue
+        ts = str(e.get("ts") or "")
+        actor = str(e.get("agent") or "-")
+        topic = str(e.get("topic") or "-")
+        rec = threads.get(tid)
+        if not rec:
+            threads[tid] = {
+                "thread_id": tid,
+                "count": 1,
+                "first_ts": ts,
+                "last_ts": ts,
+                "last_agent": actor,
+                "root_topic": topic,
+                "root_note_id": tid,
+            }
+            continue
+        rec["count"] = int(rec.get("count") or 0) + 1
+        if ts and (not rec.get("first_ts") or ts < str(rec["first_ts"])):
+            rec["first_ts"] = ts
+        if ts and (not rec.get("last_ts") or ts > str(rec["last_ts"])):
+            rec["last_ts"] = ts
+            rec["last_agent"] = actor
+
+    # Try to set root_topic from the root note (id == thread_id) when present.
+    by_id: dict[str, dict] = {}
+    for e in log:
+        if isinstance(e, dict) and str(e.get("id") or "").strip():
+            by_id[str(e.get("id")).strip()] = e
+    for tid, rec in threads.items():
+        root = by_id.get(tid)
+        if root and isinstance(root, dict):
+            rec["root_topic"] = str(root.get("topic") or rec.get("root_topic") or "-")
+
+    out = list(threads.values())
+    out.sort(key=lambda r: str(r.get("last_ts") or ""), reverse=True)
+
+    try:
+        limit = int(getattr(args, "limit", 50))
+    except Exception:
+        limit = 50
+    if limit > 0:
+        out = out[:limit]
+
+    if args.json:
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
+
+    print("last_ts\tthread_id\tcount\tlast_agent\troot_topic")
+    for r in out:
+        root_topic = str(r.get("root_topic") or "-").replace("\t", " ").replace("\n", "\\n")
+        if len(root_topic) > 120:
+            root_topic = root_topic[:117] + "..."
+        print(
+            "\t".join(
+                [
+                    str(r.get("last_ts") or "-"),
+                    str(r.get("thread_id") or "-"),
+                    str(r.get("count") or "0"),
+                    str(r.get("last_agent") or "-"),
+                    root_topic,
+                ]
+            )
+        )
+    return 0
+
+
+def cmd_board_thread_show(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+
+    log = obj.get("log") or []
+    if not isinstance(log, list) or not log:
+        print("(no notes)")
+        return 0
+
+    target = str(args.thread_id).strip()
+    if not target:
+        print("thread_id is required")
+        return 2
+
+    # Resolve note_id -> thread_id when needed.
+    resolved = None
+    for e in log:
+        if not isinstance(e, dict):
+            continue
+        if str(e.get("id") or "").strip() == target:
+            resolved = str(e.get("thread_id") or e.get("id") or target).strip()
+            break
+    tid = resolved or target
+
+    thread_notes: list[dict] = []
+    for e in log:
+        if not isinstance(e, dict):
+            continue
+        eid = str(e.get("id") or "").strip()
+        etid = str(e.get("thread_id") or eid).strip()
+        if etid == tid or eid == tid:
+            thread_notes.append(e)
+
+    if not thread_notes:
+        print(f"thread not found: {target}")
+        return 2
+
+    thread_notes.sort(key=lambda e: str(e.get("ts") or ""))
+
+    if args.json:
+        print(json.dumps(thread_notes, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"[thread] {tid} notes={len(thread_notes)}")
+    for e in thread_notes:
+        ts = str(e.get("ts") or "-")
+        nid = str(e.get("id") or "-")
+        agent = str(e.get("agent") or "-")
+        topic = str(e.get("topic") or "-")
+        reply_to = str(e.get("reply_to") or "-")
+        print(f"\n- ts={ts} id={nid} agent={agent} reply_to={reply_to}\n  topic={topic}\n")
+        print(str(e.get("message") or "-"))
+    return 0
+
+
 def cmd_board_set(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     agent = _agent_name(args) or "unknown"
@@ -984,6 +1194,105 @@ def cmd_board_set(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_board_areas(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+
+    areas = obj.get("areas") or {}
+    if not isinstance(areas, dict) or not areas:
+        print("(no areas)")
+        return 0
+
+    if args.json:
+        print(json.dumps(areas, ensure_ascii=False, indent=2))
+        return 0
+
+    rows: list[tuple[str, str, str, str, str]] = []
+    for area, st in areas.items():
+        if not isinstance(st, dict):
+            st = {}
+        owner = str(st.get("owner") or "-")
+        reviewers = st.get("reviewers") or []
+        if not isinstance(reviewers, list):
+            reviewers = [str(reviewers)]
+        reviewers_str = ",".join(str(x) for x in reviewers) if reviewers else "-"
+        updated_at = str(st.get("updated_at") or "-")
+        note = str(st.get("note") or "-").replace("\t", " ").replace("\n", "\\n")
+        if len(note) > 120:
+            note = note[:117] + "..."
+        rows.append((str(area), owner, reviewers_str, updated_at, note))
+    rows.sort(key=lambda r: r[3], reverse=True)
+
+    print("area\towner\treviewers\tupdated_at\tnote")
+    for r in rows:
+        print("\t".join(r))
+    return 0
+
+
+def cmd_board_area_set(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _agent_name(args) or "unknown"
+    p = _board_path(q)
+    now = _now_iso_utc()
+    area = str(args.area).strip()
+    if not area:
+        print("area is required", file=sys.stderr)
+        return 2
+
+    reviewers = _parse_reviewers_csv(getattr(args, "reviewers", None))
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {})
+        areas = cur.get("areas") if isinstance(cur.get("areas"), dict) else {}
+        if not isinstance(areas, dict):
+            areas = {}
+
+        if args.clear:
+            areas.pop(area, None)
+            cur["areas"] = areas
+            cur["updated_at"] = now
+            return cur
+
+        st = areas.get(area)
+        if not isinstance(st, dict):
+            st = {}
+        if args.owner is not None:
+            st["owner"] = str(args.owner).strip() if str(args.owner).strip() else None
+        if args.reviewers is not None:
+            st["reviewers"] = reviewers
+        if args.note is not None:
+            st["note"] = str(args.note)
+        st["updated_at"] = now
+        st["updated_by"] = agent
+        areas[area] = st
+        cur["areas"] = areas
+        cur["updated_at"] = now
+        return cur
+
+    _locked_update_json(p, _update)
+
+    _append_event(
+        q,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "event",
+            "created_at": now,
+            "actor": agent,
+            "action": "board_area_set",
+            "board_path": str(p),
+            "area": area,
+        },
+    )
+    print(str(p))
+    return 0
+
+
 def cmd_board_note(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     agent = _agent_name(args) or "unknown"
@@ -1011,8 +1320,10 @@ def cmd_board_note(args: argparse.Namespace) -> int:
         return 2
 
     note_id = _new_id("note")
+    reply_to = str(getattr(args, "reply_to", "") or "").strip() or None
     entry = {
         "id": note_id,
+        "thread_id": note_id,  # overwritten for replies
         "ts": now,
         "agent": agent,
         "topic": topic,
@@ -1036,15 +1347,31 @@ def cmd_board_note(args: argparse.Namespace) -> int:
         log = cur.get("log") if isinstance(cur.get("log"), list) else []
         if not isinstance(log, list):
             log = []
+
+        if reply_to:
+            parent = None
+            for e in reversed(log):
+                if isinstance(e, dict) and str(e.get("id") or "").strip() == reply_to:
+                    parent = e
+                    break
+            if not parent:
+                raise ValueError(f"reply_to note not found: {reply_to}")
+            entry["reply_to"] = reply_to
+            entry["thread_id"] = str(parent.get("thread_id") or parent.get("id") or reply_to)
+
         log.append(entry)
-        max_log = 200
+        max_log = 1000
         if len(log) > max_log:
             log = log[-max_log:]
         cur["log"] = log
         cur["updated_at"] = now
         return cur
 
-    _locked_update_json(p, _update)
+    try:
+        _locked_update_json(p, _update)
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        return 2
 
     _append_event(
         q,
@@ -2182,6 +2509,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp2.add_argument("--topic", required=True, help="short topic/title")
     sp2.add_argument("--message", default=None, help="note body (if omitted, read stdin or --message-file)")
     sp2.add_argument("--message-file", default=None, help="file containing note body (utf-8)")
+    sp2.add_argument("--reply-to", dest="reply_to", default=None, help="reply to an existing note_id (same thread)")
     sp2.add_argument("--tags", default=None, help="comma-separated tags")
     sp2.set_defaults(func=cmd_board_note)
 
@@ -2192,6 +2520,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp2 = board_sub.add_parser("template", help="print common notation template (BEP-1)")
     sp2.set_defaults(func=cmd_board_template)
+
+    sp2 = board_sub.add_parser("areas", help="list ownership areas (who owns what)")
+    sp2.add_argument("--json", action="store_true", help="emit raw JSON")
+    sp2.set_defaults(func=cmd_board_areas)
+
+    sp2 = board_sub.add_parser("area-set", help="set ownership for an area")
+    sp2.add_argument("area", help="area key (e.g., script/audio/video/ui)")
+    sp2.add_argument("--owner", default=None, help="owner agent name")
+    sp2.add_argument("--reviewers", default=None, help="comma-separated reviewers")
+    sp2.add_argument("--note", default=None, help="optional note")
+    sp2.add_argument("--clear", action="store_true", help="remove this area entry")
+    sp2.set_defaults(func=cmd_board_area_set)
+
+    sp2 = board_sub.add_parser("threads", help="list recent threads")
+    sp2.add_argument("--json", action="store_true", help="emit JSON")
+    sp2.add_argument("--tag", default=None, help="filter threads that include tag")
+    sp2.add_argument("--limit", default=50, type=int, help="max threads to show (default: 50; 0 disables)")
+    sp2.set_defaults(func=cmd_board_threads)
+
+    sp2 = board_sub.add_parser("thread-show", help="show a thread by thread_id (or note_id)")
+    sp2.add_argument("thread_id", help="thread_id or note_id belonging to the thread")
+    sp2.add_argument("--json", action="store_true", help="emit JSON list")
+    sp2.set_defaults(func=cmd_board_thread_show)
 
     # Overview
     sp = sub.add_parser("overview", help="show who-is-doing-what overview (agents + locks + memos)")

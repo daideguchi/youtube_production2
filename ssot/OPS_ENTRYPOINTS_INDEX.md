@@ -74,9 +74,14 @@
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
 - `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用。`overview` で「誰が何を触っているか」俯瞰可能）
-  - Shared Board（単一ファイルで共同）: `python scripts/agent_org.py board show|set|note`
-  - Board 記法テンプレ: `python scripts/agent_org.py board template`
-  - Board note 全文表示: `python scripts/agent_org.py board note-show <note_id>`
+  - Shared Board（単一ファイルで共同）:
+    - status: `python scripts/agent_org.py board set ...`
+    - notes: `python scripts/agent_org.py board note ...`（返信: `--reply-to <note_id>`）
+    - show: `python scripts/agent_org.py board show`
+    - note全文: `python scripts/agent_org.py board note-show <note_id>`
+    - threads: `python scripts/agent_org.py board threads` / `python scripts/agent_org.py board thread-show <thread_id|note_id>`
+    - ownership: `python scripts/agent_org.py board areas` / `python scripts/agent_org.py board area-set <AREA> ...`
+    - 記法テンプレ（BEP-1）: `python scripts/agent_org.py board template`
   - UI: `GET /api/agent-org/overview`（Agents+Locks+Memos を統合表示）
 
 ### 3.5 Episode（A→B→音声→SRT→run の1:1整備）
