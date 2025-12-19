@@ -42,6 +42,7 @@
   events.jsonl                     # 協調イベントログ（append-only）
   memos/*.json                     # 申し送り（agent間のメモ）
   locks/*.json                     # スコープロック（soft access control）
+  board.json                       # Shared Board（単一ファイル共同メモ/状態/レビュー）
   agents/*.json                    # agent registry（name/pid/heartbeat）
   assignments/*.json               # タスク割当（orchestrator→agent）
   orchestrator/
@@ -95,8 +96,15 @@
 
 ### Locks / Memos
 - lock: `python scripts/agent_org.py lock 'ui/**' --mode no_touch --ttl-min 60 --note 'dd working'`
+- lock audit: `python scripts/agent_org.py locks-audit --older-than-hours 6`（解除し忘れ/無期限lock点検）
 - memo: `python scripts/agent_org.py memo --to Mike --subject '...' --body '...'`
 - UI: `/agent-org`（API: `/api/agent-org/*`）
+
+### Shared Board（単一ファイルで共同）
+- status: `python scripts/agent_org.py board set --doing "..." --next "..." --tags ui,cleanup`
+- notes: `python scripts/agent_org.py board note --topic "[Q][ui] ..." <<'EOF' ... EOF`
+  - reply: `python scripts/agent_org.py board note --reply-to <note_id> --topic "[REVIEW][ui] ..." <<'EOF' ... EOF`
+- ownership: `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` / `python scripts/agent_org.py board areas`
 
 ## 5. ログ設計
 - `coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。
@@ -109,6 +117,7 @@
 - 作業前に:
   - `LLM_AGENT_NAME` を設定し、pending は claim して担当者を残す
   - 触るスコープに lock を置く（最低 30min TTL）
+- 複数エージェントで判断/レビュー/申し送りが必要な場合は Shared Board を正本にする（BEP-1: `ssot/OPS_AGENT_PLAYBOOK.md`）。
 - Orchestrator の seat は 1つ。交代は stop/start で明示する。
 - request は inbox/outbox で記録されるため、勝手に上書きせず「依頼→処理→証跡」を徹底する。
 
