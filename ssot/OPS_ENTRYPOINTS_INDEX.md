@@ -82,6 +82,7 @@
     - threads: `python scripts/agent_org.py board threads` / `python scripts/agent_org.py board thread-show <thread_id|note_id>`
     - ownership: `python scripts/agent_org.py board areas` / `python scripts/agent_org.py board area-set <AREA> ...`
     - 記法テンプレ（BEP-1）: `python scripts/agent_org.py board template`
+    - legacy補正（note_id無しが混ざった場合）: `python scripts/agent_org.py board normalize`
   - UI: `GET /api/agent-org/overview`（Agents+Locks+Memos を統合表示）
 
 ### 3.5 Episode（A→B→音声→SRT→run の1:1整備）

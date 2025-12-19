@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import hashlib
 import json
 import os
 import secrets
@@ -840,8 +841,122 @@ EOF
 - `board note-show <note_id>` で全文
 - `board note --reply-to <note_id>` で同スレッドに返信
 - `board threads` / `board thread-show <thread_id|note_id>` でスレッド単位に閲覧
+
+## 4) Legacy cleanup (optional)
+過去の投稿で note_id が無いものが混じった場合:
+python scripts/agent_org.py board normalize --dry-run
+python scripts/agent_org.py board normalize
 """
     )
+    return 0
+
+
+def _legacy_note_id(entry: dict) -> str:
+    ts = str(entry.get("ts") or entry.get("created_at") or entry.get("time") or _now_iso_utc())
+    dt = _parse_iso(ts)
+    stamp = (dt.astimezone(timezone.utc) if dt else datetime.now(timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
+    base = "\n".join(
+        [
+            ts,
+            str(entry.get("agent") or ""),
+            str(entry.get("topic") or ""),
+            str(entry.get("message") or "")[:2000],
+        ]
+    )
+    digest = hashlib.sha1(base.encode("utf-8", errors="replace")).hexdigest()[:8]
+    return f"note__{stamp}__{digest}"
+
+
+def cmd_board_normalize(args: argparse.Namespace) -> int:
+    """
+    Normalize board entries:
+    - add note_id (id) to legacy notes
+    - ensure thread_id exists
+    """
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    dry_run = bool(getattr(args, "dry_run", False))
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+    log = obj.get("log") or []
+    if not isinstance(log, list) or not log:
+        print("(no notes)")
+        return 0
+
+    def _compute_stats(entries: list[dict]) -> dict:
+        id_missing = 0
+        thread_missing = 0
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            if not str(e.get("id") or "").strip():
+                id_missing += 1
+            if not str(e.get("thread_id") or "").strip():
+                thread_missing += 1
+        return {"id_missing": id_missing, "thread_id_missing": thread_missing, "total": len(entries)}
+
+    stats_before = _compute_stats([e for e in log if isinstance(e, dict)])
+    if dry_run:
+        print(json.dumps({"path": str(p), "dry_run": True, "before": stats_before}, ensure_ascii=False, indent=2))
+        return 0
+
+    updated_at = _now_iso_utc()
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {})
+        entries = cur.get("log") if isinstance(cur.get("log"), list) else []
+        if not isinstance(entries, list):
+            entries = []
+
+        seen: set[str] = set()
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            nid = str(e.get("id") or "").strip()
+            if not nid:
+                nid = _legacy_note_id(e)
+                while nid in seen:
+                    nid = f"{nid}__{secrets.token_hex(2)}"
+                e["id"] = nid
+            seen.add(nid)
+
+            tid = str(e.get("thread_id") or "").strip()
+            if not tid:
+                e["thread_id"] = nid
+
+        cur["log"] = entries
+        cur["updated_at"] = updated_at
+        return cur
+
+    _locked_update_json(p, _update)
+
+    # Recompute stats after
+    obj2 = _load_json_maybe(p)
+    obj2 = _board_ensure_shape(obj2 if isinstance(obj2, dict) else {})
+    log2 = obj2.get("log") if isinstance(obj2.get("log"), list) else []
+    stats_after = _compute_stats([e for e in log2 if isinstance(e, dict)])
+
+    agent = _agent_name(args) or "unknown"
+    _append_event(
+        q,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "event",
+            "created_at": updated_at,
+            "actor": agent,
+            "action": "board_normalized",
+            "board_path": str(p),
+            "before": stats_before,
+            "after": stats_after,
+        },
+    )
+
+    print(json.dumps({"path": str(p), "dry_run": False, "before": stats_before, "after": stats_after}, ensure_ascii=False, indent=2))
     return 0
 
 
@@ -909,6 +1024,9 @@ def cmd_board_show(args: argparse.Namespace) -> int:
     log = obj.get("log") or []
     if not isinstance(log, list) or not log:
         return 0
+
+    if any(isinstance(e, dict) and not str(e.get("id") or "").strip() for e in log):
+        print("\n(warning) legacy notes without note_id detected; run: python scripts/agent_org.py board normalize")
 
     try:
         max_chars = int(args.max_chars)
@@ -2520,6 +2638,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp2 = board_sub.add_parser("template", help="print common notation template (BEP-1)")
     sp2.set_defaults(func=cmd_board_template)
+
+    sp2 = board_sub.add_parser("normalize", help="normalize legacy notes (add note_id/thread_id)")
+    sp2.add_argument("--dry-run", action="store_true", help="print stats only without modifying files")
+    sp2.set_defaults(func=cmd_board_normalize)
 
     sp2 = board_sub.add_parser("areas", help="list ownership areas (who owns what)")
     sp2.add_argument("--json", action="store_true", help="emit raw JSON")

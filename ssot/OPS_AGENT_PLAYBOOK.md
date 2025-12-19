@@ -100,6 +100,7 @@ EOF
 - `python scripts/agent_org.py board note-show <note_id>` で全文を表示
 - `python scripts/agent_org.py board note --reply-to <note_id> ...` で返信（同スレッド）
 - `python scripts/agent_org.py board threads` / `python scripts/agent_org.py board thread-show <thread_id|note_id>` でスレッド単位に追える
+- `note_id` が `-` の legacy 投稿が混じっていたら: `python scripts/agent_org.py board normalize`（一度だけ実行でOK）
 
 #### 担当（Ownership）の共有（誰がどこを持つか）
 - `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` で担当/レビュー担当を固定
