@@ -27,6 +27,7 @@ import { ProgressPage } from "./pages/ProgressPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
 import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
 import { AgentOrgPage } from "./pages/AgentOrgPage";
+import { AgentBoardPage } from "./pages/AgentBoardPage";
 import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/agent-org" element={<AgentOrgPage />} />
+        <Route path="/agent-board" element={<AgentBoardPage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
         <Route path="/capcut-edit" element={<CapcutEditPage />} />
         <Route path="/capcut-edit/production" element={<ProductionPage />} />

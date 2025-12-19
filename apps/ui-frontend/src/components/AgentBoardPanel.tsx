@@ -48,7 +48,7 @@ function buildThreads(board: AgentBoard | null): ThreadSummary[] {
   }
 
   const out: ThreadSummary[] = [];
-  for (const [threadId, notes] of threads.entries()) {
+  threads.forEach((notes, threadId) => {
     notes.sort((a, b) => safeString(a.ts).localeCompare(safeString(b.ts)));
     const lastNote = notes[notes.length - 1];
     const firstNote = notes[0];
@@ -63,7 +63,7 @@ function buildThreads(board: AgentBoard | null): ThreadSummary[] {
       participants,
       lastNote,
     });
-  }
+  });
   out.sort((a, b) => safeString(b.lastTs).localeCompare(safeString(a.lastTs)));
   return out;
 }
@@ -386,4 +386,3 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
     </div>
   );
 }
-

@@ -5680,6 +5680,13 @@ except Exception as e:
     logger.error("Failed to load agent_org router: %s", e)
 
 try:
+    from backend.routers import agent_board
+
+    app.include_router(agent_board.router)
+except Exception as e:
+    logger.error("Failed to load agent_board router: %s", e)
+
+try:
     from backend.routers import pipeline_boxes
 
     app.include_router(pipeline_boxes.router)
