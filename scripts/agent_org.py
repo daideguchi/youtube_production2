@@ -526,11 +526,24 @@ def cmd_lock(args: argparse.Namespace) -> int:
         return 2
 
     ttl_int = None
+    ttl_warned = False
     if args.ttl_min is not None:
         try:
             ttl_int = int(args.ttl_min)
         except Exception:
             ttl_int = None
+            ttl_warned = True
+            print(
+                f"[warn] invalid --ttl-min={args.ttl_min!r}; lock will not auto-expire (use --ttl-min <minutes>)",
+                file=sys.stderr,
+            )
+    if ttl_int is None or ttl_int <= 0:
+        if not ttl_warned:
+            if args.ttl_min is None:
+                print("[warn] lock has no TTL; it will not auto-expire (use --ttl-min <minutes>)", file=sys.stderr)
+            else:
+                print(f"[warn] --ttl-min must be > 0 (got {args.ttl_min!r}); lock will not auto-expire", file=sys.stderr)
+        ttl_int = None
 
     out = _create_lock(q, agent=agent, scopes=scopes, mode=str(args.mode), ttl_min=ttl_int, note=args.note)
     print(str(out))
@@ -579,6 +592,9 @@ def cmd_locks(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     d = _locks_dir(q)
     d.mkdir(parents=True, exist_ok=True)
+    if bool(getattr(args, "active", False)) and bool(getattr(args, "all", False)):
+        print("cannot combine --active with --all", file=sys.stderr)
+        return 2
 
     rel_path = None
     if args.path:
@@ -587,6 +603,7 @@ def cmd_locks(args: argparse.Namespace) -> int:
             p = PROJECT_ROOT / p
         rel_path = _to_project_relative_str(p)
 
+    out_json: list[dict] = []
     rows: list[tuple[str, str, str, str, str, str, str, str]] = []
     now = datetime.now(timezone.utc)
     for fp in sorted(d.glob("*.json")):
@@ -616,13 +633,119 @@ def cmd_locks(args: argparse.Namespace) -> int:
             if not any(_scope_matches_path(str(s), rel_path) for s in scopes):
                 continue
 
+        if args.json:
+            out_json.append(
+                {
+                    "status": status,
+                    "id": lock_id,
+                    "mode": mode,
+                    "created_by": created_by,
+                    "created_at": created_at,
+                    "expires_at": expires_at if exp_dt else None,
+                    "scopes": [str(s) for s in scopes],
+                    "note": note if note != "-" else None,
+                }
+            )
+            continue
+
         rows.append((status, lock_id, mode, created_by, created_at, expires_at, scopes_str, note))
+
+    if args.json:
+        print(json.dumps(out_json, ensure_ascii=False, indent=2))
+        return 0
 
     if not rows:
         print("(no locks)")
         return 0
 
     print("status\tlock_id\tmode\tcreated_by\tcreated_at\texpires_at\tscopes\tnote")
+    for r in rows:
+        print("\t".join(r))
+    return 0
+
+
+def cmd_locks_audit(args: argparse.Namespace) -> int:
+    """
+    Report potentially risky locks:
+    - active locks with no TTL (expires_at missing)
+
+    The goal is to reduce "forgot to unlock" accidents in multi-agent work.
+    """
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    d = _locks_dir(q)
+    d.mkdir(parents=True, exist_ok=True)
+
+    rel_path = None
+    if args.path:
+        p = Path(str(args.path)).expanduser()
+        if not p.is_absolute():
+            p = PROJECT_ROOT / p
+        rel_path = _to_project_relative_str(p)
+
+    try:
+        older_than_hours = float(args.older_than_hours)
+    except Exception:
+        older_than_hours = 0.0
+    threshold = timedelta(hours=max(0.0, older_than_hours))
+
+    now = datetime.now(timezone.utc)
+    rows: list[tuple[str, str, str, str, str, str, str, str]] = []
+    out_json: list[dict] = []
+
+    for fp in sorted(d.glob("*.json")):
+        obj = _load_json_maybe(fp)
+        if not obj:
+            continue
+        lock_id = str(obj.get("id") or fp.stem)
+        mode = str(obj.get("mode") or "-")
+        created_by = str(obj.get("created_by") or "-")
+        created_at = str(obj.get("created_at") or "-")
+        note = str(obj.get("note") or "-")
+        scopes = obj.get("scopes") or []
+        if not isinstance(scopes, list):
+            scopes = [str(scopes)]
+        scopes_str = ",".join(str(s) for s in scopes) if scopes else "-"
+
+        exp_dt = _parse_iso(obj.get("expires_at"))
+        if exp_dt is not None:
+            continue  # only audit no-expiry locks
+
+        if rel_path:
+            if not any(_scope_matches_path(str(s), rel_path) for s in scopes):
+                continue
+
+        created_dt = _parse_iso(obj.get("created_at"))
+        age_td = (now - created_dt) if created_dt else None
+        if age_td is not None and age_td < threshold:
+            continue
+        age_hours = f"{(age_td.total_seconds() / 3600.0):.1f}" if age_td is not None else "-"
+
+        if args.json:
+            out_json.append(
+                {
+                    "status": "active_no_expiry",
+                    "id": lock_id,
+                    "mode": mode,
+                    "created_by": created_by,
+                    "created_at": created_at,
+                    "age_hours": None if age_hours == "-" else float(age_hours),
+                    "scopes": [str(s) for s in scopes],
+                    "note": note if note != "-" else None,
+                }
+            )
+            continue
+
+        rows.append(("active_no_expiry", lock_id, mode, created_by, created_at, "-", age_hours, scopes_str))
+
+    if args.json:
+        print(json.dumps(out_json, ensure_ascii=False, indent=2))
+        return 0
+
+    if not rows:
+        print("(no risky locks)")
+        return 0
+
+    print("status\tlock_id\tmode\tcreated_by\tcreated_at\texpires_at\tage_hours\tscopes")
     for r in rows:
         print("\t".join(r))
     return 0
@@ -2582,9 +2705,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Locks
     sp = sub.add_parser("locks", help="list locks")
+    sp.add_argument("--active", action="store_true", help="only active locks (default)")
     sp.add_argument("--all", action="store_true", help="include expired locks")
+    sp.add_argument("--json", action="store_true", help="emit JSON array")
     sp.add_argument("--path", default=None, help="filter locks affecting this repo-relative path")
     sp.set_defaults(func=cmd_locks)
+
+    sp = sub.add_parser("locks-audit", help="report potentially risky locks (e.g. no-expiry)")
+    sp.add_argument("--older-than-hours", default=0, help="only show no-expiry locks older than N hours")
+    sp.add_argument("--json", action="store_true", help="emit JSON array")
+    sp.add_argument("--path", default=None, help="filter locks affecting this repo-relative path")
+    sp.set_defaults(func=cmd_locks_audit)
 
     sp = sub.add_parser("locks-prune", help="archive old expired locks (housekeeping)")
     sp.add_argument("--older-than-days", default=30, help="prune locks expired for >= N days (default: 30)")

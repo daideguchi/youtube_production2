@@ -48,6 +48,15 @@ python scripts/agent_org.py locks-prune --older-than-days 30
 ```
 期限切れ lock を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する（active/no-expiry は触らない）。
 
+4) “解除し忘れ” がないか点検（推奨）:
+```bash
+# expires_at が無い（= auto-expire しない）lock を一覧
+python scripts/agent_org.py locks-audit
+
+# 古い no-expiry lock だけ見たい場合（例: 6時間以上）
+python scripts/agent_org.py locks-audit --older-than-hours 6
+```
+
 lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/PLAN_AGENT_ORG_COORDINATION.md`）。
 
 ### 2.3 共同メモ（単一ファイル / Shared Board）
