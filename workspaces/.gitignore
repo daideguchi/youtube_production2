@@ -4,6 +4,7 @@ logs/**
 scripts/**
 video/input/**
 video/runs/**
+video/remotion_exports/**
 video/_archive/**
 video/_capcut_drafts/**
 video/_state/**
