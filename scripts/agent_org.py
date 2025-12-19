@@ -748,6 +748,16 @@ def _board_ensure_shape(obj: dict) -> dict:
     return obj
 
 
+def _load_board(q: Path) -> dict | None:
+    p = _board_path(q)
+    if not p.exists():
+        return None
+    obj = _load_json_maybe(p)
+    if not isinstance(obj, dict):
+        obj = {}
+    return _board_ensure_shape(obj)
+
+
 def _parse_tags_csv(raw: str | None) -> list[str]:
     if not raw:
         return []
@@ -757,6 +767,50 @@ def _parse_tags_csv(raw: str | None) -> list[str]:
         if t:
             tags.append(t)
     return tags
+
+
+def cmd_board_template(args: argparse.Namespace) -> int:
+    """
+    Print a common notation template for board usage.
+    Keep it shell-safe: recommend heredoc with quoted delimiter (<<'EOF').
+    """
+    print(
+        """# Shared Board Notation (BEP-1)
+
+## 1) Status (board set)
+python scripts/agent_org.py board set --doing "<AREA>: <WHAT>" --blocked "<BLOCKER or ->" --next "<NEXT>" --tags <csv>
+
+例:
+python scripts/agent_org.py board set --doing "remotion: CH08 rerender prep" --blocked "-" --next "render loop start" --tags remotion,video
+
+## 2) Notes (board note)
+topic は必ず先頭に種別を付ける:
+[Q]=質問 / [DECISION]=決定 / [BLOCKER]=停止 / [FYI]=共有 / [DONE]=完了
+
+zshでの安全な投稿（展開事故を防ぐ）:
+python scripts/agent_org.py board note --topic "[Q][remotion] ..." <<'EOF'
+scope:
+- <paths/globs>
+locks:
+- <lock_id or (none)>
+now:
+- <what happened / current state>
+options:
+1) ...
+2) ...
+ask:
+- <what you need from others / decision needed>
+commands:
+- <commands to run (plain text)>
+artifacts:
+- <outputs/dirs touched>
+EOF
+
+※ backtick(`) や $(...) はシェルが展開するので、--message="..." 直書きは避ける。
+   どうしても1行で渡すなら **単引用符** を使う（例: --message '...`...`...'）。
+"""
+    )
+    return 0
 
 
 def cmd_board_show(args: argparse.Namespace) -> int:
@@ -803,18 +857,73 @@ def cmd_board_show(args: argparse.Namespace) -> int:
     if not isinstance(log, list) or not log:
         return 0
 
-    print("\nrecent_log_ts\tagent\ttopic\tmessage")
+    try:
+        max_chars = int(args.max_chars)
+    except Exception:
+        max_chars = 240
+    if getattr(args, "full", False):
+        max_chars = 0
+
+    print("\nrecent_log_ts\tnote_id\tagent\ttopic\tmessage")
     for e in log[-tail:]:
         if not isinstance(e, dict):
             continue
         ts = str(e.get("ts") or "-")
+        note_id = str(e.get("id") or "-")
         agent = str(e.get("agent") or "-")
         topic = str(e.get("topic") or "-")
         msg = str(e.get("message") or "-").replace("\t", " ").replace("\n", "\\n")
-        if len(msg) > 240:
-            msg = msg[:240] + "…"
-        print(f"{ts}\t{agent}\t{topic}\t{msg}")
+        if max_chars > 0 and len(msg) > max_chars:
+            msg = msg[:max_chars] + "…"
+        print(f"{ts}\t{note_id}\t{agent}\t{topic}\t{msg}")
 
+    return 0
+
+
+def cmd_board_note_show(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    p = _board_path(q)
+    if not p.exists():
+        print("(no board)")
+        return 0
+
+    obj = _load_json_maybe(p)
+    obj = _board_ensure_shape(obj if isinstance(obj, dict) else {})
+    log = obj.get("log") or []
+    if not isinstance(log, list) or not log:
+        print("(no notes)")
+        return 0
+
+    target = str(args.note_id).strip()
+    if not target:
+        print("note_id is required")
+        return 2
+
+    found = None
+    for e in reversed(log):
+        if not isinstance(e, dict):
+            continue
+        if str(e.get("id") or "").strip() == target:
+            found = e
+            break
+
+    if not found:
+        print(f"note not found: {target}")
+        return 2
+
+    if args.json:
+        print(json.dumps(found, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"id: {found.get('id') or '-'}")
+    print(f"ts: {found.get('ts') or '-'}")
+    print(f"agent: {found.get('agent') or '-'}")
+    print(f"topic: {found.get('topic') or '-'}")
+    tags = found.get("tags") or []
+    if not isinstance(tags, list):
+        tags = [str(tags)]
+    print(f"tags: {','.join(str(t) for t in tags) if tags else '-'}")
+    print("\nmessage:\n" + str(found.get("message") or "-"))
     return 0
 
 
@@ -901,7 +1010,9 @@ def cmd_board_note(args: argparse.Namespace) -> int:
         print("topic is required")
         return 2
 
+    note_id = _new_id("note")
     entry = {
+        "id": note_id,
         "ts": now,
         "agent": agent,
         "topic": topic,
@@ -949,6 +1060,7 @@ def cmd_board_note(args: argparse.Namespace) -> int:
     )
 
     print(str(p))
+    print(f"note_id: {note_id}")
     return 0
 
 
@@ -1006,6 +1118,7 @@ def cmd_overview(args: argparse.Namespace) -> int:
     - active locks (grouped by created_by)
     - recent memos (grouped by from)
     - assignments (by agent_id)
+    - shared board status (optional)
     """
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     stale_sec = int(args.stale_sec)
@@ -1018,6 +1131,10 @@ def cmd_overview(args: argparse.Namespace) -> int:
     locks = _find_locks(q, include_expired=include_expired_locks)
     memos = _find_memos(q, limit=max(200, limit_memos * 20))
     assignments = _find_assignments(q)
+    board = _load_board(q)
+    board_agents = (board.get("agents") if isinstance(board, dict) else {}) or {}
+    if not isinstance(board_agents, dict):
+        board_agents = {}
 
     agents_by_name: dict[str, list[dict]] = {}
     agents_by_id: dict[str, dict] = {}
@@ -1086,6 +1203,9 @@ def cmd_overview(args: argparse.Namespace) -> int:
         status = _agent_status(best_rec) if best_rec else "unregistered"
         actor_locks = locks_by_actor.get(actor, [])
         actor_memos = memos_by_from.get(actor, [])
+        actor_board = board_agents.get(actor) if board_agents else None
+        if not isinstance(actor_board, dict):
+            actor_board = None
 
         actor_assignments: list[dict] = []
         if best_rec:
@@ -1101,6 +1221,7 @@ def cmd_overview(args: argparse.Namespace) -> int:
                 "locks": sorted(actor_locks, key=lambda r: str(r.get("created_at") or "")),
                 "recent_memos": actor_memos,
                 "assignments": actor_assignments,
+                "board": actor_board,
             }
         )
 
@@ -1115,6 +1236,7 @@ def cmd_overview(args: argparse.Namespace) -> int:
             "locks": len(locks),
             "memos_scanned": len(memos),
             "assignments": len(assignments),
+            "board_enabled": bool(board),
         },
         "actors": summaries,
     }
@@ -1140,6 +1262,14 @@ def cmd_overview(args: argparse.Namespace) -> int:
             role = best.get("assigned_role") or best.get("role") or "-"
             last_seen = best.get("last_seen_at") or "-"
             print(f"  agent: id={best.get('id') or '-'} role={role} pid={pid or '-'} last_seen_at={last_seen}")
+
+        board_st = s.get("board") or None
+        if isinstance(board_st, dict) and board_st:
+            doing = str(board_st.get("doing") or "-").replace("\t", " ").replace("\n", "\\n")
+            blocked = str(board_st.get("blocked") or "-").replace("\t", " ").replace("\n", "\\n")
+            nxt = str(board_st.get("next") or "-").replace("\t", " ").replace("\n", "\\n")
+            upd = str(board_st.get("updated_at") or "-")
+            print(f"  board: doing={doing} blocked={blocked} next={nxt} updated_at={upd}")
 
         for lk in (s.get("locks") or [])[:10]:
             lid = lk.get("id") or Path(str(lk.get("_path") or "")).stem
@@ -2035,6 +2165,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp2 = board_sub.add_parser("show", help="show board status and recent notes")
     sp2.add_argument("--json", action="store_true", help="emit raw JSON")
     sp2.add_argument("--tail", default=5, type=int, help="show last N log entries (default: 5; 0 disables)")
+    sp2.add_argument("--max-chars", default=240, type=int, help="truncate message preview to N chars (default: 240; 0 disables)")
+    sp2.add_argument("--full", action="store_true", help="do not truncate message preview (same as --max-chars 0)")
     sp2.set_defaults(func=cmd_board_show)
 
     sp2 = board_sub.add_parser("set", help="update my status on the board")
@@ -2052,6 +2184,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp2.add_argument("--message-file", default=None, help="file containing note body (utf-8)")
     sp2.add_argument("--tags", default=None, help="comma-separated tags")
     sp2.set_defaults(func=cmd_board_note)
+
+    sp2 = board_sub.add_parser("note-show", help="show a single note by note_id (full message)")
+    sp2.add_argument("note_id", help="note id shown in `board show` output")
+    sp2.add_argument("--json", action="store_true", help="emit raw JSON entry")
+    sp2.set_defaults(func=cmd_board_note_show)
+
+    sp2 = board_sub.add_parser("template", help="print common notation template (BEP-1)")
+    sp2.set_defaults(func=cmd_board_template)
 
     # Overview
     sp = sub.add_parser("overview", help="show who-is-doing-what overview (agents + locks + memos)")

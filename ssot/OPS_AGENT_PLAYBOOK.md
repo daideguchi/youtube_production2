@@ -56,11 +56,51 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 
 ```bash
 python scripts/agent_org.py board show
+python scripts/agent_org.py board template   # 共通記法（BEP-1）テンプレを表示
 python scripts/agent_org.py board set --doing "cleanup: logs整理" --next "ssot更新" --tags cleanup,ssot
-python scripts/agent_org.py board note --topic "CH02-024 lock中" --message "lock解除後に prune_video_run_legacy_files を走らせる"
 ```
 
 ファイル実体: `logs/agent_tasks/coordination/board.json`（= `logs_root()/agent_tasks/coordination/board.json`）
+
+#### BEP-1（共通記法ルール）
+**目的**: “何が起きた/何が必要/次に何をする” を誰でも即時に判断できるようにする（低知能エージェントでも事故らない）。
+
+- `topic` の先頭に必ず種別を付ける: `[Q]` / `[DECISION]` / `[BLOCKER]` / `[FYI]` / `[DONE]`
+- 必須の情報（note本文に含める）:
+  - `scope`: 触った/触る予定のパス（repo-relative）
+  - `locks`: lock_id or “(none)”（必要なら「lock作成コマンド」も併記）
+  - `now`: いまの状態（何が起きたか）
+  - `options`: 選択肢（1,2,3…）
+  - `ask`: 何を決めてほしいか / 何をしてほしいか（明示）
+  - `commands`: 再現/実行コマンド（plain text）
+
+#### note 投稿の“安全な書き方”（zsh展開事故を防ぐ）
+`--message "..."` 直書きだと `` `...` `` や `$(...)` がシェルに食われるので、基本は **heredoc（<<'EOF'）** を使う。
+
+```bash
+python scripts/agent_org.py board note --topic "[Q][remotion] render_remotion_batch.py が無い" <<'EOF'
+scope:
+- scripts/ops/render_remotion_batch.py
+locks:
+- lock__2025... (or none)
+now:
+- スクリプトが見当たらず再レンダ開始できない
+options:
+1) scripts/ops/render_remotion_batch.py を作り直して再開
+2) node apps/remotion/scripts/render.js を直接ループで回す
+ask:
+- どちらで進めるか指示ください
+commands:
+- node apps/remotion/scripts/render.js ...
+EOF
+```
+
+#### note の参照（正確に追えるように）
+- `python scripts/agent_org.py board show --tail 20` で `note_id` を確認
+- `python scripts/agent_org.py board note-show <note_id>` で全文を表示
+
+#### 推奨タグ（tags）
+`refactor,cleanup,ssot,ui,llm,tts,capcut,remotion,video,blocking,decision,question,done`
 
 ---
 

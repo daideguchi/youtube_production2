@@ -123,3 +123,4 @@
 - 運用改善: `workspaces/episodes/` の materialize を「存在しないリンクは残さない」挙動に変更し、壊れたsymlinkを掃除してリンク集のノイズを低減（`scripts/episode_ssot.py`, `workspaces/episodes/README.md`）。
 - lock衛生: `python scripts/agent_org.py locks-prune` を追加し、期限切れ lock JSON を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避できるようにした（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`, `ssot/OPS_LOGGING_MAP.md`）。検証: `python -m py_compile scripts/agent_org.py`, `python scripts/ops/ssot_audit.py --strict`（commit `8d9cff1b`）。
 - 共同運用: 複数エージェントが **1ファイル** に状態/申し送りを書き込める Shared Board を追加（`python scripts/agent_org.py board show|set|note`）。実体: `logs/agent_tasks/coordination/board.json`（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`, `ssot/OPS_LOGGING_MAP.md`, `ssot/OPS_ENTRYPOINTS_INDEX.md`）。
+- 共同運用の精度向上: Board note に `note_id` を付与し全文表示（`board note-show`）を追加。さらに `board template` と BEP-1（共通記法）をSSOT化し、zshの展開事故を避ける投稿方法（`<<'EOF'`）を標準化（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`）。
