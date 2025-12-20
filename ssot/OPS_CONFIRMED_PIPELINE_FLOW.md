@@ -76,6 +76,9 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **Entry points**
 - 人間が `workspaces/planning/channels/CHxx.csv` を更新（互換: `progress/channels/CHxx.csv`）。
 - UI `/progress` でCSVを閲覧/編集（UIはCSVを直接読む）。
+- 推奨（決定論lint）:
+  - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write`
+    - タイトル/概要の `【tag】` 不一致や必須列欠落など、後工程で致命傷になる混入を早期に検出する。
 
 **Inputs**
 - `workspaces/planning/channels/CHxx.csv`（正本）
@@ -99,6 +102,14 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - `python -m script_pipeline.cli run --channel CHxx --video NNN --stage <stage>`
   - `python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
 - UI（補助）: `/api/script-*` 系（main.py側でrunner呼び出し）
+
+**補助ツール（推奨 / 事故防止）**
+- Aテキスト決定論lint（反復/禁則混入の早期検出）:
+  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write`
+- 長尺Aテキスト（セクション分割→合成）:
+  - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run。出力: `content/analysis/section_compose/`）
+  - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`（反映＋`script_validation`をpending化して安全に再ゲート）
+  - 設計詳細: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 
 **SoT / Inputs**
 - `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）

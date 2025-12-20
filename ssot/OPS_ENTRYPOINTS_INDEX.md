@@ -52,6 +52,14 @@
 - `script_pipeline/tools/channel_registry.py`（新チャンネル追加: handle→channel_id 解決 + sources.yaml/CSV/Persona 雛形生成）
 - `scripts/buddha_senior_5ch_prepare.py`（CH12–CH16: status init + metadata補完）
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
+- Planning lint（決定論・混入検知）:
+  - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write`
+- Aテキスト lint（決定論・反復/禁則混入検知）:
+  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write`
+- 長尺Aテキスト（セクション分割→合成）:
+  - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run）
+  - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
+  - 設計: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 
 ### 3.2 Audio/TTS
 - `audio_tts_v2/scripts/run_tts.py`
