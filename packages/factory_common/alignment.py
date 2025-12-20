@@ -143,24 +143,6 @@ def extract_bracket_topic(title: str | None) -> Optional[str]:
     return topic or None
 
 
-def _normalize_for_contains(text: str | None) -> str:
-    """
-    Lightweight normalization for substring checks (cheap + deterministic).
-
-    Note:
-    - Do NOT attempt full Japanese tokenization here (risk of false positives/negatives).
-    - This is used only for conservative "is this obviously missing?" checks.
-    """
-    raw = (text or "").strip()
-    if not raw:
-        return ""
-    # Drop whitespace and common quote/paren punctuation that can split literals.
-    raw = re.sub(r"\s+", "", raw)
-    for ch in ("「", "」", "『", "』", "（", "）", "(", ")", "【", "】"):
-        raw = raw.replace(ch, "")
-    return raw
-
-
 def title_script_token_overlap_ratio(title: str | None, script_text: str | None) -> float:
     title_tokens = _tokenize(title or "")
     if not title_tokens:
@@ -197,45 +179,6 @@ def alignment_suspect_reason(planning_row: Dict[str, Any], script_text_preview: 
         catches = set()
     if len(catches) > 1:
         return "サムネプロンプト先頭行が不一致"
-
-    # Conservative topic sanity check:
-    # Some titles use 【...】 as a marketing hook (e.g. 【警告】, 【保存版】), which should NOT
-    # be required to appear in the spoken script. We only apply this when the bracket content
-    # looks like a single, strong concept token (typically all-kanji category tags such as 因果応報).
-    title = str(planning_row.get("タイトル") or planning_row.get("title") or "").strip()
-    topic = extract_bracket_topic(title)
-    if topic and script_text_preview:
-        ignore_topics = {
-            "保存版",
-            "完全版",
-            "永久保存",
-            "閲覧注意",
-            "要注意",
-            "緊急",
-            "警告",
-            "注意",
-            "衝撃",
-            "驚愕",
-            "悲報",
-            "朗報",
-            "必見",
-        }
-        tokens = _tokenize(topic)
-        if len(tokens) == 1:
-            token = next(iter(tokens))
-            token_norm = _normalize_for_contains(token)
-            topic_norm = _normalize_for_contains(topic)
-            if (
-                token_norm
-                and topic_norm
-                and token_norm in topic_norm
-                and len(token_norm) >= 3
-                and bool(re.fullmatch(r"[一-龯]{3,}", token_norm))
-                and token_norm not in ignore_topics
-            ):
-                hay = _normalize_for_contains(script_text_preview[:6000])
-                if hay and token_norm not in hay:
-                    return "タイトルの主題（【...】）が本文に出ていない"
 
     return None
 
