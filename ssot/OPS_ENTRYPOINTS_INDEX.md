@@ -53,9 +53,9 @@
 - `scripts/buddha_senior_5ch_prepare.py`（CH12–CH16: status init + metadata補完）
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 - Planning lint（決定論・混入検知）:
-  - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write`
+  - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
 - Aテキスト lint（決定論・反復/禁則混入検知）:
-  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write`
+  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 - 長尺Aテキスト（セクション分割→合成）:
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run）
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
