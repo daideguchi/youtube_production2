@@ -111,6 +111,10 @@
 - `python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/OPS_SEMANTIC_ALIGNMENT.md`
 
+### 3.7 Remotion（実験ライン / 再レンダ）
+- 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
+- バッチレンダ（容量節約・lock尊重・report出力）: `python3 scripts/ops/render_remotion_batch.py --help`
+
 ---
 
 ## 4. 生成物の掃除（容量/混乱対策）
