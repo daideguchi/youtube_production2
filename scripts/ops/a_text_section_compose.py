@@ -46,6 +46,7 @@ from factory_common.llm_router import get_router
 from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
 from factory_common.paths import repo_root, script_data_root
 from factory_common.timeline_manifest import sha1_file
+from factory_common.alignment import ALIGNMENT_SCHEMA, alignment_suspect_reason, build_alignment_stamp
 
 from packages.script_pipeline.runner import ensure_status
 from packages.script_pipeline.sot import load_status, save_status
@@ -778,6 +779,11 @@ def main() -> int:
 
     # Deterministic validation report (mechanical rules + length).
     issues, stats = validate_a_text(assembled_text, st.metadata or {})
+    hard_errors = [
+        it
+        for it in issues
+        if str((it or {}).get("severity") or "error").lower() != "warning"
+    ]
     report = {
         "schema": "ytm.a_text_section_compose_report.v1",
         "generated_at": utc_now_iso(),
@@ -800,12 +806,14 @@ def main() -> int:
     if not args.apply:
         print("dry-run: not overwriting canonical A-text (use --apply)")
         # Exit non-zero when mechanical errors exist, so CI/ops can detect.
-        hard = [
-            it
-            for it in issues
-            if str((it or {}).get("severity") or "error").lower() != "warning"
-        ]
-        return 1 if hard else 0
+        return 1 if hard_errors else 0
+
+    # Safety: do not write an already-invalid script into the canonical SoT unless
+    # we are also running the LLM quality gate to converge.
+    if hard_errors and not args.run_validation:
+        print("Refusing to --apply because deterministic validation has hard errors.")
+        print("Re-run with --run-validation (recommended) or fix the candidate manually.")
+        return 1
 
     canonical_human = content_dir / "assembled_human.md"
     canonical_assembled = content_dir / "assembled.md"
@@ -844,6 +852,33 @@ def main() -> int:
         elif msg not in note:
             st.metadata["redo_note"] = f"{note} / {msg}"
         st.metadata["redo_audio"] = True
+
+        # Stamp (or mark suspect) alignment against Planning SoT so downstream guards are consistent.
+        # This is deterministic and does not require running script_review.
+        try:
+            from factory_common.paths import channels_csv_path
+            from packages.script_pipeline.runner import _load_csv_row
+
+            csv_row = _load_csv_row(Path(channels_csv_path(ch)), no)
+            if csv_row:
+                preview = assembled_text[:6000]
+                suspect_reason = alignment_suspect_reason(csv_row, preview)
+                if suspect_reason:
+                    st.metadata["alignment"] = {
+                        "schema": ALIGNMENT_SCHEMA,
+                        "computed_at": utc_now_iso(),
+                        "suspect": True,
+                        "suspect_reason": suspect_reason,
+                    }
+                else:
+                    stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_human)
+                    st.metadata["alignment"] = stamp.as_dict()
+                    pt = str(stamp.planning.get("title") or "").strip()
+                    if pt:
+                        st.metadata["sheet_title"] = pt
+        except Exception:
+            pass
+
         save_status(st)
     except Exception:
         pass
