@@ -29,7 +29,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from _bootstrap import bootstrap
 
@@ -54,6 +54,9 @@ from packages.script_pipeline.validator import validate_a_text
 
 
 _TAG_RE = re.compile(r"【([^】]+)】")
+_PUNCT_FOR_OVERLAP_RE = re.compile(r"[\s\u3000、。．，・…！？!?,.\"'「」『』（）()【】\[\]<>＜＞:：;；/／\\\\-—–―]+")
+_EARLY_CLOSING_LINE_RE = re.compile(r"^(?:最後に|まとめると|結論として|おわりに|以上|最後は|最後です)[、。]")
+_CTA_PHRASE_RE = re.compile(r"(?:ご視聴ありがとうございました|チャンネル登録|高評価|通知|コメント)")
 
 
 def _utc_now_compact() -> str:
@@ -376,6 +379,129 @@ def _assert_not_locked(paths: list[Path]) -> None:
             )
 
 
+def _hard_errors(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        it
+        for it in (issues or [])
+        if str((it or {}).get("severity") or "error").lower() != "warning"
+    ]
+
+
+def _dedupe_issues(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    uniq: dict[tuple[str, Optional[int]], dict[str, Any]] = {}
+    for item in issues or []:
+        code = str((item or {}).get("code") or "")
+        line = item.get("line") if isinstance(item, dict) else None
+        try:
+            line_i = int(line) if line is not None else None
+        except Exception:
+            line_i = None
+        key = (code, line_i)
+        if key not in uniq:
+            uniq[key] = item
+    return list(uniq.values())
+
+
+def _normalize_for_overlap(text: str) -> str:
+    raw = str(text or "").replace("\r\n", "\n").replace("\r", "\n")
+    raw = _PUNCT_FOR_OVERLAP_RE.sub("", raw)
+    return raw.strip().lower()
+
+
+def _has_long_overlap(prev_tail: str, current: str, *, min_chars: int) -> bool:
+    if min_chars <= 0:
+        return False
+    a = _normalize_for_overlap(prev_tail)
+    b = _normalize_for_overlap(current)
+    if len(a) < min_chars or len(b) < min_chars:
+        return False
+    # Check a few windows from the tail to avoid false positives while catching copy-paste.
+    windows: list[str] = []
+    windows.append(a[-min_chars:])
+    if len(a) >= min_chars * 2:
+        windows.append(a[-min_chars * 2 : -min_chars])
+    if len(a) >= min_chars * 3:
+        windows.append(a[-min_chars * 3 : -min_chars * 2])
+    for w in windows:
+        if w and w in b:
+            return True
+    return False
+
+
+def _validate_section_draft(
+    text: str,
+    *,
+    base_metadata: dict[str, Any],
+    char_budget: int,
+    min_ratio: float,
+    max_ratio: float,
+    section_index: int,
+    section_total: int,
+    previous_section_tail: str,
+    overlap_min_chars: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    meta = dict(base_metadata or {})
+    if char_budget > 0:
+        meta["target_chars_min"] = int(round(char_budget * float(min_ratio)))
+        meta["target_chars_max"] = int(round(char_budget * float(max_ratio)))
+    issues, stats = validate_a_text(text, meta)
+
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    for idx, line in enumerate(lines, start=1):
+        if line.strip() == "---":
+            issues.append(
+                {
+                    "code": "section_pause_not_allowed",
+                    "message": "`---` must not appear inside section drafts (added in assembly only)",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+    # Non-final sections must not look like an ending (reduces repetition of conclusions).
+    if section_index < section_total:
+        for idx, line in enumerate(lines, start=1):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if _EARLY_CLOSING_LINE_RE.match(stripped) or _CTA_PHRASE_RE.search(stripped):
+                issues.append(
+                    {
+                        "code": "premature_closing",
+                        "message": "Non-final section contains a closing/CTA-like phrase",
+                        "line": idx,
+                        "severity": "error",
+                    }
+                )
+                break
+
+    if previous_section_tail and overlap_min_chars > 0:
+        if _has_long_overlap(previous_section_tail, text, min_chars=int(overlap_min_chars)):
+            issues.append(
+                {
+                    "code": "section_overlap_with_previous",
+                    "message": f"Detected long overlap with previous section tail (min_chars={overlap_min_chars})",
+                    "severity": "error",
+                }
+            )
+
+    return _dedupe_issues(issues), stats
+
+
+def _format_issues_for_prompt(issues: list[dict[str, Any]], *, max_items: int = 12) -> str:
+    out: list[str] = []
+    for it in (issues or [])[: max(0, int(max_items))]:
+        code = str((it or {}).get("code") or "").strip() or "issue"
+        msg = str((it or {}).get("message") or "").strip()
+        line = (it or {}).get("line")
+        line_txt = ""
+        if line not in (None, ""):
+            line_txt = f" (line {line})"
+        out.append(f"- {code}{line_txt}: {msg}")
+    return "\n".join(out) if out else "- (no details)"
+
+
 def _planning_l1(meta: Dict[str, Any]) -> Dict[str, str]:
     planning = meta.get("planning") if isinstance(meta.get("planning"), dict) else {}
     if not isinstance(planning, dict):
@@ -531,6 +657,81 @@ def _section_draft_prompt(
     )
 
 
+def _section_rewrite_prompt(
+    *,
+    title: str,
+    section_index: int,
+    section_total: int,
+    section: Dict[str, Any],
+    plan_obj: Dict[str, Any],
+    planning_l1: Dict[str, str],
+    persona: str,
+    channel_prompt: str,
+    a_text_rules: str,
+    previous_section_tail: str,
+    previous_draft: str,
+    detected_issues: list[dict[str, Any]],
+    min_chars: int | None,
+    max_chars: int | None,
+    attempt: int,
+) -> str:
+    name = str(section.get("name") or "").strip()
+    goal = str(section.get("goal") or "").strip()
+    notes = str(section.get("content_notes") or "").strip()
+    budget = int(section.get("char_budget") or 0)
+    is_last = section_index == section_total
+    issues_txt = _format_issues_for_prompt(detected_issues)
+    range_txt = ""
+    if min_chars is not None or max_chars is not None:
+        range_txt = f"（許容レンジ: {min_chars}〜{max_chars}）"
+
+    return (
+        "あなたは日本語のYouTubeナレーション台本（Aテキスト）作家です。\n"
+        "前回のセクション草稿に不備があったため、同じセクションを丸ごと書き直してください。\n"
+        "出力は本文のみ。見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止。\n"
+        "このセクション内では `---` を使わないでください（全体の区切りは後工程で付与します）。\n"
+        "\n"
+        f"【企画タイトル】\n{title}\n\n"
+        f"【セクション】({section_index}/{section_total}) {name}\n"
+        f"- 目標文字数（改行除外・目安）: {budget}{range_txt}\n"
+        f"- このセクションの目的: {goal}\n"
+        + (f"- メモ: {notes}\n" if notes else "")
+        + f"- これは再生成 attempt={attempt} です。必ず不備を解消してください。\n"
+        "\n"
+        "【検出された不備（修正必須）】\n"
+        + issues_txt
+        + "\n\n"
+        "【全体設計（要約）】\n"
+        + _truncate(json.dumps(plan_obj, ensure_ascii=False, indent=2), 1600)
+        + "\n\n"
+        "【企画メモ（L1）】\n"
+        + _truncate("\n".join([f"- {k}: {v}" for k, v in planning_l1.items()]), 700)
+        + "\n\n"
+        "【ペルソナ（要点）】\n"
+        + _truncate(persona, 900)
+        + "\n\n"
+        "【チャンネル指針（要点）】\n"
+        + _truncate(channel_prompt, 900)
+        + "\n\n"
+        "【全体ルール（要点）】\n"
+        + a_text_rules
+        + "\n\n"
+        "【直前セクションの末尾（文脈）】\n"
+        + (_truncate(previous_section_tail, 320) if previous_section_tail else "(なし)")
+        + "\n\n"
+        "【前回草稿（参考。言い回しをコピーしない）】\n"
+        + _truncate(previous_draft, 1400)
+        + "\n\n"
+        "【重要】\n"
+        "- 主題は増やさない。タイトルの痛み/問いに直結する内容だけを書く。\n"
+        "- 同じ結論の言い換えで水増ししない。新しい理解が増える具体で厚みを作る。\n"
+        "- 終盤っぽい『最後に』『まとめると』などは最後のセクションだけ。\n"
+        + ("- 最終セクションなので、短く締めてよい（締めの言葉は1回だけ）。\n" if is_last else "")
+        + "\n"
+        "では、修正版のセクション本文のみを出力してください。\n"
+    )
+
+
 def _assemble_prompt(
     *,
     title: str,
@@ -588,6 +789,48 @@ def _assemble_prompt(
     )
 
 
+def _assemble_retry_prompt(
+    *,
+    title: str,
+    target_min: str,
+    target_max: str,
+    section_texts: List[Tuple[str, str]],
+    previous_draft: str,
+    detected_issues: list[dict[str, Any]],
+    attempt: int,
+) -> str:
+    parts: list[str] = []
+    for name, txt in section_texts:
+        parts.append(f"--- {name} ---\n{txt.strip()}\n")
+    joined = "\n".join(parts).strip()
+
+    return (
+        "あなたは日本語のYouTubeナレーション台本（Aテキスト）の編集者です。\n"
+        "前回の組み上げ結果に『機械的な禁則違反』があるため、本文を丸ごと書き直してください。\n"
+        "出力は修正版の本文のみ。説明は禁止。\n"
+        "\n"
+        f"【企画タイトル】\n{title}\n\n"
+        f"【目標文字数（改行除外）】min={target_min} / max={target_max}\n"
+        f"- これは再生成 attempt={attempt} です。必ず不備を解消してください。\n\n"
+        "【検出された不備（修正必須）】\n"
+        + _format_issues_for_prompt(detected_issues)
+        + "\n\n"
+        "【元のセクション草稿】\n"
+        + _truncate(joined, 11000)
+        + "\n\n"
+        "【前回の組み上げ本文（参考。禁則を直しつつ意味は維持）】\n"
+        + _truncate(previous_draft, 12000)
+        + "\n\n"
+        "【編集ルール（厳守）】\n"
+        "- 出力は本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止）。\n"
+        "- 区切りは `---` のみ（1行単独）。セクション間にだけ入れ、乱発しない。\n"
+        "- 同趣旨の言い換え連打/まとめ重複を削る（『最後に』は1回まで）。\n"
+        "- タイトルの主題から絶対に逸れない（主題は1つ）。\n"
+        "\n"
+        "では、修正版のAテキスト本文のみを出力してください。\n"
+    )
+
+
 def _truncate(text: str, max_chars: int) -> str:
     raw = str(text or "")
     if len(raw) <= max_chars:
@@ -635,6 +878,21 @@ def main() -> int:
     )
     ap.add_argument("--max-tokens", type=int, default=16384)
     ap.add_argument("--temperature", type=float, default=0.25)
+    ap.add_argument("--section-max-tries", type=int, default=3, help="Max LLM tries per section when validation fails")
+    ap.add_argument("--section-min-ratio", type=float, default=0.70, help="Min ratio for section char_budget length gate")
+    ap.add_argument("--section-max-ratio", type=float, default=1.45, help="Max ratio for section char_budget length gate")
+    ap.add_argument(
+        "--section-overlap-min-chars",
+        type=int,
+        default=160,
+        help="Min normalized chars overlap with previous section tail to treat as duplication",
+    )
+    ap.add_argument(
+        "--assemble-max-tries",
+        type=int,
+        default=1,
+        help="Retry assembly when deterministic validation has hard errors (max tries)",
+    )
     args = ap.parse_args()
 
     ch = _normalize_channel(args.channel)
@@ -691,60 +949,174 @@ def main() -> int:
 
     # Draft each section with local constraints.
     section_texts: list[Tuple[str, str]] = []
+    sections_report: list[dict[str, Any]] = []
     prev_tail = ""
     for i, sec in enumerate(sections, start=1):
         sec_name = str(sec.get("name") or f"section_{i}").strip()
-        prompt = _section_draft_prompt(
-            title=title,
-            section_index=i,
-            section_total=len(sections),
-            section=sec,
-            plan_obj=plan_obj,
-            planning_l1=planning_l1,
-            persona=persona,
-            channel_prompt=channel_prompt,
-            a_text_rules=a_text_rules,
-            previous_section_tail=prev_tail,
-        )
-        txt, llm_meta = _call_llm(
-            task=draft_task,
-            prompt=prompt,
-            routing_key=routing_key,
-            max_tokens=args.max_tokens,
-            temperature=args.temperature,
-        )
-        if not txt.strip():
-            raise SystemExit(f"Empty section draft for {sec_name}")
+        base_name = f"section_{i:02d}_{_slug(sec_name)}"
+        final_path = sections_dir / f"{base_name}.md"
+        attempts: list[dict[str, Any]] = []
 
-        out_path = sections_dir / f"section_{i:02d}_{_slug(sec_name)}.md"
-        _assert_not_locked([out_path])
-        out_path.write_text(txt.strip() + "\n", encoding="utf-8")
+        budget = int(sec.get("char_budget") or 0)
+        min_chars = int(round(budget * float(args.section_min_ratio))) if budget > 0 else None
+        max_chars = int(round(budget * float(args.section_max_ratio))) if budget > 0 else None
 
-        # Record artifact for reproducibility.
-        try:
-            art_path = artifact_path_for_output(base_dir=base, stage="a_text_section_draft", output_path=out_path, log_suffix=f"__{i:02d}")
-            sources: list[SourceFile] = []
-            try:
-                sources.append(SourceFile(path=str(plan_latest_path), sha1=str(plan_sha1 or "")))
-            except Exception:
-                sources = []
-            art = build_ready_artifact(
-                stage="a_text_section_draft",
+        previous_draft = ""
+        detected: list[dict[str, Any]] = []
+        accepted_text = ""
+        accepted_meta: Optional[LlmMeta] = None
+
+        for attempt in range(1, max(1, int(args.section_max_tries)) + 1):
+            if attempt == 1:
+                prompt = _section_draft_prompt(
+                    title=title,
+                    section_index=i,
+                    section_total=len(sections),
+                    section=sec,
+                    plan_obj=plan_obj,
+                    planning_l1=planning_l1,
+                    persona=persona,
+                    channel_prompt=channel_prompt,
+                    a_text_rules=a_text_rules,
+                    previous_section_tail=prev_tail,
+                )
+            else:
+                prompt = _section_rewrite_prompt(
+                    title=title,
+                    section_index=i,
+                    section_total=len(sections),
+                    section=sec,
+                    plan_obj=plan_obj,
+                    planning_l1=planning_l1,
+                    persona=persona,
+                    channel_prompt=channel_prompt,
+                    a_text_rules=a_text_rules,
+                    previous_section_tail=prev_tail,
+                    previous_draft=previous_draft,
+                    detected_issues=detected,
+                    min_chars=min_chars,
+                    max_chars=max_chars,
+                    attempt=attempt,
+                )
+
+            txt, llm_meta = _call_llm(
                 task=draft_task,
-                channel=ch,
-                video=no,
-                output_path=out_path,
-                content=txt.strip(),
-                sources=sources,
-                llm_meta=llm_meta.as_dict(),
-                notes=f"section={sec_name}",
+                prompt=prompt,
+                routing_key=routing_key,
+                max_tokens=args.max_tokens,
+                temperature=args.temperature,
             )
-            write_llm_text_artifact(art_path, art)
-        except Exception:
-            pass
+            if not txt.strip():
+                raise SystemExit(f"Empty section draft for {sec_name} (attempt {attempt})")
 
-        section_texts.append((sec_name, txt.strip()))
-        prev_tail = _tail(txt, 260)
+            attempt_path = sections_dir / f"{base_name}__try{attempt:02d}.md"
+            _assert_not_locked([attempt_path])
+            attempt_path.write_text(txt.strip() + "\n", encoding="utf-8")
+
+            # Record artifact for reproducibility.
+            try:
+                art_path = artifact_path_for_output(
+                    base_dir=base,
+                    stage="a_text_section_draft",
+                    output_path=attempt_path,
+                    log_suffix=f"__{i:02d}__try{attempt:02d}",
+                )
+                sources: list[SourceFile] = []
+                try:
+                    sources.append(SourceFile(path=str(plan_latest_path), sha1=str(plan_sha1 or "")))
+                except Exception:
+                    sources = []
+                art = build_ready_artifact(
+                    stage="a_text_section_draft",
+                    task=draft_task,
+                    channel=ch,
+                    video=no,
+                    output_path=attempt_path,
+                    content=txt.strip(),
+                    sources=sources,
+                    llm_meta=llm_meta.as_dict(),
+                    notes=f"section={sec_name}, attempt={attempt}",
+                )
+                write_llm_text_artifact(art_path, art)
+            except Exception:
+                pass
+
+            issues, stats = _validate_section_draft(
+                txt,
+                base_metadata=st.metadata or {},
+                char_budget=budget,
+                min_ratio=float(args.section_min_ratio),
+                max_ratio=float(args.section_max_ratio),
+                section_index=i,
+                section_total=len(sections),
+                previous_section_tail=prev_tail,
+                overlap_min_chars=int(args.section_overlap_min_chars),
+            )
+            hard = _hard_errors(issues)
+            attempts.append(
+                {
+                    "attempt": attempt,
+                    "path": str(attempt_path.relative_to(repo_root())),
+                    "char_count": stats.get("char_count"),
+                    "validation": {"issues": issues, "stats": stats},
+                    "hard_error_codes": [str((x or {}).get("code") or "") for x in hard],
+                }
+            )
+
+            if not hard:
+                accepted_text = txt.strip()
+                accepted_meta = llm_meta
+                break
+
+            previous_draft = txt.strip()
+            detected = hard
+
+        if not accepted_text.strip():
+            # Keep attempts for debugging and fail fast (do not assemble broken sections).
+            fail_report = analysis_dir / "report_latest.json"
+            try:
+                atomic_write_json(
+                    fail_report,
+                    {
+                        "schema": "ytm.a_text_section_compose_report.v1",
+                        "generated_at": utc_now_iso(),
+                        "episode": {"channel": ch, "video": no},
+                        "title": title,
+                        "tasks": {"draft_task": draft_task},
+                        "outputs": {"plan": str(plan_latest_path.relative_to(repo_root()))},
+                        "sections": sections_report
+                        + [
+                            {
+                                "section_index": i,
+                                "section_name": sec_name,
+                                "char_budget": budget,
+                                "attempts": attempts,
+                                "status": "failed",
+                            }
+                        ],
+                    },
+                )
+            except Exception:
+                pass
+            raise SystemExit(
+                f"Section draft failed after {int(args.section_max_tries)} tries: ({i}/{len(sections)}) {sec_name}"
+            )
+
+        _assert_not_locked([final_path])
+        final_path.write_text(accepted_text.strip() + "\n", encoding="utf-8")
+        sections_report.append(
+            {
+                "section_index": i,
+                "section_name": sec_name,
+                "char_budget": budget,
+                "accepted": {"path": str(final_path.relative_to(repo_root())), "attempt": attempts[-1]["attempt"]},
+                "attempts": attempts,
+                "llm_meta": (accepted_meta.as_dict() if accepted_meta else None),
+            }
+        )
+
+        section_texts.append((sec_name, accepted_text.strip()))
+        prev_tail = _tail(accepted_text, 260)
 
     # Assemble with reasoning: smooth transitions + global coherence.
     target_min = str(st.metadata.get("target_chars_min") or "")
@@ -760,30 +1132,99 @@ def main() -> int:
         target_max=target_max,
         section_texts=section_texts,
     )
-    assembled_text, assembled_meta = _call_llm(
-        task=draft_task,
-        prompt=assemble_prompt,
-        routing_key=routing_key,
-        max_tokens=args.max_tokens,
-        temperature=max(0.1, float(args.temperature)),
-    )
-    if not assembled_text.strip():
-        raise SystemExit("Empty assembled draft")
-
-    candidate_path = analysis_dir / f"assembled_candidate__{_utc_now_compact()}.md"
     candidate_latest_path = analysis_dir / "assembled_candidate_latest.md"
     report_latest_path = analysis_dir / "report_latest.json"
-    _assert_not_locked([candidate_path, candidate_latest_path, report_latest_path])
-    candidate_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
-    candidate_latest_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
+    _assert_not_locked([candidate_latest_path, report_latest_path])
 
-    # Deterministic validation report (mechanical rules + length).
-    issues, stats = validate_a_text(assembled_text, st.metadata or {})
-    hard_errors = [
-        it
-        for it in issues
-        if str((it or {}).get("severity") or "error").lower() != "warning"
-    ]
+    assemble_attempts: list[dict[str, Any]] = []
+    base_ts = _utc_now_compact()
+    candidate_path: Optional[Path] = None
+    assembled_text = ""
+    assembled_meta: Optional[LlmMeta] = None
+    issues: list[dict[str, Any]] = []
+    stats: dict[str, Any] = {}
+    hard_errors: list[dict[str, Any]] = []
+
+    prev_draft = ""
+    prev_hard: list[dict[str, Any]] = []
+    for attempt in range(1, max(1, int(args.assemble_max_tries)) + 1):
+        prompt = (
+            assemble_prompt
+            if attempt == 1
+            else _assemble_retry_prompt(
+                title=title,
+                target_min=target_min,
+                target_max=target_max,
+                section_texts=section_texts,
+                previous_draft=prev_draft,
+                detected_issues=prev_hard,
+                attempt=attempt,
+            )
+        )
+        assembled_text, assembled_meta = _call_llm(
+            task=draft_task,
+            prompt=prompt,
+            routing_key=routing_key,
+            max_tokens=args.max_tokens,
+            temperature=max(0.1, float(args.temperature)),
+        )
+        if not assembled_text.strip():
+            raise SystemExit(f"Empty assembled draft (attempt {attempt})")
+
+        candidate_path = (
+            analysis_dir / f"assembled_candidate__{base_ts}.md"
+            if attempt == 1
+            else analysis_dir / f"assembled_candidate__{base_ts}__try{attempt:02d}.md"
+        )
+        _assert_not_locked([candidate_path])
+        candidate_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
+        candidate_latest_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
+
+        # Record artifact for reproducibility.
+        try:
+            art_path = artifact_path_for_output(
+                base_dir=base,
+                stage="a_text_section_assemble",
+                output_path=candidate_path,
+                log_suffix=f"__assemble__try{attempt:02d}",
+            )
+            sources: list[SourceFile] = []
+            try:
+                sources.append(SourceFile(path=str(plan_latest_path), sha1=str(plan_sha1 or "")))
+            except Exception:
+                sources = []
+            art = build_ready_artifact(
+                stage="a_text_section_assemble",
+                task=draft_task,
+                channel=ch,
+                video=no,
+                output_path=candidate_path,
+                content=assembled_text.strip(),
+                sources=sources,
+                llm_meta=(assembled_meta.as_dict() if assembled_meta else None),
+                notes=f"attempt={attempt}",
+            )
+            write_llm_text_artifact(art_path, art)
+        except Exception:
+            pass
+
+        # Deterministic validation (mechanical rules + length).
+        issues, stats = validate_a_text(assembled_text, st.metadata or {})
+        hard_errors = _hard_errors(issues)
+        assemble_attempts.append(
+            {
+                "attempt": attempt,
+                "path": str(candidate_path.relative_to(repo_root())) if candidate_path else "",
+                "llm_meta": (assembled_meta.as_dict() if assembled_meta else None),
+                "validation": {"issues": issues, "stats": stats},
+                "hard_error_codes": [str((x or {}).get("code") or "") for x in hard_errors],
+            }
+        )
+        if not hard_errors:
+            break
+        prev_draft = assembled_text.strip()
+        prev_hard = hard_errors
+
     report = {
         "schema": "ytm.a_text_section_compose_report.v1",
         "generated_at": utc_now_iso(),
@@ -792,15 +1233,19 @@ def main() -> int:
         "tasks": {"draft_task": draft_task},
         "outputs": {
             "plan": str((analysis_dir / "plan_latest.json").relative_to(repo_root())),
-            "candidate": str(candidate_path.relative_to(repo_root())),
+            "candidate": str(candidate_path.relative_to(repo_root())) if candidate_path else "",
+            "candidate_latest": str(candidate_latest_path.relative_to(repo_root())),
         },
-        "llm_meta": {"assembled": assembled_meta.as_dict()},
+        "sections": sections_report,
+        "assembly": {"attempts": assemble_attempts},
+        "llm_meta": {"assembled": (assembled_meta.as_dict() if assembled_meta else None)},
         "validation": {"issues": issues, "stats": stats},
     }
     atomic_write_json(report_latest_path, report)
 
     print(f"Wrote plan: {plan_latest_path}")
-    print(f"Wrote candidate: {candidate_path}")
+    if candidate_path:
+        print(f"Wrote candidate: {candidate_path}")
     print(f"Wrote report: {report_latest_path}")
 
     if not args.apply:

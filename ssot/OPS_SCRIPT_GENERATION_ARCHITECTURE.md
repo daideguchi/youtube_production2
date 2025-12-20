@@ -44,12 +44,18 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 ベストプラクティス（コストは増えるが品質が安定）:
 1) SSOTパターンから決定論プラン（セクションと字数配分）を作る  
 2) セクションごとに執筆（局所制約: 主題逸脱/水増し/禁則を抑える）  
+   - 決定論バリデーションでNGなら **そのセクションだけ**再生成（最大N回）  
+   - セクション草稿内では `---` を禁止（区切りは組み上げ工程でのみ付与）  
 3) 推論で組み上げ（繋ぎ・一貫性・字数レンジ・反復削除）  
-4) 必要なら `script_validation`（Judge/Fix）で収束させる  
+   - 組み上げ後も決定論バリデーションでNGなら、必要に応じて **組み上げのみ**再試行（最大M回）  
+4) 必要なら `script_validation`（Judge/Fix）で収束させる（内容品質の最終ゲート）  
 
 実装（ops）:
 - `python scripts/ops/a_text_section_compose.py --channel CH07 --video 009`（dry-runで候補生成）
 - `python scripts/ops/a_text_section_compose.py --channel CH07 --video 009 --apply --run-validation`（正本に反映→品質ゲート）
+  - セクション再生成/組み上げ再試行はフラグで調整可:
+    - `--section-max-tries N`（default: 3）
+    - `--assemble-max-tries M`（default: 1）
 
 補助（決定論lint）:
 - Planning汚染検知: `python scripts/ops/planning_lint.py --channel CH07 --write-latest`

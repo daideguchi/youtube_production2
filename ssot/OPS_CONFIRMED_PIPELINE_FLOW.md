@@ -109,6 +109,8 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 - 長尺Aテキスト（セクション分割→合成）:
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run。出力: `content/analysis/section_compose/`）
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`（反映＋`script_validation`をpending化して安全に再ゲート）
+  - セクション単位の決定論バリデーションでNGなら **そのセクションだけ**自動再生成（最大N回、既定3）
+  - 組み上げ後に禁則違反が残る場合は **組み上げのみ**再試行（最大M回、既定1）
   - 設計詳細: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 
 **SoT / Inputs**
