@@ -23,9 +23,12 @@
 - `OPS_SCRIPT_SOURCE_MAP.md`: 台本/音声/動画の“ソース元”対応表（SoT→生成物）。
 - `OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
 - `OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。
+- `OPS_SCRIPT_GENERATION_ARCHITECTURE.md`: 高品質Aテキスト大量生産の設計（パターン→生成→Judge→最小修正）。
+- `OPS_SCRIPT_PATTERNS.yaml`: Aテキスト構成パターン集（骨格/字数配分のSSOT）。
 - `OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
 - `OPS_AUDIO_TTS_V2.md`: 音声（TTS v2）運用手順とSoT/cleanup。
 - `OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
+- `OPS_SCRIPT_INPUT_CONTRACT.md`: Planning入力の契約（L1/L2/L3）と汚染防止ルール。
 - `OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm.yml`）。
 - `OPS_ENV_VARS.md`: 環境変数・キー管理の原則と必須一覧。
 - `OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
