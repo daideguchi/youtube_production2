@@ -1125,3 +1125,13 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/purge_audio_prep_binaries.py --run --channel CH10 --video 001 --keep-recent-minutes 360`
 - 結果:
   - deleted_files=2（`CH10-001-regenerated.wav` / `CH10-001-regenerated.srt`）
+
+### 79) `apps/remotion/out` の tracked 生成物を repo から追跡解除（安全: gitignore 対象）
+
+意図: `apps/remotion/out/` は Remotion の生成物置き場であり、`.gitignore` で除外するのが正しい。ここに tracked の JSON が残っていると、
+「正本が repo にある」と誤認されやすく、差分ノイズ/探索ノイズの原因になるため削除する。
+
+- 実行:
+  - `git rm apps/remotion/out/belt_config.generated.json apps/remotion/out/belt_llm_raw.json`
+- 結果:
+  - tracked ファイルを削除（以後は生成されても git に載らない）
