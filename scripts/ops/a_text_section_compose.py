@@ -809,9 +809,15 @@ def main() -> int:
 
     canonical_human = content_dir / "assembled_human.md"
     canonical_assembled = content_dir / "assembled.md"
-    _assert_not_locked([canonical_human, canonical_assembled])
+    legacy_final = content_dir / "final" / "assembled.md"
+    _assert_not_locked([canonical_human, canonical_assembled, legacy_final])
     canonical_human.write_text(assembled_text.strip() + "\n", encoding="utf-8")
     canonical_assembled.write_text(assembled_text.strip() + "\n", encoding="utf-8")
+    if legacy_final.exists():
+        try:
+            legacy_final.write_text(assembled_text.strip() + "\n", encoding="utf-8")
+        except Exception:
+            pass
 
     # Update status metadata to record provenance (non-destructive).
     try:
@@ -820,6 +826,24 @@ def main() -> int:
             st.metadata["a_text_compose"]["last_method"] = "section_compose"
             st.metadata["a_text_compose"]["last_candidate"] = str(candidate_path.relative_to(base))
             st.metadata["a_text_compose"]["updated_at"] = utc_now_iso()
+        # Mark validation pending (script changed) and force audio redo (same semantics as a-text-rebuild).
+        if isinstance(st.stages, dict) and "script_validation" in st.stages:
+            st.stages["script_validation"].status = "pending"
+            try:
+                st.stages["script_validation"].details.pop("error", None)
+                st.stages["script_validation"].details.pop("issues", None)
+                st.stages["script_validation"].details.pop("error_codes", None)
+                st.stages["script_validation"].details.pop("fix_hints", None)
+            except Exception:
+                pass
+        st.status = "script_in_progress"
+        note = str(st.metadata.get("redo_note") or "").strip()
+        msg = "Aテキストをセクション分割で再構成しました (section_compose)"
+        if not note:
+            st.metadata["redo_note"] = msg
+        elif msg not in note:
+            st.metadata["redo_note"] = f"{note} / {msg}"
+        st.metadata["redo_audio"] = True
         save_status(st)
     except Exception:
         pass
