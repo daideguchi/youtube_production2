@@ -45,6 +45,7 @@ from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
 from factory_common.llm_router import get_router
 from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
 from factory_common.paths import repo_root, script_data_root
+from factory_common.timeline_manifest import sha1_file
 
 from packages.script_pipeline.runner import ensure_status
 from packages.script_pipeline.sot import load_status, save_status
@@ -646,6 +647,7 @@ def main() -> int:
     content_dir = base / "content"
     analysis_dir = content_dir / "analysis" / "section_compose"
     sections_dir = analysis_dir / "sections"
+    _assert_not_locked([analysis_dir, sections_dir])
     analysis_dir.mkdir(parents=True, exist_ok=True)
     sections_dir.mkdir(parents=True, exist_ok=True)
 
@@ -661,8 +663,10 @@ def main() -> int:
     a_text_rules = _a_text_rules_summary()
 
     plan_obj = build_plan(channel=ch, title=title, meta=st.metadata or {})
+    plan_latest_path = analysis_dir / "plan_latest.json"
+    _assert_not_locked([plan_latest_path])
     atomic_write_json(
-        analysis_dir / "plan_latest.json",
+        plan_latest_path,
         {
             "schema": "ytm.a_text_section_compose_plan.v1",
             "generated_at": utc_now_iso(),
@@ -672,6 +676,10 @@ def main() -> int:
             "plan": plan_obj,
         },
     )
+    try:
+        plan_sha1 = sha1_file(plan_latest_path)
+    except Exception:
+        plan_sha1 = ""
 
     sections = plan_obj.get("sections") if isinstance(plan_obj, dict) else None
     if not isinstance(sections, list) or not sections:
@@ -716,8 +724,7 @@ def main() -> int:
             art_path = artifact_path_for_output(base_dir=base, stage="a_text_section_draft", output_path=out_path, log_suffix=f"__{i:02d}")
             sources: list[SourceFile] = []
             try:
-                plan_path = analysis_dir / "plan_latest.json"
-                sources.append(SourceFile(path=str(plan_path), sha1=""))  # sha1 optional here
+                sources.append(SourceFile(path=str(plan_latest_path), sha1=str(plan_sha1 or "")))
             except Exception:
                 sources = []
             art = build_ready_artifact(
@@ -763,9 +770,11 @@ def main() -> int:
         raise SystemExit("Empty assembled draft")
 
     candidate_path = analysis_dir / f"assembled_candidate__{_utc_now_compact()}.md"
-    _assert_not_locked([candidate_path])
+    candidate_latest_path = analysis_dir / "assembled_candidate_latest.md"
+    report_latest_path = analysis_dir / "report_latest.json"
+    _assert_not_locked([candidate_path, candidate_latest_path, report_latest_path])
     candidate_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
-    (analysis_dir / "assembled_candidate_latest.md").write_text(assembled_text.strip() + "\n", encoding="utf-8")
+    candidate_latest_path.write_text(assembled_text.strip() + "\n", encoding="utf-8")
 
     # Deterministic validation report (mechanical rules + length).
     issues, stats = validate_a_text(assembled_text, st.metadata or {})
@@ -782,11 +791,11 @@ def main() -> int:
         "llm_meta": {"assembled": assembled_meta.as_dict()},
         "validation": {"issues": issues, "stats": stats},
     }
-    atomic_write_json(analysis_dir / "report_latest.json", report)
+    atomic_write_json(report_latest_path, report)
 
-    print(f"Wrote plan: {analysis_dir / 'plan_latest.json'}")
+    print(f"Wrote plan: {plan_latest_path}")
     print(f"Wrote candidate: {candidate_path}")
-    print(f"Wrote report: {analysis_dir / 'report_latest.json'}")
+    print(f"Wrote report: {report_latest_path}")
 
     if not args.apply:
         print("dry-run: not overwriting canonical A-text (use --apply)")
@@ -827,4 +836,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
