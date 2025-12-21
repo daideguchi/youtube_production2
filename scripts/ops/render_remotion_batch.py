@@ -18,10 +18,24 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 
 from factory_common import paths as repo_paths
 from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock
