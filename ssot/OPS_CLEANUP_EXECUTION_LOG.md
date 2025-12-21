@@ -1135,3 +1135,32 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `git rm apps/remotion/out/belt_config.generated.json apps/remotion/out/belt_llm_raw.json`
 - 結果:
   - tracked ファイルを削除（以後は生成されても git に載らない）
+
+### 80) untracked キャッシュ（`__pycache__` / `.DS_Store`）を削除（safe）
+
+意図: Python の `__pycache__` や macOS の `.DS_Store` は参照されない探索ノイズ。複数エージェント並列運用では誤認の温床になるため、定期的に削除して良い（`AGENTS.md` 準拠）。
+
+- 実行:
+  - `find . -type d -name '__pycache__' -prune -exec rm -rf {} +`
+  - `find . -name '.DS_Store' -delete`
+- 結果:
+  - `__pycache__` dirs: 351 → 0
+  - `.DS_Store` files: 1 → 0
+
+### 81) `scripts/cleanup_workspace` で logs / symlinks / rebuildable audio を一括整理（lock尊重）
+
+意図: 台本/音声/動画の並列運用中に「どれが正本か」を誤認しやすい残骸だけを、安全条件（recent skip / keep-days / lock尊重）で除去する。削除ではなくアーカイブ/レポート生成を優先し、壊れたリンクと再生成可能 chunks を削る。
+
+- dry-run:
+  - `python3 -m scripts.cleanup_workspace --all --dry-run --logs --scripts --video-runs --broken-symlinks --audio --keep-recent-minutes 1440 --logs-keep-days 30 --scripts-keep-days 14 --video-keep-last-runs 2`
+- 実行:
+  - `python3 -m scripts.cleanup_workspace --all --run --yes --logs --scripts --video-runs --broken-symlinks --audio --keep-recent-minutes 1440 --logs-keep-days 30 --scripts-keep-days 14 --video-keep-last-runs 2`
+- 結果（主なもの）:
+  - broken symlinks（`capcut_draft`）: deleted=8 / skipped_locked=2
+  - logs: deleted=0（30日保持）
+  - video runs: archived=0（reportのみ生成）
+  - audio final chunks: deleted=1（`workspaces/audio/final/CH02/024/chunks` 約44.1MB）
+- レポート:
+  - `logs/regression/broken_symlinks/broken_symlinks_20251221T014947Z.json`
+  - `logs/regression/logs_cleanup/logs_cleanup_20251221T014947Z.json`
+  - `workspaces/video/_archive/20251221T014947Z/archive_report.json`
