@@ -5,6 +5,7 @@
 - リファクタリング時に **互換レイヤ（入口）から順に守る** ための索引にする。
 
 正本フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
+工程別の「使う/使わない（禁止）」: `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`
 
 ---
 
@@ -25,6 +26,9 @@
 
 ## 2. UI（運用の入口）
 
+- 起動（推奨）: `bash scripts/start_all.sh start`
+  - 内部で `apps/ui-backend/tools/start_manager.py` を呼び出し、必要な同期/ヘルスチェックも実施する。
+- ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py health --with-guards`
 - FastAPI backend: `apps/ui-backend/backend/main.py`（互換: `ui/backend/main.py` は symlink）
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
@@ -54,6 +58,8 @@
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 - Planning lint（決定論・混入検知）:
   - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
+- Planning sanitize（決定論・L3混入クリーナ。dry-runがデフォルト）:
+  - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時のみ `--apply`
 - Aテキスト lint（決定論・反復/禁則混入検知）:
   - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 - 長尺Aテキスト（セクション分割→合成）:
