@@ -1210,3 +1210,25 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 削除:
   - `scripts/run_pipeline_manual.py`（tracked）
   - `scripts/run_pipeline_skip_llm.py`（tracked）
+
+### 86) `scripts/*.md` の運用ドキュメントを SSOT Runbook へ移設（誤誘導除去）
+
+意図: `scripts/` 直下の `.md` は「実行スクリプトと混在」して探索ノイズ/誤誘導の温床になりやすい。  
+運用手順の正本は `ssot/agent_runbooks/` に集約し、低知能エージェントでも迷わない導線に寄せる。
+
+- 移設（git mv）:
+  - `scripts/cleanup_data.md` → `ssot/agent_runbooks/RUNBOOK_CLEANUP_DATA.md`
+  - `scripts/job_runner_service.md` → `ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md`
+- 参照更新:
+  - `ssot/agent_runbooks/README.md`（Runbook一覧に追記）
+  - `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`（Docs参照先を更新）
+
+### 87) `job_runner.service` を SSOT 側へ移設（常駐テンプレの置き場固定）
+
+意図: systemd unit テンプレは “運用資産” のため、Runbook 近傍に置くほうが安全。  
+`scripts/` 直下に置くと「実行スクリプト」と誤認されやすい。
+
+- 移設（git mv）:
+  - `scripts/job_runner.service` → `ssot/agent_runbooks/assets/job_runner.service`
+- 参照更新:
+  - `ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md`（systemd項目を追加）
