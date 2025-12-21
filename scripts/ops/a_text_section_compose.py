@@ -292,12 +292,32 @@ def _pick_core_episode(candidates: Any, title: str) -> Dict[str, Any]:
     return best or (candidates[0] if isinstance(candidates[0], dict) else {})
 
 
-def _a_text_rules_summary() -> str:
+def _a_text_rules_summary(meta: dict[str, Any]) -> str:
+    quote_max = None
+    paren_max = None
+    try:
+        quote_max = int((meta or {}).get("a_text_quote_marks_max") or 0) or None
+    except Exception:
+        quote_max = None
+    try:
+        paren_max = int((meta or {}).get("a_text_paren_marks_max") or 0) or None
+    except Exception:
+        paren_max = None
+
+    limit_hint = ""
+    if quote_max is not None or paren_max is not None:
+        parts: list[str] = []
+        if quote_max is not None:
+            parts.append(f"鉤括弧<= {quote_max}")
+        if paren_max is not None:
+            parts.append(f"丸括弧<= {paren_max}")
+        if parts:
+            limit_hint = " 上限目安: " + " / ".join(parts)
     return "\n".join(
         [
-            "- ポーズ記号は `---` のみ（1行単独）。他の区切り記号は禁止",
+            "- ポーズ記号は --- のみ。1行単独。ほかの区切り記号は禁止",
             "- 見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止",
-            "- `「」`/`『』`/`（）` は最小限（直接話法の連打を避ける）",
+            "- 鉤括弧と丸括弧は最小限。直接話法の連打を避ける。" + limit_hint,
             "- 根拠不明の統計/研究/固有名詞/数字断定はしない（一般化する）",
             "- 水増し禁止: 同趣旨の言い換え連打、抽象語の連打、雰囲気だけの段落",
             "- 作り話感の強い現代ストーリー（年齢/職業/台詞の作り込み）を避ける",
@@ -919,7 +939,7 @@ def main() -> int:
     planning_l1 = _planning_l1(st.metadata or {})
     persona = _sanitize_context(str(st.metadata.get("persona") or ""), max_chars=1200)
     channel_prompt = _sanitize_context(str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=1200)
-    a_text_rules = _a_text_rules_summary()
+    a_text_rules = _a_text_rules_summary(st.metadata or {})
 
     plan_obj = build_plan(channel=ch, title=title, meta=st.metadata or {})
     plan_latest_path = analysis_dir / "plan_latest.json"

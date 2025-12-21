@@ -73,8 +73,11 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
     stats: Dict[str, Any] = {
         "char_count": _a_text_char_count(normalized),
         "pause_lines": sum(1 for ln in lines if ln.strip() == "---"),
-        "quote_marks": normalized.count("「") + normalized.count("」"),
-        "paren_marks": normalized.count("（") + normalized.count("）"),
+        "quote_marks": normalized.count("「")
+        + normalized.count("」")
+        + normalized.count("『")
+        + normalized.count("』"),
+        "paren_marks": normalized.count("（") + normalized.count("）") + normalized.count("(") + normalized.count(")"),
     }
 
     if not normalized.strip():
@@ -102,20 +105,29 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
             }
         )
 
-    if stats["quote_marks"] > 20:
+    quote_max = _parse_int(metadata.get("a_text_quote_marks_max"))
+    if quote_max is None:
+        quote_max = 20
+    paren_max = _parse_int(metadata.get("a_text_paren_marks_max"))
+    if paren_max is None:
+        paren_max = 10
+    stats["quote_marks_max"] = quote_max
+    stats["paren_marks_max"] = paren_max
+
+    if stats["quote_marks"] > quote_max:
         issues.append(
             {
                 "code": "too_many_quotes",
-                "message": f"quote marks (「」) total {stats['quote_marks']} > 20",
-                "severity": "warning",
+                "message": f"quote marks (「」/『』) total {stats['quote_marks']} > max {quote_max}",
+                "severity": "error",
             }
         )
-    if stats["paren_marks"] > 10:
+    if stats["paren_marks"] > paren_max:
         issues.append(
             {
                 "code": "too_many_parentheses",
-                "message": f"parentheses (（）) total {stats['paren_marks']} > 10",
-                "severity": "warning",
+                "message": f"parentheses (（）/()) total {stats['paren_marks']} > max {paren_max}",
+                "severity": "error",
             }
         )
 
