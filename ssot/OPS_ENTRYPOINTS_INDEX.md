@@ -70,6 +70,11 @@
     - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
     - 正本: `configs/longform_block_templates.json`
   - SSOT: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`
+- Aテキスト補助（既存台本の修復・短尺補正）:
+  - sanitize（脚注/URLなどのメタ混入除去）:
+    - `python3 scripts/sanitize_a_text.py --channel CHxx --videos NNN --mode run`
+  - expand（短すぎる台本の増補。長尺はMarathon推奨）:
+    - `python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
 
 ### 3.2 Audio/TTS
 - `audio_tts_v2/scripts/run_tts.py`

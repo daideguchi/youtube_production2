@@ -391,6 +391,11 @@ def main() -> int:
     ap.add_argument("--max-quotes", type=int, help="Optional max quote marks count (「+」)")
     ap.add_argument("--max-parens", type=int, help="Optional max parentheses marks count (（）()+)")
     ap.add_argument("--mode", choices=["dry-run", "run"], default="dry-run")
+    ap.add_argument(
+        "--hint",
+        default="",
+        help="Optional extra quality instructions to append (e.g. remove poetic filler / avoid over-specific modern stories)",
+    )
     ap.add_argument("--max-attempts", type=int, default=4)
     ap.add_argument("--task", default="script_chapter_review", help="LLMRouter task name (default: script_chapter_review)")
     ap.add_argument("--max-tokens", type=int, default=8192)
@@ -477,6 +482,7 @@ def main() -> int:
             persona = _read_text(psp)
 
     planning_hint = ""
+    planning_row: Dict[str, str] | None = None
     # planning_csv is optional; do not fail expansion if missing
     csv_path = cfg.get("planning_csv")
     if csv_path:
@@ -493,6 +499,7 @@ def main() -> int:
                     for row in rows[1:]:
                         if len(row) > 2 and row[2].strip().zfill(3) == video:
                             rec = dict(zip(header, row))
+                            planning_row = rec
                             planning_hint = "\\n".join(
                                 s
                                 for s in [
@@ -607,6 +614,10 @@ def main() -> int:
                 + length_band
                 + "へ収めてください。"
             )
+
+        extra_hint = str(args.hint or "").strip()
+        if extra_hint:
+            delta_hint = (delta_hint.strip() + "\n\n追加の品質指示:\n" + extra_hint).strip()
 
         messages = _build_messages(
             channel=channel,
@@ -768,6 +779,26 @@ def main() -> int:
     a_path.write_text(draft, encoding="utf-8")
     mirror.parent.mkdir(parents=True, exist_ok=True)
     mirror.write_text(draft, encoding="utf-8")
+
+    # Re-stamp alignment to prevent downstream script_validation/audio gates from blocking.
+    try:
+        from factory_common.alignment import ALIGNMENT_SCHEMA, build_alignment_stamp
+        from script_pipeline.sot import load_status, save_status
+
+        if planning_row and (base / "status.json").exists():
+            st = load_status(channel, video)
+            stamp = build_alignment_stamp(planning_row=planning_row, script_path=a_path)
+            st.metadata["alignment"] = stamp.as_dict()
+            st.metadata["alignment"]["schema"] = ALIGNMENT_SCHEMA
+            try:
+                title = stamp.planning.get("title")
+                if isinstance(title, str) and title.strip():
+                    st.metadata["sheet_title"] = title.strip()
+            except Exception:
+                pass
+            save_status(st)
+    except Exception:
+        pass
 
     print(f"[OK] updated: {channel}-{video} chars={final_len}")
     print(f"[OK] backup: {backup_root}")

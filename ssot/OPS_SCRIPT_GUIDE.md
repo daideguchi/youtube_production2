@@ -92,6 +92,12 @@ UI側でも「詰まったらまずここ」を固定する。
   - `ssot/OPS_A_TEXT_GLOBAL_RULES.md`（禁則・TTS事故防止の下限）
   - `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`（字数合格だけを禁止。LLM Judge→Fixer の2段階）
 
+字数NG（短すぎ/長すぎ）への対処:
+- 原則: reset→再生成（混入/水増しの副作用が最小）
+- “軽い短尺補正” のみ許可する場合:
+  - `python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
+  - 実行後に `script_validation` を再実行して通す（長尺2〜3h級はMarathon推奨）
+
 ---
 
 ## 4. やり直し（Redo / Reset）
