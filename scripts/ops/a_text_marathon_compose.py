@@ -54,7 +54,9 @@ from packages.script_pipeline.validator import validate_a_text
 
 _TAG_RE = re.compile(r"【([^】]+)】")
 _EARLY_CLOSING_LINE_RE = re.compile(r"^(?:最後に|まとめると|結論として|おわりに|以上|最後は|最後です)[、。]")
-_CTA_PHRASE_RE = re.compile(r"(?:ご視聴ありがとうございました|チャンネル登録|高評価|通知|コメント)")
+_CTA_PHRASE_RE = re.compile(
+    r"(?:ご視聴ありがとうございました|チャンネル登録|高評価|通知(?:を)?オン|通知設定|ベル(?:を)?(?:鳴ら|オン|押)|コメント(?:欄)?(?:で|に)?(?:教えて|書いて|残して)|コメントお願いします)"
+)
 
 
 def _utc_now_compact() -> str:
@@ -425,13 +427,13 @@ def _assign_budgets(plan_chapters: list[PlanChapter], *, target_min: int, target
 def _validate_chapter_text(
     text: str,
     *,
-    base_meta: dict[str, Any],
+    meta: dict[str, Any],
     char_budget: int,
     min_ratio: float,
     max_ratio: float,
     closing_allowed: bool,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    meta = dict(base_meta or {})
+    meta = dict(meta or {})
     if char_budget > 0:
         meta["target_chars_min"] = int(round(char_budget * float(min_ratio)))
         meta["target_chars_max"] = int(round(char_budget * float(max_ratio)))
@@ -481,6 +483,8 @@ def _chapter_draft_prompt(
     previous_tail: str,
     quote_max: int,
     paren_max: int,
+    quote_total_max: int,
+    paren_total_max: int,
 ) -> str:
     must = "\n".join([f"- {m}" for m in (chapter.must_include or [])]) if chapter.must_include else "- (なし)"
     avoid = "\n".join([f"- {a}" for a in (chapter.avoid or [])]) if chapter.avoid else "- (なし)"
@@ -491,6 +495,17 @@ def _chapter_draft_prompt(
         else "この章は途中章なので、まとめ/結論/最後に/締めの挨拶は禁止（終わり感を出さない）。"
     )
 
+    quote_rule = (
+        "この章では `「」`/`『』` を一切使わない（0個）。"
+        if int(quote_max) <= 0
+        else f"この章の `「」`/`『』` は合計 {int(quote_max)} 個以内（可能なら0）。"
+    )
+    paren_rule = (
+        "この章では `（）`/`()` を一切使わない（0個）。"
+        if int(paren_max) <= 0
+        else f"この章の `（）`/`()` は合計 {int(paren_max)} 個以内（可能なら0）。"
+    )
+
     return (
         "あなたは日本語のYouTubeナレーション台本（Aテキスト）作家です。\n"
         "超長尺（2〜3時間級）を章分割で安定して書きます。\n"
@@ -499,7 +514,8 @@ def _chapter_draft_prompt(
         f"【章】{chapter.chapter}/{chapter_count}（Block {chapter.block}: {chapter.block_title}）\n"
         f"【この章のゴール】\n{chapter.goal}\n\n"
         f"【目標文字数（改行/空白除外の目安）】約{chapter.char_budget}字\n"
-        f"【記号上限（ハード）】「」/『』 合計<= {quote_max} / （） 合計<= {paren_max}\n\n"
+        f"【記号上限（全体→章予算）】全体:「」/『』<= {quote_total_max} / （）<= {paren_total_max} ｜ "
+        f"この章:「」/『』<= {quote_max} / （）<= {paren_max}\n\n"
         "【コアメッセージ（全章でブレない）】\n"
         + (core_message.strip() or "(空)")
         + "\n\n"
@@ -521,6 +537,8 @@ def _chapter_draft_prompt(
         "【執筆ルール（厳守）】\n"
         "- 出力は本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止）。\n"
         "- 区切り記号は本文に入れない（`---` は後でブロック境界にだけ入れる）。\n"
+        f"- {quote_rule} 引用や強調は地の文で言い換える。\n"
+        f"- {paren_rule}\n"
         "- 同趣旨の言い換えで水増ししない。厚みは理解が増える具体で作る。\n"
         "- 現代の人物例（年齢/職業/台詞の作り込み）は入れない（全体事故の原因）。\n"
         "- 根拠不明の統計/研究/固有名詞/数字断定で説得力を作らない。\n"
@@ -530,7 +548,17 @@ def _chapter_draft_prompt(
     )
 
 
-def _chapter_rewrite_prompt(*, title: str, base_prompt: str, issues: list[dict[str, Any]]) -> str:
+def _chapter_rewrite_prompt(
+    *,
+    title: str,
+    base_prompt: str,
+    issues: list[dict[str, Any]],
+    previous_draft: str,
+    target_min: int | None,
+    target_max: int | None,
+    retry_round: int,
+    retry_total: int,
+) -> str:
     lines: list[str] = []
     for it in (issues or [])[:12]:
         if not isinstance(it, dict):
@@ -541,13 +569,40 @@ def _chapter_rewrite_prompt(*, title: str, base_prompt: str, issues: list[dict[s
         loc = f" (line {ln})" if isinstance(ln, int) else ""
         lines.append(f"- {code}{loc}: {msg}")
     issues_txt = "\n".join(lines) if lines else "- (no details)"
+    has_quotes_issue = any(isinstance(it, dict) and str(it.get("code") or "") == "too_many_quotes" for it in (issues or []))
+    has_paren_issue = any(
+        isinstance(it, dict) and str(it.get("code") or "") == "too_many_parentheses" for it in (issues or [])
+    )
+    has_too_long = any(isinstance(it, dict) and str(it.get("code") or "") == "length_too_long" for it in (issues or []))
+    has_too_short = any(isinstance(it, dict) and str(it.get("code") or "") == "length_too_short" for it in (issues or []))
+    extra_fix_rules: list[str] = []
+    if has_quotes_issue:
+        extra_fix_rules.append("- `「」`/`『』` を0個にする（強調は地の文へ）")
+    if has_paren_issue:
+        extra_fix_rules.append("- `（）`/`()` を0個にする（補足は地の文へ）")
+    if has_too_long and target_max is not None:
+        extra_fix_rules.append(f"- 文字数を {int(target_max)} 以下に収める（冗長な言い換え/導入を削る）")
+    if has_too_short and target_min is not None:
+        extra_fix_rules.append(f"- 文字数を {int(target_min)} 以上に増やす（具体を追加し、水増しはしない）")
+    extra_rules = "\n".join(extra_fix_rules) if extra_fix_rules else "- (なし)"
+    target_line = ""
+    if target_min is not None or target_max is not None:
+        target_line = f"{int(target_min or 0)}〜{int(target_max or 0)}字"
     return (
         "あなたは日本語のYouTubeナレーション台本（Aテキスト）作家です。\n"
+        f"これはリトライ {retry_round}/{retry_total} です。\n"
         "先ほどの章草稿に機械的な禁則違反があるため、同じ章を本文だけで書き直してください。\n"
         "説明は禁止。本文のみ。\n\n"
         f"【企画タイトル】\n{title}\n\n"
-        "【検出された不備（修正必須）】\n"
+        + (f"【目標文字数】{target_line}\n\n" if target_line else "")
+        + "【検出された不備（修正必須）】\n"
         + issues_txt
+        + "\n\n"
+        "【追加の修正ルール（今回だけ強制）】\n"
+        + extra_rules
+        + "\n\n"
+        "【前回の草稿（参考。コピー禁止。表現の焼き直し禁止）】\n"
+        + _sanitize_context(previous_draft, max_chars=2600)
         + "\n\n"
         "【元の執筆指示（再掲）】\n"
         + base_prompt
@@ -583,9 +638,12 @@ def main() -> int:
     ap.add_argument("--per-chapter-aim", type=int, default=1200)
     ap.add_argument("--apply", action="store_true", help="Write canonical chapters + assembled.md")
     ap.add_argument("--plan-only", action="store_true", help="Only create plan.json (no drafting)")
+    ap.add_argument("--force-plan", action="store_true", help="Re-generate plan even if plan.json already exists")
     ap.add_argument("--chapter-max-tries", type=int, default=2)
-    ap.add_argument("--chapter-min-ratio", type=float, default=0.75)
-    ap.add_argument("--chapter-max-ratio", type=float, default=1.35)
+    ap.add_argument("--chapter-min-ratio", type=float, default=0.7)
+    ap.add_argument("--chapter-max-ratio", type=float, default=1.6)
+    ap.add_argument("--chapter-quote-max", type=int, default=0, help="Per-chapter max for 「」/『』 (default: 0)")
+    ap.add_argument("--chapter-paren-max", type=int, default=0, help="Per-chapter max for （）/() (default: 0)")
     ap.add_argument("--plan-max-tries", type=int, default=2, help="Max attempts for plan JSON schema validation")
     ap.add_argument("--max-tokens", type=int, default=4096)
     ap.add_argument("--temperature", type=float, default=0.25)
@@ -649,113 +707,206 @@ def main() -> int:
     plan_meta_path = analysis_dir / "plan__llm_meta.json"
 
     # 1) Plan (LLM JSON) — prerequisite for stable chapter goals.
-    plan_messages = _build_plan_prompt(
-        title=title,
-        target_min=tmin,
-        target_max=tmax,
-        chapter_count=chapter_count,
-        blocks=blocks,
-        persona=persona,
-        channel_prompt=channel_prompt,
-        core_message_hint=core_message_hint,
-    )
-    plan_llm_meta: dict[str, Any] = {}
-    plan_obj: dict[str, Any] | None = None
-    core_message = ""
-    plan_chapters_raw: list[PlanChapter] | None = None
-    plan_max_tries = max(1, int(args.plan_max_tries))
-    plan_tokens = max(2200, min(5200, 800 + int(chapter_count) * 60))
+    reused_existing_plan = False
+    existing_drafts = list(chapters_dir.glob("chapter_[0-9][0-9][0-9].md"))
+    if plan_path.exists() and existing_drafts and (not args.plan_only) and (not args.force_plan):
+        try:
+            existing_obj = json.loads(plan_path.read_text(encoding="utf-8"))
+            if not isinstance(existing_obj, dict):
+                raise ValueError("plan.json is not an object")
+            existing_blocks = existing_obj.get("blocks")
+            if isinstance(existing_blocks, list) and existing_blocks:
+                blocks = existing_blocks  # preserve previous block layout for resume
+            existing_chapter_count = int(existing_obj.get("chapter_count") or 0)
+            if existing_chapter_count != int(chapter_count):
+                raise ValueError(f"plan chapter_count mismatch: {existing_chapter_count} != {chapter_count}")
+            existing_tmin = int(existing_obj.get("target_chars_min") or 0)
+            existing_tmax = int(existing_obj.get("target_chars_max") or 0)
+            if existing_tmin and existing_tmax and (existing_tmin != tmin or existing_tmax != tmax):
+                raise ValueError(f"plan target mismatch: {existing_tmin}-{existing_tmax} != {tmin}-{tmax}")
+            core_message, plan_chapters_raw = _parse_plan_json(existing_obj, blocks=blocks, chapter_count=chapter_count)
+            plan_chapters = _assign_budgets(plan_chapters_raw, target_min=tmin, target_max=tmax)
+            plan = Plan(
+                schema=str(existing_obj.get("schema") or "ytm.longform_plan.v1"),
+                generated_at=str(existing_obj.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+                title=str(existing_obj.get("title") or title),
+                channel=ch,
+                video=no,
+                target_chars_min=tmin,
+                target_chars_max=tmax,
+                chapter_count=chapter_count,
+                blocks=blocks,
+                chapters=plan_chapters,
+                core_message=core_message or str(existing_obj.get("core_message") or core_message_hint),
+            )
+            reused_existing_plan = True
+            print(f"[MARATHON] reusing existing plan: {plan_path}")
+        except Exception as exc:
+            print(f"[MARATHON] existing plan ignored (will re-generate): {exc}")
 
-    for attempt in range(1, plan_max_tries + 1):
-        plan_text, plan_llm_meta = _call_llm_text(
-            task="script_a_text_rebuild_plan",
-            messages=plan_messages,
-            max_tokens=int(plan_tokens),
-            temperature=0.2,
-            response_format="json_object",
+    if not reused_existing_plan:
+        plan_messages = _build_plan_prompt(
+            title=title,
+            target_min=tmin,
+            target_max=tmax,
+            chapter_count=chapter_count,
+            blocks=blocks,
+            persona=persona,
+            channel_prompt=channel_prompt,
+            core_message_hint=core_message_hint,
+        )
+        plan_llm_meta: dict[str, Any] = {}
+        plan_obj: dict[str, Any] | None = None
+        core_message = ""
+        plan_chapters_raw: list[PlanChapter] | None = None
+        plan_max_tries = max(1, int(args.plan_max_tries))
+        plan_tokens = max(2200, min(5200, 800 + int(chapter_count) * 60))
+
+        for attempt in range(1, plan_max_tries + 1):
+            plan_text, plan_llm_meta = _call_llm_text(
+                task="script_a_text_rebuild_plan",
+                messages=plan_messages,
+                max_tokens=int(plan_tokens),
+                temperature=0.2,
+                response_format="json_object",
+            )
+
+            if plan_text is None:
+                # Agent/think mode: pending plan task created.
+                plan_meta_path.write_text(json.dumps(plan_llm_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                print("[MARATHON] plan is pending (agent/think mode).")
+                print(f"- pending: {plan_llm_meta.get('pending_path')}")
+                print("- next: rerun this command after completing the task via scripts/agent_runner.py")
+                return 2
+
+            raw_path = analysis_dir / f"plan_raw_attempt_{attempt:02d}.json"
+            raw_path.write_text(plan_text.strip() + "\n", encoding="utf-8")
+
+            try:
+                obj = json.loads(plan_text)
+                if not isinstance(obj, dict):
+                    raise ValueError("plan JSON is not an object")
+                cm, chapters = _parse_plan_json(obj, blocks=blocks, chapter_count=chapter_count)
+                plan_obj = obj
+                core_message = cm
+                plan_chapters_raw = chapters
+                break
+            except Exception as exc:
+                if attempt >= plan_max_tries:
+                    raise SystemExit(f"Invalid plan schema: {exc}")
+                # Strengthen with a short corrective message; avoid retry spam.
+                plan_messages = plan_messages + [
+                    {
+                        "role": "user",
+                        "content": (
+                            "前回の出力が要件違反でした。次は必ず条件を満たす JSON オブジェクトのみを返してください。\n"
+                            f"- chapters: {chapter_count} 件ちょうど\n"
+                            f"- chapter: 1..{chapter_count} の連番（欠番/重複/余剰なし）\n"
+                            "- 各章に block, block_title, goal, must_include(list), avoid(list) を必ず含める\n"
+                            f"(違反理由: {exc})\n"
+                        ),
+                    }
+                ]
+
+        if plan_obj is None or plan_chapters_raw is None:
+            raise SystemExit("Failed to obtain a valid plan")
+
+        plan_chapters = _assign_budgets(plan_chapters_raw, target_min=tmin, target_max=tmax)
+        plan = Plan(
+            schema="ytm.longform_plan.v1",
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            title=title,
+            channel=ch,
+            video=no,
+            target_chars_min=tmin,
+            target_chars_max=tmax,
+            chapter_count=chapter_count,
+            blocks=blocks,
+            chapters=plan_chapters,
+            core_message=core_message or core_message_hint,
         )
 
-        if plan_text is None:
-            # Agent/think mode: pending plan task created.
-            plan_meta_path.write_text(json.dumps(plan_llm_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            print("[MARATHON] plan is pending (agent/think mode).")
-            print(f"- pending: {plan_llm_meta.get('pending_path')}")
-            print("- next: rerun this command after completing the task via scripts/agent_runner.py")
-            return 2
-
-        raw_path = analysis_dir / f"plan_raw_attempt_{attempt:02d}.json"
-        raw_path.write_text(plan_text.strip() + "\n", encoding="utf-8")
-
-        try:
-            obj = json.loads(plan_text)
-            if not isinstance(obj, dict):
-                raise ValueError("plan JSON is not an object")
-            cm, chapters = _parse_plan_json(obj, blocks=blocks, chapter_count=chapter_count)
-            plan_obj = obj
-            core_message = cm
-            plan_chapters_raw = chapters
-            break
-        except Exception as exc:
-            if attempt >= plan_max_tries:
-                raise SystemExit(f"Invalid plan schema: {exc}")
-            # Strengthen with a short corrective message; avoid retry spam.
-            plan_messages = plan_messages + [
-                {
-                    "role": "user",
-                    "content": (
-                        "前回の出力が要件違反でした。次は必ず条件を満たす JSON オブジェクトのみを返してください。\n"
-                        f"- chapters: {chapter_count} 件ちょうど\n"
-                        f"- chapter: 1..{chapter_count} の連番（欠番/重複/余剰なし）\n"
-                        "- 各章に block, block_title, goal, must_include(list), avoid(list) を必ず含める\n"
-                        f"(違反理由: {exc})\n"
-                    ),
-                }
-            ]
-
-    if plan_obj is None or plan_chapters_raw is None:
-        raise SystemExit("Failed to obtain a valid plan")
-
-    plan_chapters = _assign_budgets(plan_chapters_raw, target_min=tmin, target_max=tmax)
-    plan = Plan(
-        schema="ytm.longform_plan.v1",
-        generated_at=datetime.now(timezone.utc).isoformat(),
-        title=title,
-        channel=ch,
-        video=no,
-        target_chars_min=tmin,
-        target_chars_max=tmax,
-        chapter_count=chapter_count,
-        blocks=blocks,
-        chapters=plan_chapters,
-        core_message=core_message or core_message_hint,
-    )
-
-    plan_path.write_text(json.dumps(plan.as_json(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    plan_latest.write_text(json.dumps(plan.as_json(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    plan_meta_path.write_text(json.dumps(plan_llm_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        plan_path.write_text(json.dumps(plan.as_json(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        plan_latest.write_text(json.dumps(plan.as_json(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        plan_meta_path.write_text(json.dumps(plan_llm_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     if args.plan_only:
         print(f"[MARATHON] wrote plan: {plan_path}")
         return 0
 
     # 2) Draft chapters sequentially (uses previous tail for coherence).
-    quote_max = int(st.metadata.get("a_text_quote_marks_max") or 20)
-    paren_max = int(st.metadata.get("a_text_paren_marks_max") or 10)
+    quote_total_max = int(st.metadata.get("a_text_quote_marks_max") or 20)
+    paren_total_max = int(st.metadata.get("a_text_paren_marks_max") or 10)
 
     base_meta = dict(st.metadata or {})
-    base_meta["a_text_quote_marks_max"] = quote_max
-    base_meta["a_text_paren_marks_max"] = paren_max
+    base_meta["a_text_quote_marks_max"] = quote_total_max
+    base_meta["a_text_paren_marks_max"] = paren_total_max
 
     drafted: list[tuple[PlanChapter, str]] = []
     previous_tail = ""
+    quotes_remaining = int(quote_total_max)
+    paren_remaining = int(paren_total_max)
 
-    for chapter in plan.chapters:
+    forced_quote_max = max(0, int(args.chapter_quote_max))
+    forced_paren_max = max(0, int(args.chapter_paren_max))
+
+    for idx, chapter in enumerate(plan.chapters, start=1):
+        remaining_chapters = max(1, int(plan.chapter_count) - idx + 1)
+        chapter_quote_budget = max(0, int(quotes_remaining) // remaining_chapters)
+        chapter_paren_budget = max(0, int(paren_remaining) // remaining_chapters)
+        if forced_quote_max >= 0:
+            chapter_quote_budget = min(int(chapter_quote_budget), int(forced_quote_max))
+        if forced_paren_max >= 0:
+            chapter_paren_budget = min(int(chapter_paren_budget), int(forced_paren_max))
+
+        chapter_meta = dict(base_meta)
+        chapter_meta["a_text_quote_marks_max"] = int(chapter_quote_budget)
+        chapter_meta["a_text_paren_marks_max"] = int(chapter_paren_budget)
+
         out_path = chapters_dir / f"chapter_{chapter.chapter:03d}.md"
         if out_path.exists() and out_path.stat().st_size > 0:
             text = out_path.read_text(encoding="utf-8").strip()
-            drafted.append((chapter, text))
-            previous_tail = text[-320:] if text else previous_tail
-            continue
+            issues, stats = _validate_chapter_text(
+                text,
+                meta=chapter_meta,
+                char_budget=chapter.char_budget,
+                min_ratio=float(args.chapter_min_ratio),
+                max_ratio=float(args.chapter_max_ratio),
+                closing_allowed=chapter.closing_allowed,
+            )
+            hard = [it for it in issues if str(it.get("severity") or "error").lower() != "warning"]
+            if not hard:
+                drafted.append((chapter, text))
+                previous_tail = text[-320:] if text else previous_tail
+                quotes_remaining = max(0, int(quotes_remaining) - int(stats.get("quote_marks") or 0))
+                paren_remaining = max(0, int(paren_remaining) - int(stats.get("paren_marks") or 0))
+                continue
+
+            # Preserve the previous draft for diff/audit, then re-generate this chapter.
+            replaced_suffix = _utc_now_compact()
+            replaced_path = chapters_dir / f"chapter_{chapter.chapter:03d}__replaced_{replaced_suffix}.md"
+            out_path.rename(replaced_path)
+            (chapters_dir / f"chapter_{chapter.chapter:03d}__replaced_{replaced_suffix}__validation.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "ytm.longform_chapter_validation.v1",
+                        "generated_at": datetime.now(timezone.utc).isoformat(),
+                        "channel": ch,
+                        "video": no,
+                        "chapter": chapter.chapter,
+                        "attempt": 0,
+                        "ok": False,
+                        "stats": stats,
+                        "issues": issues,
+                        "note": "existing draft did not meet current constraints; replaced for regeneration",
+                        "replaced_path": str(replaced_path),
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
 
         prompt_base = _chapter_draft_prompt(
             title=title,
@@ -765,13 +916,16 @@ def main() -> int:
             channel_prompt=channel_prompt,
             core_message=plan.core_message,
             previous_tail=previous_tail,
-            quote_max=quote_max,
-            paren_max=paren_max,
+            quote_max=chapter_quote_budget,
+            paren_max=chapter_paren_budget,
+            quote_total_max=quote_total_max,
+            paren_total_max=paren_total_max,
         )
         messages = [{"role": "user", "content": prompt_base}]
 
         text: str | None = None
         llm_meta: dict[str, Any] | None = None
+        accepted_stats: dict[str, Any] | None = None
         for attempt in range(1, max(1, int(args.chapter_max_tries)) + 1):
             chapter_text, meta = _call_llm_text(
                 task="script_chapter_draft",
@@ -805,7 +959,7 @@ def main() -> int:
 
             issues, stats = _validate_chapter_text(
                 chapter_text,
-                base_meta=base_meta,
+                meta=chapter_meta,
                 char_budget=chapter.char_budget,
                 min_ratio=float(args.chapter_min_ratio),
                 max_ratio=float(args.chapter_max_ratio),
@@ -814,13 +968,56 @@ def main() -> int:
             hard = [it for it in issues if str(it.get("severity") or "error").lower() != "warning"]
             if not hard:
                 text = chapter_text.strip()
+                accepted_stats = stats
                 break
 
+            # Record invalid attempt for debugging (analysis-only; does not touch canonical SoT).
+            invalid_text_path = chapters_dir / f"chapter_{chapter.chapter:03d}__attempt_{attempt:02d}__invalid.md"
+            invalid_report_path = chapters_dir / f"chapter_{chapter.chapter:03d}__attempt_{attempt:02d}__validation.json"
+            invalid_text_path.write_text(chapter_text.strip() + "\n", encoding="utf-8")
+            invalid_report_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "ytm.longform_chapter_validation.v1",
+                        "generated_at": datetime.now(timezone.utc).isoformat(),
+                        "channel": ch,
+                        "video": no,
+                        "chapter": chapter.chapter,
+                        "attempt": attempt,
+                        "ok": False,
+                        "stats": stats,
+                        "issues": issues,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
             # Rewrite with explicit issues (same task, new prompt).
-            messages = [{"role": "user", "content": _chapter_rewrite_prompt(title=title, base_prompt=prompt_base, issues=hard)}]
+            retry_round = min(attempt + 1, max(1, int(args.chapter_max_tries)))
+            messages = [
+                {
+                    "role": "user",
+                    "content": _chapter_rewrite_prompt(
+                        title=title,
+                        base_prompt=prompt_base,
+                        issues=hard,
+                        previous_draft=chapter_text,
+                        target_min=stats.get("target_chars_min"),
+                        target_max=stats.get("target_chars_max"),
+                        retry_round=retry_round,
+                        retry_total=max(1, int(args.chapter_max_tries)),
+                    ),
+                }
+            ]
 
         if not text:
-            raise SystemExit(f"Failed to draft chapter {chapter.chapter:03d} within max tries")
+            raise SystemExit(
+                f"Failed to draft chapter {chapter.chapter:03d} within max tries. "
+                f"See invalid attempts under: {chapters_dir}"
+            )
 
         out_path.write_text(text.strip() + "\n", encoding="utf-8")
         if llm_meta:
@@ -830,6 +1027,15 @@ def main() -> int:
 
         drafted.append((chapter, text.strip()))
         previous_tail = text.strip()[-320:]
+        if accepted_stats is None:
+            # Fallback (should not happen): keep budgets conservative.
+            used_quotes = sum(text.count(ch) for ch in ("「", "」", "『", "』"))
+            used_paren = sum(text.count(ch) for ch in ("（", "）"))
+        else:
+            used_quotes = int(accepted_stats.get("quote_marks") or 0)
+            used_paren = int(accepted_stats.get("paren_marks") or 0)
+        quotes_remaining = max(0, int(quotes_remaining) - used_quotes)
+        paren_remaining = max(0, int(paren_remaining) - used_paren)
 
     # 3) Assemble and validate whole script (still in analysis dir).
     assembled = _assemble_with_block_pauses(drafted, pause_between_blocks=bool(args.pause_between_blocks))
