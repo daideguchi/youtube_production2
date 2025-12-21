@@ -1198,3 +1198,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 削除:
   - `scripts/verify_router_azure.py`（tracked）
   - `scripts/verify_azure_direct.py`（tracked）
+
+### 85) 旧パイプライン手動runnerを削除（archive-first / ハードコード除去）
+
+意図: `scripts/run_pipeline_manual.py` / `scripts/run_pipeline_skip_llm.py` は旧 `srt2images` 直叩き・ハードコード（特定CH/固定パス）を含み、現行フローの正本と乖離して誤誘導の温床になる。現行は `commentary_02_srt2images_timeline/tools/*` が正本のため、archive-first で削除する。
+
+- 参照確認:
+  - `rg -n "run_pipeline_manual\\.py|run_pipeline_skip_llm\\.py" -S .`（Path inventory以外の参照なし）
+- アーカイブ:
+  - `backups/graveyard/20251221T215103Z__scripts_legacy_pipeline_runners.tar.gz`
+- 削除:
+  - `scripts/run_pipeline_manual.py`（tracked）
+  - `scripts/run_pipeline_skip_llm.py`（tracked）
