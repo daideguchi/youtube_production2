@@ -101,7 +101,7 @@ def _check_episode(row: dict[str, str], *, channel: str) -> EpisodeCheck:
     if not script_path:
         return EpisodeCheck(channel=channel, video=video, ok_to_stamp=False, reason="台本が存在しません")
 
-    # Heuristic: if bracket-topic never overlaps, treat as suspect (likely planning drift).
+    # Deterministic safety gate: flag obvious planning mismatches (cheap, no network).
     try:
         preview = script_path.read_text(encoding="utf-8")[:6000]
     except Exception:

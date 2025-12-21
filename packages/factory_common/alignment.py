@@ -12,7 +12,6 @@ from typing import Any, Dict, Iterable, Optional
 ALIGNMENT_SCHEMA = "ytm.alignment.v1"
 
 _THUMB_CATCH_RE = re.compile(r"『([^』]+)』")
-_TITLE_BRACKET_RE = re.compile(r"【([^】]+)】")
 _TOKEN_RE = re.compile(r"[一-龯]{2,}|[ぁ-ん]{2,}|[ァ-ヴー]{2,}|[A-Za-z0-9]{2,}")
 
 # Conservative stopwords to avoid over-reporting mismatches.
@@ -132,17 +131,6 @@ def _tokenize(text: str) -> set[str]:
     return tokens
 
 
-def extract_bracket_topic(title: str | None) -> Optional[str]:
-    t = (title or "").strip()
-    if not t:
-        return None
-    m = _TITLE_BRACKET_RE.search(t)
-    if not m:
-        return None
-    topic = (m.group(1) or "").strip()
-    return topic or None
-
-
 def title_script_token_overlap_ratio(title: str | None, script_text: str | None) -> float:
     title_tokens = _tokenize(title or "")
     if not title_tokens:
@@ -152,17 +140,6 @@ def title_script_token_overlap_ratio(title: str | None, script_text: str | None)
         return 0.0
     overlap = title_tokens & script_tokens
     return len(overlap) / max(len(title_tokens), 1)
-
-
-def bracket_topic_overlaps(title: str | None, script_text: str | None) -> bool:
-    topic = extract_bracket_topic(title)
-    if not topic:
-        return True
-    topic_tokens = _tokenize(topic)
-    if not topic_tokens:
-        return True
-    script_tokens = _tokenize((script_text or "")[:6000])
-    return bool(topic_tokens & script_tokens)
 
 
 def alignment_suspect_reason(planning_row: Dict[str, Any], script_text_preview: str | None) -> Optional[str]:
