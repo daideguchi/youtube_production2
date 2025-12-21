@@ -56,7 +56,7 @@
 - `README.md`
 - `packages/audio_tts_v2/scripts/run_tts.py`
 - `packages/script_pipeline/README.md`
-- `scripts/job_runner_service.md`（Docs）
+- `ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md`（Docs）
 - `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`（Docs）
 - `ssot/DATA_LAYOUT.md`（Docs）
 - `ssot/OPS_AGENT_PLAYBOOK.md`（Docs）

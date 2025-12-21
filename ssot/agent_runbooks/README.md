@@ -36,6 +36,8 @@
 - `RUNBOOK_AUDIO_TTS.md`: 音声/TTS（tts_*）
 - `RUNBOOK_JOB_SCRIPT_PIPELINE.md`: 台本生成（end-to-end）
 - `RUNBOOK_JOB_AUDIO_TTS_PIPELINE.md`: 音声生成（end-to-end）
+- `RUNBOOK_JOB_RUNNER_DAEMON.md`: `script_pipeline.job_runner` 常駐（launchd/cron）
 - `RUNBOOK_VISUAL_CUES_PLAN.md`: srt2images の cues 計画（visual_image_cues_plan）
 - `RUNBOOK_THINK_MODE_OPERATOR.md`: THINK MODEのループ運用
 - `RUNBOOK_AGENT_ORG_COORDINATION.md`: Orchestrator + Workers の協調運用
+- `RUNBOOK_CLEANUP_DATA.md`: `workspaces/scripts` の中間物/ログ整理
