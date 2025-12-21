@@ -1164,3 +1164,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `logs/regression/broken_symlinks/broken_symlinks_20251221T014947Z.json`
   - `logs/regression/logs_cleanup/logs_cleanup_20251221T014947Z.json`
   - `workspaces/video/_archive/20251221T014947Z/archive_report.json`
+
+### 82) ブッダ系シニア 5ch 立ち上げキットを削除（archive-first / 誤誘導除去）
+
+意図: `workspaces/planning/buddha_senior_5ch_setup.md` は現行SoTフローで参照されず、かつ CH12 の「8パート固定」など誤誘導の温床になっていたため、探索ノイズ削減のために archive-first で削除する。
+
+- 参照確認:
+  - `rg -n "buddha_senior_5ch_setup\\.md" -S .`（history以外の参照なし）
+- アーカイブ:
+  - `backups/graveyard/20251221T072310Z__workspaces_planning_buddha_senior_5ch_setup_md.tar.gz`
+- 削除:
+  - `workspaces/planning/buddha_senior_5ch_setup.md`（tracked）
