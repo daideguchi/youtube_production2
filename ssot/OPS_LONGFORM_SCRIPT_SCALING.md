@@ -165,10 +165,12 @@
 ### Phase 1（小さな追加: opsツールでMarathon生成）
 - `scripts/ops/a_text_marathon_compose.py`（新規）として、上記 4.3/4.4 を実装。
 - 既存の `content/chapters/` を生成し、`script_review` 相当の結合を行い、`assembled_human.md` を更新する。
-- 実装上のデフォルト（運用の事故を減らすため）:
+  - 実装上のデフォルト（運用の事故を減らすため）:
   - 章ドラフトの `「」`/`『』` と `（）`/`()` は **0個（禁止）**（強調/引用は地の文で言い換える）
     - 必要なら `--chapter-quote-max` / `--chapter-paren-max` で緩和
   - 章の字数は「章予算×(0.7〜1.6)」の範囲で判定し、最終的には全文を `target_chars_min/max` で確定チェックする（章だけで収束させない）
+  - 全文が `target_chars_max` を超えた場合は `--balance-length`（デフォルトON）で **長い章だけ短縮**して収束させる（全文をLLMに渡さない）
+  - `--title ... --apply` を使う場合、`status.json` の `sheet_title/expected_title/title` も上書きして下流の整合チェックを壊さない
 
 ### Phase 2（本命: script_pipelineにMarathonモード統合）
 - `configs/sources.yaml` に “profile/length_mode” を導入し、エピソード単位で `chapter_count/target_chars` を切替可能にする。

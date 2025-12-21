@@ -23,6 +23,7 @@ Related SSOT:
 from __future__ import annotations
 
 import argparse
+import math
 import json
 import os
 import re
@@ -57,6 +58,25 @@ _EARLY_CLOSING_LINE_RE = re.compile(r"^(?:最後に|まとめると|結論とし
 _CTA_PHRASE_RE = re.compile(
     r"(?:ご視聴ありがとうございました|チャンネル登録|高評価|通知(?:を)?オン|通知設定|ベル(?:を)?(?:鳴ら|オン|押)|コメント(?:欄)?(?:で|に)?(?:教えて|書いて|残して)|コメントお願いします)"
 )
+
+def _soften_premature_closing_phrases(text: str) -> str:
+    """
+    Deterministic micro-fix for common mid-script phrasing that triggers premature closing checks.
+    This is intentionally conservative (no paraphrasing) to avoid "retry spam" and choppy scripts.
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    out_lines: list[str] = []
+    for line in normalized.split("\n"):
+        stripped = line.lstrip()
+        indent = line[: len(line) - len(stripped)]
+        if stripped.startswith("最後に"):
+            rest = stripped[len("最後に") :].lstrip()
+            if rest.startswith("、") or rest.startswith(","):
+                rest = rest[1:].lstrip()
+            out_lines.append(indent + "もう一つは、" + rest)
+            continue
+        out_lines.append(line)
+    return "\n".join(out_lines)
 
 
 def _utc_now_compact() -> str:
@@ -624,6 +644,46 @@ def _assemble_with_block_pauses(chapters: list[tuple[PlanChapter, str]], *, paus
     return "\n".join(out).strip() + "\n"
 
 
+def _chapter_shrink_prompt(
+    *,
+    title: str,
+    chapter: PlanChapter,
+    chapter_count: int,
+    persona: str,
+    channel_prompt: str,
+    core_message: str,
+    previous_tail: str,
+    target_min: int,
+    target_max: int,
+    draft_text: str,
+) -> str:
+    return (
+        "あなたは日本語のYouTubeナレーション台本（Aテキスト）作家です。\n"
+        "章本文を「内容を変えずに短く」整形する役です。\n\n"
+        f"【企画タイトル】\n{title}\n\n"
+        f"【章】{chapter.chapter}/{chapter_count}（Block {chapter.block}: {chapter.block_title}）\n"
+        f"【この章のゴール】\n{chapter.goal}\n\n"
+        f"【目標文字数（改行/空白除外）】{target_min}〜{target_max}字\n\n"
+        "【コアメッセージ（全章でブレない）】\n"
+        + (core_message.strip() or "(空)")
+        + "\n\n"
+        "【直前章の末尾（文脈。コピー禁止）】\n"
+        + (_sanitize_context(previous_tail, max_chars=320) if previous_tail else "(なし)")
+        + "\n\n"
+        "【短縮ルール（厳守）】\n"
+        "- 新しい情報を増やさない（言い換え/重複/余談を削る）。\n"
+        "- 意味は変えずに、文を短くし、同じ趣旨の繰り返しを消す。\n"
+        "- `「」`/`『』` と `（）`/`()` は 0 個。\n"
+        "- 見出し/箇条書き/番号リスト/URL/脚注/区切り `---` を入れない。\n"
+        "- 途中章の締め言葉（まとめ/結論/最後に/挨拶）は入れない。\n"
+        "\n"
+        "【元の章本文】\n"
+        + _sanitize_context(draft_text, max_chars=5200)
+        + "\n\n"
+        "短縮後の本文のみを出力してください。\n"
+    )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--channel", required=True)
@@ -645,6 +705,23 @@ def main() -> int:
     ap.add_argument("--chapter-quote-max", type=int, default=0, help="Per-chapter max for 「」/『』 (default: 0)")
     ap.add_argument("--chapter-paren-max", type=int, default=0, help="Per-chapter max for （）/() (default: 0)")
     ap.add_argument("--plan-max-tries", type=int, default=2, help="Max attempts for plan JSON schema validation")
+    balance_group = ap.add_mutually_exclusive_group()
+    balance_group.add_argument(
+        "--balance-length",
+        dest="balance_length",
+        action="store_true",
+        default=True,
+        help="If assembled length is out of range, auto-shrink a few chapters (default)",
+    )
+    balance_group.add_argument(
+        "--no-balance-length",
+        dest="balance_length",
+        action="store_false",
+        help="Disable auto length balancing",
+    )
+    ap.add_argument("--balance-max-rounds", type=int, default=1)
+    ap.add_argument("--balance-max-chapters", type=int, default=2)
+    ap.add_argument("--balance-chapter-max-tries", type=int, default=2)
     ap.add_argument("--max-tokens", type=int, default=4096)
     ap.add_argument("--temperature", type=float, default=0.25)
     pause_group = ap.add_mutually_exclusive_group()
@@ -677,6 +754,13 @@ def main() -> int:
     title = str(args.title or "").strip() or str(st.metadata.get("sheet_title") or st.metadata.get("title") or "").strip()
     if not title:
         title = f"{ch}-{no}"
+
+    # If user explicitly overrides title and wants canonical apply, also persist it into status metadata.
+    # (This avoids title/CSV mismatch from confusing downstream alignment checks.)
+    if args.apply and str(args.title or "").strip():
+        st.metadata["sheet_title"] = title
+        st.metadata["expected_title"] = title
+        st.metadata["title"] = title
 
     persona = str(st.metadata.get("persona") or "")
     channel_prompt = str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or "")
@@ -866,6 +950,11 @@ def main() -> int:
         out_path = chapters_dir / f"chapter_{chapter.chapter:03d}.md"
         if out_path.exists() and out_path.stat().st_size > 0:
             text = out_path.read_text(encoding="utf-8").strip()
+            if not chapter.closing_allowed:
+                softened = _soften_premature_closing_phrases(text).strip()
+                if softened and softened != text:
+                    out_path.write_text(softened + "\n", encoding="utf-8")
+                    text = softened
             issues, stats = _validate_chapter_text(
                 text,
                 meta=chapter_meta,
@@ -956,6 +1045,9 @@ def main() -> int:
                 print(f"- pending: {meta.get('pending_path')}")
                 print("- next: complete it via scripts/agent_runner.py, then rerun this command")
                 return 2
+
+            if not chapter.closing_allowed:
+                chapter_text = _soften_premature_closing_phrases(chapter_text)
 
             issues, stats = _validate_chapter_text(
                 chapter_text,
@@ -1058,6 +1150,141 @@ def main() -> int:
         "issues": full_issues,
     }
     (analysis_dir / "validation__latest.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    if not report["ok"] and bool(args.balance_length):
+        hard_issues = [it for it in (full_issues or []) if str(it.get("severity") or "error").lower() != "warning"]
+        if len(hard_issues) == 1 and str(hard_issues[0].get("code") or "") == "length_too_long":
+            # Auto-balance by shrinking a few longest chapters (chapter-local; no full-text LLM).
+            rounds = max(0, int(args.balance_max_rounds))
+            for round_idx in range(1, rounds + 1):
+                excess = int(full_stats.get("char_count") or 0) - int(tmax)
+                if excess <= 0:
+                    break
+                candidates = [(idx, ch, txt, _chars_spoken(txt)) for idx, (ch, txt) in enumerate(drafted)]
+                # Avoid touching the final chapter unless absolutely necessary.
+                non_final = [c for c in candidates if c[1].chapter != int(plan.chapter_count)]
+                pool = non_final if non_final else candidates
+                pool.sort(key=lambda x: x[3], reverse=True)
+                k = max(1, min(int(args.balance_max_chapters), len(pool)))
+                per_reduce = int(math.ceil(excess / k))
+
+                for idx, ch_obj, txt, cur_len in pool[:k]:
+                    # Target: reduce this chapter by ~per_reduce chars, but keep it readable.
+                    tgt_max = max(600, int(cur_len) - int(per_reduce))
+                    tgt_min = max(450, int(round(tgt_max * 0.8)))
+                    shrink_meta = dict(base_meta)
+                    shrink_meta["a_text_quote_marks_max"] = int(forced_quote_max)
+                    shrink_meta["a_text_paren_marks_max"] = int(forced_paren_max)
+                    shrink_meta["target_chars_min"] = int(tgt_min)
+                    shrink_meta["target_chars_max"] = int(tgt_max)
+
+                    prev_tail = drafted[idx - 1][1].strip()[-320:] if idx > 0 else ""
+                    prompt = _chapter_shrink_prompt(
+                        title=title,
+                        chapter=ch_obj,
+                        chapter_count=plan.chapter_count,
+                        persona=persona,
+                        channel_prompt=channel_prompt,
+                        core_message=plan.core_message,
+                        previous_tail=prev_tail,
+                        target_min=tgt_min,
+                        target_max=tgt_max,
+                        draft_text=txt,
+                    )
+                    messages = [{"role": "user", "content": prompt}]
+
+                    updated_text: str | None = None
+                    for attempt in range(1, max(1, int(args.balance_chapter_max_tries)) + 1):
+                        shrink_text, meta = _call_llm_text(
+                            task="script_chapter_draft",
+                            messages=messages,
+                            max_tokens=int(args.max_tokens),
+                            temperature=float(args.temperature),
+                        )
+                        if shrink_text is None:
+                            (analysis_dir / "pending.json").write_text(
+                                json.dumps(
+                                    {
+                                        "schema": "ytm.longform_pending.v1",
+                                        "generated_at": datetime.now(timezone.utc).isoformat(),
+                                        "pending_reason": "balance_length_chapter_pending",
+                                        "chapter": ch_obj.chapter,
+                                        "pending_task": meta,
+                                    },
+                                    ensure_ascii=False,
+                                    indent=2,
+                                )
+                                + "\n",
+                                encoding="utf-8",
+                            )
+                            print("[MARATHON] chapter shrink pending (agent/think mode).")
+                            print(f"- chapter: {ch_obj.chapter:03d}")
+                            print(f"- pending: {meta.get('pending_path')}")
+                            print("- next: complete it via scripts/agent_runner.py, then rerun this command")
+                            return 2
+
+                        if not ch_obj.closing_allowed:
+                            shrink_text = _soften_premature_closing_phrases(shrink_text)
+
+                        issues, stats = _validate_chapter_text(
+                            shrink_text,
+                            meta=shrink_meta,
+                            char_budget=0,
+                            min_ratio=float(args.chapter_min_ratio),
+                            max_ratio=float(args.chapter_max_ratio),
+                            closing_allowed=ch_obj.closing_allowed,
+                        )
+                        hard = [it for it in issues if str(it.get("severity") or "error").lower() != "warning"]
+                        if not hard:
+                            updated_text = shrink_text.strip()
+                            break
+
+                        retry_round = min(attempt + 1, max(1, int(args.balance_chapter_max_tries)))
+                        messages = [
+                            {
+                                "role": "user",
+                                "content": _chapter_rewrite_prompt(
+                                    title=title,
+                                    base_prompt=prompt,
+                                    issues=hard,
+                                    previous_draft=shrink_text,
+                                    target_min=shrink_meta.get("target_chars_min"),
+                                    target_max=shrink_meta.get("target_chars_max"),
+                                    retry_round=retry_round,
+                                    retry_total=max(1, int(args.balance_chapter_max_tries)),
+                                ),
+                            }
+                        ]
+
+                    if not updated_text:
+                        print("[MARATHON] balance_length: failed to shrink chapter within max tries.")
+                        print(f"- chapter: {ch_obj.chapter:03d}")
+                        print(f"- report: {analysis_dir / 'validation__latest.json'}")
+                        return 2
+
+                    # Persist new chapter draft (analysis-only) and update in-memory.
+                    (chapters_dir / f"chapter_{ch_obj.chapter:03d}.md").write_text(updated_text + "\n", encoding="utf-8")
+                    drafted[idx] = (ch_obj, updated_text)
+
+                # Re-assemble and re-validate after this round.
+                assembled = _assemble_with_block_pauses(drafted, pause_between_blocks=bool(args.pause_between_blocks))
+                assembled_path.write_text(assembled, encoding="utf-8")
+                assembled_latest.write_text(assembled, encoding="utf-8")
+                full_issues, full_stats = validate_a_text(assembled, full_meta)
+                report = {
+                    "schema": "ytm.longform_validation.v1",
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "channel": ch,
+                    "video": no,
+                    "ok": not any(str(i.get("severity") or "error").lower() != "warning" for i in full_issues),
+                    "stats": full_stats,
+                    "issues": full_issues,
+                }
+                (analysis_dir / "validation__latest.json").write_text(
+                    json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                )
+                if report["ok"]:
+                    break
 
     if not report["ok"]:
         print("[MARATHON] assembled_candidate has hard issues. Fix chapters and rerun.")
