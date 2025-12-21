@@ -60,6 +60,11 @@
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run）
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
   - 設計: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
+- 超長尺Aテキスト（Marathon: 2〜3時間級 / 全文LLM禁止）:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run: `content/analysis/longform/` に出力）
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`（canonical を上書き）
+  - SSOT: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`
 
 ### 3.2 Audio/TTS
 - `audio_tts_v2/scripts/run_tts.py`
