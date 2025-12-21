@@ -1186,3 +1186,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251221T213907Z__scripts_lint_a_text_py.tar.gz`
 - 削除:
   - `scripts/lint_a_text.py`（tracked）
+
+### 84) Azure疎通デバッグスクリプトを削除（archive-first / 誤誘導除去）
+
+意図: `scripts/verify_router_azure.py` / `scripts/verify_azure_direct.py` は ad-hoc な疎通確認用で、古い設定前提・直書き/直アクセスが混入しやすく誤誘導の温床。現行の正本は `factory_common.llm_router` と `scripts/check_env.py`（および SSOT）なので、archive-first で削除する。
+
+- 参照確認:
+  - `rg -n "verify_router_azure\\.py|verify_azure_direct\\.py" -S .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251221T214632Z__scripts_verify_azure_debug.tar.gz`
+- 削除:
+  - `scripts/verify_router_azure.py`（tracked）
+  - `scripts/verify_azure_direct.py`（tracked）
