@@ -64,6 +64,9 @@
   - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
   - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run: `content/analysis/longform/` に出力）
   - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`（canonical を上書き）
+  - ブロック雛形（章の箱）を指定したい場合:
+    - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
+    - 正本: `configs/longform_block_templates.json`
   - SSOT: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`
 
 ### 3.2 Audio/TTS

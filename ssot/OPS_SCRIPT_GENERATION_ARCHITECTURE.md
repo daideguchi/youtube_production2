@@ -61,6 +61,42 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - Planning汚染検知: `python scripts/ops/planning_lint.py --channel CH07 --write-latest`
 - Aテキスト機械lint: `python scripts/ops/a_text_lint.py --channel CH07 --video 009 --write-latest`
 
+### 2.2.2（超長尺）章設計（plan）→章ごと執筆→決定論アセンブル（Marathon）
+2〜3時間級は「全文をLLMに渡して品質判定/修正」すると、コンテキスト超過・コスト過大・部分改変事故で破綻しやすい。  
+そのため “全文LLM” を避け、**章単位で収束**させる Marathon を正本運用にする（詳細: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`）。
+
+- 実装（ops）: `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 [--block-template ...] [--apply]`
+- フロー（重要順）:
+  1) plan（JSON）: 章数/ブロック/各章の goal/must/avoid を固定（迷子防止のSSOT）
+  2) chapter: plan を入力として章本文を1つずつ生成（NGなら **その章だけ** 再生成）
+  3) assemble: ブロック境界にだけ `---` を挿入し、章本文を決定論で結合（章本文内に `---` は禁止）
+  4) validate: `validate_a_text` + `a_text_lint` で機械禁則/反復を検査
+  5) length-balance（必要時）: 超過したら長い章だけ短縮（全文LLM禁止）
+- ブロック雛形（章の箱）:
+  - 正本: `configs/longform_block_templates.json`
+  - 指定: `--block-template`（CH別固定は `channel_overrides`）
+
+### 2.2.3 章AIに渡す「書き方の指示パック」（迷子防止の核）
+章ごとの執筆AIに “細切れ情報を全部投げる” と、重要情報が埋もれてズレ/反復が起きる。  
+そこで、先に plan で整理し、各章には **必要十分な指示だけ** を「パック」として渡す。
+
+章AIへの入力（必須）:
+- 企画タイトル（契約）
+- 章番号/全章数、所属ブロック（章の役割）
+- `goal`（この章で増やす理解は1つだけ）
+- `must_include`（最大3） / `avoid`（最大3）
+- 章の字数目安（char_budget）と記号上限（「」/（））
+- コアメッセージ（全章でブレない）
+- persona要点 / channel指針要点（長文化させず要点のみ）
+- 直前章末尾（~320字。文脈だけ。コピー禁止）
+
+章AIへの制約（必須）:
+- 本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタ禁止）
+- `---` を章本文に入れない（ブロック境界にだけ入れる）
+- 途中章で「最後に/まとめると/結論/挨拶」などの締めをしない
+- `「」`/`『』` と `（）`/`()` は原則0（必要時だけ緩和）
+- “字数合わせの言い換え”禁止: 各段落に「新しい理解」を最低1つ入れる（具体/見立て/手順/落とし穴）
+
 ### 2.3 推論Judge→必要最小修正（品質固定）
 - SSOT: `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 「内容」の合否は推論モデルが判断する（機械判定ではない）。
@@ -101,3 +137,12 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - 複数の概念や逸話を並べて“広く”見せる（芯が薄くなり、視聴者の理解が増えない）
 - 研究/統計/機関名を捏造して説得力を作る
 - `---` を機械的に等間隔で入れる（文脈ベースのみ）
+
+---
+
+## 6) “ベスト”にするための残タスク（超長尺の仕上げ）
+現状の設計でも長尺は作れるが、2〜3時間級で反復/微妙なズレをさらに減らすには以下が必要。
+
+- `memory.json`（core_message / covered_points / no_repeat_phrases）を章ごとに更新し、次章の指示パックへ入れる（全文を渡さず整合を担保）
+- `chapter_summaries.json`（各章1文要約）を生成し、ブロック単位で “要約＋抜粋” による Judge を行う（全文LLM禁止）
+- NG時は「問題章番号」を返し、章単位で差し替える（全文Fix禁止）
