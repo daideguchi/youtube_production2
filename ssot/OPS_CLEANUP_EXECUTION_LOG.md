@@ -1175,3 +1175,14 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `backups/graveyard/20251221T072310Z__workspaces_planning_buddha_senior_5ch_setup_md.tar.gz`
 - 削除:
   - `workspaces/planning/buddha_senior_5ch_setup.md`（tracked）
+
+### 83) `scripts/lint_a_text.py` を削除（archive-first / 入口一本化）
+
+意図: `scripts/lint_a_text.py` は旧Aテキストlintであり、現行は `python3 scripts/ops/a_text_lint.py` が正本。入口索引にも載っていないため、探索ノイズ削減のために archive-first で削除する。
+
+- 参照確認:
+  - `rg -n "scripts/lint_a_text\\.py|lint_a_text\\.py" -S .`（history以外の参照なし）
+- アーカイブ:
+  - `backups/graveyard/20251221T213907Z__scripts_lint_a_text_py.tar.gz`
+- 削除:
+  - `scripts/lint_a_text.py`（tracked）
