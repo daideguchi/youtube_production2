@@ -126,3 +126,14 @@
 - 共同運用の精度向上: Board note に `note_id` を付与し全文表示（`board note-show`）を追加。さらに `board template` と BEP-1（共通記法）をSSOT化し、zshの展開事故を避ける投稿方法（`<<'EOF'`）を標準化（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`）。
 - 共同運用の拡張: Board に ownership（`board areas` / `board area-set`）と thread（返信 `--reply-to`, `board threads` / `board thread-show`）を追加し、「誰がどの処理担当か」「レビュー/コメントのスレッド追跡」を1枚で運用できるようにした。`overview` でも board 状態（doing/blocked/next）が見える（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`, `ssot/OPS_ENTRYPOINTS_INDEX.md`, `ssot/OPS_LOGGING_MAP.md`）。
 - 互換: 過去の board 投稿に `note_id` が無い場合でも追跡できるように `board normalize` を追加（legacy note に id/thread_id を付与）。`board show` は legacy 検知時に警告を出す（`scripts/agent_org.py`, `ssot/OPS_AGENT_PLAYBOOK.md`）。
+
+## 2025-12-21
+- CH12–CH16（ブッダ系シニア5ch）: `channel_info.json` に `youtube_description` と `default_tags` を追加し、誤って入っていた `script_prompt` のパス文字列を除去（prompt は `script_prompt.txt` を正として読ませる）。
+- CH12: 台本プロンプトは「物語先行型（4部構成）」が正本のため、`script_prompt.txt` は維持（誤変更が入った場合は復元）: `packages/script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt`。
+- CH12–CH16: 音声設定（VOICEVOX「青山龍星」）の `voice_config.json` を追加: `packages/script_pipeline/audio/channels/CH12..CH16/voice_config.json`。
+- CH12–CH16: チャンネル一覧 JSON を再生成: `script_pipeline/channels/channels_info.json`。
+- CH12: ベンチマーク正（物語先行4部構成）に揃えるため、誤って混入していた「8パート固定」前提を除去（`scripts/buddha_senior_5ch_prepare.py`, `workspaces/planning/personas/CH12_PERSONA.md`）。既存 `workspaces/scripts/CH12/001..030/status.json` もメタを patch（chapter_count=4 等）。
+- Cleanup（archive-first）: 誤誘導の温床になっていた `workspaces/planning/buddha_senior_5ch_setup.md` をアーカイブして削除（`backups/graveyard/20251221T072310Z__workspaces_planning_buddha_senior_5ch_setup_md.tar.gz`）。記録: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`。
+- SSOT更新: `ssot/OPS_SCRIPT_GUIDE.md` に超長尺（Marathon）入口・検証・`SCRIPT_VALIDATION_LLM_QUALITY_GATE=0` の運用を追記。
+- SSOT更新: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md` に Route C（Marathon）と Marathon v1 の I/O（plan/invalid/assembled_candidate/validation）と、未実装の Memory/チャンクJudge を明文化。
+- Marathon改善: ブロック雛形（章の箱）を `configs/longform_block_templates.json` に外出しし、`a_text_marathon_compose.py` に `--block-template` を追加（CH別の流儀を固定しやすくした）。

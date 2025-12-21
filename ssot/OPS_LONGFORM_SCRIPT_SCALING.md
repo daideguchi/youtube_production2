@@ -40,6 +40,15 @@
 **長尺に対して弱い理由（致命）**
 - 組み上げ時にセクション草稿を `12000` 文字に truncate しているため、超長尺では入力が欠落し、整合が崩れる。
 
+### Route C（超長尺）: `a_text_marathon_compose`（Marathon: 章設計→章生成→決定論アセンブル）
+- `scripts/ops/a_text_marathon_compose.py`
+- “全文LLMで直す” をやらず、**章単位の生成/差し替え**で収束させる（全文コンテキストを避ける）。
+- 生成物はデフォルトで `content/analysis/longform/` に集約（dry-run）。`--apply` で canonical を上書きする。
+  - ブロック骨格（章の箱）は `configs/longform_block_templates.json` を正本にできる（`--block-template` または `channel_overrides`）。
+  - canonical: `content/chapters/` + `content/assembled.md` + `content/assembled_human.md`
+  - analysis: `content/analysis/longform/plan.json`, `chapters/chapter_XXX.md`, `assembled_candidate.md`, `validation__latest.json` など
+- 現状の“繋ぎ”は **直前章末尾（~320字）** のみ参照（超長尺の全体メモリは Phase 1.1 で拡張予定）。
+
 ---
 
 ## 1) “2〜3時間級”で必要になる前提（要件）
@@ -171,6 +180,22 @@
   - 章の字数は「章予算×(0.7〜1.6)」の範囲で判定し、最終的には全文を `target_chars_min/max` で確定チェックする（章だけで収束させない）
   - 全文が `target_chars_max` を超えた場合は `--balance-length`（デフォルトON）で **長い章だけ短縮**して収束させる（全文をLLMに渡さない）
   - `--title ... --apply` を使う場合、`status.json` の `sheet_title/expected_title/title` も上書きして下流の整合チェックを壊さない
+
+  - 生成物（I/O; Marathon v1 現行）:
+    - `content/analysis/longform/plan.json`（再開時はこれを優先的に再利用）
+    - `content/analysis/longform/plan_raw_attempt_*.json`（plan JSON の不正出力を保存）
+    - `content/analysis/longform/chapters/chapter_XXX.md`（章本文）
+    - `content/analysis/longform/chapters/chapter_XXX__attempt_YY__invalid.md`（章の不正出力を保存）
+    - `content/analysis/longform/assembled_candidate.md`（結合候補）
+    - `content/analysis/longform/validation__latest.json`（全文の決定論検証レポート）
+
+### Phase 1.1（推奨/未実装）: Memory / 要約 / チャンクJudge
+Marathon v1 は “全文LLM” を避けるため、現状は **plan + 直前章末尾** で整合を担保している。  
+2〜3時間級で「反復」「微妙なズレ」をさらに減らすには、全文を渡さずに次を足すのが有効:
+
+- `content/analysis/longform/chapter_summaries.json`（各章1文要約）を生成し、重複/脱線の監査に使う
+- `content/analysis/longform/memory.json`（core_message / covered_points / no_repeat_phrases）を更新し、次章プロンプトへ投入する
+- Judge は全文ではなく **要約＋抜粋** でブロック単位判定し、問題章番号だけを返す（Fixは章差し替えのみ）
 
 ### Phase 2（本命: script_pipelineにMarathonモード統合）
 - `configs/sources.yaml` に “profile/length_mode” を導入し、エピソード単位で `chapter_count/target_chars` を切替可能にする。

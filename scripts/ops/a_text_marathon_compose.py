@@ -59,6 +59,8 @@ _CTA_PHRASE_RE = re.compile(
     r"(?:ご視聴ありがとうございました|チャンネル登録|高評価|通知(?:を)?オン|通知設定|ベル(?:を)?(?:鳴ら|オン|押)|コメント(?:欄)?(?:で|に)?(?:教えて|書いて|残して)|コメントお願いします)"
 )
 
+_LONGFORM_BLOCK_TEMPLATES_PATH = repo_root() / "configs" / "longform_block_templates.json"
+
 def _soften_premature_closing_phrases(text: str) -> str:
     """
     Deterministic micro-fix for common mid-script phrasing that triggers premature closing checks.
@@ -305,6 +307,74 @@ def _default_block_template(block_count: int) -> list[dict[str, Any]]:
     return (base + extra)[: int(block_count)]
 
 
+def _load_longform_block_templates() -> dict[str, Any]:
+    try:
+        path = _LONGFORM_BLOCK_TEMPLATES_PATH
+        if not path.exists():
+            return {}
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else {}
+    except Exception:
+        return {}
+
+
+def _select_blocks(*, channel: str, block_count: int, template_key: str) -> list[dict[str, Any]]:
+    defaults = _default_block_template(block_count)
+    by_block_default: dict[int, dict[str, Any]] = {}
+    for b in defaults:
+        try:
+            n = int(b.get("block") or 0)
+        except Exception:
+            continue
+        if n > 0:
+            by_block_default[n] = dict(b)
+
+    cfg = _load_longform_block_templates()
+    templates = cfg.get("templates") if isinstance(cfg.get("templates"), dict) else {}
+    overrides = cfg.get("channel_overrides") if isinstance(cfg.get("channel_overrides"), dict) else {}
+
+    key = str(template_key or "").strip()
+    if not key:
+        key = str(overrides.get(channel) or "").strip()
+    if not key:
+        key = "default"
+
+    tmpl = templates.get(key) if isinstance(templates, dict) else None
+    blocks_raw = tmpl.get("blocks") if isinstance(tmpl, dict) else None
+    if not isinstance(blocks_raw, list) and key != "default":
+        tmpl = templates.get("default") if isinstance(templates, dict) else None
+        blocks_raw = tmpl.get("blocks") if isinstance(tmpl, dict) else None
+
+    if not isinstance(blocks_raw, list):
+        return defaults
+
+    override_map: dict[int, dict[str, Any]] = {}
+    for it in blocks_raw:
+        if not isinstance(it, dict):
+            continue
+        try:
+            n = int(it.get("block") or 0)
+        except Exception:
+            continue
+        if n <= 0 or n > int(block_count):
+            continue
+        title = str(it.get("title") or "").strip()
+        goal = str(it.get("goal") or "").strip()
+        if not title and not goal:
+            continue
+        base = dict(by_block_default.get(n) or {"block": n})
+        if title:
+            base["title"] = title
+        if goal:
+            base["goal"] = goal
+        override_map[n] = base
+
+    merged: list[dict[str, Any]] = []
+    for n in range(1, int(block_count) + 1):
+        merged.append(dict(override_map.get(n) or by_block_default.get(n) or {"block": n, "title": f"Block{n}", "goal": ""}))
+    return merged
+
+
 def _build_plan_prompt(
     *,
     title: str,
@@ -362,7 +432,7 @@ def _build_plan_prompt(
         "- 現代の人物例（年齢/職業/台詞の作り込み）は全体で最大1件に抑える前提で設計する。\n"
         "- 出力は長文化させない（超長尺でも壊れないように短く設計する）:\n"
         "  - goal: 1文、最大30文字\n"
-        "  - must_include/avoid: 各最大2要素、各要素は最大20文字\n"
+        "  - must_include/avoid: 各最大3要素、各要素は最大20文字\n"
         "\n"
         "【出力スキーマ（例）】\n"
         + json.dumps(schema, ensure_ascii=False, indent=2)
@@ -560,6 +630,7 @@ def _chapter_draft_prompt(
         f"- {quote_rule} 引用や強調は地の文で言い換える。\n"
         f"- {paren_rule}\n"
         "- 同趣旨の言い換えで水増ししない。厚みは理解が増える具体で作る。\n"
+        "- 各段落に「新しい理解」を最低1つ入れる（具体/見立て/手順/落とし穴のいずれか）。言い換えだけの段落は禁止。\n"
         "- 現代の人物例（年齢/職業/台詞の作り込み）は入れない（全体事故の原因）。\n"
         "- 根拠不明の統計/研究/固有名詞/数字断定で説得力を作らない。\n"
         f"- {closing_rule}\n"
@@ -695,6 +766,7 @@ def main() -> int:
     ap.add_argument("--target-chars-max", type=int, default=0)
     ap.add_argument("--chapter-count", type=int, default=0)
     ap.add_argument("--block-count", type=int, default=8)
+    ap.add_argument("--block-template", default="", help="Longform block template key (optional)")
     ap.add_argument("--per-chapter-aim", type=int, default=1200)
     ap.add_argument("--apply", action="store_true", help="Write canonical chapters + assembled.md")
     ap.add_argument("--plan-only", action="store_true", help="Only create plan.json (no drafting)")
@@ -781,7 +853,7 @@ def main() -> int:
         chapter_count = _derive_chapter_count(aim_chars=aim, per_chapter_aim=int(args.per_chapter_aim))
 
     block_count = max(2, int(args.block_count))
-    blocks = _default_block_template(block_count)
+    blocks = _select_blocks(channel=ch, block_count=block_count, template_key=str(args.block_template or ""))
 
     # Use existing pattern core_message when possible (metadata may already carry it).
     core_message_hint = str(st.metadata.get("concept_intent") or st.metadata.get("key_concept") or "").strip()

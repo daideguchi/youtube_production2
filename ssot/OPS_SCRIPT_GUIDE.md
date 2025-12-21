@@ -30,6 +30,31 @@
 - `python -m script_pipeline.cli next --channel CH06 --video 033`
 - `python -m script_pipeline.cli run-all --channel CH06 --video 033`
 
+### 1.4 超長尺（2〜3時間級 / 全文LLM禁止: Marathon）
+超長尺では、`script_validation` の **全文LLM Judge/Fix** がコンテキスト・コスト・部分改変事故で破綻しやすい。  
+したがって「章分割→決定論アセンブル」を前提にした Marathon モードを使う（詳細: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`）。
+
+- planのみ（設計だけ作る）:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
+- dry-run（analysis/longform に生成、正本は触らない）:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
+- apply（canonical を上書き）:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
+- ブロック雛形（章の箱）を指定したい場合:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
+  - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
+
+確認（推奨）:
+- 決定論lint（禁則/反復/まとめ重複）:
+  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+- セマンティック整合（必要時のみ。タイトル語句一致は必須ではない）:
+  - `python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`
+
+注意:
+- Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
+- 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して決定論チェックだけ使う:
+  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+
 ---
 
 ## 2. 出力（I/Oの目安）

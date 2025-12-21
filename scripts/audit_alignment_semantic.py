@@ -7,7 +7,6 @@ Audit Planning(title/thumbnail) <-> Script(A-text) *semantic* alignment (read-on
 This script does NOT modify status.json or any workspace artifacts.
 It is intended to catch obvious mismatches like:
   - thumbnail prompt first-line catch differs across columns
-  - title bracket-topic (【...】) never appears in the script preview
   - title/catch tokens overlap is below a configurable threshold
 
 Examples:
@@ -152,7 +151,6 @@ def _check_row(
     min_thumb_catch_overlap: Optional[float],
     ignore_bracket_in_title: bool,
     max_missing_tokens: int,
-    skip_bracket_topic: bool,
     title_tokenizer: str,
 ) -> List[Finding]:
     findings: List[Finding] = []
@@ -231,20 +229,7 @@ def _check_row(
                         )
                     )
 
-    # 2) Bracket topic mismatch (【...】)
-    if not skip_bracket_topic and title and not alignment.bracket_topic_overlaps(title, preview):
-        ratio = alignment.title_script_token_overlap_ratio(title, preview)
-        findings.append(
-            Finding(
-                channel=channel,
-                video=video,
-                code="title_bracket_topic_missing",
-                message=f"title bracket-topic tokens missing in script preview (overlap={ratio:.2f})",
-                title=title,
-            )
-        )
-
-    # 3) Title tokens overlap threshold (configurable)
+    # 2) Title tokens overlap threshold (configurable)
     if min_title_overlap is not None and title:
         title_for_check = _strip_title_brackets(title) if ignore_bracket_in_title else title
         title_tokens_full = _tokenize(title_for_check)
@@ -326,11 +311,6 @@ def main() -> int:
         help="For overlap findings, include up to N missing tokens in message (default: 12).",
     )
     ap.add_argument(
-        "--skip-bracket-topic",
-        action="store_true",
-        help="Skip the dedicated 【...】 bracket-topic check (useful when it is too noisy).",
-    )
-    ap.add_argument(
         "--title-tokenizer",
         choices=["auto", "full", "no_hiragana"],
         default="auto",
@@ -368,7 +348,6 @@ def main() -> int:
                 min_thumb_catch_overlap=args.min_thumb_catch_overlap,
                 ignore_bracket_in_title=bool(args.ignore_bracket_in_title),
                 max_missing_tokens=int(args.max_missing_tokens),
-                skip_bracket_topic=bool(args.skip_bracket_topic),
                 title_tokenizer=str(args.title_tokenizer),
             ):
                 findings.append(finding)
@@ -422,4 +401,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
