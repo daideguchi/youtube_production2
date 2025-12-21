@@ -141,5 +141,9 @@ ssot_old/
 tmp/
 commentary_02_srt2images_timeline/_capcut_drafts/
 
+# Adhoc scripts (temporary; keep out of git by default)
+scripts/_adhoc/**
+!scripts/_adhoc/README.md
+
 # Local caches (generated; keep out of git)
 data/visual_bible*.json
