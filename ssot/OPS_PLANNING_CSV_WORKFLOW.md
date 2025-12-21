@@ -8,6 +8,7 @@
 - 確定フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - I/Oスキーマ: `ssot/OPS_IO_SCHEMAS.md`
 - 整合チェック: `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`
+- 入力契約（L1/L2/L3）: `ssot/OPS_SCRIPT_INPUT_CONTRACT.md`
 
 ---
 
@@ -70,6 +71,20 @@ Planning CSV を更新しても、既に生成済みの台本/音声/動画は�
 例:
 - タイトル/企画意図/タグを変更した → Script の該当ステージを reset して再生成
 - 台本が出来た後に企画を大きく変えた → その動画は **最初からやり直す**（混在が最悪の事故源）
+
+---
+
+## 4.5 Planning汚染の検出（推奨）
+
+Planning CSV は「混線/汚染」が起きやすい（例: 別動画の `内容（企画要約）` が混入）。
+下流（台本/判定）を誤誘導しないため、まずは lint で見える化する。
+
+- Lint（機械・低コスト）:
+  - `python3 scripts/ops/planning_lint.py --channel CHxx`
+  - `python3 scripts/ops/planning_lint.py --all`
+- `tag_mismatch_title_vs_content_summary` が出たら:
+  - CSVを直すのが本筋
+  - 直るまでの間は「入力契約（L1/L2/L3）」により、L2（テーマを縛るヒント）が自動で落ちる（= 事故防止）
 
 ---
 

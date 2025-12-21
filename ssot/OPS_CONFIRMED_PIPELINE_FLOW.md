@@ -112,6 +112,11 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
   - セクション単位の決定論バリデーションでNGなら **そのセクションだけ**自動再生成（最大N回、既定3）
   - 組み上げ後に禁則違反が残る場合は **組み上げのみ**再試行（最大M回、既定1）
   - 設計詳細: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
+- 超長尺Aテキスト（2〜3時間級 / 全文LLM禁止: Marathon）:
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`（planのみ）
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run: `content/analysis/longform/`）
+  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`（canonical を上書き）
+  - 設計詳細: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`
 
 **SoT / Inputs**
 - `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
