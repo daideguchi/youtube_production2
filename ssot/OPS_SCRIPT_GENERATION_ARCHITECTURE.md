@@ -143,6 +143,9 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 ## 6) “ベスト”にするための残タスク（超長尺の仕上げ）
 現状の設計でも長尺は作れるが、2〜3時間級で反復/微妙なズレをさらに減らすには以下が必要。
 
-- `memory.json`（core_message / covered_points / no_repeat_phrases）を章ごとに更新し、次章の指示パックへ入れる（全文を渡さず整合を担保）
-- `chapter_summaries.json`（各章1文要約）を生成し、ブロック単位で “要約＋抜粋” による Judge を行う（全文LLM禁止）
-- NG時は「問題章番号」を返し、章単位で差し替える（全文Fix禁止）
+現状（実装済み）:
+- Marathon v1.1 で `content/analysis/longform/memory.json` / `chapter_summaries.json` を生成し、章プロンプトに Memory を投入する（既定ON、必要なら `--no-memory`）。
+
+残タスク（本命）:
+- ブロック単位で “要約＋抜粋” による Judge を行い、NG時は「問題章番号」を返す（全文LLM禁止）
+- Fix は問題章だけを差し替える（全文Fix禁止）＋差し替え履歴を `analysis/longform/` に残す（diff/再現性）

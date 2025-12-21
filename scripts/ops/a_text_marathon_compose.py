@@ -23,6 +23,7 @@ Related SSOT:
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import math
 import json
 import os
@@ -219,6 +220,185 @@ class Plan:
                 for c in self.chapters
             ],
         }
+
+
+_MEMORY_TOKEN_RE = re.compile(r"[一-龯]{2,}|[ぁ-ん]{2,}|[ァ-ヴー]{2,}|[A-Za-z0-9]{2,}")
+_MEMORY_STOPWORDS = {
+    "あなた",
+    "人生",
+    "本当",
+    "方法",
+    "理由",
+    "今",
+    "今日",
+    "すぐ",
+    "なぜ",
+    "どう",
+    "それ",
+    "これ",
+    "そして",
+    "しかし",
+    "ため",
+    "人",
+    "人間",
+    "心",
+    "世界",
+    "自分",
+    "自分自身",
+    "私",
+    "僕",
+    "私たち",
+    "結局",
+    "大事",
+    "重要",
+    "知る",
+    "知ら",
+    "できる",
+    "して",
+    "いる",
+    "ある",
+    "ない",
+}
+
+
+def _tokenize_memory(text: str) -> list[str]:
+    tokens: list[str] = []
+    for raw in _MEMORY_TOKEN_RE.findall(text or ""):
+        tok = raw.lower() if raw.isascii() else raw
+        if tok in _MEMORY_STOPWORDS:
+            continue
+        tokens.append(tok)
+    return tokens
+
+
+def _top_keywords(texts: list[str], *, max_keywords: int) -> list[str]:
+    limit = max(0, int(max_keywords))
+    if limit <= 0:
+        return []
+    freq: Counter = Counter()
+    for txt in texts:
+        for tok in _tokenize_memory(txt):
+            freq[tok] += 1
+    items = sorted(freq.items(), key=lambda kv: (-kv[1], -len(kv[0]), kv[0]))
+    return [k for k, _ in items[:limit]]
+
+
+def _build_memory_snapshot(
+    plan: Plan,
+    drafted: list[tuple[PlanChapter, str]],
+    *,
+    max_keywords: int,
+    max_must: int,
+) -> dict[str, Any]:
+    must_flat: list[str] = []
+    for ch, _txt in drafted:
+        for raw in (ch.must_include or []):
+            s = str(raw or "").strip()
+            if s and s not in must_flat:
+                must_flat.append(s)
+    if int(max_must) > 0 and len(must_flat) > int(max_must):
+        must_flat = must_flat[-int(max_must) :]
+
+    snapshot = {
+        "schema": "ytm.longform_memory.v1",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "channel": plan.channel,
+        "video": plan.video,
+        "title": plan.title,
+        "chapter_count": int(plan.chapter_count),
+        "covered_chapters": int(len(drafted)),
+        "covered_blocks": sorted({int(ch.block) for ch, _ in drafted}),
+        "core_message": plan.core_message,
+        "covered_must_include": must_flat,
+        "keywords": _top_keywords([txt for _ch, txt in drafted], max_keywords=max_keywords),
+    }
+    return snapshot
+
+
+def _format_memory_for_prompt(snapshot: dict[str, Any], *, max_chars: int) -> str:
+    if not snapshot:
+        return ""
+    covered = int(snapshot.get("covered_chapters") or 0)
+    if covered <= 0:
+        return ""
+    total = int(snapshot.get("chapter_count") or 0)
+    blocks = snapshot.get("covered_blocks") or []
+    musts = snapshot.get("covered_must_include") or []
+    keywords = snapshot.get("keywords") or []
+
+    lines: list[str] = []
+    if total > 0:
+        lines.append(f"- 進捗: {covered}/{total}章")
+    else:
+        lines.append(f"- 進捗: {covered}章")
+    if blocks:
+        lines.append("- 完了ブロック: " + ", ".join(str(b) for b in blocks))
+    if musts:
+        lines.append("- 既出must_include(抜粋): " + " / ".join(str(m) for m in musts))
+    if keywords:
+        lines.append("- 既出キーワード(重複説明禁止): " + " / ".join(str(k) for k in keywords))
+    lines.append("- 方針: 上の内容を“定義し直す/言い換えて水増しする”のは禁止。新しい理解を追加する。")
+
+    out = "\n".join(lines).strip()
+    if int(max_chars) > 0 and len(out) > int(max_chars):
+        out = out[: int(max_chars)].rstrip() + "…"
+    return out
+
+
+def _chapter_summary_one_line(text: str, *, max_chars: int = 160) -> str:
+    normalized = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not normalized:
+        return ""
+    # Take the first sentence-like chunk for a cheap, deterministic summary.
+    snippet = normalized[:800]
+    for sep in ("。", "！", "?", "？", "!"):
+        idx = snippet.find(sep)
+        if idx != -1 and idx >= 24:
+            snippet = snippet[: idx + 1]
+            break
+    if int(max_chars) > 0 and len(snippet) > int(max_chars):
+        snippet = snippet[: int(max_chars)].rstrip() + "…"
+    return snippet
+
+
+def _write_longform_sidecars(
+    *,
+    analysis_dir: Path,
+    plan: Plan,
+    drafted: list[tuple[PlanChapter, str]],
+    max_keywords: int,
+    max_must: int,
+) -> None:
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+    memory = _build_memory_snapshot(plan, drafted, max_keywords=max_keywords, max_must=max_must)
+    (analysis_dir / "memory.json").write_text(json.dumps(memory, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    chapters_payload: list[dict[str, Any]] = []
+    for ch, txt in drafted:
+        chapters_payload.append(
+            {
+                "chapter": int(ch.chapter),
+                "block": int(ch.block),
+                "block_title": ch.block_title,
+                "goal": ch.goal,
+                "char_count": _chars_spoken(txt),
+                "summary": _chapter_summary_one_line(txt),
+                "must_include": list(ch.must_include or []),
+                "avoid": list(ch.avoid or []),
+            }
+        )
+
+    summaries = {
+        "schema": "ytm.longform_chapter_summaries.v1",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "channel": plan.channel,
+        "video": plan.video,
+        "title": plan.title,
+        "chapters": chapters_payload,
+    }
+    (analysis_dir / "chapter_summaries.json").write_text(
+        json.dumps(summaries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def _call_llm_text(
@@ -571,6 +751,7 @@ def _chapter_draft_prompt(
     channel_prompt: str,
     core_message: str,
     previous_tail: str,
+    memory_note: str,
     quote_max: int,
     paren_max: int,
     quote_total_max: int,
@@ -623,6 +804,9 @@ def _chapter_draft_prompt(
         + "\n\n"
         "【直前章の末尾（文脈。コピー禁止）】\n"
         + (_sanitize_context(previous_tail, max_chars=320) if previous_tail else "(なし)")
+        + "\n\n"
+        "【Memory（既に扱った内容。繰り返し禁止）】\n"
+        + (_sanitize_context(memory_note, max_chars=900) if memory_note else "(なし)")
         + "\n\n"
         "【執筆ルール（厳守）】\n"
         "- 出力は本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止）。\n"
@@ -771,6 +955,23 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true", help="Write canonical chapters + assembled.md")
     ap.add_argument("--plan-only", action="store_true", help="Only create plan.json (no drafting)")
     ap.add_argument("--force-plan", action="store_true", help="Re-generate plan even if plan.json already exists")
+    memory_group = ap.add_mutually_exclusive_group()
+    memory_group.add_argument(
+        "--use-memory",
+        dest="use_memory",
+        action="store_true",
+        default=True,
+        help="Include a compact memory snapshot in chapter prompts (default)",
+    )
+    memory_group.add_argument(
+        "--no-memory",
+        dest="use_memory",
+        action="store_false",
+        help="Disable memory snapshot in chapter prompts (debug)",
+    )
+    ap.add_argument("--memory-max-keywords", type=int, default=24, help="Max keywords in memory snapshot (default: 24)")
+    ap.add_argument("--memory-max-must", type=int, default=12, help="Max must_include items in memory snapshot (default: 12)")
+    ap.add_argument("--memory-max-chars", type=int, default=900, help="Max chars for memory snapshot prompt section (default: 900)")
     ap.add_argument("--chapter-max-tries", type=int, default=2)
     ap.add_argument("--chapter-min-ratio", type=float, default=0.7)
     ap.add_argument("--chapter-max-ratio", type=float, default=1.6)
@@ -1069,6 +1270,16 @@ def main() -> int:
                 encoding="utf-8",
             )
 
+        memory_note = ""
+        if bool(args.use_memory) and drafted:
+            snapshot = _build_memory_snapshot(
+                plan,
+                drafted,
+                max_keywords=int(args.memory_max_keywords),
+                max_must=int(args.memory_max_must),
+            )
+            memory_note = _format_memory_for_prompt(snapshot, max_chars=int(args.memory_max_chars))
+
         prompt_base = _chapter_draft_prompt(
             title=title,
             chapter=chapter,
@@ -1077,6 +1288,7 @@ def main() -> int:
             channel_prompt=channel_prompt,
             core_message=plan.core_message,
             previous_tail=previous_tail,
+            memory_note=memory_note,
             quote_max=chapter_quote_budget,
             paren_max=chapter_paren_budget,
             quote_total_max=quote_total_max,
@@ -1097,6 +1309,16 @@ def main() -> int:
             llm_meta = meta
             if chapter_text is None:
                 # Agent/think mode: pending task created. Stop here (sequential dependency).
+                try:
+                    _write_longform_sidecars(
+                        analysis_dir=analysis_dir,
+                        plan=plan,
+                        drafted=drafted,
+                        max_keywords=int(args.memory_max_keywords),
+                        max_must=int(args.memory_max_must),
+                    )
+                except Exception:
+                    pass
                 (analysis_dir / "pending.json").write_text(
                     json.dumps(
                         {
@@ -1357,6 +1579,17 @@ def main() -> int:
                 )
                 if report["ok"]:
                     break
+
+    try:
+        _write_longform_sidecars(
+            analysis_dir=analysis_dir,
+            plan=plan,
+            drafted=drafted,
+            max_keywords=int(args.memory_max_keywords),
+            max_must=int(args.memory_max_must),
+        )
+    except Exception:
+        pass
 
     if not report["ok"]:
         print("[MARATHON] assembled_candidate has hard issues. Fix chapters and rerun.")

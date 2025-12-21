@@ -188,13 +188,18 @@
     - `content/analysis/longform/chapters/chapter_XXX__attempt_YY__invalid.md`（章の不正出力を保存）
     - `content/analysis/longform/assembled_candidate.md`（結合候補）
     - `content/analysis/longform/validation__latest.json`（全文の決定論検証レポート）
+    - `content/analysis/longform/memory.json`（既出キーワード/既出must_includeのスナップショット）
+    - `content/analysis/longform/chapter_summaries.json`（章ごとの1行要約/字数/必須観点）
 
-### Phase 1.1（推奨/未実装）: Memory / 要約 / チャンクJudge
-Marathon v1 は “全文LLM” を避けるため、現状は **plan + 直前章末尾** で整合を担保している。  
-2〜3時間級で「反復」「微妙なズレ」をさらに減らすには、全文を渡さずに次を足すのが有効:
+### Phase 1.1（実装済み: v1.1）: Memory / 要約（全文LLMなし）
+Marathon v1 は “全文LLM” を避けるため、基本は **plan + 直前章末尾** で整合を担保する。  
+ただし 2〜3時間級で「反復」「微妙なズレ」をさらに減らすために、全文を渡さずに次を追加した:
 
-- `content/analysis/longform/chapter_summaries.json`（各章1文要約）を生成し、重複/脱線の監査に使う
-- `content/analysis/longform/memory.json`（core_message / covered_points / no_repeat_phrases）を更新し、次章プロンプトへ投入する
+- `content/analysis/longform/chapter_summaries.json`: 各章の1行要約/字数/必須観点を保存（監査/差し替えの足場）
+- `content/analysis/longform/memory.json`: 既出キーワード/既出must_include をスナップショット化し、次章の指示パックへ投入
+  - 既定: `--use-memory`（ON）/ 必要なら `--no-memory` でOFF
+
+残タスク（本命）:
 - Judge は全文ではなく **要約＋抜粋** でブロック単位判定し、問題章番号だけを返す（Fixは章差し替えのみ）
 
 ### Phase 2（本命: script_pipelineにMarathonモード統合）
