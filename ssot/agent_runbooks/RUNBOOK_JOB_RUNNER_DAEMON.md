@@ -14,7 +14,16 @@
 キュー実体（参考）:
 - `workspaces/scripts/_state/job_queue.jsonl`（pending/running/completed/failed）
 
-## 2. launchd（macOS LaunchDaemon例）
+## 2. systemd（Linux）
+テンプレ（置き場所）:
+- `ssot/agent_runbooks/assets/job_runner.service`
+
+使い方:
+- `__REPO_ROOT__` を実パスに置換して `/etc/systemd/system/factory_job_runner.service` 等へ配置
+- `sudo systemctl daemon-reload`
+- `sudo systemctl enable --now factory_job_runner.service`
+
+## 3. launchd（macOS LaunchDaemon例）
 `/Library/LaunchDaemons/factory_job_runner.plist`
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -48,20 +57,20 @@
 - 配置後: `sudo launchctl load /Library/LaunchDaemons/factory_job_runner.plist`
 - 停止: `sudo launchctl unload /Library/LaunchDaemons/factory_job_runner.plist`
 
-## 3. cron（毎分起動の例）
+## 4. cron（毎分起動の例）
 ```bash
 * * * * * cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>" /usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 20 --max-parallel 1 --sleep 10 >> logs/job_runner.cron.log 2>&1
 ```
 
-## 4. 簡易ホスティング（例: Render）
+## 5. 簡易ホスティング（例: Render）
 - 起動コマンド例: `python -m script_pipeline.job_runner run-loop --max-iter 60 --limit 100 --max-parallel 1 --sleep 10`
 - `.env` を環境変数として登録（必要なら `SCRIPT_PIPELINE_FORCE_FALLBACK=1`）
 - 永続ストレージに `workspaces/` をマウントし、`workspaces/scripts/_state/job_queue.jsonl` と `workspaces/logs/` を保持する
 
-## 5. Slack通知（任意）
+## 6. Slack通知（任意）
 - `scripts/notifications.py` に簡易Webhook送信あり。環境変数 `SLACK_WEBHOOK_URL` を設定する。
 
-## 6. 運用メモ
+## 7. 運用メモ
 - キュー確認: `python -m script_pipeline.job_runner list`
 - 古い running を failed に倒す: `python -m script_pipeline.job_runner gc --max-minutes 120`
 - 失敗を pending に戻す: `python -m script_pipeline.job_runner retry <JOB_ID>`
