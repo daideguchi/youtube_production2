@@ -434,9 +434,13 @@ function loadPresetLayout(channel) {
     return {
       beltTopPct: toNum(layout.beltTopPct),
       beltHeightPct: toNum(layout.beltHeightPct),
+      beltInsetPx: toNum(layout.beltInsetPx),
       subtitleBottomPx: toNum(layout.subtitleBottomPx),
       subtitleMaxWidthPct: toNum(layout.subtitleMaxWidthPct),
       subtitleFontSize: toNum(layout.subtitleFontSize),
+      beltMainScale: toNum(layout.beltMainScale),
+      beltSubScale: toNum(layout.beltSubScale),
+      beltGapScale: toNum(layout.beltGapScale),
     };
   } catch {}
   return {};
@@ -482,10 +486,24 @@ function warnGaps(scenes) {
 function resolveLayout(opts, presetLayout = {}) {
   const beltTopPct = Number.isFinite(opts.beltTop) ? opts.beltTop : toNum(presetLayout.beltTopPct);
   const beltHeightPct = Number.isFinite(opts.beltHeight) ? opts.beltHeight : toNum(presetLayout.beltHeightPct);
+  const beltInsetPx = toNum(presetLayout.beltInsetPx);
   const subtitleBottomPx = Number.isFinite(opts.subtitleBottom) ? opts.subtitleBottom : toNum(presetLayout.subtitleBottomPx);
   const subtitleMaxWidthPct = Number.isFinite(opts.subtitleMaxWidth) ? opts.subtitleMaxWidth : toNum(presetLayout.subtitleMaxWidthPct);
   const subtitleFontSize = Number.isFinite(opts.subtitleFontSize) ? opts.subtitleFontSize : toNum(presetLayout.subtitleFontSize);
-  return { beltTopPct, beltHeightPct, subtitleBottomPx, subtitleMaxWidthPct, subtitleFontSize };
+  const beltMainScale = toNum(presetLayout.beltMainScale);
+  const beltSubScale = toNum(presetLayout.beltSubScale);
+  const beltGapScale = toNum(presetLayout.beltGapScale);
+  return {
+    beltTopPct,
+    beltHeightPct,
+    beltInsetPx,
+    subtitleBottomPx,
+    subtitleMaxWidthPct,
+    subtitleFontSize,
+    beltMainScale,
+    beltSubScale,
+    beltGapScale,
+  };
 }
 
 function loadPresetOpeningOffset(channel) {

@@ -110,17 +110,22 @@ export const Timeline: React.FC<Props> = ({
     const limit = 28;
     return base.length > limit ? `${base.slice(0, limit)}…` : base;
   };
+  const resolveBgmSrc = (src: string) => {
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("file://")) {
+      return src;
+    }
+    if (src.startsWith("/")) {
+      return `file://${src}`;
+    }
+    return staticFile(src.replace(/^\/+/, ""));
+  };
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f7f2ea" }}>
       {bgm?.src ? (
         <Sequence from={Math.max(0, Math.round(openingOffset * fps))}>
           <Audio
-            src={
-              bgm.src.startsWith("http://") || bgm.src.startsWith("https://")
-                ? bgm.src
-                : staticFile(bgm.src.replace(/^\/+/, ""))
-            }
+            src={resolveBgmSrc(bgm.src)}
             volume={(audioFrame) => {
               const audioT = Math.max(0, audioFrame / fps - openingOffset);
               const fade = bgm.fadeSec ?? 1.5;
