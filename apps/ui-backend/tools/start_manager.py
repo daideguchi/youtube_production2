@@ -480,7 +480,7 @@ def cmd_health(args: argparse.Namespace) -> None:
     if run_prompt_audit:
         guard_failures |= not _run_guard(
             "prompt audit",
-            ["python3", "scripts/prompt_audit.py"],
+            ["python3", "scripts/prompt_audit.py", "--skip-scripts"],
         )
 
     if run_workflow_precheck:

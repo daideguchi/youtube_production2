@@ -129,7 +129,8 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
 - `python3 scripts/api_health_check.py --base-url http://127.0.0.1:8000`
 - `python3 scripts/validate_status_sweep.py --repair-global`（壊れたstatusの補正）
-- `python3 scripts/prompt_audit.py`（detect-only）
+- `python3 scripts/prompt_audit.py --skip-scripts`（promptのみ。`start_manager healthcheck --with-guards` の既定）
+- `python3 scripts/prompt_audit.py`（prompt + assembled/sanitized を監査。重いので必要時のみ）
 - `python3 scripts/llm_provenance_report.py --channel CHxx --video NNN`（どのprovider/modelで生成されたかの追跡）
 - `python3 scripts/force_asset_sync.py --dry-run`（`asset/`=L0 を正として role assets の同期/差分検知）
 - OpenRouter疎通:

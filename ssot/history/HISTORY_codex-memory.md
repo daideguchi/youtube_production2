@@ -137,3 +137,12 @@
 - SSOT更新: `ssot/OPS_SCRIPT_GUIDE.md` に超長尺（Marathon）入口・検証・`SCRIPT_VALIDATION_LLM_QUALITY_GATE=0` の運用を追記。
 - SSOT更新: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md` に Route C（Marathon）と Marathon v1 の I/O（plan/invalid/assembled_candidate/validation）と、未実装の Memory/チャンクJudge を明文化。
 - Marathon改善: ブロック雛形（章の箱）を `configs/longform_block_templates.json` に外出しし、`a_text_marathon_compose.py` に `--block-template` を追加（CH別の流儀を固定しやすくした）。
+- 新チャンネル立ち上げ（YouTube handle未確定のため offline scaffold）: CH17–CH21 のチャンネル資材を追加（`packages/script_pipeline/channels/CH17-*`〜`CH21-*` に `channel_info.json`/`script_prompt.txt`、`packages/script_pipeline/audio/channels/CH17..CH21/voice_config.json`、`workspaces/scripts/CH17..CH21/`、`workspaces/planning/channels/CH17..CH21.csv`、`workspaces/planning/personas/CH17..CH21_PERSONA.md`）。
+- `configs/sources.yaml` を更新: CH12 の `chapter_count` をベンチマーク正（4部構成）に揃えて 4 に修正。CH17–CH21 を登録（`chapter_count=7`, `target_chars_min=18000`, `target_chars_max=26000`）。
+- チャンネル一覧 JSON を再生成: `script_pipeline/channels/channels_info.json`（CH17–CH21 を反映）。
+
+## 2025-12-22
+- healthcheck の収束: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards` の prompt audit が生成ログ由来で落ちる問題を解消（guard は `scripts/prompt_audit.py --skip-scripts` を実行するよう変更）。
+- `scripts/prompt_audit.py` 改善: timezone-aware timestamp / registry-path の file 限定 / 重複pathのdedupe / script側は canonical surfaces（`assembled*.md`, `audio_prep/script_sanitized*.txt`）のみ監査。
+- SSOT更新: prompt audit の運用入口を明確化（`ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`）。棚卸しを再生成（`python3 scripts/ops/scripts_inventory.py --write` → `ssot/OPS_SCRIPTS_INVENTORY.md`）。
+- 検証: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards` / `python3 scripts/ops/ssot_audit.py --strict`。

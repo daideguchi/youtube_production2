@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Audit channel prompts and generated scripts for legacy delimiters / punctuation."""
+"""Audit channel prompts and canonical script surfaces for legacy delimiters / punctuation.
+
+This tool is used in health checks, so it should be:
+- fast (avoid scanning large, irrelevant trees)
+- low-noise (skip logs/analysis artifacts by default)
+"""
 from __future__ import annotations
 
 import argparse
@@ -98,11 +103,17 @@ def iter_script_files(channel_code: str | None) -> Iterable[Path]:
         for path in ch_dir.rglob("*"):
             if not path.is_file():
                 continue
-            if path.suffix.lower() not in {".md", ".txt"}:
+
+            # Canonical A-text surfaces only (skip logs/analysis/aux files).
+            if path.name in {"assembled.md", "assembled_human.md"}:
+                if "content" in path.parts and path.parent.name in {"content", "final"}:
+                    yield path
                 continue
-            if path.name.endswith(".json"):
+
+            if path.suffix.lower() == ".txt" and path.parent.name == "audio_prep":
+                if path.name.startswith("script_sanitized"):
+                    yield path
                 continue
-            yield path
 
 
 def _load_registry_prompt_paths() -> List[Path]:
@@ -121,7 +132,7 @@ def _load_registry_prompt_paths() -> List[Path]:
             if not raw:
                 continue
             path = Path(raw)
-            if path.exists():
+            if path.exists() and path.is_file():
                 paths.append(path)
     return paths
 
@@ -159,7 +170,7 @@ def scan_file(path: Path, apply: bool) -> dict:
 
 def write_log(results: List[dict], apply: bool) -> Path:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    timestamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     log_path = LOG_DIR / f"prompt_audit_{timestamp}.log"
     payload = {
         "timestamp": timestamp,
@@ -199,6 +210,17 @@ def main() -> int:
     files.extend(iter_prompt_files(target_channel))
     if not args.skip_scripts:
         files.extend(iter_script_files(target_channel))
+
+    # Dedupe (registry + heuristics can overlap).
+    seen: set[Path] = set()
+    deduped: List[Path] = []
+    for path in files:
+        key = path.resolve() if path.exists() else path
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(path)
+    files = deduped
 
     if not files:
         raise SystemExit("No files matched the criteria.")
