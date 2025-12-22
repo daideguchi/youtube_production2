@@ -6,6 +6,7 @@
 
 正本フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`  
 入口索引（実行コマンドの一覧）: `ssot/OPS_ENTRYPOINTS_INDEX.md`
+全ファイル棚卸し（scripts/ 全量）: `ssot/OPS_SCRIPTS_INVENTORY.md`
 
 ---
 
