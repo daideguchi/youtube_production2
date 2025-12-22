@@ -1,0 +1,17 @@
+{
+  "channel_id": "CH20",
+  "name": "ブッダの人間関係相談室",
+  "description": "人間関係の苦しみを、ブッダの視点で整える。",
+  "youtube_description": "人間関係で疲れた夜に。\n家族・職場・友人との距離に悩む人へ、争いを増やさず心が軽くなる視点と一手をお届けします。\n宗教の勧誘ではありません。暮らしの知恵として、静かに整える夜話です。",
+  "default_tags": [
+    "人間関係",
+    "仏教",
+    "禅",
+    "ストレス",
+    "言い換え",
+    "寝落ち",
+    "心が軽くなる"
+  ],
+  "persona_path": "progress/personas/CH20_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH20-ブッダの人間関係相談室/script_prompt.txt"
+}

@@ -1,0 +1,17 @@
+{
+  "channel_id": "CH18",
+  "name": "禅と睡眠の静かな科学",
+  "description": "眠れない夜を、禅と睡眠科学で静める。",
+  "youtube_description": "眠れない夜に、静かな理解を。\nこのチャンネルでは、不眠や不安の仕組みをやさしく解きほぐし、禅の視点で「今夜できる一手」へ落とします。\n宗教の勧誘ではありません。医療の代替でもありません。暮らしの知恵としてお届けします。",
+  "default_tags": [
+    "睡眠",
+    "不眠",
+    "禅",
+    "呼吸",
+    "マインドフルネス",
+    "寝落ち",
+    "脳科学"
+  ],
+  "persona_path": "progress/personas/CH18_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH18-禅と睡眠の静かな科学/script_prompt.txt"
+}

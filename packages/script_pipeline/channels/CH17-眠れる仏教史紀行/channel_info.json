@@ -1,0 +1,17 @@
+{
+  "channel_id": "CH17",
+  "name": "眠れる仏教史紀行",
+  "description": "仏教の歴史を、静かな夜の旅にする。",
+  "youtube_description": "眠れない夜に、静かな知の旅を。\nこのチャンネルでは、仏教の歴史と人物、場所の物語を、落ち着いた語りで紹介します。\n宗教の勧誘ではなく、暮らしのための知恵として、安心で終わる長尺の夜話をお届けします。",
+  "default_tags": [
+    "仏教",
+    "歴史",
+    "寺社",
+    "仏像",
+    "寝落ち",
+    "朗読",
+    "静かな夜"
+  ],
+  "persona_path": "progress/personas/CH17_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH17-眠れる仏教史紀行/script_prompt.txt"
+}

@@ -1,0 +1,17 @@
+{
+  "channel_id": "CH21",
+  "name": "眠れる仏教説話集",
+  "description": "眠りに落ちるための、仏教説話と寓話。",
+  "youtube_description": "眠れない夜に、静かな物語を。\nこのチャンネルでは、仏教説話や寓話を、落ち着いた語りでお届けします。\n物語のあとに、やさしい解説と今夜の一手を添えて、安心で終えます。",
+  "default_tags": [
+    "説話",
+    "寓話",
+    "仏教",
+    "寝落ち",
+    "朗読",
+    "不安",
+    "心が軽くなる"
+  ],
+  "persona_path": "progress/personas/CH21_PERSONA.md",
+  "template_path": "script_pipeline/channels/CH21-眠れる仏教説話集/script_prompt.txt"
+}
