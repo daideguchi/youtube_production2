@@ -68,6 +68,33 @@
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
 
+### 2.3 Research（topic_research）— 検索/リサーチ中間
+用途:
+- ネタ切れ防止、ファクトチェックの“足場”を固定する（Aテキスト本文には URL を入れない）。
+
+観測されるファイル:
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/research/search_results.json`（Web検索結果）
+  - `schema`: `"ytm.web_search_results.v1"`
+  - `provider`: string（例: `brave`, `openrouter:perplexity/sonar`, `disabled`）
+  - `query`: string
+  - `retrieved_at`: string（UTC ISO, `Z`）
+  - `hits`: list
+    - `title`: string
+    - `url`: string（http/https）
+    - `snippet`: string|null（任意）
+    - `source`: string|null（任意）
+    - `age`: string|null（任意）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/research/research_brief.md`（LLMが参照する要約/論点）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/research/references.json`（出典の機械参照用）
+  - list of dict（観測キー例）:
+    - `title`: string
+    - `url`: string
+    - `type`: string（例: `web`, `paper`）
+    - `source`: string（任意）
+    - `year`: number|null（任意）
+    - `note`: string（任意）
+    - `confidence`: number（任意）
+
 ### 2.3 script_manifest.json（契約 / 仕組み化の核）
 用途:
 - Scriptフェーズの入力/出力/依存（status.json・assembled.md・LLM artifacts）を **1ファイルに固定**し、UI表示・移設・検証の基礎にする。

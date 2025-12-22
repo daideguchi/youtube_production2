@@ -8,6 +8,8 @@ stages:
   - name: topic_research
     description: Collect research brief and references
     outputs:
+      - path: content/analysis/research/search_results.json
+        required: true
       - path: content/analysis/research/research_brief.md
         required: true
       - path: content/analysis/research/references.json
@@ -21,6 +23,7 @@ stages:
         CHANNEL_CONTEXT: from_channel_name
         AUDIENCE_PROFILE: from_persona
         CHANNEL_STYLE_GUIDE: from_style
+        WEB_SEARCH_RESULTS: "@content/analysis/research/search_results.json"
   - name: script_outline
     description: Draft outline
     outputs:
@@ -70,7 +73,7 @@ stages:
         META_JSON: from_metadata_json
         OUTLINE_TEXT: "@content/outline.md"
         CHAPTER_JSON: "{\"heading\": \"第1章\"}"
-        SCRIPT_PROMPT: from_script_prompt
+        SCRIPT_PROMPT: from_a_text_channel_prompt
   - name: script_enhancement
     description: Enhancement pass (no new files)
     outputs: []

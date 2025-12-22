@@ -539,6 +539,126 @@ def _sanitize_a_text_bullet_prefixes(text: str) -> str:
     return "\n".join(out_lines).rstrip() + "\n"
 
 
+def _sanitize_a_text_forbidden_statistics(text: str) -> str:
+    """
+    Best-effort: remove percent/percentage expressions that are forbidden by A-text rules.
+    This is a safety/credibility repair to avoid accidental fake-statistics vibes.
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized:
+        return text or ""
+    if "%" not in normalized and "％" not in normalized and "パーセント" not in normalized:
+        return text or ""
+
+    fullwidth_to_ascii = str.maketrans("０１２３４５６７８９", "0123456789")
+
+    def _to_int(raw: str) -> int | None:
+        s = (raw or "").translate(fullwidth_to_ascii).strip()
+        if not s:
+            return None
+        try:
+            return int(s)
+        except Exception:
+            return None
+
+    changed = False
+
+    def repl_people(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        suffix = str(m.group(2) or "人")
+        if n is None:
+            changed = True
+            return f"一部の{suffix}"
+        if n >= 70:
+            prefix = "多くの"
+        elif n >= 40:
+            prefix = "少なくない"
+        elif n >= 10:
+            prefix = "一部の"
+        else:
+            prefix = "ごく一部の"
+        changed = True
+        return f"{prefix}{suffix}"
+
+    def repl_probability(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        kind = str(m.group(2) or "可能性")
+        if n is None:
+            changed = True
+            return f"一定の{kind}"
+        if n >= 90:
+            prefix = "非常に高い"
+        elif n >= 70:
+            prefix = "高い"
+        elif n >= 40:
+            prefix = "それなりの"
+        elif n >= 10:
+            prefix = "低い"
+        else:
+            prefix = "ごく低い"
+        changed = True
+        return f"{prefix}{kind}"
+
+    def repl_general(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        if n is None:
+            changed = True
+            return "ある程度"
+        # If followed by "の", prefer noun-like expressions (e.g., ほとんどの人).
+        after = normalized[m.end() :]
+        i = 0
+        while i < len(after) and after[i] in (" ", "\t", "\u3000"):
+            i += 1
+        follows_no = after[i : i + 1] == "の"
+        if follows_no:
+            if n >= 100:
+                out = "すべて"
+            elif n >= 90:
+                out = "ほとんど"
+            elif n >= 70:
+                out = "多く"
+            elif n >= 40:
+                out = "半分ほど"
+            elif n >= 10:
+                out = "一部"
+            else:
+                out = "ごく一部"
+        else:
+            if n >= 100:
+                out = "完全に"
+            elif n >= 90:
+                out = "ほぼ"
+            elif n >= 70:
+                out = "たいてい"
+            elif n >= 40:
+                out = "半分ほど"
+            elif n >= 10:
+                out = "ときどき"
+            else:
+                out = "まれに"
+        changed = True
+        return out
+
+    out = normalized
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(人(?:々|たち)?)", repl_people, out)
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(確率|可能性)", repl_probability, out)
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)", repl_general, out)
+
+    if "%" in out or "％" in out or "パーセント" in out:
+        changed = True
+        out = out.replace("%", "").replace("％", "").replace("パーセント", "")
+
+    if not changed:
+        return text or ""
+    # Preserve trailing newline if the original had it.
+    if normalized.endswith("\n") and not out.endswith("\n"):
+        out += "\n"
+    return out
+
+
 def _sanitize_inline_pause_markers(text: str) -> str:
     """
     Best-effort: remove inline '---' sequences that would trip the hard validator.
@@ -2634,15 +2754,37 @@ def _write_placeholder(file_path: Path, stage: str, title: str) -> None:
     file_path.write_text(content, encoding="utf-8")
 
 
+def _write_json_placeholder(file_path: Path) -> None:
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    name = file_path.name
+    if name in {"references.json", "chapter_briefs.json"}:
+        file_path.write_text("[]\n", encoding="utf-8")
+        return
+    if name == "search_results.json":
+        payload = {
+            "schema": "ytm.web_search_results.v1",
+            "provider": "disabled",
+            "query": "",
+            "retrieved_at": utc_now_iso(),
+            "hits": [],
+        }
+        file_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return
+    # default JSON placeholder
+    file_path.write_text(json.dumps({"scenes": []}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def _generate_stage_outputs(stage: str, base: Path, st: Status, outputs: List[Dict[str, Any]]) -> None:
     """Simple deterministic generators (no LLM) to keep SoT consistent."""
     title = st.metadata.get("title") or st.script_id
     if stage == "topic_research":
+        search = base / "content/analysis/research/search_results.json"
         brief = base / "content/analysis/research/research_brief.md"
         refs = base / "content/analysis/research/references.json"
         brief.parent.mkdir(parents=True, exist_ok=True)
         brief.write_text(f"# Research Brief\n\nTitle: {title}\n\n- Finding 1\n- Finding 2\n", encoding="utf-8")
-        refs.write_text("[]\n", encoding="utf-8")
+        _write_json_placeholder(search)
+        _write_json_placeholder(refs)
         return
     if stage == "script_outline":
         out = base / "content/outline.md"
@@ -2684,8 +2826,7 @@ def _generate_stage_outputs(stage: str, base: Path, st: Status, outputs: List[Di
         resolved = _replace_tokens(path, st.channel, st.video)
         file_path = base / resolved
         if file_path.suffix == ".json":
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.write_text(json.dumps({"scenes": []}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            _write_json_placeholder(file_path)
         else:
             _write_placeholder(file_path, stage, title)
 
@@ -2702,8 +2843,7 @@ def _ensure_missing_outputs(stage: str, base: Path, st: Status, outputs: List[Di
         if file_path.exists() and file_path.stat().st_size > 0:
             continue
         if file_path.suffix == ".json":
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.write_text(json.dumps({"scenes": []}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            _write_json_placeholder(file_path)
         else:
             _write_placeholder(file_path, stage, title)
 
@@ -2831,10 +2971,75 @@ def _ensure_outline_structure(base: Path, st: Status) -> None:
     return bool(chapters)
 
 
+def _build_web_search_query(topic: str | None) -> str:
+    raw = str(topic or "").strip()
+    if not raw:
+        return ""
+    tag = _extract_bracket_tag(raw)
+    cleaned = re.sub(r"【[^】]+】", "", raw).strip()
+    cleaned = cleaned.replace("「", "").replace("」", "")
+    cleaned = re.sub(r"[\\s\\u3000]+", " ", cleaned).strip()
+    if tag and cleaned:
+        return f"{tag} {cleaned}".strip()
+    return (tag or cleaned or raw).strip()
+
+
+def _ensure_web_search_results(base: Path, st: Status) -> None:
+    """
+    Ensure `content/analysis/research/search_results.json` exists before topic_research LLM runs.
+    Best-effort: failures must not break the pipeline.
+    """
+    out_path = base / "content/analysis/research/search_results.json"
+    provider = str(os.getenv("YTM_WEB_SEARCH_PROVIDER") or "auto").strip()
+    force = str(os.getenv("YTM_WEB_SEARCH_FORCE") or "0").strip().lower() in {"1", "true", "yes", "on"}
+
+    if out_path.exists() and not force:
+        try:
+            existing = json.loads(out_path.read_text(encoding="utf-8"))
+            hits = existing.get("hits") if isinstance(existing, dict) else None
+            prov = str(existing.get("provider") or "") if isinstance(existing, dict) else ""
+            if isinstance(hits, list) and hits and prov and prov != "disabled":
+                return
+        except Exception:
+            pass
+
+    topic = st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id
+    query = _build_web_search_query(str(topic or ""))
+    try:
+        count = int(os.getenv("YTM_WEB_SEARCH_COUNT") or 8)
+    except Exception:
+        count = 8
+    try:
+        timeout_s = int(os.getenv("YTM_WEB_SEARCH_TIMEOUT_S") or 20)
+    except Exception:
+        timeout_s = 20
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        from factory_common.web_search import web_search
+
+        result = web_search(query, provider=provider, count=count, timeout_s=timeout_s)
+        out_path.write_text(json.dumps(result.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        st.stages["topic_research"].details["web_search"] = {
+            "provider": result.provider,
+            "query": result.query,
+            "hit_count": len(result.hits),
+        }
+    except Exception as exc:
+        _write_json_placeholder(out_path)
+        st.stages["topic_research"].details["web_search"] = {
+            "provider": "disabled",
+            "query": query,
+            "hit_count": 0,
+            "error": str(exc)[:200],
+        }
+
+
 def _ensure_references(base: Path, st: Status | None = None) -> None:
-    """Ensure references.json is populated (no placeholders). If empty, seed with minimal defaults and warn."""
+    """Ensure references.json is populated (no placeholders). Empty list is allowed (no fake fallback sources)."""
     refs_path = base / "content/analysis/research/references.json"
     brief_path = base / "content/analysis/research/research_brief.md"
+    search_path = base / "content/analysis/research/search_results.json"
     if refs_path.exists():
         try:
             data = json.loads(refs_path.read_text(encoding="utf-8"))
@@ -2842,20 +3047,60 @@ def _ensure_references(base: Path, st: Status | None = None) -> None:
                 return
         except Exception:
             pass
+
+    entries: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+
+    # 1) Prefer structured web_search hits (no URL fabrication).
+    if search_path.exists():
+        try:
+            search = json.loads(search_path.read_text(encoding="utf-8"))
+        except Exception:
+            search = None
+        hits = search.get("hits") if isinstance(search, dict) else None
+        if isinstance(hits, list):
+            for h in hits:
+                if not isinstance(h, dict):
+                    continue
+                url = str(h.get("url") or "").strip()
+                if not url or not url.startswith("http"):
+                    continue
+                if url in seen:
+                    continue
+                seen.add(url)
+                title = str(h.get("title") or url).strip() or url
+                source = str(h.get("source") or "").strip()
+                entries.append(
+                    {
+                        "title": title,
+                        "url": url,
+                        "type": "web",
+                        "source": source,
+                        "year": None,
+                        "note": "web_search から自動抽出",
+                        "confidence": 0.35,
+                    }
+                )
+                if len(entries) >= 8:
+                    break
+
+    # 2) Extract URLs embedded in research_brief.md (fallback when search is disabled).
     urls: List[str] = []
     if brief_path.exists():
         try:
             import re
 
             text = brief_path.read_text(encoding="utf-8")
-            urls = re.findall(r"https?://[^\s)\]\">]+", text)
+            urls = re.findall(r"https?://[^\\s)\\]\">]+", text)
         except Exception:
             urls = []
-    entries: List[Dict[str, Any]] = []
     for u in urls:
         clean = u.strip().rstrip("）)];；、。,] ")
         if not clean.startswith("http"):
             continue
+        if clean in seen:
+            continue
+        seen.add(clean)
         entries.append(
             {
                 "title": clean,
@@ -2867,37 +3112,18 @@ def _ensure_references(base: Path, st: Status | None = None) -> None:
                 "confidence": 0.4,
             }
         )
+        if len(entries) >= 10:
+            break
+
     if not entries:
-        # Offline/dry runs may not have real research. Keep references empty rather than injecting unrelated defaults.
-        if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
-            if st is not None and "topic_research" in getattr(st, "stages", {}):
-                st.stages["topic_research"].details["references_warning"] = "offline_no_references"
-            refs_path.parent.mkdir(parents=True, exist_ok=True)
-            refs_path.write_text("[]\n", encoding="utf-8")
-            return
-        fallback = [
-            {
-                "title": "Göbekli Tepe - Wikipedia",
-                "url": "https://en.wikipedia.org/wiki/G%C3%B6bekli_Tepe",
-                "type": "web",
-                "source": "Wikipedia",
-                "year": None,
-                "note": "デフォルト概要出典",
-                "confidence": 0.25,
-            },
-            {
-                "title": "Establishing a Radiocarbon Sequence for Göbekli Tepe (PDF)",
-                "url": "https://www.researchgate.net/publication/257961716_Establishing_a_Radiocarbon_Sequence_for_Gobekli_Tepe_State_of_Research_and_New_Data",
-                "type": "paper",
-                "source": "ResearchGate",
-                "year": None,
-                "note": "ラジオカーボンシーケンス要約",
-                "confidence": 0.25,
-            },
-        ]
-        entries.extend(fallback)
-        if st is not None and "topic_research" in st.stages:
-            st.stages["topic_research"].details["references_warning"] = "fallback_sources_used"
+        if st is not None and "topic_research" in getattr(st, "stages", {}):
+            st.stages["topic_research"].details["references_warning"] = "empty_references"
+        refs_path.parent.mkdir(parents=True, exist_ok=True)
+        refs_path.write_text("[]\n", encoding="utf-8")
+        return
+
+    if st is not None and "topic_research" in getattr(st, "stages", {}):
+        st.stages["topic_research"].details["references_count"] = len(entries)
     refs_path.parent.mkdir(parents=True, exist_ok=True)
     refs_path.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -3932,6 +4158,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 current_parens = 0
 
             cleaned = a_text
+            cleaned2 = _sanitize_a_text_forbidden_statistics(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["forbidden_statistics_removed"] = True
             if isinstance(pause_min, int) and pause_min > 0 and current_pause < pause_min:
                 cleaned = _ensure_min_pause_lines(cleaned, pause_min)
                 cleanup_details["pause_lines_target_min"] = pause_min
@@ -4160,8 +4390,49 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                 rescued = (a_text or "").strip()
                 try:
+                    try:
+                        quote_max2 = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
+                    except Exception:
+                        quote_max2 = 20
+                    try:
+                        paren_max2 = int((st.metadata or {}).get("a_text_paren_marks_max") or 10)
+                    except Exception:
+                        paren_max2 = 10
+
                     passes: list[dict[str, Any]] = []
                     for pass_no in range(1, 3):
+                        rescued = _sanitize_inline_pause_markers(rescued)
+                        rescued = _sanitize_a_text_forbidden_statistics(rescued)
+
+                        cur_issues, cur_stats = validate_a_text(rescued, st.metadata or {})
+                        cur_errors = [
+                            it
+                            for it in cur_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        cur_codes = {
+                            str(it.get("code"))
+                            for it in cur_errors
+                            if isinstance(it, dict) and it.get("code")
+                        }
+                        allowed_codes = {"length_too_short", "too_many_quotes", "too_many_parentheses", "forbidden_statistics"}
+                        if not (cur_codes and "length_too_short" in cur_codes and cur_codes.issubset(allowed_codes)):
+                            break
+
+                        # Keep the length-rescue loop focused: clear fixable non-length codes deterministically.
+                        if "forbidden_statistics" in cur_codes:
+                            rescued2 = _sanitize_a_text_forbidden_statistics(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "too_many_quotes" in cur_codes and isinstance(quote_max2, int) and quote_max2 > 0:
+                            rescued2 = _reduce_quote_marks(rescued, quote_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "too_many_parentheses" in cur_codes and isinstance(paren_max2, int) and paren_max2 > 0:
+                            rescued2 = _reduce_paren_marks(rescued, paren_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+
                         cur_issues, cur_stats = validate_a_text(rescued, st.metadata or {})
                         cur_errors = [
                             it
@@ -4308,6 +4579,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             )
 
                         rescued = _sanitize_inline_pause_markers(rescued)
+                        rescued = _sanitize_a_text_forbidden_statistics(rescued)
+                        if isinstance(quote_max2, int) and quote_max2 > 0:
+                            rescued2 = _reduce_quote_marks(rescued, quote_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if isinstance(paren_max2, int) and paren_max2 > 0:
+                            rescued2 = _reduce_paren_marks(rescued, paren_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
 
                     if passes:
                         stage_details["auto_length_fix"] = {"passes": passes}
@@ -4415,6 +4695,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
             cleaned = a_text
             cleanup_details: Dict[str, Any] = {}
+            cleaned2 = _sanitize_a_text_forbidden_statistics(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["forbidden_statistics_removed"] = True
             if isinstance(pause_min, int) and pause_min > 0 and current_pause < pause_min:
                 cleaned = _ensure_min_pause_lines(cleaned, pause_min)
                 cleanup_details["pause_lines_target_min"] = pause_min
@@ -5153,6 +5437,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             def _sanitize_candidate(text: str) -> str:
                 out = _sanitize_a_text_markdown_headings(text or "")
                 out = _sanitize_a_text_bullet_prefixes(out)
+                out = _sanitize_a_text_forbidden_statistics(out)
                 out = _sanitize_inline_pause_markers(out)
                 out = out.strip()
                 return out + "\n" if out else ""
@@ -5547,6 +5832,41 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     pass
 
                 hard_errors, hard_stats = _non_warning_errors(candidate)
+
+                if hard_errors:
+                    candidate2 = candidate
+                    try:
+                        qm = hard_stats.get("quote_marks")
+                        qm_max = hard_stats.get("quote_marks_max")
+                        if (
+                            isinstance(qm, int)
+                            and isinstance(qm_max, int)
+                            and qm_max > 0
+                            and qm > qm_max
+                        ):
+                            candidate2 = _reduce_quote_marks(candidate2, qm_max)
+                        pm = hard_stats.get("paren_marks")
+                        pm_max = hard_stats.get("paren_marks_max")
+                        if (
+                            isinstance(pm, int)
+                            and isinstance(pm_max, int)
+                            and pm_max > 0
+                            and pm > pm_max
+                        ):
+                            candidate2 = _reduce_paren_marks(candidate2, pm_max)
+                        candidate2 = _sanitize_a_text_forbidden_statistics(candidate2)
+                        candidate2 = _sanitize_inline_pause_markers(candidate2)
+                        candidate2 = candidate2.strip() + "\n" if candidate2.strip() else ""
+                    except Exception:
+                        candidate2 = candidate
+
+                    if candidate2 and candidate2 != candidate:
+                        candidate = candidate2
+                        try:
+                            fix_latest_path.write_text(candidate, encoding="utf-8")
+                        except Exception:
+                            pass
+                        hard_errors, hard_stats = _non_warning_errors(candidate)
 
                 if hard_errors:
                     # Length-only rescue (bounded) when possible; otherwise stop.
@@ -6949,6 +7269,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     quote_max = 20
                 try:
                     cleaned_candidate = _sanitize_inline_pause_markers(candidate)
+                    cleaned_candidate = _sanitize_a_text_forbidden_statistics(cleaned_candidate)
                     _, det_stats = validate_a_text(cleaned_candidate, st.metadata or {})
                     qm = det_stats.get("quote_marks")
                     if isinstance(quote_max, int) and isinstance(qm, int) and qm > quote_max:
@@ -7077,6 +7398,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             pass
         return st
     else:
+        if stage_name == "topic_research":
+            try:
+                _ensure_web_search_results(base, st)
+            except Exception:
+                pass
         ran_llm = _run_llm(stage_name, base, st, sd, templates)
         if not ran_llm:
             _generate_stage_outputs(stage_name, base, st, outputs)

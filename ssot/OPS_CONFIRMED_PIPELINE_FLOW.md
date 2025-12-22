@@ -135,8 +135,11 @@ Planning運用: `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
 **Stages と Outputs（現行 stages.yaml）**
 1. `topic_research`
    - Outputs:
+     - `content/analysis/research/search_results.json` (required)  ※Web検索結果（hits=[] も許容）
      - `content/analysis/research/research_brief.md` (required)
      - `content/analysis/research/references.json` (required)
+   - 注:
+     - `references.json` は **空配列を許容**（検索無効/失敗時）。無関係なフォールバック出典は注入しない。
 2. `script_outline`
    - Outputs:
      - `content/outline.md` (required)

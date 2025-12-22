@@ -22,6 +22,20 @@
 - LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`。互換: `logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
 - TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（互換: `audio_tts_v2/artifacts/final/**/chunks/`。デフォルトは削除）。
 
+## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
+`packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。
+
+- `YTM_WEB_SEARCH_PROVIDER`（default: `auto`）:
+  - `auto`: `BRAVE_SEARCH_API_KEY` があれば Brave、無ければ `OPENROUTER_API_KEY` で OpenRouter 検索モデル
+  - `brave`: Brave Search API を使用
+  - `openrouter`: OpenRouter 検索モデルを使用（default model は下記）
+  - `disabled`: 検索を実行しない（`hits=[]` の JSON を書く）
+- `BRAVE_SEARCH_API_KEY`（任意）: Brave Search API（provider=brave/auto のとき使用）
+- `YTM_WEB_SEARCH_OPENROUTER_MODEL`（default: `perplexity/sonar`）: provider=openrouter/auto のとき使用
+- `YTM_WEB_SEARCH_COUNT`（default: `8`）: 検索結果の最大件数
+- `YTM_WEB_SEARCH_TIMEOUT_S`（default: `20`）: 検索リクエストの timeout（秒）
+- `YTM_WEB_SEARCH_FORCE`（default: `0`）: `1` で既存の `search_results.json` があっても再検索
+
 ## Script pipeline: Aテキスト品質ゲート（任意）
 `packages/script_pipeline/runner.py` の `script_validation` に適用される。
 
