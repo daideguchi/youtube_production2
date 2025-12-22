@@ -189,6 +189,9 @@ notes: <消し忘れ防止の一言>
 
 ## 5. 次の整理（実行タスク）
 
-1) `scripts/_adhoc/` を作成し、P3の置き場を固定（gitignoreで除外）  
-2) `ssot/OPS_ENTRYPOINTS_INDEX.md` に「P0のみ正規入口」の注記 + start_all/health系の追記  
-3) P2 を archive-first → `ssot/OPS_CLEANUP_EXECUTION_LOG.md` 記録 → repo から削除（段階的）
+本書は運用ルールとして固定する（“TODO”を置かない）。
+
+- 棚卸し更新: `python3 scripts/ops/scripts_inventory.py --write` → `ssot/OPS_SCRIPTS_INVENTORY.md` を最新化
+- 一時スクリプト: `scripts/_adhoc/`（P3。原則git管理しない。必要なら期限付きで明示的に add）
+- 新規入口追加: P0/P1 を追加したら **必ず** `ssot/OPS_ENTRYPOINTS_INDEX.md` / 本書 / Inventory を更新
+- 削除: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしたもののみ（archive-first → `ssot/OPS_CLEANUP_EXECUTION_LOG.md` 記録）
