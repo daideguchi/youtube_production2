@@ -2,6 +2,8 @@
   "channel_id": "CH15",
   "name": "ブッダの心胆鍛錬",
   "description": "根性論ではなく、心の体力を“整えて鍛える”。",
+  "youtube_description": "老後は「気合い」より「整え方」。折れやすさ、焦り、怒り、頑張り癖…心の体力を削る原因を1つに絞り、ブッダの視点で鍛え直します。難しい言葉は使いません。今日できる行動に落として、静かに背中を押します。",
+  "default_tags": ["ブッダ", "仏教", "習慣", "メンタル", "心の体力", "回復", "シニア"],
   "persona_path": "progress/personas/CH15_PERSONA.md",
   "template_path": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt",
   "branding": {
@@ -27,6 +29,5 @@
     "subscriber_count": 0,
     "video_count": 0,
     "synced_at": "2025-12-17T07:26:27.110693+00:00"
-  },
-  "script_prompt": "script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt"
+  }
 }

@@ -2,6 +2,8 @@
   "channel_id": "CH12",
   "name": "ブッダの黄昏夜話",
   "description": "夜の不安を、ブッダの教えで“わかる言葉”にして静める。",
+  "youtube_description": "夜になると、不安や後悔が大きくなる。そんな60代以降のあなたへ。ブッダの教えを「わかる言葉」に翻訳し、今夜から心が軽くなる一手を渡します。難しい言葉は使いません。結論→理由→具体例→今日できる3ステップで、静かに腹落ちさせます。宗教の勧誘ではなく、暮らしのための知恵としてお届けします。",
+  "default_tags": ["ブッダ", "仏教", "不安", "不眠", "孤独", "シニア", "心が軽くなる"],
   "persona_path": "progress/personas/CH12_PERSONA.md",
   "template_path": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt",
   "branding": {
@@ -27,6 +29,5 @@
     "subscriber_count": 0,
     "video_count": 0,
     "synced_at": "2025-12-17T07:26:26.566452+00:00"
-  },
-  "script_prompt": "script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt"
+  }
 }

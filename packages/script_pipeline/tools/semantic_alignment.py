@@ -16,6 +16,7 @@ from factory_common.paths import channels_csv_path, repo_root, script_data_root,
 from ..sot import Status, load_status, save_status
 from ..validator import validate_a_text
 from .optional_fields_registry import get_planning_section, update_planning_from_row
+from .planning_input_contract import apply_planning_input_contract
 
 
 SEMANTIC_ALIGNMENT_SCHEMA = "ytm.semantic_alignment.v1"
@@ -160,16 +161,28 @@ def run_semantic_alignment(
             st.metadata.setdefault("sheet_title", title)
         planning_section = get_planning_section(st.metadata)
         update_planning_from_row(planning_section, row)
+        cleaned, integrity = apply_planning_input_contract(title=title, planning=planning_section)
+        if cleaned != planning_section:
+            planning_section.clear()
+            planning_section.update(cleaned)
+            st.metadata["planning"] = planning_section
+        if integrity and st.metadata.get("planning_integrity") != integrity:
+            st.metadata["planning_integrity"] = integrity
+
+        drop_theme_hints = bool(integrity.get("drop_theme_hints")) or str(integrity.get("coherence") or "") in {
+            "tag_mismatch",
+            "no_title_tag",
+        }
         # Keep legacy flattened mirrors for downstream consumers.
         if planning_section.get("thumbnail_upper"):
             st.metadata.setdefault("thumbnail_title_top", planning_section.get("thumbnail_upper"))
         if planning_section.get("thumbnail_lower"):
             st.metadata.setdefault("thumbnail_title_bottom", planning_section.get("thumbnail_lower"))
-        if planning_section.get("concept_intent"):
+        if (not drop_theme_hints) and planning_section.get("concept_intent"):
             st.metadata.setdefault("concept_intent", planning_section.get("concept_intent"))
         if planning_section.get("target_audience"):
             st.metadata.setdefault("target_audience", planning_section.get("target_audience"))
-        if planning_section.get("benefit_blurb"):
+        if (not drop_theme_hints) and planning_section.get("benefit_blurb"):
             st.metadata.setdefault("benefit", planning_section.get("benefit_blurb"))
 
     title = str(st.metadata.get("expected_title") or st.metadata.get("sheet_title") or "").strip()

@@ -3,15 +3,17 @@
 全チャンネルの台本（assembled.md）と planning CSV / status.json を同期するワンショット。
 - workspaces/planning/channels/*.csv を走査（`factory_common.paths.planning_root()`）
 - 対応する workspaces/scripts/{CH}/0xx/content/assembled.md があれば（`factory_common.paths.script_data_root()`）
-  - CSV: タイトル（冒頭1行）、台本パス、文字数、進捗（未設定なら script_validated）を更新
-  - status.json: title/assembled_path/assembled_characters 等を補完（既存ステージは保持）
+  - CSV: 台本パス、文字数、進捗（未設定なら script_validated）を更新
+  - status.json: sheet_title/expected_title/title を Planning SoT（CSV）から補完（既存ステージは保持）
 """
 
 import csv
 import json
 import sys
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import re
 
 def _discover_repo_root(start: Path) -> Path:
     cur = start if start.is_dir() else start.parent
@@ -107,46 +109,82 @@ def read_status(path: Path) -> Dict:
 def write_status(path: Path, payload: Dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
 
+_RE_PAUSE_LINE = re.compile(r"^\s*---\s*$")
 
-def ensure_row(rows: List[Dict[str, str]], fieldnames: List[str], code: str, no: int) -> Dict[str, str]:
+
+def _a_text_char_count(text: str) -> int:
+    """
+    Count "spoken" characters (match script_pipeline.validator._a_text_char_count):
+    - exclude pause-only lines (`---`)
+    - exclude whitespace/newlines
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines: List[str] = []
+    for line in normalized.split("\n"):
+        if _RE_PAUSE_LINE.match(line):
+            continue
+        lines.append(line)
+    compact = "".join(lines)
+    compact = compact.replace(" ", "").replace("\t", "").replace("\u3000", "")
+    return len(compact.strip())
+
+
+def _find_row(rows: List[Dict[str, str]], no: int) -> Optional[Dict[str, str]]:
+    """
+    Planning CSV is the SoT. This sync must NOT create new planning rows,
+    and must NOT infer titles from A-text.
+    """
     for r in rows:
-        if r.get("No.") == str(no):
+        parsed = _parse_int_no(r.get("No.")) or _parse_int_no(r.get("動画番号"))
+        if parsed == no:
             return r
-    row = {k: "" for k in fieldnames}
-    row["No."] = str(no)
-    row["チャンネル"] = row.get("チャンネル") or code
-    row["動画番号"] = row.get("動画番号") or str(no)
-    row["動画ID"] = row.get("動画ID") or f"{code}-{no:03d}"
-    row["台本番号"] = row.get("台本番号") or f"{code}-{no:03d}"
-    rows.append(row)
-    return row
+    return None
 
 
 def sync_one(code: str, no: int, rows: List[Dict[str, str]], fieldnames: List[str], data_dir: Path) -> None:
-    content_path = data_dir / f"{no:03d}" / "content" / "assembled.md"
+    base_dir = data_dir / f"{no:03d}"
+    content_path = base_dir / "content" / "assembled.md"
     if not content_path.exists():
+        # Prefer SoT (assembled_human) if present; keep CSV path on assembled.md for compatibility.
+        alt = base_dir / "content" / "assembled_human.md"
+        if not alt.exists():
+            return
+        content_path = alt
+    row = _find_row(rows, no)
+    if row is None:
+        print(f"[WARN] {code} {no:03d}: planning row not found; skip (no auto-create)", file=sys.stderr)
         return
-    text = content_path.read_text()
-    title = text.splitlines()[0].strip() if text.splitlines() else ""
-    length = str(len(text))
 
-    row = ensure_row(rows, fieldnames, code, no)
-    if not row.get("タイトル"):
-        row["タイトル"] = title
-    content_rel = _to_repo_relative(content_path)
+    text = content_path.read_text(encoding="utf-8")
+    char_count = _a_text_char_count(text)
+    length = str(char_count)
+
+    row_title = str(row.get("タイトル") or "").strip()
+
+    status_path = base_dir / "status.json"
+    status = read_status(status_path)
+    md = status.get("metadata") if isinstance(status.get("metadata"), dict) else {}
+    # Canonical title must come from Planning SoT only.
+    canonical_title = row_title
+
+    content_rel = _to_repo_relative(data_dir / f"{no:03d}" / "content" / "assembled.md")
     row["台本"] = content_rel
     row["台本パス"] = content_rel
     row["文字数"] = length
     row.setdefault("進捗", "script_validated")
 
-    status_path = data_dir / f"{no:03d}" / "status.json"
-    status = read_status(status_path)
-    md = status.get("metadata") if isinstance(status.get("metadata"), dict) else {}
     md.setdefault("assembled_path", content_rel)
-    md.setdefault("assembled_characters", len(text))
-    if title:
-        md["title"] = title
-        md["title_sanitized"] = title
+    md.setdefault("assembled_characters", char_count)
+    if canonical_title:
+        # Hard repair: keep titles aligned to Planning SoT, never from A-text body.
+        if str(md.get("sheet_title") or "").strip() != canonical_title:
+            md["sheet_title"] = canonical_title
+        if str(md.get("expected_title") or "").strip() != canonical_title:
+            md["expected_title"] = canonical_title
+        if str(md.get("title") or "").strip() != canonical_title:
+            md["title"] = canonical_title
+        if str(md.get("title_sanitized") or "").strip() != canonical_title:
+            md["title_sanitized"] = canonical_title
 
     status.setdefault("script_id", f"{code}-{no:03d}")
     status.setdefault("channel", code)
@@ -173,8 +211,28 @@ def sync_channel(csv_path: Path) -> None:
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description="Sync planning CSV + status.json from existing A-text outputs.")
+    ap.add_argument(
+        "--channel",
+        action="append",
+        help="Only sync specific channel code(s) (e.g. --channel CH07). Repeatable. Default: all channels.",
+    )
+    args = ap.parse_args()
+
+    only: set[str] = set()
+    if args.channel:
+        for raw in args.channel:
+            if not raw:
+                continue
+            for token in str(raw).replace(",", " ").split():
+                token = token.strip().upper()
+                if token:
+                    only.add(token)
+
     for csv_path in CHANNELS_DIR.glob("*.csv"):
         if csv_path.name.lower().endswith("_planning_template.csv"):
+            continue
+        if only and csv_path.stem.upper() not in only:
             continue
         sync_channel(csv_path)
 

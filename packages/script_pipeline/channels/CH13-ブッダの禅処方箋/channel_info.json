@@ -2,6 +2,8 @@
   "channel_id": "CH13",
   "name": "ブッダの禅処方箋",
   "description": "家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。",
+  "youtube_description": "人間関係は、正しさで戦うほど苦しくなります。家族・夫婦・介護・近所づきあいで疲れた心を、ブッダの視点で整えます。難しい言葉なし。結論と理由と具体例で、線引きと慈悲を両立する「処方箋」を渡します。宗教の勧誘ではありません。",
+  "default_tags": ["ブッダ", "仏教", "家族", "介護", "夫婦", "人間関係", "シニア"],
   "persona_path": "progress/personas/CH13_PERSONA.md",
   "template_path": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt",
   "branding": {
@@ -27,6 +29,5 @@
     "subscriber_count": 0,
     "video_count": 0,
     "synced_at": "2025-12-17T07:26:26.766734+00:00"
-  },
-  "script_prompt": "script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt"
+  }
 }

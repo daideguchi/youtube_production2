@@ -57,13 +57,18 @@ class ChannelDefaults:
 DEFAULTS: Dict[str, ChannelDefaults] = {
     "CH12": ChannelDefaults(
         display_name="ブッダの黄昏夜話",
-        chapter_count=8,
+        # CH12 is story-first (4-part). Do not apply the 8-part outline used by CH13–CH16.
+        chapter_count=4,
         target_chars_min=7000,
         target_chars_max=9000,
         script_prompt=(
-            "【構造固定】全体は8パート固定（第1章=導入フック/第2章=日常シーン/第3章=問題の正体/"
-            "第4章=ブッダの見立て/第5章=史実エピソード/第6章=実践3ステップ/第7章=落とし穴/第8章=締め）。\n"
-            "【トーン】夜の不安に寄り添い、静かで上品。煽り・説教・断定過多は禁止。難語を避け、結論→理由→具体で腹落ちさせる。"
+            "【構造固定】4部構成。"
+            "第1部=導入フック。問題提起。"
+            "第2部=物語パート。寓話が主役。"
+            "第3部=解説パート。仏教・心理学で深掘り。"
+            "第4部=締め。祈り。\n"
+            "【物語】物語パートが最重要。終わりには必ず次の区切り文を入れる。物語は以上です。\n"
+            "【トーン】深夜ラジオ的な過度な共感や慰めは不要。淡々とした語り部。煽り・説教・断定過多は禁止。"
         ),
     ),
     "CH13": ChannelDefaults(
@@ -180,12 +185,24 @@ def _patch_metadata(channel: str, video: str, defaults: ChannelDefaults, *, dry_
 
     changed = False
 
+    def _should_override(key: str, current: object, new: object) -> bool:
+        if force:
+            return True
+        if key not in metadata or current in (None, "", 0):
+            return True
+        # Fix legacy/wrong defaults for CH12 without requiring --force.
+        if channel == "CH12" and key == "chapter_count" and current == 8 and new == 4:
+            return True
+        if channel == "CH12" and key == "script_prompt" and isinstance(current, str) and "8パート固定" in current:
+            return True
+        return False
+
     def _set(key: str, value: object) -> None:
         nonlocal changed
-        if force or key not in metadata or metadata.get(key) in (None, "", 0):
-            if metadata.get(key) != value:
-                metadata[key] = value
-                changed = True
+        current = metadata.get(key)
+        if _should_override(key, current, value) and current != value:
+            metadata[key] = value
+            changed = True
 
     _set("channel_display_name", defaults.display_name)
     _set("chapter_count", defaults.chapter_count)

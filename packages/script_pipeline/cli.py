@@ -44,6 +44,22 @@ def parse_args() -> argparse.Namespace:
     sub.add_parser("reconcile", parents=[common], help="Reconcile status based on existing outputs")
     reset_p = sub.add_parser("reset", parents=[common], help="Reset outputs/status for a video")
     reset_p.add_argument("--wipe-research", action="store_true", help="Also delete research outputs")
+
+    rebuild_p = sub.add_parser(
+        "a-text-rebuild",
+        parents=[common],
+        help="Rebuild A-text from SSOT patterns (plan->draft), then optionally validate",
+    )
+    rebuild_p.add_argument(
+        "--no-validate",
+        action="store_true",
+        help="Do not run script_validation after rebuilding",
+    )
+    rebuild_p.add_argument(
+        "--reason",
+        default="manual_rebuild",
+        help="Reason tag recorded in status/analysis (default: manual_rebuild)",
+    )
     
     # Audio command wrapper
     audio_p = sub.add_parser("audio", parents=[common], help="Run audio synthesis")
@@ -98,6 +114,27 @@ def main() -> None:
             mapping[task] = model_keys
         if mapping:
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
+
+    if args.command == "a-text-rebuild":
+        from .runner import rebuild_a_text_from_patterns
+
+        out = rebuild_a_text_from_patterns(
+            ch,
+            no,
+            title=title,
+            reason=str(getattr(args, "reason", "") or "manual_rebuild").strip() or "manual_rebuild",
+        )
+        if not bool(getattr(args, "no_validate", False)):
+            st = run_stage(ch, no, "script_validation", title=title)
+            out = {
+                **out,
+                "script_validation_status": (
+                    st.stages.get("script_validation").status if st.stages.get("script_validation") else None
+                ),
+                "script_status": st.status,
+            }
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return
 
     if args.command == "audio":
         import subprocess
@@ -163,14 +200,12 @@ def main() -> None:
             
         print(f"Running audio synthesis for {ch}-{no}...")
         
-        # Ensure PYTHONPATH includes root and audio_tts_v2
+        # NOTE: Do NOT force PYTHONPATH for Homebrew Python.
+        # Setting PYTHONPATH can hide /opt/homebrew/lib/pythonX.Y/site-packages
+        # (e.g., PyYAML), breaking the STRICT auditor. `run_tts.py` bootstraps
+        # repo paths on its own.
         env = os.environ.copy()
-        pythonpath = env.get("PYTHONPATH", "")
-        # Add repo root and `packages/` so monorepo imports work without root symlinks.
-        new_paths = [str(base_dir), str(packages_dir)]
-        if pythonpath:
-            new_paths.append(pythonpath)
-        env["PYTHONPATH"] = os.pathsep.join(new_paths)
+        env.pop("PYTHONPATH", None)
 
         try:
             subprocess.run(cmd, cwd=base_dir, env=env, check=True)

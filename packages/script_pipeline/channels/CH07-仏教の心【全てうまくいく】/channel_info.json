@@ -8,7 +8,7 @@
     "banner_url": "https://yt3.googleusercontent.com/X7s-NrXF2iCronWsKOvH_vcuNHFYmx4CWMBJOiqgfbWbIjntDhvcDsE-VVnQda3rv27nRlXXZQ",
     "title": "仏教の心【全てうまくいく】",
     "subscriber_count": 47,
-    "view_count": 2872,
+    "view_count": 2893,
     "video_count": 9,
     "custom_url": "@buddha_dogen",
     "handle": "@buddha_dogen",
@@ -21,31 +21,32 @@
     "custom_url": "@buddha_dogen",
     "handle": "@buddha_dogen",
     "url": "https://www.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg",
-    "view_count": 2872,
+    "view_count": 2893,
     "subscriber_count": 47,
     "video_count": 9,
-    "synced_at": "2025-12-11T09:57:23.521985+00:00",
+    "synced_at": "2025-12-18T12:47:04.764385+00:00",
     "source": "UCkw7-R-GI_N5grDBRN6rLzg",
     "published_at": null
   },
-  "description": "朝夜の不安を仏教の知恵と習慣で軽くする安らぎチャンネル",
+  "description": "因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル",
   "persona": {
     "demographics": {
-      "age_range": "40-60代",
-      "life_stage": "日常の不安やストレスを和らげたい"
+      "age_range": "40-70代",
+      "life_stage": "人間関係の消耗や老後不安を抱え、線引きと言葉の選び方を知りたい"
     },
     "interests": [
-      "呼吸・掃除などの朝夜ルーティン",
-      "仏教の実践的な教え",
-      "穏やかな語りで心を整える"
+      "仏教の教えを現実の対処に落とす",
+      "因果・縁・執着の捉え直し",
+      "言い返しより尊厳を守る言葉"
     ],
     "pain_points": [
-      "朝のモヤモヤ",
-      "人間関係や老後の不安"
+      "見下しや無理な要求で消耗する",
+      "縁を切れずに悩む",
+      "親子・家族のしがらみ"
     ],
-    "language_preference": "やさしい話し言葉、断定や説教はしない",
-    "content_preference": "短文化せず、結論→理由→具体ステップで安心を与える",
-    "target_audience": "40〜60代で、日常の不安やストレスを仏教の知恵で和らげたい人"
+    "language_preference": "落ち着いた話し言葉。煽らず、曖昧に濁さない",
+    "content_preference": "強フック→仏教視点→具体対処→締め。水増しや作り話感は避ける",
+    "target_audience": "40〜70代で、人間関係の線引きや因果への執着を仏教の視点でほどきたい人"
   },
   "script_prompt": "script_pipeline/channels/CH07-仏教の心【全てうまくいく】/script_prompt.txt"
 }

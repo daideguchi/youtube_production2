@@ -16,8 +16,6 @@ OPTIONAL_FIELDS = {
     "ターゲット層": "target_audience",
     "具体的な内容（話の構成案）": "outline_notes",
     "DALL-Eプロンプト（URL・テキスト指示込み）": "dalle_prompt",
-    "台本本文（冒頭サンプル）": "script_sample",
-    "台本本文": "script_body",
     "サムネタイトル": "thumbnail_title",
     "悩みタグ_メイン": "primary_pain_tag",
     "悩みタグ_サブ": "secondary_pain_tag",

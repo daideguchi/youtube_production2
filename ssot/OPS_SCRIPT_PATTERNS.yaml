@@ -249,7 +249,7 @@ patterns:
       all: []
       none: []
     plan:
-      core_message_template: "正しさは武器にしない。役に立つ言葉を、時を選んで、相手の器に合わせて届ける。"
+      core_message_template: "正しさは武器にしない。誠実な人は、言う前に今それは役に立つかを確かめる。"
       core_episode_candidates:
         - id: abhaya_prince
           topic: 王子アバヤに説かれた正語
@@ -270,7 +270,7 @@ patterns:
         - name: 導入
           char_budget: 820
           goal: 正論が刺さった経験を具体に掴む
-          content_notes: "相手は正しいのに苦しい、という矛盾を出す。"
+          content_notes: "相手は正しいのに苦しい、という矛盾を出し、最初に『合図の問い』を一つだけ置く（今それは役に立つか）。"
         - name: 正しさの落とし穴
           char_budget: 980
           goal: なぜ正論が刃になるかを一つに絞る
@@ -286,7 +286,7 @@ patterns:
         - name: 実践
           char_budget: 1400
           goal: 朝と夜の所作で、正語を習慣にする
-          content_notes: "朝: 玄関/洗面所。夜: 枕元。短い一行の振り返り。"
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。短い一文で振り返る。"
         - name: 結び
           char_budget: 750
           goal: 相手も自分も傷つけない一歩に収束
@@ -462,6 +462,78 @@ patterns:
         - name: 結び
           char_budget: 750
           goal: 今日の一歩に収束
+          content_notes: "短く。"
+
+  - id: ch07_fallback_core_episode_v1
+    channels: ["CH07"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "出来事そのものより、反射と反芻が苦しみを増やす。受け取らない選択を持てば、心の主導権が戻る。"
+      core_episode_candidates:
+        - id: two_arrows
+          topic: 二本の矢のたとえ
+          keywords: ["反芻", "考えすぎ", "夜", "眠れ", "気にし", "聞き流", "誤解", "分かってもらえ", "傷つ"]
+          must_include:
+            - "一本目は避けにくい痛み、二本目は反芻や自責が撃つ追加の痛みという筋"
+            - "練習は一本目を消すことではなく、二本目を増やさないことだという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ブッダは苦しみを二本の矢にたとえたと伝えられます。
+            一本目は避けにくい出来事の痛みで、二本目は心の反芻や自責が撃つ追加の痛みです。
+            練習は一本目を消すことではなく、二本目を増やさないことです。
+        - id: poisoned_arrow
+          topic: 毒矢のたとえ
+          keywords: ["なぜ", "理由", "答え", "確認", "後悔", "不安", "論破", "正論"]
+          must_include:
+            - "答え探しより先に、いまの痛みを減らす手当てを優先するという筋"
+          avoid_claims:
+            - "逸話の細部の断定"
+          safe_retelling: |
+            毒矢が刺さった人が、矢を抜く前に理由探しを始めた、というたとえがあります。
+            答えを揃えるより先に、いまの痛みを減らす手当てをする。ブッダはその順番を大切にしました。
+        - id: insult_gift
+          topic: 侮辱を贈り物にしない話
+          keywords: ["見下", "侮辱", "悪口", "バカ", "舐め", "言い返", "ムカ", "腹が立"]
+          must_include:
+            - "受け取らなければ増幅しないという筋"
+            - "受け取らない＝黙殺ではなく、反射を止めて距離を取るという筋"
+          avoid_claims:
+            - "出典や経典番号の断定"
+          safe_retelling: |
+            ブッダは侮辱を受けたとき、贈り物は受け取らなければ贈り主に戻る、とたとえたと伝えられます。
+            侮辱の言葉も同じで、受け取って増幅させなければ自分の中で大きくなりません。
+            受け取らないとは黙殺ではなく、反射を止めて距離を取ることです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "生活の一場面（家族/職場/夜の反芻）で、反射を止める。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: タイトルの痛みを具体に掴み、聴く理由を作る
+          content_notes: "結論の方向を一文で先に出す。"
+        - name: 苦しみが増える仕組み
+          char_budget: 950
+          goal: 何が苦しみを増やしているかを一つに絞って説明する
+          content_notes: "言い換え水増し禁止。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語の順で腹落ちさせる
+          content_notes: "候補から1つだけ。引用は地の文で。"
+        - name: 現実への写し方
+          char_budget: 1050
+          goal: 教えを今日の場面に写し、迷う点を一つだけ解く
+          content_notes: "話題を増やさず主題に集中。"
+        - name: 実践
+          char_budget: 1450
+          goal: 行動と言葉（2〜3個）を、場面が想像できるように説明する
+          content_notes: "現代の人物例は最大1つ。作り込み人物例の連打は禁止。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩を一つに絞って締める
           content_notes: "短く。"
 
   # -------------------------

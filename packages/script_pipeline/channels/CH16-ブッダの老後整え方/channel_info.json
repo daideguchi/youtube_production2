@@ -2,6 +2,8 @@
   "channel_id": "CH16",
   "name": "ブッダの老後整え方",
   "description": "老後の不安を煽らず、安心が増える“整える順番”を渡す。",
+  "youtube_description": "老後の不安は、情報より先に「整える順番」があります。お金・健康・家の乱れ・家族との距離…ブッダの教えを現代語に翻訳し、安心が増える一手を渡します。断定や煽りはせず、今日からできる実践で静かに整えます。",
+  "default_tags": ["ブッダ", "仏教", "老後", "年金", "健康", "片づけ", "シニア"],
   "persona_path": "progress/personas/CH16_PERSONA.md",
   "template_path": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt",
   "branding": {
@@ -27,6 +29,5 @@
     "subscriber_count": 0,
     "video_count": 0,
     "synced_at": "2025-12-17T07:26:27.250866+00:00"
-  },
-  "script_prompt": "script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt"
+  }
 }
