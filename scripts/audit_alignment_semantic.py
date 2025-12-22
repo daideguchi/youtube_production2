@@ -11,7 +11,7 @@ It is intended to catch obvious mismatches like:
 
 Examples:
   python3 scripts/audit_alignment_semantic.py --channels CH01,CH04
-  python3 scripts/audit_alignment_semantic.py --channels CH01 --videos 001,002 --min-title-overlap 0.6 --ignore-bracket-in-title
+  python3 scripts/audit_alignment_semantic.py --channels CH01 --videos 001,002 --min-title-overlap 0.6
   python3 scripts/audit_alignment_semantic.py --channels CH01 --min-thumb-catch-overlap 0.6
   python3 scripts/audit_alignment_semantic.py --json --out workspaces/logs/alignment_audit_semantic.json
 """
@@ -49,7 +49,6 @@ _TOKEN_RE = getattr(
     re.compile(r"[一-龯]{2,}|[ぁ-ん]{2,}|[ァ-ヴー]{2,}|[A-Za-z0-9]{2,}"),
 )
 _STOPWORDS = set(getattr(alignment, "_STOPWORDS", set()) or set())
-_TITLE_BRACKET_RE = getattr(alignment, "_TITLE_BRACKET_RE", re.compile(r"【([^】]+)】"))
 _HIRAGANA_ONLY_RE = re.compile(r"^[ぁ-ん]+$")
 
 
@@ -121,10 +120,6 @@ def _drop_hiragana_only(tokens: set[str]) -> set[str]:
     return {t for t in tokens if not _HIRAGANA_ONLY_RE.match(t)}
 
 
-def _strip_title_brackets(title: str) -> str:
-    return _TITLE_BRACKET_RE.sub("", title or "").strip()
-
-
 @dataclass(frozen=True)
 class Finding:
     channel: str
@@ -149,7 +144,6 @@ def _check_row(
     *,
     min_title_overlap: Optional[float],
     min_thumb_catch_overlap: Optional[float],
-    ignore_bracket_in_title: bool,
     max_missing_tokens: int,
     title_tokenizer: str,
 ) -> List[Finding]:
@@ -231,8 +225,7 @@ def _check_row(
 
     # 2) Title tokens overlap threshold (configurable)
     if min_title_overlap is not None and title:
-        title_for_check = _strip_title_brackets(title) if ignore_bracket_in_title else title
-        title_tokens_full = _tokenize(title_for_check)
+        title_tokens_full = _tokenize(title)
 
         drop_hira = False
         if title_tokenizer == "no_hiragana":
@@ -300,11 +293,6 @@ def main() -> int:
         help="Optional: flag when (thumbnail catch token overlap ratio) < threshold.",
     )
     ap.add_argument(
-        "--ignore-bracket-in-title",
-        action="store_true",
-        help="When computing --min-title-overlap, ignore 【...】 segment in title (clickbait tags etc).",
-    )
-    ap.add_argument(
         "--max-missing-tokens",
         type=int,
         default=12,
@@ -346,7 +334,6 @@ def main() -> int:
                 row,
                 min_title_overlap=args.min_title_overlap,
                 min_thumb_catch_overlap=args.min_thumb_catch_overlap,
-                ignore_bracket_in_title=bool(args.ignore_bracket_in_title),
                 max_missing_tokens=int(args.max_missing_tokens),
                 title_tokenizer=str(args.title_tokenizer),
             ):
