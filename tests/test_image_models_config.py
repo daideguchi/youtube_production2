@@ -11,7 +11,16 @@ def test_image_models_use_image_gen_tier():
 
     # tier name
     assert "image_gen" in tiers, "image_gen tier must exist"
-    assert tiers["image_gen"] == ["gemini_2_5_flash_image"]
+    image_gen = tiers["image_gen"]
+    assert isinstance(image_gen, list) and image_gen, "image_gen tier must be a non-empty list"
+    assert image_gen[0] == "gemini_2_5_flash_image"
+    assert "openrouter_gemini_2_5_flash_image_preview" in image_gen
+    assert "openrouter_gemini_2_5_flash_image" in image_gen
+
+    thumb_tier = tiers.get("thumbnail_image_gen")
+    assert isinstance(thumb_tier, list) and thumb_tier, "thumbnail_image_gen tier must be a non-empty list"
+    assert thumb_tier[0] == "openrouter_gemini_2_5_flash_image_preview"
+    assert "openrouter_gemini_2_5_flash_image" in thumb_tier
 
     # tasks point to image_gen
     for task in ("image_generation", "visual_image_gen"):

@@ -1,6 +1,7 @@
 """
 Test ImageClient failover and error handling.
 """
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,6 +25,13 @@ class DummyAdapter:
             model=model_conf.get("model_name", ""),
             request_id="dummy",
         )
+
+
+class DummyRateLimitError(ImageGenerationError):
+    def __init__(self, status_code: int = 429, retry_after_sec: int = 60):
+        super().__init__("rate limited")
+        self.http_status = status_code
+        self.retry_after_sec = retry_after_sec
 
 
 class TestImageClient(unittest.TestCase):
@@ -67,6 +75,101 @@ class TestImageClient(unittest.TestCase):
             )
             with self.assertRaises(ImageGenerationError):
                 client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
+
+    def test_forced_model_fallback_enabled_by_default(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = {
+                "providers": {},
+                "models": {
+                    "m1": {"provider": "dummy", "model_name": "m1"},
+                    "m2": {"provider": "dummy", "model_name": "m2"},
+                },
+                "tiers": {"image_forced": ["m1", "m2"]},
+                "tasks": {"visual_image_gen": {"tier": "image_forced", "defaults": {}}},
+            }
+            a1 = DummyAdapter(fail=True, label="a1")
+            a2 = DummyAdapter(fail=False, label="a2")
+            client = ImageClient(
+                config_path=Path(tmp) / "image_models.yaml",
+                config_data=cfg,
+                adapter_overrides={"m1": a1, "m2": a2},
+            )
+            res = client.generate(
+                ImageTaskOptions(task="visual_image_gen", prompt="test", extra={"model_key": "m1"})
+            )
+            self.assertEqual(res.images[0], b"img")
+            self.assertGreaterEqual(a1.calls, 1)
+            self.assertGreaterEqual(a2.calls, 1)
+
+    def test_forced_model_fallback_can_be_disabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = {
+                "providers": {},
+                "models": {
+                    "m1": {"provider": "dummy", "model_name": "m1"},
+                    "m2": {"provider": "dummy", "model_name": "m2"},
+                },
+                "tiers": {"image_forced": ["m1", "m2"]},
+                "tasks": {"visual_image_gen": {"tier": "image_forced", "defaults": {}}},
+            }
+            a1 = DummyAdapter(fail=True, label="a1")
+            a2 = DummyAdapter(fail=False, label="a2")
+            client = ImageClient(
+                config_path=Path(tmp) / "image_models.yaml",
+                config_data=cfg,
+                adapter_overrides={"m1": a1, "m2": a2},
+            )
+            with self.assertRaises(ImageGenerationError):
+                client.generate(
+                    ImageTaskOptions(
+                        task="visual_image_gen",
+                        prompt="test",
+                        extra={"model_key": "m1", "allow_fallback": False},
+                    )
+                )
+            self.assertGreaterEqual(a1.calls, 1)
+            self.assertEqual(a2.calls, 0)
+
+    def test_quota_cooldown_skips_same_provider_and_falls_back(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cooldown_path = Path(tmp) / "cooldown.json"
+            prev = os.environ.get("IMAGE_CLIENT_COOLDOWN_PATH")
+            os.environ["IMAGE_CLIENT_COOLDOWN_PATH"] = str(cooldown_path)
+            try:
+                cfg = {
+                    "providers": {},
+                    "models": {
+                        "m1": {"provider": "p1", "model_name": "m1"},
+                        "m2": {"provider": "p1", "model_name": "m2"},
+                        "m3": {"provider": "p2", "model_name": "m3"},
+                    },
+                    "tiers": {"image_quota": ["m1", "m2", "m3"]},
+                    "tasks": {"visual_image_gen": {"tier": "image_quota", "defaults": {}}},
+                }
+
+                class RateLimitAdapter(DummyAdapter):
+                    def generate(self, model_conf, options: ImageTaskOptions) -> ImageResult:
+                        self.calls += 1
+                        raise DummyRateLimitError(status_code=429, retry_after_sec=300)
+
+                a1 = RateLimitAdapter(label="a1")
+                a2 = DummyAdapter(fail=False, label="a2")  # would succeed, but should be skipped (p1 cooldown)
+                a3 = DummyAdapter(fail=False, label="a3")  # fallback provider
+                client = ImageClient(
+                    config_path=Path(tmp) / "image_models.yaml",
+                    config_data=cfg,
+                    adapter_overrides={"m1": a1, "m2": a2, "m3": a3},
+                )
+                res = client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
+                self.assertEqual(res.images[0], b"img")
+                self.assertEqual(a1.calls, 1)
+                self.assertEqual(a2.calls, 0)
+                self.assertEqual(a3.calls, 1)
+            finally:
+                if prev is None:
+                    os.environ.pop("IMAGE_CLIENT_COOLDOWN_PATH", None)
+                else:
+                    os.environ["IMAGE_CLIENT_COOLDOWN_PATH"] = prev
 
 
 if __name__ == "__main__":

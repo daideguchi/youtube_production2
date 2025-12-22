@@ -4,6 +4,7 @@ import base64
 import json
 import logging
 import os
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import hashlib
@@ -22,6 +23,176 @@ from factory_common import paths as repo_paths
 class ImageGenerationError(Exception):
     """Raised when image generation fails or returns no usable data."""
 
+
+class ImageProviderRateLimitError(ImageGenerationError):
+    """Raised when provider indicates quota / rate limit exhaustion."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        provider: str,
+        status_code: int,
+        retry_after_sec: Optional[int] = None,
+    ):
+        super().__init__(message)
+        self.provider = provider
+        self.http_status = status_code
+        self.retry_after_sec = retry_after_sec
+
+
+_COOLDOWN_LOCK = threading.Lock()
+_COOLDOWN_UNTIL_BY_PROVIDER: Dict[str, float] = {}
+_COOLDOWN_FILE_MTIME: Optional[float] = None
+_COOLDOWN_PATH: Optional[Path] = None
+
+
+def _cooldown_state_path() -> Path:
+    env_path = (os.getenv("IMAGE_CLIENT_COOLDOWN_PATH") or "").strip()
+    if env_path:
+        return Path(env_path)
+    return repo_paths.logs_root() / "image_provider_cooldowns.json"
+
+
+def _refresh_cooldowns_from_disk() -> None:
+    global _COOLDOWN_FILE_MTIME, _COOLDOWN_PATH
+    path = _cooldown_state_path()
+    if _COOLDOWN_PATH is None or path != _COOLDOWN_PATH:
+        _COOLDOWN_PATH = path
+        _COOLDOWN_FILE_MTIME = None
+        _COOLDOWN_UNTIL_BY_PROVIDER.clear()
+
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        _COOLDOWN_FILE_MTIME = None
+        _COOLDOWN_UNTIL_BY_PROVIDER.clear()
+        return
+    except Exception:
+        return
+
+    mtime = float(stat.st_mtime)
+    if _COOLDOWN_FILE_MTIME is not None and mtime <= _COOLDOWN_FILE_MTIME:
+        return
+
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8") or "{}")
+    except Exception:
+        return
+
+    if not isinstance(raw, dict):
+        return
+
+    now = time.time()
+    next_state: Dict[str, float] = {}
+    for provider, until in raw.items():
+        try:
+            p = str(provider)
+            ts = float(until)
+        except Exception:
+            continue
+        if ts > now:
+            next_state[p] = ts
+
+    _COOLDOWN_UNTIL_BY_PROVIDER.clear()
+    _COOLDOWN_UNTIL_BY_PROVIDER.update(next_state)
+    _COOLDOWN_FILE_MTIME = mtime
+
+
+def _persist_cooldowns_to_disk() -> None:
+    path = _cooldown_state_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
+        tmp_path.write_text(
+            json.dumps(_COOLDOWN_UNTIL_BY_PROVIDER, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        tmp_path.replace(path)
+    except Exception:
+        # Fail-soft: cooldown persistence should never break generation.
+        return
+
+
+def _provider_cooldown_until(provider: str) -> Optional[float]:
+    if not provider:
+        return None
+    with _COOLDOWN_LOCK:
+        _refresh_cooldowns_from_disk()
+        until = _COOLDOWN_UNTIL_BY_PROVIDER.get(provider)
+        if until is None:
+            return None
+        if until <= time.time():
+            _COOLDOWN_UNTIL_BY_PROVIDER.pop(provider, None)
+            _persist_cooldowns_to_disk()
+            return None
+        return until
+
+
+def _set_provider_cooldown(provider: str, *, cooldown_sec: int) -> None:
+    if not provider or cooldown_sec <= 0:
+        return
+    now = time.time()
+    until = now + float(cooldown_sec)
+    with _COOLDOWN_LOCK:
+        _refresh_cooldowns_from_disk()
+        prev = _COOLDOWN_UNTIL_BY_PROVIDER.get(provider)
+        if prev is None or until > prev:
+            _COOLDOWN_UNTIL_BY_PROVIDER[provider] = until
+            _persist_cooldowns_to_disk()
+
+
+def _extract_http_status(exc: Exception) -> Optional[int]:
+    for attr in ("http_status", "status_code", "status"):
+        if hasattr(exc, attr):
+            try:
+                return int(getattr(exc, attr))
+            except Exception:
+                pass
+    resp = getattr(exc, "response", None)
+    if resp is not None:
+        for attr in ("status_code", "status"):
+            if hasattr(resp, attr):
+                try:
+                    return int(getattr(resp, attr))
+                except Exception:
+                    pass
+    return None
+
+
+def _looks_like_quota_limit(exc: Exception, status: Optional[int]) -> bool:
+    if status in {402, 429}:
+        return True
+    msg = str(exc)
+    upper = msg.upper()
+    lower = msg.lower()
+    if "RESOURCE_EXHAUSTED" in upper:
+        return True
+    if "quota" in lower or "rate limit" in lower or "too many requests" in lower:
+        return True
+    return False
+
+
+def _cooldown_seconds_for_quota(exc: Exception, status: Optional[int]) -> int:
+    retry_after = getattr(exc, "retry_after_sec", None)
+    if isinstance(retry_after, (int, float)) and retry_after > 0:
+        return int(retry_after)
+
+    if status == 429:
+        raw = (os.getenv("IMAGE_CLIENT_COOLDOWN_429_SEC") or "").strip()
+        if raw.isdigit():
+            return max(1, int(raw))
+        return 30
+    if status == 402:
+        raw = (os.getenv("IMAGE_CLIENT_COOLDOWN_402_SEC") or "").strip()
+        if raw.isdigit():
+            return max(1, int(raw))
+        return 600
+
+    raw = (os.getenv("IMAGE_CLIENT_COOLDOWN_QUOTA_SEC") or "").strip()
+    if raw.isdigit():
+        return max(1, int(raw))
+    return 60
 
 @dataclass
 class ImageTaskOptions:
@@ -81,50 +252,85 @@ class ImageClient:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
         forced_model_key: Optional[str] = None
+        allow_fallback = True
         if isinstance(options.extra, dict):
             raw_forced = options.extra.get("model_key")
             if isinstance(raw_forced, str) and raw_forced.strip():
                 forced_model_key = raw_forced.strip()
+            raw_allow_fallback = options.extra.get("allow_fallback")
+            if raw_allow_fallback is not None:
+                allow_fallback = bool(raw_allow_fallback)
 
         errors: List[Tuple[str, Exception]] = []
         if forced_model_key:
-            model_conf = self._config.get("models", {}).get(forced_model_key)
-            if not model_conf:
+            forced_conf = self._config.get("models", {}).get(forced_model_key)
+            if not forced_conf:
                 raise ImageGenerationError(f"Forced model '{forced_model_key}' not found in image model configuration")
 
-            capabilities = model_conf.get("capabilities", {})
-            resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
-            max_attempts = int(task_conf.get("retries_per_model", 1)) + 1
-            for sub_attempt in range(max_attempts):
-                try:
-                    adapter = self._get_adapter(forced_model_key, model_conf)
-                    result = adapter.generate(model_conf, resolved)
-                    duration_ms = int((time.perf_counter() - started_at) * 1000)
-                    self._log_usage(
-                        success=True,
-                        task=options.task,
-                        tier=tier_name,
-                        model_key=forced_model_key,
-                        provider=model_conf.get("provider"),
-                        request_id=result.request_id,
-                        duration_ms=duration_ms,
-                        prompt_hash=self._hash_prompt(options.prompt),
-                        attempt=1,
+            candidate_keys: List[str] = [forced_model_key]
+            if allow_fallback and isinstance(candidates, list):
+                for key in candidates:
+                    if isinstance(key, str) and key not in candidate_keys:
+                        candidate_keys.append(key)
+
+            for attempt_idx, model_key in enumerate(candidate_keys):
+                model_conf = self._config.get("models", {}).get(model_key)
+                if not model_conf:
+                    errors.append((model_key, ImageGenerationError(f"Model '{model_key}' not found")))
+                    continue
+
+                provider_name = str(model_conf.get("provider") or "").strip()
+                cooldown_until = _provider_cooldown_until(provider_name)
+                if cooldown_until is not None:
+                    remaining = max(1, int(round(cooldown_until - time.time())))
+                    errors.append(
+                        (
+                            model_key,
+                            ImageGenerationError(
+                                f"Provider '{provider_name}' is in cooldown for ~{remaining}s (quota/rate limit protection)"
+                            ),
+                        )
                     )
-                    return result
-                except Exception as exc:  # noqa: BLE001
-                    errors.append((forced_model_key, exc))
-                    logging.warning(
-                        "ImageClient: forced model %s failed for %s (attempt %d/%d, %s)",
-                        forced_model_key,
-                        options.task,
-                        sub_attempt + 1,
-                        max_attempts,
-                        exc,
-                    )
-                    if sub_attempt + 1 >= max_attempts:
-                        break
-                    time.sleep(0.25)
+                    continue
+
+                capabilities = model_conf.get("capabilities", {})
+                resolved = self._normalize_options(options, task_conf.get("defaults", {}), capabilities)
+                max_attempts = int(task_conf.get("retries_per_model", 1)) + 1
+                for sub_attempt in range(max_attempts):
+                    try:
+                        adapter = self._get_adapter(model_key, model_conf)
+                        result = adapter.generate(model_conf, resolved)
+                        duration_ms = int((time.perf_counter() - started_at) * 1000)
+                        self._log_usage(
+                            success=True,
+                            task=options.task,
+                            tier=tier_name,
+                            model_key=model_key,
+                            provider=model_conf.get("provider"),
+                            request_id=result.request_id,
+                            duration_ms=duration_ms,
+                            prompt_hash=self._hash_prompt(options.prompt),
+                            attempt=attempt_idx + 1,
+                        )
+                        return result
+                    except Exception as exc:  # noqa: BLE001
+                        errors.append((model_key, exc))
+                        logging.warning(
+                            "ImageClient: model %s failed for %s (attempt %d/%d, %s)",
+                            model_key,
+                            options.task,
+                            sub_attempt + 1,
+                            max_attempts,
+                            exc,
+                        )
+                        status = _extract_http_status(exc)
+                        if _looks_like_quota_limit(exc, status):
+                            cooldown_sec = _cooldown_seconds_for_quota(exc, status)
+                            _set_provider_cooldown(provider_name, cooldown_sec=cooldown_sec)
+                            break
+                        if sub_attempt + 1 >= max_attempts:
+                            break
+                        time.sleep(0.25)
 
             duration_ms = int((time.perf_counter() - started_at) * 1000)
             self._log_usage(
@@ -132,7 +338,7 @@ class ImageClient:
                 task=options.task,
                 tier=tier_name,
                 model_key=forced_model_key,
-                provider=model_conf.get("provider"),
+                provider=forced_conf.get("provider"),
                 request_id=None,
                 duration_ms=duration_ms,
                 prompt_hash=self._hash_prompt(options.prompt),
@@ -140,7 +346,7 @@ class ImageClient:
                 attempt=1,
             )
             raise ImageGenerationError(
-                f"Forced image model '{forced_model_key}' failed for task '{options.task}': "
+                f"Image generation failed for task '{options.task}' (requested model: '{forced_model_key}'): "
                 + "; ".join([f"{k}: {e}" for k, e in errors])
             )
 
@@ -148,6 +354,20 @@ class ImageClient:
             model_conf = self._config.get("models", {}).get(model_key)
             if not model_conf:
                 errors.append((model_key, ImageGenerationError(f"Model '{model_key}' not found")))
+                continue
+
+            provider_name = str(model_conf.get("provider") or "").strip()
+            cooldown_until = _provider_cooldown_until(provider_name)
+            if cooldown_until is not None:
+                remaining = max(1, int(round(cooldown_until - time.time())))
+                errors.append(
+                    (
+                        model_key,
+                        ImageGenerationError(
+                            f"Provider '{provider_name}' is in cooldown for ~{remaining}s (quota/rate limit protection)"
+                        ),
+                    )
+                )
                 continue
 
             capabilities = model_conf.get("capabilities", {})
@@ -182,6 +402,11 @@ class ImageClient:
                         max_attempts,
                         exc,
                     )
+                    status = _extract_http_status(exc)
+                    if _looks_like_quota_limit(exc, status):
+                        cooldown_sec = _cooldown_seconds_for_quota(exc, status)
+                        _set_provider_cooldown(provider_name, cooldown_sec=cooldown_sec)
+                        break
                     # last attempt for this model: break to next candidate
                     if sub_attempt + 1 >= max_attempts:
                         break
@@ -502,6 +727,14 @@ class OpenRouterImageAdapter:
             "messages": [{"role": "user", "content": options.prompt}],
             "modalities": ["image", "text"],
         }
+        if options.aspect_ratio:
+            payload["image_config"] = {"aspect_ratio": options.aspect_ratio}
+        if options.size:
+            payload["size"] = options.size
+        if options.seed is not None:
+            payload["seed"] = options.seed
+        if options.negative_prompt:
+            payload["negative_prompt"] = options.negative_prompt
 
         url = f"{self.base_url}/chat/completions"
         headers = {
@@ -526,7 +759,23 @@ class OpenRouterImageAdapter:
                 detail = data.get("error") or data
             if detail is None:
                 detail = (resp.text or "").strip()
-            raise ImageGenerationError(f"OpenRouter error {resp.status_code}: {detail}")
+            retry_after_sec: Optional[int] = None
+            retry_after_header = resp.headers.get("Retry-After")
+            if retry_after_header:
+                try:
+                    retry_after_sec = int(float(str(retry_after_header).strip()))
+                except Exception:
+                    retry_after_sec = None
+
+            msg = f"OpenRouter error {resp.status_code}: {detail}"
+            if resp.status_code in (402, 429):
+                raise ImageProviderRateLimitError(
+                    msg,
+                    provider="openrouter",
+                    status_code=int(resp.status_code),
+                    retry_after_sec=retry_after_sec,
+                )
+            raise ImageGenerationError(msg)
 
         if not isinstance(data, dict):
             raise ImageGenerationError("OpenRouter returned invalid response payload")
