@@ -1544,6 +1544,58 @@ def _script_validation_input_fingerprint(a_text: str, metadata: Dict[str, Any] |
     return h.hexdigest()
 
 
+def _should_skip_script_validation_llm_gate(
+    *,
+    llm_gate_enabled: bool,
+    force_llm_gate: bool,
+    prev_verdict: str,
+    prev_input_fingerprint: str,
+    current_input_fingerprint: str,
+    char_count: int,
+    max_a_text_chars: int,
+) -> tuple[bool, str | None, Dict[str, Any]]:
+    """
+    Decide whether to skip the full-A-text LLM gate in script_validation.
+
+    Reasons:
+    - unchanged_input: previous verdict pass + identical fingerprint → avoid re-judging randomness.
+    - too_long: prevent context blowups for ultra-long scripts (prefer Marathon).
+    """
+    if not llm_gate_enabled:
+        return False, None, {}
+
+    if force_llm_gate:
+        return False, None, {}
+
+    prev_v = (prev_verdict or "").strip().lower()
+    prev_fp = (prev_input_fingerprint or "").strip()
+    cur_fp = (current_input_fingerprint or "").strip()
+    if prev_v == "pass" and prev_fp and prev_fp == cur_fp:
+        return True, "unchanged_input", {}
+
+    try:
+        max_chars = int(max_a_text_chars)
+    except Exception:
+        max_chars = 30000
+    if max_chars > 0:
+        try:
+            cc = int(char_count)
+        except Exception:
+            cc = 0
+        if cc > max_chars:
+            return (
+                True,
+                "too_long",
+                {
+                    "char_count": cc,
+                    "max_a_text_chars": max_chars,
+                    "env": "SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS",
+                },
+            )
+
+    return False, None, {}
+
+
 def _deep_merge_dict(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
     out: Dict[str, Any] = dict(base or {})
     for k, v in (overlay or {}).items():
@@ -5111,43 +5163,25 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         force_llm_gate = _truthy_env("SCRIPT_VALIDATION_FORCE_LLM_GATE", "0")
         prev_verdict = str(prev_gate.get("verdict") or "").strip().lower()
         prev_fp = str(prev_gate.get("input_fingerprint") or "").strip()
-        skip_reason: str | None = None
-        skip_detail: Dict[str, Any] = {}
-        skip_llm_gate = (
-            bool(llm_gate_enabled)
-            and (not force_llm_gate)
-            and prev_verdict == "pass"
-            and bool(prev_fp)
-            and prev_fp == fingerprint
-        )
-        if skip_llm_gate:
-            skip_reason = "unchanged_input"
-
-        # Ultra-long scripts: avoid "full A-text LLM gate" by default to prevent context blowups.
-        # (Marathon should be used for 2–3h class scripts; see ssot/OPS_LONGFORM_SCRIPT_SCALING.md)
         max_gate_chars_raw = os.getenv("SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS", "30000")
         try:
             max_gate_chars = int(str(max_gate_chars_raw).strip())
         except Exception:
             max_gate_chars = 30000
-        if (
-            llm_gate_enabled
-            and (not skip_llm_gate)
-            and (not force_llm_gate)
-            and max_gate_chars > 0
-        ):
-            try:
-                char_count = int(((stage_details.get("stats") or {}).get("char_count")) or 0)
-            except Exception:
-                char_count = 0
-            if char_count > max_gate_chars:
-                skip_llm_gate = True
-                skip_reason = "too_long"
-                skip_detail = {
-                    "char_count": char_count,
-                    "max_a_text_chars": max_gate_chars,
-                    "env": "SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS",
-                }
+        try:
+            char_count = int(((stage_details.get("stats") or {}).get("char_count")) or 0)
+        except Exception:
+            char_count = 0
+
+        skip_llm_gate, skip_reason, skip_detail = _should_skip_script_validation_llm_gate(
+            llm_gate_enabled=bool(llm_gate_enabled),
+            force_llm_gate=bool(force_llm_gate),
+            prev_verdict=prev_verdict,
+            prev_input_fingerprint=prev_fp,
+            current_input_fingerprint=fingerprint,
+            char_count=char_count,
+            max_a_text_chars=max_gate_chars,
+        )
 
         llm_gate_details: Dict[str, Any] = dict(prev_gate) if isinstance(prev_gate, dict) else {}
         llm_gate_details["enabled"] = bool(llm_gate_enabled)
