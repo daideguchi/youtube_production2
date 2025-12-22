@@ -84,6 +84,16 @@
 - 例外: 本当に再チェックしたい場合は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1` で強制実行する。
 - Rebuild は高コスト・高リスクなので、通常はOFFでよい（必要時のみ `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL=1`）。
 
+### 1.7.1 超長尺の自動スキップ（全文LLM事故防止）
+2〜3時間級などの超長尺は「全文をLLMに渡す品質ゲート」がコンテキスト超過/高コスト/部分改変事故を起こしやすい。  
+そのため `script_validation` は Aテキストが一定以上長い場合、LLM Judge/Fixer を **デフォルトでスキップ**する（決定論チェックは実行する）。
+
+- 既定閾値: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS=30000`（超過でスキップ）
+- 例外:
+  - 強制実行: `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`
+  - 無効化（常に実行したい）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS=0`（ただし推奨しない）
+- 超長尺は `scripts/ops/a_text_marathon_compose.py`（Marathon）で「章単位収束」を正本運用とする（詳細: `ssot/OPS_LONGFORM_SCRIPT_SCALING.md`）。
+
 ### 1.8 収束の上限（終わる仕組み）
 `script_validation` は「合格したのに永遠に直し続ける」「Fixが長引く」を防ぐため、LLM呼び出し回数に上限を持たせる。
 

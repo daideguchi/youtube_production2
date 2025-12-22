@@ -5111,6 +5111,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         force_llm_gate = _truthy_env("SCRIPT_VALIDATION_FORCE_LLM_GATE", "0")
         prev_verdict = str(prev_gate.get("verdict") or "").strip().lower()
         prev_fp = str(prev_gate.get("input_fingerprint") or "").strip()
+        skip_reason: str | None = None
+        skip_detail: Dict[str, Any] = {}
         skip_llm_gate = (
             bool(llm_gate_enabled)
             and (not force_llm_gate)
@@ -5118,16 +5120,47 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             and bool(prev_fp)
             and prev_fp == fingerprint
         )
+        if skip_llm_gate:
+            skip_reason = "unchanged_input"
+
+        # Ultra-long scripts: avoid "full A-text LLM gate" by default to prevent context blowups.
+        # (Marathon should be used for 2–3h class scripts; see ssot/OPS_LONGFORM_SCRIPT_SCALING.md)
+        max_gate_chars_raw = os.getenv("SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS", "30000")
+        try:
+            max_gate_chars = int(str(max_gate_chars_raw).strip())
+        except Exception:
+            max_gate_chars = 30000
+        if (
+            llm_gate_enabled
+            and (not skip_llm_gate)
+            and (not force_llm_gate)
+            and max_gate_chars > 0
+        ):
+            try:
+                char_count = int(((stage_details.get("stats") or {}).get("char_count")) or 0)
+            except Exception:
+                char_count = 0
+            if char_count > max_gate_chars:
+                skip_llm_gate = True
+                skip_reason = "too_long"
+                skip_detail = {
+                    "char_count": char_count,
+                    "max_a_text_chars": max_gate_chars,
+                    "env": "SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS",
+                }
 
         llm_gate_details: Dict[str, Any] = dict(prev_gate) if isinstance(prev_gate, dict) else {}
         llm_gate_details["enabled"] = bool(llm_gate_enabled)
         llm_gate_details["input_fingerprint"] = fingerprint
         if skip_llm_gate:
             llm_gate_details["skipped"] = True
-            llm_gate_details["skip_reason"] = "unchanged_input"
+            llm_gate_details["skip_reason"] = str(skip_reason or "unknown")
+            if skip_detail:
+                llm_gate_details["skip_detail"] = skip_detail
         else:
             llm_gate_details.pop("skipped", None)
             llm_gate_details.pop("skip_reason", None)
+            llm_gate_details.pop("skip_detail", None)
         stage_details["llm_quality_gate"] = llm_gate_details
 
         final_text = a_text

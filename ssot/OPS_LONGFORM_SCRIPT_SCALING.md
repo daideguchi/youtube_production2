@@ -169,6 +169,7 @@
 ### Phase 0（今すぐ可能: 運用で回避）
 - 超長尺では `quality_check` を参考程度にし、`script_validation` の LLMゲートは **無効化**して決定論lint中心に止める（暫定）。
   - env: `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0`（詳細は runner 実装を参照）
+  - 追加の安全弁: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）を超えると、全文LLMゲートは自動スキップされる（強制したい場合は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
 - 章数/目標文字数は `status.json metadata` で上書きして実験できる（ただし手作業で事故りやすい）。
 
 ### Phase 1（小さな追加: opsツールでMarathon生成）

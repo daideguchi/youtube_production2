@@ -54,6 +54,7 @@
 - Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
 - 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して決定論チェックだけ使う:
   - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+  - 追加の安全弁（runner側）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）超過時は、全文LLMゲートが自動スキップされる（強制は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
 
 ---
 

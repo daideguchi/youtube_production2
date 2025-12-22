@@ -40,12 +40,13 @@
 `packages/script_pipeline/runner.py` の `script_validation` に適用される。
 
 - `SCRIPT_VALIDATION_LLM_QUALITY_GATE`（default: `1`）: LLM品質ゲート（Judge→Fixer→必要ならExtend）を有効化。無効化は `0`。
-- `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`（default: `3`）: Judge→Fixer の最大反復回数。
+- `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`（default: `2`）: Judge→Fixer の最大反復回数（v2は既定2で収束させる）。
 - `SCRIPT_VALIDATION_LLM_HARD_FIX_MAX`（default: `2`）: Fixer出力がハード禁則（字数/見出し/箇条書き等）に違反した場合の追加修正回数。
+- `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）: Aテキストがこの文字数（spoken chars）を超える場合、全文LLMゲートを自動スキップ（決定論チェックは実行）。`0` で無効化。
 - `SCRIPT_VALIDATION_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_FIX_TASK`（default: `script_a_text_quality_fix`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_EXTEND_TASK`（default: `script_a_text_quality_extend`）: 字数不足のみを「追記専用」で救済する task key。
-- `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL`（default: `1`）: Fixerで収束しない場合に、最終手段として「設計→再執筆（Rebuild）」を試す。無効化は `0`。
+- `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL`（default: `0`）: Fixerで収束しない場合に、最終手段として「設計→再執筆（Rebuild）」を試す。無効化は `0`（既定OFF）。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK`（default: `script_a_text_rebuild_plan`）: Rebuildの「設計図（JSON）生成」task key。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK`（default: `script_a_text_rebuild_draft`）: Rebuildの「本文生成」task key。
 
