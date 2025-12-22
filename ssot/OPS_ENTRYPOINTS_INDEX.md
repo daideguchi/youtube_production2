@@ -171,6 +171,7 @@
 - `python3 scripts/ops/ssot_audit.py`（SSOT索引/PLAN_STATUS の整合チェック）
   - 監査ログを残す: `python3 scripts/ops/ssot_audit.py --write`
   - completed も厳密に索引化する: `python3 scripts/ops/ssot_audit.py --strict`
+- `python3 scripts/ops/scripts_inventory.py --write`（`scripts/**` 棚卸しSSOTを再生成: `ssot/OPS_SCRIPTS_INVENTORY.md`）
 
 ---
 

@@ -1,5 +1,8 @@
 # OPS_SCRIPTS_INVENTORY — scripts/ 全ファイル棚卸し（工程別 / 使う・使わない）
 
+生成:
+- `python3 scripts/ops/scripts_inventory.py --write`
+
 目的:
 - `scripts/**` を **全量**列挙し、工程（Phase）と分類（P0/P1/P2/P3）を 1 行ずつ確定する。
 - ゴミ判定ミス（例: `run_srt2images.sh` のような間接呼び出し）を防ぐため、ref（参照元）も併記する。
@@ -92,6 +95,7 @@ ref の見方:
 | `scripts/ops/render_remotion_batch.py` | OPS | P0 | yes | ssot=4 | `ssot/OPS_AGENT_PLAYBOOK.md:92` |
 | `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | ssot=7 other=1 | `ssot/OPS_ENTRYPOINTS_INDEX.md:151` |
 | `scripts/ops/save_patch.sh` | OPS | P1 | no | ssot=1 other=1 | `AGENTS.md:28` |
+| `scripts/ops/scripts_inventory.py` | OPS | P1 | no | refs=0 | `-` |
 | `scripts/ops/ssot_audit.py` | OPS | P1 | no | ssot=5 | `ssot/OPS_ENTRYPOINTS_INDEX.md:171` |
 | `scripts/ops/stage2_cutover_workspaces.py` | OPS | P1 | no | ssot=5 other=1 | `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md:498` |
 | `scripts/prompt_audit.py` | OPS | P1 | yes | apps=2 ssot=2 | `apps/ui-backend/tools/start_manager.py:483` |
@@ -121,11 +125,3 @@ ref の見方:
 | `scripts/youtube_publisher/README.md` | PUBLISH | P1 | no | ssot=1 README=1 | `README.md:70` |
 | `scripts/youtube_publisher/oauth_setup.py` | PUBLISH | P1 | no | ssot=1 README=1 | `README.md:67` |
 | `scripts/youtube_publisher/publish_from_sheet.py` | PUBLISH | P0 | yes | ssot=6 README=1 | `README.md:68` |
-
----
-
-## 未確認レガシー候補（refs=0 かつ SSOT未記載）
-
-> ここは “即削除” ではなく、dd確認→archive-first→削除 の対象候補。
-
-(なし)
