@@ -121,6 +121,18 @@ type GenerateDialogState = {
   error?: string;
 };
 
+type GalleryCopyEditState = {
+  projectKey: string;
+  channel: string;
+  video: string;
+  projectTitle: string;
+  copyUpper: string;
+  copyTitle: string;
+  copyLower: string;
+  saving: boolean;
+  error?: string;
+};
+
 type PlanningEditableField = Exclude<
   keyof PlanningDialogState,
   "projectKey" | "channel" | "projectTitle" | "variantLabel" | "saving" | "error"
@@ -371,6 +383,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     success: string | null;
   }>({ pending: false, error: null, success: null });
   const [generateDialog, setGenerateDialog] = useState<GenerateDialogState | null>(null);
+  const [galleryCopyEdit, setGalleryCopyEdit] = useState<GalleryCopyEditState | null>(null);
   const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
@@ -707,6 +720,87 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     </section>
   );
 
+  const handleOpenGalleryCopyEdit = useCallback(
+    (project: ThumbnailProject) => {
+      const normalizedVideo = normalizeVideoInput(project.video) || project.video;
+      const row = planningRowsByVideo[normalizedVideo] ?? {};
+      setGalleryCopyEdit({
+        projectKey: getProjectKey(project),
+        channel: project.channel,
+        video: normalizedVideo,
+        projectTitle: project.title ?? "（タイトル未設定）",
+        copyUpper: row["サムネタイトル上"] ?? "",
+        copyTitle: row["サムネタイトル"] ?? "",
+        copyLower: row["サムネタイトル下"] ?? "",
+        saving: false,
+        error: undefined,
+      });
+    },
+    [planningRowsByVideo]
+  );
+
+  const handleCloseGalleryCopyEdit = useCallback(() => {
+    setGalleryCopyEdit(null);
+  }, []);
+
+  const handleGalleryCopyEditFieldChange = useCallback((field: "copyUpper" | "copyTitle" | "copyLower", value: string) => {
+    setGalleryCopyEdit((current) => {
+      if (!current) {
+        return current;
+      }
+      return { ...current, [field]: value, error: undefined };
+    });
+  }, []);
+
+  const handleGalleryCopyEditSubmit = useCallback(
+    async (mode: "save" | "save_and_compose") => {
+      if (!galleryCopyEdit) {
+        return;
+      }
+      const upper = (galleryCopyEdit.copyUpper ?? "").replace(/\s+/g, " ").trim();
+      const title = (galleryCopyEdit.copyTitle ?? "").replace(/\s+/g, " ").trim();
+      const lower = (galleryCopyEdit.copyLower ?? "").replace(/\s+/g, " ").trim();
+      setGalleryCopyEdit((current) => (current ? { ...current, saving: true, error: undefined } : current));
+
+      try {
+        await updatePlanning(galleryCopyEdit.channel, galleryCopyEdit.video, {
+          fields: {
+            thumbnail_upper: upper ? upper : null,
+            thumbnail_title: title ? title : null,
+            thumbnail_lower: lower ? lower : null,
+          },
+        });
+
+        handleUpdateLocalPlanningRow(galleryCopyEdit.video, {
+          サムネタイトル上: upper,
+          サムネタイトル: title,
+          サムネタイトル下: lower,
+        });
+
+        if (mode === "save_and_compose") {
+          if (!upper || !title || !lower) {
+            throw new Error("コピー（上/中/下）が揃っていません。");
+          }
+          await composeThumbnailVariant(galleryCopyEdit.channel, galleryCopyEdit.video, {
+            copy_upper: upper,
+            copy_title: title,
+            copy_lower: lower,
+            label: "文字合成",
+            status: "review",
+            make_selected: true,
+          });
+          await fetchData({ silent: true });
+        }
+
+        setGalleryCopyEdit(null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setGalleryCopyEdit((current) => (current ? { ...current, saving: false, error: message } : current));
+      }
+    },
+    [fetchData, galleryCopyEdit, handleUpdateLocalPlanningRow]
+  );
+
   const galleryPanel = activeChannel ? (
     <section className="thumbnail-gallery-panel">
       <div className="thumbnail-gallery-panel__header">
@@ -788,6 +882,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 <div className="thumbnail-gallery-card__variant">{selectedVariant.label ?? selectedVariant.id}</div>
                 {imageUrl ? (
                   <div className="thumbnail-gallery-card__buttons">
+                    <button type="button" className="btn" onClick={() => handleOpenGalleryCopyEdit(project)}>
+                      文字を編集
+                    </button>
                     <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
                       開く
                     </a>
@@ -3351,6 +3448,73 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 </button>
                 <button type="submit" className="thumbnail-planning-form__submit" disabled={generateDialog.saving}>
                   {generateDialog.saving ? "生成中…" : "生成"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+      {galleryCopyEdit ? (
+        <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
+          <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseGalleryCopyEdit} />
+          <div className="thumbnail-planning-dialog__panel">
+            <header className="thumbnail-planning-dialog__header">
+              <div className="thumbnail-planning-dialog__eyebrow">
+                {galleryCopyEdit.channel} / {galleryCopyEdit.video}
+              </div>
+              <h2>文字を編集</h2>
+              <p className="thumbnail-planning-dialog__meta">{galleryCopyEdit.projectTitle}</p>
+            </header>
+            <form
+              className="thumbnail-planning-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleGalleryCopyEditSubmit("save_and_compose");
+              }}
+            >
+              <div className="thumbnail-planning-form__grid">
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>上段（赤）</span>
+                  <input
+                    type="text"
+                    value={galleryCopyEdit.copyUpper}
+                    onChange={(event) => handleGalleryCopyEditFieldChange("copyUpper", event.target.value)}
+                    placeholder="例: 放置は危険"
+                  />
+                </label>
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>中段（黄）</span>
+                  <input
+                    type="text"
+                    value={galleryCopyEdit.copyTitle}
+                    onChange={(event) => handleGalleryCopyEditFieldChange("copyTitle", event.target.value)}
+                    placeholder="例: 夜の不安"
+                  />
+                </label>
+                <label className="thumbnail-planning-form__field--wide">
+                  <span>下段（白）</span>
+                  <input
+                    type="text"
+                    value={galleryCopyEdit.copyLower}
+                    onChange={(event) => handleGalleryCopyEditFieldChange("copyLower", event.target.value)}
+                    placeholder="例: 今夜眠れる"
+                  />
+                </label>
+              </div>
+              {galleryCopyEdit.error ? <p className="thumbnail-library__alert">{galleryCopyEdit.error}</p> : null}
+              <div className="thumbnail-planning-form__actions">
+                <button type="button" onClick={handleCloseGalleryCopyEdit} disabled={galleryCopyEdit.saving}>
+                  キャンセル
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleGalleryCopyEditSubmit("save")}
+                  disabled={galleryCopyEdit.saving}
+                >
+                  保存だけ
+                </button>
+                <button type="submit" className="thumbnail-planning-form__submit" disabled={galleryCopyEdit.saving}>
+                  {galleryCopyEdit.saving ? "反映中…" : "保存して再合成"}
                 </button>
               </div>
             </form>
