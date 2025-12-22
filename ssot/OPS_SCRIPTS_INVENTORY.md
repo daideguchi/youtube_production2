@@ -30,13 +30,13 @@ ref の見方:
 | `scripts/_adhoc/README.md` | MISC | P3 | yes | other=1 | `workspaces/logs/agent_tasks/coordination/events.jsonl:1176` |
 | `scripts/_bootstrap.py` | MISC | P1 | yes | scripts=1 ssot=2 other=1 | `_bootstrap.py:19` |
 | `scripts/agent_coord.py` | COORD | P1 | yes | scripts=3 ssot=7 other=8 | `scripts/agent_coord.py:5` |
-| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=8 ssot=85 other=43 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
-| `scripts/agent_runner.py` | COORD | P1 | yes | packages=8 scripts=14 ssot=32 other=87 | `packages/factory_common/agent_mode.py:272` |
-| `scripts/aggregate_llm_usage.py` | MISC | P1 | yes | ssot=7 other=5 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:406` |
+| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=8 ssot=85 other=44 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
+| `scripts/agent_runner.py` | COORD | P1 | yes | packages=8 scripts=14 ssot=32 other=103 | `packages/factory_common/agent_mode.py:272` |
+| `scripts/aggregate_llm_usage.py` | MISC | P1 | yes | ssot=7 other=5 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:409` |
 | `scripts/aggregate_voicevox_reading_logs.py` | AUDIO | P1 | yes | scripts=1 ssot=2 other=5 | `scripts/aggregate_voicevox_reading_logs.py:6` |
 | `scripts/api_health_check.py` | MISC | P1 | yes | apps=2 ssot=5 other=8 | `apps/ui-backend/tools/start_manager.py:465` |
-| `scripts/audio_integrity_report.py` | AUDIO | P1 | yes | ssot=3 other=6 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:407` |
-| `scripts/audit_alignment_semantic.py` | SCRIPT | P0 | yes | scripts=4 ssot=2 other=19 | `scripts/audit_alignment_semantic.py:13` |
+| `scripts/audio_integrity_report.py` | AUDIO | P1 | yes | ssot=3 other=6 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:410` |
+| `scripts/audit_alignment_semantic.py` | SCRIPT | P0 | yes | scripts=4 ssot=2 other=18 | `scripts/audit_alignment_semantic.py:13` |
 | `scripts/batch_regenerate_tts.py` | AUDIO | P1 | yes | ssot=3 other=6 | `ssot/OPS_ENTRYPOINTS_INDEX.md:44` |
 | `scripts/buddha_senior_5ch_generate_scripts.py` | MISC | P1 | yes | ssot=2 other=9 | `ssot/OPS_ENTRYPOINTS_INDEX.md:58` |
 | `scripts/buddha_senior_5ch_prepare.py` | MISC | P1 | yes | ssot=4 other=10 | `ssot/OPS_ENTRYPOINTS_INDEX.md:57` |
@@ -58,7 +58,7 @@ ref の見方:
 | `scripts/list_redo.py` | MISC | P1 | yes | ssot=3 other=5 | `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:117` |
 | `scripts/llm_logs_combined_report.py` | MISC | P1 | yes | ssot=4 other=5 | `ssot/OPS_LOGGING_MAP.md:100` |
 | `scripts/llm_provenance_report.py` | MISC | P1 | yes | scripts=2 ssot=1 other=7 | `scripts/llm_provenance_report.py:14` |
-| `scripts/llm_usage_report.py` | MISC | P1 | yes | ssot=3 other=5 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:406` |
+| `scripts/llm_usage_report.py` | MISC | P1 | yes | ssot=3 other=5 | `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md:409` |
 | `scripts/mark_redo_done.py` | MISC | P1 | yes | scripts=2 ssot=3 other=5 | `scripts/mark_redo_done.py:5` |
 | `scripts/notifications.py` | MISC | P1 | yes | ssot=2 other=5 | `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:146` |
 | `scripts/openrouter_caption_probe.py` | MISC | P1 | yes | apps=1 ssot=1 other=5 | `apps/ui-backend/tools/start_manager.py:501` |
@@ -82,10 +82,10 @@ ref の見方:
 | `scripts/ops/render_remotion_batch.py` | OPS | P0 | yes | ssot=4 other=18 | `ssot/OPS_AGENT_PLAYBOOK.md:92` |
 | `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | ssot=7 other=1 | `ssot/OPS_ENTRYPOINTS_INDEX.md:151` |
 | `scripts/ops/save_patch.sh` | OPS | P1 | yes | scripts=1 ssot=2 other=2 | `AGENTS.md:28` |
-| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | scripts=3 ssot=3 other=2 | `scripts/ops/scripts_inventory.py:11` |
-| `scripts/ops/ssot_audit.py` | OPS | P1 | yes | ssot=6 other=2 | `ssot/OPS_ENTRYPOINTS_INDEX.md:171` |
+| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | scripts=3 ssot=4 other=2 | `scripts/ops/scripts_inventory.py:11` |
+| `scripts/ops/ssot_audit.py` | OPS | P1 | yes | ssot=7 other=2 | `ssot/OPS_ENTRYPOINTS_INDEX.md:171` |
 | `scripts/ops/stage2_cutover_workspaces.py` | OPS | P1 | yes | ssot=6 other=6 | `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:190` |
-| `scripts/prompt_audit.py` | OPS | P1 | yes | apps=2 ssot=3 other=8 | `apps/ui-backend/tools/start_manager.py:483` |
+| `scripts/prompt_audit.py` | OPS | P1 | yes | apps=2 ssot=5 other=7 | `apps/ui-backend/tools/start_manager.py:483` |
 | `scripts/purge_audio_final_chunks.py` | AUDIO | P1 | yes | scripts=2 ssot=6 other=5 | `scripts/purge_audio_final_chunks.py:11` |
 | `scripts/purge_audio_prep_binaries.py` | AUDIO | P1 | yes | ssot=7 other=6 | `ssot/OPS_AUDIO_TTS_V2.md:88` |
 | `scripts/remotion_export.py` | VIDEO | P1 | yes | apps=2 ssot=1 other=5 | `apps/ui-frontend/src/components/RemotionWorkspace.tsx:1186` |

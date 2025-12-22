@@ -141,6 +141,17 @@ ssot_old/
 tmp/
 commentary_02_srt2images_timeline/_capcut_drafts/
 
+# workspaces heavy artifacts (SoT on disk; keep out of git)
+workspaces/video/runs/**
+!workspaces/video/runs/.gitkeep
+workspaces/video/_capcut_drafts/**
+workspaces/video/remotion_exports/**
+workspaces/video/_archive/**
+workspaces/audio/final/**
+workspaces/audio/_archive_audio/**
+workspaces/logs/**
+!workspaces/logs/README.md
+
 # Adhoc scripts (temporary; keep out of git by default)
 scripts/_adhoc/**
 !scripts/_adhoc/README.md

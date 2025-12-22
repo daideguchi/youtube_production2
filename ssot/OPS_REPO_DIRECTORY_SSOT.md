@@ -47,6 +47,7 @@
   - video: `workspaces/video/`（runs/input/state/archive等）
   - thumbnails: `workspaces/thumbnails/`（projects.json/assets等）
   - logs: `workspaces/logs/`（運用ログの集約先）
+  - 注: 音声/動画の巨大生成物（例: `workspaces/audio/final/**`, `workspaces/video/runs/**`）は **gitignore**（SoTはディスク上の正本として扱う）。
 - `asset/`（L0/SoT, git管理）:
   - BGM/ロゴ/オーバーレイ/role assets 等の静的素材の正本。
   - cleanup対象外（削除は原則しない）。
@@ -116,4 +117,3 @@
 4) 実装（`factory_common.paths` 優先、互換symlinkは必要な場合のみ）  
 5) cleanup系の tracked 削除は **archive-first** → `ssot/OPS_CLEANUP_EXECUTION_LOG.md` 記録  
 6) 小さくコミット（1コミット=1目的）  
-
