@@ -127,5 +127,8 @@
 - [x] `TODO-SCRIPT-DONE-001` “タイトル語句が本文に無い”誤判定（token overlap）を撤廃（done）
   - ref: commit `01797805` / `scripts/audit_alignment_semantic.py`
 
+- [x] `TODO-SCRIPT-DONE-002` 超長尺の全文LLMゲートを自動スキップ（done）
+  - ref: commit `d689b55d` / `packages/script_pipeline/runner.py`
+
 - [x] `TODO-REPO-DONE-001` CH17–CH21 のスキャフォールド追加（done）
   - ref: commit `0c2f0fa2` / `configs/sources.yaml` commit `e1cda6a0`
