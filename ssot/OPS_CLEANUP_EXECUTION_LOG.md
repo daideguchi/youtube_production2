@@ -1265,3 +1265,23 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `scripts/trend_feed.py`（tracked）
   - `scripts/fetch_thumbnail_trends.py`（tracked）
   - `scripts/assign_trend_thumbnail.py`（tracked）
+
+### 90) CH固定の旧補助スクリプトを削除（archive-first / 入口一本化）
+
+意図: `scripts/` 直下に「CH固定・一回きりの補助スクリプト」が残ると、低知能エージェントが誤って叩きやすく事故の温床になる。  
+現行の正規入口（`ssot/OPS_ENTRYPOINTS_INDEX.md`）に載っていないものは archive-first で repo から削除し、必要時は `_adhoc` で再作成する。
+
+- 参照確認:
+  - `rg -n "append_ch02_row\\.py|check_ch02_content\\.py|check_ch02_quality\\.py|fix_ch02_row\\.py|create_image_cues_from_srt\\.py|regenerate_ch05_audio_no_llm\\.sh|run_ch03_batch\\.sh|sequential_repair\\.sh|scaffold_project\\.py" -S --glob '!ssot/**' --glob '!scripts/**' .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251222T022242Z__scripts_unused_prune_02.tar.gz`
+- 削除:
+  - `scripts/append_ch02_row.py`（tracked）
+  - `scripts/check_ch02_content.py`（tracked）
+  - `scripts/check_ch02_quality.py`（tracked）
+  - `scripts/fix_ch02_row.py`（tracked）
+  - `scripts/create_image_cues_from_srt.py`（tracked）
+  - `scripts/regenerate_ch05_audio_no_llm.sh`（tracked）
+  - `scripts/run_ch03_batch.sh`（tracked）
+  - `scripts/sequential_repair.sh`（tracked）
+  - `scripts/scaffold_project.py`（tracked）
