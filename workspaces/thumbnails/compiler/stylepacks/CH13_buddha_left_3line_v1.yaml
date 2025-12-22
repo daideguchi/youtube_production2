@@ -32,7 +32,7 @@ layout:
     gap: 10
 
 belt:
-  enabled: true
+  enabled: false
   mode: rect
   color: "#000000"
   opacity: 0.55
@@ -47,7 +47,7 @@ typography:
     width: 8
     color: "#000000"
   shadow:
-    enabled: true
+    enabled: false
     offset_x: 3
     offset_y: 3
     color: "rgba(0,0,0,0.55)"

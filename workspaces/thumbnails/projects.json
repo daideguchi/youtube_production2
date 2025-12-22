@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-11-15T08:00:23.213194+00:00",
+  "updated_at": "2025-12-22T13:20:43.890767+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -815,6 +815,906 @@
       ],
       "selected_variant_id": "ytm::172bba98fc16",
       "updated_at": "2025-11-15T08:00:23.212814+00:00"
+    },
+    {
+      "channel": "CH07",
+      "video": "001",
+      "title": "【逆転の一言】見下された時に使えるブッダの知恵",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/001/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/001/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "002",
+      "title": "【人生が変わる】悪口・批判・否定を気にしない方法",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/002/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/002/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "003",
+      "title": "心が汚い人が必ず発する7つの言葉",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/003/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/003/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "004",
+      "title": "心配ばかりしてしまうあなたへ｜心が軽くなる仏教の教え",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/004/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/004/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "005",
+      "title": "「どうでもいい」と思うと心が軽くなる理由",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/005/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/005/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "006",
+      "title": "【もう苦しまなくていい】許さなくていい生き方",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/006/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/006/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "007",
+      "title": "優しい人の口癖とその深い意味",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/007/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/007/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "008",
+      "title": "誠実な人が無意識に使う魔法の言葉",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/008/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/008/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "009",
+      "title": "【因果応報】あなたを苦しめた人が迎える結末",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/009/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/009/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "010",
+      "title": "【絶対に助けてはいけない人】関わった瞬間に不幸になる相手",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/010/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/010/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "011",
+      "title": "【もう舐められない】見下されたときの最強の一言",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/011/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/011/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "012",
+      "title": "【正論よりも大切なもの】常識が人を傷つける理由",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/012/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/012/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "013",
+      "title": "【感謝すべき敵】腹が立つ人への仏教的対処法",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/013/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/013/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "014",
+      "title": "【警告】こんな子供は親を不幸にする…今すぐ縁を切れ",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/014/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/014/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "015",
+      "title": "辛いときに口にすると心が軽くなる仏の言葉",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/015/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/015/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "016",
+      "title": "【偶然じゃない】嫌いな人との出会いに意味がある",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/016/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/016/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "017",
+      "title": "【言い返すな】上から目線の人への返し方",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/017/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/017/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "018",
+      "title": "【話しすぎ注意】言葉が多いと不幸になる",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/018/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/018/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "019",
+      "title": "【手放すな】運命の縁を教えてくれる言葉",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/019/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/019/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "020",
+      "title": "【老後の備え】子供に絶対に渡してはいけない5つのもの",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/020/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/020/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "021",
+      "title": "【許すと不幸になる】絶対に許してはいけない人間関係",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/021/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/021/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "022",
+      "title": "【心を守る技法】攻撃的な人への最も賢い返し方",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/022/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/022/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "023",
+      "title": "【誤解されたままでもいい理由】分かってもらえない時の心の保ち方",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/023/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/023/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "024",
+      "title": "【老後は言葉遣いで決まる】豊かに生きる話し方",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/024/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/024/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "025",
+      "title": "【心を守る一言】否定してくる人への最強の返し",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/025/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/025/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "026",
+      "title": "嫉妬する人の特徴と対処法",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/026/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/026/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "027",
+      "title": "嘘をつく人が使う5つの言葉",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/027/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/027/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "028",
+      "title": "【良くも悪くも聞き流す】心を軽くするブッダの教え",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/028/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/028/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "029",
+      "title": "【親しい人ほど危険】裏切る人の本性を見抜く方法",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/029/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/029/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
+    },
+    {
+      "channel": "CH07",
+      "video": "030",
+      "title": "【親の後悔】知らずにやってしまう子育ての間違い",
+      "status": "review",
+      "owner": "dd",
+      "summary": null,
+      "notes": null,
+      "tags": [
+        "compiler"
+      ],
+      "selected_variant_id": "compiler::build_20251222T114706Z",
+      "updated_at": "2025-12-22T13:20:43.890767+00:00",
+      "variants": [
+        {
+          "id": "compiler::build_20251222T114706Z",
+          "label": "文字サムネ（build_20251222T114706Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH07/030/compiler/build_20251222T114706Z/out_01.png",
+          "image_path": "CH07/030/compiler/build_20251222T114706Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-22T13:20:43.890767+00:00",
+          "updated_at": "2025-12-22T13:20:43.890767+00:00"
+        }
+      ]
     }
   ]
 }
