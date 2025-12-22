@@ -1694,6 +1694,24 @@ def cmd_overview(args: argparse.Namespace) -> int:
     include_expired_locks = bool(args.include_expired_locks)
     json_mode = bool(args.json)
 
+    pinned_path = PROJECT_ROOT / "ssot" / "agent_runbooks" / "OVERVIEW_PINNED.md"
+    pinned_preview: list[str] = []
+    if pinned_path.exists():
+        try:
+            raw_lines = pinned_path.read_text(encoding="utf-8").splitlines()
+            # Keep a short, non-empty preview (avoid flooding overview output).
+            for ln in raw_lines:
+                s = ln.strip()
+                if not s:
+                    continue
+                if s.startswith("#"):
+                    continue
+                pinned_preview.append(s)
+                if len(pinned_preview) >= 12:
+                    break
+        except Exception:
+            pinned_preview = []
+
     now = datetime.now(timezone.utc)
     agents = _find_agents(q)
     locks = _find_locks(q, include_expired=include_expired_locks)
@@ -1798,6 +1816,10 @@ def cmd_overview(args: argparse.Namespace) -> int:
     payload = {
         "generated_at": _now_iso_utc(),
         "queue_dir": str(q),
+        "pinned": {
+            "path": str(pinned_path.relative_to(PROJECT_ROOT)) if pinned_path.exists() else None,
+            "preview": pinned_preview,
+        },
         "counts": {
             "actors": len(summaries),
             "agents": len(agents),
@@ -1814,6 +1836,10 @@ def cmd_overview(args: argparse.Namespace) -> int:
         return 0
 
     print(f"[agent_org overview] queue_dir={payload['queue_dir']} actors={payload['counts']['actors']} locks={payload['counts']['locks']}")
+    if pinned_path.exists():
+        print(f"[pinned] {pinned_path.relative_to(PROJECT_ROOT)}")
+        for ln in pinned_preview:
+            print(f"  {ln}")
     for s in summaries:
         actor = str(s.get("actor") or "-")
         status = str(s.get("status") or "-")
