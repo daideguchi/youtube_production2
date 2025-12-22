@@ -78,14 +78,14 @@ models:
       json_mode: true
       max_tokens: 8192
 
-  or_o3_mini:
-    provider: openrouter
-    model_name: "openai/o3-mini"
-    capabilities:
-      mode: chat
-      reasoning: true
-      json_mode: true
-      max_tokens: 16384
+  # or_o3_mini:
+  #   provider: openrouter
+  #   model_name: "openai/o3-mini"
+  #   capabilities:
+  #     mode: chat
+  #     reasoning: true
+  #     json_mode: true
+  #     max_tokens: 16384
 
   or_qwen_2_5_7b_instruct:
     provider: openrouter
@@ -223,7 +223,24 @@ tasks:
     defaults:
       response_format: "json_object"
       temperature: 0.2
-      max_tokens: 1800
+      max_tokens: 1200
+
+  # A-text hard rescue: expand-only (large length shortage; JSON insertions)
+  script_a_text_quality_expand:
+    tier: heavy_reasoning
+    timeout: 180
+    defaults:
+      response_format: "json_object"
+      temperature: 0.2
+      max_tokens: 4096
+
+  # A-text hard rescue: shrink-only (length excess)
+  script_a_text_quality_shrink:
+    tier: heavy_reasoning
+    timeout: 180
+    defaults:
+      temperature: 0.2
+      max_tokens: 16384
 
   # A-text rebuild (plan -> draft): last-resort for non-converging scripts
   script_a_text_rebuild_plan:

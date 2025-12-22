@@ -500,6 +500,13 @@ class LLMRouter:
             base_options["max_tokens"] = max_tokens
         if response_format is not None:
             base_options["response_format"] = response_format
+        # Internal-only hint: include the configured model chain in the app-level cache key.
+        # Without this, changing model order/chain can keep returning stale cached results.
+        try:
+            if "_model_chain" not in base_options:
+                base_options["_model_chain"] = list(models)
+        except Exception:
+            pass
 
         agent_result = maybe_handle_agent_mode(
             task=task,

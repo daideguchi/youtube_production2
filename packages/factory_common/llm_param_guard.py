@@ -23,6 +23,9 @@ def sanitize_params(model_conf: Dict[str, Any], options: Dict[str, Any]) -> Dict
 
     out: Dict[str, Any] = {}
     for k, v in options.items():
+        # Internal-only routing/cache hints (must never reach providers).
+        if isinstance(k, str) and k.startswith("_"):
+            continue
         if v in (None, ""):
             continue
         if is_reasoning and k in _REASONING_BLOCKLIST:

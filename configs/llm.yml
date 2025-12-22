@@ -144,16 +144,16 @@ models:
       allow_stop: true
       max_output_tokens: 8192
 
-  or_o3_mini:
-    provider: openrouter
-    api_type: chat
-    model: "openai/o3-mini"
-    capabilities:
-      allow_reasoning: true
-      allow_json_mode: true
-      allow_temperature: false
-      allow_stop: false
-      max_output_tokens: 16384
+  # or_o3_mini:
+  #   provider: openrouter
+  #   api_type: chat
+  #   model: "openai/o3-mini"
+  #   capabilities:
+  #     allow_reasoning: true
+  #     allow_json_mode: true
+  #     allow_temperature: false
+  #     allow_stop: false
+  #     max_output_tokens: 16384
 
   or_qwen_2_5_7b_instruct:
     provider: openrouter
