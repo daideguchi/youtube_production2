@@ -117,12 +117,20 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/mark_redo_done.py --channel CHxx --videos NNN ... [--type audio|script|all]`
   - UI/redo API が正本だが、CLI が必要な場合はこの入口を使う（lock尊重の改善はTODO）。
 
+### Script（補助/リカバリ）
+- `python3 scripts/sanitize_a_text.py --channel CHxx --videos NNN --mode dry-run|run`（Aテキストから出典/URL等のメタ混入を退避→除去→同期）
+- `python3 scripts/expand_a_text.py --channel CHxx --videos NNN ...`（字数救済の補助。主線は品質ゲート側を優先）
+- `python3 scripts/episode_ssot.py --help`（エピソード/パターンSSOTの監査・同期）
+- `python3 scripts/buddha_senior_5ch_prepare.py --help`（CH12–CH16 初期化/メタ補完の補助）
+- `python3 scripts/buddha_senior_5ch_generate_scripts.py --help`（CH12–CH16 の一括生成（APIなし）補助）
+
 ### Health / Audit
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
 - `python3 scripts/api_health_check.py --base-url http://127.0.0.1:8000`
 - `python3 scripts/validate_status_sweep.py --repair-global`（壊れたstatusの補正）
 - `python3 scripts/prompt_audit.py`（detect-only）
 - `python3 scripts/llm_provenance_report.py --channel CHxx --video NNN`（どのprovider/modelで生成されたかの追跡）
+- `python3 scripts/force_asset_sync.py --dry-run`（`asset/`=L0 を正として role assets の同期/差分検知）
 - OpenRouter疎通:
   - `python3 scripts/openrouter_key_probe.py`
   - `python3 scripts/openrouter_caption_probe.py`
@@ -134,9 +142,18 @@ notes: <消し忘れ防止の一言>
 
 ### Video（補助）
 - `python3 scripts/build_video_payload.py --project-id <run_id>`（run_dir から CapCut/Remotion 互換の payload を生成）
+- `python3 scripts/remotion_export.py --help`（Remotion workspace のエクスポート補助）
+- `python3 scripts/repair_manager.py --help`（SRT/Audio/Run の repair 補助。`ssot/OPS_LOGGING_MAP.md` 参照）
 
 ### SRT（補助）
 - `python3 scripts/generate_subtitles.py CHxx-NNN ...`（既存SRTのタイミングを保持して本文だけ差し替え）
+
+### Audio（補助/バッチ）
+- `python3 scripts/batch_regenerate_tts.py --help`（UIの batch-tts が内部で呼ぶ。手動運用は原則UIから）
+- `python3 scripts/cleanup_audio_prep.py --dry-run` → OKなら `--run`（prepの不要chunk削除）
+- `python3 scripts/sync_audio_prep_to_final.py --help`（prep→final の不足同期）
+- `python3 scripts/purge_audio_prep_binaries.py --help`（prep の重複 wav/srt 削除）
+- `python3 scripts/purge_audio_final_chunks.py --help`（final の chunks 削除）
 
 ### Cleanup / Restore（運用で使う）
 - `python -m scripts.cleanup_workspace --dry-run ...` → OKなら `--run`（統合cleanup）
@@ -144,7 +161,18 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/cleanup_logs.py --run`（logsローテ）
 - `bash scripts/ops/cleanup_caches.sh`（pycache等）
 - `python3 scripts/ops/restore_video_runs.py --report ...`（run復旧）
+- `python3 scripts/ops/logs_snapshot.py`（logsの現状スナップショット: 件数/サイズ）
+- `python3 scripts/ops/cleanup_broken_symlinks.py --run`（壊れたsymlink削除: 探索ノイズ低減）
+- `python3 scripts/ops/cleanup_remotion_artifacts.py --run`（remotion生成物のローテ）
+- `python3 scripts/ops/prune_video_run_legacy_files.py --run`（video runs内の *.legacy.* を prune）
+- `python3 scripts/ops/archive_capcut_local_drafts.py --run`（capcutローカルドラフトを _archive へ移動）
+- `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（thumbnails旧dirを _archive へ移動）
+- `python3 scripts/ops/purge_legacy_agent_task_queues.py --run`（旧agent task queue残骸を archive-first で削除）
 - `bash scripts/run_srt2images.sh ...`（UI内部が呼ぶ wrapper。単体実行は原則デバッグのみ）
+
+### SSOTメンテ（固定ロジックの維持）
+- `python3 scripts/ops/ssot_audit.py`（索引/PLAN_STATUS の整合監査）
+- `python3 scripts/ops/scripts_inventory.py --write`（`scripts/**` 棚卸しSSOTの再生成）
 
 ---
 
