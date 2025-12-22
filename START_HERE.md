@@ -2,6 +2,7 @@
 
 - 確定フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口: `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- 全体TODO（次に何をやるか）: `ssot/OPS_GLOBAL_TODO.md`
 - 台本パイプライン導線: `ssot/OPS_SCRIPT_SOURCE_MAP.md`
 - モデル使い分け: `ssot/OPS_LLM_MODEL_CHEATSHEET.md`
 - 環境・キー設定: `ssot/OPS_ENV_VARS.md`

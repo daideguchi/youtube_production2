@@ -13,6 +13,7 @@
 - 確定フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 確定ロジック（最終チェック）: `ssot/【消さないで！人間用】確定ロジック`
 - 入口索引: `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- 全体TODO（次に何をやるか）: `ssot/OPS_GLOBAL_TODO.md`
 - I/Oスキーマ: `ssot/OPS_IO_SCHEMAS.md`
 - ログ配置: `ssot/OPS_LOGGING_MAP.md`
 - 生成物の保持/削除: `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
