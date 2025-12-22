@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 import logging
 import os
 import shutil
@@ -44,6 +45,55 @@ _SUCCESSFUL_IMAGE_COUNT = 0  # 成功した画像数
 
 # Legacy router fallback is disabled by default.
 USE_LEGACY_IMAGE_ROUTER = False  # Legacy router disabled; ImageClient is the only path
+
+# OpenRouter Gemini image API expects a canonical aspect ratio string (e.g. "16:9"),
+# not a raw pixel ratio like "1920:1080". Keep it within the accepted set.
+_OPENROUTER_ALLOWED_ASPECT_RATIOS = {
+    "1:1",
+    "2:3",
+    "3:2",
+    "3:4",
+    "4:3",
+    "4:5",
+    "5:4",
+    "9:16",
+    "16:9",
+    "21:9",
+}
+
+
+def _normalize_openrouter_aspect_ratio(width: int, height: int) -> str | None:
+    try:
+        w = int(width)
+        h = int(height)
+    except Exception:
+        return None
+
+    if w <= 0 or h <= 0:
+        return None
+
+    g = math.gcd(w, h)
+    if g:
+        rw = w // g
+        rh = h // g
+        reduced = f"{rw}:{rh}"
+        if reduced in _OPENROUTER_ALLOWED_ASPECT_RATIOS:
+            return reduced
+
+    raw = w / h
+    ratio_values = {
+        "1:1": 1.0,
+        "2:3": 2 / 3,
+        "3:2": 3 / 2,
+        "3:4": 3 / 4,
+        "4:3": 4 / 3,
+        "4:5": 4 / 5,
+        "5:4": 5 / 4,
+        "9:16": 9 / 16,
+        "16:9": 16 / 9,
+        "21:9": 21 / 9,
+    }
+    return min(ratio_values.keys(), key=lambda k: abs(ratio_values[k] - raw))
 
 def _truncate_log(text: str, limit: int = 400) -> str:
     if text is None:
@@ -400,7 +450,7 @@ def _run_direct(
     
     # Legacy chat payload removed; ImageClient handles prompt-only image generation.
 
-    aspect_ratio = f"{width}:{height}" if width and height else None
+    aspect_ratio = _normalize_openrouter_aspect_ratio(width, height)
 
     max_retries = max(1, int(max_retries))
     for attempt in range(max_retries):

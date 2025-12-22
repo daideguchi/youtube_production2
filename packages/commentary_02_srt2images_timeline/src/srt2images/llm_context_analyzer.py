@@ -312,6 +312,9 @@ Script excerpts:
         """LLM分析用のプロンプトを作成"""
         extra_rapid = ""
         extra_ch02 = ""
+        extra_ch12 = ""
+        section_seconds_hint = "10–15"
+        force_split_seconds = 20
         # Increase target sections for CH01 to ensure rapid pacing
         if (self.channel_id or "").upper() == "CH01":
             min_sections = int(min_sections * 1.5)
@@ -331,6 +334,15 @@ Script excerpts:
                 "- `persona_needed` should be false unless a recurring character is explicitly described in the script.\n"
                 "- `visual_focus` should be object/space focused (not a person) and must differ from adjacent sections.\n"
             )
+        elif (self.channel_id or "").upper() == "CH12":
+            # CH12 only: user requirement is ~25s per image (slower pacing than other channels).
+            section_seconds_hint = "20–30"
+            force_split_seconds = 40
+            extra_ch12 = (
+                "\n"
+                "- **CRITICAL FOR CH12:** Use a calmer visual pace (aim ~25s per image). Prefer fewer, longer shots that sustain mood.\n"
+                "- Avoid rapid-fire micro cuts unless there is a clear scene change or a hard list.\n"
+            )
 
         return f"""
 You are preparing storyboards for a narrated YouTube video.
@@ -338,10 +350,10 @@ Input is a Japanese SRT segmented script. Produce between {min_sections} and {ma
 
 Each section must:
   • Cover consecutive SRT segments (no overlap, no gaps).
-  • Run roughly 10–15 seconds (never longer than 20 seconds).
+  • Run roughly {section_seconds_hint} seconds (never longer than {force_split_seconds} seconds).
   • Capture a single idea the viewer should picture (example, anecdote, list item, metaphor, scene change, or emotional beat).
   • Be easy to illustrate without text, describing concrete subjects, objects, settings whenever possible (people only when the script requires it).
-{extra_rapid}{extra_ch02}
+{extra_rapid}{extra_ch02}{extra_ch12}
 
 Use the [index@timestamp] markers to reference SRT segments.
 
@@ -360,7 +372,7 @@ Field rules:
 
 Rules:
 - Use the original SRT indices shown in the text.
-- **FORCE SPLIT:** If a section would exceed 20 seconds, YOU MUST SPLIT IT even if the topic continues. Change the visual angle or focus.
+- **FORCE SPLIT:** If a section would exceed {force_split_seconds} seconds, YOU MUST SPLIT IT even if the topic continues. Change the visual angle or focus.
 - The JSON must contain at least {min_sections} entries and no more than {max_sections} entries.
 - Do not include any explanation outside the JSON.
 

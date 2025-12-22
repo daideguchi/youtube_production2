@@ -291,7 +291,8 @@ def plan_sections_via_router(
 ) -> List[PlannedSection]:
     if not segments:
         return []
-    story = _combine_segments_for_prompt(segments)
+    max_chars = int(os.getenv("SRT2IMAGES_CUES_PLAN_MAX_CHARS", "20000"))
+    story = _combine_segments_for_prompt(segments, max_chars=max_chars)
     seg_count = len([s for s in segments if (s.get("text") or "").strip()])
     seg_count = seg_count or len(segments)
 
@@ -305,6 +306,15 @@ def plan_sections_via_router(
             "\n"
             "- CRITICAL FOR CH01: rapid pacing; prefer shorter cuts when actions/thoughts change.\n"
             "- Adjacent sections MUST vary camera/pose/angle/subject to avoid repetition.\n"
+        )
+
+    extra_slow = ""
+    if (channel_id or "").upper() == "CH12":
+        extra_slow = (
+            "\n"
+            "- CRITICAL FOR CH12: slower pacing; aim ~20–30s per image around the target average.\n"
+            "- Avoid micro-cuts (<15s) unless there's a clear scene change.\n"
+            "- Prefer one sustained scene over rapid cuts when the motif/setting continues.\n"
         )
 
     style_block = f"\nChannel style hints:\n{style_hint}\n" if style_hint.strip() else ""
@@ -321,6 +331,7 @@ Each section must:
 - Avoid putting text inside the scene.
 - Do NOT invent extra characters. Do NOT default to monks/meditation/正座/赤鉢巻/鎌おじさん unless the script explicitly demands it.
 {extra_rapid}
+{extra_slow}
 Return ONLY a JSON object (no markdown) with this schema:
 {{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type],...]}}
 
@@ -338,17 +349,59 @@ Script:
 """.strip()
 
     router = get_router()
+    # Token/cost guardrail: keep output cap proportional to requested section count.
+    # Some providers (OpenRouter) may reject requests when max_tokens is too high for remaining credits.
+    per_section = int(os.getenv("SRT2IMAGES_CUES_PLAN_TOKENS_PER_SECTION", "55"))
+    base_cap = int(os.getenv("SRT2IMAGES_CUES_PLAN_BASE_TOKENS", "1200"))
+    hard_cap = int(os.getenv("SRT2IMAGES_CUES_PLAN_MAX_TOKENS", "3200"))
+    max_tokens = min(hard_cap, max(base_cap, per_section * max_sections))
     content = router.call(
         task="visual_image_cues_plan",
         messages=[{"role": "user", "content": prompt}],
         response_format="json_object",
         temperature=0.3,
+        max_tokens=max_tokens,
     )
     json_str = _extract_json_object(str(content or ""))
     if not json_str:
         raise ValueError("failed to extract JSON object from plan response")
     data = json.loads(json_str)
-    return _coerce_sections(data, segment_count=len(segments))
+
+    sections = _coerce_sections(data, segment_count=len(segments))
+    if len(sections) > max_sections:
+        # Cap by merging adjacent sections with the weakest topic boundary.
+        # This avoids "too many images" without resorting to equal spacing.
+        texts = [str(s.get("text") or "").strip() for s in segments]
+        tokens_per_seg = [set(_tokenize_loose(t)) for t in texts]
+
+        while len(sections) > max_sections and len(sections) >= 2:
+            best_i = 0
+            best_score = float("inf")
+            for i in range(len(sections) - 1):
+                boundary_idx = sections[i].end_segment - 1  # 1-based -> 0-based boundary
+                if boundary_idx < 0 or boundary_idx >= len(tokens_per_seg) - 1:
+                    score = 0.0
+                else:
+                    score = _boundary_score(idx=boundary_idx, tokens_per_seg=tokens_per_seg, texts=texts, window=3)
+                if score < best_score:
+                    best_score = score
+                    best_i = i
+
+            a = sections[best_i]
+            b = sections[best_i + 1]
+            merged = PlannedSection(
+                start_segment=a.start_segment,
+                end_segment=b.end_segment,
+                summary=_truncate((a.summary or b.summary or ""), 60),
+                visual_focus=_truncate((a.visual_focus or b.visual_focus or ""), 180),
+                emotional_tone=_truncate((a.emotional_tone or b.emotional_tone or ""), 40),
+                persona_needed=bool(a.persona_needed or b.persona_needed),
+                role_tag=_truncate((a.role_tag or b.role_tag or ""), 40),
+                section_type=_truncate((a.section_type or b.section_type or ""), 40),
+            )
+            sections = sections[:best_i] + [merged] + sections[best_i + 2 :]
+
+    return sections
 
 
 _TRANSITION_PREFIXES: tuple[str, ...] = (

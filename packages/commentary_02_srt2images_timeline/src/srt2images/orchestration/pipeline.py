@@ -137,6 +137,10 @@ def run_pipeline(args):
         "true",
         "plan",
     )
+    # CH12: slower pacing (~25s per image) is required; prefer deterministic cues_plan.
+    if channel_upper == "CH12":
+        use_cues_plan = True
+        # NOTE: plan implementation is controlled via SRT2IMAGES_CUES_PLAN_IMPL (default: router in api mode).
 
     # 1.5) Generate Visual Bible (Before cues)
     persona_text = ""
