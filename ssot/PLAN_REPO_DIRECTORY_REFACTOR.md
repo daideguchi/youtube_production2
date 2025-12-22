@@ -87,7 +87,7 @@
   - `00_research/`（ベンチ/参考台本）
   - `idea/`（メモ/下書き）
   - （削除済み）`50_tools/`（旧PoC群）/ `docs/`（旧静的ビルド）はアーカイブ後に削除済み（正本: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
-  - ルート `tools/`（チャンネル別のアドホック保守スクリプト）
+  - （削除済み）ルート `tools/`（チャンネル別のアドホック保守スクリプト。現行は `scripts/_adhoc/` に集約。証跡: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 92）
 
 **サイズ（2025-12-12 観測: `du -sh`）**
 - `commentary_02_srt2images_timeline/`: 約22GB（主に `output/` run）
@@ -107,7 +107,7 @@
 | `ui` | 1.60 | 2025-12-12 16:30:08 | 2025-12-12 |  |
 | `thumbnails` | 0.20 | 2025-12-12 16:30:09 | 2025-12-11 |  |
 | `scripts` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
-| `tools` | 0.00 | 2025-12-12 21:28:00 | 2025-12-10 |  |
+| （削除済み）`tools` | - | - | - | 2025-12-22 archive-first で削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 92） |
 | `configs` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
 | `factory_common` | 0.00 | 2025-12-12 22:35:17 | 2025-12-12 |  |
 | `remotion` | 2.21 | 2025-12-06 09:36:39 | 2025-12-10 |  |

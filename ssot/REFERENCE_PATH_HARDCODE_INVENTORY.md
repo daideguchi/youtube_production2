@@ -137,24 +137,40 @@
 `rg --files-with-matches "progress/channels"` の結果（全件）。
 
 - `apps/ui-backend/backend/main.py`
-- `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx`
-- `apps/ui-frontend/src/pages/ProjectsPage.tsx`
 - `apps/ui-frontend/src/api/client.ts`
 - `apps/ui-frontend/src/layouts/AppShell.tsx`
-- `tools/check_consistency.py`
-- `tools/check_ch06_quality.py`
-- `tools/audit_and_enhance_ch06.py`
-- `tools/final_audit_ch06.py`
-- `tools/enhance_thumbnail_prompts.py`
-- `tools/clean_thumbnail_prompts.py`
-- `scripts/fix_ch02_row.py`
-- `scripts/append_ch02_row.py`
-- `apps/ui-backend/tools/assets_sync.py`（互換: `ui/tools/assets_sync.py`）
-- `configs/sources.yaml`
-- `script_pipeline/config/sources.yaml`
-- `commentary_02_srt2images_timeline/tools/capcut_bulk_insert.py`
-- `progress/personas/*.md` / `progress/README.md`（SoT/Docs）
-- `ssot/*`（Docs）
+- `apps/ui-frontend/src/pages/ProjectsPage.tsx`
+- `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx`
+- `README.md`
+- `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
+- `ssot/DATA_LAYOUT.md`
+- `ssot/OPS_AGENT_PLAYBOOK.md`
+- `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`
+- `ssot/OPS_CHANNEL_LAUNCH_MANUAL.md`
+- `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
+- `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- `ssot/OPS_IO_SCHEMAS.md`
+- `ssot/OPS_PLANNING_CSV_WORKFLOW.md`
+- `ssot/OPS_SCRIPT_GUIDE.md`
+- `ssot/OPS_SCRIPT_SOURCE_MAP.md`
+- `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+- `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`
+- `ssot/PLAN_TEMPLATE.md`
+- `ssot/PLAN_UI_EPISODE_STUDIO.md`
+- `ssot/PLAN_UI_WORKSPACE_CLEANUP.md`
+- `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`
+- `ssot/REFERENCE_ssot_このプロダクト設計について`
+- `ssot/【消さないで！人間用】確定ロジック`
+- `workspaces/planning/personas/CH01_PERSONA.md`
+- `workspaces/planning/personas/CH02_PERSONA.md`
+- `workspaces/planning/personas/CH03_PERSONA.md`
+- `workspaces/planning/personas/CH04_PERSONA.md`
+- `workspaces/planning/personas/CH05_PERSONA.md`
+- `workspaces/planning/personas/CH06_PERSONA.md`
+- `workspaces/planning/personas/CH09_PERSONA.md`
+- `workspaces/planning/personas/CH10_PERSONA.md`
+- `workspaces/planning/personas/CH11_PERSONA.md`
 
 置換先: `factory_common.paths.planning_root()` / `channels_csv_path(ch)`。
 

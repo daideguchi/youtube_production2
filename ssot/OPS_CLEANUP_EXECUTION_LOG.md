@@ -1302,3 +1302,19 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `scripts/auto_approve.sh`（tracked）
   - `scripts/mass_regenerate_strict.sh`（tracked）
   - `scripts/mark_redo_done.sh`（tracked）
+
+### 92) ルート `tools/` と `workspaces/planning/ch01_reference/` を削除（archive-first / 誤誘導防止）
+
+意図:
+- ルート `tools/` はチャンネル別のアドホック保守スクリプト置き場として残っていたが、現行の固定入口（`ssot/OPS_ENTRYPOINTS_INDEX.md` / `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`）から外れており、誤誘導の温床になる。
+- 一時スクリプトは `scripts/_adhoc/` に集約済みのため、ルート `tools/` は削除して迷子/誤実行リスクを下げる。
+- `workspaces/planning/ch01_reference/` は旧運用メモで、存在しない `tools/*.py` や旧 Makefile 前提の記述が残っており、現行の確定フローと矛盾して混乱を招くため削除する。
+
+- 参照確認:
+  - `rg -n "tools/(check_consistency|check_ch06_quality|audit_and_enhance_ch06|final_audit_ch06|enhance_thumbnail_prompts|clean_thumbnail_prompts|gemini_agent_b_text)\\.py" -S --glob '!ssot/**' .`（ヒットなし）
+  - `rg -n "ch01_reference" -S .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251222T052500Z__root_tools_prune_01.tar.gz`
+- 削除:
+  - `tools/`（tracked）
+  - `workspaces/planning/ch01_reference/`（tracked）

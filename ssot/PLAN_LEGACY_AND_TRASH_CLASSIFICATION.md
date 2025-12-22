@@ -27,6 +27,7 @@
 - 2025-12-13: 旧PoC/旧静的物（`legacy/50_tools`, `legacy/docs_old`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-13: legacyアーカイブ（`audio_tts_v2/legacy_archive`, `commentary_02_srt2images_timeline/tools/archive`）を **アーカイブ後に削除**（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - 2025-12-17: `commentary_02_srt2images_timeline/src/ui/`（旧テンプレート管理UI）と `tests/test_integration.py` を **archive-first** で削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- 2025-12-22: ルート `tools/` と `workspaces/planning/ch01_reference/` を **archive-first** で削除（`ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 92）。
 
 ---
 
@@ -39,7 +40,7 @@
 - `factory_common/`：LLM/画像/今後 paths SSOT の共通層。
 - `ui/`：FastAPI+React の運用UI（Planning/Redo/CapCut/Thumbnails等の実体）。
 - `scripts/`：運用CLI群（Redo/Drive/YT/監査/同期など主線で使用）。
-- `tools/`：現行チャンネル向け補助ツール（例: CH06監査/サムネプロンプト補助）。用途は混在のため現時点で削除不可。
+- （削除済み）ルート `tools/`：チャンネル別のアドホック保守スクリプト置き場（誤誘導の温床）。現行は `scripts/ops/` と `scripts/_adhoc/` に集約（証跡: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 92）。
 - `configs/`：LLM/画像/Drive/YT/モデルレジストリ等の設定正本。
 - `credentials/`：OAuth token 等の秘密情報（物理移動なし）。
 - `progress/`：企画/進捗CSVとpersonaの正本（Phase A）。
