@@ -1,6 +1,8 @@
 script_globals:
   # 全チャンネル共通の読み台本（Aテキスト）品質ルール（SSOT）
   a_text_rules: ssot/OPS_A_TEXT_GLOBAL_RULES.md
+  # 台本の骨格（構成パターン/字数配分）の正本
+  a_text_patterns: ssot/OPS_SCRIPT_PATTERNS.yaml
   # TTS事故を避けるための目安（記号数。`「`+`」` の合計 / `（`+`）`+`(`+`)` の合計）
   a_text_quote_marks_max: 20
   a_text_paren_marks_max: 10
@@ -63,14 +65,14 @@ channels:
     planning_csv: workspaces/planning/channels/CH09.csv
     persona: workspaces/planning/personas/CH09_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH09-不動の指針/script_prompt.txt
-    chapter_count: 5
+    chapter_count: 1
     target_chars_min: 5500
     target_chars_max: 6500
   CH10:
     planning_csv: workspaces/planning/channels/CH10.csv
     persona: workspaces/planning/personas/CH10_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH10-深夜の偉人ラジオ/script_prompt.txt
-    chapter_count: 6
+    chapter_count: 1
     target_chars_min: 6000
     target_chars_max: 7000
   CH11:
@@ -82,7 +84,7 @@ channels:
     planning_csv: workspaces/planning/channels/CH12.csv
     persona: workspaces/planning/personas/CH12_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt
-    chapter_count: 8
+    chapter_count: 4
     target_chars_min: 7000
     target_chars_max: 9000
   CH13:
@@ -113,3 +115,38 @@ channels:
     chapter_count: 8
     target_chars_min: 6500
     target_chars_max: 8500
+  CH17:
+    planning_csv: workspaces/planning/channels/CH17.csv
+    persona: workspaces/planning/personas/CH17_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH17-眠れる仏教史紀行/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 18000
+    target_chars_max: 26000
+  CH18:
+    planning_csv: workspaces/planning/channels/CH18.csv
+    persona: workspaces/planning/personas/CH18_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH18-禅と睡眠の静かな科学/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 18000
+    target_chars_max: 26000
+  CH19:
+    planning_csv: workspaces/planning/channels/CH19.csv
+    persona: workspaces/planning/personas/CH19_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH19-静かな仏教哲学/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 18000
+    target_chars_max: 26000
+  CH20:
+    planning_csv: workspaces/planning/channels/CH20.csv
+    persona: workspaces/planning/personas/CH20_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH20-ブッダの人間関係相談室/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 18000
+    target_chars_max: 26000
+  CH21:
+    planning_csv: workspaces/planning/channels/CH21.csv
+    persona: workspaces/planning/personas/CH21_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH21-眠れる仏教説話集/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 18000
+    target_chars_max: 26000
