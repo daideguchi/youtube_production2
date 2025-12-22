@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import {
   assignThumbnailLibraryAsset,
+  composeThumbnailVariant,
   createPlanningRow,
   createThumbnailVariant,
   describeThumbnailLibraryAsset,
@@ -46,7 +47,7 @@ import {
 
 type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "archived";
 
-type ThumbnailWorkspaceTab = "bulk" | "projects" | "templates" | "library" | "channel";
+type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "templates" | "library" | "channel";
 
 type VariantFormState = {
   projectKey: string;
@@ -150,6 +151,7 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
 const THUMBNAIL_WORKSPACE_TABS: { key: ThumbnailWorkspaceTab; label: string; description?: string }[] = [
   { key: "bulk", label: "量産", description: "コピー編集→Canva一括CSV" },
   { key: "projects", label: "案件", description: "サムネ案の登録・生成・採用" },
+  { key: "gallery", label: "ギャラリー", description: "選択サムネ一覧 / ZIPダウンロード" },
   { key: "templates", label: "テンプレ", description: "チャンネルの型（AI生成用）" },
   { key: "library", label: "ライブラリ", description: "参考サムネの登録・紐付け" },
   { key: "channel", label: "チャンネル", description: "KPI / 最新動画プレビュー" },
@@ -690,6 +692,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       planningError={planningError}
       onRefreshPlanning={handleRefreshPlanning}
       onUpdateLocalPlanningRow={handleUpdateLocalPlanningRow}
+      onRefreshWorkspace={async () => {
+        await fetchData({ silent: true });
+      }}
     />
   ) : (
     <section className="thumbnail-library-panel">
@@ -697,6 +702,112 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         <div>
           <h3>量産（Canva）</h3>
           <p>チャンネルを選択すると企画CSVからコピー一覧を読み込みます。</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const galleryPanel = activeChannel ? (
+    <section className="thumbnail-gallery-panel">
+      <div className="thumbnail-gallery-panel__header">
+        <div>
+          <h3>ギャラリー</h3>
+          <p>選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。</p>
+        </div>
+        <div className="thumbnail-gallery-panel__actions">
+          <a
+            className="btn btn--ghost"
+            href={resolveApiUrl(
+              `/api/workspaces/thumbnails/${encodeURIComponent(activeChannel.channel)}/download.zip?mode=selected`
+            )}
+            target="_blank"
+            rel="noreferrer"
+            title="各企画の選択中サムネだけをZIPでまとめてダウンロード"
+          >
+            ZIP（選択中）
+          </a>
+          <a
+            className="btn btn--primary"
+            href={resolveApiUrl(
+              `/api/workspaces/thumbnails/${encodeURIComponent(activeChannel.channel)}/download.zip?mode=all`
+            )}
+            target="_blank"
+            rel="noreferrer"
+            title="全バリアントをZIPでまとめてダウンロード"
+          >
+            ZIP（全部）
+          </a>
+        </div>
+      </div>
+      <div className="thumbnail-gallery-grid">
+        {activeChannel.projects.map((project) => {
+          const projectKey = getProjectKey(project);
+          const selectedVariant =
+            project.variants.find((variant) => variant.is_selected) ??
+            (project.selected_variant_id
+              ? project.variants.find((variant) => variant.id === project.selected_variant_id)
+              : undefined) ??
+            project.variants[0];
+          if (!selectedVariant) {
+            return (
+              <article key={projectKey} className="thumbnail-gallery-card thumbnail-gallery-card--empty">
+                <div className="thumbnail-gallery-card__meta">
+                  <div className="thumbnail-gallery-card__code">{project.channel}-{project.video}</div>
+                  <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
+                    {project.title ?? "（タイトル未設定）"}
+                  </div>
+                  <div className="thumbnail-gallery-card__note">サムネ未登録</div>
+                </div>
+              </article>
+            );
+          }
+          const imageUrl =
+            selectedVariant.preview_url
+              ? resolveApiUrl(selectedVariant.preview_url)
+              : selectedVariant.image_url
+                ? resolveApiUrl(selectedVariant.image_url)
+                : selectedVariant.image_path
+                  ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
+                  : null;
+          return (
+            <article key={projectKey} className="thumbnail-gallery-card">
+              <div className="thumbnail-gallery-card__media">
+                {imageUrl ? (
+                  <a href={imageUrl} target="_blank" rel="noreferrer" title="別タブで表示">
+                    <img src={imageUrl} alt={`${project.channel}-${project.video}`} loading="lazy" />
+                  </a>
+                ) : (
+                  <div className="thumbnail-gallery-card__placeholder">No Image</div>
+                )}
+              </div>
+              <div className="thumbnail-gallery-card__meta">
+                <div className="thumbnail-gallery-card__code">{project.channel}-{project.video}</div>
+                <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
+                  {project.title ?? "（タイトル未設定）"}
+                </div>
+                <div className="thumbnail-gallery-card__variant">{selectedVariant.label ?? selectedVariant.id}</div>
+                {imageUrl ? (
+                  <div className="thumbnail-gallery-card__buttons">
+                    <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
+                      開く
+                    </a>
+                    <a className="btn" href={imageUrl} download={`${project.channel}-${project.video}.png`}>
+                      DL
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  ) : (
+    <section className="thumbnail-library-panel">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>ギャラリー</h3>
+          <p>チャンネルを選択すると選択中サムネを一覧で表示します。</p>
         </div>
       </div>
     </section>
@@ -1068,6 +1179,82 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       });
     },
     [channelTemplates, imageModels, planningRowsByVideo]
+  );
+
+  const handleComposeVariant = useCallback(
+    async (project: ThumbnailProject) => {
+      const projectKey = getProjectKey(project);
+      const normalizedVideo = normalizeVideoInput(project.video);
+      if (!normalizedVideo) {
+        setProjectFeedback(projectKey, {
+          type: "error",
+          message: "動画番号が不正です。",
+          timestamp: Date.now(),
+        });
+        return;
+      }
+
+      setUpdatingProjectId(projectKey);
+      try {
+        let planningRow: Record<string, string> | undefined = planningRowsByVideo[normalizedVideo];
+        if (!planningRow) {
+          try {
+            const refreshed = await loadPlanning(project.channel, { silent: true });
+            planningRow = refreshed?.[normalizedVideo];
+          } catch {
+            planningRow = undefined;
+          }
+        }
+
+        const upper = (planningRow?.["サムネタイトル上"] ?? "").trim();
+        const title = (planningRow?.["サムネタイトル"] ?? "").trim();
+        const lower = (planningRow?.["サムネタイトル下"] ?? "").trim();
+        if (!upper || !title || !lower) {
+          throw new Error("企画CSVのサムネコピー（上/中/下）が必要です（量産タブで入力してください）。");
+        }
+
+        const variant = await composeThumbnailVariant(project.channel, project.video, {
+          copy_upper: upper,
+          copy_title: title,
+          copy_lower: lower,
+          label: "文字合成",
+          status: "draft",
+          make_selected: project.variants.length === 0,
+        });
+
+        const previewUrl =
+          variant.preview_url?.trim()
+            ? resolveApiUrl(variant.preview_url)
+            : variant.image_path?.trim()
+              ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
+              : null;
+
+        setProjectFeedback(projectKey, {
+          type: "success",
+          message: (
+            <span>
+              文字サムネを作成しました。
+              {previewUrl ? (
+                <>
+                  {" "}
+                  <a href={previewUrl} target="_blank" rel="noreferrer">
+                    プレビュー
+                  </a>
+                </>
+              ) : null}
+            </span>
+          ),
+          timestamp: Date.now(),
+        });
+        await fetchData({ silent: true });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(projectKey, { type: "error", message, timestamp: Date.now() });
+      } finally {
+        setUpdatingProjectId(null);
+      }
+    },
+    [fetchData, loadPlanning, planningRowsByVideo, setProjectFeedback]
   );
 
   const handleCloseGenerateDialog = useCallback(() => {
@@ -2415,25 +2602,51 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                       <div className="thumbnail-card__actions">
                         <button
                           type="button"
+                          className="btn"
                           onClick={() => handleDropzoneClick(projectKey, disableVariantActions)}
                           disabled={disableVariantActions}
                         >
                           画像を差し替える
                         </button>
-                        <button type="button" onClick={() => handleOpenGenerateDialog(project)} disabled={disableVariantActions}>
+                        <button
+                          type="button"
+                          className="btn btn--primary"
+                          onClick={() => handleComposeVariant(project)}
+                          disabled={disableVariantActions}
+                          title="企画CSVのコピー（上/中/下）を使って、文字サムネを無料で合成します"
+                        >
+                          文字サムネ
+                        </button>
+                        <button
+                          type="button"
+                          className="btn"
+                          onClick={() => handleOpenGenerateDialog(project)}
+                          disabled={disableVariantActions}
+                        >
                           AI生成
                         </button>
-                        <button type="button" onClick={() => handleOpenVariantForm(project)} disabled={disableVariantActions}>
+                        <button
+                          type="button"
+                          className="btn"
+                          onClick={() => handleOpenVariantForm(project)}
+                          disabled={disableVariantActions}
+                        >
                           案を登録
                         </button>
                         <button
                           type="button"
+                          className="btn"
                           onClick={() => handleOpenPlanningDialog(project, selectedVariant)}
                           disabled={!selectedVariant || disableVariantActions}
                         >
                           企画に書き出す
                         </button>
-                        <button type="button" onClick={() => handleOpenProjectForm(project)} disabled={disableVariantActions}>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() => handleOpenProjectForm(project)}
+                          disabled={disableVariantActions}
+                        >
                           メモを編集
                         </button>
                       </div>
@@ -2694,6 +2907,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             </div>
           </section>
         ) : null}
+            {activeTab === "gallery" ? (
+              <div className="thumbnail-hub__pane thumbnail-hub__pane--gallery">{galleryPanel}</div>
+            ) : null}
             {activeTab === "templates" ? (
               <div className="thumbnail-hub__pane thumbnail-hub__pane--templates">{templatesPanel}</div>
             ) : null}

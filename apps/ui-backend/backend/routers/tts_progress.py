@@ -83,7 +83,15 @@ async def get_tts_progress():
     channels_progress = []
     
     # Check all CH* channels
-    for channel_code in ["CH02", "CH04", "CH06"]:
+    # Scan SCRIPT_DATA_DIR for any CH* directories
+    channel_codes = []
+    if SCRIPT_DATA_DIR.exists():
+        for item in SCRIPT_DATA_DIR.iterdir():
+            if item.is_dir() and item.name.startswith("CH"):
+                channel_codes.append(item.name)
+    channel_codes.sort()
+
+    for channel_code in channel_codes:
         total_episodes = get_channel_episodes(channel_code)
         all_completed = get_completed_episodes(channel_code)
         

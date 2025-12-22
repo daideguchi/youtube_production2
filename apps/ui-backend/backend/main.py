@@ -22,6 +22,7 @@ import tempfile
 import hashlib
 import mimetypes
 import shutil
+import zipfile
 import base64
 import unicodedata
 import requests
@@ -195,7 +196,7 @@ from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Form, Body,
 from backend.routers import jobs
 from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 import urllib.parse
 import subprocess
@@ -232,6 +233,7 @@ from factory_common.alignment import (
     sha1_file as sha1_file_bytes,
 )
 from factory_common.paths import (
+    assets_root as ssot_assets_root,
     audio_final_dir,
     audio_pkg_root,
     logs_root as ssot_logs_root,
@@ -5108,6 +5110,23 @@ class ThumbnailVariantGenerateRequest(BaseModel):
     tags: Optional[List[str]] = None
 
 
+class ThumbnailVariantComposeRequest(BaseModel):
+    """
+    Local composition (no AI): put 3-line text on the fixed Buddha template.
+    """
+
+    copy_upper: Optional[str] = None
+    copy_title: Optional[str] = None
+    copy_lower: Optional[str] = None
+    label: Optional[str] = None
+    status: Optional[str] = Field(default="draft")
+    make_selected: Optional[bool] = False
+    notes: Optional[str] = None
+    tags: Optional[List[str]] = None
+    impact: Optional[bool] = True
+    flip_base: Optional[bool] = True
+
+
 class ThumbnailLibraryImportRequest(BaseModel):
     url: str = Field(..., min_length=1)
     file_name: Optional[str] = None
@@ -8317,6 +8336,129 @@ def generate_thumbnail_variant_images(channel: str, video: str, payload: Thumbna
 
 
 @app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/variants/compose",
+    response_model=ThumbnailVariantResponse,
+    status_code=201,
+)
+def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVariantComposeRequest):
+    """
+    Compose a thumbnail locally (no AI).
+
+    Uses:
+    - base: `asset/thumbnails/CH12/ch12_buddha_bg_1536x1024.png` (flipped by default)
+    - stylepack: `workspaces/thumbnails/compiler/stylepacks/{channel}_*.yaml`
+    - copy: planning CSV (サムネタイトル上/サムネタイトル/サムネタイトル下) or payload overrides
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+
+    upper = payload.copy_upper.strip() if isinstance(payload.copy_upper, str) else ""
+    title = payload.copy_title.strip() if isinstance(payload.copy_title, str) else ""
+    lower = payload.copy_lower.strip() if isinstance(payload.copy_lower, str) else ""
+
+    if not (upper and title and lower):
+        try:
+            for row in planning_store.get_rows(channel_code, force_refresh=True):
+                if normalize_video_number(row.video_number or "") != video_number:
+                    continue
+                raw = row.raw if isinstance(row.raw, dict) else {}
+                if not upper:
+                    upper = str(raw.get("サムネタイトル上") or "").strip()
+                if not title:
+                    title = str(raw.get("サムネタイトル") or "").strip()
+                if not lower:
+                    lower = str(raw.get("サムネタイトル下") or "").strip()
+                break
+        except Exception:
+            pass
+
+    if not (upper and title and lower):
+        raise HTTPException(status_code=400, detail="企画CSVのサムネコピー（上/中/下）が必要です。")
+
+    label = payload.label.strip() if isinstance(payload.label, str) and payload.label.strip() else "文字合成"
+    notes = payload.notes.strip() if isinstance(payload.notes, str) and payload.notes.strip() else None
+    tags = payload.tags
+
+    base_path = ssot_assets_root() / "thumbnails" / "CH12" / "ch12_buddha_bg_1536x1024.png"
+    if not base_path.exists():
+        raise HTTPException(status_code=500, detail=f"base image not found: {base_path}")
+
+    try:
+        from workspaces.thumbnails.compiler import compile_buddha_3line as compiler
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumbnail compiler is not available: {exc}") from exc
+
+    try:
+        stylepack = compiler._load_stylepack(channel_code)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to load stylepack: {exc}") from exc
+
+    try:
+        font_path = compiler.resolve_font_path(None)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    flip_base = True if payload.flip_base is None else bool(payload.flip_base)
+    impact = True if payload.impact is None else bool(payload.impact)
+
+    build_id = datetime.now(timezone.utc).strftime("ui_%Y%m%dT%H%M%SZ")
+    out_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "compiler" / build_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_img_path = out_dir / "out_01.png"
+    out_meta_path = out_dir / "meta.json"
+
+    try:
+        img = compiler.compose_buddha_3line(
+            base_image_path=base_path,
+            stylepack=stylepack,
+            text=compiler.ThumbText(upper=upper, title=title, lower=lower),
+            font_path=font_path,
+            flip_base=flip_base,
+            impact=impact,
+            belt_override=False,
+        )
+        img.convert("RGB").save(out_img_path, format="PNG", optimize=True)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to compose thumbnail: {exc}") from exc
+
+    try:
+        meta = {
+            "schema": "ytm.thumbnail.compiler.build.v1",
+            "source": "ui",
+            "built_at": datetime.now(timezone.utc).isoformat(),
+            "channel": channel_code,
+            "video": video_number,
+            "stylepack_id": stylepack.get("id"),
+            "stylepack_path": stylepack.get("_stylepack_path"),
+            "base_image": str(base_path),
+            "flip_base": flip_base,
+            "impact": impact,
+            "belt_enabled": False,
+            "text": {"upper": upper, "title": title, "lower": lower},
+            "output": {"image": str(out_img_path)},
+        }
+        out_meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        # best-effort: meta is optional
+        pass
+
+    rel_path = f"{channel_code}/{video_number}/compiler/{build_id}/{out_img_path.name}"
+    variant = _persist_thumbnail_variant(
+        channel_code,
+        video_number,
+        label=label,
+        status=payload.status,
+        image_path=rel_path,
+        notes=notes,
+        tags=tags,
+        make_selected=bool(payload.make_selected),
+    )
+    return variant
+
+
+@app.post(
     "/api/workspaces/thumbnails/{channel}/{video}/variants/upload",
     response_model=ThumbnailVariantResponse,
     status_code=201,
@@ -8525,6 +8667,100 @@ def get_thumbnail_quick_history(
 ):
     channel_code = normalize_channel_code(channel) if channel else None
     return _read_thumbnail_quick_history(channel_code, limit)
+
+
+@app.get("/api/workspaces/thumbnails/{channel}/download.zip")
+def download_thumbnail_zip(
+    channel: str,
+    mode: str = Query("selected", description="selected | all"),
+):
+    channel_code = normalize_channel_code(channel)
+    mode_norm = (mode or "selected").strip().lower()
+    if mode_norm not in {"selected", "all"}:
+        raise HTTPException(status_code=400, detail="mode must be 'selected' or 'all'")
+
+    projects_path = _resolve_thumbnail_projects_path()
+    try:
+        with projects_path.open("r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="thumbnail projects file not found")
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail=f"invalid thumbnail projects payload: {exc}") from exc
+
+    projects_payload = payload.get("projects") or []
+    files: List[Tuple[str, Path]] = []
+    used_names: set[str] = set()
+
+    for raw_project in projects_payload:
+        if not isinstance(raw_project, dict):
+            continue
+        if str(raw_project.get("channel") or "").strip().upper() != channel_code:
+            continue
+        video_number = _coerce_video_from_dir(str(raw_project.get("video") or ""))
+        if not video_number:
+            continue
+
+        variants_payload = raw_project.get("variants") or []
+        if not isinstance(variants_payload, list) or not variants_payload:
+            continue
+
+        selected_id = str(raw_project.get("selected_variant_id") or "").strip()
+        selected_variant: Optional[dict] = None
+        if selected_id:
+            for v in variants_payload:
+                if isinstance(v, dict) and str(v.get("id") or "").strip() == selected_id:
+                    selected_variant = v
+                    break
+        if selected_variant is None:
+            selected_variant = next((v for v in variants_payload if isinstance(v, dict)), None)
+
+        target_variants: List[dict] = []
+        if mode_norm == "selected":
+            if selected_variant:
+                target_variants = [selected_variant]
+        else:
+            target_variants = [v for v in variants_payload if isinstance(v, dict)]
+
+        for raw_variant in target_variants:
+            image_path = str(raw_variant.get("image_path") or "").strip()
+            if not image_path:
+                continue
+            rel = Path(image_path.lstrip("/"))
+            if rel.is_absolute() or any(part == ".." for part in rel.parts):
+                continue
+            if not rel.parts or rel.parts[0].strip().upper() != channel_code:
+                continue
+
+            candidate = (THUMBNAIL_ASSETS_DIR / rel).resolve()
+            try:
+                candidate.relative_to(THUMBNAIL_ASSETS_DIR.resolve())
+            except (OSError, ValueError):
+                continue
+            if not candidate.is_file():
+                continue
+
+            variant_id = str(raw_variant.get("id") or "").strip() or "variant"
+            safe_variant = re.sub(r"[^0-9A-Za-zぁ-んァ-ン一-龥ー_-]+", "_", variant_id).strip("_") or "variant"
+            arcname = f"{video_number}/{safe_variant}{candidate.suffix.lower() or '.png'}"
+            if arcname in used_names:
+                arcname = f"{video_number}/{safe_variant}_{uuid.uuid4().hex[:6]}{candidate.suffix.lower() or '.png'}"
+            used_names.add(arcname)
+            files.append((arcname, candidate))
+
+    if not files:
+        raise HTTPException(status_code=404, detail="no local thumbnail assets found for download")
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for arcname, path in files:
+            zf.write(path, arcname=arcname)
+    buffer.seek(0)
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    filename = f"{channel_code}_thumbnails_{mode_norm}_{ts}.zip"
+    headers = {"Content-Disposition": f'attachment; filename=\"{filename}\"'}
+    return StreamingResponse(buffer, media_type="application/zip", headers=headers)
 
 
 @app.post(

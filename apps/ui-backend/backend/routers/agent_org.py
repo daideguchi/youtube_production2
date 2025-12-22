@@ -47,6 +47,57 @@ def _atomic_write_json(path: Path, payload: dict) -> None:
     tmp.replace(path)
 
 
+def _locked_update_json(path: Path, update_fn) -> dict:
+    """
+    Best-effort locked read-modify-write to avoid clobbering concurrent updates.
+    Falls back to atomic replace when flock isn't available.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        import fcntl  # unix-only
+    except Exception:
+        cur = _read_json(path)
+        nxt = update_fn(cur if isinstance(cur, dict) else {})
+        if not isinstance(nxt, dict):
+            nxt = {}
+        _atomic_write_json(path, nxt)
+        return nxt
+
+    with path.open("a+", encoding="utf-8") as f:
+        try:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        except Exception:
+            cur = _read_json(path)
+            nxt = update_fn(cur if isinstance(cur, dict) else {})
+            if not isinstance(nxt, dict):
+                nxt = {}
+            _atomic_write_json(path, nxt)
+            return nxt
+
+        f.seek(0)
+        raw = f.read()
+        try:
+            cur = json.loads(raw) if raw.strip() else {}
+        except Exception:
+            cur = {}
+        if not isinstance(cur, dict):
+            cur = {}
+
+        nxt = update_fn(cur)
+        if not isinstance(nxt, dict):
+            nxt = {}
+
+        f.seek(0)
+        f.truncate()
+        f.write(json.dumps(nxt, ensure_ascii=False, indent=2) + "\n")
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except Exception:
+            pass
+        return nxt
+
+
 def _parse_iso(dt_str: str | None) -> datetime | None:
     if not dt_str:
         return None
@@ -130,6 +181,59 @@ def _repo_relative(path: str) -> str:
         return str(path).replace(os.sep, "/")
 
 
+def _board_path() -> Path:
+    return _coord_dir() / "board.json"
+
+
+def _board_default_payload(now_iso: str) -> Dict[str, Any]:
+    return {
+        "schema_version": 1,
+        "kind": "agent_board",
+        "updated_at": now_iso,
+        "agents": {},
+        "areas": {},
+        "log": [],
+    }
+
+
+def _board_ensure_shape(obj: dict, now_iso: str) -> Dict[str, Any]:
+    if not isinstance(obj, dict):
+        obj = {}
+    base = _board_default_payload(now_iso)
+    obj.setdefault("schema_version", base["schema_version"])
+    obj.setdefault("kind", base["kind"])
+    obj.setdefault("updated_at", base["updated_at"])
+    obj.setdefault("agents", {})
+    obj.setdefault("areas", {})
+    obj.setdefault("log", [])
+    if not isinstance(obj.get("agents"), dict):
+        obj["agents"] = {}
+    if not isinstance(obj.get("areas"), dict):
+        obj["areas"] = {}
+    if not isinstance(obj.get("log"), list):
+        obj["log"] = []
+    return obj  # type: ignore[return-value]
+
+
+def _parse_csv_list(raw: Optional[str]) -> List[str]:
+    if not raw:
+        return []
+    out: List[str] = []
+    for part in str(raw).split(","):
+        s = part.strip()
+        if s:
+            out.append(s)
+    # de-dup preserve order
+    seen = set()
+    uniq: List[str] = []
+    for s in out:
+        if s in seen:
+            continue
+        uniq.append(s)
+        seen.add(s)
+    return uniq
+
+
 class AgentNoteCreateRequest(BaseModel):
     to: str = Field(..., description="recipient agent name")
     subject: str = Field(..., description="note subject")
@@ -143,6 +247,33 @@ class OrchestratorRequestBody(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
     from_agent: str = Field("ui", alias="from")
     wait_sec: float = Field(0.0, ge=0.0, le=30.0)
+
+
+class BoardStatusUpdateRequest(BaseModel):
+    from_agent: str = Field("ui", alias="from", description="actor name")
+    doing: Optional[str] = Field(default=None)
+    blocked: Optional[str] = Field(default=None)
+    next: Optional[str] = Field(default=None)
+    note: Optional[str] = Field(default=None)
+    tags: Optional[str] = Field(default=None, description="comma-separated tags")
+    clear: bool = Field(default=False)
+
+
+class BoardNoteCreateRequest(BaseModel):
+    from_agent: str = Field("ui", alias="from", description="actor name")
+    topic: str = Field(..., description="thread/topic title (BEP-1 recommended)")
+    message: str = Field(..., description="body")
+    reply_to: Optional[str] = Field(default=None, description="reply to existing note_id")
+    tags: Optional[str] = Field(default=None, description="comma-separated tags")
+
+
+class BoardAreaSetRequest(BaseModel):
+    from_agent: str = Field("ui", alias="from", description="actor name")
+    area: str = Field(..., description="area key (e.g., script/audio/ui)")
+    owner: Optional[str] = Field(default=None)
+    reviewers: Optional[str] = Field(default=None, description="comma-separated reviewers")
+    note: Optional[str] = Field(default=None)
+    clear: bool = Field(default=False)
 
 
 @router.get("/orchestrator")

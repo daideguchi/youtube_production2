@@ -35,6 +35,7 @@ import {
   ThumbnailProjectStatus,
   ThumbnailVariant,
   ThumbnailVariantGeneratePayload,
+  ThumbnailVariantComposePayload,
   ThumbnailVariantStatus,
   TtsReplaceRequestPayload,
   TtsReplaceResponse,
@@ -1059,6 +1060,20 @@ export function generateThumbnailVariants(
 ): Promise<ThumbnailVariant[]> {
   return request<ThumbnailVariant[]>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/variants/generate`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
+export function composeThumbnailVariant(
+  channel: string,
+  video: string,
+  payload: ThumbnailVariantComposePayload
+): Promise<ThumbnailVariant> {
+  return request<ThumbnailVariant>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/variants/compose`,
     {
       method: "POST",
       body: JSON.stringify(payload),

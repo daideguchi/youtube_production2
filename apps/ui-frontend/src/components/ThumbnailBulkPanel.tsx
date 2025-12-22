@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { updatePlanning } from "../api/client";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import { composeThumbnailVariant, resolveApiUrl, updatePlanning } from "../api/client";
 import type { ThumbnailChannelTemplates } from "../api/types";
 
 type PlanningRow = Record<string, string>;
@@ -13,6 +13,7 @@ type ThumbnailBulkPanelProps = {
   planningError?: string | null;
   onRefreshPlanning?: () => void;
   onUpdateLocalPlanningRow?: (video: string, patch: Partial<PlanningRow>) => void;
+  onRefreshWorkspace?: () => void | Promise<void>;
 };
 
 type BulkCopyEditState = {
@@ -100,12 +101,23 @@ export function ThumbnailBulkPanel({
   planningError,
   onRefreshPlanning,
   onUpdateLocalPlanningRow,
+  onRefreshWorkspace,
 }: ThumbnailBulkPanelProps) {
   const [query, setQuery] = useState("");
   const [filterMissing, setFilterMissing] = useState(false);
   const [copyEdit, setCopyEdit] = useState<BulkCopyEditState | null>(null);
   const [exportState, setExportState] = useState<CsvExportState | null>(null);
-  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: ReactNode } | null>(null);
+  const [composeStateByVideo, setComposeStateByVideo] = useState<
+    Record<string, { pending: boolean; previewUrl?: string; error?: string }>
+  >({});
+  const [bulkCompose, setBulkCompose] = useState<{
+    pending: boolean;
+    total: number;
+    done: number;
+    errors: number;
+  } | null>(null);
+  const bulkComposeCancelRef = useRef(false);
 
   const rows = useMemo(() => {
     const items = Object.entries(planningRowsByVideo)
@@ -130,6 +142,15 @@ export function ThumbnailBulkPanel({
   }, [filterMissing, planningRowsByVideo, query]);
 
   const style = channelTemplates?.channel_style ?? null;
+
+  const buildableRowCount = useMemo(() => {
+    return rows.reduce((acc, { row }) => {
+      const upper = normalizeWhitespace(row["サムネタイトル上"] ?? "");
+      const middle = normalizeWhitespace(row["サムネタイトル"] ?? "");
+      const lower = normalizeWhitespace(row["サムネタイトル下"] ?? "");
+      return acc + (upper && middle && lower ? 1 : 0);
+    }, 0);
+  }, [rows]);
 
   const openCopyEdit = useCallback(
     (video: string, row: PlanningRow) => {
@@ -238,16 +259,205 @@ export function ThumbnailBulkPanel({
     downloadTextFile(exportState.filename, exportState.csv);
   }, [exportState]);
 
+  const handleComposeThumbnail = useCallback(
+    async (video: string, row: PlanningRow) => {
+      const upper = normalizeWhitespace(row["サムネタイトル上"] ?? "");
+      const middle = normalizeWhitespace(row["サムネタイトル"] ?? "");
+      const lower = normalizeWhitespace(row["サムネタイトル下"] ?? "");
+
+      if (!upper || !middle || !lower) {
+        setToast({ type: "error", message: "コピー（上/中/下）が揃っていないため作成できません。" });
+        window.setTimeout(() => setToast(null), 3200);
+        return;
+      }
+
+      setComposeStateByVideo((current) => ({
+        ...current,
+        [video]: {
+          ...(current[video] ?? {}),
+          pending: true,
+          error: undefined,
+        },
+      }));
+
+      try {
+        const variant = await composeThumbnailVariant(channel, video, {
+          copy_upper: upper,
+          copy_title: middle,
+          copy_lower: lower,
+          label: "文字合成",
+          status: "draft",
+          make_selected: false,
+        });
+        const previewUrl =
+          variant.preview_url?.trim()
+            ? resolveApiUrl(variant.preview_url)
+            : variant.image_path?.trim()
+              ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
+              : undefined;
+
+        setComposeStateByVideo((current) => ({
+          ...current,
+          [video]: {
+            pending: false,
+            previewUrl,
+            error: undefined,
+          },
+        }));
+
+        setToast({
+          type: "success",
+          message: (
+            <span>
+              {channel}-{video} の文字サムネを作成しました。
+              {previewUrl ? (
+                <>
+                  {" "}
+                  <a href={previewUrl} target="_blank" rel="noreferrer">
+                    プレビュー
+                  </a>
+                </>
+              ) : null}
+              {" （案件タブに追加）"}
+            </span>
+          ),
+        });
+        window.setTimeout(() => setToast(null), 3400);
+        Promise.resolve(onRefreshWorkspace?.()).catch(() => {
+          // no-op (UI will refresh on next manual reload)
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setComposeStateByVideo((current) => ({
+          ...current,
+          [video]: {
+            ...(current[video] ?? {}),
+            pending: false,
+            error: message,
+          },
+        }));
+        setToast({ type: "error", message });
+        window.setTimeout(() => setToast(null), 4200);
+      }
+    },
+    [channel, onRefreshWorkspace]
+  );
+
+  const handleComposeAllVisible = useCallback(async () => {
+    const targets = rows
+      .map(({ video, row }) => {
+        const upper = normalizeWhitespace(row["サムネタイトル上"] ?? "");
+        const middle = normalizeWhitespace(row["サムネタイトル"] ?? "");
+        const lower = normalizeWhitespace(row["サムネタイトル下"] ?? "");
+        return upper && middle && lower ? { video, upper, middle, lower } : null;
+      })
+      .filter((item): item is { video: string; upper: string; middle: string; lower: string } => Boolean(item));
+
+    if (targets.length === 0) {
+      setToast({ type: "error", message: "作成できる行がありません（コピー上/中/下を入力してください）。" });
+      window.setTimeout(() => setToast(null), 3600);
+      return;
+    }
+
+    const ok = window.confirm(
+      `表示中の ${targets.length.toLocaleString("ja-JP")} 件を「文字サムネ」一括作成します。\n\n・未入力の行は自動で除外\n・作成後は「案件」タブに追加\n\n続行しますか？`
+    );
+    if (!ok) {
+      return;
+    }
+
+    bulkComposeCancelRef.current = false;
+    setBulkCompose({ pending: true, total: targets.length, done: 0, errors: 0 });
+
+    let done = 0;
+    let errors = 0;
+    for (const item of targets) {
+      if (bulkComposeCancelRef.current) {
+        break;
+      }
+
+      setComposeStateByVideo((current) => ({
+        ...current,
+        [item.video]: { ...(current[item.video] ?? {}), pending: true, error: undefined },
+      }));
+
+      try {
+        const variant = await composeThumbnailVariant(channel, item.video, {
+          copy_upper: item.upper,
+          copy_title: item.middle,
+          copy_lower: item.lower,
+          label: "文字合成",
+          status: "draft",
+          make_selected: false,
+        });
+        const previewUrl =
+          variant.preview_url?.trim()
+            ? resolveApiUrl(variant.preview_url)
+            : variant.image_path?.trim()
+              ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
+              : undefined;
+
+        setComposeStateByVideo((current) => ({
+          ...current,
+          [item.video]: { pending: false, previewUrl, error: undefined },
+        }));
+      } catch (error) {
+        errors += 1;
+        const message = error instanceof Error ? error.message : String(error);
+        setComposeStateByVideo((current) => ({
+          ...current,
+          [item.video]: { ...(current[item.video] ?? {}), pending: false, error: message },
+        }));
+      } finally {
+        done += 1;
+        setBulkCompose({ pending: true, total: targets.length, done, errors });
+      }
+    }
+
+    setBulkCompose({ pending: false, total: targets.length, done, errors });
+
+    const canceled = bulkComposeCancelRef.current;
+    const summary = canceled
+      ? `一括作成を停止しました（${done}/${targets.length} 完了、失敗 ${errors}）。`
+      : `一括作成が完了しました（${done}/${targets.length} 完了、失敗 ${errors}）。`;
+    setToast({ type: errors > 0 ? "error" : "success", message: summary });
+    window.setTimeout(() => setToast(null), 5200);
+
+    Promise.resolve(onRefreshWorkspace?.()).catch(() => {
+      // no-op
+    });
+  }, [channel, onRefreshWorkspace, rows]);
+
+  const cancelBulkCompose = useCallback(() => {
+    bulkComposeCancelRef.current = true;
+  }, []);
+
   return (
     <section className="thumbnail-bulk-panel">
       <header className="thumbnail-bulk-panel__header">
         <div>
-          <h3>量産（Canva）</h3>
+          <h3>量産（文字サムネ / Canva）</h3>
           <p className="thumbnail-bulk-panel__subtitle">
-            コピーを整える → Canva一括取り込みCSVを出力 → 採用サムネを紐付け（任意）
+            コピーを整える → 文字サムネ作成（無料）/ Canva一括取り込みCSV → 採用サムネを紐付け（任意）
           </p>
         </div>
         <div className="thumbnail-bulk-panel__actions">
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={handleComposeAllVisible}
+            disabled={planningLoading || rows.length === 0 || buildableRowCount === 0 || Boolean(bulkCompose?.pending)}
+            title="表示中の行から、コピー上/中/下が揃っているものだけを一括で文字サムネにします"
+          >
+            {bulkCompose?.pending
+              ? `文字サムネ作成中… ${bulkCompose.done}/${bulkCompose.total}`
+              : `文字サムネ一括作成（${buildableRowCount.toLocaleString("ja-JP")}件）`}
+          </button>
+          {bulkCompose?.pending ? (
+            <button type="button" className="btn btn--ghost" onClick={cancelBulkCompose}>
+              停止
+            </button>
+          ) : null}
           <button type="button" className="btn" onClick={openCsvExport} disabled={planningLoading || rows.length === 0}>
             Canva用CSV
           </button>
@@ -266,6 +476,7 @@ export function ThumbnailBulkPanel({
             </div>
             <div className="thumbnail-bulk-style__meta">
               <span className="status-chip">{channelName ? `${channel} ${channelName}` : channel}</span>
+              <span className="status-chip">文字サムネ: 無料（CH12ブッダ背景 + 3段文字）</span>
               <span className="status-chip">AI生成: 生成後に実コスト表示</span>
               {style.benchmark_path ? (
                 <span className="status-chip">
@@ -336,6 +547,10 @@ export function ThumbnailBulkPanel({
             const middle = row["サムネタイトル"] ?? "";
             const lower = row["サムネタイトル下"] ?? "";
             const missing = !normalizeWhitespace(upper) || !normalizeWhitespace(middle) || !normalizeWhitespace(lower);
+            const composeState = composeStateByVideo[video];
+            const composePending = composeState?.pending ?? false;
+            const previewUrl = composeState?.previewUrl;
+            const composeError = composeState?.error;
             return (
               <article key={video} className={`thumbnail-bulk-card${missing ? " is-missing" : ""}`}>
                 <header className="thumbnail-bulk-card__header">
@@ -346,6 +561,26 @@ export function ThumbnailBulkPanel({
                     {missing ? <span className="thumbnail-bulk-card__badge">未入力</span> : null}
                   </div>
                   <div className="thumbnail-bulk-card__actions">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => handleComposeThumbnail(video, row)}
+                      disabled={planningLoading || missing || composePending}
+                      title={missing ? "コピー（上/中/下）が揃っている行だけ作成できます" : "文字サムネをローカル合成します（無料）"}
+                    >
+                      {composePending ? "作成中…" : "文字サムネ"}
+                    </button>
+                    {previewUrl ? (
+                      <a
+                        className="btn btn--ghost"
+                        href={previewUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        title="生成した画像を新しいタブで開きます"
+                      >
+                        プレビュー
+                      </a>
+                    ) : null}
                     <button type="button" className="btn btn--ghost" onClick={() => openCopyEdit(video, row)}>
                       編集
                     </button>
@@ -359,6 +594,7 @@ export function ThumbnailBulkPanel({
                   { label: "中", value: middle, className: "is-middle" },
                   { label: "下", value: lower, className: "is-lower" },
                 ])}
+                {composeError ? <p className="thumbnail-bulk-card__error">作成失敗: {composeError}</p> : null}
               </article>
             );
           })}

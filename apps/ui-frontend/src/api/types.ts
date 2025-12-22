@@ -897,6 +897,19 @@ export interface ThumbnailVariantGeneratePayload {
   tags?: string[];
 }
 
+export interface ThumbnailVariantComposePayload {
+  copy_upper?: string | null;
+  copy_title?: string | null;
+  copy_lower?: string | null;
+  label?: string | null;
+  status?: ThumbnailVariantStatus;
+  make_selected?: boolean;
+  notes?: string | null;
+  tags?: string[];
+  impact?: boolean;
+  flip_base?: boolean;
+}
+
 export interface LlmConfig {
   caption_provider: "openai" | "openrouter";
   openai_caption_model?: string | null;
