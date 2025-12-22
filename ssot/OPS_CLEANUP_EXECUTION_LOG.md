@@ -1232,3 +1232,18 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `scripts/job_runner.service` → `ssot/agent_runbooks/assets/job_runner.service`
 - 参照更新:
   - `ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md`（systemd項目を追加）
+
+### 88) 未参照スクリプトを削除（archive-first / 探索ノイズ削減）
+
+意図: `scripts/` 直下の「refs=0 かつ SSOT未記載」スクリプトは、誤実行/誤誘導の温床になりやすい。  
+現行フロー (`ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`) と入口索引 (`ssot/OPS_ENTRYPOINTS_INDEX.md`) に載らないものは、archive-first で repo から削除して探索ノイズを減らす。
+
+- 参照確認:
+  - `rg -n "apply_archive_warning\\.sh|batch_ch02_generate\\.sh|mark_script_completed\\.py|show_llm_latest\\.py" -S --glob '!ssot/OPS_SCRIPTS_INVENTORY.md' .`（self以外ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251222T012648Z__scripts_unused_prune_01.tar.gz`
+- 削除:
+  - `scripts/apply_archive_warning.sh`（tracked）
+  - `scripts/batch_ch02_generate.sh`（tracked）
+  - `scripts/mark_script_completed.py`（tracked）
+  - `scripts/show_llm_latest.py`（tracked）

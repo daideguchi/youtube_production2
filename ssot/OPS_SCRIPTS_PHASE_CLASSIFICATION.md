@@ -122,9 +122,21 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/api_health_check.py --base-url http://127.0.0.1:8000`
 - `python3 scripts/validate_status_sweep.py --repair-global`（壊れたstatusの補正）
 - `python3 scripts/prompt_audit.py`（detect-only）
+- `python3 scripts/llm_provenance_report.py --channel CHxx --video NNN`（どのprovider/modelで生成されたかの追跡）
 - OpenRouter疎通:
   - `python3 scripts/openrouter_key_probe.py`
   - `python3 scripts/openrouter_caption_probe.py`
+
+### Bootstrap（内部依存・消さない）
+- `scripts/sitecustomize.py`（`python3 scripts/foo.py` で repo-root を sys.path に載せ `.env` をロードするための bootstrap）
+- `scripts/_bootstrap.py`（`python3 scripts/foo.py` から `packages/` を見えるようにする薄い bootstrap）
+- `scripts/ops/_bootstrap.py`（`python3 scripts/ops/foo.py` 用 bootstrap。ops系ツールが `from _bootstrap import bootstrap` で依存）
+
+### Video（補助）
+- `python3 scripts/build_video_payload.py --project-id <run_id>`（run_dir から CapCut/Remotion 互換の payload を生成）
+
+### SRT（補助）
+- `python3 scripts/generate_subtitles.py CHxx-NNN ...`（既存SRTのタイミングを保持して本文だけ差し替え）
 
 ### Cleanup / Restore（運用で使う）
 - `python -m scripts.cleanup_workspace --dry-run ...` → OKなら `--run`（統合cleanup）
