@@ -100,7 +100,7 @@ def _rg_lines(*, repo_root: Path, pattern: str) -> list[str]:
         "-n",
         "--no-heading",
         "--glob",
-        "!scripts/**",
+        "!scripts/_adhoc/**",
         "--glob",
         "!ssot/OPS_SCRIPTS_INVENTORY.md",
         "-e",
@@ -195,7 +195,7 @@ def _ref_summary(locs: set[RefLoc]) -> tuple[str, str]:
 
     for loc in sorted(locs, key=lambda x: (x.file, x.line)):
         top = loc.file.split("/", 1)[0]
-        if top in {"apps", "packages", "ui", "ssot"}:
+        if top in {"apps", "packages", "ui", "ssot", "scripts"}:
             key = top
         elif loc.file == "README.md" or loc.file.startswith("README"):
             key = "README"
@@ -208,7 +208,7 @@ def _ref_summary(locs: set[RefLoc]) -> tuple[str, str]:
             preferred = f"{loc.file}:{loc.line}"
 
     parts = []
-    for k in ["apps", "packages", "ui", "ssot", "README", "other"]:
+    for k in ["apps", "packages", "ui", "scripts", "ssot", "README", "other"]:
         if counts.get(k):
             parts.append(f"{k}={counts[k]}")
     if not parts:
@@ -245,6 +245,7 @@ def _render_markdown(
     lines += [
         "ref の見方:",
         "- `apps=*` / `packages=*` / `ui=*` は **コード参照**（自動実行の可能性が高い）",
+        "- `scripts=*` は **スクリプト間依存**（他の運用スクリプトが呼ぶ可能性）",
         "- `ssot=*` / `README=*` は **ドキュメント参照**（手動実行の可能性）",
         "- `refs=0` かつ SSOT未記載のものは “未確認レガシー候補” として扱い、削除は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしてから行う。",
         "",
@@ -252,7 +253,7 @@ def _render_markdown(
     lines += [
         "---",
         "",
-        "| script | phase | P | listed-in-SSOT | refs (apps/packages/ui/ssot/readme/other) | example ref |",
+        "| script | phase | P | listed-in-SSOT | refs (apps/packages/ui/scripts/ssot/readme/other) | example ref |",
         "|---|---:|:--:|:--:|---:|---|",
     ]
 

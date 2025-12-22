@@ -139,7 +139,6 @@ python tools/auto_capcut_run.py \
   - PATCH `/api/channels/{channel}/videos/{video}/redo` … フラグとメモを更新（redo_note）。
 - UI: 企画CSVページでリテイクバッジ表示、フィルタ「リテイクのみ」、詳細モーダルで台本/音声リテイクON/OFFとメモを編集＆保存。
 - CLI: `scripts/list_redo.py` でリストアップ、`scripts/mark_redo_done.py` で一括クリア（`--channel CH02 --videos 019 020` など）。
-- シェル: `scripts/mark_redo_done.sh CH02 019 020 --type audio` などで手早くクリア（`--all` で全件）。
 - ジョブ運用: `GET /api/redo` あるいは `scripts/list_redo.py` で対象抽出→再処理→成功時にフラグを false へ（`mark_redo_done.py` でクリア）。未設定は自動で true と見なす。
 
 ### 2025-12-12 追加メモ（環境・CapCut・テンプレ・画像文脈）

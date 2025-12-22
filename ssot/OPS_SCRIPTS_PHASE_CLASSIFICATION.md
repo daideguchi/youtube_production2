@@ -108,6 +108,7 @@ notes: <消し忘れ防止の一言>
 ### Coordination / Agent運用
 - `python3 scripts/agent_org.py ...`（locks/board/memos）
 - `python3 scripts/agent_runner.py ...`（pending/results の運用）
+- `python3 scripts/agent_coord.py ...`（互換wrapper。旧コマンドを `agent_org.py` に転送）
 - `bash scripts/think.sh -- <cmd>`（LLM_MODE=think の安全運用）
 - `bash scripts/with_agent_mode.sh -- <cmd>`（LLM_MODE=agent の運用）
 - `bash scripts/with_ytm_env.sh <cmd>`（`.env` を export してから実行。シェル/Node系に必須）
@@ -135,6 +136,14 @@ notes: <消し忘れ防止の一言>
   - `python3 scripts/openrouter_key_probe.py`
   - `python3 scripts/openrouter_caption_probe.py`
 
+### Reports（集計/確認）
+- `python3 scripts/aggregate_llm_usage.py`（LLM利用集計の簡易サマリ）
+- `python3 scripts/llm_usage_report.py` / `python3 scripts/llm_logs_combined_report.py`（ログ集計の補助）
+- `python3 scripts/image_usage_report.py`（画像生成の利用状況サマリ）
+- `python3 scripts/audio_integrity_report.py`（final音声の整合/欠損チェック）
+- `python3 scripts/aggregate_voicevox_reading_logs.py`（VOICEVOX読みログの集計）
+- `python3 scripts/notifications.py`（Slack webhook の疎通/通知テスト）
+
 ### Bootstrap（内部依存・消さない）
 - `scripts/sitecustomize.py`（`python3 scripts/foo.py` で repo-root を sys.path に載せ `.env` をロードするための bootstrap）
 - `scripts/_bootstrap.py`（`python3 scripts/foo.py` から `packages/` を見えるようにする薄い bootstrap）
@@ -154,6 +163,8 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/sync_audio_prep_to_final.py --help`（prep→final の不足同期）
 - `python3 scripts/purge_audio_prep_binaries.py --help`（prep の重複 wav/srt 削除）
 - `python3 scripts/purge_audio_final_chunks.py --help`（final の chunks 削除）
+- `python3 scripts/verify_srt_sync.py [CHxx]`（final WAV長 ↔ SRT終端 の大まか整合チェック）
+- `bash scripts/check_all_srt.sh [CHxx]`（`verify_srt_sync.py` のログ出力wrapper）
 
 ### Cleanup / Restore（運用で使う）
 - `python -m scripts.cleanup_workspace --dry-run ...` → OKなら `--run`（統合cleanup）
@@ -168,11 +179,27 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/archive_capcut_local_drafts.py --run`（capcutローカルドラフトを _archive へ移動）
 - `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（thumbnails旧dirを _archive へ移動）
 - `python3 scripts/ops/purge_legacy_agent_task_queues.py --run`（旧agent task queue残骸を archive-first で削除）
+- `python3 scripts/ops/cleanup_video_runs.py --dry-run` → OKなら `--run`（video run_dir を `_archive/` へ退避。`cleanup_workspace --video-runs` が内部で呼ぶ）
 - `bash scripts/run_srt2images.sh ...`（UI内部が呼ぶ wrapper。単体実行は原則デバッグのみ）
 
 ### SSOTメンテ（固定ロジックの維持）
 - `python3 scripts/ops/ssot_audit.py`（索引/PLAN_STATUS の整合監査）
 - `python3 scripts/ops/scripts_inventory.py --write`（`scripts/**` 棚卸しSSOTの再生成）
+- `bash scripts/ops/save_patch.sh`（gitが不安定な場合のパッチ保存）
+- `python3 scripts/ops/stage2_cutover_workspaces.py`（移設/互換symlink計画の一括適用。通常運用では触らない）
+
+### Publish / OAuth（初回セットアップ）
+- `python3 scripts/drive_oauth_setup.py`（Drive OAuth 初回セットアップ）
+- `python3 scripts/drive_upload_oauth.py`（Drive upload token 作成/更新）
+- `python3 scripts/youtube_publisher/oauth_setup.py`（YouTube OAuth 初回セットアップ）
+- `scripts/youtube_publisher/README.md`（YouTube publish 手順）
+
+### Planning/Script Sync（旧互換・慎重に）
+- `python3 scripts/sync_all_scripts.py`（planning CSV ↔ status/assembled の同期）
+- `python3 scripts/sync_ch02_scripts.py`（CH02限定の同期。原則 `sync_all_scripts.py` を優先）
+
+### E2E（開発用）
+- `bash scripts/e2e_smoke.sh`（軽量スモーク。CI用途が主）
 
 ---
 
@@ -183,7 +210,8 @@ notes: <消し忘れ防止の一言>
 
 - 削除済み（復活禁止）:
   - 旧B-text QA / CH02 reading corrections / OpenRouter free-models helper / trend thumbnail PoC など
-  - 証跡: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`（Step 89）
+  - 危険/破綻している legacy helper（auto approve / mass overwrite / broken audit / shell wrapper）など
+  - 証跡: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`（Step 89–91）
 
 ---
 

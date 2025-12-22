@@ -90,11 +90,24 @@
 
 `rg --files-with-matches "commentary_02_srt2images_timeline/output"` の結果（全件）。
 
-- `scripts/create_image_cues_from_srt.py`
-- `apps/ui-backend/backend/routers/swap.py`
-- `commentary_02_srt2images_timeline/system_prompt_for_image_generation.txt`（Docs/運用）
-- `apps/ui-frontend/src/components/RemotionWorkspace.tsx`（experimental UI）
-- `ssot/*`（Docs）
+- `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- `ssot/OPS_IO_SCHEMAS.md`
+- `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`
+- `ssot/PLAN_UI_EPISODE_STUDIO.md`
+- `ssot/DATA_LAYOUT.md`
+- `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`
+- `ssot/handoffs/CH02_IMAGES_NOISE_FIX/HANDOFF.md`
+- `ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`
+- `ssot/REFERENCE_ssot_このプロダクト設計について`
+- `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`
+- `workspaces/README.md`
+- `ssot/OPS_CAPCUT_CH02_DRAFT_SOP.md`
+- `ssot/OPS_AGENT_PLAYBOOK.md`
+- `ssot/OPS_ARTIFACT_DRIVEN_PIPELINES.md`
+- `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+- `ssot/OPS_LOGGING_MAP.md`
+- `ssot/OPS_SCRIPT_SOURCE_MAP.md`
+- `ssot/【消さないで！人間用】確定ロジック`
 
 置換先: `factory_common.paths.video_runs_root()` / `video_run_dir(run_id)`。
 
@@ -104,20 +117,16 @@
 
 `rg --files-with-matches "audio_tts_v2/artifacts"` の結果（全件）。
 
-- `audio_tts_v2/scripts/run_tts.py`
-- `commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`
-- `apps/ui-backend/backend/routers/auto_draft.py`
-- `apps/ui-frontend/src/pages/AutoDraftPage.tsx`
-- `apps/ui-frontend/src/components/AudioWorkspace.tsx`
-- `scripts/check_all_srt.sh`
-- `scripts/mass_regenerate_strict.sh`
-- `scripts/sequential_repair.sh`
-- `scripts/audit_all.sh`
-- `scripts/regenerate_ch05_audio_no_llm.sh`
-- `audio_tts_v2/legacy_archive/scripts/*`（Legacy）
-- `audio_tts_v2/docs/SRT_SYNC_PROTOCOL.md`（Docs）
-- `script_pipeline/stages.yaml`（Docs/定義）
-- `ssot/*`（Docs）
+- `ssot/OPS_ENV_VARS.md`
+- `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- `ssot/OPS_IO_SCHEMAS.md`
+- `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- `ssot/PLAN_UI_EPISODE_STUDIO.md`
+- `ssot/handoffs/CH02_IMAGES_NOISE_FIX/HANDOFF.md`
+- `ssot/OPS_ALIGNMENT_CHECKPOINTS.md`
+- `ssot/OPS_CLEANUP_EXECUTION_LOG.md`
+- `ssot/DATA_LAYOUT.md`
+- `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`
 
 置換先: `factory_common.paths.audio_root()` / `audio_final_dir(ch, vid)`。
 

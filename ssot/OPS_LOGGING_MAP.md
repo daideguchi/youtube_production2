@@ -197,18 +197,12 @@
 ### 1.5 Ad‑hoc scripts（単発/運用ログ）
 
 主なWriterとファイル:
-- `scripts/audit_all.sh` → `logs/audit_report_global.txt`（L1）
 - `logs/audit_global_execution.log`（観測される）:
   - 生成元: 監査/バッチ系の stdout リダイレクトの可能性が高い（コード参照は未確認）
   - 種別: **L1（監査ログとして保持）**
 - `scripts/validate_status_sweep.py` → `logs/regression/validate_status/validate_status_full_<ts>.json` + `logs/validate_status_full_latest.json`（L3 / latest は上書き）
 - `scripts/check_all_srt.sh` → `logs/regression/srt_validation/srt_validation_<ts>.log` / `logs/regression/srt_validation/srt_validation_failures_<ts>.txt` + `logs/srt_validation_failures.txt`（latest, L3）
-- `scripts/mass_regenerate_strict.sh` → `logs/mass_regenerate_<ts>.log`（L3）
 - `scripts/repair_manager.py` → `logs/repair/{CH}-{NNN}.log`（L3）
-- `scripts/run_ch03_batch.sh` → `logs/ch03_batch.log`（L3）
-- `scripts/auto_approve.sh`（監視スクリプト）:
-  - 参照: `logs/mass_generation.log`, `logs/fast_batch_repair.log`
-  - 実行ログは `./scripts/auto_approve.sh > logs/auto_approve.log 2>&1` のようにリダイレクトされがち（L3）
 - 手動TTS/リトライの出力（例: `logs/tts_CH02_020.log`, `logs/tts_retry*_CH02_019.log`, `logs/tts_resume_*.log`）
   - 生成元: 端末リダイレクト（runnerが固定ファイルに書く設計ではない）
   - 種別: **L3（keep-last/30日）**
@@ -222,6 +216,12 @@
   - 種別: **L3（Legacy）**
 - 手動メモ → `logs/pipeline_memo.txt`（L3。必要ならSSOTへ移す）
 - その他 `scripts/*.py|*.sh` が `logs/*.log|*.txt` を直接生成（Stage1で paths SSOT 化→Stage2で移設予定）
+
+Legacy（削除済みのWriter。復活禁止）:
+- `scripts/audit_all.sh`（削除済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
+- `scripts/auto_approve.sh`（削除済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
+- `scripts/mass_regenerate_strict.sh`（削除済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
+- `scripts/run_ch03_batch.sh`（削除済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`）
 
 ---
 

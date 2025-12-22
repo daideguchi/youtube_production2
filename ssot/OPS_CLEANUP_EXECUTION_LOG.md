@@ -1285,3 +1285,20 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `scripts/run_ch03_batch.sh`（tracked）
   - `scripts/sequential_repair.sh`（tracked）
   - `scripts/scaffold_project.py`（tracked）
+
+### 91) 危険/破綻しているレガシースクリプトを削除（archive-first / 誤実行防止）
+
+意図:
+- `scripts/audit_all.sh` は参照先が欠損（`audit_readings.py` 不在）で破綻しており、誤実行の温床。
+- `scripts/auto_approve.sh` / `scripts/mass_regenerate_strict.sh` は “自動承認” / “全件音声上書き” を行うため事故リスクが高く、現行の安全設計（lock/redo/品質ゲート）と衝突しやすい。
+- `scripts/mark_redo_done.sh` は `scripts/mark_redo_done.py` の薄いラッパーであり、SSOT上もPython入口に一本化する。
+
+- 参照確認:
+  - `rg -n "audit_all\\.sh|auto_approve\\.sh|mass_regenerate_strict\\.sh|mark_redo_done\\.sh" -S --glob '!ssot/**' --glob '!scripts/**' .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251222T023659Z__scripts_unsafe_legacy_prune_01.tar.gz`
+- 削除:
+  - `scripts/audit_all.sh`（tracked）
+  - `scripts/auto_approve.sh`（tracked）
+  - `scripts/mass_regenerate_strict.sh`（tracked）
+  - `scripts/mark_redo_done.sh`（tracked）
