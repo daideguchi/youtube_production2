@@ -109,6 +109,12 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/agent_runner.py ...`（pending/results の運用）
 - `bash scripts/think.sh -- <cmd>`（LLM_MODE=think の安全運用）
 - `bash scripts/with_agent_mode.sh -- <cmd>`（LLM_MODE=agent の運用）
+- `bash scripts/with_ytm_env.sh <cmd>`（`.env` を export してから実行。シェル/Node系に必須）
+
+### Redo（リテイク）運用
+- `python3 scripts/list_redo.py --type script|audio|all [--channel CHxx]`
+- `python3 scripts/mark_redo_done.py --channel CHxx --videos NNN ... [--type audio|script|all]`
+  - UI/redo API が正本だが、CLI が必要な場合はこの入口を使う（lock尊重の改善はTODO）。
 
 ### Health / Audit
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
@@ -125,6 +131,7 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/cleanup_logs.py --run`（logsローテ）
 - `bash scripts/ops/cleanup_caches.sh`（pycache等）
 - `python3 scripts/ops/restore_video_runs.py --report ...`（run復旧）
+- `bash scripts/run_srt2images.sh ...`（UI内部が呼ぶ wrapper。単体実行は原則デバッグのみ）
 
 ---
 
@@ -133,9 +140,7 @@ notes: <消し忘れ防止の一言>
 ※「現行SoTフロー外」かつ「誤誘導/品質事故の温床」になりやすいものを列挙。  
 削除は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしたものから順に実行する。
 
-- `scripts/run_srt2images.sh`（旧 wrapper。現行は `commentary_02_srt2images_timeline.tools.factory` / `auto_capcut_run`）
 - `scripts/validate_b_text.py`（B-text前提の旧QA。現行A-text品質ゲートと衝突）
-- `scripts/mark_redo_done.py` / `scripts/mark_redo_done.sh`（lock非尊重/redo_note汚染。現行はUI/redo APIを正とする）
 - `scripts/apply_reading_corrections.py`（巨大な固定辞書・CH02局所。現行TTS辞書運用と衝突しやすい）
 - `scripts/openrouter_free_models.py`（運用主線では不要。モデル一覧は `factory_common.llm_router` / configs を正とする）
 - `scripts/env_guard.py`（`openrouter_free_models.py` / trend系専用の補助。主線で使用しない）
