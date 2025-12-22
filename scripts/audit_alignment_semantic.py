@@ -7,19 +7,16 @@ Audit Planning(title/thumbnail) <-> Script(A-text) *semantic* alignment (read-on
 This script does NOT modify status.json or any workspace artifacts.
 It is intended to catch obvious mismatches like:
   - thumbnail prompt first-line catch differs across columns
-  - title/catch tokens overlap is below a configurable threshold
+  - script missing for a planned episode (assembled_human.md / assembled.md)
 
 Examples:
   python3 scripts/audit_alignment_semantic.py --channels CH01,CH04
-  python3 scripts/audit_alignment_semantic.py --channels CH01 --videos 001,002 --min-title-overlap 0.6
-  python3 scripts/audit_alignment_semantic.py --channels CH01 --min-thumb-catch-overlap 0.6
   python3 scripts/audit_alignment_semantic.py --json --out workspaces/logs/alignment_audit_semantic.json
 """
 
 import argparse
 import csv
 import json
-import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -41,15 +38,6 @@ if str(REPO_ROOT) not in sys.path:
 
 from factory_common import alignment  # noqa: E402
 from factory_common.paths import channels_csv_path, planning_root, video_root  # noqa: E402
-
-
-_TOKEN_RE = getattr(
-    alignment,
-    "_TOKEN_RE",
-    re.compile(r"[一-龯]{2,}|[ぁ-ん]{2,}|[ァ-ヴー]{2,}|[A-Za-z0-9]{2,}"),
-)
-_STOPWORDS = set(getattr(alignment, "_STOPWORDS", set()) or set())
-_HIRAGANA_ONLY_RE = re.compile(r"^[ぁ-ん]+$")
 
 
 def _utc_now_iso() -> str:
@@ -105,21 +93,6 @@ def _resolve_script_path(channel: str, video: str) -> Optional[Path]:
         return assembled
     return None
 
-
-def _tokenize(text: str) -> set[str]:
-    tokens: set[str] = set()
-    for raw in _TOKEN_RE.findall(text or ""):
-        tok = raw.lower() if raw.isascii() else raw
-        if tok in _STOPWORDS:
-            continue
-        tokens.add(tok)
-    return tokens
-
-
-def _drop_hiragana_only(tokens: set[str]) -> set[str]:
-    return {t for t in tokens if not _HIRAGANA_ONLY_RE.match(t)}
-
-
 @dataclass(frozen=True)
 class Finding:
     channel: str
@@ -141,11 +114,6 @@ class Finding:
 def _check_row(
     channel: str,
     row: Dict[str, str],
-    *,
-    min_title_overlap: Optional[float],
-    min_thumb_catch_overlap: Optional[float],
-    max_missing_tokens: int,
-    title_tokenizer: str,
 ) -> List[Finding]:
     findings: List[Finding] = []
     video = _norm_video(row.get("動画番号") or row.get("No.") or row.get("No") or "")
@@ -166,11 +134,6 @@ def _check_row(
         )
         return findings
 
-    try:
-        preview = script_path.read_text(encoding="utf-8")[:6000]
-    except Exception:
-        preview = ""
-
     # 1) Thumbnail catch mismatch (prompt first line)
     catches = {c for c in alignment.iter_thumbnail_catches_from_row(row)}
     if len(catches) > 1:
@@ -183,83 +146,6 @@ def _check_row(
                 title=title,
             )
         )
-
-    # 1b) Thumbnail catch tokens overlap threshold (configurable)
-    if min_thumb_catch_overlap is not None:
-        catch = alignment.select_thumbnail_catch(row)
-        if catch:
-            catch_tokens_full = _tokenize(catch)
-            drop_hira = False
-            if title_tokenizer == "no_hiragana":
-                drop_hira = True
-            elif title_tokenizer == "auto":
-                drop_hira = any(not _HIRAGANA_ONLY_RE.match(t) for t in catch_tokens_full)
-            elif title_tokenizer == "full":
-                drop_hira = False
-
-            catch_tokens = _drop_hiragana_only(catch_tokens_full) if drop_hira else catch_tokens_full
-            script_tokens = _tokenize(preview[:6000])
-            if drop_hira:
-                script_tokens = _drop_hiragana_only(script_tokens)
-
-            if catch_tokens:
-                missing = sorted(catch_tokens - script_tokens)
-                overlap = catch_tokens & script_tokens
-                ratio = len(overlap) / max(len(catch_tokens), 1)
-                if ratio < float(min_thumb_catch_overlap):
-                    miss_preview = ", ".join(missing[: max(0, int(max_missing_tokens))]) if max_missing_tokens else ""
-                    if miss_preview and len(missing) > int(max_missing_tokens):
-                        miss_preview += ", ..."
-                    msg = f"thumbnail catch token overlap too low (overlap={ratio:.2f} missing={len(missing)})"
-                    if miss_preview:
-                        msg += f" missing_tokens=[{miss_preview}]"
-                    findings.append(
-                        Finding(
-                            channel=channel,
-                            video=video,
-                            code="thumb_catch_overlap_low",
-                            message=msg,
-                            title=title,
-                        )
-                    )
-
-    # 2) Title tokens overlap threshold (configurable)
-    if min_title_overlap is not None and title:
-        title_tokens_full = _tokenize(title)
-
-        drop_hira = False
-        if title_tokenizer == "no_hiragana":
-            drop_hira = True
-        elif title_tokenizer == "auto":
-            drop_hira = any(not _HIRAGANA_ONLY_RE.match(t) for t in title_tokens_full)
-        elif title_tokenizer == "full":
-            drop_hira = False
-
-        title_tokens = _drop_hiragana_only(title_tokens_full) if drop_hira else title_tokens_full
-        script_tokens = _tokenize(preview[:6000])
-        if drop_hira:
-            script_tokens = _drop_hiragana_only(script_tokens)
-
-        if title_tokens:
-            missing = sorted(title_tokens - script_tokens)
-            overlap = title_tokens & script_tokens
-            ratio = len(overlap) / max(len(title_tokens), 1)
-            if ratio < float(min_title_overlap):
-                miss_preview = ", ".join(missing[: max(0, int(max_missing_tokens))]) if max_missing_tokens else ""
-                if miss_preview and len(missing) > int(max_missing_tokens):
-                    miss_preview += ", ..."
-                msg = f"title token overlap too low (overlap={ratio:.2f} missing={len(missing)})"
-                if miss_preview:
-                    msg += f" missing_tokens=[{miss_preview}]"
-                findings.append(
-                    Finding(
-                        channel=channel,
-                        video=video,
-                        code="title_token_overlap_low",
-                        message=msg,
-                        title=title,
-                    )
-                )
 
     return findings
 
@@ -280,30 +166,6 @@ def main() -> int:
     ap.add_argument("--limit", type=int, help="Stop after N findings (for quick checks).")
     ap.add_argument("--json", action="store_true", help="Emit JSON payload to stdout.")
     ap.add_argument("--out", help="Write JSON report to file path (in addition to stdout output).")
-    ap.add_argument(
-        "--min-title-overlap",
-        type=float,
-        default=None,
-        help="Optional: flag when (title token overlap ratio) < threshold. Example: 1.0 enforces 'title tokens must appear'.",
-    )
-    ap.add_argument(
-        "--min-thumb-catch-overlap",
-        type=float,
-        default=None,
-        help="Optional: flag when (thumbnail catch token overlap ratio) < threshold.",
-    )
-    ap.add_argument(
-        "--max-missing-tokens",
-        type=int,
-        default=12,
-        help="For overlap findings, include up to N missing tokens in message (default: 12).",
-    )
-    ap.add_argument(
-        "--title-tokenizer",
-        choices=["auto", "full", "no_hiragana"],
-        default="auto",
-        help="Tokenizer mode for overlap checks (default: auto).",
-    )
     args = ap.parse_args()
 
     selected = None
@@ -332,10 +194,6 @@ def main() -> int:
             for finding in _check_row(
                 ch,
                 row,
-                min_title_overlap=args.min_title_overlap,
-                min_thumb_catch_overlap=args.min_thumb_catch_overlap,
-                max_missing_tokens=int(args.max_missing_tokens),
-                title_tokenizer=str(args.title_tokenizer),
             ):
                 findings.append(finding)
                 if args.limit is not None and len(findings) >= int(args.limit):
