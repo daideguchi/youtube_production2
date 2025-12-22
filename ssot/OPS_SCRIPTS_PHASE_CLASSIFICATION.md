@@ -99,7 +99,7 @@ notes: <消し忘れ防止の一言>
 ### UI（運用入口）
 - P0:
   - 起動: `bash scripts/start_all.sh start`（内部で `apps/ui-backend/tools/start_manager.py start` を呼ぶ）
-  - ヘルスチェック: `python3 apps/ui-backend/tools/start_manager.py health --with-guards`
+  - ヘルスチェック: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 
 ---
 

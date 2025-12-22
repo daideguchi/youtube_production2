@@ -28,7 +28,7 @@
 
 - 起動（推奨）: `bash scripts/start_all.sh start`
   - 内部で `apps/ui-backend/tools/start_manager.py` を呼び出し、必要な同期/ヘルスチェックも実施する。
-- ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py health --with-guards`
+- ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 - FastAPI backend: `apps/ui-backend/backend/main.py`（互換: `ui/backend/main.py` は symlink）
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`。互換: `audio_tts_v2/artifacts/final/...`）
   - VideoProduction（CapCut系ジョブ）: `apps/ui-backend/backend/video_production.py`
