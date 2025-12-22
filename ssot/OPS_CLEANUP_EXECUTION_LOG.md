@@ -1247,3 +1247,21 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `scripts/batch_ch02_generate.sh`（tracked）
   - `scripts/mark_script_completed.py`（tracked）
   - `scripts/show_llm_latest.py`（tracked）
+
+### 89) P2（禁止）レガシースクリプトを削除（archive-first / 誤実行防止）
+
+意図: `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` で P2（禁止）に分類したスクリプトは、現行フローに載らず誤誘導の温床になるため **残さない**。  
+（削除の前提: repo全域で code 参照ゼロ / SoTフロー外 / SSOTで禁止確定）
+
+- 参照確認:
+  - `rg -n "validate_b_text\\.py|apply_reading_corrections\\.py|openrouter_free_models\\.py|env_guard\\.py|trend_feed\\.py|fetch_thumbnail_trends\\.py|assign_trend_thumbnail\\.py" -S --glob '!ssot/**' --glob '!scripts/**' .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251222T021416Z__scripts_P2_legacy_prune.tar.gz`
+- 削除:
+  - `scripts/validate_b_text.py`（tracked）
+  - `scripts/apply_reading_corrections.py`（tracked）
+  - `scripts/openrouter_free_models.py`（tracked）
+  - `scripts/env_guard.py`（tracked）
+  - `scripts/trend_feed.py`（tracked）
+  - `scripts/fetch_thumbnail_trends.py`（tracked）
+  - `scripts/assign_trend_thumbnail.py`（tracked）

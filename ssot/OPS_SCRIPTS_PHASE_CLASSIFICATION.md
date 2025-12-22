@@ -153,11 +153,9 @@ notes: <消し忘れ防止の一言>
 ※「現行SoTフロー外」かつ「誤誘導/品質事故の温床」になりやすいものを列挙。  
 削除は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしたものから順に実行する。
 
-- `scripts/validate_b_text.py`（B-text前提の旧QA。現行A-text品質ゲートと衝突）
-- `scripts/apply_reading_corrections.py`（巨大な固定辞書・CH02局所。現行TTS辞書運用と衝突しやすい）
-- `scripts/openrouter_free_models.py`（運用主線では不要。モデル一覧は `factory_common.llm_router` / configs を正とする）
-- `scripts/env_guard.py`（`openrouter_free_models.py` / trend系専用の補助。主線で使用しない）
-- `scripts/trend_feed.py` / `scripts/fetch_thumbnail_trends.py` / `scripts/assign_trend_thumbnail.py`（未統合の試作。UI/SSOT動線に載っていない）
+- 削除済み（復活禁止）:
+  - 旧B-text QA / CH02 reading corrections / OpenRouter free-models helper / trend thumbnail PoC など
+  - 証跡: `ssot/OPS_CLEANUP_EXECUTION_LOG.md`（Step 89）
 
 ---
 
