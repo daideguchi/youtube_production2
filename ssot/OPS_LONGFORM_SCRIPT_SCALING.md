@@ -199,8 +199,21 @@ Marathon v1 は “全文LLM” を避けるため、基本は **plan + 直前�
 - `content/analysis/longform/memory.json`: 既出キーワード/既出must_include をスナップショット化し、次章の指示パックへ投入
   - 既定: `--use-memory`（ON）/ 必要なら `--no-memory` でOFF
 
-残タスク（本命）:
-- Judge は全文ではなく **要約＋抜粋** でブロック単位判定し、問題章番号だけを返す（Fixは章差し替えのみ）
+Phase 1.2（実装済み: v1.2）: チャンク品質ゲート（全文LLMなし）
+- Marathon に「**要約＋抜粋**でブロック単位Judge → 問題章だけ差し替え」を追加した。
+  - 全文をLLMへ渡さない（コンテキスト超過/部分改変事故を回避）。
+  - Judgeは最大2ラウンドで収束（Judge→差し替え→Judge）。
+  - 差し替え履歴/判定結果は `content/analysis/longform/quality_gate/` に保存（差し戻し可能）。
+- 実装: `scripts/ops/a_text_marathon_compose.py`
+  - 既定: 有効（`--no-quality-gate` で無効化）
+  - 調整パラメータ（必要時のみ）:
+    - `--quality-max-rounds`（default: 2）
+    - `--quality-max-fix-per-block`（default: 2）
+    - `--quality-max-fix-chapters-per-round`（default: 4）
+    - `--quality-judge-max-tokens`（default: 1600）
+  - タスク名（override可）:
+    - Judge: `MARATHON_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）
+    - Rewrite: `MARATHON_QUALITY_REWRITE_TASK`（default: `script_a_text_quality_fix`）
 
 ### Phase 2（本命: script_pipelineにMarathonモード統合）
 - `configs/sources.yaml` に “profile/length_mode” を導入し、エピソード単位で `chapter_count/target_chars` を切替可能にする。

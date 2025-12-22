@@ -361,6 +361,229 @@ def _chapter_summary_one_line(text: str, *, max_chars: int = 160) -> str:
     return snippet
 
 
+def _excerpt_head_tail(text: str, *, head_chars: int, tail_chars: int) -> tuple[str, str]:
+    normalized = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not normalized:
+        return "", ""
+    head = normalized[: max(0, int(head_chars))].strip() if int(head_chars) > 0 else ""
+    tail = normalized[-max(0, int(tail_chars)) :].strip() if int(tail_chars) > 0 else ""
+    if head and len(normalized) > int(head_chars) and not head.endswith(("。", "！", "?", "？", "!", "…")):
+        head = head.rstrip() + "…"
+    if tail and len(normalized) > int(tail_chars) and not tail.startswith(("…",)):
+        tail = "…" + tail.lstrip()
+    return head, tail
+
+
+def _parse_json_object(text: str) -> dict[str, Any]:
+    raw = (text or "").strip()
+    if not raw:
+        raise ValueError("empty JSON")
+    try:
+        obj = json.loads(raw)
+    except Exception:
+        # Fallback: extract the first {...} block (guards against stray prose).
+        start = raw.find("{")
+        end = raw.rfind("}")
+        if start >= 0 and end > start:
+            try:
+                obj = json.loads(raw[start : end + 1])
+            except Exception as exc:
+                raise ValueError(f"invalid JSON: {exc}") from exc
+        else:
+            raise ValueError("invalid JSON: no object braces found")
+    if not isinstance(obj, dict):
+        raise ValueError("JSON is not an object")
+    return obj
+
+
+def _coerce_int_list(value: Any) -> list[int]:
+    if value in (None, ""):
+        return []
+    if not isinstance(value, list):
+        return []
+    out: list[int] = []
+    for item in value:
+        try:
+            out.append(int(item))
+        except Exception:
+            continue
+    return out
+
+
+def _longform_block_judge_prompt(
+    *,
+    title: str,
+    core_message: str,
+    block: dict[str, Any],
+    chapters: list[tuple[PlanChapter, str]],
+    memory_note: str,
+    max_fix_per_block: int,
+) -> str:
+    block_id = int(block.get("block") or 0) if isinstance(block, dict) else 0
+    block_title = str(block.get("title") or "").strip() if isinstance(block, dict) else ""
+    block_goal = str(block.get("goal") or "").strip() if isinstance(block, dict) else ""
+
+    lines: list[str] = []
+    lines.append("あなたは日本語のYouTubeナレーション台本（Aテキスト）の編集長です。")
+    lines.append("超長尺（2〜3時間級）を“全文LLM禁止”で品質固定するため、章の要約＋抜粋だけで判定します。")
+    lines.append("出力は JSON のみ（説明文禁止）。")
+    lines.append("")
+    lines.append(f"【企画タイトル】{title}")
+    lines.append("")
+    lines.append("【コアメッセージ（全章でブレない）】")
+    lines.append(core_message.strip() or "(空)")
+    lines.append("")
+    lines.append(f"【今回のブロック】{block_id}: {block_title}".strip())
+    if block_goal:
+        lines.append(f"【ブロックの狙い】{block_goal}")
+    lines.append("")
+    lines.append("【Memory（既に扱った内容。繰り返し禁止）】")
+    lines.append(memory_note.strip() if memory_note else "(なし)")
+    lines.append("")
+    lines.append("【入力（章ごとの要約＋抜粋）】")
+    for ch, txt in chapters:
+        head, tail = _excerpt_head_tail(txt, head_chars=360, tail_chars=360)
+        must = [str(x).strip() for x in (ch.must_include or []) if str(x).strip()]
+        avoid = [str(x).strip() for x in (ch.avoid or []) if str(x).strip()]
+        lines.append("")
+        lines.append(f"- chapter: {int(ch.chapter)}")
+        lines.append(f"  goal: {str(ch.goal or '').strip()}")
+        lines.append(f"  must_include: {must if must else []}")
+        lines.append(f"  avoid: {avoid if avoid else []}")
+        lines.append(f"  char_count: {_chars_spoken(txt)}")
+        lines.append(f"  summary: {_chapter_summary_one_line(txt)}")
+        lines.append(f"  excerpt_head: {head}")
+        lines.append(f"  excerpt_tail: {tail}")
+
+    lines.append("")
+    lines.append("【判定基準（このブロック内で見る）】")
+    lines.append("- 企画タイトル/コアメッセージから逸脱していないか")
+    lines.append("- 同趣旨の言い換えで水増ししていないか（新しい理解が増えているか）")
+    lines.append("- 章同士が似すぎていないか（同じ結論/同じ説明の繰り返し）")
+    lines.append("- 途中章で締め/結論/まとめの雰囲気が出ていないか")
+    lines.append("- 具体が“穴埋め”になっていないか（例の連打で中身が増えていない）")
+    lines.append("- 根拠不明の統計/研究/固有名詞/数字断定など信頼を壊す要素がないか")
+    lines.append("")
+    lines.append("【制約（重要）】")
+    lines.append(f"- rewrite を提案してよい章は最大 {int(max_fix_per_block)} 章まで（本当に悪い章だけ）。")
+    lines.append("- rewrite は“主題を増やさず”、その章のゴールを達成するために“理解が増える具体”を追加する方針にする。")
+    lines.append("- タイトル語句の機械一致（単語が出るか）は必須にしない。意味として回収できていればOK。")
+    lines.append("")
+    lines.append("【出力JSONスキーマ（厳守）】")
+    lines.append('{')
+    lines.append('  "schema": "ytm.longform_block_judge.v1",')
+    lines.append(f'  "block": {block_id},')
+    lines.append('  "verdict": "pass" | "fail",')
+    lines.append('  "reasons": ["..."],')
+    lines.append('  "must_fix_chapters": [12, 13],')
+    lines.append('  "chapter_fixes": [')
+    lines.append('    {')
+    lines.append('      "chapter": 12,')
+    lines.append('      "problem": "何が悪いか（短く）",')
+    lines.append('      "rewrite_focus": ["何を増やす/どう直すか（最大4）"],')
+    lines.append('      "must_keep": ["この章で維持すべき要素（最大3）"],')
+    lines.append('      "avoid_more": ["追加で避ける表現/構造（最大3）"]')
+    lines.append('    }')
+    lines.append('  ]')
+    lines.append('}')
+    return "\n".join(lines).strip() + "\n"
+
+
+def _chapter_quality_rewrite_prompt(
+    *,
+    title: str,
+    chapter: PlanChapter,
+    chapter_count: int,
+    persona: str,
+    channel_prompt: str,
+    core_message: str,
+    previous_tail: str,
+    next_head: str,
+    memory_note: str,
+    quote_max: int,
+    paren_max: int,
+    quote_total_max: int,
+    paren_total_max: int,
+    target_min: int,
+    target_max: int,
+    previous_draft: str,
+    judge_problem: str,
+    rewrite_focus: list[str],
+    must_keep: list[str],
+    avoid_more: list[str],
+) -> str:
+    focus = "\n".join([f"- {x}" for x in (rewrite_focus or []) if str(x).strip()]) or "- (なし)"
+    keep = "\n".join([f"- {x}" for x in (must_keep or []) if str(x).strip()]) or "- (なし)"
+    avoid_extra = "\n".join([f"- {x}" for x in (avoid_more or []) if str(x).strip()]) or "- (なし)"
+
+    quote_rule = (
+        "この章では `「」`/`『』` を一切使わない（0個）。"
+        if int(quote_max) <= 0
+        else f"この章の `「」`/`『』` は合計 {int(quote_max)} 個以内（可能なら0）。"
+    )
+    paren_rule = (
+        "この章では `（）`/`()` を一切使わない（0個）。"
+        if int(paren_max) <= 0
+        else f"この章の `（）`/`()` は合計 {int(paren_max)} 個以内（可能なら0）。"
+    )
+
+    return (
+        "あなたは日本語のYouTubeナレーション台本（Aテキスト）作家です。\n"
+        "超長尺（2〜3時間級）の章を、品質理由で“章だけ”書き直します。\n"
+        "出力は本文のみ（説明禁止）。\n\n"
+        f"【企画タイトル】\n{title}\n\n"
+        f"【章】{chapter.chapter}/{chapter_count}（Block {chapter.block}: {chapter.block_title}）\n"
+        f"【この章のゴール】\n{chapter.goal}\n\n"
+        f"【目標文字数（改行/空白除外の目安）】{int(target_min)}〜{int(target_max)}字\n"
+        f"【記号上限（全体→章予算）】全体:「」/『』<= {quote_total_max} / （）<= {paren_total_max} ｜ "
+        f"この章:「」/『』<= {quote_max} / （）<= {paren_max}\n\n"
+        "【コアメッセージ（全章でブレない）】\n"
+        + (core_message.strip() or "(空)")
+        + "\n\n"
+        "【品質ゲートからの指摘（短く）】\n"
+        + (str(judge_problem or "").strip() or "(なし)")
+        + "\n\n"
+        "【書き直し方針（必ず反映）】\n"
+        + focus
+        + "\n\n"
+        "【維持すべき要素（崩さない）】\n"
+        + keep
+        + "\n\n"
+        "【追加で避けること】\n"
+        + avoid_extra
+        + "\n\n"
+        "【ペルソナ要点】\n"
+        + _sanitize_context(persona, max_chars=700)
+        + "\n\n"
+        "【チャンネル指針要点】\n"
+        + _sanitize_context(channel_prompt, max_chars=700)
+        + "\n\n"
+        "【直前章の末尾（文脈。コピー禁止）】\n"
+        + (_sanitize_context(previous_tail, max_chars=320) if previous_tail else "(なし)")
+        + "\n\n"
+        "【次章の冒頭（文脈。コピー禁止）】\n"
+        + (_sanitize_context(next_head, max_chars=240) if next_head else "(なし)")
+        + "\n\n"
+        "【Memory（既に扱った内容。繰り返し禁止）】\n"
+        + (_sanitize_context(memory_note, max_chars=900) if memory_note else "(なし)")
+        + "\n\n"
+        "【執筆ルール（厳守）】\n"
+        "- 出力は本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタは禁止）。\n"
+        "- 区切り記号は本文に入れない（`---` は後でブロック境界にだけ入れる）。\n"
+        f"- {quote_rule} 引用や強調は地の文で言い換える。\n"
+        f"- {paren_rule}\n"
+        "- 同趣旨の言い換えで水増ししない。厚みは理解が増える具体で作る。\n"
+        "- 各段落に「新しい理解」を最低1つ入れる（具体/見立て/手順/落とし穴のいずれか）。言い換えだけの段落は禁止。\n"
+        "- 現代の人物例（年齢/職業/台詞の作り込み）は入れない（全体事故の原因）。\n"
+        "- 根拠不明の統計/研究/固有名詞/数字断定で説得力を作らない。\n"
+        "- 途中章でのまとめ/結論/最後に/締めの挨拶は禁止（最終章だけ例外）。\n"
+        "\n"
+        "【前回の章本文（参考。コピー禁止）】\n"
+        + _sanitize_context(previous_draft, max_chars=3200)
+        + "\n\n"
+        "では、書き直した本文のみを出力してください。\n"
+    )
+
 def _write_longform_sidecars(
     *,
     analysis_dir: Path,
@@ -978,6 +1201,39 @@ def main() -> int:
     ap.add_argument("--chapter-quote-max", type=int, default=0, help="Per-chapter max for 「」/『』 (default: 0)")
     ap.add_argument("--chapter-paren-max", type=int, default=0, help="Per-chapter max for （）/() (default: 0)")
     ap.add_argument("--plan-max-tries", type=int, default=2, help="Max attempts for plan JSON schema validation")
+    quality_group = ap.add_mutually_exclusive_group()
+    quality_group.add_argument(
+        "--quality-gate",
+        dest="quality_gate",
+        action="store_true",
+        default=True,
+        help="Run block-level LLM quality gate (judge + chapter-only rewrite) after drafting (default)",
+    )
+    quality_group.add_argument(
+        "--no-quality-gate",
+        dest="quality_gate",
+        action="store_false",
+        help="Disable block-level LLM quality gate (debug)",
+    )
+    ap.add_argument("--quality-max-rounds", type=int, default=2, help="Max judge→rewrite rounds (default: 2)")
+    ap.add_argument(
+        "--quality-max-fix-per-block",
+        type=int,
+        default=2,
+        help="Max chapters to rewrite per block based on judge output (default: 2)",
+    )
+    ap.add_argument(
+        "--quality-max-fix-chapters-per-round",
+        type=int,
+        default=4,
+        help="Max chapters to rewrite per round across all blocks (default: 4)",
+    )
+    ap.add_argument(
+        "--quality-judge-max-tokens",
+        type=int,
+        default=1600,
+        help="Max tokens for the block judge response (default: 1600)",
+    )
     balance_group = ap.add_mutually_exclusive_group()
     balance_group.add_argument(
         "--balance-length",
@@ -1422,6 +1678,360 @@ def main() -> int:
             used_paren = int(accepted_stats.get("paren_marks") or 0)
         quotes_remaining = max(0, int(quotes_remaining) - used_quotes)
         paren_remaining = max(0, int(paren_remaining) - used_paren)
+
+    # 2.5) Optional: block-level quality gate (LLM judge + chapter-only rewrite).
+    if bool(args.quality_gate) and drafted:
+        judge_task = os.getenv("MARATHON_QUALITY_JUDGE_TASK", "script_a_text_quality_judge").strip()
+        if not judge_task:
+            judge_task = "script_a_text_quality_judge"
+        rewrite_task = os.getenv("MARATHON_QUALITY_REWRITE_TASK", "script_a_text_quality_fix").strip()
+        if not rewrite_task:
+            rewrite_task = "script_a_text_quality_fix"
+
+        max_rounds = max(0, int(args.quality_max_rounds))
+        max_fix_per_block = max(0, int(args.quality_max_fix_per_block))
+        max_fix_per_round = max(0, int(args.quality_max_fix_chapters_per_round))
+        judge_max_tokens = max(600, int(args.quality_judge_max_tokens))
+
+        quality_dir = analysis_dir / "quality_gate"
+        quality_dir.mkdir(parents=True, exist_ok=True)
+
+        fix_counts: dict[int, int] = {}
+        for round_idx in range(1, max_rounds + 1):
+            round_dir = quality_dir / f"round_{round_idx:02d}"
+            round_dir.mkdir(parents=True, exist_ok=True)
+
+            fix_requests: list[dict[str, Any]] = []
+            for block in plan.blocks:
+                if not isinstance(block, dict):
+                    continue
+                block_id = int(block.get("block") or 0)
+                if block_id <= 0:
+                    continue
+                block_chapters = [(c, t) for (c, t) in drafted if int(c.block) == int(block_id)]
+                if not block_chapters:
+                    continue
+
+                # Memory note: only content before this block (prevents repetition across blocks).
+                first_chapter_num = min(int(c.chapter) for c, _ in block_chapters)
+                prev_drafted = [(c, t) for (c, t) in drafted if int(c.chapter) < int(first_chapter_num)]
+                memory_note = ""
+                if bool(args.use_memory) and prev_drafted:
+                    snapshot = _build_memory_snapshot(
+                        plan,
+                        prev_drafted,
+                        max_keywords=int(args.memory_max_keywords),
+                        max_must=int(args.memory_max_must),
+                    )
+                    memory_note = _format_memory_for_prompt(snapshot, max_chars=int(args.memory_max_chars))
+
+                prompt = _longform_block_judge_prompt(
+                    title=title,
+                    core_message=plan.core_message,
+                    block=block,
+                    chapters=block_chapters,
+                    memory_note=memory_note,
+                    max_fix_per_block=max_fix_per_block,
+                )
+                judge_text, judge_meta = _call_llm_text(
+                    task=judge_task,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=int(judge_max_tokens),
+                    temperature=0.0,
+                    response_format="json_object",
+                )
+
+                if judge_text is None:
+                    try:
+                        _write_longform_sidecars(
+                            analysis_dir=analysis_dir,
+                            plan=plan,
+                            drafted=drafted,
+                            max_keywords=int(args.memory_max_keywords),
+                            max_must=int(args.memory_max_must),
+                        )
+                    except Exception:
+                        pass
+                    (analysis_dir / "pending.json").write_text(
+                        json.dumps(
+                            {
+                                "schema": "ytm.longform_pending.v1",
+                                "generated_at": datetime.now(timezone.utc).isoformat(),
+                                "pending_reason": "quality_gate_block_judge_pending",
+                                "block": block_id,
+                                "pending_task": judge_meta,
+                            },
+                            ensure_ascii=False,
+                            indent=2,
+                        )
+                        + "\n",
+                        encoding="utf-8",
+                    )
+                    print("[MARATHON] quality gate judge pending (agent/think mode).")
+                    print(f"- block: {block_id:02d}")
+                    print(f"- pending: {judge_meta.get('pending_path')}")
+                    print("- next: complete it via scripts/agent_runner.py, then rerun this command")
+                    return 2
+
+                raw_path = round_dir / f"block_{block_id:02d}__judge_raw.json"
+                raw_path.write_text(judge_text.strip() + "\n", encoding="utf-8")
+                (round_dir / f"block_{block_id:02d}__judge__llm_meta.json").write_text(
+                    json.dumps(judge_meta, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+
+                judge_obj = _parse_json_object(judge_text)
+                (round_dir / f"block_{block_id:02d}__judge.json").write_text(
+                    json.dumps(judge_obj, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+
+                verdict = str(judge_obj.get("verdict") or "").strip().lower()
+                if verdict not in {"pass", "fail"}:
+                    verdict = "fail" if (judge_obj.get("must_fix_chapters") or judge_obj.get("chapter_fixes")) else "pass"
+
+                if verdict != "fail" or max_fix_per_block <= 0:
+                    continue
+
+                allowed_chapters = {int(c.chapter) for c, _ in block_chapters}
+                must_fix = [c for c in _coerce_int_list(judge_obj.get("must_fix_chapters")) if int(c) in allowed_chapters]
+
+                fix_map: dict[int, dict[str, Any]] = {}
+                raw_fixes = judge_obj.get("chapter_fixes")
+                if isinstance(raw_fixes, list):
+                    for item in raw_fixes:
+                        if not isinstance(item, dict):
+                            continue
+                        try:
+                            chap_num = int(item.get("chapter") or 0)
+                        except Exception:
+                            chap_num = 0
+                        if chap_num in allowed_chapters:
+                            fix_map[chap_num] = item
+
+                candidates: list[int] = []
+                for chap_num in must_fix:
+                    if chap_num not in candidates:
+                        candidates.append(chap_num)
+                for chap_num in sorted(fix_map.keys()):
+                    if chap_num not in candidates:
+                        candidates.append(chap_num)
+
+                for chap_num in candidates[: max_fix_per_block]:
+                    fix = fix_map.get(int(chap_num), {}) if isinstance(fix_map.get(int(chap_num)), dict) else {}
+                    fix_requests.append(
+                        {
+                            "block": int(block_id),
+                            "chapter": int(chap_num),
+                            "judge_problem": str(fix.get("problem") or "").strip(),
+                            "rewrite_focus": [str(x).strip() for x in (fix.get("rewrite_focus") or []) if str(x).strip()],
+                            "must_keep": [str(x).strip() for x in (fix.get("must_keep") or []) if str(x).strip()],
+                            "avoid_more": [str(x).strip() for x in (fix.get("avoid_more") or []) if str(x).strip()],
+                        }
+                    )
+
+            # Dedupe and cap per round.
+            selected: list[dict[str, Any]] = []
+            seen_chapters: set[int] = set()
+            for fr in sorted(fix_requests, key=lambda x: (int(x.get("block") or 0), int(x.get("chapter") or 0))):
+                chap_num = int(fr.get("chapter") or 0)
+                if chap_num <= 0 or chap_num in seen_chapters:
+                    continue
+                if int(fix_counts.get(chap_num) or 0) >= int(max_rounds):
+                    continue
+                seen_chapters.add(chap_num)
+                selected.append(fr)
+                if max_fix_per_round > 0 and len(selected) >= int(max_fix_per_round):
+                    break
+
+            if not selected:
+                break
+
+            for fr in sorted(selected, key=lambda x: int(x.get("chapter") or 0)):
+                chap_num = int(fr.get("chapter") or 0)
+                idx = next((i for i, (c, _) in enumerate(drafted) if int(c.chapter) == chap_num), None)
+                if idx is None:
+                    continue
+
+                chapter_obj, prev_text = drafted[int(idx)]
+                prev_text = (prev_text or "").strip()
+
+                # Recompute per-chapter symbol budgets based on current drafts (keeps global budgets stable).
+                used_quotes_before = sum(
+                    sum(drafted[j][1].count(mark) for mark in ("「", "」", "『", "』")) for j in range(0, int(idx))
+                )
+                used_paren_before = sum(
+                    sum(drafted[j][1].count(mark) for mark in ("（", "）", "(", ")")) for j in range(0, int(idx))
+                )
+                q_remaining = max(0, int(quote_total_max) - int(used_quotes_before))
+                p_remaining = max(0, int(paren_total_max) - int(used_paren_before))
+                remaining_chapters = max(1, int(plan.chapter_count) - int(idx))
+                chapter_quote_budget = max(0, int(q_remaining) // remaining_chapters)
+                chapter_paren_budget = max(0, int(p_remaining) // remaining_chapters)
+                if forced_quote_max >= 0:
+                    chapter_quote_budget = min(int(chapter_quote_budget), int(forced_quote_max))
+                if forced_paren_max >= 0:
+                    chapter_paren_budget = min(int(chapter_paren_budget), int(forced_paren_max))
+
+                chapter_meta = dict(base_meta)
+                chapter_meta["a_text_quote_marks_max"] = int(chapter_quote_budget)
+                chapter_meta["a_text_paren_marks_max"] = int(chapter_paren_budget)
+
+                _, stats = _validate_chapter_text(
+                    prev_text,
+                    meta=chapter_meta,
+                    char_budget=chapter_obj.char_budget,
+                    min_ratio=float(args.chapter_min_ratio),
+                    max_ratio=float(args.chapter_max_ratio),
+                    closing_allowed=chapter_obj.closing_allowed,
+                )
+                target_min = int(stats.get("target_chars_min") or 0) or 600
+                target_max = int(stats.get("target_chars_max") or 0) or max(target_min + 200, 900)
+
+                prev_tail = drafted[int(idx) - 1][1].strip()[-320:] if int(idx) > 0 else ""
+                next_head = ""
+                if int(idx) + 1 < len(drafted):
+                    next_head, _ = _excerpt_head_tail(drafted[int(idx) + 1][1], head_chars=240, tail_chars=0)
+
+                memory_note = ""
+                if bool(args.use_memory) and int(idx) > 0:
+                    snapshot = _build_memory_snapshot(
+                        plan,
+                        drafted[: int(idx)],
+                        max_keywords=int(args.memory_max_keywords),
+                        max_must=int(args.memory_max_must),
+                    )
+                    memory_note = _format_memory_for_prompt(snapshot, max_chars=int(args.memory_max_chars))
+
+                prompt = _chapter_quality_rewrite_prompt(
+                    title=title,
+                    chapter=chapter_obj,
+                    chapter_count=plan.chapter_count,
+                    persona=persona,
+                    channel_prompt=channel_prompt,
+                    core_message=plan.core_message,
+                    previous_tail=prev_tail,
+                    next_head=next_head,
+                    memory_note=memory_note,
+                    quote_max=int(chapter_quote_budget),
+                    paren_max=int(chapter_paren_budget),
+                    quote_total_max=int(quote_total_max),
+                    paren_total_max=int(paren_total_max),
+                    target_min=int(target_min),
+                    target_max=int(target_max),
+                    previous_draft=prev_text,
+                    judge_problem=str(fr.get("judge_problem") or "").strip(),
+                    rewrite_focus=list(fr.get("rewrite_focus") or []),
+                    must_keep=list(fr.get("must_keep") or []),
+                    avoid_more=list(fr.get("avoid_more") or []),
+                )
+
+                messages = [{"role": "user", "content": prompt}]
+                updated_text: str | None = None
+                llm_meta: dict[str, Any] | None = None
+                for attempt in range(1, max(1, int(args.chapter_max_tries)) + 1):
+                    rewritten, meta = _call_llm_text(
+                        task=rewrite_task,
+                        messages=messages,
+                        max_tokens=int(args.max_tokens),
+                        temperature=float(args.temperature),
+                    )
+                    llm_meta = meta
+                    if rewritten is None:
+                        try:
+                            _write_longform_sidecars(
+                                analysis_dir=analysis_dir,
+                                plan=plan,
+                                drafted=drafted,
+                                max_keywords=int(args.memory_max_keywords),
+                                max_must=int(args.memory_max_must),
+                            )
+                        except Exception:
+                            pass
+                        (analysis_dir / "pending.json").write_text(
+                            json.dumps(
+                                {
+                                    "schema": "ytm.longform_pending.v1",
+                                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                                    "pending_reason": "quality_gate_chapter_rewrite_pending",
+                                    "block": int(fr.get("block") or 0),
+                                    "chapter": chap_num,
+                                    "pending_task": meta,
+                                },
+                                ensure_ascii=False,
+                                indent=2,
+                            )
+                            + "\n",
+                            encoding="utf-8",
+                        )
+                        print("[MARATHON] quality gate chapter rewrite pending (agent/think mode).")
+                        print(f"- chapter: {chap_num:03d}")
+                        print(f"- pending: {meta.get('pending_path')}")
+                        print("- next: complete it via scripts/agent_runner.py, then rerun this command")
+                        return 2
+
+                    if not chapter_obj.closing_allowed:
+                        rewritten = _soften_premature_closing_phrases(rewritten)
+
+                    issues, rewrite_stats = _validate_chapter_text(
+                        rewritten,
+                        meta=chapter_meta,
+                        char_budget=chapter_obj.char_budget,
+                        min_ratio=float(args.chapter_min_ratio),
+                        max_ratio=float(args.chapter_max_ratio),
+                        closing_allowed=chapter_obj.closing_allowed,
+                    )
+                    hard = [it for it in issues if str(it.get("severity") or "error").lower() != "warning"]
+                    if not hard:
+                        updated_text = rewritten.strip()
+                        break
+
+                    retry_round = min(attempt + 1, max(1, int(args.chapter_max_tries)))
+                    messages = [
+                        {
+                            "role": "user",
+                            "content": _chapter_rewrite_prompt(
+                                title=title,
+                                base_prompt=prompt,
+                                issues=hard,
+                                previous_draft=rewritten,
+                                target_min=rewrite_stats.get("target_chars_min"),
+                                target_max=rewrite_stats.get("target_chars_max"),
+                                retry_round=retry_round,
+                                retry_total=max(1, int(args.chapter_max_tries)),
+                            ),
+                        }
+                    ]
+
+                if not updated_text:
+                    print("[MARATHON] quality gate: failed to rewrite chapter within max tries.")
+                    print(f"- chapter: {chap_num:03d}")
+                    return 2
+
+                replaced_suffix = _utc_now_compact()
+                out_path = chapters_dir / f"chapter_{chap_num:03d}.md"
+                replaced_path: Path | None = None
+                if out_path.exists():
+                    replaced_path = chapters_dir / f"chapter_{chap_num:03d}__replaced_quality_{replaced_suffix}.md"
+                    out_path.rename(replaced_path)
+
+                out_path.write_text(updated_text.strip() + "\n", encoding="utf-8")
+                (chapters_dir / f"chapter_{chap_num:03d}__quality_fix_{replaced_suffix}__judge.json").write_text(
+                    json.dumps(fr, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                if llm_meta:
+                    (chapters_dir / f"chapter_{chap_num:03d}__quality_fix_{replaced_suffix}__llm_meta.json").write_text(
+                        json.dumps(llm_meta, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                if replaced_path:
+                    (chapters_dir / f"chapter_{chap_num:03d}__quality_fix_{replaced_suffix}__replaced_path.txt").write_text(
+                        str(replaced_path) + "\n", encoding="utf-8"
+                    )
+
+                drafted[int(idx)] = (chapter_obj, updated_text.strip())
+                fix_counts[chap_num] = int(fix_counts.get(chap_num) or 0) + 1
 
     # 3) Assemble and validate whole script (still in analysis dir).
     assembled = _assemble_with_block_pauses(drafted, pause_between_blocks=bool(args.pause_between_blocks))

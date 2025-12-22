@@ -69,9 +69,10 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - フロー（重要順）:
   1) plan（JSON）: 章数/ブロック/各章の goal/must/avoid を固定（迷子防止のSSOT）
   2) chapter: plan を入力として章本文を1つずつ生成（NGなら **その章だけ** 再生成）
-  3) assemble: ブロック境界にだけ `---` を挿入し、章本文を決定論で結合（章本文内に `---` は禁止）
-  4) validate: `validate_a_text` + `a_text_lint` で機械禁則/反復を検査
-  5) length-balance（必要時）: 超過したら長い章だけ短縮（全文LLM禁止）
+  3) quality-gate（推論）: ブロック単位Judge（要約＋抜粋）→ 問題章だけ差し替え（全文LLM禁止）
+  4) assemble: ブロック境界にだけ `---` を挿入し、章本文を決定論で結合（章本文内に `---` は禁止）
+  5) validate: `validate_a_text` + `a_text_lint` で機械禁則/反復を検査
+  6) length-balance（必要時）: 超過したら長い章だけ短縮（全文LLM禁止）
 - ブロック雛形（章の箱）:
   - 正本: `configs/longform_block_templates.json`
   - 指定: `--block-template`（CH別固定は `channel_overrides`）
@@ -146,6 +147,7 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 現状（実装済み）:
 - Marathon v1.1 で `content/analysis/longform/memory.json` / `chapter_summaries.json` を生成し、章プロンプトに Memory を投入する（既定ON、必要なら `--no-memory`）。
 
-残タスク（本命）:
+実装済み（Marathon v1.2）:
 - ブロック単位で “要約＋抜粋” による Judge を行い、NG時は「問題章番号」を返す（全文LLM禁止）
-- Fix は問題章だけを差し替える（全文Fix禁止）＋差し替え履歴を `analysis/longform/` に残す（diff/再現性）
+- Fix は問題章だけを差し替える（全文Fix禁止）＋差し替え履歴/判定結果を `content/analysis/longform/quality_gate/` に残す（diff/再現性）
+  - 実装: `scripts/ops/a_text_marathon_compose.py`
