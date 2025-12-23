@@ -17,6 +17,7 @@
 - `CHAT_AI_QUESTION_TEMPLATE.md`: AIへ依頼/相談するための質問テンプレ。
 
 ## 2. 運用マニュアル / OPS
+- `OPS_SYSTEM_OVERVIEW.md`: このプロダクトの仕組み（全体像SSOT）。迷ったらまずこれ。
 - `OPS_CHANNEL_LAUNCH_MANUAL.md`: チャンネル立ち上げ・企画CSV整備・運用手順。
 - `OPS_CHANNEL_BENCHMARKS.md`: チャンネル別ベンチマーク（競合/台本サンプル/勝ちパターン）管理の正本。
 - `OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。

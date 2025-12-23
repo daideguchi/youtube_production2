@@ -1,5 +1,6 @@
 # START_HERE — 迷わないための入口
 
+- 全体像（まず読む）: `ssot/OPS_SYSTEM_OVERVIEW.md`
 - 確定フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口: `ssot/OPS_ENTRYPOINTS_INDEX.md`
 - 全体TODO（次に何をやるか）: `ssot/OPS_GLOBAL_TODO.md`
