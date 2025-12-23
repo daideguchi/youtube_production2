@@ -54,7 +54,9 @@ export function ChannelAuditPanel({ selectedChannel, onSelectChannel }: ChannelA
       <header className="channel-audit-panel__header">
         <div>
           <h2>監査（全チャンネル）</h2>
-          <p className="channel-audit-panel__subtitle">YouTube/タグ/説明文/ベンチマークの欠損を横断チェックします。</p>
+          <p className="channel-audit-panel__subtitle">
+            YouTube/タグ/説明文/ベンチマーク/企画CSV/ペルソナ/プロンプトの欠損を横断チェックします。
+          </p>
         </div>
         <div className="channel-audit-panel__actions">
           <label className="channel-audit-panel__toggle">
@@ -82,13 +84,15 @@ export function ChannelAuditPanel({ selectedChannel, onSelectChannel }: ChannelA
               <th>handle</th>
               <th>tags</th>
               <th>bench</th>
+              <th>planning</th>
+              <th>files</th>
               <th>issues</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="channel-audit-panel__empty">
+                <td colSpan={8} className="channel-audit-panel__empty">
                   {onlyMissing ? "欠損は見つかりませんでした。" : "チャンネルがありません。"}
                 </td>
               </tr>
@@ -98,6 +102,11 @@ export function ChannelAuditPanel({ selectedChannel, onSelectChannel }: ChannelA
                 const handle = normalizeHandle(item.youtube_handle);
                 const issueLabel = summarizeIssues(item.issues ?? []);
                 const hasIssues = Boolean(item.issues?.length);
+                const filesOkCount = [
+                  Boolean(item.planning_csv_exists),
+                  Boolean(item.persona_exists),
+                  Boolean(item.script_prompt_exists),
+                ].filter(Boolean).length;
                 return (
                   <tr
                     key={item.code}
@@ -118,6 +127,8 @@ export function ChannelAuditPanel({ selectedChannel, onSelectChannel }: ChannelA
                     <td className="mono">
                       {item.benchmark_channels_count ?? 0}/{item.benchmark_script_samples_count ?? 0}
                     </td>
+                    <td className="mono">{item.planning_rows ?? 0}</td>
+                    <td className="mono">{filesOkCount}/3</td>
                     <td className={hasIssues ? "mono is-warn" : "mono is-ok"}>{issueLabel}</td>
                   </tr>
                 );
@@ -129,4 +140,3 @@ export function ChannelAuditPanel({ selectedChannel, onSelectChannel }: ChannelA
     </section>
   );
 }
-
