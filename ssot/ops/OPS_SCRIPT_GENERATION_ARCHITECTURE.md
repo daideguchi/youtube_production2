@@ -8,6 +8,7 @@
 - 台本は全て AIナレーション用の Aテキスト。
 - ポーズ記号は `---` のみ（1行単独）。それ以外の区切りは使わない。
 - ルール正本: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
+- 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（本書はアーキテクチャ詳細）
 
 ---
 

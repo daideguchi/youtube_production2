@@ -10,6 +10,7 @@
 - したがって、超長尺では「全文LLM」から「**チャンク単位の判定/修正**」へ切り替える **Marathonモード**が必須。
 
 関連（読む順）:
+- `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（台本量産ロジックの単一SSOT）
 - `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`（現行フロー全体）
 - `ssot/ops/OPS_SCRIPT_GUIDE.md`（運用手順）
 - `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`（長尺安定化の設計）

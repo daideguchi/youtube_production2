@@ -5,6 +5,7 @@
 - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
 - 全体TODO（次に何をやるか）: `ssot/ops/OPS_GLOBAL_TODO.md`
 - 台本パイプライン導線: `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md`
+- 台本量産ロジック（正本）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - モデル使い分け: `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md`
 - 環境・キー設定: `ssot/ops/OPS_ENV_VARS.md`
 - タイトル/サムネ↔台本の意味整合: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`

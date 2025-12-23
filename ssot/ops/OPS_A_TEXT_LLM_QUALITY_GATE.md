@@ -11,6 +11,7 @@
   - それ以外は `content/assembled.md`
 
 関連（正本）:
+- 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - 全チャンネル共通の書式/禁則: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - パイプライン確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 

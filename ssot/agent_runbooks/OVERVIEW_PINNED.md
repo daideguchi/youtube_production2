@@ -5,6 +5,7 @@
 - 高品質の再現性を上げつつ、無駄なリトライとコストを減らす
 
 正本（必ずここを見る）:
+- 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - 全チャンネル共通Aテキストルール: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - LLM品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 構成パターン（骨格固定）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`

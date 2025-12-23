@@ -3,6 +3,8 @@
 この文書は「台本を作る/直す/やり直す」の運用手順を **CWD非依存・パスSSOT前提** で固定する。  
 処理フロー/I/Oの正本は `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`。
 
+台本量産ロジック（単一SSOT）は `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（本書は運用手順の詳細）。
+
 全チャンネル共通の読み台本ルール（Aテキスト品質の下限）は `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md` が正本。
 
 ---

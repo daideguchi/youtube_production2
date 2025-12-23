@@ -5,6 +5,7 @@
 - どのAIエージェントでも同じ入力を参照できるようにし、品質の再現性とコスト効率を上げる。
 
 関連（正本）:
+- 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - Lint（機械・低コスト）: `python scripts/ops/planning_lint.py --channel CHxx`
 - 台本アーキテクチャ: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
