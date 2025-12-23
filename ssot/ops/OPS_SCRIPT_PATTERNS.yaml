@@ -56,6 +56,46 @@ patterns:
           content_notes: "過剰な比喩で伸ばさない。短く。"
 
   # -------------------------
+  # CH10 (Shinya Greats Radio)
+  # -------------------------
+  - id: ch10_shinya_greats_radio_v1
+    channels: ["CH10"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "眠れない夜に、偉人の思考を借りて心のノイズを下げ、明日の一歩を軽くする。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "夜の不安/考えすぎ。明日ひとつだけ試せる行動に落とす。"
+      sections:
+        - name: 導入
+          char_budget: 800
+          goal: 夜の悩みを掴み、耳が離れない入りを作る
+          content_notes: "静かな警告/逆説フック→聴くメリット→安心の約束。煽りすぎない。"
+        - name: 悩みの正体
+          char_budget: 900
+          goal: 今の苦しさを増やしている思考の癖を一つに絞る
+          content_notes: "言い換え水増し禁止。視聴者が自分ごと化できる描写。"
+        - name: 偉人の視点
+          char_budget: 1300
+          goal: 偉人の世界観で“見方”を入れ替える
+          content_notes: "固有名詞や数字の断定で権威づけしない。語り口はチャンネル指示に従う。"
+        - name: 今日の思考法
+          char_budget: 1500
+          goal: 今日の夜にできる思考の操作を具体に示す
+          content_notes: "手順は文章で自然に。`---` は話題転換にだけ。"
+        - name: 明日の一歩
+          char_budget: 1200
+          goal: 習慣化できる最小行動に落とす
+          content_notes: "1つだけ。やりすぎない。"
+        - name: 結び
+          char_budget: 800
+          goal: 余韻を残して静かに終える
+          content_notes: "CTAやメタは禁止。安心して眠れる締め。"
+
+  # -------------------------
   # CH07 (Buddhist) patterns
   # -------------------------
   - id: ch07_one_liner_defense_v1

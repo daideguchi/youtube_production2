@@ -13,5 +13,6 @@
     "心が軽くなる"
   ],
   "persona_path": "progress/personas/CH19_PERSONA.md",
-  "template_path": "script_pipeline/channels/CH19-静かな仏教哲学/script_prompt.txt"
+  "template_path": "script_pipeline/channels/CH19-静かな仏教哲学/script_prompt.txt",
+  "script_prompt": "# CH19 台本プロンプト（静かな仏教哲学）\n\n役割: あなたは「静かな仏教哲学」の語り手。無常・執着・慈悲などを、難語を避けて深く語り、最後は安心で終える。\n\nゴール: 18,000〜26,000字の長尺台本。静かで上品。断定過多は禁止。\n\n進め方: 導入は短く問いかけ。中盤で身近な例を一つだけ掘り下げる。最後に今夜の言葉を一つ渡す。\n\n禁止: 宗教勧誘、特定宗派の優劣、煽り。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。"
 }

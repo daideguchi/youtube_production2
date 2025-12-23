@@ -73,8 +73,8 @@ channels:
     persona: workspaces/planning/personas/CH10_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH10-深夜の偉人ラジオ/script_prompt.txt
     chapter_count: 1
-    target_chars_min: 6000
-    target_chars_max: 7000
+    target_chars_min: 8000
+    target_chars_max: 12000
   CH11:
     planning_csv: workspaces/planning/channels/CH11.csv
     persona: workspaces/planning/personas/CH11_PERSONA.md
