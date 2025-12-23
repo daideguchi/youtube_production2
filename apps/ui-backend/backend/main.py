@@ -4745,7 +4745,7 @@ class PlanningRequirementSummary(BaseModel):
 
 
 class BenchmarkChannelSpec(BaseModel):
-    handle: str = Field(..., description="YouTubeハンドル（@name 推奨）")
+    handle: Optional[str] = Field(None, description="YouTubeハンドル（@name 推奨・任意）")
     name: Optional[str] = Field(None, description="チャンネル表示名（任意）")
     url: Optional[str] = Field(None, description="https://www.youtube.com/@name 等（任意）")
     note: Optional[str] = Field(None, description="観測ポイント（任意）")
@@ -6205,9 +6205,23 @@ def audit_channels():
             bench_channels = raw_bench.get("channels") or []
             bench_samples = raw_bench.get("script_samples") or []
             if isinstance(bench_channels, list):
-                bench_channels_count = len(bench_channels)
+                bench_channels_count = len(
+                    [
+                        ch
+                        for ch in bench_channels
+                        if isinstance(ch, dict) and normalize_optional_text(ch.get("handle") or ch.get("url"))
+                    ]
+                )
             if isinstance(bench_samples, list):
-                bench_samples_count = len(bench_samples)
+                bench_samples_count = len(
+                    [
+                        s
+                        for s in bench_samples
+                        if isinstance(s, dict)
+                        and normalize_optional_text(s.get("base"))
+                        and normalize_optional_text(s.get("path"))
+                    ]
+                )
 
         issues: List[str] = []
         if not youtube_handle:

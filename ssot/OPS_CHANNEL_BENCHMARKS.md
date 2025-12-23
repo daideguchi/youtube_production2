@@ -61,7 +61,7 @@
 ## 3. 運用ルール（事故防止）
 
 - **最低限の要件**
-  - `benchmarks.channels` に 1 件以上（競合/参考チャンネル）。
+  - `benchmarks.channels` に 1 件以上（競合/参考チャンネル）。`handle`（推奨）または `url` のどちらかは必須。
   - `benchmarks.script_samples` に 1 件以上（台本サンプル）。
 - **迷ったら**
   - まず `workspaces/research/` 内の該当ジャンル資料を `script_samples` に紐付ける（後から競合URLを追加してよい）。
@@ -74,4 +74,3 @@
 
 - `/channel-settings` の「ベンチマーク」パネルで、チャンネルごとの競合/台本サンプルを確認・更新する。
 - `/channel-settings` の「監査（全チャンネル）」で、ハンドル/タグ/説明文/ベンチマークの欠損を横断確認する。
-

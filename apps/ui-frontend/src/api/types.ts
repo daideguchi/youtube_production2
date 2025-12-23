@@ -476,7 +476,7 @@ export interface ThumbnailLookupResponse {
 }
 
 export interface BenchmarkChannelSpec {
-  handle: string;
+  handle?: string | null;
   name?: string | null;
   url?: string | null;
   note?: string | null;

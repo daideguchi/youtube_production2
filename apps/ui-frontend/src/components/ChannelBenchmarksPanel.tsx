@@ -67,7 +67,7 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
   const normalizedCode = channelCode?.trim().toUpperCase() ?? null;
 
   const isValid = useMemo(() => {
-    const hasChannels = benchmarks.channels.some((item) => item.handle?.trim());
+    const hasChannels = benchmarks.channels.some((item) => item.handle?.trim() || item.url?.trim());
     const hasSamples = benchmarks.script_samples.some((item) => item.path?.trim());
     return hasChannels && hasSamples;
   }, [benchmarks.channels, benchmarks.script_samples]);
@@ -107,12 +107,12 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
         channels: benchmarks.channels
           .map((item) => ({
             ...item,
-            handle: normalizeHandle(item.handle ?? ""),
+            handle: item.handle?.trim() ? normalizeHandle(item.handle) : null,
             name: item.name?.trim() || null,
             url: item.url?.trim() || null,
             note: item.note?.trim() || null,
           }))
-          .filter((item) => Boolean(item.handle)),
+          .filter((item) => Boolean(item.handle || item.url)),
         script_samples: benchmarks.script_samples
           .map((item) => ({
             ...item,
@@ -465,4 +465,3 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
     </section>
   );
 }
-
