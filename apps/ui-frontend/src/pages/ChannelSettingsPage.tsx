@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
+import { ChannelAuditPanel } from "../components/ChannelAuditPanel";
+import { ChannelBenchmarksPanel } from "../components/ChannelBenchmarksPanel";
 import { ChannelProfilePanel } from "../components/ChannelProfilePanel";
 import {
   fetchPlanningRows,
@@ -26,6 +28,17 @@ function formatDate(value?: string | null): string {
     return value;
   }
   return date.toLocaleString("ja-JP", { hour12: false });
+}
+
+function normalizeYoutubeHandle(value?: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
 }
 
 function formatCompactNumber(value?: number | null): string {
@@ -242,6 +255,8 @@ export function ChannelSettingsPage() {
     channelName: string;
     youtubeHandle: string;
     description: string;
+    youtubeDescription: string;
+    defaultTags: string;
     chapterCount: string;
     targetCharsMin: string;
     targetCharsMax: string;
@@ -250,6 +265,8 @@ export function ChannelSettingsPage() {
     channelName: "",
     youtubeHandle: "",
     description: "",
+    youtubeDescription: "",
+    defaultTags: "",
     chapterCount: "",
     targetCharsMin: "",
     targetCharsMax: "",
@@ -771,7 +788,7 @@ export function ChannelSettingsPage() {
     const branding = brandingSummary.branding;
     return {
       avatarUrl: branding.avatar_url ?? null,
-      handle: branding.handle ?? brandingSummary.youtube_handle ?? null,
+      handle: normalizeYoutubeHandle(branding.handle ?? brandingSummary.youtube_handle ?? null),
       url: branding.url ?? null,
       updatedAt: branding.updated_at ?? null,
       subscriberCount: branding.subscriber_count ?? null,
@@ -838,6 +855,13 @@ export function ChannelSettingsPage() {
       const parsed = Number(raw);
       return Number.isFinite(parsed) ? parsed : null;
     };
+    const tagsOrNull = (value: string): string[] | null => {
+      const tags = value
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+      return tags.length ? tags : null;
+    };
 
     setChannelRegisterStatus({ pending: true, success: null, error: null });
     try {
@@ -849,6 +873,8 @@ export function ChannelSettingsPage() {
           channel_name: trimmedName,
           youtube_handle: trimmedHandle,
           description: channelRegister.description.trim() || null,
+          youtube_description: channelRegister.youtubeDescription.trim() || null,
+          default_tags: tagsOrNull(channelRegister.defaultTags),
           chapter_count: numericOrNull(channelRegister.chapterCount),
           target_chars_min: numericOrNull(channelRegister.targetCharsMin),
           target_chars_max: numericOrNull(channelRegister.targetCharsMax),
@@ -940,6 +966,14 @@ export function ChannelSettingsPage() {
         ))}
       </div>
 
+      <ChannelAuditPanel
+        selectedChannel={selectedChannel}
+        onSelectChannel={(code) => {
+          selectChannel(code);
+          navigate(`/channel-settings?channel=${encodeURIComponent(code)}`, { replace: true });
+        }}
+      />
+
       <SectionCard
         title="新規チャンネル登録（ハンドル必須）"
         description="YouTubeハンドル(@name)だけで一意特定し、channel_info / persona / prompt / sources.yaml を自動生成します。"
@@ -991,6 +1025,28 @@ export function ChannelSettingsPage() {
               value={channelRegister.description}
               onChange={(event) => setChannelRegister((current) => ({ ...current, description: event.target.value }))}
               placeholder="チャンネルの一言説明"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>YouTube説明（任意）</span>
+            <textarea
+              rows={3}
+              value={channelRegister.youtubeDescription}
+              onChange={(event) =>
+                setChannelRegister((current) => ({ ...current, youtubeDescription: event.target.value }))
+              }
+              placeholder="チャンネルの説明文 / 投稿テンプレ"
+              disabled={channelRegisterStatus.pending}
+            />
+          </label>
+          <label>
+            <span>デフォルトタグ（任意, カンマ区切り）</span>
+            <input
+              type="text"
+              value={channelRegister.defaultTags}
+              onChange={(event) => setChannelRegister((current) => ({ ...current, defaultTags: event.target.value }))}
+              placeholder="例: 仏教,ブッダ,不安,シニア"
               disabled={channelRegisterStatus.pending}
             />
           </label>
@@ -1096,7 +1152,7 @@ export function ChannelSettingsPage() {
                 )}
                 <div>
                   <p className="channel-settings-page__youtube-handle">
-                    {youtubeMetrics?.handle ? `@${youtubeMetrics.handle}` : "YouTube 情報"}
+                    {youtubeMetrics?.handle ?? "YouTube 情報"}
                   </p>
                   {youtubeMetrics?.updatedAt ? (
                     <small>最終同期 {formatDate(youtubeMetrics.updatedAt)}</small>
@@ -1511,6 +1567,7 @@ export function ChannelSettingsPage() {
           </div>
             <div className="channel-settings-page__profile">
               <ChannelProfilePanel channelCode={selectedChannel} channelName={selectedChannelSummary?.name ?? null} />
+              <ChannelBenchmarksPanel channelCode={selectedChannel} />
             </div>
           </div>
         </>

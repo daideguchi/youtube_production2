@@ -8,16 +8,16 @@ stages:
   - name: topic_research
     description: Collect research brief and references
     outputs:
-      - path: content/analysis/research/search_results.json
-        required: true
       - path: content/analysis/research/research_brief.md
         required: true
       - path: content/analysis/research/references.json
         required: true
+      - path: content/analysis/research/search_results.json
+        required: true
     llm:
       task: script_topic_research
       template: research
-      max_tokens: 64000
+      max_tokens: 8192
       placeholders:
         TOPIC: from_title    # use SoT title/expected_title
         CHANNEL_CONTEXT: from_channel_name
@@ -32,7 +32,7 @@ stages:
     llm:
       task: script_outline
       template: outline
-      max_tokens: 64000
+      max_tokens: 8192
       placeholders:
         RESEARCH_BRIEF: "@content/analysis/research/research_brief.md"
         TOPIC: from_title
@@ -48,7 +48,7 @@ stages:
     llm:
       task: script_chapter_brief
       template: chapter_brief
-      max_tokens: 64000
+      max_tokens: 8192
       placeholders:
         TOPIC: from_title
         AUDIENCE_PROFILE: from_persona
@@ -95,7 +95,7 @@ stages:
     llm:
       task: script_cta
       template: cta
-      max_tokens: 64000
+      max_tokens: 1024
       placeholders:
         TOPIC: from_title
         CHANNEL_CONTEXT: from_channel_name
@@ -111,7 +111,7 @@ stages:
     llm:
       task: script_quality_check
       template: quality
-      max_tokens: 64000
+      max_tokens: 4096
       placeholders:
         SCRIPT_CONTENT: "@content/assembled.md"
         CHANNEL_CONTEXT: from_channel_name

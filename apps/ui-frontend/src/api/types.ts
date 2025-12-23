@@ -475,6 +475,28 @@ export interface ThumbnailLookupResponse {
   items: ThumbnailLookupItem[];
 }
 
+export interface BenchmarkChannelSpec {
+  handle: string;
+  name?: string | null;
+  url?: string | null;
+  note?: string | null;
+}
+
+export interface BenchmarkScriptSampleSpec {
+  base: "research" | "scripts";
+  path: string;
+  label?: string | null;
+  note?: string | null;
+}
+
+export interface ChannelBenchmarksSpec {
+  version: number;
+  updated_at?: string | null;
+  channels: BenchmarkChannelSpec[];
+  script_samples: BenchmarkScriptSampleSpec[];
+  notes?: string | null;
+}
+
 export interface ChannelProfileResponse {
   channel_code: string;
   channel_name?: string | null;
@@ -486,6 +508,7 @@ export interface ChannelProfileResponse {
   youtube_title?: string | null;
   youtube_description?: string | null;
   youtube_handle?: string | null;
+  benchmarks?: ChannelBenchmarksSpec | null;
   audio_default_voice_key?: string | null;
   audio_section_voice_rules?: Record<string, string>;
   default_min_characters: number;
@@ -517,7 +540,21 @@ export interface ChannelProfileUpdatePayload {
   youtube_description?: string | null;
   youtube_handle?: string | null;
   default_tags?: string[] | null;
+  benchmarks?: ChannelBenchmarksSpec | null;
   audio?: ChannelProfileUpdateAudioPayload | null;
+}
+
+export interface ChannelAuditItemResponse {
+  code: string;
+  name?: string | null;
+  youtube_handle?: string | null;
+  youtube_url?: string | null;
+  avatar_url?: string | null;
+  has_youtube_description: boolean;
+  default_tags_count: number;
+  benchmark_channels_count: number;
+  benchmark_script_samples_count: number;
+  issues: string[];
 }
 
 export interface ApiErrorShape {

@@ -6,6 +6,7 @@ import {
   BatchWorkflowRequestPayload,
   BatchWorkflowTask,
   CapcutInstallResult,
+  ChannelAuditItemResponse,
   ChannelProfileResponse,
   ChannelProfileUpdatePayload,
   ChannelSummary,
@@ -472,6 +473,10 @@ export function updateChannelProfile(
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+export function fetchChannelAudit(): Promise<ChannelAuditItemResponse[]> {
+  return request<ChannelAuditItemResponse[]>("/api/channels/audit");
 }
 
 export function fetchPlanningRows(channel?: string): Promise<PlanningCsvRow[]> {

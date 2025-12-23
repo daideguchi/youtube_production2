@@ -1803,6 +1803,13 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
     youtube_title = youtube_info.get("title") or info_payload.get("youtube_title")
     youtube_description = info_payload.get("youtube_description") or youtube_info.get("description")
     youtube_handle = youtube_info.get("handle") or info_payload.get("youtube_handle")
+    benchmarks: Optional[ChannelBenchmarksSpec] = None
+    raw_benchmarks = info_payload.get("benchmarks")
+    if isinstance(raw_benchmarks, dict):
+        try:
+            benchmarks = ChannelBenchmarksSpec.model_validate(raw_benchmarks)
+        except Exception:
+            benchmarks = None
 
     return ChannelProfileResponse(
         channel_code=profile.code,
@@ -1815,6 +1822,7 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         youtube_title=youtube_title,
         youtube_description=youtube_description,
         youtube_handle=youtube_handle or youtube_info.get("custom_url"),
+        benchmarks=benchmarks,
         audio_default_voice_key=voice_payload.get("default_voice_key"),
         audio_section_voice_rules=audio_rules if isinstance(audio_rules, dict) else {},
         planning_persona=planning_persona or profile.persona_summary or profile.audience_profile,
@@ -4736,6 +4744,28 @@ class PlanningRequirementSummary(BaseModel):
     required_columns: List[str] = Field(default_factory=list, description="channels CSV 上の列名一覧")
 
 
+class BenchmarkChannelSpec(BaseModel):
+    handle: str = Field(..., description="YouTubeハンドル（@name 推奨）")
+    name: Optional[str] = Field(None, description="チャンネル表示名（任意）")
+    url: Optional[str] = Field(None, description="https://www.youtube.com/@name 等（任意）")
+    note: Optional[str] = Field(None, description="観測ポイント（任意）")
+
+
+class BenchmarkScriptSampleSpec(BaseModel):
+    base: Literal["research", "scripts"] = Field(..., description="UI のプレビュー基点")
+    path: str = Field(..., description="workspaces/{base}/ 配下の相対パス")
+    label: Optional[str] = Field(None, description="表示用ラベル（任意）")
+    note: Optional[str] = Field(None, description="使いどころ（任意）")
+
+
+class ChannelBenchmarksSpec(BaseModel):
+    version: int = Field(1, ge=1, description="schema version")
+    updated_at: Optional[str] = Field(None, description="更新日 (YYYY-MM-DD)")
+    channels: List[BenchmarkChannelSpec] = Field(default_factory=list)
+    script_samples: List[BenchmarkScriptSampleSpec] = Field(default_factory=list)
+    notes: Optional[str] = Field(None, description="総評（任意）")
+
+
 class ChannelProfileResponse(BaseModel):
     channel_code: str
     channel_name: Optional[str] = None
@@ -4747,6 +4777,7 @@ class ChannelProfileResponse(BaseModel):
     youtube_title: Optional[str] = None
     youtube_description: Optional[str] = None
     youtube_handle: Optional[str] = None
+    benchmarks: Optional[ChannelBenchmarksSpec] = None
     audio_default_voice_key: Optional[str] = None
     audio_section_voice_rules: Dict[str, str] = Field(default_factory=dict)
     default_min_characters: int = Field(8000, ge=1000)
@@ -4817,6 +4848,9 @@ class ChannelProfileUpdateRequest(BaseModel):
     default_tags: Optional[List[str]] = Field(
         None, description="投稿時に使うデフォルトタグ（配列）"
     )
+    benchmarks: Optional[ChannelBenchmarksSpec] = Field(
+        None, description="チャンネル別ベンチマーク設定（SoT: channel_info.json）"
+    )
     audio: Optional[ChannelProfileUpdateAudio] = None
 
 
@@ -4825,6 +4859,9 @@ class ChannelRegisterRequest(BaseModel):
     channel_name: str = Field(..., description="内部表示名（チャンネルディレクトリの suffix に使用）")
     youtube_handle: str = Field(..., description="YouTubeハンドル (@name)")
     description: Optional[str] = Field(None, description="チャンネル説明文（任意）")
+    youtube_description: Optional[str] = Field(None, description="YouTube上の説明文 / 投稿テンプレ（任意）")
+    default_tags: Optional[List[str]] = Field(None, description="投稿時に使うデフォルトタグ（任意）")
+    benchmarks: Optional[ChannelBenchmarksSpec] = Field(None, description="チャンネル別ベンチマーク（任意）")
     chapter_count: Optional[int] = Field(None, ge=1, description="章数（任意。sources.yaml に反映）")
     target_chars_min: Optional[int] = Field(None, ge=0, description="目標文字数min（任意。sources.yaml に反映）")
     target_chars_max: Optional[int] = Field(None, ge=0, description="目標文字数max（任意。sources.yaml に反映）")
@@ -4855,6 +4892,19 @@ class ChannelSummaryResponse(BaseModel):
     youtube_title: Optional[str] = None
     youtube_handle: Optional[str] = None
     genre: Optional[str] = None
+
+
+class ChannelAuditItemResponse(BaseModel):
+    code: str
+    name: Optional[str] = None
+    youtube_handle: Optional[str] = None
+    youtube_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+    has_youtube_description: bool = False
+    default_tags_count: int = 0
+    benchmark_channels_count: int = 0
+    benchmark_script_samples_count: int = 0
+    issues: List[str] = Field(default_factory=list)
 
 
 class LockMetricSample(BaseModel):
@@ -6079,6 +6129,9 @@ def register_channel(payload: ChannelRegisterRequest):
             name=payload.channel_name,
             youtube_handle=payload.youtube_handle,
             description=payload.description,
+            youtube_description=payload.youtube_description,
+            default_tags=_clean_default_tags(payload.default_tags),
+            benchmarks=(payload.benchmarks.model_dump() if payload.benchmarks is not None else None),
             chapter_count=payload.chapter_count,
             target_chars_min=payload.target_chars_min,
             target_chars_max=payload.target_chars_max,
@@ -6109,6 +6162,96 @@ def list_channels():
             channel_info_map[code] = info
         channels.append(_build_channel_summary(code, info))
     return channels
+
+
+@app.get("/api/channels/audit", response_model=List[ChannelAuditItemResponse])
+def audit_channels():
+    channel_info_map = refresh_channel_info(force=True)
+    out: List[ChannelAuditItemResponse] = []
+
+    def _resolve_sample_path(sample: dict) -> Optional[Path]:
+        base = normalize_optional_text(sample.get("base"))
+        rel = normalize_optional_text(sample.get("path"))
+        if not base or not rel:
+            return None
+        if base == "research":
+            return (REPO_ROOT / "workspaces" / "research" / rel).resolve()
+        if base == "scripts":
+            return (REPO_ROOT / "workspaces" / "scripts" / rel).resolve()
+        return None
+
+    for channel_dir in list_channel_dirs():
+        code = channel_dir.name.upper()
+        info = channel_info_map.get(code, {"channel_id": code})
+        youtube_info = info.get("youtube") or {}
+        branding_info = info.get("branding") or {}
+
+        youtube_handle = normalize_optional_text(
+            youtube_info.get("handle") or youtube_info.get("custom_url") or branding_info.get("handle")
+        )
+        youtube_url = normalize_optional_text(youtube_info.get("url") or branding_info.get("url"))
+        avatar_url = normalize_optional_text(branding_info.get("avatar_url"))
+
+        youtube_description = normalize_optional_text(info.get("youtube_description") or youtube_info.get("description"))
+        has_youtube_description = bool(youtube_description)
+        default_tags = info.get("default_tags") or []
+        default_tags_count = len(default_tags) if isinstance(default_tags, list) else 0
+
+        raw_bench = info.get("benchmarks")
+        bench_channels_count = 0
+        bench_samples_count = 0
+        bench_samples: List[dict] = []
+        if isinstance(raw_bench, dict):
+            bench_channels = raw_bench.get("channels") or []
+            bench_samples = raw_bench.get("script_samples") or []
+            if isinstance(bench_channels, list):
+                bench_channels_count = len(bench_channels)
+            if isinstance(bench_samples, list):
+                bench_samples_count = len(bench_samples)
+
+        issues: List[str] = []
+        if not youtube_handle:
+            issues.append("missing_youtube_handle")
+        if not avatar_url:
+            issues.append("missing_avatar_url")
+        if not has_youtube_description:
+            issues.append("missing_youtube_description")
+        if default_tags_count == 0:
+            issues.append("missing_default_tags")
+        if bench_channels_count == 0:
+            issues.append("missing_benchmark_channels")
+        if bench_samples_count == 0:
+            issues.append("missing_benchmark_script_samples")
+
+        if isinstance(bench_samples, list):
+            for sample in bench_samples:
+                if not isinstance(sample, dict):
+                    continue
+                resolved = _resolve_sample_path(sample)
+                if resolved is None:
+                    issues.append("invalid_benchmark_script_sample")
+                    continue
+                if not resolved.exists():
+                    base = normalize_optional_text(sample.get("base")) or "?"
+                    rel = normalize_optional_text(sample.get("path")) or "?"
+                    issues.append(f"missing_benchmark_script_sample:{base}/{rel}")
+
+        out.append(
+            ChannelAuditItemResponse(
+                code=code,
+                name=normalize_optional_text(info.get("name")),
+                youtube_handle=youtube_handle,
+                youtube_url=youtube_url,
+                avatar_url=avatar_url,
+                has_youtube_description=has_youtube_description,
+                default_tags_count=default_tags_count,
+                benchmark_channels_count=bench_channels_count,
+                benchmark_script_samples_count=bench_samples_count,
+                issues=issues,
+            )
+        )
+
+    return sorted(out, key=lambda item: item.code)
 
 
 @app.get("/api/planning", response_model=List[PlanningCsvRowResponse])
@@ -6319,6 +6462,26 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
             else:
                 info_payload.pop("default_tags", None)
             info_changed = True
+
+    if "benchmarks" in payload.model_fields_set:
+        if payload.benchmarks is None:
+            if "benchmarks" in info_payload:
+                _record_change(changes, "benchmarks", info_payload.get("benchmarks"), None)
+                info_payload.pop("benchmarks", None)
+                info_changed = True
+        else:
+            bench_dump = payload.benchmarks.model_dump()
+            bench_dump["updated_at"] = datetime.now().strftime("%Y-%m-%d")
+            bench_dump["channels"] = sorted(bench_dump.get("channels") or [], key=lambda it: (it.get("handle") or ""))
+            bench_dump["script_samples"] = sorted(
+                bench_dump.get("script_samples") or [],
+                key=lambda it: (it.get("base") or "", it.get("path") or ""),
+            )
+            current_bench = info_payload.get("benchmarks")
+            if bench_dump != current_bench:
+                _record_change(changes, "benchmarks", current_bench, bench_dump)
+                info_payload["benchmarks"] = bench_dump
+                info_changed = True
 
     youtube_info = info_payload.setdefault("youtube", {})
     if payload.youtube_title is not None:
@@ -9397,16 +9560,44 @@ def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
     status = load_status(channel_code, video_number)
     ensure_expected_updated_at(status, payload.expected_updated_at)
     base_dir = video_base_dir(channel_code, video_number)
-    path = base_dir / "content" / "assembled.md"
-    if path.parent.name != "content":
+    content_dir = base_dir / "content"
+    assembled = content_dir / "assembled.md"
+    assembled_human = content_dir / "assembled_human.md"
+    if assembled.parent.name != "content":
         raise HTTPException(status_code=400, detail="invalid assembled path")
-    write_text_with_lock(path, payload.content)
+    if assembled_human.parent.name != "content":
+        raise HTTPException(status_code=400, detail="invalid assembled_human path")
+
+    # If assembled_human exists, treat it as authoritative; always keep assembled.md mirrored.
+    target = assembled_human if assembled_human.exists() else assembled
+    write_text_with_lock(target, payload.content)
+    if target != assembled:
+        write_text_with_lock(assembled, payload.content)
     timestamp = current_timestamp()
     status["updated_at"] = timestamp
     # 台本リテイクは保存成功時に自動解除（ベストエフォート）
     meta = status.get("metadata") or {}
     meta["redo_script"] = False
+    # Any A-text edit implies audio redo; previous audio review becomes stale.
+    meta["redo_audio"] = True
+    meta["audio_reviewed"] = False
     status["metadata"] = meta
+    # Force re-validation to prevent downstream using stale script_validation.
+    stages = status.get("stages")
+    if not isinstance(stages, dict):
+        stages = {}
+        status["stages"] = stages
+    sv = stages.get("script_validation")
+    if not isinstance(sv, dict):
+        sv = {"status": "pending", "details": {}}
+        stages["script_validation"] = sv
+    sv["status"] = "pending"
+    details = sv.get("details")
+    if not isinstance(details, dict):
+        details = {}
+    for key in ("error", "error_codes", "issues", "fix_hints", "llm_quality_gate"):
+        details.pop(key, None)
+    sv["details"] = details
     save_status(channel_code, video_number, status)
     return {"status": "ok", "updated_at": timestamp}
 
@@ -9464,12 +9655,20 @@ def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateReq
     audio_prep_dir = base_dir / "audio_prep"
 
     timestamp = current_timestamp()
+    touched_a_text = False
+    touched_b_text = False
 
     if payload.assembled_human is not None:
         target = content_dir / "assembled_human.md"
         if target.parent.name != "content":
             raise HTTPException(status_code=400, detail="invalid assembled_human path")
         write_text_with_lock(target, payload.assembled_human)
+        # Keep the canonical A-text mirrors consistent (SSOT: assembled_human.md is authoritative).
+        mirror = content_dir / "assembled.md"
+        if mirror.parent.name != "content":
+            raise HTTPException(status_code=400, detail="invalid assembled mirror path")
+        write_text_with_lock(mirror, payload.assembled_human)
+        touched_a_text = True
     if payload.script_audio_human is not None:
         target = content_dir / "script_audio_human.txt"
         if target.parent.name != "content":
@@ -9477,9 +9676,41 @@ def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateReq
         write_text_with_lock(target, payload.script_audio_human)
         audio_prep_dir.mkdir(parents=True, exist_ok=True)
         write_text_with_lock(audio_prep_dir / "b_text_with_pauses.txt", payload.script_audio_human)
+        touched_b_text = True
     if payload.audio_reviewed is not None:
         metadata = status.setdefault("metadata", {})
         metadata["audio_reviewed"] = bool(payload.audio_reviewed)
+
+    # If the human-edited script changes, downstream must be revalidated/regenerated.
+    if touched_a_text or touched_b_text:
+        meta = status.setdefault("metadata", {})
+        if touched_a_text:
+            # Script has been edited by a human; treat script redo as completed.
+            meta["redo_script"] = False
+            # Any script edit implies audio redo.
+            meta["redo_audio"] = True
+            meta["audio_reviewed"] = False
+            # Force re-validation for safety (prevents TTS using stale script_validation).
+            stages = status.get("stages")
+            if not isinstance(stages, dict):
+                stages = {}
+                status["stages"] = stages
+            sv = stages.get("script_validation")
+            if not isinstance(sv, dict):
+                sv = {"status": "pending", "details": {}}
+                stages["script_validation"] = sv
+            sv["status"] = "pending"
+            details = sv.get("details")
+            if not isinstance(details, dict):
+                details = {}
+            for key in ("error", "error_codes", "issues", "fix_hints", "llm_quality_gate"):
+                details.pop(key, None)
+            sv["details"] = details
+        else:
+            # B-text edit still requires audio redo.
+            meta["redo_audio"] = True
+            meta["audio_reviewed"] = False
+        status["metadata"] = meta
 
     status["updated_at"] = timestamp
     save_status(channel_code, video_number, status)

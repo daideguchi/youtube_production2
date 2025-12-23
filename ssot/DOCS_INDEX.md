@@ -18,6 +18,7 @@
 
 ## 2. 運用マニュアル / OPS
 - `OPS_CHANNEL_LAUNCH_MANUAL.md`: チャンネル立ち上げ・企画CSV整備・運用手順。
+- `OPS_CHANNEL_BENCHMARKS.md`: チャンネル別ベンチマーク（競合/台本サンプル/勝ちパターン）管理の正本。
 - `OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
 - `OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。

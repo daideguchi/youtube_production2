@@ -305,6 +305,9 @@ def create_channel_scaffold(
     name: str,
     youtube_handle: str,
     description: Optional[str],
+    youtube_description: Optional[str] = None,
+    default_tags: Optional[List[str]] = None,
+    benchmarks: Optional[Dict[str, Any]] = None,
     chapter_count: Optional[int],
     target_chars_min: Optional[int],
     target_chars_max: Optional[int],
@@ -421,6 +424,22 @@ def create_channel_scaffold(
         },
         "script_prompt": prompt_body.strip(),
     }
+    yt_desc = (youtube_description or "").strip()
+    if yt_desc:
+        payload["youtube_description"] = yt_desc
+    cleaned_tags = [str(tag).strip() for tag in (default_tags or [])]
+    cleaned_tags = [tag for tag in cleaned_tags if tag]
+    if cleaned_tags:
+        uniq: List[str] = []
+        seen = set()
+        for tag in cleaned_tags:
+            if tag in seen:
+                continue
+            seen.add(tag)
+            uniq.append(tag)
+        payload["default_tags"] = uniq
+    if benchmarks:
+        payload["benchmarks"] = dict(benchmarks)
     channel_dir.mkdir(parents=True, exist_ok=True)
     _write_json(channel_info, payload, overwrite=overwrite)
 
@@ -458,6 +477,13 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     create.add_argument("--name", required=True, help="Internal channel display name (dir suffix).")
     create.add_argument("--youtube-handle", required=True, help="YouTube handle (e.g., @buddha-a001).")
     create.add_argument("--description", default=None, help="Optional channel description.")
+    create.add_argument("--youtube-description", default=None, help="Optional YouTube description / posting template.")
+    create.add_argument(
+        "--default-tags",
+        default=None,
+        help="Optional default tags (comma-separated, e.g. '仏教,ブッダ,不安').",
+    )
+    create.add_argument("--benchmarks-json", default=None, help="Optional benchmarks JSON file path.")
     create.add_argument("--chapter-count", type=int, default=None, help="Optional chapter_count (sources.yaml).")
     create.add_argument("--target-chars-min", type=int, default=None, help="Optional target_chars_min (sources.yaml).")
     create.add_argument("--target-chars-max", type=int, default=None, help="Optional target_chars_max (sources.yaml).")
@@ -469,12 +495,24 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 def main(argv: Optional[List[str]] = None) -> None:
     args = _parse_args(argv)
     if args.command == "create":
+        default_tags: Optional[List[str]] = None
+        if args.default_tags:
+            default_tags = [tag.strip() for tag in str(args.default_tags).split(",") if tag.strip()]
+        benchmarks: Optional[Dict[str, Any]] = None
+        if args.benchmarks_json:
+            try:
+                benchmarks = json.loads(Path(args.benchmarks_json).read_text(encoding="utf-8"))
+            except Exception as exc:
+                raise SystemExit(f"invalid benchmarks json: {exc}") from exc
         try:
             result = create_channel_scaffold(
                 channel=args.channel,
                 name=args.name,
                 youtube_handle=args.youtube_handle,
                 description=args.description,
+                youtube_description=args.youtube_description,
+                default_tags=default_tags,
+                benchmarks=benchmarks,
                 chapter_count=args.chapter_count,
                 target_chars_min=args.target_chars_min,
                 target_chars_max=args.target_chars_max,

@@ -4,6 +4,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 
 ## 0. 前提とゴール
 - SoT: `workspaces/planning/channels/CHxx.csv`（企画・進捗。互換: `progress/channels/...`）、`workspaces/planning/personas/CHxx_PERSONA.md`（チャンネルの固定文脈。互換: `progress/personas/...`）。
+- ベンチマークSoT: `packages/script_pipeline/channels/CHxx-*/channel_info.json` の `benchmarks`（schema: `ssot/OPS_CHANNEL_BENCHMARKS.md`）
 - ゴール: 上記 2 ファイルが更新され、`進捗` が `topic_research: pending` の 30 本が連番で並び、ペルソナ/禁止事項/トーンが最新化されていること。
 - 成果物チェック: UI `/progress` で列ズレ/表示を spot check し、必要なら `python3 scripts/api_health_check.py --all-channels` で planning の読み込みを確認する（旧 verify コマンドは廃止）。
 
@@ -26,12 +27,14 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
    - `更新日時` は `YYYY-MM-DD hh:mm:ss`（UTC でなくローカル時刻に揃える運用）
    - `workspaces/planning/templates/CHxx_planning_template.csv` がある場合は 1 行目ヘッダー + 2 行目サンプルをコピーし `{NEXT_NO}` 等を置換（互換: `progress/templates/...`）
 3. キャッシュ/検証コマンドが成功し、UI で行が読める
+4. `packages/script_pipeline/channels/CHxx-*/channel_info.json` の `benchmarks` が埋まっている（`ssot/OPS_CHANNEL_BENCHMARKS.md` の最小要件を満たす）
 
 ## 3. 作業ステップ（エージェント向け）
 ### Step A. ベンチマーク簡易調査
 - 与えられた参照 URL / チャンネル名からトップ動画 5〜10 本のタイトル構造と尺、サムネ構図を抜き出す。
 - 抜き出した特徴を 3 つの「勝ちパターン」に凝縮（例: “夜の静かな語り口 + 勇気づけ 1 文”）。
 - ここで得たキーワードと NG 項目を `CHxx_PERSONA.md` のガイドセクションに追加。
+- **併せて** `channel_info.json` の `benchmarks` に「競合チャンネル / 台本サンプル / 総評」を記録する（SoT: `ssot/OPS_CHANNEL_BENCHMARKS.md`）。
 
 ### Step B. ペルソナ/ガイド更新
 - 既存の `workspaces/planning/personas/CHxx_PERSONA.md` があれば追記、なければ CH01 形式で新規作成（互換: `progress/personas/...`）。
