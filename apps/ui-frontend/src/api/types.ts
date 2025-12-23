@@ -554,6 +554,10 @@ export interface ChannelAuditItemResponse {
   default_tags_count: number;
   benchmark_channels_count: number;
   benchmark_script_samples_count: number;
+  planning_rows: number;
+  planning_csv_exists: boolean;
+  persona_exists: boolean;
+  script_prompt_exists: boolean;
   issues: string[];
 }
 

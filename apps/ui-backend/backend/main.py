@@ -6175,9 +6175,9 @@ def audit_channels():
         if not base or not rel:
             return None
         if base == "research":
-            return (REPO_ROOT / "workspaces" / "research" / rel).resolve()
+            return (ssot_research_root() / rel).resolve()
         if base == "scripts":
-            return (REPO_ROOT / "workspaces" / "scripts" / rel).resolve()
+            return (ssot_script_data_root() / rel).resolve()
         return None
 
     for channel_dir in list_channel_dirs():
@@ -6237,6 +6237,30 @@ def audit_channels():
         if bench_samples_count == 0:
             issues.append("missing_benchmark_script_samples")
 
+        planning_csv_path = CHANNEL_PLANNING_DIR / f"{code}.csv"
+        planning_csv_exists = planning_csv_path.exists()
+        planning_rows = 0
+        if planning_csv_exists:
+            try:
+                with planning_csv_path.open("r", encoding="utf-8", newline="") as handle:
+                    reader = csv.reader(handle)
+                    next(reader, None)
+                    planning_rows = sum(1 for _ in reader)
+            except Exception:
+                planning_rows = 0
+        if not planning_csv_exists:
+            issues.append("missing_planning_csv")
+        elif planning_rows < 30:
+            issues.append(f"planning_rows_lt_30:{planning_rows}")
+
+        persona_exists = ssot_persona_path(code).exists()
+        if not persona_exists:
+            issues.append("missing_persona_doc")
+
+        script_prompt_exists = (channel_dir / "script_prompt.txt").exists()
+        if not script_prompt_exists:
+            issues.append("missing_script_prompt")
+
         if isinstance(bench_samples, list):
             for sample in bench_samples:
                 if not isinstance(sample, dict):
@@ -6261,6 +6285,10 @@ def audit_channels():
                 default_tags_count=default_tags_count,
                 benchmark_channels_count=bench_channels_count,
                 benchmark_script_samples_count=bench_samples_count,
+                planning_rows=planning_rows,
+                planning_csv_exists=planning_csv_exists,
+                persona_exists=persona_exists,
+                script_prompt_exists=script_prompt_exists,
                 issues=issues,
             )
         )

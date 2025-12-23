@@ -94,6 +94,43 @@ interface VideoDetailPanelProps {
   mode?: DetailMode;
 }
 
+function stripPauseSeparators(raw: string): string {
+  const normalized = (raw ?? "").replace(/\r\n?/g, "\n");
+  const filtered = normalized
+    .split("\n")
+    .filter((line) => line.trim() !== "---")
+    .join("\n");
+  return filtered.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (_error) {
+      // Fall back below (some browsers expose navigator.clipboard but deny access)
+    }
+  }
+  if (typeof document === "undefined") {
+    throw new Error("clipboard is not available");
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const ok = document.execCommand("copy");
+  document.body.removeChild(textarea);
+  if (!ok) {
+    throw new Error("copy failed");
+  }
+}
+
 export function VideoDetailPanel({
   detail,
   onSaveAssembled: _onSaveAssembled,
@@ -175,6 +212,9 @@ const [llmEditorContent, setLlmEditorContent] = useState<string>("");
   const [ttsValidationError, setTtsValidationError] = useState<string | null>(null);
   const [ttsValidating, setTtsValidating] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error" | "unsupported">("idle");
+  const [copyAssembledNoSepStatus, setCopyAssembledNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyTtsNoSepStatus, setCopyTtsNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyATextNoSepStatus, setCopyATextNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
 const [aiInstruction, setAiInstruction] = useState(DEFAULT_AI_CHECK_INSTRUCTION);
 const [aiBusy, setAiBusy] = useState(false);
 const [aiResult, setAiResult] = useState<string | null>(null);
@@ -337,6 +377,30 @@ useEffect(() => {
   }, [copyStatus]);
 
   useEffect(() => {
+    if (copyAssembledNoSepStatus === "idle") {
+      return;
+    }
+    const timer = window.setTimeout(() => setCopyAssembledNoSepStatus("idle"), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copyAssembledNoSepStatus]);
+
+  useEffect(() => {
+    if (copyTtsNoSepStatus === "idle") {
+      return;
+    }
+    const timer = window.setTimeout(() => setCopyTtsNoSepStatus("idle"), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copyTtsNoSepStatus]);
+
+  useEffect(() => {
+    if (copyATextNoSepStatus === "idle") {
+      return;
+    }
+    const timer = window.setTimeout(() => setCopyATextNoSepStatus("idle"), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copyATextNoSepStatus]);
+
+  useEffect(() => {
     if (aiCopyStatus === "idle") {
       return;
     }
@@ -410,6 +474,9 @@ useEffect(() => {
     setAiResult(null);
     setAiError(null);
     setCopyStatus("idle");
+    setCopyAssembledNoSepStatus("idle");
+    setCopyTtsNoSepStatus("idle");
+    setCopyATextNoSepStatus("idle");
     setAiCopyStatus("idle");
     setAudioScriptUpdatedAt(detail.audio_updated_at ?? null);
     setAudioScriptError(null);
@@ -461,6 +528,51 @@ useEffect(() => {
       setCopyStatus("error");
     }
   }, [ttsDraft]);
+
+  const handleCopyAssembledWithoutSeparators = useCallback(async () => {
+    const cleaned = stripPauseSeparators(assembledDraft);
+    if (!cleaned) {
+      setCopyAssembledNoSepStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(cleaned);
+      setCopyAssembledNoSepStatus("copied");
+    } catch (copyError) {
+      console.error("Failed to copy A text", copyError);
+      setCopyAssembledNoSepStatus("error");
+    }
+  }, [assembledDraft]);
+
+  const handleCopyTtsWithoutSeparators = useCallback(async () => {
+    const cleaned = stripPauseSeparators(ttsDraft);
+    if (!cleaned) {
+      setCopyTtsNoSepStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(cleaned);
+      setCopyTtsNoSepStatus("copied");
+    } catch (copyError) {
+      console.error("Failed to copy B text", copyError);
+      setCopyTtsNoSepStatus("error");
+    }
+  }, [ttsDraft]);
+
+  const handleCopyATextModalWithoutSeparators = useCallback(async () => {
+    const cleaned = stripPauseSeparators(aTextModalContent);
+    if (!cleaned) {
+      setCopyATextNoSepStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(cleaned);
+      setCopyATextNoSepStatus("copied");
+    } catch (copyError) {
+      console.error("Failed to copy modal A text", copyError);
+      setCopyATextNoSepStatus("error");
+    }
+  }, [aTextModalContent]);
 
   const handleCopyAiResult = useCallback(async () => {
     if (!aiResult) {
@@ -1431,6 +1543,22 @@ useEffect(() => {
                       <button
                         type="button"
                         className="workspace-button workspace-button--ghost workspace-button--sm"
+                        onClick={() => void handleCopyAssembledWithoutSeparators()}
+                        disabled={busyAction !== null || !assembledDraft.trim()}
+                        title="区切り線（---）を除去してコピー"
+                      >
+                        ---なしでコピー
+                      </button>
+                      <span className="muted small-text">
+                        {copyAssembledNoSepStatus === "copied"
+                          ? "コピーしました"
+                          : copyAssembledNoSepStatus === "error"
+                            ? "コピーに失敗しました"
+                            : ""}
+                      </span>
+                      <button
+                        type="button"
+                        className="workspace-button workspace-button--ghost workspace-button--sm"
                         onClick={() => {
                           setAssembledDraft(assembledAiContent);
                           setMessage("AI版を人間編集版へコピーしました。");
@@ -1461,6 +1589,22 @@ useEffect(() => {
                     <div className="script-editor__meta" aria-live="polite">
                       <span className="script-editor__counter">
                         文字数: {ttsDraft.replace(/\r/g, "").replace(/\n/g, "").length.toLocaleString("ja-JP")}
+                      </span>
+                      <button
+                        type="button"
+                        className="workspace-button workspace-button--ghost workspace-button--sm"
+                        onClick={() => void handleCopyTtsWithoutSeparators()}
+                        disabled={busyAction !== null || !ttsDraft.trim()}
+                        title="区切り線（---）を除去してコピー"
+                      >
+                        ---なしでコピー
+                      </button>
+                      <span className="muted small-text">
+                        {copyTtsNoSepStatus === "copied"
+                          ? "コピーしました"
+                          : copyTtsNoSepStatus === "error"
+                            ? "コピーに失敗しました"
+                            : ""}
                       </span>
                       <button
                         type="button"
@@ -1736,9 +1880,22 @@ useEffect(() => {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <header className="modal__header">
               <h3>Aテキスト</h3>
-              <button className="workspace-button workspace-button--ghost" onClick={() => setATextModalOpen(false)}>
-                閉じる
-              </button>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  className="workspace-button workspace-button--ghost"
+                  onClick={() => void handleCopyATextModalWithoutSeparators()}
+                  disabled={!aTextModalContent.trim()}
+                  title="区切り線（---）を除去してコピー"
+                >
+                  ---なしでコピー
+                </button>
+                <span className="muted small-text">
+                  {copyATextNoSepStatus === "copied" ? "コピーしました" : copyATextNoSepStatus === "error" ? "失敗" : ""}
+                </span>
+                <button className="workspace-button workspace-button--ghost" onClick={() => setATextModalOpen(false)}>
+                  閉じる
+                </button>
+              </div>
             </header>
             <div className="modal__body" style={{ maxHeight: "60vh", overflow: "auto" }}>
               {aTextModalLoading ? <p>読み込み中…</p> : null}
