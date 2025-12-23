@@ -39,10 +39,9 @@
 
 - **NG**: 意味変更（台本コアとズレる断言・別テーマ化）
 - **OK**: 語尾/言い回しの強化、短文化、順番入替、具体化（数字/だけ/今日で終わり）
-- 迷ったら: `ssot/OPS_SEMANTIC_ALIGNMENT.md` の「意味整合」基準を優先
+- 迷ったら: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md` の「意味整合」基準を優先
 
 ## 4) Canva運用メモ
 
 - CSV列（推奨）: `page_name, thumb_upper, thumb_title, thumb_lower`
 - 3段の役割は固定して、**テンプレ側（Canvaデザイン）で見た目を完全固定**する。
-

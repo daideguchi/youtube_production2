@@ -8,8 +8,8 @@ workspaces/scripts 配下の中間生成物と古いログをクリーンアッ�
 - `audio_prep/` は final 音声が揃っている動画のみ削除対象にする（誤って未完了の入力を消さない）
 
 SSOT:
-- `ssot/OPS_LOGGING_MAP.md`
-- `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+- `ssot/ops/OPS_LOGGING_MAP.md`
+- `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
 """
 
 from __future__ import annotations

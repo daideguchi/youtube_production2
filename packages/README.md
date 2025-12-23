@@ -1,6 +1,6 @@
 # packages/
 
-このディレクトリは「Python パッケージ群」を集約する Target 構成（`ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`）のための置き場です。
+このディレクトリは「Python パッケージ群」を集約する Target 構成（`ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`）のための置き場です。
 
 現時点では段階移行中で、**一部は実体化済み**、残りは互換 symlink のままです。
 

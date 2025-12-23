@@ -5,11 +5,11 @@
 - 高品質の再現性を上げつつ、無駄なリトライとコストを減らす
 
 正本（必ずここを見る）:
-- 全チャンネル共通Aテキストルール: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
-- LLM品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`
-- 構成パターン（骨格固定）: `ssot/OPS_SCRIPT_PATTERNS.yaml`
-- 大量生産アーキテクチャ: `ssot/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
-- 入口索引: `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- 全チャンネル共通Aテキストルール: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
+- LLM品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
+- 構成パターン（骨格固定）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
+- 大量生産アーキテクチャ: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
+- 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
 
 運用の結論（最短で収束させる）:
 1) まず「SSOTパターンで骨格と分量」を固定する（自由に書かせない）

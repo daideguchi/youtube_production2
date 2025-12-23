@@ -1,8 +1,8 @@
 script_globals:
   # 全チャンネル共通の読み台本（Aテキスト）品質ルール（SSOT）
-  a_text_rules: ssot/OPS_A_TEXT_GLOBAL_RULES.md
+  a_text_rules: ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md
   # 台本の骨格（構成パターン/字数配分）の正本
-  a_text_patterns: ssot/OPS_SCRIPT_PATTERNS.yaml
+  a_text_patterns: ssot/ops/OPS_SCRIPT_PATTERNS.yaml
   # TTS事故を避けるための目安（記号数。`「`+`」` の合計 / `（`+`）`+`(`+`)` の合計）
   a_text_quote_marks_max: 20
   a_text_paren_marks_max: 10

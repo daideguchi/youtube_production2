@@ -234,7 +234,7 @@ class LLMClient:
   - ✅ ImageClient フェイルオーバー実装。commentary 画像経路の legacy router を削除し、ImageClient のみを再試行。
   - ✅ 画像生成ルートは単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）。検証時は `--nanobanana none` を利用。
   - ✅ Gemini image で aspect_ratio を送らない（capabilities supports_aspect_ratio=false）ことで Unknown field エラーを解消。
-  - ✅ StyleResolver は `ssot/master_styles.json` が無ければ `config/master_styles.json` をフォールバックする。
+  - ✅ StyleResolver は `ssot/ops/master_styles.json` が無ければ `config/master_styles.json` をフォールバックする。
   - ✅ abort-on-log オプションを factory/auto_capcut に追加（パターン検知で早期停止、デフォルトは無効）。
   - 推奨 abort-on-log パターン例: `"Unknown field,quota,RESOURCE_EXHAUSTED"`（Gemini画像生成やAPIエラーの早期停止用）。
   - Timeout: デフォルト無指定（無制限）。必要時のみ `--timeout-ms` を指定し、abort-on-log と併用でハング/エラーを安全に止める。

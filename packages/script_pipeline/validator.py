@@ -63,7 +63,7 @@ def _a_text_char_count(text: str) -> int:
 
 def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
-    Validate A-text against SSOT global rules (see ssot/OPS_A_TEXT_GLOBAL_RULES.md).
+    Validate A-text against SSOT global rules (see ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md).
     Returns (issues, stats).
     """
     normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")

@@ -12,9 +12,9 @@ cleanup_broken_symlinks — 壊れたsymlinkを安全に削除して探索ノイ
 - coordination locks を尊重（lock対象は skip）
 
 SSOT:
-- `ssot/OPS_IO_SCHEMAS.md`
-- `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
-- `ssot/OPS_LOGGING_MAP.md`
+- `ssot/ops/OPS_IO_SCHEMAS.md`
+- `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+- `ssot/ops/OPS_LOGGING_MAP.md`
 """
 
 from __future__ import annotations

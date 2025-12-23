@@ -14,8 +14,8 @@ prune_video_run_legacy_files — workspaces/video/runs 内の `*.legacy.*` 残�
 - `--run` 時は任意で archive-first（tar.gz）を作成してから削除する。
 
 SSOT:
-- ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md
-- ssot/OPS_LOGGING_MAP.md
+- ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md
+- ssot/ops/OPS_LOGGING_MAP.md
 """
 
 from __future__ import annotations

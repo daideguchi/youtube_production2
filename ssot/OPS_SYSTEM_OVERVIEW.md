@@ -5,17 +5,17 @@
 - リファクタリング/ゴミ判定/運用変更の前に、**全員が同じ前提**を参照できる状態にする。
 
 前提:
-- 詳細な確定フロー（観測ベースの正本）は `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`。
+- 詳細な確定フロー（観測ベースの正本）は `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`。
 - 本書は **全体像のSSOT**（overview）。ドメイン個別の細部はリンク先のSSOTを正とする。
 
 最重要リンク（迷ったらここから）
 - 入口: `START_HERE.md`
-- 確定フロー/I-O/SoT: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
-- 実行入口（CLI/UI）: `ssot/OPS_ENTRYPOINTS_INDEX.md`
-- ディレクトリ正本: `ssot/OPS_REPO_DIRECTORY_SSOT.md`
-- ログ正本: `ssot/OPS_LOGGING_MAP.md`
-- 生成物の保持/削除: `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
-- 低知能エージェント運用（lock/SSOT/削除/パッチ）: `ssot/OPS_AGENT_PLAYBOOK.md`（repo全体ルールは `AGENTS.md`）
+- 確定フロー/I-O/SoT: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- 実行入口（CLI/UI）: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- ディレクトリ正本: `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md`
+- ログ正本: `ssot/ops/OPS_LOGGING_MAP.md`
+- 生成物の保持/削除: `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
+- 低知能エージェント運用（lock/SSOT/削除/パッチ）: `ssot/ops/OPS_AGENT_PLAYBOOK.md`（repo全体ルールは `AGENTS.md`）
 
 ---
 
@@ -63,7 +63,7 @@
 
 ## 2) 確定E2Eフロー（何がどう流れるか）
 
-> 詳細は `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md` を正とし、本節は「迷わないための最短説明」を提供する。
+> 詳細は `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` を正とし、本節は「迷わないための最短説明」を提供する。
 
 ### 2.1 Planning（企画）
 
@@ -75,7 +75,7 @@
 
 ### 2.2 Script（台本生成）
 
-- 正規入口: `python -m script_pipeline.cli ...`（詳細: `ssot/OPS_ENTRYPOINTS_INDEX.md`）
+- 正規入口: `python -m script_pipeline.cli ...`（詳細: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`）
 - ステージは概ね以下の順（SoTは `status.json`）:
   - `topic_research` → `script_outline` → `chapter_brief` → `script_draft` → `script_review` → `quality_check` → `script_validation`
 
@@ -95,7 +95,7 @@
 - `redo_audio=True` / `audio_reviewed=False` に戻す（音声は作り直し前提）
 - `script_validation` を `pending` に戻す（古いvalidationのまま音声に進む事故を防ぐ）
 
-詳細運用: `ssot/OPS_SCRIPT_GUIDE.md`
+詳細運用: `ssot/ops/OPS_SCRIPT_GUIDE.md`
 
 ### 2.4 Audio（TTS/SRT）
 
@@ -171,7 +171,7 @@ Runbook入口
 
 ログの正本
 - `workspaces/logs/`（`logs/` は互換symlink）
-- ログが「どこに溜まり、何が生成しているか」は `ssot/OPS_LOGGING_MAP.md` が正本
+- ログが「どこに溜まり、何が生成しているか」は `ssot/ops/OPS_LOGGING_MAP.md` が正本
 
 重要な方針（例）
 - L1（長期保持）: `llm_usage.jsonl`, `image_usage.log`, `tts_voicevox_reading.jsonl` など
@@ -183,8 +183,8 @@ Runbook入口
 - ログローテ: `python3 scripts/ops/cleanup_logs.py --run`
 
 削除の鉄則
-- **“確実ゴミ”のみ削除**（基準: `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`）
-- tracked削除は **archive-first**（`backups/graveyard/`）→ 削除 → `ssot/OPS_CLEANUP_EXECUTION_LOG.md` に証跡
+- **“確実ゴミ”のみ削除**（基準: `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`）
+- tracked削除は **archive-first**（`backups/graveyard/`）→ 削除 → `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` に証跡
 
 ---
 

@@ -19,7 +19,7 @@
 
 ## セグメント分割とポーズ（LLM必須＋機械ガード）
 - ポーズ挿入の区切り記号は `---` のみ（1行単独）。
-  - ルール正本: `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
+  - ルール正本: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
   - 実装: `tts/strict_segmenter.py`
 
 ## 推奨ワークフロー
@@ -35,6 +35,6 @@ PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
 ```
 
 ## 参照
-- `ssot/OPS_AUDIO_TTS_V2.md`
-- `ssot/OPS_A_TEXT_GLOBAL_RULES.md`
-- `ssot/OPS_ENTRYPOINTS_INDEX.md`
+- `ssot/ops/OPS_AUDIO_TTS_V2.md`
+- `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
+- `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`

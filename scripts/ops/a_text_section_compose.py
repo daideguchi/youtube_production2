@@ -119,7 +119,7 @@ def _load_patterns_doc() -> Dict[str, Any]:
         if doc:
             return doc
     # fallback
-    return _load_yaml(repo_root() / "ssot" / "OPS_SCRIPT_PATTERNS.yaml")
+    return _load_yaml(repo_root() / "ssot" / "ops" / "OPS_SCRIPT_PATTERNS.yaml")
 
 
 def _pattern_channel_applies(channels: Any, channel: str) -> bool:

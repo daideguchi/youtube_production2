@@ -21,7 +21,7 @@ REQUIRED_KEYS = [
 
 WARNING_KEYS = {
     "GEMINI_API_KEY": "Gemini API key is managed via test.dd.1107.11107@gmail.com.",
-    "UI_SESSION_TOKEN": "UI session token should match ssot/OPS_ENV_VARS.md guidance.",
+    "UI_SESSION_TOKEN": "UI session token should match ssot/ops/OPS_ENV_VARS.md guidance.",
 }
 
 # Optional provider keys:

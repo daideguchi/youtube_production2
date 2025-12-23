@@ -5,7 +5,7 @@ Goal:
 - Replace API LLM calls with an "enqueue → complete → rerun" workflow.
 - Keep the switch opt-in via env vars (default remains API).
 
-Key env vars (SSOT: ssot/OPS_ENV_VARS.md):
+Key env vars (SSOT: ssot/ops/OPS_ENV_VARS.md):
 - LLM_MODE=api|agent|think  (think is an alias of agent, with safe defaults)
 - LLM_AGENT_QUEUE_DIR=/abs/or/relative/path (default: logs/agent_tasks)
 - LLM_AGENT_NAME=Mike (optional; used for claimed_by/completed_by metadata)

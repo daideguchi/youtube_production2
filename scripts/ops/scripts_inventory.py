@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Generate `ssot/OPS_SCRIPTS_INVENTORY.md`.
+Generate `ssot/ops/OPS_SCRIPTS_INVENTORY.md`.
 
 This is a safety tool for multi-agent operation:
   - lists every file under `scripts/**`
-  - classifies P0/P1/P2/P3 from `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`
+  - classifies P0/P1/P2/P3 from `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`
   - shows references (apps/packages/ui/ssot/README/other) excluding the inventory itself
 
 Usage:
@@ -52,7 +52,7 @@ def _collect_scripts(repo_root: Path) -> list[str]:
 
 
 def _parse_ssot_classification(repo_root: Path) -> tuple[set[str], set[str], set[str]]:
-    cls_path = repo_root / "ssot" / "OPS_SCRIPTS_PHASE_CLASSIFICATION.md"
+    cls_path = repo_root / "ssot" / "ops" / "OPS_SCRIPTS_PHASE_CLASSIFICATION.md"
     text = cls_path.read_text(encoding="utf-8")
     section: str | None = None
     p0: set[str] = set()
@@ -102,7 +102,7 @@ def _rg_lines(*, repo_root: Path, pattern: str) -> list[str]:
         "--glob",
         "!scripts/_adhoc/**",
         "--glob",
-        "!ssot/OPS_SCRIPTS_INVENTORY.md",
+        "!ssot/ops/OPS_SCRIPTS_INVENTORY.md",
         "-e",
         pattern,
         ".",
@@ -233,7 +233,7 @@ def _render_markdown(
         "- ゴミ判定ミス（例: `run_srt2images.sh` のような間接呼び出し）を防ぐため、ref（参照元）も併記する。",
         "",
     ]
-    lines += ["正本:", "- フロー: `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`", "- 入口/方針: `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`", ""]
+    lines += ["正本:", "- フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`", "- 入口/方針: `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`", ""]
     lines += [
         "凡例:",
         "- `P0`: 正規入口（主線・まず叩く）",
@@ -282,8 +282,8 @@ def _render_markdown(
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Generate ssot/OPS_SCRIPTS_INVENTORY.md (scripts inventory).")
-    ap.add_argument("--write", action="store_true", help="Write to ssot/OPS_SCRIPTS_INVENTORY.md")
+    ap = argparse.ArgumentParser(description="Generate ssot/ops/OPS_SCRIPTS_INVENTORY.md (scripts inventory).")
+    ap.add_argument("--write", action="store_true", help="Write to ssot/ops/OPS_SCRIPTS_INVENTORY.md")
     ap.add_argument("--stdout", action="store_true", help="Print markdown to stdout")
     args = ap.parse_args()
 
@@ -294,7 +294,7 @@ def main() -> int:
     refs = _collect_refs(repo_root, scripts)
     md = _render_markdown(scripts=scripts, p0=p0, p1=p1, p2=p2, refs=refs)
 
-    out_path = repo_root / "ssot" / "OPS_SCRIPTS_INVENTORY.md"
+    out_path = repo_root / "ssot" / "ops" / "OPS_SCRIPTS_INVENTORY.md"
     if args.write:
         out_path.write_text(md, encoding="utf-8")
     if args.stdout or not args.write:

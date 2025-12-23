@@ -12,8 +12,8 @@ Why:
   but they easily mislead humans/agents and re-introduce canned openers.
 
 SSOT:
-- ssot/OPS_SCRIPT_INPUT_CONTRACT.md (L1/L2/L3)
-- ssot/OPS_PLANNING_CSV_WORKFLOW.md
+- ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md (L1/L2/L3)
+- ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md
 
 Usage:
   python scripts/ops/planning_sanitize.py --channel CH07 --apply --write-latest

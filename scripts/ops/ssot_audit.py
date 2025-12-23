@@ -72,7 +72,7 @@ def _is_ssot_local_reference(rel: str) -> bool:
         return False
     if _looks_like_pattern(rel):
         return False
-    if rel.startswith(("history/", "handoffs/", "agent_runbooks/", "completed/")):
+    if rel.startswith(("history/", "handoffs/", "agent_runbooks/", "completed/", "ops/", "plans/", "reference/")):
         return True
     return "/" not in rel
 
@@ -113,17 +113,37 @@ def main() -> int:
 
     ssot_files = _existing_ssot_files()
     docs_index = _index_paths_from_markdown(SSOT_ROOT / "DOCS_INDEX.md")
-    plan_status = _index_paths_from_markdown(SSOT_ROOT / "PLAN_STATUS.md")
+    plan_status = _index_paths_from_markdown(SSOT_ROOT / "plans" / "PLAN_STATUS.md")
 
-    # Required: all top-level .md (excluding the index itself) should appear in DOCS_INDEX.
-    required_top_level_md = {p.name for p in SSOT_ROOT.glob("*.md") if p.is_file() and p.name != "DOCS_INDEX.md"}
-    docs_index_missing_top_level = sorted(required_top_level_md - docs_index)
+    # Required: SSOT root docs + ops/plans/reference should appear in DOCS_INDEX.
+    required_root_md = {p.name for p in SSOT_ROOT.glob("*.md") if p.is_file() and p.name != "DOCS_INDEX.md"}
+    required_ops = {
+        p.relative_to(SSOT_ROOT).as_posix()
+        for p in (SSOT_ROOT / "ops").glob("*")
+        if p.is_file() and p.suffix in (".md", ".json", ".yaml", ".yml", ".txt")
+    }
+    required_plans = {
+        p.relative_to(SSOT_ROOT).as_posix()
+        for p in (SSOT_ROOT / "plans").glob("*.md")
+        if p.is_file()
+    }
+    required_reference = {
+        p.relative_to(SSOT_ROOT).as_posix()
+        for p in (SSOT_ROOT / "reference").glob("*.md")
+        if p.is_file()
+    }
+    required_docs_index = required_root_md | required_ops | required_plans | required_reference
+    docs_index_missing_top_level = sorted(required_docs_index - docs_index)
     docs_index_missing_completed = sorted(_subset(ssot_files, prefix="completed") - docs_index) if args.strict else []
 
     docs_index_listed_missing_files = sorted([p for p in docs_index if p not in ssot_files])
 
-    # Plans: top-level PLAN_*.md should be listed in PLAN_STATUS.
-    plan_files_root = {p.name for p in SSOT_ROOT.glob("PLAN_*.md") if p.is_file() and p.name != "PLAN_STATUS.md"}
+    # Plans: plans/PLAN_*.md should be listed in plans/PLAN_STATUS.md.
+    plan_files_root = {
+        p.relative_to(SSOT_ROOT).as_posix()
+        for p in (SSOT_ROOT / "plans").glob("PLAN_*.md")
+        if p.is_file() and p.name != "PLAN_STATUS.md"
+    }
     plan_status_missing = sorted(plan_files_root - plan_status)
     plan_status_listed_missing_files = sorted([p for p in plan_status if p not in ssot_files])
 
@@ -139,7 +159,7 @@ def main() -> int:
         "ssot_files_total": len(ssot_files),
         "docs_index_listed": len(docs_index),
         "plan_status_listed": len(plan_status),
-        "top_level_md_total": len(required_top_level_md),
+        "top_level_md_total": len(required_docs_index),
         "plan_root_total": len(plan_files_root),
         "problems_total": sum(len(v) for v in problems.values()),
     }

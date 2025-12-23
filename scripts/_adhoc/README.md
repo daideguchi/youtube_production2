@@ -8,7 +8,7 @@
 - 原則このディレクトリは `.gitignore` で除外（コミットしない）。
 - 1ファイルごとに必ずメタ情報を付ける（owner/created/expires）。
 - 期限が来たら削除する。必要になったら **正規入口（scripts/ または scripts/ops/）へ昇格**し、
-  `ssot/OPS_ENTRYPOINTS_INDEX.md` と `ssot/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` を更新する。
+  `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` と `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` を更新する。
 
 テンプレ:
 ```python

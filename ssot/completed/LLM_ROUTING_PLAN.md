@@ -2,7 +2,7 @@
 
 ## 1. 現状の実装サマリ
 
-- **集計ツール**: `python3 scripts/aggregate_llm_usage.py --log logs/llm_usage.jsonl --top 10` でモデル/タスク別件数や fallback_chain, 平均レイテンシを確認。詳細は `ssot/TOOLS_LLM_USAGE.md`。
+- **集計ツール**: `python3 scripts/aggregate_llm_usage.py --log logs/llm_usage.jsonl --top 10` でモデル/タスク別件数や fallback_chain, 平均レイテンシを確認。詳細は `ssot/ops/TOOLS_LLM_USAGE.md`。
 ### 1.1 設定ファイルの分布
 - **モデル仕様レジストリ**: `configs/llm_model_registry.yaml` に provider / endpoint / API バージョン / responses API 利用有無 / パラメータ許容フラグ（temperature, stop, reasoning）と default_max_completion_tokens を保持。Azure の gpt-5 系、OpenRouter の無料 Llama、Gemini 互換枠などが混在し、`fallback_model` もここで定義。【F:configs/llm_model_registry.yaml†L1-L79】
 - **タスク割り当て**: `configs/llm_registry.json` で research / review / script_* / image_generation など業務タスク→provider, model を一対一で紐付け。大半が Azure gpt-5-mini 固定で、thinkingLevel や max_output_tokens が一部タスクに直書きされている。【F:configs/llm_registry.json†L1-L96】

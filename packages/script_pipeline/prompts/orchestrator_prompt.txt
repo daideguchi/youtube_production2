@@ -3,11 +3,11 @@
 ---
 ■ 0) まず読む（SSOT）
 - `START_HERE.md`
-- `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`（確定フロー/SoT）
-- `ssot/OPS_ENTRYPOINTS_INDEX.md`（叩くべき入口）
-- `ssot/OPS_SCRIPT_GUIDE.md`（台本の入口/やり直し）
-- `ssot/OPS_AGENT_PLAYBOOK.md`（lock/memo/削除ルール）
-- `ssot/OPS_A_TEXT_GLOBAL_RULES.md` / `ssot/OPS_A_TEXT_LLM_QUALITY_GATE.md`（品質ゲートの正本）
+- `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`（確定フロー/SoT）
+- `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`（叩くべき入口）
+- `ssot/ops/OPS_SCRIPT_GUIDE.md`（台本の入口/やり直し）
+- `ssot/ops/OPS_AGENT_PLAYBOOK.md`（lock/memo/削除ルール）
+- `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md` / `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`（品質ゲートの正本）
 
 ---
 ■ 1) 進捗監視（確定コマンド）
@@ -59,7 +59,7 @@
 ■ 4) THINK/AGENT mode（API無し運用）
 - LLM が pending になったら、`workspaces/scripts/.../content/analysis/llm_artifacts/` 等に `status=pending` の artifact が生成される。
 - UI（Episode Studio）または `scripts/agent_runner.py` で埋めて `status=ready` にし、同じコマンドを再実行する。
-  - 入口は `ssot/OPS_ENTRYPOINTS_INDEX.md` の「Agent/THINK MODE」を正とする。
+  - 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` の「Agent/THINK MODE」を正とする。
 
 ---
 ■ 5) 申し送り（必須）
@@ -68,4 +68,4 @@
   python3 scripts/agent_org.py memo --to '*' --subject "script status CHxx-NNN" --body "<現状/次の一手/注意点>"
   ```
 
-このプロンプトの役割は「統括」です。実作業は lock を切って担当へ割り振り、勝手な削除/移動はしない（削除は `ssot/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` を正とする）。
+このプロンプトの役割は「統括」です。実作業は lock を切って担当へ割り振り、勝手な削除/移動はしない（削除は `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` を正とする）。

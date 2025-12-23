@@ -4,7 +4,7 @@
 `logs/` は互換 symlink で、実体は `workspaces/logs/` に集約されます。
 
 正本ドキュメント:
-- `ssot/OPS_LOGGING_MAP.md`（どこに何が溜まるかの確定マップ）
+- `ssot/ops/OPS_LOGGING_MAP.md`（どこに何が溜まるかの確定マップ）
 
 ## L1（長期保持 / 重要）
 - `llm_usage.jsonl`（LLM usage）

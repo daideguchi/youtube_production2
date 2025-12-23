@@ -17,8 +17,8 @@ archive_capcut_local_drafts — workspaces/video/_capcut_drafts の“ローカ�
 - JSON report を `workspaces/logs/regression/capcut_local_drafts_archive/` に出力する。
 
 SSOT:
-- ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md
-- ssot/OPS_LOGGING_MAP.md
+- ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md
+- ssot/ops/OPS_LOGGING_MAP.md
 """
 
 from __future__ import annotations

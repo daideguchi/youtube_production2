@@ -16,8 +16,8 @@ Agent/think mode:
   (Sequential generation needs the previous chapter tail for coherence.)
 
 Related SSOT:
-- ssot/OPS_LONGFORM_SCRIPT_SCALING.md
-- ssot/OPS_A_TEXT_GLOBAL_RULES.md
+- ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md
+- ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md
 """
 
 from __future__ import annotations

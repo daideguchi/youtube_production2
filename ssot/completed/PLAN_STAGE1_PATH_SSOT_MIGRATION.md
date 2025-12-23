@@ -6,7 +6,7 @@
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: `factory_common/paths.py` 新設と、全実行コードの直書きパス置換（物理移動は含まない）
 - **非対象 (Out of Scope)**: workspaces/legacy/apps/packages の物理移設、生成品質ロジック変更
-- **関連 SoT/依存**: `ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`, `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- **関連 SoT/依存**: `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`, `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - **最終更新日**: 2025-12-17
 
 ---
@@ -19,7 +19,7 @@
 
 ### 1.2 DoD (Stage1)
 - `factory_common/paths.py` が存在し、主要 getter が実装されている。
-- `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md` の **Active/実行コード**の直書きパスが全て paths SSOT 経由になっている。
+- `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md` の **Active/実行コード**の直書きパスが全て paths SSOT 経由になっている。
 - 旧絶対パス `/Users/dd/...` と旧名 `commentary_01_srtfile_v2` が、実行コード層から消えている（Docs/Legacy/生成物は残ってOK）。
 - 主要入口の help/import smoke が通る（物理移動前のベースライン維持）:
   - `python -m script_pipeline.cli --help`
@@ -76,7 +76,7 @@
 
 ## 3. 置換の超細粒度順序（依存/危険度順）
 
-> 元リストは `ssot/REFERENCE_PATH_HARDCODE_INVENTORY.md` を正本とし、Stage1は **Active/実行コードのみ**を対象にする。
+> 元リストは `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md` を正本とし、Stage1は **Active/実行コードのみ**を対象にする。
 
 ### 3.0 Stage1-0: paths.py 新設（置換開始前）
 1. `factory_common/paths.py` を新設（現行位置のまま）。
@@ -155,7 +155,7 @@
 ### 3.7 Stage1-7: テストの更新 / 隔離
 対象:
 - `tests/*` のうち現行パイプライン対象は paths SSOT に追従。
-- `commentary_01_srtfile_v2` 参照テストは archive-first で `backups/graveyard/` に退避し、repo から削除（実施済み: `ssot/OPS_CLEANUP_EXECUTION_LOG.md` Step 18）。
+- `commentary_01_srtfile_v2` 参照テストは archive-first で `backups/graveyard/` に退避し、repo から削除（実施済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` Step 18）。
 
 ゲート:
 - `pytest -q`（現行対象のみが通る状態を維持）

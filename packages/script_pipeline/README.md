@@ -1,7 +1,7 @@
 # script_pipeline — 台本生成パイプライン（SoT: `workspaces/scripts`）
 
 このパッケージは「企画CSV → 台本 → 音声/TTS入口」までの **ステージ管理・SoT管理** を担当します。  
-入口と確定フローは `START_HERE.md` と `ssot/OPS_CONFIRMED_PIPELINE_FLOW.md` を正とします。
+入口と確定フローは `START_HERE.md` と `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` を正とします。
 
 ## SoT / Inputs
 - Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/{CH}/{NNN}/status.json`）
@@ -21,7 +21,7 @@
 8. `script_validation` → （出力なし）
 9. `audio_synthesis` → `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.{wav,srt}`
 
-生成物の保持/削除は `ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正とします。
+生成物の保持/削除は `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正とします。
 
 ## CLI
 ```

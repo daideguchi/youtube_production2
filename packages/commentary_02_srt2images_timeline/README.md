@@ -1,6 +1,6 @@
 # Commentary Video Automation Pipeline
 
-> **Note (SSOT)**: 本番運用の入口/コマンドは `ssot/OPS_ENTRYPOINTS_INDEX.md` を正とします。  
+> **Note (SSOT)**: 本番運用の入口/コマンドは `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とします。  
 > この README は開発者向けの補助情報であり、SSOT と矛盾する場合は SSOT を優先してください。
 
 ## 🚀 Quick Start (The Golden Path)

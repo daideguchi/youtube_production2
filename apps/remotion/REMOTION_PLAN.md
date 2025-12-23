@@ -12,7 +12,7 @@
 - 非スコープ（初期版）: 音声合成、BGM/MIX、テロップ装飾（Remotion上のテキスト配置のみ）。
 
 ## 前提・依存
-- `.env` は **リポジトリ直下**を正本とする（`ssot/OPS_ENV_VARS.md`）。Node 実行は `scripts/with_ytm_env.sh <cmd>` 経由で読み込む。
+- `.env` は **リポジトリ直下**を正本とする（`ssot/ops/OPS_ENV_VARS.md`）。Node 実行は `scripts/with_ytm_env.sh <cmd>` 経由で読み込む。
 - 画像生成は既存 `run_pipeline.py` 経由で得た静止画をそのまま使う（Remotion側は再生成しない）。
 - 帯（4本、日本語）は `belt_config.json` に従う。英語/ASCIIは拒否。
 - キャラ一貫・トーン: `config/channel_presets.json` とテンプレート群を参照（アニメ誇張禁止）。

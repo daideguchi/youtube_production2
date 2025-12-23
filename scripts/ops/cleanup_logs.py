@@ -12,7 +12,7 @@ L3 ログ（短期保持）のクリーンアップ。
 - いつ何を削除したかの追跡のため、JSON report を `logs/regression/logs_cleanup/` に出力する
 
 SSOT:
-- `ssot/OPS_LOGGING_MAP.md`
+- `ssot/ops/OPS_LOGGING_MAP.md`
 """
 
 from __future__ import annotations

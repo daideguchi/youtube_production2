@@ -20,18 +20,18 @@ factory_commentary/
 └─ tests/                          # 現行対象テスト
 ```
 
-互換（段階移行中のsymlink）と方針は `ssot/OPS_REPO_DIRECTORY_SSOT.md` を正とします。
+互換（段階移行中のsymlink）と方針は `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` を正とします。
 
 ## SSOT Quick Links
 | カテゴリ | ファイル |
 | --- | --- |
 | プロジェクト基礎 | `ssot/README.md` |
-| ディレクトリ正本 | `ssot/OPS_REPO_DIRECTORY_SSOT.md` |
-| Alignment / Checklist | `ssot/OPS_ALIGNMENT_CHECKPOINTS.md` |
-| 企画CSV/運用 | `ssot/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
-| 環境変数 | `ssot/OPS_ENV_VARS.md` |
-| Agent/THINK mode | `ssot/OPS_AGENT_PLAYBOOK.md` / `ssot/agent_runbooks/README.md` / `prompts/README.md` |
-| 台本ソースマップ | `ssot/OPS_SCRIPT_SOURCE_MAP.md` |
+| ディレクトリ正本 | `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` |
+| Alignment / Checklist | `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md` |
+| 企画CSV/運用 | `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
+| 環境変数 | `ssot/ops/OPS_ENV_VARS.md` |
+| Agent/THINK mode | `ssot/ops/OPS_AGENT_PLAYBOOK.md` / `ssot/agent_runbooks/README.md` / `prompts/README.md` |
+| 台本ソースマップ | `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md` |
 | スタートガイド | `START_HERE.md` |
 | ドキュメント索引 | `ssot/DOCS_INDEX.md` |
 

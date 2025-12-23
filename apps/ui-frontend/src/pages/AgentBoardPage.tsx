@@ -24,7 +24,7 @@ export function AgentBoardPage() {
           />
         </label>
         <span style={{ color: "#666", fontSize: 12 }}>
-          BEP-1運用は <code>ssot/OPS_AGENT_PLAYBOOK.md</code> を参照
+          BEP-1運用は <code>ssot/ops/OPS_AGENT_PLAYBOOK.md</code> を参照
         </span>
       </div>
       <AgentBoardPanel actorName={actorName} />

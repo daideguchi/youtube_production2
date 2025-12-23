@@ -1,6 +1,6 @@
 # workspaces/
 
-このディレクトリは「SoT（正本データ）+ 生成物（成果物/ログ）」を集約する Target 構成（`ssot/PLAN_REPO_DIRECTORY_REFACTOR.md`）のための置き場です。
+このディレクトリは「SoT（正本データ）+ 生成物（成果物/ログ）」を集約する Target 構成（`ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`）のための置き場です。
 
 現時点では多くが **物理移動を伴わない移行** のため、旧ディレクトリへの symlink を置いています。
 （例外: `workspaces/research` は実体化済みで、旧 `00_research/` が symlink）

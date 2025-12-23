@@ -14,8 +14,8 @@ cleanup_remotion_artifacts — Remotion の生成物（L3/L2）をローテし�
 - coordination locks を尊重し、lock 対象は skip
 
 SSOT:
-- ssot/PLAN_OPS_ARTIFACT_LIFECYCLE.md
-- ssot/OPS_LOGGING_MAP.md
+- ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md
+- ssot/ops/OPS_LOGGING_MAP.md
 """
 
 from __future__ import annotations
