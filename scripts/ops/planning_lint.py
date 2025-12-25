@@ -21,6 +21,7 @@ import csv
 import json
 import re
 import sys
+import unicodedata
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -48,6 +49,13 @@ def _extract_tag(text: str) -> str | None:
         return None
     inner = (m.group(1) or "").strip()
     return inner or None
+
+
+def _normalize_tag_for_compare(tag: str | None) -> str:
+    s = unicodedata.normalize("NFKC", str(tag or "")).strip()
+    # Remove whitespace and common separators/punctuation that often fluctuate in planning tags.
+    s = re.sub(r"[\\s\\u3000・･·、,\\.／/\\\\\\-‐‑‒–—―ー〜~]", "", s)
+    return s
 
 
 def _normalize_channel(ch: str) -> str:
@@ -214,7 +222,9 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
         title_tag = _extract_tag(title)
         summary = (row.get("内容（企画要約）") or "").strip()
         summary_tag = _extract_tag(summary) if summary else None
-        if title_tag and summary_tag and title_tag != summary_tag:
+        title_tag_norm = _normalize_tag_for_compare(title_tag)
+        summary_tag_norm = _normalize_tag_for_compare(summary_tag)
+        if title_tag and summary_tag and title_tag_norm != summary_tag_norm:
             issues.append(
                 LintIssue(
                     channel=channel,
@@ -222,12 +232,15 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
                     row_index=idx,
                     severity="error" if tag_mismatch_is_error else "warning",
                     code="tag_mismatch_title_vs_content_summary",
-                    message=f"title tag 【{title_tag}】 != content_summary tag 【{summary_tag}】 (treat content_summary as L2; drop/regenerate)",
+                    message=(
+                        f"内容汚染の可能性: タイトル先頭【{title_tag}】 != 内容（企画要約）先頭【{summary_tag}】。"
+                        "タイトルを正として、台本生成では内容（企画要約）などのテーマヒントを無視します（CSV修正推奨）。"
+                    ),
                     columns=["タイトル", "内容（企画要約）"],
                 )
             )
 
-        # L1 contract-ish checks for commonly required columns.
+        # Required-for-channel checks (deterministic).
         for col in ("企画意図", "ターゲット層", "具体的な内容（話の構成案）"):
             if col in required and not (row.get(col) or "").strip():
                 issues.append(
@@ -237,7 +250,7 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
                         row_index=idx,
                         severity="error",
                         code="missing_required_field",
-                        message=f"{col} is empty (L1 required for this channel)",
+                        message=f"{col} is empty (required for this channel)",
                         columns=[col],
                     )
                 )

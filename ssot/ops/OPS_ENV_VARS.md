@@ -16,11 +16,11 @@
 - E2Eスモーク実行フラグ（任意）: `RUN_E2E_SMOKE=1` をセットすると軽量スモーク（設定検証のみ）が走る。デフォルトでは実行されない。
 
 ## チェック方法
-- `python3 commentary_02_srt2images_timeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
+- `python3 packages/commentary_02_srt2images_timeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
 - `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
-- LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`。互換: `logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
-- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（互換: `audio_tts_v2/artifacts/final/**/chunks/`。デフォルトは削除）。
+- LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
+- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。
@@ -40,9 +40,9 @@
 `packages/script_pipeline/runner.py` の `script_validation` に適用される。
 
 - `SCRIPT_VALIDATION_LLM_QUALITY_GATE`（default: `1`）: LLM品質ゲート（Judge→Fixer→必要ならExtend）を有効化。無効化は `0`。
-- `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`（default: `2`）: Judge→Fixer の最大反復回数（v2は既定2で収束させる）。
+- `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`（default: `3`）: Judge→Fixer の最大反復回数（v2は既定3。fail→Fix→Judge→Fix→Judge で収束させる）。コスト優先なら `2` に下げる。
 - `SCRIPT_VALIDATION_LLM_HARD_FIX_MAX`（default: `2`）: Fixer出力がハード禁則（字数/見出し/箇条書き等）に違反した場合の追加修正回数。
-- `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）: Aテキストがこの文字数（spoken chars）を超える場合、全文LLMゲートを自動スキップ（決定論チェックは実行）。`0` で無効化。
+- `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）: Aテキストがこの文字数（spoken chars）を超える場合、全文LLMゲートを自動スキップ（機械チェックは実行）。`0` で無効化。
 - `SCRIPT_VALIDATION_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_FIX_TASK`（default: `script_a_text_quality_fix`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_EXTEND_TASK`（default: `script_a_text_quality_extend`）: 字数不足のみを「追記専用」で救済する task key。
@@ -54,17 +54,32 @@
 - task key の実体（tier/model/options）は `configs/llm_router.yaml` と `configs/llm_task_overrides.yaml` を正とする。
 - `SCRIPT_PIPELINE_DRY=1` のときは品質ゲートを走らせない（dry-run）。
 
+## Script pipeline: 意味整合（Semantic alignment gate）
+`packages/script_pipeline/runner.py` の `script_outline`（事前）と `script_validation`（最終）に適用される。
+
+- `SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE`（default: `1`）: アウトライン段階の事前意味整合ゲートを有効化（章草稿=高コストの前に逸脱を止める）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_GATE`（default: `1`）: `script_validation` の意味整合ゲートを有効化。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK`（default: `0`）: 合格条件を「major のみ停止（ok/minor は合格）」にする（推奨）。strict にする場合は `1`（`verdict: ok` 固定で minor/major は停止）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX`（default: `1`）: `script_validation` 内で最小リライト（auto-fix）を試す。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR`（default: `0`）: minor の auto-fix を許可（必要時のみ `1`）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR`（default: `1`）: major の auto-fix を許可。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS`（default: `1`）: auto-fix リトライ回数（最大2）。
+- `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS`（default: `30000`）: 判定に渡す最大文字数（超過時は先頭+末尾抜粋で判定し、auto-fix は安全のためスキップ）。
+
+## Script pipeline: Planning整合（L2汚染の安全弁）
+- `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、L2のテーマヒントだけ落として続行する。
+
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
 
 ### 切替
 - `LLM_MODE`:
   - `api`（デフォルト）: 通常どおり API LLM を呼ぶ
-  - `agent`: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る（互換: `logs/agent_tasks/...`）
+  - `agent`: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る
   - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら `script_/tts_/visual_/title_/belt_` を安全デフォルトで intercept（`image_generation` 等は除外）
 
 ### キュー配置
-- `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`（互換: `logs/agent_tasks`）
+- `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`
 
 ### 担当エージェント名（推奨）
 - `LLM_AGENT_NAME`（推奨）: 例 `LLM_AGENT_NAME=Mike`
@@ -105,5 +120,5 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
 
 ### 失敗時に見る場所
-- pending: `workspaces/logs/agent_tasks/pending/*.json`（互換: `logs/agent_tasks/...`。または `LLM_AGENT_QUEUE_DIR`）
-- memo: `workspaces/logs/agent_tasks/coordination/memos/*.json`（互換: `logs/agent_tasks/...`。一覧は `python scripts/agent_org.py memos`）
+- pending: `workspaces/logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）
+- memo: `workspaces/logs/agent_tasks/coordination/memos/*.json`（一覧は `python scripts/agent_org.py memos`）

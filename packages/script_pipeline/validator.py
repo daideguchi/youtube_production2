@@ -22,6 +22,7 @@ _RE_MD_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _RE_BAD_SEPARATOR = re.compile(r"^\s*(?:\*{3,}|_{3,}|/{3,}|={3,}|-{4,})\s*$")
 _RE_TEMPLATE_TOKEN = re.compile(r"<<[A-Z0-9_]{2,}>>")
 _RE_PERCENT_OR_PERCENT_WORD = re.compile(r"[%％]|パーセント")
+_RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
 
 
 def _canonical_a_text_path(base: Path) -> Path:
@@ -59,6 +60,26 @@ def _a_text_char_count(text: str) -> int:
     compact = "".join(lines)
     compact = compact.replace(" ", "").replace("\t", "").replace("\u3000", "")
     return len(compact.strip())
+
+
+def _strip_trailing_pause_lines(text: str) -> str:
+    """Remove trailing blank lines and trailing pause-only lines (`---`) for end-of-text checks."""
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    # Drop trailing blanks.
+    while lines and not lines[-1].strip():
+        lines.pop()
+    # Drop trailing pause lines, allowing blank lines between pauses.
+    changed = True
+    while changed:
+        changed = False
+        while lines and not lines[-1].strip():
+            lines.pop()
+            changed = True
+        if lines and lines[-1].strip() == "---":
+            lines.pop()
+            changed = True
+    return "\n".join(lines).rstrip()
 
 
 def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -235,6 +256,18 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                     "severity": "error",
                 }
             )
+
+    # Ending completeness (SSOT: OPS_A_TEXT_GLOBAL_RULES.md 1.6)
+    core_for_ending = _strip_trailing_pause_lines(normalized)
+    if core_for_ending.strip() and not _RE_A_TEXT_COMPLETE_ENDING.search(core_for_ending.strip()):
+        tail = core_for_ending.strip().replace("\n", "\\n")[-40:]
+        issues.append(
+            {
+                "code": "incomplete_ending",
+                "message": f"A-text ends without closing punctuation (possible truncation). tail='{tail}'",
+                "severity": "error",
+            }
+        )
 
     uniq: Dict[tuple[str, int | None], Dict[str, Any]] = {}
     for item in issues:

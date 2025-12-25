@@ -9,10 +9,19 @@
 - 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - 台本運用（入口/手順）: `ssot/ops/OPS_SCRIPT_GUIDE.md`
 - 確定フロー（観測ベース正本）: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
-- 入力契約（L1/L2/L3）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
+- 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - 意味整合ゲート（タイトル/サムネ↔台本）: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
 ---
+
+## 用語（このSSOT内の定義）
+
+- 内容汚染（=混線）:
+  - **別の動画の企画要約/タグ等が混ざって、タイトルと別テーマのヒントが入っている状態**。
+  - 例: タイトルは「縁」なのに、企画要約が「朝習慣」の話になっている。
+- 機械チェック（=非LLM）:
+  - コードで確実に判定できる禁則/字数/区切りなどを、**LLMに頼らず**チェックする。
+  - 目的は「質を下げる」ではなく、**事故を確実に止める**こと。
 
 ## 0) 入口（絶対固定）
 
@@ -30,11 +39,11 @@
 - Script SoT（ステージ状態の正本）: `workspaces/scripts/{CH}/{NNN}/status.json`
 - 台本本文（Aテキストの正本）:
   - 優先: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
-  - フォールバック: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（mirror）
+  - 代替（ミラー）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
 
 原則:
 - **正本は1つ**（SoTを増やすとズレが増える）。
-- `assembled_human.md` がある場合、`assembled.md` を手編集しない（混線の元）。
+- `assembled_human.md` がある場合、`assembled.md` を手編集しない（内容汚染の元）。
 
 ---
 
@@ -119,12 +128,11 @@
 ## 3) ズレを止める仕組み（要点だけ）
 
 ズレ事故の主因:
-- Planning CSV 行の混線（タイトル【…】と企画要約【…】が別テーマ）
-- L2ヒント（要約/タグ等）の汚染が、本文生成を別テーマへ引っ張る
+- Planning CSV 行の内容汚染（タイトル【…】と企画要約【…】が別テーマ）
+- 企画要約/タグ等の「テーマヒント」の汚染が、本文生成を別テーマへ引っ張る
 - 長尺を「全文LLM」で回して、途中で迷子/反復/薄まりが起きる
 
 仕組み（正本）:
-- 入力契約（L1/L2/L3）で **混線時はL2を捨ててL1で書く**: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
-- `script_validation` で「禁則（決定論）」→「内容品質（LLM Judge）」→「意味整合（タイトル/サムネ↔台本）」を通す
+- 入力契約（タイトル=正 / 補助 / 禁止）で **内容汚染を検知したら、タイトルを正として汚染されやすいテーマヒントを無視**: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
+- `script_validation` で「禁則（機械チェック）」→「内容品質（LLM Judge）」→「意味整合（タイトル/サムネ↔台本）」を通す
 - 超長尺は Marathon（全文LLM禁止・章単位収束）: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`
-

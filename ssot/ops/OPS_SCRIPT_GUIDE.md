@@ -7,12 +7,16 @@
 
 全チャンネル共通の読み台本ルール（Aテキスト品質の下限）は `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md` が正本。
 
+推奨実行（共通）:
+- **必ず** `./scripts/with_ytm_env.sh .venv/bin/python ...` を使う（.envロード + venv依存を固定）。
+  - 例: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH10 --video 004`
+
 ---
 
 ## 0. SoT（正本）
 
-- 企画SoT: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
-- 台本SoT: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/...`）
+- 企画SoT: `workspaces/planning/channels/CHxx.csv`
+- 台本SoT: `workspaces/scripts/{CH}/{NNN}/status.json`
 - 台本本文（Aテキスト / 入力の正）:
   - 正本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合）
   - フォールバック: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
@@ -23,58 +27,82 @@
 ## 1. 入口（Entry points）
 
 ### 1.1 初期化（status.json が無い場合）
-- `python -m script_pipeline.cli init --channel CH06 --video 033 --title "<title>"`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli init --channel CH06 --video 033 --title "<title>"`
 
 ### 1.2 実行（ステージ指定）
-- `python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_outline`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_outline`
 
 ### 1.3 実行（次のpendingを進める）
-- `python -m script_pipeline.cli next --channel CH06 --video 033`
-- `python -m script_pipeline.cli run-all --channel CH06 --video 033`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli next --channel CH06 --video 033`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run-all --channel CH06 --video 033`
 
-### 1.4 超長尺（2〜3時間級 / 全文LLM禁止: Marathon）
+### 1.4 Runbook（新規/やり直しを定型化）
+大量運用で「叩く入口」を固定するための薄いラッパー。  
+内部では `script_pipeline.runner` を呼び、結果を JSON で出す。
+
+モード定義の正本:
+- `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`（入口固定 / 4パターン）
+
+入口（固定）:
+- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <mode> ...`
+
+代表例:
+- 新規で1から（CH10検証）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 004`
+- 最初から完全にやり直す（CH07-019以降の検証）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
+- 途中から再開:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+- リライト修正（ユーザー指示必須）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
+
+補助（安く通すだけ）:
+- 既存本文を再生成せず `script_validation` だけ実行:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+
+### 1.5 超長尺（2〜3時間級 / 全文LLM禁止: Marathon）
 超長尺では、`script_validation` の **全文LLM Judge/Fix** がコンテキスト・コスト・部分改変事故で破綻しやすい。  
-したがって「章分割→決定論アセンブル」を前提にした Marathon モードを使う（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
+したがって「章分割→機械（非LLM）アセンブル」を前提にした Marathon モードを使う（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
 
 - planのみ（設計だけ作る）:
-  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
 - dry-run（analysis/longform に生成、正本は触らない）:
-  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
 - apply（canonical を上書き）:
-  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
 - ブロック雛形（章の箱）を指定したい場合:
-  - `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
   - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
 
 確認（推奨）:
-- 決定論lint（禁則/反復/まとめ重複）:
-  - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+- 機械lint（非LLM。禁則/反復/まとめ重複）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 - セマンティック整合（必要時のみ。タイトル語句一致は必須ではない）:
-  - `python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`
 
 注意:
 - Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
-- 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して決定論チェックだけ使う:
-  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+- 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して機械チェックだけ使う:
+  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
   - 追加の安全弁（runner側）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）超過時は、全文LLMゲートが自動スキップされる（強制は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
 
 ---
 
 ## 2. 出力（I/Oの目安）
 
-- `workspaces/scripts/{CH}/{NNN}/content/`（互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/content/`
   - `assembled.md`（最終台本）
   - `assembled_with_quotes.md` など（運用で採用ルールを固定する）
-- `workspaces/scripts/{CH}/{NNN}/logs/`（互換: `script_pipeline/data/...`）
-  - `{stage}_prompt.txt`, `{stage}_response.json`（L3: 証跡）
+- `workspaces/scripts/{CH}/{NNN}/logs/`
+  - `{stage}_prompt.txt`, `{stage}_response.json`（証跡）
 
 ---
 
 ## 3. 状態確認・整合
 
-- `python -m script_pipeline.cli status --channel CH06 --video 033`
-- `python -m script_pipeline.cli validate --channel CH06 --video 033`
-- `python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH06 --video 033`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CH06 --video 033`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
 
 ### 3.0 UI（Episode Studio）での復旧
 
@@ -89,16 +117,24 @@ UI側でも「詰まったらまずここ」を固定する。
 
 ### 3.1 Script Validation（品質ゲート）
 
-- 実行: `python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`
+- 実行: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`
 - NG時: `status.json: stages.script_validation.details.error_codes / issues` に理由が残る（UIにも表示される想定）。修正後に同じコマンドを再実行する。
 - 判定基準（正本）:
   - `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`（禁則・TTS事故防止の下限）
   - `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`（字数合格だけを禁止。LLM Judge→Fixer の2段階）
 
+追加ゲート（意味整合）:
+- 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
+- 既定では `verdict: major`（明らかなズレ）のみ停止（ok/minor は合格）。major は可能なら最小リライトを自動適用して収束させる。
+- strict（ok固定）にしたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`。
+- 手動で直す場合:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（チェックのみ）
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`（最小リライト）
+
 字数NG（短すぎ/長すぎ）への対処:
 - 原則: reset→再生成（混入/水増しの副作用が最小）
 - “軽い短尺補正” のみ許可する場合:
-  - `python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
   - 実行後に `script_validation` を再実行して通す（長尺2〜3h級はMarathon推奨）
 
 ---
@@ -110,7 +146,7 @@ UI側でも「詰まったらまずここ」を固定する。
 - 企画CSVを直したら、台本は **reset→再生成** を基本にする（旧台本が残ると混乱源）。
 
 コマンド:
-- `python -m script_pipeline.cli reset --channel CH06 --video 033`
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CH06 --video 033`
   - 追加で調査出力も消す場合: `--wipe-research`
 
 ### 4.2 人間が台本を直した場合
@@ -122,7 +158,7 @@ UI側でも「詰まったらまずここ」を固定する。
 
 ## 5. 禁止事項（破綻を防ぐ）
 
-- パス直書き禁止（`factory_common/paths.py` を使う）
+- パス直書き禁止（`packages/factory_common/paths.py` を使う）
 - `status.json` を手で大改造しない（必要なら `reset/reconcile` を使う）
 - `assembled.md` と別の入力で音声生成しない（例外はSSOTに残す）
 

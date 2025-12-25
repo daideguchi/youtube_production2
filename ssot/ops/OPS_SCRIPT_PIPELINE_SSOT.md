@@ -16,7 +16,7 @@
 - 確定E2Eフロー（観測ベースの正本）: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 入口固定（4パターン運用）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
 - 台本アーキテクチャ（構造で壊さない）: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
-- 入力契約（L1/L2/L3）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
+- 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - 運用手順（入口/やり直し）: `ssot/ops/OPS_SCRIPT_GUIDE.md`
 - 品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 超長尺（Marathon）設計: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`
@@ -26,15 +26,19 @@
 
 ## 0) SoT（正本）とI/O（迷子を止める固定）
 
+用語（本書内の定義）:
+- 内容汚染（=混線）: 別動画の企画要約/タグ等が混ざり、タイトルと別テーマのヒントが入っている状態。
+- 機械チェック（=非LLM）: コードで確実に判定できる禁則/字数/区切りなどを、LLMに頼らず止めるチェック。
+
 SoT（正本）:
-- Planning SoT（企画/進捗）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
-- Script SoT（台本ステージ状態）: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/{CH}/{NNN}/status.json`）
+- Planning SoT（企画/進捗）: `workspaces/planning/channels/CHxx.csv`
+- Script SoT（台本ステージ状態）: `workspaces/scripts/{CH}/{NNN}/status.json`
 - 台本本文（Aテキスト）:
   - 正本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合）
-  - フォールバック: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
+  - 代替（ミラー）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
   - 注意: `assembled.md` は mirror 扱い（最終的に `assembled_human.md` と一致させる）
 
-証跡/ログ（L3; 参照はできるが正本ではない）:
+証跡/ログ（参照はできるが正本ではない）:
 - ステージごとの入出力: `workspaces/scripts/{CH}/{NNN}/logs/{stage}_prompt.txt`, `.../{stage}_response.json`
 - 研究/判定ログ: `workspaces/scripts/{CH}/{NNN}/content/analysis/**`
 
@@ -55,7 +59,7 @@ chapter_brief
   v
 script_draft → script_enhancement → script_review → quality_check
   v
-script_validation（禁則=決定論 + 内容=LLM + 意味整合=LLM）
+script_validation（禁則=機械チェック + 内容=LLM + 意味整合=LLM）
   v
 audio_synthesis（必要時のみ）
 ```
@@ -65,28 +69,32 @@ audio_synthesis（必要時のみ）
 
 ---
 
-## 1) 入力契約（L1/L2/L3）— 必須/任意/混入禁止
+## 1) 入力契約（タイトル=正 / 補助 / 禁止）
 
-台本生成の品質は「プロンプトの長さ」より **入力の階層**で決まる。
+台本生成の品質は「プロンプトの長さ」より **入力の扱い**で決まる。
 
-### 1.1 L1（必須・最優先）
-- 企画タイトル（Planning SoT）
+### 1.1 タイトル（絶対正）
+- 企画タイトル（Planning SoT の `タイトル` 列）
+- タイトルからズレた内容は不合格（語句一致ではなく “意味として” のズレを止める）
+
+### 1.2 補助（使って良いが、タイトルと矛盾したら捨てる）
 - persona / channel_prompt（チャンネルの狙い・トーン）
 - 構成パターン（骨格・字数配分）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 - 全チャンネル共通の禁則/書式: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
-
-### 1.2 L2（補助ヒント・あれば使う）
-- CSVの補助メタ（企画意図/ターゲット/キーコンセプト等）
+- Planning CSV の補助情報（例: `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）` など）
 
 ルール:
-- L2に矛盾が見えたら **捨ててL1で書く**（安全で安い）。
-- 代表的な混線は `tag_mismatch`（タイトル先頭の `【...】` と要約先頭の `【...】` が不一致）。検出時は L2 を自動で落とすのが正しい。
+- 補助がタイトルと食い違っている/内容汚染が疑われる場合は、**タイトルを正として補助を無視**する（ズレ事故を安く止める）。
 
-### 1.3 L3（混入禁止）
+### 1.3 混入禁止（AI入力に入れない）
 - 旧台本断片、コピペ用自由文、途中生成の断片、人間向けメモ
 
 理由:
-- L3は高確率で「反復/別テーマ混入/作り話感」の汚染源になる。
+- 混入すると高確率で「反復/別テーマ混入/作り話感」の汚染源になる。
+
+### 1.4 内容汚染（代表例）: タイトル【…】 vs 内容（企画要約）【…】
+- 代表的な内容汚染は `tag_mismatch`（タイトル先頭の `【...】` と `内容（企画要約）` 先頭の `【...】` が不一致）。
+- 検出時、パイプラインは「タイトルを正」として、汚染されやすいテーマヒント（内容（企画要約）、悩みタグ、キーコンセプト等）を自動で無視して続行する。
 
 ---
 
@@ -94,7 +102,7 @@ audio_synthesis（必要時のみ）
 
 基本方針:
 - リトライ回数を増やして当てない。
-- 「骨格（決定論）」→「本文（推論）」→「最小修正（推論）」の順で収束させる。
+- 「骨格（機械/非LLM）」→「本文（推論）」→「最小修正（推論）」の順で収束させる。
 
 ### 2.1 標準（主線）: script_pipeline（ステージ管理）
 入口:
@@ -122,7 +130,7 @@ audio_synthesis（必要時のみ）
 ### 2.3 超長尺（2〜3時間級）: Marathon（全文LLM禁止）
 結論:
 - 超長尺は全文をLLMに渡す品質ゲート（Judge/Fix）が破綻しやすい。
-- したがって「章設計→章ごと生成→決定論アセンブル→チャンク判定/差し替え」で収束させる。
+- したがって「章設計→章ごと生成→機械（非LLM）アセンブル→チャンク判定/差し替え」で収束させる。
 
 入口（推奨）:
 - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
@@ -130,7 +138,7 @@ audio_synthesis（必要時のみ）
 - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
 
 注意:
-- 超長尺で `script_validation` を回す場合は全文LLMを無効化して決定論チェックだけ使う:
+- 超長尺で `script_validation` を回す場合は全文LLMを無効化して機械チェックだけ使う:
   - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
 
 ### 2.4 コスト設計（低コストで量産するための固定原則）
@@ -138,11 +146,11 @@ audio_synthesis（必要時のみ）
 - 高コスト工程（章草稿/本文リライト）に入る前に、**低コストの逸脱検出**で止めるのが最も安い。
 
 必須の順序（推奨）:
-1. Planning lint（決定論・無料）で混線を潰す  
+1. Planning lint（非LLM・無料）で内容汚染を潰す  
    - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/planning_lint.py --channel CHxx --write-latest`
 2. アウトライン段階の意味整合ゲート（安い）で逸脱を止める（`SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE=1`）
 3. 章草稿（高コスト）→ 結合
-4. `script_validation`（決定論 + 意味整合 + LLM Judge/Fixer）で最終品質を固定
+4. `script_validation`（機械チェック + 意味整合 + LLM Judge/Fixer）で最終品質を固定
 
 コストを下げるレバー（安全順）:
 - まず再実行（cache hit）: LLMルーターは `workspaces/logs/llm_api_cache/` を使い、同一入力は低コストで再現される。
@@ -177,7 +185,7 @@ audio_synthesis（必要時のみ）
 
 ## 4) やり直し（Redo / Reset）フロー（確定）
 
-Redo は「何を正本として残すか」を固定しないと、参照が混線して破綻する。
+Redo は「何を正本として残すか」を固定しないと、参照が内容汚染して破綻する。
 
 ### 4.1 CSV（企画）が変わった
 原則:
@@ -205,7 +213,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が混
   - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH07 --video 019 --stage script_validation`
   - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH07 --video 020 --stage script_validation`（以降同様）
   - バッチ（推奨）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
-- “企画が混線している/ズレが大きいので作り直す” なら:
+- “企画が内容汚染している/ズレが大きいので作り直す” なら:
   - 単発（低レベル）:
     - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CH07 --video 019 --wipe-research`
     - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run-all --channel CH07 --video 019`
@@ -224,7 +232,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が混
 
 品質は「機械チェック → 推論Judge → 最小修正 → それでもダメなら停止」の順で固定する。
 
-### 5.1 決定論チェック（必須）
+### 5.1 機械チェック（必須）
 - 禁則/字数/区切り/括弧上限など（台本本文にURL/脚注/箇条書き等を混ぜない）
 - 入口/運用: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 
@@ -235,13 +243,13 @@ Redo は「何を正本として残すか」を固定しないと、参照が混
   - それでもNGなら pending で止め、人間が `assembled_human.md` を直す
   - コストを優先して短く止めたい場合は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる
 
-### 5.2.1 文字数収束（不足/超過の救済: 決定論フォールバックあり）
+### 5.2.1 文字数収束（不足/超過の救済: 非LLMの自動救済あり）
 - 字数不足:
   - Extend→必要ならExpand（追記のみ）で埋める。
   - 事前救済は原則2パスだが、**2パス後に残り不足が小さい場合（`<=1200`）のみ**追加で1パスを許容して「あと少し足りない」事故を潰す（コスト暴走防止）。
 - 字数超過:
   - Shrink（削除/圧縮）を実行する。
-  - LLMが削り不足を返すケースがあるため、最終的に **決定論トリム（`---` 区切り単位の予算配分）**で必ずレンジ内へ収束させる。
+  - LLMが削り不足を返すケースがあるため、最終的に **機械トリム（`---` 区切り単位の予算配分）**で必ずレンジ内へ収束させる。
     - 証跡: `status.json: stages.script_validation.details.auto_length_fix_fallback` に `deterministic_budget_trim` を記録。
 
 ### 5.3 意味整合（必須: major を止める）
@@ -250,6 +258,10 @@ Redo は「何を正本として残すか」を固定しないと、参照が混
 - 実装（確定）:
   - `script_outline` 後に **事前意味整合ゲート**を実行し、アウトライン段階で逸脱を止める（章草稿=高コストに入る前）。
   - `script_validation` で **意味整合ゲート**を実行し、既定で **`verdict: major` のみ停止**（ok/minor は合格）。
+    - 判定語の意味:
+      - `ok`: 主題（タイトル/サムネの意図）と整合している（合格）
+      - `minor`: 軽微なズレ（主題は合っているが、段落/言い回しに改善余地がある）
+      - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - strict にしたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（`verdict: ok` 固定で minor/major は停止）。
 - 修正（最小リライト）:
@@ -257,7 +269,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が混
   - minorも直す: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
 - 注:
   - 「タイトル語句が本文に出るか」は必須要件ではない（意味として回収できているかだけを見る）。
-  - ただし「Nつ」などの数の約束は、台本側の `一つ目〜Nつ目` を **決定論でサニティチェック**し、LLMの誤判定で止まる事故を防ぐ。
+  - ただし「Nつ」などの数の約束は、台本側の `一つ目〜Nつ目` を **機械でサニティチェック**し、LLMの誤判定で止まる事故を防ぐ。
 
 ---
 

@@ -896,6 +896,69 @@ def _sanitize_inline_pause_markers(text: str) -> str:
     return "\n".join(out_lines).rstrip() + "\n"
 
 
+_RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
+
+
+def _repair_a_text_incomplete_ending(a_text: str) -> tuple[str, Dict[str, Any]]:
+    """
+    Best-effort: repair "abrupt/truncated" endings deterministically by trimming the trailing
+    incomplete tail to the last sentence boundary.
+
+    Notes:
+    - Trailing pause-only lines (`---`) are preserved and ignored for the end-of-text check.
+    - This does not add new content; it only removes an obviously incomplete tail.
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized.strip():
+        return a_text or "", {}
+
+    lines = normalized.split("\n")
+    # Identify the "core" region (exclude trailing blanks and trailing pause-only lines),
+    # but preserve them so we don't change pause counts.
+    end = len(lines)
+    while end > 0 and not lines[end - 1].strip():
+        end -= 1
+    core_end = end
+    while core_end > 0:
+        s = lines[core_end - 1].strip()
+        if not s:
+            core_end -= 1
+            continue
+        if s == "---":
+            core_end -= 1
+            continue
+        break
+
+    core_lines = lines[:core_end]
+    tail_lines = lines[core_end:]
+    core_text = "\n".join(core_lines).rstrip()
+    if not core_text.strip():
+        return normalized.rstrip() + "\n", {}
+
+    if _RE_A_TEXT_COMPLETE_ENDING.search(core_text.strip()):
+        return normalized.rstrip() + "\n", {}
+
+    last_boundary = None
+    for m in re.finditer(r"[。！？!?][」』）)]*", core_text):
+        last_boundary = m
+    if last_boundary is None:
+        return normalized.rstrip() + "\n", {}
+
+    new_core = core_text[: last_boundary.end()].rstrip()
+    new_text = new_core
+    tail_block = "\n".join(tail_lines).rstrip()
+    if tail_block:
+        new_text = new_text.rstrip() + "\n" + tail_block
+    new_text = new_text.rstrip() + "\n"
+
+    details: Dict[str, Any] = {
+        "trimmed": True,
+        "before_tail": core_text.strip().replace("\n", "\\n")[-60:],
+        "after_tail": new_core.strip().replace("\n", "\\n")[-60:],
+    }
+    return new_text, details
+
+
 def _trim_compact_text_to_chars(text: str, *, max_chars: int, min_chars: int | None = None) -> str:
     """
     Trim text by counting only non-whitespace characters (matches validate_a_text char_count intent).
@@ -5041,6 +5104,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 if cleaned2 != cleaned:
                     cleaned = cleaned2
                     cleanup_details["paren_marks_max"] = paren_max
+
+            repaired, ending_details = _repair_a_text_incomplete_ending(cleaned)
+            if ending_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
+                cleaned = repaired
+                cleanup_details["incomplete_ending_repair"] = ending_details
 
             if cleanup_details and cleaned.strip() and cleaned.strip() != (a_text or "").strip():
                 # Backup original before rewriting.
