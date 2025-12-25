@@ -120,6 +120,8 @@
 
 - UI `/thumbnails` を主線とする（台本/音声/動画と独立）
 - SoT: `workspaces/thumbnails/projects.json`
+- Template SoT: `workspaces/thumbnails/templates.json`
+- Layer Specs（任意/段階導入）: 画像レイヤ・文字レイヤの設計はYAMLで管理できる。チャンネル固有の値は持つが、スキーマ/運用は汎用として扱う（例: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`）。
 
 ### 2.7 Publish（外部SoT）
 
@@ -222,4 +224,3 @@ Runbook入口
 - 入口（CLI/UI）を守る（互換symlinkは短期の混乱回避のため残す）
 - 削除は archive-first + 証跡（`OPS_CLEANUP_EXECUTION_LOG`）
 - 変更は小さくコミット（1コミット=1目的）
-

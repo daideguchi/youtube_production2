@@ -210,6 +210,12 @@ A_TEXT_QUALITY_SHRINK_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_qualit
 A_TEXT_REBUILD_PLAN_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_plan_prompt.txt"
 A_TEXT_REBUILD_DRAFT_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_draft_prompt.txt"
 
+# Semantic alignment prompts (title/thumbnail promise ↔ A-text core)
+SEMANTIC_ALIGNMENT_SCHEMA = "ytm.semantic_alignment.v1"
+SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "semantic_alignment_check_prompt.txt"
+SEMANTIC_ALIGNMENT_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "semantic_alignment_fix_prompt.txt"
+SEMANTIC_ALIGNMENT_FIX_MINOR_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "semantic_alignment_fix_minor_prompt.txt"
+
 # Tunables
 CHAPTER_WORD_CAP = int(os.getenv("SCRIPT_CHAPTER_WORD_CAP", "1600"))
 FORMAT_CHUNK_LEN = int(os.getenv("SCRIPT_FORMAT_CHUNK_LEN", "600"))
@@ -249,6 +255,39 @@ def _truthy_env(name: str, default: str = "1") -> bool:
     return str(raw).strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _truncate_for_semantic_check(script: str, max_chars: int) -> tuple[str, Dict[str, Any]]:
+    """
+    Keep semantic-alignment LLM inputs bounded to avoid context blowups.
+    Returns (text_for_check, meta).
+    """
+    text = (script or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if max_chars <= 0 or len(text) <= max_chars:
+        return text, {"truncated": False, "char_count": len(text), "max_chars": max_chars}
+
+    marker = "\n...\n"
+    # Budget for head+tail around a visible omission marker.
+    budget = max(0, max_chars - len(marker))
+    head_len = budget // 2
+    tail_len = budget - head_len
+    head = text[:head_len].rstrip()
+    tail = text[-tail_len:].lstrip() if tail_len > 0 else ""
+    out = f"{head}{marker}{tail}" if tail else head
+    return out, {
+        "truncated": True,
+        "char_count": len(text),
+        "max_chars": max_chars,
+        "head_chars": len(head),
+        "tail_chars": len(tail),
+    }
+
+
+def _semantic_alignment_is_pass(verdict: str, require_ok: bool) -> bool:
+    v = str(verdict or "").strip().lower()
+    if require_ok:
+        return v == "ok"
+    return v in {"ok", "minor"}
+
+
 def _extract_bracket_tag(text: str | None) -> str:
     """
     Extract `【...】` token from Japanese titles/planning fields.
@@ -257,6 +296,172 @@ def _extract_bracket_tag(text: str | None) -> str:
     raw = str(text or "")
     m = re.search(r"【([^】]+)】", raw)
     return (m.group(1) or "").strip() if m else ""
+
+
+def _normalize_fullwidth_digits(text: str) -> str:
+    if not text:
+        return ""
+    # ０１２３… -> 0123…
+    return text.translate(str.maketrans("０１２３４５６７８９", "0123456789"))
+
+
+def _kanji_number_to_int(token: str) -> int | None:
+    """
+    Parse simple Japanese kanji numerals (<= 99) like:
+    - 一..九, 十, 十一, 二十, 二十一
+    """
+    raw = str(token or "").strip()
+    if not raw:
+        return None
+    digits = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if raw in digits:
+        return digits[raw]
+    if raw == "十":
+        return 10
+    if "十" in raw:
+        left, _, right = raw.partition("十")
+        tens = digits.get(left, 1) if left else 1
+        ones = digits.get(right, 0) if right else 0
+        out = tens * 10 + ones
+        return out if out > 0 else None
+    return None
+
+
+def _extract_numeric_promise(planning_text: str) -> int | None:
+    """
+    Extract "Nつ" promise from title/thumbnail text (e.g., "7つの教え").
+    Returns N when N>=2 (avoid noise).
+    """
+    t = _normalize_fullwidth_digits(str(planning_text or ""))
+    m = re.search(r"([0-9]{1,2})\s*つ", t)
+    if m:
+        try:
+            n = int(m.group(1))
+        except Exception:
+            n = 0
+        return n if 2 <= n <= 20 else None
+
+    m2 = re.search(r"([一二三四五六七八九十]{1,3})\s*つ", t)
+    if m2:
+        n2 = _kanji_number_to_int(m2.group(1))
+        return n2 if n2 and 2 <= n2 <= 20 else None
+    return None
+
+
+def _extract_numeric_ordinals(text: str) -> set[int]:
+    """
+    Extract ordinals like "一つ目" / "7つ目" from A-text to sanity-check numeric promises.
+    """
+    t = _normalize_fullwidth_digits(str(text or ""))
+    out: set[int] = set()
+    for m in re.finditer(r"([0-9]{1,2}|[一二三四五六七八九十]{1,3})\s*つ目", t):
+        token = str(m.group(1) or "").strip()
+        if not token:
+            continue
+        n: int | None
+        if token.isdigit():
+            try:
+                n = int(token)
+            except Exception:
+                n = None
+        else:
+            n = _kanji_number_to_int(token)
+        if n:
+            out.add(n)
+    return out
+
+
+def _apply_semantic_alignment_numeric_sanity(
+    report_obj: Dict[str, Any],
+    *,
+    title: str,
+    thumb_top: str,
+    thumb_bottom: str,
+    script_text: str,
+    truncated: bool,
+) -> tuple[Dict[str, Any], bool]:
+    """
+    Fix false negatives like:
+      - LLM says "Nつが回収されていない" but A-text contains 一つ目..Nつ目.
+    Returns (updated_report_obj, changed_flag).
+    """
+    if not isinstance(report_obj, dict) or truncated:
+        return report_obj, False
+
+    planning_text = " ".join([str(title or ""), str(thumb_top or ""), str(thumb_bottom or "")]).strip()
+    n = _extract_numeric_promise(planning_text)
+    if not n:
+        return report_obj, False
+
+    ordinals = _extract_numeric_ordinals(script_text or "")
+    need = set(range(1, n + 1))
+    satisfied = bool(need) and need.issubset(ordinals)
+    if not satisfied:
+        # Still record as debug signal (non-breaking).
+        try:
+            report_obj.setdefault("postprocess", {})["numeric_promise_sanity"] = {
+                "n": n,
+                "ordinals_found": sorted(ordinals),
+                "satisfied": False,
+            }
+        except Exception:
+            pass
+        return report_obj, False
+
+    changed = False
+    try:
+        pp = report_obj.setdefault("postprocess", {})
+        pp["numeric_promise_sanity"] = {
+            "n": n,
+            "ordinals_found": sorted(ordinals),
+            "satisfied": True,
+        }
+    except Exception:
+        pp = None
+
+    mismatch = report_obj.get("mismatch_points")
+    if isinstance(mismatch, list) and mismatch:
+        kept: list[Any] = []
+        removed: list[str] = []
+        n_digit = f"{n}つ"
+        kanji_n = None
+        try:
+            # Cheap reverse mapping for small n
+            rev = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九", 10: "十"}
+            if n in rev:
+                kanji_n = rev[n] + "つ"
+        except Exception:
+            kanji_n = None
+
+        for mp in mismatch:
+            s = str(mp or "")
+            if n_digit in s or (kanji_n and kanji_n in s):
+                removed.append(s)
+                changed = True
+                continue
+            kept.append(mp)
+
+        if changed:
+            report_obj["mismatch_points"] = kept
+            try:
+                if isinstance(pp, dict):
+                    pp["numeric_promise_removed_mismatch_points"] = removed
+            except Exception:
+                pass
+
+            old_verdict = str(report_obj.get("verdict") or "").strip().lower()
+            if old_verdict == "minor" and not kept:
+                report_obj["verdict"] = "ok"
+                report_obj["fix_actions"] = []
+                report_obj["rewrite_notes"] = ""
+                changed = True
+                try:
+                    if isinstance(pp, dict):
+                        pp["upgraded_verdict"] = {"from": old_verdict, "to": "ok"}
+                except Exception:
+                    pass
+
+    return report_obj, changed
 
 
 def _derive_ch10_key_concept(title: str | None) -> str:
@@ -520,14 +725,14 @@ def _sanitize_a_text_bullet_prefixes(text: str) -> str:
     for ln in normalized.split("\n"):
         original = ln
         stripped = ln.lstrip()
-        # Unordered bullets: -, *, +, ・
-        m = re.match(r"^(?:[-*+]\s+|・\s*)(\S.*)$", stripped)
+        # Unordered bullets: -, *, +, •, ・
+        m = re.match(r"^(?:[-*+•]\s+|・\s*)(\S.*)$", stripped)
         if m:
             ln = m.group(1).strip()
             changed = True
         else:
-            # Ordered bullets: 1. / 1) / 1） / 1:
-            m2 = re.match(r"^\d+\s*(?:[.)]|）|:|：)\s*(\S.*)$", stripped)
+            # Ordered bullets: 1. / 1) / 1） / 1: / 1、
+            m2 = re.match(r"^\d+\s*(?:[.)]|）|:|：|、)\s*(\S.*)$", stripped)
             if m2:
                 ln = m2.group(1).strip()
                 changed = True
@@ -731,6 +936,158 @@ def _trim_compact_text_to_chars(text: str, *, max_chars: int, min_chars: int | N
     if best >= boundary_min:
         return compact[: best + 1].strip()
     return compact
+
+
+def _count_a_text_spoken_chars(text: str) -> int:
+    """
+    Count "spoken" characters, matching validate_a_text() intent:
+    - exclude pause-only lines (`---`)
+    - exclude whitespace/newlines
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines: List[str] = []
+    for line in normalized.split("\n"):
+        if line.strip() == "---":
+            continue
+        lines.append(line)
+    compact = "".join(lines)
+    compact = compact.replace(" ", "").replace("\t", "").replace("\u3000", "")
+    return len(compact.strip())
+
+
+def _trim_a_text_to_spoken_char_limit(text: str, *, max_chars: int, min_chars: int | None = None) -> str:
+    """
+    Deterministically trim A-text to <= max_chars (spoken char count),
+    while preserving formatting as much as possible.
+    """
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.strip():
+        return ""
+    try:
+        max_i = int(max_chars)
+    except Exception:
+        return raw.strip() + "\n"
+    if max_i <= 0:
+        return ""
+
+    # If already within the limit, keep as-is (normalized).
+    if _count_a_text_spoken_chars(raw) <= max_i:
+        return raw.strip() + "\n"
+
+    boundary_min = int(max_i * 0.6)
+    if isinstance(min_chars, int) and min_chars > 0:
+        boundary_min = min(max_i, max(boundary_min, min_chars))
+
+    out: list[str] = []
+    spoken = 0
+    last_boundary_out_len: int | None = None
+    last_boundary_spoken: int | None = None
+
+    def _mark_boundary() -> None:
+        nonlocal last_boundary_out_len, last_boundary_spoken
+        last_boundary_out_len = len(out)
+        last_boundary_spoken = spoken
+
+    stop = False
+    for ln in raw.split("\n"):
+        if ln.strip() == "---":
+            out.append("---")
+            out.append("\n")
+            _mark_boundary()
+            continue
+
+        for ch in ln:
+            if ch in (" ", "\t", "\u3000"):
+                out.append(ch)
+                continue
+            if spoken >= max_i:
+                stop = True
+                break
+            spoken += 1
+            out.append(ch)
+            if ch in ("。", "！", "？", "!", "?"):
+                _mark_boundary()
+
+        out.append("\n")
+        if stop:
+            break
+
+    if stop and last_boundary_out_len is not None and (last_boundary_spoken or 0) >= boundary_min:
+        out = out[:last_boundary_out_len]
+
+    trimmed = "".join(out).strip()
+    if not trimmed:
+        return ""
+    return trimmed + "\n"
+
+
+def _budget_trim_a_text_to_target(text: str, *, target_chars: int, min_segment_chars: int = 120) -> str:
+    """
+    Deterministically shrink A-text by trimming each pause-delimited segment to a proportional budget.
+    Keeps the number/positions of pause markers (`---`) stable.
+    """
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.strip():
+        return ""
+    try:
+        target_total = int(target_chars)
+    except Exception:
+        return raw.strip() + "\n"
+    if target_total <= 0:
+        return ""
+
+    # Split by pause lines.
+    segments: list[str] = []
+    cur: list[str] = []
+    for ln in raw.split("\n"):
+        if ln.strip() == "---":
+            segments.append("\n".join(cur).strip())
+            cur = []
+            continue
+        cur.append(ln)
+    segments.append("\n".join(cur).strip())
+
+    counts = [_count_a_text_spoken_chars(seg) for seg in segments]
+    total = sum(counts)
+    if total <= target_total:
+        return raw.strip() + "\n"
+
+    seg_n = len(segments)
+    min_seg = max(0, int(min_segment_chars))
+    if seg_n > 0 and min_seg * seg_n > target_total:
+        min_seg = max(0, target_total // seg_n)
+
+    # Proportional allocation (bounded by per-segment minimum).
+    budgets: list[int] = []
+    for c in counts:
+        if total > 0:
+            b = int(round((c * target_total) / total))
+        else:
+            b = 0
+        budgets.append(max(min_seg, b))
+
+    # Ensure we don't exceed the target_total due to rounding/minimums.
+    while sum(budgets) > target_total and seg_n > 0:
+        # Reduce the largest budget that is above min_seg.
+        idx = max(range(seg_n), key=lambda i: budgets[i])
+        if budgets[idx] <= min_seg:
+            break
+        budgets[idx] -= 1
+
+    trimmed_segments: list[str] = []
+    for seg, b in zip(segments, budgets):
+        if not seg.strip():
+            trimmed_segments.append("")
+            continue
+        trimmed_segments.append(_trim_a_text_to_spoken_char_limit(seg, max_chars=b).strip())
+
+    parts: list[str] = []
+    for i, seg in enumerate(trimmed_segments):
+        if seg.strip():
+            parts.append(seg.strip())
+        if i < len(trimmed_segments) - 1:
+            parts.append("---")
+    return "\n\n".join(parts).strip() + "\n"
 
 
 def _insert_addition_after_pause(
@@ -993,6 +1350,162 @@ def _build_planning_hint(meta: Dict[str, Any]) -> str:
     for key, value in fields:
         if isinstance(value, str) and value.strip():
             lines.append(f"- {key}: {value.strip()}")
+    return "\n".join(lines).strip()
+
+
+def _preferred_title_for_pattern(st: "Status") -> str:
+    """
+    Prefer Planning-derived title for deterministic pattern selection & prompt context.
+    This avoids drift when metadata.title is stale or contaminated.
+    """
+    planning_title = ""
+    try:
+        planning_title = str((st.metadata or {}).get("sheet_title") or "").strip()
+    except Exception:
+        planning_title = ""
+    if not planning_title:
+        try:
+            align = (st.metadata or {}).get("alignment") if isinstance(st.metadata, dict) else None
+            if isinstance(align, dict):
+                planning = align.get("planning")
+                if isinstance(planning, dict):
+                    planning_title = str(planning.get("title") or "").strip()
+        except Exception:
+            planning_title = ""
+    if not planning_title:
+        planning_title = str((st.metadata or {}).get("expected_title") or (st.metadata or {}).get("title") or st.script_id).strip()
+    return planning_title
+
+
+def _a_text_plan_summary_for_prompt(st: "Status", *, max_chars: int = 1100) -> str:
+    """
+    Deterministic "plan summary" injected into Outline/Brief/Chapter prompts.
+    The goal is to keep long scripts on-rails without relying on brittle fixed phrases.
+    """
+    title_for_pattern = _preferred_title_for_pattern(st)
+    try:
+        plan_obj = _build_deterministic_rebuild_plan(st, title_for_pattern, {})
+    except Exception:
+        plan_obj = {}
+
+    lines: list[str] = []
+    if isinstance(plan_obj, dict):
+        pid = str(plan_obj.get("pattern_id") or "").strip()
+        if pid:
+            lines.append(f"- pattern_id: {pid}")
+        core = str(plan_obj.get("core_message") or "").strip()
+        if core:
+            lines.append(f"- core_message: {core}")
+
+        modern = plan_obj.get("modern_examples_policy") if isinstance(plan_obj.get("modern_examples_policy"), dict) else {}
+        if isinstance(modern, dict) and modern.get("max_examples") not in (None, ""):
+            lines.append(f"- modern_examples_max: {modern.get('max_examples')}")
+
+        sections = plan_obj.get("sections")
+        if isinstance(sections, list) and sections:
+            lines.append("- sections:")
+            for s in sections:
+                if not isinstance(s, dict):
+                    continue
+                name = str(s.get("name") or "").strip()
+                if not name:
+                    continue
+                goal = str(s.get("goal") or "").strip()
+                try:
+                    budget = int(s.get("char_budget") or 0)
+                except Exception:
+                    budget = 0
+                if goal and budget > 0:
+                    lines.append(f"- {name} ({budget}字): {goal}")
+                elif goal:
+                    lines.append(f"- {name}: {goal}")
+                elif budget > 0:
+                    lines.append(f"- {name} ({budget}字)")
+                else:
+                    lines.append(f"- {name}")
+
+    planning_hint = _build_planning_hint(st.metadata or {})
+    if planning_hint:
+        lines.append("- planning_hint:")
+        lines.extend([ln for ln in planning_hint.splitlines() if ln.strip()])
+
+    out = "\n".join([ln for ln in lines if str(ln).strip()]).strip()
+    if not out:
+        return ""
+    # Keep prompt context compact and reduce quote/paren confusion.
+    return _sanitize_quality_gate_context(out, max_chars=max(1, int(max_chars)))
+
+
+def _core_episode_guide_for_prompt(st: "Status", *, max_chars: int = 650) -> str:
+    """
+    Optional: a safe, SSOT-backed "core episode" guide (e.g., CH07 Buddhist episodes).
+    Empty string when not applicable.
+    """
+    title_for_pattern = _preferred_title_for_pattern(st)
+    try:
+        patterns_doc = _load_a_text_patterns_doc()
+        pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_pattern) if patterns_doc else {}
+    except Exception:
+        pat = {}
+    plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
+    if not isinstance(plan_cfg, dict):
+        plan_cfg = {}
+    cands = plan_cfg.get("core_episode_candidates") or plan_cfg.get("buddhist_episode_candidates")
+    picked = _pick_core_episode(cands, title_for_pattern)
+    if not isinstance(picked, dict) or not picked:
+        return ""
+
+    topic = str(picked.get("topic") or picked.get("id") or "").strip()
+    must = picked.get("must_include")
+    avoid = picked.get("avoid_claims")
+    safe_retelling = str(picked.get("safe_retelling") or "").strip()
+
+    lines: list[str] = []
+    if topic:
+        lines.append(f"- {topic}")
+    if isinstance(must, list):
+        must_txt = " / ".join([str(x).strip() for x in must if str(x).strip()][:4]).strip()
+        if must_txt:
+            lines.append(f"- must_include: {must_txt}")
+    if isinstance(avoid, list):
+        avoid_txt = " / ".join([str(x).strip() for x in avoid if str(x).strip()][:3]).strip()
+        if avoid_txt:
+            lines.append(f"- avoid_claims: {avoid_txt}")
+    if safe_retelling:
+        safe_norm = re.sub(r"\\s+", " ", safe_retelling).strip()
+        lines.append(f"- safe_retelling: {safe_norm}")
+
+    out = "\n".join([ln for ln in lines if ln.strip()]).strip()
+    if not out:
+        return ""
+    return _sanitize_quality_gate_context(out, max_chars=max(1, int(max_chars)))
+
+
+def _outline_format_example(chapter_count: Any) -> str:
+    """
+    Build an unambiguous Markdown skeleton for outline generation.
+    This must work even when CHAPTER_COUNT == 1 (avoid contradictory examples).
+    """
+    try:
+        n = int(chapter_count)
+    except Exception:
+        n = 0
+    n = max(1, n)
+    if n > 12:
+        n = 12
+
+    lines: list[str] = []
+    lines.append("```")
+    lines.append("# 導入")
+    lines.append("(導入を2-4文)")
+    lines.append("")
+    for i in range(1, n + 1):
+        lines.append(f"## 第{i}章、（固有要素を含む見出し）")
+        lines.append("(2-4文)")
+        lines.append("")
+    lines.append("# まとめ")
+    lines.append("(2-4文)")
+    lines.append("```")
     return "\n".join(lines).strip()
 
 
@@ -2661,7 +3174,23 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
         outputs = sd.get("outputs") or []
 
         # Once assembled is present, upstream intermediates are allowed missing.
+        # Still perform light housekeeping (clear stale error markers / update chapter_count when possible).
         if assembled_ok and name in {"topic_research", "script_outline", "chapter_brief", "script_draft"}:
+            if isinstance(state.details, dict) and state.details.get("error") and state.status == "completed":
+                state.details.pop("error", None)
+                state.details.pop("fix_hints", None)
+                state.details["reconciled_error_cleared"] = True
+                changed = True
+            if name == "script_outline":
+                try:
+                    outline_path = base / "content" / "outline.md"
+                    if outline_path.exists():
+                        outline_count = len(_parse_outline_chapters(base))
+                        if outline_count > 0 and st.metadata.get("chapter_count") != outline_count:
+                            st.metadata["chapter_count"] = outline_count
+                            changed = True
+                except Exception:
+                    pass
             continue
         # quality_check output may be archived after final validation.
         if (
@@ -2736,18 +3265,74 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
                     continue
             stage_ok = _reconciled_outputs_ok(base, channel, video, outputs)
 
+        # Stronger reconciliation for structure-sensitive stages:
+        # - Don't mark as completed just because the file exists.
+        # - Prefer the observed outline chapter count as the canonical chapter_count going forward.
+        if name == "script_outline":
+            stage_ok = bool(_ensure_outline_structure(base, st))
+            if stage_ok:
+                # If the semantic-alignment gate says "major", the outline is not valid even if it parses.
+                gate = state.details.get("semantic_alignment_gate") if isinstance(state.details, dict) else None
+                gate_verdict = str((gate or {}).get("verdict") or "").strip().lower() if isinstance(gate, dict) else ""
+                if gate_verdict == "major":
+                    stage_ok = False
+                try:
+                    outline_count = len(_parse_outline_chapters(base))
+                except Exception:
+                    outline_count = 0
+                if outline_count > 0 and st.metadata.get("chapter_count") != outline_count:
+                    st.metadata["chapter_count"] = outline_count
+                    changed = True
+        elif name == "chapter_brief":
+            try:
+                chapters = _parse_outline_chapters(base)
+                briefs = _load_all_chapter_briefs(base)
+                if chapters and briefs:
+                    brief_nums = {int(b.get("chapter", -1)) for b in briefs if isinstance(b, dict)}
+                    chapter_nums = {num for num, _ in chapters}
+                    stage_ok = brief_nums == chapter_nums
+                else:
+                    stage_ok = False
+            except Exception:
+                stage_ok = False
+
         if stage_ok:
             if state.status != "completed":
                 state.status = "completed"
                 state.details["reconciled"] = True
                 changed = True
-            if name == "script_validation" and st.status in {"pending", "script_in_progress", "processing", "unknown", "failed", "script_completed"}:
+            # Clear stale error markers if artifacts are present and validated.
+            if isinstance(state.details, dict) and state.details.get("error"):
+                state.details.pop("error", None)
+                state.details.pop("fix_hints", None)
+                changed = True
+            if name == "script_validation" and st.status in {
+                "pending",
+                "script_in_progress",
+                "processing",
+                "unknown",
+                "failed",
+                "script_completed",
+            }:
                 st.status = "script_validated"
                 changed = True
-        elif allow_downgrade and state.status == "completed":
-            state.status = "pending"
-            state.details["reconciled_downgrade"] = True
-            changed = True
+        else:
+            # Safety: semantic-major must not be treated as completed, even when allow_downgrade=False.
+            if name == "script_outline" and state.status == "completed":
+                gate = state.details.get("semantic_alignment_gate") if isinstance(state.details, dict) else None
+                gate_verdict = (
+                    str((gate or {}).get("verdict") or "").strip().lower() if isinstance(gate, dict) else ""
+                )
+                if gate_verdict == "major":
+                    state.status = "pending"
+                    if isinstance(state.details, dict):
+                        state.details.setdefault("error", "semantic_alignment_major")
+                        state.details["reconciled_semantic_major_demote"] = True
+                    changed = True
+            elif allow_downgrade and state.status == "completed":
+                state.status = "pending"
+                state.details["reconciled_downgrade"] = True
+                changed = True
 
     script_review_completed = bool(st.stages.get("script_review") and st.stages["script_review"].status == "completed")
 
@@ -3467,6 +4052,10 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         ph_values[k] = resolved_val
 
     prompt_text = _render_template(candidate, ph_values)
+    # Safety: never send prompts with unresolved placeholders to LLMs.
+    unresolved = sorted(set(re.findall(r"<<[A-Z0-9_]+>>", prompt_text)))
+    if unresolved:
+        raise SystemExit(f"[{stage}] unresolved placeholders in prompt: {', '.join(unresolved)}")
     as_messages_flag = llm_cfg.get("as_messages", False)
 
     messages: List[Dict[str, str]] = []
@@ -3820,6 +4409,27 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
     if not sd:
         raise SystemExit(f"stage definition not found: {stage_name}")
 
+    # Optional hard-stop: if planning row is internally inconsistent, fail fast before expensive LLM stages.
+    # Default OFF to avoid blocking runs; set SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1 for strict/cost-saving ops.
+    if stage_name in {"topic_research", "script_outline", "chapter_brief", "script_draft"} and _truthy_env(
+        "SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH", "0"
+    ):
+        integrity = st.metadata.get("planning_integrity") if isinstance(st.metadata, dict) else None
+        coherence = ""
+        if isinstance(integrity, dict):
+            coherence = str(integrity.get("coherence") or "").strip().lower()
+        if coherence == "tag_mismatch":
+            st.status = "script_in_progress"
+            st.stages[stage_name].status = "pending"
+            st.stages[stage_name].details["error"] = "planning_tag_mismatch"
+            st.stages[stage_name].details["fix_hints"] = [
+                "Planning CSVの行が混線している可能性が高いため停止しました（タイトル先頭の【…】と企画要約先頭の【…】が不一致）。",
+                "対処: workspaces/planning/channels/CHxx.csv の該当行を修正（タイトル/企画要約の混線を解消）してから再実行してください。",
+                f"rerun: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage {stage_name}",
+            ]
+            save_status(st)
+            return st
+
     st.status = "script_in_progress"
     st.stages[stage_name].status = "processing"
     save_status(st)
@@ -3838,7 +4448,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         if not target_count:
             target_count = 7
             st.metadata["chapter_count"] = target_count
-        outline_extra = {"WORD_TARGET_TOTAL": str(_total_word_target(st))}
+        outline_extra = {
+            "WORD_TARGET_TOTAL": str(_total_word_target(st)),
+            "A_TEXT_PLAN_SUMMARY": _a_text_plan_summary_for_prompt(st),
+            "OUTLINE_FORMAT_EXAMPLE": _outline_format_example(st.metadata.get("chapter_count") or target_count or 1),
+        }
         ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=outline_extra)
         if ran_llm:
             _normalize_llm_output(base / outputs[0].get("path"), stage_name)
@@ -3864,19 +4478,201 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             if chs:
                 outline_count = len(chs)
                 if target_count and outline_count != target_count:
-                    st.stages[stage_name].status = "pending"
-                    st.stages[stage_name].details["error"] = "chapter_count_mismatch"
-                    st.stages[stage_name].details["outline_count"] = outline_count
-                    st.stages[stage_name].details["expected_count"] = target_count
-                    st.status = "script_in_progress"
-                    save_status(st)
-                    return st
+                    # Self-heal: prefer the actually generated outline structure.
+                    # This avoids halting the pipeline and keeps downstream stages consistent.
+                    st.stages[stage_name].details["chapter_count_mismatch"] = {
+                        "expected": target_count,
+                        "observed": outline_count,
+                    }
                 st.metadata["chapter_count"] = outline_count
         except Exception:
             pass
+
+        # Early semantic alignment preflight (cheap): stop drift before expensive chapter drafts.
+        outline_semantic_enabled = _truthy_env("SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE", "1") and os.getenv(
+            "SCRIPT_PIPELINE_DRY", "0"
+        ) != "1"
+        if outline_semantic_enabled:
+            try:
+                outline_path = base / str(outputs[0].get("path") or "content/outline.md")
+                outline_text = outline_path.read_text(encoding="utf-8") if outline_path.exists() else ""
+
+                report_dir = base / "content" / "analysis" / "alignment"
+                report_dir.mkdir(parents=True, exist_ok=True)
+                report_path = report_dir / "outline_semantic_alignment.json"
+
+                planning = opt_fields.get_planning_section(st.metadata or {})
+                integrity = (
+                    st.metadata.get("planning_integrity")
+                    if isinstance((st.metadata or {}).get("planning_integrity"), dict)
+                    else {}
+                )
+                coherence = str(integrity.get("coherence") or "").strip().lower()
+                drop_l2_theme_hints = bool(integrity.get("drop_theme_hints")) or coherence in {
+                    "tag_mismatch",
+                    "no_title_tag",
+                }
+
+                channel_name = str((st.metadata or {}).get("channel_display_name") or st.channel).strip()
+                title_for_alignment = str(
+                    (st.metadata or {}).get("sheet_title")
+                    or (st.metadata or {}).get("expected_title")
+                    or (st.metadata or {}).get("title")
+                    or st.script_id
+                ).strip()
+                thumb_top = str(planning.get("thumbnail_upper") or (st.metadata or {}).get("thumbnail_title_top") or "").strip()
+                thumb_bottom = str(planning.get("thumbnail_lower") or (st.metadata or {}).get("thumbnail_title_bottom") or "").strip()
+                concept_intent = ""
+                if not drop_l2_theme_hints:
+                    concept_intent = str(planning.get("concept_intent") or (st.metadata or {}).get("concept_intent") or "").strip()
+                target_audience = str(planning.get("target_audience") or (st.metadata or {}).get("target_audience") or "").strip()
+                pain_tag = ""
+                if not drop_l2_theme_hints:
+                    pain_tag = str(planning.get("primary_pain_tag") or (st.metadata or {}).get("main_tag") or "").strip()
+                benefit = ""
+                if not drop_l2_theme_hints:
+                    benefit = str(planning.get("benefit_blurb") or (st.metadata or {}).get("benefit") or "").strip()
+
+                import hashlib
+
+                def _sha1_text(text: str) -> str:
+                    h = hashlib.sha1()
+                    norm = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                    h.update(norm.encode("utf-8"))
+                    return h.hexdigest()
+
+                outline_hash = _sha1_text(outline_text)
+                check_prompt_sha1 = ""
+                try:
+                    check_prompt_sha1 = _sha1_text(
+                        SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH.read_text(encoding="utf-8")
+                    )
+                except Exception:
+                    check_prompt_sha1 = ""
+                planning_snapshot = {
+                    "title": title_for_alignment,
+                    "thumbnail_upper": thumb_top,
+                    "thumbnail_lower": thumb_bottom,
+                }
+                prev_gate = (
+                    st.stages[stage_name].details.get("semantic_alignment_gate")
+                    if isinstance(st.stages[stage_name].details.get("semantic_alignment_gate"), dict)
+                    else {}
+                )
+                prev_prompt_sha1 = str(prev_gate.get("prompt_sha1") or "").strip()
+                reuse_ok = (
+                    str(prev_gate.get("schema") or "").strip() == SEMANTIC_ALIGNMENT_SCHEMA
+                    and str(prev_gate.get("outline_hash") or "").strip() == outline_hash
+                    and (prev_gate.get("planning_snapshot") if isinstance(prev_gate.get("planning_snapshot"), dict) else {}) == planning_snapshot
+                    and (not check_prompt_sha1 or prev_prompt_sha1 == check_prompt_sha1)
+                    and str(prev_gate.get("verdict") or "").strip().lower() in {"ok", "minor", "major"}
+                    and report_path.exists()
+                )
+                verdict = str(prev_gate.get("verdict") or "").strip().lower() if reuse_ok else ""
+
+                if not reuse_ok:
+                    prompt = _render_template(
+                        SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH,
+                        {
+                            "CHANNEL_NAME": channel_name,
+                            "TITLE": title_for_alignment,
+                            "THUMB_TOP": thumb_top,
+                            "THUMB_BOTTOM": thumb_bottom,
+                            "CONCEPT_INTENT": concept_intent,
+                            "TARGET_AUDIENCE": target_audience,
+                            "PAIN_TAG": pain_tag,
+                            "BENEFIT": benefit,
+                            "SCRIPT": "（これは台本本文ではなくアウトラインです。章見出しと要約だけです。）\n"
+                            + (outline_text or "").strip(),
+                        },
+                    )
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        check_result = router_client.call_with_raw(
+                            task="script_semantic_alignment_check",
+                            messages=[{"role": "user", "content": prompt}],
+                            response_format="json_object",
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    raw = _extract_llm_text_content(check_result)
+                    try:
+                        report_obj = _parse_json_lenient(raw)
+                    except Exception:
+                        report_obj = {}
+                    verdict = str(report_obj.get("verdict") or "").strip().lower()
+                    if verdict not in {"ok", "minor", "major"}:
+                        verdict = "minor"
+                        try:
+                            report_obj["verdict"] = verdict
+                        except Exception:
+                            pass
+
+                    report_path.write_text(
+                        json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+
+                    st.stages[stage_name].details["semantic_alignment_gate"] = {
+                        "schema": SEMANTIC_ALIGNMENT_SCHEMA,
+                        "computed_at": utc_now_iso(),
+                        "stage": "script_outline",
+                        "verdict": verdict,
+                        "report_path": str(report_path.relative_to(base)),
+                        "outline_hash": outline_hash,
+                        "planning_snapshot": planning_snapshot,
+                        "prompt_sha1": check_prompt_sha1,
+                        "llm": {
+                            "provider": check_result.get("provider"),
+                            "model": check_result.get("model"),
+                            "request_id": check_result.get("request_id"),
+                            "chain": check_result.get("chain"),
+                            "latency_ms": check_result.get("latency_ms"),
+                            "usage": check_result.get("usage") or {},
+                        },
+                        "reused": False,
+                    }
+                else:
+                    st.stages[stage_name].details["semantic_alignment_gate"] = {
+                        **prev_gate,
+                        "reused": True,
+                    }
+
+                if verdict == "major":
+                    st.stages[stage_name].status = "pending"
+                    st.stages[stage_name].details["error"] = "semantic_alignment_major"
+                    st.stages[stage_name].details["fix_hints"] = [
+                        "アウトラインが企画（タイトル/サムネ訴求）から明確に逸脱しています（意味整合NG）。",
+                        f"semantic_report: {report_path.relative_to(base)}",
+                        "対処: 企画CSVを確認し、アウトラインを作り直してください（script_outlineを再実行）。",
+                        f"rerun: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_outline",
+                    ]
+                    st.status = "script_in_progress"
+                    save_status(st)
+                    return st
+            except Exception as exc:
+                st.stages[stage_name].status = "pending"
+                st.stages[stage_name].details["error"] = "semantic_alignment_gate_failed"
+                st.stages[stage_name].details["exception"] = str(exc)
+                st.stages[stage_name].details["fix_hints"] = [
+                    "アウトライン意味整合ゲートが実行できず停止しました。まずは script_outline を再実行してください。",
+                    f"retry: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_outline",
+                ]
+                st.status = "script_in_progress"
+                save_status(st)
+                return st
+
         st.stages[stage_name].details["generated"] = [out.get("path") for out in outputs if out.get("path")]
     elif stage_name == "chapter_brief":
-        brief_extra = {"WORD_TARGET_TOTAL": str(_total_word_target(st))}
+        brief_extra = {
+            "WORD_TARGET_TOTAL": str(_total_word_target(st)),
+            "A_TEXT_PLAN_SUMMARY": _a_text_plan_summary_for_prompt(st),
+        }
         ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=brief_extra)
         if not ran_llm:
             try:
@@ -3932,6 +4728,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             save_status(st)
             return st
         gen_paths: List[str] = []
+        plan_summary = _a_text_plan_summary_for_prompt(st)
+        rules_summary = _a_text_rules_summary(st.metadata or {})
+        core_episode_guide = _core_episode_guide_for_prompt(st)
+        total_chapters = str(len(chapters))
         # 1章あたりの目標文字数
         # CH05は短尺（~900字/章）で総量5.5k〜7kを狙う
         if st.channel == "CH05":
@@ -3962,7 +4762,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 extra_ph = {
                     "CHAPTER_NUMBER": str(num),
                     "CHAPTER_TITLE": heading,
+                    "TOTAL_CHAPTERS": total_chapters,
                     "WORD_TARGET": str(per_chapter),
+                    "A_TEXT_PLAN_SUMMARY": plan_summary,
+                    "CORE_EPISODE_GUIDE": core_episode_guide,
+                    "A_TEXT_RULES_SUMMARY": rules_summary,
                     "CHAPTER_JSON": json.dumps({"heading": heading}, ensure_ascii=False),
                     "OUTLINE_TEXT": f"@{(base / 'content/outline.md').resolve()}",
                     "META_JSON": json.dumps(st.metadata, ensure_ascii=False),
@@ -4024,7 +4828,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         assembled_body_parts = [t for t in chapter_texts if t]
         if cta_text and include_cta:
             assembled_body_parts.append(cta_text)
-        assembled_body = "\n\n".join(assembled_body_parts).strip()
+        assembled_body = "\n\n---\n\n".join(assembled_body_parts).strip()
         assembled_path.parent.mkdir(parents=True, exist_ok=True)
         assembled_path.write_text((assembled_body + "\n") if assembled_body else "", encoding="utf-8")
         # Final guard: strip meta citations/URLs from the spoken script.
@@ -4098,6 +4902,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         assembled_path = content_dir / "assembled.md"
         canonical_path = human_path if human_path.exists() else assembled_path
 
+        # Reset stale failure markers so each run reflects current state.
+        stage_details = st.stages[stage_name].details
+        stage_details.pop("error", None)
+        stage_details.pop("issues", None)
+        stage_details.pop("error_codes", None)
+        stage_details.pop("fix_hints", None)
+        stage_details.pop("auto_length_fix", None)
+        stage_details.pop("auto_length_fix_failed", None)
+        stage_details.pop("auto_length_fix_backup", None)
+        stage_details.pop("auto_length_fix_fallback", None)
+
         if not canonical_path.exists():
             st.stages[stage_name].status = "pending"
             st.stages[stage_name].details["error"] = "missing_a_text"
@@ -4123,7 +4938,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         # Pre-clean before any LLM gate: fix pause lines + bracket marks deterministically.
         # (SSOT: OPS_A_TEXT_GLOBAL_RULES.md / OPS_A_TEXT_LLM_QUALITY_GATE.md)
         if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
-            stage_details = st.stages[stage_name].details
             cleanup_details: Dict[str, Any] = {}
 
             try:
@@ -4452,7 +5266,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         paren_max2 = 10
 
                     passes: list[dict[str, Any]] = []
-                    for pass_no in range(1, 3):
+                    for pass_no in range(1, 4):
                         rescued = _sanitize_inline_pause_markers(rescued)
                         rescued = _sanitize_a_text_forbidden_statistics(rescued)
 
@@ -4522,6 +5336,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             break
                         cur_shortage = cur_min - cur_char
                         if cur_shortage <= 0:
+                            break
+                        # Only allow a 3rd pass when the remaining shortage is small enough
+                        # to be handled by a cheap/contained extension (avoid cost blow-ups).
+                        if pass_no >= 3 and cur_shortage > 1200:
                             break
                         cur_room: int | None = None
                         if isinstance(cur_max, int) and isinstance(cur_char, int) and cur_max > cur_char:
@@ -4976,155 +5794,364 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                 current_text = (a_text or "").strip()
                 last_shrink_meta: Dict[str, Any] | None = None
-                for _round in range(1, max_rounds + 1):
-                    cur_issues, cur_stats = validate_a_text(current_text, st.metadata or {})
-                    cur_errors = [
-                        it
-                        for it in cur_issues
-                        if str((it or {}).get("severity") or "error").lower() != "warning"
-                    ]
-                    cur_codes = {str(it.get("code")) for it in cur_errors if isinstance(it, dict) and it.get("code")}
-                    if not cur_errors:
-                        break
-                    if cur_codes != {"length_too_long"}:
-                        break
-                    try:
-                        target_max = cur_stats.get("target_chars_max")
-                        char_count = cur_stats.get("char_count")
-                        excess = int(char_count) - int(target_max) if target_max is not None else None
-                    except Exception:
-                        excess = None
-                    if not (isinstance(excess, int) and excess > 0):
-                        break
+                try:
+                    quote_max2 = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
+                except Exception:
+                    quote_max2 = 20
+                try:
+                    paren_max2 = int((st.metadata or {}).get("a_text_paren_marks_max") or 10)
+                except Exception:
+                    paren_max2 = 10
+                finally:
 
-                    # Ask for a buffer cut so we don't bounce on the limit.
-                    target_cut = min(max(excess + 250, 700), 2600)
-                    shrink_prompt = _render_template(
-                        A_TEXT_QUALITY_SHRINK_PROMPT_PATH,
-                        {
-                            "CHANNEL_CODE": str(st.channel),
-                            "VIDEO_ID": f"{st.channel}-{st.video}",
-                            "TITLE": title_for_llm,
-                            "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
-                            "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
-                            "PLANNING_HINT": _sanitize_quality_gate_context(_build_planning_hint(st.metadata or {}), max_chars=700),
-                            "PERSONA": _sanitize_quality_gate_context(str(st.metadata.get("persona") or ""), max_chars=850),
-                            "CHANNEL_PROMPT": _sanitize_quality_gate_context(
-                                str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=850
-                            ),
-                            "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(_a_text_rules_summary(st.metadata or {}), max_chars=650),
-                            "A_TEXT": current_text,
-                            "LENGTH_FEEDBACK": _a_text_length_feedback(current_text, st.metadata or {}),
-                            "EXCESS_CHARS": str(excess),
-                            "TARGET_CUT_CHARS": str(target_cut),
-                        },
-                    )
-
-                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
-                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
-                    try:
-                        shrink_result = router_client.call_with_raw(
-                            task=shrink_task,
-                            messages=[{"role": "user", "content": shrink_prompt}],
-                            max_tokens=16384,
-                            temperature=0.2,
-                        )
-                    finally:
-                        if prev_routing_key is None:
-                            os.environ.pop("LLM_ROUTING_KEY", None)
-                        else:
-                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
-
-                    shrunk = _extract_llm_text_content(shrink_result) or ""
-                    if not shrunk.strip():
-                        break
-                    current_text = shrunk.strip()
-                    last_shrink_meta = {
-                        "provider": shrink_result.get("provider"),
-                        "model": shrink_result.get("model"),
-                        "request_id": shrink_result.get("request_id"),
-                        "chain": shrink_result.get("chain"),
-                        "latency_ms": shrink_result.get("latency_ms"),
-                        "usage": shrink_result.get("usage") or {},
-                        "finish_reason": shrink_result.get("finish_reason"),
-                        "routing": shrink_result.get("routing"),
-                        "cache": shrink_result.get("cache"),
-                    }
-
-                candidate_text = current_text.strip() + "\n" if current_text.strip() else ""
-                if candidate_text:
-                    re_issues, re_stats = validate_a_text(candidate_text, st.metadata or {})
-                    re_errors = [
-                        it
-                        for it in re_issues
-                        if str((it or {}).get("severity") or "error").lower() != "warning"
-                    ]
-                    if not re_errors:
-                        # Backup original before rewriting.
+                    def _sanitize_shrink_candidate(text: str) -> str:
+                        out = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                        if not out:
+                            return ""
+                        # Best-effort repairs for common shrink-output hazards.
+                        out = _sanitize_inline_pause_markers(out)
+                        out = _sanitize_a_text_markdown_headings(out)
+                        out = _sanitize_a_text_bullet_prefixes(out)
                         try:
-                            analysis_dir = content_dir / "analysis" / "quality_gate"
-                            analysis_dir.mkdir(parents=True, exist_ok=True)
-                            backup_path = analysis_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
-                            if a_text.strip():
-                                backup_path.write_text(a_text.strip() + "\n", encoding="utf-8")
-                            stage_details["auto_length_fix_backup"] = str(backup_path.relative_to(base))
+                            from factory_common.text_sanitizer import strip_meta_from_script
+    
+                            out = strip_meta_from_script(out).text
                         except Exception:
                             pass
+                        out = _sanitize_a_text_forbidden_statistics(out)
+                        if isinstance(quote_max2, int) and quote_max2 >= 0:
+                            out = _reduce_quote_marks(out, quote_max2)
+                        if isinstance(paren_max2, int) and paren_max2 >= 0:
+                            out = _reduce_paren_marks(out, paren_max2)
+                        return out.strip()
 
-                        # Write canonical and keep mirrors consistent to avoid split-brain.
-                        canonical_path.write_text(candidate_text, encoding="utf-8")
-                        if canonical_path.resolve() != assembled_path.resolve():
-                            assembled_path.parent.mkdir(parents=True, exist_ok=True)
-                            assembled_path.write_text(candidate_text, encoding="utf-8")
-                        if legacy_final.exists():
-                            legacy_final.write_text(candidate_text, encoding="utf-8")
+                    # Keep the auto-shrink loop focused. We can repair some format-only hazards deterministically.
+                    allowed_codes = {
+                        "length_too_long",
+                        "too_many_quotes",
+                        "too_many_parentheses",
+                        "invalid_pause_format",
+                        "markdown_heading",
+                        "forbidden_bullet",
+                        "forbidden_numbered_list",
+                        "forbidden_url",
+                        "forbidden_citation",
+                        "forbidden_statistics",
+                        "forbidden_separator",
+                    }
+                    shrink_attempts: list[dict[str, Any]] = []
+                    for _round in range(1, max_rounds + 1):
+                        current_text = _sanitize_shrink_candidate(current_text)
+                        cur_issues, cur_stats = validate_a_text(current_text, st.metadata or {})
+                        cur_errors = [
+                            it
+                            for it in cur_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        cur_codes = {
+                            str(it.get("code"))
+                            for it in cur_errors
+                            if isinstance(it, dict) and it.get("code")
+                        }
+                        shrink_attempts.append(
+                            {
+                                "round": _round,
+                                "before": {
+                                    "char_count": cur_stats.get("char_count"),
+                                    "target_max": cur_stats.get("target_chars_max"),
+                                    "codes": sorted(cur_codes),
+                                },
+                            }
+                        )
+                        if not cur_errors:
+                            break
+                        if not cur_codes.issubset(allowed_codes):
+                            break
+                        if cur_codes != {"length_too_long"}:
+                            # One more deterministic sanitize pass; if it doesn't reduce to length-only, stop.
+                            current_text = _sanitize_shrink_candidate(current_text)
+                            cur_issues, cur_stats = validate_a_text(current_text, st.metadata or {})
+                            cur_errors = [
+                                it
+                                for it in cur_issues
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            cur_codes = {
+                                str(it.get("code"))
+                                for it in cur_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            shrink_attempts[-1]["after_sanitize"] = {
+                                "char_count": cur_stats.get("char_count"),
+                                "target_max": cur_stats.get("target_chars_max"),
+                                "codes": sorted(cur_codes),
+                            }
+                            if cur_codes != {"length_too_long"}:
+                                break
 
-                        stage_details["stats"] = re_stats
-                        stage_details["auto_length_fix"] = {
-                            "type": "shrink",
-                            "llm_meta": last_shrink_meta,
+                        try:
+                            target_max = cur_stats.get("target_chars_max")
+                            char_count = cur_stats.get("char_count")
+                            excess = int(char_count) - int(target_max) if target_max is not None else None
+                        except Exception:
+                            excess = None
+                        if not (isinstance(excess, int) and excess > 0):
+                            break
+
+                        # Ask for a buffer cut so we don't bounce on the limit.
+                        try:
+                            target_min = cur_stats.get("target_chars_min")
+                            min_i = int(target_min) if target_min is not None else None
+                        except Exception:
+                            min_i = None
+                        try:
+                            cc_i = (
+                                int(cur_stats.get("char_count")) if cur_stats.get("char_count") is not None else None
+                            )
+                        except Exception:
+                            cc_i = None
+
+                        max_cut = (
+                            (cc_i - min_i)
+                            if (isinstance(cc_i, int) and isinstance(min_i, int) and cc_i > min_i)
+                            else None
+                        )
+                        target_cut = max(excess + 250, 700)
+                        if isinstance(max_cut, int) and max_cut > 0:
+                            # Never ask to cut past the min boundary; also ensure we cut at least the excess.
+                            target_cut = min(target_cut, max_cut)
+                            target_cut = max(excess, target_cut)
+                        shrink_attempts[-1]["request"] = {
+                            "excess": excess,
+                            "target_cut": target_cut,
+                        }
+                        shrink_prompt = _render_template(
+                            A_TEXT_QUALITY_SHRINK_PROMPT_PATH,
+                            {
+                                "CHANNEL_CODE": str(st.channel),
+                                "VIDEO_ID": f"{st.channel}-{st.video}",
+                                "TITLE": title_for_llm,
+                                "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
+                                "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                                "PLANNING_HINT": _sanitize_quality_gate_context(
+                                    _build_planning_hint(st.metadata or {}), max_chars=700
+                                ),
+                                "PERSONA": _sanitize_quality_gate_context(
+                                    str(st.metadata.get("persona") or ""), max_chars=850
+                                ),
+                                "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                                    str(
+                                        st.metadata.get("a_text_channel_prompt")
+                                        or st.metadata.get("script_prompt")
+                                        or ""
+                                    ),
+                                    max_chars=850,
+                                ),
+                                "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(
+                                    _a_text_rules_summary(st.metadata or {}), max_chars=650
+                                ),
+                                "A_TEXT": current_text,
+                                "LENGTH_FEEDBACK": _a_text_length_feedback(current_text, st.metadata or {}),
+                                "EXCESS_CHARS": str(excess),
+                                "TARGET_CUT_CHARS": str(target_cut),
+                            },
+                        )
+
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            shrink_result = router_client.call_with_raw(
+                                task=shrink_task,
+                                messages=[{"role": "user", "content": shrink_prompt}],
+                                max_tokens=16384,
+                                temperature=0.2,
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        shrunk = _extract_llm_text_content(shrink_result) or ""
+                        if not shrunk.strip():
+                            break
+                        current_text = _sanitize_shrink_candidate(shrunk)
+                        last_shrink_meta = {
+                            "provider": shrink_result.get("provider"),
+                            "model": shrink_result.get("model"),
+                            "request_id": shrink_result.get("request_id"),
+                            "chain": shrink_result.get("chain"),
+                            "latency_ms": shrink_result.get("latency_ms"),
+                            "usage": shrink_result.get("usage") or {},
+                            "finish_reason": shrink_result.get("finish_reason"),
+                            "routing": shrink_result.get("routing"),
+                            "cache": shrink_result.get("cache"),
                         }
                         try:
-                            shrink_latest_path = content_dir / "analysis" / "quality_gate" / "shrink_latest.md"
-                            shrink_latest_path.write_text(candidate_text, encoding="utf-8")
-                            stage_details["auto_length_fix"]["output_path"] = str(shrink_latest_path.relative_to(base))
+                            after_issues, after_stats = validate_a_text(current_text, st.metadata or {})
+                            after_errors = [
+                                it
+                                for it in after_issues
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            after_codes = {
+                                str(it.get("code"))
+                                for it in after_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            shrink_attempts[-1]["after"] = {
+                                "char_count": after_stats.get("char_count"),
+                                "target_max": after_stats.get("target_chars_max"),
+                                "codes": sorted(after_codes),
+                            }
                         except Exception:
                             pass
 
-                        # Re-stamp alignment so downstream guards remain consistent.
-                        if (
-                            os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1"
-                            and isinstance(st.metadata.get("alignment"), dict)
-                            and planning_row
-                        ):
-                            try:
-                                stamp = build_alignment_stamp(planning_row=planning_row, script_path=canonical_path)
-                                st.metadata["alignment"] = stamp.as_dict()
-                                planning_title = stamp.planning.get("title")
-                                if isinstance(planning_title, str) and planning_title.strip():
-                                    st.metadata["sheet_title"] = planning_title.strip()
-                                stage_details["alignment_restamped"] = True
-                            except Exception:
-                                # If restamp fails, keep pending to avoid accidental TTS.
-                                stage_details["error"] = "alignment_restamp_failed"
-                                st.stages[stage_name].status = "pending"
-                                st.status = "script_in_progress"
-                                save_status(st)
-                                try:
-                                    _write_script_manifest(base, st, stage_defs)
-                                except Exception:
-                                    pass
-                                return st
-
-                        # Refresh warnings/errors after rewrite and proceed.
-                        issues = re_issues
-                        stats = re_stats
-                        errors = []
-                        warnings = [
+                    candidate_text = current_text.strip() + "\n" if current_text.strip() else ""
+                    if candidate_text:
+                        re_issues, re_stats = validate_a_text(candidate_text, st.metadata or {})
+                        re_errors = [
                             it
-                            for it in issues
-                            if str((it or {}).get("severity") or "").lower() == "warning"
+                            for it in re_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
                         ]
+                        # Fallback: deterministic budget trim when LLM shrink under-delivers on length.
+                        if re_errors:
+                            re_codes = {
+                                str(it.get("code"))
+                                for it in re_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            if re_codes == {"length_too_long"}:
+                                try:
+                                    tmin = int(re_stats.get("target_chars_min")) if re_stats.get("target_chars_min") is not None else None
+                                except Exception:
+                                    tmin = None
+                                try:
+                                    tmax = int(re_stats.get("target_chars_max")) if re_stats.get("target_chars_max") is not None else None
+                                except Exception:
+                                    tmax = None
+                                aim = None
+                                if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin and tmax > 0:
+                                    aim = int(round((tmin + tmax) / 2))
+                                    aim = min(tmax, max(tmin, aim))
+                                elif isinstance(tmax, int) and tmax > 0:
+                                    aim = tmax
+                                if isinstance(aim, int) and aim > 0:
+                                    trimmed = _budget_trim_a_text_to_target(candidate_text, target_chars=aim)
+                                    if trimmed.strip():
+                                        t_issues, t_stats = validate_a_text(trimmed, st.metadata or {})
+                                        t_errors = [
+                                            it
+                                            for it in t_issues
+                                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                                        ]
+                                        if not t_errors:
+                                            stage_details["auto_length_fix_fallback"] = {
+                                                "type": "deterministic_budget_trim",
+                                                "target_chars": aim,
+                                                "before_char_count": re_stats.get("char_count"),
+                                                "after_char_count": t_stats.get("char_count"),
+                                            }
+                                            candidate_text = trimmed.strip() + "\n"
+                                            re_issues, re_stats = t_issues, t_stats
+                                            re_errors = []
+                        if re_errors:
+                            stage_details["auto_length_fix_failed"] = {
+                                "codes": sorted(
+                                    {
+                                        str(it.get("code"))
+                                        for it in re_errors
+                                        if isinstance(it, dict) and it.get("code")
+                                    }
+                                ),
+                                "stats": re_stats,
+                            }
+                            if shrink_attempts:
+                                stage_details["auto_length_fix_failed"]["attempts"] = shrink_attempts[-8:]
+                            try:
+                                analysis_dir = content_dir / "analysis" / "quality_gate"
+                                analysis_dir.mkdir(parents=True, exist_ok=True)
+                                failed_path = analysis_dir / "shrink_failed_latest.md"
+                                failed_path.write_text(candidate_text, encoding="utf-8")
+                                stage_details["auto_length_fix_failed"]["output_path"] = str(failed_path.relative_to(base))
+                            except Exception:
+                                pass
+                        if not re_errors:
+                            # Backup original before rewriting.
+                            try:
+                                analysis_dir = content_dir / "analysis" / "quality_gate"
+                                analysis_dir.mkdir(parents=True, exist_ok=True)
+                                backup_path = analysis_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
+                                if a_text.strip():
+                                    backup_path.write_text(a_text.strip() + "\n", encoding="utf-8")
+                                stage_details["auto_length_fix_backup"] = str(backup_path.relative_to(base))
+                            except Exception:
+                                pass
+
+                            # Write canonical and keep mirrors consistent to avoid split-brain.
+                            canonical_path.write_text(candidate_text, encoding="utf-8")
+                            if canonical_path.resolve() != assembled_path.resolve():
+                                assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                                assembled_path.write_text(candidate_text, encoding="utf-8")
+                            if legacy_final.exists():
+                                legacy_final.write_text(candidate_text, encoding="utf-8")
+
+                            stage_details["stats"] = re_stats
+                            stage_details["auto_length_fix"] = {
+                                "type": "shrink",
+                                "llm_meta": last_shrink_meta,
+                            }
+                            if shrink_attempts:
+                                stage_details["auto_length_fix"]["attempts"] = shrink_attempts[-8:]
+                            try:
+                                analysis_dir = content_dir / "analysis" / "quality_gate"
+                                analysis_dir.mkdir(parents=True, exist_ok=True)
+                                shrink_latest_path = analysis_dir / "shrink_latest.md"
+                                shrink_latest_path.write_text(candidate_text, encoding="utf-8")
+                                stage_details["auto_length_fix"]["output_path"] = str(shrink_latest_path.relative_to(base))
+                            except Exception:
+                                pass
+
+                            # Re-stamp alignment so downstream guards remain consistent.
+                            if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1" and isinstance(
+                                st.metadata.get("alignment"), dict
+                            ):
+                                try:
+                                    csv_row = planning_row or _load_csv_row(
+                                        _resolve_repo_path(str(channels_csv_path(st.channel))), st.video
+                                    )
+                                    if csv_row:
+                                        planning_row = csv_row
+                                        stamp = build_alignment_stamp(
+                                            planning_row=csv_row, script_path=canonical_path
+                                        )
+                                        st.metadata["alignment"] = stamp.as_dict()
+                                        planning_title = stamp.planning.get("title")
+                                        if isinstance(planning_title, str) and planning_title.strip():
+                                            st.metadata["sheet_title"] = planning_title.strip()
+                                        stage_details["alignment_restamped"] = True
+                                except Exception:
+                                    # If restamp fails, keep pending to avoid accidental downstream work.
+                                    stage_details["error"] = "alignment_restamp_failed"
+                                    st.stages[stage_name].status = "pending"
+                                    st.status = "script_in_progress"
+                                    save_status(st)
+                                    try:
+                                        _write_script_manifest(base, st, stage_defs)
+                                    except Exception:
+                                        pass
+                                    return st
+
+                            # Refresh warnings/errors after rewrite and proceed.
+                            issues = re_issues
+                            stats = re_stats
+                            errors = []
+                            warnings = [
+                                it
+                                for it in issues
+                                if str((it or {}).get("severity") or "").lower() == "warning"
+                            ]
                         if warnings:
                             stage_details["warning_codes"] = sorted(
                                 {str(it.get("code")) for it in warnings if isinstance(it, dict) and it.get("code")}
@@ -5144,6 +6171,647 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     "Aテキスト（assembled_human/assembled）からURL/脚注/箇条書き/番号リスト/見出しを除去する",
                     "ポーズは `---` を1行単独で置く（他の区切り記号は禁止）",
                     f"メタ除去が必要なら: python scripts/sanitize_a_text.py --channel {st.channel} --videos {st.video} --mode run",
+                ]
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
+
+        # Semantic alignment preflight: ensure the A-text delivers the title/thumbnail promise
+        # BEFORE spending on the content-quality Judge/Fixer.
+        semantic_gate_enabled = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_GATE", "1") and os.getenv(
+            "SCRIPT_PIPELINE_DRY", "0"
+        ) != "1"
+        # Policy:
+        # - require_ok=0: ok/minor pass; major blocks (recommended for cost-effective ops)
+        # - require_ok=1: only ok passes (strict)
+        semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
+        semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
+        # Minor is non-blocking by default (require_ok=0), so auto-fix is OFF unless explicitly enabled.
+        semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
+        semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
+        try:
+            semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
+        except Exception:
+            semantic_max_chars = 30000
+        try:
+            semantic_max_fix_attempts = int(os.getenv("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS", "1"))
+        except Exception:
+            semantic_max_fix_attempts = 1
+        semantic_max_fix_attempts = min(max(0, semantic_max_fix_attempts), 2)
+
+        if semantic_gate_enabled:
+            try:
+                report_dir = content_dir / "analysis" / "alignment"
+                report_dir.mkdir(parents=True, exist_ok=True)
+                report_path = report_dir / "semantic_alignment.json"
+
+                planning = opt_fields.get_planning_section(st.metadata or {})
+                integrity = (
+                    st.metadata.get("planning_integrity")
+                    if isinstance((st.metadata or {}).get("planning_integrity"), dict)
+                    else {}
+                )
+                coherence = str(integrity.get("coherence") or "").strip().lower()
+                drop_l2_theme_hints = bool(integrity.get("drop_theme_hints")) or coherence in {
+                    "tag_mismatch",
+                    "no_title_tag",
+                }
+
+                channel_name = str((st.metadata or {}).get("channel_display_name") or st.channel).strip()
+                title_for_alignment = str(
+                    (st.metadata or {}).get("sheet_title")
+                    or (st.metadata or {}).get("expected_title")
+                    or (st.metadata or {}).get("title")
+                    or st.script_id
+                ).strip()
+                thumb_top = str(
+                    planning.get("thumbnail_upper") or (st.metadata or {}).get("thumbnail_title_top") or ""
+                ).strip()
+                thumb_bottom = str(
+                    planning.get("thumbnail_lower") or (st.metadata or {}).get("thumbnail_title_bottom") or ""
+                ).strip()
+                concept_intent = ""
+                if not drop_l2_theme_hints:
+                    concept_intent = str(
+                        planning.get("concept_intent") or (st.metadata or {}).get("concept_intent") or ""
+                    ).strip()
+                target_audience = str(
+                    planning.get("target_audience") or (st.metadata or {}).get("target_audience") or ""
+                ).strip()
+                pain_tag = ""
+                if not drop_l2_theme_hints:
+                    pain_tag = str(planning.get("primary_pain_tag") or (st.metadata or {}).get("main_tag") or "").strip()
+                benefit = ""
+                if not drop_l2_theme_hints:
+                    benefit = str(planning.get("benefit_blurb") or (st.metadata or {}).get("benefit") or "").strip()
+
+                import hashlib
+
+                def _sha1_text(text: str) -> str:
+                    h = hashlib.sha1()
+                    norm = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                    h.update(norm.encode("utf-8"))
+                    return h.hexdigest()
+
+                check_prompt_sha1 = ""
+                try:
+                    check_prompt_sha1 = _sha1_text(
+                        SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH.read_text(encoding="utf-8")
+                    )
+                except Exception:
+                    check_prompt_sha1 = ""
+
+                preflight_details: Dict[str, Any] = {
+                    "enabled": True,
+                    "require_ok": bool(semantic_require_ok),
+                    "auto_fix": bool(semantic_auto_fix),
+                    "auto_fix_minor": bool(semantic_auto_fix_minor),
+                    "auto_fix_major": bool(semantic_auto_fix_major),
+                    "max_fix_attempts": semantic_max_fix_attempts,
+                    "check_prompt_sha1": check_prompt_sha1,
+                    "report_path": str(report_path.relative_to(base)),
+                }
+
+                fix_attempts = 0
+                last_verdict = ""
+                last_report_obj: Dict[str, Any] = {}
+                last_llm_meta: Dict[str, Any] = {}
+                # Converge in a bounded loop: (check) -> optional (fix) -> (re-check)
+                while True:
+                    script_hash = _sha1_text(a_text or "")
+                    planning_snapshot = {
+                        "title": title_for_alignment,
+                        "thumbnail_upper": thumb_top,
+                        "thumbnail_lower": thumb_bottom,
+                    }
+                    script_for_check, input_meta = _truncate_for_semantic_check(a_text or "", semantic_max_chars)
+                    preflight_details["input"] = input_meta
+
+                    prev_sa = (
+                        st.metadata.get("semantic_alignment")
+                        if isinstance((st.metadata or {}).get("semantic_alignment"), dict)
+                        else {}
+                    )
+                    prev_schema = str(prev_sa.get("schema") or "").strip()
+                    prev_hash = str(prev_sa.get("script_hash") or "").strip()
+                    prev_snap = (
+                        prev_sa.get("planning_snapshot")
+                        if isinstance(prev_sa.get("planning_snapshot"), dict)
+                        else {}
+                    )
+                    prev_verdict = str(prev_sa.get("verdict") or "").strip().lower()
+                    prev_prompt_sha1 = str(prev_sa.get("prompt_sha1") or "").strip()
+                    reuse_ok = (
+                        prev_schema == SEMANTIC_ALIGNMENT_SCHEMA
+                        and prev_hash
+                        and prev_hash == script_hash
+                        and prev_snap == planning_snapshot
+                        and (not check_prompt_sha1 or prev_prompt_sha1 == check_prompt_sha1)
+                        and prev_verdict in {"ok", "minor", "major"}
+                        and report_path.exists()
+                    )
+
+                    report_obj: Dict[str, Any] = {}
+                    verdict = prev_verdict if reuse_ok else ""
+                    llm_meta: Dict[str, Any] = {}
+
+                    if not reuse_ok:
+                        prompt = _render_template(
+                            SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH,
+                            {
+                                "CHANNEL_NAME": channel_name,
+                                "TITLE": title_for_alignment,
+                                "THUMB_TOP": thumb_top,
+                                "THUMB_BOTTOM": thumb_bottom,
+                                "CONCEPT_INTENT": concept_intent,
+                                "TARGET_AUDIENCE": target_audience,
+                                "PAIN_TAG": pain_tag,
+                                "BENEFIT": benefit,
+                                "SCRIPT": script_for_check,
+                            },
+                        )
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            check_result = router_client.call_with_raw(
+                                task="script_semantic_alignment_check",
+                                messages=[{"role": "user", "content": prompt}],
+                                response_format="json_object",
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        raw = _extract_llm_text_content(check_result)
+                        try:
+                            report_obj = _parse_json_lenient(raw)
+                        except Exception:
+                            report_obj = {}
+
+                        verdict = str(report_obj.get("verdict") or "").strip().lower()
+                        if verdict not in {"ok", "minor", "major"}:
+                            verdict = "minor"
+                            try:
+                                report_obj["verdict"] = verdict
+                            except Exception:
+                                pass
+
+                        # Sanity: numeric promises like "7つ" are easy to validate deterministically.
+                        # If A-text already contains 一つ目..Nつ目, avoid false-negative "minor".
+                        report_obj, changed = _apply_semantic_alignment_numeric_sanity(
+                            report_obj,
+                            title=title_for_alignment,
+                            thumb_top=thumb_top,
+                            thumb_bottom=thumb_bottom,
+                            script_text=a_text or "",
+                            truncated=bool(input_meta.get("truncated")),
+                        )
+                        if changed:
+                            verdict = str(report_obj.get("verdict") or verdict).strip().lower()
+
+                        report_path.write_text(
+                            json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8",
+                        )
+
+                        llm_meta = {
+                            "provider": check_result.get("provider"),
+                            "model": check_result.get("model"),
+                            "request_id": check_result.get("request_id"),
+                            "chain": check_result.get("chain"),
+                            "latency_ms": check_result.get("latency_ms"),
+                            "usage": check_result.get("usage") or {},
+                        }
+
+                        st.metadata["semantic_alignment"] = {
+                            "schema": SEMANTIC_ALIGNMENT_SCHEMA,
+                            "computed_at": utc_now_iso(),
+                            "verdict": verdict,
+                            "report_path": str(report_path.relative_to(base)),
+                            "script_hash": script_hash,
+                            "planning_snapshot": planning_snapshot,
+                            "prompt_sha1": check_prompt_sha1,
+                            "llm": llm_meta,
+                        }
+                        save_status(st)
+                    else:
+                        verdict = prev_verdict
+                        try:
+                            report_obj = json.loads(report_path.read_text(encoding="utf-8"))
+                        except Exception:
+                            report_obj = {}
+                        report_obj, changed = _apply_semantic_alignment_numeric_sanity(
+                            report_obj,
+                            title=title_for_alignment,
+                            thumb_top=thumb_top,
+                            thumb_bottom=thumb_bottom,
+                            script_text=a_text or "",
+                            truncated=bool(input_meta.get("truncated")),
+                        )
+                        if changed:
+                            verdict = str(report_obj.get("verdict") or verdict).strip().lower()
+                            try:
+                                report_path.write_text(
+                                    json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                                    encoding="utf-8",
+                                )
+                            except Exception:
+                                pass
+                            try:
+                                sa = (
+                                    st.metadata.get("semantic_alignment")
+                                    if isinstance((st.metadata or {}).get("semantic_alignment"), dict)
+                                    else {}
+                                )
+                                if isinstance(sa, dict):
+                                    sa["verdict"] = verdict
+                                    sa["postprocessed_at"] = utc_now_iso()
+                                    st.metadata["semantic_alignment"] = sa
+                                    save_status(st)
+                            except Exception:
+                                pass
+
+                    last_verdict = verdict
+                    last_report_obj = report_obj
+                    last_llm_meta = llm_meta
+                    if verdict == "ok":
+                        break
+
+                    # Not ok: decide whether to attempt an auto-fix.
+                    if not semantic_auto_fix:
+                        break
+                    if (preflight_details.get("input") or {}).get("truncated"):
+                        preflight_details["auto_fix_skipped"] = True
+                        preflight_details["auto_fix_skip_reason"] = "input_truncated"
+                        break
+                    if verdict == "minor" and not semantic_auto_fix_minor:
+                        break
+                    if verdict == "major" and not semantic_auto_fix_major:
+                        break
+                    if fix_attempts >= semantic_max_fix_attempts:
+                        break
+
+                    fix_attempts += 1
+                    preflight_details.setdefault("attempts", []).append({"action": "fix", "verdict_before": verdict})
+
+                    # Prevent semantic-auto-fix from breaking deterministic validators:
+                    # - keep the result within the configured length range
+                    # - keep quote/paren marks under configured caps
+                    cur_len = len((a_text or "").strip())
+                    try:
+                        target_min_i = int(str((st.metadata or {}).get("target_chars_min") or "").strip())
+                    except Exception:
+                        target_min_i = 0
+                    try:
+                        target_max_i = int(str((st.metadata or {}).get("target_chars_max") or "").strip())
+                    except Exception:
+                        target_max_i = 0
+                    try:
+                        quote_max_i = int(str((st.metadata or {}).get("a_text_quote_marks_max") or "").strip() or "20")
+                    except Exception:
+                        quote_max_i = 20
+                    try:
+                        paren_max_i = int(str((st.metadata or {}).get("a_text_paren_marks_max") or "").strip() or "10")
+                    except Exception:
+                        paren_max_i = 10
+                    char_min_i = target_min_i if target_min_i > 0 else 0
+                    char_max_i = target_max_i if target_max_i > 0 else 0
+                    if char_max_i and char_min_i and char_min_i > char_max_i:
+                        # Avoid impossible constraints; prefer min-only.
+                        char_max_i = 0
+                    if not char_min_i and cur_len:
+                        # If no explicit min exists, still avoid drastic shortening.
+                        char_min_i = max(0, int(cur_len * 0.9))
+
+                    char_min = str(char_min_i) if char_min_i else ""
+                    char_max = str(char_max_i) if char_max_i else ""
+                    if char_min and char_max:
+                        length_rule = f"{char_min}〜{char_max} 文字"
+                    elif char_min:
+                        length_rule = f">= {char_min} 文字"
+                    elif char_max:
+                        length_rule = f"<= {char_max} 文字"
+                    else:
+                        length_rule = "指定なし"
+
+                    fix_prompt_path = (
+                        SEMANTIC_ALIGNMENT_FIX_MINOR_PROMPT_PATH
+                        if verdict == "minor"
+                        else SEMANTIC_ALIGNMENT_FIX_PROMPT_PATH
+                    )
+                    fix_prompt = _render_template(
+                        fix_prompt_path,
+                        {
+                            "CHANNEL_NAME": channel_name,
+                            "TITLE": title_for_alignment,
+                            "THUMB_TOP": thumb_top,
+                            "THUMB_BOTTOM": thumb_bottom,
+                            "CONCEPT_INTENT": concept_intent,
+                            "TARGET_AUDIENCE": target_audience,
+                            "PAIN_TAG": pain_tag,
+                            "BENEFIT": benefit,
+                            "CHAR_MIN": char_min,
+                            "CHAR_MAX": char_max,
+                            "QUOTE_MAX": str(quote_max_i),
+                            "PAREN_MAX": str(paren_max_i),
+                            "CHECK_JSON": json.dumps(report_obj or {}, ensure_ascii=False, indent=2),
+                            "SCRIPT": (a_text or "").strip(),
+                        },
+                    )
+
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        attempt = 0
+                        draft = ""
+                        fix_meta: Dict[str, Any] = {}
+                        last_fix_errors: list[dict[str, Any]] | None = None
+                        # Two-shot: (full semantic prompt) -> (repair prompt focused on deterministic violations)
+                        while attempt < 2:
+                            attempt += 1
+                            fix_result = router_client.call_with_raw(
+                                task="script_semantic_alignment_fix",
+                                messages=[{"role": "user", "content": fix_prompt}],
+                            )
+                            fix_text = _extract_llm_text_content(fix_result) or ""
+                            draft = fix_text.rstrip("\n").strip() + "\n"
+                            # Best-effort deterministic repairs before validation (reduce trivial TTS hazards).
+                            draft2 = _sanitize_inline_pause_markers(draft)
+                            draft2 = _sanitize_a_text_forbidden_statistics(draft2)
+                            draft2 = _sanitize_a_text_markdown_headings(draft2)
+                            draft2 = _sanitize_a_text_bullet_prefixes(draft2)
+                            if isinstance(quote_max_i, int) and quote_max_i >= 0:
+                                draft2 = _reduce_quote_marks(draft2, quote_max_i)
+                            if isinstance(paren_max_i, int) and paren_max_i >= 0:
+                                draft2 = _reduce_paren_marks(draft2, paren_max_i)
+                            draft = draft2
+                            issues2, stats2 = validate_a_text(draft, st.metadata or {})
+                            errors2 = [
+                                it
+                                for it in issues2
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            codes2 = {
+                                str(it.get("code"))
+                                for it in errors2
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            # If the only remaining failure is length overflow, reuse the existing shrink prompt.
+                            if codes2 == {"length_too_long"}:
+                                try:
+                                    target_min = (
+                                        int(stats2.get("target_chars_min"))
+                                        if stats2.get("target_chars_min") is not None
+                                        else None
+                                    )
+                                    target_max = (
+                                        int(stats2.get("target_chars_max"))
+                                        if stats2.get("target_chars_max") is not None
+                                        else None
+                                    )
+                                    char_count = (
+                                        int(stats2.get("char_count")) if stats2.get("char_count") is not None else None
+                                    )
+                                    if (
+                                        isinstance(target_max, int)
+                                        and target_max > 0
+                                        and isinstance(char_count, int)
+                                        and char_count > target_max
+                                    ):
+                                        excess = char_count - target_max
+                                        if excess > 0 and excess <= 8000:
+                                            shrink_task = os.getenv(
+                                                "SCRIPT_VALIDATION_QUALITY_SHRINK_TASK", "script_a_text_quality_shrink"
+                                            ).strip()
+                                            # Leave a small buffer so we don't bounce on the max boundary.
+                                            target_cut = excess + 220
+                                            if isinstance(target_min, int) and target_min > 0:
+                                                max_cut = max(0, char_count - target_min)
+                                                if max_cut < excess:
+                                                    max_cut = excess
+                                                target_cut = min(target_cut, max_cut)
+                                                target_cut = max(excess, target_cut)
+
+                                            shrink_prompt = _render_template(
+                                                A_TEXT_QUALITY_SHRINK_PROMPT_PATH,
+                                                {
+                                                    "CHANNEL_CODE": str(st.channel),
+                                                    "VIDEO_ID": str(st.video),
+                                                    "TITLE": title_for_alignment,
+                                                    "TARGET_CHARS_MIN": str(target_min or ""),
+                                                    "TARGET_CHARS_MAX": str(target_max or ""),
+                                                    "LENGTH_FEEDBACK": _a_text_length_feedback(draft, st.metadata or {}),
+                                                    "EXCESS_CHARS": str(excess),
+                                                    "TARGET_CUT_CHARS": str(target_cut),
+                                                    "PLANNING_HINT": _sanitize_quality_gate_context(
+                                                        _build_planning_hint(st.metadata or {}), max_chars=700
+                                                    ),
+                                                    "PERSONA": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("persona") or ""), max_chars=1500
+                                                    ),
+                                                    "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("a_text_channel_prompt") or ""),
+                                                        max_chars=1500,
+                                                    ),
+                                                    "A_TEXT_RULES_SUMMARY": _a_text_rules_summary(st.metadata or {}),
+                                                    "A_TEXT": (draft or "").strip(),
+                                                },
+                                            )
+                                            shrink_result = router_client.call_with_raw(
+                                                task=shrink_task,
+                                                messages=[{"role": "user", "content": shrink_prompt}],
+                                            )
+                                            shrink_text = _extract_llm_text_content(shrink_result) or ""
+                                            shrunk = shrink_text.rstrip("\n").strip() + "\n"
+                                            # Re-apply deterministic repairs + validate again.
+                                            shrunk2 = _sanitize_inline_pause_markers(shrunk)
+                                            shrunk2 = _sanitize_a_text_forbidden_statistics(shrunk2)
+                                            shrunk2 = _sanitize_a_text_markdown_headings(shrunk2)
+                                            shrunk2 = _sanitize_a_text_bullet_prefixes(shrunk2)
+                                            if isinstance(quote_max_i, int) and quote_max_i >= 0:
+                                                shrunk2 = _reduce_quote_marks(shrunk2, quote_max_i)
+                                            if isinstance(paren_max_i, int) and paren_max_i >= 0:
+                                                shrunk2 = _reduce_paren_marks(shrunk2, paren_max_i)
+
+                                            issues3, stats3 = validate_a_text(shrunk2, st.metadata or {})
+                                            errors3 = [
+                                                it
+                                                for it in issues3
+                                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                                            ]
+                                            if not errors3:
+                                                draft = shrunk2
+                                                fix_meta = {
+                                                    "provider": fix_result.get("provider"),
+                                                    "model": fix_result.get("model"),
+                                                    "request_id": fix_result.get("request_id"),
+                                                    "chain": fix_result.get("chain"),
+                                                    "latency_ms": fix_result.get("latency_ms"),
+                                                    "usage": fix_result.get("usage") or {},
+                                                    "attempts": attempt,
+                                                    "stats": stats2,
+                                                    "postprocess_length_shrink": {
+                                                        "task": shrink_task,
+                                                        "provider": shrink_result.get("provider"),
+                                                        "model": shrink_result.get("model"),
+                                                        "request_id": shrink_result.get("request_id"),
+                                                        "chain": shrink_result.get("chain"),
+                                                        "latency_ms": shrink_result.get("latency_ms"),
+                                                        "usage": shrink_result.get("usage") or {},
+                                                        "stats": stats3,
+                                                    },
+                                                }
+                                                last_fix_errors = None
+                                                break
+                                except Exception:
+                                    pass
+                            if not errors2:
+                                fix_meta = {
+                                    "provider": fix_result.get("provider"),
+                                    "model": fix_result.get("model"),
+                                    "request_id": fix_result.get("request_id"),
+                                    "chain": fix_result.get("chain"),
+                                    "latency_ms": fix_result.get("latency_ms"),
+                                    "usage": fix_result.get("usage") or {},
+                                    "attempts": attempt,
+                                    "stats": stats2,
+                                }
+                                last_fix_errors = None
+                                break
+
+                            last_fix_errors = errors2
+                            summary = "\n".join(
+                                f"- {it.get('code')}: {it.get('message')}"
+                                for it in errors2[:12]
+                                if isinstance(it, dict)
+                            )
+                            promised = str((report_obj or {}).get("promised_message") or "").strip()
+                            promised_line = f"企画の約束: {promised}\n" if promised else ""
+                            fix_prompt = (
+                                "次のAテキスト案は決定論ルール違反が残っています。違反だけを直し、内容はできるだけ維持してください。\n"
+                                f"{promised_line}"
+                                f"必須: 文字数は {length_rule} に収める / quote_max={quote_max_i} / paren_max={paren_max_i}\n"
+                                "禁止: URL/脚注/箇条書き/番号リスト/見出し/制作メタ。ポーズは `---` だけ（1行単独）。\n"
+                                f"違反一覧:\n{summary}\n\n"
+                                "修正対象本文:\n"
+                                f"{draft}"
+                            )
+
+                        if last_fix_errors:
+                            preflight_details["auto_fix_failed"] = True
+                            preflight_details["auto_fix_failed_reason"] = "invalid_a_text"
+                            preflight_details["auto_fix_failed_error_codes"] = sorted(
+                                {
+                                    str(it.get("code"))
+                                    for it in last_fix_errors
+                                    if isinstance(it, dict) and it.get("code")
+                                }
+                            )
+                            preflight_details["auto_fix_failed_issues"] = last_fix_errors[:20]
+                            # Stop attempting auto-fix on invalid drafts; keep the original A-text and let the gate block if needed.
+                            if fix_attempts >= semantic_max_fix_attempts:
+                                break
+                            continue
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    # Backup + write (keep mirror in sync).
+                    try:
+                        backup_path = report_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
+                        backup_path.write_text((a_text or "").strip() + "\n", encoding="utf-8")
+                        preflight_details["backup_path"] = str(backup_path.relative_to(base))
+                    except Exception:
+                        pass
+
+                    canonical_path.write_text(draft, encoding="utf-8")
+                    if canonical_path.resolve() != assembled_path.resolve():
+                        assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                        assembled_path.write_text(draft, encoding="utf-8")
+                    legacy_final = content_dir / "final" / "assembled.md"
+                    if legacy_final.exists():
+                        legacy_final.write_text(draft, encoding="utf-8")
+
+                    # Re-stamp alignment because the script hash changed.
+                    try:
+                        csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(st.channel))), st.video)
+                    except Exception:
+                        csv_row = None
+                    if csv_row:
+                        try:
+                            stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                            st.metadata["alignment"] = stamp.as_dict()
+                            pt = stamp.planning.get("title")
+                            if isinstance(pt, str) and pt.strip():
+                                st.metadata["sheet_title"] = pt.strip()
+                        except Exception:
+                            pass
+
+                    st.metadata["redo_audio"] = True
+                    st.metadata.setdefault("redo_script", False)
+                    sa = st.metadata.get("semantic_alignment")
+                    if isinstance(sa, dict):
+                        sa["fixed_at"] = utc_now_iso()
+                        sa["fix_llm"] = fix_meta
+                    save_status(st)
+
+                    # Continue loop with updated A-text for re-check.
+                    a_text = draft
+                    issues, stats = validate_a_text(a_text, st.metadata or {})
+                    stage_details["stats"] = stats
+
+                preflight_details["verdict"] = last_verdict
+                preflight_details["fix_attempts"] = fix_attempts
+                stage_details["semantic_alignment_preflight"] = preflight_details
+
+                should_block = (semantic_require_ok and last_verdict != "ok") or (
+                    (not semantic_require_ok) and last_verdict == "major"
+                )
+                if should_block:
+                    code = "semantic_alignment_not_ok" if semantic_require_ok else "semantic_alignment_major"
+                    stage_details["error"] = code
+                    stage_details["error_codes"] = sorted(set(stage_details.get("error_codes") or []) | {code})
+                    st.metadata.setdefault("redo_script", True)
+                    st.metadata.setdefault("redo_audio", True)
+                    cmd = f"python3 -m script_pipeline.cli semantic-align --channel {st.channel} --video {st.video} --apply"
+                    if semantic_require_ok or last_verdict == "minor":
+                        cmd += " --also-fix-minor"
+                    stage_details["fix_hints"] = [
+                        "企画（タイトル/サムネ）が約束する訴求と、台本が伝えているコアが一致していません（意味整合NG）。",
+                        f"semantic_report: {report_path.relative_to(base)}",
+                        f"修正（最小リライト）: {cmd}",
+                        "企画側（タイトル/サムネ）が誤りなら、CSVを直してから reset→再生成してください。",
+                    ]
+                    st.stages[stage_name].status = "pending"
+                    st.status = "script_in_progress"
+                    save_status(st)
+                    try:
+                        _write_script_manifest(base, st, stage_defs)
+                    except Exception:
+                        pass
+                    return st
+            except Exception as exc:
+                stage_details["semantic_alignment_preflight"] = {
+                    "enabled": True,
+                    "error": "semantic_alignment_preflight_failed",
+                    "exception": str(exc),
+                }
+                stage_details["error"] = "semantic_alignment_preflight_failed"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"semantic_alignment_preflight_failed"}
+                )
+                stage_details["fix_hints"] = [
+                    "意味整合の事前ゲートが実行できず停止しました。まずは script_validation を再実行してください。",
+                    f"retry: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_validation",
                 ]
                 st.stages[stage_name].status = "pending"
                 st.status = "script_in_progress"
@@ -5216,9 +6884,9 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
             # Convergence: cap to 2 rounds by default (Judge -> Fix -> Judge).
             try:
-                max_rounds_requested = int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "2"))
+                max_rounds_requested = int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "3"))
             except Exception:
-                max_rounds_requested = 2
+                max_rounds_requested = 3
             max_rounds = min(max(1, max_rounds_requested), 3)
 
             llm_gate_details["mode"] = "v2"
@@ -5506,6 +7174,27 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 out = _sanitize_a_text_bullet_prefixes(out)
                 out = _sanitize_a_text_forbidden_statistics(out)
                 out = _sanitize_inline_pause_markers(out)
+                # Keep candidate within deterministic symbol budgets (TTS safety).
+                try:
+                    quote_max = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
+                except Exception:
+                    quote_max = 20
+                try:
+                    paren_max = int((st.metadata or {}).get("a_text_paren_marks_max") or 10)
+                except Exception:
+                    paren_max = 10
+                try:
+                    qm = out.count("「") + out.count("」") + out.count("『") + out.count("』")
+                    if isinstance(quote_max, int) and quote_max >= 0 and qm > quote_max:
+                        out = _reduce_quote_marks(out, quote_max)
+                except Exception:
+                    pass
+                try:
+                    pm = out.count("（") + out.count("）") + out.count("(") + out.count(")")
+                    if isinstance(paren_max, int) and paren_max >= 0 and pm > paren_max:
+                        out = _reduce_paren_marks(out, paren_max)
+                except Exception:
+                    pass
                 out = out.strip()
                 return out + "\n" if out else ""
 
@@ -5713,12 +7402,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             remain = final_min - final_cc
                         else:
                             remain = None
-                        allow_topup = (depth == 0) or (depth == 1 and isinstance(remain, int) and remain <= 260)
+                        # Top-up is bounded: at most 3 passes total, with tighter limits as depth grows.
                         topup_limit = 2200
                         if depth == 0:
                             # First expand sometimes under-delivers badly; allow one more pass even if
                             # the remaining shortage is still large, but keep it bounded.
                             topup_limit = 5500
+                        elif depth >= 2:
+                            topup_limit = 260
+                        allow_topup = depth <= 2
                         if allow_topup and isinstance(remain, int) and 0 < remain <= topup_limit:
                             topup = _rescue_length(
                                 rescued, errors_list=final_errors, stats2=final_stats, depth=depth + 1
@@ -5765,6 +7457,53 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         llm_gate_details["shrink_llm_meta"] = _llm_meta(shrink_result)
                     except Exception:
                         pass
+                    # Bounded extra pass(es): if we are still too long, try again with updated excess.
+                    # This avoids getting stuck on a single cached shrink output that under-delivers.
+                    try:
+                        trial_errors, trial_stats = _non_warning_errors(shrunk)
+                    except Exception:
+                        trial_errors, trial_stats = [], {}
+                    trial_codes = _codes(trial_errors)
+                    if trial_codes in ({"length_too_long"}, {"length_too_short"}):
+                        try:
+                            trial_cc = (
+                                int(trial_stats.get("char_count")) if trial_stats.get("char_count") is not None else None
+                            )
+                        except Exception:
+                            trial_cc = None
+                        try:
+                            trial_max = (
+                                int(trial_stats.get("target_chars_max"))
+                                if trial_stats.get("target_chars_max") is not None
+                                else None
+                            )
+                        except Exception:
+                            trial_max = None
+                        try:
+                            trial_min = (
+                                int(trial_stats.get("target_chars_min"))
+                                if trial_stats.get("target_chars_min") is not None
+                                else None
+                            )
+                        except Exception:
+                            trial_min = None
+
+                        # Only loop when we're reasonably close to the boundary, to avoid cost blow-ups.
+                        overshoot = (trial_cc - trial_max) if (trial_codes == {"length_too_long"} and isinstance(trial_cc, int) and isinstance(trial_max, int)) else None
+                        shortage = (trial_min - trial_cc) if (trial_codes == {"length_too_short"} and isinstance(trial_cc, int) and isinstance(trial_min, int)) else None
+                        # Two different bounds:
+                        # - Too long: allow a couple of extra shrink passes.
+                        # - Too short (after shrink): allow one additional length rescue even if depth is higher.
+                        allow = False
+                        if isinstance(overshoot, int) and 0 < overshoot <= 260 and depth < 2:
+                            allow = True
+                        if isinstance(shortage, int) and 0 < shortage <= 2200 and depth < 4:
+                            allow = True
+
+                        if allow:
+                            topup = _rescue_length(shrunk, errors_list=trial_errors, stats2=trial_stats, depth=depth + 1)
+                            if topup:
+                                return topup
                     return shrunk
                 return None
 
@@ -5969,9 +7708,9 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             judge_task = os.getenv("SCRIPT_VALIDATION_QUALITY_JUDGE_TASK", "script_a_text_quality_judge").strip()
             fix_task = os.getenv("SCRIPT_VALIDATION_QUALITY_FIX_TASK", "script_a_text_quality_fix").strip()
             try:
-                max_rounds = max(1, int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "2")))
+                max_rounds = max(1, int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "3")))
             except Exception:
-                max_rounds = 2
+                max_rounds = 3
             try:
                 hard_fix_max = max(0, int(os.getenv("SCRIPT_VALIDATION_LLM_HARD_FIX_MAX", "4")))
             except Exception:
@@ -7450,6 +9189,462 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         except Exception:
                             pass
                         return st
+
+        # Semantic alignment gate: title/thumbnail promise ↔ A-text core message.
+        # SSOT: ssot/ops/OPS_SEMANTIC_ALIGNMENT.md
+        semantic_enabled = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_GATE", "1") and os.getenv(
+            "SCRIPT_PIPELINE_DRY", "0"
+        ) != "1"
+        semantic_gate_details: Dict[str, Any] = {}
+        if semantic_enabled:
+            try:
+                report_dir = content_dir / "analysis" / "alignment"
+                report_dir.mkdir(parents=True, exist_ok=True)
+                report_path = report_dir / "semantic_alignment.json"
+
+                planning = opt_fields.get_planning_section(st.metadata or {})
+                integrity = (
+                    st.metadata.get("planning_integrity")
+                    if isinstance((st.metadata or {}).get("planning_integrity"), dict)
+                    else {}
+                )
+                coherence = str(integrity.get("coherence") or "").strip().lower()
+                drop_l2_theme_hints = bool(integrity.get("drop_theme_hints")) or coherence in {
+                    "tag_mismatch",
+                    "no_title_tag",
+                }
+
+                channel_name = str((st.metadata or {}).get("channel_display_name") or st.channel).strip()
+                title_for_alignment = str(
+                    (st.metadata or {}).get("sheet_title")
+                    or (st.metadata or {}).get("expected_title")
+                    or (st.metadata or {}).get("title")
+                    or st.script_id
+                ).strip()
+                thumb_top = str(planning.get("thumbnail_upper") or (st.metadata or {}).get("thumbnail_title_top") or "").strip()
+                thumb_bottom = str(planning.get("thumbnail_lower") or (st.metadata or {}).get("thumbnail_title_bottom") or "").strip()
+                concept_intent = ""
+                if not drop_l2_theme_hints:
+                    concept_intent = str(planning.get("concept_intent") or (st.metadata or {}).get("concept_intent") or "").strip()
+                target_audience = str(planning.get("target_audience") or (st.metadata or {}).get("target_audience") or "").strip()
+                pain_tag = ""
+                if not drop_l2_theme_hints:
+                    pain_tag = str(planning.get("primary_pain_tag") or (st.metadata or {}).get("main_tag") or "").strip()
+                benefit = ""
+                if not drop_l2_theme_hints:
+                    benefit = str(planning.get("benefit_blurb") or (st.metadata or {}).get("benefit") or "").strip()
+
+                semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
+                semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
+                semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
+                semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
+                try:
+                    semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
+                except Exception:
+                    semantic_max_chars = 30000
+                try:
+                    semantic_max_fix_attempts = int(os.getenv("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS", "1"))
+                except Exception:
+                    semantic_max_fix_attempts = 1
+                semantic_max_fix_attempts = min(max(0, semantic_max_fix_attempts), 2)
+
+                try:
+                    current_chars = int(((stage_details.get("stats") or {}).get("char_count")) or 0)
+                except Exception:
+                    current_chars = 0
+                semantic_gate_details = {
+                    "enabled": True,
+                    "require_ok": bool(semantic_require_ok),
+                    "auto_fix": bool(semantic_auto_fix),
+                    "auto_fix_minor": bool(semantic_auto_fix_minor),
+                    "auto_fix_major": bool(semantic_auto_fix_major),
+                    "max_fix_attempts": semantic_max_fix_attempts,
+                    "max_a_text_chars": semantic_max_chars,
+                    "char_count": current_chars,
+                }
+
+                import hashlib
+
+                def _sha1_text(text: str) -> str:
+                    h = hashlib.sha1()
+                    norm = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                    h.update(norm.encode("utf-8"))
+                    return h.hexdigest()
+
+                fix_attempts = 0
+                last_verdict = ""
+                last_report_obj: Dict[str, Any] = {}
+                last_llm_meta: Dict[str, Any] = {}
+                reused_any = False
+                try:
+                    check_prompt_sha1 = sha1_file(SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH)
+                except Exception:
+                    check_prompt_sha1 = ""
+
+                # Converge in a bounded loop: (check) -> optional (fix) -> (re-check)
+                while True:
+                    script_text = (final_text or "").strip()
+                    script_hash = _sha1_text(script_text)
+                    planning_snapshot = {
+                        "title": title_for_alignment,
+                        "thumbnail_upper": thumb_top,
+                        "thumbnail_lower": thumb_bottom,
+                    }
+                    script_for_check, input_meta = _truncate_for_semantic_check(script_text, semantic_max_chars)
+                    semantic_gate_details["input"] = input_meta
+
+                    prev_sa = (
+                        st.metadata.get("semantic_alignment")
+                        if isinstance((st.metadata or {}).get("semantic_alignment"), dict)
+                        else {}
+                    )
+                    prev_schema = str(prev_sa.get("schema") or "").strip()
+                    prev_hash = str(prev_sa.get("script_hash") or "").strip()
+                    prev_snap = (
+                        prev_sa.get("planning_snapshot") if isinstance(prev_sa.get("planning_snapshot"), dict) else {}
+                    )
+                    prev_verdict = str(prev_sa.get("verdict") or "").strip().lower()
+                    prev_prompt_sha1 = str(prev_sa.get("prompt_sha1") or "").strip()
+
+                    reuse_ok = (
+                        prev_schema == SEMANTIC_ALIGNMENT_SCHEMA
+                        and prev_hash
+                        and prev_hash == script_hash
+                        and prev_snap == planning_snapshot
+                        and (not check_prompt_sha1 or prev_prompt_sha1 == check_prompt_sha1)
+                        and prev_verdict in {"ok", "minor", "major"}
+                        and report_path.exists()
+                    )
+
+                    report_obj: Dict[str, Any] = {}
+                    verdict = prev_verdict if reuse_ok else ""
+                    llm_meta: Dict[str, Any] = {}
+
+                    if not reuse_ok:
+                        prompt = _render_template(
+                            SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH,
+                            {
+                                "CHANNEL_NAME": channel_name,
+                                "TITLE": title_for_alignment,
+                                "THUMB_TOP": thumb_top,
+                                "THUMB_BOTTOM": thumb_bottom,
+                                "CONCEPT_INTENT": concept_intent,
+                                "TARGET_AUDIENCE": target_audience,
+                                "PAIN_TAG": pain_tag,
+                                "BENEFIT": benefit,
+                                "SCRIPT": script_for_check,
+                            },
+                        )
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            check_result = router_client.call_with_raw(
+                                task="script_semantic_alignment_check",
+                                messages=[{"role": "user", "content": prompt}],
+                                response_format="json_object",
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        raw = _extract_llm_text_content(check_result)
+                        try:
+                            report_obj = _parse_json_lenient(raw)
+                        except Exception:
+                            report_obj = {}
+
+                        verdict = str(report_obj.get("verdict") or "").strip().lower()
+                        if verdict not in {"ok", "minor", "major"}:
+                            verdict = "minor"
+                            try:
+                                report_obj["verdict"] = verdict
+                            except Exception:
+                                pass
+
+                        report_path.write_text(
+                            json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8",
+                        )
+
+                        llm_meta = {
+                            "provider": check_result.get("provider"),
+                            "model": check_result.get("model"),
+                            "request_id": check_result.get("request_id"),
+                            "chain": check_result.get("chain"),
+                            "latency_ms": check_result.get("latency_ms"),
+                            "usage": check_result.get("usage") or {},
+                        }
+                        last_llm_meta = llm_meta
+
+                        st.metadata["semantic_alignment"] = {
+                            "schema": SEMANTIC_ALIGNMENT_SCHEMA,
+                            "computed_at": utc_now_iso(),
+                            "verdict": verdict,
+                            "report_path": str(report_path.relative_to(base)),
+                            "prompt_sha1": check_prompt_sha1,
+                            "script_hash": script_hash,
+                            "planning_snapshot": planning_snapshot,
+                            "input": input_meta,
+                            "llm": llm_meta,
+                        }
+                        save_status(st)
+                    else:
+                        reused_any = True
+                        verdict = prev_verdict
+                        try:
+                            report_obj = json.loads(report_path.read_text(encoding="utf-8"))
+                        except Exception:
+                            report_obj = {}
+
+                    last_verdict = verdict
+                    last_report_obj = report_obj
+
+                    # Pass policy:
+                    # - require_ok=1: only ok passes
+                    # - require_ok=0: ok/minor pass; major blocks
+                    is_pass = _semantic_alignment_is_pass(verdict, semantic_require_ok)
+                    if is_pass:
+                        break
+
+                    # Not pass: decide whether to attempt an auto-fix.
+                    if not semantic_auto_fix:
+                        break
+                    if (input_meta or {}).get("truncated"):
+                        semantic_gate_details["auto_fix_skipped"] = True
+                        semantic_gate_details["auto_fix_skip_reason"] = "input_truncated"
+                        break
+                    if verdict == "minor" and not semantic_auto_fix_minor:
+                        break
+                    if verdict == "major" and not semantic_auto_fix_major:
+                        break
+                    if fix_attempts >= semantic_max_fix_attempts:
+                        break
+
+                    fix_attempts += 1
+                    semantic_gate_details.setdefault("attempts", []).append({"action": "fix", "verdict_before": verdict})
+
+                    char_min = str((st.metadata or {}).get("target_chars_min") or "").strip()
+                    char_max = str((st.metadata or {}).get("target_chars_max") or "").strip()
+                    fix_prompt = _render_template(
+                        SEMANTIC_ALIGNMENT_FIX_PROMPT_PATH,
+                        {
+                            "CHANNEL_NAME": channel_name,
+                            "TITLE": title_for_alignment,
+                            "THUMB_TOP": thumb_top,
+                            "THUMB_BOTTOM": thumb_bottom,
+                            "CONCEPT_INTENT": concept_intent,
+                            "TARGET_AUDIENCE": target_audience,
+                            "PAIN_TAG": pain_tag,
+                            "BENEFIT": benefit,
+                            "CHAR_MIN": char_min,
+                            "CHAR_MAX": char_max,
+                            "CHECK_JSON": json.dumps(report_obj or {}, ensure_ascii=False, indent=2),
+                            "SCRIPT": script_text,
+                        },
+                    )
+
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        attempt = 0
+                        draft = ""
+                        fix_meta: Dict[str, Any] = {}
+                        last_fix_errors: list[dict[str, Any]] | None = None
+                        while attempt < 2:
+                            attempt += 1
+                            fix_result = router_client.call_with_raw(
+                                task="script_semantic_alignment_fix",
+                                messages=[{"role": "user", "content": fix_prompt}],
+                            )
+                            fix_text = _extract_llm_text_content(fix_result) or ""
+                            draft = fix_text.rstrip("\n").strip() + "\n"
+                            issues2, stats2 = validate_a_text(draft, st.metadata or {})
+                            errors2 = [
+                                it
+                                for it in issues2
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            if not errors2:
+                                fix_meta = {
+                                    "provider": fix_result.get("provider"),
+                                    "model": fix_result.get("model"),
+                                    "request_id": fix_result.get("request_id"),
+                                    "chain": fix_result.get("chain"),
+                                    "latency_ms": fix_result.get("latency_ms"),
+                                    "usage": fix_result.get("usage") or {},
+                                    "attempts": attempt,
+                                    "stats": stats2,
+                                }
+                                last_fix_errors = None
+                                break
+
+                            last_fix_errors = errors2
+                            summary = "\n".join(
+                                f"- {it.get('code')}: {it.get('message')}"
+                                for it in errors2[:12]
+                                if isinstance(it, dict)
+                            )
+                            fix_prompt = (
+                                "次のAテキストはルール違反があります。違反だけを直し、内容はできるだけ維持してください。\n"
+                                "禁止: URL/脚注/箇条書き/番号リスト/見出し/制作メタ。ポーズは `---` だけ（1行単独）。\n"
+                                f"違反一覧:\n{summary}\n\n"
+                                "修正対象本文:\n"
+                                f"{draft}"
+                            )
+
+                        if last_fix_errors:
+                            codes2 = {
+                                str(it.get("code"))
+                                for it in last_fix_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            # If semantic fix keeps overshooting max length, fall back to the dedicated shrink prompt.
+                            if codes2 == {"length_too_long"} and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+                                try:
+                                    # Reuse the script_validation length-rescue logic (bounded, convergent).
+                                    errs_len, stats_len = _non_warning_errors(draft)
+                                    rescued = (
+                                        _rescue_length(draft, errors_list=errs_len, stats2=stats_len, depth=0)
+                                        if errs_len
+                                        else None
+                                    )
+                                    if rescued:
+                                        rescued_norm = rescued.rstrip("\n").strip() + "\n"
+                                        issues3, _stats3 = validate_a_text(rescued_norm, st.metadata or {})
+                                        errors3 = [
+                                            it
+                                            for it in issues3
+                                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                                        ]
+                                        if not errors3:
+                                            draft = rescued_norm
+                                            fix_meta["postprocess_length_rescue"] = {"stats": _stats3}
+                                            last_fix_errors = None
+                                except Exception:
+                                    pass
+
+                            if last_fix_errors:
+                                raise RuntimeError(
+                                    "semantic_alignment_fix produced invalid A-text; last errors: "
+                                    + ", ".join(
+                                        str(it.get("code"))
+                                        for it in last_fix_errors
+                                        if isinstance(it, dict) and it.get("code")
+                                    )
+                                )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    # Backup + write (keep mirror in sync).
+                    try:
+                        backup_path = report_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
+                        backup_path.write_text(script_text.strip() + "\n", encoding="utf-8")
+                        semantic_gate_details["auto_fix_backup_path"] = str(backup_path.relative_to(base))
+                    except Exception:
+                        pass
+
+                    canonical_path.write_text(draft, encoding="utf-8")
+                    if canonical_path.resolve() != assembled_path.resolve():
+                        assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                        assembled_path.write_text(draft, encoding="utf-8")
+                    if legacy_final.exists():
+                        legacy_final.write_text(draft, encoding="utf-8")
+                    # Ensure the next semantic check uses the updated text (not the pre-fix snapshot).
+                    final_text = draft
+
+                    # Re-stamp alignment because the script hash changed.
+                    try:
+                        csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(st.channel))), st.video)
+                    except Exception:
+                        csv_row = None
+                    if csv_row:
+                        try:
+                            stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                            st.metadata["alignment"] = stamp.as_dict()
+                            pt = stamp.planning.get("title")
+                            if isinstance(pt, str) and pt.strip():
+                                st.metadata["sheet_title"] = pt.strip()
+                        except Exception:
+                            pass
+
+                    st.metadata["redo_audio"] = True
+                    st.metadata.setdefault("redo_script", False)
+                    sa = st.metadata.get("semantic_alignment")
+                    if isinstance(sa, dict):
+                        sa["fixed_at"] = utc_now_iso()
+                        sa["fix_llm"] = fix_meta
+                    save_status(st)
+
+                    final_text = draft
+                    try:
+                        stage_details["stats"] = stats2
+                    except Exception:
+                        pass
+
+                semantic_gate_details.update(
+                    {
+                        "verdict": last_verdict,
+                        "report_path": str(report_path.relative_to(base)),
+                        "reused": bool(reused_any),
+                        "fix_attempts": fix_attempts,
+                    }
+                )
+                stage_details["semantic_alignment_gate"] = semantic_gate_details
+
+                should_block = (semantic_require_ok and last_verdict != "ok") or (
+                    (not semantic_require_ok) and last_verdict == "major"
+                )
+                if should_block:
+                    code = "semantic_alignment_not_ok" if semantic_require_ok else "semantic_alignment_major"
+                    stage_details["error"] = code
+                    stage_details["error_codes"] = sorted(set(stage_details.get("error_codes") or []) | {code})
+                    st.metadata.setdefault("redo_script", True)
+                    st.metadata.setdefault("redo_audio", True)
+                    cmd = f"python3 -m script_pipeline.cli semantic-align --channel {st.channel} --video {st.video} --apply"
+                    if semantic_require_ok or last_verdict == "minor":
+                        cmd += " --also-fix-minor"
+                    stage_details["fix_hints"] = [
+                        "企画（タイトル/サムネ）が約束する訴求と、台本が伝えているコアが一致していません（意味整合NG）。",
+                        f"semantic_report: {report_path.relative_to(base)}",
+                        f"修正（最小リライト）: {cmd}",
+                        "企画側（タイトル/サムネ）が誤りなら、CSVを直してから reset→再生成してください。",
+                    ]
+                    st.stages[stage_name].status = "pending"
+                    st.status = "script_in_progress"
+                    save_status(st)
+                    try:
+                        _write_script_manifest(base, st, stage_defs)
+                    except Exception:
+                        pass
+                    return st
+            except Exception as exc:
+                # Be conservative: if the semantic gate itself fails, stop to avoid silently shipping drift.
+                stage_details["semantic_alignment_gate"] = {
+                    "enabled": True,
+                    "error": "semantic_alignment_gate_failed",
+                    "exception": str(exc),
+                }
+                stage_details["error"] = "semantic_alignment_gate_failed"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"semantic_alignment_gate_failed"}
+                )
+                stage_details["fix_hints"] = [
+                    "意味整合ゲート（semantic alignment）が実行できず停止しました。まずは script_validation を再実行してください。",
+                    f"retry: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_validation",
+                ]
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
 
         # Success: clear stale failure markers and bump global status.
         stage_details.pop("error", None)

@@ -4,6 +4,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -125,6 +126,120 @@ def _parse_json_lenient(text: str) -> Dict[str, Any]:
     raise ValueError("invalid json")
 
 
+def _normalize_fullwidth_digits(text: str) -> str:
+    if not text:
+        return ""
+    return text.translate(str.maketrans("０１２３４５６７８９", "0123456789"))
+
+
+def _kanji_number_to_int(token: str) -> Optional[int]:
+    raw = str(token or "").strip()
+    if not raw:
+        return None
+    digits = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if raw in digits:
+        return digits[raw]
+    if raw == "十":
+        return 10
+    if "十" in raw:
+        left, _, right = raw.partition("十")
+        tens = digits.get(left, 1) if left else 1
+        ones = digits.get(right, 0) if right else 0
+        out = tens * 10 + ones
+        return out if out > 0 else None
+    return None
+
+
+def _extract_numeric_promise(planning_text: str) -> Optional[int]:
+    t = _normalize_fullwidth_digits(str(planning_text or ""))
+    m = re.search(r"([0-9]{1,2})\\s*つ", t)
+    if m:
+        try:
+            n = int(m.group(1))
+        except Exception:
+            n = 0
+        return n if 2 <= n <= 20 else None
+    m2 = re.search(r"([一二三四五六七八九十]{1,3})\\s*つ", t)
+    if m2:
+        n2 = _kanji_number_to_int(m2.group(1))
+        return n2 if n2 and 2 <= n2 <= 20 else None
+    return None
+
+
+def _extract_numeric_ordinals(text: str) -> set[int]:
+    t = _normalize_fullwidth_digits(str(text or ""))
+    out: set[int] = set()
+    for m in re.finditer(r"([0-9]{1,2}|[一二三四五六七八九十]{1,3})\\s*つ目", t):
+        token = str(m.group(1) or "").strip()
+        if not token:
+            continue
+        n: Optional[int]
+        if token.isdigit():
+            try:
+                n = int(token)
+            except Exception:
+                n = None
+        else:
+            n = _kanji_number_to_int(token)
+        if n:
+            out.add(n)
+    return out
+
+
+def _apply_numeric_promise_sanity(
+    report_obj: Dict[str, Any],
+    *,
+    title: str,
+    thumb_top: str,
+    thumb_bottom: str,
+    script_text: str,
+) -> Tuple[Dict[str, Any], bool]:
+    if not isinstance(report_obj, dict):
+        return report_obj, False
+    planning_text = " ".join([str(title or ""), str(thumb_top or ""), str(thumb_bottom or "")]).strip()
+    n = _extract_numeric_promise(planning_text)
+    if not n:
+        return report_obj, False
+
+    ordinals = _extract_numeric_ordinals(script_text or "")
+    need = set(range(1, n + 1))
+    satisfied = bool(need) and need.issubset(ordinals)
+    if not satisfied:
+        return report_obj, False
+
+    mismatch = report_obj.get("mismatch_points")
+    if not isinstance(mismatch, list) or not mismatch:
+        return report_obj, False
+
+    kept: list[Any] = []
+    removed: list[str] = []
+    n_digit = f"{n}つ"
+    for mp in mismatch:
+        s = str(mp or "")
+        if n_digit in s:
+            removed.append(s)
+            continue
+        kept.append(mp)
+
+    if not removed:
+        return report_obj, False
+
+    report_obj["mismatch_points"] = kept
+    try:
+        pp = report_obj.setdefault("postprocess", {})
+        pp["numeric_promise_sanity"] = {"n": n, "ordinals_found": sorted(ordinals), "satisfied": True}
+        pp["numeric_promise_removed_mismatch_points"] = removed
+    except Exception:
+        pass
+
+    old_verdict = str(report_obj.get("verdict") or "").strip().lower()
+    if old_verdict == "minor" and not kept:
+        report_obj["verdict"] = "ok"
+        report_obj["fix_actions"] = []
+        report_obj["rewrite_notes"] = ""
+    return report_obj, True
+
+
 @dataclass(frozen=True)
 class SemanticAlignmentOutcome:
     verdict: str
@@ -231,6 +346,15 @@ def run_semantic_alignment(
     if verdict not in {"ok", "minor", "major"}:
         verdict = "minor"
         report_obj["verdict"] = verdict
+    report_obj, changed = _apply_numeric_promise_sanity(
+        report_obj,
+        title=title,
+        thumb_top=thumb_top,
+        thumb_bottom=thumb_bottom,
+        script_text=script_text,
+    )
+    if changed:
+        verdict = str(report_obj.get("verdict") or verdict).strip().lower()
 
     report_dir = base / "content" / "analysis" / "alignment"
     report_dir.mkdir(parents=True, exist_ok=True)
@@ -264,9 +388,29 @@ def run_semantic_alignment(
     if not apply or not should_fix:
         return SemanticAlignmentOutcome(verdict=verdict, report_path=report_path, applied=False, canonical_path=canonical_path)
 
-    fix_prompt_path = repo_root() / "packages/script_pipeline/prompts/semantic_alignment_fix_prompt.txt"
-    char_min = str(st.metadata.get("target_chars_min") or "").strip()
-    char_max = str(st.metadata.get("target_chars_max") or "").strip()
+    cur_len = len((script_text or "").strip())
+    try:
+        target_min_i = int(str(st.metadata.get("target_chars_min") or "").strip())
+    except Exception:
+        target_min_i = 0
+    try:
+        target_max_i = int(str(st.metadata.get("target_chars_max") or "").strip())
+    except Exception:
+        target_max_i = 0
+    try:
+        quote_max_i = int(str(st.metadata.get("a_text_quote_marks_max") or "").strip() or "20")
+    except Exception:
+        quote_max_i = 20
+    try:
+        paren_max_i = int(str(st.metadata.get("a_text_paren_marks_max") or "").strip() or "10")
+    except Exception:
+        paren_max_i = 10
+
+    char_min = str(max(target_min_i, cur_len)) if (target_min_i or cur_len) else ""
+    char_max = str(target_max_i) if target_max_i else ""
+
+    fix_prompt_name = "semantic_alignment_fix_minor_prompt.txt" if verdict == "minor" else "semantic_alignment_fix_prompt.txt"
+    fix_prompt_path = repo_root() / "packages/script_pipeline/prompts" / fix_prompt_name
     fix_prompt = _render_template(
         fix_prompt_path,
         {
@@ -280,6 +424,8 @@ def run_semantic_alignment(
             "BENEFIT": benefit,
             "CHAR_MIN": char_min,
             "CHAR_MAX": char_max,
+            "QUOTE_MAX": str(quote_max_i),
+            "PAREN_MAX": str(paren_max_i),
             "CHECK_JSON": json.dumps(report_obj, ensure_ascii=False, indent=2),
             "SCRIPT": script_text,
         },
@@ -318,11 +464,13 @@ def run_semantic_alignment(
 
             last_issues = errors
             # Build a compact repair prompt (avoid re-sending planning/script twice).
-            summary = "\n".join(
-                f"- {it.get('code')}: {it.get('message')}" for it in errors[:12] if isinstance(it, dict)
-            )
+            summary = "\n".join(f"- {it.get('code')}: {it.get('message')}" for it in errors[:12] if isinstance(it, dict))
+            promised = str((report_obj or {}).get("promised_message") or "").strip()
+            promised_line = f"企画の約束: {promised}\n" if promised else ""
             fix_prompt = (
-                "次のAテキストはルール違反があります。違反だけを直し、内容はできるだけ維持してください。\n"
+                "次のAテキスト案はルール違反があります。違反だけを直し、内容はできるだけ維持してください。\n"
+                f"{promised_line}"
+                f"必須: 文字数は短くしない（>= {char_min} 文字） / quote_max={quote_max_i} / paren_max={paren_max_i}\n"
                 "禁止: URL/脚注/箇条書き/番号リスト/見出し/制作メタ。ポーズは `---` だけ（1行単独）。\n"
                 f"違反一覧:\n{summary}\n\n"
                 "修正対象本文:\n"

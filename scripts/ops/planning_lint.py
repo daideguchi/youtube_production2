@@ -143,7 +143,7 @@ def _detect_contamination_signals(row: dict[str, str]) -> list[tuple[str, str]]:
     return signals
 
 
-def lint_planning_csv(csv_path: Path, channel: str) -> dict[str, Any]:
+def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bool = False) -> dict[str, Any]:
     issues: list[LintIssue] = []
     channel = _normalize_channel(channel)
     required = _required_columns_for_channel(channel)
@@ -220,7 +220,7 @@ def lint_planning_csv(csv_path: Path, channel: str) -> dict[str, Any]:
                     channel=channel,
                     video=video,
                     row_index=idx,
-                    severity="warning",
+                    severity="error" if tag_mismatch_is_error else "warning",
                     code="tag_mismatch_title_vs_content_summary",
                     message=f"title tag 【{title_tag}】 != content_summary tag 【{summary_tag}】 (treat content_summary as L2; drop/regenerate)",
                     columns=["タイトル", "内容（企画要約）"],
@@ -329,6 +329,11 @@ def main() -> int:
     g.add_argument("--channel", help="Channel code like CH07 (reads workspaces/planning/channels/CH07.csv)")
     g.add_argument("--csv", help="Explicit CSV path (repo-relative or absolute)")
     g.add_argument("--all", action="store_true", help="Lint all workspaces/planning/channels/CH*.csv")
+    ap.add_argument(
+        "--tag-mismatch-is-error",
+        action="store_true",
+        help="Treat tag_mismatch_title_vs_content_summary as error (exit non-zero)",
+    )
     ap.add_argument("--write-latest", action="store_true", help="Also write *_latest.json/md (overwrite)")
     args = ap.parse_args()
 
@@ -351,7 +356,7 @@ def main() -> int:
 
     any_errors = False
     for ch, path in targets:
-        rep = lint_planning_csv(path, ch)
+        rep = lint_planning_csv(path, ch, tag_mismatch_is_error=bool(args.tag_mismatch_is_error))
         reports.append(rep)
         label = ch if len(targets) == 1 else f"{ch}"
         json_path, md_path = _write_report(rep, out_dir, label)

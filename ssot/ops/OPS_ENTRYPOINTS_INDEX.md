@@ -12,7 +12,9 @@
 ## 1. 最重要（E2E主動線）
 
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
-- 台本（Script）: `python -m script_pipeline.cli ...`（`script_pipeline/cli.py`）
+- 台本（Script / 入口固定）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <mode> ...`
+  - 運用モード正本（new/redo-full/resume/rewrite）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
+  - 低レベルCLI（内部/詳細制御）: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli ...`（`script_pipeline/cli.py`）
 - 音声（Audio/TTS）:
   - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts ...`
@@ -61,6 +63,13 @@
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 - Planning lint（決定論・混入検知）:
   - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
+- Script運用Runbook（新規/やり直しの定型化）:
+  - モード正本: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 004`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
+  - 既存本文を通すだけ（安い）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
 - Planning sanitize（決定論・L3混入クリーナ。dry-runがデフォルト）:
   - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時のみ `--apply`
 - Aテキスト lint（決定論・反復/禁則混入検知）:
@@ -132,7 +141,7 @@
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
   - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
 - `scripts/audit_alignment_semantic.py`（read-only。タイトル/サムネcatch ↔ 台本文脈の語彙整合を監査。`--out` でJSON保存可）
-- `python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
 ### 3.7 Remotion（実験ライン / 再レンダ）

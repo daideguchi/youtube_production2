@@ -146,3 +146,38 @@
 - `scripts/prompt_audit.py` 改善: timezone-aware timestamp / registry-path の file 限定 / 重複pathのdedupe / script側は canonical surfaces（`assembled*.md`, `audio_prep/script_sanitized*.txt`）のみ監査。
 - SSOT更新: prompt audit の運用入口を明確化（`ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`）。棚卸しを再生成（`python3 scripts/ops/scripts_inventory.py --write` → `ssot/ops/OPS_SCRIPTS_INVENTORY.md`）。
 - 検証: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards` / `python3 scripts/ops/ssot_audit.py --strict`。
+
+## 2025-12-23
+- CH17–CH21（睡眠系ch）: テーマ誤りを修正し、チャンネル資材（`channel_info.json`/`script_prompt.txt`）を新コンセプトへ更新（`packages/script_pipeline/channels/CH17-*`〜`CH21-*`, `packages/script_pipeline/channels/channels_info.json`, `configs/sources.yaml`）。
+- CH17–CH21: Planning CSV と Persona をリセット/再シード（`workspaces/planning/channels/CH17..CH21.csv`, `workspaces/planning/personas/CH17..CH21_PERSONA.md`）。
+- 新チャンネル追加: CH22/CH23 の channel assets + Planning CSV/Persona + ベンチマークメモを追加（`packages/script_pipeline/channels/CH22-*`〜`CH23-*`, `workspaces/planning/channels/CH22.csv`, `workspaces/planning/channels/CH23.csv`, `workspaces/planning/personas/CH22_PERSONA.md`, `workspaces/planning/personas/CH23_PERSONA.md`, `workspaces/research/benchmarks/kokoroshiawase.md`, `configs/sources.yaml`, `packages/script_pipeline/channels/channels_info.json`）。
+- script_validation: Fixer に「原文80%維持/指摘箇所優先」を明示し、字数救済後に quote/paren/pause 禁則を再サニタイズして収束性を改善（`packages/script_pipeline/prompts/a_text_quality_fix_prompt.txt`, `packages/script_pipeline/runner.py`）。
+- UI backend: channel audit/summary が `youtube_handle` と `template_path` にも対応し、CH22/CH23 の未同期状態でもリンク/存在チェックが正しく出るようにした（`apps/ui-backend/backend/main.py`）。
+- 検証: `pytest -q tests/test_script_pipeline_runner_import.py tests/test_script_validation_llm_gate_skip.py tests/test_youtube_handle_resolver.py`
+
+## 2025-12-24
+- UI: チャンネルごとのポータルページを追加（`/channels/:channelCode/portal`）。チャンネル設定（ハンドル/説明/既定タグ/LLMモデル/台本プロンプト）と企画一覧、動画プレビューを1画面に集約（`apps/ui-frontend/src/pages/ChannelPortalPage.tsx`）。
+- UI: portal ルートでチャンネル選択が同期されるよう `AppShell` のルート判定を拡張（`apps/ui-frontend/src/layouts/AppShell.tsx`）。ルーティングを追加（`apps/ui-frontend/src/App.tsx`）。
+- UI: チャンネル概要カードから「ポータル」「チャンネル設定」へ直行リンクを追加（`apps/ui-frontend/src/components/ChannelOverviewPanel.tsx`）。
+- UI: サイドバー（主要メニュー）に「チャンネルポータル」を追加し、選択中チャンネルのポータルへ直行できるようにした（`apps/ui-frontend/src/layouts/AppShell.tsx`）。
+- UI: ポータル上部に「チャンネルアイコン切り替えバー」とクイック導線（案件一覧/チャンネル設定/企画CSV/YouTube/管理シート）を追加し、企画一覧/プレビューはスクロール分離で見失いにくくした（`apps/ui-frontend/src/pages/ChannelPortalPage.tsx`, `apps/ui-frontend/src/pages/ChannelPortalPage.css`）。
+- UI: ポータルのUXを追加調整。チャンネル切替に検索を追加し、カードhoverの位置ズレを抑止して重なりを解消。企画一覧は全幅表示 + 企画番号を数値昇順に揃えた（`apps/ui-frontend/src/pages/ChannelPortalPage.tsx`, `apps/ui-frontend/src/pages/ChannelPortalPage.css`）。
+- UI: 台本作成/一括処理（`/projects`, `/projects2`）で、チャンネルprofileのデフォルト値が既定LLMモデルを誤って上書きする問題を修正。LLM設定（`script_rewrite`）を優先し、fallback（`qwen/qwen3-14b:free`）は上書きしない（`apps/ui-frontend/src/pages/ProjectsPage.tsx`, `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx`）。
+- UI: ポータル/ダッシュボードの長い文字列（パス等）が枠からはみ出す問題を修正し、ポータルでは「パス表示」ではなく SSOT/テンプレ内容（persona / planning template / 画像プロンプトテンプレ）を本文で確認できるようにした（`apps/ui-frontend/src/pages/ChannelPortalPage.tsx`, `apps/ui-frontend/src/pages/ChannelPortalPage.css`, `apps/ui-frontend/src/App.css`）。
+- 検証: `npm -C apps/ui-frontend run build`
+- script_validation: タイトル/サムネ訴求↔Aテキスト本文の**意味整合ゲート**を追加し、`verdict=major` は pending で停止するようにした（`packages/script_pipeline/runner.py`）。レポートは `content/analysis/alignment/semantic_alignment.json`、メタは `status.json: metadata.semantic_alignment`。長尺は `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS` 超過でスキップ可。
+- script_outline: 章草稿生成（高コスト）に入る前に、アウトライン段階で意味整合の事前ゲートを実行（`content/analysis/alignment/outline_semantic_alignment.json`）。`major` は `script_outline` を pending 停止（`packages/script_pipeline/runner.py`）。
+- Planning混線（tag_mismatch）: 早期停止のオプションを追加（`SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1`）。lint側も `--tag-mismatch-is-error` で exit 非0 化できるようにした（`scripts/ops/planning_lint.py`）。
+- SSOT更新: 意味整合が `script_outline`/`script_validation` の確定ゲートになったこと、Planning混線のstrict運用オプションを追記（`ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`, `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`, `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`, `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`, `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`）。
+- 検証: `.venv/bin/pytest -q tests/test_planning_lint_tag_mismatch_strict.py tests/test_script_validation_llm_gate_skip.py tests/test_script_pipeline_runner_import.py`
+
+## 2025-12-25
+- runner修復: `packages/script_pipeline/runner.py` の SyntaxError/Tab混入で import/実行が不安定だったため、インデント崩れを修正してコンパイル可能な状態に復旧。
+- script_validation（長さ収束）:
+  - `length_too_long` で Shrink を実行しても削りが足りないケースがあったため、`---` 区切り単位の決定論トリム（`deterministic_budget_trim`）をフォールバックとして追加し、必ずレンジ内へ収束するようにした（証跡: `status.json: stages.script_validation.details.auto_length_fix_fallback`）。
+  - `length_too_short` の「あと少し足りない」事故を減らすため、事前救済を最大3パスに拡張（3パス目は残り不足 `<=1200` の場合のみ）してコスト暴走を防止した。
+- SSOT更新: 文字数収束（Expand 3rd pass 条件 / Shrinkの決定論フォールバック）を追記（`ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`, `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`）。
+- 検証（運用）:
+  - 既存: `scripts/ops/script_runbook.py resume --channel CH07 --video 019 --until script_validation` → `script_validated`（semantic_alignment verdict `ok`）。
+  - 新規: `scripts/ops/script_runbook.py new --channel CH10 --video 007` → `resume --until script_validation` で `script_validated`（semantic_alignment verdict `minor`）。
+- 検証（技術）: `python3 -m compileall -q packages/script_pipeline/runner.py`, `.venv/bin/pytest -q tests/test_script_pipeline_runner_import.py tests/test_script_validation_llm_gate_skip.py tests/test_planning_lint_tag_mismatch_strict.py tests/test_semantic_alignment_policy.py`

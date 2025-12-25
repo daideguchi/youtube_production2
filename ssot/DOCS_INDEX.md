@@ -27,6 +27,7 @@
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
 - `ops/OPS_REPO_DIRECTORY_SSOT.md`: リポジトリのディレクトリ構造（正本）。配置/移設/互換symlink方針の基準。
 - `ops/OPS_SCRIPT_SOURCE_MAP.md`: 台本/音声/動画の“ソース元”対応表（SoT→生成物）。
+- `ops/OPS_SCRIPT_FACTORY_MODES.md`: 台本工場の入口固定（new/redo-full/resume/rewrite）と運用分岐の正本。
 - `ops/OPS_SCRIPT_PIPELINE_SSOT.md`: 台本量産ロジックの単一SSOT（新規/やり直し/超長尺）。
 - `ops/OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
 - `ops/OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。
