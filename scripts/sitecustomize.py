@@ -9,7 +9,7 @@ would rely on root symlinks.
 This `sitecustomize.py` is discovered because `scripts/` is on sys.path in that
 execution mode, and it:
   - Adds repo root and `packages/` to sys.path (monorepo layout)
-  - Loads `.env` from repo root (and optional `~/.env`) before any app code runs
+  - Loads `.env` from repo root before any app code runs
 """
 
 from __future__ import annotations
@@ -51,4 +51,4 @@ for p in (REPO_ROOT, PACKAGES_ROOT):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-load_env_files([REPO_ROOT / ".env", Path.home() / ".env"])
+load_env_files([REPO_ROOT / ".env"])

@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Purpose:
 # - Validate that final WAV duration roughly matches final SRT end timestamp
-# - Keep a timestamped log under logs/regression/ to avoid cluttering logs root
+# - Keep a timestamped log under workspaces/logs/regression/ to avoid cluttering logs root
 #
 # SoT:
 # - workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.{wav,srt}

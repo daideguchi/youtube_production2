@@ -2,10 +2,9 @@
 # Helper that runs srt2images.cli with factory_commentary env
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" )/.." && pwd)"
-PROJECT_DIR="$ROOT_DIR/commentary_02_srt2images_timeline"
+PROJECT_DIR="$ROOT_DIR/packages/video_pipeline"
 if [[ ! -d "$PROJECT_DIR" ]]; then
-  echo "❌ commentary_02_srt2images_timeline not found at $PROJECT_DIR" >&2
+  echo "❌ packages/video_pipeline not found at $PROJECT_DIR" >&2
   exit 1
 fi
-cd "$PROJECT_DIR"
-"$ROOT_DIR/scripts/with_ytm_env.sh" python3 tools/run_pipeline.py "$@"
+"$ROOT_DIR/scripts/with_ytm_env.sh" python3 -m video_pipeline.tools.run_pipeline "$@"

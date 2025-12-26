@@ -13,7 +13,7 @@
 - **タスクキーで呼ぶ**: `LLMClient.call(task=..., messages=...)` の `task` がSoT。
 - **切替は設定で**: モデル切替/コスト最適化は `configs/*.yml|*.yaml` 側で完結させる。
 - **無断でモデルを追加/切替しない**: `configs/llm*.yml` / `configs/image_models.yaml` の tier 候補やモデルキーを、指示なしで増やしたり順序変更しない（特に画像生成は運用/課金/品質に直結するため厳禁）。例外は SSOT 更新 + 人間レビュー承認後のみ。
-- **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計。互換: `logs/llm_usage.jsonl`）に集約し、他の散発ログはL3として短期保持。
+- **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計）に集約し、他の散発ログはL3として短期保持。
 
 ---
 
@@ -82,7 +82,7 @@
 
 ## 4. 実行時の重要な補足（壊さないための知識）
 
-- `commentary_02_srt2images_timeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
+- `video_pipeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
 
 ### 4.0 CLI/Env での一時上書き（ルーター改造なしで可変にする）
@@ -95,7 +95,7 @@
   - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["or_deepseek_r1_0528"],"tts_annotate":["or_deepseek_v3_2_exp"]}'`
 - CLI対応（入口側が上記 env を自動セット）:
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --llm-model or_deepseek_r1_0528`
-  - `PYTHONPATH=".:packages" python -m audio_tts_v2.scripts.run_tts --channel CH06 --video 033 --input ... --llm-model or_deepseek_v3_2_exp`
+  - `PYTHONPATH=".:packages" python -m audio_tts.scripts.run_tts --channel CH06 --video 033 --input ... --llm-model or_deepseek_v3_2_exp`
 
 ### 4.1 Azure/非Azure 50/50 ルーティング（運用レバー）
 

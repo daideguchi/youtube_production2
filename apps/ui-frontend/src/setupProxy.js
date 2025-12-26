@@ -12,10 +12,18 @@ module.exports = function configureProxy(app) {
     })
   );
 
-  // Serve Remotion assets (belt_config.json, image_cues.json, images, audio) directly from repo root.
-  // This keeps CapCutと分離した remotion/input/<id> を UI プレビューで読めるようにする。
-  // __dirname = ui/frontend/src. Repo root = ../../.. from here.
-  const remotionDir = path.resolve(__dirname, "../../../remotion");
-  app.use("/remotion", express.static(remotionDir));
+  // Serve Remotion-related artifacts for UI preview.
+  // __dirname = apps/ui-frontend/src. Repo root = ../../.. from here.
+  const repoRoot = path.resolve(__dirname, "../../..");
+  const videoInputDir = path.join(repoRoot, "workspaces", "video", "input");
+  const remotionOutDir = path.join(repoRoot, "apps", "remotion", "out");
+  const remotionPublicDir = path.join(repoRoot, "apps", "remotion", "public");
+
+  // Run inputs: belt_config.json, image_cues.json, images, wav
+  app.use("/remotion/input", express.static(videoInputDir));
+  // Optional rendered outputs (mp4)
+  app.use("/remotion/out", express.static(remotionOutDir));
+  // Generated public assets (_auto/_bgm) and tracked assets (asset/*)
+  app.use("/remotion/public", express.static(remotionPublicDir));
 
 };

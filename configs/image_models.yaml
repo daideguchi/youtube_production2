@@ -7,6 +7,11 @@ providers:
   openrouter:
     env_api_key: OPENROUTER_API_KEY
     base_url: "https://openrouter.ai/api/v1"
+  fireworks:
+    env_api_key: FIREWORKS_API_KEY
+    env_api_key_fallback: FIREWORKS_API_KEY_FALLBACK
+    env_account: FIREWORKS_ACCOUNT
+    base_url: "https://api.fireworks.ai/inference/v1"
 
 models:
   gemini_3_pro_image_preview:
@@ -79,28 +84,71 @@ models:
       supports_seed: false
       max_batch_n: 1
 
+  openrouter_riverflow_v2_fast_preview:
+    provider: openrouter
+    model_name: sourceful/riverflow-v2-fast-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_riverflow_v2_standard_preview:
+    provider: openrouter
+    model_name: sourceful/riverflow-v2-standard-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  fireworks_flux_1_schnell_fp8:
+    provider: fireworks
+    model_name: flux-1-schnell-fp8
+    defaults:
+      # Fireworks defaults are 4 steps / guidance 3.5 (docs); keep explicit for determinism.
+      num_inference_steps: 4
+      guidance_scale: 3.5
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 4
+
 # Tier-to-model resolution. The first entry is treated as the primary candidate.
 tiers:
   image_gen:
     - gemini_2_5_flash_image
     - openrouter_gemini_2_5_flash_image_preview
     - openrouter_gemini_2_5_flash_image
+    - openrouter_riverflow_v2_fast_preview
+    - openrouter_riverflow_v2_standard_preview
     # - gemini_3_pro_image_preview  # emergency fallback (disabled by default)
+  video_image_gen:
+    - fireworks_flux_1_schnell_fp8
+    # NOTE: No automatic fallback here (cost control). Switch via profile/override when needed.
   thumbnail_image_gen:
     - openrouter_gemini_2_5_flash_image_preview
     - openrouter_gemini_2_5_flash_image
+    - openrouter_riverflow_v2_fast_preview
+    - openrouter_riverflow_v2_standard_preview
 
 # Task-level defaults. Options provided at call time override these values.
 tasks:
   image_generation:
-    tier: image_gen
+    tier: video_image_gen
     defaults:
       aspect_ratio: "16:9"
+      size: "1920x1080"
       n: 1
   visual_image_gen:
-    tier: image_gen
+    tier: video_image_gen
     defaults:
       aspect_ratio: "16:9"
+      size: "1920x1080"
       n: 1
   thumbnail_image_gen:
     tier: thumbnail_image_gen

@@ -39,9 +39,9 @@
 - 既存ページは残しつつ、Episode Studio から最短導線で到達できる（破壊的変更なし）。
 
 ### 2.2 BackendのDoD（I/O整合）
-- UIが読む音声/SRT/ログの正本は **`workspaces/audio/final`**（互換: `audio_tts_v2/artifacts/final`。確定フロー準拠）。
+- UIが読む音声/SRT/ログの正本は **`workspaces/audio/final`**（確定フロー準拠）。
 - 動画プロジェクト/ジョブは **`/api/video-production/*`** を正として、UIが実行/ログ閲覧できる。
-- “相対パス直組み”を極力排除し、パス解決は `factory_common/paths.py` を経由する。
+- “相対パス直組み”を極力排除し、パス解決は `factory_common.paths` を経由する。
 
 ---
 
@@ -76,7 +76,7 @@
 ## 4. ステップ別 UI/SoT/I/O 契約（超重要）
 
 ### Phase A: Planning（企画）
-- **SoT**: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+- **SoT**: `workspaces/planning/channels/CHxx.csv`
 - **UI操作**:
   - 行の作成/編集（タイトル/タグ/作成フラグ/メモ等）
   - “Script初期化”の前提チェック（必須列が埋まっているか）
@@ -84,7 +84,7 @@
   - 対象行が存在し、必要列が埋まっている
 
 ### Phase B: Script（台本）
-- **SoT**: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`（互換: `script_pipeline/data/...`）
+- **SoT**: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`
 - **UI操作**:
   - ステージ状態の閲覧/更新（必要最小限）
   - assembled（人間編集版）編集・保存
@@ -93,7 +93,7 @@
   - `content/assembled.md`（または human）が存在し、次のAudioへ進める
 
 ### Phase C: Audio（TTS/SRT）
-- **SoT（参照正本）**: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/...`）
+- **SoT（参照正本）**: `workspaces/audio/final/{CH}/{NNN}/`
   - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt`, `log.json` 等
 - **UI操作**:
   - 音声再生/更新時刻/品質メタ表示
@@ -108,7 +108,7 @@
 
 #### D-1: AutoDraft（超高速・最短導線）
 - **入力SoT**: final SRT（上記）
-- **出力SoT**: `workspaces/video/runs/<run_id>/`（互換: `commentary_02_srt2images_timeline/output/...`）
+- **出力SoT**: `workspaces/video/runs/<run_id>/`
 - **UI操作**:
   - テンプレ/プロンプトの選択（通常はチャンネルpresetで自動）
   - 実行→stdout/stderr表示→run_dir表示
@@ -116,7 +116,7 @@
   - run_dir が生成され、CapCutで開ける状態
 
 #### D-2: VideoProduction（管理/編集/再実行に強い）
-- **SoT**: `workspaces/video/runs/<project_id>/`（project単位。互換: `commentary_02_srt2images_timeline/output/...`）
+- **SoT**: `workspaces/video/runs/<project_id>/`（project単位）
 - **UI操作**:
   - Project作成（SRTを指定してSoT dirを作成）
   - Job実行（analyze_srt → regenerate_images → validate_capcut → build_capcut_draft）
@@ -126,7 +126,7 @@
   - guard ok（整合通過）+ CapCut draft生成済み
 
 ### Phase F: Thumbnail（独立動線）
-- **SoT**: `workspaces/thumbnails/projects.json`（独立・別動線。互換: `thumbnails/projects.json`）
+- **SoT**: `workspaces/thumbnails/projects.json`（独立・別動線）
 - **UI操作**:
   - 候補表示、override設定、資産管理
 - **完了条件**:
@@ -169,7 +169,7 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 
 ### 6.1 UIが見せるべきログ（エピソード単位）
 - Script: stage runner のlog（あれば）
-- Audio: `workspaces/audio/final/.../log.json`（互換: `audio_tts_v2/artifacts/final/...`）
+- Audio: `workspaces/audio/final/.../log.json`
 - AutoDraft: create の stdout/stderr（UIに保存するなら run_dir/logs に追記）
 - VideoProduction: `/api/video-production/jobs/{jobId}/log`（ジョブごと）
 - “どこに溜まるか”を UI に明示（パスと最終更新時刻）
@@ -211,7 +211,7 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 - **リスク**: 旧ページ/旧APIが残り混乱
   - **対策**: Episode Studio を“唯一の推奨導線”にし、旧ページは「詳細/例外対応」と明示。
 - **リスク**: 大規模移設で壊れる
-  - **対策**: `factory_common/paths.py` で吸収し、物理移設は段階実施（`PLAN_REPO_DIRECTORY_REFACTOR.md`）。
+  - **対策**: `packages/factory_common/paths.py` で吸収し、物理移設は段階実施（`PLAN_REPO_DIRECTORY_REFACTOR.md`）。
 
 ---
 

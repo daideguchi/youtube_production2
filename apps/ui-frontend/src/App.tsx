@@ -5,16 +5,18 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { WorkflowPage } from "./pages/WorkflowPage";
 import { ScriptFactoryPage } from "./pages/ScriptFactoryPage";
 import { ChannelOverviewPage } from "./pages/ChannelOverviewPage";
+import { ChannelPortalPage } from "./pages/ChannelPortalPage";
 import { ChannelDetailPage } from "./pages/ChannelDetailPage";
 import { ChannelWorkspacePage } from "./pages/ChannelWorkspacePage";
 import { ChannelSettingsPage } from "./pages/ChannelSettingsPage";
+import { BenchmarksPage } from "./pages/BenchmarksPage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { ThumbnailsPage } from "./pages/ThumbnailsPage";
 import { AudioReviewRoute } from "./pages/AudioReviewRoute";
 import { ReportsPage } from "./pages/ReportsPage";
 import { PromptManagerPage } from "./pages/PromptManagerPage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { AudioTtsV2Page } from "./pages/AudioTtsV2Page";
+import { AudioTtsPage } from "./pages/AudioTtsPage";
 import { JobsPage } from "./pages/JobsPage";
 import { CapcutEditPage } from "./pages/CapcutEditPage";
 import { CapcutDraftPage } from "./pages/CapcutDraftPage";
@@ -23,7 +25,7 @@ import { ProductionPage } from "./pages/ProductionPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
 import LlmUsagePage from "./pages/LlmUsagePage";
-import { ProgressPage } from "./pages/ProgressPage";
+import { PlanningPage } from "./pages/PlanningPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
 import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
 import { AgentOrgPage } from "./pages/AgentOrgPage";
@@ -44,7 +46,9 @@ function App() {
         <Route path="/prompts" element={<PromptManagerPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/channels/:channelCode" element={<ChannelOverviewPage />} />
+        <Route path="/channels/:channelCode/portal" element={<ChannelPortalPage />} />
         <Route path="/channels/:channelCode/videos/:video" element={<ChannelDetailPage />} />
+        <Route path="/benchmarks" element={<BenchmarksPage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
@@ -56,10 +60,10 @@ function App() {
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />
         <Route path="/capcut-edit/swap" element={<CapcutSwapPage />} />
         <Route path="/video-remotion" element={<RemotionWorkspacePage />} />
-        <Route path="/audio-tts-v2" element={<AudioTtsV2Page />} />
+        <Route path="/audio-tts" element={<AudioTtsPage />} />
         <Route path="/audio-integrity" element={<AudioIntegrityPage />} />
         <Route path="/tts-progress" element={<TtsProgressPage />} />
-        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/planning" element={<PlanningPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/llm-usage" element={<LlmUsagePage />} />

@@ -13,7 +13,7 @@
 ## 1. 事前検証ログ
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py --channel CH02 --videos 034,035,036,037,038,039,040,041
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts --channel CH02 --videos 034,035,036,037,038,039,040,041
 ```
 
 - 結果貼り付け:
@@ -54,4 +54,3 @@ PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/valid
   - `run_dir/images/*.png` が実画像になっているか（サイズが一様 5.76MB 付近ならノイズ疑い）
   - rebuild 対象 draft が正しいか（run_name取り違えが多い）
   - CapCut draft root が想定どおりか（ローカルrootに出ている可能性）
-

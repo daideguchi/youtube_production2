@@ -5,7 +5,7 @@
 - 「リトライ回数を増やして当てる」ではなく、**構造と入力の質で最初から当たる確率を上げる**。
 
 結論（先に）:
-- **生成（章分割→決定論アセンブル）は現状でもスケール可能**（章数・目標文字数を上げれば長く作れる）。
+- **生成（章分割→機械アセンブル; LLMなし）は現状でもスケール可能**（章数・目標文字数を上げれば長く作れる）。
 - ただし **現行の“全文をLLMに渡す品質ゲート（Judge/Fix）”は2〜3時間級では破綻する**（コンテキスト超過/コスト過大/部分改変の事故）。
 - したがって、超長尺では「全文LLM」から「**チャンク単位の判定/修正**」へ切り替える **Marathonモード**が必須。
 
@@ -23,7 +23,7 @@
 
 ### Route A（主線）: `script_pipeline`（章分割のSoT駆動）
 - Stages: `packages/script_pipeline/stages.yaml`
-  - `script_outline` → `chapter_brief` → `script_draft`（章ごとに生成）→ `script_review`（決定論で結合）→ `script_validation`
+  - `script_outline` → `chapter_brief` → `script_draft`（章ごとに生成）→ `script_review`（LLMなしで結合）→ `script_validation`
 - 章生成は runner がアウトラインから章を列挙してループする:
   - `packages/script_pipeline/runner.py` の `script_draft` / `script_review`
 
@@ -41,7 +41,7 @@
 **長尺に対して弱い理由（致命）**
 - 組み上げ時にセクション草稿を `12000` 文字に truncate しているため、超長尺では入力が欠落し、整合が崩れる。
 
-### Route C（超長尺）: `a_text_marathon_compose`（Marathon: 章設計→章生成→決定論アセンブル）
+### Route C（超長尺）: `a_text_marathon_compose`（Marathon: 章設計→章生成→機械アセンブル; LLMなし）
 - `scripts/ops/a_text_marathon_compose.py`
 - “全文LLMで直す” をやらず、**章単位の生成/差し替え**で収束させる（全文コンテキストを避ける）。
 - 生成物はデフォルトで `content/analysis/longform/` に集約（dry-run）。`--apply` で canonical を上書きする。
@@ -69,11 +69,11 @@
 
 ## 2) 現状でスケールするもの（良いところ）
 
-### 2.1 章分割生成 + 決定論アセンブル
+### 2.1 章分割生成 + 機械アセンブル（LLMなし）
 - `script_draft` が章ごとに生成 → `script_review` が結合（LLMで全文編集しない）。
 - 長尺にしても「構造的に破綻しにくい」骨格が既にある。
 
-### 2.2 決定論バリデータ（機械禁則）
+### 2.2 機械バリデータ（LLMなし / 機械禁則）
 - `packages/script_pipeline/validator.py` は全文が長くても判定できる（URL/箇条書き/区切り/記号上限/字数など）。
 - これは超長尺でも **安全ガードとして有効**。
 
@@ -138,8 +138,8 @@
 - `content/analysis/longform/chapter_summaries.json`
   - 各章を1文で要約（判定/整合のための軽量表現）
 
-### 4.3 生成フロー（決定論×推論の分割統治）
-1) **大枠設計（決定論）**
+### 4.3 生成フロー（機械×LLM の分割統治）
+1) **大枠設計（機械; LLMなし）**
    - 目標文字数（例: 60,000〜90,000）と章数（例: 48〜72）を決める。
    - 章を「大セクション（例: 6〜8ブロック）」にグルーピングし、各ブロックの目的を固定する。
 2) **章ブリーフ（軽量）**
@@ -147,8 +147,8 @@
 3) **章本文生成**
    - 入力は “全文” ではなく、以下のみ:
      - 企画タイトル、章の目的、直前章の末尾（200〜400字）、Memory（800字程度）、章ブリーフ
-   - 章ごとに決定論バリデーション → NGなら **その章だけ**再生成（最大N回）。
-4) **アセンブル（決定論）**
+   - 章ごとに機械バリデーション（LLMなし） → NGなら **その章だけ**再生成（最大N回）。
+4) **アセンブル（機械; LLMなし）**
    - `script_review` と同様に、章をそのまま結合。
    - `---` は大セクション境界にだけ入れる（等間隔禁止）。
 5) **品質ゲート（チャンク化）**
@@ -168,9 +168,9 @@
 ## 5) 直近の実装方針（最小リスクで段階導入）
 
 ### Phase 0（今すぐ可能: 運用で回避）
-- 超長尺では `quality_check` を参考程度にし、`script_validation` の LLMゲートは **無効化**して決定論lint中心に止める（暫定）。
-  - env: `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0`（詳細は runner 実装を参照）
+- 超長尺は「全文LLMゲート」が破綻しやすいので、**全文をLLMに渡さない**運用（Marathon + チャンク品質ゲート）へ切り替える（推奨）。
   - 追加の安全弁: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）を超えると、全文LLMゲートは自動スキップされる（強制したい場合は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
+  - どうしても LLM 品質ゲート無しで走らせる場合のみ（最終手段）: `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0`（機械lint中心で止める）。
 - 章数/目標文字数は `status.json metadata` で上書きして実験できる（ただし手作業で事故りやすい）。
 
 ### Phase 1（小さな追加: opsツールでMarathon生成）
@@ -189,7 +189,7 @@
     - `content/analysis/longform/chapters/chapter_XXX.md`（章本文）
     - `content/analysis/longform/chapters/chapter_XXX__attempt_YY__invalid.md`（章の不正出力を保存）
     - `content/analysis/longform/assembled_candidate.md`（結合候補）
-    - `content/analysis/longform/validation__latest.json`（全文の決定論検証レポート）
+    - `content/analysis/longform/validation__latest.json`（全文の機械検証レポート）
     - `content/analysis/longform/memory.json`（既出キーワード/既出must_includeのスナップショット）
     - `content/analysis/longform/chapter_summaries.json`（章ごとの1行要約/字数/必須観点）
 

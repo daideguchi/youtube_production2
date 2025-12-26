@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from factory_common.llm_router import get_router
-from commentary_02_srt2images_timeline.src.config.llm_resolver import (
+from video_pipeline.src.config.llm_resolver import (
     resolve_task,
     get_model_config,
     get_capabilities,

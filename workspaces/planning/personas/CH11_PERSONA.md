@@ -1,15 +1,15 @@
 # CH11 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH01_planning_template.csv`（CH11 は CH01 テンプレを流用）
+- SoT: `workspaces/planning/templates/CH01_planning_template.csv`（CH11 は CH01 テンプレを流用）
 - 最終更新: 2025-11-15（テンプレ2行目のサンプルを更新した日付）
-- 参照手順: 1行目ヘッダーと2行目サンプルをコピー→`{NEXT_NO}`/`{NEXT_VIDEO}` を差し替え→`progress/channels/CHxx.csv` に貼り付け→`planning_store.refresh --force`
+- 参照手順: 1行目ヘッダーと2行目サンプルをコピー→`{NEXT_NO}`/`{NEXT_VIDEO}` を差し替え→`workspaces/planning/channels/CHxx.csv` に貼り付け→UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）
 - SSOTでの扱い: このファイルがテンプレの導線/更新日時を示す唯一の場所。テンプレ改訂時は必ずここへ日時と変更点メモを追記する。
 
 ## 1. 共通ペルソナ（固定で使う一文）
 > 他人の目や言葉に振り回されがちな40〜60代。真面目で優しいがゆえに、人間関係・老後・お金・孤独の不安を抱え、仏教の整理術で心を軽くしたいと願っている人。
 
-- `progress/channels/CHxx.csv` の `ターゲット層` 列は **この一文をコピペして固定** する。企画ごとに別のターゲットを書かない。
+- `workspaces/planning/channels/CHxx.csv` の `ターゲット層` 列は **この一文をコピペして固定** する。企画ごとに別のターゲットを書かない。
 - 台本作成時は最新の SoT と運用ドキュメントだけを参照し、この一文をターゲット層として固定する。
 
 ## 2. 企画ごとに切り替える「悩みタグ」セット
@@ -24,7 +24,7 @@
 | `説明文_リード` | YouTube概要欄の冒頭一文 | 「優しさを利用されがちなあなたへ──慈悲と境界線のお話」 |
 | `説明文_この動画でわかること` | 箇条書きで視聴メリットを書く | 「・慈悲と甘やかしの違い\n・距離を置く言い換え3つ」 |
 
-> `progress/channels/CHxx.csv`（および `progress/channels/CH11.csv`）の末尾にこれら8列を追加済み。既存行は空欄のままで構わないが、No.191以降は必ず埋める。
+> `workspaces/planning/channels/CHxx.csv`（および `workspaces/planning/channels/CH11.csv`）の末尾にこれら8列を追加済み。既存行は空欄のままで構わないが、No.191以降は必ず埋める。
 
 ## 3. 企画シート執筆ルール（CH11）
 1. **タイトル**: 「【括弧】＋具体的な痛み」→ 「こうすれば楽になる」構造で 28〜34 文字。
@@ -34,10 +34,10 @@
 5. **サムネタイトル上/下**: 上＝呼びかけ、下＝行動ワードを基本とし、なるべく漢字＋ひらがなで視認性を確保。
 
 ## 4. コピペ用テンプレ
-- ファイル: `workspaces/planning/templates/CH01_planning_template.csv`（CH11 もこのテンプレを利用。互換: `progress/templates/...`）
+- ファイル: `workspaces/planning/templates/CH01_planning_template.csv`（CH11 もこのテンプレを利用）
 - 使い方: 1行目（ヘッダー）と2行目（サンプル）をコピーし、新しい No. / 動画番号 / タイトルなどを上書き。`{NEXT_NO}` や `{NEXT_VIDEO}` を差し替える。
 - `ターゲット層` は触らず、悩みタグやベネフィットはサンプルのコメント形式を踏襲する。
 
 ## 5. ワークフローへの組み込み
-1. 企画を追加したら UI `/progress` で表示確認（必要なら `python3 scripts/api_health_check.py --all-channels`）。
+1. 企画を追加したら UI `/planning` で表示確認（必要なら `python3 scripts/api_health_check.py --all-channels`）。
 2. 行が表示されることを確認し、テンプレに沿った値が反映されているか spot check する。

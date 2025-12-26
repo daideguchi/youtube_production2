@@ -21,7 +21,7 @@
 ## 1. Planning（企画/進捗）— CSV
 
 ### 1.1 SoT
-- `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+- `workspaces/planning/channels/CHxx.csv`
 
 ### 1.2 ヘッダ（例: CH01 の観測）
 - `No.`
@@ -61,10 +61,10 @@
 ## 2. Script（台本）— video_dir と status.json
 
 ### 2.1 SoT（動画単位）
-- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本）
 
 ### 2.2 ディレクトリI/O（観測）
-- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本）
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
 
@@ -146,7 +146,7 @@ stage_state（観測）:
 ## 3. Audio/TTS（音声・字幕）— final dir と log.json
 
 ### 3.1 下流参照SoT（final）
-- `workspaces/audio/final/{CH}/{NNN}/`（正本。互換: `audio_tts_v2/artifacts/final/...`）
+- `workspaces/audio/final/{CH}/{NNN}/`（正本）
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`
@@ -194,7 +194,7 @@ segments[*]（観測キー例）:
 ## 4. Video（SRT→画像→CapCut）— run_dir と JSON
 
 ### 4.1 SoT（run単位）
-- `workspaces/video/runs/{run_id}/`（正本。互換: `commentary_02_srt2images_timeline/output/...`）
+- `workspaces/video/runs/{run_id}/`（正本）
 
 観測される代表ファイル:
 - `image_cues.json`
@@ -275,8 +275,8 @@ belts[*]（観測）:
 - run_dir の入力/出力/依存を **1ファイルに固定**し、将来の `workspaces/` への移設・検証・UI表示の基礎にする。
 
 生成:
-- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py` が、`workspaces/audio/final`（互換: `audio_tts_v2/artifacts/final`）の SRT/WAV を解決できる場合に生成（失敗しても pipeline は止めない）。
-- `commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py` が retime 後に生成（strict validation）。
+- `packages/video_pipeline/tools/auto_capcut_run.py` が、`workspaces/audio/final` の SRT/WAV を解決できる場合に生成（失敗しても pipeline は止めない）。
+- `packages/video_pipeline/tools/align_run_dir_to_tts_final.py` が retime 後に生成（strict validation）。
 
 トップレベル（期待）:
 - `schema`: `"ytm.timeline_manifest.v1"`
@@ -329,7 +329,8 @@ strict validation（期待ルール）:
 ## 5. Thumbnails（サムネ）— projects.json
 
 ### 5.1 SoT
-- `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
+- `workspaces/thumbnails/projects.json`
+ - テンプレ（型）SoT: `workspaces/thumbnails/templates.json`
 
 ### 5.2 projects.json（観測の形）
 トップレベル:
@@ -348,5 +349,37 @@ variants[*]（観測キー例）:
 - `image_url`: string（外部URLを使う場合）
 
 ### 5.3 物理配置（重要）
-- UI/Backend は `/thumbnails/assets/{image_path}` を配信する設計のため、物理ファイルは `workspaces/thumbnails/assets/{image_path}`（互換: `thumbnails/assets/{image_path}`）に寄せる。
-- 旧来の `workspaces/thumbnails/CHxx_<チャンネル名>/...`（互換: `thumbnails/CHxx_<...>/...`）は Legacy 資産として移行/アーカイブ対象。
+- UI/Backend は `/thumbnails/assets/{image_path}` を配信する設計のため、物理ファイルは `workspaces/thumbnails/assets/{image_path}` に寄せる。
+- 旧来の `workspaces/thumbnails/CHxx_<チャンネル名>/...` は Legacy 資産として移行/アーカイブ対象。
+
+### 5.4 Layer Specs（画像レイヤ/文字レイヤの仕様YAML）
+目的:
+- 「画像レイヤ（背景生成の指示）」と「文字レイヤ（テキスト配置/デザイン）」を、**チャンネル固有の if 分岐を増やさず**に運用できるようにする。
+- 仕様は汎用スキーマとして固定し、チャンネルごとの差分は YAML の値で吸収する（= 仕組みは共通、データだけ切替）。
+
+配置（推奨）:
+- 仕様YAML（SoT）: `workspaces/thumbnails/compiler/layer_specs/*.yaml`
+  - image prompts: `workspaces/thumbnails/compiler/layer_specs/image_prompts_v*.yaml`
+  - text layout: `workspaces/thumbnails/compiler/layer_specs/text_layout_v*.yaml`
+
+参照（例）:
+- 旧/外部持ち込みの確定版: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`
+- 取り込み後は `layer_specs/` 配下を正とし、`templates.json` から `layer_spec_ids` を参照して適用する。
+
+スキーマ（要点）:
+- image_prompts
+  - `version`: int
+  - `canvas`: `{w:int,h:int,aspect:str}`（主にアセット制作側の意図）
+  - `policy`: dict（例: 左TSZ, forbid_text 等）
+  - `items[]`: `{video_id,title?,person_key?,anchors?,prompt_ja}`（1動画=1背景指示）
+- text_layout
+  - `version`: int
+  - `coordinate_system`: `normalized_0_to_1`
+  - `global`: `safe_zones`, `fonts`, `effects_defaults`, `fit_rules`
+  - `templates`: `{template_id: {slots, fallbacks}}`
+  - `items[]`: `{video_id,title?,template_id,fallbacks?,text:{top,main,accent,author}}`
+
+運用ルール:
+- UI は企画CSVの `thumbnail_*` を正本として編集し、**必要なら** layer specs の既定値を初期提案として読み込む（強制しない）。
+- 文字合成（compose）は layer specs の `template_id/slots` を使ってもよいが、最終の文字列は企画CSV（`thumbnail_upper/title/lower` 等）を正とする。
+- 画像生成（generate）は templates.json の `image_model_key` と prompt_template を正にし、layer specs の指示は「追加のガイド」として利用できる。

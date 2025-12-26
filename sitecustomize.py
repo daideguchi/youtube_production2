@@ -1,6 +1,6 @@
 """
 Global .env loader.
-Always load environment variables from the project root .env (and optionally ~/.env)
+Always load environment variables from the project root .env
 before any application code runs.
 
 Also ensures `packages/` is importable so top-level imports like `factory_common`
@@ -43,7 +43,6 @@ if PACKAGES_ROOT.exists():
 
 env_candidates = [
     PROJECT_ROOT / ".env",
-    Path.home() / ".env",
 ]
 
 load_env_files(env_candidates)

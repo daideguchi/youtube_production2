@@ -5,6 +5,13 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Dict
 
+try:
+    from factory_common.paths import logs_root
+
+    DEFAULT_LOG_PATH = str(logs_root() / "image_usage.log")
+except Exception:
+    DEFAULT_LOG_PATH = "workspaces/logs/image_usage.log"
+
 
 def load(path: Path):
     if not path.exists():
@@ -44,7 +51,7 @@ def pct(part, whole):
 
 def main():
     ap = argparse.ArgumentParser(description="Summarize image_usage.log")
-    ap.add_argument("--log", default=str(Path("logs") / "image_usage.log"), help="path to log file")
+    ap.add_argument("--log", default=DEFAULT_LOG_PATH, help="path to log file")
     args = ap.parse_args()
     log_path = Path(args.log)
     totals, by_model, duration, errors = summarize(log_path)

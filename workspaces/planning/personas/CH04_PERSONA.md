@@ -1,9 +1,9 @@
 # CH04 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH04_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH04_planning_template.csv`
 - 最終更新: 2025-11-15（テンプレサンプル刷新）
-- 手順: 1行目ヘッダー/2行目サンプルをコピー→`{NEXT_NO}` `{NEXT_VIDEO}` を置換→`progress/channels/CHxx.csv` に追加→`planning_store.refresh --force`
+- 手順: 1行目ヘッダー/2行目サンプルをコピー→`{NEXT_NO}` `{NEXT_VIDEO}` を置換→`workspaces/planning/channels/CHxx.csv` に追加→UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）
 - 注意: テンプレを改訂したら本節に更新内容を追記し、SSOT 側に変更履歴を残す。
 
 ## 1. 共通ペルソナ
@@ -30,10 +30,10 @@
 3. サムネは暗めの背景＋光るモチーフ。コピーは12〜14文字で謎を匂わせる。
 
 ## 4. テンプレ
-- `progress/templates/CH04_planning_template.csv` をコピーし、Analytics根拠や引用を差し替える。
+- `workspaces/planning/templates/CH04_planning_template.csv` をコピーし、Analytics根拠や引用を差し替える。
 - タグ列・説明文列は必ず記入し、ミステリー要素と学びの両方を明示する。
 
 ## 5. 運用
-1. 企画追加後 `planning_store.refresh`。
-2. `progress_manager.py verify --channel-code CH04` を実行し、列をチェック。
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH04 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UI でタグ列・説明文が表示されることを確認する。

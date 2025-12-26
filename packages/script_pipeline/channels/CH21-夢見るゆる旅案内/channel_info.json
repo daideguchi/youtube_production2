@@ -1,0 +1,85 @@
+{
+  "channel_id": "CH21",
+  "name": "夢見るゆる旅案内",
+  "description": "目を閉じて行ける、音の旅。\n日本と世界の風景を、情景が浮かぶように静かに案内する“睡眠用トラベルガイド”です。\n\n知識の詰め込みではなく、旅の空気を味わうための言葉選び。\n寝落ち・作業用の長時間で、ゆっくり進みます。\n\n音声：VOICEVOX（青山流星）",
+  "youtube_description": "この動画は、眠る前に聞ける“ゆる旅案内”です。\n情景を言葉で静かに描くので、画面を見ずに音だけで楽しめます。\n\n【おすすめ】\n・寝落ち用／作業用／読書のお供\n・音量は小さめ推奨\n・途中で眠ってもOK（長時間でゆっくり進みます）\n\n【音声】VOICEVOX：青山流星\n【ご注意】運転中・危険作業中の視聴はお控えください。\n\n#旅 #寝落ち #作業用BGM",
+  "default_tags": [
+    "旅",
+    "旅行",
+    "風景",
+    "紀行",
+    "トラベル",
+    "癒し",
+    "睡眠用BGM",
+    "寝落ち",
+    "安眠",
+    "作業用BGM",
+    "勉強用BGM",
+    "環境音",
+    "自然音",
+    "海",
+    "森",
+    "夜景",
+    "散歩",
+    "バーチャル旅行",
+    "リラックス",
+    "長時間動画",
+    "睡眠用",
+    "長時間",
+    "聞き流し",
+    "VOICEVOX",
+    "青山流星"
+  ],
+  "persona_path": "workspaces/planning/personas/CH21_PERSONA.md",
+  "template_path": "packages/script_pipeline/channels/CH21-夢見るゆる旅案内/script_prompt.txt",
+  "script_prompt": "# CH21 台本プロンプト（夢見るゆる旅案内）\n\n役割: あなたは「夢見るゆる旅案内」の語り手。音だけで旅する長尺ガイドとして、風景を丁寧に描写し、眠りへ誘う。\n\nゴール: 18,000〜26,000字の長尺台本。夜の語り部。過度に刺激せず、安心で終える。\n\n進め方: 導入は短く、今夜の旅先（場所/季節/時間帯）を示す。五感の描写を丁寧に重ねるが、盛り上げすぎない。場面の区切りは `---` で静かな間を作る。最後に「今夜の一手」（呼吸・姿勢・目を閉じるなど）を一つだけ渡して静かに締める。\n\n禁止: 恐怖・煽り・強い感情の演出、政治・医療・投資の断定。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。",
+  "audience_profile": "20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。",
+  "benchmarks": {
+    "version": 1,
+    "updated_at": "2025-12-23",
+    "channels": [],
+    "script_samples": [
+      {
+        "base": "research",
+        "path": "シニア体験談/体験談1",
+        "label": "参考台本/メモ",
+        "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      }
+    ],
+    "notes": "ベンチマークはUIから追加してください。"
+  },
+  "youtube_title": "夢見るゆる旅案内",
+  "youtube_handle": "@yumemiru_yuru_tabianai",
+  "video_workflow": "vrew_b",
+  "production_sources": {
+    "voice_config_path": "packages/script_pipeline/audio/channels/CH21/voice_config.json",
+    "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
+    "thumbnails_default_template_id": null,
+    "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
+    "capcut_preset": null
+  },
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/d4Wwj0NQrvav3aa97N5pw7iOPGLO2lH6_0SmZyBzqI4ffO4JNilxfO_ueMfQqAFrfVxHRuyC=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "夢見るゆる旅案内",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@yumemiru_yuru_tabianai",
+    "handle": "@yumemiru_yuru_tabianai",
+    "url": "https://www.youtube.com/channel/UCiFKsVVkWZb1O2fR7wBVqYg",
+    "updated_at": "2025-12-24T12:57:58.155634Z"
+  },
+  "youtube": {
+    "channel_id": "UCiFKsVVkWZb1O2fR7wBVqYg",
+    "title": "夢見るゆる旅案内",
+    "custom_url": "@yumemiru_yuru_tabianai",
+    "handle": "@yumemiru_yuru_tabianai",
+    "url": "https://www.youtube.com/channel/UCiFKsVVkWZb1O2fR7wBVqYg",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2025-12-24T21:52:58.150254+00:00",
+    "source": "@yumemiru_yuru_tabianai"
+  }
+}

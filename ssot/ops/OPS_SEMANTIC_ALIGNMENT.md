@@ -33,7 +33,8 @@
 
 注: 既定ではパイプラインが `script_outline` と `script_validation` で意味整合ゲートを実行します。  
 `script_validation` は **`verdict: major`（明らかなズレ）のみ停止**し、可能なら **最小リライトを自動適用**してから先へ進みます。  
-`minor` は「芯は回収しているが微妙にぼやける/解釈ゆれ」の扱いで、既定では停止しません（記録は残る）。  
+`minor`（軽微）は「芯は回収しているが微妙にぼやける/解釈ゆれ」の扱いで、既定では停止しません（記録は残る）。  
+運用者は基本 **`major` だけ**気にすればOKです（`minor` はログ）。
 CLI は「レポート閲覧」と「最小リライト適用」に使います。
 
 ### 2.1 チェック（書き換えなし）
@@ -55,24 +56,26 @@ CLI は「レポート閲覧」と「最小リライト適用」に使います�
 ### 2.4 実行後の状態
 - `--apply` 時:
   - 台本のバックアップを `workspaces/scripts/_archive/semantic_alignment_fix_<timestamp>/...` に保存
-  - `script_validation`（決定論ゲート）を自動実行して、TTS へ即進める状態に戻す
+  - `script_validation`（機械チェック; LLMなし）を自動実行して、TTS へ即進める状態に戻す
 
 ### 2.5 ゲート制御（環境変数）
 - `SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE=0` でアウトライン事前ゲートを無効化（非推奨）
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_GATE=0` で `script_validation` の意味整合ゲートを無効化（非推奨）
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1` で `script_validation` の合格条件を `verdict: ok` に固定（minor/major は停止; strict）
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK`（既定 `0`）で意味整合ゲートの合格条件を制御（`script_outline` と `script_validation` の両方に影響）:
+  - `0`: `verdict: major` のみ停止（ok/minor は合格; 量産のデフォルト）
+  - `1`: `verdict: ok` 以外は停止（minor/major は停止; ズレをより厳密にブロック）
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX=0` で `script_validation` の自動修正を無効化（停止→手動修正に切り替え）
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=1` / `..._MAJOR=0` で minor/major の自動修正を個別にON/OFF
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS` で自動修正リトライ回数（既定 1、最大 2）
 - `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS` は「判定に渡す最大文字数」。超える場合は **先頭+末尾の抜粋で判定**し、auto-fix は安全のためスキップされます（必要なら上げる/Marathon運用）。
 
 ### 2.6 auto-fix の安全設計（重要）
-- `script_validation` の auto-fix は **Aテキストの決定論ルールに合格した場合のみ適用**します（不合格の草稿は書き込みません）。
+- `script_validation` の auto-fix は **Aテキストの機械ルール（LLMなし）に合格した場合のみ適用**します（不合格の草稿は書き込みません）。
   - 例: `length_too_short` / `too_many_quotes` / `too_many_parentheses` などが残る場合は停止。
 - `minor` と `major` で **別プロンプト**を使い分けます（minor は “局所修正・短くしない” を強制）。
 - 文字数の下限（`<<CHAR_MIN>>`）は「`target_chars_min` と現状本文の長さの大きい方」を採用し、**auto-fix が本文を短縮して事故る**のを防ぎます。
-- 生成草稿が決定論ルールに不合格だった場合、`status.json` の `script_validation.details.error` は `semantic_alignment_auto_fix_invalid_a_text` になり、`error_codes` に詳細が残ります。
-- タイトル/サムネに「Nつ」等の数が含まれる場合は、判定の取りこぼしを防ぐために **数の回収（例: `一つ目〜七つ目`）を決定論でサニティチェック**します。
+- 生成草稿が機械ルール（LLMなし）に不合格だった場合、`status.json` の `script_validation.details.error` は `semantic_alignment_auto_fix_invalid_a_text` になり、`error_codes` に詳細が残ります。
+- タイトル/サムネに「Nつ」等の数が含まれる場合は、判定の取りこぼしを防ぐために **数の回収（例: `一つ目〜七つ目`）を機械的にサニティチェック（LLMなし）**します。
   - 台本側で `Nつ目` が揃っているのに、LLM 判定が「数が回収されていない」と言っているケースを自動で補正します（誤検知で止まる事故を防ぐ）。
 
 ---

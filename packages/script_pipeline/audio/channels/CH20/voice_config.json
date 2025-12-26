@@ -1,6 +1,6 @@
 {
   "channel_code": "CH20",
-  "channel_name": "ブッダの人間関係相談室",
+  "channel_name": "ゆったり雑学ナイトラジオ",
   "default_voice_key": "voicevox_aoyama",
   "output": {
     "final_root": "data/CH20/_audio_workspace/final",

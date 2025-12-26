@@ -16,9 +16,9 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `plans/PLAN_LLM_PIPELINE_REFACTOR.md`（最終更新 2025-12-10）: 台本/TTS/画像の LLM 呼び出し統合。
 - `plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`（最終更新 2025-12-12）: API LLM を agent/think-mode（Runbook/キュー）へ置換。
 - `plans/PLAN_AGENT_ORG_COORDINATION.md`（最終更新 2025-12-12）: Orchestrator + Workers 協調（スコープロック/申し送り/割当）。
+- `plans/PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-25）: モノレポ整備（tracked symlink 撤去 + 参照統一）。
 
 ## Draft（設計中）
-- `plans/PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-18）: モノレポ全体のディレクトリ再編（段階移行）。
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-17）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
 - `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-17）: レガシー隔離/確実ゴミ判定の基準と段階実行。
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。

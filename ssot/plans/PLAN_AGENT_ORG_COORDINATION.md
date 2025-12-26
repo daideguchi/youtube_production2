@@ -35,7 +35,7 @@
 
 ## 3. 仕組み（ファイルSoT）
 ### 3.1 協調ディレクトリ（queue_dir 配下）
-既定の queue_dir: `logs/agent_tasks`（`LLM_AGENT_QUEUE_DIR` で変更可）
+既定の queue_dir: `workspaces/logs/agent_tasks`（`LLM_AGENT_QUEUE_DIR` で変更可）
 
 ```
 <queue_dir>/coordination/
@@ -73,11 +73,11 @@
 - Orchestrator は request `assign_task` を処理して:
   - `assignments/*.json` を作成
   - 対象 agent に memo を送る（subject: `TASK ASSIGNED: <task_id>`）
-- 具体的な作業対象は `logs/agent_tasks/pending/<task_id>.json` と紐付く（`task_id` をキーにする）。
+- 具体的な作業対象は `workspaces/logs/agent_tasks/pending/<task_id>.json` と紐付く（`task_id` をキーにする）。
 
 ### 3.5 スコープロック（soft access control）
 - `locks/*.json` を作り、スコープ（repo相対パス or glob）を宣言する。
-- **重要**: zsh は `ui/**` を展開するため、glob は **必ずクォート**する（例: `'ui/**'`）。
+- **重要**: zsh は `apps/ui-frontend/**` のような `**` を展開するため、glob は **必ずクォート**する（例: `'apps/ui-frontend/**'`）。
 
 ## 4. CLI（実装）
 実装: `scripts/agent_org.py`
@@ -95,7 +95,9 @@
 - 一覧: `python scripts/agent_org.py agents list`
 
 ### Locks / Memos
-- lock: `python scripts/agent_org.py lock 'ui/**' --mode no_touch --ttl-min 60 --note 'dd working'`
+- lock:
+  - `python scripts/agent_org.py lock 'apps/ui-frontend/**' --mode no_touch --ttl-min 60 --note 'dd working'`
+  - `python scripts/agent_org.py lock 'apps/ui-backend/**' --mode no_touch --ttl-min 60 --note 'dd working'`
 - lock audit: `python scripts/agent_org.py locks-audit --older-than-hours 6`（解除し忘れ/無期限lock点検）
 - memo: `python scripts/agent_org.py memo --to Mike --subject '...' --body '...'`
 - UI: `/agent-org`（API: `/api/agent-org/*`）
@@ -107,11 +109,11 @@
 - ownership: `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` / `python scripts/agent_org.py board areas`
 
 ## 5. ログ設計
-- `coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。
-- LLM 側は既存の `logs/llm_usage.jsonl` / `logs/agent_tasks/pending` が正本。
-- API失敗→THINK MODE は `factory_common/llm_api_failover.py` が:
-  - `logs/llm_usage.jsonl` に `api_failover_*` を追記
-  - `coordination/memos/*.json` へブロードキャスト（デフォルト有効）
+- `workspaces/logs/agent_tasks/coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。
+- 正本: `workspaces/logs/llm_usage.jsonl` / `workspaces/logs/agent_tasks/pending`
+- API失敗→THINK MODE は `packages/factory_common/llm_api_failover.py` が:
+  - `workspaces/logs/llm_usage.jsonl` に `api_failover_*` を追記
+  - `workspaces/logs/agent_tasks/coordination/memos/*.json` へブロードキャスト（デフォルト有効）
 
 ## 6. 運用ルール（事故防止）
 - 作業前に:

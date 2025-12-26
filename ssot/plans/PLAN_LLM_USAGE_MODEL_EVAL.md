@@ -4,7 +4,7 @@
 > - Plan ID: **PLAN_LLM_USAGE_MODEL_EVAL**
 > - ステータス: Draft
 > - 担当/レビュー: Codex（LLM 運用）
-> - 対象範囲: 台本（script_pipeline）、B テキスト/TTS（audio_tts_v2/tts）、画像ドラフト（commentary_02_srt2images_timeline）における LLM 全呼び出し
+> - 対象範囲: 台本（script_pipeline）、B テキスト/TTS（audio_tts/tts）、画像ドラフト（video_pipeline）における LLM 全呼び出し
 > - 最終更新日: 2025-12-12
 
 ## 0. TL;DR（ざっくり要約）
@@ -35,22 +35,22 @@
 
 **累計目安**（7 章想定）: ~50–60k tokens/prompt + completion。thinking トークン込みでも azure_gpt5_mini の 128k 上限内。【F:configs/llm_router.yaml†L17-L29】
 
-### 2.2 B テキスト/TTS（audio_tts_v2/tts）
+### 2.2 B テキスト/TTS（audio_tts/tts）
 | ステージ | 入力ボリューム | 期待出力 | 推定 Tokens | 呼び出し回数 | 推奨モデル/ tier | 根拠 |
 | --- | --- | --- | --- | --- | --- | --- |
-| tts_annotate (危険トークン注釈) | MeCab トークン列 (3k〜4k 文字想定) + 厳格 JSON ルール | token_annotations JSON | ~3.5k + 1.0k = **4.5k** | 1 | standard → **azure_gpt5_mini** | router 経由の JSON 必須で安定性優先。【F:audio_tts_v2/tts/llm_adapter.py†L113-L198】【F:configs/llm_router.yaml†L125-L134】 |
-| llm_readings_for_candidates | リスク候補ごとに少量文脈 | 読みの JSON | **0.4k**/batch × 5 = **2k** | ~5 | standard → **azure_gpt5_mini** | 短文多数。スループット重視で standard tier。【F:audio_tts_v2/tts/llm_adapter.py†L200-L226】【F:configs/llm_router.yaml†L125-L134】 |
-| tts_segment (SRT 分割) | A テキスト全体 (~12k tokens) を 35–70 文字で分割【F:audio_tts_v2/tts/llm_adapter.py†L26-L47】 | segments JSON | ~12k + 2k = **14k** | 1 | standard → **azure_gpt5_mini** | チャンク化のみ。速度優先。【F:configs/llm_router.yaml†L125-L138】 |
-| tts_pause | segments (~2k 文字) | pause JSON | **2.5k** | 1 | standard → **azure_gpt5_mini** | 短文、安定性重視。【F:audio_tts_v2/tts/llm_adapter.py†L36-L48】【F:configs/llm_router.yaml†L135-L142】 |
-| tts_reading / B_TEXT_GEN | 機械分割された本文 (~12k tokens) | 読み付き B テキスト | **12k + 12k = 24k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 読み修正 + ポーズ挿入で長尺。品質最優先。【F:audio_tts_v2/tts/orchestrator.py†L230-L269】【F:configs/llm_router.yaml†L139-L146】 |
+| tts_annotate (危険トークン注釈) | MeCab トークン列 (3k〜4k 文字想定) + 厳格 JSON ルール | token_annotations JSON | ~3.5k + 1.0k = **4.5k** | 1 | standard → **azure_gpt5_mini** | router 経由の JSON 必須で安定性優先。【F:audio_tts/tts/llm_adapter.py†L113-L198】【F:configs/llm_router.yaml†L125-L134】 |
+| llm_readings_for_candidates | リスク候補ごとに少量文脈 | 読みの JSON | **0.4k**/batch × 5 = **2k** | ~5 | standard → **azure_gpt5_mini** | 短文多数。スループット重視で standard tier。【F:audio_tts/tts/llm_adapter.py†L200-L226】【F:configs/llm_router.yaml†L125-L134】 |
+| tts_segment (SRT 分割) | A テキスト全体 (~12k tokens) を 35–70 文字で分割【F:audio_tts/tts/llm_adapter.py†L26-L47】 | segments JSON | ~12k + 2k = **14k** | 1 | standard → **azure_gpt5_mini** | チャンク化のみ。速度優先。【F:configs/llm_router.yaml†L125-L138】 |
+| tts_pause | segments (~2k 文字) | pause JSON | **2.5k** | 1 | standard → **azure_gpt5_mini** | 短文、安定性重視。【F:audio_tts/tts/llm_adapter.py†L36-L48】【F:configs/llm_router.yaml†L135-L142】 |
+| tts_reading / B_TEXT_GEN | 機械分割された本文 (~12k tokens) | 読み付き B テキスト | **12k + 12k = 24k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 読み修正 + ポーズ挿入で長尺。品質最優先。【F:audio_tts/tts/orchestrator.py†L230-L269】【F:configs/llm_router.yaml†L139-L146】 |
 
 **累計目安**: ~47k tokens。script と合わせても 128k 以内だが、B テキスト生成は別ジョブ実行を推奨。
 
-### 2.3 画像文脈解析（commentary_02_srt2images_timeline）
+### 2.3 画像文脈解析（video_pipeline）
 | ステージ | 入力ボリューム | 期待出力 | 推定 Tokens | 呼び出し回数 | 推奨モデル/ tier | 根拠 |
 | --- | --- | --- | --- | --- | --- | --- |
-| visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
-| visual_section_plan | 最大 1000 セグメントを結合（目安 50k chars）【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
+| visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
+| visual_section_plan | 最大 1000 セグメントを結合（目安 50k chars）【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
 | visual_prompt_refine | セクションごとの短文 (~1k) | 画像プロンプト | **1.5k** | 20–30 (セクション数) | heavy_reasoning → **or_deepseek_r1** | 中量テキストを多数呼ぶため、コスト最適化で heavy tier の二番手を推奨。【F:configs/llm_router.yaml†L69-L86】【F:configs/llm_router.yaml†L147-L160】 |
 | visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。UI/auto は direct/none の 1本道。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】【F:configs/image_models.yaml†L25-L41】 |
 | e2e_smoke | 便宜上の環境ゲート | - | - | - | RUN_E2E_SMOKE=1 でのみ実行 | 重いテストの誤実行防止（ゲートのみ）。 |
@@ -64,15 +64,15 @@
 ## 4. 改善提案（優先度順）
 1) **script_draft のトークン平準化**: 章ごとの target を `len(chapters)` で均等割しているが、長章は 1.6k tokens を超えやすい。【F:script_pipeline/runner.py†L1318-L1343】 → outline 時に `chapter_word_cap` を設定し、超過時は自動で章を分割する。
 2) **format ステージの chunk 圧縮**: 800 文字 chunk を 600 文字に縮め、completion 0.9 → 0.7 倍を狙う。トークンを ~25% 削減しつつ安定性向上。【F:script_pipeline/runner.py†L1376-L1404】
-3) **tts_annotate の前フィルタ**: MeCab tokens から数値・記号のみのトークンを事前除外し、入力 10–15% 縮小。コストと JSON 崩れのリスクを下げる。【F:audio_tts_v2/tts/llm_adapter.py†L113-L198】
-4) **visual_section_plan の分割実行**: 1000 セグメント上限時は 50k tokens 超。600 セグメント単位で分割し、結果を統合するサブルーチンを追加して失敗率とコストを抑制。【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py†L182-L220】
+3) **tts_annotate の前フィルタ**: MeCab tokens から数値・記号のみのトークンを事前除外し、入力 10–15% 縮小。コストと JSON 崩れのリスクを下げる。【F:audio_tts/tts/llm_adapter.py†L113-L198】
+4) **visual_section_plan の分割実行**: 1000 セグメント上限時は 50k tokens 超。600 セグメント単位で分割し、結果を統合するサブルーチンを追加して失敗率とコストを抑制。【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L182-L220】
 5) **router で thinking_level デフォルト明示**: heavy_reasoning タスクに `thinking=high` を明記し、standard/cheap では強制 none。意図せぬ reasoning 課金を防ぐ。【F:configs/llm_router.yaml†L67-L172】
 6) **ログとモニタリング**: すべての router 呼び出しで `prompt_tokens/completion_tokens` を SSOT に集約し、ステージ別コストダッシュボードを後続で実装。
 
 ## 6. 実測ログ運用メモ
-- 実装済み: `factory_common/llm_client.py` が呼び出し成功ごとに `logs/llm_usage.jsonl` へ JSONL 追記。
+- 実装済み: `packages/factory_common/llm_client.py` が呼び出し成功ごとに `workspaces/logs/llm_usage.jsonl` へ JSONL 追記。
 - 環境変数: `LLM_USAGE_LOG_PATH` でログパス変更、`LLM_USAGE_LOG_DISABLE=1` でロギング停止。
-- 集計: `PYTHONPATH=. python scripts/aggregate_llm_usage.py --log logs/llm_usage.jsonl --top 20` で task/provider/model ごとの call/token 集計を確認。
+- 集計: `python3 scripts/aggregate_llm_usage.py --log workspaces/logs/llm_usage.jsonl --top 20` で task/provider/model ごとの call/token 集計を確認。
 - 画像生成の経路は単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）か `none`（スキップ）。legacy router/cli/mcp は廃止し、Gemini には aspect_ratio を送らない設定（capabilities supports_aspect_ratio=false）。
 - 残課題: 長尺 SRT を使った `visual_section_plan`（600 セグ分割）のスモークを実施し、トークン/セクション品質を目視確認する。
 

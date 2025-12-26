@@ -1,7 +1,7 @@
 channel_prompt:
   channel_id: CH02
   name: 心理学・モチベ 静寂の哲学
-  persona_path: progress/personas/CH02_PERSONA.md
+  persona_path: workspaces/planning/personas/CH02_PERSONA.md
   version: '2025-11-27'
   prompt_body: '▼▼▼【確定版・最終プロンプト】YouTube台本生成プロンプト (静寂の哲学 専用)▼▼▼
 

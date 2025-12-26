@@ -2,7 +2,7 @@
 
 - 最終更新日: 2025-12-12  
 - 目的: **LLM読み監査を使わず**、エージェントが手動推論で VOICEVOX 読み誤りをゼロに近づけるための再現性100%手順書。  
-- 適用範囲: `audio_tts_v2/scripts/run_tts.py` による strict TTS パイプライン（VOICEVOX）。  
+- 適用範囲: `packages/audio_tts/scripts/run_tts.py` による strict TTS パイプライン（VOICEVOX）。  
 - 本書は **手動監査の唯一の正本**。運用・引き継ぎは必ず本書に従う。
 
 ---
@@ -24,17 +24,17 @@
 ## 2. 前提 / 環境
 
 ### 2.1 入力ファイルの正本
-- 台本 SoT は `workspaces/scripts/{CH}/{VID}/content/assembled_human.md`（互換: `script_pipeline/data/...`）。  
+- 台本 SoT は `workspaces/scripts/{CH}/{VID}/content/assembled_human.md`。  
 - これが無い場合のみ `assembled.md` を使用。  
 - **どちらを使ったかを必ず記録**。
 
 ### 2.2 生成物と SoT
-- 作業領域（中間/一時）: `workspaces/scripts/{CH}/{VID}/audio_prep/`（互換: `script_pipeline/data/...`）  
+- 作業領域（中間/一時）: `workspaces/scripts/{CH}/{VID}/audio_prep/`  
   - 手動監査の対象ログはここに出力される `log.json`。  
-- 最終参照正本: `workspaces/audio/final/{CH}/{VID}/`（互換: `audio_tts_v2/artifacts/final/...`。運用フローの正本は `OPS_CONFIRMED_PIPELINE_FLOW.md`）。
+- 最終参照正本: `workspaces/audio/final/{CH}/{VID}/`（運用フローの正本は `OPS_CONFIRMED_PIPELINE_FLOW.md`）。
 
 ### 2.3 VOICEVOX サーバ
-- `audio_tts_v2/configs/routing.json` の VOICEVOX URL は `http://127.0.0.1:50021`。
+- `packages/audio_tts/configs/routing.json` の VOICEVOX URL は `http://127.0.0.1:50021`。
 - サーバ稼働確認:
   ```bash
   curl -s http://127.0.0.1:50021/speakers | head
@@ -69,7 +69,7 @@
    ```bash
    cd <REPO_ROOT>
    SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
-   PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
+   PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts \
      --channel {CH} --video {VID} \
      --input workspaces/scripts/{CH}/{VID}/content/{assembled_human_or_assembled}.md
    ```
@@ -77,7 +77,7 @@
    - `audio_prep/chunks/` が残っていれば `--resume` で復帰:
      ```bash
      SKIP_TTS_READING=1 AOYAMA_SPEAKER_ID=13 \
-     PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts \
+     PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts \
        --channel {CH} --video {VID} --input ... --resume
      ```
 3. 生成物確認:
@@ -155,7 +155,7 @@ PY
 ### 3.4 誤読があった場合の修正分類
 **(1) 文脈依存しない誤読 → グローバル辞書へ**
 - どの文脈でも読みが一意で事故らない語のみ。
-- 追記先: `audio_tts_v2/configs/learning_dict.json`
+- 追記先: `packages/audio_tts/configs/learning_dict.json`
 - 例:
   ```json
   {
@@ -166,7 +166,7 @@ PY
 
 **(2) 文脈依存 / 行単位の誤読 → 位置パッチへ**
 - 例: 同じ表記でも行で読みが変わる・迷いがある語。
-- 追記先: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`（互換: `script_pipeline/data/...`）
+- 追記先: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`
 - 形式:
   ```json
   [

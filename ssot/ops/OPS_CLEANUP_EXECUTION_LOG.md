@@ -3,6 +3,10 @@
 このログは「実際に実行した削除/移動/退避」を、後から追跡できるように記録する。  
 大原則: 破壊的操作は **バックアップ→削除/移動→SSOT更新** の順で行う。
 
+注:
+- `legacy/` ディレクトリは廃止し、退避先は `backups/graveyard/` + `workspaces/_scratch/` に統一した（詳細: Step 103）。過去の記録中の `legacy/...` は当時の履歴として読む。
+- 旧「repo root 直下の互換 alias」（例: `script_pipeline/`, `audio_tts_v2/`, `commentary_02_srt2images_timeline/`, `ui/`, `thumbnails/`, `progress/`）は廃止。現行の正本は `packages/**` と `workspaces/**`。過去の記録に旧パスが出る場合は当時の履歴として読み、再現する場合は現行パスへ読み替える。
+
 ---
 
 ## 2025-12-12
@@ -863,7 +867,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 削除（git rm）:
   - `git rm packages/audio_tts_v2/tts/validators.py`
 - 追従（docs）:
-  - `packages/audio_tts_v2/docs/tts_logic_proof.md` の Validator 記述を削除し、現行実装（未統合）として明記
+  - （削除済み）`packages/audio_tts_v2/docs/tts_logic_proof.md` は参照ゼロの一時設計メモとして archive-first で退避し、repo から削除した（証跡: Step 100）
 
 ### 58) audio の rebuildable artifacts を一括削除（untracked / safe）
 
@@ -948,7 +952,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/ops/cleanup_broken_symlinks.py`
   - `python3 scripts/ops/cleanup_broken_symlinks.py --run --max-print 0`
 - レポート:
-  - `logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
+  - `workspaces/logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
 - 安全条件:
   - symlink のみ unlink（target/生成物は削除しない）
   - coordination locks があるスコープは自動スキップ（生成中の run を守る）
@@ -964,7 +968,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name audio.srt --run --max-print 0`
   - `python3 scripts/ops/cleanup_broken_symlinks.py --include-episodes --name A_text.md --run --max-print 0`
 - レポート:
-  - `logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
+  - `workspaces/logs/regression/broken_symlinks/broken_symlinks_<timestamp>.json`
 
 ### 66) CH02-024 の欠損SoTを安全に復元（checksum一致）
 
@@ -998,7 +1002,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 実行（archive-first → delete）:
   - `python3 scripts/ops/prune_video_run_legacy_files.py --run --max-print 0`
   - archive: `backups/graveyard/20251218T073604Z_video_runs_legacy_files.tar.gz`
-  - report: `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T073604Z.json`
+  - report: `workspaces/logs/regression/video_runs_legacy_prune/legacy_prune_20251218T073604Z.json`
 - 結果:
   - deleted=185 / skipped_locked=63（CH02画像regenのlock対象はスキップ）
 
@@ -1010,7 +1014,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - `python3 scripts/ops/cleanup_remotion_artifacts.py --keep-days 14 --max-print 0`
 - 実行:
   - `python3 scripts/ops/cleanup_remotion_artifacts.py --keep-days 14 --run --max-print 0 --ignore-locks`（※自分で該当スコープをlockしている場合のみ。基本は lock 尊重のまま実行）
-  - report: `logs/regression/remotion_cleanup/remotion_cleanup_20251218T075050Z.json`
+  - report: `workspaces/logs/regression/remotion_cleanup/remotion_cleanup_20251218T075050Z.json`
 - 結果:
   - `apps/remotion/out` の巨大生成物を削除（tracked の `belt_config.generated.json` / `belt_llm_raw.json` は保持）、`apps/remotion/public/_bgm` の古い wav を削除（合計約1.5GB削減）
 
@@ -1038,7 +1042,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 結果:
   - 5 dirs（約384MB）を `workspaces/thumbnails/_archive/20251218T091034Z/` へ移動
 - レポート:
-  - `logs/regression/thumbnails_legacy_archive/thumbnails_legacy_archive_20251218T091034Z.json`
+  - `workspaces/logs/regression/thumbnails_legacy_archive/thumbnails_legacy_archive_20251218T091034Z.json`
 
 ### 72) 旧 `logs/agent_tasks_*` キュー（実験残骸）を purge（archive-first）
 
@@ -1049,7 +1053,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 実行（archive-first → delete）:
   - `python3 scripts/ops/purge_legacy_agent_task_queues.py --run --ignore-locks`（※自分で該当スコープをlockしている場合のみ）
   - archive: `backups/graveyard/20251218T091319Z_legacy_agent_task_queues.tar.gz`
-  - report: `logs/regression/agent_tasks_legacy_purge/agent_tasks_legacy_purge_20251218T091319Z.json`
+  - report: `workspaces/logs/regression/agent_tasks_legacy_purge/agent_tasks_legacy_purge_20251218T091319Z.json`
 - 結果:
   - deleted_dirs=3（`agent_tasks_ch04` / `agent_tasks_tmp` / `agent_tasks_test`）
 
@@ -1074,7 +1078,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - moved=30（CH05-001..030 を `workspaces/video/_capcut_drafts/_archive/20251218T095722Z/` に移動）
   - protected_name=3（テンプレ系） / recent=1（直近更新）
 - レポート:
-  - `logs/regression/capcut_local_drafts_archive/capcut_local_drafts_archive_20251218T095722Z.json`
+  - `workspaces/logs/regression/capcut_local_drafts_archive/capcut_local_drafts_archive_20251218T095722Z.json`
 
 ### 75) `workspaces/video/runs/**` の `*.legacy.*` 残骸を追加 prune（archive-first + lock尊重）
 
@@ -1086,7 +1090,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - deleted=46 / skipped_locked=17
   - archive: `backups/graveyard/20251218T101737Z_video_runs_legacy_files.tar.gz`
 - レポート:
-  - `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T101738Z.json`
+  - `workspaces/logs/regression/video_runs_legacy_prune/legacy_prune_20251218T101738Z.json`
 
 ### 76) CH02の画像regen後に残った `*.legacy.*` を追加 prune（lock解除後・lock尊重）
 
@@ -1100,7 +1104,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - deleted=14 / skipped_locked=3（CH02-024）
   - archive: `backups/graveyard/20251218T110038Z_video_runs_legacy_files.tar.gz`
 - レポート:
-  - `logs/regression/video_runs_legacy_prune/legacy_prune_20251218T110038Z.json`
+  - `workspaces/logs/regression/video_runs_legacy_prune/legacy_prune_20251218T110038Z.json`
 
 ### 77) CH02の壊れた `capcut_draft` symlink を削除（lock解除後）
 
@@ -1113,7 +1117,7 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 結果:
   - deleted=4
 - レポート:
-  - `logs/regression/broken_symlinks/broken_symlinks_20251218T110055Z.json`
+  - `workspaces/logs/regression/broken_symlinks/broken_symlinks_20251218T110055Z.json`
 
 ### 78) `audio_prep` の重複バイナリ（`*-regenerated.*` 等）を purge（untracked / safe）
 
@@ -1161,8 +1165,8 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
   - video runs: archived=0（reportのみ生成）
   - audio final chunks: deleted=1（`workspaces/audio/final/CH02/024/chunks` 約44.1MB）
 - レポート:
-  - `logs/regression/broken_symlinks/broken_symlinks_20251221T014947Z.json`
-  - `logs/regression/logs_cleanup/logs_cleanup_20251221T014947Z.json`
+  - `workspaces/logs/regression/broken_symlinks/broken_symlinks_20251221T014947Z.json`
+  - `workspaces/logs/regression/logs_cleanup/logs_cleanup_20251221T014947Z.json`
   - `workspaces/video/_archive/20251221T014947Z/archive_report.json`
 
 ### 82) ブッダ系シニア 5ch 立ち上げキットを削除（archive-first / 誤誘導除去）
@@ -1318,3 +1322,233 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - 削除:
   - `tools/`（tracked）
   - `workspaces/planning/ch01_reference/`（tracked）
+
+### 93) packages 内の互換symlinkを撤去（archive-first / 正本一本化）
+
+意図:
+- `packages/` 直下に SoT/生成物への互換symlink（`data/`, `artifacts/`, `input/`, `output/` 等）が残ると、探索ノイズと誤参照の温床になる。
+- `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` の方針に従い、**生成物は `workspaces/` に閉じる**。
+
+- 参照確認:
+  - `find packages -maxdepth 4 -type l -print -exec readlink {} \\;`（撤去前に存在確認、撤去後はヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251225_140851_remove_package_internal_symlinks/package_internal_symlinks.tgz`
+  - `backups/graveyard/20251225_140851_remove_package_internal_symlinks/manifest.txt`
+- 削除:
+  - `packages/script_pipeline/data`（tracked symlink）
+  - `packages/audio_tts_v2/artifacts`（tracked symlink）
+  - `packages/commentary_02_srt2images_timeline/input`（tracked symlink）
+  - `packages/commentary_02_srt2images_timeline/output`（tracked symlink）
+  - `packages/commentary_02_srt2images_timeline/_capcut_drafts`（tracked symlink）
+
+### 94) ルート直下の互換symlinkを撤去（archive-first / 正本一本化）
+
+意図:
+- ルート直下の別名（互換symlink）が残ると、参照構造が二重化し SSOT が汚染される。
+- `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` の方針に従い、**正本は `apps/` `packages/` `workspaces/` に統一**する。
+
+- 参照確認:
+  - `git ls-files -s | awk '$1==120000{print $4}' | sort`（撤去後は空）
+- アーカイブ:
+  - `backups/graveyard/20251225T070619Z__remove_tracked_symlinks/tracked_symlinks_manifest.tsv`
+- 削除（tracked symlink）:
+  - `00_research`（→ `workspaces/research`）
+  - `progress`（→ `workspaces/planning`）
+  - `thumbnails`（→ `workspaces/thumbnails`）
+  - `remotion`（→ `apps/remotion`）
+  - `script_pipeline`（→ `packages/script_pipeline`）
+  - `audio_tts_v2`（→ `packages/audio_tts_v2`）
+  - `commentary_02_srt2images_timeline`（→ `packages/commentary_02_srt2images_timeline`）
+  - `factory_common`（→ `packages/factory_common`）
+  - `ui/backend`（→ `apps/ui-backend/backend`）
+  - `ui/frontend`（→ `apps/ui-frontend`）
+  - `ui/tools`（→ `apps/ui-backend/tools`）
+  - `apps/remotion/input`（→ `workspaces/video/input`）
+  - `apps/remotion/public/input`（→ `../input`）
+  - `configs/drive_oauth_client.json`（絶対パス symlink）
+- メモ:
+  - `configs/drive_oauth_client.json` は `.gitignore` 対象のローカル実ファイル運用に切替（secret は commit しない）。
+
+### 95) 未使用のチャンネル別プロンプト重複ファイルを削除（archive-first / 探索ノイズ削減）
+
+意図:
+- `packages/script_pipeline/channels/CH0x-*/script_prompt.txt` が正本である一方、同階層に `CH02_script_prompt.txt` 等の重複が残っており、参照構造の二重化と誤編集の温床になるため削除する。
+
+- 参照確認:
+  - `rg -n "CH0[2-5]_script_prompt\\.txt" -S .`（ヒットなし）
+- アーカイブ:
+  - `backups/graveyard/20251225T075812Z__remove_unused_channel_prompt_duplicates/manifest.tsv`
+- 削除:
+  - `packages/script_pipeline/channels/CH02_script_prompt.txt`（tracked）
+  - `packages/script_pipeline/channels/CH03_script_prompt.txt`（tracked）
+  - `packages/script_pipeline/channels/CH04_script_prompt.txt`（tracked）
+  - `packages/script_pipeline/channels/CH05_script_prompt.txt`（tracked）
+
+### 96) `packages/script_pipeline/channels/CH17-CH21` の旧チャンネル定義をアーカイブ（誤参照防止）
+
+意図:
+- `CH17-CH21` の旧チャンネル定義（channel_info/script_prompt）が残ったままだと、チャンネル名変更後に誤参照や誤編集が発生しやすい。
+- 新しい正本（`configs/sources.yaml` と `packages/script_pipeline/channels/CHxx-*/channel_info.json`）に統一する。
+
+- アーカイブ:
+  - `backups/graveyard/20251225T080355Z__archive_legacy_channel_defs_CH17_CH21/manifest.tsv`
+- 対象（旧）:
+  - `packages/script_pipeline/channels/CH17-眠れる仏教史紀行/*`
+  - `packages/script_pipeline/channels/CH18-禅と睡眠の静かな科学/*`
+  - `packages/script_pipeline/channels/CH19-静かな仏教哲学/*`
+  - `packages/script_pipeline/channels/CH20-ブッダの人間関係相談室/*`
+  - `packages/script_pipeline/channels/CH21-眠れる仏教説話集/*`
+
+### 97) `workspaces/` 配下の実装コードを撤去（正本: `packages/`）
+
+意図:
+- `workspaces/` は SoT/生成物の置き場であり、実装コードが混ざると探索ノイズと誤参照の温床になる。
+- サムネ生成ロジックは `packages/script_pipeline/thumbnails/` に集約し、`workspaces/thumbnails/compiler/` は YAML/ポリシー等の SoT のみにする。
+
+- アーカイブ:
+  - `backups/graveyard/20251225T080532Z__archive_workspaces_thumbnails_compiler/manifest.tsv`
+- 移設:
+  - `workspaces/thumbnails/compiler/compile_buddha_3line.py`（tracked） → `packages/script_pipeline/thumbnails/compiler/compile_buddha_3line.py`
+
+### 98) ルート `prompts/` の重複プロンプトを撤去（archive-first / 二重SoT排除）
+
+意図:
+- Promptの正本は `packages/**/prompts/` に集約し、ルート `prompts/` へ複製・同期しない（`ssot/ops/OPS_REPO_DIRECTORY_SSOT.md`）。
+- `prompts/youtube_description_prompt.txt` は `packages/script_pipeline/prompts/youtube_description_prompt.txt` の重複であり、誤編集/迷子の温床になるため撤去する。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target prompts/youtube_description_prompt.txt --code-root apps --code-root packages --code-root tests --stdout`（プロダクトコード参照ゼロを確認）
+- アーカイブ:
+  - `backups/graveyard/20251225T085422Z__remove_root_prompt_duplicate_youtube_description_prompt/manifest.tsv`
+  - `backups/graveyard/20251225T085422Z__remove_root_prompt_duplicate_youtube_description_prompt/prompts/youtube_description_prompt.txt`
+- 削除:
+  - `prompts/youtube_description_prompt.txt`（tracked）
+- 以後の入口:
+  - 索引: `prompts/PROMPTS_INDEX.md`（`python3 scripts/ops/prompts_inventory.py --write` で再生成）
+
+### 99) 参照ゼロのドキュメント/誓約書を削除（archive-first / 探索ノイズ削減）
+
+意図:
+- 現行フロー外・参照ゼロのドキュメントが散在すると、AI/人間どちらも誤読・誤誘導されやすい。
+- 特に「存在しないスクリプトを前提にした契約書」や「古いポート/旧UI前提の手順書」は、正常稼働中でも将来事故の種になるため撤去する。
+- ルート直下の単発宣言ファイルも SSOT/運用フローから外れており、トップレベルの迷い要因になるため撤去する。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target <each> --stdout`（コード参照/Docs参照ゼロを確認）
+- アーカイブ:
+  - `backups/graveyard/20251225T095906Z__remove_orphan_docs_and_pledges/`
+- 削除（tracked）:
+  - `DECLARATION.txt`
+  - `apps/ui-frontend/README.md`
+  - `apps/ui-frontend/src/components/color-token-map.md`
+  - `apps/ui-frontend/src/components/dashboard-clean-map.md`
+  - `apps/remotion/compare_layout.md`（内容は `apps/remotion/README.md` に統合）
+  - `packages/audio_tts_v2/TODO.md`
+  - `packages/audio_tts_v2/contract.md`
+  - `packages/audio_tts_v2/data/README.md`
+  - `packages/audio_tts_v2/docs/reading_guidelines.md`
+  - `packages/audio_tts_v2/test_input.md`
+  - `packages/commentary_02_srt2images_timeline/ch02_capcut_draft_creation_process.md`
+  - `packages/commentary_02_srt2images_timeline/docs/NEXT_ACTIONS_TYPED_PIPELINE.md`
+  - `packages/commentary_02_srt2images_timeline/docs/auto_capcut_publish.md`
+  - `packages/commentary_02_srt2images_timeline/docs/swap_images_ui.md`
+  - `packages/script_pipeline/contract.md`
+
+### 100) `packages/` 配下の参照ゼロドキュメントを削除（archive-first / SSOT集約）
+
+意図:
+- `packages/**/README.md` などが「履歴からしか参照されない」「実行コード参照ゼロ」の状態で残ると、探索ノイズと誤誘導の温床になる。
+- 運用/入口の正本は SSOT（`ssot/ops/*`）に集約する方針のため、履歴専用のパッケージ内ドキュメントは退避して撤去する。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target 'packages/**/*.md' --stdout`（code_refs=0 かつ history/cleanup 由来の docs_refs のみを確認）
+- アーカイブ:
+  - `backups/graveyard/20251225T103329Z__remove_unused_package_docs/`
+- 削除（tracked）:
+  - `packages/README.md`
+  - `packages/audio_tts_v2/README.md`
+  - `packages/audio_tts_v2/docs/tts_logic_proof.md`
+  - `packages/commentary_02_srt2images_timeline/README.md`
+  - `packages/script_pipeline/README.md`
+  - `packages/script_pipeline/openrouter_tests_report.md`
+
+### 101) `scripts/agent_coord.py`（互換wrapper）を削除（archive-first / 入口の一本化）
+
+意図:
+- `scripts/agent_org.py` を正本として確定しているため、旧コマンド互換wrapperを残すと探索ノイズと誤誘導の温床になる。
+- マルチエージェント運用では「入口が1つ」であることが事故防止になるため、互換導線を撤去する。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target scripts/agent_coord.py --stdout`（code_refs=0 を確認）
+- アーカイブ:
+  - `backups/graveyard/20251225T113409Z__remove_scripts_agent_coord/manifest.tsv`
+  - `backups/graveyard/20251225T113409Z__remove_scripts_agent_coord/scripts/agent_coord.py`
+- 追従（SSOT）:
+  - `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` から `scripts/agent_coord.py` を撤去
+  - `ssot/ops/OPS_LOGGING_MAP.md` から「旧: `scripts/agent_coord.py`」表記を撤去
+- 削除（tracked）:
+  - `scripts/agent_coord.py`
+
+### 102) `scripts/sync_ch02_scripts.py`（CH02専用sync）を削除（archive-first / 入口の一本化）
+
+意図:
+- `scripts/sync_all_scripts.py` が `--channel CH02` で同等の同期を提供しているため、CH02専用スクリプトは探索ノイズと誤誘導の温床になる。
+- 入口を一本化し、運用コマンドを SSOT に固定する（「どれを叩くか」で迷わせない）。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target scripts/sync_ch02_scripts.py --stdout`（code_refs=0 を確認）
+- アーカイブ:
+  - `backups/graveyard/20251225T132559Z__remove_scripts_sync_ch02_scripts/manifest.tsv`
+  - `backups/graveyard/20251225T132559Z__remove_scripts_sync_ch02_scripts/scripts/sync_ch02_scripts.py`
+- 追従（SSOT）:
+  - `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` を `sync_all_scripts.py --channel CH02` に一本化
+- 削除（tracked）:
+  - `scripts/sync_ch02_scripts.py`
+
+### 103) `legacy/` ディレクトリを廃止（archive-first / 迷いどころ削減）
+
+意図:
+- `legacy/` を repo 内に残すと「どこが正本？どこが現行？」の迷いと誤参照を生みやすい。
+- 旧資産/試作は **常駐させず** `backups/graveyard/`（archive-first）と `workspaces/_scratch/`（ローカル一時）に統一する。
+
+- 参照確認:
+  - `python3 scripts/ops/repo_ref_audit.py --target legacy/README.md --stdout`（code_refs=0, docs_refs=0 を確認）
+- 追従（SSOT）:
+  - `ssot/OPS_SYSTEM_OVERVIEW.md` から `legacy/` の誘導を撤去
+  - `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` から `legacy/` の誘導/表を撤去し、`backups/graveyard/` + `workspaces/_scratch/` に統一
+  - `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` の Legacy 判定例を `workspaces/_scratch/` + `backups/graveyard/` に統一
+  - `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の隔離先誘導を `backups/graveyard/` に統一
+  - `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md` の Stage 3 記述を現状に合わせて更新
+  - `README.md` のトップレベル説明から `legacy/` を撤去し、退避先を `backups/**` に統一
+- アーカイブ:
+  - `backups/graveyard/20251225T235013Z__remove_legacy_dir/legacy/README.md`
+- 削除（tracked）:
+  - `legacy/README.md`
+
+### 104) パッケージ名の正規化（`audio_tts_v2`→`audio_tts`, `commentary_02_srt2images_timeline`→`video_pipeline`）とUI/Backendの導線更新
+
+意図:
+- 旧名/エイリアスが残ると、SSOT・コード・UI の参照構造が分岐し「迷いどころ」「誤参照」「並列エージェント衝突」の温床になる。
+- 正本のパッケージ名を確定し、入口（pyproject scripts / API / UI route）も同名へ揃えて **参照不整合ゼロ** を目指す。
+
+実施内容（要点）:
+- パッケージ rename:
+  - `packages/audio_tts_v2/` → `packages/audio_tts/`
+  - `packages/commentary_02_srt2images_timeline/` → `packages/video_pipeline/`
+- 入口更新:
+  - `pyproject.toml` の `factory-commentary` entrypoint を `video_pipeline.tools.factory:main` に更新
+  - UI route: `/audio-tts-v2` → `/audio-tts`
+  - API route: `/api/audio-tts-v2/*` → `/api/audio-tts/*`
+- 参照更新:
+  - import/module 名、path 文字列、テンプレ/ドキュメント内コマンド例を一括で新名へ統一
+  - `factory_common.paths` の `audio_pkg_root()/video_pkg_root()` を新パスへ更新
+  - `scripts/start_all.sh` 等の運用スクリプトも新名へ更新
+
+検証:
+- `python3 scripts/ops/ssot_audit.py --strict`（problems=0）
+- `python3 scripts/ops/repo_sanity_audit.py --verbose`（tracked symlinks/legacy alias paths: none）
+- `python3 scripts/ops/prompts_inventory.py --write`
+- `python3 scripts/ops/scripts_inventory.py --write`
+- `pytest -q`（root tests）
+- `pytest -q packages/audio_tts/tests packages/video_pipeline/tests`
+- `npm -C apps/ui-frontend run build`

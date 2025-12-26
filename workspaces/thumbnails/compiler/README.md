@@ -30,3 +30,8 @@
 
 - 3段テキスト（上=赤 / 中=黄 / 下=白）は Planning CSV（`サムネタイトル上/サムネタイトル/サムネタイトル下`）を正として埋める。
 - Compiler は「組版担当」なので、文字が崩れない・はみ出さないことを最優先にする。
+
+## 入口（統一CLI）
+
+- SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
+- `python scripts/thumbnails/build.py --help`

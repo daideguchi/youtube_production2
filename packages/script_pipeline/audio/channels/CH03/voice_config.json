@@ -1,24 +1,31 @@
 {
   "channel_code": "CH03",
   "channel_name": "シニア・健康 【シニアの健康】朗読図書館",
-  "default_voice_key": "voicepeak_female3",
+  "default_voice_key": "voicepeak_female2",
   "output": {
     "final_root": "data/CH03/_audio_workspace/final",
     "temp_root": "data/CH03/_audio_workspace/temp"
   },
   "voices": {
+    "voicepeak_female2": {
+      "engine": "voicepeak",
+      "character": "女性2",
+      "engine_options": {
+        "narrator": "女性2"
+      }
+    },
     "voicepeak_female3": {
       "engine": "voicepeak",
-      "character": "Japanese Female 3",
+      "character": "女性3",
       "engine_options": {
-        "narrator": "Japanese Female 3"
+        "narrator": "女性3"
       }
     },
     "voicepeak_male3": {
       "engine": "voicepeak",
-      "character": "Japanese Male 3",
+      "character": "男性3",
       "engine_options": {
-        "narrator": "Japanese Male 3",
+        "narrator": "男性3",
         "pitch": -60
       }
     },
@@ -26,6 +33,7 @@
       "engine": "voicevox",
       "character": "波音リツ",
       "style": "ノーマル",
+      "voicevox_speaker_id": 9,
       "speed_scale": 0.98,
       "pitch_scale": 0.0,
       "intonation_scale": 1.05,
@@ -37,6 +45,7 @@
       "engine": "voicevox",
       "character": "青山龍星",
       "style": "ノーマル",
+      "voicevox_speaker_id": 13,
       "speed_scale": 0.95,
       "pitch_scale": -0.1,
       "intonation_scale": 1.0,

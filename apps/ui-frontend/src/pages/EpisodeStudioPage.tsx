@@ -6,7 +6,7 @@ import {
   fetchVideoJobs,
   fetchVideoProjectDetail,
   reconcileScriptPipeline,
-  runAudioTtsV2FromScript,
+  runAudioTtsFromScript,
   runScriptPipelineStage,
 } from "../api/client";
 import type { VideoJobRecord, VideoProjectDetail } from "../api/types";
@@ -159,8 +159,8 @@ export function EpisodeStudioPage() {
   const workflowLink =
     channel && video ? `/workflow?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/workflow";
   const planningLink =
-    channel && video ? `/progress?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/progress";
-  const ttsListLink = channel ? `/audio-tts-v2?channel=${encodeURIComponent(channel)}` : "/audio-tts-v2";
+    channel && video ? `/planning?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/planning";
+  const ttsListLink = channel ? `/audio-tts?channel=${encodeURIComponent(channel)}` : "/audio-tts";
   const capcutDraftLink =
     channel && video
       ? `/capcut-edit/draft?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}`
@@ -368,7 +368,7 @@ export function EpisodeStudioPage() {
     setTtsRunMessage(null);
     setTtsRunError(null);
     try {
-      const res = await runAudioTtsV2FromScript({
+      const res = await runAudioTtsFromScript({
         channel,
         video,
       });

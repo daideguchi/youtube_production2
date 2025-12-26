@@ -1,4 +1,4 @@
-from audio_tts_v2.tts.reading_structs import (
+from audio_tts.tts.reading_structs import (
     RubyLine,
     RubyToken,
     align_moras_with_tokens,
@@ -41,5 +41,4 @@ def test_evaluate_reading_diffs_flags_mismatch():
     span = risky[0]
     assert span.line_id == 0
     assert "ツライ" in span.reason
-
 

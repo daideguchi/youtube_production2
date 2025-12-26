@@ -3,7 +3,7 @@
 archive_capcut_local_drafts — workspaces/video/_capcut_drafts の“ローカル退避”ドラフトを整理する。
 
 背景:
-- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py` は、CapCut の実draft root
+- `packages/video_pipeline/tools/auto_capcut_run.py` は、CapCut の実draft root
   (`~/Movies/CapCut/.../com.lveditor.draft`) が書き込み不可な環境で
   `workspaces/video/_capcut_drafts/` にフォールバックしてドラフトを生成する。
 - 実draft root にコピー済みのローカルドラフトは、SoT ではなく探索ノイズになりやすい。

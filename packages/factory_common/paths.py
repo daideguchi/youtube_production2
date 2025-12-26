@@ -47,9 +47,18 @@ def workspace_root() -> Path:
     return repo_root() / "workspaces"
 
 
-def _prefer_new(old: Path, new: Path) -> Path:
-    return new if new.exists() else old
+def offload_root() -> Optional[Path]:
+    """
+    Optional external storage root for offloaded artifacts (e.g., external SSD).
 
+    Env override:
+      - YTM_OFFLOAD_ROOT
+      - FACTORY_OFFLOAD_ROOT (compat)
+    """
+    override = os.getenv("YTM_OFFLOAD_ROOT") or os.getenv("FACTORY_OFFLOAD_ROOT")
+    if not override:
+        return None
+    return Path(override).expanduser().resolve()
 
 def _norm_channel(ch: str) -> str:
     return str(ch).upper()
@@ -61,14 +70,12 @@ def _norm_video(video: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Planning (progress) roots
+# Planning roots
 # ---------------------------------------------------------------------------
 
 
 def planning_root() -> Path:
-    ws = workspace_root() / "planning"
-    old = repo_root() / "progress"
-    return _prefer_new(old, ws)
+    return workspace_root() / "planning"
 
 
 def channels_csv_path(channel: str) -> Path:
@@ -82,9 +89,7 @@ def persona_path(channel: str) -> Path:
 
 
 def research_root() -> Path:
-    ws = workspace_root() / "research"
-    old = repo_root() / "00_research"
-    return _prefer_new(old, ws)
+    return workspace_root() / "research"
 
 
 # ---------------------------------------------------------------------------
@@ -93,16 +98,11 @@ def research_root() -> Path:
 
 
 def script_pkg_root() -> Path:
-    root = repo_root()
-    new = root / "packages" / "script_pipeline"
-    old = root / "script_pipeline"
-    return _prefer_new(old, new)
+    return repo_root() / "packages" / "script_pipeline"
 
 
 def script_data_root() -> Path:
-    ws = workspace_root() / "scripts"
-    old = script_pkg_root() / "data"
-    return _prefer_new(old, ws)
+    return workspace_root() / "scripts"
 
 
 def video_root(channel: str, video: str) -> Path:
@@ -121,16 +121,11 @@ def status_path(channel: str, video: str) -> Path:
 
 
 def audio_pkg_root() -> Path:
-    root = repo_root()
-    new = root / "packages" / "audio_tts_v2"
-    old = root / "audio_tts_v2"
-    return _prefer_new(old, new)
+    return repo_root() / "packages" / "audio_tts"
 
 
 def audio_artifacts_root() -> Path:
-    ws = workspace_root() / "audio"
-    old = audio_pkg_root() / "artifacts"
-    return _prefer_new(old, ws)
+    return workspace_root() / "audio"
 
 
 def audio_final_dir(channel: str, video: str) -> Path:
@@ -145,16 +140,11 @@ def audio_final_dir(channel: str, video: str) -> Path:
 
 
 def video_pkg_root() -> Path:
-    root = repo_root()
-    new = root / "packages" / "commentary_02_srt2images_timeline"
-    old = root / "commentary_02_srt2images_timeline"
-    return _prefer_new(old, new)
+    return repo_root() / "packages" / "video_pipeline"
 
 
 def video_runs_root() -> Path:
-    ws = workspace_root() / "video" / "runs"
-    old = video_pkg_root() / "output"
-    return _prefer_new(old, ws)
+    return workspace_root() / "video" / "runs"
 
 
 def video_run_dir(run_id: str) -> Path:
@@ -162,23 +152,17 @@ def video_run_dir(run_id: str) -> Path:
 
 
 def video_input_root() -> Path:
-    ws = workspace_root() / "video" / "input"
-    old = video_pkg_root() / "input"
-    return _prefer_new(old, ws)
+    return workspace_root() / "video" / "input"
 
 
 def video_capcut_local_drafts_root() -> Path:
     """
     Local writable CapCut draft root (fallback when the real CapCut root is not writable).
 
-    Preferred location:
+    Canonical location:
       - workspaces/video/_capcut_drafts
-    Legacy location:
-      - packages/commentary_02_srt2images_timeline/_capcut_drafts
     """
-    ws = workspace_root() / "video" / "_capcut_drafts"
-    old = video_pkg_root() / "_capcut_drafts"
-    return _prefer_new(old, ws)
+    return workspace_root() / "video" / "_capcut_drafts"
 
 
 def video_state_root() -> Path:
@@ -196,18 +180,11 @@ def video_state_root() -> Path:
 def video_audio_sync_status_path() -> Path:
     """
     Manifest for audio->video input sync status (checked flags, hashes, etc).
-    Preferred location:
+
+    Canonical location:
       - workspaces/video/_state/audio_sync_status.json
-    Legacy location:
-      - packages/commentary_02_srt2images_timeline/progress/audio_sync_status.json
     """
-    new = video_state_root() / "audio_sync_status.json"
-    old = video_pkg_root() / "progress" / "audio_sync_status.json"
-    if new.exists():
-        return new
-    if old.exists():
-        return old
-    return new
+    return video_state_root() / "audio_sync_status.json"
 
 
 # ---------------------------------------------------------------------------
@@ -216,9 +193,7 @@ def video_audio_sync_status_path() -> Path:
 
 
 def thumbnails_root() -> Path:
-    ws = workspace_root() / "thumbnails"
-    old = repo_root() / "thumbnails"
-    return _prefer_new(old, ws)
+    return workspace_root() / "thumbnails"
 
 
 def thumbnail_assets_dir(channel: str, video: str) -> Path:
@@ -248,6 +223,4 @@ def assets_root() -> Path:
 
 
 def logs_root() -> Path:
-    ws = workspace_root() / "logs"
-    old = repo_root() / "logs"
-    return _prefer_new(old, ws)
+    return workspace_root() / "logs"

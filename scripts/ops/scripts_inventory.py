@@ -102,6 +102,8 @@ def _rg_lines(*, repo_root: Path, pattern: str) -> list[str]:
         "--glob",
         "!scripts/_adhoc/**",
         "--glob",
+        "!ssot/history/**",
+        "--glob",
         "!ssot/ops/OPS_SCRIPTS_INVENTORY.md",
         "-e",
         pattern,

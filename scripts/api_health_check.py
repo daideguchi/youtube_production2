@@ -3,7 +3,7 @@
 api_health_check.py -- REST API smoke test.
 
 Hits the critical FastAPI endpoints and reports status / latency.
-Results are serialized to logs/regression/api_health_<timestamp>.log and stderr/stdout.
+Results are serialized to workspaces/logs/regression/api_health_<timestamp>.log and stderr/stdout.
 """
 
 from __future__ import annotations

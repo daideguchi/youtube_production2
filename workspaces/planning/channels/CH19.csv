@@ -1,151 +1,271 @@
 No.,チャンネル,動画番号,動画ID,台本番号,タイトル,進捗,作成フラグ,台本,品質チェック結果,文字数,更新日時,サムネタイトル上,サムネタイトル下,サムネ画像プロンプト（URL・テキスト指示込み）,企画意図,ターゲット層,具体的な内容（話の構成案）,DALL-Eプロンプト（URL・テキスト指示込み）,台本本文（冒頭サンプル）,音声整形,音声検証,音声生成,音声品質,納品,サムネタイトル,AI向け画像生成プロンプト (背景用),テキスト配置・デザイン指示 (人間/ツール向け),サムネ用DALL-Eプロンプト（URL・テキスト指示込み）,内容,動画内挿絵AI向けプロンプト（10個）,内容（企画要約）,台本パス,GPT用プロンプト（日本人シニア女性）,台本本文,GPT用プロンプト（日本人シニア女性）_1,悩みタグ_メイン,悩みタグ_サブ,ライフシーン,キーコンセプト,ベネフィット一言,たとえ話イメージ,説明文_リード,説明文_この動画でわかること
-1,CH19,1,CH19-001,CH19-001,【無常】変わるものにしがみつくほど苦しい｜手放しの順番,topic_research: pending,,workspaces/scripts/CH19/001/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,ほどける,,人生の重さを、仏教哲学でほどく。 今夜は『執着』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の執着を一つの場面で描写し、安心のゴールを予告。
-本編: 無常の物語や具体例で状況を立体化。
-解説: 無常の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,ほどける,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,執着を静かに整える夜話。,,【無常】変わるものにしがみつくほど苦しい｜手放しの順番,workspaces/scripts/CH19/001/content/assembled.md,,,,執着,手放せない,ひとりの夜,無常,軽い,砂時計,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-2,CH19,2,CH19-002,CH19-002,【無我】自分を守るほど不安が増える理由｜静かな視点,topic_research: pending,,workspaces/scripts/CH19/002/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,楽になる,,人生の重さを、仏教哲学でほどく。 今夜は『不安』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の不安を一つの場面で描写し、安心のゴールを予告。
-本編: 無我の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,不安を静かに整える夜話。,,【無我】自分を守るほど不安が増える理由｜静かな視点,workspaces/scripts/CH19/002/content/assembled.md,,,,不安,防衛,夜の寝室,無我,楽,鏡,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-3,CH19,3,CH19-003,CH19-003,【四苦】老いが怖い夜｜怖さの正体を一つに絞る,topic_research: pending,,workspaces/scripts/CH19/003/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,静まる,,人生の重さを、仏教哲学でほどく。 今夜は『老いの恐れ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の老いの恐れを一つの場面で描写し、安心のゴールを予告。
-本編: 四苦の物語や具体例で状況を立体化。
-解説: 四苦の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,老いの恐れを静かに整える夜話。,,【四苦】老いが怖い夜｜怖さの正体を一つに絞る,workspaces/scripts/CH19/003/content/assembled.md,,,,老いの恐れ,健康不安,夜更け,四苦,静まる,秋の葉,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-4,CH19,4,CH19-004,CH19-004,【縁起】同じ悩みが繰り返す理由｜ほどく視点,topic_research: pending,,workspaces/scripts/CH19/004/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,抜けられる,,人生の重さを、仏教哲学でほどく。 今夜は『繰り返し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の繰り返しを一つの場面で描写し、安心のゴールを予告。
-本編: 縁起の物語や具体例で状況を立体化。
-解説: 縁起の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,抜けられる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,繰り返しを静かに整える夜話。,,【縁起】同じ悩みが繰り返す理由｜ほどく視点,workspaces/scripts/CH19/004/content/assembled.md,,,,繰り返し,癖,夜の書斎,縁起,抜ける,糸,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-5,CH19,5,CH19-005,CH19-005,【慈悲】優しさで損する人へ｜境界線の慈悲,topic_research: pending,,workspaces/scripts/CH19/005/content/assembled.md,,,2025-12-22 06:51:01,限界です,守れる,,人生の重さを、仏教哲学でほどく。 今夜は『人間関係』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の人間関係を一つの場面で描写し、安心のゴールを予告。
-本編: 慈悲の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,人間関係を静かに整える夜話。,,【慈悲】優しさで損する人へ｜境界線の慈悲,workspaces/scripts/CH19/005/content/assembled.md,,,,人間関係,疲れ,家の夜,慈悲,守れる,門,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-6,CH19,6,CH19-006,CH19-006,【正語】言わなくていい言葉｜争いが減る夜,topic_research: pending,,workspaces/scripts/CH19/006/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人生の重さを、仏教哲学でほどく。 今夜は『口論』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の口論を一つの場面で描写し、安心のゴールを予告。
-本編: 正語の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,口論を静かに整える夜話。,,【正語】言わなくていい言葉｜争いが減る夜,workspaces/scripts/CH19/006/content/assembled.md,,,,口論,言い過ぎ,夕食後,正語,軽くなる,刃をしまう,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-7,CH19,7,CH19-007,CH19-007,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第07夜,topic_research: pending,,workspaces/scripts/CH19/007/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,ほどける,,人生の重さを、仏教哲学でほどく。 今夜は『執着』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の執着を一つの場面で描写し、安心のゴールを予告。
-本編: 無常の物語や具体例で状況を立体化。
-解説: 無常の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,ほどける,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,執着を静かに整える夜話。,,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第07夜,workspaces/scripts/CH19/007/content/assembled.md,,,,執着,手放せない,ひとりの夜,無常,軽い,砂時計,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-8,CH19,8,CH19-008,CH19-008,【無我】自分を守るほど不安が増える理由｜静かな視点｜第08夜,topic_research: pending,,workspaces/scripts/CH19/008/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,楽になる,,人生の重さを、仏教哲学でほどく。 今夜は『不安』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の不安を一つの場面で描写し、安心のゴールを予告。
-本編: 無我の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,不安を静かに整える夜話。,,【無我】自分を守るほど不安が増える理由｜静かな視点｜第08夜,workspaces/scripts/CH19/008/content/assembled.md,,,,不安,防衛,夜の寝室,無我,楽,鏡,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-9,CH19,9,CH19-009,CH19-009,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第09夜,topic_research: pending,,workspaces/scripts/CH19/009/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,静まる,,人生の重さを、仏教哲学でほどく。 今夜は『老いの恐れ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の老いの恐れを一つの場面で描写し、安心のゴールを予告。
-本編: 四苦の物語や具体例で状況を立体化。
-解説: 四苦の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,老いの恐れを静かに整える夜話。,,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第09夜,workspaces/scripts/CH19/009/content/assembled.md,,,,老いの恐れ,健康不安,夜更け,四苦,静まる,秋の葉,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-10,CH19,10,CH19-010,CH19-010,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第10夜,topic_research: pending,,workspaces/scripts/CH19/010/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,抜けられる,,人生の重さを、仏教哲学でほどく。 今夜は『繰り返し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の繰り返しを一つの場面で描写し、安心のゴールを予告。
-本編: 縁起の物語や具体例で状況を立体化。
-解説: 縁起の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,抜けられる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,繰り返しを静かに整える夜話。,,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第10夜,workspaces/scripts/CH19/010/content/assembled.md,,,,繰り返し,癖,夜の書斎,縁起,抜ける,糸,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-11,CH19,11,CH19-011,CH19-011,【慈悲】優しさで損する人へ｜境界線の慈悲｜第11夜,topic_research: pending,,workspaces/scripts/CH19/011/content/assembled.md,,,2025-12-22 06:51:01,限界です,守れる,,人生の重さを、仏教哲学でほどく。 今夜は『人間関係』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の人間関係を一つの場面で描写し、安心のゴールを予告。
-本編: 慈悲の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,人間関係を静かに整える夜話。,,【慈悲】優しさで損する人へ｜境界線の慈悲｜第11夜,workspaces/scripts/CH19/011/content/assembled.md,,,,人間関係,疲れ,家の夜,慈悲,守れる,門,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-12,CH19,12,CH19-012,CH19-012,【正語】言わなくていい言葉｜争いが減る夜｜第12夜,topic_research: pending,,workspaces/scripts/CH19/012/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人生の重さを、仏教哲学でほどく。 今夜は『口論』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の口論を一つの場面で描写し、安心のゴールを予告。
-本編: 正語の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,口論を静かに整える夜話。,,【正語】言わなくていい言葉｜争いが減る夜｜第12夜,workspaces/scripts/CH19/012/content/assembled.md,,,,口論,言い過ぎ,夕食後,正語,軽くなる,刃をしまう,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-13,CH19,13,CH19-013,CH19-013,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第13夜,topic_research: pending,,workspaces/scripts/CH19/013/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,ほどける,,人生の重さを、仏教哲学でほどく。 今夜は『執着』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の執着を一つの場面で描写し、安心のゴールを予告。
-本編: 無常の物語や具体例で状況を立体化。
-解説: 無常の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,ほどける,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,執着を静かに整える夜話。,,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第13夜,workspaces/scripts/CH19/013/content/assembled.md,,,,執着,手放せない,ひとりの夜,無常,軽い,砂時計,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-14,CH19,14,CH19-014,CH19-014,【無我】自分を守るほど不安が増える理由｜静かな視点｜第14夜,topic_research: pending,,workspaces/scripts/CH19/014/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,楽になる,,人生の重さを、仏教哲学でほどく。 今夜は『不安』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の不安を一つの場面で描写し、安心のゴールを予告。
-本編: 無我の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,不安を静かに整える夜話。,,【無我】自分を守るほど不安が増える理由｜静かな視点｜第14夜,workspaces/scripts/CH19/014/content/assembled.md,,,,不安,防衛,夜の寝室,無我,楽,鏡,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-15,CH19,15,CH19-015,CH19-015,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第15夜,topic_research: pending,,workspaces/scripts/CH19/015/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,静まる,,人生の重さを、仏教哲学でほどく。 今夜は『老いの恐れ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の老いの恐れを一つの場面で描写し、安心のゴールを予告。
-本編: 四苦の物語や具体例で状況を立体化。
-解説: 四苦の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,老いの恐れを静かに整える夜話。,,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第15夜,workspaces/scripts/CH19/015/content/assembled.md,,,,老いの恐れ,健康不安,夜更け,四苦,静まる,秋の葉,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-16,CH19,16,CH19-016,CH19-016,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第16夜,topic_research: pending,,workspaces/scripts/CH19/016/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,抜けられる,,人生の重さを、仏教哲学でほどく。 今夜は『繰り返し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の繰り返しを一つの場面で描写し、安心のゴールを予告。
-本編: 縁起の物語や具体例で状況を立体化。
-解説: 縁起の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,抜けられる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,繰り返しを静かに整える夜話。,,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第16夜,workspaces/scripts/CH19/016/content/assembled.md,,,,繰り返し,癖,夜の書斎,縁起,抜ける,糸,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-17,CH19,17,CH19-017,CH19-017,【慈悲】優しさで損する人へ｜境界線の慈悲｜第17夜,topic_research: pending,,workspaces/scripts/CH19/017/content/assembled.md,,,2025-12-22 06:51:01,限界です,守れる,,人生の重さを、仏教哲学でほどく。 今夜は『人間関係』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の人間関係を一つの場面で描写し、安心のゴールを予告。
-本編: 慈悲の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,人間関係を静かに整える夜話。,,【慈悲】優しさで損する人へ｜境界線の慈悲｜第17夜,workspaces/scripts/CH19/017/content/assembled.md,,,,人間関係,疲れ,家の夜,慈悲,守れる,門,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-18,CH19,18,CH19-018,CH19-018,【正語】言わなくていい言葉｜争いが減る夜｜第18夜,topic_research: pending,,workspaces/scripts/CH19/018/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人生の重さを、仏教哲学でほどく。 今夜は『口論』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の口論を一つの場面で描写し、安心のゴールを予告。
-本編: 正語の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,口論を静かに整える夜話。,,【正語】言わなくていい言葉｜争いが減る夜｜第18夜,workspaces/scripts/CH19/018/content/assembled.md,,,,口論,言い過ぎ,夕食後,正語,軽くなる,刃をしまう,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-19,CH19,19,CH19-019,CH19-019,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第19夜,topic_research: pending,,workspaces/scripts/CH19/019/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,ほどける,,人生の重さを、仏教哲学でほどく。 今夜は『執着』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の執着を一つの場面で描写し、安心のゴールを予告。
-本編: 無常の物語や具体例で状況を立体化。
-解説: 無常の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,ほどける,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,執着を静かに整える夜話。,,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第19夜,workspaces/scripts/CH19/019/content/assembled.md,,,,執着,手放せない,ひとりの夜,無常,軽い,砂時計,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-20,CH19,20,CH19-020,CH19-020,【無我】自分を守るほど不安が増える理由｜静かな視点｜第20夜,topic_research: pending,,workspaces/scripts/CH19/020/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,楽になる,,人生の重さを、仏教哲学でほどく。 今夜は『不安』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の不安を一つの場面で描写し、安心のゴールを予告。
-本編: 無我の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,不安を静かに整える夜話。,,【無我】自分を守るほど不安が増える理由｜静かな視点｜第20夜,workspaces/scripts/CH19/020/content/assembled.md,,,,不安,防衛,夜の寝室,無我,楽,鏡,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-21,CH19,21,CH19-021,CH19-021,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第21夜,topic_research: pending,,workspaces/scripts/CH19/021/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,静まる,,人生の重さを、仏教哲学でほどく。 今夜は『老いの恐れ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の老いの恐れを一つの場面で描写し、安心のゴールを予告。
-本編: 四苦の物語や具体例で状況を立体化。
-解説: 四苦の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,老いの恐れを静かに整える夜話。,,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第21夜,workspaces/scripts/CH19/021/content/assembled.md,,,,老いの恐れ,健康不安,夜更け,四苦,静まる,秋の葉,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-22,CH19,22,CH19-022,CH19-022,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第22夜,topic_research: pending,,workspaces/scripts/CH19/022/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,抜けられる,,人生の重さを、仏教哲学でほどく。 今夜は『繰り返し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の繰り返しを一つの場面で描写し、安心のゴールを予告。
-本編: 縁起の物語や具体例で状況を立体化。
-解説: 縁起の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,抜けられる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,繰り返しを静かに整える夜話。,,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第22夜,workspaces/scripts/CH19/022/content/assembled.md,,,,繰り返し,癖,夜の書斎,縁起,抜ける,糸,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-23,CH19,23,CH19-023,CH19-023,【慈悲】優しさで損する人へ｜境界線の慈悲｜第23夜,topic_research: pending,,workspaces/scripts/CH19/023/content/assembled.md,,,2025-12-22 06:51:01,限界です,守れる,,人生の重さを、仏教哲学でほどく。 今夜は『人間関係』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の人間関係を一つの場面で描写し、安心のゴールを予告。
-本編: 慈悲の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,人間関係を静かに整える夜話。,,【慈悲】優しさで損する人へ｜境界線の慈悲｜第23夜,workspaces/scripts/CH19/023/content/assembled.md,,,,人間関係,疲れ,家の夜,慈悲,守れる,門,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-24,CH19,24,CH19-024,CH19-024,【正語】言わなくていい言葉｜争いが減る夜｜第24夜,topic_research: pending,,workspaces/scripts/CH19/024/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人生の重さを、仏教哲学でほどく。 今夜は『口論』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の口論を一つの場面で描写し、安心のゴールを予告。
-本編: 正語の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,口論を静かに整える夜話。,,【正語】言わなくていい言葉｜争いが減る夜｜第24夜,workspaces/scripts/CH19/024/content/assembled.md,,,,口論,言い過ぎ,夕食後,正語,軽くなる,刃をしまう,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-25,CH19,25,CH19-025,CH19-025,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第25夜,topic_research: pending,,workspaces/scripts/CH19/025/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,ほどける,,人生の重さを、仏教哲学でほどく。 今夜は『執着』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の執着を一つの場面で描写し、安心のゴールを予告。
-本編: 無常の物語や具体例で状況を立体化。
-解説: 無常の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,ほどける,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,執着を静かに整える夜話。,,【無常】変わるものにしがみつくほど苦しい｜手放しの順番｜第25夜,workspaces/scripts/CH19/025/content/assembled.md,,,,執着,手放せない,ひとりの夜,無常,軽い,砂時計,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-26,CH19,26,CH19-026,CH19-026,【無我】自分を守るほど不安が増える理由｜静かな視点｜第26夜,topic_research: pending,,workspaces/scripts/CH19/026/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,楽になる,,人生の重さを、仏教哲学でほどく。 今夜は『不安』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の不安を一つの場面で描写し、安心のゴールを予告。
-本編: 無我の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,不安を静かに整える夜話。,,【無我】自分を守るほど不安が増える理由｜静かな視点｜第26夜,workspaces/scripts/CH19/026/content/assembled.md,,,,不安,防衛,夜の寝室,無我,楽,鏡,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-27,CH19,27,CH19-027,CH19-027,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第27夜,topic_research: pending,,workspaces/scripts/CH19/027/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,静まる,,人生の重さを、仏教哲学でほどく。 今夜は『老いの恐れ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の老いの恐れを一つの場面で描写し、安心のゴールを予告。
-本編: 四苦の物語や具体例で状況を立体化。
-解説: 四苦の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,老いの恐れを静かに整える夜話。,,【四苦】老いが怖い夜｜怖さの正体を一つに絞る｜第27夜,workspaces/scripts/CH19/027/content/assembled.md,,,,老いの恐れ,健康不安,夜更け,四苦,静まる,秋の葉,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-28,CH19,28,CH19-028,CH19-028,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第28夜,topic_research: pending,,workspaces/scripts/CH19/028/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,抜けられる,,人生の重さを、仏教哲学でほどく。 今夜は『繰り返し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の繰り返しを一つの場面で描写し、安心のゴールを予告。
-本編: 縁起の物語や具体例で状況を立体化。
-解説: 縁起の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,抜けられる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,繰り返しを静かに整える夜話。,,【縁起】同じ悩みが繰り返す理由｜ほどく視点｜第28夜,workspaces/scripts/CH19/028/content/assembled.md,,,,繰り返し,癖,夜の書斎,縁起,抜ける,糸,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-29,CH19,29,CH19-029,CH19-029,【慈悲】優しさで損する人へ｜境界線の慈悲｜第29夜,topic_research: pending,,workspaces/scripts/CH19/029/content/assembled.md,,,2025-12-22 06:51:01,限界です,守れる,,人生の重さを、仏教哲学でほどく。 今夜は『人間関係』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の人間関係を一つの場面で描写し、安心のゴールを予告。
-本編: 慈悲の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,人間関係を静かに整える夜話。,,【慈悲】優しさで損する人へ｜境界線の慈悲｜第29夜,workspaces/scripts/CH19/029/content/assembled.md,,,,人間関係,疲れ,家の夜,慈悲,守れる,門,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
-30,CH19,30,CH19-030,CH19-030,【正語】言わなくていい言葉｜争いが減る夜｜第30夜,topic_research: pending,,workspaces/scripts/CH19/030/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人生の重さを、仏教哲学でほどく。 今夜は『口論』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。人生や人間関係の重さを抱え、深い理解で心を軽くしたい人。,"導入: 夜の口論を一つの場面で描写し、安心のゴールを予告。
-本編: 正語の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"minimal zen garden at night, soft moonlight, ink wash + silver accents, calm, cinematic, 16:9, no text, no watermark, no logo",右に余白、左に太字2行。背景は夜の枯山水。,,口論を静かに整える夜話。,,【正語】言わなくていい言葉｜争いが減る夜｜第30夜,workspaces/scripts/CH19/030/content/assembled.md,,,,口論,言い過ぎ,夕食後,正語,軽くなる,刃をしまう,眠れない夜に、心がほどける哲学を。,・苦しみの正体<br>・ほどく視点
+1,CH19,001,CH19-001,CH19-001,かさじぞう｜静かな夜に届くやさしさ,topic_research: pending,,workspaces/scripts/CH19/001/content/assembled.md,未完了,,2025-12-23 23:43:33,かさじぞう,やさしさが届く,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「かさじぞう」を入口に、ほっとする方向へ静かに運びます。最後は 毛布を整える を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 雪の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: やさしさを一言だけ添える（押しつけない）。
+今夜の一手: 毛布を整える
+締め: 静かにおやすみへ。",,,,,,,,かさじぞう やさしさが届く,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Snowy night, small statues with hats, soft lamp glow, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 雪の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: やさしさを一言だけ添える（押しつけない）。
+今夜の一手: 毛布を整える
+締め: 静かにおやすみへ。",,かさじぞう｜静かな夜に届くやさしさ,workspaces/scripts/CH19/001/content/assembled.md,,,,孤独,冷える,雪の夜,やさしさ,ほっとする,雪灯り,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+2,CH19,002,CH19-002,CH19-002,鶴の恩返し｜約束がほどく夜,topic_research: pending,,workspaces/scripts/CH19/002/content/assembled.md,未完了,,2025-12-23 23:43:33,鶴の恩返し,約束の夜,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「鶴の恩返し」を入口に、落ち着く方向へ静かに運びます。最後は 深呼吸を3回 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 小屋の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 約束を一言だけ添える（押しつけない）。
+今夜の一手: 深呼吸を3回
+締め: 静かにおやすみへ。",,,,,,,,鶴の恩返し 約束の夜,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy cabin at night, feather motif, soft lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 小屋の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 約束を一言だけ添える（押しつけない）。
+今夜の一手: 深呼吸を3回
+締め: 静かにおやすみへ。",,鶴の恩返し｜約束がほどく夜,workspaces/scripts/CH19/002/content/assembled.md,,,,不安,秘密,小屋の夜,約束,落ち着く,羽,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+3,CH19,003,CH19-003,CH19-003,かぐや姫｜月の光と別れの余韻,topic_research: pending,,workspaces/scripts/CH19/003/content/assembled.md,未完了,,2025-12-23 23:43:33,かぐや姫,月の余韻,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「かぐや姫」を入口に、やわらぐ方向へ静かに運びます。最後は 窓の外を見る を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 月の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 別れを一言だけ添える（押しつけない）。
+今夜の一手: 窓の外を見る
+締め: 静かにおやすみへ。",,,,,,,,かぐや姫 月の余韻,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Moonlit bamboo forest, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 月の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 別れを一言だけ添える（押しつけない）。
+今夜の一手: 窓の外を見る
+締め: 静かにおやすみへ。",,かぐや姫｜月の光と別れの余韻,workspaces/scripts/CH19/003/content/assembled.md,,,,悲しみ,別れ,月の夜,別れ,やわらぐ,月光,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+4,CH19,004,CH19-004,CH19-004,一寸法師｜小さな勇気で眠る,topic_research: pending,,workspaces/scripts/CH19/004/content/assembled.md,未完了,,2025-12-23 23:43:33,一寸法師,小さな勇気,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「一寸法師」を入口に、ほっとする方向へ静かに運びます。最後は 明日の一歩を一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の川の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 勇気を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,,,,,,,一寸法師 小さな勇気,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: River at night, tiny bowl boat, calm, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の川の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 勇気を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,一寸法師｜小さな勇気で眠る,workspaces/scripts/CH19/004/content/assembled.md,,,,不安,自信,夜の川,勇気,ほっとする,お椀の船,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+5,CH19,005,CH19-005,CH19-005,花咲かじいさん｜春が来る夜話,topic_research: pending,,workspaces/scripts/CH19/005/content/assembled.md,未完了,,2025-12-23 23:43:33,花咲か,春が来る,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「花咲か」を入口に、安心する方向へ静かに運びます。最後は 明日の楽しみを一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜明けの庭の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 明日の楽しみを一つ
+締め: 静かにおやすみへ。",,,,,,,,花咲か 春が来る,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Early morning garden, gentle petals, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜明けの庭の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 明日の楽しみを一つ
+締め: 静かにおやすみへ。",,花咲かじいさん｜春が来る夜話,workspaces/scripts/CH19/005/content/assembled.md,,,,疲れ,冷える,夜明けの庭,希望,安心する,花びら,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+6,CH19,006,CH19-006,CH19-006,浦島太郎｜波音と時間の物語,topic_research: pending,,workspaces/scripts/CH19/006/content/assembled.md,未完了,,2025-12-23 23:43:33,浦島太郎,波音の余韻,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「浦島太郎」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 海の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 時間を一言だけ添える（押しつけない）。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,,,,,,,浦島太郎 波音の余韻,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet sea at night, small boat, moonlight, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 海の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 時間を一言だけ添える（押しつけない）。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,浦島太郎｜波音と時間の物語,workspaces/scripts/CH19/006/content/assembled.md,,,,不安,時間,海の夜,時間,落ち着く,波,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+7,CH19,007,CH19-007,CH19-007,ぶんぶく茶釜｜ほっこり眠れる夜,topic_research: pending,,workspaces/scripts/CH19/007/content/assembled.md,未完了,,2025-12-23 23:43:33,ぶんぶく,ほっこり,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「ぶんぶく」を入口に、ほっとする方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 囲炉裏の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 温かさを一言だけ添える（押しつけない）。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,,,,,,,ぶんぶく ほっこり,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy hearth, kettle steam, warm mood, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 囲炉裏の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 温かさを一言だけ添える（押しつけない）。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,ぶんぶく茶釜｜ほっこり眠れる夜,workspaces/scripts/CH19/007/content/assembled.md,,,,ストレス,緊張,囲炉裏の夜,温かさ,ほっとする,湯気,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+8,CH19,008,CH19-008,CH19-008,こぶとりじいさん｜笑いがほどける夜,topic_research: pending,,workspaces/scripts/CH19/008/content/assembled.md,未完了,,2025-12-23 23:43:33,こぶとり,笑いでほどく,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「こぶとり」を入口に、ゆるむ方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 森の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 笑いを一言だけ添える（押しつけない）。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,,,,,,,こぶとり 笑いでほどく,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Forest at night, gentle fireflies, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 森の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 笑いを一言だけ添える（押しつけない）。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,こぶとりじいさん｜笑いがほどける夜,workspaces/scripts/CH19/008/content/assembled.md,,,,ストレス,こわばり,森の夜,笑い,ゆるむ,踊り火,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+9,CH19,009,CH19-009,CH19-009,ねずみの嫁入り｜比べないしあわせ,topic_research: pending,,workspaces/scripts/CH19/009/content/assembled.md,未完了,,2025-12-23 23:43:33,ねずみの嫁入り,比べない,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「ねずみの嫁入り」を入口に、ほっとする方向へ静かに運びます。最後は 今あるものを一つ数える を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 家の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 足るを一言だけ添える（押しつけない）。
+今夜の一手: 今あるものを一つ数える
+締め: 静かにおやすみへ。",,,,,,,,ねずみの嫁入り 比べない,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy small home at night, warm lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 家の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 足るを一言だけ添える（押しつけない）。
+今夜の一手: 今あるものを一つ数える
+締め: 静かにおやすみへ。",,ねずみの嫁入り｜比べないしあわせ,workspaces/scripts/CH19/009/content/assembled.md,,,,不安,比較,家の夜,足る,ほっとする,小さな灯り,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+10,CH19,010,CH19-010,CH19-010,したきりすずめ｜やさしい約束の話,topic_research: pending,,workspaces/scripts/CH19/010/content/assembled.md,未完了,,2025-12-23 23:43:33,したきり,やさしい約束,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「したきり」を入口に、やわらぐ方向へ静かに運びます。最後は 今日のやさしい言葉を一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 竹林の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ことばを一言だけ添える（押しつけない）。
+今夜の一手: 今日のやさしい言葉を一つ
+締め: 静かにおやすみへ。",,,,,,,,したきり やさしい約束,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Bamboo grove at dusk, small sparrow silhouette, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 竹林の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ことばを一言だけ添える（押しつけない）。
+今夜の一手: 今日のやさしい言葉を一つ
+締め: 静かにおやすみへ。",,したきりすずめ｜やさしい約束の話,workspaces/scripts/CH19/010/content/assembled.md,,,,不安,言葉,竹林の夕,ことば,やわらぐ,すずめ,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+11,CH19,011,CH19-011,CH19-011,わらしべ長者｜ゆっくり巡る運,topic_research: pending,,workspaces/scripts/CH19/011/content/assembled.md,未完了,,2025-12-23 23:43:33,わらしべ,ゆっくり巡る,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「わらしべ」を入口に、落ち着く方向へ静かに運びます。最後は 焦らず一歩 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 田舎道の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 巡りを一言だけ添える（押しつけない）。
+今夜の一手: 焦らず一歩
+締め: 静かにおやすみへ。",,,,,,,,わらしべ ゆっくり巡る,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet countryside path, straw, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 田舎道の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 巡りを一言だけ添える（押しつけない）。
+今夜の一手: 焦らず一歩
+締め: 静かにおやすみへ。",,わらしべ長者｜ゆっくり巡る運,workspaces/scripts/CH19/011/content/assembled.md,,,,不安,お金,田舎道,巡り,落ち着く,わら,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+12,CH19,012,CH19-012,CH19-012,三年寝太郎｜眠る力の昔ばなし,topic_research: pending,,workspaces/scripts/CH19/012/content/assembled.md,未完了,,2025-12-23 23:43:33,三年寝太郎,眠る力,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「三年寝太郎」を入口に、安心する方向へ静かに運びます。最後は 今日は休むと決める を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の寝床の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休むを一言だけ添える（押しつけない）。
+今夜の一手: 今日は休むと決める
+締め: 静かにおやすみへ。",,,,,,,,三年寝太郎 眠る力,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Simple futon, warm lamp, calm, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の寝床の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休むを一言だけ添える（押しつけない）。
+今夜の一手: 今日は休むと決める
+締め: 静かにおやすみへ。",,三年寝太郎｜眠る力の昔ばなし,workspaces/scripts/CH19/012/content/assembled.md,,,,疲れ,休めない,夜の寝床,休む,安心する,布団,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+13,CH19,013,CH19-013,CH19-013,まんじゅうこわい｜怖いのに笑える夜,topic_research: pending,,workspaces/scripts/CH19/013/content/assembled.md,未完了,,2025-12-23 23:43:33,こわいもの,笑ってほどく,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「こわいもの」を入口に、ほっとする方向へ静かに運びます。最後は 口角を少し上げる を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の茶屋の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 笑いを一言だけ添える（押しつけない）。
+今夜の一手: 口角を少し上げる
+締め: 静かにおやすみへ。",,,,,,,,こわいもの 笑ってほどく,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet teahouse at night, cup and manju, warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の茶屋の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 笑いを一言だけ添える（押しつけない）。
+今夜の一手: 口角を少し上げる
+締め: 静かにおやすみへ。",,まんじゅうこわい｜怖いのに笑える夜,workspaces/scripts/CH19/013/content/assembled.md,,,,不安,恐れ,夜の茶屋,笑い,ほっとする,湯のみ,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+14,CH19,014,CH19-014,CH19-014,おむすびころりん｜ころんと眠れる話,topic_research: pending,,workspaces/scripts/CH19/014/content/assembled.md,未完了,,2025-12-23 23:43:33,おむすび,ころりん,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「おむすび」を入口に、ゆるむ方向へ静かに運びます。最後は 肩を回す を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の山道の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ゆるむを一言だけ添える（押しつけない）。
+今夜の一手: 肩を回す
+締め: 静かにおやすみへ。",,,,,,,,おむすび ころりん,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Mountain path at night, simple rice ball motif, calm, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の山道の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ゆるむを一言だけ添える（押しつけない）。
+今夜の一手: 肩を回す
+締め: 静かにおやすみへ。",,おむすびころりん｜ころんと眠れる話,workspaces/scripts/CH19/014/content/assembled.md,,,,疲れ,張りつめる,夜の山道,ゆるむ,ゆるむ,おむすび,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+15,CH19,015,CH19-015,CH19-015,さるかに合戦（やさしい再話）｜怒りを静める昔ばなし,topic_research: pending,,workspaces/scripts/CH19/015/content/assembled.md,未完了,,2025-12-23 23:43:33,さるかに,怒りが静まる,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「さるかに」を入口に、鎮まる方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 家の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ほどくを一言だけ添える（押しつけない）。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,,,,,,,さるかに 怒りが静まる,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy room, persimmon, soft evening light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 家の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: ほどくを一言だけ添える（押しつけない）。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,さるかに合戦（やさしい再話）｜怒りを静める昔ばなし,workspaces/scripts/CH19/015/content/assembled.md,,,,怒り,イライラ,家の夕,ほどく,鎮まる,柿,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+16,CH19,016,CH19-016,CH19-016,桃太郎（おやすみ版）｜勇気とやさしさ,topic_research: pending,,workspaces/scripts/CH19/016/content/assembled.md,未完了,,2025-12-23 23:43:33,桃太郎,おやすみ版,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「桃太郎」を入口に、安心する方向へ静かに運びます。最後は 明日の一歩を一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 川の朝の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 勇気を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,,,,,,,桃太郎 おやすみ版,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Calm river, peach floating, soft morning light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 川の朝の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 勇気を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,桃太郎（おやすみ版）｜勇気とやさしさ,workspaces/scripts/CH19/016/content/assembled.md,,,,不安,勇気,川の朝,勇気,安心する,桃,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+17,CH19,017,CH19-017,CH19-017,大きなかぶ｜みんなで引っ張る夜,topic_research: pending,,workspaces/scripts/CH19/017/content/assembled.md,未完了,,2025-12-23 23:43:33,大きなかぶ,みんなで,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「大きなかぶ」を入口に、ほっとする方向へ静かに運びます。最後は 助けを一つ思い出す を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 畑の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 協力を一言だけ添える（押しつけない）。
+今夜の一手: 助けを一つ思い出す
+締め: 静かにおやすみへ。",,,,,,,,大きなかぶ みんなで,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet garden, big turnip, soft dusk, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 畑の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 協力を一言だけ添える（押しつけない）。
+今夜の一手: 助けを一つ思い出す
+締め: 静かにおやすみへ。",,大きなかぶ｜みんなで引っ張る夜,workspaces/scripts/CH19/017/content/assembled.md,,,,孤独,助け,畑の夕,協力,ほっとする,かぶ,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+18,CH19,018,CH19-018,CH19-018,三匹の子ぶた｜安心できる家の話,topic_research: pending,,workspaces/scripts/CH19/018/content/assembled.md,未完了,,2025-12-23 23:43:33,三匹の子ぶた,安心の家,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「三匹の子ぶた」を入口に、安心する方向へ静かに運びます。最後は 鍵をかけて安心する を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の家の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 安心を一言だけ添える（押しつけない）。
+今夜の一手: 鍵をかけて安心する
+締め: 静かにおやすみへ。",,,,,,,,三匹の子ぶた 安心の家,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy small houses, warm lights, calm night, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の家の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 安心を一言だけ添える（押しつけない）。
+今夜の一手: 鍵をかけて安心する
+締め: 静かにおやすみへ。",,三匹の子ぶた｜安心できる家の話,workspaces/scripts/CH19/018/content/assembled.md,,,,不安,守り,夜の家,安心,安心する,家,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+19,CH19,019,CH19-019,CH19-019,シンデレラ｜静かな奇跡とおやすみ,topic_research: pending,,workspaces/scripts/CH19/019/content/assembled.md,未完了,,2025-12-23 23:43:33,シンデレラ,静かな奇跡,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「シンデレラ」を入口に、ほっとする方向へ静かに運びます。最後は 今日の良かったことを一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の台所の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 今日の良かったことを一つ
+締め: 静かにおやすみへ。",,,,,,,,シンデレラ 静かな奇跡,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy kitchen at night, soft sparkle, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の台所の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 今日の良かったことを一つ
+締め: 静かにおやすみへ。",,シンデレラ｜静かな奇跡とおやすみ,workspaces/scripts/CH19/019/content/assembled.md,,,,悲しみ,孤独,夜の台所,希望,ほっとする,ガラス,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+20,CH19,020,CH19-020,CH19-020,赤ずきん（やさしい再話）｜森をぬけて眠りへ,topic_research: pending,,workspaces/scripts/CH19/020/content/assembled.md,未完了,,2025-12-23 23:43:33,赤ずきん,森をぬける,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「赤ずきん」を入口に、落ち着く方向へ静かに運びます。最後は 足元の感覚に戻る を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 森の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 注意を一言だけ添える（押しつけない）。
+今夜の一手: 足元の感覚に戻る
+締め: 静かにおやすみへ。",,,,,,,,赤ずきん 森をぬける,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Forest path at dusk, red hood cloak, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 森の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 注意を一言だけ添える（押しつけない）。
+今夜の一手: 足元の感覚に戻る
+締め: 静かにおやすみへ。",,赤ずきん（やさしい再話）｜森をぬけて眠りへ,workspaces/scripts/CH19/020/content/assembled.md,,,,不安,恐れ,森の夕,注意,落ち着く,赤い布,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+21,CH19,021,CH19-021,CH19-021,白雪姫｜眠れるように静かに語る夜,topic_research: pending,,workspaces/scripts/CH19/021/content/assembled.md,未完了,,2025-12-23 23:43:33,白雪姫,静かに語る,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「白雪姫」を入口に、眠りに落ちる方向へ静かに運びます。最後は 目を閉じて呼吸 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 森の小屋の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休むを一言だけ添える（押しつけない）。
+今夜の一手: 目を閉じて呼吸
+締め: 静かにおやすみへ。",,,,,,,,白雪姫 静かに語る,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Small cabin, warm light, apple on table, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 森の小屋の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休むを一言だけ添える（押しつけない）。
+今夜の一手: 目を閉じて呼吸
+締め: 静かにおやすみへ。",,白雪姫｜眠れるように静かに語る夜,workspaces/scripts/CH19/021/content/assembled.md,,,,不安,緊張,森の小屋,休む,眠りに落ちる,林檎,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+22,CH19,022,CH19-022,CH19-022,眠れる森の姫｜長い眠りのやさしい話,topic_research: pending,,workspaces/scripts/CH19/022/content/assembled.md,未完了,,2025-12-23 23:43:33,眠れる森,やさしい眠り,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「眠れる森」を入口に、安心する方向へ静かに運びます。最後は 布団に深く沈む を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 古い城の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休息を一言だけ添える（押しつけない）。
+今夜の一手: 布団に深く沈む
+締め: 静かにおやすみへ。",,,,,,,,眠れる森 やさしい眠り,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet castle room, soft moonlight, spinning wheel silhouette, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 古い城の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 休息を一言だけ添える（押しつけない）。
+今夜の一手: 布団に深く沈む
+締め: 静かにおやすみへ。",,眠れる森の姫｜長い眠りのやさしい話,workspaces/scripts/CH19/022/content/assembled.md,,,,疲れ,休めない,古い城の夜,休息,安心する,糸車,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+23,CH19,023,CH19-023,CH19-023,みにくいアヒルの子｜そのままの夜,topic_research: pending,,workspaces/scripts/CH19/023/content/assembled.md,未完了,,2025-12-23 23:43:33,みにくいアヒル,そのまま,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「みにくいアヒル」を入口に、やわらぐ方向へ静かに運びます。最後は 自分に一言やさしく を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 湖の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 受容を一言だけ添える（押しつけない）。
+今夜の一手: 自分に一言やさしく
+締め: 静かにおやすみへ。",,,,,,,,みにくいアヒル そのまま,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Calm lake at dusk, swan silhouette, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 湖の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 受容を一言だけ添える（押しつけない）。
+今夜の一手: 自分に一言やさしく
+締め: 静かにおやすみへ。",,みにくいアヒルの子｜そのままの夜,workspaces/scripts/CH19/023/content/assembled.md,,,,自己否定,自信,湖の夕,受容,やわらぐ,水面,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+24,CH19,024,CH19-024,CH19-024,王様の新しい服｜見栄をほどく夜,topic_research: pending,,workspaces/scripts/CH19/024/content/assembled.md,未完了,,2025-12-23 23:43:33,見栄,ほどける,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「見栄」を入口に、軽くなる方向へ静かに運びます。最後は 背伸びをやめる一言 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 宮殿の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 手放すを一言だけ添える（押しつけない）。
+今夜の一手: 背伸びをやめる一言
+締め: 静かにおやすみへ。",,,,,,,,見栄 ほどける,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet palace hall, cloth motif, warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 宮殿の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 手放すを一言だけ添える（押しつけない）。
+今夜の一手: 背伸びをやめる一言
+締め: 静かにおやすみへ。",,王様の新しい服｜見栄をほどく夜,workspaces/scripts/CH19/024/content/assembled.md,,,,不安,体裁,宮殿の夜,手放す,軽くなる,布,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+25,CH19,025,CH19-025,CH19-025,雪の女王（やさしい再話）｜氷がとける物語,topic_research: pending,,workspaces/scripts/CH19/025/content/assembled.md,未完了,,2025-12-23 23:43:33,雪の女王,氷がとける,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「雪の女王」を入口に、ほっとする方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 雪の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 温かさを一言だけ添える（押しつけない）。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,,,,,,,雪の女王 氷がとける,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Snowy night landscape, gentle glow, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 雪の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 温かさを一言だけ添える（押しつけない）。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,雪の女王（やさしい再話）｜氷がとける物語,workspaces/scripts/CH19/025/content/assembled.md,,,,孤独,冷える,雪の夜,温かさ,ほっとする,氷,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+26,CH19,026,CH19-026,CH19-026,長靴をはいた猫｜軽やかな夜話,topic_research: pending,,workspaces/scripts/CH19/026/content/assembled.md,未完了,,2025-12-23 23:43:33,長靴の猫,軽やかに,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「長靴の猫」を入口に、ほっとする方向へ静かに運びます。最後は 明日の工夫を一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 街の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 工夫を一言だけ添える（押しつけない）。
+今夜の一手: 明日の工夫を一つ
+締め: 静かにおやすみへ。",,,,,,,,長靴の猫 軽やかに,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet town street at night, cat silhouette with boots, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 街の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 工夫を一言だけ添える（押しつけない）。
+今夜の一手: 明日の工夫を一つ
+締め: 静かにおやすみへ。",,長靴をはいた猫｜軽やかな夜話,workspaces/scripts/CH19/026/content/assembled.md,,,,不安,自信,街の夜,工夫,ほっとする,足あと,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+27,CH19,027,CH19-027,CH19-027,ジャックと豆の木｜高い空を静かに見る,topic_research: pending,,workspaces/scripts/CH19/027/content/assembled.md,未完了,,2025-12-23 23:43:33,豆の木,高い空,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「豆の木」を入口に、落ち着く方向へ静かに運びます。最後は 明日の一歩を一つ を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 夜の畑の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,,,,,,,豆の木 高い空,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night field, tall vine silhouette, stars, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜の畑の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 希望を一言だけ添える（押しつけない）。
+今夜の一手: 明日の一歩を一つ
+締め: 静かにおやすみへ。",,ジャックと豆の木｜高い空を静かに見る,workspaces/scripts/CH19/027/content/assembled.md,,,,不安,未来,夜の畑,希望,落ち着く,豆,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+28,CH19,028,CH19-028,CH19-028,アラジンと魔法のランプ｜灯りが守る夜,topic_research: pending,,workspaces/scripts/CH19/028/content/assembled.md,未完了,,2025-12-23 23:43:33,魔法のランプ,灯りの夜,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「魔法のランプ」を入口に、安心する方向へ静かに運びます。最後は 灯りを一つ想像する を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 砂漠の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 灯りを一言だけ添える（押しつけない）。
+今夜の一手: 灯りを一つ想像する
+締め: 静かにおやすみへ。",,,,,,,,魔法のランプ 灯りの夜,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Desert night, warm lamp glow, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 砂漠の夜の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 灯りを一言だけ添える（押しつけない）。
+今夜の一手: 灯りを一つ想像する
+締め: 静かにおやすみへ。",,アラジンと魔法のランプ｜灯りが守る夜,workspaces/scripts/CH19/028/content/assembled.md,,,,不安,心配,砂漠の夜,灯り,安心する,ランプ,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+29,CH19,029,CH19-029,CH19-029,漁師と魔法の魚｜欲ばりと静けさ,topic_research: pending,,workspaces/scripts/CH19/029/content/assembled.md,未完了,,2025-12-23 23:43:33,欲ばり,静けさ,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「欲ばり」を入口に、落ち着く方向へ静かに運びます。最後は 今あるものを一つ数える を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 海辺の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 足るを一言だけ添える（押しつけない）。
+今夜の一手: 今あるものを一つ数える
+締め: 静かにおやすみへ。",,,,,,,,欲ばり 静けさ,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Seaside at dusk, gentle waves, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 海辺の夕の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 足るを一言だけ添える（押しつけない）。
+今夜の一手: 今あるものを一つ数える
+締め: 静かにおやすみへ。",,漁師と魔法の魚｜欲ばりと静けさ,workspaces/scripts/CH19/029/content/assembled.md,,,,不安,足りない,海辺の夕,足る,落ち着く,波,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻
+30,CH19,030,CH19-030,CH19-030,おやすみ昔ばなし3話｜やさしい総集編,topic_research: pending,,workspaces/scripts/CH19/030/content/assembled.md,未完了,,2025-12-23 23:43:33,昔ばなし3話,おやすみ編,,昔ばなしを再話でゆっくり朗読し、眠りへ誘う。 「昔ばなし3話」を入口に、眠りに落ちる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。,"導入: 枕元の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 物語を一言だけ添える（押しつけない）。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,昔ばなし3話 おやすみ編,"16:9, high resolution, calm storybook mood, soft lamp light, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Bedside lamp and storybook, warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 枕元の空気で今夜の物語を始める。
+物語: ゆっくり進行→場面の区切りを作りながら語る。
+余韻: 物語を一言だけ添える（押しつけない）。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,おやすみ昔ばなし3話｜やさしい総集編,workspaces/scripts/CH19/030/content/assembled.md,,,,疲れ,眠れない,枕元,物語,眠りに落ちる,絵本,眠れない夜に、昔ばなしをゆっくりと。,・物語で気持ちをほどく<br>・やさしい余韻

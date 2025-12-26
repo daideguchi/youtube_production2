@@ -121,7 +121,10 @@ def _load_registry_prompt_paths() -> List[Path]:
     Use backend prompt registry (if importable) to collect prompt paths.
     """
     try:
-        from ui.backend.main import _load_prompt_documents  # type: ignore
+        backend_root = REPO_ROOT / "apps" / "ui-backend"
+        if str(backend_root) not in sys.path:
+            sys.path.insert(0, str(backend_root))
+        from backend.main import _load_prompt_documents  # type: ignore
     except Exception as exc:  # noqa: BLE001
         print(f"[registry] skip (import failed): {exc}")
         return []

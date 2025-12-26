@@ -94,7 +94,7 @@
 
 ### 4.3 Video（SRT→画像→CapCut）
 - [ ] `TODO-VIDEO-001` run_dir 正本の I/O 契約を固定し、古いrunをarchive-firstで整理（P1, todo）
-  - scope: `workspaces/video/runs/**`, `packages/commentary_02_srt2images_timeline/**`
+  - scope: `workspaces/video/runs/**`, `packages/video_pipeline/**`
   - thread: `note__20251222T145542Z__e1c3ca6c`
   - DoD: “どのrunが正本か”が迷わず追え、cleanupしても参照切れしない
 

@@ -111,7 +111,7 @@ class Candidate:
 
 
 def _remotion_app_root() -> Path:
-    # Stage5 canonical location. (root `remotion/` is a compat symlink.)
+    # Canonical location.
     return repo_paths.repo_root() / "apps" / "remotion"
 
 

@@ -11,7 +11,7 @@
 
 ### 2.1 workspaces/scripts（台本SoT）
 
-- ルート（正本）: `workspaces/scripts/CH{NN}/{VIDEO_NO}/`（互換: `script_pipeline/data/...`）
+- ルート（正本）: `workspaces/scripts/CH{NN}/{VIDEO_NO}/`
 - 代表例:
 
 #### CH07-025 の例
@@ -62,7 +62,7 @@ workspaces/scripts/CH05/029
 
 ### 2.2 workspaces/audio（音声成果物）
 
-* ルート（正本）: `workspaces/audio/final/CH{NN}/{VIDEO_NO}/`（互換: `audio_tts_v2/artifacts/final/...`）
+* ルート（正本）: `workspaces/audio/final/CH{NN}/{VIDEO_NO}/`
 
 #### 例: 典型的な final 配下の構造
 
@@ -76,18 +76,18 @@ workspaces/audio/final/CH02/033
 
 ※ `*.wav` / `*.srt` は gitignore 対象で、通常はディスク上にのみ存在する。
 
-### 2.3 commentary_02_srt2images_timeline
+### 2.3 video_pipeline
 
-* ルート: `commentary_02_srt2images_timeline/...`
+* ルート: `packages/video_pipeline/...`
 * 役割: SRT → 画像タイムライン生成
-* 生成結果（run_dir）: `workspaces/video/runs/<run_id>/`（互換: `commentary_02_srt2images_timeline/output/<run_id>/`）
+* 生成結果（run_dir）: `workspaces/video/runs/<run_id>/`
   - `image_cues.json`, `images/*.png`, `capcut_draft`（CapCutプロジェクトへのsymlink）, `capcut_draft_info.json`, `auto_run_info.json` など
   - `runs/` は `workspaces/.gitignore` で gitignore 対象
-* 入力キャッシュ: `workspaces/video/input/`（互換: `commentary_02_srt2images_timeline/input/`、gitignore 対象）
+* 入力キャッシュ: `workspaces/video/input/`（gitignore 対象）
 
 ### 2.4 workspaces/planning/channels（企画CSV）
 
-* ルート: `workspaces/planning/channels/`（互換: `progress/channels/`）
+* ルート: `workspaces/planning/channels/`
 
 実在するファイル一覧（例）:
 
@@ -110,7 +110,7 @@ CH01.csvのカラム例:
 
 ### 2.5 thumbnails
 
-* ルート（正本）: `workspaces/thumbnails/`（互換: `thumbnails/` は symlink）
+* ルート（正本）: `workspaces/thumbnails/`
 
 代表例として、CH01の画像ディレクトリ:
 
@@ -126,9 +126,11 @@ workspaces/thumbnails/README.md
 ```
 
 補足:
-- サムネの追跡SoTは `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）。
-- UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...`（互換: `thumbnails/assets/...`）を正とする。
-- `workspaces/thumbnails/CHxx_<チャンネル名>/...`（互換: `thumbnails/CHxx_<...>/...`）は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
+- サムネの追跡SoTは `workspaces/thumbnails/projects.json`。
+- サムネの「型（テンプレ）SoT」は `workspaces/thumbnails/templates.json`。
+- UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...` を正とする。
+- `workspaces/thumbnails/CHxx_<チャンネル名>/...` は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
+- 画像レイヤ/文字レイヤの設計は「Layer Specs（YAML）」で管理できる（例: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`）。これはチャンネル固有の中身を持つが、**スキーマ/運用は汎用**で、UI/Compiler が参照する。
 
 ### 2.6 asset（静的素材 / git管理）
 
@@ -154,19 +156,20 @@ asset
 
 ## 3. UI / API とファイルパスの対応
 
-`ui/backend` 以下の FastAPI コードを読み、主要エンドポイントと対応する実際のファイルパスの対応表:
+`apps/ui-backend/backend` 以下の FastAPI コードを読み、主要エンドポイントと対応する実際のファイルパスの対応表:
 
 | Endpoint | 主な読み書きパス | 備考 |
 |----------|------------------|------|
-| `GET /api/planning` | `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/...`） | 企画/進捗CSV（Planning SoT） |
-| `GET /api/ssot/persona/{channel}` / `PUT /api/ssot/persona/{channel}` | `workspaces/planning/personas/CHxx_PERSONA.md`（互換: `progress/personas/...`） | Persona SoT |
-| `GET /api/channels/{channel}/videos/{video}` | `workspaces/scripts/CHxx/NNN/status.json` / `content/assembled.md`（互換: `script_pipeline/data/...`） | 台本SoT |
-| `PUT /api/channels/{channel}/videos/{video}/assembled` | `workspaces/scripts/CHxx/NNN/content/assembled.md`（互換: `script_pipeline/data/...`） | 人間編集の正本 |
-| `GET /api/channels/{channel}/videos/{video}/audio` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.wav`（互換: `audio_tts_v2/artifacts/final/...`） | 下流参照の音声SoT |
-| `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt`（互換: `audio_tts_v2/artifacts/final/...`） | 字幕SoT（UI編集可） |
-| `POST /api/auto-draft/create` | `workspaces/video/runs/<run_id>/...`（互換: `commentary_02_srt2images_timeline/output/...`） | SRT→画像→CapCutドラフト生成 |
-| `GET /api/workspaces/thumbnails` | `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`） | サムネSoT |
-| `GET /thumbnails/assets/{...}` | `workspaces/thumbnails/assets/...`（互換: `thumbnails/assets/...`） | 静的配信（移行中の可能性あり） |
+| `GET /api/planning` | `workspaces/planning/channels/CHxx.csv` | 企画/進捗CSV（Planning SoT） |
+| `GET /api/ssot/persona/{channel}` / `PUT /api/ssot/persona/{channel}` | `workspaces/planning/personas/CHxx_PERSONA.md` | Persona SoT |
+| `GET /api/channels/{channel}/videos/{video}` | `workspaces/scripts/CHxx/NNN/status.json` / `content/assembled.md` | 台本SoT |
+| `PUT /api/channels/{channel}/videos/{video}/assembled` | `workspaces/scripts/CHxx/NNN/content/assembled.md` | 人間編集の正本 |
+| `GET /api/channels/{channel}/videos/{video}/audio` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.wav` | 下流参照の音声SoT |
+| `GET /api/channels/{channel}/videos/{video}/srt` / `PUT /api/auto-draft/srt` | `workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt` | 字幕SoT（UI編集可） |
+| `POST /api/auto-draft/create` | `workspaces/video/runs/<run_id>/...` | SRT→画像→CapCutドラフト生成 |
+| `GET /api/workspaces/thumbnails` | `workspaces/thumbnails/projects.json` | サムネSoT |
+| `GET|PUT /api/workspaces/thumbnails/{channel}/templates` | `workspaces/thumbnails/templates.json` | サムネテンプレSoT |
+| `GET /thumbnails/assets/{...}` | `workspaces/thumbnails/assets/...` | 静的配信 |
 
 ## 4. 注意点・既知の問題
 
@@ -177,5 +180,5 @@ asset
 ## 5. 改善アイデア（任意）
 
 * ディレクトリ構造を標準化し、すべての動画で同じファイル構造を持つように統一すると管理しやすくなる
-* データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
+* データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `packages/factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
 * 現行構造を維持しつつ、薄い抽象化レイヤーを導入してAPIとファイルパスの対応関係を明確化する

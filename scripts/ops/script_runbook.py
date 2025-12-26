@@ -183,14 +183,16 @@ def _run_until(channel: str, video: str, *, until_stage: str, max_iter: int) -> 
 
 def _result_for(channel: str, video: str, mode: str, note: str = "") -> ItemResult:
     st = load_status(channel, video)
+    semantic_verdict = _safe_semantic_verdict(st)
+    ok = (_safe_stage_status(st, "script_validation") == "completed") and (semantic_verdict != "major")
     return ItemResult(
         channel=channel,
         video=video,
         mode=mode,
-        ok=(_safe_stage_status(st, "script_validation") == "completed"),
+        ok=ok,
         status=str(st.status or ""),
         script_validation_status=_safe_stage_status(st, "script_validation"),
-        semantic_verdict=_safe_semantic_verdict(st),
+        semantic_verdict=semantic_verdict,
         planning_coherence=_safe_planning_coherence(st),
         status_json=str(status_path(channel, video)),
         note=note,

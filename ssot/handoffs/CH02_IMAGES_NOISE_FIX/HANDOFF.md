@@ -29,10 +29,10 @@
 作業前にロックを確認し、作業対象にロックを置く。
 
 ```bash
-python scripts/agent_org.py locks --path commentary_02_srt2images_timeline/tools/**
+python scripts/agent_org.py locks --path packages/video_pipeline/tools/**
 python scripts/agent_org.py lock --mode no_touch --ttl-min 120 --note "CH02 noise images fix" \
-  commentary_02_srt2images_timeline/tools/** \
-  factory_common/image_client.py \
+  packages/video_pipeline/tools/** \
+  packages/factory_common/image_client.py \
   ssot/handoffs/CH02_IMAGES_NOISE_FIX/**
 ```
 
@@ -56,7 +56,7 @@ PY
 まず **現状のドラフトを機械検証**して、ノイズが入っている動画番号を確定する。
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
   --channel CH02 \
   --videos 034,035,036,037,038,039,040,041
 ```
@@ -78,7 +78,7 @@ run_dir は:
 - `workspaces/video/runs/CH02-034_regen_20251213_091300/`
 
 補足:
-- 旧パス `commentary_02_srt2images_timeline/output/...` は互換 symlink（正本は `workspaces/video/runs/...`）。
+- 旧パス `commentary_02_srt2images_timeline/output/...` は廃止（過去の互換symlink履歴）。正本は `workspaces/video/runs/...`。
 
 **条件**
 - run_dir に `image_cues.json` が存在すること
@@ -90,7 +90,7 @@ run_dir は:
 まずは 1枚だけで疎通確認（推奨）:
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_cues \
   --run workspaces/video/runs/CH02-034_regen_20251213_091300 \
   --channel CH02 \
   --force \
@@ -100,7 +100,7 @@ PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/regen
 問題なければ全枚数:
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/regenerate_images_from_cues.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_cues \
   --run workspaces/video/runs/CH02-034_regen_20251213_091300 \
   --channel CH02 \
   --force
@@ -116,10 +116,10 @@ SoT の SRT は必ず final を使う:
 - `workspaces/audio/final/CH02/034/CH02-034.srt`
 
 補足:
-- 旧パス `audio_tts_v2/artifacts/final/...` は互換 symlink（正本は `workspaces/audio/final/...`）。
+- 旧パス `audio_tts_v2/artifacts/final/...` は廃止（過去の互換symlink履歴）。正本は `workspaces/audio/final/...`。
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \
   --channel CH02 \
   --srt workspaces/audio/final/CH02/034/CH02-034.srt \
   --run-name CH02-034_regen_20251213_091300 \
@@ -137,7 +137,7 @@ PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/auto_
 
 ### 3.4 メイン帯テキスト同期（念のため毎回）
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.set_ch02_belt_from_status \
   --channel CH02 \
   --videos 034 \
   --update-run-belt-config
@@ -145,7 +145,7 @@ PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/set_c
 
 ### 3.5 機械検証（必須）
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
   --channel CH02 \
   --videos 034
 ```
@@ -164,7 +164,7 @@ PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/valid
 既存run_dirが壊れている場合のみ検討。
 
 ```bash
-PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline/tools/build_ch02_drafts_range.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.build_ch02_drafts_range \
   --channel CH02 \
   --videos 034-080 \
   --mode images

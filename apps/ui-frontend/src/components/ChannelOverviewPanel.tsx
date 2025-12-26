@@ -1,4 +1,5 @@
 import type { ChannelSummary } from "../api/types";
+import { Link } from "react-router-dom";
 
 function resolveDisplayName(channel: ChannelSummary): string {
   return channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
@@ -63,6 +64,8 @@ export function ChannelOverviewPanel({ channel, snapshot, onBackToDashboard, bac
   }
 
   const displayName = resolveDisplayName(channel);
+  const portalPath = `/channels/${encodeURIComponent(channel.code)}/portal`;
+  const channelSettingsPath = `/channel-settings?channel=${encodeURIComponent(channel.code)}`;
   const genre = channel.genre ?? null;
   const customPath = channel.branding?.custom_url?.replace(/^\//, "") ?? null;
   const channelHandle = formatHandle(
@@ -108,8 +111,14 @@ export function ChannelOverviewPanel({ channel, snapshot, onBackToDashboard, bac
             </div>
             <h1 className="channel-overview__title">{displayName}</h1>
             {description ? <p className="channel-overview__description">{description}</p> : null}
-            {youtubeUrl || spreadsheetUrl ? (
+            {youtubeUrl || spreadsheetUrl || portalPath || channelSettingsPath ? (
               <div className="channel-overview__links">
+                <Link className="channel-overview__link" to={portalPath}>
+                  ポータル
+                </Link>
+                <Link className="channel-overview__link" to={channelSettingsPath}>
+                  チャンネル設定
+                </Link>
                 {youtubeUrl ? (
                   <a
                     className="channel-overview__link"

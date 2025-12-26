@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-22T13:20:43.890767+00:00",
+  "updated_at": "2025-12-26T01:28:28.284887+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -1715,6 +1715,1140 @@
           "updated_at": "2025-12-22T13:20:43.890767+00:00"
         }
       ]
+    },
+    {
+      "channel": "CH10",
+      "video": "001",
+      "variants": [
+        {
+          "id": "fs::ch10_001_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/001/00_thumb.png",
+          "image_path": "CH10/001/00_thumb.png",
+          "created_at": "2025-12-24T11:54:54.343851+00:00",
+          "updated_at": "2025-12-24T11:54:54.343861+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術",
+      "updated_at": "2025-12-24T13:42:40.465851+00:00",
+      "selected_variant_id": "fs::ch10_001_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "002",
+      "variants": [
+        {
+          "id": "fs::ch10_002_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/002/00_thumb.png",
+          "image_path": "CH10/002/00_thumb.png",
+          "created_at": "2025-12-24T11:54:56.254398+00:00",
+          "updated_at": "2025-12-24T11:54:56.254411+00:00"
+        }
+      ],
+      "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_002_00_thumb",
+      "notes": "ちょっと文字弱いからもっと強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "003",
+      "variants": [
+        {
+          "id": "fs::ch10_003_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/003/00_thumb.png",
+          "image_path": "CH10/003/00_thumb.png",
+          "created_at": "2025-12-24T11:54:58.341783+00:00",
+          "updated_at": "2025-12-24T11:54:58.341795+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】369の周波数で夢を叶える",
+      "updated_at": "2025-12-24T13:42:44.899678+00:00",
+      "selected_variant_id": "fs::ch10_003_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "004",
+      "variants": [
+        {
+          "id": "fs::ch10_004_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/004/00_thumb.png",
+          "image_path": "CH10/004/00_thumb.png",
+          "created_at": "2025-12-24T11:55:00.445207+00:00",
+          "updated_at": "2025-12-24T11:55:00.445222+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】未来を引き寄せる7つの教え",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_004_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっと文字強く。ちなみに背景画像はもっと明るく\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "005",
+      "variants": [
+        {
+          "id": "fs::ch10_005_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/005/00_thumb.png",
+          "image_path": "CH10/005/00_thumb.png",
+          "created_at": "2025-12-24T11:55:02.615742+00:00",
+          "updated_at": "2025-12-24T11:55:02.615758+00:00"
+        }
+      ],
+      "title": "【岡潔流】本当に頭がいい人は速さより深さを選ぶ理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_005_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "006",
+      "variants": [
+        {
+          "id": "fs::ch10_006_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/006/00_thumb.png",
+          "image_path": "CH10/006/00_thumb.png",
+          "created_at": "2025-12-24T11:55:05.351084+00:00",
+          "updated_at": "2025-12-24T11:55:05.351096+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】少ない行動で結果を出す思考術",
+      "updated_at": "2025-12-24T13:42:52.884955+00:00",
+      "selected_variant_id": "fs::ch10_006_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "007",
+      "variants": [
+        {
+          "id": "fs::ch10_007_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/007/00_thumb.png",
+          "image_path": "CH10/007/00_thumb.png",
+          "created_at": "2025-12-24T11:55:07.787627+00:00",
+          "updated_at": "2025-12-24T11:55:07.787639+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】常識を超えて考える力",
+      "updated_at": "2025-12-24T13:42:55.762061+00:00",
+      "selected_variant_id": "fs::ch10_007_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "008",
+      "variants": [
+        {
+          "id": "fs::ch10_008_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/008/00_thumb.png",
+          "image_path": "CH10/008/00_thumb.png",
+          "created_at": "2025-12-24T11:55:09.942847+00:00",
+          "updated_at": "2025-12-24T11:55:09.942858+00:00"
+        }
+      ],
+      "title": "【岡潔流】考える量と賢さは無関係である理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_008_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "009",
+      "variants": [
+        {
+          "id": "fs::ch10_009_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/009/00_thumb.png",
+          "image_path": "CH10/009/00_thumb.png",
+          "created_at": "2025-12-24T11:55:11.846919+00:00",
+          "updated_at": "2025-12-24T11:55:11.846933+00:00"
+        }
+      ],
+      "title": "【周波数は嘘をつかない】現実を作る意識の法則（ホーキンズ）",
+      "updated_at": "2025-12-24T13:43:00.740508+00:00",
+      "selected_variant_id": "fs::ch10_009_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "010",
+      "variants": [
+        {
+          "id": "fs::ch10_010_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/010/00_thumb.png",
+          "image_path": "CH10/010/00_thumb.png",
+          "created_at": "2025-12-24T12:01:54.388543+00:00",
+          "updated_at": "2025-12-24T12:01:54.388560+00:00"
+        }
+      ],
+      "title": "【岡潔流】賢さの本質は『感じながら考える』にある",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_010_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "011",
+      "variants": [
+        {
+          "id": "fs::ch10_011_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/011/00_thumb.png",
+          "image_path": "CH10/011/00_thumb.png",
+          "created_at": "2025-12-24T12:02:45.207318+00:00",
+          "updated_at": "2025-12-24T12:02:45.207334+00:00"
+        }
+      ],
+      "title": "【ショーペンハウアー流】年齢を重ねて気づいた幸福の本質",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_011_00_thumb",
+      "notes": "文字インパクト弱い\n\n幸せの\n正体\n\nが正しい\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "012",
+      "variants": [
+        {
+          "id": "fs::ch10_012_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/012/00_thumb.png",
+          "image_path": "CH10/012/00_thumb.png",
+          "created_at": "2025-12-24T12:02:59.194167+00:00",
+          "updated_at": "2025-12-24T12:02:59.194186+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】考えない時間が成果を生む",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_012_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっと文字強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "013",
+      "variants": [
+        {
+          "id": "fs::ch10_013_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/013/00_thumb.png",
+          "image_path": "CH10/013/00_thumb.png",
+          "created_at": "2025-12-24T12:03:12.936495+00:00",
+          "updated_at": "2025-12-24T12:03:12.936513+00:00"
+        }
+      ],
+      "title": "【岡本太郎流】凡人が天才に勝てるたった一つの理由",
+      "updated_at": "2025-12-24T13:43:12.719059+00:00",
+      "selected_variant_id": "fs::ch10_013_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "014",
+      "variants": [
+        {
+          "id": "fs::ch10_014_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/014/00_thumb.png",
+          "image_path": "CH10/014/00_thumb.png",
+          "created_at": "2025-12-24T12:03:25.412925+00:00",
+          "updated_at": "2025-12-24T12:03:25.412942+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】知識を増やすほど思考が鈍くなる理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_014_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "頭が重い本当の理由\n\nこれをもっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "015",
+      "variants": [
+        {
+          "id": "fs::ch10_015_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/015/00_thumb.png",
+          "image_path": "CH10/015/00_thumb.png",
+          "created_at": "2025-12-24T12:03:40.252455+00:00",
+          "updated_at": "2025-12-24T12:03:40.252472+00:00"
+        }
+      ],
+      "title": "【岡本太郎流】成功よりも爆発を選ぶべき理由",
+      "updated_at": "2025-12-24T13:43:18.518439+00:00",
+      "selected_variant_id": "fs::ch10_015_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "016",
+      "variants": [
+        {
+          "id": "fs::ch10_016_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/016/00_thumb.png",
+          "image_path": "CH10/016/00_thumb.png",
+          "created_at": "2025-12-24T12:03:52.722026+00:00",
+          "updated_at": "2025-12-24T12:03:52.722046+00:00"
+        }
+      ],
+      "title": "【宮沢賢治流】力を抜いた人が最後に勝つ理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_016_00_thumb",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "017",
+      "variants": [
+        {
+          "id": "fs::ch10_017_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/017/00_thumb.png",
+          "image_path": "CH10/017/00_thumb.png",
+          "created_at": "2025-12-24T12:04:06.129734+00:00",
+          "updated_at": "2025-12-24T12:04:06.129756+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】心臓が止まっても君が消えない理由",
+      "updated_at": "2025-12-24T13:43:24.646163+00:00",
+      "selected_variant_id": "fs::ch10_017_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "018",
+      "variants": [
+        {
+          "id": "fs::ch10_018_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/018/00_thumb.png",
+          "image_path": "CH10/018/00_thumb.png",
+          "created_at": "2025-12-24T12:04:19.872523+00:00",
+          "updated_at": "2025-12-24T12:04:19.872542+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】複雑な問題を単純化する思考術",
+      "updated_at": "2025-12-24T13:43:27.262345+00:00",
+      "selected_variant_id": "fs::ch10_018_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "019",
+      "variants": [
+        {
+          "id": "fs::ch10_019_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/019/00_thumb.png",
+          "image_path": "CH10/019/00_thumb.png",
+          "created_at": "2025-12-24T12:04:31.195510+00:00",
+          "updated_at": "2025-12-24T12:04:31.195533+00:00"
+        }
+      ],
+      "title": "【岡本太郎流】削ることが人生の本質である理由",
+      "updated_at": "2025-12-24T13:43:29.773691+00:00",
+      "selected_variant_id": "fs::ch10_019_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "020",
+      "variants": [
+        {
+          "id": "fs::ch10_020_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/020/00_thumb.png",
+          "image_path": "CH10/020/00_thumb.png",
+          "created_at": "2025-12-24T12:04:44.938580+00:00",
+          "updated_at": "2025-12-24T12:04:44.938597+00:00"
+        }
+      ],
+      "title": "【ラッセル流】忙しさの中で自分の軸を整える方法",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_020_00_thumb",
+      "notes": "文字はめちゃくちゃ強くして\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "021",
+      "variants": [
+        {
+          "id": "fs::ch10_021_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/021/00_thumb.png",
+          "image_path": "CH10/021/00_thumb.png",
+          "created_at": "2025-12-24T12:04:58.633722+00:00",
+          "updated_at": "2025-12-24T12:04:58.633746+00:00"
+        }
+      ],
+      "title": "【岡本太郎流】人に好かれても良いことなんてない理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_021_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "022",
+      "variants": [
+        {
+          "id": "fs::ch10_022_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/022/00_thumb.png",
+          "image_path": "CH10/022/00_thumb.png",
+          "created_at": "2025-12-24T12:05:18.755769+00:00",
+          "updated_at": "2025-12-24T12:05:18.755787+00:00"
+        }
+      ],
+      "title": "成果は速度ではなく深度で決まる｜ニコラ・テスラ",
+      "updated_at": "2025-12-24T13:43:38.026810+00:00",
+      "selected_variant_id": "fs::ch10_022_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "023",
+      "variants": [
+        {
+          "id": "fs::ch10_023_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/023/00_thumb.png",
+          "image_path": "CH10/023/00_thumb.png",
+          "created_at": "2025-12-24T13:02:43.979917+00:00",
+          "updated_at": "2025-12-24T13:02:43.979937+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】行動を減らして結果を出す思考術",
+      "updated_at": "2025-12-24T13:43:41.422923+00:00",
+      "selected_variant_id": "fs::ch10_023_00_thumb"
+    },
+    {
+      "channel": "CH10",
+      "video": "024",
+      "variants": [
+        {
+          "id": "fs::ch10_024_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/024/00_thumb.png",
+          "image_path": "CH10/024/00_thumb.png",
+          "created_at": "2025-12-24T13:02:58.966468+00:00",
+          "updated_at": "2025-12-24T13:02:58.966508+00:00"
+        }
+      ],
+      "title": "【セネカ流】人生の短さについて 悔いなく生きる考え方",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_024_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "025",
+      "variants": [
+        {
+          "id": "fs::ch10_025_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/025/00_thumb.png",
+          "image_path": "CH10/025/00_thumb.png",
+          "created_at": "2025-12-24T13:11:34.425816+00:00",
+          "updated_at": "2025-12-24T13:11:34.425833+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】思考停止に入る直前の変化を見抜く方法",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_025_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "026",
+      "variants": [
+        {
+          "id": "fs::ch10_026_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/026/00_thumb.png",
+          "image_path": "CH10/026/00_thumb.png",
+          "created_at": "2025-12-24T13:11:45.531273+00:00",
+          "updated_at": "2025-12-24T13:11:45.531291+00:00"
+        }
+      ],
+      "title": "【岡本太郎流】嫌われる勇気より『見せる勇気』が人生を変える理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_026_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっと全体的にインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "027",
+      "variants": [
+        {
+          "id": "fs::ch10_027_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/027/00_thumb.png",
+          "image_path": "CH10/027/00_thumb.png",
+          "created_at": "2025-12-24T13:11:59.805501+00:00",
+          "updated_at": "2025-12-24T13:11:59.805520+00:00"
+        }
+      ],
+      "title": "【岡潔流】悩みが消えない本当の理由は心の使い方にある",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_027_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "028",
+      "variants": [
+        {
+          "id": "fs::ch10_028_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/028/00_thumb.png",
+          "image_path": "CH10/028/00_thumb.png",
+          "created_at": "2025-12-24T13:12:14.559965+00:00",
+          "updated_at": "2025-12-24T13:12:14.559984+00:00"
+        }
+      ],
+      "title": "【アドラー心理学】考えすぎをリセットする方法",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_028_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっと強く。明るくインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "029",
+      "variants": [
+        {
+          "id": "fs::ch10_029_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/029/00_thumb.png",
+          "image_path": "CH10/029/00_thumb.png",
+          "created_at": "2025-12-24T13:12:36.338950+00:00",
+          "updated_at": "2025-12-24T13:12:36.338969+00:00"
+        }
+      ],
+      "title": "【エミール・シオラン流】人生は無意味 それでも続ける理由",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_029_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く！！！！\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH10",
+      "video": "030",
+      "variants": [
+        {
+          "id": "fs::ch10_030_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH10/030/00_thumb.png",
+          "image_path": "CH10/030/00_thumb.png",
+          "created_at": "2025-12-24T13:12:50.632089+00:00",
+          "updated_at": "2025-12-24T13:12:50.632106+00:00"
+        }
+      ],
+      "title": "【ニコラ・テスラ流】一つの問いで現実を動かす思考術",
+      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "selected_variant_id": "fs::ch10_030_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+    },
+    {
+      "channel": "CH24",
+      "video": "001",
+      "variants": [
+        {
+          "id": "fs::ch24_001_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/001/001_kobo_best.png",
+          "image_path": "CH24/001/001_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "最大の勝ち方は「静かに距離を置く」理由【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_001_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "002",
+      "variants": [
+        {
+          "id": "fs::ch24_002_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/002/002_kobo_best.png",
+          "image_path": "CH24/002/002_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "悪口を言う人は無視よりこれが効く【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_002_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "003",
+      "variants": [
+        {
+          "id": "fs::ch24_003_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/003/003_kobo_best.png",
+          "image_path": "CH24/003/003_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "上から目線には戦わず勝て（相手を崩す距離）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_003_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "004",
+      "variants": [
+        {
+          "id": "fs::ch24_004_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/004/004_kobo_best.png",
+          "image_path": "CH24/004/004_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "文句が多い人は心が「飢えてる」理由【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_004_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "005",
+      "variants": [
+        {
+          "id": "fs::ch24_005_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/005/005_kobo_best.png",
+          "image_path": "CH24/005/005_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "優しい人ほど我慢で壊れる（壊れる前に知ること）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_005_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "006",
+      "variants": [
+        {
+          "id": "fs::ch24_006_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/006/006_kobo_best.png",
+          "image_path": "CH24/006/006_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "報われない人はここを間違える「一点」【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_006_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "007",
+      "variants": [
+        {
+          "id": "fs::ch24_007_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/007/007_kobo_best.png",
+          "image_path": "CH24/007/007_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "他人の機嫌に命を渡さない方法【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_007_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "008",
+      "variants": [
+        {
+          "id": "fs::ch24_008_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/008/008_kobo_best.png",
+          "image_path": "CH24/008/008_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "怒りの正体は「期待のしがみつき」だった【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_008_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "009",
+      "variants": [
+        {
+          "id": "fs::ch24_009_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/009/009_kobo_best.png",
+          "image_path": "CH24/009/009_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "奪われたら勝てる生き方でいろ（奪わせない）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_009_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "010",
+      "variants": [
+        {
+          "id": "fs::ch24_010_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/010/010_kobo_best.png",
+          "image_path": "CH24/010/010_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "決断できないのは「鎖」につながれているから【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_010_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "011",
+      "variants": [
+        {
+          "id": "fs::ch24_011_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/011/011_kobo_best.png",
+          "image_path": "CH24/011/011_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "縁が切れるのは運が開く前兆（怖がらなくていい）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_011_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "012",
+      "variants": [
+        {
+          "id": "fs::ch24_012_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/012/012_kobo_best.png",
+          "image_path": "CH24/012/012_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "握りしめている「幻」の正体（手放しの核心）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_012_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "013",
+      "variants": [
+        {
+          "id": "fs::ch24_013_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/013/013_kobo_best.png",
+          "image_path": "CH24/013/013_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "友達が去ったら成功の合図（次の段階へ）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_013_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "014",
+      "variants": [
+        {
+          "id": "fs::ch24_014_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/014/014_kobo_best.png",
+          "image_path": "CH24/014/014_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "都合のいい人を急に辞めてはいけない（順序がある）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_014_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "015",
+      "variants": [
+        {
+          "id": "fs::ch24_015_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/015/015_kobo_best.png",
+          "image_path": "CH24/015/015_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "サビついた心に必要なもの【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_015_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "016",
+      "variants": [
+        {
+          "id": "fs::ch24_016_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/016/016_kobo_best.png",
+          "image_path": "CH24/016/016_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "しがみついてはいけない人間関係【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_016_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "017",
+      "variants": [
+        {
+          "id": "fs::ch24_017_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/017/017_kobo_best.png",
+          "image_path": "CH24/017/017_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "線引きできない人は話を聞かれない（軽く見られる）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_017_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "018",
+      "variants": [
+        {
+          "id": "fs::ch24_018_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/018/018_kobo_best.png",
+          "image_path": "CH24/018/018_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "我慢しない人が最後は勝つ（強さの正体）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_018_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "019",
+      "variants": [
+        {
+          "id": "fs::ch24_019_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/019/019_kobo_best.png",
+          "image_path": "CH24/019/019_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "人生で試されるのは「あの3文字」【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_019_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "020",
+      "variants": [
+        {
+          "id": "fs::ch24_020_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/020/020_kobo_best.png",
+          "image_path": "CH24/020/020_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "後ろめたさを捨てていい（心が軽くなる）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_020_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "021",
+      "variants": [
+        {
+          "id": "fs::ch24_021_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/021/021_kobo_best.png",
+          "image_path": "CH24/021/021_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "最大の復讐は「無視」すること（争わない勝ち方）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_021_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "022",
+      "variants": [
+        {
+          "id": "fs::ch24_022_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/022/022_kobo_best.png",
+          "image_path": "CH24/022/022_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "言い返すな。黙って整えろ【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_022_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "023",
+      "variants": [
+        {
+          "id": "fs::ch24_023_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/023/023_kobo_best.png",
+          "image_path": "CH24/023/023_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "嫉妬する人は必ず孤独になる【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_023_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "024",
+      "variants": [
+        {
+          "id": "fs::ch24_024_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/024/024_kobo_best.png",
+          "image_path": "CH24/024/024_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "家族に雑にされる理由はこれ【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_024_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "025",
+      "variants": [
+        {
+          "id": "fs::ch24_025_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/025/025_kobo_best.png",
+          "image_path": "CH24/025/025_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "すぐ謝る人が損をする（自分を安売りする癖）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_025_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "026",
+      "variants": [
+        {
+          "id": "fs::ch24_026_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/026/026_kobo_best.png",
+          "image_path": "CH24/026/026_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "眠れない夜は心を緩めろ（不安を戻す方法）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_026_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "027",
+      "variants": [
+        {
+          "id": "fs::ch24_027_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/027/027_kobo_best.png",
+          "image_path": "CH24/027/027_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_027_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "028",
+      "variants": [
+        {
+          "id": "fs::ch24_028_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/028/028_kobo_best.png",
+          "image_path": "CH24/028/028_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "50代で差がつく「貧乏の口ぐせ」【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_028_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "029",
+      "variants": [
+        {
+          "id": "fs::ch24_029_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/029/029_kobo_best.png",
+          "image_path": "CH24/029/029_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "その口ぐせ、金が逃げる【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_029_kobo_best"
+    },
+    {
+      "channel": "CH24",
+      "video": "030",
+      "variants": [
+        {
+          "id": "fs::ch24_030_kobo_best",
+          "label": "kobo_best",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH24/030/030_kobo_best.png",
+          "image_path": "CH24/030/030_kobo_best.png",
+          "created_at": "2025-12-25T12:26:38.543658+00:00",
+          "updated_at": "2025-12-25T12:26:38.543658+00:00"
+        }
+      ],
+      "title": "期待するほど心が苦しい【弘法大師の教え】",
+      "updated_at": "2025-12-25T12:26:38.543658+00:00",
+      "selected_variant_id": "fs::ch24_030_kobo_best"
     }
   ]
 }

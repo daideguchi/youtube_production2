@@ -7,7 +7,7 @@ This complements LLM Judge/Fix by catching obvious mechanical issues:
 - Excessive "まとめ重複" / repetitive closing phrases (e.g. 「最後に」連打)
 - Near-duplicate adjacent paragraphs (simple similarity heuristic)
 
-Outputs a report under logs/regression/a_text_lint/.
+Outputs a report under workspaces/logs/regression/a_text_lint/.
 
 Usage:
   python scripts/ops/a_text_lint.py --channel CH07 --video 009

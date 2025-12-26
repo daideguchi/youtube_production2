@@ -22,10 +22,10 @@
 - **画像関連**: Router 側で `image_gen` tier を Gemini 固定で定義しているが、テキスト prompt 抽出のみで capability 定義なし。
 
 ### 2.2 呼び出しコード
-- `factory_common/llm_router.py`: シングルトン Router。`configs/llm_router.yaml` を読み、tier→model 解決後に Azure/OpenRouter/Gemini（image 限定）を叩く。Azure/OR は `chat.completions.create` を直接呼び、reasoning モデル向けには温度系パラメータを除外する簡易ロジックのみ。Gemini text は未実装。image は Gemini のみで prompt を messages から抽出し、そのまま `generate_content` を呼ぶ暫定実装。【F:factory_common/llm_router.py†L1-L191】【F:factory_common/llm_router.py†L240-L309】
-- `audio_tts_v2/tts/llm_adapter.py`: TTS 注釈・読み分けで Router を呼ぶ。`task="tts_annotate"/"tts_reading"` などを指定し、JSON 応答を期待。Router 失敗時は手作りデフォルトにフォールバック。【F:audio_tts_v2/tts/llm_adapter.py†L75-L154】【F:audio_tts_v2/tts/llm_adapter.py†L185-L245】
-- `remotion/scripts/gen_belt_from_srt.js`: ベルト文言生成で環境変数または JSON に埋め込んだモデル（デフォルト `gpt-5-mini`）を使用。llm_router ではなく直接設定を参照。【F:remotion/scripts/gen_belt_from_srt.js†L98-L120】
-- `ui/backend` まわり: `core/llm.py` はテスト用スタブのみで実運用呼び出しは未実装。【F:ui/backend/core/llm.py†L1-L30】
+- `packages/factory_common/llm_router.py`: シングルトン Router。`configs/llm_router.yaml` を読み、tier→model 解決後に Azure/OpenRouter/Gemini（image 限定）を叩く。Azure/OR は `chat.completions.create` を直接呼び、reasoning モデル向けには温度系パラメータを除外する簡易ロジックのみ。Gemini text は未実装。image は Gemini のみで prompt を messages から抽出し、そのまま `generate_content` を呼ぶ暫定実装。【F:packages/factory_common/llm_router.py†L1-L191】【F:packages/factory_common/llm_router.py†L240-L309】
+- `packages/audio_tts/tts/llm_adapter.py`: TTS 注釈・読み分けで Router を呼ぶ。`task="tts_annotate"/"tts_reading"` などを指定し、JSON 応答を期待。Router 失敗時は手作りデフォルトにフォールバック。【F:packages/audio_tts/tts/llm_adapter.py†L75-L154】【F:packages/audio_tts/tts/llm_adapter.py†L185-L245】
+- `apps/remotion/scripts/gen_belt_from_srt.js`: ベルト文言生成で環境変数または JSON に埋め込んだモデル（デフォルト `gpt-5-mini`）を使用。llm_router ではなく直接設定を参照。【F:apps/remotion/scripts/gen_belt_from_srt.js†L98-L120】
+- `apps/ui-backend/backend` まわり: `core/llm.py` はテスト用スタブのみで実運用呼び出しは未実装。【F:apps/ui-backend/backend/core/llm.py†L1-L30】
 
 ### 2.3 処理フロー例（詳細）
 #### 台本生成系（script_*）
@@ -36,8 +36,8 @@
 5. thinking_level / reasoning_effort は「タスクに設定されていれば送る」だけで、モデル側 capability に基づく抑制はなし。
 
 #### TTS 用注釈
-1. `audio_tts_v2/tts/llm_adapter.py` の `call_llm()` が `get_router()` を呼び出す。
-2. task=`tts_annotate`（読み分け指示生成） or `tts_reading`（強弱/間の挿入）を指定し、messages を投げる。【F:audio_tts_v2/tts/llm_adapter.py†L185-L245】
+1. `packages/audio_tts/tts/llm_adapter.py` の `call_llm()` が `get_router()` を呼び出す。
+2. task=`tts_annotate`（読み分け指示生成） or `tts_reading`（強弱/間の挿入）を指定し、messages を投げる。【F:audio_tts/tts/llm_adapter.py†L185-L245】
 3. `llm_router` は tier `standard`→model `azure/gpt-5-mini` を返す。
 4. `response_format=json` を期待しているが、Router 側は validation せずにそのまま渡す。Azure 側で 400/422 になると例外となり、`call_llm()` でハードフォールバック。
 5. 生成結果 JSON を Python dict として受け取り、TTS チャンクへ埋め込む。usage は無視。
@@ -49,7 +49,7 @@
 4. 戻り値は base64 → bytes に変換し、ファイル保存。usage/metadata は欠落。
 
 #### JavaScript パス（ベルト生成）
-1. `remotion/scripts/gen_belt_from_srt.js` で `modelConfig` を環境変数または埋め込み JSON から取得。【F:remotion/scripts/gen_belt_from_srt.js†L98-L120】
+1. `apps/remotion/scripts/gen_belt_from_srt.js` で `modelConfig` を環境変数または埋め込み JSON から取得。【F:apps/remotion/scripts/gen_belt_from_srt.js†L98-L120】
 2. OpenAI 互換 API を直接叩き、結果テキストを字幕用のベルト文言として保存。
 3. Router/SSOT 非依存のため、モデル切替時は JS 側の設定を別途変更する必要がある。
 
@@ -191,17 +191,17 @@ class LLMClient:
 
 2) **Router リプレース**
    - 新 `LLMClient` / `ImageClient` を `factory_common` に追加し、capabilities ベースの normalize を実装。
-   - まず `audio_tts_v2/tts/llm_adapter.py` を新クライアント経由に切替え、JSON/timeout/usage を検証。
+   - まず `packages/audio_tts/tts/llm_adapter.py` を新クライアント経由に切替え、JSON/timeout/usage を検証。
 
 3) **台本パイプライン移行**
    - script 系バッチ（Python/JS）の呼び出しを順次 LLMClient に統一。タスク名のみを渡す形へ修正。
-   - `remotion/scripts/gen_belt_from_srt.js` など JS 側は HTTP 経由の共通 API か Python ラッパを用意し、モデル名直書きを排除。
+   - `apps/remotion/scripts/gen_belt_from_srt.js` など JS 側は HTTP 経由の共通 API か Python ラッパを用意し、モデル名直書きを排除。
 
 4) **画像パイプライン整備**
    - `image_generation` 系を `ImageClient` に一本化し、`IMAGE_MODELS.yml`（別 PLAN 参照）で tier 管理。
 
 5) **旧コード削除**
-   - `llm_registry.json` 参照パスと旧 Router 呼び出しを段階的に除去し、最終的に `factory_common/llm_router.py` を新実装に置換。
+   - `llm_registry.json` 参照パスと旧 Router 呼び出しを段階的に除去し、最終的に `packages/factory_common/llm_router.py` を新実装に置換。
 
 ### 5.1 マイグレーション詳細（ステップ別チェックリスト）
 - **Step 1: SSOT 集約**
@@ -211,7 +211,7 @@ class LLMClient:
   - ロールバック: 旧ファイルを残し、`LLMClient` に `LEGACY_LLM_CONFIG=true` フラグで旧読込に戻す。
 
 - **Step 2: LLMClient 実装と TTS 切替**
-  - 作業: `factory_common/llm_client.py` を新設、Azure/OpenRouter/Gemini adapter を分離。`audio_tts_v2/tts/llm_adapter.py` の呼び出しを `LLMClient/LLMRouter` に変更（旧 `llm_client.py` は廃止済み）。
+  - 作業: `packages/factory_common/llm_client.py` を新設、Azure/OpenRouter/Gemini adapter を分離。`packages/audio_tts/tts/llm_adapter.py` の呼び出しを `LLMClient/LLMRouter` に変更（旧 `llm_client.py` は廃止済み）。
   - 検証: TTS 系ユニットテスト（JSON 返却、max_tokens、タイムアウト）を追加し、mock HTTP で 400/429/5xx を再現。
   - ロールバック: `llm_adapter.py` に旧 `get_router()` 呼び出しを残し、フラグで切替。
 
@@ -230,7 +230,7 @@ class LLMClient:
   - 検証: 台本/TTS/画像ごとの月次コスト試算が出せること、失敗率が可視化されていること。
   - ロールバック: メトリクス送信が問題を起こした場合は feature flag で無効化。
 - **実装メモ (進捗)**
-  - ✅ LLMClient 実装済み（usage ログを `logs/llm_usage.jsonl` に JSONL 追記。`LLM_USAGE_LOG_PATH` でパス変更可、`LLM_USAGE_LOG_DISABLE=1` で無効化）。
+  - ✅ LLMClient 実装済み（usage ログを `workspaces/logs/llm_usage.jsonl` に JSONL 追記。`LLM_USAGE_LOG_PATH` でパス変更可、`LLM_USAGE_LOG_DISABLE=1` で無効化）。
   - ✅ ImageClient フェイルオーバー実装。commentary 画像経路の legacy router を削除し、ImageClient のみを再試行。
   - ✅ 画像生成ルートは単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）。検証時は `--nanobanana none` を利用。
   - ✅ Gemini image で aspect_ratio を送らない（capabilities supports_aspect_ratio=false）ことで Unknown field エラーを解消。

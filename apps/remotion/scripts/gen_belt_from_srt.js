@@ -10,21 +10,23 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
-(() => {
-  const findRepoRoot = (startDir) => {
-    let dir = startDir;
-    for (let i = 0; i < 12; i++) {
-      if (fs.existsSync(path.join(dir, "pyproject.toml"))) return dir;
-      const parent = path.dirname(dir);
-      if (parent === dir) break;
-      dir = parent;
-    }
-    return null;
-  };
+const findRepoRoot = (startDir) => {
+  let dir = startDir;
+  for (let i = 0; i < 12; i++) {
+    if (fs.existsSync(path.join(dir, "pyproject.toml"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+};
 
+const REPO_ROOT = findRepoRoot(process.cwd()) || process.cwd();
+const REMOTION_ROOT = path.join(REPO_ROOT, "apps", "remotion");
+
+(() => {
   const candidates = [];
-  const repoRoot = findRepoRoot(process.cwd());
-  if (repoRoot) candidates.push(path.join(repoRoot, ".env"));
+  if (REPO_ROOT) candidates.push(path.join(REPO_ROOT, ".env"));
   candidates.push(path.join(process.cwd(), ".env"));
 
   const home = process.env.HOME || process.env.USERPROFILE;
@@ -324,7 +326,7 @@ function addOrdinalPrefix(belts) {
 function loadPromptTemplate(total, maxLabels, summary) {
   const tplPath =
     process.env.BELT_PROMPT_PATH ||
-    path.join(process.cwd(), "remotion", "scripts", "prompts", "belt_prompt.txt");
+    path.join(REMOTION_ROOT, "scripts", "prompts", "belt_prompt.txt");
   let tpl = null;
   try {
     if (fs.existsSync(tplPath)) {
@@ -383,7 +385,7 @@ async function main() {
     try {
       parsed = JSON.parse(raw);
     } catch (e) {
-      const dump = path.join(process.cwd(), "remotion", "out", "belt_llm_raw.json");
+      const dump = path.join(REMOTION_ROOT, "out", "belt_llm_raw.json");
       try {
         fs.writeFileSync(dump, raw, "utf-8");
       } catch {}

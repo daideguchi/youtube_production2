@@ -16,9 +16,10 @@ import {
   createPlanningRow,
   createThumbnailVariant,
   describeThumbnailLibraryAsset,
-  fetchProgressCsv,
+  fetchPlanningChannelCsv,
   fetchThumbnailImageModels,
   fetchThumbnailLibrary,
+  fetchThumbnailVideoLayerSpecs,
   fetchThumbnailOverview,
   fetchThumbnailTemplates,
   generateThumbnailVariants,
@@ -204,7 +205,7 @@ const VARIANT_STATUS_LABELS: Record<ThumbnailVariantStatus, string> = VARIANT_ST
 );
 
 const SUPPORTED_THUMBNAIL_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
-const THUMBNAIL_ASSET_BASE_PATH = "thumbnails/assets";
+const THUMBNAIL_ASSET_BASE_PATH = "workspaces/thumbnails/assets";
 
 const normalizeVideoInput = (value?: string | null): string => {
   if (!value) {
@@ -344,6 +345,8 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [updatingProjectId, setUpdatingProjectId] = useState<string | null>(null);
+  const [galleryProjectSaving, setGalleryProjectSaving] = useState<Record<string, boolean>>({});
+  const [galleryNotesDraft, setGalleryNotesDraft] = useState<Record<string, string>>({});
   const [variantForm, setVariantForm] = useState<VariantFormState | null>(null);
   const [projectForm, setProjectForm] = useState<ProjectFormState | null>(null);
   const [planningDialog, setPlanningDialog] = useState<PlanningDialogState | null>(null);
@@ -403,6 +406,11 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const activeChannelName = activeChannel?.channel_title ?? activeChannel?.channel ?? null;
   const channelVideos = activeChannel?.videos ?? [];
 
+  useEffect(() => {
+    setGalleryProjectSaving({});
+    setGalleryNotesDraft({});
+  }, [activeChannel?.channel]);
+
   const loadPlanning = useCallback(
     async (channelCode: string, options?: { silent?: boolean }) => {
       const silent = options?.silent ?? false;
@@ -411,7 +419,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         setPlanningError(null);
       }
       try {
-        const result = await fetchProgressCsv(channelCode);
+        const result = await fetchPlanningChannelCsv(channelCode);
         const map: Record<string, Record<string, string>> = {};
         (result.rows ?? []).forEach((row) => {
           const rawVideo = row["動画番号"] ?? row["VideoNumber"] ?? "";
@@ -467,6 +475,30 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     });
   }, []);
 
+  const patchProjectInOverview = useCallback(
+    (channelCode: string, video: string, patch: Partial<ThumbnailProject>) => {
+      setOverview((current) => {
+        if (!current) {
+          return current;
+        }
+        const nextChannels = current.channels.map((channel) => {
+          if (channel.channel !== channelCode) {
+            return channel;
+          }
+          const nextProjects = channel.projects.map((project) => {
+            if (project.video !== video) {
+              return project;
+            }
+            return { ...project, ...patch };
+          });
+          return { ...channel, projects: nextProjects };
+        });
+        return { ...current, channels: nextChannels };
+      });
+    },
+    []
+  );
+
   const handleCopyAssetPath = useCallback((path: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(path).catch(() => {
@@ -517,6 +549,80 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       return next;
     });
   }, []);
+
+  const handleGalleryProjectStatusChange = useCallback(
+    async (project: ThumbnailProject, status: ThumbnailProjectStatus) => {
+      const projectKey = getProjectKey(project);
+      setGalleryProjectSaving((current) => ({ ...current, [projectKey]: true }));
+      setProjectFeedback(projectKey, null);
+      try {
+        await updateThumbnailProject(project.channel, project.video, { status });
+        patchProjectInOverview(project.channel, project.video, { status });
+        setProjectFeedback(projectKey, {
+          type: "success",
+          message: "保存しました。",
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(projectKey, {
+          type: "error",
+          message,
+          timestamp: Date.now(),
+        });
+      } finally {
+        setGalleryProjectSaving((current) => ({ ...current, [projectKey]: false }));
+      }
+    },
+    [patchProjectInOverview, setProjectFeedback]
+  );
+
+  const handleGalleryNotesChange = useCallback((projectKey: string, value: string) => {
+    setGalleryNotesDraft((current) => ({
+      ...current,
+      [projectKey]: value,
+    }));
+  }, []);
+
+  const handleGalleryNotesSave = useCallback(
+    async (project: ThumbnailProject) => {
+      const projectKey = getProjectKey(project);
+      const draft = galleryNotesDraft[projectKey];
+      const currentNotes = project.notes ?? "";
+      if (draft === undefined || draft === currentNotes) {
+        return;
+      }
+      setGalleryProjectSaving((current) => ({ ...current, [projectKey]: true }));
+      setProjectFeedback(projectKey, null);
+      const trimmed = draft.trim();
+      try {
+        await updateThumbnailProject(project.channel, project.video, {
+          notes: trimmed ? trimmed : null,
+        });
+        patchProjectInOverview(project.channel, project.video, { notes: trimmed ? trimmed : null });
+        setGalleryNotesDraft((current) => {
+          const next = { ...current };
+          delete next[projectKey];
+          return next;
+        });
+        setProjectFeedback(projectKey, {
+          type: "success",
+          message: "コメントを保存しました。",
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(projectKey, {
+          type: "error",
+          message,
+          timestamp: Date.now(),
+        });
+      } finally {
+        setGalleryProjectSaving((current) => ({ ...current, [projectKey]: false }));
+      }
+    },
+    [galleryNotesDraft, patchProjectInOverview, setProjectFeedback]
+  );
 
   useEffect(() => {
     const timers = feedbackTimers.current;
@@ -863,8 +969,22 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 : selectedVariant.image_path
                   ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
                   : null;
+          const statusLabel = PROJECT_STATUS_LABELS[project.status] ?? project.status;
+          const feedback = cardFeedback[projectKey];
+          const busy = galleryProjectSaving[projectKey] ?? false;
+          const notesValue = galleryNotesDraft[projectKey] ?? project.notes ?? "";
+          const notesDirty = notesValue !== (project.notes ?? "");
           return (
-            <article key={projectKey} className="thumbnail-gallery-card">
+            <article
+              key={projectKey}
+              className={[
+                "thumbnail-gallery-card",
+                `thumbnail-gallery-card--${project.status}`,
+                busy ? "is-updating" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <div className="thumbnail-gallery-card__media">
                 {imageUrl ? (
                   <a href={imageUrl} target="_blank" rel="noreferrer" title="別タブで表示">
@@ -880,6 +1000,68 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                   {project.title ?? "（タイトル未設定）"}
                 </div>
                 <div className="thumbnail-gallery-card__variant">{selectedVariant.label ?? selectedVariant.id}</div>
+                <div className="thumbnail-gallery-card__review-row">
+                  <span className={`thumbnail-card__status-badge thumbnail-card__status-badge--${project.status}`}>
+                    {statusLabel}
+                  </span>
+                  <div className="thumbnail-gallery-card__review-actions" role="group" aria-label="レビュー判定">
+                    <button
+                      type="button"
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "approved" ? "is-active" : ""}`}
+                      onClick={() => handleGalleryProjectStatusChange(project, "approved")}
+                      disabled={busy}
+                    >
+                      OK
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "in_progress" ? "is-active" : ""}`}
+                      onClick={() => handleGalleryProjectStatusChange(project, "in_progress")}
+                      disabled={busy}
+                    >
+                      やり直し
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "review" ? "is-active" : ""}`}
+                      onClick={() => handleGalleryProjectStatusChange(project, "review")}
+                      disabled={busy}
+                    >
+                      保留
+                    </button>
+                  </div>
+                </div>
+                <div className="thumbnail-gallery-card__notes">
+                  <textarea
+                    value={notesValue}
+                    placeholder="コメント（任意）"
+                    rows={2}
+                    onChange={(event) => handleGalleryNotesChange(projectKey, event.target.value)}
+                    onKeyDown={(event) => {
+                      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                        event.preventDefault();
+                        handleGalleryNotesSave(project).catch(() => {
+                          // error surfaced in feedback
+                        });
+                      }
+                    }}
+                    disabled={busy}
+                  />
+                  <div className="thumbnail-gallery-card__notes-actions">
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => {
+                        handleGalleryNotesSave(project).catch(() => {
+                          // error surfaced in feedback
+                        });
+                      }}
+                      disabled={busy || !notesDirty}
+                    >
+                      {notesDirty ? "コメント保存" : "保存済み"}
+                    </button>
+                  </div>
+                </div>
                 {imageUrl ? (
                   <div className="thumbnail-gallery-card__buttons">
                     <button type="button" className="btn" onClick={() => handleOpenGalleryCopyEdit(project)}>
@@ -891,6 +1073,13 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                     <a className="btn" href={imageUrl} download={`${project.channel}-${project.video}.png`}>
                       DL
                     </a>
+                  </div>
+                ) : null}
+                {feedback ? (
+                  <div
+                    className={`thumbnail-card__feedback thumbnail-card__feedback--${feedback.type === "success" ? "success" : "error"}`}
+                  >
+                    {feedback.message}
                   </div>
                 ) : null}
               </div>
@@ -1277,6 +1466,53 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     },
     [channelTemplates, imageModels, planningRowsByVideo]
   );
+
+  const generateDialogChannel = generateDialog?.channel;
+  const generateDialogVideo = generateDialog?.video;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!generateDialogChannel || !generateDialogVideo) {
+      return () => {
+        cancelled = true;
+      };
+    }
+    fetchThumbnailVideoLayerSpecs(generateDialogChannel, generateDialogVideo)
+      .then((spec) => {
+        if (cancelled || !spec?.planning_suggestions) {
+          return;
+        }
+        const suggestions = spec.planning_suggestions;
+        setGenerateDialog((current) => {
+          if (!current) {
+            return current;
+          }
+          if (current.channel !== generateDialogChannel || current.video !== generateDialogVideo) {
+            return current;
+          }
+          const next = { ...current };
+          if (!next.thumbnailPrompt.trim() && suggestions.thumbnail_prompt?.trim()) {
+            next.thumbnailPrompt = suggestions.thumbnail_prompt;
+          }
+          if (!next.copyUpper.trim() && suggestions.thumbnail_upper?.trim()) {
+            next.copyUpper = suggestions.thumbnail_upper;
+          }
+          if (!next.copyTitle.trim() && suggestions.thumbnail_title?.trim()) {
+            next.copyTitle = suggestions.thumbnail_title;
+          }
+          if (!next.copyLower.trim() && suggestions.thumbnail_lower?.trim()) {
+            next.copyLower = suggestions.thumbnail_lower;
+          }
+          return next;
+        });
+      })
+      .catch(() => {
+        // best-effort: layer_specs is optional
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [generateDialogChannel, generateDialogVideo]);
 
   const handleComposeVariant = useCallback(
     async (project: ThumbnailProject) => {

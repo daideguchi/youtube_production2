@@ -69,7 +69,7 @@ export function RemotionPreviewPage() {
       <div className="remotion-preview__header">
         <div>
           <h1>Remotion プレビュー</h1>
-          <p>CapCut とは独立。`remotion/input/&lt;id&gt;` の素材をそのまま再生して帯・字幕を確認します。</p>
+          <p>CapCut とは独立。正本は `workspaces/video/input/&lt;runId&gt;`（UIは `/remotion/input` 経由で参照）です。</p>
         </div>
         <div className="remotion-preview__controls">
           <label>

@@ -339,7 +339,7 @@ def cmd_render(args: argparse.Namespace) -> int:
     out_mp4.parent.mkdir(parents=True, exist_ok=True)
 
     repo = _repo_root()
-    node_script = (repo / "remotion" / "scripts" / "render.js").resolve()
+    node_script = (repo / "apps" / "remotion" / "scripts" / "render.js").resolve()
     if not node_script.exists():
         raise FileNotFoundError(f"remotion render script not found: {node_script}")
 

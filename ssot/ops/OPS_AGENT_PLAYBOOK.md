@@ -34,12 +34,12 @@ python scripts/agent_org.py agents start --name Mike --role worker
 1) 触るファイル/ディレクトリに lock がないか確認:
 ```bash
 python scripts/agent_org.py locks --path ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md
-python scripts/agent_org.py locks --path commentary_02_srt2images_timeline/tools/auto_capcut_run.py
+python scripts/agent_org.py locks --path packages/video_pipeline/tools/auto_capcut_run.py
 ```
 
 2) 触る範囲に lock を置く（zshのglob展開事故防止のため **必ずクォート**）:
 ```bash
-python scripts/agent_org.py lock 'commentary_02_srt2images_timeline/tools/**' --mode no_touch --ttl-min 60 --note 'working'
+python scripts/agent_org.py lock 'packages/video_pipeline/tools/**' --mode no_touch --ttl-min 60 --note 'working'
 ```
 
 3) lock の履歴（JSON）が増えすぎたら（任意: 整理）:
@@ -47,7 +47,7 @@ python scripts/agent_org.py lock 'commentary_02_srt2images_timeline/tools/**' --
 python scripts/agent_org.py locks-prune --older-than-days 30 --dry-run
 python scripts/agent_org.py locks-prune --older-than-days 30
 ```
-期限切れ lock を `logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する（active/no-expiry は触らない）。
+期限切れ lock を `workspaces/logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する（active/no-expiry は触らない）。
 
 4) “解除し忘れ” がないか点検（推奨）:
 ```bash
@@ -70,7 +70,7 @@ python scripts/agent_org.py board template   # 共通記法（BEP-1）テンプ�
 python scripts/agent_org.py board set --doing "cleanup: logs整理" --next "ssot更新" --tags cleanup,ssot
 ```
 
-ファイル実体: `logs/agent_tasks/coordination/board.json`（= `logs_root()/agent_tasks/coordination/board.json`）
+ファイル実体: `workspaces/logs/agent_tasks/coordination/board.json`（= `logs_root()/agent_tasks/coordination/board.json`）
 
 #### BEP-1（共通記法ルール）
 **目的**: “何が起きた/何が必要/次に何をする” を誰でも即時に判断できるようにする（低知能エージェントでも事故らない）。
@@ -124,11 +124,11 @@ EOF
 ## 3. “壊さない”ための不変条件（強制）
 
 ### 3.1 SoT（正本）の定義（固定）
-- Planning SoT: `workspaces/planning/channels/{CH}.csv`（互換: `progress/channels/{CH}.csv`）
-- Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`（互換: `script_pipeline/data/...`）
-- Audio SoT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`（互換: `audio_tts_v2/artifacts/final/...`）
-- Video run SoT: `workspaces/video/runs/{run_id}/`（互換: `commentary_02_srt2images_timeline/output/...`）
-- Thumbnail SoT: `workspaces/thumbnails/projects.json` と `workspaces/thumbnails/assets/{CH}/{NNN}/`（互換: `thumbnails/*` は symlink）
+- Planning SoT: `workspaces/planning/channels/{CH}.csv`
+- Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled*.md`
+- Audio SoT: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav|.srt`
+- Video run SoT: `workspaces/video/runs/{run_id}/`
+- Thumbnail SoT: `workspaces/thumbnails/projects.json` と `workspaces/thumbnails/assets/{CH}/{NNN}/`
 
 ### 3.2 パス直書き禁止（移設耐性）
 - `Path(__file__).resolve().parents[...]` を新規に増やさない。
@@ -145,9 +145,9 @@ EOF
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本: `PYTHONPATH=".:packages" python3 -m script_pipeline.cli ...`
-- 音声: `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts ...`
-- 動画/CapCut: `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run ...`
+- 台本: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli ...`
+- 音声: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
+- 動画/CapCut: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash

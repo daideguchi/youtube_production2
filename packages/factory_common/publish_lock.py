@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Tuple
 
-from factory_common.paths import channels_csv_path, repo_root, status_path
+from factory_common.paths import channels_csv_path, status_path
 
 try:  # optional dependency (used elsewhere in repo)
     import portalocker  # type: ignore
@@ -46,10 +46,6 @@ def _is_published_progress(value: Any) -> bool:
     if not text:
         return False
     return PUBLISHED_PROGRESS_VALUE in text or "公開済み" in text or text.lower() in {"published", "posted"}
-
-
-def _legacy_progress_csv_path(channel: str) -> Path:
-    return repo_root() / "progress" / "channels" / f"{str(channel).upper()}.csv"
 
 
 def _read_csv_rows(path: Path) -> Tuple[list[str], list[dict[str, str]]]:
@@ -102,16 +98,15 @@ def is_episode_published_locked(channel: str, video: str) -> bool:
     if not token:
         return False
 
-    for path in (channels_csv_path(ch), _legacy_progress_csv_path(ch)):
-        if not path.exists():
-            continue
+    planning_csv = channels_csv_path(ch)
+    if planning_csv.exists():
         try:
-            _, rows = _read_csv_rows(path)
+            _, rows = _read_csv_rows(planning_csv)
+            row = _find_row(rows, token)
+            if row and _is_published_progress(row.get("進捗")):
+                return True
         except Exception:
-            continue
-        row = _find_row(rows, token)
-        if row and _is_published_progress(row.get("進捗")):
-            return True
+            pass
 
     sp = status_path(ch, token)
     if sp.exists():
@@ -140,7 +135,6 @@ def mark_episode_published_locked(
     *,
     force_complete: bool = True,
     published_at: Optional[str] = None,
-    update_legacy_progress_csv: bool = True,
     update_status_json: bool = True,
 ) -> PublishLockResult:
     ch = str(channel).upper()
@@ -149,41 +143,35 @@ def mark_episode_published_locked(
         raise ValueError(f"invalid video: {video}")
     publish_date = (published_at or "").strip() or _utc_today_ymd()
 
-    paths: list[Path] = [channels_csv_path(ch)]
-    if update_legacy_progress_csv:
-        paths.append(_legacy_progress_csv_path(ch))
-
     updated_csv_paths: list[str] = []
-    for path in paths:
-        if not path.exists():
-            continue
+    path = channels_csv_path(ch)
+    if path.exists():
         fieldnames, rows = _read_csv_rows(path)
         row = _find_row(rows, token)
-        if not row:
-            continue
-        if "進捗" not in fieldnames:
-            fieldnames.append("進捗")
-        row["進捗"] = PUBLISHED_PROGRESS_VALUE
+        if row:
+            if "進捗" not in fieldnames:
+                fieldnames.append("進捗")
+            row["進捗"] = PUBLISHED_PROGRESS_VALUE
 
-        if force_complete:
-            force_map = {
-                "音声整形": "済",
-                "音声検証": f"完了 (forced) {publish_date}",
-                "音声生成": f"完了 (forced) {publish_date}",
-                "音声品質": f"完了 (forced) {publish_date}",
-                "納品": f"投稿済み {publish_date}",
-            }
-            for col, val in force_map.items():
-                if col not in fieldnames:
-                    continue
-                if not (row.get(col) or "").strip():
-                    row[col] = val
+            if force_complete:
+                force_map = {
+                    "音声整形": "済",
+                    "音声検証": f"完了 (forced) {publish_date}",
+                    "音声生成": f"完了 (forced) {publish_date}",
+                    "音声品質": f"完了 (forced) {publish_date}",
+                    "納品": f"投稿済み {publish_date}",
+                }
+                for col, val in force_map.items():
+                    if col not in fieldnames:
+                        continue
+                    if not (row.get(col) or "").strip():
+                        row[col] = val
 
-        if "更新日時" in fieldnames:
-            row["更新日時"] = _utc_now_iso()
+            if "更新日時" in fieldnames:
+                row["更新日時"] = _utc_now_iso()
 
-        _write_csv_rows(path, fieldnames, rows)
-        updated_csv_paths.append(str(path))
+            _write_csv_rows(path, fieldnames, rows)
+            updated_csv_paths.append(str(path))
 
     status_updated = False
     if update_status_json:
@@ -231,14 +219,13 @@ def unmark_episode_published_locked(
     video: str,
     *,
     restore_progress: Optional[str] = None,
-    update_legacy_progress_csv: bool = True,
     update_status_json: bool = True,
 ) -> PublishUnlockResult:
     """
     Clear the "published_lock" guard when it was set by mistake.
 
     Policy:
-      - If planning/legacy CSV "進捗" is marked as 投稿済み/公開済み, clear it (or set restore_progress).
+      - If planning CSV "進捗" is marked as 投稿済み/公開済み, clear it (or set restore_progress).
       - Always clear status.json metadata.published_lock when update_status_json=True.
       - This is an operator override; it does NOT attempt to reconstruct prior progress fields.
     """
@@ -247,25 +234,19 @@ def unmark_episode_published_locked(
     if not token:
         raise ValueError(f"invalid video: {video}")
 
-    paths: list[Path] = [channels_csv_path(ch)]
-    if update_legacy_progress_csv:
-        paths.append(_legacy_progress_csv_path(ch))
-
     updated_csv_paths: list[str] = []
-    for path in paths:
-        if not path.exists():
-            continue
+    path = channels_csv_path(ch)
+    if path.exists():
         fieldnames, rows = _read_csv_rows(path)
         row = _find_row(rows, token)
-        if not row:
-            continue
-        progress = row.get("進捗")
-        if _is_published_progress(progress):
-            row["進捗"] = (restore_progress or "").strip()
-            if "更新日時" in fieldnames:
-                row["更新日時"] = _utc_now_iso()
-            _write_csv_rows(path, fieldnames, rows)
-            updated_csv_paths.append(str(path))
+        if row:
+            progress = row.get("進捗")
+            if _is_published_progress(progress):
+                row["進捗"] = (restore_progress or "").strip()
+                if "更新日時" in fieldnames:
+                    row["更新日時"] = _utc_now_iso()
+                _write_csv_rows(path, fieldnames, rows)
+                updated_csv_paths.append(str(path))
 
     status_updated = False
     if update_status_json:

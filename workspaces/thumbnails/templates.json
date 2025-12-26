@@ -1,6 +1,66 @@
 {
   "version": 1,
+  "layer_specs": {
+    "defaults": {
+      "image_prompts_id": null,
+      "text_layout_id": null
+    },
+    "registry": {
+      "image_prompts_v3": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/image_prompts_v3.yaml",
+        "name": "image_prompts_v3"
+      },
+      "text_layout_v3": {
+        "kind": "text_layout",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/text_layout_v3.yaml",
+        "name": "text_layout_v3"
+      }
+    }
+  },
   "channels": {
+    "CH10": {
+      "default_template_id": "ch10_background_left_space_v3",
+      "layer_specs": {
+        "image_prompts_id": "image_prompts_v3",
+        "text_layout_id": "text_layout_v3"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.3,
+          "contrast": 1.1,
+          "color": 1.06,
+          "gamma": 0.88
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH10: 背景生成＋文字レイアウト（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": null,
+        "preview_title": null,
+        "preview_lower": null
+      },
+      "templates": [
+        {
+          "id": "ch10_background_left_space_v3",
+          "name": "CH10: 背景生成（左TSZ/NO TEXT）v3",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名",
+          "notes": "Layer Specsの image_prompts を planning CSV の thumbnail_prompt に同期して使う（背景のみ生成）。文字は別レイヤで合成する。",
+          "created_at": "2025-12-24T00:00:00Z",
+          "updated_at": "2025-12-24T00:00:00Z"
+        }
+      ]
+    },
     "CH07": {
       "default_template_id": "ch07_buddha_left_3line_v1",
       "channel_style": {
@@ -21,7 +81,7 @@
         {
           "id": "ch07_buddha_left_3line_v1",
           "name": "CH07: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH07の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -43,7 +103,7 @@
         {
           "id": "ch12_buddha_left_3line_v1",
           "name": "CH12: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH12の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -65,7 +125,7 @@
         {
           "id": "ch13_buddha_left_3line_v1",
           "name": "CH13: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH13の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -87,7 +147,7 @@
         {
           "id": "ch14_buddha_left_3line_v1",
           "name": "CH14: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH14の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -109,7 +169,7 @@
         {
           "id": "ch15_buddha_left_3line_v1",
           "name": "CH15: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH15の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -131,7 +191,7 @@
         {
           "id": "ch16_buddha_left_3line_v1",
           "name": "CH16: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "image_model_key": "openrouter_gemini_2_5_flash_image",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH16の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",

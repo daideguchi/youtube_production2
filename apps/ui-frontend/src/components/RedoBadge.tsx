@@ -8,7 +8,7 @@ type Props = {
 export const RedoBadge: FC<Props> = ({ note, label = "リテイク" }) => {
   return (
     <span
-      className="progress-page__badge progress-page__badge--redo"
+      className="planning-page__badge planning-page__badge--redo"
       style={{
         display: "inline-flex",
         alignItems: "center",

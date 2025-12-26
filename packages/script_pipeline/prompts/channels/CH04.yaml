@@ -1,7 +1,7 @@
 channel_prompt:
   channel_id: CH04
   name: 心理・好奇心 隠れ書庫アカシック
-  persona_path: progress/personas/CH04_PERSONA.md
+  persona_path: workspaces/planning/personas/CH04_PERSONA.md
   version: '2025-11-27'
   prompt_body: "raw_prompt\t動画スクリプト生成のための汎用詳細プロンプト\n\n#あなたはyoutube動画で価値ある台本を作るプロです。視聴者にとってわかりやすく役に立つ情報を上手に届けるのが得意です。\n\
     \n### 出力形式（改訂版）\n\n- 台本は段落単位で記述し、段落と段落の間には空行を1行挟むだけにしてください。1行あたりの文字数や2行制限など人工的な改行ルールは設けません。\n\

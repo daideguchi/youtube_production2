@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CapCut draft_content.json から帯・字幕などのレイアウト値を抽出し、remotion/preset_layouts.json に反映するための補助スクリプト。
+CapCut draft_content.json から帯・字幕などのレイアウト値を抽出し、apps/remotion/preset_layouts.json に反映するための補助スクリプト。
 - 現状はシンプルにトラック内のテキストセグメントを走査し、position/scale/font_sizeを拾ってラフに平均。
 - 実運用では、帯レイヤ（4本ラベル）や字幕レイヤなど、名前/内容でフィルタして精度を上げてください。
 """

@@ -25,6 +25,9 @@ def _discover_repo_root(start: Path) -> Path:
 PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+PACKAGES_ROOT = PROJECT_ROOT / "packages"
+if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(PACKAGES_ROOT))
 
 from factory_common.agent_mode import get_queue_dir
 
@@ -2705,7 +2708,7 @@ def cmd_orchestrator_request(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="AI Org coordination helpers (agents/orchestrator/locks/memos)")
-    p.add_argument("--queue-dir", default=None, help="override queue dir (default: env/ logs/agent_tasks)")
+    p.add_argument("--queue-dir", default=None, help="override queue dir (default: env/ workspaces/logs/agent_tasks)")
     p.add_argument("--agent-name", default=None, help="agent name (or set env LLM_AGENT_NAME)")
 
     sub = p.add_subparsers(dest="cmd", required=True)

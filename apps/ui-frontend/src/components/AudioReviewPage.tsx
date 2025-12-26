@@ -4,7 +4,7 @@ import {
   API_BASE_URL,
   fetchAudioReviewItems,
   fetchChannels,
-  runAudioTtsV2FromScript,
+  runAudioTtsFromScript,
   fetchAText,
   updateVideoRedo,
 } from "../api/client";
@@ -809,7 +809,7 @@ export function AudioReviewPage() {
                       setRunError(null);
                       setToast(`再生成中: ${item.channel}-${item.video}`);
                       try {
-                        const res = await runAudioTtsV2FromScript({
+                        const res = await runAudioTtsFromScript({
                           channel: item.channel,
                           video: item.video,
                         });

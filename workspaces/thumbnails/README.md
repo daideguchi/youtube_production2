@@ -60,9 +60,9 @@ FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エン
 - `PATCH /api/workspaces/thumbnails/{channel}/{video}` : 企画メタ（status/notes/tags/selected_variant 等）を更新。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants` : バリアント登録（URL/メタのみ）。
 - `POST /api/workspaces/thumbnails/{channel}/{video}/variants/generate` : テンプレ/プロンプトから画像生成→ `assets/{CHxx}/{video}/` に保存しバリアント化。
-- `POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload` : 画像アップロード→ `thumbnails/assets/{CHxx}/{video}/` に保存しバリアント化。
+- `POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload` : 画像アップロード→ `workspaces/thumbnails/assets/{CHxx}/{video}/` に保存しバリアント化。
 - `GET /thumbnails/assets/{channel}/{video}/{asset_path}` : `assets/` 配下の静的ファイル配信。
-- 補助: `GET /api/thumbnails/lookup`（thumbnails/ 配下からスコア検索）
+- 補助: `GET /api/thumbnails/lookup`（workspaces/thumbnails/ 配下からスコア検索）
 
 ## テンプレ（型）と企画CSVの連携
 
@@ -76,7 +76,7 @@ FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エン
 
 ## 量産（Canva）
 
-- UI の「量産（Canva）」タブは、企画CSV（progress）を読み込み、**3段コピーを一覧で編集**できます。
+- UI の「量産（Canva）」タブは、企画CSV（`workspaces/planning/channels/*.csv`）を読み込み、**3段コピーを一覧で編集**できます。
 - 「Canva用CSV」ボタンで、Canva の Bulk create に渡す CSV を生成します（1行=1サムネ）。
   - 推奨列: `page_name, channel, video, title, thumb_upper, thumb_title, thumb_lower`
 
@@ -106,5 +106,16 @@ FastAPI バックエンド（`apps/ui-backend/backend/main.py`）が以下エン
 2. 画像をローカルで管理する場合は `assets/{CHxx}/{video}/...` に直接配置するか、UI のドラッグ＆ドロップ／クリックでまとめて取り込むと自動で配置されます（初回アップロードは自動で採用中に設定されます）。
 3. UI 上で「採用」ボタンを押すと `selected_variant_id` が更新され、JSON に書き戻されます。
 4. `status` を `approved` or `published` にすると、UI 上で「公開OK」バッジが表示されます。
+
+## ローカル合成（Compiler）
+
+CTR改善のための「文字サイズ・配置・明るさ補正」は、AI生成ではなく **ローカル合成（Pillow）** で安定運用します。
+
+- SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
+- 入口CLI: `python scripts/thumbnails/build.py --help`
+  - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
+  - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
+  - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
+- 既定値（任意）: `workspaces/thumbnails/templates.json: channels[CHxx].compiler_defaults`
 
 今後、生成系ワークフローや評価指標を追加する際は本ディレクトリ内にサブディレクトリや補助ドキュメントを拡張してください。

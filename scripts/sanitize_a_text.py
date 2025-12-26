@@ -20,6 +20,9 @@ def _discover_repo_root(start: Path) -> Path:
 _REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_PACKAGES_ROOT = _REPO_ROOT / "packages"
+if _PACKAGES_ROOT.exists() and str(_PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PACKAGES_ROOT))
 
 from factory_common.paths import repo_root, script_data_root, video_root
 from factory_common.text_sanitizer import strip_meta_from_script

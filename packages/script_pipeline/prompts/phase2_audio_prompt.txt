@@ -4,7 +4,7 @@
 ■ 0) まず読む（SSOT）
 - `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`（確定フロー/SoT）
 - `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`（叩くべき入口）
-- `ssot/ops/OPS_AUDIO_TTS_V2.md`（TTS運用）
+- `ssot/ops/OPS_AUDIO_TTS.md`（TTS運用）
 - `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（生成物の保持/削除）
 
 ---

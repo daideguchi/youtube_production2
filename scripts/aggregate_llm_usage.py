@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Aggregate LLM router usage logs (logs/llm_usage.jsonl by default)."""
+"""Aggregate LLM router usage logs (workspaces/logs/llm_usage.jsonl by default)."""
 import argparse
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
+
+try:
+    from factory_common.paths import logs_root
+
+    DEFAULT_LOG_PATH = str(logs_root() / "llm_usage.jsonl")
+except Exception:
+    DEFAULT_LOG_PATH = "workspaces/logs/llm_usage.jsonl"
 
 
 def load_logs(path: Path):
@@ -21,7 +28,7 @@ def load_logs(path: Path):
 
 def main():
     ap = argparse.ArgumentParser(description="Aggregate llm_usage.jsonl")
-    ap.add_argument("--log", default="logs/llm_usage.jsonl", help="Path to llm_usage.jsonl")
+    ap.add_argument("--log", default=DEFAULT_LOG_PATH, help="Path to llm_usage.jsonl")
     ap.add_argument("--top", type=int, default=10, help="Top N models/tasks to show")
     args = ap.parse_args()
 

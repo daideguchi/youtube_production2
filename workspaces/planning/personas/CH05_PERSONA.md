@@ -1,9 +1,9 @@
 # CH05 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH05_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH05_planning_template.csv`
 - 最終更新: 2025-11-15（テンプレサンプル更新）
-- 運用: 1行目ヘッダーと2行目サンプルをコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を埋めて `progress/channels/CHxx.csv` へ追加 → `planning_store.refresh --force`
+- 運用: 1行目ヘッダーと2行目サンプルをコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を埋めて `workspaces/planning/channels/CHxx.csv` へ追加 → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）
 - メモ: テンプレ列やコメントを変更したら、この節に更新日と概要を残し、SSOT 層でトレースできるようにする。
 
 ## 1. 共通ペルソナ
@@ -30,10 +30,10 @@
 3. サムネは人物の表情を大きく、コピーは12〜14文字で感情を直球に伝える。
 
 ## 4. テンプレ
-- `progress/templates/CH05_planning_template.csv` をコピーし、キャラクター設定や Analytics 根拠を書き換える。
+- `workspaces/planning/templates/CH05_planning_template.csv` をコピーし、キャラクター設定や Analytics 根拠を書き換える。
 - タグ列・説明文列で「誰の、どんな悩みを解決するのか」を明文化する。
 
 ## 5. 運用
-1. 企画追加後 `planning_store.refresh`。
-2. `progress_manager.py verify --channel-code CH05` を実行し、列をチェック。
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH05 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UI でタグ列・説明文が表示されることを確認。必要ならサムネ指示も追記する。

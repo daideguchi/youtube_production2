@@ -1,6 +1,6 @@
 {
   "channel_code": "CH18",
-  "channel_name": "禅と睡眠の静かな科学",
+  "channel_name": "ゆったり仏教伝説紀行",
   "default_voice_key": "voicevox_aoyama",
   "output": {
     "final_root": "data/CH18/_audio_workspace/final",

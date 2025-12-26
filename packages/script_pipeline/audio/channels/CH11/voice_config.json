@@ -1,0 +1,45 @@
+{
+  "channel_code": "CH11",
+  "channel_name": "ブッダの法話",
+  "default_voice_key": "voicepeak_female1",
+  "output": {
+    "final_root": "data/CH11/_audio_workspace/final",
+    "temp_root": "data/CH11/_audio_workspace/temp"
+  },
+  "voices": {
+    "voicepeak_female1": {
+      "engine": "voicepeak",
+      "character": "女性1",
+      "engine_options": {
+        "narrator": "女性1"
+      }
+    },
+    "voicevox_aoyama": {
+      "engine": "voicevox",
+      "character": "青山龍星",
+      "style": "ノーマル",
+      "voicevox_speaker_id": 13,
+      "speed_scale": 0.96,
+      "pitch_scale": -0.02,
+      "intonation_scale": 1.0,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.11,
+      "post_phoneme_length": 0.13
+    },
+    "pyopenjtalk_basic": {
+      "engine": "pyopenjtalk",
+      "character": "default",
+      "style": "standard",
+      "speed_scale": 1.0,
+      "pitch_scale": 0.0,
+      "intonation_scale": 1.0,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.0,
+      "post_phoneme_length": 0.0,
+      "engine_options": {
+        "speed": 1.0
+      }
+    }
+  },
+  "section_voice_rules": {}
+}

@@ -1,0 +1,90 @@
+{
+  "channel_id": "CH18",
+  "name": "ゆったり仏教伝説紀行",
+  "description": "仏教にまつわる伝説・逸話・寺社の由来を、静かに語る長時間チャンネルです。\n寝落ち・作業・勉強中の“聴く旅”として、淡々と進む構成でお届けします。\n\n音声：VOICEVOX（青山流星）",
+  "youtube_description": "この動画は、仏教にまつわる伝説・逸話・寺社の由来を、静かに語る長時間コンテンツです。\n寝落ち・作業・勉強中の“聴く旅”としてお使いください。\n\n【内容】\n・寺社の由来／高僧の逸話／説話・小話／歴史背景（やさしく解説）\n\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n\n#日本史 #仏教 #寝落ち",
+  "default_tags": [
+    "仏教",
+    "日本史",
+    "寺社",
+    "寺",
+    "神社仏閣",
+    "仏教説話",
+    "伝説",
+    "弘法大師",
+    "空海",
+    "親鸞",
+    "道元",
+    "一休",
+    "禅",
+    "文化",
+    "歴史朗読",
+    "物語朗読",
+    "寝落ち",
+    "睡眠用",
+    "作業用BGM",
+    "勉強用BGM",
+    "癒し",
+    "夜の朗読",
+    "長時間",
+    "法話",
+    "旅",
+    "旅行",
+    "紀行",
+    "聞き流し",
+    "VOICEVOX",
+    "青山流星"
+  ],
+  "persona_path": "workspaces/planning/personas/CH18_PERSONA.md",
+  "template_path": "packages/script_pipeline/channels/CH18-ゆったり仏教伝説紀行/script_prompt.txt",
+  "script_prompt": "# CH18 台本プロンプト（ゆったり仏教伝説紀行）\n\n役割: あなたは「ゆったり仏教伝説紀行」の語り手。お寺の由来や高僧の逸話、仏教伝説を、静かな旅の物語として語り、眠りへ誘う。\n\nゴール: 18,000〜26,000字の長尺台本。刺激を抑え、安心で終える。\n\n進め方: 導入は短く、今夜の旅先と物語の入口を示す。物語パートを中心に据え、場面の区切りは `---` で静かな間を作る。最後に「この話の受け取り方」を一言だけ添え、安心で終える。\n\n禁止: 宗教勧誘、宗派の優劣、政治・医療・投資の断定。恐怖・煽り・説教。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。",
+  "audience_profile": "20〜60代中心。お寺の由来や伝説を聞きながら、静かに寝落ちしたい人。",
+  "benchmarks": {
+    "version": 1,
+    "updated_at": "2025-12-23",
+    "channels": [],
+    "script_samples": [
+      {
+        "base": "research",
+        "path": "空海系/ベンチマーク情報",
+        "label": "参考台本/メモ",
+        "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      }
+    ],
+    "notes": "ベンチマークはUIから追加してください。"
+  },
+  "youtube_title": "ゆったり仏教伝説紀行",
+  "youtube_handle": "@yuttari_bukkyo_kikou",
+  "video_workflow": "vrew_b",
+  "production_sources": {
+    "voice_config_path": "packages/script_pipeline/audio/channels/CH18/voice_config.json",
+    "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
+    "thumbnails_default_template_id": null,
+    "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
+    "capcut_preset": null
+  },
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/rTX5ZkoUBdoWsMzY-zT8IrbNpUE5wnLsV6Kcv5ftPoMFLOfY1mquM2B-R7W1o4ZyEBQ3QMiEcHs=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "ゆったり仏教伝説紀行",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@yuttari_bukkyo_kikou",
+    "handle": "@yuttari_bukkyo_kikou",
+    "url": "https://www.youtube.com/channel/UCvhE-wDVcbIDy1cANVt2GJw",
+    "updated_at": "2025-12-24T12:48:13.874537Z"
+  },
+  "youtube": {
+    "channel_id": "UCvhE-wDVcbIDy1cANVt2GJw",
+    "title": "ゆったり仏教伝説紀行",
+    "custom_url": "@yuttari_bukkyo_kikou",
+    "handle": "@yuttari_bukkyo_kikou",
+    "url": "https://www.youtube.com/channel/UCvhE-wDVcbIDy1cANVt2GJw",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2025-12-24T22:55:32.761081+00:00",
+    "source": "UCvhE-wDVcbIDy1cANVt2GJw"
+  }
+}

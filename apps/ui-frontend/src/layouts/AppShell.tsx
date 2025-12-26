@@ -59,7 +59,9 @@ export type WorkspaceView =
   | "studio"
   | "channel"
   | "channelVideo"
+  | "channelPortal"
   | "remotion"
+  | "benchmarks"
   | "research"
   | "thumbnails"
   | "channelWorkspace"
@@ -68,9 +70,9 @@ export type WorkspaceView =
   | "scriptFactory"
   | "audioReview"
   | "capcutEdit"
-  | "audioTtsV2"
+  | "audioTts"
   | "audioIntegrity"
-  | "progress"
+  | "planning"
   | "dictionary"
   | "agentBoard"
   | "agentOrg"
@@ -226,6 +228,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/channels/:channelCode/videos/:video", pathname)) {
     return "channelVideo";
   }
+  if (matchPath("/channels/:channelCode/portal", pathname)) {
+    return "channelPortal";
+  }
   if (matchPath("/channels/:channelCode", pathname)) {
     return "channel";
   }
@@ -240,6 +245,9 @@ function determineView(pathname: string): WorkspaceView {
   }
   if (matchPath("/channel-settings", pathname)) {
     return "channelSettings";
+  }
+  if (matchPath("/benchmarks", pathname)) {
+    return "benchmarks";
   }
   if (matchPath("/projects", pathname)) {
     return "scriptFactory";
@@ -268,8 +276,8 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/video-remotion", pathname)) {
     return "remotion";
   }
-  if (matchPath("/audio-tts-v2", pathname)) {
-    return "audioTtsV2";
+  if (matchPath("/audio-tts", pathname)) {
+    return "audioTts";
   }
   if (matchPath("/audio-integrity", pathname)) {
     return "audioIntegrity";
@@ -277,8 +285,8 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/reports", pathname)) {
     return "reports";
   }
-  if (matchPath("/progress", pathname)) {
-    return "progress";
+  if (matchPath("/planning", pathname)) {
+    return "planning";
   }
   if (matchPath("/dictionary", pathname)) {
     return "dictionary";
@@ -292,7 +300,10 @@ function determineView(pathname: string): WorkspaceView {
   return "dashboard";
 }
 
-const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo">, PlaceholderCopy> = {
+const PLACEHOLDER_COPY: Record<
+  Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo" | "channelPortal">,
+  PlaceholderCopy
+> = {
   studio: {
     title: "Episode Studio",
     description: "企画→台本→音声→動画を、エピソード単位で“次に押すべきボタン”が分かる形に統合します。",
@@ -304,12 +315,12 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   scriptFactory: {
     title: "台本作成（バッチ）",
     description:
-      "workspaces/planning/channels/CHxx.csv（planning_store / 互換: progress/channels/CHxx.csv）を参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
+      "workspaces/planning/channels/CHxx.csv（Planning SoT）を参照し、作成フラグや進捗に応じて案件を量産キューへ送り込むための一覧です。",
   },
-  progress: {
+  planning: {
     title: "企画CSVビューア",
     description:
-      "workspaces/planning/channels/（互換: progress/channels/）配下のSoTをUIで直接確認し、台本・音声の揺れを防ぎます。台本パスや企画意図も列で確認できます。",
+      "workspaces/planning/channels/ 配下のSoTをUIで直接確認し、台本・音声の揺れを防ぎます。台本パスや企画意図も列で確認できます。",
   },
   dictionary: {
     title: "読み辞書 管理",
@@ -325,7 +336,8 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   },
   promptManager: {
     title: "プロンプト管理",
-    description: "Qwen 初期プロンプトなどのテンプレを UI から編集し、ルート prompts/ と commentary_01/prompts/ を同期させます。",
+    description:
+      "UIから各種プロンプトを閲覧・編集します（正本: packages/**/prompts/）。ルート prompts/ はUIが参照する“公開プロンプト”の薄いハブです。",
   },
   settings: {
     title: "設定",
@@ -339,9 +351,13 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
     title: "チャンネル詳細設定",
     description: "企画テンプレやペルソナ、planning 行などチャンネル固有の SSOT 情報をまとめて確認・編集できます。",
   },
+  benchmarks: {
+    title: "ベンチマーク",
+    description: "チャンネル別の競合チャンネル情報と台本サンプル（SoT: channel_info.json）を、ベンチマークだけに絞って確認・編集できます。",
+  },
   research: {
     title: "リサーチハブ",
-    description: "00_research の成果物や調査ログを参照し、重要なインサイトを確認できます。",
+    description: "workspaces/research の成果物や調査ログを参照し、重要なインサイトを確認できます。",
   },
   thumbnails: {
     title: "サムネイル管理",
@@ -361,11 +377,11 @@ const PLACEHOLDER_COPY: Record<Exclude<WorkspaceView, "dashboard" | "channel" | 
   },
   remotion: {
     title: "Remotion編集",
-    description: "Remotion で mp4 を量産し、Google Drive へ保存するためのワークスペースです。",
+    description: "Remotion で mp4 を量産し、Google Drive へ保存するためのワークスペースです。（実験/研究ライン）",
   },
-  audioTtsV2: {
-    title: "Audio TTS v2",
-    description: "audio_tts_v2 パイプラインを UI から実行し、WAV/SRT を生成します。",
+  audioTts: {
+    title: "Audio TTS",
+    description: "audio_tts パイプラインを UI から実行し、WAV/SRT を生成します。",
   },
   audioIntegrity: {
     title: "音声アセット整合性",
@@ -469,8 +485,10 @@ export function AppShell() {
   const previousChannelRef = useRef<string | null>(selectedChannel);
 
   const channelVideoMatch = matchPath("/channels/:channelCode/videos/:video", location.pathname);
+  const channelPortalMatch = matchPath("/channels/:channelCode/portal", location.pathname);
   const channelMatch = matchPath("/channels/:channelCode", location.pathname);
-  const routeChannelCode = channelVideoMatch?.params.channelCode ?? channelMatch?.params.channelCode ?? null;
+  const routeChannelCode =
+    channelVideoMatch?.params.channelCode ?? channelPortalMatch?.params.channelCode ?? channelMatch?.params.channelCode ?? null;
   const routeVideoNumber = channelVideoMatch?.params.video ?? null;
 
   const refreshChannels = useCallback(async () => {
@@ -1086,7 +1104,7 @@ export function AppShell() {
   }, [perform, selectedChannel, selectedVideo, videoDetail?.updated_at]);
 
   const placeholderPanel = useMemo(() => {
-    if (view === "dashboard" || view === "channel" || view === "channelVideo") {
+    if (view === "dashboard" || view === "channel" || view === "channelVideo" || view === "channelPortal") {
       return null;
     }
     return PLACEHOLDER_COPY[view as keyof typeof PLACEHOLDER_COPY] ?? null;
@@ -1155,8 +1173,16 @@ export function AppShell() {
     return "/audio-integrity";
   }, [selectedChannel, selectedVideo]);
 
-  const progressLink = useMemo(() => {
-    return "/progress";
+  const channelPortalLink = useMemo(() => {
+    const code = selectedChannel ?? routeChannelCode ?? null;
+    if (code) {
+      return `/channels/${encodeURIComponent(code)}/portal`;
+    }
+    return "/channel-settings";
+  }, [routeChannelCode, selectedChannel]);
+
+  const planningLink = useMemo(() => {
+    return "/planning";
   }, []);
 
   type NavItem = { key: WorkspaceView; label: string; icon: string; path: string };
@@ -1169,6 +1195,7 @@ export function AppShell() {
         items: [
           { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
           { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
+          { key: "channelPortal", label: "チャンネルポータル", icon: "🧭", path: channelPortalLink },
           { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },
           { key: "audioIntegrity", label: "音声整合性", icon: "🩺", path: audioIntegrityLink },
           { key: "dictionary", label: "辞書", icon: "📖", path: "/dictionary" },
@@ -1179,11 +1206,10 @@ export function AppShell() {
         items: [
           { key: "studio", label: "Episode Studio", icon: "🎛️", path: "/studio" },
           { key: "workflow", label: "制作フロー", icon: "🧭", path: "/workflow" },
-          { key: "progress", label: "企画CSV", icon: "🗂️", path: progressLink },
+          { key: "planning", label: "企画CSV", icon: "🗂️", path: planningLink },
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
-          { key: "audioTtsV2", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts-v2" },
+          { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
-          { key: "remotion", label: "動画(Remotion)", icon: "🎞️", path: "/video-remotion" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
         ],
       },
@@ -1191,6 +1217,8 @@ export function AppShell() {
         title: "運用/設定",
         items: [
           { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
+          { key: "benchmarks", label: "ベンチマーク", icon: "📚", path: "/benchmarks" },
+          { key: "remotion", label: "Remotion（実験）", icon: "🎞️", path: "/video-remotion" },
           { key: "jobs", label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
           { key: "agentOrg", label: "AI Org", icon: "🤖", path: "/agent-org" },
           { key: "agentBoard", label: "Shared Board", icon: "🧷", path: "/agent-board" },
@@ -1201,7 +1229,7 @@ export function AppShell() {
         ],
       },
     ],
-    [audioIntegrityLink, progressLink]
+    [audioIntegrityLink, channelPortalLink, planningLink]
   );
 
   const channelStats = dashboardOverview?.channels;
@@ -1235,9 +1263,14 @@ export function AppShell() {
               <div key={section.title} className="shell-nav__section">
                 <div className="shell-nav__section-title">{section.title}</div>
                 {section.items.map((item) => {
-                  const isChannelsPath =
-                    location.pathname.startsWith("/channels") || location.pathname.startsWith("/channel-workspace");
+                  const isChannelWorkspaceRoute =
+                    Boolean(
+                      matchPath("/channels/:channelCode/videos/:video", location.pathname) ||
+                        matchPath("/channels/:channelCode", location.pathname)
+                    ) || location.pathname.startsWith("/channel-workspace");
+                  const isChannelPortalRoute = Boolean(matchPath("/channels/:channelCode/portal", location.pathname));
                   const isChannelWorkspaceItem = item.key === "channelWorkspace";
+                  const isChannelPortalItem = item.key === "channelPortal";
                   return (
                     <NavLink
                       key={item.key}
@@ -1245,7 +1278,8 @@ export function AppShell() {
                       className={({ isActive }) => {
                         const active =
                           isActive ||
-                          (isChannelWorkspaceItem && isChannelsPath) ||
+                          (isChannelWorkspaceItem && isChannelWorkspaceRoute) ||
+                          (isChannelPortalItem && isChannelPortalRoute) ||
                           (item.key === "audioIntegrity" && location.pathname === "/audio-integrity");
                         return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
                       }}

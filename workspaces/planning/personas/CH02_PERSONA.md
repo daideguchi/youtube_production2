@@ -1,15 +1,15 @@
 # CH02 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH02_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH02_planning_template.csv`
 - 最終更新: 2025-11-15（テンプレ2行目サンプル反映日）
-- 使い方: ヘッダー＋サンプル行をコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を埋めて `progress/channels/CHxx.csv` へ貼り付けた後 `planning_store.refresh --force` を実行。
+- 使い方: ヘッダー＋サンプル行をコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を埋めて `workspaces/planning/channels/CHxx.csv` へ貼り付け → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）。
 - 注意: テンプレを更新した場合は、このファイルに日時と変更概要を必ず追記し、SSOT 層で差分が追えるようにする。
 
 ## 1. 共通ペルソナ（固定で使う一文）
 > 頭の中がいつも騒がしく、自己理解や人間関係に悩む30〜50代。哲学や心理学で心を整理し、静かな感情の置き場を探している人。
 
-- `progress/channels/CHxx.csv` の `ターゲット層` 列はこの一文で固定する。個別企画で書き換えない。
+- `workspaces/planning/channels/CHxx.csv` の `ターゲット層` 列はこの一文で固定する。個別企画で書き換えない。
 
 ## 2. 企画ごとに変えるタグセット
 | フィールド | 役割 | 推奨入力例 |
@@ -30,11 +30,11 @@
 4. Analytics データや引用元（論文・哲学者・心理効果）は `企画意図` か `内容（企画要約）` に必ず記載する。
 
 ## 4. テンプレの使い方
-- ファイル: `progress/templates/CH02_planning_template.csv`
+- ファイル: `workspaces/planning/templates/CH02_planning_template.csv`
 - `{NEXT_NO}` `{NEXT_VIDEO}` を差し替え、悩みタグ・ライフシーン・説明文を企画に合わせて更新する。
 - テンプレにはサンプルの Analytics 根拠やサムネ指示が含まれるため、構成を真似しながら置き換える。
 
 ## 5. 運用フロー
-1. 企画追加後に `python3 -m core.tools.planning_store refresh --force` を実行。
-2. `progress_manager.py verify --channel-code CH02` で列ズレをチェック。
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH02 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UI で行を確認し、タグ列／説明文列が表示されることを確認する。

@@ -79,6 +79,10 @@
   1) 設計図（プラン）を JSON で生成（セクション構成、中心エピソード、例の数、字数配分）
   2) 設計図に沿って Aテキスト本文を生成（`---` を文脈ベースで配置）
   3) ハード禁則（字数/区切り/URL等）→ Judge で最終合否
+- 実装（現行）:
+  - `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL=1` のとき、Judge が最大回数で `fail` になった場合に **1回だけ** Rebuild を試す（SSOTパターン由来の設計図 → one-shot本文 → Judge）。
+  - `pass` なら採用し、`fail` なら止める（無限ループにしない）。
+  - 証跡: `content/analysis/quality_gate/rebuild_plan_latest.json`, `content/analysis/quality_gate/rebuild_draft_latest.md`
 - 原則:
   - “字数合わせ” を目的にしない。字数は設計図の配分で満たす。
   - 例の連打は禁止。中心エピソードと、その理解が深まる説明に字数を使う。

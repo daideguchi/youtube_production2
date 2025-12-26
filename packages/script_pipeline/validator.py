@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
@@ -23,6 +24,17 @@ _RE_BAD_SEPARATOR = re.compile(r"^\s*(?:\*{3,}|_{3,}|/{3,}|={3,}|-{4,})\s*$")
 _RE_TEMPLATE_TOKEN = re.compile(r"<<[A-Z0-9_]{2,}>>")
 _RE_PERCENT_OR_PERCENT_WORD = re.compile(r"[%％]|パーセント")
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
+_RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
+
+# TTS/reader risk: known confusable glyphs that frequently appear as LLM typos.
+# Keep this minimal and only include cases that are clearly accidental in our domain.
+_SUSPICIOUS_GLYPH_REPLACEMENTS: Dict[str, str] = {
+    "厊": "厳",
+}
+
+
+def _unicode_desc(ch: str) -> str:
+    return f"U+{ord(ch):04X} {unicodedata.name(ch, 'UNKNOWN')}"
 
 
 def _canonical_a_text_path(base: Path) -> Path:
@@ -157,6 +169,41 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
         if not stripped:
             continue
 
+        # Forbidden/suspicious characters (TTS/readability guardrails)
+        if "\ufffd" in line:
+            issues.append(
+                {
+                    "code": "replacement_character",
+                    "message": "Unicode replacement character (� / U+FFFD) must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        bad_controls = [ch for ch in sorted(set(line), key=ord) if unicodedata.category(ch).startswith("C")]
+        if bad_controls:
+            desc = ", ".join(_unicode_desc(ch) for ch in bad_controls[:3])
+            more = f", …(+{len(bad_controls) - 3})" if len(bad_controls) > 3 else ""
+            issues.append(
+                {
+                    "code": "forbidden_unicode_control",
+                    "message": f"Forbidden unicode control/format character(s) found: {desc}{more}",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        for bad, replacement in _SUSPICIOUS_GLYPH_REPLACEMENTS.items():
+            if bad in line:
+                issues.append(
+                    {
+                        "code": "suspicious_glyph",
+                        "message": f"Suspicious glyph '{bad}' found; replace with '{replacement}'",
+                        "line": idx,
+                        "severity": "error",
+                    }
+                )
+
         if "---" in line and stripped != "---":
             issues.append(
                 {
@@ -256,6 +303,42 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                     "severity": "error",
                 }
             )
+
+    # Duplicate paragraph detection (hard error).
+    # Longform drift often manifests as verbatim paragraph repetition; this is cheap to detect.
+    paragraphs: List[str] = []
+    buf: List[str] = []
+    for line in lines:
+        if not line.strip() or line.strip() == "---":
+            if buf:
+                paragraphs.append("\n".join(buf).strip())
+                buf = []
+            continue
+        buf.append(line)
+    if buf:
+        paragraphs.append("\n".join(buf).strip())
+
+    seen_para: Dict[str, int] = {}
+    for para_idx, para in enumerate(paragraphs, start=1):
+        core = _RE_WS_FOR_DUP.sub("", para).strip()
+        if len(core) < 120:
+            continue
+        if core in seen_para:
+            excerpt = para.replace("\n", " ").strip()
+            if len(excerpt) > 80:
+                excerpt = excerpt[:80] + "…"
+            issues.append(
+                {
+                    "code": "duplicate_paragraph",
+                    "message": (
+                        f"Duplicate paragraph detected (para {seen_para[core]} and {para_idx}). "
+                        f"excerpt='{excerpt}'"
+                    ),
+                    "severity": "error",
+                }
+            )
+            break
+        seen_para[core] = para_idx
 
     # Ending completeness (SSOT: OPS_A_TEXT_GLOBAL_RULES.md 1.6)
     core_for_ending = _strip_trailing_pause_lines(normalized)

@@ -897,6 +897,7 @@ def _sanitize_inline_pause_markers(text: str) -> str:
 
 
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
+_RE_A_TEXT_DUP_PARA_WS = re.compile(r"[\s\u3000]+")
 
 
 def _repair_a_text_incomplete_ending(a_text: str) -> tuple[str, Dict[str, Any]]:
@@ -956,6 +957,71 @@ def _repair_a_text_incomplete_ending(a_text: str) -> tuple[str, Dict[str, Any]]:
         "before_tail": core_text.strip().replace("\n", "\\n")[-60:],
         "after_tail": new_core.strip().replace("\n", "\\n")[-60:],
     }
+    return new_text, details
+
+
+def _repair_a_text_duplicate_paragraphs(a_text: str, *, min_core_chars: int = 120) -> tuple[str, Dict[str, Any]]:
+    """
+    Best-effort: remove verbatim duplicate paragraphs deterministically.
+
+    Why:
+    - Some generations accidentally repeat the same paragraph (copy/loop) which degrades quality.
+    - This repair is cheaper than re-generating and safe because it only removes exact duplicates.
+
+    Rules:
+    - A "paragraph" is a consecutive block of non-empty, non-`---` lines.
+    - Duplicate detection ignores whitespace (including full-width spaces) only.
+    - Only paragraphs with core length >= min_core_chars are considered.
+    - Keep the first occurrence; drop later duplicates.
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized.strip():
+        return a_text or "", {}
+
+    lines = normalized.split("\n")
+    out_lines: List[str] = []
+    buf: List[str] = []
+    seen: Dict[str, int] = {}
+    dropped: List[Dict[str, Any]] = []
+
+    def _flush_paragraph(*, at_line: int) -> None:
+        nonlocal buf, out_lines, seen, dropped
+        if not buf:
+            return
+        para_text = "\n".join(buf).strip()
+        core = _RE_A_TEXT_DUP_PARA_WS.sub("", para_text).strip()
+        if len(core) < int(min_core_chars):
+            out_lines.extend(buf)
+            buf = []
+            return
+        if core in seen:
+            dropped.append({"kept_para": seen[core], "dropped_para_line": at_line})
+            buf = []
+            return
+        seen[core] = at_line
+        out_lines.extend(buf)
+        buf = []
+
+    for idx, ln in enumerate(lines, start=1):
+        stripped = ln.strip()
+        if stripped == "---":
+            _flush_paragraph(at_line=max(1, idx - len(buf)))
+            out_lines.append("---")
+            continue
+        if not stripped:
+            _flush_paragraph(at_line=max(1, idx - len(buf)))
+            # Keep at most one blank line in output to avoid ballooning.
+            if out_lines and out_lines[-1].strip() == "":
+                continue
+            out_lines.append("")
+            continue
+        buf.append(ln)
+
+    _flush_paragraph(at_line=max(1, (len(lines) + 1) - len(buf)))
+    new_text = "\n".join(out_lines).rstrip() + "\n"
+    if not dropped or new_text.strip() == normalized.strip():
+        return normalized.rstrip() + "\n", {}
+    details: Dict[str, Any] = {"removed": len(dropped), "dropped": dropped[:10]}
     return new_text, details
 
 
@@ -1059,12 +1125,14 @@ def _trim_a_text_to_spoken_char_limit(text: str, *, max_chars: int, min_chars: i
             _mark_boundary()
             continue
 
+        line_complete = True
         for ch in ln:
             if ch in (" ", "\t", "\u3000"):
                 out.append(ch)
                 continue
             if spoken >= max_i:
                 stop = True
+                line_complete = False
                 break
             spoken += 1
             out.append(ch)
@@ -1072,6 +1140,8 @@ def _trim_a_text_to_spoken_char_limit(text: str, *, max_chars: int, min_chars: i
                 _mark_boundary()
 
         out.append("\n")
+        if line_complete:
+            _mark_boundary()
         if stop:
             break
 
@@ -3219,6 +3289,14 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
     # Milestones (artifact-driven): intermediates may be purged after these are satisfied.
     assembled_ok = _assembled_ok()
 
+    def _semantic_major() -> bool:
+        meta = st.metadata if isinstance(getattr(st, "metadata", None), dict) else {}
+        sa = meta.get("semantic_alignment") if isinstance(meta, dict) else None
+        if isinstance(sa, dict):
+            verdict = str(sa.get("verdict") or "").strip().lower()
+            return verdict == "major"
+        return False
+
     for sd in stage_defs:
         name = sd.get("name")
         if not name:
@@ -3300,6 +3378,16 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
                         llm_gate = details.get("llm_quality_gate") if isinstance(details, dict) else None
                         verdict = str((llm_gate or {}).get("verdict") or "").strip().lower() if isinstance(llm_gate, dict) else ""
                         err = str(details.get("error") or "").strip() if isinstance(details, dict) else ""
+                        # Safety: semantic-major must not be treated as validated.
+                        if _semantic_major():
+                            if state.status in {"processing", "completed"}:
+                                state.status = "pending"
+                                if isinstance(state.details, dict):
+                                    state.details.setdefault("error", "semantic_alignment_major")
+                                    state.details["reconciled_semantic_major_demote"] = True
+                                changed = True
+                            stage_ok = False
+                            continue
                         # If a previous run was interrupted, it can be left as "processing" even though verdict=pass.
                         if state.status == "processing" and not err and verdict == "pass":
                             canonical = base / "content" / "assembled_human.md"
@@ -3392,6 +3480,12 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
                         state.details.setdefault("error", "semantic_alignment_major")
                         state.details["reconciled_semantic_major_demote"] = True
                     changed = True
+            elif name == "script_validation" and state.status == "completed" and _semantic_major():
+                state.status = "pending"
+                if isinstance(state.details, dict):
+                    state.details.setdefault("error", "semantic_alignment_major")
+                    state.details["reconciled_semantic_major_demote"] = True
+                changed = True
             elif allow_downgrade and state.status == "completed":
                 state.status = "pending"
                 state.details["reconciled_downgrade"] = True
@@ -3684,14 +3778,60 @@ def _build_web_search_query(topic: str | None) -> str:
     return (tag or cleaned or raw).strip()
 
 
+def _normalize_web_search_policy(value: Any) -> str:
+    raw = str(value or "").strip().lower().replace("-", "_")
+    if raw in {"", "auto"}:
+        return "auto"
+    if raw in {"disabled", "disable", "off", "false", "0", "none", "no"}:
+        return "disabled"
+    if raw in {"required", "require", "on", "true", "1", "yes"}:
+        return "required"
+    return "auto"
+
+
+def _write_search_results_disabled(file_path: Path, *, query: str) -> None:
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema": "ytm.web_search_results.v1",
+        "provider": "disabled",
+        "query": str(query or "").strip(),
+        "retrieved_at": utc_now_iso(),
+        "hits": [],
+    }
+    file_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def _ensure_web_search_results(base: Path, st: Status) -> None:
     """
     Ensure `content/analysis/research/search_results.json` exists before topic_research LLM runs.
     Best-effort: failures must not break the pipeline.
     """
     out_path = base / "content/analysis/research/search_results.json"
+    sources = _load_sources(st.channel)
+    web_search_policy = _normalize_web_search_policy((sources or {}).get("web_search_policy"))
     provider = str(os.getenv("YTM_WEB_SEARCH_PROVIDER") or "auto").strip()
     force = str(os.getenv("YTM_WEB_SEARCH_FORCE") or "0").strip().lower() in {"1", "true", "yes", "on"}
+
+    topic = st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id
+    query = _build_web_search_query(str(topic or ""))
+
+    if web_search_policy == "disabled":
+        _write_search_results_disabled(out_path, query=query)
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["web_search"] = {
+                    "policy": web_search_policy,
+                    "decision": "skipped",
+                    "reason": "policy_disabled",
+                    "provider": "disabled",
+                    "query": query,
+                    "hit_count": 0,
+                    "force": bool(force),
+                }
+        except Exception:
+            pass
+        return
 
     if out_path.exists() and not force:
         try:
@@ -3699,12 +3839,24 @@ def _ensure_web_search_results(base: Path, st: Status) -> None:
             hits = existing.get("hits") if isinstance(existing, dict) else None
             prov = str(existing.get("provider") or "") if isinstance(existing, dict) else ""
             if isinstance(hits, list) and hits and prov and prov != "disabled":
+                try:
+                    stage = st.stages.get("topic_research")
+                    if stage is not None:
+                        stage.details["web_search"] = {
+                            "policy": web_search_policy,
+                            "decision": "reused",
+                            "reason": "existing_results",
+                            "provider": prov,
+                            "query": str(existing.get("query") or query) if isinstance(existing, dict) else query,
+                            "hit_count": len(hits),
+                            "force": False,
+                        }
+                except Exception:
+                    pass
                 return
         except Exception:
             pass
 
-    topic = st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id
-    query = _build_web_search_query(str(topic or ""))
     try:
         count = int(os.getenv("YTM_WEB_SEARCH_COUNT") or 8)
     except Exception:
@@ -3720,19 +3872,37 @@ def _ensure_web_search_results(base: Path, st: Status) -> None:
 
         result = web_search(query, provider=provider, count=count, timeout_s=timeout_s)
         out_path.write_text(json.dumps(result.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        st.stages["topic_research"].details["web_search"] = {
-            "provider": result.provider,
-            "query": result.query,
-            "hit_count": len(result.hits),
-        }
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["web_search"] = {
+                    "policy": web_search_policy,
+                    "decision": "executed",
+                    "reason": "ok",
+                    "provider": result.provider,
+                    "query": result.query,
+                    "hit_count": len(result.hits),
+                    "force": bool(force),
+                }
+        except Exception:
+            pass
     except Exception as exc:
-        _write_json_placeholder(out_path)
-        st.stages["topic_research"].details["web_search"] = {
-            "provider": "disabled",
-            "query": query,
-            "hit_count": 0,
-            "error": str(exc)[:200],
-        }
+        _write_search_results_disabled(out_path, query=query)
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["web_search"] = {
+                    "policy": web_search_policy,
+                    "decision": "error",
+                    "reason": "exception",
+                    "provider": "disabled",
+                    "query": query,
+                    "hit_count": 0,
+                    "force": bool(force),
+                    "error": str(exc)[:200],
+                }
+        except Exception:
+            pass
 
 
 def _ensure_references(base: Path, st: Status | None = None) -> None:
@@ -4515,6 +4685,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             "WORD_TARGET_TOTAL": str(_total_word_target(st)),
             "A_TEXT_PLAN_SUMMARY": _a_text_plan_summary_for_prompt(st),
             "OUTLINE_FORMAT_EXAMPLE": _outline_format_example(st.metadata.get("chapter_count") or target_count or 1),
+            "ALIGNMENT_FEEDBACK": "",
         }
         ran_llm = _run_llm(stage_name, base, st, sd, templates, extra_placeholders=outline_extra)
         if ran_llm:
@@ -4563,6 +4734,19 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 report_dir = base / "content" / "analysis" / "alignment"
                 report_dir.mkdir(parents=True, exist_ok=True)
                 report_path = report_dir / "outline_semantic_alignment.json"
+
+                # Outline-level policy mirrors script_validation semantics:
+                # - require_ok=0: ok/minor pass; major blocks (default)
+                # - require_ok=1: only ok passes (strict)
+                outline_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
+                outline_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
+                outline_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "1")
+                outline_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
+                try:
+                    outline_max_fix_attempts = int(os.getenv("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS", "1"))
+                except Exception:
+                    outline_max_fix_attempts = 1
+                outline_max_fix_attempts = min(max(0, outline_max_fix_attempts), 2)
 
                 planning = opt_fields.get_planning_section(st.metadata or {})
                 integrity = (
@@ -4617,100 +4801,274 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     "thumbnail_upper": thumb_top,
                     "thumbnail_lower": thumb_bottom,
                 }
+                def _format_outline_alignment_feedback(obj: Dict[str, Any]) -> str:
+                    promised = str(obj.get("promised_message") or "").strip()
+                    mism = obj.get("mismatch_points") if isinstance(obj.get("mismatch_points"), list) else []
+                    fixes = obj.get("fix_actions") if isinstance(obj.get("fix_actions"), list) else []
+                    notes = str(obj.get("rewrite_notes") or "").strip()
+
+                    lines: list[str] = []
+                    if promised:
+                        lines.append("[企画の約束]")
+                        lines.append(promised)
+                    if mism:
+                        lines.append("[ズレ]")
+                        for x in mism[:6]:
+                            s = str(x or "").strip()
+                            if s:
+                                lines.append(f"- {s}")
+                    if fixes:
+                        lines.append("[最小修正アクション]")
+                        for x in fixes[:8]:
+                            s = str(x or "").strip()
+                            if s:
+                                lines.append(f"- {s}")
+                    if notes:
+                        lines.append("[書き直しメモ]")
+                        lines.append(notes)
+                    out = "\n".join([ln.strip() for ln in lines if ln.strip()]).strip()
+                    # Keep it small to avoid bloating the outline prompt.
+                    out = re.sub(r"\n{3,}", "\n\n", out).strip()
+                    if len(out) > 1200:
+                        out = out[:1200].rstrip() + "…"
+                    return out
+
+                # Evaluate → (optional) auto-fix → re-evaluate, bounded for cost control.
                 prev_gate = (
                     st.stages[stage_name].details.get("semantic_alignment_gate")
                     if isinstance(st.stages[stage_name].details.get("semantic_alignment_gate"), dict)
                     else {}
                 )
-                prev_prompt_sha1 = str(prev_gate.get("prompt_sha1") or "").strip()
-                reuse_ok = (
-                    str(prev_gate.get("schema") or "").strip() == SEMANTIC_ALIGNMENT_SCHEMA
-                    and str(prev_gate.get("outline_hash") or "").strip() == outline_hash
-                    and (prev_gate.get("planning_snapshot") if isinstance(prev_gate.get("planning_snapshot"), dict) else {}) == planning_snapshot
-                    and (not check_prompt_sha1 or prev_prompt_sha1 == check_prompt_sha1)
-                    and str(prev_gate.get("verdict") or "").strip().lower() in {"ok", "minor", "major"}
-                    and report_path.exists()
-                )
-                verdict = str(prev_gate.get("verdict") or "").strip().lower() if reuse_ok else ""
+                fix_attempts = 0
+                round_n = 0
+                last_verdict = ""
+                last_report_obj: Dict[str, Any] = {}
+                last_llm_meta: Dict[str, Any] = {}
+                reused_any = False
+                round_reports: list[str] = []
 
-                if not reuse_ok:
-                    prompt = _render_template(
-                        SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH,
-                        {
-                            "CHANNEL_NAME": channel_name,
-                            "TITLE": title_for_alignment,
-                            "THUMB_TOP": thumb_top,
-                            "THUMB_BOTTOM": thumb_bottom,
-                            "CONCEPT_INTENT": concept_intent,
-                            "TARGET_AUDIENCE": target_audience,
-                            "PAIN_TAG": pain_tag,
-                            "BENEFIT": benefit,
-                            "SCRIPT": "（これは台本本文ではなくアウトラインです。章見出しと要約だけです。）\n"
-                            + (outline_text or "").strip(),
-                        },
-                    )
-                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
-                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
-                    try:
-                        check_result = router_client.call_with_raw(
-                            task="script_semantic_alignment_check",
-                            messages=[{"role": "user", "content": prompt}],
-                            response_format="json_object",
+                while True:
+                    round_n += 1
+                    outline_hash = _sha1_text(outline_text)
+                    prev_prompt_sha1 = str(prev_gate.get("prompt_sha1") or "").strip()
+                    reuse_ok = (
+                        str(prev_gate.get("schema") or "").strip() == SEMANTIC_ALIGNMENT_SCHEMA
+                        and str(prev_gate.get("outline_hash") or "").strip() == outline_hash
+                        and (
+                            prev_gate.get("planning_snapshot")
+                            if isinstance(prev_gate.get("planning_snapshot"), dict)
+                            else {}
                         )
-                    finally:
-                        if prev_routing_key is None:
-                            os.environ.pop("LLM_ROUTING_KEY", None)
-                        else:
-                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
-
-                    raw = _extract_llm_text_content(check_result)
-                    try:
-                        report_obj = _parse_json_lenient(raw)
-                    except Exception:
-                        report_obj = {}
-                    verdict = str(report_obj.get("verdict") or "").strip().lower()
-                    if verdict not in {"ok", "minor", "major"}:
-                        verdict = "minor"
-                        try:
-                            report_obj["verdict"] = verdict
-                        except Exception:
-                            pass
-
-                    report_path.write_text(
-                        json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8",
+                        == planning_snapshot
+                        and (not check_prompt_sha1 or prev_prompt_sha1 == check_prompt_sha1)
+                        and str(prev_gate.get("verdict") or "").strip().lower() in {"ok", "minor", "major"}
+                        and report_path.exists()
                     )
+                    verdict = str(prev_gate.get("verdict") or "").strip().lower() if reuse_ok else ""
+                    report_obj: Dict[str, Any] = {}
+                    llm_meta: Dict[str, Any] = {}
 
-                    st.stages[stage_name].details["semantic_alignment_gate"] = {
-                        "schema": SEMANTIC_ALIGNMENT_SCHEMA,
-                        "computed_at": utc_now_iso(),
-                        "stage": "script_outline",
-                        "verdict": verdict,
-                        "report_path": str(report_path.relative_to(base)),
-                        "outline_hash": outline_hash,
-                        "planning_snapshot": planning_snapshot,
-                        "prompt_sha1": check_prompt_sha1,
-                        "llm": {
+                    if not reuse_ok:
+                        prompt = _render_template(
+                            SEMANTIC_ALIGNMENT_CHECK_PROMPT_PATH,
+                            {
+                                "CHANNEL_NAME": channel_name,
+                                "TITLE": title_for_alignment,
+                                "THUMB_TOP": thumb_top,
+                                "THUMB_BOTTOM": thumb_bottom,
+                                "CONCEPT_INTENT": concept_intent,
+                                "TARGET_AUDIENCE": target_audience,
+                                "PAIN_TAG": pain_tag,
+                                "BENEFIT": benefit,
+                                "SCRIPT": "（これは台本本文ではなくアウトラインです。章見出しと要約だけです。）\n"
+                                + (outline_text or "").strip(),
+                            },
+                        )
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            check_result = router_client.call_with_raw(
+                                task="script_semantic_alignment_check",
+                                messages=[{"role": "user", "content": prompt}],
+                                response_format="json_object",
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        raw = _extract_llm_text_content(check_result)
+                        try:
+                            report_obj = _parse_json_lenient(raw)
+                        except Exception:
+                            report_obj = {}
+                        verdict = str(report_obj.get("verdict") or "").strip().lower()
+                        if verdict not in {"ok", "minor", "major"}:
+                            verdict = "minor"
+                            try:
+                                report_obj["verdict"] = verdict
+                            except Exception:
+                                pass
+
+                        llm_meta = {
                             "provider": check_result.get("provider"),
                             "model": check_result.get("model"),
                             "request_id": check_result.get("request_id"),
                             "chain": check_result.get("chain"),
                             "latency_ms": check_result.get("latency_ms"),
                             "usage": check_result.get("usage") or {},
-                        },
-                        "reused": False,
-                    }
-                else:
-                    st.stages[stage_name].details["semantic_alignment_gate"] = {
-                        **prev_gate,
-                        "reused": True,
-                    }
+                        }
+                        last_llm_meta = llm_meta
 
-                if verdict == "major":
+                        # Keep per-round reports for debugging, and also write "latest".
+                        try:
+                            round_path = report_dir / f"outline_semantic_alignment_round{round_n}.json"
+                            round_path.write_text(
+                                json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                                encoding="utf-8",
+                            )
+                            round_reports.append(str(round_path.relative_to(base)))
+                        except Exception:
+                            pass
+                        report_path.write_text(
+                            json.dumps(report_obj, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8",
+                        )
+
+                        prev_gate = {
+                            "schema": SEMANTIC_ALIGNMENT_SCHEMA,
+                            "computed_at": utc_now_iso(),
+                            "stage": "script_outline",
+                            "verdict": verdict,
+                            "report_path": str(report_path.relative_to(base)),
+                            "outline_hash": outline_hash,
+                            "planning_snapshot": planning_snapshot,
+                            "prompt_sha1": check_prompt_sha1,
+                            "llm": llm_meta,
+                            "reused": False,
+                        }
+                        st.stages[stage_name].details["semantic_alignment_gate"] = {
+                            **prev_gate,
+                            "round": round_n,
+                            "round_reports": round_reports,
+                            "require_ok": bool(outline_require_ok),
+                            "auto_fix": bool(outline_auto_fix),
+                            "auto_fix_attempts": fix_attempts,
+                        }
+                    else:
+                        reused_any = True
+                        try:
+                            report_obj = json.loads(report_path.read_text(encoding="utf-8"))
+                        except Exception:
+                            report_obj = {}
+                        llm_meta = (
+                            prev_gate.get("llm") if isinstance(prev_gate.get("llm"), dict) else {}
+                        )
+                        st.stages[stage_name].details["semantic_alignment_gate"] = {
+                            **prev_gate,
+                            "reused": True,
+                            "round": round_n,
+                            "round_reports": round_reports,
+                            "require_ok": bool(outline_require_ok),
+                            "auto_fix": bool(outline_auto_fix),
+                            "auto_fix_attempts": fix_attempts,
+                        }
+
+                    last_verdict = verdict
+                    last_report_obj = report_obj
+
+                    # Even when require_ok=0 (minor is "pass"), try one bounded auto-fix for minor
+                    # to sharpen the outline before expensive downstream drafts.
+                    soft_minor_fix = (
+                        verdict == "minor"
+                        and (not outline_require_ok)
+                        and outline_auto_fix
+                        and outline_auto_fix_minor
+                        and fix_attempts < outline_max_fix_attempts
+                    )
+                    if _semantic_alignment_is_pass(verdict, outline_require_ok) and not soft_minor_fix:
+                        break
+
+                    # Not pass: decide whether to attempt an auto-fix (bounded).
+                    if not outline_auto_fix:
+                        break
+                    if verdict == "minor" and not outline_auto_fix_minor:
+                        break
+                    if verdict == "major" and not outline_auto_fix_major:
+                        break
+                    if fix_attempts >= outline_max_fix_attempts:
+                        break
+
+                    fix_attempts += 1
+                    st.stages[stage_name].details.setdefault("semantic_alignment_auto_fix", {})["attempts"] = fix_attempts
+                    try:
+                        backup_path = report_dir / f"backup_outline_{_utc_now_compact()}.md"
+                        if (outline_text or "").strip():
+                            backup_path.write_text((outline_text or "").strip() + "\n", encoding="utf-8")
+                        st.stages[stage_name].details.setdefault("semantic_alignment_auto_fix", {})["backup_path"] = str(
+                            backup_path.relative_to(base)
+                        )
+                    except Exception:
+                        pass
+
+                    feedback = _format_outline_alignment_feedback(report_obj)
+                    fix_extra = {
+                        **outline_extra,
+                        "ALIGNMENT_FEEDBACK": feedback,
+                        "__log_suffix": f"_semantic_fix{fix_attempts}",
+                    }
+                    ran_fix = _run_llm(
+                        stage_name,
+                        base,
+                        st,
+                        sd,
+                        templates,
+                        extra_placeholders=fix_extra,
+                        output_override=outline_path,
+                    )
+                    if ran_fix:
+                        _normalize_llm_output(outline_path, stage_name)
+                    outline_text = outline_path.read_text(encoding="utf-8") if outline_path.exists() else ""
+
+                    # Ensure outline remains structurally valid after auto-fix.
+                    has_structure_after_fix = _ensure_outline_structure(base, st)
+                    if not has_structure_after_fix:
+                        st.stages[stage_name].status = "pending"
+                        st.stages[stage_name].details["error"] = "outline_missing_chapters"
+                        st.stages[stage_name].details["fix_hints"] = [
+                            "意味整合の自動修正でアウトライン構造が壊れました（章見出し/章数が崩れた可能性）。",
+                            "対処: script_outline を再実行してアウトラインを作り直してください。",
+                            f"rerun: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_outline",
+                        ]
+                        st.status = "script_in_progress"
+                        save_status(st)
+                        return st
+
+                    # Re-sync chapter_count to the fixed outline.
+                    try:
+                        chs2 = _parse_outline_chapters(base)
+                        if chs2:
+                            outline_count2 = len(chs2)
+                            if target_count and outline_count2 != target_count:
+                                st.stages[stage_name].details["chapter_count_mismatch"] = {
+                                    "expected": target_count,
+                                    "observed": outline_count2,
+                                }
+                            st.metadata["chapter_count"] = outline_count2
+                    except Exception:
+                        pass
+
+                # Final decision: block drift before chapter drafts.
+                should_block = (outline_require_ok and last_verdict != "ok") or (
+                    (not outline_require_ok) and last_verdict == "major"
+                )
+                if should_block:
+                    code = "semantic_alignment_not_ok" if outline_require_ok else "semantic_alignment_major"
                     st.stages[stage_name].status = "pending"
-                    st.stages[stage_name].details["error"] = "semantic_alignment_major"
+                    st.stages[stage_name].details["error"] = code
                     st.stages[stage_name].details["fix_hints"] = [
-                        "アウトラインが企画（タイトル/サムネ訴求）から明確に逸脱しています（意味整合NG）。",
+                        "アウトラインが企画（タイトル/サムネ訴求）と一致していません（意味整合NG）。",
                         f"semantic_report: {report_path.relative_to(base)}",
                         "対処: 企画CSVを確認し、アウトラインを作り直してください（script_outlineを再実行）。",
                         f"rerun: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_outline",
@@ -5091,6 +5449,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             if cleaned2 != cleaned:
                 cleaned = cleaned2
                 cleanup_details["forbidden_statistics_removed"] = True
+            if "厊" in cleaned:
+                cleaned2 = cleaned.replace("厊", "厳")
+                if cleaned2 != cleaned:
+                    cleaned = cleaned2
+                    cleanup_details.setdefault("suspicious_glyph_replacements", []).append("厊->厳")
             if isinstance(pause_min, int) and pause_min > 0 and current_pause < pause_min:
                 cleaned = _ensure_min_pause_lines(cleaned, pause_min)
                 cleanup_details["pause_lines_target_min"] = pause_min
@@ -5104,6 +5467,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 if cleaned2 != cleaned:
                     cleaned = cleaned2
                     cleanup_details["paren_marks_max"] = paren_max
+
+            repaired, dup_details = _repair_a_text_duplicate_paragraphs(cleaned)
+            if dup_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
+                cleaned = repaired
+                cleanup_details["duplicate_paragraph_repair"] = dup_details
 
             repaired, ending_details = _repair_a_text_incomplete_ending(cleaned)
             if ending_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
@@ -6255,12 +6623,12 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             "SCRIPT_PIPELINE_DRY", "0"
         ) != "1"
         # Policy:
-        # - require_ok=0: ok/minor pass; major blocks (recommended for cost-effective ops)
-        # - require_ok=1: only ok passes (strict)
+        # - require_ok=0: ok/minor pass; major blocks (default; prevents obvious title/intent drift)
+        # - require_ok=1: only ok passes (strict; use when you want to force full alignment)
         semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
         semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
-        # Minor is non-blocking by default (require_ok=0), so auto-fix is OFF unless explicitly enabled.
-        semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
+        # With require_ok=1, minor blocks; enable one auto-fix attempt by default to keep throughput.
+        semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "1")
         semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
         try:
             semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
@@ -6981,12 +7349,23 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "rebuild_plan_llm_meta",
                 "rebuild_draft_output",
                 "rebuild_draft_llm_meta",
+                "rebuild_on_fail",
+                "rebuild_attempted",
+                "rebuild_verdict",
+                "rebuild_judge_round",
+                "rebuild_invalid_errors",
                 "extend_report",
                 "extend_llm_meta",
                 "expand_report",
                 "expand_llm_meta",
             ):
                 llm_gate_details.pop(_k, None)
+            # Also clear any older round keys (future-proof for extra rounds / rebuild attempts).
+            for _i in range(1, 9):
+                llm_gate_details.pop(f"judge_round{_i}_report", None)
+
+            rebuild_on_fail = _truthy_env("SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL", "0")
+            llm_gate_details["rebuild_on_fail"] = bool(rebuild_on_fail)
 
             quality_dir = content_dir / "analysis" / "quality_gate"
             quality_dir.mkdir(parents=True, exist_ok=True)
@@ -7138,8 +7517,19 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     "cache": result.get("cache"),
                 }
 
+            def _judge_round_path(round_no: int) -> Path:
+                try:
+                    n = int(round_no)
+                except Exception:
+                    n = 1
+                if n <= 1:
+                    return judge_round1_path
+                if n == 2:
+                    return judge_round2_path
+                return quality_dir / f"judge_round{n}.json"
+
             def _write_judge_report(*, round_no: int, llm_result: Dict[str, Any], judge: Dict[str, Any], raw: str) -> None:
-                path = judge_round1_path if round_no == 1 else judge_round2_path
+                path = _judge_round_path(round_no)
                 payload = {
                     "schema": "ytm.a_text_quality_judge.v1",
                     "generated_at": utc_now_iso(),
@@ -7652,17 +8042,54 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     final_text = current_text
                     break
 
-                # Out of rounds: stop (pending) with Judge report.
+                # Out of rounds: optionally attempt a bounded rebuild (SSOT patterns -> one-shot draft),
+                # otherwise stop (pending) with the Judge report.
                 if round_no >= max_rounds:
+                    if rebuild_on_fail and not llm_gate_details.get("rebuild_attempted"):
+                        llm_gate_details["rebuild_attempted"] = True
+                        rebuilt = _try_rebuild_draft(judge_obj or {})
+                        if rebuilt:
+                            rebuilt_candidate = rebuilt
+                            hard_errors, hard_stats = _non_warning_errors(rebuilt_candidate)
+                            if hard_errors:
+                                rescued = _rescue_length(rebuilt_candidate, errors_list=hard_errors, stats2=hard_stats)
+                                if rescued:
+                                    rebuilt_candidate = rescued
+                                    hard_errors, hard_stats = _non_warning_errors(rebuilt_candidate)
+
+                            if not hard_errors:
+                                v2, j2, _jr2, _raw2 = _run_judge(rebuilt_candidate, round_no=round_no + 1)
+                                llm_gate_details["rebuild_judge_round"] = round_no + 1
+                                if v2 == "pass":
+                                    llm_gate_details["rebuild_verdict"] = "pass"
+                                    llm_gate_details["verdict"] = "pass"
+                                    final_text = rebuilt_candidate
+                                    break
+                                llm_gate_details["rebuild_verdict"] = "fail"
+                                if isinstance(j2, dict) and j2:
+                                    judge_obj = j2
+                            else:
+                                llm_gate_details["rebuild_verdict"] = "invalid"
+                                llm_gate_details["rebuild_invalid_errors"] = sorted(_codes(hard_errors))
+                        else:
+                            llm_gate_details["rebuild_verdict"] = "no_draft"
+
                     llm_gate_details["verdict"] = "fail"
                     stage_details["error"] = "llm_quality_gate_failed"
                     stage_details["error_codes"] = sorted(
                         set(stage_details.get("error_codes") or []) | {"llm_quality_gate_failed"}
                     )
-                    stage_details["fix_hints"] = [
+                    fix_hints = [
                         "LLM Judge が内容品質（flow/filler/史実リスク等）を理由に不合格と判断しました。judge_latest.json の must_fix / fix_brief を確認してください。",
                         f"judge_report: {judge_latest_path.relative_to(base)}",
                     ]
+                    if llm_gate_details.get("fix_output"):
+                        fix_hints.append(f"last_fix_output: {llm_gate_details.get('fix_output')}")
+                    if llm_gate_details.get("rebuild_draft_output"):
+                        fix_hints.append(f"rebuild_draft_output: {llm_gate_details.get('rebuild_draft_output')}")
+                    if llm_gate_details.get("rebuild_plan_report"):
+                        fix_hints.append(f"rebuild_plan_report: {llm_gate_details.get('rebuild_plan_report')}")
+                    stage_details["fix_hints"] = fix_hints
                     st.stages[stage_name].status = "pending"
                     st.status = "script_in_progress"
                     save_status(st)
@@ -9304,7 +9731,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                 semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
                 semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
-                semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
+                semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "1")
                 semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
                 try:
                     semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
@@ -9495,8 +9922,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                     char_min = str((st.metadata or {}).get("target_chars_min") or "").strip()
                     char_max = str((st.metadata or {}).get("target_chars_max") or "").strip()
+                    quote_max = str((st.metadata or {}).get("a_text_quote_marks_max") or "20").strip()
+                    paren_max = str((st.metadata or {}).get("a_text_paren_marks_max") or "10").strip()
+                    fix_prompt_path = (
+                        SEMANTIC_ALIGNMENT_FIX_MINOR_PROMPT_PATH
+                        if verdict == "minor"
+                        else SEMANTIC_ALIGNMENT_FIX_PROMPT_PATH
+                    )
                     fix_prompt = _render_template(
-                        SEMANTIC_ALIGNMENT_FIX_PROMPT_PATH,
+                        fix_prompt_path,
                         {
                             "CHANNEL_NAME": channel_name,
                             "TITLE": title_for_alignment,
@@ -9508,6 +9942,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             "BENEFIT": benefit,
                             "CHAR_MIN": char_min,
                             "CHAR_MAX": char_max,
+                            "QUOTE_MAX": quote_max,
+                            "PAREN_MAX": paren_max,
                             "CHECK_JSON": json.dumps(report_obj or {}, ensure_ascii=False, indent=2),
                             "SCRIPT": script_text,
                         },

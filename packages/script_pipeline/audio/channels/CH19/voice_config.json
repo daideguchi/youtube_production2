@@ -1,6 +1,6 @@
 {
   "channel_code": "CH19",
-  "channel_name": "静かな仏教哲学",
+  "channel_name": "眠れる昔ばなし朗読館",
   "default_voice_key": "voicevox_aoyama",
   "output": {
     "final_root": "data/CH19/_audio_workspace/final",

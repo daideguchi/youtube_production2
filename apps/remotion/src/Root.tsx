@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Composition, staticFile } from "remotion";
+import { Composition } from "remotion";
 import "./font.css";
 import { Timeline } from "./Timeline";
 import { BeltConfig, SubtitleCue } from "./lib/types";
@@ -58,17 +58,19 @@ export const RemotionRoot: React.FC = () => {
         if (typeof window === "undefined") return;
         const run = new URLSearchParams(window.location.search).get("run");
         if (!run) return;
-        const base = `input/${run}`;
+        const backendBase = `${window.location.protocol}//${window.location.hostname}:8000`;
+        const runBase = `${backendBase}/api/workspaces/video/input/${encodeURIComponent(run)}`;
+        const toUrl = (rel: string) => `${runBase}/${rel.replace(/^\\/+/, "")}`;
 
         const fetchJson = async (rel: string) => {
-          const res = await fetch(staticFile(rel));
+          const res = await fetch(toUrl(rel));
           if (!res.ok) throw new Error(`fetch failed: ${rel}`);
           return res.json();
         };
 
         const fetchTextOptional = async (rel: string) => {
           try {
-            const res = await fetch(staticFile(rel));
+            const res = await fetch(toUrl(rel));
             if (!res.ok) return null;
             return res.text();
           } catch {
@@ -79,17 +81,17 @@ export const RemotionRoot: React.FC = () => {
         // load belt
         let belt: BeltConfig = { belts: [] };
         try {
-          belt = await fetchJson(`${base}/belt_config.json`);
+          belt = await fetchJson("belt_config.json");
         } catch {
           try {
-            belt = await fetchJson(`${base}/belt_config.generated.json`);
+            belt = await fetchJson("belt_config.generated.json");
           } catch {
             belt = { belts: [] };
           }
         }
 
         // load image cues
-        const cuesJson = await fetchJson(`${base}/image_cues.json`);
+        const cuesJson = await fetchJson("image_cues.json");
         const cuesArray: SceneItem[] = Array.isArray(cuesJson?.cues) ? cuesJson.cues : Array.isArray(cuesJson) ? cuesJson : [];
         const scenes: SceneItem[] = cuesArray
           .map((c: any, idx: number) => {
@@ -101,13 +103,13 @@ export const RemotionRoot: React.FC = () => {
               imgPath = raw;
             } else {
               const basename = raw.split("/").filter(Boolean).pop() ?? raw;
-              imgPath = `${base}/images/${basename}`;
+              imgPath = toUrl(`images/${basename}`);
             }
             return { imgPath, start, end, idx };
           })
           .sort((a, b) => a.start - b.start);
 
-        const srtText = await fetchTextOptional(`${base}/${run}.srt`);
+        const srtText = await fetchTextOptional(`${run}.srt`);
         let subtitles: SubtitleCue[] = [];
         if (srtText) {
           subtitles = parseSrt(srtText);
@@ -149,7 +151,7 @@ export const RemotionRoot: React.FC = () => {
             beltGapScale,
           },
           bgm: {
-            src: `${base}/${run}.wav`,
+            src: toUrl(`${run}.wav`),
             volume: 0.35,
             fadeSec: 1.5,
           },

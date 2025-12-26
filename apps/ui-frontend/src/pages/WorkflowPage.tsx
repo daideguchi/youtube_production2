@@ -95,8 +95,8 @@ export function WorkflowPage() {
   const audioEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=audio` : "/channel-workspace";
   const audioIntegrityLink = channel && video ? `/audio-integrity?channel=${channel}&video=${video}` : "/audio-integrity";
   const planningLink =
-    channel && video ? `/progress?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/progress";
-  const ttsListLink = channel ? `/audio-tts-v2?channel=${encodeURIComponent(channel)}` : "/audio-tts-v2";
+    channel && video ? `/planning?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/planning";
+  const ttsListLink = channel ? `/audio-tts?channel=${encodeURIComponent(channel)}` : "/audio-tts";
   const capcutDraftLink = expectedSrtRelPath
     ? `/capcut-edit/draft?srt=${encodeURIComponent(expectedSrtRelPath)}`
     : "/capcut-edit/draft";

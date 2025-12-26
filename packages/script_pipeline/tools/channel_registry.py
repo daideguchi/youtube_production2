@@ -327,11 +327,9 @@ def create_channel_scaffold(
     channel_info = channel_dir / "channel_info.json"
     script_prompt_path = channel_dir / "script_prompt.txt"
 
-    # SoT locations (workspaces) + compat (progress)
+    # SoT locations (workspaces)
     ws_planning_csv = planning_root() / "channels" / f"{code}.csv"
     ws_persona = planning_root() / "personas" / f"{code}_PERSONA.md"
-    legacy_planning_csv = repo_root() / "progress" / "channels" / f"{code}.csv"
-    legacy_persona = repo_root() / "progress" / "personas" / f"{code}_PERSONA.md"
 
     # UI channel list source (workspaces/scripts)
     data_dir = script_data_root() / code
@@ -341,13 +339,6 @@ def create_channel_scaffold(
     headers = _default_planning_headers()
     csv_content = ",".join(headers) + "\n"
     _write_text(ws_planning_csv, csv_content, overwrite=overwrite)
-    # If progress/ is a symlink to workspaces/planning, skip the duplicate write.
-    try:
-        legacy_same = legacy_planning_csv.resolve() == ws_planning_csv.resolve()
-    except Exception:
-        legacy_same = False
-    if legacy_planning_csv.parent.exists() and not legacy_same:
-        _write_text(legacy_planning_csv, csv_content, overwrite=overwrite)
 
     # persona stub
     persona_summary = f"{display_name} の視聴者ペルソナ（要約）をここに 1 行で書く。"
@@ -365,12 +356,6 @@ def create_channel_scaffold(
         f"- {datetime.now().strftime('%Y-%m-%d')} created by channel_registry\n"
     )
     _write_text(ws_persona, persona_body, overwrite=overwrite)
-    try:
-        persona_same = legacy_persona.resolve() == ws_persona.resolve()
-    except Exception:
-        persona_same = False
-    if legacy_persona.parent.exists() and not persona_same:
-        _write_text(legacy_persona, persona_body, overwrite=overwrite)
 
     # script_prompt stub (store content in channel_info.json for UI consumers)
     chars_min = int(target_chars_min) if target_chars_min is not None else None
@@ -396,8 +381,8 @@ def create_channel_scaffold(
         "channel_id": code,
         "name": display_name,
         "description": (description or "").strip() or None,
-        "persona_path": str(legacy_persona.relative_to(repo_root())) if legacy_persona.exists() else str(ws_persona.relative_to(repo_root())),
-        "template_path": f"script_pipeline/channels/{channel_dir_name}/script_prompt.txt",
+        "persona_path": str(ws_persona.relative_to(repo_root())),
+        "template_path": str(script_prompt_path.relative_to(repo_root())),
         "branding": {
             "avatar_url": resolved.avatar_url or "",
             "banner_url": "",

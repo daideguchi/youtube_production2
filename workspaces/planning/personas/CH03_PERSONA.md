@@ -1,9 +1,9 @@
 # CH03 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH03_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH03_planning_template.csv`
 - 最終更新: 2025-11-15（テンプレサンプル更新日時）
-- 反映手順: 1行目ヘッダーと2行目サンプルをコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を置換 → `progress/channels/CHxx.csv` へ貼り付け後 `planning_store.refresh --force`
+- 反映手順: 1行目ヘッダーと2行目サンプルをコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を置換 → `workspaces/planning/channels/CHxx.csv` へ貼り付け → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）
 - 改訂ルール: テンプレ列やサンプルを変えたら、このセクションに変更点と日付を必ず追記する。
 
 ## 1. 共通ペルソナ
@@ -30,10 +30,10 @@
 3. サムネは「生活シーン＋ケア動作」。コピーは12文字前後で安心感を出す。
 
 ## 4. テンプレ
-- `progress/templates/CH03_planning_template.csv` を複製し、Analytics根拠・症状・実践手順を書き換える。
+- `workspaces/planning/templates/CH03_planning_template.csv` を複製し、Analytics根拠・症状・実践手順を書き換える。
 - 医療情報の引用元 URL は `企画意図` に明記すること。
 
 ## 5. 手順
-1. 企画追加→`planning_store.refresh`。
-2. `progress_manager.py verify --channel-code CH03` で列名を確認。
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH03 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UI でサムネ指示とタグ列が表示されることをチェック。

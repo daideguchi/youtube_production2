@@ -15,7 +15,7 @@ defaults:
   sections_min: 5
   sections_max: 7
   modern_examples_max: 1
-  # 00_research/benchmarks_ch07_ch08.md で観測される「強フック→核心の視点→具体対処→締め」の型を基礎にする。
+  # workspaces/research/benchmarks_ch07_ch08.md で観測される「強フック→核心の視点→具体対処→締め」の型を基礎にする。
 
 patterns:
   # -------------------------
@@ -56,44 +56,48 @@ patterns:
           content_notes: "過剰な比喩で伸ばさない。短く。"
 
   # -------------------------
-  # CH10 (Shinya Greats Radio)
+  # CH10（人生を変える偉人思考【今日から実装】）
   # -------------------------
-  - id: ch10_shinya_greats_radio_v1
+  - id: ch10_great_thinking_implementation_v2
     channels: ["CH10"]
     triggers:
       any: []
       all: []
       none: []
     plan:
-      core_message_template: "眠れない夜に、偉人の思考を借りて心のノイズを下げ、明日の一歩を軽くする。"
+      core_message_template: "偉人の思考を借りて、今日から実装できる形に落とし込み、人生の手触りを少し変える。"
       modern_example_policy:
         max_examples: 1
-        example_1_hint: "夜の不安/考えすぎ。明日ひとつだけ試せる行動に落とす。"
+        example_1_hint: "現代の1場面（仕事/家族/孤独/考えすぎ）にだけ当て、具体の手順で回収する。"
       sections:
         - name: 導入
-          char_budget: 800
-          goal: 夜の悩みを掴み、耳が離れない入りを作る
-          content_notes: "静かな警告/逆説フック→聴くメリット→安心の約束。煽りすぎない。"
-        - name: 悩みの正体
-          char_budget: 900
-          goal: 今の苦しさを増やしている思考の癖を一つに絞る
-          content_notes: "言い換え水増し禁止。視聴者が自分ごと化できる描写。"
-        - name: 偉人の視点
-          char_budget: 1300
-          goal: 偉人の世界観で“見方”を入れ替える
-          content_notes: "固有名詞や数字の断定で権威づけしない。語り口はチャンネル指示に従う。"
-        - name: 今日の思考法
           char_budget: 1500
-          goal: 今日の夜にできる思考の操作を具体に示す
-          content_notes: "手順は文章で自然に。`---` は話題転換にだけ。"
-        - name: 明日の一歩
-          char_budget: 1200
-          goal: 習慣化できる最小行動に落とす
-          content_notes: "1つだけ。やりすぎない。"
+          goal: タイトルの痛みを掴み、聴く意味を約束する
+          content_notes: "強すぎないフック→今夜のテーマ→最後に『明日ひとつだけ実装する一歩』を約束。"
+        - name: 悩みの正体
+          char_budget: 2000
+          goal: 問題の構造を一つに絞って言語化する
+          content_notes: "原因を増やさない。視聴者の生活の具体描写で『これだ』にする。"
+        - name: 偉人の背景
+          char_budget: 2600
+          goal: 偉人の状況/葛藤から思考の必然性を描く
+          content_notes: "固有名詞/年代/数字の断定で権威づけしない。逸話は安全に一般化。"
+        - name: 核心の思考
+          char_budget: 2800
+          goal: 偉人の思考を現代語のモデルに翻訳する
+          content_notes: "抽象で終わらせず、判断の基準・見方の切替を言葉にする。"
+        - name: 今日から実装
+          char_budget: 3200
+          goal: 今日の夜からできる手順に落とす
+          content_notes: "文章で手順化。時間/場所/注意点を具体に。危険誘導や断定は禁止。"
+        - name: つまずき対策
+          char_budget: 2400
+          goal: よくある誤解/落とし穴を潰し、継続できる形に整える
+          content_notes: "『やりがちな失敗→どう戻すか』を1〜2往復。反復で水増ししない。"
         - name: 結び
-          char_budget: 800
-          goal: 余韻を残して静かに終える
-          content_notes: "CTAやメタは禁止。安心して眠れる締め。"
+          char_budget: 1600
+          goal: 明日ひとつだけの行動に絞り、静かに終える
+          content_notes: "締めは短く。CTA/制作メタ禁止。未完で終わらない。"
 
   # -------------------------
   # CH07 (Buddhist) patterns
@@ -163,7 +167,7 @@ patterns:
   - id: ch07_warning_cut_ties_v1
     channels: ["CH07"]
     triggers:
-      any: ["警告", "危険", "縁を切", "恩知ら", "親を不幸", "子供"]
+      any: ["警告", "危険", "縁を切", "恩知ら", "親を不幸", "子供", "許すと不幸", "許してはいけない", "絶対に許", "許すな"]
       all: []
       none: []
     plan:
@@ -225,9 +229,10 @@ patterns:
   - id: ch07_reverse_relief_v1
     channels: ["CH07"]
     triggers:
-      any: ["どうでもいい", "気にしない", "許さなくていい", "手放"]
+      any: ["どうでもいい", "気にしない", "許さなくていい", "手放しな", "手放せ"]
       all: []
-      none: []
+      # Guard: prevent misfire on titles like "【手放すな】..."
+      none: ["手放すな"]
     plan:
       core_message_template: "どうでもいいは投げやりではない。執着を緩め、第二の苦しみを止める合図である。"
       core_episode_candidates:
@@ -281,6 +286,69 @@ patterns:
           char_budget: 750
           goal: 一つの行動に収束
           content_notes: "短く。"
+
+  - id: ch07_keep_fated_ties_v1
+    channels: ["CH07"]
+    triggers:
+      # "手放すな" を強く掲げる回は、執着を手放す方向へ倒れると逆方向の事故になる。
+      # 先に「守る縁」と「手放す執着」を区別し、企画訴求（手放すな）を回収する。
+      any: []
+      all: ["手放すな"]
+      none: []
+    plan:
+      core_message_template: "手放すなとは、しがみつけではない。守るべき縁を見極め、壊さない言葉で育てるという決意である。"
+      core_episode_candidates:
+        - id: right_speech
+          topic: 正語（相手も自分も傷つけない言葉）
+          keywords: ["言葉", "縁", "守る"]
+          must_include:
+            - "正しさより、役に立つ言葉を選ぶという筋"
+            - "守る縁ほど、言葉で壊さない配慮が要るという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ブッダは、真実でも相手を傷つけるなら言わない、役に立つなら時を選び慈悲の温度で言う、という教えを説いたと伝えられます。
+            縁は言葉で育ち、言葉で壊れます。守る縁ほど、勝ち負けよりも、役に立つ言葉を選ぶ必要があります。
+        - id: friendship_conditions
+          topic: 良縁を見極める観点（一般化）
+          keywords: ["縁", "見極め", "相性"]
+          must_include:
+            - "縁は感情だけでなく、日々の扱い（言葉・約束・態度）で見えるという筋"
+            - "守る縁は『安心が増える』方向に働くという筋"
+          avoid_claims:
+            - "出典の断定"
+          safe_retelling: |
+            良縁は、劇的な運命というより、日々の扱いの積み重ねで見えてきます。
+            言葉が荒れたままでも修復しようとする姿勢があるか、約束が守られるか、安心が増えるか。
+            そうした小さな確かさが、守るべき縁の輪郭になります。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "夜寝る前に、守りたい縁が一つ浮かぶ場面。言葉の選び直しをする。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 「手放すな」の意味を先に定義し、逆方向の誤解を防ぐ
+          content_notes: "執着の話に滑らせない。守る縁の話に固定する。"
+        - name: 運命の縁のサイン
+          char_budget: 1100
+          goal: 守るべき縁が「言葉」で分かる観点を具体にする
+          content_notes: "安心が増える/尊厳が守られる/約束が守られる。機械的リスト禁止。"
+        - name: 壊す言葉と、育てる言葉
+          char_budget: 1350
+          goal: 逸話→教え→日常語の順で、言葉の扱いを腹落ちさせる
+          content_notes: "候補から1つ。引用は地の文で。"
+        - name: 手放すべきは執着
+          char_budget: 1050
+          goal: 「手放すな」と両立する形で、執着だけを手放す説明にする
+          content_notes: "縁を切れ/全部どうでもいいに倒れない。"
+        - name: 実践
+          char_budget: 1400
+          goal: 今夜からできる一歩に落とす（守る縁に向けた言葉の一手）
+          content_notes: "一つだけ。夜の所作に繋げる。"
+        - name: 結び
+          char_budget: 750
+          goal: 守る縁に気づけた人が、静かに前へ進める締め
+          content_notes: "煽らず、余韻。"
 
   - id: ch07_right_speech_v1
     channels: ["CH07"]
@@ -387,7 +455,9 @@ patterns:
   - id: ch07_do_not_help_v1
     channels: ["CH07"]
     triggers:
-      any: ["助けてはいけない", "関わった瞬間", "不幸になる", "絶対に助け"]
+      # NOTE: Avoid over-broad tokens (e.g. "不幸になる") that can hijack unrelated titles like
+      # "許すと不幸になる". Keep this pattern tightly scoped to "助け" topics.
+      any: ["助けてはいけない", "絶対に助け", "助けるな"]
       all: []
       none: []
     plan:

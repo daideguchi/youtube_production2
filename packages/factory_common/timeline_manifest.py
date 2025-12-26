@@ -97,7 +97,7 @@ def parse_episode_id(text: str) -> Optional[EpisodeId]:
 
 def resolve_final_audio_srt(episode: EpisodeId) -> tuple[Path, Path]:
     """
-    Resolve audio_tts_v2 final artifacts for an episode.
+    Resolve audio_tts final artifacts for an episode.
     Returns (wav_path, srt_path). Raises FileNotFoundError if missing.
     """
     d = audio_final_dir(episode.channel, episode.video)

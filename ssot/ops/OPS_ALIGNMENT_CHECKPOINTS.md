@@ -14,7 +14,7 @@
 ## A. Planning（企画/進捗CSV）
 
 対象:
-- `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+- `workspaces/planning/channels/CHxx.csv`
 
 最低条件（最低限ここが揃わないと下流で事故る）:
 - [ ] ファイル名 `CHxx.csv` と列 `チャンネル` の値が一致している（存在する場合）
@@ -23,7 +23,7 @@
 - [ ] `CHxx-NNN` 形式が壊れていない（`NNN` は 3 桁推奨）
 
 推奨（迷子/再生成ミスが激減する）:
-- [ ] `台本` または `台本パス` が `workspaces/scripts/{CH}/{NNN}/content/assembled.md` を指す（互換: `script_pipeline/data/...`）
+- [ ] `台本` または `台本パス` が `workspaces/scripts/{CH}/{NNN}/content/assembled.md` を指す
   - 形式は **repo 相対パス** を推奨（絶対パス混入は誤参照/移設事故の原因）
 - [ ] 企画更新後に下流を再生成する運用が守られている（`OPS_PLANNING_CSV_WORKFLOW.md`）
 
@@ -32,8 +32,8 @@
 ## B. Script（台本 SoT）
 
 対象:
-- `workspaces/scripts/{CH}/{NNN}/status.json`（正本。互換: `script_pipeline/data/...`）
-- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（正本。互換: `script_pipeline/data/...`）
+- `workspaces/scripts/{CH}/{NNN}/status.json`（正本）
+- `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（正本）
 
 最低条件:
 - [ ] `status.json` が存在する
@@ -52,7 +52,7 @@
 ## C. Audio/TTS（音声・字幕 SoT）
 
 対象（下流参照の正本）:
-- `workspaces/audio/final/{CH}/{NNN}/`（正本。互換: `audio_tts_v2/artifacts/final/...`）
+- `workspaces/audio/final/{CH}/{NNN}/`（正本）
 
 最低条件:
 - [ ] `{CH}-{NNN}.wav` が存在する
@@ -61,7 +61,7 @@
 
 推奨:
 - [ ] `log.json` の `channel/video` とディレクトリ `{CH}/{NNN}` が一致する
-- [ ] 中間生成物（`workspaces/scripts/.../audio_prep/`。互換: `script_pipeline/data/...`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
+- [ ] 中間生成物（`workspaces/scripts/.../audio_prep/`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
 - [ ] `run_tts` 実行前に `status.json: metadata.alignment` が最新である（無い/不一致なら `run_tts` が停止する）
   - 再スタンプ: `python scripts/enforce_alignment.py --channels CHxx --apply`
 
@@ -70,7 +70,7 @@
 ## D. Video（SRT→画像→CapCut）
 
 対象（run 単位の SoT）:
-- `workspaces/video/runs/{run_id}/`（正本。互換: `commentary_02_srt2images_timeline/output/...`）
+- `workspaces/video/runs/{run_id}/`（正本）
 
 最低条件:
 - [ ] `image_cues.json` が存在し、`cues[]` が空でない
@@ -86,7 +86,7 @@
 ## E. Thumbnails（独立動線）
 
 対象（SoT）:
-- `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
+- `workspaces/thumbnails/projects.json`
 
 最低条件:
 - [ ] `projects.json` が JSON として読める

@@ -11,8 +11,8 @@
 - 「誰が何をしてるか」「ここは触るな」がファイルSoTとして残る。
 
 ## 2. 前提
-- 正本ディレクトリは `logs/agent_tasks/coordination/`（`LLM_AGENT_QUEUE_DIR` で変更可）。
-- 重要: zsh は `ui/**` のような `**` を展開するため、glob は **必ずクォート**する（`'ui/**'`）。
+- 正本ディレクトリは `workspaces/logs/agent_tasks/coordination/`（`LLM_AGENT_QUEUE_DIR` で変更可）。
+- 重要: zsh は `apps/ui-frontend/**` のような `**` を展開するため、glob は **必ずクォート**する（`'apps/ui-frontend/**'`）。
 
 ## 2.1 UI（可視化）
 - UIページ: `/agent-org`
@@ -82,8 +82,9 @@ python scripts/agent_org.py memos --to Mike
 ## 7. 作業スコープロック（soft access control）
 ### 7.1 lock を置く（触る前に）
 ```bash
-python scripts/agent_org.py lock 'ui/**' --mode no_touch --ttl-min 60 --note 'dd working'
-python scripts/agent_org.py locks --path ui/backend/main.py
+python scripts/agent_org.py lock 'apps/ui-frontend/**' --mode no_touch --ttl-min 60 --note 'dd working'
+python scripts/agent_org.py lock 'apps/ui-backend/**' --mode no_touch --ttl-min 60 --note 'dd working'
+python scripts/agent_org.py locks --path apps/ui-backend/backend/main.py
 ```
 
 ### 7.2 lock を外す
@@ -93,11 +94,11 @@ python scripts/agent_org.py unlock <LOCK_ID>
 
 ## 8. 申し送り（memo）
 ```bash
-python scripts/agent_org.py memo --to Mike --subject 'Heads up' --body 'ui/backend は触らないで'
+python scripts/agent_org.py memo --to Mike --subject 'Heads up' --body 'apps/ui-backend/backend は触らないで'
 python scripts/agent_org.py memos --to Mike
 ```
 
 ## 9. 監査（events）
 ```bash
-tail -n 50 logs/agent_tasks/coordination/events.jsonl
+tail -n 50 workspaces/logs/agent_tasks/coordination/events.jsonl
 ```

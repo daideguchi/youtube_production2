@@ -1,8 +1,8 @@
 # CH09 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH09_planning_template.csv`
-- 使い方: ヘッダー＋サンプル1行をコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を差し替えて `progress/channels/CH09.csv` に追加 → `planning_store.refresh --force`。
+- SoT: `workspaces/planning/templates/CH09_planning_template.csv`
+- 使い方: ヘッダー＋サンプル1行をコピーし、`{NEXT_NO}` / `{NEXT_VIDEO}` を差し替えて `workspaces/planning/channels/CH09.csv` に追加 → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）。
 
 ## 1. 共通ペルソナ（固定一文）
 > 30〜50代のビジネスパーソン。日々の意思決定で疲弊し、揺れない軸を持ちたい人。
@@ -30,3 +30,7 @@
 ## 4. ベンチマーク
 - 「ミニマリスト思考」「タスク管理・自己管理系」チャンネルの短尺構成。
 - ストア派/禅思考の引用で「静かな決断」を強調。
+
+## 5. 運用
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH09 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。

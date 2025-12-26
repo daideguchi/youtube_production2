@@ -10,7 +10,10 @@
 推奨実行（共通）:
 - **必ず** `./scripts/with_ytm_env.sh .venv/bin/python ...` を使う（.envロード + venv依存を固定）。
   - `python -m ...` 直叩きは環境差分（依存不足）で詰まりやすい。
-  - 例: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH10 --video 004`
+  - 日常運用の入口（固定）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <MODE> ...`
+    - モード（new/redo-full/resume/rewrite）の正本: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
+  - 例（新規）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
+  - 例（途中再開）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
 
 関連（詳細/分割SSOT）:
 - 確定E2Eフロー（観測ベースの正本）: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
@@ -27,7 +30,7 @@
 ## 0) SoT（正本）とI/O（迷子を止める固定）
 
 用語（本書内の定義）:
-- 内容汚染（=混線）: 別動画の企画要約/タグ等が混ざり、タイトルと別テーマのヒントが入っている状態。
+- 内容汚染: 別動画の企画要約/タグ等が混ざり、タイトルと別テーマのヒントが入っている状態。
 - 機械チェック（=非LLM）: コードで確実に判定できる禁則/字数/区切りなどを、LLMに頼らず止めるチェック。
 
 SoT（正本）:
@@ -41,6 +44,47 @@ SoT（正本）:
 証跡/ログ（参照はできるが正本ではない）:
 - ステージごとの入出力: `workspaces/scripts/{CH}/{NNN}/logs/{stage}_prompt.txt`, `.../{stage}_response.json`
 - 研究/判定ログ: `workspaces/scripts/{CH}/{NNN}/content/analysis/**`
+
+### 0.2 「機械チェック」と「LLM」の役割分担（柔軟性を失わないために）
+
+結論:
+- **機械チェック（LLMなし）**は「壊れ方を止める安全弁」。内容を固定しない。
+- **LLM**は「内容の設計/執筆/意味整合/自然さの合否」を担当する。
+
+機械チェック（LLMなし）がやること（例）:
+- 形式/禁則: URL、脚注、箇条書き、区切り記号の混入を止める
+- 破損検知: 末尾ぶつ切り（未完）を止める、同一段落の丸ごと重複を止める
+- 安全な機械修復: “書き足す”のではなく、壊れた尻尾のトリム・重複段落の削除など **安全な除去だけ**（必ず証跡を残す）
+
+LLMがやること（柔軟性が必要な領域）:
+- アウトライン設計（`script_outline`）と章執筆（`script_draft`）
+- 内容品質（薄い/冗長/流れが悪い）を Judge して、必要なら最小リライト（`script_validation` の LLM品質ゲート）
+- タイトル/サムネ訴求 ↔ 台本コアの「意味整合」（minor/major の判定 + 最小リライト）
+
+柔軟性を“どこに集約するか”（入口固定の前提）:
+- 企画の変更は Planning SoT（タイトル/企画意図/構成案）で吸収する
+- 表現だけを変える要求は `rewrite`（ユーザー指示必須）で吸収する
+- それ以外の例外を機械ルールに押し込まない（入口/判断を増やすとズレが増える）
+
+### 0.3 Web検索（補助）の扱い（コスト/内容汚染を増やさない）
+
+結論:
+- Web検索は **補助**。タイトル/企画の主題を変えるために使わない。
+- やりすぎるとコストと内容汚染が増えるため、**チャンネルごとに実行可否を固定**する（SoT）。
+
+SoT（チャンネル別ポリシー）:
+- `configs/sources.yaml: channels.CHxx.web_search_policy`（default: `auto`）
+  - `disabled`: 検索しない（`search_results.json` は必ず `provider=disabled, hits=[]` を書く）
+  - `auto`: 通常どおり検索を試す（provider は `YTM_WEB_SEARCH_PROVIDER`。失敗してもパイプラインは止めない）
+  - `required`: 検索を必ず試す（失敗してもパイプラインは止めないが、`status.json` に decision/reason が残る）
+
+いまのデフォルト（2025-12-25 時点）:
+- `disabled`: CH05
+- `required`: CH02, CH03, CH04, CH06, CH07, CH08, CH09, CH10〜CH25
+
+内容汚染対策（設計）:
+- 検索結果は `topic_research` の **参考URL/論点抽出**に限定し、本文の主題はタイトルに従う。
+- `search_results.json` / `references.json` は本文（Aテキスト）へ混入させない（URL/脚注は禁止）。
 
 ### 0.1 全体像（1枚で把握）
 
@@ -62,6 +106,23 @@ script_draft → script_enhancement → script_review → quality_check
 script_validation（禁則=機械チェック + 内容=LLM + 意味整合=LLM）
   v
 audio_synthesis（必要時のみ）
+```
+
+Mermaid（視覚用）:
+
+```mermaid
+flowchart LR
+  Planning["Planning SoT\nworkspaces/planning/channels/CHxx.csv"] --> Status["Script SoT\nworkspaces/scripts/{CH}/{NNN}/status.json"]
+  Persona["persona / prompt / pattern"] --> Status
+  Status --> TR["topic_research（任意）"]
+  TR --> OUT["script_outline（ズレを早期停止）"]
+  OUT --> BR["chapter_brief"]
+  BR --> DR["script_draft"]
+  DR --> EN["script_enhancement"]
+  EN --> REV["script_review"]
+  REV --> QC["quality_check"]
+  QC --> VAL["script_validation\n(機械チェック→LLM品質→意味整合)"]
+  VAL --> AUDIO["audio_synthesis（必要時のみ）"]
 ```
 
 覚え方（概念）:
@@ -177,9 +238,9 @@ audio_synthesis（必要時のみ）
   - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CHxx --video NNN`
 
 検証例（新規作成: CH10）:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 004`
+- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
   - status.json が無ければ自動で初期化され、Planning SoT（`workspaces/planning/channels/CH10.csv`）のタイトルを使う
-  - 最後に `script_validation` が意味整合を検査し、既定では `verdict: major`（明らかなズレ）のみ停止（収束可能なら最小リライトを試みる）
+  - 最後に `script_validation` が意味整合を検査し、既定では `verdict: major` のみ停止（収束可能なら最小リライトを試みる）
 
 ---
 
@@ -222,6 +283,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 
 途中から再開（手動介入/中断後）:
 - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+  - 収束しない場合の最終手段（高コスト・1回だけ）: `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL=1` を付けて再実行（Rebuildで一貫した本文を再構築）
 
 リライト修正（ユーザー指示必須）:
 - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
@@ -235,6 +297,10 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 ### 5.1 機械チェック（必須）
 - 禁則/字数/区切り/括弧上限など（台本本文にURL/脚注/箇条書き等を混ぜない）
 - 入口/運用: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
+- 事故の多い壊れ方は、LLMに頼らず **機械で修復→再判定**する（コスト削減）:
+  - 末尾ぶつ切り（未完）: 追記生成ではなく、最後の文境界まで **トリム**して止める
+  - 同一段落の丸ごと重複: 後続の重複段落を **削除**して止める
+  - 証跡: `status.json: stages.script_validation.details.deterministic_cleanup`
 
 ### 5.2 LLM品質ゲート（推論; 収束上限あり）
 - 正本: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
@@ -249,10 +315,10 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
   - 事前救済は原則2パスだが、**2パス後に残り不足が小さい場合（`<=1200`）のみ**追加で1パスを許容して「あと少し足りない」事故を潰す（コスト暴走防止）。
 - 字数超過:
   - Shrink（削除/圧縮）を実行する。
-  - LLMが削り不足を返すケースがあるため、最終的に **機械トリム（`---` 区切り単位の予算配分）**で必ずレンジ内へ収束させる。
+  - LLMが削り不足を返すケースがあるため、最終的に **機械トリム（`---` 区切り単位の予算配分）**で必ずレンジ内へ収束させる（=文章を“書く”のではなく、余剰を安全に“削る”だけ）。
     - 証跡: `status.json: stages.script_validation.details.auto_length_fix_fallback` に `deterministic_budget_trim` を記録。
 
-### 5.3 意味整合（必須: major を止める）
+### 5.3 意味整合（必須: 企画↔台本のズレを止める）
 - 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 - 方針: 文字一致ではなく **意味整合**で「企画の訴求 ↔ 台本コア」のズレを止める。
 - 実装（確定）:
@@ -262,8 +328,8 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `ok`: 主題（タイトル/サムネの意図）と整合している（合格）
       - `minor`: 軽微なズレ（主題は合っているが、段落/言い回しに改善余地がある）
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
-    - major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
-    - strict にしたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（`verdict: ok` 固定で minor/major は停止）。
+    - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
+    - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
   - minorも直す: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`

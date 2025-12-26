@@ -404,6 +404,14 @@ body,
   color: #475569;
 }
 
+.dashboard-focus-card__channel code {
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .dashboard-focus-card__action {
   align-self: flex-start;
   border: none;

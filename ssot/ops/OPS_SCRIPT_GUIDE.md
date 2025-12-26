@@ -9,7 +9,7 @@
 
 推奨実行（共通）:
 - **必ず** `./scripts/with_ytm_env.sh .venv/bin/python ...` を使う（.envロード + venv依存を固定）。
-  - 例: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH10 --video 004`
+  - 例: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
 
 ---
 
@@ -19,72 +19,33 @@
 - 台本SoT: `workspaces/scripts/{CH}/{NNN}/status.json`
 - 台本本文（Aテキスト / 入力の正）:
   - 正本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合）
-  - フォールバック: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
-  - 互換: `assembled.md` は **mirror**（`assembled_human.md` と一致させる）
+  - ミラー: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（正本と同内容に揃える）
 
 ---
 
-## 1. 入口（Entry points）
+## 1. 入口（絶対固定 / 4パターン）
 
-### 1.1 初期化（status.json が無い場合）
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli init --channel CH06 --video 033 --title "<title>"`
+日常運用で叩く入口は **これだけ**。  
+モード（new/redo-full/resume/rewrite）の正本は `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`。
 
-### 1.2 実行（ステージ指定）
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_outline`
-
-### 1.3 実行（次のpendingを進める）
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli next --channel CH06 --video 033`
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run-all --channel CH06 --video 033`
-
-### 1.4 Runbook（新規/やり直しを定型化）
-大量運用で「叩く入口」を固定するための薄いラッパー。  
-内部では `script_pipeline.runner` を呼び、結果を JSON で出す。
-
-モード定義の正本:
-- `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`（入口固定 / 4パターン）
-
-入口（固定）:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <mode> ...`
+- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <MODE> ...`
 
 代表例:
-- 新規で1から（CH10検証）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 004`
-- 最初から完全にやり直す（CH07-019以降の検証）:
+- 新規で1から:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
+- 最初から完全にやり直す:
   - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
 - 途中から再開:
   - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
 - リライト修正（ユーザー指示必須）:
   - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
 
-補助（安く通すだけ）:
-- 既存本文を再生成せず `script_validation` だけ実行:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
-
-### 1.5 超長尺（2〜3時間級 / 全文LLM禁止: Marathon）
-超長尺では、`script_validation` の **全文LLM Judge/Fix** がコンテキスト・コスト・部分改変事故で破綻しやすい。  
-したがって「章分割→機械（非LLM）アセンブル」を前提にした Marathon モードを使う（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
-
-- planのみ（設計だけ作る）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
-- dry-run（analysis/longform に生成、正本は触らない）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
-- apply（canonical を上書き）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
-- ブロック雛形（章の箱）を指定したい場合:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
-  - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
-
-確認（推奨）:
-- 機械lint（非LLM。禁則/反復/まとめ重複）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
-- セマンティック整合（必要時のみ。タイトル語句一致は必須ではない）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`
+補助（検査だけ。再生成しない）:
+- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
 
 注意:
-- Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
-- 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して機械チェックだけ使う:
-  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
-  - 追加の安全弁（runner側）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）超過時は、全文LLMゲートが自動スキップされる（強制は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
+- `python -m script_pipeline.cli ...` は内部/詳細制御。入口を増やすと事故るので、通常は使わない（必要時のみ「付録A」を参照）。
+- 超長尺（2〜3時間級）は例外運用（Marathon）。「付録B」を参照。
 
 ---
 
@@ -100,9 +61,11 @@
 
 ## 3. 状態確認・整合
 
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH06 --video 033`
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CH06 --video 033`
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
+- 基本: 入口固定（`scripts/ops/script_runbook.py ...`）の出力JSONを見て判断する（`ok / pending / note`）。
+- 内部CLI（必要時のみ。付録A）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH06 --video 033`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CH06 --video 033`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
 
 ### 3.0 UI（Episode Studio）での復旧
 
@@ -117,7 +80,10 @@ UI側でも「詰まったらまずここ」を固定する。
 
 ### 3.1 Script Validation（品質ゲート）
 
-- 実行: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CH06 --video 033 --stage script_validation`
+- 実行（推奨: 入口固定）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
+- （内部CLI。必要時のみ）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
 - NG時: `status.json: stages.script_validation.details.error_codes / issues` に理由が残る（UIにも表示される想定）。修正後に同じコマンドを再実行する。
 - 判定基準（正本）:
   - `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`（禁則・TTS事故防止の下限）
@@ -125,9 +91,9 @@ UI側でも「詰まったらまずここ」を固定する。
 
 追加ゲート（意味整合）:
 - 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
-- 既定では `verdict: major`（明らかなズレ）のみ停止（ok/minor は合格）。major は可能なら最小リライトを自動適用して収束させる。
-- strict（ok固定）にしたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`。
-- 手動で直す場合:
+- 既定では `verdict: major` のみ停止（ok/minor は合格）。minor/major は可能なら最小リライトを自動適用して収束させる。
+- 厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok 以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
+- 手動で直す場合（内部CLI。通常は不要）:
   - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（チェックのみ）
   - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`（最小リライト）
 
@@ -145,9 +111,11 @@ UI側でも「詰まったらまずここ」を固定する。
 原則:
 - 企画CSVを直したら、台本は **reset→再生成** を基本にする（旧台本が残ると混乱源）。
 
-コマンド:
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CH06 --video 033`
-  - 追加で調査出力も消す場合: `--wipe-research`
+コマンド（推奨: 入口固定）:
+- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
+
+（内部CLI。必要時のみ）:
+- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
 ### 4.2 人間が台本を直した場合
 原則:
@@ -183,3 +151,49 @@ UI側でも「詰まったらまずここ」を固定する。
 - 許可: `---`（1行単独。話題転換/場面転換など文脈ベースで挿入）
 - 禁止: `***` / `___` / `///` / `===` などの区切り記号（TTS分割の不自然さ・混乱源）
 - 注意: `「」` と `（）` はTTSが不自然に途切れやすいので **多用しない**（詳細は `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`）
+
+---
+
+## 付録A. 内部CLI（デバッグ/詳細制御。通常運用では使わない）
+
+入口固定（`scripts/ops/script_runbook.py`）を守るため、ここは必要時だけに限定する。
+
+- 状態:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CHxx --video NNN`
+- 初期化（status.jsonが無いときだけ）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli init --channel CHxx --video NNN --title \"<title>\"`
+- 実行:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli next --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run-all --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_outline`
+- リセット（やり直しの強制。redo-fullの代替）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
+
+---
+
+## 付録B. 超長尺（2〜3時間級 / 全文LLM禁止: Marathon）
+
+超長尺では、`script_validation` の **全文LLM Judge/Fix** がコンテキスト・コスト・部分改変事故で破綻しやすい。  
+したがって「章分割→機械（非LLM）アセンブル」を前提にした Marathon を使う（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
+
+- planのみ（設計だけ作る）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
+- dry-run（analysis/longform に生成、正本は触らない）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
+- apply（canonical を上書き）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
+- ブロック雛形（章の箱）を指定したい場合:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
+  - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
+
+確認（推奨）:
+- 機械lint（非LLM。禁則/反復/まとめ重複）:
+  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+
+注意:
+- Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
+- 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して機械チェックだけ使う:
+  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+  - 追加の安全弁（runner側）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）超過時は、全文LLMゲートが自動スキップされる（強制は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。

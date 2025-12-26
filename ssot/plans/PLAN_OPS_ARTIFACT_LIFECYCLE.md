@@ -4,18 +4,18 @@
 - **Plan ID**: PLAN_OPS_ARTIFACT_LIFECYCLE
 - **ステータス**: Draft
 - **担当/レビュー**: Owner: dd / Reviewer: dd
-- **対象範囲 (In Scope)**: `workspaces/scripts`（互換: `script_pipeline/data`）, `workspaces/audio`（互換: `audio_tts_v2/artifacts`）, `workspaces/video/{input,runs}`（互換: `commentary_02_srt2images_timeline/{input,output}`）, `apps/remotion/{input,out}`, `workspaces/logs/**`（互換: `logs/**`）等の生成物と中間生成物
+- **対象範囲 (In Scope)**: `workspaces/scripts`, `workspaces/audio`, `workspaces/video/{input,runs}`, `apps/remotion/{input,out}`, `workspaces/logs/**` 等の生成物と中間生成物
 - **非対象 (Out of Scope)**: 生成アルゴリズムそのものの変更、UI/CLIの新機能追加（cleanup 導線の薄い追加は含む）
-- **関連 SoT/依存**: `ssot/ops/DATA_LAYOUT.md`, `ssot/reference/REFERENCE_ssot_このプロダクト設計について.md`, `scripts/cleanup_data.py`, `scripts/ops/cleanup_logs.py`, `audio_tts_v2/scripts/run_tts.py`
+- **関連 SoT/依存**: `ssot/ops/DATA_LAYOUT.md`, `ssot/reference/REFERENCE_ssot_このプロダクト設計について.md`, `scripts/cleanup_data.py`, `scripts/ops/cleanup_logs.py`, `packages/audio_tts/scripts/run_tts.py`
 - **最終更新日**: 2025-12-18
 
 ## 1. 背景と目的
 - 現状、各工程の**中間生成物が長期的に溜まり続ける**ため、ディスク肥大・探索ノイズ・誤参照が発生している。
 - 既に `scripts/cleanup_data.py --run` で（final 音声が揃った動画の）`audio_prep` と一部ログの削除はあるが、
-  - `workspaces/audio/final/**/chunks/`（互換: `audio_tts_v2/artifacts/final/**/chunks/`）、
-  - `workspaces/video/runs/<run>/`（互換: `commentary_02_srt2images_timeline/output/<run>/`）の大量 run、
+  - `workspaces/audio/final/**/chunks/`、
+  - `workspaces/video/runs/<run>/` の大量 run、
   - remotion の `out/`,
-  - `workspaces/logs/`（互換: `logs/`）直下の長期蓄積
+  - `workspaces/logs/` 直下の長期蓄積
   などは無秩序に残る。
 - 目標は「**SoT/最終成果物は絶対に守りつつ**、再生成可能な中間物と一時ログを自動的に整理できる状態」を作ること。
 
@@ -43,7 +43,7 @@
 
 ### 3.1 企画/進捗（planning）
 - **L0/SoT**
-  - `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+  - `workspaces/planning/channels/CHxx.csv`
   - `workspaces/planning/personas/*`
   - `workspaces/planning/templates/*`
   - `workspaces/planning/analytics/*`
@@ -52,7 +52,7 @@
   - `planning_updates_preview.csv` 等の preview は L2 として 30 日で削除可。
 
 ### 3.2 台本（workspaces/scripts）
-`script_pipeline/stages.yaml` の生成物を基準に保存レベルを定義。
+`packages/script_pipeline/stages.yaml` の生成物を基準に保存レベルを定義。
 
 - **L0/SoT（絶対保持）**
   - `status.json`
@@ -67,8 +67,8 @@
   - `content/chapters/chapter_briefs.json`
   - `content/chapters_formatted/*`（もし残っている場合）
 - **L3/Logs**
-  - `workspaces/scripts/{CH}/{VIDEO}/logs/`（動画別。互換: `script_pipeline/data/.../logs/`）
-  - `workspaces/scripts/_state/logs/*.log`（互換: `script_pipeline/data/_state/logs/*.log`）
+  - `workspaces/scripts/{CH}/{VIDEO}/logs/`（動画別）
+  - `workspaces/scripts/_state/logs/*.log`
 
 **削除/圧縮基準**
 - `status.json.stage >= script_validation`（台本最終化）になったら:
@@ -83,22 +83,22 @@
 ### 3.3 音声/TTS（workspaces/scripts/audio_prep + workspaces/audio/final）
 
 - **L0/SoT**
-  - `workspaces/audio/final/<CH>/<VIDEO>/CHxx-NNN.wav`（互換: `audio_tts_v2/artifacts/final/...`）
-  - `workspaces/audio/final/<CH>/<VIDEO>/CHxx-NNN.srt`（互換: `audio_tts_v2/artifacts/final/...`）
-  - `workspaces/audio/final/<CH>/<VIDEO>/log.json`（互換: `audio_tts_v2/artifacts/final/...`）
+  - `workspaces/audio/final/<CH>/<VIDEO>/CHxx-NNN.wav`
+  - `workspaces/audio/final/<CH>/<VIDEO>/CHxx-NNN.srt`
+  - `workspaces/audio/final/<CH>/<VIDEO>/log.json`
 - **L1/Final**
-  - `workspaces/audio/final/<CH>/<VIDEO>/a_text.txt`（互換: `audio_tts_v2/artifacts/final/...`）
+  - `workspaces/audio/final/<CH>/<VIDEO>/a_text.txt`
   - `workspaces/audio/final/<CH>/<VIDEO>/b_text_with_pauses.txt`
   - `workspaces/audio/final/<CH>/<VIDEO>/kana_engine.json`
   - `workspaces/audio/final/<CH>/<VIDEO>/srt_blocks.json` / `tokens.json` 等（存在するもの）
 - **L2/Intermediate**
-  - `workspaces/scripts/<CH>/<VIDEO>/audio_prep/*`（tokens, chunks, pause_map, srt_entries 等。互換: `script_pipeline/data/...`）
-  - `workspaces/audio/final/<CH>/<VIDEO>/chunks/*.wav`（互換: `audio_tts_v2/artifacts/final/.../chunks/`）
-  - （未整備/将来）`workspaces/audio/runs/<engine>/<CH>/<VIDEO>/`（中間 run。旧: `audio_tts_v2/artifacts/audio/...`）
+  - `workspaces/scripts/<CH>/<VIDEO>/audio_prep/*`（tokens, chunks, pause_map, srt_entries 等）
+  - `workspaces/audio/final/<CH>/<VIDEO>/chunks/*.wav`
+  - （未整備/将来）`workspaces/audio/runs/<engine>/<CH>/<VIDEO>/`（中間 run）
 - **L3/Logs**
-  - `workspaces/logs/tts_voicevox_reading.jsonl`（互換: `logs/tts_voicevox_reading.jsonl`）
-  - `workspaces/logs/tts_llm_usage.log`（互換: `logs/tts_llm_usage.log`）
-  - `audio_tts_v2/logs/*.log`（観測される。現行コード参照は薄く、legacy/adhoc の可能性が高い）
+  - `workspaces/logs/tts_voicevox_reading.jsonl`
+  - `workspaces/logs/tts_llm_usage.log`
+  - `packages/audio_tts/logs/*.log`（観測される。現行コード参照は薄く、legacy/adhoc の可能性が高い）
 
 **削除/圧縮基準**
 - `status.json.stage >= audio_synthesis` かつ `workspaces/planning/channels` の該当行が `audio: ready` になったら:
@@ -115,19 +115,19 @@
 - `scripts/purge_audio_final_chunks.py`: final/chunks を削除（recent window で生成中を保護）
 
 **現行の自動cleanup（UI/Backend 経由の TTS 成功時）**
-- backend (`apps/ui-backend/backend/main.py:_run_audio_tts_v2`) は成功時にベストエフォートで以下を実行する:
-  - `workspaces/scripts/.../audio_prep/chunks/` を削除（互換: `script_pipeline/data/...`）
+- backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時にベストエフォートで以下を実行する:
+  - `workspaces/scripts/.../audio_prep/chunks/` を削除
   - `workspaces/scripts/.../audio_prep/{CH}-{NNN}*.wav|.srt`（finalと重複するバイナリ。例: `*-regenerated.*`）を削除
-  - `workspaces/audio/final/.../chunks/` を削除（互換: `audio_tts_v2/artifacts/final/...`）
+  - `workspaces/audio/final/.../chunks/` を削除
     - 無効化: `YTM_TTS_KEEP_CHUNKS=1`
 
-### 3.4 画像/動画ドラフト（workspaces/video/runs + commentary_02_srt2images_timeline）
+### 3.4 画像/動画ドラフト（workspaces/video/runs + video_pipeline）
 
 - **L0/SoT**
-  - `workspaces/video/runs/<run>/image_cues.json`（互換: `commentary_02_srt2images_timeline/output/<run>/...`）
-  - `workspaces/video/runs/<run>/capcut_draft/`（採用ドラフト。互換: `commentary_02_srt2images_timeline/output/<run>/...`）
+  - `workspaces/video/runs/<run>/image_cues.json`
+  - `workspaces/video/runs/<run>/capcut_draft/`（採用ドラフト）
     - 備考: `capcut_draft` は symlink のことがある（target無=ドラフト未生成）。壊れたリンクは `scripts/ops/cleanup_broken_symlinks.py` で除去。
-  - `workspaces/video/runs/<run>/episode_info.json`（互換: `commentary_02_srt2images_timeline/output/<run>/...`）
+  - `workspaces/video/runs/<run>/episode_info.json`
 - **L1/Final**
   - `workspaces/video/runs/<run>/belt_config.json`
   - `workspaces/video/runs/<run>/auto_run_info.json`
@@ -142,16 +142,16 @@
       - `python3 scripts/ops/archive_capcut_local_drafts.py --dry-run` → OKなら `--run`
       - 退避先: `workspaces/video/_capcut_drafts/_archive/<timestamp>/`（削除ではなく移動）
       - report: `workspaces/logs/regression/capcut_local_drafts_archive/`
-  - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**。互換: `commentary_02_srt2images_timeline/input/...`）
+- `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**）
     - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
-    - 同期: `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs`
+    - 同期: `python -m video_pipeline.tools.sync_audio_inputs`
       - 容量削減（推奨）: wav を symlink でミラーする（挙動は同じで重複を避けられる）
-        - `python -m commentary_02_srt2images_timeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip`
+        - `python -m video_pipeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip`
     - 不一致が見つかった場合は、古いコピーを `workspaces/video/_archive/<timestamp>/<CH>/video_input/` へ退避し、final を再同期して 1:1 を維持する。
 - **L3/Logs**
-  - `commentary_02_srt2images_timeline/logs/*`
-  - `workspaces/video/runs/<run>/logs/*`（run単位ログ。run_dir と一緒に管理する。互換: `commentary_02_srt2images_timeline/output/<run>/logs/*`）
-  - `workspaces/logs/llm_context_analyzer.log`（互換: `logs/llm_context_analyzer.log`）
+  - `packages/video_pipeline/logs/*`
+  - `workspaces/video/runs/<run>/logs/*`（run単位ログ。run_dir と一緒に管理する）
+  - `workspaces/logs/llm_context_analyzer.log`
 
 **削除/圧縮基準**
 - 1 video に対し run が複数ある場合:
@@ -164,8 +164,8 @@
 
 ### 3.5 サムネ（thumbnails）
 - **L0/SoT**
-  - `workspaces/thumbnails/projects.json`（互換: `thumbnails/projects.json`）
-  - `workspaces/thumbnails/assets/<CH>/<VIDEO>/*`（互換: `thumbnails/assets/...`）
+  - `workspaces/thumbnails/projects.json`
+  - `workspaces/thumbnails/assets/<CH>/<VIDEO>/*`
 - **L2**
   - 未採用バリアント（projects.json で `archived` 扱い）  
     → 90 日後に `workspaces/thumbnails/_archive/<timestamp>/` に移動。
@@ -174,27 +174,27 @@
 
 ### 3.6 Remotion（remotion）
 - **L1/Final**
-  - `remotion/out/*`（書き出し mp4/manifest）
+  - `apps/remotion/out/*`（書き出し mp4/manifest）
 - **L2**
-  - `remotion/input/*`（同期された入力コピー）
+  - `apps/remotion/input/*`（同期された入力コピー）
 - **L3**
-  - `remotion/node_modules/`（gitignore）
+  - `apps/remotion/node_modules/`（gitignore）
 
 **削除/圧縮基準**
 - `video: published` で `out/<project>/` を zip 化、入力は削除。
 
 ### 3.7 ルート logs/output（workspaces/logs 正本）
 - **L3（原則）**
-  - `workspaces/logs/*.log|jsonl|db`（互換: `logs/*`）
+  - `workspaces/logs/*.log|jsonl|db`
   - ルート `output/*` のテスト成果物（存在する場合。Legacy）
 - **例外的に L1 として残すログ**
-  - `workspaces/logs/audit_global_execution.log`（互換: `logs/audit_global_execution.log`）
-  - `workspaces/logs/llm_usage.jsonl`（コスト分析。互換: `logs/llm_usage.jsonl`）
-  - `workspaces/logs/tts_voicevox_reading.jsonl`（読みの追跡。互換: `logs/tts_voicevox_reading.jsonl`）
+  - `workspaces/logs/audit_global_execution.log`（監査）
+  - `workspaces/logs/llm_usage.jsonl`（コスト分析）
+  - `workspaces/logs/tts_voicevox_reading.jsonl`（読みの追跡）
 
 **削除基準**
 - script_pipeline の state logs は 14 日（`scripts/cleanup_data.py --run --keep-days 14`）。
-- `workspaces/logs/`（互換: `logs/`）の L3 は 30 日（`scripts/ops/cleanup_logs.py --run --keep-days 30`）。
+- `workspaces/logs/` の L3 は 30 日（`scripts/ops/cleanup_logs.py --run --keep-days 30`）。
 - 例外 L1 は無期限保持。
 
 ### 3.8 静的アセット（asset/）
@@ -256,6 +256,23 @@ python -m scripts.cleanup_workspace --all --run --yes
 - `scripts/cleanup_data.py` は L3/一部L2の簡易版として残すが、
   - 新 cleanup が安定したら **本体に統合**し、cron も新コマンドへ移行。
 
+### 4.4 外部SSDへのオフロード（任意 / 容量・探索ノイズ対策）
+ローカルディスクを軽くするため、既に `_archive/` に退避済みの成果物や `backups/graveyard/` を **外部SSDへオフロード**できるようにする。
+
+- 対象（原則）:
+  - `workspaces/**/_archive/**`（L2/L3 の退避物）
+  - `backups/graveyard/**`（archive-first の退避）
+- 非対象（既定では触らない）:
+  - `workspaces/audio/final/**`（L0/SoT）
+  - `workspaces/video/runs/**`（現行run。先に `_archive/` へ退避してからオフロードする）
+
+運用:
+- 入口: `python3 scripts/ops/offload_archives_to_external.py --help`
+- 外部SSDのルートは `YTM_OFFLOAD_ROOT`（または `--external-root`）で指定する:
+  - 例: `YTM_OFFLOAD_ROOT=/Volumes/FactorySSD/ytm_offload`
+- 既定は dry-run（差分確認）→ OKなら `--run`（必要なら `--mode move` でローカルを削除して容量回収）
+- 実行ログ/マニフェストは `workspaces/logs/regression/offload_archives_to_external/` に残す（復元/追跡のため）
+
 ## 5. 既存ディレクトリ再編との整合（PLAN_REPO_DIRECTORY_REFACTOR 連動）
 - `workspaces/` へ移設後のパスをこの計画の正本にする。
 - cleanup は `workspaces/*` のみを対象にし、`packages/` 配下には触れない設計にする。
@@ -265,8 +282,8 @@ python -m scripts.cleanup_workspace --all --run --yes
   → stage/CSV によるガード、dry-run 既定、archive-first。
 - **再生成コスト増**  
   → L2 の purge は published/ready 後に限定。必要時は keep-last-runs を増やす。
-- **パス移設中の二重管理**  
-  → 互換 symlink 期間中は cleanup 対象を新パスに限定する。
+- **旧パスの再混入（運用の迷い）**  
+  → 互換 symlink は廃止。cleanup は常に正本（`workspaces/**` / `backups/graveyard/**`）のみを対象にし、root alias の再導入は `scripts/ops/repo_sanity_audit.py` で検知する。
 
 ## 7. 次のアクション
 1. `cleanup_workspace` の対象拡張（Video）とフラグ設計の確定

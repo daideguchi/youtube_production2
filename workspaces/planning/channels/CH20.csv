@@ -1,151 +1,271 @@
 No.,チャンネル,動画番号,動画ID,台本番号,タイトル,進捗,作成フラグ,台本,品質チェック結果,文字数,更新日時,サムネタイトル上,サムネタイトル下,サムネ画像プロンプト（URL・テキスト指示込み）,企画意図,ターゲット層,具体的な内容（話の構成案）,DALL-Eプロンプト（URL・テキスト指示込み）,台本本文（冒頭サンプル）,音声整形,音声検証,音声生成,音声品質,納品,サムネタイトル,AI向け画像生成プロンプト (背景用),テキスト配置・デザイン指示 (人間/ツール向け),サムネ用DALL-Eプロンプト（URL・テキスト指示込み）,内容,動画内挿絵AI向けプロンプト（10個）,内容（企画要約）,台本パス,GPT用プロンプト（日本人シニア女性）,台本本文,GPT用プロンプト（日本人シニア女性）_1,悩みタグ_メイン,悩みタグ_サブ,ライフシーン,キーコンセプト,ベネフィット一言,たとえ話イメージ,説明文_リード,説明文_この動画でわかること
-1,CH20,1,CH20-001,CH20-001,【人間関係】善意で口を出すほど嫌われる｜やめる一言,topic_research: pending,,workspaces/scripts/CH20/001/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『口出し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の口出しを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,口出しを静かに整える夜話。,,【人間関係】善意で口を出すほど嫌われる｜やめる一言,workspaces/scripts/CH20/001/content/assembled.md,,,,口出し,善意,家族,正語,軽くなる,火に油,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-2,CH20,2,CH20-002,CH20-002,【人間関係】距離が近いほど苦しい｜心を守る線引き,topic_research: pending,,workspaces/scripts/CH20/002/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,守れる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『境界線』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の境界線を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,境界線を静かに整える夜話。,,【人間関係】距離が近いほど苦しい｜心を守る線引き,workspaces/scripts/CH20/002/content/assembled.md,,,,境界線,近すぎる,職場,慈悲,守れる,門,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-3,CH20,3,CH20-003,CH20-003,【人間関係】嫌味に反応してしまう夜｜反応しない技術,topic_research: pending,,workspaces/scripts/CH20/003/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,静まる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『イライラ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜のイライラを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 観察の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,イライラを静かに整える夜話。,,【人間関係】嫌味に反応してしまう夜｜反応しない技術,workspaces/scripts/CH20/003/content/assembled.md,,,,イライラ,反応,夜,観察,静まる,雲,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-4,CH20,4,CH20-004,CH20-004,【人間関係】断れない人へ｜角を立てない終わらせ方,topic_research: pending,,workspaces/scripts/CH20/004/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,断てる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『断れない』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の断れないを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 中道の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,断てる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,断れないを静かに整える夜話。,,【人間関係】断れない人へ｜角を立てない終わらせ方,workspaces/scripts/CH20/004/content/assembled.md,,,,断れない,罪悪感,電話,中道,断てる,糸をほどく,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-5,CH20,5,CH20-005,CH20-005,【人間関係】家族に振り回される人へ｜最初にやめる一言,topic_research: pending,,workspaces/scripts/CH20/005/content/assembled.md,,,2025-12-22 06:51:01,限界です,楽になる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『家族』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の家族を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,家族を静かに整える夜話。,,【人間関係】家族に振り回される人へ｜最初にやめる一言,workspaces/scripts/CH20/005/content/assembled.md,,,,家族,介護疲れ,夜の台所,正語,楽,荷物,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-6,CH20,6,CH20-006,CH20-006,【人間関係】人の目が怖い｜怖さの正体はこれ,topic_research: pending,,workspaces/scripts/CH20/006/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『人の目』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の人の目を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,人の目を静かに整える夜話。,,【人間関係】人の目が怖い｜怖さの正体はこれ,workspaces/scripts/CH20/006/content/assembled.md,,,,人の目,評価,外出前,無我,軽い,鏡,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-7,CH20,7,CH20-007,CH20-007,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第07夜,topic_research: pending,,workspaces/scripts/CH20/007/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『口出し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の口出しを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,口出しを静かに整える夜話。,,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第07夜,workspaces/scripts/CH20/007/content/assembled.md,,,,口出し,善意,家族,正語,軽くなる,火に油,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-8,CH20,8,CH20-008,CH20-008,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第08夜,topic_research: pending,,workspaces/scripts/CH20/008/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,守れる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『境界線』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の境界線を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,境界線を静かに整える夜話。,,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第08夜,workspaces/scripts/CH20/008/content/assembled.md,,,,境界線,近すぎる,職場,慈悲,守れる,門,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-9,CH20,9,CH20-009,CH20-009,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第09夜,topic_research: pending,,workspaces/scripts/CH20/009/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,静まる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『イライラ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜のイライラを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 観察の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,イライラを静かに整える夜話。,,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第09夜,workspaces/scripts/CH20/009/content/assembled.md,,,,イライラ,反応,夜,観察,静まる,雲,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-10,CH20,10,CH20-010,CH20-010,【人間関係】断れない人へ｜角を立てない終わらせ方｜第10夜,topic_research: pending,,workspaces/scripts/CH20/010/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,断てる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『断れない』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の断れないを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 中道の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,断てる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,断れないを静かに整える夜話。,,【人間関係】断れない人へ｜角を立てない終わらせ方｜第10夜,workspaces/scripts/CH20/010/content/assembled.md,,,,断れない,罪悪感,電話,中道,断てる,糸をほどく,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-11,CH20,11,CH20-011,CH20-011,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第11夜,topic_research: pending,,workspaces/scripts/CH20/011/content/assembled.md,,,2025-12-22 06:51:01,限界です,楽になる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『家族』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の家族を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,家族を静かに整える夜話。,,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第11夜,workspaces/scripts/CH20/011/content/assembled.md,,,,家族,介護疲れ,夜の台所,正語,楽,荷物,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-12,CH20,12,CH20-012,CH20-012,【人間関係】人の目が怖い｜怖さの正体はこれ｜第12夜,topic_research: pending,,workspaces/scripts/CH20/012/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『人の目』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の人の目を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,人の目を静かに整える夜話。,,【人間関係】人の目が怖い｜怖さの正体はこれ｜第12夜,workspaces/scripts/CH20/012/content/assembled.md,,,,人の目,評価,外出前,無我,軽い,鏡,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-13,CH20,13,CH20-013,CH20-013,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第13夜,topic_research: pending,,workspaces/scripts/CH20/013/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『口出し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の口出しを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,口出しを静かに整える夜話。,,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第13夜,workspaces/scripts/CH20/013/content/assembled.md,,,,口出し,善意,家族,正語,軽くなる,火に油,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-14,CH20,14,CH20-014,CH20-014,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第14夜,topic_research: pending,,workspaces/scripts/CH20/014/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,守れる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『境界線』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の境界線を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,境界線を静かに整える夜話。,,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第14夜,workspaces/scripts/CH20/014/content/assembled.md,,,,境界線,近すぎる,職場,慈悲,守れる,門,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-15,CH20,15,CH20-015,CH20-015,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第15夜,topic_research: pending,,workspaces/scripts/CH20/015/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,静まる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『イライラ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜のイライラを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 観察の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,イライラを静かに整える夜話。,,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第15夜,workspaces/scripts/CH20/015/content/assembled.md,,,,イライラ,反応,夜,観察,静まる,雲,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-16,CH20,16,CH20-016,CH20-016,【人間関係】断れない人へ｜角を立てない終わらせ方｜第16夜,topic_research: pending,,workspaces/scripts/CH20/016/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,断てる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『断れない』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の断れないを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 中道の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,断てる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,断れないを静かに整える夜話。,,【人間関係】断れない人へ｜角を立てない終わらせ方｜第16夜,workspaces/scripts/CH20/016/content/assembled.md,,,,断れない,罪悪感,電話,中道,断てる,糸をほどく,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-17,CH20,17,CH20-017,CH20-017,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第17夜,topic_research: pending,,workspaces/scripts/CH20/017/content/assembled.md,,,2025-12-22 06:51:01,限界です,楽になる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『家族』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の家族を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,家族を静かに整える夜話。,,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第17夜,workspaces/scripts/CH20/017/content/assembled.md,,,,家族,介護疲れ,夜の台所,正語,楽,荷物,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-18,CH20,18,CH20-018,CH20-018,【人間関係】人の目が怖い｜怖さの正体はこれ｜第18夜,topic_research: pending,,workspaces/scripts/CH20/018/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『人の目』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の人の目を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,人の目を静かに整える夜話。,,【人間関係】人の目が怖い｜怖さの正体はこれ｜第18夜,workspaces/scripts/CH20/018/content/assembled.md,,,,人の目,評価,外出前,無我,軽い,鏡,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-19,CH20,19,CH20-019,CH20-019,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第19夜,topic_research: pending,,workspaces/scripts/CH20/019/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『口出し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の口出しを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,口出しを静かに整える夜話。,,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第19夜,workspaces/scripts/CH20/019/content/assembled.md,,,,口出し,善意,家族,正語,軽くなる,火に油,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-20,CH20,20,CH20-020,CH20-020,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第20夜,topic_research: pending,,workspaces/scripts/CH20/020/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,守れる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『境界線』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の境界線を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,境界線を静かに整える夜話。,,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第20夜,workspaces/scripts/CH20/020/content/assembled.md,,,,境界線,近すぎる,職場,慈悲,守れる,門,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-21,CH20,21,CH20-021,CH20-021,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第21夜,topic_research: pending,,workspaces/scripts/CH20/021/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,静まる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『イライラ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜のイライラを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 観察の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,イライラを静かに整える夜話。,,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第21夜,workspaces/scripts/CH20/021/content/assembled.md,,,,イライラ,反応,夜,観察,静まる,雲,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-22,CH20,22,CH20-022,CH20-022,【人間関係】断れない人へ｜角を立てない終わらせ方｜第22夜,topic_research: pending,,workspaces/scripts/CH20/022/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,断てる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『断れない』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の断れないを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 中道の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,断てる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,断れないを静かに整える夜話。,,【人間関係】断れない人へ｜角を立てない終わらせ方｜第22夜,workspaces/scripts/CH20/022/content/assembled.md,,,,断れない,罪悪感,電話,中道,断てる,糸をほどく,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-23,CH20,23,CH20-023,CH20-023,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第23夜,topic_research: pending,,workspaces/scripts/CH20/023/content/assembled.md,,,2025-12-22 06:51:01,限界です,楽になる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『家族』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の家族を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,家族を静かに整える夜話。,,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第23夜,workspaces/scripts/CH20/023/content/assembled.md,,,,家族,介護疲れ,夜の台所,正語,楽,荷物,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-24,CH20,24,CH20-024,CH20-024,【人間関係】人の目が怖い｜怖さの正体はこれ｜第24夜,topic_research: pending,,workspaces/scripts/CH20/024/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『人の目』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の人の目を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,人の目を静かに整える夜話。,,【人間関係】人の目が怖い｜怖さの正体はこれ｜第24夜,workspaces/scripts/CH20/024/content/assembled.md,,,,人の目,評価,外出前,無我,軽い,鏡,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-25,CH20,25,CH20-025,CH20-025,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第25夜,topic_research: pending,,workspaces/scripts/CH20/025/content/assembled.md,,,2025-12-22 06:51:01,絶対NG,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『口出し』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の口出しを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,口出しを静かに整える夜話。,,【人間関係】善意で口を出すほど嫌われる｜やめる一言｜第25夜,workspaces/scripts/CH20/025/content/assembled.md,,,,口出し,善意,家族,正語,軽くなる,火に油,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-26,CH20,26,CH20-026,CH20-026,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第26夜,topic_research: pending,,workspaces/scripts/CH20/026/content/assembled.md,,,2025-12-22 06:51:01,放置は危険,守れる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『境界線』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の境界線を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 慈悲の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,守れる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,境界線を静かに整える夜話。,,【人間関係】距離が近いほど苦しい｜心を守る線引き｜第26夜,workspaces/scripts/CH20/026/content/assembled.md,,,,境界線,近すぎる,職場,慈悲,守れる,門,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-27,CH20,27,CH20-027,CH20-027,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第27夜,topic_research: pending,,workspaces/scripts/CH20/027/content/assembled.md,,,2025-12-22 06:51:01,やるほど逆,静まる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『イライラ』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜のイライラを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 観察の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,静まる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,イライラを静かに整える夜話。,,【人間関係】嫌味に反応してしまう夜｜反応しない技術｜第27夜,workspaces/scripts/CH20/027/content/assembled.md,,,,イライラ,反応,夜,観察,静まる,雲,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-28,CH20,28,CH20-028,CH20-028,【人間関係】断れない人へ｜角を立てない終わらせ方｜第28夜,topic_research: pending,,workspaces/scripts/CH20/028/content/assembled.md,,,2025-12-22 06:51:01,そのまま損,断てる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『断れない』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の断れないを一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 中道の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,断てる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,断れないを静かに整える夜話。,,【人間関係】断れない人へ｜角を立てない終わらせ方｜第28夜,workspaces/scripts/CH20/028/content/assembled.md,,,,断れない,罪悪感,電話,中道,断てる,糸をほどく,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-29,CH20,29,CH20-029,CH20-029,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第29夜,topic_research: pending,,workspaces/scripts/CH20/029/content/assembled.md,,,2025-12-22 06:51:01,限界です,楽になる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『家族』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の家族を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 正語の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,楽になる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,家族を静かに整える夜話。,,【人間関係】家族に振り回される人へ｜最初にやめる一言｜第29夜,workspaces/scripts/CH20/029/content/assembled.md,,,,家族,介護疲れ,夜の台所,正語,楽,荷物,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
-30,CH20,30,CH20-030,CH20-030,【人間関係】人の目が怖い｜怖さの正体はこれ｜第30夜,topic_research: pending,,workspaces/scripts/CH20/030/content/assembled.md,,,2025-12-22 06:51:01,それ、勘違い,軽くなる,,人間関係の苦しみを、ブッダの視点で整える。 今夜は『人の目』を静かにほどき、眠りへ向かう視点を渡す。,30〜70代。家族・職場・近しい人との摩耗で疲れ、角を立てずに距離と心を整えたい人。,"導入: 夜の人の目を一つの場面で描写し、安心のゴールを予告。
-本編: 人間関係の物語や具体例で状況を立体化。
-解説: 無我の視点で『なぜ苦しいのか』を一つに絞って説明。
-実践: 今夜できる一手を短く具体化。
-締め: 余韻を残して静かに終える。",,,,,,,,軽くなる,"soft warm living room at night, tea cup, gentle lamp light, ink wash + amber highlights, calm, 16:9, no text, no watermark, no logo",上に強めの短文、下に優しい結論。背景は夜のリビング。,,人の目を静かに整える夜話。,,【人間関係】人の目が怖い｜怖さの正体はこれ｜第30夜,workspaces/scripts/CH20/030/content/assembled.md,,,,人の目,評価,外出前,無我,軽い,鏡,争わずに、心を軽く。,・距離の取り方<br>・言い換えの一手
+1,CH20,001,CH20-001,CH20-001,眠れる雑学｜宇宙の静けさをゆったり,topic_research: pending,,workspaces/scripts/CH20/001/content/assembled.md,未完了,,2025-12-23 23:43:33,宇宙の静けさ,寝落ちへ,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「宇宙の静けさ」を入口に、リラックス方向へ静かに運びます。最後は 息を長く吐く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 宇宙の小ネタを一つだけ残す。
+今夜の一手: 息を長く吐く
+締め: 静かにおやすみへ。",,,,,,,,宇宙の静けさ 寝落ちへ,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night sky, stars, cozy desk silhouette, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 宇宙の小ネタを一つだけ残す。
+今夜の一手: 息を長く吐く
+締め: 静かにおやすみへ。",,眠れる雑学｜宇宙の静けさをゆったり,workspaces/scripts/CH20/001/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,宇宙,リラックス,星,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+2,CH20,002,CH20-002,CH20-002,月の満ち欠け｜夜に聞く小話,topic_research: pending,,workspaces/scripts/CH20/002/content/assembled.md,未完了,,2025-12-23 23:43:33,月の話,静かに眠る,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「月の話」を入口に、落ち着く方向へ静かに運びます。最後は 窓の外を一度見る を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 月の小ネタを一つだけ残す。
+今夜の一手: 窓の外を一度見る
+締め: 静かにおやすみへ。",,,,,,,,月の話 静かに眠る,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Window with moonlight, calm night, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 月の小ネタを一つだけ残す。
+今夜の一手: 窓の外を一度見る
+締め: 静かにおやすみへ。",,月の満ち欠け｜夜に聞く小話,workspaces/scripts/CH20/002/content/assembled.md,,,,考えすぎ,頭が冴える,夜の窓辺,月,落ち着く,月光,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+3,CH20,003,CH20-003,CH20-003,星座の由来｜眠くなる夜空の話,topic_research: pending,,workspaces/scripts/CH20/003/content/assembled.md,未完了,,2025-12-23 23:43:33,星座,夜空の余韻,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「星座」を入口に、眠くなる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 星座の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,星座 夜空の余韻,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Star map on desk, soft lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 星座の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,星座の由来｜眠くなる夜空の話,workspaces/scripts/CH20/003/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,星座,眠くなる,星図,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+4,CH20,004,CH20-004,CH20-004,深海の世界｜暗い海のやさしい雑学,topic_research: pending,,workspaces/scripts/CH20/004/content/assembled.md,未完了,,2025-12-23 23:43:33,深海,やさしい雑学,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「深海」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を少し長く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 深海の小ネタを一つだけ残す。
+今夜の一手: 吐く息を少し長く
+締め: 静かにおやすみへ。",,,,,,,,深海 やさしい雑学,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Deep sea silhouette, calm dark blue, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 深海の小ネタを一つだけ残す。
+今夜の一手: 吐く息を少し長く
+締め: 静かにおやすみへ。",,深海の世界｜暗い海のやさしい雑学,workspaces/scripts/CH20/004/content/assembled.md,,,,考えすぎ,頭が冴える,夜更け,深海,落ち着く,波,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+5,CH20,005,CH20-005,CH20-005,動物たちの眠り方｜静かなトリビア,topic_research: pending,,workspaces/scripts/CH20/005/content/assembled.md,未完了,,2025-12-23 23:43:33,動物の眠り,静かな話,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「動物の眠り」を入口に、眠くなる方向へ静かに運びます。最後は まぶたをゆるめる を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 動物の小ネタを一つだけ残す。
+今夜の一手: まぶたをゆるめる
+締め: 静かにおやすみへ。",,,,,,,,動物の眠り 静かな話,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy desk, animal silhouettes, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 動物の小ネタを一つだけ残す。
+今夜の一手: まぶたをゆるめる
+締め: 静かにおやすみへ。",,動物たちの眠り方｜静かなトリビア,workspaces/scripts/CH20/005/content/assembled.md,,,,考えすぎ,頭が冴える,布団の中,動物,眠くなる,まどろみ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+6,CH20,006,CH20-006,CH20-006,鳥の渡り｜空の旅を聞き流す,topic_research: pending,,workspaces/scripts/CH20/006/content/assembled.md,未完了,,2025-12-23 23:43:33,鳥の旅,聞き流す,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「鳥の旅」を入口に、リラックス方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 渡りの小ネタを一つだけ残す。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,,,,,,,鳥の旅 聞き流す,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night sky, small birds silhouette, gentle wind, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 渡りの小ネタを一つだけ残す。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,鳥の渡り｜空の旅を聞き流す,workspaces/scripts/CH20/006/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,渡り,リラックス,風,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+7,CH20,007,CH20-007,CH20-007,植物は夜に何をしている？｜やさしい雑学,topic_research: pending,,workspaces/scripts/CH20/007/content/assembled.md,未完了,,2025-12-23 23:43:33,植物の夜,やさしい話,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「植物の夜」を入口に、落ち着く方向へ静かに運びます。最後は 深呼吸を3回 を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 植物の小ネタを一つだけ残す。
+今夜の一手: 深呼吸を3回
+締め: 静かにおやすみへ。",,,,,,,,植物の夜 やさしい話,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Houseplant by window, soft lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 植物の小ネタを一つだけ残す。
+今夜の一手: 深呼吸を3回
+締め: 静かにおやすみへ。",,植物は夜に何をしている？｜やさしい雑学,workspaces/scripts/CH20/007/content/assembled.md,,,,考えすぎ,頭が冴える,夜の部屋,植物,落ち着く,葉,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+8,CH20,008,CH20-008,CH20-008,雨と雲のしくみ｜窓辺で眠るために,topic_research: pending,,workspaces/scripts/CH20/008/content/assembled.md,未完了,,2025-12-23 23:43:33,雨と雲,窓辺で眠る,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「雨と雲」を入口に、眠くなる方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 天気の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,,,,,,,雨と雲 窓辺で眠る,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Rainy window, soft bokeh, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 天気の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,雨と雲のしくみ｜窓辺で眠るために,workspaces/scripts/CH20/008/content/assembled.md,,,,考えすぎ,頭が冴える,夜の窓辺,天気,眠くなる,雨音,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+9,CH20,009,CH20-009,CH20-009,風の名前｜そよぎの雑学,topic_research: pending,,workspaces/scripts/CH20/009/content/assembled.md,未完了,,2025-12-23 23:43:33,風の名前,そよぎ,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「風の名前」を入口に、ゆるむ方向へ静かに運びます。最後は 手を開いて息を吐く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 風の小ネタを一つだけ残す。
+今夜の一手: 手を開いて息を吐く
+締め: 静かにおやすみへ。",,,,,,,,風の名前 そよぎ,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Soft wind lines, dark gradient, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 風の小ネタを一つだけ残す。
+今夜の一手: 手を開いて息を吐く
+締め: 静かにおやすみへ。",,風の名前｜そよぎの雑学,workspaces/scripts/CH20/009/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,風,ゆるむ,そよぎ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+10,CH20,010,CH20-010,CH20-010,音が伝わる不思議｜静かな科学,topic_research: pending,,workspaces/scripts/CH20/010/content/assembled.md,未完了,,2025-12-23 23:43:33,音の不思議,静かな科学,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「音の不思議」を入口に、落ち着く方向へ静かに運びます。最後は 音量を一段下げる を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 音の小ネタを一つだけ残す。
+今夜の一手: 音量を一段下げる
+締め: 静かにおやすみへ。",,,,,,,,音の不思議 静かな科学,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Minimal waveform abstract, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 音の小ネタを一つだけ残す。
+今夜の一手: 音量を一段下げる
+締め: 静かにおやすみへ。",,音が伝わる不思議｜静かな科学,workspaces/scripts/CH20/010/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,音,落ち着く,波形,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+11,CH20,011,CH20-011,CH20-011,香りの記憶｜心がゆるむ話,topic_research: pending,,workspaces/scripts/CH20/011/content/assembled.md,未完了,,2025-12-23 23:43:33,香り,心がゆるむ,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「香り」を入口に、リラックス方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 香りの小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,,,,,,,香り 心がゆるむ,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Steaming cup, soft lamp, warm mood, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 香りの小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,香りの記憶｜心がゆるむ話,workspaces/scripts/CH20/011/content/assembled.md,,,,考えすぎ,頭が冴える,夜の部屋,香り,リラックス,湯気,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+12,CH20,012,CH20-012,CH20-012,色が落ち着く理由｜夜に聞く小話,topic_research: pending,,workspaces/scripts/CH20/012/content/assembled.md,未完了,,2025-12-23 23:43:33,色の話,落ち着く,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「色の話」を入口に、落ち着く方向へ静かに運びます。最後は 部屋を少し暗くする を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 色の小ネタを一つだけ残す。
+今夜の一手: 部屋を少し暗くする
+締め: 静かにおやすみへ。",,,,,,,,色の話 落ち着く,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Soft color gradient, calm blue, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 色の小ネタを一つだけ残す。
+今夜の一手: 部屋を少し暗くする
+締め: 静かにおやすみへ。",,色が落ち着く理由｜夜に聞く小話,workspaces/scripts/CH20/012/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,色,落ち着く,青,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+13,CH20,013,CH20-013,CH20-013,日本語の語源｜言葉の雑学ラジオ,topic_research: pending,,workspaces/scripts/CH20/013/content/assembled.md,未完了,,2025-12-23 23:43:33,言葉の雑学,ラジオ,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「言葉の雑学」を入口に、落ち着く方向へ静かに運びます。最後は 紙に一行書いて閉じる を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 語源の小ネタを一つだけ残す。
+今夜の一手: 紙に一行書いて閉じる
+締め: 静かにおやすみへ。",,,,,,,,言葉の雑学 ラジオ,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Notebook and pen, soft lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 語源の小ネタを一つだけ残す。
+今夜の一手: 紙に一行書いて閉じる
+締め: 静かにおやすみへ。",,日本語の語源｜言葉の雑学ラジオ,workspaces/scripts/CH20/013/content/assembled.md,,,,考えすぎ,頭が冴える,夜の書斎,語源,落ち着く,紙,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+14,CH20,014,CH20-014,CH20-014,方言のやさしい違い｜眠れる言葉,topic_research: pending,,workspaces/scripts/CH20/014/content/assembled.md,未完了,,2025-12-23 23:43:33,方言,眠れる言葉,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「方言」を入口に、眠くなる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 言葉の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,方言 眠れる言葉,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy room, gentle speech bubbles (no text), minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 言葉の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,方言のやさしい違い｜眠れる言葉,workspaces/scripts/CH20/014/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,言葉,眠くなる,声,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+15,CH20,015,CH20-015,CH20-015,食べ物の小さな科学｜湯気の雑学,topic_research: pending,,workspaces/scripts/CH20/015/content/assembled.md,未完了,,2025-12-23 23:43:33,食べ物の話,湯気,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「食べ物の話」を入口に、ほっとする方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 食の小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,,,,,,,食べ物の話 湯気,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Kitchen at night, steaming bowl, warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 食の小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,食べ物の小さな科学｜湯気の雑学,workspaces/scripts/CH20/015/content/assembled.md,,,,考えすぎ,頭が冴える,夜の台所,食,ほっとする,湯気,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+16,CH20,016,CH20-016,CH20-016,お茶の世界｜湯の音と雑学,topic_research: pending,,workspaces/scripts/CH20/016/content/assembled.md,未完了,,2025-12-23 23:43:33,お茶,湯の音,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「お茶」を入口に、リラックス方向へ静かに運びます。最後は 一口ゆっくり飲む を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: お茶の小ネタを一つだけ残す。
+今夜の一手: 一口ゆっくり飲む
+締め: 静かにおやすみへ。",,,,,,,,お茶 湯の音,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Teacup and kettle steam, warm lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: お茶の小ネタを一つだけ残す。
+今夜の一手: 一口ゆっくり飲む
+締め: 静かにおやすみへ。",,お茶の世界｜湯の音と雑学,workspaces/scripts/CH20/016/content/assembled.md,,,,考えすぎ,頭が冴える,夜の部屋,お茶,リラックス,湯のみ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+17,CH20,017,CH20-017,CH20-017,パンがふくらむ話｜眠くなる小話,topic_research: pending,,workspaces/scripts/CH20/017/content/assembled.md,未完了,,2025-12-23 23:43:33,パンの話,小話,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「パンの話」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 発酵の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,,,,,,,パンの話 小話,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Bread loaf silhouette, soft warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 発酵の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,パンがふくらむ話｜眠くなる小話,workspaces/scripts/CH20/017/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,発酵,落ち着く,ふくらみ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+18,CH20,018,CH20-018,CH20-018,温泉の湯気｜温かい雑学,topic_research: pending,,workspaces/scripts/CH20/018/content/assembled.md,未完了,,2025-12-23 23:43:33,温泉,湯気,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「温泉」を入口に、ほっとする方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 湯の小ネタを一つだけ残す。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,,,,,,,温泉 湯気,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Onsen steam, lantern, calm night, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 湯の小ネタを一つだけ残す。
+今夜の一手: 肩の力を抜く
+締め: 静かにおやすみへ。",,温泉の湯気｜温かい雑学,workspaces/scripts/CH20/018/content/assembled.md,,,,考えすぎ,頭が冴える,夜更け,湯,ほっとする,湯気,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+19,CH20,019,CH20-019,CH20-019,図書館のひみつ｜静かな場所の雑学,topic_research: pending,,workspaces/scripts/CH20/019/content/assembled.md,未完了,,2025-12-23 23:43:33,図書館,静かな場所,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「図書館」を入口に、落ち着く方向へ静かに運びます。最後は 本を閉じて目を休める を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 本の小ネタを一つだけ残す。
+今夜の一手: 本を閉じて目を休める
+締め: 静かにおやすみへ。",,,,,,,,図書館 静かな場所,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Bookshelf, soft lamp, cozy, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 本の小ネタを一つだけ残す。
+今夜の一手: 本を閉じて目を休める
+締め: 静かにおやすみへ。",,図書館のひみつ｜静かな場所の雑学,workspaces/scripts/CH20/019/content/assembled.md,,,,考えすぎ,頭が冴える,夜の書斎,本,落ち着く,本棚,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+20,CH20,020,CH20-020,CH20-020,時計の歴史｜時間をほどく夜,topic_research: pending,,workspaces/scripts/CH20/020/content/assembled.md,未完了,,2025-12-23 23:43:33,時計,時間をほどく,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「時計」を入口に、落ち着く方向へ静かに運びます。最後は 今日を終える一言 を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 時間の小ネタを一つだけ残す。
+今夜の一手: 今日を終える一言
+締め: 静かにおやすみへ。",,,,,,,,時計 時間をほどく,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Minimal pendulum clock, soft moonlight, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 時間の小ネタを一つだけ残す。
+今夜の一手: 今日を終える一言
+締め: 静かにおやすみへ。",,時計の歴史｜時間をほどく夜,workspaces/scripts/CH20/020/content/assembled.md,,,,考えすぎ,頭が冴える,夜更け,時間,落ち着く,振り子,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+21,CH20,021,CH20-021,CH20-021,地図の読み方｜頭が静まる雑学,topic_research: pending,,workspaces/scripts/CH20/021/content/assembled.md,未完了,,2025-12-23 23:43:33,地図,頭が静まる,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「地図」を入口に、落ち着く方向へ静かに運びます。最後は 明日の一つだけ決める を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 地図の小ネタを一つだけ残す。
+今夜の一手: 明日の一つだけ決める
+締め: 静かにおやすみへ。",,,,,,,,地図 頭が静まる,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Old map on desk, warm lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 地図の小ネタを一つだけ残す。
+今夜の一手: 明日の一つだけ決める
+締め: 静かにおやすみへ。",,地図の読み方｜頭が静まる雑学,workspaces/scripts/CH20/021/content/assembled.md,,,,考えすぎ,頭が冴える,夜の書斎,地図,落ち着く,道しるべ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+22,CH20,022,CH20-022,CH20-022,砂漠のふしぎ｜乾いた夜の雑学,topic_research: pending,,workspaces/scripts/CH20/022/content/assembled.md,未完了,,2025-12-23 23:43:33,砂漠,ふしぎ,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「砂漠」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 砂漠の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,砂漠 ふしぎ,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Desert night, stars, calm, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 砂漠の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,砂漠のふしぎ｜乾いた夜の雑学,workspaces/scripts/CH20/022/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,砂漠,落ち着く,星,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+23,CH20,023,CH20-023,CH20-023,森のしくみ｜木々の静かな話,topic_research: pending,,workspaces/scripts/CH20/023/content/assembled.md,未完了,,2025-12-23 23:43:33,森,静かな話,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「森」を入口に、リラックス方向へ静かに運びます。最後は 肩を落として吐く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 森の小ネタを一つだけ残す。
+今夜の一手: 肩を落として吐く
+締め: 静かにおやすみへ。",,,,,,,,森 静かな話,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Forest silhouette, soft night, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 森の小ネタを一つだけ残す。
+今夜の一手: 肩を落として吐く
+締め: 静かにおやすみへ。",,森のしくみ｜木々の静かな話,workspaces/scripts/CH20/023/content/assembled.md,,,,考えすぎ,頭が冴える,夜更け,森,リラックス,木漏れ日,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+24,CH20,024,CH20-024,CH20-024,鉄道の小ネタ｜夜行列車の雑学,topic_research: pending,,workspaces/scripts/CH20/024/content/assembled.md,未完了,,2025-12-23 23:43:33,鉄道,夜行列車,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「鉄道」を入口に、眠くなる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 鉄道の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,鉄道 夜行列車,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Train window at night, ticket, soft lights, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 鉄道の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,鉄道の小ネタ｜夜行列車の雑学,workspaces/scripts/CH20/024/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,鉄道,眠くなる,切符,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+25,CH20,025,CH20-025,CH20-025,船の旅の小話｜波音と雑学,topic_research: pending,,workspaces/scripts/CH20/025/content/assembled.md,未完了,,2025-12-23 23:43:33,船の旅,波音,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「船の旅」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 海の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,,,,,,,船の旅 波音,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night sea, gentle waves, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 海の小ネタを一つだけ残す。
+今夜の一手: 吐く息を長く
+締め: 静かにおやすみへ。",,船の旅の小話｜波音と雑学,workspaces/scripts/CH20/025/content/assembled.md,,,,考えすぎ,頭が冴える,夜の窓辺,海,落ち着く,波,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+26,CH20,026,CH20-026,CH20-026,昔の道具の工夫｜静かな暮らし,topic_research: pending,,workspaces/scripts/CH20/026/content/assembled.md,未完了,,2025-12-23 23:43:33,昔の道具,工夫,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「昔の道具」を入口に、ほっとする方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 暮らしの小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,,,,,,,昔の道具 工夫,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Old tools on wooden table, warm lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 暮らしの小ネタを一つだけ残す。
+今夜の一手: 温かい飲み物を一口
+締め: 静かにおやすみへ。",,昔の道具の工夫｜静かな暮らし,workspaces/scripts/CH20/026/content/assembled.md,,,,考えすぎ,頭が冴える,夜の部屋,暮らし,ほっとする,木,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+27,CH20,027,CH20-027,CH20-027,街の灯り｜夜景の雑学,topic_research: pending,,workspaces/scripts/CH20/027/content/assembled.md,未完了,,2025-12-23 23:43:33,街の灯り,夜景,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「街の灯り」を入口に、落ち着く方向へ静かに運びます。最後は 部屋を少し暗くする を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 夜景の小ネタを一つだけ残す。
+今夜の一手: 部屋を少し暗くする
+締め: 静かにおやすみへ。",,,,,,,,街の灯り 夜景,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: City lights bokeh, calm night, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 夜景の小ネタを一つだけ残す。
+今夜の一手: 部屋を少し暗くする
+締め: 静かにおやすみへ。",,街の灯り｜夜景の雑学,workspaces/scripts/CH20/027/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,夜景,落ち着く,灯り,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+28,CH20,028,CH20-028,CH20-028,体のリズム｜眠りの前の小話,topic_research: pending,,workspaces/scripts/CH20/028/content/assembled.md,未完了,,2025-12-23 23:43:33,体のリズム,眠りの前,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「体のリズム」を入口に、眠くなる方向へ静かに運びます。最後は 吐く息を少し長く を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: リズムの小ネタを一つだけ残す。
+今夜の一手: 吐く息を少し長く
+締め: 静かにおやすみへ。",,,,,,,,体のリズム 眠りの前,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Bedroom, soft breath lines, warm light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: リズムの小ネタを一つだけ残す。
+今夜の一手: 吐く息を少し長く
+締め: 静かにおやすみへ。",,体のリズム｜眠りの前の小話,workspaces/scripts/CH20/028/content/assembled.md,,,,考えすぎ,頭が冴える,布団の中,リズム,眠くなる,呼吸,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+29,CH20,029,CH20-029,CH20-029,記憶のしくみ｜思い出をやさしく,topic_research: pending,,workspaces/scripts/CH20/029/content/assembled.md,未完了,,2025-12-23 23:43:33,記憶,やさしく,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「記憶」を入口に、落ち着く方向へ静かに運びます。最後は 紙に一行書いて閉じる を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 記憶の小ネタを一つだけ残す。
+今夜の一手: 紙に一行書いて閉じる
+締め: 静かにおやすみへ。",,,,,,,,記憶 やさしく,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night desk, old letter, warm lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 記憶の小ネタを一つだけ残す。
+今夜の一手: 紙に一行書いて閉じる
+締め: 静かにおやすみへ。",,記憶のしくみ｜思い出をやさしく,workspaces/scripts/CH20/029/content/assembled.md,,,,考えすぎ,頭が冴える,夜更け,記憶,落ち着く,手紙,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め
+30,CH20,030,CH20-030,CH20-030,ゆったり雑学10話｜聞き流し総集編,topic_research: pending,,workspaces/scripts/CH20/030/content/assembled.md,未完了,,2025-12-23 23:43:33,雑学10話,聞き流し,,驚かせない雑学を聞き流して、頭をほどく深夜ラジオ。 「雑学10話」を入口に、眠りに落ちる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 総集編の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,,,,,,,雑学10話 聞き流し,"16:9, high resolution, calm night radio mood, cozy desk, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cozy desk, soft lamp, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 眠りを邪魔しないトーンで開始。
+本編: 小テーマをゆるく連ね、深追いしすぎない。
+余韻: 総集編の小ネタを一つだけ残す。
+今夜の一手: 目を閉じて聞き流す
+締め: 静かにおやすみへ。",,ゆったり雑学10話｜聞き流し総集編,workspaces/scripts/CH20/030/content/assembled.md,,,,考えすぎ,頭が冴える,深夜,総集編,眠りに落ちる,ラジオ,眠れない夜に、ほどよい雑学を。,・聞き流せる小ネタ<br>・安心の締め

@@ -19,7 +19,7 @@
    - 不足は「pendingで停止 → 埋めて再実行」を徹底。
 
 ## 動画生成（SRT→画像→CapCut）のartifact（現行）
-出力先: `workspaces/video/runs/<run_id>/`（互換: `commentary_02_srt2images_timeline/output/...`）
+出力先: `workspaces/video/runs/<run_id>/`
 
 - `srt_segments.json`
   - schema: `ytm.srt_segments.v1`
@@ -33,7 +33,7 @@
   - 最終的なcue（start/end/prompt含む）と画像生成設定
 
 ## 台本生成（script_pipeline）のartifact（追加）
-出力先: `workspaces/scripts/{CH}/{NNN}/`（互換: `script_pipeline/data/...`）
+出力先: `workspaces/scripts/{CH}/{NNN}/`
 
 - `artifacts/llm/*.json`
   - schema: `ytm.llm_text_output.v1`
@@ -49,7 +49,7 @@
 ## THINK MODE / APIモードの挙動
 - APIモード: LLMがartifactを生成し、即保存 → 続行
 - THINK/AGENT:
-  - LLM呼び出し箇所で `workspaces/logs/agent_tasks/`（互換: `logs/agent_tasks/...`）にpendingを作り、プロセスは停止
+  - LLM呼び出し箇所で `workspaces/logs/agent_tasks/` にpendingを作り、プロセスは停止
   - 併せて `visual_cues_plan.json` を `status=pending` の骨格で出す（埋める場所を固定化）
   - 結果（artifact）が揃ったら同じコマンドを再実行して続行
 

@@ -1,24 +1,19 @@
-import os
+from __future__ import annotations
+
 import sys
-from pathlib import Path
+
+from _bootstrap import bootstrap
 
 
-def _find_repo_root(start: Path) -> Path:
-    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
-    if override:
-        return Path(override).expanduser().resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+def pytest_configure() -> None:
+    """
+    Ensure monorepo imports work without root-level alias symlinks.
 
+    - Adds repo_root/ and repo_root/packages/ via `_bootstrap.bootstrap()`
+    - Adds repo_root/apps/ui-backend so `import backend` works in tests
+    """
+    repo_root = bootstrap(load_env=False)
+    backend_parent = repo_root / "apps" / "ui-backend"
+    if str(backend_parent) not in sys.path:
+        sys.path.insert(0, str(backend_parent))
 
-# Add backend dir to sys.path for stub packages (audio, core, app, tools)
-backend_dir = Path(__file__).resolve().parent.parent
-repo_root = _find_repo_root(backend_dir)
-packages_root = repo_root / "packages"
-for path in (backend_dir, repo_root, packages_root):
-    p_str = str(path)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)

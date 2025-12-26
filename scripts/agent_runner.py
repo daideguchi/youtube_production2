@@ -362,7 +362,7 @@ def cmd_claim(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Agent-mode task queue helper")
-    p.add_argument("--queue-dir", default=None, help="override queue dir (default: env/ logs/agent_tasks)")
+    p.add_argument("--queue-dir", default=None, help="override queue dir (default: env/ workspaces/logs/agent_tasks)")
     p.add_argument("--agent-name", default=None, help="agent name (or set env LLM_AGENT_NAME)")
 
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -384,7 +384,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("bundle", help="write a markdown bundle file for an AI agent")
     sp.add_argument("task_id")
-    sp.add_argument("--out", default=None, help="output path (default: logs/agent_tasks/bundles/<id>.md)")
+    sp.add_argument("--out", default=None, help="output path (default: workspaces/logs/agent_tasks/bundles/<id>.md)")
     sp.add_argument("--include-runbook", action="store_true", help="embed runbook content into the bundle")
     sp.set_defaults(func=cmd_bundle)
 

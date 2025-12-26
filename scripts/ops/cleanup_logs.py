@@ -9,7 +9,7 @@ L3 ログ（短期保持）のクリーンアップ。
 安全のため:
 - default は dry-run（削除しない）
 - `--run` 指定時のみ削除する
-- いつ何を削除したかの追跡のため、JSON report を `logs/regression/logs_cleanup/` に出力する
+- いつ何を削除したかの追跡のため、JSON report を `workspaces/logs/regression/logs_cleanup/` に出力する
 
 SSOT:
 - `ssot/ops/OPS_LOGGING_MAP.md`
@@ -205,7 +205,7 @@ def main() -> int:
     parser.add_argument(
         "--include-llm-api-cache",
         action="store_true",
-        help="Also prune logs/llm_api_cache (default: keep)",
+        help="Also prune workspaces/logs/llm_api_cache (default: keep)",
     )
     parser.add_argument(
         "--ignore-locks",

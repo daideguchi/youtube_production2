@@ -3,7 +3,7 @@
 ## Runbook metadata
 - **Runbook ID**: RUNBOOK_THINK_MODE_OPERATOR
 - **ステータス**: Active
-- **対象**: THINK MODE（`LLM_MODE=think`）で発生する `logs/agent_tasks/pending/*.json`
+- **対象**: THINK MODE（`LLM_MODE=think`）で発生する `workspaces/logs/agent_tasks/pending/*.json`
 - **想定利用者**: AIエージェント（端末操作・ファイル編集・コマンド実行ができる）
 - **最終更新日**: 2025-12-12
 
@@ -42,7 +42,7 @@
      - `export LLM_AGENT_NAME=Mike`（または `python scripts/agent_runner.py --agent-name Mike ...`）
      - `python scripts/agent_runner.py claim <TASK_ID>`
    - `python scripts/agent_runner.py bundle <TASK_ID> --include-runbook`
-     - `logs/agent_tasks/bundles/<TASK_ID>.md` が作られる（Runbook + messages のスナップショット）
+     - `workspaces/logs/agent_tasks/bundles/<TASK_ID>.md` が作られる（Runbook + messages のスナップショット）
    - バンドルを読んで **要求された出力のみ** を作成
    - `python scripts/agent_runner.py complete <TASK_ID> --content-file /path/to/content.txt`
 

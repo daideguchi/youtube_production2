@@ -58,15 +58,14 @@ Homepage = "https://github.com/your-username/factory_commentary"
 Repository = "https://github.com/your-username/factory_commentary"
 
 [project.scripts]
-factory-commentary = "commentary_02_srt2images_timeline.tools.factory:main"
-factory-ch02 = "commentary_02_srt2images_timeline.tools.factory:main"  # LEGACY alias - use factory-commentary instead
+factory-commentary = "video_pipeline.tools.factory:main"
 
 # Use find_packages with explicit configuration to handle the multiple project structure
 [tool.setuptools.packages.find]
 # Look in the monorepo packages directory
 where = ["packages"]
 # Only include the top-level packages we want to be part of the distribution
-include = ["factory_common*", "commentary_02_srt2images_timeline*", "audio_tts_v2*", "script_pipeline*"]
+include = ["factory_common*", "video_pipeline*", "audio_tts*", "script_pipeline*"]
 # Don't search in these directories
 exclude = ["tests*", "docs*", "logs*", "output*", "data*", "asset*", "thumbnails*", "remotion*"]
 

@@ -39,15 +39,51 @@ import time
 
 import logging
 
+def _bootstrap_sys_path() -> None:
+    """
+    Ensure monorepo imports work when launching the backend as `uvicorn main:app`
+    from inside `apps/ui-backend/backend/`.
+
+    We intentionally avoid loading env files here; `.env` is handled by the
+    repo-level `sitecustomize.py` / callers.
+    """
+
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        repo_root = Path(override).expanduser().resolve()
+    else:
+        start = Path(__file__).resolve()
+        cur = start if start.is_dir() else start.parent
+        repo_root = cur
+        for candidate in (cur, *cur.parents):
+            if (candidate / "pyproject.toml").exists():
+                repo_root = candidate.resolve()
+                break
+
+    candidates = [
+        repo_root,
+        repo_root / "packages",
+        repo_root / "apps" / "ui-backend",
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        path_str = str(path)
+        if path_str not in sys.path:
+            sys.path.insert(0, path_str)
+
+
+_bootstrap_sys_path()
+
 from fastapi.staticfiles import StaticFiles
-# audio_tts_v2 routing helpers
-from audio_tts_v2.tts.routing import (
+# audio_tts routing helpers
+from audio_tts.tts.routing import (
     load_routing_config,
     resolve_eleven_model,
     resolve_eleven_voice,
     resolve_voicevox_speaker_id,
 )
-from audio_tts_v2.tts.reading_dict import (
+from audio_tts.tts.reading_dict import (
     ReadingEntry,
     is_banned_surface,
     load_channel_reading_dict,
@@ -56,58 +92,8 @@ from audio_tts_v2.tts.reading_dict import (
     normalize_reading_kana,
     is_safe_reading,
 )
-from audio_tts_v2.tts.mecab_tokenizer import tokenize_with_mecab
-from audio_tts_v2.tts.auditor import calc_kana_mismatch_score
-FILE_PATH = Path(__file__).resolve()
-BACKEND_ROOT = FILE_PATH.parent
-UI_ROOT = BACKEND_ROOT.parent
-PROJECT_ROOT = UI_ROOT.parent
-REPO_ROOT = PROJECT_ROOT.parent
-for p in (BACKEND_ROOT, UI_ROOT, PROJECT_ROOT, REPO_ROOT):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
-
-# Ensure .env is loaded even when uvicorn is started outside the repo root.
-def _load_root_env() -> None:
-    env_path = REPO_ROOT / ".env"
-    if not env_path.exists():
-        return
-    try:
-        # Prefer python-dotenv if available
-        try:
-            from dotenv import load_dotenv  # type: ignore
-
-            load_dotenv(dotenv_path=env_path, override=False)
-            return
-        except Exception:
-            pass
-
-        # Fallback: minimal parser
-        for line in env_path.read_text(encoding="utf-8").splitlines():
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#") or "=" not in stripped:
-                continue
-            key, value = stripped.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
-    except Exception:
-        # Fail-soft: backend should still start
-        pass
-
-_load_root_env()
-
-# Provide ui/backend import alias when launched via uvicorn from arbitrary cwd
-import importlib
-import types
-if "ui" not in sys.modules:
-    ui_pkg = types.ModuleType("ui")
-    ui_pkg.__path__ = [str(UI_ROOT)]
-    sys.modules["ui"] = ui_pkg
-if "ui.backend" not in sys.modules:
-    try:
-        backend_mod = importlib.import_module("backend")
-        sys.modules["ui.backend"] = backend_mod
-    except Exception:
-        pass
+from audio_tts.tts.mecab_tokenizer import tokenize_with_mecab
+from audio_tts.tts.auditor import calc_kana_mismatch_score
 
 try:
     import portalocker  # type: ignore
@@ -208,17 +194,17 @@ from backend.tools.optional_fields_registry import (
     get_planning_section,
     update_planning_from_row,
 )
-from audio import pause_tags, wav_tools
-from audio.script_loader import iterate_sections
-from core.tools import workflow_precheck as workflow_precheck_tools
-from core.tools.content_processor import ContentProcessor
-from core.tools.audio_manager import AudioManager
-from core.tools.channel_profile import load_channel_profile
-from core.tools.prompt_utils import auto_placeholder_values
+from backend.audio import pause_tags, wav_tools
+from backend.audio.script_loader import iterate_sections
+from backend.core.tools import workflow_precheck as workflow_precheck_tools
+from backend.core.tools.content_processor import ContentProcessor
+from backend.core.tools.audio_manager import AudioManager
+from backend.core.tools.channel_profile import load_channel_profile
+from backend.core.tools.prompt_utils import auto_placeholder_values
 # 移行先: script_pipeline/tools 配下の簡易実装を利用
 from script_pipeline.tools import planning_requirements, planning_store
 from script_pipeline.tools import openrouter_models as openrouter_model_utils
-from app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
+from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
@@ -244,6 +230,7 @@ from factory_common.paths import (
     script_data_root as ssot_script_data_root,
     script_pkg_root,
     thumbnails_root as ssot_thumbnails_root,
+    video_input_root as ssot_video_input_root,
     video_pkg_root,
 )
 from factory_common.youtube_handle import (
@@ -254,7 +241,7 @@ from factory_common.youtube_handle import (
 
 _llm_usage_import_error: Exception | None = None
 try:
-    from ui.backend.routers import llm_usage
+    from backend.routers import llm_usage
 except Exception as e:  # pragma: no cover - optional router
     llm_usage = None  # type: ignore[assignment]
     _llm_usage_import_error = e
@@ -269,26 +256,21 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     OpenAI = None
 
-LOGGER_NAME = "ui.backend"
+LOGGER_NAME = "ui_backend"
 logger = logging.getLogger(LOGGER_NAME)
-APPS_ROOT = Path(__file__).resolve().parents[2]
-# NOTE: PROJECT_ROOT is treated as repo-root throughout this file.
-PROJECT_ROOT = ssot_repo_root()
-# ensure repository root on sys.path so that `ui.*` imports resolve when launched via uvicorn
-repo_root = PROJECT_ROOT
-backend_root = Path(__file__).resolve().parent
-for p in (repo_root, APPS_ROOT, backend_root):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
+
+REPO_ROOT = ssot_repo_root()
+# NOTE: PROJECT_ROOT is treated as repo-root throughout this file (legacy alias).
+PROJECT_ROOT = REPO_ROOT
 # 旧 commentary_01_srtfile_v2 から script_pipeline へ移行済み
-COMMENTARY01_ROOT = script_pkg_root()
-COMMENTARY02_ROOT = video_pkg_root()
+SCRIPT_PIPELINE_ROOT = script_pkg_root()
+VIDEO_PIPELINE_ROOT = video_pkg_root()
 DATA_ROOT = ssot_script_data_root()
-EXPORTS_DIR = COMMENTARY01_ROOT / "exports"
-PLANNING_CSV_PATH = None  # legacy master unused; channel CSVs are SoT
+EXPORTS_DIR = SCRIPT_PIPELINE_ROOT / "exports"
 CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
-PROMPTS_ROOT = PROJECT_ROOT / "prompts"
-COMMENTARY_PROMPTS_ROOT = COMMENTARY01_ROOT / "prompts"
+# Legacy single-file planning CSV override (kept for older tests/tooling).
+PLANNING_CSV_PATH: Path | None = None
+SCRIPT_PIPELINE_PROMPTS_ROOT = SCRIPT_PIPELINE_ROOT / "prompts"
 SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
 THUMBNAIL_PROJECTS_CANDIDATES = [
     ssot_thumbnails_root() / "projects.json",
@@ -307,7 +289,7 @@ OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {
 OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
 UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
 LLM_REGISTRY_PATH = PROJECT_ROOT / "configs" / "llm_registry.json"
-PROMPT_TEMPLATES_ROOT = COMMENTARY_PROMPTS_ROOT / "templates"
+PROMPT_TEMPLATES_ROOT = SCRIPT_PIPELINE_PROMPTS_ROOT / "templates"
 THUMBNAIL_PROJECT_STATUSES = {
     "draft",
     "in_progress",
@@ -329,7 +311,7 @@ TASK_TABLE = "batch_tasks"
 QUEUE_TABLE = "batch_queue"
 QUEUE_CONFIG_DIR = TASK_LOG_DIR / "queue_configs"
 QUEUE_PROGRESS_DIR = TASK_LOG_DIR / "queue_progress"
-from core.llm import LLMFactory, ModelPhase, ModelConfig, LLMProvider
+from backend.core.llm import LLMFactory, ModelPhase, ModelConfig, LLMProvider
 
 OPENAI_CAPTION_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_CAPTION_MODEL", "gpt-5-chat")
 DEFAULT_CAPTION_PROVIDER = os.getenv("THUMBNAIL_CAPTION_PROVIDER", "openai")
@@ -375,7 +357,6 @@ def _discover_template_prompt_specs() -> List[Dict[str, Any]]:
     specs: List[Dict[str, Any]] = []
     if not PROMPT_TEMPLATES_ROOT.exists():
         return specs
-    root_templates = PROMPTS_ROOT / "templates"
     for path in sorted(PROMPT_TEMPLATES_ROOT.glob("*.txt")):
         stem = path.stem
         specs.append(
@@ -384,7 +365,6 @@ def _discover_template_prompt_specs() -> List[Dict[str, Any]]:
                 label=f"テンプレート {stem}",
                 description=f"{stem} 用の台本テンプレート",
                 primary_path=path,
-                sync_paths=[root_templates / path.name],
             )
         )
     return specs
@@ -410,14 +390,12 @@ def _discover_channel_prompt_specs() -> List[Dict[str, Any]]:
         primary = entry / "script_prompt.txt"
         if not primary.exists():
             continue
-        sync_root = PROMPTS_ROOT / "channels" / channel_code
         specs.append(
             _prompt_spec(
                 prompt_id=f"channel_{channel_code.lower()}_script_prompt",
                 label=f"{channel_code} script_prompt",
                 description="チャンネル固有の台本テンプレート（channel_info.template_path と同期）",
                 primary_path=primary,
-                sync_paths=[sync_root / "script_prompt.txt"],
                 channel_code=channel_code,
                 channel_info_path=entry / "channel_info.json",
             )
@@ -431,38 +409,32 @@ def _load_prompt_documents() -> Dict[str, Dict[str, Any]]:
             prompt_id="youtube_description_prompt",
             label="YouTube説明文プロンプト",
             description="SRTから投稿用説明文を生成するテンプレート",
-            primary_path=PROMPTS_ROOT / "youtube_description_prompt.txt",
-            sync_paths=[COMMENTARY_PROMPTS_ROOT / "youtube_description_prompt.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "youtube_description_prompt.txt",
         ),
         _prompt_spec(
             prompt_id="phase2_audio_prompt",
             label="台本→音声フェーズプロンプト",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "phase2_audio_prompt.txt",
-            sync_paths=[PROMPTS_ROOT / "phase2_audio_prompt.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "phase2_audio_prompt.txt",
         ),
         _prompt_spec(
             prompt_id="llm_polish_template",
             label="台本ポリッシュプロンプト",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "llm_polish_template.txt",
-            sync_paths=[PROMPTS_ROOT / "llm_polish_template.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "llm_polish_template.txt",
         ),
         _prompt_spec(
             prompt_id="orchestrator_prompt",
             label="オーケストレータプロンプト",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "orchestrator_prompt.txt",
-            sync_paths=[PROMPTS_ROOT / "orchestrator_prompt.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "orchestrator_prompt.txt",
         ),
         _prompt_spec(
             prompt_id="chapter_enhancement_prompt",
             label="章エンハンスプロンプト",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "chapter_enhancement_prompt.txt",
-            sync_paths=[PROMPTS_ROOT / "chapter_enhancement_prompt.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "chapter_enhancement_prompt.txt",
         ),
         _prompt_spec(
             prompt_id="init_prompt",
             label="初期化プロンプト (init)",
-            primary_path=COMMENTARY_PROMPTS_ROOT / "init.txt",
-            sync_paths=[PROMPTS_ROOT / "init.txt"],
+            primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "init.txt",
         ),
     ]
     template_specs = _discover_template_prompt_specs()
@@ -666,7 +638,6 @@ def _read_csv_file(path: Path) -> Tuple[List[str], List[List[str]]]:
 
 
 def _ensure_planning_store_ready() -> None:
-    planning_store.refresh(force=False)
     if planning_store.list_channels():
         return
     detail = "channels CSV がまだ生成されていません。ssot_sync を実行してください。"
@@ -746,15 +717,6 @@ def _maybe_int_from_token(value: str) -> Optional[int]:
         return int(trimmed)
     except ValueError:
         return None
-
-
-def _read_channels_csv_rows() -> Tuple[List[str], List[Dict[str, str]]]:
-    raise HTTPException(status_code=404, detail="channels CSV は使用しません（channels CSV が SoT）。")
-    with PLANNING_CSV_PATH.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        fieldnames = list(reader.fieldnames or [])
-        rows = list(reader)
-    return fieldnames, rows
 
 
 def _read_channel_csv_rows(channel_code: str) -> Tuple[List[str], List[Dict[str, str]]]:
@@ -1224,9 +1186,9 @@ def _load_env_value(name: str) -> Optional[str]:
 
 
 PROGRESS_STATUS_PATH = DATA_ROOT / "_progress" / "processing_status.json"
-CHANNELS_DIR = COMMENTARY01_ROOT / "channels"
+CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "channels"
 CHANNEL_INFO_PATH = CHANNELS_DIR / "channels_info.json"
-AUDIO_CHANNELS_DIR = COMMENTARY01_ROOT / "audio" / "channels"
+AUDIO_CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "audio" / "channels"
 LOCK_TIMEOUT_SECONDS = 5.0
 VALID_STAGE_STATUSES = {"pending", "in_progress", "blocked", "review", "completed"}
 MAX_STATUS_LENGTH = 64
@@ -1780,6 +1742,71 @@ def rebuild_channel_catalog() -> None:
     )
 
 
+def _deep_merge_dict(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base or {})
+    for key, value in (overlay or {}).items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _deep_merge_dict(out[key], value)  # type: ignore[arg-type]
+        else:
+            out[key] = value
+    return out
+
+
+def _load_sources_doc() -> Dict[str, Any]:
+    """
+    Load channel registry sources (same policy as script_pipeline.runner):
+    - primary: repo-root `configs/sources.yaml`
+    - overlay: packages/script_pipeline/config/sources.yaml
+    """
+    global_doc: Dict[str, Any] = {}
+    local_doc: Dict[str, Any] = {}
+    try:
+        raw = yaml.safe_load((PROJECT_ROOT / "configs" / "sources.yaml").read_text(encoding="utf-8")) or {}
+        if isinstance(raw, dict):
+            global_doc = raw
+    except Exception:
+        global_doc = {}
+
+    try:
+        local_path = script_pkg_root() / "config" / "sources.yaml"
+        raw = yaml.safe_load(local_path.read_text(encoding="utf-8")) or {}
+        if isinstance(raw, dict):
+            local_doc = raw
+    except Exception:
+        local_doc = {}
+
+    return _deep_merge_dict(global_doc, local_doc)
+
+
+def _resolve_channel_target_chars(channel_code: str) -> Tuple[int, int]:
+    sources = _load_sources_doc()
+    channels = sources.get("channels") or {}
+    if not isinstance(channels, dict):
+        return (8000, 12000)
+    entry = channels.get(channel_code.upper()) or {}
+    if not isinstance(entry, dict):
+        return (8000, 12000)
+
+    def _as_int(value: Any) -> Optional[int]:
+        if value is None:
+            return None
+        if isinstance(value, int):
+            return value
+        text = str(value).strip()
+        if not text:
+            return None
+        try:
+            return int(text)
+        except Exception:
+            return None
+
+    chars_min = _as_int(entry.get("target_chars_min")) or 8000
+    chars_max = _as_int(entry.get("target_chars_max")) or 12000
+    if chars_max < chars_min:
+        chars_max = chars_min
+    return (chars_min, chars_max)
+
+
 def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse:
     try:
         profile = load_channel_profile(channel_code)
@@ -1811,6 +1838,8 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         except Exception:
             benchmarks = None
 
+    chars_min, chars_max = _resolve_channel_target_chars(channel_code)
+
     return ChannelProfileResponse(
         channel_code=profile.code,
         channel_name=profile.name,
@@ -1822,9 +1851,12 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         youtube_title=youtube_title,
         youtube_description=youtube_description,
         youtube_handle=youtube_handle or youtube_info.get("custom_url"),
+        video_workflow=_resolve_video_workflow(info_payload),
         benchmarks=benchmarks,
         audio_default_voice_key=voice_payload.get("default_voice_key"),
         audio_section_voice_rules=audio_rules if isinstance(audio_rules, dict) else {},
+        default_min_characters=chars_min,
+        default_max_characters=chars_max,
         planning_persona=planning_persona or profile.persona_summary or profile.audience_profile,
         planning_persona_path=planning_persona_path,
         planning_required_fieldsets=planning_required,
@@ -2044,19 +2076,20 @@ def _build_batch_command(
     config: BatchWorkflowConfig,
     config_path: Optional[str] = None,
 ) -> List[str]:
+    # NOTE: Batch workflow is executed by calling the canonical ops entrypoint.
+    # Avoid hardcoding package-internal legacy paths (e.g. qwen/batch_workflow.py).
+    runbook = PROJECT_ROOT / "scripts" / "ops" / "script_runbook.py"
     cmd = [
         sys.executable,
-        str(COMMENTARY01_ROOT / "qwen" / "batch_workflow.py"),
-        "--channel-code",
+        str(runbook),
+        "new",
+        "--channel",
         channel_code,
-        "--video-number",
+        "--video",
         video_number,
-        "--auto-confirm",
+        "--until",
+        "script_validation",
     ]
-    # Note: config.loop_mode is handled by the backend runner (continue on error),
-    # so we do NOT pass --loop to the CLI script to avoid autonomous processing.
-    if config_path:
-        cmd.extend(["--config-file", config_path])
     return cmd
 
 
@@ -2083,11 +2116,17 @@ async def run_batch_workflow_task(task_id: str, channel_code: str, video_numbers
                 log_file.flush()
                 
                 cmd = _build_batch_command(channel_code, video, config, config_path)
+                env = os.environ.copy()
+                if config.llm_model:
+                    # Best-effort: let llm_router override models without editing configs.
+                    # (If the key is unknown, llm_router logs a warning and ignores it.)
+                    env["LLM_FORCE_MODELS"] = str(config.llm_model).strip()
                 process = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.STDOUT,
-                    cwd=str(COMMENTARY01_ROOT),
+                    cwd=str(PROJECT_ROOT),
+                    env=env,
                 )
                 assert process.stdout is not None
                 async for raw_line in process.stdout:
@@ -2324,8 +2363,8 @@ def resolve_project_path(candidate: Optional[str]) -> Optional[Path]:
 
 
 def _find_commentary_input_asset(channel_code: str, video_number: str, suffix: str) -> Optional[Path]:
-    """Locate WAV/SRT that were synced into commentary_02 input folders."""
-    root = PROJECT_ROOT / "commentary_02_srt2images_timeline" / "input"
+    """Locate WAV/SRT that were synced into workspaces/video/input (mirror)."""
+    root = ssot_video_input_root()
     if not root.exists():
         return None
     pattern = f"**/{channel_code}-{video_number}.{suffix}"
@@ -2797,112 +2836,77 @@ def save_status(channel_code: str, video_number: str, payload: dict) -> None:
 
 
 def run_ssot_sync_for_channel(channel_code: str, video_number: str) -> None:
-    """Guard SoT by running progress_manager validate-status for the given row."""
+    """
+    Guard SoT after UI mutations.
 
-    progress_manager = COMMENTARY01_ROOT / "core" / "tools" / "progress_manager.py"
-    if not progress_manager.exists():
-        logger.error("progress_manager.py is missing at %s", progress_manager)
-        raise HTTPException(
-            status_code=500,
-            detail="SSOTガードの実行に必要な progress_manager が見つかりません。",
-        )
+    NOTE:
+    - 外部スクリプト依存はしない（SoT は直接読み取る）。深い整合検査は `scripts/ops/planning_lint.py` を使用する。
+    - ここでは「正本ファイルが存在し、最低限読める」ことだけを同期ガードとして検証する。
+    """
 
-    command = [
-        sys.executable,
-        str(progress_manager),
-        "validate-status",
-        "--channel-code",
-        channel_code,
-        "--video-number",
-        video_number,
-        "--context",
-        "ssot-sync",
-        "--json",
-    ]
-    logger.info(
-        "Running progress_manager validate-status for %s-%s",
-        channel_code,
-        video_number,
-    )
-    env = os.environ.copy()
-    env.setdefault("LOGURU_LEVEL", "INFO")
-    result = subprocess.run(
-        command,
-        cwd=PROJECT_ROOT,
-        capture_output=True,
-        text=True,
-        env=env,
-    )
-    stdout = (result.stdout or "").strip()
-    stderr = (result.stderr or "").strip()
+    channel_code = normalize_channel_code(channel_code)
+    video_number = normalize_video_number(video_number)
 
-    def _log_failure(payload: Optional[dict] = None) -> Path:
-        SSOT_SYNC_LOG_DIR.mkdir(parents=True, exist_ok=True)
-        timestamp = current_timestamp_compact()
-        log_path = (
-            SSOT_SYNC_LOG_DIR
-            / f"ssot_sync_failure_{channel_code}_{video_number}_{timestamp}.json"
-        )
-        log_payload = {
-            "channel_code": channel_code,
-            "video_number": video_number,
-            "command": command,
-            "returncode": result.returncode,
-            "stdout": stdout,
-            "stderr": stderr,
-            "payload": payload,
-        }
-        log_path.write_text(
-            json.dumps(log_payload, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-        return log_path
+    csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
+    status_json_path = status_path(channel_code, video_number)
 
-    if result.returncode != 0:
-        log_path = _log_failure()
-        logger.error(
-            "progress_manager validate-status failed for %s-%s (log: %s)",
-            channel_code,
-            video_number,
-            log_path,
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="SSOT同期に失敗しました。ログを確認してから再試行してください。",
-        )
+    issues: list[str] = []
+    if not csv_path.exists():
+        issues.append("missing_planning_csv")
+    if not status_json_path.exists():
+        issues.append("missing_status_json")
 
-    try:
-        payload = json.loads(stdout or "{}")
-    except json.JSONDecodeError:
-        log_path = _log_failure()
-        logger.error(
-            "Could not parse validate-status output for %s-%s (log: %s)",
-            channel_code,
-            video_number,
-            log_path,
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="SSOT同期に失敗しました。ログを確認してから再試行してください。",
-        )
+    row_exists = False
+    if csv_path.exists():
+        try:
+            import csv as _csv
 
-    if not payload.get("success", False):
-        log_path = _log_failure(payload)
-        logger.error(
-            "validate-status reported issues for %s-%s: %s",
-            channel_code,
-            video_number,
-            payload.get("issues"),
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="SSOT同期に失敗しました。ログを確認してから再試行してください。",
-        )
+            with csv_path.open("r", encoding="utf-8", newline="") as handle:
+                reader = _csv.DictReader(handle)
+                for row in reader:
+                    raw = row.get("動画番号") or row.get("video") or row.get("Video") or ""
+                    if not raw:
+                        continue
+                    try:
+                        token = normalize_video_number(raw)
+                    except Exception:
+                        continue
+                    if token == video_number:
+                        row_exists = True
+                        break
+        except Exception:
+            issues.append("planning_csv_unreadable")
 
-    logger.info(
-        "validate-status succeeded for %s-%s; SoT is in sync",
-        channel_code,
-        video_number,
+    if csv_path.exists() and not row_exists:
+        issues.append("missing_planning_row")
+
+    if status_json_path.exists():
+        try:
+            st = load_status(channel_code, video_number)
+            if not isinstance(st, dict):
+                issues.append("status_json_invalid_type")
+        except Exception:
+            issues.append("status_json_unreadable")
+
+    if not issues:
+        logger.info("SSOT guard ok for %s-%s", channel_code, video_number)
+        return
+
+    SSOT_SYNC_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = current_timestamp_compact()
+    log_path = SSOT_SYNC_LOG_DIR / f"ssot_guard_failure_{channel_code}_{video_number}_{timestamp}.json"
+    log_payload = {
+        "channel_code": channel_code,
+        "video_number": video_number,
+        "issues": issues,
+        "planning_csv": str(safe_relative_path(csv_path) or csv_path),
+        "status_json": str(safe_relative_path(status_json_path) or status_json_path),
+    }
+    log_path.write_text(json.dumps(log_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    logger.error("SSOT guard failed for %s-%s: %s (log: %s)", channel_code, video_number, issues, log_path)
+    raise HTTPException(
+        status_code=502,
+        detail="SSOTガードに失敗しました。ログを確認してから再試行してください。",
     )
 
 
@@ -3121,7 +3125,7 @@ def _summarize_video_detail_artifacts(
     items.append(
         _entry(
             key="audio_final_dir",
-            label="audio_tts_v2 final/",
+            label="audio_tts final/",
             path=final_dir,
             kind="dir",
             meta={"count": _count_dir_children(final_dir)},
@@ -3960,9 +3964,13 @@ def ensure_channel_branding(
     identifier = (
         youtube_info.get("channel_id")
         or youtube_info.get("handle")
+        or youtube_info.get("custom_url")
         or youtube_info.get("url")
         or youtube_info.get("source")
         or info.get("youtube_url")
+        or info.get("youtube_handle")
+        or (info.get("branding") or {}).get("handle")
+        or (info.get("branding") or {}).get("custom_url")
     )
 
     if not identifier:
@@ -4766,6 +4774,59 @@ class ChannelBenchmarksSpec(BaseModel):
     notes: Optional[str] = Field(None, description="総評（任意）")
 
 
+class VideoWorkflowSpec(BaseModel):
+    key: Literal["vrew_a", "vrew_b", "capcut", "remotion"] = Field(..., description="制作型キー")
+    id: int = Field(..., ge=1, le=4, description="制作型ID（メモ４互換: 1..4）")
+    label: str = Field(..., description="表示名")
+    description: str = Field(..., description="型の説明（短文）")
+
+
+VIDEO_WORKFLOW_DEFINITIONS: Dict[str, Dict[str, Any]] = {
+    "vrew_a": {
+        "id": 1,
+        "label": "vrew型A（編集なし）",
+        "description": "Vrewでそのまま完成（追加編集ゼロ）。最速・最安だが、画面の作り込み感は出にくい。",
+    },
+    "vrew_b": {
+        "id": 2,
+        "label": "vrew型B（薄黒マスク＋人物配置あり）",
+        "description": "Vrew自動生成をベースに、うっすら黒マスク＋人物（立ち絵/写真）を載せる中間型。軽編集で最大効果を狙う。",
+    },
+    "capcut": {
+        "id": 3,
+        "label": "capcut型（画像生成あり）",
+        "description": "画像を生成してCapCutテンプレで運用。見た目の完成度は高いが、素材/テンプレ管理が必要。",
+    },
+    "remotion": {
+        "id": 4,
+        "label": "remotion型（画像生成あり）",
+        "description": "画像生成＋Remotionでコード生成。量産と規格統一の最終形だが、初期実装と保守コストが高い。",
+    },
+}
+
+
+def _resolve_video_workflow(info_payload: Dict[str, Any]) -> Optional[VideoWorkflowSpec]:
+    raw = info_payload.get("video_workflow")
+    if raw is None:
+        return None
+    key = str(raw).strip()
+    if not key:
+        return None
+    definition = VIDEO_WORKFLOW_DEFINITIONS.get(key)
+    if not isinstance(definition, dict):
+        return None
+    try:
+        workflow_id = int(definition["id"])
+    except Exception:
+        return None
+    return VideoWorkflowSpec(
+        key=key,
+        id=workflow_id,
+        label=str(definition.get("label") or key),
+        description=str(definition.get("description") or ""),
+    )
+
+
 class ChannelProfileResponse(BaseModel):
     channel_code: str
     channel_name: Optional[str] = None
@@ -4777,6 +4838,7 @@ class ChannelProfileResponse(BaseModel):
     youtube_title: Optional[str] = None
     youtube_description: Optional[str] = None
     youtube_handle: Optional[str] = None
+    video_workflow: Optional[VideoWorkflowSpec] = None
     benchmarks: Optional[ChannelBenchmarksSpec] = None
     audio_default_voice_key: Optional[str] = None
     audio_section_voice_rules: Dict[str, str] = Field(default_factory=dict)
@@ -4891,6 +4953,7 @@ class ChannelSummaryResponse(BaseModel):
     spreadsheet_id: Optional[str] = None
     youtube_title: Optional[str] = None
     youtube_handle: Optional[str] = None
+    video_workflow: Optional[VideoWorkflowSpec] = None
     genre: Optional[str] = None
 
 
@@ -4904,6 +4967,10 @@ class ChannelAuditItemResponse(BaseModel):
     default_tags_count: int = 0
     benchmark_channels_count: int = 0
     benchmark_script_samples_count: int = 0
+    planning_rows: int = 0
+    planning_csv_exists: bool = False
+    persona_exists: bool = False
+    script_prompt_exists: bool = False
     issues: List[str] = Field(default_factory=list)
 
 
@@ -5249,6 +5316,43 @@ class ThumbnailChannelTemplatesUpdateRequest(BaseModel):
     templates: List[ThumbnailTemplatePayload] = Field(default_factory=list)
 
 
+class ThumbnailLayerSpecRefResponse(BaseModel):
+    id: str
+    kind: str
+    version: int
+    path: str
+    name: Optional[str] = None
+
+
+class ThumbnailChannelLayerSpecsResponse(BaseModel):
+    channel: str
+    image_prompts: Optional[ThumbnailLayerSpecRefResponse] = None
+    text_layout: Optional[ThumbnailLayerSpecRefResponse] = None
+
+
+class ThumbnailLayerSpecPlanningSuggestionsResponse(BaseModel):
+    thumbnail_prompt: Optional[str] = None
+    thumbnail_upper: Optional[str] = None
+    thumbnail_title: Optional[str] = None
+    thumbnail_lower: Optional[str] = None
+    text_design_note: Optional[str] = None
+
+
+class ThumbnailVideoTextLayoutSpecResponse(BaseModel):
+    template_id: Optional[str] = None
+    fallbacks: Optional[List[str]] = None
+    text: Optional[Dict[str, str]] = None
+
+
+class ThumbnailVideoLayerSpecsResponse(BaseModel):
+    channel: str
+    video: str
+    video_id: str
+    image_prompt: Optional[str] = None
+    text_layout: Optional[ThumbnailVideoTextLayoutSpecResponse] = None
+    planning_suggestions: Optional[ThumbnailLayerSpecPlanningSuggestionsResponse] = None
+
+
 class ThumbnailImageModelInfoResponse(BaseModel):
     key: str
     provider: str
@@ -5316,12 +5420,9 @@ def _coerce_video_from_dir(name: str) -> Optional[str]:
 
 
 def _thumbnail_asset_roots(channel_code: str) -> List[Path]:
-    roots: List[Path] = []
-    channel_dir = find_channel_directory(channel_code)
-    if channel_dir:
-        roots.append(channel_dir / "thumbnails")
-    roots.append(THUMBNAIL_ASSETS_DIR / channel_code)
-    return roots
+    # Canonical root: workspaces/thumbnails/assets/{CH}/
+    # (Do not scan package channel dirs; avoid legacy multi-root ambiguity.)
+    return [THUMBNAIL_ASSETS_DIR / channel_code]
 
 
 def _collect_disk_thumbnail_variants(channel_code: str) -> Dict[str, List[ThumbnailVariantResponse]]:
@@ -5484,17 +5585,6 @@ def _channel_library_dirs(channel_code: str) -> List[Path]:
             if name.lower() == "library":
                 continue
             dirs.append(child)
-    # Legacy/fallback: allow dropping images under /thumbnails/CHXX* directories (without /assets)
-    fallback_root = PROJECT_ROOT / "thumbnails"
-    if fallback_root.exists():
-        for child in fallback_root.iterdir():
-            if not child.is_dir():
-                continue
-            name_upper = child.name.upper()
-            if not name_upper.startswith(channel_code.upper()):
-                continue
-            if child not in dirs:
-                dirs.append(child)
     return dirs
 
 
@@ -5762,27 +5852,21 @@ try:
 except Exception as e:
     logger.error("Failed to load pipeline_boxes router: %s", e)
 
-# 静的に thumbnails ディレクトリを配信
-# NOTE: 静的マウントはAPI routes (/thumbnails/library/, /thumbnails/assets/) より先に
-# 処理されるため、ここでマウントするとAPI routesが機能しない。
-# 代わりに /thumbnails/library/ と /thumbnails/assets/ のAPIルートを使用する。
-# 静的配信が必要な場合はファイル末尾でマウントするか、別のパスを使用する。
-thumb_dir = PROJECT_ROOT / "thumbnails"
-# if thumb_dir.exists():
-#     app.mount("/thumbnails", StaticFiles(directory=thumb_dir), name="thumbnails")
+# NOTE: Do not mount StaticFiles for thumbnails here: it would shadow
+# API routes (/thumbnails/library/, /thumbnails/assets/). Use the API routes.
 
 
 @app.get("/api/redo/summary", response_model=List[RedoSummaryItem])
 def get_redo_summary(channel: Optional[str] = None):
     """チャンネル別のリテイク件数サマリを返す。channel を指定しない場合は全チャンネル集計。"""
-    def _list_progress_channels() -> List[str]:
-        base = PROJECT_ROOT / "progress" / "channels"
+    def _list_planning_channels() -> List[str]:
+        base = CHANNEL_PLANNING_DIR
         if not base.exists():
             return []
         return [p.stem for p in base.glob("*.csv")]
 
-    def progress_csv_rows(channel_code: str) -> List[Dict[str, str]]:
-        path = PROJECT_ROOT / "progress" / "channels" / f"{channel_code}.csv"
+    def planning_csv_rows(channel_code: str) -> List[Dict[str, str]]:
+        path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
         if not path.exists():
             return []
         import csv
@@ -5793,11 +5877,11 @@ def get_redo_summary(channel: Optional[str] = None):
     rows = []
     if channel:
         ch = normalize_channel_code(channel)
-        rows = progress_csv_rows(ch)
+        rows = planning_csv_rows(ch)
     else:
-        for ch in _list_progress_channels():
+        for ch in _list_planning_channels():
             try:
-                rows.extend(progress_csv_rows(ch))
+                rows.extend(planning_csv_rows(ch))
             except Exception:
                 continue
     summary: Dict[str, Dict[str, int]] = {}
@@ -5849,10 +5933,11 @@ except Exception as e:
 @app.post("/api/remotion/restart_preview")
 def restart_remotion_preview(port: int = 3100):
     preview_cmd = ["pkill", "-f", "remotion preview"]
+    remotion_dir = PROJECT_ROOT / "apps" / "remotion"
     start_cmd = [
         "bash",
         "-lc",
-        f"cd {PROJECT_ROOT}/remotion && BROWSER=none npx remotion preview --entry src/index.ts --root . --public-dir public --port {port} >/dev/null 2>&1 &",
+        f"cd {remotion_dir} && BROWSER=none npx remotion preview --entry src/index.ts --root . --public-dir public --port {port} >/dev/null 2>&1 &",
     ]
     try:
         subprocess.run(preview_cmd, check=False)
@@ -5865,12 +5950,48 @@ def restart_remotion_preview(port: int = 3100):
         raise HTTPException(status_code=500, detail=f"start failed: {e}")
     return {"status": "ok", "port": port}
 
+
+@app.get("/api/workspaces/video/input/{run_id}/{asset_path:path}")
+def get_video_input_asset(run_id: str, asset_path: str):
+    """
+    Serve run input assets from workspaces/video/input for Remotion preview.
+
+    Expected layout:
+      workspaces/video/input/<run_id>/{belt_config.json,image_cues.json,<run_id>.srt,<run_id>.wav,images/*}
+    """
+    run_id_clean = (run_id or "").strip()
+    if not run_id_clean or Path(run_id_clean).name != run_id_clean:
+        raise HTTPException(status_code=404, detail="invalid run")
+    if not asset_path or asset_path.strip() == "":
+        raise HTTPException(status_code=404, detail="invalid asset")
+    rel_asset = Path(asset_path)
+    if rel_asset.is_absolute():
+        raise HTTPException(status_code=404, detail="invalid asset")
+    if any(part == ".." for part in rel_asset.parts):
+        raise HTTPException(status_code=404, detail="invalid asset")
+
+    root = ssot_video_input_root() / run_id_clean
+    candidate = root / rel_asset
+    if not root.exists():
+        raise HTTPException(status_code=404, detail="run not found")
+    try:
+        resolved_root = root.resolve()
+        resolved_candidate = candidate.resolve()
+        resolved_candidate.relative_to(resolved_root)
+    except (OSError, ValueError):
+        raise HTTPException(status_code=404, detail="invalid asset")
+    if not resolved_candidate.is_file():
+        raise HTTPException(status_code=404, detail="asset not found")
+    media_type = mimetypes.guess_type(resolved_candidate.name)[0] or "application/octet-stream"
+    return FileResponse(resolved_candidate, media_type=media_type, filename=resolved_candidate.name)
+
+
 def _collect_health_components() -> Dict[str, bool]:
     components: Dict[str, bool] = {
         "project_root": PROJECT_ROOT.exists(),
         "data_dir": DATA_ROOT.exists(),
-        "commentary_01": COMMENTARY01_ROOT.exists(),
-        "commentary_02": COMMENTARY02_ROOT.exists(),
+        "script_pipeline": SCRIPT_PIPELINE_ROOT.exists(),
+        "video_pipeline": VIDEO_PIPELINE_ROOT.exists(),
         "logs_dir": LOGS_ROOT.exists(),
         "ui_log_dir": UI_LOG_DIR.exists(),
                 "channel_planning_dir": CHANNEL_PLANNING_DIR.exists(),
@@ -5898,6 +6019,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:3100",
+        "http://127.0.0.1:3100",
         "http://localhost:4173",
         "http://127.0.0.1:4173",
         "http://localhost:5173",
@@ -6087,6 +6210,8 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
             branding = None
     else:
         branding = None
+    youtube_info = info.get("youtube") or {}
+    branding_info = branding_payload if isinstance(branding_payload, dict) else {}
     return ChannelSummaryResponse(
         code=code,
         name=info.get("name"),
@@ -6094,8 +6219,14 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
         video_count=len(list_video_dirs(code)),
         branding=branding,
         spreadsheet_id=info.get("spreadsheet_id"),
-        youtube_title=info.get("youtube", {}).get("title"),
-        youtube_handle=info.get("youtube", {}).get("handle"),
+        youtube_title=(youtube_info.get("title") or info.get("youtube_title")),
+        youtube_handle=(
+            youtube_info.get("handle")
+            or youtube_info.get("custom_url")
+            or info.get("youtube_handle")
+            or branding_info.get("handle")
+        ),
+        video_workflow=_resolve_video_workflow(info),
         genre=infer_channel_genre(info),
     )
 
@@ -6186,10 +6317,22 @@ def audit_channels():
         youtube_info = info.get("youtube") or {}
         branding_info = info.get("branding") or {}
 
-        youtube_handle = normalize_optional_text(
-            youtube_info.get("handle") or youtube_info.get("custom_url") or branding_info.get("handle")
+        youtube_handle_raw = normalize_optional_text(
+            youtube_info.get("handle")
+            or youtube_info.get("custom_url")
+            or branding_info.get("handle")
+            or info.get("youtube_handle")
         )
+        youtube_handle = None
+        if youtube_handle_raw:
+            try:
+                youtube_handle = normalize_youtube_handle(youtube_handle_raw)
+            except Exception:
+                youtube_handle = youtube_handle_raw
+
         youtube_url = normalize_optional_text(youtube_info.get("url") or branding_info.get("url"))
+        if not youtube_url and youtube_handle:
+            youtube_url = f"https://www.youtube.com/{youtube_handle}"
         avatar_url = normalize_optional_text(branding_info.get("avatar_url"))
 
         youtube_description = normalize_optional_text(info.get("youtube_description") or youtube_info.get("description"))
@@ -6257,7 +6400,13 @@ def audit_channels():
         if not persona_exists:
             issues.append("missing_persona_doc")
 
-        script_prompt_exists = (channel_dir / "script_prompt.txt").exists()
+        script_prompt_exists = False
+        template_rel = normalize_optional_text(info.get("template_path"))
+        if template_rel:
+            try:
+                script_prompt_exists = (ssot_repo_root() / template_rel).exists()
+            except Exception:
+                script_prompt_exists = False
         if not script_prompt_exists:
             issues.append("missing_script_prompt")
 
@@ -6300,23 +6449,6 @@ def audit_channels():
 def list_planning_rows(channel: Optional[str] = Query(None, description="CHコード (例: CH06)")):
     channel_code = normalize_channel_code(channel) if channel else None
     return _load_planning_rows(channel_code)
-
-
-@app.post("/api/planning/refresh")
-def refresh_planning_store(
-    channel: Optional[str] = Query(None, description="CHコード (省略可)"),
-):
-    """
-    planning_store を強制再読込する。外部でCSVを編集した直後の手動同期用。
-    """
-    planning_store.refresh(force=True)
-    if channel:
-        try:
-            normalize_channel_code(channel)
-        except Exception:
-            pass
-    return {"ok": True}
-
 
 @app.get("/api/planning/spreadsheet", response_model=PlanningSpreadsheetResponse)
 def get_planning_spreadsheet(channel: str = Query(..., description="CHコード (例: CH06)")):
@@ -6421,7 +6553,6 @@ def create_planning_entry(payload: PlanningCreateRequest):
     CHANNEL_PLANNING_DIR.mkdir(parents=True, exist_ok=True)
     channel_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
     _write_csv_with_lock(channel_path, fieldnames, rows)
-    planning_store.refresh(force=True)
 
     planning_payload = build_planning_payload_from_row(new_row)
     character_count_raw = new_row.get("文字数")
@@ -7958,6 +8089,138 @@ def get_thumbnail_channel_templates(channel: str):
     )
 
 
+def _to_layer_spec_ref(spec_id: Optional[str]) -> Optional[ThumbnailLayerSpecRefResponse]:
+    if not isinstance(spec_id, str) or not spec_id.strip():
+        return None
+    try:
+        from script_pipeline.thumbnails.compiler.layer_specs import resolve_layer_spec_ref
+
+        ref = resolve_layer_spec_ref(spec_id.strip())
+        return ThumbnailLayerSpecRefResponse(
+            id=ref.spec_id,
+            kind=ref.kind,
+            version=int(ref.version),
+            path=ref.path,
+            name=ref.name,
+        )
+    except Exception:
+        return None
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/layer-specs",
+    response_model=ThumbnailChannelLayerSpecsResponse,
+)
+def get_thumbnail_channel_layer_specs(channel: str):
+    channel_code = normalize_channel_code(channel)
+    try:
+        from script_pipeline.thumbnails.compiler.layer_specs import resolve_channel_layer_spec_ids
+
+        image_prompts_id, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
+    except Exception:
+        image_prompts_id, text_layout_id = (None, None)
+
+    return ThumbnailChannelLayerSpecsResponse(
+        channel=channel_code,
+        image_prompts=_to_layer_spec_ref(image_prompts_id),
+        text_layout=_to_layer_spec_ref(text_layout_id),
+    )
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/{video}/layer-specs",
+    response_model=ThumbnailVideoLayerSpecsResponse,
+)
+def get_thumbnail_video_layer_specs(channel: str, video: str):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    video_id = f"{channel_code}-{video_number}"
+
+    try:
+        from script_pipeline.thumbnails.compiler.layer_specs import (
+            find_image_prompt_for_video,
+            find_text_layout_item_for_video,
+            load_layer_spec_yaml,
+            resolve_channel_layer_spec_ids,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"layer_specs module is not available: {exc}") from exc
+
+    image_prompts_id, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
+
+    image_prompt: Optional[str] = None
+    if isinstance(image_prompts_id, str) and image_prompts_id.strip():
+        try:
+            spec = load_layer_spec_yaml(image_prompts_id.strip())
+            image_prompt = find_image_prompt_for_video(spec, video_id)
+        except Exception:
+            image_prompt = None
+
+    text_layout_payload: Optional[ThumbnailVideoTextLayoutSpecResponse] = None
+    suggestion_upper: Optional[str] = None
+    suggestion_title: Optional[str] = None
+    suggestion_lower: Optional[str] = None
+    suggestion_design: Optional[str] = None
+
+    if isinstance(text_layout_id, str) and text_layout_id.strip():
+        try:
+            spec = load_layer_spec_yaml(text_layout_id.strip())
+            item = find_text_layout_item_for_video(spec, video_id)
+            if isinstance(item, dict):
+                template_id = str(item.get("template_id") or "").strip() or None
+                fallbacks_raw = item.get("fallbacks")
+                fallbacks: Optional[List[str]] = None
+                if isinstance(fallbacks_raw, list):
+                    fallbacks = [str(x).strip() for x in fallbacks_raw if isinstance(x, str) and str(x).strip()] or None
+                text_raw = item.get("text")
+                text: Optional[Dict[str, str]] = None
+                if isinstance(text_raw, dict):
+                    text = {str(k): str(v) for k, v in text_raw.items() if isinstance(v, str)}
+
+                text_layout_payload = ThumbnailVideoTextLayoutSpecResponse(
+                    template_id=template_id,
+                    fallbacks=fallbacks,
+                    text=text,
+                )
+
+                if text:
+                    suggestion_upper = (text.get("top") or "").strip() or None
+                    suggestion_title = (text.get("main") or "").strip() or None
+                    suggestion_lower = (text.get("accent") or "").strip() or None
+
+                if template_id:
+                    desc = None
+                    templates = spec.get("templates")
+                    if isinstance(templates, dict):
+                        tpl = templates.get(template_id)
+                        if isinstance(tpl, dict) and isinstance(tpl.get("description"), str):
+                            desc = tpl.get("description")
+                    suggestion_design = f"layer_specs:{text_layout_id.strip()} template={template_id}"
+                    if isinstance(desc, str) and desc.strip():
+                        suggestion_design = f"{suggestion_design} ({desc.strip()})"
+        except Exception:
+            text_layout_payload = None
+
+    planning_suggestions: Optional[ThumbnailLayerSpecPlanningSuggestionsResponse] = None
+    if image_prompt or suggestion_upper or suggestion_title or suggestion_lower or suggestion_design:
+        planning_suggestions = ThumbnailLayerSpecPlanningSuggestionsResponse(
+            thumbnail_prompt=image_prompt,
+            thumbnail_upper=suggestion_upper,
+            thumbnail_title=suggestion_title,
+            thumbnail_lower=suggestion_lower,
+            text_design_note=suggestion_design,
+        )
+
+    return ThumbnailVideoLayerSpecsResponse(
+        channel=channel_code,
+        video=video_number,
+        video_id=video_id,
+        image_prompt=image_prompt,
+        text_layout=text_layout_payload,
+        planning_suggestions=planning_suggestions,
+    )
+
+
 @app.put(
     "/api/workspaces/thumbnails/{channel}/templates",
     response_model=ThumbnailChannelTemplatesResponse,
@@ -8589,7 +8852,7 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
         raise HTTPException(status_code=500, detail=f"base image not found: {base_path}")
 
     try:
-        from workspaces.thumbnails.compiler import compile_buddha_3line as compiler
+        from script_pipeline.thumbnails.compiler import compile_buddha_3line as compiler
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumbnail compiler is not available: {exc}") from exc
 
@@ -9410,10 +9673,10 @@ def unmark_video_published(channel: str, video: str):
 
 def _find_thumbnails(channel: str, video: Optional[str] = None, title: Optional[str] = None, limit: int = 3) -> List[Dict[str, str]]:
     """
-    thumbnails/ 配下からチャンネルコード・動画番号に合致しそうなサムネをスコアで探す。
+    workspaces/thumbnails/ 配下からチャンネルコード・動画番号に合致しそうなサムネをスコアで探す。
     スコア: channel一致 +3, video番号含む(+2) / 数字一致(+2)、タイトルワード一致(+1)。スコア同点は更新日時降順。
     """
-    base = PROJECT_ROOT / "thumbnails"
+    base = ssot_thumbnails_root()
     if not base.exists():
         return []
     channel_code = normalize_channel_code(channel)
@@ -10189,8 +10452,8 @@ def get_audio_log(channel: str, video: str):
     return FileResponse(log_path, media_type="application/json", filename=log_path.name)
 
 
-@app.get("/api/audio-tts-v2/health")
-def audio_tts_v2_health():
+@app.get("/api/audio-tts/health")
+def audio_tts_health():
     try:
         cfg = load_routing_config()
     except Exception as exc:
@@ -10347,8 +10610,8 @@ def api_get_a_text(channel: str, video: str):
     return text
 
 
-@app.post("/api/audio-tts-v2/run-from-script")
-def api_audio_tts_v2_run_from_script(
+@app.post("/api/audio-tts/run-from-script")
+def api_audio_tts_run_from_script(
     channel: str = Body(..., embed=True),
     video: str = Body(..., embed=True),
     engine_override: Optional[str] = Body(None),
@@ -10357,18 +10620,18 @@ def api_audio_tts_v2_run_from_script(
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)
     input_path = _resolve_final_tts_input_path(channel_code, video_no)
-    payload = TtsV2Request(
+    payload = TtsRequest(
         channel=channel_code,
         video=video_no,
         input_path=str(input_path),
         engine_override=engine_override,
         reading_source=reading_source,
     )
-    return _run_audio_tts_v2(payload)
+    return _run_audio_tts(payload)
 
 
-# === audio_tts_v2 integration (simple CLI bridge) ===
-class TtsV2Request(BaseModel):
+# === audio_tts integration (simple CLI bridge) ===
+class TtsRequest(BaseModel):
     channel: str
     video: str
     input_path: str
@@ -10380,9 +10643,10 @@ class TtsV2Request(BaseModel):
     voicepeak_emotion: Optional[str] = None
 
 
-def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
+def _run_audio_tts(req: TtsRequest) -> Dict[str, Any]:
     repo_root = REPO_ROOT  # Use constant defined at top
-    script = repo_root / "audio_tts_v2" / "scripts" / "run_tts.py"
+    pkg_root = audio_pkg_root()
+    script = pkg_root / "scripts" / "run_tts.py"
     if not script.exists():
         raise HTTPException(status_code=500, detail="run_tts.py not found")
     input_path = Path(req.input_path)
@@ -10391,8 +10655,12 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     if not input_path.exists():
         raise HTTPException(status_code=400, detail=f"input_path not found: {input_path}")
     env = os.environ.copy()
-    # audio_tts_v2 のモジュールを優先するため既存PYTHONPATHを上書き
-    env["PYTHONPATH"] = str(repo_root / "audio_tts_v2")
+    # Ensure imports resolve in subprocess even when started outside repo root.
+    pythonpath_prefix = f"{repo_root}{os.pathsep}{repo_root / 'packages'}"
+    existing_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = (
+        f"{pythonpath_prefix}{os.pathsep}{existing_pythonpath}" if existing_pythonpath else pythonpath_prefix
+    )
     cmd = [
         sys.executable,
         str(script),
@@ -10425,10 +10693,10 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     try:
         completed = subprocess.run(cmd, capture_output=True, text=True, env=env, check=True)
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"audio_tts_v2 failed: {e.stderr or e.stdout or e}")
+        raise HTTPException(status_code=500, detail=f"audio_tts failed: {e.stderr or e.stdout or e}")
     stdout = completed.stdout.strip()
     if not final_wav_path.exists():
-        raise HTTPException(status_code=500, detail=f"audio_tts_v2 did not create wav: {stdout}")
+        raise HTTPException(status_code=500, detail=f"audio_tts did not create wav: {stdout}")
     final_srt_path = final_wav_path.with_suffix(".srt")
     wav_file_path = str(final_wav_path.resolve())
     srt_file_path = str(final_srt_path.resolve()) if final_srt_path.exists() else None
@@ -10501,8 +10769,8 @@ def _run_audio_tts_v2(req: TtsV2Request) -> Dict[str, Any]:
     }
 
 
-@app.post("/api/audio-tts-v2/run")
-def api_audio_tts_v2_run(payload: TtsV2Request):
+@app.post("/api/audio-tts/run")
+def api_audio_tts_run(payload: TtsRequest):
     channel_code = normalize_channel_code(payload.channel)
     video_no = normalize_video_number(payload.video)
     resolved = _resolve_final_tts_input_path(channel_code, video_no)
@@ -10522,10 +10790,10 @@ def api_audio_tts_v2_run(payload: TtsV2Request):
     fixed.channel = channel_code
     fixed.video = video_no
     fixed.input_path = str(resolved)
-    return _run_audio_tts_v2(fixed)
+    return _run_audio_tts(fixed)
 
 
-class TtsV2BatchItem(BaseModel):
+class TtsBatchItem(BaseModel):
     channel: str
     video: str
     input_path: str
@@ -10537,14 +10805,14 @@ class TtsV2BatchItem(BaseModel):
     voicepeak_emotion: Optional[str] = None
 
 
-class TtsV2BatchResponse(BaseModel):
+class TtsBatchResponse(BaseModel):
     results: List[Dict[str, Any]]
     success_count: int
     failure_count: int
 
 
-@app.post("/api/audio-tts-v2/run-batch", response_model=TtsV2BatchResponse)
-def api_audio_tts_v2_run_batch(payload: List[TtsV2BatchItem]):
+@app.post("/api/audio-tts/run-batch", response_model=TtsBatchResponse)
+def api_audio_tts_run_batch(payload: List[TtsBatchItem]):
     results: List[Dict[str, Any]] = []
     success = 0
     failure = 0
@@ -10562,8 +10830,8 @@ def api_audio_tts_v2_run_batch(payload: List[TtsV2BatchItem]):
                     status_code=400,
                     detail=f"input_path must be final script: {resolved} (provided: {provided})",
                 )
-            res = _run_audio_tts_v2(
-                TtsV2Request(
+            res = _run_audio_tts(
+                TtsRequest(
                     channel=channel_code,
                     video=video_no,
                     input_path=str(resolved),
@@ -10598,7 +10866,7 @@ def api_audio_tts_v2_run_batch(payload: List[TtsV2BatchItem]):
                 }
             )
             failure += 1
-    return TtsV2BatchResponse(results=results, success_count=success, failure_count=failure)
+    return TtsBatchResponse(results=results, success_count=success, failure_count=failure)
 
 
 class BatchTtsProgressResponse(BaseModel):
@@ -10854,23 +11122,20 @@ def get_audio_integrity_log(channel_id: str, video_id: str):
 @app.get("/api/kb")
 def get_knowledge_base():
     """Retrieve Global Knowledge Base."""
-    # Resolve path dynamically to ensure correct root
-    root = REPO_ROOT  # Use constant defined at top
-    real_kb_path = root / "audio_tts_v2" / "data" / "global_knowledge_base.json"
-    
-    if not real_kb_path.exists():
-        logger.warning(f"KB not found at: {real_kb_path}")
+    kb_path = KB_PATH
+    if not kb_path.exists():
+        logger.warning(f"KB not found at: {kb_path}")
         return {"version": 2, "words": {}}
     
     try:
-        with open(real_kb_path, "r", encoding="utf-8") as f:
+        with open(kb_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         # Migrate/Compatibility
         if "entries" in data and "words" not in data:
              return {"version": 1, "words": {}} # Reset if old version
         return data
     except Exception as e:
-        logger.error(f"Failed to load KB at {real_kb_path}: {e}")
+        logger.error(f"Failed to load KB at {kb_path}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to load KB: {e}")
 
 class KnowledgeBaseUpsertRequest(BaseModel):
@@ -10923,14 +11188,12 @@ def upsert_knowledge_base_entry(payload: KnowledgeBaseUpsertRequest):
 @app.delete("/api/kb/{entry_key}")
 def delete_knowledge_base_entry(entry_key: str):
     """Delete an entry from GKB."""
-    root = REPO_ROOT  # Use constant defined at top
-    real_kb_path = root / "audio_tts_v2" / "data" / "global_knowledge_base.json"
-
-    if not real_kb_path.exists():
+    kb_path = KB_PATH
+    if not kb_path.exists():
         raise HTTPException(status_code=404, detail="KB not found")
     
     try:
-        with open(real_kb_path, "r", encoding="utf-8") as f:
+        with open(kb_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         
         # Support both structures or migrate
@@ -10942,10 +11205,10 @@ def delete_knowledge_base_entry(entry_key: str):
             del container[entry_key]
             
             # Atomic write
-            temp_path = real_kb_path.with_suffix(".tmp")
+            temp_path = kb_path.with_suffix(".tmp")
             with open(temp_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
-            shutil.move(temp_path, real_kb_path)
+            shutil.move(temp_path, kb_path)
             
             return {"success": True, "message": f"Deleted key {entry_key}"}
         else:
@@ -11063,7 +11326,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     import uvicorn
 
     uvicorn.run(
-        "ui.backend.main:app",
+        "backend.main:app",
         host=args.host,
         port=args.port,
         reload=args.reload,
@@ -11218,7 +11481,7 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
             "caption": {
                 "label": "サムネキャプション",
                 "role": "画像キャプション生成",
-                "path": "ui/backend/main.py::_generate_thumbnail_caption",
+                "path": "apps/ui-backend/backend/main.py::_generate_thumbnail_caption",
                 "prompt_source": "コード内 + configs/llm_router.yaml (tasks.visual_thumbnail_caption)",
                 "endpoint": "LLMRouter (API) + THINK failover",
             },
@@ -11231,7 +11494,7 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
             "natural_command": {
                 "label": "ナチュラルコマンド",
                 "role": "自然言語コマンド解釈",
-                "path": "ui/backend/main.py::_call_llm_for_command",
+                "path": "apps/ui-backend/backend/main.py::_call_llm_for_command",
                 "prompt_source": "コード内 + configs/llm_router.yaml (tasks.tts_natural_command)",
                 "endpoint": "LLMRouter (API) + THINK failover",
             },
@@ -11256,7 +11519,7 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
             "script_polish_ai": {
                 "label": "台本ポリッシュ",
                 "role": "Stage8 ポリッシュ",
-                "prompt_source": "prompts/llm_polish_template.txt + persona",
+                "prompt_source": "packages/script_pipeline/prompts/llm_polish_template.txt + workspaces/planning/personas/{CH}_PERSONA.md",
                 "endpoint": "OpenAI(Azure)優先 / OpenRouter fallback",
             },
             "audio_text": {
@@ -11268,14 +11531,14 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
             "image_generation": {
                 "label": "画像生成",
                 "role": "Gemini画像生成",
-                "path": "commentary_02_srt2images_timeline/src/srt2images/nanobanana_client.py::_run_direct",
+                "path": "packages/video_pipeline/src/srt2images/nanobanana_client.py::_run_direct",
                 "prompt_source": "呼び出し元渡し（固定プロンプトなし）",
                 "endpoint": "Gemini 2.5 Flash Image Preview",
             },
             "context_analysis": {
                 "label": "文脈解析",
                 "role": "SRTセクション分割",
-                "path": "commentary_02_srt2images_timeline/src/srt2images/llm_context_analyzer.py::LLMContextAnalyzer.analyze_story_sections",
+                "path": "packages/video_pipeline/src/srt2images/llm_context_analyzer.py::LLMContextAnalyzer.analyze_story_sections",
                 "prompt_source": "_create_analysis_prompt（動的生成）",
                 "endpoint": "Gemini 2.5 Pro",
             },
@@ -11312,13 +11575,13 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
     return LLMSettingsResponse(llm=config)
 
 
-# Progress CSV expose
-@app.get("/api/progress/channels/{channel_code}")
-def api_progress_channel(channel_code: str):
+# Planning CSV expose (viewer-friendly CSV rows)
+@app.get("/api/planning/channels/{channel_code}")
+def api_planning_channel(channel_code: str):
     channel_code = normalize_channel_code(channel_code)
     csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
     if not csv_path.exists():
-        raise HTTPException(status_code=404, detail="progress csv not found")
+        raise HTTPException(status_code=404, detail="planning csv not found")
     try:
         import csv
         with csv_path.open("r", encoding="utf-8") as f:

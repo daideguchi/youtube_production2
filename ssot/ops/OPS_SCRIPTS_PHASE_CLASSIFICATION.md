@@ -60,12 +60,13 @@ notes: <消し忘れ防止の一言>
 
 ### Phase A. Planning（企画）
 - P0:
-  - Planning SoT更新: `workspaces/planning/channels/CHxx.csv`（UI `/progress` でも可）
+  - Planning SoT更新: `workspaces/planning/channels/CHxx.csv`（UI `/planning` でも可）
   - 汚染/欠落検知（決定論）: `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
   - L3混入クリーナ（決定論・保守）: `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時のみ `--apply`
 
 ### Phase B. Script Pipeline（台本生成）
 - P0:
+  - 台本工場（入口固定/4モード）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <mode> ...`
   - 生成主線: `python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
   - 長尺（セクション分割）: `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
   - 超長尺（Marathon）: `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
@@ -76,12 +77,12 @@ notes: <消し忘れ防止の一言>
 ### Phase C. Audio / TTS（音声・SRT）
 - P0:
   - 正規: `python -m script_pipeline.cli audio --channel CHxx --video NNN`
-  - 直叩き（必要時）: `PYTHONPATH=\".:packages\" python3 -m audio_tts_v2.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`
+  - 直叩き（必要時）: `PYTHONPATH=\".:packages\" python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`
 
 ### Phase D. Video（SRT→画像→CapCut）
 - P0:
-  - 正規: `PYTHONPATH=\".:packages\" python3 -m commentary_02_srt2images_timeline.tools.factory ...`
-  - 詳細制御: `PYTHONPATH=\".:packages\" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`
+  - 正規: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.factory ...`
+  - 詳細制御: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`
 
 ### Phase D'. Remotion（未主線/実験）
 - P0（運用上の入口として固定）:
@@ -108,7 +109,6 @@ notes: <消し忘れ防止の一言>
 ### Coordination / Agent運用
 - `python3 scripts/agent_org.py ...`（locks/board/memos）
 - `python3 scripts/agent_runner.py ...`（pending/results の運用）
-- `python3 scripts/agent_coord.py ...`（互換wrapper。旧コマンドを `agent_org.py` に転送）
 - `bash scripts/think.sh -- <cmd>`（LLM_MODE=think の安全運用）
 - `bash scripts/with_agent_mode.sh -- <cmd>`（LLM_MODE=agent の運用）
 - `bash scripts/with_ytm_env.sh <cmd>`（`.env` を export してから実行。シェル/Node系に必須）
@@ -118,12 +118,20 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/mark_redo_done.py --channel CHxx --videos NNN ... [--type audio|script|all]`
   - UI/redo API が正本だが、CLI が必要な場合はこの入口を使う（lock尊重の改善はTODO）。
 
+### Planning（補助/汚染止血）
+- タイトルを正として、汚染しやすい「テーマ補助列」だけを決定論で再整列:
+  - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM`（dry-run）
+  - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
+
 ### Script（補助/リカバリ）
 - `python3 scripts/sanitize_a_text.py --channel CHxx --videos NNN --mode dry-run|run`（Aテキストから出典/URL等のメタ混入を退避→除去→同期）
 - `python3 scripts/expand_a_text.py --channel CHxx --videos NNN ...`（字数救済の補助。主線は品質ゲート側を優先）
 - `python3 scripts/episode_ssot.py --help`（エピソード/パターンSSOTの監査・同期）
 - `python3 scripts/buddha_senior_5ch_prepare.py --help`（CH12–CH16 初期化/メタ補完の補助）
 - `python3 scripts/buddha_senior_5ch_generate_scripts.py --help`（CH12–CH16 の一括生成（APIなし）補助）
+- channel_info 正規化（benchmarks/説明文/voice_config の足場）:
+  - `python3 scripts/ops/channel_info_normalize.py`（dry-run）
+  - `python3 scripts/ops/channel_info_normalize.py --apply`
 
 ### Health / Audit
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
@@ -174,6 +182,7 @@ notes: <消し忘れ防止の一言>
 - `bash scripts/ops/cleanup_caches.sh`（pycache等）
 - `python3 scripts/ops/restore_video_runs.py --report ...`（run復旧）
 - `python3 scripts/ops/logs_snapshot.py`（logsの現状スナップショット: 件数/サイズ）
+- `python3 scripts/ops/offload_archives_to_external.py`（dry-run既定）→ OKなら `--run`（`workspaces/**/_archive/**` と `backups/graveyard/**` を外部SSDへオフロード。`YTM_OFFLOAD_ROOT` で指定）
 - `python3 scripts/ops/cleanup_broken_symlinks.py --run`（壊れたsymlink削除: 探索ノイズ低減）
 - `python3 scripts/ops/cleanup_remotion_artifacts.py --run`（remotion生成物のローテ）
 - `python3 scripts/ops/prune_video_run_legacy_files.py --run`（video runs内の *.legacy.* を prune）
@@ -186,6 +195,10 @@ notes: <消し忘れ防止の一言>
 ### SSOTメンテ（固定ロジックの維持）
 - `python3 scripts/ops/ssot_audit.py`（索引/PLAN_STATUS の整合監査）
 - `python3 scripts/ops/scripts_inventory.py --write`（`scripts/**` 棚卸しSSOTの再生成）
+- `python3 scripts/ops/prompts_inventory.py --write`（プロンプト索引 `prompts/PROMPTS_INDEX.md` を再生成）
+- `python3 scripts/ops/docs_inventory.py --write`（非SSOT docs の参照棚卸し）
+- `python3 scripts/ops/repo_ref_audit.py --target <path-or-glob> --stdout`（参照ゼロの機械棚卸し）
+- `python3 scripts/ops/repo_sanity_audit.py --verbose`（tracked symlink / ルート互換symlink の再混入ガード）
 - `bash scripts/ops/save_patch.sh`（gitが不安定な場合のパッチ保存）
 - `python3 scripts/ops/stage2_cutover_workspaces.py`（移設/互換symlink計画の一括適用。通常運用では触らない）
 
@@ -196,8 +209,8 @@ notes: <消し忘れ防止の一言>
 - `scripts/youtube_publisher/README.md`（YouTube publish 手順）
 
 ### Planning/Script Sync（旧互換・慎重に）
-- `python3 scripts/sync_all_scripts.py`（planning CSV ↔ status/assembled の同期）
-- `python3 scripts/sync_ch02_scripts.py`（CH02限定の同期。原則 `sync_all_scripts.py` を優先）
+- `python3 scripts/sync_all_scripts.py`（planning CSV ↔ status/assembled の同期。既定は全チャンネル）
+- `python3 scripts/sync_all_scripts.py --channel CH02`（チャンネル限定の同期。旧 `sync_ch02_scripts.py` の置換）
 
 ### E2E（開発用）
 - `bash scripts/e2e_smoke.sh`（軽量スモーク。CI用途が主）

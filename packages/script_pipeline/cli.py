@@ -180,7 +180,7 @@ def main() -> None:
         cmd = [
             sys.executable,
             "-m",
-            "audio_tts_v2.scripts.run_tts",
+            "audio_tts.scripts.run_tts",
             "--channel", ch,
             "--video", no,
             "--input", str(input_path),

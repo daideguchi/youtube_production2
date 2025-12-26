@@ -1,12 +1,12 @@
 """
 Channel prompt schema sync utility.
 
-Reads a channel prompt YAML (script_pipeline/prompts/channels/*.yaml) and writes:
+Reads a channel prompt YAML (packages/script_pipeline/prompts/channels/*.yaml) and writes:
 - script_prompt.txt under the specified channel directory
 - channel_info.json (script_prompt / template_path / persona_path)
 
 Usage:
-python -m script_pipeline.tools.channel_prompt_sync --yaml script_pipeline/prompts/channels/CH03.yaml --channel-dir "script_pipeline/channels/CH03-【シニアの健康】朗読図書館"
+PYTHONPATH=".:packages" python -m script_pipeline.tools.channel_prompt_sync --yaml packages/script_pipeline/prompts/channels/CH03.yaml --channel-dir "packages/script_pipeline/channels/CH03-【シニアの健康】朗読図書館"
 """
 from __future__ import annotations
 

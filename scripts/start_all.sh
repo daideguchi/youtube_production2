@@ -90,12 +90,8 @@ start_remotion_studio() {
     warn "remotion dir not found: $remotion_dir"
     return
   fi
-  # Ensure workspaces video input exists (Remotion preview reads from it via apps/remotion/input symlink).
+  # Ensure workspace video input exists (preview reads runs from here).
   mkdir -p "$YTM_ROOT/workspaces/video/input" 2>/dev/null || true
-  # Ensure public/input is available (symlink to ../input for preview)
-  if [ ! -e "$remotion_dir/public/input" ]; then
-    ln -s ../input "$remotion_dir/public/input" 2>/dev/null || true
-  fi
   info "Starting Remotion Studio preview on port $port"
   (
     cd "$remotion_dir"
@@ -135,13 +131,9 @@ main() {
     "$PYTHON_BIN" "$YTM_ROOT/scripts/sync_all_scripts.py" || warn "sync_all_scripts failed"
   fi
 
-  # Refresh planning_store cache so UIに新チャンネル/CSVが即反映される
-  info "Refreshing planning_store cache"
-  (cd "$YTM_ROOT" && "$PYTHON_BIN" -m script_pipeline.tools.planning_store refresh --force) || warn "planning_store refresh failed"
-
-  # Sync audio artifacts into commentary input (safe: no overwrite)
-  if [ -f "$YTM_ROOT/packages/commentary_02_srt2images_timeline/tools/sync_audio_inputs.py" ]; then
-    "$PYTHON_BIN" -m commentary_02_srt2images_timeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
+  # Sync audio artifacts into video input (safe: no overwrite)
+  if [ -f "$YTM_ROOT/packages/video_pipeline/tools/sync_audio_inputs.py" ]; then
+    "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
   fi
 
   if [ -f "$ENV_FILE" ]; then

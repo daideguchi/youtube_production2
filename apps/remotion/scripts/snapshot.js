@@ -4,6 +4,7 @@ import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import { loadRunData } from "../src/lib/loadRunData.ts";
 import { createRequire } from "module";
 import fetch from "node-fetch";
@@ -11,6 +12,12 @@ import { AbortController } from "abort-controller";
 import { sortMissing, summarizeMissing } from "./missing_util.js";
 
 const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const REMOTION_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(REMOTION_ROOT, "..", "..");
+const REMOTION_PUBLIC_DIR = path.join(REMOTION_ROOT, "public");
+const VIDEO_PIPELINE_ROOT = path.join(REPO_ROOT, "packages", "video_pipeline");
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -45,7 +52,7 @@ function parseArgs() {
 
 async function main() {
   const opts = parseArgs();
-  const runDir = path.resolve(process.cwd(), opts.run);
+  const runDir = path.resolve(REPO_ROOT, opts.run);
   const size = (opts.size || "1920x1080").split("x").map(Number);
   const [width, height] = size;
   const fps = opts.fps || 30;
@@ -81,11 +88,11 @@ async function main() {
     }
   }
 
-  const entry = path.join(process.cwd(), "remotion", "src", "index.ts");
+  const entry = path.join(REMOTION_ROOT, "src", "index.ts");
   const bundled = await bundle({
     entryPoint: entry,
     enableCaching: true,
-    publicDir: path.join(process.cwd(), "remotion", "public"),
+    publicDir: REMOTION_PUBLIC_DIR,
     webpackOverride: (config) => {
       config.resolve ??= {};
       config.resolve.extensions = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json"];
@@ -165,7 +172,9 @@ async function resolveImgPath(runDir, p, checkRemote = false, remoteTimeoutMs = 
 function loadPresetPosition(channel) {
   try {
     if (!channel) return { tx: 0, ty: 0, scale: 1 };
-    const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), "commentary_02_srt2images_timeline", "config", "channel_presets.json"), "utf-8"));
+    const cfg = JSON.parse(
+      fs.readFileSync(path.join(VIDEO_PIPELINE_ROOT, "config", "channel_presets.json"), "utf-8"),
+    );
     const preset = cfg?.channels?.[channel];
     const pos = preset?.position;
     if (pos && typeof pos.tx === "number" && typeof pos.ty === "number" && typeof pos.scale === "number") {
@@ -199,12 +208,14 @@ function fixOverlaps(scenes, crossfade) {
 
 function loadPresetLayout(channel) {
   try {
-    const defaultsPath = path.join(process.cwd(), "remotion", "preset_layouts.json");
+    const defaultsPath = path.join(REMOTION_ROOT, "preset_layouts.json");
     const defaults = fs.existsSync(defaultsPath) ? JSON.parse(fs.readFileSync(defaultsPath, "utf-8")) : {};
 
     let layout = {};
     if (channel) {
-      const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), "commentary_02_srt2images_timeline", "config", "channel_presets.json"), "utf-8"));
+      const cfg = JSON.parse(
+        fs.readFileSync(path.join(VIDEO_PIPELINE_ROOT, "config", "channel_presets.json"), "utf-8"),
+      );
       const preset = cfg?.channels?.[channel];
       const fromPreset = preset?.layout;
       if (fromPreset && typeof fromPreset === "object") {
@@ -232,7 +243,7 @@ function loadPresetOpeningOffset(channel) {
     if (!channel) return undefined;
     const cfg = JSON.parse(
       fs.readFileSync(
-        path.join(process.cwd(), "commentary_02_srt2images_timeline", "config", "channel_presets.json"),
+        path.join(VIDEO_PIPELINE_ROOT, "config", "channel_presets.json"),
         "utf-8",
       ),
     );

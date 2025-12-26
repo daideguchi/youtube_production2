@@ -23,6 +23,9 @@ def _discover_repo_root(start: Path) -> Path:
 _REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_PACKAGES_ROOT = _REPO_ROOT / "packages"
+if _PACKAGES_ROOT.exists() and str(_PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PACKAGES_ROOT))
 
 
 from factory_common.paths import audio_final_dir, script_data_root, status_path, video_root, video_runs_root, workspace_root  # noqa: E402

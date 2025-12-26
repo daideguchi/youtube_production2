@@ -1,0 +1,25 @@
+{
+  "templates": [
+    { "id": "default.txt", "label": "default (generic)", "scope": ["global"], "status": "active" },
+    { "id": "jinsei_warm_gold_blue_strict.txt", "label": "CH01 水彩（金×青）厳格", "scope": ["CH01"], "status": "active" },
+    { "id": "watercolor_gold_blue_ch02.txt", "label": "CH02 水彩（金×青）", "scope": ["CH02"], "status": "active" },
+    { "id": "senior_health_reading.txt", "label": "CH03 シニア健康（朗読）", "scope": ["CH03"], "status": "active" },
+    { "id": "oil_painting_akashic_fantasy.txt", "label": "CH04 アカシック（油彩ファンタジー）", "scope": ["CH04"], "status": "active" },
+    { "id": "senior_romance_sensual.txt", "label": "CH05 シニア恋愛（Sensual）", "scope": ["CH05"], "status": "active" },
+    { "id": "watercolor_gold_blue_ch06_dark.txt", "label": "CH06 ダーク水彩（金×青）", "scope": ["CH06"], "status": "active" },
+    { "id": "dark_library_calm_curiosity.txt", "label": "CH06 ダークライブラリ（静かな好奇心）", "scope": ["CH06"], "status": "active" },
+    { "id": "watercolor_gold_blue_strict.txt", "label": "水彩（金×青）Strict", "scope": ["CH07", "CH08", "CH11"], "status": "active" },
+    { "id": "philosophy_calm_watercolor_oil.txt", "label": "哲学 Calm（水彩×油彩）", "scope": ["CH09", "CH10"], "status": "active" },
+    { "id": "senior_story_friendly_psychology.txt", "label": "CH22/CH23 シニア体験談（親しみやすい心理描写）", "scope": ["CH22", "CH23"], "status": "active" },
+
+    { "id": "japanese_visual.txt", "label": "legacy: japanese_visual", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei_contextual_variety.txt", "label": "legacy: jinsei_contextual_variety", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei_no_michishirube_buddhist.txt", "label": "legacy: jinsei_no_michishirube_buddhist", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei_no_michishirube_contextual.txt", "label": "legacy: jinsei_no_michishirube_contextual", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei_standard_illustration.txt", "label": "legacy: jinsei_standard_illustration", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei191_masako_strict.txt", "label": "legacy: jinsei191_masako_strict", "scope": ["legacy"], "status": "inactive" },
+    { "id": "oil_painting_philosophy.txt", "label": "legacy: oil_painting_philosophy", "scope": ["legacy"], "status": "inactive" },
+    { "id": "senior_romance_jp_consistent.txt", "label": "legacy: senior_romance_jp_consistent", "scope": ["legacy"], "status": "inactive" },
+    { "id": "senior_romance_jp_ultra_soft.txt", "label": "legacy: senior_romance_jp_ultra_soft", "scope": ["legacy"], "status": "inactive" }
+  ]
+}

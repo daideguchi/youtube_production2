@@ -35,6 +35,101 @@ class DummyRateLimitError(ImageGenerationError):
 
 
 class TestImageClient(unittest.TestCase):
+    def test_profile_task_override_sets_forced_model_key(self):
+        prev_profile = os.environ.get("IMAGE_CLIENT_PROFILE")
+        prev_overrides_path = os.environ.get("IMAGE_CLIENT_TASK_OVERRIDES_PATH")
+        prev_env_forced = os.environ.get("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN")
+        os.environ.pop("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", None)
+
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                override_path = Path(tmp) / "image_task_overrides.yaml"
+                override_path.write_text(
+                    "\n".join(
+                        [
+                            "profiles:",
+                            "  default:",
+                            "    tasks: {}",
+                            "  cheap:",
+                            "    tasks:",
+                            "      visual_image_gen:",
+                            "        model_key: m2",
+                        ]
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+
+                os.environ["IMAGE_CLIENT_PROFILE"] = "cheap"
+                os.environ["IMAGE_CLIENT_TASK_OVERRIDES_PATH"] = str(override_path)
+
+                cfg = {
+                    "providers": {},
+                    "models": {
+                        "m1": {"provider": "dummy", "model_name": "m1"},
+                        "m2": {"provider": "dummy", "model_name": "m2"},
+                    },
+                    "tiers": {"image": ["m1", "m2"]},
+                    "tasks": {"visual_image_gen": {"tier": "image", "defaults": {}}},
+                }
+                a1 = DummyAdapter(fail=False, label="a1")
+                a2 = DummyAdapter(fail=False, label="a2")
+                client = ImageClient(
+                    config_path=Path(tmp) / "image_models.yaml",
+                    config_data=cfg,
+                    adapter_overrides={"m1": a1, "m2": a2},
+                )
+                res = client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
+                self.assertEqual(res.model, "m2")
+                self.assertEqual(a1.calls, 0)
+                self.assertEqual(a2.calls, 1)
+        finally:
+            if prev_profile is None:
+                os.environ.pop("IMAGE_CLIENT_PROFILE", None)
+            else:
+                os.environ["IMAGE_CLIENT_PROFILE"] = prev_profile
+
+            if prev_overrides_path is None:
+                os.environ.pop("IMAGE_CLIENT_TASK_OVERRIDES_PATH", None)
+            else:
+                os.environ["IMAGE_CLIENT_TASK_OVERRIDES_PATH"] = prev_overrides_path
+
+            if prev_env_forced is None:
+                os.environ.pop("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", None)
+            else:
+                os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = prev_env_forced
+
+    def test_env_forced_model_key_is_used_when_no_extra_model_key(self):
+        prev = os.environ.get("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN")
+        os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = "m2"
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                cfg = {
+                    "providers": {},
+                    "models": {
+                        "m1": {"provider": "dummy", "model_name": "m1"},
+                        "m2": {"provider": "dummy", "model_name": "m2"},
+                    },
+                    "tiers": {"image": ["m1", "m2"]},
+                    "tasks": {"visual_image_gen": {"tier": "image", "defaults": {}}},
+                }
+                a1 = DummyAdapter(fail=True, label="a1")
+                a2 = DummyAdapter(fail=False, label="a2")
+                client = ImageClient(
+                    config_path=Path(tmp) / "image_models.yaml",
+                    config_data=cfg,
+                    adapter_overrides={"m1": a1, "m2": a2},
+                )
+                res = client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
+                self.assertEqual(res.model, "m2")
+                self.assertEqual(a1.calls, 0)
+                self.assertEqual(a2.calls, 1)
+        finally:
+            if prev is None:
+                os.environ.pop("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", None)
+            else:
+                os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = prev
+
     def test_failover(self):
         with tempfile.TemporaryDirectory() as tmp:
             cfg = {

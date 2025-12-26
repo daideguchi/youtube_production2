@@ -21,6 +21,9 @@ def _discover_repo_root(start: Path) -> Path:
 REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+PACKAGES_ROOT = REPO_ROOT / "packages"
+if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(PACKAGES_ROOT))
 
 from factory_common.llm_router import get_router  # noqa: E402
 from factory_common.paths import repo_root, script_data_root, video_root  # noqa: E402

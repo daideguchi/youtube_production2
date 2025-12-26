@@ -38,5 +38,5 @@ python3 scripts/cleanup_data.py --keep-days 30 --run
 ## 5. 定期実行（任意）
 cron例（週1回、日曜3時 / `--run` を明示）:
 ```bash
-0 3 * * 0 cd <REPO_ROOT> && /usr/bin/python3 scripts/cleanup_data.py --run >> logs/cleanup_data.log 2>&1
+0 3 * * 0 cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>:<REPO_ROOT>/packages" /usr/bin/python3 scripts/cleanup_data.py --run >> workspaces/logs/cleanup_data.log 2>&1
 ```

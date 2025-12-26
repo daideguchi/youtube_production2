@@ -10,8 +10,8 @@ Environment=PYTHONPATH=__REPO_ROOT__
 ExecStart=/usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 100 --max-parallel 1 --sleep 10
 Restart=always
 RestartSec=10
-StandardOutput=append:__REPO_ROOT__/logs/job_runner.out
-StandardError=append:__REPO_ROOT__/logs/job_runner.err
+StandardOutput=append:__REPO_ROOT__/workspaces/logs/job_runner.out
+StandardError=append:__REPO_ROOT__/workspaces/logs/job_runner.err
 
 [Install]
 WantedBy=multi-user.target

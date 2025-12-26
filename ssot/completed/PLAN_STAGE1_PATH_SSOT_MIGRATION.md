@@ -4,7 +4,7 @@
 - **Plan ID**: PLAN_STAGE1_PATH_SSOT_MIGRATION
 - **ステータス**: Closed
 - **担当/レビュー**: Owner: dd / Reviewer: dd
-- **対象範囲 (In Scope)**: `factory_common/paths.py` 新設と、全実行コードの直書きパス置換（物理移動は含まない）
+- **対象範囲 (In Scope)**: `packages/factory_common/paths.py` 新設と、全実行コードの直書きパス置換（物理移動は含まない）
 - **非対象 (Out of Scope)**: workspaces/legacy/apps/packages の物理移設、生成品質ロジック変更
 - **関連 SoT/依存**: `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`, `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`, `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - **最終更新日**: 2025-12-17
@@ -18,13 +18,13 @@
 - 旧パス構造のままでも動作を壊さない（Stage 1 は物理移動ゼロ）。
 
 ### 1.2 DoD (Stage1)
-- `factory_common/paths.py` が存在し、主要 getter が実装されている。
+- `packages/factory_common/paths.py` が存在し、主要 getter が実装されている。
 - `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md` の **Active/実行コード**の直書きパスが全て paths SSOT 経由になっている。
 - 旧絶対パス `/Users/dd/...` と旧名 `commentary_01_srtfile_v2` が、実行コード層から消えている（Docs/Legacy/生成物は残ってOK）。
 - 主要入口の help/import smoke が通る（物理移動前のベースライン維持）:
   - `python -m script_pipeline.cli --help`
-  - `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --help`
-  - `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory --help`
+  - `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --help`
+  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory --help`
   - `scripts/start_all.sh start`（Remotion preview 失敗は non‑blocking）
 
 ---
@@ -41,35 +41,36 @@
 
 ### 2.2 ドメイン別 getter（Stage1で最小限を実装）
 **Planning**
-- `planning_root()` → `repo_root()/progress`（Stage2で workspaces/planning へ移設予定）
+- `planning_root()` → `workspace_root()/planning`（現行SoT）
 - `channels_csv_path(ch)` → `planning_root()/channels/{ch}.csv`
 - `persona_path(ch)` → `planning_root()/personas/{ch}_PERSONA.md`
 
 **Scripts**
-- `script_pkg_root()` → `repo_root()/script_pipeline`
-- `script_data_root()` → `script_pkg_root()/data`（Stage2で workspaces/scripts へ移設予定）
+- `script_pkg_root()` → `repo_root()/packages/script_pipeline`
+- `script_data_root()` → `workspace_root()/scripts`（現行SoT）
 - `video_root(ch, vid)` → `script_data_root()/{ch}/{vid}`
 - `status_path(ch, vid)` → `video_root(ch, vid)/status.json`
 
 **Audio**
-- `audio_pkg_root()` → `repo_root()/audio_tts_v2`
-- `audio_artifacts_root()` → `audio_pkg_root()/artifacts`（Stage2で workspaces/audio へ移設予定）
+- `audio_pkg_root()` → `repo_root()/packages/audio_tts`
+- `audio_artifacts_root()` → `workspace_root()/audio`（現行SoT）
 - `audio_final_dir(ch, vid)` → `audio_artifacts_root()/final/{ch}/{vid}`
 
 **Video (CapCut)**
-- `video_pkg_root()` → `repo_root()/commentary_02_srt2images_timeline`
-- `video_output_root()` → `video_pkg_root()/output`（Stage2で workspaces/video/runs へ移設予定）
-- `video_run_dir(run_id)` → `video_output_root()/{run_id}`
+- `video_pkg_root()` → `repo_root()/packages/video_pipeline`
+- `video_runs_root()` → `workspace_root()/video/runs`（現行SoT）
+- `video_run_dir(run_id)` → `video_runs_root()/{run_id}`
+- `video_input_root()` → `workspace_root()/video/input`（音声ミラー入力）
 
 **Thumbnails**
-- `thumbnails_root()` → `repo_root()/thumbnails`（Stage2で workspaces/thumbnails へ移設予定）
+- `thumbnails_root()` → `workspace_root()/thumbnails`（現行SoT）
 - `thumbnail_assets_dir(ch, vid)` → `thumbnails_root()/assets/{ch}/{vid}`
 
 **Logs**
-- `logs_root()` → `repo_root()/logs`（Stage2で workspaces/logs へ移設予定）
+- `logs_root()` → `workspace_root()/logs`（現行SoT）
 
 ### 2.3 禁止ルール（lint化前提）
-- 直書き `Path("script_pipeline/data")` / `"audio_tts_v2/artifacts"` / `"commentary_02_srt2images_timeline/output"` / `"progress/channels"` / `"thumbnails/assets"` の新規追加を禁止。
+- 直書き `Path("script_pipeline/data")` / `"audio_tts/artifacts"` / `"video_pipeline/output"` / `"progress/channels"` / `"thumbnails/assets"` の新規追加を禁止。
 - `/Users/dd/...` の絶対パスは全層で禁止（Stage1で実行コードはゼロにする）。
 
 ---
@@ -79,60 +80,60 @@
 > 元リストは `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md` を正本とし、Stage1は **Active/実行コードのみ**を対象にする。
 
 ### 3.0 Stage1-0: paths.py 新設（置換開始前）
-1. `factory_common/paths.py` を新設（現行位置のまま）。
+1. `packages/factory_common/paths.py` を新設（現行位置のまま）。
 2. `tests/test_paths.py` を追加（env override / pyproject探索 / 主要 getter の戻りを検証）。
 3. import smoke: `python -c "from factory_common.paths import repo_root; print(repo_root())"`
 
 ### 3.1 Stage1-1: `script_pipeline` コア（最上流）
 対象（直書き `script_pipeline/data` / `progress/channels` の解消）:
-- `script_pipeline/sot.py`
-- `script_pipeline/runner.py`
-- `script_pipeline/job_runner.py`
-- `script_pipeline/tools/planning_store.py`（channels dir解決）
-- `script_pipeline/README.md` の実行サンプル（Docsだが運用上重要なため更新）
+- `packages/script_pipeline/sot.py`
+- `packages/script_pipeline/runner.py`
+- `packages/script_pipeline/job_runner.py`
+- `packages/script_pipeline/tools/planning_store.py`（channels dir解決）
+- 実行サンプルは SSOTへ集約（`ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`, `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`）
 
 ゲート:
 - `python -m script_pipeline.cli status --channel CH01 --video 001`（dry/存在しない場合は import smoke だけでOK）
 
-### 3.2 Stage1-2: `audio_tts_v2`（Scriptの下流）
-対象（直書き `script_pipeline/data` / `audio_tts_v2/artifacts` / 絶対パスの解消）:
-- `audio_tts_v2/scripts/run_tts.py`
-- `audio_tts_v2/tts/*` の SoT/辞書/ログ参照（見つかったものから順に）
-- Legacy 直書きがある `audio_tts_v2/legacy_archive/scripts/*` は **Stage3で legacy 隔離**するまで置換しない。
+### 3.2 Stage1-2: `audio_tts`（Scriptの下流）
+対象（直書き `script_pipeline/data` / `audio_tts/artifacts` / 絶対パスの解消）:
+- `packages/audio_tts/scripts/run_tts.py`
+- `packages/audio_tts/tts/*` の SoT/辞書/ログ参照（見つかったものから順に）
+- Legacy 直書きがある `packages/audio_tts/legacy_archive/scripts/*` は **Stage3で legacy 隔離**するまで置換しない。
 
 ゲート:
-- `PYTHONPATH=".:packages" python3 -m audio_tts_v2.scripts.run_tts --help`
+- `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --help`
 - `python -m script_pipeline.cli audio --channel CH01 --video 001 --help`
 
-### 3.3 Stage1-3: `commentary_02_srt2images_timeline`（CapCut主線）
-対象（直書き `audio_tts_v2/artifacts` / `commentary_02.../output` / 絶対パスの解消）:
-- `commentary_02_srt2images_timeline/src/srt2images/orchestration/pipeline.py`
-- `commentary_02_srt2images_timeline/tools/auto_capcut_run.py`
-- `commentary_02_srt2images_timeline/tools/factory.py`
-- `commentary_02_srt2images_timeline/ui/server/jobs.py`
-- `commentary_02_srt2images_timeline/tools/sync_audio_inputs.py`
-- `commentary_02_srt2images_timeline/tools/safe_image_swap.py`
-- `commentary_02_srt2images_timeline/tools/*`（analysis/maintenance含む、archive除外）
+### 3.3 Stage1-3: `video_pipeline`（CapCut主線）
+対象（直書き `audio_tts/artifacts` / `commentary_02.../output` / 絶対パスの解消）:
+- `packages/video_pipeline/src/srt2images/orchestration/pipeline.py`
+- `packages/video_pipeline/tools/auto_capcut_run.py`
+- `packages/video_pipeline/tools/factory.py`
+- `packages/video_pipeline/ui/server/jobs.py`
+- `packages/video_pipeline/tools/sync_audio_inputs.py`
+- `packages/video_pipeline/tools/safe_image_swap.py`
+- `packages/video_pipeline/tools/*`（analysis/maintenance含む、archive除外）
 
 ゲート:
-- `PYTHONPATH=".:packages" python3 -m commentary_02_srt2images_timeline.tools.factory --help`
+- `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory --help`
 
 ### 3.4 Stage1-4: UI backend（paths SSOT への一本化）
-対象（`script_pipeline/data` / `progress/channels` / `audio_tts_v2/artifacts` / `thumbnails/assets` / `commentary_02/output` / Remotion preview path）:
-- `apps/ui-backend/backend/main.py`（互換: `ui/backend/*` は symlink）
+対象（`script_pipeline/data` / `progress/channels` / `audio_tts/artifacts` / `thumbnails/assets` / `commentary_02/output` / Remotion preview path）:
+- `apps/ui-backend/backend/main.py`
 - `apps/ui-backend/backend/video_production.py`
 - `apps/ui-backend/backend/routers/auto_draft.py`
 - `apps/ui-backend/backend/routers/swap.py`
 - `apps/ui-backend/backend/routers/tts_progress.py`
-- `ui/tools/assets_sync.py`（backendと同じpathsを使う）
+- `apps/ui-backend/tools/assets_sync.py`（backendと同じpathsを使う）
 
 ゲート:
-- `python -c "import ui.backend.main as m; print('ok')"`（import smoke）
+- `PYTHONPATH=".:packages:apps/ui-backend" .venv/bin/python -c "import backend.main as m; print('ok')"`（import smoke）
 - `scripts/start_all.sh start`（バックエンド起動確認。preview失敗は許容）
 
 ### 3.5 Stage1-5: UI frontend（表示パスの整理）
 対象（表示文字列/URL生成のための直書きパス除去）:
-- `apps/ui-frontend/src/api/client.ts`（互換: `ui/frontend/src/...` は symlink）
+- `apps/ui-frontend/src/api/client.ts`
 - `apps/ui-frontend/src/pages/*`（ScriptFactory/Projects/AutoDraft/Thumbnails/Remotion*）
 - `apps/ui-frontend/src/components/*`（ResearchWorkspace/AudioWorkspace/ThumbnailWorkspace）
 

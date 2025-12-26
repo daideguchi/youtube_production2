@@ -1,0 +1,469 @@
+{
+  "channels": {
+    "CH01": {
+      "name": "人生の道標",
+      "image_generation": {
+        "base_period": 9.0,
+        "model_key": "openrouter_gemini_2_5_flash_image"
+      },
+      "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH01-UNK_道標_最新テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 3.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "帯レイヤー最上段／belt_config必須。画像は完全イラスト調固定。",
+      "status": "active"
+    },
+    "CH02": {
+      "name": "哲学系",
+      "prompt_template": "templates/watercolor_gold_blue_ch02.txt",
+      "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、静かな油絵寄り（薄い下塗り＋油彩グレーズ、キャンバス目、柔らかな筆致）。余白と象徴モチーフで哲学的な余韻を作る。文字/看板/ロゴは禁止。",
+      "tone_profile": "トーン: 静寂・内省・哲学的・象徴的。油絵（薄塗り＋グレーズ）のブラシ質感、低〜中彩度、柔らかいゴールド光と薄い霧。影はブルーグレーで静かに深く。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
+      "character_note": "人物ポリシー: デフォルト無人。人物が出る場合は台本に沿う一人/少数のみで、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラや現場作業員・道具（赤い鉢巻・鎌等）は禁止。",
+      "style": "quiet philosophical oil painting, metaphorical symbolism, muted palette, warm-gold highlights vs cool blue-gray shadows, soft haze, no text, no photorealism, consistent visual motifs (no humans by default)",
+      "capcut_template": "CH02-テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true,
+        "mode": "main_only",
+        "max_sections": 1
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "帯ルールはCH01準拠。章タイトル生成ロジックを共用する。",
+      "status": "active"
+    },
+    "CH03": {
+      "name": "シニアの健康",
+      "prompt_template": "templates/senior_health_reading.txt",
+      "prompt_suffix": "キャラ一貫: 語り手=50代女性、優しい表情、日本人。目は小さめ。水彩タッチで健康/安心を表現。",
+      "tone_profile": "トーン: 柔らかい水彩、アニメ感を抑え、コントラスト控えめ。文字要素は描かない。",
+      "character_note": "キャラ設定: 語り手(50代女性)を一貫。優しい顔立ち、控えめな目鼻立ち。",
+      "style": "soft, warm, gentle, friendly, pastel palette",
+      "capcut_template": "CH03-000_シニアの朗読テンプレ",
+      "position": {
+        "tx": -0.163,
+        "ty": 0.201,
+        "scale": 0.59
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "人生の道標と同じ帯ロジックを採用。",
+      "status": "active"
+    },
+    "CH04": {
+      "name": "隠れ書庫アカシック／心理学",
+      "prompt_template": "templates/oil_painting_akashic_fantasy.txt",
+      "prompt_suffix": "キャラ一貫: 語り手=30代後半の日本人（性別任意）を必要時のみ登場させ、顔/髪/服/雰囲気を全カットで統一。幻想的で哲学的、静かなダークトーンのリッチな油絵表現を最優先。不要な人物や群衆は入れない。文字・看板・UI・ロゴは一切描かない。アニメ誇張なし。",
+      "tone_profile": "トーン: 幻想的・内省的・落ち着くダーク。油絵のブラシ質感と深い陰影、柔らかな光と奥行きでリッチに。文字要素は描かない。",
+      "character_note": "キャラ設定: 語り手(30代後半)は登場時のみ一貫。幻想的な背景・象徴モチーフを繰り返しつつ単調さを避ける。",
+      "style": "rich mystical oil painting, akashic records, dark philosophical calm, no text, no anime exaggeration",
+      "capcut_template": "CH04-UNK_ック_テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "油絵アカシック演出。帯ルールは共通仕様。",
+      "status": "active"
+    },
+    "CH05": {
+      "name": "シニア恋愛物語",
+      "prompt_template": "templates/senior_romance_sensual.txt",
+      "prompt_suffix": "キャラ一貫: 主人公カップル=60代日本人男女。写実寄りの顔立ちと柔らかな表情。視線・仕草で親密さを描き、テキスト/看板は入れない。",
+      "tone_profile": "トーン: 写実寄りの温かい恋愛イラスト。水彩と油彩の中間、光を強めに入れてシネマティックに。アニメ誇張なし。",
+      "character_note": "キャラ設定: 60代の男女（日本人）を全カットで統一。髪・服の色味/質感/体型を揃え、現代日本の日常シーンに寄せる。",
+      "style": "realistic yet soft senior romance, cinematic lighting, Japanese aesthetic",
+      "capcut_template": "CH05-XXX_シニア恋愛物語_日本人版_完璧版",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": false
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "成功設定（retry/validation）を継続利用。",
+      "status": "active"
+    },
+    "CH06": {
+      "name": "都市伝説のダーク図書館",
+      "prompt_template": "templates/watercolor_gold_blue_ch06_dark.txt",
+      "prompt_suffix": "好奇心をくすぐるが落ち着いたダーク図書館。暖かな金色の点光×深いインディゴ/青グレーの書架・石。水彩＋薄い線画＋和紙＋グランジ＋フィルム粒子。基本無人、必要時のみ案内人1名を一貫（日本人/アジア顔、性別任意）。かわいい/ポップ禁止。文字や看板は描かない。",
+      "tone_profile": "トーン: 静寂・ミステリアス・少し不穏だが安らぐ。低〜中低彩度、局所的スポット光と薄い霧。退廃的な空気感。アニメ誇張なし。",
+      "character_note": "人物ポリシー: デフォルト無人。人物が必要な場合のみ台本指定の案内人を一貫（顔/服/年齢/文化を固定）。無関係な新キャラや作業員・鎌・赤鉢巻は禁止（台本明示時のみ限定）。",
+      "style": "dark urban-legend library, watercolor-oil hybrid, cinematic moody lighting, metaphor-first, no text, minimal humans, grunge + washi texture, warm gold accents vs deep indigo shadows",
+      "capcut_template": "CH06-テンプレ",
+      "capcut_settings": {
+        "timeline": {
+          "preferred_layer_order": [
+            "image",
+            "subtitles",
+            "audio"
+          ],
+          "lock_belt_track": "main_belt"
+        }
+      },
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": true,
+      "image_min_bytes": 60000,
+      "video_style_id": "ch06_darklibrary_v1",
+      "notes": "都市伝説感・メタファー重視。水彩×油彩の中間。文字なし。語り手一貫。CapCutテンプレ=CH06-テンプレ（同名レイヤ含むテンプレ構造を維持）。帯(main_belt相当)配置・レイヤ順を固定（画像→字幕→音声）。",
+      "status": "active"
+    },
+    "CH07": {
+      "name": "未設定プレースホルダ7",
+      "prompt_template": "templates/watercolor_gold_blue_strict.txt",
+      "prompt_suffix": "ノスタルジック基調。人物は不要がデフォルト。必要なときのみ脚本に沿って登場させ、一貫性を守る。文字/看板/ロゴなし。デジタル水彩＋薄い線画＋和紙テクスチャを厳格適用。油彩表現は禁止。",
+      "tone_profile": "やわらかな水彩＋軽いフィルム粒子、低彩度、落ち着いたノスタルジックトーン。アニメ誇張なし。油彩表現は禁止。",
+      "character_note": "人物なしが基本。人物が出る場合は脚本に沿って最小限で一貫、不要な新規キャラは禁止。",
+      "style": "nostalgic watercolor illustration, soft film grain, muted colors, no text",
+      "capcut_template": "CH07_テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "プレースホルダ。必要に応じてテンプレ/スタイルを上書きして使用。",
+      "status": "draft"
+    },
+    "CH08": {
+      "name": "未設定プレースホルダ8",
+      "prompt_template": "templates/watercolor_gold_blue_strict.txt",
+      "prompt_suffix": "ノスタルジック基調。人物は不要がデフォルト。必要なときのみ脚本に沿って登場させ、一貫性を守る。文字/看板/ロゴなし。デジタル水彩＋薄い線画＋和紙テクスチャを厳格適用。油彩表現は禁止。",
+      "tone_profile": "やわらかな水彩＋軽いフィルム粒子、低彩度、落ち着いたノスタルジックトーン。アニメ誇張なし。油彩表現は禁止。",
+      "character_note": "人物なしが基本。人物が出る場合は脚本に沿って最小限で一貫、不要な新規キャラは禁止。",
+      "style": "nostalgic watercolor illustration, soft film grain, muted colors, no text",
+      "capcut_template": "CH08_テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 0,
+        "beltHeightPct": 16,
+        "beltInsetPx": 0,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 72
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "プレースホルダ。必要に応じてテンプレ/スタイルを上書きして使用。",
+      "status": "draft"
+    },
+    "CH09": {
+      "name": "不動の指針（偉人のコトバ）",
+      "prompt_template": "templates/philosophy_calm_watercolor_oil.txt",
+      "prompt_suffix": "重厚で哲学的な油絵×水彩。偉人の物語や名言に合わせ、威厳あるポートレートや象徴的なシーンを描く。背景は抽象的だが深みのある色彩（紺・茶・金）。文字/看板なし。",
+      "tone_profile": "トーン: 威厳・知性・静寂・感動。深い色合いと劇的な光と影。油絵の質感重視。",
+      "character_note": "偉人の肖像（絵画風）を一貫して使用。彼らの人生の重みを表現する。",
+      "style": "dignified philosophical oil painting, dramatic lighting, deep emotion, narrative focus, no text",
+      "capcut_template": "CH09_テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 3.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": true,
+      "image_min_bytes": 60000,
+      "notes": "「7つの教え」形式。偉人の肖像と哲学的な背景。",
+      "status": "active"
+    },
+    "CH10": {
+      "name": "人生を変える偉人思考【今日から実装】",
+      "prompt_template": "templates/oil_painting_akashic_fantasy.txt",
+      "prompt_suffix": "睡眠導入・潜在意識書き換え。宇宙的で幻想的なビジュアル。深い夜空、星々、神聖幾何学、脳内イメージ、黄金の光。偉人が夢の中で語りかける雰囲気。リラックスできる青と金のトーン。文字なし。",
+      "tone_profile": "トーン: 幻想的・宇宙的・スピリチュアル。深い青（ミッドナイトブルー）と輝く金。光の粒子、エネルギーの波。静かで眠りを誘う。",
+      "character_note": "語り手（偉人）が登場する場合は、幻想的な光に包まれた姿で描く。リアルすぎず、夢の中の存在のように。",
+      "style": "mystical cosmic sleep induction, deep blue and gold, stardust, sacred geometry, dreamlike atmosphere, no text",
+      "capcut_template": "CH10_テンプレ（睡眠用）",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 3.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": true,
+      "image_min_bytes": 60000,
+      "notes": "長尺睡眠導入動画。宇宙・潜在意識・引き寄せのイメージ。",
+      "status": "active"
+    },
+    "CH11": {
+      "name": "未設定プレースホルダ11（偉人/人物系想定）",
+      "prompt_template": "templates/watercolor_gold_blue_strict.txt",
+      "prompt_suffix": "ノスタルジック水彩のみ（油彩表現は禁止）。人物が出る場合のみ脚本に沿って一貫。日本人/アジア顔を基本に、文字/看板/ロゴは描かない。デジタル水彩＋薄い線画＋和紙テクスチャを厳格適用。",
+      "tone_profile": "静かで少しフィルム調の粒子、低彩度のノスタルジックトーン。アニメ誇張なし。油彩表現は禁止。",
+      "character_note": "人物は必要時のみ。登場する場合は顔/服/年齢を全カットで一貫。不要な新キャラは禁止。",
+      "style": "nostalgic calm watercolor + soft oil glaze, muted colors, no text",
+      "capcut_template": "CH011_テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "プレースホルダ。必要に応じてスタイル/テンプレ上書き。",
+      "status": "draft"
+    },
+    "CH12": {
+      "name": "寓話×仏教解説（CH01寄せ）",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 3.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CH01の画風/帯構造に寄せた暫定プリセット。",
+      "status": "active"
+    },
+    "CH22": {
+      "name": "老後の友人関係ラボ",
+      "image_generation": {
+        "base_period": 15.0,
+        "model_key": "openrouter_gemini_2_5_flash_image"
+      },
+      "prompt_template": "templates/senior_story_friendly_psychology.txt",
+      "prompt_suffix": "親しみやすいセミリアル寄りの日本イラストで統一。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
+      "tone_profile": "トーン: 日常の友人関係・近所付き合いの空気。明るすぎず暗すぎず、生活のリアリティとやさしさを両立。背景は状況が分かる程度に描き、主役よりコントラストを落として背景ボケ。",
+      "character_note": "人物ポリシー: 基本は主人公中心。必要なら相手1名まで。顔/服/年齢感/雰囲気を固定し、毎カットでブレさせない。台本に人物が不要な場面は無人構図も可。",
+      "style": "Japanese 2D digital illustration, semi-real anime (seinen), smooth gradient shading, subtle thin lineart, soft key light + gentle rim light, slight bloom, natural aging details (60s+), friendly and realistic expressions, no photorealism, no text",
+      "capcut_template": "CH22-テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": false
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "画像は15秒/枚を目安に分割。友人/近所/コミュニティの摩耗を“心理描写”で見せる。人物一貫性を最優先。",
+      "status": "active"
+    },
+    "CH23": {
+      "name": "熟年夫婦の現実ノート",
+      "image_generation": {
+        "base_period": 15.0,
+        "model_key": "openrouter_gemini_2_5_flash_image"
+      },
+      "prompt_template": "templates/senior_story_friendly_psychology.txt",
+      "prompt_suffix": "親しみやすいセミリアル寄りの日本イラストで統一。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
+      "tone_profile": "トーン: 夫婦/家庭の生活感。室内の柔らかい光や静けさ、重さを扱いながらも、画風は親しみやすく保つ。背景は状況が分かる程度に描き、主役よりコントラストを落として背景ボケ。",
+      "character_note": "人物ポリシー: 基本は妻側主人公＋夫。必要なら家族1名まで。顔/服/年齢感/雰囲気を固定し、毎カットでブレさせない。台本に人物が不要な場面は無人構図も可。",
+      "style": "Japanese 2D digital illustration, semi-real anime (seinen), smooth gradient shading, subtle thin lineart, soft key light + gentle rim light, slight bloom, natural aging details (60s+), friendly and realistic expressions, no photorealism, no text",
+      "capcut_template": "CH23-テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": false
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "notes": "画像は15秒/枚を目安に分割。夫婦/家族/介護の摩耗を“心理描写”で見せる。人物一貫性を最優先。",
+      "status": "active"
+    }
+  }
+}

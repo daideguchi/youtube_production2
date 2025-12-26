@@ -5,16 +5,14 @@
 .env.production.local
 .env.*
 .vscode/
+.venv/
 
 # Local override configs (keep out of git)
 configs/*.local.*
-/logs/
-/logs
 # Generated logs (prefer workspaces/logs as SoT)
 **/logs/
 !workspaces/logs/
 !workspaces/logs/README.md
-commentary_02_srt2images_timeline/**/runtime/logs/
 .DS_Store
 __pycache__/
 *.egg-info/
@@ -32,12 +30,9 @@ _local_archives/
 *.mp4
 *.wav
 *.srt
-audio_tts_v2/artifacts/audio/
-audio_tts_v2/artifacts/final/
 
 50_tools/projects/kutikomi_srt/input/
 50_tools/projects/kutikomi_srt/output/
-commentary_02_srt2images_timeline/_recovery/
 50_tools/projects/kutikomi_srt/tmp/
 50_tools/projects/kutikomi_srt/natural-ether-*.json
 .coverage
@@ -46,6 +41,8 @@ review_01_kutikomi_srt/output/
 node_modules/
 50_tools/srt2images-timeline/output/
 memo.md
+めも*
+メモ*
 credentials/
 50_tools/projects/srtfile/srtfile_v2/archive/output_old/
 _old
@@ -60,7 +57,6 @@ apps/remotion/public/_bgm/
 
 # Frontend build output (generated; do not commit)
 apps/ui-frontend/build/
-audio_tts_v2/artifacts
 packages/audio_tts_v2/artifacts
 backups
 *スクリーンショット*archive_20251206/
@@ -102,8 +98,6 @@ GOOGLE_APPLICATION_CREDENTIALS
 configs/client_secret_*.json
 configs/srtfile-*.json
 credentials/*
-commentary_02_srt2images_timeline/.gemini_config
-commentary_02_srt2images_timeline/configs/.openrouter_config
 configs/drive_oauth_client.json
 credentials/drive_oauth_token.json
 credentials/gemini_config
@@ -111,18 +105,10 @@ credentials/natural-ether-*.json
 credentials/srtfile-tts-credentials.json
 
 # Token files used in audio processing
-script_pipeline/data/CH*/**/tokens.json
-script_pipeline/data/**/audio_prep/
 workspaces/scripts/CH*/**/tokens.json
 workspaces/scripts/**/audio_prep/
 
 # API response files
-script_pipeline/data/CH*/**/topic_research_response.json
-script_pipeline/data/CH*/**/script_outline_response.json
-script_pipeline/data/CH*/**/quality_check_response.json
-script_pipeline/data/CH*/**/chapter_brief_response.json
-script_pipeline/data/CH*/**/script_review_response.json
-script_pipeline/data/CH*/**/script_draft_response.json
 workspaces/scripts/CH*/**/topic_research_response.json
 workspaces/scripts/CH*/**/script_outline_response.json
 workspaces/scripts/CH*/**/quality_check_response.json
@@ -131,7 +117,6 @@ workspaces/scripts/CH*/**/script_review_response.json
 workspaces/scripts/CH*/**/script_draft_response.json
 
 # Other sensitive data files
-script_pipeline/data/openrouter_models_snapshot.json
 workspaces/scripts/openrouter_models_snapshot.json
 
 # Old specification documents (not to be pushed)
@@ -139,7 +124,11 @@ ssot_old/
 
 # Local scratch
 tmp/
-commentary_02_srt2images_timeline/_capcut_drafts/
+workspaces/_scratch/**
+workspaces/research/_local/**
+
+# Tests output (generated; do not commit)
+tests/_out/**
 
 # workspaces heavy artifacts (SoT on disk; keep out of git)
 workspaces/video/runs/**

@@ -12,7 +12,7 @@
 - `ops/OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
 - `history/HISTORY_codex-memory.md`: 変更履歴（運用ログ）。旧履歴は `_old/ssot_old/history/` を参照。
 - `handoffs/README.md`: 作業完走用の引き継ぎパッケージ置き場（短期・再現性重視）。
-- `reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`: 直書きパス/旧名参照の完全棚卸し（Path SSOT導入の前提）。
+- `reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`: 直書きパス/旧名参照の監査入口（現行正本）。スナップショットは `history/REFERENCE_PATH_HARDCODE_INVENTORY_20251212.md`。
 - `ops/master_styles.json`: チャンネル別スタイル・画風の正本。
 - `reference/【消さないで！人間用】確定ロジック.md`: 運用上の確定ルール（人間向けの最終チェック）。
 - `reference/CHAT_AI_QUESTION_TEMPLATE.md`: AIへ依頼/相談するための質問テンプレ。
@@ -21,6 +21,7 @@
 - `OPS_SYSTEM_OVERVIEW.md`: このプロダクトの仕組み（全体像SSOT）。迷ったらまずこれ。
 - `ops/OPS_CHANNEL_LAUNCH_MANUAL.md`: チャンネル立ち上げ・企画CSV整備・運用手順。
 - `ops/OPS_CHANNEL_BENCHMARKS.md`: チャンネル別ベンチマーク（競合/台本サンプル/勝ちパターン）管理の正本。
+- `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
@@ -35,7 +36,7 @@
 - `ops/OPS_LONGFORM_SCRIPT_SCALING.md`: 2〜3時間級の超長尺でも破綻しない台本生成設計（Marathonモード）。
 - `ops/OPS_SCRIPT_PATTERNS.yaml`: Aテキスト構成パターン集（骨格/字数配分のSSOT）。
 - `ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
-- `ops/OPS_AUDIO_TTS_V2.md`: 音声（TTS v2）運用手順とSoT/cleanup。
+- `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。
 - `ops/OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
 - `ops/OPS_SCRIPT_INPUT_CONTRACT.md`: Planning入力の契約（L1/L2/L3）と汚染防止ルール。
 - `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm.yml`）。
@@ -44,11 +45,13 @@
 - `ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の原則）。
 - `ops/OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
 - `ops/OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
+- `ops/OPS_THUMBNAILS_PIPELINE.md`: サムネ量産/修正（ローカル合成）の運用SSOT（Compiler/retake/QC/明るさ補正）。
 - `ops/OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
+- `packages/video_pipeline/config/channel_config_spec.md` (Reference): `packages/video_pipeline/config/channel_presets.json` / `capcut_settings` の仕様メモ（実装参照）。
 - `ops/IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
 - `ops/OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わないための運用ルール（lock/SoT/削除/パッチ）。

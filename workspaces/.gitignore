@@ -19,3 +19,6 @@ episodes/*
 !video/input/.gitkeep
 !video/runs/.gitkeep
 !episodes/README.md
+
+# Allow CH24 manual script writing
+!scripts/CH24/**

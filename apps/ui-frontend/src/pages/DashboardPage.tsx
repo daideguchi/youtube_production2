@@ -48,7 +48,7 @@ export function DashboardPage() {
         </div>
 
         <div className="dashboard-focus" aria-label="制作フロー I/O">
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/progress")}>
+          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/planning")}>
             <div className="dashboard-focus-card__header">
               <h2>🗂️ 企画CSV</h2>
             </div>
@@ -63,7 +63,7 @@ export function DashboardPage() {
               className="dashboard-focus-card__action"
               onClick={(event) => {
                 event.stopPropagation();
-                navigate("/progress");
+                navigate("/planning");
               }}
             >
               開く
@@ -92,7 +92,7 @@ export function DashboardPage() {
             </button>
           </div>
 
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/audio-tts-v2")}>
+          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/audio-tts")}>
             <div className="dashboard-focus-card__header">
               <h2>🔊 音声生成</h2>
             </div>
@@ -107,7 +107,7 @@ export function DashboardPage() {
               className="dashboard-focus-card__action"
               onClick={(event) => {
                 event.stopPropagation();
-                navigate("/audio-tts-v2");
+                navigate("/audio-tts");
               }}
             >
               開く

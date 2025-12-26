@@ -61,7 +61,7 @@ export function RemotionStudioPage() {
       <div className="remotion-preview__header">
         <div>
           <h1>Remotion Studio (タイムライン)</h1>
-          <p>別プロセスで `remotion/npx remotion preview --entry src/index.ts --port 3100` を起動し、このiframeでタイムライン編集・レンダリングを確認します。</p>
+          <p>別プロセスで `cd apps/remotion && npx remotion preview --entry src/index.ts --port 3100` を起動し、このiframeでタイムライン編集・レンダリングを確認します。</p>
         </div>
         <div className="remotion-preview__controls">
           <label>

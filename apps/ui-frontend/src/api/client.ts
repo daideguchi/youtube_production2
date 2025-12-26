@@ -28,6 +28,7 @@ import {
   ThumbnailLibraryAsset,
   ThumbnailLibraryAssignResponse,
   ThumbnailDescriptionResponse,
+  ThumbnailVideoLayerSpecs,
   ThumbnailImageModelInfo,
   ThumbnailChannelTemplates,
   ThumbnailChannelTemplatesUpdate,
@@ -69,7 +70,7 @@ import {
   LlmModelInfo,
   HumanScriptResponse,
   HumanScriptUpdatePayload,
-  RunTtsV2Response,
+  RunTtsResponse,
   AutoDraftListResponse,
   AutoDraftCreateResponse,
   AutoDraftCreatePayload,
@@ -482,13 +483,6 @@ export function fetchChannelAudit(): Promise<ChannelAuditItemResponse[]> {
 export function fetchPlanningRows(channel?: string): Promise<PlanningCsvRow[]> {
   const search = channel ? `?channel=${encodeURIComponent(channel)}` : "";
   return request<PlanningCsvRow[]>(`/api/planning${search}`);
-}
-
-export function refreshPlanningStore(channel?: string): Promise<{ ok: boolean }> {
-  const search = channel ? `?channel=${encodeURIComponent(channel)}` : "";
-  return request<{ ok: boolean }>(`/api/planning/refresh${search}`, {
-    method: "POST",
-  });
 }
 
 export function fetchPlanningSpreadsheet(channel: string): Promise<PlanningSpreadsheetResponse> {
@@ -954,7 +948,7 @@ export function fetchAText(channel: string, video: string): Promise<string> {
   return request<string>(path);
 }
 
-export function runAudioTtsV2(payload: {
+export function runAudioTts(payload: {
   channel: string;
   video: string;
   input_path: string;
@@ -964,24 +958,26 @@ export function runAudioTtsV2(payload: {
   voicepeak_speed?: number;
   voicepeak_pitch?: number;
   voicepeak_emotion?: string;
-}): Promise<RunTtsV2Response> {
-  return request<RunTtsV2Response>("/api/audio-tts-v2/run", {
+}): Promise<RunTtsResponse> {
+  return request<RunTtsResponse>("/api/audio-tts/run", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
-export function fetchProgressCsv(channel: string) {
-  return request<{ channel: string; rows: Record<string, string>[] }>(`/api/progress/channels/${encodeURIComponent(channel)}`);
+export function fetchPlanningChannelCsv(channel: string) {
+  return request<{ channel: string; rows: Record<string, string>[] }>(
+    `/api/planning/channels/${encodeURIComponent(channel)}`
+  );
 }
 
-export function runAudioTtsV2FromScript(payload: {
+export function runAudioTtsFromScript(payload: {
   channel: string;
   video: string;
   engine_override?: string;
   reading_source?: string;
-}): Promise<RunTtsV2Response> {
-  return request<RunTtsV2Response>("/api/audio-tts-v2/run-from-script", {
+}): Promise<RunTtsResponse> {
+  return request<RunTtsResponse>("/api/audio-tts/run-from-script", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -1214,6 +1210,12 @@ export function describeThumbnailLibraryAsset(
 ): Promise<ThumbnailDescriptionResponse> {
   return request<ThumbnailDescriptionResponse>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/library/${encodeURIComponent(assetName)}/describe`
+  );
+}
+
+export function fetchThumbnailVideoLayerSpecs(channel: string, video: string): Promise<ThumbnailVideoLayerSpecs> {
+  return request<ThumbnailVideoLayerSpecs>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/layer-specs`
   );
 }
 

@@ -1,12 +1,23 @@
 # Configs (root)
-- LLM を含む共有設定の正本。新パイプライン (`script_pipeline/`) もここを優先参照する。
-- ランタイム固有の設定は `script_pipeline/config` などサブディレクトリに置き、重複を避ける。
+- LLM を含む共有設定の正本。新パイプライン（`packages/script_pipeline/`）もここを優先参照する。
+- ランタイム固有の設定は `packages/script_pipeline/config` などサブディレクトリに置き、重複を避ける。
 - 追加・変更時は `ssot/history/HISTORY_codex-memory.md` に記録する。
 
 ## LLM 関連の正本
 - モデル仕様: `configs/llm_model_registry.yaml`
 - フェーズ割当: `configs/llm_registry.json`（UI 上書きは `configs/ui_settings.json` 経由）
-- OpenRouterメタ: `script_pipeline/config/openrouter_models.json` を正とし、必要なら `python -m script_pipeline.tools.openrouter_models --free-only` で更新。
+- OpenRouterメタ: `packages/script_pipeline/config/openrouter_models.json` を正とし、必要なら `python -m script_pipeline.tools.openrouter_models --free-only` で更新。
+
+## 画像生成（ImageClient）
+- 画像モデルSSOT: `configs/image_models.yaml`（providers/models/tiers/tasks）
+- 任意の上書き（プロファイル）: `configs/image_task_overrides.yaml`
+  - 選択: `IMAGE_CLIENT_PROFILE=<profile>`（default: `default`）
+  - 例: `IMAGE_CLIENT_PROFILE=cheap_openrouter`（OpenRouter最安寄り）
+- 任意のローカル上書き（gitignore）:
+  - `configs/image_models.local.yaml`（SSOTを触らずにモデル/tiers/tasks を差し替え）
+  - `configs/image_task_overrides.local.yaml`（overrideプロファイルのみ差し替え）
+- 強制モデル（最優先）:
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>` または `IMAGE_CLIENT_FORCE_MODEL_KEY`
 
 ## 環境変数
 - 正: リポジトリ直下の `.env` を唯一の正とする。

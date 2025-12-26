@@ -451,7 +451,7 @@ export function VideoProductionWorkspace() {
       return;
     }
     if (!srtRelativePath) {
-      setBanner("SRT を選択してください。（SoT: workspaces/audio/final / 互換: audio_tts_v2/artifacts/final）");
+      setBanner("SRT を選択してください。（SoT: workspaces/audio/final）");
       return;
     }
     if (targetSectionsRaw) {
@@ -832,7 +832,7 @@ export function VideoProductionWorkspace() {
           <div>
             <h2 style={{ margin: 0 }}>新規プロジェクト作成</h2>
             <p className="video-production-text-muted" style={{ margin: "6px 0 0" }}>
-              SRT（SoT: workspaces/audio/final / 互換: audio_tts_v2/artifacts/final）から SoT プロジェクトを作成します。
+              SRT（SoT: workspaces/audio/final）から SoT プロジェクトを作成します。
             </p>
           </div>
           <div className="vp-panel__actions">

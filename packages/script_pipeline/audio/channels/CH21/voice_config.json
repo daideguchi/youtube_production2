@@ -1,6 +1,6 @@
 {
   "channel_code": "CH21",
-  "channel_name": "眠れる仏教説話集",
+  "channel_name": "夢見るゆる旅案内",
   "default_voice_key": "voicevox_aoyama",
   "output": {
     "final_root": "data/CH21/_audio_workspace/final",

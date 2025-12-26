@@ -1,6 +1,6 @@
 {
   "channel_code": "CH17",
-  "channel_name": "眠れる仏教史紀行",
+  "channel_name": "安らぎ仏教夜話",
   "default_voice_key": "voicevox_aoyama",
   "output": {
     "final_root": "data/CH17/_audio_workspace/final",

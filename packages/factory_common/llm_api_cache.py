@@ -23,7 +23,7 @@ SCHEMA_VERSION = 1
 # - LLM_API_CACHE_DISABLE=1              -> disable entirely
 # - LLM_API_CACHE_READ_DISABLE=1         -> never read cache (still writes unless write disabled)
 # - LLM_API_CACHE_WRITE_DISABLE=1        -> never write cache
-# - LLM_API_CACHE_DIR=/path             -> override cache dir (default: logs/llm_api_cache)
+# - LLM_API_CACHE_DIR=/path             -> override cache dir (default: workspaces/logs/llm_api_cache)
 # - LLM_API_CACHE_TTL_SEC=...           -> optional TTL (0/empty = no TTL)
 # - LLM_API_CACHE_EXCLUDE_TASKS=csv     -> additional exact task excludes
 # - LLM_API_CACHE_EXCLUDE_PREFIXES=csv  -> additional prefix excludes

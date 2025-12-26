@@ -4,9 +4,9 @@
 - **Plan ID**: PLAN_UI_WORKSPACE_CLEANUP
 - **ステータス**: Active
 - **担当/レビュー**: AI agent / Owner review
-- **対象範囲 (In Scope)**: `apps/ui-frontend` のページ/サイドバー/ルーティング整理、辞書UIの集約（互換: `ui/frontend` は symlink）
+- **対象範囲 (In Scope)**: `apps/ui-frontend` のページ/サイドバー/ルーティング整理、辞書UIの集約
 - **非対象 (Out of Scope)**: バックエンドの大規模リファクタリング、データ形式の変更、既存ジョブ/パイプラインの仕様変更
-- **関連 SoT/依存**: `progress/channels/*.csv`, `audio_tts_v2/data/reading_dict/*.yaml`, `audio_tts_v2/data/global_knowledge_base.json`, `apps/ui-backend/backend/main.py`（互換: `ui/backend` は symlink）
+- **関連 SoT/依存**: `workspaces/planning/channels/*.csv`, `packages/audio_tts/data/reading_dict/*.yaml`, `packages/audio_tts/data/global_knowledge_base.json`, `apps/ui-backend/backend/main.py`
 - **最終更新日**: 2025-12-12
 
 ## 1. 背景と目的
@@ -46,7 +46,7 @@
 - **一次メニュー（常時表示・高頻度）**
   - ダッシュボード / 企画CSV / 辞書 / サムネイル / 台本作成 / 台本・音声字幕管理
 - **二次メニュー（やや頻度低・目的特化）**
-  - 音声レビュー / CapCut編集 / Audio TTS v2 / 音声整合性 / レポート
+  - 音声レビュー / CapCut編集 / Audio TTS / 音声整合性 / レポート
 - **三次メニュー（低頻度・設定/運用）**
   - プロンプト / ジョブ管理 / 設定 / チャンネル詳細設定 / LLM使用状況 など
 - 実装は `AppShell.tsx` の `navItems` を段階的に **カテゴリ配列 + 折り畳みUI** に変更する。
@@ -67,7 +67,7 @@
   - `AudioIntegrityPage.tsx`（辞書UI撤去・誘導）
 - **依存**
   - `apps/ui-backend/backend/main.py` のKB/reading-dict API
-  - `audio_tts_v2/tts/reading_dict.py` のYAML読み書き
+  - `packages/audio_tts/tts/reading_dict.py` のYAML読み書き
 - **他計画との整合**
   - 別エージェントが作成中のバックエンド大幅リファクタ計画が `ssot/` に来たら、本計画のAPI前提はそちらへ追従する。
 

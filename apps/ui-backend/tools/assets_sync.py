@@ -2,20 +2,20 @@
 """Thumbnail assets synchronisation helper.
 
 This CLI inspects ``workspaces/planning/channels/CHxx.csv`` (SoT) and makes sure the
-``thumbnails/assets/{CH}/{video}/`` tree contains a directory for every active
+``workspaces/thumbnails/assets/{CH}/{video}/`` tree contains a directory for every active
 企画.  It can also write ``meta.json`` files with the videoタイトル、作成フラグ等を
 記録し、孤立ディレクトリのレポートも出力します。
 
 Example usage::
 
     # 一覧＋未作成ディレクトリを作成
-    python -m ui.tools.assets_sync ensure
+    python3 apps/ui-backend/tools/assets_sync.py ensure
 
     # CH02 だけ dry-run で確認
-    python -m ui.tools.assets_sync ensure --channels CH02 --dry-run
+    python3 apps/ui-backend/tools/assets_sync.py ensure --channels CH02 --dry-run
 
     # 既存フォルダとの整合性をチェック
-    python -m ui.tools.assets_sync report
+    python3 apps/ui-backend/tools/assets_sync.py report
 
 """
 

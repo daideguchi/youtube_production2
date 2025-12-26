@@ -4,7 +4,7 @@ UI backend package bootstrap.
 This repo is a monorepo with shared packages under `<repo>/packages/`.
 When running UI backend commands from `apps/ui-backend/` (e.g. `uvicorn backend.main:app`),
 Python may not include the repo root / packages on `sys.path`, which breaks imports like:
-  - `import audio_tts_v2`
+  - `import audio_tts`
   - `import factory_common`
 
 We bootstrap `sys.path` and fail-soft load `<repo>/.env` to match repo-root behavior.
@@ -61,4 +61,4 @@ for candidate in (PROJECT_ROOT, PACKAGES_ROOT):
         if candidate_str not in sys.path:
             sys.path.insert(0, candidate_str)
 
-_load_env_files([PROJECT_ROOT / ".env", Path.home() / ".env"])
+_load_env_files([PROJECT_ROOT / ".env"])

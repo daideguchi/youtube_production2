@@ -1,9 +1,9 @@
 # CH07 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH07_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH07_planning_template.csv`
 - 状態: ヘッダーのみ（サンプル行は未記入）。初回はテンプレ2行目を自分で作り、No./動画番号を差し替えて運用してください。
-- 手順: ヘッダーをコピー → 新規行を追加 → `planning_store.refresh --force`。
+- 手順: ヘッダーをコピー → 新規行を追加 → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）。
 
 ## 1. 共通ペルソナ
 > 40〜70代。人間関係で消耗しやすく、見下しや無理な要求に振り回されがちな人。仏教の教えで線引きと言葉の選び方を身につけたい。
@@ -33,6 +33,6 @@
 - 構成の参考: 導入で危機感→仏教視点→日常への橋渡し→小さな実践。過度に煽らず、安心感を残す
 
 ## 5. 運用
-1. テンプレに新規行を追加 → `planning_store.refresh --force`
-2. `progress_manager.py verify --channel-code CH07` で列ズレ確認
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH07 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UIでタグ列が表示されることを確認し、必要なら CapCut/音声タブへ共有

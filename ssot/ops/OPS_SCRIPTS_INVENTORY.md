@@ -28,81 +28,87 @@ ref の見方:
 | script | phase | P | listed-in-SSOT | refs (apps/packages/ui/scripts/ssot/readme/other) | example ref |
 |---|---:|:--:|:--:|---:|---|
 | `scripts/_adhoc/README.md` | MISC | P3 | yes | refs=0 | `-` |
-| `scripts/_bootstrap.py` | MISC | P1 | yes | scripts=1 ssot=2 other=1 | `_bootstrap.py:19` |
-| `scripts/agent_coord.py` | COORD | P1 | yes | scripts=3 ssot=7 | `scripts/agent_coord.py:5` |
-| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=8 ssot=97 other=2 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
+| `scripts/_bootstrap.py` | MISC | P1 | yes | scripts=1 ssot=1 other=1 | `_bootstrap.py:19` |
+| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=7 ssot=94 other=2 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
 | `scripts/agent_runner.py` | COORD | P1 | yes | packages=8 scripts=14 ssot=32 | `packages/factory_common/agent_mode.py:272` |
 | `scripts/aggregate_llm_usage.py` | MISC | P1 | yes | ssot=7 | `ssot/completed/LLM_ROUTING_PLAN.md:5` |
 | `scripts/aggregate_voicevox_reading_logs.py` | AUDIO | P1 | yes | scripts=1 ssot=2 | `scripts/aggregate_voicevox_reading_logs.py:6` |
-| `scripts/api_health_check.py` | MISC | P1 | yes | apps=2 ssot=5 other=2 | `apps/ui-backend/tools/start_manager.py:465` |
-| `scripts/audio_integrity_report.py` | AUDIO | P1 | yes | ssot=3 | `ssot/history/HISTORY_codex-memory.md:115` |
+| `scripts/api_health_check.py` | MISC | P1 | yes | apps=2 ssot=5 other=2 | `apps/ui-backend/tools/start_manager.py:464` |
+| `scripts/audio_integrity_report.py` | AUDIO | P1 | yes | ssot=2 | `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md:420` |
 | `scripts/audit_alignment_semantic.py` | SCRIPT | P0 | yes | scripts=2 ssot=3 other=1 | `scripts/audit_alignment_semantic.py:13` |
-| `scripts/batch_regenerate_tts.py` | AUDIO | P1 | yes | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:44` |
-| `scripts/buddha_senior_5ch_generate_scripts.py` | MISC | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:61` |
-| `scripts/buddha_senior_5ch_prepare.py` | MISC | P1 | yes | ssot=4 | `ssot/history/HISTORY_codex-memory.md:78` |
-| `scripts/build_video_payload.py` | VIDEO | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:154` |
-| `scripts/check_all_srt.sh` | AUDIO | P1 | yes | scripts=2 ssot=4 | `scripts/check_all_srt.sh:14` |
-| `scripts/check_env.py` | MISC | P1 | yes | apps=3 scripts=3 ssot=7 other=2 | `apps/ui-backend/backend/main.py:653` |
+| `scripts/batch_regenerate_tts.py` | AUDIO | P1 | yes | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:46` |
+| `scripts/buddha_senior_5ch_generate_scripts.py` | MISC | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:63` |
+| `scripts/buddha_senior_5ch_prepare.py` | MISC | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:62` |
+| `scripts/build_video_payload.py` | VIDEO | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:162` |
+| `scripts/check_all_srt.sh` | AUDIO | P1 | yes | scripts=2 ssot=3 | `scripts/check_all_srt.sh:14` |
+| `scripts/check_env.py` | MISC | P1 | yes | apps=3 scripts=3 ssot=6 other=2 | `apps/ui-backend/backend/main.py:623` |
 | `scripts/cleanup_audio_prep.py` | AUDIO | P1 | yes | scripts=2 ssot=7 | `scripts/cleanup_audio_prep.py:11` |
-| `scripts/cleanup_data.py` | OPS | P1 | yes | ssot=17 | `ssot/agent_runbooks/RUNBOOK_CLEANUP_DATA.md:10` |
-| `scripts/cleanup_workspace.py` | OPS | P1 | yes | packages=2 ssot=46 other=1 | `packages/script_pipeline/prompts/phase2_audio_prompt.txt:57` |
-| `scripts/drive_oauth_setup.py` | PUBLISH | P1 | yes | scripts=3 ssot=2 README=2 | `README.md:54` |
-| `scripts/drive_upload_oauth.py` | PUBLISH | P1 | yes | scripts=1 ssot=2 README=1 | `README.md:61` |
-| `scripts/e2e_smoke.sh` | MISC | P1 | yes | ssot=2 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:203` |
-| `scripts/enforce_alignment.py` | SCRIPT | P0 | yes | packages=1 ssot=8 | `packages/audio_tts_v2/scripts/run_tts.py:183` |
-| `scripts/episode_ssot.py` | SCRIPT | P1 | yes | scripts=1 ssot=19 other=2 | `scripts/ops/restore_video_runs.py:7` |
-| `scripts/expand_a_text.py` | SCRIPT | P1 | yes | ssot=4 | `ssot/history/HISTORY_codex-memory.md:63` |
-| `scripts/force_asset_sync.py` | MISC | P1 | yes | apps=2 packages=1 ssot=2 | `apps/ui-backend/tools/start_manager.py:509` |
+| `scripts/cleanup_data.py` | OPS | P1 | yes | ssot=16 | `ssot/agent_runbooks/RUNBOOK_CLEANUP_DATA.md:10` |
+| `scripts/cleanup_workspace.py` | OPS | P1 | yes | packages=2 ssot=45 other=1 | `packages/script_pipeline/prompts/phase2_audio_prompt.txt:57` |
+| `scripts/drive_oauth_setup.py` | PUBLISH | P1 | yes | scripts=3 ssot=1 README=2 | `README.md:53` |
+| `scripts/drive_upload_oauth.py` | PUBLISH | P1 | yes | scripts=1 ssot=2 README=1 | `README.md:60` |
+| `scripts/e2e_smoke.sh` | MISC | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:216` |
+| `scripts/enforce_alignment.py` | SCRIPT | P0 | yes | packages=1 ssot=7 | `packages/audio_tts/scripts/run_tts.py:182` |
+| `scripts/episode_ssot.py` | SCRIPT | P1 | yes | scripts=1 ssot=17 other=2 | `scripts/ops/restore_video_runs.py:7` |
+| `scripts/expand_a_text.py` | SCRIPT | P1 | yes | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:98` |
+| `scripts/force_asset_sync.py` | MISC | P1 | yes | apps=2 ssot=1 | `apps/ui-backend/tools/start_manager.py:508` |
 | `scripts/generate_subtitles.py` | AUDIO | P1 | yes | scripts=1 ssot=1 | `scripts/generate_subtitles.py:7` |
-| `scripts/image_usage_report.py` | VIDEO | P1 | yes | ssot=2 | `ssot/ops/OPS_LOGGING_MAP.md:81` |
+| `scripts/image_usage_report.py` | VIDEO | P1 | yes | ssot=2 | `ssot/ops/OPS_LOGGING_MAP.md:80` |
 | `scripts/list_redo.py` | MISC | P1 | yes | ssot=3 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:117` |
-| `scripts/llm_logs_combined_report.py` | MISC | P1 | yes | ssot=4 | `ssot/ops/OPS_LOGGING_MAP.md:100` |
+| `scripts/llm_logs_combined_report.py` | MISC | P1 | yes | ssot=4 | `ssot/ops/OPS_LOGGING_MAP.md:99` |
 | `scripts/llm_provenance_report.py` | MISC | P1 | yes | scripts=2 ssot=1 | `scripts/llm_provenance_report.py:14` |
-| `scripts/llm_usage_report.py` | MISC | P1 | yes | ssot=3 | `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md:409` |
+| `scripts/llm_usage_report.py` | MISC | P1 | yes | ssot=3 | `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md:419` |
 | `scripts/mark_redo_done.py` | MISC | P1 | yes | scripts=2 ssot=3 | `scripts/mark_redo_done.py:5` |
 | `scripts/notifications.py` | MISC | P1 | yes | ssot=2 | `ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md:71` |
-| `scripts/openrouter_caption_probe.py` | MISC | P1 | yes | apps=1 ssot=1 | `apps/ui-backend/tools/start_manager.py:501` |
-| `scripts/openrouter_key_probe.py` | MISC | P1 | yes | apps=2 ssot=1 | `apps/ui-backend/tools/start_manager.py:495` |
-| `scripts/ops/_bootstrap.py` | OPS | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:151` |
+| `scripts/openrouter_caption_probe.py` | MISC | P1 | yes | apps=1 ssot=1 | `apps/ui-backend/tools/start_manager.py:500` |
+| `scripts/openrouter_key_probe.py` | MISC | P1 | yes | apps=2 ssot=1 | `apps/ui-backend/tools/start_manager.py:494` |
+| `scripts/ops/_bootstrap.py` | OPS | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:159` |
 | `scripts/ops/a_text_lint.py` | OPS | P0 | yes | scripts=2 ssot=7 | `scripts/ops/a_text_lint.py:13` |
-| `scripts/ops/a_text_marathon_compose.py` | OPS | P0 | yes | ssot=23 | `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md:96` |
+| `scripts/ops/a_text_marathon_compose.py` | OPS | P0 | yes | ssot=23 | `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md:108` |
 | `scripts/ops/a_text_section_compose.py` | OPS | P0 | yes | scripts=2 ssot=10 | `scripts/ops/a_text_section_compose.py:19` |
-| `scripts/ops/archive_capcut_local_drafts.py` | OPS | P1 | yes | ssot=6 other=1 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1070` |
-| `scripts/ops/archive_thumbnails_legacy_channel_dirs.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1035` |
-| `scripts/ops/cleanup_broken_symlinks.py` | OPS | P1 | yes | ssot=15 | `ssot/history/HISTORY_codex-memory.md:122` |
+| `scripts/ops/archive_capcut_local_drafts.py` | OPS | P1 | yes | ssot=6 other=1 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1074` |
+| `scripts/ops/archive_thumbnails_legacy_channel_dirs.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1039` |
+| `scripts/ops/channel_info_normalize.py` | OPS | P1 | yes | ssot=7 | `ssot/ops/OPS_CHANNEL_BENCHMARKS.md:84` |
+| `scripts/ops/cleanup_broken_symlinks.py` | OPS | P1 | yes | ssot=14 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:952` |
 | `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | ssot=5 | `ssot/ops/OPS_AGENT_PLAYBOOK.md:166` |
-| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | ssot=10 other=1 | `ssot/OPS_SYSTEM_OVERVIEW.md:183` |
-| `scripts/ops/cleanup_remotion_artifacts.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1010` |
-| `scripts/ops/cleanup_video_runs.py` | OPS | P1 | yes | scripts=1 ssot=4 | `scripts/ops/restore_video_runs.py:6` |
-| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:161` |
-| `scripts/ops/planning_lint.py` | OPS | P0 | yes | scripts=3 ssot=11 | `scripts/ops/planning_lint.py:12` |
+| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | ssot=9 other=1 | `ssot/OPS_SYSTEM_OVERVIEW.md:181` |
+| `scripts/ops/cleanup_remotion_artifacts.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1014` |
+| `scripts/ops/cleanup_video_runs.py` | OPS | P1 | yes | scripts=1 ssot=3 | `scripts/ops/restore_video_runs.py:6` |
+| `scripts/ops/docs_inventory.py` | OPS | P1 | yes | scripts=2 ssot=2 | `scripts/ops/docs_inventory.py:14` |
+| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:173` |
+| `scripts/ops/offload_archives_to_external.py` | OPS | P1 | yes | ssot=2 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:185` |
+| `scripts/ops/planning_lint.py` | OPS | P0 | yes | apps=1 scripts=3 ssot=13 other=9 | `apps/ui-backend/backend/main.py:2841` |
+| `scripts/ops/planning_realign_to_title.py` | OPS | P1 | yes | scripts=2 ssot=4 | `scripts/ops/planning_realign_to_title.py:31` |
 | `scripts/ops/planning_sanitize.py` | OPS | P0 | yes | scripts=2 ssot=3 | `scripts/ops/planning_sanitize.py:19` |
-| `scripts/ops/prune_video_run_legacy_files.py` | OPS | P1 | yes | ssot=7 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:997` |
-| `scripts/ops/purge_legacy_agent_task_queues.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1048` |
-| `scripts/ops/render_remotion_batch.py` | OPS | P0 | yes | ssot=5 | `ssot/OPS_SYSTEM_OVERVIEW.md:132` |
-| `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | ssot=7 other=1 | `ssot/history/HISTORY_codex-memory.md:88` |
+| `scripts/ops/prompts_inventory.py` | OPS | P1 | yes | scripts=3 ssot=3 other=1 | `prompts/PROMPTS_INDEX.md:3` |
+| `scripts/ops/prune_video_run_legacy_files.py` | OPS | P1 | yes | ssot=7 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1001` |
+| `scripts/ops/purge_legacy_agent_task_queues.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md:1052` |
+| `scripts/ops/render_remotion_batch.py` | OPS | P0 | yes | ssot=5 | `ssot/OPS_SYSTEM_OVERVIEW.md:130` |
+| `scripts/ops/repo_ref_audit.py` | OPS | P1 | yes | scripts=4 ssot=9 | `scripts/ops/repo_ref_audit.py:11` |
+| `scripts/ops/repo_sanity_audit.py` | OPS | P1 | yes | scripts=2 ssot=4 | `scripts/ops/repo_sanity_audit.py:10` |
+| `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | ssot=6 other=1 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:166` |
 | `scripts/ops/save_patch.sh` | OPS | P1 | yes | scripts=1 ssot=2 other=1 | `AGENTS.md:28` |
-| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | scripts=3 ssot=4 | `scripts/ops/scripts_inventory.py:11` |
-| `scripts/ops/ssot_audit.py` | OPS | P1 | yes | ssot=8 | `ssot/README.md:23` |
-| `scripts/ops/stage2_cutover_workspaces.py` | OPS | P1 | yes | ssot=6 other=1 | `ssot/history/HISTORY_codex-memory.md:35` |
-| `scripts/prompt_audit.py` | OPS | P1 | yes | apps=2 ssot=5 | `apps/ui-backend/tools/start_manager.py:483` |
+| `scripts/ops/script_runbook.py` | OPS | P0 | yes | scripts=5 ssot=34 | `scripts/ops/script_runbook.py:14` |
+| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | scripts=3 ssot=3 | `scripts/ops/scripts_inventory.py:11` |
+| `scripts/ops/ssot_audit.py` | OPS | P1 | yes | scripts=1 ssot=6 | `scripts/ops/docs_inventory.py:10` |
+| `scripts/ops/stage2_cutover_workspaces.py` | OPS | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:203` |
+| `scripts/prompt_audit.py` | OPS | P1 | yes | apps=2 ssot=3 | `apps/ui-backend/tools/start_manager.py:482` |
 | `scripts/purge_audio_final_chunks.py` | AUDIO | P1 | yes | scripts=2 ssot=6 | `scripts/purge_audio_final_chunks.py:11` |
-| `scripts/purge_audio_prep_binaries.py` | AUDIO | P1 | yes | ssot=7 | `ssot/ops/OPS_AUDIO_TTS_V2.md:88` |
+| `scripts/purge_audio_prep_binaries.py` | AUDIO | P1 | yes | ssot=7 | `ssot/ops/OPS_AUDIO_TTS.md:88` |
 | `scripts/remotion_export.py` | VIDEO | P1 | yes | apps=2 ssot=1 | `apps/ui-frontend/src/components/RemotionWorkspace.tsx:1186` |
-| `scripts/repair_manager.py` | MISC | P1 | yes | packages=2 scripts=1 ssot=3 | `packages/audio_tts_v2/docs/SRT_SYNC_PROTOCOL.md:36` |
-| `scripts/run_srt2images.sh` | AUDIO | P1 | yes | packages=1 ssot=1 | `packages/commentary_02_srt2images_timeline/server/jobs.py:664` |
-| `scripts/sanitize_a_text.py` | SCRIPT | P1 | yes | packages=2 ssot=7 | `packages/audio_tts_v2/README.md:27` |
-| `scripts/sitecustomize.py` | MISC | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:149` |
-| `scripts/start_all.sh` | MISC | P0 | yes | apps=1 packages=1 ssot=14 other=1 | `apps/ui-backend/tools/start_manager.py:5` |
-| `scripts/sync_all_scripts.py` | MISC | P1 | yes | scripts=2 ssot=3 | `scripts/start_all.sh:133` |
+| `scripts/repair_manager.py` | MISC | P1 | yes | packages=2 scripts=1 ssot=2 | `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md:36` |
+| `scripts/run_srt2images.sh` | AUDIO | P1 | yes | packages=1 ssot=1 | `packages/video_pipeline/server/jobs.py:664` |
+| `scripts/sanitize_a_text.py` | SCRIPT | P1 | yes | packages=1 ssot=7 | `packages/script_pipeline/runner.py:6609` |
+| `scripts/sitecustomize.py` | MISC | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:157` |
+| `scripts/start_all.sh` | MISC | P0 | yes | apps=1 ssot=7 other=1 | `apps/ui-backend/tools/start_manager.py:5` |
+| `scripts/sync_all_scripts.py` | MISC | P1 | yes | scripts=2 ssot=3 | `scripts/start_all.sh:129` |
 | `scripts/sync_audio_prep_to_final.py` | AUDIO | P1 | yes | scripts=2 ssot=4 | `scripts/sync_audio_prep_to_final.py:15` |
-| `scripts/sync_ch02_scripts.py` | MISC | P1 | yes | ssot=3 | `ssot/history/HISTORY_codex-memory.md:71` |
-| `scripts/sync_thumbnail_inventory.py` | THUMB | P0 | yes | apps=2 ssot=1 | `apps/ui-backend/tools/start_manager.py:517` |
-| `scripts/think.sh` | MISC | P1 | yes | scripts=4 ssot=11 | `scripts/think.sh:7` |
-| `scripts/validate_status_sweep.py` | MISC | P1 | yes | apps=2 packages=1 ssot=5 | `apps/ui-backend/tools/start_manager.py:473` |
-| `scripts/verify_srt_sync.py` | AUDIO | P1 | yes | scripts=2 ssot=3 | `scripts/check_all_srt.sh:34` |
+| `scripts/sync_thumbnail_inventory.py` | THUMB | P0 | yes | apps=2 ssot=1 | `apps/ui-backend/tools/start_manager.py:516` |
+| `scripts/think.sh` | MISC | P1 | yes | scripts=4 ssot=10 | `scripts/think.sh:7` |
+| `scripts/validate_status_sweep.py` | MISC | P1 | yes | apps=2 ssot=3 | `apps/ui-backend/tools/start_manager.py:472` |
+| `scripts/verify_srt_sync.py` | AUDIO | P1 | yes | scripts=2 ssot=2 | `scripts/check_all_srt.sh:34` |
 | `scripts/with_agent_mode.sh` | COORD | P1 | yes | scripts=3 ssot=1 | `scripts/with_agent_mode.sh:3` |
-| `scripts/with_ytm_env.sh` | MISC | P1 | yes | apps=1 packages=3 scripts=7 ssot=5 | `apps/remotion/REMOTION_PLAN.md:15` |
-| `scripts/youtube_publisher/README.md` | PUBLISH | P1 | yes | ssot=2 README=1 | `README.md:70` |
-| `scripts/youtube_publisher/oauth_setup.py` | PUBLISH | P1 | yes | scripts=1 ssot=2 README=1 | `README.md:67` |
-| `scripts/youtube_publisher/publish_from_sheet.py` | PUBLISH | P0 | yes | scripts=2 ssot=8 README=1 | `README.md:68` |
+| `scripts/with_ytm_env.sh` | MISC | P0 | yes | apps=1 packages=1 scripts=12 ssot=103 | `apps/remotion/REMOTION_PLAN.md:15` |
+| `scripts/youtube_publisher/README.md` | PUBLISH | P1 | yes | ssot=1 README=1 | `README.md:69` |
+| `scripts/youtube_publisher/oauth_setup.py` | PUBLISH | P1 | yes | scripts=1 ssot=1 README=1 | `README.md:66` |
+| `scripts/youtube_publisher/publish_from_sheet.py` | PUBLISH | P0 | yes | scripts=2 ssot=8 README=1 | `README.md:67` |

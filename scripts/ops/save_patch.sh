@@ -56,9 +56,11 @@ if [ "${#paths[@]}" -gt 0 ]; then
 else
   pathspec+=(".")
 fi
-for ex in "${excludes[@]-}"; do
-  pathspec+=(":(exclude)${ex}")
-done
+if [ "${#excludes[@]}" -gt 0 ]; then
+  for ex in "${excludes[@]}"; do
+    pathspec+=(":(exclude)${ex}")
+  done
+fi
 
 # 1) tracked diff
 # - Use rename detection to keep large moves (e.g., workspaces cutover) patchable.

@@ -8,8 +8,8 @@ from typing import Dict
 import pytest
 from fastapi.testclient import TestClient
 
-from ui.backend import main
-from ui.backend.main import app
+from backend import main
+from backend.main import app
 from script_pipeline.tools import planning_requirements
 
 
@@ -40,7 +40,7 @@ def channel_profile_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
 
     # Patch globals
     monkeypatch.setattr(main, "PROJECT_ROOT", project_root)
-    monkeypatch.setattr(main, "COMMENTARY01_ROOT", commentary_root)
+    monkeypatch.setattr(main, "SCRIPT_PIPELINE_ROOT", commentary_root)
     monkeypatch.setattr(main, "CHANNELS_DIR", channels_dir)
     monkeypatch.setattr(main, "AUDIO_CHANNELS_DIR", commentary_root / "audio" / "channels")
 
@@ -56,13 +56,13 @@ def channel_profile_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
 
     # Planning requirements stubs
     monkeypatch.setattr(planning_requirements, "get_channel_persona", lambda code: "固定ペルソナ")
-    monkeypatch.setattr(planning_requirements, "get_persona_doc_path", lambda code: "progress/personas/CH01_PERSONA.md")
+    monkeypatch.setattr(planning_requirements, "get_persona_doc_path", lambda code: "workspaces/planning/personas/CH01_PERSONA.md")
     monkeypatch.setattr(planning_requirements, "get_channel_requirement_specs", lambda code: [])
     monkeypatch.setattr(planning_requirements, "get_description_defaults", lambda code: {})
     monkeypatch.setattr(
         planning_requirements,
         "get_planning_template_info",
-        lambda code: {"path": "progress/templates/CH01_planning_template.csv", "headers": [], "sample": []},
+        lambda code: {"path": "workspaces/planning/templates/CH01_planning_template.csv", "headers": [], "sample": []},
     )
 
     with TestClient(app) as client:

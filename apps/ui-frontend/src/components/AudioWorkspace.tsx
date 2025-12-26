@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { VideoDetail } from "../api/types";
 import { translateStatus } from "../utils/i18n";
-import { API_BASE_URL, fetchPlainTtsScript, runAudioTtsV2FromScript } from "../api/client";
+import { API_BASE_URL, fetchPlainTtsScript, runAudioTtsFromScript } from "../api/client";
 
 type AudioWorkspaceHandlers = {
   onSaveSrt: (content: string) => Promise<unknown>;
@@ -244,7 +244,7 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
     setRunMessage(null);
     setRunError(null);
     try {
-      const res = await runAudioTtsV2FromScript({
+      const res = await runAudioTtsFromScript({
         channel: detail.channel,
         video: detail.video,
       });

@@ -1,9 +1,9 @@
 # CH08 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH08_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH08_planning_template.csv`
 - 状態: ヘッダー＋サンプル1行のみ。`{NEXT_NO}` / `{NEXT_VIDEO}` を差し替えてから投入。
-- 手順: テンプレをコピー → 新規行を追加 → `planning_store.refresh --force`。
+- 手順: テンプレをコピー → 新規行を追加 → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）。
 
 ## 1. 共通ペルソナ（固定一文）
 > 20〜40代で、仕事や人間関係の疲れを静かに癒やしたい人。スピリチュアルに興味はあるが、現実的な安心感も欲しい層。
@@ -31,3 +31,7 @@
 ## 4. ベンチマーク
 - YouTube: `@himitu-o4p` 「秘密の図書館」…深いネイビー×ゴールドの静かな世界観、スピリチュアル×現実の語り
 - トーンの参考: 低刺激・夜向けのBGM、過度な断定を避けつつもストーリーで引き込む
+
+## 5. 運用
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH08 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。

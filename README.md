@@ -10,17 +10,16 @@ factory_commentary/
 ├─ workspaces/                     # SoT + 生成物（唯一の置き場）
 ├─ asset/                          # 静的素材（L0/SoT, git管理）
 ├─ configs/                        # 設定正本（非機密）
-├─ prompts/                        # 横断プロンプト
+├─ prompts/                        # プロンプト索引（正本は packages/**/prompts）
 ├─ scripts/                        # 運用CLI群（入口を薄く）
 ├─ ssot/                           # SSOT（設計/運用/計画の正本）
-├─ legacy/                         # 旧資産/旧ロジック（参照専用）
 ├─ backups/                        # archive-first 退避/patch保存（実行入口にしない）
 ├─ credentials/                    # 機密/トークン（git管理しない）
 ├─ data/                           # 固定データ（辞書/素材など）
 └─ tests/                          # 現行対象テスト
 ```
 
-互換（段階移行中のsymlink）と方針は `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` を正とします。
+ディレクトリ構成と運用方針は `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` を正とします。
 
 ## SSOT Quick Links
 | カテゴリ | ファイル |
@@ -28,7 +27,7 @@ factory_commentary/
 | プロジェクト基礎 | `ssot/README.md` |
 | ディレクトリ正本 | `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md` |
 | Alignment / Checklist | `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md` |
-| 企画CSV/運用 | `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`） |
+| 企画CSV/運用 | `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md` / `workspaces/planning/channels/CHxx.csv` |
 | 環境変数 | `ssot/ops/OPS_ENV_VARS.md` |
 | Agent/THINK mode | `ssot/ops/OPS_AGENT_PLAYBOOK.md` / `ssot/agent_runbooks/README.md` / `prompts/README.md` |
 | 台本ソースマップ | `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md` |
@@ -40,8 +39,8 @@ factory_commentary/
 - `.env.example` を参考に必要キーを埋める。既に設定済みの環境変数があればそれが優先される。
 
 ## 見る場所・見ない場所（台本ライン）
-- 見る: `ssot/**`（正本）、`script_pipeline/data/CHxx/NNN/status.json`（Script SoT）、`workspaces/planning/channels/CHxx.csv`（Planning SoT）
-- 見ない: `legacy/**`, `backups/**`（参照専用/退避）
+- 見る: `ssot/**`（正本）、`workspaces/scripts/CHxx/NNN/status.json`（Script SoT）、`workspaces/planning/channels/CHxx.csv`（Planning SoT）
+- 見ない: `backups/**`（archive-first退避）、`workspaces/_scratch/**`（ローカル一時）
 
 ## 参照ルール
 - **SSOT以外の文書は参考用**：旧 `docs/` や `commentary_01/.../docs/` は履歴として残すのみで、最新仕様ではありません。
@@ -50,7 +49,7 @@ factory_commentary/
 
 ## Drive アップロード（OAuth固定）
 - サービスアカウント経由は 2025 仕様で MyDrive に新規作成不可。Drive はユーザー OAuth で運用。
-- クライアント: `configs/drive_oauth_client.json`（OAuth クライアント JSON を配置。今は symlink 済み）
+- クライアント: `configs/drive_oauth_client.json`（OAuth クライアント JSON を配置。ローカル実ファイル運用で git 管理しない）
 - トークン: `credentials/drive_oauth_token.json`（`scripts/drive_oauth_setup.py` で生成・更新）
 - .env 必須キー:  
   - `DRIVE_UPLOAD_MODE=oauth`  

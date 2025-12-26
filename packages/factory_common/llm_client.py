@@ -364,7 +364,7 @@ class LLMClient:
         """
         Append usage info to JSONL log if enabled.
         Env:
-          - LLM_USAGE_LOG_PATH: override log path (default: logs/llm_usage.jsonl)
+          - LLM_USAGE_LOG_PATH: override log path (default: workspaces/logs/llm_usage.jsonl)
           - LLM_USAGE_LOG_DISABLE: if "1", skip logging
         """
         import os

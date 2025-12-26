@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script to verify rate limiting in the commentary_02 image generation.
+Test script to verify rate limiting in the video image generation.
 Updated for current package structure.
 """
 import pytest
@@ -9,9 +9,9 @@ import pytest
 def test_imports():
     """Test that we can import the image generation modules."""
     try:
-        from commentary_02_srt2images_timeline.tools.factory import main
+        from video_pipeline.tools.factory import main
     except ImportError:
-        pytest.skip("commentary_02_srt2images_timeline not available")
+        pytest.skip("video_pipeline not available")
     assert callable(main)
 
 

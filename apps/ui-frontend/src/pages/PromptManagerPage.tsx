@@ -210,7 +210,7 @@ export function PromptManagerPage() {
           <section className="prompt-manager__panel prompt-manager__panel--list">
             <header>
               <h2>プロンプトファイル</h2>
-              <p>Qwen の初期化に使うテンプレート。編集内容は即座に SoT へ反映されます。</p>
+              <p>台本量産ワークフローで使うプロンプト。編集内容は即座に正本ファイルへ反映されます。</p>
             </header>
             {documentsError ? <p className="prompt-manager__error">{documentsError}</p> : null}
             {documentsLoading && !documents.length ? <p className="prompt-manager__hint">読み込み中...</p> : null}

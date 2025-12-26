@@ -1,6 +1,6 @@
 """Audio synthesis helper used by the UI backend.
 
-Historically this project used a thin CLI bridge (`audio_tts_v2/scripts/run_tts.py`).
+Historically this project used a thin CLI bridge (`packages/audio_tts/scripts/run_tts.py`).
 The FastAPI backend expects `AudioManager.synthesize()` to exist and to raise on
 failure, so endpoints can report errors instead of crashing with AttributeError.
 """
@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from factory_common.paths import audio_final_dir, repo_root, video_root
+from factory_common.paths import audio_final_dir, audio_pkg_root, repo_root, video_root
 
 
 def _norm_channel(channel: str) -> str:
@@ -61,10 +61,7 @@ class AudioManager:
         video = _norm_video(video_number)
         input_path = _resolve_tts_input_path(channel, video)
 
-        script = self.project_root / "audio_tts_v2" / "scripts" / "run_tts.py"
-        if not script.exists():
-            # Fallback: repo layout may differ (symlinks etc).
-            script = repo_root() / "audio_tts_v2" / "scripts" / "run_tts.py"
+        script = audio_pkg_root() / "scripts" / "run_tts.py"
         if not script.exists():
             raise FileNotFoundError(f"run_tts.py not found: {script}")
 
@@ -74,8 +71,8 @@ class AudioManager:
         out_log = final_dir / "log.json"
 
         env = os.environ.copy()
-        # Ensure audio_tts_v2 is importable when called from arbitrary cwd.
-        env["PYTHONPATH"] = str(self.project_root / "audio_tts_v2")
+        # Ensure packages are importable when called from arbitrary cwd.
+        env["PYTHONPATH"] = f"{repo_root()}:{repo_root() / 'packages'}"
 
         cmd = [
             sys.executable,
@@ -117,7 +114,7 @@ class AudioManager:
             raise RuntimeError(exc.stderr or exc.stdout or str(exc)) from exc
 
         if not out_wav.exists():
-            raise RuntimeError(f"audio_tts_v2 did not create wav: {out_wav}")
+            raise RuntimeError(f"audio_tts did not create wav: {out_wav}")
 
         out_srt = out_wav.with_suffix(".srt")
         return {

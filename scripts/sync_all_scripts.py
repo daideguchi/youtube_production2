@@ -26,6 +26,9 @@ def _discover_repo_root(start: Path) -> Path:
 PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+PACKAGES_ROOT = PROJECT_ROOT / "packages"
+if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(PACKAGES_ROOT))
 
 from factory_common.paths import planning_root, script_data_root
 

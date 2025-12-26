@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from commentary_02_srt2images_timeline.src.srt2images import nanobanana_client as nb
+from video_pipeline.src.srt2images import nanobanana_client as nb
 
 
 def test_nanobanana_mode_forces_direct(tmp_path, monkeypatch):

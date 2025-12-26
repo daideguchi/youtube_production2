@@ -1,7 +1,7 @@
 channel_prompt:
   channel_id: CH03
   name: シニア健康
-  persona_path: progress/personas/CH03_PERSONA.md
+  persona_path: workspaces/planning/personas/CH03_PERSONA.md
   version: '2025-11-27'
   prompt_body: '# CH03 台本プロンプト（シニア健康・段落形式）
 

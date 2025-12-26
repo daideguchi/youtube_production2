@@ -94,7 +94,7 @@ def main() -> int:
     ap.add_argument("--video-exclude-run-glob", action="append", help="Skip run dirs matching these globs (repeatable; video domain).")
     ap.add_argument("--logs-keep-days", type=int, default=30, help="Keep logs newer than this many days (default: 30).")
     ap.add_argument("--scripts-keep-days", type=int, default=14, help="Keep script intermediates newer than this many days (default: 14).")
-    ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune logs/llm_api_cache (default: keep).")
+    ap.add_argument("--include-llm-api-cache", action="store_true", help="Also prune workspaces/logs/llm_api_cache (default: keep).")
     ap.add_argument(
         "--symlinks-name",
         action="append",

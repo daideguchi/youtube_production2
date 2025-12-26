@@ -5,6 +5,13 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, Any
 
+try:
+    from factory_common.paths import logs_root
+
+    DEFAULT_LOG_PATH = str(logs_root() / "llm_usage.jsonl")
+except Exception:
+    DEFAULT_LOG_PATH = "workspaces/logs/llm_usage.jsonl"
+
 
 def load(path: Path):
     if not path.exists():
@@ -49,7 +56,7 @@ def pct(part, whole):
 
 def main():
     ap = argparse.ArgumentParser(description="Summarize llm_usage.jsonl")
-    ap.add_argument("--log", default=str(Path("logs") / "llm_usage.jsonl"), help="path to log file")
+    ap.add_argument("--log", default=DEFAULT_LOG_PATH, help="path to log file")
     args = ap.parse_args()
     log_path = Path(args.log)
     totals, by_model, latency, tokens, by_status = summarize(log_path)

@@ -70,7 +70,6 @@ def bootstrap(*, load_env: bool = True) -> Path:
     os.environ.setdefault("YTM_REPO_ROOT", str(repo_root))
 
     if load_env:
-        _load_env_files([repo_root / ".env", Path.home() / ".env"])
+        _load_env_files([repo_root / ".env"])
 
     return repo_root
-

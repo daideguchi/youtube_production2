@@ -41,23 +41,19 @@
 - `workspaces/`: **SoT + 生成物の唯一の置き場**（巨大ファイルはgitignoreされるがディスク上の正本）
 - `asset/`: **静的素材のL0（git管理の正本）**（BGM/ロゴ/素材）
 - `ssot/`: 設計/運用の正本（この文書含む）
-- `backups/`: archive-first の退避（復元目的のみ。実行入口にしない）
-- `legacy/`: 参照専用の隔離先（現行フローに混ぜない）
+- `backups/`: archive-first の退避（復元目的のみ。実行入口にしない。旧資産/試作も常駐させずここへ退避する）
 
 ### 1.2 フェーズ別SoT（工程の“唯一の正本”）
 
 | フェーズ | SoT（正本） | 主な生成物/ミラー | 主な入口 |
 | --- | --- | --- | --- |
-| Planning（企画/進捗） | `workspaces/planning/channels/CHxx.csv` / `workspaces/planning/personas/CHxx_PERSONA.md` | 互換: `progress/`（symlink） | UI `/progress` / `python3 scripts/ops/planning_lint.py` |
+| Planning（企画/進捗） | `workspaces/planning/channels/CHxx.csv` / `workspaces/planning/personas/CHxx_PERSONA.md` | — | UI `/planning` / `python3 scripts/ops/planning_lint.py` |
 | Script（台本） | `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled_human.md`（あれば優先） | `content/assembled.md`（ミラー）/ `content/analysis/**` | `python -m script_pipeline.cli ...` / UI `/channels/:channelCode/videos/:video` |
-| Audio（音声/SRT） | `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` | `workspaces/scripts/**/audio_prep/**`（中間） | `python -m script_pipeline.cli audio ...` / UI `/audio-tts-v2` |
-| Video（画像/CapCut） | `workspaces/video/runs/{run_id}/` | `workspaces/video/input/**` / CapCut draft / images / belt | UI `/capcut-edit/*` / `python3 -m commentary_02_srt2images_timeline.tools.*` |
-| Thumbnails（独立） | `workspaces/thumbnails/projects.json` | 旧互換: `thumbnails/`（symlink） | UI `/thumbnails` |
+| Audio（音声/SRT） | `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` | `workspaces/scripts/**/audio_prep/**`（中間） | `python -m script_pipeline.cli audio ...` / UI `/audio-tts` |
+| Video（画像/CapCut） | `workspaces/video/runs/{run_id}/` | `workspaces/video/input/**` / CapCut draft / images / belt | UI `/capcut-edit/*` / `python3 -m video_pipeline.tools.*` |
+| Thumbnails（独立） | `workspaces/thumbnails/projects.json` | `workspaces/thumbnails/templates.json` / `workspaces/thumbnails/assets/**` | UI `/thumbnails` |
 | Publish（外部SoT） | Google Sheets（`YT_PUBLISH_SHEET`） | 実行ログ: `workspaces/logs/**` | `python3 scripts/youtube_publisher/publish_from_sheet.py --run` |
 | Benchmarks（チャンネル勝ちパターン） | `packages/script_pipeline/channels/CHxx-*/channel_info.json` の `benchmarks` | UI編集/監査: `/channel-settings` | UI `/channel-settings` / `python -m script_pipeline.tools.channel_registry ...` |
-
-補足（互換symlink方針）
-- 互換symlinkは段階移行のために存在するが、**新規実装/新規ドキュメントでは参照を増やさない**（正本は `workspaces/`、コードは `factory_common.paths`）。
 
 ---
 
@@ -109,8 +105,8 @@
 ### 2.5 Video（SRT→画像→CapCut）
 
 正規入口（代表）
-- `PYTHONPATH=\".:packages\" python3 -m commentary_02_srt2images_timeline.tools.factory ...`
-- `PYTHONPATH=\".:packages\" python3 -m commentary_02_srt2images_timeline.tools.auto_capcut_run ...`
+- `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.factory ...`
+- `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run ...`
 
 正本の固定
 - run単位の正本: `workspaces/video/runs/{run_id}/`
@@ -121,7 +117,9 @@
 - UI `/thumbnails` を主線とする（台本/音声/動画と独立）
 - SoT: `workspaces/thumbnails/projects.json`
 - Template SoT: `workspaces/thumbnails/templates.json`
-- Layer Specs（任意/段階導入）: 画像レイヤ・文字レイヤの設計はYAMLで管理できる。チャンネル固有の値は持つが、スキーマ/運用は汎用として扱う（例: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`）。
+- ローカル合成SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`（Compiler/retake/QC/明るさ補正）
+- 入口CLI: `python scripts/thumbnails/build.py --help`
+- Layer Specs（任意/段階導入）: 画像レイヤ・文字レイヤの設計はYAMLで管理できる（例: `workspaces/thumbnails/compiler/layer_specs/image_prompts_v3.yaml`, `workspaces/thumbnails/compiler/layer_specs/text_layout_v3.yaml`）。
 
 ### 2.7 Publish（外部SoT）
 
@@ -142,7 +140,7 @@
 - ガード込みヘルスチェック: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 
 主要ページ（抜粋）
-- `/progress`: Planning CSV を閲覧/編集（SoT: `workspaces/planning/channels/**`）
+- `/planning`: Planning CSV を閲覧/編集（SoT: `workspaces/planning/channels/**`）
 - `/channels/:channelCode/videos/:video`: 台本/音声/SRTの確認と人間編集（SoT: `workspaces/scripts/**`, `workspaces/audio/final/**`）
 - `/capcut-edit/*`: run_dir（動画生成）を扱う（SoT: `workspaces/video/runs/**`）
 - `/thumbnails`: サムネ動線（SoT: `workspaces/thumbnails/projects.json`）
@@ -172,7 +170,7 @@ Runbook入口
 ## 5) ログとクリーンアップ（散らからない仕組み）
 
 ログの正本
-- `workspaces/logs/`（`logs/` は互換symlink）
+- `workspaces/logs/`
 - ログが「どこに溜まり、何が生成しているか」は `ssot/ops/OPS_LOGGING_MAP.md` が正本
 
 重要な方針（例）
@@ -221,6 +219,6 @@ Runbook入口
 
 - SSOTを先に更新（フロー/I-O/置き場の誤解を防ぐ）
 - パス直書き禁止（必ず `factory_common.paths` を使う）
-- 入口（CLI/UI）を守る（互換symlinkは短期の混乱回避のため残す）
+- 入口（CLI/UI）を守る（ルート直下の互換symlinkは作らない）
 - 削除は archive-first + 証跡（`OPS_CLEANUP_EXECUTION_LOG`）
 - 変更は小さくコミット（1コミット=1目的）

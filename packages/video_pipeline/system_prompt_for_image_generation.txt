@@ -1,0 +1,338 @@
+あなたは `youtube_master_monorepo` / `factory_commentary` にフルアクセスできる
+コード修正エージェントです。
+
+リポジトリ root:
+  <REPO_ROOT>
+
+対象は主にこのあたりです：
+  - packages/video_pipeline/tools/factory.py
+  - packages/video_pipeline/tools/auto_capcut_run.py
+  - packages/video_pipeline/tools/run_pipeline.py
+  - packages/video_pipeline/src/srt2images/*
+  - packages/factory_common/llm_router.py
+  - configs/llm_router.yaml
+  - packages/video_pipeline/config/channel_presets.json
+
+======================================================================
+■ ゴール（今回のタスクで「必ず」達成すべきこと）
+======================================================================
+
+CH02-015 について、
+
+1. CLI `factory-commentary` を使って
+   - `new`
+   - `check`
+   - `draft`
+   の 3つの intent が **仕様通りに動くこと**
+
+2. 画像生成を含めた パイプライン全体 が正常に完走すること  
+   （Gemini 2.5 Flash Image 経由で「実際に PNG が生成される」こと）
+
+3. CapCutドラフト（capcut_draft ディレクトリ or json）が生成されること
+
+4. その結果として、以下が確認できること：
+
+   - `factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt new`
+     を実行すると、最後まで成功し、
+
+     - `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/`
+       の下に
+       - `image_cues.json`
+       - `images/00xx.png` （実データ。placeholder ではなく）
+       - `belt_config.json`（CH02 の場合は 1 本のみ）
+       - CapCutドラフト（`capcut_draft/` か相当のファイル）
+       が出ていること
+
+   - `factory-commentary CH02 ... draft`
+     で「新しい run を作らずに」
+     上記 run_dir を使って CapCutドラフトだけ再生成できること
+
+   - `factory-commentary CH02 ... check`
+     で
+     - 新しい run_dir を一つ作成
+     - `image_cues.json` と `belt_config.json` まで生成
+     - CapCutドラフトは作らない
+     が実現されること
+
+=== ここが超重要 ===
+- **画像が生成されていない（placeholder png しかない）状態は「成功」とみなしてはいけません。**
+- 最終的に、CH02-015 で Gemini 2.5 Flash Image を使って PNG が生成されるところまで行ってください。
+
+### 画像生成ルートの固定
+- `nanobanana` は `direct`（ImageClient+Gemini 2.5 Flash Image）か `none`（スキップ）のみ。legacy cli/mcp/その他指定は強制的に direct にクランプする。
+- Gemini には aspect_ratio を送らない（capabilities: supports_aspect_ratio=false）。比率はリサイズで担保。
+- タイムアウト強制は避け、ログに特定文言が出たら停止する abort-on-log で守る。
+
+======================================================================
+■ 制約・いじってはいけない領域
+======================================================================
+
+このタスクでは、次の「画像ロジックのSSOT」は壊してはいけません：
+
+1. `cue_maker.py` の本質的ロジック
+   - `make_cues` の挙動
+   - cue → `image_cues.json` に落ちる構造
+   - cue 構造のキー（start_sec, end_sec, summary, visual_focus など）
+
+2. `llm_context_analyzer.py` のうち画像生成に関わる部分
+   - `SectionBreak` のフィールド定義
+   - `visual_focus`, `summary`, `emotional_tone`, `section_type`, `role_tag` などの意味と優先順位
+
+3. `image_cues.json` のスキーマ
+   - トップレベルに `cues` 配列がある前提
+   - cue の中の key 名・入れ子構造
+
+4. `workspaces/video/runs/CHxx-YYY_YYYYMMDD_HHMMSS/images/` の構造
+   - `images/0001.png`, `0002.png` という連番ファイル名
+   - `images/` 直下に PNG が並ぶ前提
+
+これらは「**画像生成の土台**」なので、
+CLI や run_dir の整理・CapCutドラフト生成のために
+構造やキー名を変えたり、ディレクトリを移動したりしないでください。
+
+======================================================================
+■ CLI / run_dir の仕様（今回ここを 1本道に固定する）
+======================================================================
+
+### 1. CLI 名
+
+- 正式な CLI は `factory-commentary` 。
+- サブコマンド形式：
+
+  ```bash
+  factory-commentary <channel_id> <srt_path> {new|check|draft} [options...]
+```
+
+例：
+
+```bash
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt new
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt check
+factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
+```
+
+### 2. run_dir の命名と配置
+
+* 1回の run は 1つの run_dir に対応。
+
+* run_dir は：
+
+  ```text
+  workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/
+  ```
+
+* このディレクトリ配下に最低限：
+
+  * `CH02-015.srt`
+  * `channel_preset.json`
+  * `image_cues.json`
+  * `persona.txt`
+  * `images/`
+  * `logs/`
+  * `guides/`
+  * `belt_config.json`（check/new後）
+  * CapCutドラフト（new/draftの後）
+
+### 3. run_dir の選び方ルール
+
+* `find_latest_run_dir(video_id, output_dir)` のような関数で、
+  `workspaces/video/runs/` 以下の `"{VIDEO_ID}_YYYYMMDD_HHMMSS"` 形式ディレクトリのうち、
+
+  * `image_cues.json` が存在するものだけを候補にし、
+  * タイムスタンプでソートして **一番新しいもの** を「現在の有効 run」とする。
+
+* このルールは `draft` と `check` の両方で共通。
+  `new` は常に新しい run_dir を作る。
+
+### 4. intent ごとの正しい挙動
+
+#### 4-1. `new`
+
+1. `run_pipeline.py` を **engine=gemini or direct** で呼び出し、
+
+   * cue 生成
+   * 画像生成（Gemini 2.5 Flash Image 経由）
+     を行い、新しい run_dir を作る
+
+2. 同じ run_dir に対して `auto_capcut_run.py` を実行し、
+   CapCut draft を生成する
+
+3. `factory-commentary ... new` が終わった時点で、
+
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/image_cues.json`
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/images/0001.png` など
+   * `workspaces/video/runs/CH02-015_YYYYMMDD_HHMMSS/belt_config.json`
+   * CapCutドラフト
+     が揃っている状態にすること
+
+#### 4-2. `check`
+
+1. `run_pipeline.py` を `--engine none` で呼び出し、
+
+   * cue のみ生成（画像生成はスキップ）
+   * belt_generation（LLMRouter + gpt-5-mini）まで行う
+2. 新しい run_dir が 1つだけ増える
+3. CapCut draft は作らない
+
+#### 4-3. `draft`
+
+1. `find_latest_run_dir(video_id)` で、
+   `image_cues.json` が存在する最新 run_dir を選ぶ
+
+2. 見つからなければ：
+
+   ```text
+   [CH02-015][draft][ERROR] No valid run directory found for CH02-015 with image_cues.json. Run with 'new' first.
+   ```
+
+   をログに出して `sys.exit(1)`。
+
+3. 見つかった場合は、その run_dir 名を `--run-name` に渡して
+   `auto_capcut_run.py` を呼び出し、CapCut draft を再生成。
+
+### 5. `--resume` の扱い
+
+* `auto_capcut_run.py` の `--resume` オプションは挙動が不透明で、
+  余計な run_dir を増やす原因になる。
+* **今回のタスクでは `--resume` は全面禁止。**
+  使っている箇所があれば削除するか、呼び出し側を修正して `--run-name` ベースに統一すること。
+
+======================================================================
+■ 画像生成ロジック（このタスクで必ずやる範囲）
+========================
+
+### 1. 画像生成エンジンとルート
+
+* 最優先は **Gemini 2.5 Flash Image** を LLMRouter 経由で使うこと。
+
+* すでに単発テストで：
+
+  ```python
+  router.call(
+      task="visual_image_gen",
+      messages=[{"role": "user", "content": "テストプロンプト"}],
+      image_generation=True,
+  )
+  ```
+
+  が成功することは確認済み。
+
+* 現状の問題は、
+
+  * `nanobanana_client.py` が `from core.config import config` や `from google import genai`
+    に依存して壊れていること
+  * CLI `ddnanobanana` を呼ぼうとして `nano_banana_cli.py` がないエラーになっていること
+
+### 2. 画像生成で「やるべきこと」
+
+1. `nanobanana_client.py` の direct モード（`_run_direct`）を、
+   **LLMRouter + gemini_2_5_flash_image ベースの実装に作り変える。**
+
+   * `from google import genai` は **すべて削除**。
+   * `get_router()` を使って、
+     `task="visual_image_gen"` を叩く実装に置き換える。
+   * `prompt` → 画像 → `output_path` に PNG 保存、という I/O は既存仕様を維持。
+
+2. `auto_capcut_run.py` / `run_pipeline.py` 側で、
+
+   * `--engine` / `--nanobanana` の指定に応じて、
+
+     * `engine="none"` なら **画像生成を完全スキップ**（今まで通り placeholder 可）
+     * `engine="gemini"` or `nanobanana="direct"` なら、
+       新しい LLMRouter 経由の画像生成を使うようにする。
+
+3. CH02-015 について、以下の2パターンを **実際に通して検証** すること：
+
+   * パターンA（画像なし検証）
+
+     ```bash
+     factory-commentary CH02 ... check   # engine=none
+     ```
+
+     * run_dir が 1つ増える
+     * image_cues.json ＋ belt_config.json まで生成
+     * CapCut draft は生成しない
+
+   * パターンB（画像あり本番）
+
+     ```bash
+     factory-commentary CH02 ... new   # engine=gemini or nanobanana=direct
+     ```
+
+     * run_dir が 1つ増える
+     * image_cues.json
+     * images/0001.png, 0002.png, ...
+     * belt_config.json
+     * CapCut draft
+       まで揃うことを確認する。
+
+### 3. ログの出し方（特に画像生成）
+
+* 画像生成フェーズでは、以下のようなログ形式に統一すること：
+
+  * 成功例：
+
+    ```text
+    [CH02-015_20251210_214116][image_gen][OK] engine=gemini_2_5_flash_image images=44 dir=.../images
+    ```
+
+  * フォールバック（placeholderを書いた場合など）：
+
+    ```text
+    [CH02-015_20251210_214116][image_gen][FALLBACK] reason='nanobanana CLI missing' placeholders=44
+    ```
+
+  * クリティカルエラーで途中終了する場合：
+
+    ```text
+    [CH02-015_20251210_214116][image_gen][ERROR] reason='router.call failed' detail='...'
+    ```
+
+* **画像が1枚も生成されていないのに `[image_gen][OK]` を出すのは禁止。**
+
+======================================================================
+■ レポートの書き方（完了報告のフォーマット）
+=======================
+
+タスク完了時、あなた（エージェント）はログとして以下を必ず出してください：
+
+1. 実際に実行したコマンド列（最低でも）：
+
+   * `factory-commentary ... new`
+   * `factory-commentary ... check`
+   * `factory-commentary ... draft`
+
+2. 各コマンドで使われた run_dir 名：
+
+   * 例： `CH02-015_20251210_214116`
+
+3. 各 run_dir についての tree（上位1〜2階層）：
+
+   * `image_cues.json` の有無
+   * `images/0001.png` が存在するか
+   * `belt_config.json` 内の `belts` 数と `text` の一部
+   * CapCut draft のファイルパス（例：`capcut_draft/draft.json`）
+
+4. WARNING / ERROR ログ が残っている場合は、
+
+   * その内容と、現時点で「未解決」と判断しているか、
+     「placeholder で許容」と見なしているかを明記する。
+
+**禁止文言：**
+
+* 「実装は完全に成功です」
+* 「すべての要件を達成しました」
+* 「パイプラインは完全に安定しました」
+
+言ってよいのは：
+
+* 「CH02-015 について、factory-commentary の new/check/draft が仕様通りに動作し、
+  指定された run_dir に image_cues.json / images/*.png / belt_config.json / CapCut draft が生成されることを確認した」
+* 「nanobanana 経由の旧CLIは廃止し、LLMRouter + Gemini 2.5 Flash Image 経由で画像生成できることを CH02-015 で確認した」
+* 「まだ古い run_dir に placeholder 画像が残っているが、新しい run_dir では実画像が生成されている」など、事実ベースの記述のみ。
+
+======================================================================
+
+このタスクでは、
+**「CLIとrun_dir運用を1本道にしつつ、CH02-015で実際にGemini 2.5 Flash Imageで画像を生成し、CapCut draftまで通す」**
+ところまで必ず持っていってください。

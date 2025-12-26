@@ -2,14 +2,14 @@
 
 - 最終更新日: 2025-12-13  
 - 目的: **CH02のCapCutドラフトを「CH02-テンプレ」から崩さず**に生成し、右上メイン帯のデザイン維持・音声挿入・字幕黒背景スタイルを **機械検証で100%担保**する。
-- 適用範囲: `commentary_02_srt2images_timeline/tools/*` によるCapCutドラフト生成（CH02）。
+- 適用範囲: `packages/video_pipeline/tools/*` によるCapCutドラフト生成（CH02）。
 
 ---
 
 ## 1. 重要な前提（SoT）
 
-- **音声/SRT SoT**: `workspaces/audio/final/CH02/{NNN}/CH02-{NNN}.wav|.srt`（互換: `audio_tts_v2/artifacts/final/...`）
-- **Video run SoT**: `workspaces/video/runs/{run_name}/`（互換: `commentary_02_srt2images_timeline/output/...`）
+- **音声/SRT SoT**: `workspaces/audio/final/CH02/{NNN}/CH02-{NNN}.wav|.srt`
+- **Video run SoT**: `workspaces/video/runs/{run_name}/`
   - `image_cues.json`, `images/`, `belt_config.json` が前提
 - **CapCut draft root**: `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft`
 - **テンプレ**: `CH02-テンプレ`（これ以外を使わない）
@@ -44,14 +44,14 @@ CH02ドラフトは次を必ず満たすこと（満たさない生成は“完�
 > cuesが古いSRT由来だと字幕/音声と映像がズレる。LLMなしで整合できる。
 
 ```bash
-python3 commentary_02_srt2images_timeline/tools/align_run_dir_to_tts_final.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.align_run_dir_to_tts_final \
   --run workspaces/video/runs/{run_name}
 ```
 
 ### 3.2 CapCutドラフト生成（テンプレ土台・音声挿入あり）
 
 ```bash
-python3 commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \
   --channel CH02 \
   --srt workspaces/audio/final/CH02/{NNN}/CH02-{NNN}.srt \
   --run-name {run_name} \
@@ -70,7 +70,7 @@ python3 commentary_02_srt2images_timeline/tools/auto_capcut_run.py \
 SSOT（`status.json` の `metadata.sheet_title`【】）からメイン帯文字を確定させる。
 
 ```bash
-python3 commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.set_ch02_belt_from_status \
   --channel CH02 \
   --videos {NNN} \
   --update-run-belt-config
@@ -85,7 +85,7 @@ python3 commentary_02_srt2images_timeline/tools/set_ch02_belt_from_status.py \
 生成後、必ずバリデータを通す（Fail-fast）。
 
 ```bash
-python3 commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
   --channel CH02 \
   --videos {NNN}
 ```
@@ -101,7 +101,7 @@ python3 commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
 ## 5. 対象一括（CH02-014/019-033）
 
 ```bash
-python3 commentary_02_srt2images_timeline/tools/validate_ch02_drafts.py \
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
   --channel CH02 \
   --videos 014,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033
 ```

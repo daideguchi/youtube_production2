@@ -5,6 +5,22 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Dict, List
 
+try:
+    from factory_common.paths import logs_root
+
+    _LOGS_ROOT = logs_root()
+    DEFAULT_LOGS = [
+        str(_LOGS_ROOT / "llm_usage.jsonl"),
+        str(_LOGS_ROOT / "llm_context_analyzer.log"),
+        str(_LOGS_ROOT / "tts_llm_usage.log"),
+    ]
+except Exception:
+    DEFAULT_LOGS = [
+        "workspaces/logs/llm_usage.jsonl",
+        "workspaces/logs/llm_context_analyzer.log",
+        "workspaces/logs/tts_llm_usage.log",
+    ]
+
 
 def load(path: Path) -> List[Dict[str, Any]]:
     if not path.exists():
@@ -61,11 +77,7 @@ def summarize(records: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def main():
     ap = argparse.ArgumentParser(description="Combined LLM logs report")
-    ap.add_argument("--logs", nargs="*", default=[
-        "logs/llm_usage.jsonl",
-        "logs/llm_context_analyzer.log",
-        "logs/tts_llm_usage.log",
-    ], help="log files to summarize")
+    ap.add_argument("--logs", nargs="*", default=DEFAULT_LOGS, help="log files to summarize")
     args = ap.parse_args()
 
     report = {}

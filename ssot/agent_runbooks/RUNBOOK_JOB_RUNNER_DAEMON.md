@@ -45,10 +45,10 @@
   <key>WorkingDirectory</key><string><REPO_ROOT></string>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>PYTHONPATH</key><string><REPO_ROOT></string>
+    <key>PYTHONPATH</key><string><REPO_ROOT>:<REPO_ROOT>/packages</string>
   </dict>
-  <key>StandardOutPath</key><string><REPO_ROOT>/logs/job_runner.out</string>
-  <key>StandardErrorPath</key><string><REPO_ROOT>/logs/job_runner.err</string>
+  <key>StandardOutPath</key><string><REPO_ROOT>/workspaces/logs/job_runner.out</string>
+  <key>StandardErrorPath</key><string><REPO_ROOT>/workspaces/logs/job_runner.err</string>
   <key>RunAtLoad</key><true/>
   <key>StartInterval</key><integer>60</integer> <!-- 60秒ごとに起動 -->
 </dict>
@@ -59,7 +59,7 @@
 
 ## 4. cron（毎分起動の例）
 ```bash
-* * * * * cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>" /usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 20 --max-parallel 1 --sleep 10 >> logs/job_runner.cron.log 2>&1
+* * * * * cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>:<REPO_ROOT>/packages" /usr/bin/python3 -m script_pipeline.job_runner run-loop --max-iter 60 --limit 20 --max-parallel 1 --sleep 10 >> workspaces/logs/job_runner.cron.log 2>&1
 ```
 
 ## 5. 簡易ホスティング（例: Render）

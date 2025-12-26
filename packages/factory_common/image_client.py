@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import io
 import json
 import logging
 import os
@@ -231,9 +232,115 @@ class ImageClient:
         adapter_overrides: Dict[str, Any] | None = None,
     ):
         root = repo_paths.repo_root()
-        self.config_path = Path(config_path) if config_path else (root / "configs" / "image_models.yaml")
+        default_config = root / "configs" / "image_models.yaml"
+        local_config = root / "configs" / "image_models.local.yaml"
+
+        resolved_config: Path
+        if config_path is not None:
+            resolved_config = Path(config_path)
+            if not resolved_config.is_absolute():
+                resolved_config = root / resolved_config
+        else:
+            env_config = (os.getenv("IMAGE_CLIENT_CONFIG_PATH") or "").strip()
+            if env_config:
+                resolved_config = Path(env_config)
+                if not resolved_config.is_absolute():
+                    resolved_config = root / resolved_config
+            elif local_config.exists():
+                resolved_config = local_config
+            else:
+                resolved_config = default_config
+
+        self.config_path = resolved_config
         self._adapter_overrides = adapter_overrides or {}
         self._config = config_data or self._load_config()
+        self._task_overrides = self._load_task_overrides()
+
+    @staticmethod
+    def _env_truthy(name: str) -> bool:
+        raw = (os.getenv(name) or "").strip().lower()
+        return raw in {"1", "true", "yes", "y", "on"}
+
+    def _resolve_forced_model_key(self, *, task: str) -> Optional[str]:
+        """
+        Resolve forced model key from environment.
+
+        Priority:
+          1) IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>
+          2) IMAGE_CLIENT_FORCE_MODEL_KEY
+        """
+        task_key = f"IMAGE_CLIENT_FORCE_MODEL_KEY_{(task or '').upper()}"
+        raw = (os.getenv(task_key) or "").strip()
+        if raw:
+            return raw
+        raw = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY") or "").strip()
+        return raw or None
+
+    def _task_overrides_path(self) -> Path:
+        root = repo_paths.repo_root()
+        env_path = (os.getenv("IMAGE_CLIENT_TASK_OVERRIDES_PATH") or "").strip()
+        if env_path:
+            resolved = Path(env_path)
+            if not resolved.is_absolute():
+                resolved = root / resolved
+            return resolved
+
+        local_path = root / "configs" / "image_task_overrides.local.yaml"
+        if local_path.exists():
+            return local_path
+        return root / "configs" / "image_task_overrides.yaml"
+
+    def _load_task_overrides(self) -> Dict[str, Any]:
+        path = self._task_overrides_path()
+        if not path.exists():
+            return {}
+        try:
+            with path.open("r", encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def _resolve_profile_task_override(self, *, task: str) -> Dict[str, Any]:
+        """
+        Resolve task override from `configs/image_task_overrides.yaml`.
+
+        Schema:
+          - profiles.<profile>.tasks.<task>.model_key: str
+          - profiles.<profile>.tasks.<task>.allow_fallback: bool
+
+        Fallback behavior:
+          - profile defaults to "default"
+          - missing profile -> fall back to "default"
+          - missing file / invalid schema -> {}
+        """
+        task = (task or "").strip()
+        if not task:
+            return {}
+
+        profile = (os.getenv("IMAGE_CLIENT_PROFILE") or "").strip() or "default"
+        raw = getattr(self, "_task_overrides", None)
+        if not isinstance(raw, dict):
+            return {}
+
+        profiles = raw.get("profiles")
+        if isinstance(profiles, dict):
+            profile_conf = profiles.get(profile)
+            if profile_conf is None and profile != "default":
+                profile_conf = profiles.get("default")
+            if not isinstance(profile_conf, dict):
+                return {}
+            tasks = profile_conf.get("tasks", {})
+            if not isinstance(tasks, dict):
+                return {}
+            override = tasks.get(task, {})
+            return override if isinstance(override, dict) else {}
+
+        tasks = raw.get("tasks", {})
+        if not isinstance(tasks, dict):
+            return {}
+        override = tasks.get(task, {})
+        return override if isinstance(override, dict) else {}
 
     def generate(self, options: ImageTaskOptions) -> ImageResult:
         started_at = time.perf_counter()
@@ -253,6 +360,7 @@ class ImageClient:
 
         forced_model_key: Optional[str] = None
         allow_fallback = True
+        allow_fallback_explicit = False
         if isinstance(options.extra, dict):
             raw_forced = options.extra.get("model_key")
             if isinstance(raw_forced, str) and raw_forced.strip():
@@ -260,6 +368,30 @@ class ImageClient:
             raw_allow_fallback = options.extra.get("allow_fallback")
             if raw_allow_fallback is not None:
                 allow_fallback = bool(raw_allow_fallback)
+                allow_fallback_explicit = True
+        if not forced_model_key:
+            forced_model_key = self._resolve_forced_model_key(task=options.task)
+        forced_model_from_profile = False
+        if not forced_model_key:
+            override = self._resolve_profile_task_override(task=options.task)
+            if override:
+                mk = override.get("model_key")
+                if isinstance(mk, str) and mk.strip():
+                    mk_norm = mk.strip()
+                    models = self._config.get("models", {})
+                    if isinstance(models, dict) and mk_norm in models:
+                        forced_model_key = mk_norm
+                        forced_model_from_profile = True
+                    else:
+                        logging.warning(
+                            "ImageClient: override model_key '%s' for task '%s' not found in image model config; ignoring",
+                            mk_norm,
+                            options.task,
+                        )
+                if forced_model_from_profile and not allow_fallback_explicit:
+                    raw_af = override.get("allow_fallback")
+                    if raw_af is not None:
+                        allow_fallback = bool(raw_af)
 
         errors: List[Tuple[str, Exception]] = []
         if forced_model_key:
@@ -498,6 +630,8 @@ class ImageClient:
             return GeminiImageAdapter(self._config.get("providers", {}))
         if provider == "openrouter":
             return OpenRouterImageAdapter(self._config.get("providers", {}))
+        if provider == "fireworks":
+            return FireworksImageAdapter(self._config.get("providers", {}))
 
         raise ImageGenerationError(f"Unsupported image provider: {provider}")
 
@@ -554,6 +688,8 @@ class ImageClient:
         Round-robin starting point per tier to avoid pinning to the first model.
         Falls back to the original order if state cannot be read.
         """
+        if not self._env_truthy("IMAGE_CLIENT_ENABLE_ROUND_ROBIN"):
+            return candidates
         if not candidates:
             return candidates
         try:
@@ -569,6 +705,8 @@ class ImageClient:
         """
         After a success, advance the starting index so the next call tries the following model.
         """
+        if not self._env_truthy("IMAGE_CLIENT_ENABLE_ROUND_ROBIN"):
+            return
         if not candidates:
             return
         try:
@@ -613,8 +751,6 @@ class GeminiImageAdapter:
 
         candidates = [
             repo_paths.repo_root() / ".env",              # project root (/factory_commentary/.env)
-            repo_paths.repo_root().parent / ".env",       # parent root fallback
-            Path.home() / ".env",                                     # user home
         ]
         for env_path in candidates:
             if not env_path.exists():
@@ -855,3 +991,216 @@ class OpenRouterImageAdapter:
                 return None
 
         return None
+
+
+class FireworksImageAdapter:
+    """
+    Fireworks text-to-image adapter.
+
+    Default endpoint (docs):
+      POST /workflows/accounts/<account>/models/<model_name>/text_to_image
+    """
+
+    def __init__(self, provider_conf: Dict[str, Any]):
+        conf = provider_conf.get("fireworks", {}) or {}
+        if not isinstance(conf, dict):
+            conf = {}
+        self.provider_conf = conf
+
+        api_key_env = str(self.provider_conf.get("env_api_key") or "FIREWORKS_API_KEY")
+        api_key = GeminiImageAdapter._resolve_api_key(api_key_env)
+
+        api_key_fallback_env = str(self.provider_conf.get("env_api_key_fallback") or "FIREWORKS_API_KEY_FALLBACK")
+        api_key_fallback = GeminiImageAdapter._resolve_api_key(api_key_fallback_env)
+
+        if not api_key and not api_key_fallback:
+            raise ImageGenerationError(
+                "Fireworks API key not found. Please set environment variable "
+                f"'{api_key_env}' (or fallback '{api_key_fallback_env}')."
+            )
+
+        self.api_key = api_key
+        self.api_key_fallback = api_key_fallback if api_key_fallback and api_key_fallback != api_key else None
+
+        self.base_url = str(self.provider_conf.get("base_url") or "https://api.fireworks.ai/inference/v1").rstrip("/")
+
+        self.account = self._resolve_account()
+
+    def _resolve_account(self) -> str:
+        env_account = str(self.provider_conf.get("env_account") or "").strip()
+        if env_account:
+            val = (os.getenv(env_account) or "").strip()
+            if val:
+                return val
+        raw = str(self.provider_conf.get("account") or "").strip()
+        return raw or "fireworks"
+
+    def _endpoint(self, model_name: str) -> str:
+        model_name = (model_name or "").strip()
+        if not model_name:
+            raise ImageGenerationError("Fireworks model name is missing from configuration")
+        return f"{self.base_url}/workflows/accounts/{self.account}/models/{model_name}/text_to_image"
+
+    @staticmethod
+    def _parse_size(size: str | None) -> Optional[Tuple[int, int]]:
+        if not size:
+            return None
+        s = str(size).strip().lower().replace("×", "x")
+        if "x" not in s:
+            return None
+        a, b = s.split("x", 1)
+        try:
+            w = int(a.strip())
+            h = int(b.strip())
+        except Exception:
+            return None
+        if w <= 0 or h <= 0:
+            return None
+        return w, h
+
+    @staticmethod
+    def _maybe_resize_png(data: bytes, *, target: Optional[Tuple[int, int]]) -> bytes:
+        if not target:
+            return data
+        try:
+            from PIL import Image, ImageOps  # pillow is in repo deps
+
+            img = Image.open(io.BytesIO(data))
+            img.load()
+
+            resized = ImageOps.fit(img, target, method=Image.LANCZOS, centering=(0.5, 0.5))
+            out = io.BytesIO()
+            resized.save(out, format="PNG")
+            return out.getvalue()
+        except Exception:
+            # Fail-soft: if pillow isn't available or conversion fails, keep original bytes.
+            return data
+
+    @staticmethod
+    def _decode_json_payload(payload: Dict[str, Any]) -> List[bytes]:
+        """
+        Fireworks can return JSON base64 array when Accept=application/json.
+        Handle both `base64` and nested response styles.
+        """
+        out: List[bytes] = []
+        b64_list = payload.get("base64")
+        if isinstance(b64_list, list):
+            for item in b64_list:
+                if isinstance(item, str) and item:
+                    try:
+                        out.append(base64.b64decode(item))
+                    except Exception:
+                        continue
+        return out
+
+    def _post(self, *, url: str, payload: Dict[str, Any], timeout_sec: int) -> requests.Response:
+        def do(key: str) -> requests.Response:
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "image/png",
+                "Authorization": f"Bearer {key}",
+            }
+            return requests.post(url, headers=headers, json=payload, timeout=timeout_sec)
+
+        last: Optional[requests.Response] = None
+        if self.api_key:
+            last = do(self.api_key)
+            if last.status_code not in (401, 403):
+                return last
+        if self.api_key_fallback:
+            last = do(self.api_key_fallback)
+            return last
+        assert last is not None
+        return last
+
+    def generate(self, model_conf: Dict[str, Any], options: ImageTaskOptions) -> ImageResult:
+        model_name = str(model_conf.get("model_name") or "").strip()
+        url = self._endpoint(model_name)
+
+        timeout_sec = 120
+        if isinstance(options.extra, dict):
+            raw_timeout = options.extra.get("timeout_sec")
+            if isinstance(raw_timeout, (int, float)) and raw_timeout > 0:
+                timeout_sec = int(raw_timeout)
+
+        defaults = model_conf.get("defaults", {}) if isinstance(model_conf.get("defaults", {}), dict) else {}
+
+        def _resolve_num(name: str, default_val: Optional[float]) -> Optional[float]:
+            if isinstance(options.extra, dict) and name in options.extra:
+                v = options.extra.get(name)
+                if isinstance(v, (int, float)):
+                    return float(v)
+            v = defaults.get(name)
+            if isinstance(v, (int, float)):
+                return float(v)
+            return default_val
+
+        guidance_scale = _resolve_num("guidance_scale", None)
+        num_steps = _resolve_num("num_inference_steps", None)
+
+        target_size = self._parse_size(options.size)
+
+        images: List[bytes] = []
+        for _ in range(max(1, int(options.n or 1))):
+            payload: Dict[str, Any] = {"prompt": options.prompt}
+            if options.aspect_ratio:
+                payload["aspect_ratio"] = options.aspect_ratio
+            if guidance_scale is not None:
+                payload["guidance_scale"] = guidance_scale
+            if num_steps is not None:
+                payload["num_inference_steps"] = int(num_steps)
+            if options.seed is not None:
+                payload["seed"] = int(options.seed)
+
+            try:
+                resp = self._post(url=url, payload=payload, timeout_sec=timeout_sec)
+            except requests.RequestException as exc:  # pragma: no cover - network faults
+                raise ImageGenerationError(f"Fireworks request failed: {exc}") from exc
+
+            if resp.status_code >= 400:
+                detail: Any = None
+                try:
+                    detail = resp.json()
+                except Exception:
+                    detail = (resp.text or "").strip()
+                msg = f"Fireworks error {resp.status_code}: {detail}"
+                if resp.status_code == 429:
+                    raise ImageProviderRateLimitError(
+                        msg,
+                        provider="fireworks",
+                        status_code=int(resp.status_code),
+                    )
+                raise ImageGenerationError(msg)
+
+            content_type = (resp.headers.get("Content-Type") or "").lower()
+            if "application/json" in content_type:
+                try:
+                    decoded = self._decode_json_payload(resp.json())
+                except Exception as exc:
+                    raise ImageGenerationError(f"Fireworks returned invalid JSON payload: {exc}") from exc
+                if not decoded:
+                    raise ImageGenerationError("Fireworks JSON response did not include any base64 images")
+                for img in decoded:
+                    images.append(self._maybe_resize_png(img, target=target_size))
+                continue
+
+            raw = resp.content or b""
+            if not raw:
+                raise ImageGenerationError("Fireworks returned empty image bytes")
+            images.append(self._maybe_resize_png(raw, target=target_size))
+
+        return ImageResult(
+            images=images,
+            provider="fireworks",
+            model=model_name,
+            request_id=None,
+            metadata={
+                "n": len(images),
+                "aspect_ratio": options.aspect_ratio,
+                "size": options.size,
+                "seed": options.seed,
+                "negative_prompt": options.negative_prompt,
+                "guidance_scale": guidance_scale,
+                "num_inference_steps": num_steps,
+            },
+        )

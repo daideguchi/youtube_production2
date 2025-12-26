@@ -156,6 +156,7 @@ export interface ChannelSummary {
   spreadsheet_id?: string | null;
   youtube_title?: string | null;
   youtube_handle?: string | null;
+  video_workflow?: VideoWorkflowSpec | null;
   genre?: string | null;
 }
 
@@ -497,6 +498,13 @@ export interface ChannelBenchmarksSpec {
   notes?: string | null;
 }
 
+export interface VideoWorkflowSpec {
+  key: "vrew_a" | "vrew_b" | "capcut" | "remotion";
+  id: number;
+  label: string;
+  description: string;
+}
+
 export interface ChannelProfileResponse {
   channel_code: string;
   channel_name?: string | null;
@@ -508,6 +516,7 @@ export interface ChannelProfileResponse {
   youtube_title?: string | null;
   youtube_description?: string | null;
   youtube_handle?: string | null;
+  video_workflow?: VideoWorkflowSpec | null;
   benchmarks?: ChannelBenchmarksSpec | null;
   audio_default_voice_key?: string | null;
   audio_section_voice_rules?: Record<string, string>;
@@ -758,7 +767,7 @@ export interface LlmMeta {
   } | null;
 }
 
-export interface RunTtsV2Response {
+export interface RunTtsResponse {
   engine?: string | null;
   wav_path: string;
   srt_path?: string | null;
@@ -875,6 +884,43 @@ export interface ThumbnailDescriptionResponse {
   description: string;
   model?: string | null;
   source: "openai" | "openrouter" | "heuristic";
+}
+
+export interface ThumbnailLayerSpecRef {
+  id: string;
+  kind: string;
+  version: number;
+  path: string;
+  name?: string | null;
+}
+
+export interface ThumbnailChannelLayerSpecs {
+  channel: string;
+  image_prompts?: ThumbnailLayerSpecRef | null;
+  text_layout?: ThumbnailLayerSpecRef | null;
+}
+
+export interface ThumbnailLayerSpecPlanningSuggestions {
+  thumbnail_prompt?: string | null;
+  thumbnail_upper?: string | null;
+  thumbnail_title?: string | null;
+  thumbnail_lower?: string | null;
+  text_design_note?: string | null;
+}
+
+export interface ThumbnailVideoTextLayoutSpec {
+  template_id?: string | null;
+  fallbacks?: string[] | null;
+  text?: Record<string, string> | null;
+}
+
+export interface ThumbnailVideoLayerSpecs {
+  channel: string;
+  video: string;
+  video_id: string;
+  image_prompt?: string | null;
+  text_layout?: ThumbnailVideoTextLayoutSpec | null;
+  planning_suggestions?: ThumbnailLayerSpecPlanningSuggestions | null;
 }
 
 export interface ThumbnailImageModelInfo {

@@ -884,7 +884,7 @@ useEffect(() => {
   }, [detail.updated_at]);
 
   const planningLink = useMemo(() => {
-    return `/progress?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
+    return `/planning?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
   }, [detail.channel, detail.video]);
   const studioLink = useMemo(() => {
     return `/studio?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
@@ -1761,7 +1761,7 @@ useEffect(() => {
               </div>
               {!detail.srt_path ? (
                 <p className="muted" style={{ marginTop: 10 }}>
-                  先に音声生成で SRT を作成してください（SoT: <code>workspaces/audio/final</code> / 互換: <code>audio_tts_v2/artifacts/final</code>）。
+                  先に音声生成で SRT を作成してください（SoT: <code>workspaces/audio/final</code>）。
                 </p>
               ) : null}
             </section>

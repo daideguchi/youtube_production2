@@ -57,6 +57,8 @@ const DEFAULT_FORM = {
   debugLog: false,
 };
 
+const FALLBACK_LLM_MODEL = "qwen/qwen3-14b:free";
+
 type FormState = typeof DEFAULT_FORM;
 type FormFieldName = keyof FormState;
 type SpreadsheetRow = { rowIndex: number; key: string | null; cells: string[] };
@@ -198,7 +200,7 @@ export function ScriptFactoryPage() {
         const defaultModel = settings.llm.phase_models?.script_rewrite?.model;
         if (defaultModel) {
           setFormValues((prev) => {
-            if (!prev.llmModel || prev.llmModel === "qwen/qwen3-14b:free") {
+            if (!prev.llmModel || prev.llmModel === FALLBACK_LLM_MODEL) {
               return { ...prev, llmModel: defaultModel };
             }
             return prev;
@@ -233,14 +235,22 @@ export function ScriptFactoryPage() {
       .then((profile) => {
         if (cancelled) return;
         setChannelProfile(profile);
-        setFormValues((prev) => ({
-          ...prev,
-          minCharacters: profile.default_min_characters ?? prev.minCharacters,
-          maxCharacters: profile.default_max_characters ?? prev.maxCharacters,
-          llmModel: profile.llm_model ?? prev.llmModel,
-          scriptPrompt: profile.script_prompt ?? prev.scriptPrompt,
-          qualityTemplate: profile.quality_check_template ?? prev.qualityTemplate,
-        }));
+        setFormValues((prev) => {
+          const profileModel = (profile.llm_model ?? "").trim();
+          const prevModel = (prev.llmModel ?? "").trim();
+          const useProfileModel =
+            profileModel.length > 0 &&
+            (profileModel !== FALLBACK_LLM_MODEL || prevModel.length === 0 || prevModel === FALLBACK_LLM_MODEL);
+
+          return {
+            ...prev,
+            minCharacters: profile.default_min_characters ?? prev.minCharacters,
+            maxCharacters: profile.default_max_characters ?? prev.maxCharacters,
+            llmModel: useProfileModel ? profileModel : prev.llmModel,
+            scriptPrompt: profile.script_prompt ?? prev.scriptPrompt,
+            qualityTemplate: profile.quality_check_template ?? prev.qualityTemplate,
+          };
+        });
       })
       .catch((error) => {
         if (cancelled) return;
@@ -929,7 +939,7 @@ useEffect(() => {
               <div>
                 <h2>CSV ビュー（企画一覧）</h2>
                 <p className="muted small-text">
-                  作成フラグと任意列は workspaces/planning/channels/CHxx.csv（planning_store / 互換: progress/channels/CHxx.csv）を参照しています。チェックボックスは量産 API へそのまま渡されます。
+                  作成フラグと任意列は workspaces/planning/channels/CHxx.csv（planning_store）を参照しています。チェックボックスは量産 API へそのまま渡されます。
                 </p>
                 {selectedChannelSummary ? (
                   <p className="muted small-text">

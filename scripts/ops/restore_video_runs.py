@@ -23,6 +23,8 @@ from _bootstrap import bootstrap
 
 REPO_ROOT = bootstrap(load_env=False)
 
+from factory_common import paths as fc_paths  # noqa: E402
+
 
 def _utc_now_compact() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -99,6 +101,7 @@ def main() -> int:
         raise SystemExit("report has no moves (expected key: moves[] or moved[])")
 
     only = {str(x).strip() for x in (args.only_run_id or []) if str(x).strip()}
+    offload_root = fc_paths.offload_root()
 
     actions: list[RestoreAction] = []
     for rec in records:
@@ -117,17 +120,31 @@ def main() -> int:
     warnings: list[str] = []
 
     for a in actions:
-        if not a.from_path.exists():
-            skipped.append(f"{a.run_id}: missing archived dir: {a.from_path}")
+        resolved_from = a.from_path
+        if not resolved_from.exists() and offload_root:
+            try:
+                rel = resolved_from.relative_to(REPO_ROOT)
+            except Exception:
+                rel = None
+            if rel is not None:
+                candidate = offload_root / rel
+                if candidate.exists():
+                    resolved_from = candidate
+
+        if not resolved_from.exists():
+            msg = f"{a.run_id}: missing archived dir: {a.from_path}"
+            if offload_root:
+                msg += f" (also checked offload: {offload_root})"
+            skipped.append(msg)
             continue
         if a.to_path.exists():
             warnings.append(f"{a.run_id}: destination already exists: {a.to_path}")
             continue
-        planned.append(a.as_dict())
+        planned.append({"run_id": a.run_id, "from": str(resolved_from), "to": str(a.to_path)})
         if args.run:
             try:
-                _move_dir(a.from_path, a.to_path)
-                restored.append(a.as_dict())
+                _move_dir(resolved_from, a.to_path)
+                restored.append({"run_id": a.run_id, "from": str(resolved_from), "to": str(a.to_path)})
             except Exception as exc:
                 warnings.append(f"{a.run_id}: restore failed: {exc}")
 

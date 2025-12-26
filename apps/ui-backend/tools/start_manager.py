@@ -67,10 +67,9 @@ def component_definitions() -> List[Component]:
     """Return the list of UI components managed by this tool."""
 
     def _build_pythonpath() -> str:
+        # Deterministic PYTHONPATH to avoid accidental imports from an external
+        # shell/session configuration.
         parts: List[str] = [str(YTM_ROOT), str(YTM_ROOT / "packages")]
-        existing = os.environ.get("PYTHONPATH")
-        if existing:
-            parts.append(existing)
         return os.pathsep.join(parts)
 
     backend_env = {

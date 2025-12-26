@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Aggregate VOICEVOX reading logs (logs/tts_voicevox_reading.jsonl).
+Aggregate VOICEVOX reading logs (workspaces/logs/tts_voicevox_reading.jsonl).
 
 Usage:
     python scripts/aggregate_voicevox_reading_logs.py [log_path] [--top 20]
@@ -19,6 +19,13 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, Any
+
+try:
+    from factory_common.paths import logs_root
+
+    DEFAULT_LOG_PATH = str(logs_root() / "tts_voicevox_reading.jsonl")
+except Exception:
+    DEFAULT_LOG_PATH = "workspaces/logs/tts_voicevox_reading.jsonl"
 
 
 def load_records(path: Path) -> list[Dict[str, Any]]:
@@ -40,7 +47,7 @@ def load_records(path: Path) -> list[Dict[str, Any]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("log_path", nargs="?", default="logs/tts_voicevox_reading.jsonl")
+    parser.add_argument("log_path", nargs="?", default=DEFAULT_LOG_PATH)
     parser.add_argument("--top", type=int, default=20, help="Top N reasons to display")
     args = parser.parse_args()
 

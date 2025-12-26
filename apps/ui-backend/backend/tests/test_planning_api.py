@@ -6,8 +6,8 @@ from typing import Dict, Tuple
 import pytest
 from fastapi.testclient import TestClient
 
-from ui.backend import main
-from ui.backend.main import app
+from backend import main
+from backend.main import app
 from script_pipeline.tools import planning_requirements
 from factory_common import paths as fc_paths
 

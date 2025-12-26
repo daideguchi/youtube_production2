@@ -2,21 +2,20 @@
 
 目的:
 - `workspaces/planning/channels/CHxx.csv` を **Planning の正本（SoT）** として安全に更新し、台本/音声/動画工程の迷子と破壊を防ぐ。
-  - 互換: `progress/channels/CHxx.csv`（symlink）
 
 関連:
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - I/Oスキーマ: `ssot/ops/OPS_IO_SCHEMAS.md`
 - 整合チェック: `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md`
-- 入力契約（L1/L2/L3）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
+- 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 
 ---
 
 ## 0. 正本の定義
 
-- Planning SoT（正本）: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
-- Script SoT（正本）: `workspaces/scripts/{CH}/{NNN}/status.json`（互換: `script_pipeline/data/...`）
-- Audio SoT（下流参照の正本）: `workspaces/audio/final/{CH}/{NNN}/`（互換: `audio_tts_v2/artifacts/final/...`）
+- Planning SoT（正本）: `workspaces/planning/channels/CHxx.csv`
+- Script SoT（正本）: `workspaces/scripts/{CH}/{NNN}/status.json`
+- Audio SoT（下流参照の正本）: `workspaces/audio/final/{CH}/{NNN}/`
 
 ※ Planning CSV は「企画/在庫/意図/補助メタ」を保持し、Script/Audio の実行状態はそれぞれの SoT に残る。
 
@@ -39,10 +38,10 @@ CSV 側は列名の揺れがあるため、最低限次のどれかが存在す�
 
 ### 2.1 UI 経由（推奨）
 - UI の Planning 画面（`GET /api/planning` 系）で編集する。
-- 外部で CSV を編集した場合は、UI から `POST /api/planning/refresh` を実行して再読込する。
+- 外部で CSV を編集した場合は、UI の「企画CSVを再読込」で再取得する（Planning CSV は都度読み込みでキャッシュしない）。
 
 ### 2.2 手動編集（許可・ただし厳守）
-1) 対象 CSV を直接編集: `workspaces/planning/channels/CHxx.csv`（互換: `progress/channels/CHxx.csv`）
+1) 対象 CSV を直接編集: `workspaces/planning/channels/CHxx.csv`
 2) `動画番号` / `動画ID`（または同等列）を壊さない
 3) 変更後、UI を開いて一覧が意図通りに表示されることを確認する
 
@@ -76,15 +75,18 @@ Planning CSV を更新しても、既に生成済みの台本/音声/動画は�
 
 ## 4.5 Planning汚染の検出（推奨）
 
-Planning CSV は「混線/汚染」が起きやすい（例: 別動画の `内容（企画要約）` が混入）。
+Planning CSV は「内容汚染」が起きやすい（例: 別動画の `内容（企画要約）` が混入）。
 下流（台本/判定）を誤誘導しないため、まずは lint で見える化する。
 
 - Lint（機械・低コスト）:
   - `python3 scripts/ops/planning_lint.py --channel CHxx`
   - `python3 scripts/ops/planning_lint.py --all`
+- 運用で「tag_mismatch を見逃さず止めたい」場合:
+  - `python3 scripts/ops/planning_lint.py --channel CHxx --tag-mismatch-is-error`（exit非0）
+  - 生成側も早期停止できる: `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1`（高コストLLM前に止める。既定は `0`）
 - `tag_mismatch_title_vs_content_summary` が出たら:
   - CSVを直すのが本筋
-  - 直るまでの間は「入力契約（L1/L2/L3）」により、L2（テーマを縛るヒント）が自動で落ちる（= 事故防止）
+  - 直るまでの間は「入力契約（タイトル=正）」により、内容汚染しやすいテーマヒントが自動で無視される（= 事故防止）
 
 ---
 
@@ -104,27 +106,26 @@ Planning CSV は「混線/汚染」が起きやすい（例: 別動画の `内�
 
 ヘッダ例は `ssot/ops/OPS_IO_SCHEMAS.md` を参照。
 
-### 5.3 入力契約（L1/L2/L3）— 迷走と混線を止める
+### 5.3 入力契約（タイトル=正 / 補助 / 禁止）— 迷走と内容汚染を止める
 
 Planning CSV は列が増えるほど「別行の古い内容が混入」しやすく、台本のズレ/担当の混乱の原因になる。  
 そのため Aテキスト生成に使う列は **契約として固定**し、矛盾した列は機械的に無視/再生成する。
 
-**L1（正本 / 生成の根拠）**
+**タイトル（絶対正 / 生成の根拠）**
 - `タイトル`（絶対）
-- `企画意図`（チャンネルで必須の場合は絶対）
-- `具体的な内容（話の構成案）`（チャンネルで必須の場合は絶対）
-- `ターゲット層`（チャンネルで必須の場合は絶対）
+- `企画意図` / `具体的な内容（話の構成案）` / `ターゲット層`（チャンネルで必須の場合は必須）
 
-**L2（従属 / あっても良いが矛盾したら捨てる）**
-- `内容（企画要約）`（= content_summary）
-  - タイトル先頭 `【...】` と、要約先頭 `【...】` が不一致なら **別テーマ混入**の可能性が高いので L2 扱いでドロップ/再生成する。
+**内容汚染しやすいテーマヒント（矛盾時は自動で無視）**
+- `内容（企画要約）`
+  - タイトル先頭 `【...】` と、要約先頭 `【...】` が不一致なら **別テーマ混入**の可能性が高いので、台本生成では無視する（CSV修正推奨）。
+- `悩みタグ`, `キーコンセプト`, `ベネフィット一言` など（内容汚染しやすくズレ事故の元になりやすい）
 
-**L3（廃止 / 人間・エージェントの混乱源になるため入力に混ぜない）**
+**禁止（人間・エージェントの混乱源なのでAI入力に入れない）**
 - `台本本文（冒頭サンプル）` など「本文っぽいサンプル」
-  - 生成に混ぜると定型文（例: “深夜の偉人ラジオへようこそ”）が復活しやすい。
+  - 生成に混ぜると定型文（例: “こんばんは、◯◯へようこそ”）が復活しやすい。
   - 保管しても良いが、Aテキスト生成入力としては使用しない。
 
-※ UI/運用上の表示・編集も L1/L2/L3 を分けるのが安全（L3は既定で非表示推奨）。
+※ UI/運用上の表示・編集も「タイトル / 補助 / 禁止」を分けるのが安全（本文っぽいサンプルは既定で非表示推奨）。
 
 ### 5.4 整合チェック（決定論 lint）— 生成前に止める
 
@@ -132,10 +133,10 @@ Planning の汚染/矛盾は **生成前**に検知して直すのが最安・�
 
 - Planning lint（CSV整合）:
   - `python scripts/ops/planning_lint.py --channel CH07 --write-latest`
-  - 出力: `logs/regression/planning_lint/`（JSON+Markdown）
+  - 出力: `workspaces/logs/regression/planning_lint/`（JSON+Markdown）
 - A-text lint（反復/禁則/字数）:
   - `python scripts/ops/a_text_lint.py --channel CH07 --video 009 --write-latest`
-  - 出力: `logs/regression/a_text_lint/`（JSON+Markdown）
+  - 出力: `workspaces/logs/regression/a_text_lint/`（JSON+Markdown）
 
 ---
 
@@ -145,7 +146,7 @@ Planning の汚染/矛盾は **生成前**に検知して直すのが最安・�
 - ロックを立てると、UI/運用上は「この動画は完了。リテイク対象外」と見なせる。
 
 ### 6.1 UI から投稿済みにする（推奨）
-- 画面: `Progress` → 行クリック → 詳細モーダル → `投稿済みにする（ロック）`
+- 画面: UI `/planning` → 行クリック → 詳細モーダル → `投稿済みにする（ロック）`
 - 効果:
   - `進捗=投稿済み`
   - `納品` / `音声整形` / `音声検証` / `音声生成` / `音声品質` を **空欄なら強制埋め**（"forced" と明示）

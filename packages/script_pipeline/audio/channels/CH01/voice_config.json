@@ -1,7 +1,7 @@
 {
   "channel_code": "CH01",
   "channel_name": "仏教・科学 人生の道標",
-  "default_voice_key": "voicevox_aoyama",
+  "default_voice_key": "voicepeak_male3",
   "output": {
     "final_root": "data/CH01/_legacy_audio_final",
     "temp_root": "data/CH01/_legacy_audio_temp"
@@ -9,9 +9,9 @@
   "voices": {
     "voicepeak_male3": {
       "engine": "voicepeak",
-      "character": "Japanese Male 3",
+      "character": "男性3",
       "engine_options": {
-        "narrator": "Japanese Male 3",
+        "narrator": "男性3",
         "pitch": -60
       }
     },

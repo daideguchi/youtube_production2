@@ -1,8 +1,10 @@
-# prompts/ — 現行で使うプロンプト保管場所
+# prompts/ — プロンプト索引（入口）
 
-このフォルダには、UI から参照する最新プロンプトのみを置きます。
+このフォルダは「人間/UI が迷わないための入口」に徹します。  
+**実行時に使われるプロンプトの正本は `packages/**/prompts/` 側に集約**し、ここへ複製・同期しません（= 二重SoTを作らない）。
 
-- `youtube_description_prompt.txt`: SRT をもとに投稿用の説明文を生成するテンプレート。
+- 参照先一覧: `prompts/PROMPTS_INDEX.md`
+- UI: `/prompts`（Prompt Manager）が正本ファイルを直接編集します
 
-Qwen CLI 時代の初期プロンプトなど、廃止済みのファイルはノイズ防止のため完全に削除しました。
-古い手順が必要な場合も、最新の SSOT (`START_HERE.md`) と `script_pipeline/README.md` を確認してください。
+旧Qwen CLI 時代の初期プロンプトなど、廃止済みのファイルはノイズ防止のため完全に削除しました。  
+迷ったら `START_HERE.md` と SSOT を優先してください。

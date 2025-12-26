@@ -8,7 +8,7 @@
 - **担当/レビュー**: <Owner/Reviewer names>
 - **対象範囲 (In Scope)**: <対象プロダクト/ディレクトリ/CLI>
 - **非対象 (Out of Scope)**: <扱わない領域・理由>
-- **関連 SoT/依存**: <例: progress/channels, configs/*.yaml, api routes>
+- **関連 SoT/依存**: <例: workspaces/planning/channels, configs/*.yaml, api routes>
 - **最終更新日**: <YYYY-MM-DD>
 
 ## 1. 背景と目的

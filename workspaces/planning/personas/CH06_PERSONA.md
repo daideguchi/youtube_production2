@@ -1,9 +1,9 @@
 # CH06 Persona & Planning Template
 
 ## 0. テンプレ SoT
-- SoT: `progress/templates/CH06_planning_template.csv`
+- SoT: `workspaces/planning/templates/CH06_planning_template.csv`
 - 最終更新: 2025-11-15（テンプレに都市伝説フォーマットを反映した日）
-- 使用方法: 1行目ヘッダー＋2行目サンプルをコピーし、`{NEXT_NO}`/`{NEXT_VIDEO}` を置換 → `progress/channels/CHxx.csv` に貼り付け → `planning_store.refresh --force`
+- 使用方法: 1行目ヘッダー＋2行目サンプルをコピーし、`{NEXT_NO}`/`{NEXT_VIDEO}` を置換 → `workspaces/planning/channels/CHxx.csv` に貼り付け → UI `/planning` で表示確認（外部編集した場合は「企画を再読込」）
 - 更新ルール: テンプレを改訂したら本節に日付と変更概要を追記し、`REQ-P1-002` の証跡にする。
 
 ## 1. 共通ペルソナ
@@ -30,10 +30,10 @@
 3. サムネは暗所＋赤/緑のアクセント。コピーは12文字前後で緊張感を出す。
 
 ## 4. テンプレ
-- `progress/templates/CH06_planning_template.csv` をコピーし、事件名・証拠・仮説を書き換える。
+- `workspaces/planning/templates/CH06_planning_template.csv` をコピーし、事件名・証拠・仮説を書き換える。
 - タグ列と説明文列で「どの謎をどんな切り口で掘るか」を明記する。
 
 ## 5. 運用
-1. 企画追加→`planning_store.refresh`。
-2. `progress_manager.py verify --channel-code CH06` を実行し、列ズレがないか確認。
+1. 企画追加後、UI `/planning` の「企画を再読込」（外部編集時）→ 行が表示されることを確認する。
+2. `python3 scripts/ops/planning_lint.py --channel CH06 --write-latest` で列ズレ/汚染/タグ矛盾をチェックする。
 3. UIでタグ列が表示されることを確認し、必要なら CapCut/音声タブにも共有する。

@@ -1,4 +1,4 @@
-"""Video production API routes (commentary_02 integration)."""
+"""Video production API routes (video_pipeline integration)."""
 from __future__ import annotations
 
 import json
@@ -30,7 +30,7 @@ from factory_common.paths import (
 )
 
 PROJECT_ROOT = ssot_repo_root()
-COMMENTARY02_ROOT = video_pkg_root()
+VIDEO_PIPELINE_ROOT = video_pkg_root()
 VALID_PROJECT_ID_PATTERN = r"^[A-Za-z0-9_-]+$"
 
 
@@ -107,29 +107,23 @@ class VisualCuesPlanUpdatePayload(BaseModel):
     style_hint: Optional[str] = None
 
 
-if COMMENTARY02_ROOT.exists():
-    for candidate in (COMMENTARY02_ROOT, COMMENTARY02_ROOT / "src"):
-        candidate_str = str(candidate)
-        if candidate_str not in sys.path:
-            sys.path.insert(0, candidate_str)
-
 try:
-    from src.data.projects import list_projects, load_project_detail  # type: ignore
-    from commentary_02_srt2images_timeline.server.jobs import (  # type: ignore
+    from video_pipeline.src.data.projects import list_projects, load_project_detail  # type: ignore
+    from video_pipeline.server.jobs import (  # type: ignore
         JobManager,
         evaluate_capcut_guard,
         job_to_dict,
     )
-except Exception:  # pragma: no cover - commentary_02 assets missing
+except Exception:  # pragma: no cover - video_pipeline assets missing
     list_projects = None  # type: ignore
     load_project_detail = None  # type: ignore
     JobManager = None  # type: ignore
     video_router: Optional[APIRouter] = None
 else:
     OUTPUT_ROOT = video_runs_root()
-    TOOLS_ROOT = COMMENTARY02_ROOT / "tools"
+    TOOLS_ROOT = VIDEO_PIPELINE_ROOT / "tools"
     INPUT_ROOT = audio_artifacts_root() / "final"
-    CONFIG_ROOT = COMMENTARY02_ROOT / "config"
+    CONFIG_ROOT = VIDEO_PIPELINE_ROOT / "config"
     CHANNEL_PRESETS_PATH = CONFIG_ROOT / "channel_presets.json"
     _env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
     CAPCUT_DRAFT_ROOT = (
@@ -147,7 +141,7 @@ else:
         return load_project_detail(OUTPUT_ROOT, project_id)
 
     job_manager = JobManager(
-        project_root=COMMENTARY02_ROOT,
+        project_root=VIDEO_PIPELINE_ROOT,
         output_root=OUTPUT_ROOT,
         tools_root=TOOLS_ROOT,
         log_root=JOB_LOG_ROOT,
@@ -322,7 +316,7 @@ else:
         info = {
             "project_id": project_id,
             "channel_id": channel_id,
-            "srt_file": str(srt_target.relative_to(COMMENTARY02_ROOT)),
+            "srt_file": str(srt_target.relative_to(VIDEO_PIPELINE_ROOT)),
             "template_used": None,
             "draft_path": None,
             "title": None,
@@ -353,7 +347,7 @@ else:
         return {
             "project_id": project_id,
             "output_dir": str(project_dir),
-            "srt_file": str(srt_target.relative_to(COMMENTARY02_ROOT)),
+            "srt_file": str(srt_target.relative_to(VIDEO_PIPELINE_ROOT)),
             "channel_id": channel_id,
             "target_sections": target_sections,
         }
@@ -649,7 +643,7 @@ else:
         if payload.prompt_suffix:
             command.extend(["--prompt-suffix", payload.prompt_suffix])
         try:
-            subprocess.run(command, cwd=COMMENTARY02_ROOT, check=True)
+            subprocess.run(command, cwd=VIDEO_PIPELINE_ROOT, check=True)
         except subprocess.CalledProcessError as exc:  # pragma: no cover - external script failure
             raise HTTPException(status_code=500, detail=f"image regeneration failed: {exc}") from exc
 
@@ -753,7 +747,7 @@ else:
             if draft_path_value:
                 draft_path = Path(draft_path_value)
                 if not draft_path.is_absolute():
-                    draft_path = (COMMENTARY02_ROOT / draft_path).resolve()
+                    draft_path = (VIDEO_PIPELINE_ROOT / draft_path).resolve()
                 if draft_path.exists():
                     return draft_path
         candidate = project_dir / "capcut_draft"
@@ -1274,7 +1268,7 @@ else:
         episode_info_path = project_dir / "episode_info.json"
         images_dir = project_dir / "images"
 
-        # Audio is required for rendering, but the file may live outside run_dir (audio_tts_v2 artifacts).
+        # Audio is required for rendering, but the file may live outside run_dir (audio final SoT).
         audio_path: Optional[Path] = None
         audio_candidates: List[Path] = []
         for ext in (".wav", ".mp3", ".m4a", ".flac"):
@@ -1284,9 +1278,7 @@ else:
             audio_path = sorted(audio_candidates, key=lambda p: p.stat().st_mtime, reverse=True)[0]
         elif channel_id and video_number:
             audio_path = (
-                PROJECT_ROOT
-                / "audio_tts_v2"
-                / "artifacts"
+                audio_artifacts_root()
                 / "final"
                 / channel_id
                 / video_number
