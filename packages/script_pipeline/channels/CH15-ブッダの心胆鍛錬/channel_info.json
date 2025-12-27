@@ -55,8 +55,15 @@
   "audience_profile": "60代以降。焦り・怒り・自分責めで消耗しやすく、「折れない心」と「続く習慣」を作り直したい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "心の整え方/線引きの切り口（強フック→具体策）参考"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",

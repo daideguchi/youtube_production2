@@ -17,27 +17,15 @@ Examples:
 import argparse
 import csv
 import json
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
 
-REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-PACKAGES_ROOT = REPO_ROOT / "packages"
-if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(PACKAGES_ROOT))
+bootstrap(load_env=False)
 
 from factory_common import alignment  # noqa: E402
 from factory_common.paths import channels_csv_path, planning_root, video_root  # noqa: E402
@@ -82,7 +70,7 @@ def _parse_videos(raw: Optional[str]) -> Optional[set[str]]:
 
 
 def _load_csv_rows(path: Path) -> List[Dict[str, str]]:
-    with path.open("r", encoding="utf-8", newline="") as handle:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -95,6 +83,7 @@ def _resolve_script_path(channel: str, video: str) -> Optional[Path]:
     if assembled.exists():
         return assembled
     return None
+
 
 @dataclass(frozen=True)
 class Finding:

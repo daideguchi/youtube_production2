@@ -13,7 +13,6 @@ import {
   VideoDetail,
 } from "../api/types";
 import {
-  API_BASE_URL,
   enhanceTts,
   fetchLlmArtifact,
   fetchPlainTtsScript,
@@ -25,6 +24,8 @@ import {
   updateVideoRedo,
 } from "../api/client";
 import { STAGE_ORDER, translateStage, translateStatus } from "../utils/i18n";
+import { apiUrl } from "../api/baseUrl";
+import { resolveMediaUrl } from "../utils/url";
 import { AudioWorkspace } from "./AudioWorkspace";
 import { StageProgress } from "./StageProgress";
 
@@ -845,19 +846,11 @@ useEffect(() => {
   const audioStageStatus = detail.stages?.audio_synthesis ?? "pending";
   const audioStageLabel = translateStatus(audioStageStatus);
   const audioDownloadUrl = useMemo(() => {
-    if (!detail.audio_url) {
-      return null;
-    }
-    if (/^https?:/i.test(detail.audio_url)) {
-      return detail.audio_url;
-    }
-    const normalized = detail.audio_url.startsWith("/") ? detail.audio_url : `/${detail.audio_url}`;
-    return `${API_BASE_URL}${normalized}`;
+    return resolveMediaUrl(detail.audio_url);
   }, [detail.audio_url]);
 
   const srtDownloadUrl = useMemo(() => {
-    const base = API_BASE_URL?.replace(/\/$/, "") ?? "";
-    return `${base}/api/channels/${encodeURIComponent(detail.channel)}/videos/${encodeURIComponent(detail.video)}/srt`;
+    return apiUrl(`/api/channels/${encodeURIComponent(detail.channel)}/videos/${encodeURIComponent(detail.video)}/srt`);
   }, [detail.channel, detail.video]);
 
   const audioScriptUpdatedLabel = useMemo(() => {

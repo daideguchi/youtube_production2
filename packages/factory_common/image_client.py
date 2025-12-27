@@ -1025,6 +1025,16 @@ class FireworksImageAdapter:
         self.base_url = str(self.provider_conf.get("base_url") or "https://api.fireworks.ai/inference/v1").rstrip("/")
 
         self.account = self._resolve_account()
+        self.max_prompt_chars = self._resolve_max_prompt_chars()
+
+    def _resolve_max_prompt_chars(self) -> int:
+        raw = self.provider_conf.get("max_prompt_chars")
+        if isinstance(raw, int) and raw > 0:
+            return raw
+        if isinstance(raw, str) and raw.strip().isdigit():
+            return int(raw.strip())
+        # Empirically: very long prompts can cause internal workflow failures for FLUX schnell.
+        return 1000
 
     def _resolve_account(self) -> str:
         env_account = str(self.provider_conf.get("env_account") or "").strip()
@@ -1040,6 +1050,22 @@ class FireworksImageAdapter:
         if not model_name:
             raise ImageGenerationError("Fireworks model name is missing from configuration")
         return f"{self.base_url}/workflows/accounts/{self.account}/models/{model_name}/text_to_image"
+
+    @staticmethod
+    def _compact_prompt(prompt: str, *, max_chars: int) -> str:
+        if max_chars <= 0:
+            return prompt
+        text = str(prompt or "").strip()
+        if len(text) <= max_chars:
+            return text
+        marker = "\n…\n"
+        tail_len = min(320, max(80, max_chars // 3))
+        head_len = max_chars - tail_len - len(marker)
+        if head_len <= 0:
+            return text[:max_chars].rstrip()
+        head = text[:head_len].rstrip()
+        tail = text[-tail_len:].lstrip()
+        return f"{head}{marker}{tail}"
 
     @staticmethod
     def _parse_size(size: str | None) -> Optional[Tuple[int, int]]:
@@ -1142,7 +1168,8 @@ class FireworksImageAdapter:
 
         images: List[bytes] = []
         for _ in range(max(1, int(options.n or 1))):
-            payload: Dict[str, Any] = {"prompt": options.prompt}
+            prompt_text = self._compact_prompt(options.prompt, max_chars=int(self.max_prompt_chars or 0))
+            payload: Dict[str, Any] = {"prompt": prompt_text}
             if options.aspect_ratio:
                 payload["aspect_ratio"] = options.aspect_ratio
             if guidance_scale is not None:

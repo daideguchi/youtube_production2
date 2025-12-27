@@ -6,28 +6,28 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from config.channel_resolver import (
+from ...config.channel_resolver import (
     ChannelPresetResolver,
     infer_channel_id_from_path,
 )
-from srt2images.srt_parser import parse_srt
-from srt2images.cue_maker import make_cues
-from srt2images.cues_plan import (
+from ..srt_parser import parse_srt
+from ..cue_maker import make_cues
+from ..cues_plan import (
     is_think_or_agent_mode,
     make_cues_from_sections,
     plan_sections_heuristic,
     plan_sections_via_router,
 )
-from srt2images.llm_context_analyzer import LLMContextAnalyzer
-from srt2images.prompt_builder import build_prompt_from_template
-from srt2images.llm_prompt_refiner import PromptRefiner
-from srt2images.role_asset_router import RoleAssetRouter
-from srt2images.generators import get_image_generator
-from srt2images.engines.remotion_engine import setup_and_render_remotion
-from srt2images.engines.capcut_engine import build_capcut_draft
-from srt2images.orchestration.utils import ensure_out_dirs, setup_logging, save_json, parse_size
-from srt2images.nanobanana_client import QuotaExhaustedError
-from srt2images.visual_bible import VisualBibleGenerator
+from ..llm_context_analyzer import LLMContextAnalyzer
+from ..prompt_builder import build_prompt_from_template
+from ..llm_prompt_refiner import PromptRefiner
+from ..role_asset_router import RoleAssetRouter
+from ..generators import get_image_generator
+from ..engines.remotion_engine import setup_and_render_remotion
+from ..engines.capcut_engine import build_capcut_draft
+from .utils import ensure_out_dirs, setup_logging, save_json, parse_size
+from ..nanobanana_client import QuotaExhaustedError
+from ..visual_bible import VisualBibleGenerator
 from factory_common.artifacts.srt_segments import build_srt_segments_artifact, write_srt_segments_artifact
 from factory_common.artifacts.visual_cues_plan import (
     build_visual_cues_plan_artifact,
@@ -241,7 +241,7 @@ def run_pipeline(args):
                     plan = load_visual_cues_plan(plan_path, expected_srt_path=srt_path)
                     if plan.status != "ready":
                         raise ValueError(f"status={plan.status} (fill sections then rerun)")
-                    from srt2images.cues_plan import PlannedSection as _PlannedSection
+                    from ..cues_plan import PlannedSection as _PlannedSection
 
                     planned_sections = [
                         _PlannedSection(

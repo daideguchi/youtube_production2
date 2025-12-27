@@ -56,6 +56,46 @@ patterns:
           content_notes: "過剰な比喩で伸ばさない。短く。"
 
   # -------------------------
+  # CH01（人生の道標）
+  # -------------------------
+  - id: ch01_historical_proof_bridge_v1
+    channels: ["CH01"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "史実が証明してきた仏教の教えを、視聴者の今の痛みに結び、今夜からの一歩にする。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "視聴者の生活導線（職場/家族/近所/老後不安）から1場面だけに絞る。"
+      sections:
+        - name: 導入（共感フック）
+          char_budget: 950
+          goal: 視聴者の痛みに寄り添い、見終わった後の変化を約束する
+          content_notes: "問い→共感→安全基地→変容の約束。煽りすぎず、具体の一場面で掴む。"
+        - name: 仏教の教え（土台）
+          char_budget: 1100
+          goal: テーマに効く教えを一つに絞り、なぜ重要かを日常語で伝える
+          content_notes: "抽象で終わらせない。後段の史実で『教えが効く』ことを検証する導線を作る。"
+        - name: 史実エピソード（証明）
+          char_budget: 2500
+          goal: 史実・逸話を1〜2つに絞り、葛藤→選択→結果→教えとの接点まで深掘りする
+          content_notes: "日本の視聴者が不快になる題材は避ける。年号/出典/経典番号の断定で権威づけしない。"
+        - name: 視聴者への橋渡し
+          char_budget: 850
+          goal: 「さて、私たちの日常に戻りましょう」で史実の学びを現代の悩みに接続する
+          content_notes: "仏教用語（執着/渇愛/忍辱など）は短く言い換え、耳で理解できる形にする。"
+        - name: 実践（今夜の一歩）
+          char_budget: 1000
+          goal: 視聴者が今夜からできる行動を2〜3個に絞り、再現できる形にする
+          content_notes: "言い換え水増し禁止。時間/場所/言葉（短い一言）まで具体に。"
+        - name: 締め
+          char_budget: 750
+          goal: 学びを一文で束ね、視聴者への祝福と感謝で静かに終える
+          content_notes: "過剰な比喩で伸ばさない。煽りや制作メタは避ける。"
+
+  # -------------------------
   # CH10（人生を変える偉人思考【今日から実装】）
   # -------------------------
   - id: ch10_great_thinking_implementation_v2
@@ -68,7 +108,7 @@ patterns:
       core_message_template: "偉人の思考を借りて、今日から実装できる形に落とし込み、人生の手触りを少し変える。"
       modern_example_policy:
         max_examples: 1
-        example_1_hint: "現代の1場面（仕事/家族/孤独/考えすぎ）にだけ当て、具体の手順で回収する。"
+        example_1_hint: "現代の1場面（判断に迷う/考えすぎ/人間関係/孤独）にだけ当て、会議術/組織論に寄り道せず具体の手順で回収する。"
       sections:
         - name: 導入
           char_budget: 1500
@@ -678,6 +718,49 @@ patterns:
           content_notes: "静かに締める。"
 
   # -------------------------
+  # CH06（都市伝説のダーク図書館）
+  # -------------------------
+  - id: ch06_urban_legend_lab_v1
+    channels: ["CH06"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "真偽の断定ではなく、断片がつながっていく快感で世界観を完成させ、最後に自分ごととして残す。"
+      modern_example_policy:
+        max_examples: 0
+      sections:
+        - name: 導入（禁忌フック）
+          char_budget: 1800
+          goal: 違和感で掴み、疑いを立てる
+          content_notes: "冒頭から1つの断片（場所/年代/写真/座標など）を提示。安っぽい同意要求は禁止。"
+        - name: 視覚の手掛かり
+          char_budget: 3000
+          goal: 見える証拠で違和感を残す
+          content_notes: "画像/映像/地図/座標。反証も一つ入れ、決めつけない。"
+        - name: 歴史伏線（古地図・古文書）
+          char_budget: 3400
+          goal: 発見前の資料で矛盾を作る
+          content_notes: "年号と固有名詞。『発見より前に描かれている』系の逆転。矛盾は1つだけ置く。"
+        - name: 権威と機密
+          char_budget: 3400
+          goal: 隠す理由を匂わせる
+          content_notes: "軍/条約/研究/情報公開。黒塗り/封印/非公開。固有名詞と数字で信憑性を作る。"
+        - name: 規則性と一致
+          char_budget: 3400
+          goal: 一致で偶然ではない感を作る
+          content_notes: "数/幾何/周期/一致。説明はわかりやすく、断定しすぎない。"
+        - name: 現在の異常
+          char_budget: 3000
+          goal: 近年の異常で現代に接続する
+          content_notes: "局所的/規則的/原因不明のうち2つ。観測/リーク/記録を混ぜる。"
+        - name: 証言と統合仮説（A/B）＋余韻
+          char_budget: 5000
+          goal: 二案で筋にまとめ、問いで閉じる
+          content_notes: "匿名条件→投稿削除/沈黙/中止の余韻。統合はA案=装置、B案=封印。結論確定は避け、最後は視聴者の解釈に委ねる問いで終える。"
+
+  # -------------------------
   # CH12-CH16 (8-part longform) patterns
   # -------------------------
   - id: ch12_16_buddha_8_sections_v1
@@ -822,3 +905,55 @@ patterns:
           char_budget: 750
           goal: 今日の一歩に収束
           content_notes: "短く。"
+
+  # -------------------------
+  # CH25（寝落ち偉人講話【眠りながら学ぶ】）
+  # -------------------------
+  - id: ch25_neochi_ijin_7teachings_v1
+    channels: ["CH25"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "導入で安心を作り、7つの教えで『判断の順序』を静かに整える。各教えは同じ流れ（命題→誤解否定→用語化→道具比喩→原理→日常例→1分の手順→回収）で反復し、終盤は朝・昼・夜の小さな一手で閉じる。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "仕事/学び/生活の一般例（人物を立てない）"
+      sections:
+        - name: 導入
+          char_budget: 1400
+          goal: 夜の痛みを掴み、原因を再定義し、7つの教えを予告して安心を作る
+          content_notes: "問題→原因再定義→約束→予告。眠ってしまってもOKを入れる。"
+        - name: 第1章、基準を定める
+          char_budget: 2600
+          goal: 迷いの軸を一つに絞り、心が静まる基準を置く
+          content_notes: "比喩: レンズ。『何を成果と呼ぶか/何を大事にするか』を日常語で。"
+        - name: 第2章、重要な変数だけ残す
+          char_budget: 2500
+          goal: 情報と選択肢を減らし、決める前に疲れない状態を作る
+          content_notes: "比喩: ふるい。『全部大事』をやめ、2つだけ残す。"
+        - name: 第3章、最悪を先に固定する
+          char_budget: 2500
+          goal: 失敗への恐怖で止まらないよう、下限を先に整える
+          content_notes: "比喩: 盾。『最悪でもこれなら大丈夫』を短く定義する。"
+        - name: 第4章、期待値で選び続ける
+          char_budget: 2500
+          goal: 一度の結果でブレない見方を持ち、静かに続けられる判断に落とす
+          content_notes: "比喩: 天秤。3回平均の発想で揺れを減らす。"
+        - name: 第5章、手順を外に出す
+          char_budget: 2600
+          goal: 頭の中の判断を外部化し、再現できる形に整える
+          content_notes: "比喩: 設計図。『毎回ゼロから』を止める。"
+        - name: 第6章、冗長性で崩れない
+          char_budget: 2600
+          goal: 余白と逃げ道を作り、崩れても戻れる仕組みにする
+          content_notes: "比喩: 橋。予定が崩れても渡り直せる形にする。"
+        - name: 第7章、更新は小さく速く
+          char_budget: 2500
+          goal: 完璧主義で止めず、小さな更新で平均を上げる
+          content_notes: "比喩: 温度計。改善は1つだけ。"
+        - name: まとめ
+          char_budget: 1500
+          goal: 7つの教えを短く回収し、朝・昼・夜の小さな一手で静かに閉じる
+          content_notes: "朝/昼/夜の行動3つを必ず入れる。"

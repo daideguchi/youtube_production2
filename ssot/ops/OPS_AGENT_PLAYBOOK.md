@@ -145,13 +145,13 @@ EOF
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli ...`
+- 台本（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
 - 音声: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
 - 動画/CapCut: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash
-./scripts/think.sh --all-text -- python -m script_pipeline.cli run-all --channel CH06 --video 033
+./scripts/think.sh --script -- ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH06 --video 033
 python scripts/agent_runner.py list
 python scripts/agent_runner.py prompt <TASK_ID>
 ```
@@ -169,6 +169,18 @@ bash scripts/ops/cleanup_caches.sh
 補足:
 - `cleanup_*` 系スクリプトは coordination locks を尊重し、lock 下のパスは自動でスキップする（安全優先）。
 - 例外的に無視する場合は各スクリプトの `--ignore-locks` を使う（危険。Orchestrator 合意が前提）。
+
+### 4.4 台本カオス（複数エージェント競合）の止血・復帰（強制）
+前提:
+- codex / windsurf / antigravity 等、**どのエージェントでも同じルール**で動く（UI差分は関係ない）。
+- 1エピソードを複数エージェントが同時に触ると、正本が揺れてコストが爆増する。
+
+正本（この手順だけ見れば復旧できる）:
+- `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
+
+要点（暗記用）:
+- まず lock（止血）→ 正本宣言 → 候補隔離 → 採用→`script_validation` → lock解除
+- 候補エージェントは SoT を直接書き換えない（候補ファイルを出すだけ）
 
 ---
 

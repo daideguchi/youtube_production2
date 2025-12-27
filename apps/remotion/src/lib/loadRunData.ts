@@ -166,8 +166,3 @@ function normalizeSentence(text: string): string {
   t = t.replace(/^(あら|まあ|ええ|いや|いいえ|でも|しかし|そして|だから|それで|そう)[:：、,\s]+/, "");
   return t;
 }
-
-// legacy helper kept for compatibility; now normalizeSentence is used in makeLabelFromSrt
-function cleanCueText(text: string): string {
-  return normalizeSentence(text);
-}

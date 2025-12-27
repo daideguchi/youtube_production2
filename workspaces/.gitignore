@@ -20,5 +20,7 @@ episodes/*
 !video/runs/.gitkeep
 !episodes/README.md
 
-# Allow CH24 manual script writing
+# Allow manual script writing for these channels
+!scripts/CH22/**
+!scripts/CH23/**
 !scripts/CH24/**

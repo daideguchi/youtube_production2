@@ -16,6 +16,12 @@ from _bootstrap import bootstrap
 REPO_ROOT = bootstrap(load_env=False)
 SSOT_ROOT = REPO_ROOT / "ssot"
 
+_REPO_FILE_RE = re.compile(
+    r"(?:^|[^A-Za-z0-9_./\\-])"
+    r"(?P<path>(?:\\./)?(?:ssot|scripts|packages|apps|prompts|configs)/"
+    r"[A-Za-z0-9_./\\-]+\.(?:md|py|sh|jsonl|json|yaml|yml|txt|tsx|ts|jsx|js|css))"
+)
+
 
 @dataclass(frozen=True)
 class SsotAuditReport:
@@ -99,6 +105,92 @@ def _index_paths_from_markdown(path: Path) -> set[str]:
     return out
 
 
+def _iter_ssot_markdown_files(
+    *,
+    include_history: bool,
+    include_completed: bool,
+    include_cleanup_log: bool,
+) -> list[Path]:
+    out: list[Path] = []
+    if not SSOT_ROOT.exists():
+        return out
+    for fp in SSOT_ROOT.rglob("*.md"):
+        if not fp.is_file():
+            continue
+        rel = fp.relative_to(SSOT_ROOT).as_posix()
+        if rel == "ops/OPS_CLEANUP_EXECUTION_LOG.md" and not include_cleanup_log:
+            continue
+        top = rel.split("/", 1)[0]
+        if top == "history" and not include_history:
+            continue
+        if top == "completed" and not include_completed:
+            continue
+        out.append(fp)
+    return sorted(out)
+
+
+def _extract_markdown_link_targets(line: str) -> list[str]:
+    # NOTE: intentionally simplistic markdown parsing.
+    return re.findall(r"\[[^\\]]+\\]\\(([^)]+)\\)", line or "")
+
+
+def _extract_repo_file_paths(fragment: str) -> set[str]:
+    out: set[str] = set()
+    for m in _REPO_FILE_RE.finditer(fragment or ""):
+        p = m.group("path").strip().replace("\\", "/").lstrip("./")
+        # Strip common trailing punctuation from inline docs.
+        p = p.rstrip(").,;:\"'")
+        # Skip obvious template placeholders used throughout SSOT.
+        if any(tok in p for tok in ("CHxx", "NNN", "...")):
+            continue
+        out.add(p)
+    return out
+
+
+def _audit_repo_paths_from_ssot_docs(
+    *,
+    docs: Iterable[Path],
+) -> tuple[dict[str, str], dict[str, set[str]]]:
+    """
+    Returns:
+      - missing_repo_paths: map[path -> example "ssot/..:line"]
+      - ssot_edges: map[src_rel -> set[dst_rel]] for SSOT-local references
+    """
+    ssot_files = _existing_ssot_files()
+    missing_repo_paths: dict[str, str] = {}
+    ssot_edges: dict[str, set[str]] = {}
+
+    for fp in docs:
+        src_rel = fp.relative_to(SSOT_ROOT).as_posix()
+        ssot_edges.setdefault(src_rel, set())
+
+        raw = _read_text(fp)
+        for line_no, line in enumerate(raw.splitlines(), start=1):
+            # 1) backticks: may include commands containing paths
+            for token in re.findall(r"`([^`]+)`", line):
+                for repo_path in _extract_repo_file_paths(token):
+                    if repo_path not in missing_repo_paths and not (REPO_ROOT / repo_path).exists():
+                        missing_repo_paths[repo_path] = f"ssot/{src_rel}:{line_no}"
+                ssot_ref = _normalize_ssot_rel(token)
+                if _is_ssot_local_reference(ssot_ref) and ssot_ref != src_rel:
+                    ssot_edges[src_rel].add(ssot_ref)
+
+            # 2) markdown links: e.g. [text](ssot/ops/OPS_*.md)
+            for target in _extract_markdown_link_targets(line):
+                for repo_path in _extract_repo_file_paths(target):
+                    if repo_path not in missing_repo_paths and not (REPO_ROOT / repo_path).exists():
+                        missing_repo_paths[repo_path] = f"ssot/{src_rel}:{line_no}"
+                ssot_ref = _normalize_ssot_rel(target)
+                if _is_ssot_local_reference(ssot_ref) and ssot_ref != src_rel:
+                    ssot_edges[src_rel].add(ssot_ref)
+
+    # Remove edges pointing outside SSOT (keep only existing nodes for downstream stats).
+    for src, dsts in list(ssot_edges.items()):
+        ssot_edges[src] = {d for d in dsts if d in ssot_files}
+
+    return missing_repo_paths, ssot_edges
+
+
 def _subset(paths: Iterable[str], *, prefix: str) -> set[str]:
     pre = (prefix or "").strip().rstrip("/") + "/"
     return {p for p in paths if p.startswith(pre)}
@@ -109,6 +201,27 @@ def main() -> int:
     ap.add_argument("--json", action="store_true", help="Print JSON report to stdout.")
     ap.add_argument("--write", action="store_true", help="Write JSON report under workspaces/logs/ssot/.")
     ap.add_argument("--strict", action="store_true", help="Also require completed/*.md to be indexed in DOCS_INDEX.")
+    ap.add_argument(
+        "--path-audit",
+        action="store_true",
+        help="Also audit repo file paths referenced from SSOT docs (best-effort; ignores patterns).",
+    )
+    ap.add_argument(
+        "--link-audit",
+        action="store_true",
+        help="Also audit SSOT markdown links (reports docs referenced only from DOCS_INDEX/PLAN_STATUS).",
+    )
+    ap.add_argument("--include-history", action="store_true", help="Include ssot/history/* in --path-audit/--link-audit.")
+    ap.add_argument(
+        "--include-completed",
+        action="store_true",
+        help="Include ssot/completed/* in --path-audit/--link-audit (historical; may contain legacy paths).",
+    )
+    ap.add_argument(
+        "--include-cleanup-log",
+        action="store_true",
+        help="Include ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md in --path-audit/--link-audit (contains deleted paths).",
+    )
     args = ap.parse_args()
 
     ssot_files = _existing_ssot_files()
@@ -155,6 +268,33 @@ def main() -> int:
         "plan_status_listed_missing_files": plan_status_listed_missing_files,
     }
 
+    if args.path_audit or args.link_audit:
+        md_docs = _iter_ssot_markdown_files(
+            include_history=args.include_history,
+            include_completed=args.include_completed,
+            include_cleanup_log=args.include_cleanup_log,
+        )
+        missing_repo_paths, ssot_edges = _audit_repo_paths_from_ssot_docs(docs=md_docs)
+
+        if args.path_audit:
+            problems["broken_repo_paths"] = [f"{p} | {missing_repo_paths[p]}" for p in sorted(missing_repo_paths.keys())]
+        if args.link_audit:
+            incoming_all: dict[str, int] = {p: 0 for p in ssot_files}
+            incoming_non_index: dict[str, int] = {p: 0 for p in ssot_files}
+            index_docs = {"DOCS_INDEX.md", "plans/PLAN_STATUS.md"}
+
+            for src, dsts in ssot_edges.items():
+                for dst in dsts:
+                    if dst not in incoming_all:
+                        continue
+                    incoming_all[dst] += 1
+                    if src not in index_docs:
+                        incoming_non_index[dst] += 1
+
+            # Candidate "noise": only referenced from indexes, not from other SSOT docs.
+            isolated = sorted([p for p, n in incoming_non_index.items() if n == 0 and p not in index_docs])
+            problems["ssot_isolated_docs"] = isolated
+
     counts = {
         "ssot_files_total": len(ssot_files),
         "docs_index_listed": len(docs_index),
@@ -197,6 +337,20 @@ def main() -> int:
             print("PLAN_STATUS lists missing files:")
             for p in plan_status_listed_missing_files:
                 print(f"  - {p}")
+        if args.path_audit and problems.get("broken_repo_paths"):
+            broken = problems["broken_repo_paths"]
+            print("broken repo paths referenced from SSOT:")
+            for p in broken[:50]:
+                print(f"  - {p}")
+            if len(broken) > 50:
+                print(f"  ... ({len(broken)-50} more)")
+        if args.link_audit and problems.get("ssot_isolated_docs"):
+            isolated = problems["ssot_isolated_docs"]
+            print("SSOT isolated docs (no incoming refs except indexes):")
+            for p in isolated[:50]:
+                print(f"  - {p}")
+            if len(isolated) > 50:
+                print(f"  ... ({len(isolated)-50} more)")
 
     if args.write:
         out_dir = REPO_ROOT / "workspaces" / "logs" / "ssot"

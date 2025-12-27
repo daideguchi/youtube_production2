@@ -1,11 +1,6 @@
 import os
-import sys
-from pathlib import Path
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from tts import llm_adapter  # noqa: E402
+from audio_tts.tts import llm_adapter
 
 
 def test_llm_adapter_monkeypatch():

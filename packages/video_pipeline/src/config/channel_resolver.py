@@ -13,8 +13,8 @@ from typing import Dict, Optional, Any
 from factory_common.paths import video_pkg_root
 
 # Import new domain schema
-from core.domain.channel_schema import ChannelRegistry, ChannelConfig
-from config.template_registry import is_registered_template, resolve_template_path
+from ..core.domain.channel_schema import ChannelRegistry, ChannelConfig
+from .template_registry import is_registered_template, resolve_template_path
 
 logger = logging.getLogger(__name__)
 

@@ -2,15 +2,15 @@
 
 ## 使い方（mp4書き出し）
 ```
-node apps/remotion/scripts/render.js \
-  --run workspaces/video/runs/<run_id> \
-  --channel CH01 \
-  --title "人生の道標 192話" \
-  --fps 30 --size 1920x1080 \
-  --crossfade 0.5 \
-  [--opening-offset 3.0] \
-  --out apps/remotion/out/192_sample.mp4 \
-  [--tx 0 --ty 0 --scale 1] \
+	node apps/remotion/scripts/render.js \
+	  --run workspaces/video/runs/<run_id> \
+	  --channel CH01 \
+	  --title "人生の道標 192話" \
+	  --fps 30 --size 1920x1080 \
+	  --crossfade 0.5 \
+	  [--opening-offset 0.0] \
+	  --out apps/remotion/out/192_sample.mp4 \
+	  [--tx 0 --ty 0 --scale 1] \
   [--belt-top 82 --belt-height 16] \
   [--subtitle-bottom 120 --subtitle-maxwidth 80 --subtitle-fontsize 34] \
   [--check-remote]   # URL画像をHEAD+リダイレクト/再試行で確認 \
@@ -26,22 +26,22 @@ node apps/remotion/scripts/render.js \
 - プリセットに `layout` があれば自動適用（belt/subtitle位置）。CLI指定があれば上書き。
 - `apps/remotion/preset_layouts.json` は各チャンネルのデフォルトレイアウトを保持（プリセットにlayoutが無い場合のフォールバック）。
 - BGM: `--bgm <path|url> [--bgm-volume 0.4] [--bgm-fade 1.5]` でBGMレイヤーを追加（クロスフェードに合わせてフェードイン/アウト）。指定なしなら無音。
-- 開始オフセット: チャンネルプリセットの `belt.opening_offset` を自動適用（CH01=3.0s、CH02-CH06=0s）。手動で強制したい場合は `--opening-offset` で上書き。
+- 開始オフセット: チャンネルプリセットの `belt.opening_offset` を自動適用（CH01=0.0s、CH02-CH06=0s）。手動で強制したい場合は `--opening-offset` で上書き。
 - 欠損: `missing_images` に {idx, path, type(local|remote)}、`missing_summary` に集計。renderは `remotion_missing_images.json`、snapshotは `remotion_missing_images_snapshot.json` に保存。`--fail-on-missing` で欠損時に非0終了。
 
 ## スナップショット（静止画確認）
 ```
-node apps/remotion/scripts/snapshot.js \
-  --run workspaces/video/runs/<run_id> \
-  --channel CH01 \
-  --frame 300 \
-  --out apps/remotion/out/frame300.png \
+	node apps/remotion/scripts/snapshot.js \
+	  --run workspaces/video/runs/<run_id> \
+	  --channel CH01 \
+	  --frame 300 \
+	  --out apps/remotion/out/frame300.png \
   [--tx 0 --ty 0 --scale 1] \
   [--belt-top 82 --belt-height 16] \
   [--subtitle-bottom 120 --subtitle-maxwidth 80 --subtitle-fontsize 34] \
-  [--opening-offset 3.0] \
-  [--check-remote]   # URL画像をHEAD+リダイレクト/再試行で確認 \
-  [--remote-timeout-ms 4000] \
+	  [--opening-offset 0.0] \
+	  [--check-remote]   # URL画像をHEAD+リダイレクト/再試行で確認 \
+	  [--remote-timeout-ms 4000] \
   [--remote-retries 2] \
   [--fail-on-missing]        # 欠損画像があれば非0終了
 ```

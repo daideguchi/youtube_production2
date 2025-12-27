@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Annotated, Literal, Tuple
 import subprocess
 import re
 
+import yaml
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File as FastAPIFile, Form, Path as FastAPIPath
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, PlainTextResponse
@@ -105,6 +106,35 @@ class VisualCuesPlanUpdatePayload(BaseModel):
     status: Literal["pending", "ready"]
     sections: List[VisualCuesPlanSection]
     style_hint: Optional[str] = None
+
+
+class VideoImageModelInfo(BaseModel):
+    key: str
+    provider: str
+    model_name: str
+
+
+class VideoImageStylePreset(BaseModel):
+    key: str
+    label: str
+    prompt: str
+
+
+class VideoImageVariantSample(BaseModel):
+    path: str
+    url: str
+
+
+class VideoImageVariantInfo(BaseModel):
+    id: str
+    created_at: str
+    style_key: Optional[str] = None
+    style: str
+    model_key: Optional[str] = None
+    prompt_template: Optional[str] = None
+    images_dir: str
+    image_count: int
+    sample_images: List[VideoImageVariantSample] = []
 
 
 try:
@@ -358,6 +388,7 @@ else:
         allowed_actions = {
             "analyze_srt",
             "regenerate_images",
+            "generate_image_variants",
             "generate_belt",
             "validate_capcut",
             "build_capcut_draft",
@@ -1439,6 +1470,7 @@ else:
             entry = {
                 "channel_id": channel_id,
                 "name": payload.get("name", channel_id),
+                "image_generation": payload.get("image_generation") if isinstance(payload.get("image_generation"), dict) else {},
                 "prompt_template": payload.get("prompt_template"),
                 "style": payload.get("style"),
                 "capcut_template": payload.get("capcut_template"),
@@ -1454,6 +1486,102 @@ else:
             channels.append(entry)
         channels.sort(key=lambda item: item["channel_id"])
         return channels
+
+    @video_router.get("/image-models", response_model=List[VideoImageModelInfo])
+    def list_video_image_models():
+        """List available image model keys from `configs/image_models.yaml` for UI selection."""
+        config_path = PROJECT_ROOT / "configs" / "image_models.yaml"
+        try:
+            with config_path.open("r", encoding="utf-8") as fh:
+                conf = yaml.safe_load(fh) or {}
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="image model config not found")
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"failed to load image model config: {exc}") from exc
+
+        models = conf.get("models") if isinstance(conf, dict) else None
+        if not isinstance(models, dict):
+            return []
+
+        out: List[VideoImageModelInfo] = []
+        for key, model_conf in sorted(models.items(), key=lambda kv: str(kv[0])):
+            if not isinstance(model_conf, dict):
+                continue
+            provider = str(model_conf.get("provider") or "").strip()
+            model_name = str(model_conf.get("model_name") or "").strip()
+            if not provider or not model_name:
+                continue
+            out.append(VideoImageModelInfo(key=str(key), provider=provider, model_name=model_name))
+        return out
+
+    @video_router.get("/image-style-presets", response_model=List[VideoImageStylePreset])
+    def list_video_image_style_presets():
+        """List shared style presets from `configs/image_style_presets.yaml`."""
+        config_path = PROJECT_ROOT / "configs" / "image_style_presets.yaml"
+        try:
+            with config_path.open("r", encoding="utf-8") as fh:
+                conf = yaml.safe_load(fh) or {}
+        except FileNotFoundError:
+            return []
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"failed to load image style presets: {exc}") from exc
+
+        presets = conf.get("presets") if isinstance(conf, dict) else None
+        if not isinstance(presets, dict):
+            return []
+
+        out: List[VideoImageStylePreset] = []
+        for key, preset in sorted(presets.items(), key=lambda kv: str(kv[0])):
+            if isinstance(preset, str):
+                out.append(VideoImageStylePreset(key=str(key), label=str(key), prompt=preset))
+                continue
+            if not isinstance(preset, dict):
+                continue
+            label = str(preset.get("label") or key)
+            prompt = str(preset.get("prompt") or "").strip()
+            if not prompt:
+                continue
+            out.append(VideoImageStylePreset(key=str(key), label=label, prompt=prompt))
+        return out
+
+    @video_router.get("/projects/{project_id}/image-variants", response_model=Dict[str, Any])
+    def list_project_image_variants(project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)]):
+        """List image variant sets generated under `<run_dir>/image_variants/`."""
+        project_dir = _resolve_project_dir(project_id)
+        variants_root = project_dir / "image_variants"
+        if not variants_root.exists():
+            return {"project_id": project_id, "variants": []}
+
+        variants: List[Dict[str, Any]] = []
+        for variant_dir in sorted([p for p in variants_root.iterdir() if p.is_dir()], key=lambda p: p.name, reverse=True):
+            meta_path = variant_dir / "variant_meta.json"
+            meta = _safe_read_json_limited(meta_path) if meta_path.exists() else {}
+            images_dir = variant_dir / "images"
+            pngs = sorted([p for p in images_dir.glob("*.png") if p.is_file()]) if images_dir.exists() else []
+
+            def _rel(p: Path) -> str:
+                return str(p.relative_to(OUTPUT_ROOT))
+
+            sample_images: List[Dict[str, Any]] = []
+            for p in pngs[:4]:
+                rel = _rel(p)
+                sample_images.append({"path": rel, "url": f"/api/video-production/assets/{rel}"})
+
+            variants.append(
+                VideoImageVariantInfo(
+                    id=str(meta.get("id") or variant_dir.name),
+                    created_at=str(meta.get("created_at") or ""),
+                    style_key=meta.get("style_key") if isinstance(meta.get("style_key"), str) else None,
+                    style=str(meta.get("style") or ""),
+                    model_key=meta.get("model_key") if isinstance(meta.get("model_key"), str) else None,
+                    prompt_template=meta.get("prompt_template") if isinstance(meta.get("prompt_template"), str) else None,
+                    images_dir=_rel(images_dir) if images_dir.exists() else _rel(variant_dir),
+                    image_count=len(pngs),
+                    sample_images=[VideoImageVariantSample(**item) for item in sample_images],
+                ).model_dump(mode="json")
+            )
+
+        return {"project_id": project_id, "variants": variants}
 
     @video_router.get("/channels/{channel_id}/srts")
     def list_channel_srts(channel_id: str):

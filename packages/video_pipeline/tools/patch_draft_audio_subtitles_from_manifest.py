@@ -10,7 +10,7 @@ Design goals:
   - Keep draft_info.json and draft_content.json consistent (CapCut reads draft_info.json).
 
 Usage:
-  python3 tools/patch_draft_audio_subtitles_from_manifest.py \\
+  PYTHONPATH=".:packages" python3 -m video_pipeline.tools.patch_draft_audio_subtitles_from_manifest \\
     --run workspaces/video/runs/CH06-002_capcut_v1
 """
 
@@ -20,45 +20,26 @@ import argparse
 import json
 import os
 import shutil
-import sys
 import wave
 import warnings
 from pathlib import Path
 from typing import Any
 
 # Paths for local imports (executed from commentary package CWD often)
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
+tool_bootstrap(load_env=False)
 
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+from factory_common.paths import repo_root  # noqa: E402
 
-from factory_common.paths import repo_root, video_pkg_root  # noqa: E402
-
-PROJECT_ROOT = video_pkg_root()
 REPO_ROOT = repo_root()
-if str(PROJECT_ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / "src"))
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 from factory_common.timeline_manifest import MANIFEST_FILENAME, validate_timeline_manifest
 
-# Reuse proven helpers from capcut_bulk_insert (add tools/ to import path)
-TOOLS_DIR = PROJECT_ROOT / "tools"
-if str(TOOLS_DIR) not in sys.path:
-    sys.path.insert(0, str(TOOLS_DIR))
-from capcut_bulk_insert import (
+from video_pipeline.tools.capcut_bulk_insert import (  # noqa: E402
     parse_srt_file,
     sync_draft_info_with_content,
     _apply_common_subtitle_style,

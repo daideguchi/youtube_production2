@@ -14,20 +14,9 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
-
-PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-PACKAGES_ROOT = PROJECT_ROOT / "packages"
-if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(PACKAGES_ROOT))
+PROJECT_ROOT = bootstrap(load_env=False)
 
 from factory_common.agent_mode import get_queue_dir
 

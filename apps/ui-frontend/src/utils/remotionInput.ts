@@ -114,8 +114,8 @@ function parseSrt(text: string): SubtitleCue[] {
     if (!tm) continue;
     const start = parseTime(tm[1].trim());
     const end = parseTime(tm[2].trim());
-    const content = lines.slice(2).join(" ").trim();
-    if (!Number.isFinite(start) || !Number.isFinite(end) || !content) continue;
+    const content = lines.slice(2).join("\n");
+    if (!Number.isFinite(start) || !Number.isFinite(end) || !content.trim()) continue;
     cues.push({ start, end, text: content });
   }
   return cues.sort((a, b) => a.start - b.start);

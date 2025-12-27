@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,6 +21,8 @@ from script_pipeline.thumbnails.compiler.layer_specs import (
 
 
 RGBA = Tuple[int, int, int, int]
+
+_INLINE_TAG_RE = re.compile(r"\[(?P<close>/)?(?P<tag>[A-Za-z_]+)\]")
 
 
 def _parse_hex_color(value: str) -> RGBA:
@@ -276,6 +279,30 @@ def _fit_text_to_box(
     return FitResult(lines=lines, font_size=min_size, line_gap=gap, stroke_width=stroke_width)
 
 
+def _total_text_height_px(
+    *,
+    lines: Sequence[str],
+    font_path: str,
+    font_size: int,
+    line_gap: int,
+    stroke_width: int,
+) -> int:
+    if not lines:
+        return 0
+    font = ImageFont.truetype(font_path, int(font_size))
+    sw = int(stroke_width or 0)
+    total = 0
+    for idx, line in enumerate(lines):
+        if not line:
+            continue
+        bbox = font.getbbox(line, stroke_width=sw, anchor="la")
+        bh = max(0, bbox[3] - bbox[1])
+        total += bh
+        if idx < len(lines) - 1:
+            total += int(line_gap)
+    return int(total)
+
+
 @dataclass(frozen=True)
 class SlotRenderPlan:
     x0: int
@@ -308,6 +335,119 @@ def _decode_text_escapes(text: str) -> str:
         return ""
     return text.replace("\\n", "\n")
 
+def _normalize_inline_fill_tag(tag: str) -> Optional[str]:
+    t = str(tag or "").strip().lower()
+    if not t:
+        return None
+    if t.endswith("_fill"):
+        return t
+    mapping = {
+        "w": "white_fill",
+        "white": "white_fill",
+        "y": "yellow_fill",
+        "yellow": "yellow_fill",
+        "r": "red_fill",
+        "red": "red_fill",
+        "g": "gold_fill",
+        "gold": "gold_fill",
+        "p": "purple_fill",
+        "purple": "purple_fill",
+    }
+    return mapping.get(t)
+
+
+def _parse_inline_fill_tags(text: str, *, default_fill_key: str) -> Tuple[str, List[Tuple[int, int, str]]]:
+    """
+    Parse inline fill tags like:
+      "[y]人生[/y][r]が崩れる[/r]"
+
+    Returns:
+      (plain_text, spans)
+
+    Where spans are (start, end, fill_key) indices over plain_text.
+    """
+    raw = str(text or "")
+    if "[" not in raw:
+        return raw, []
+
+    parts: List[str] = []
+    spans: List[Tuple[int, int, str]] = []
+    plain_len = 0
+
+    def _append_chunk(chunk: str, fill_key: str) -> None:
+        nonlocal plain_len, spans
+        if not chunk:
+            return
+        parts.append(chunk)
+        start = plain_len
+        plain_len += len(chunk)
+        if spans and spans[-1][2] == fill_key and spans[-1][1] == start:
+            spans[-1] = (spans[-1][0], plain_len, fill_key)
+        else:
+            spans.append((start, plain_len, fill_key))
+
+    fill_stack: List[str] = [str(default_fill_key or "").strip() or "white_fill"]
+    cur_fill = fill_stack[-1]
+    recognized = False
+    last = 0
+
+    for m in _INLINE_TAG_RE.finditer(raw):
+        _append_chunk(raw[last : m.start()], cur_fill)
+        is_close = bool(m.group("close"))
+        tag = m.group("tag") or ""
+        if is_close:
+            if len(fill_stack) > 1:
+                fill_stack.pop()
+            cur_fill = fill_stack[-1]
+            recognized = True
+        else:
+            fill_key = _normalize_inline_fill_tag(tag)
+            if fill_key:
+                fill_stack.append(fill_key)
+                cur_fill = fill_key
+                recognized = True
+            else:
+                # Unknown tag -> treat literally.
+                _append_chunk(raw[m.start() : m.end()], cur_fill)
+        last = m.end()
+
+    _append_chunk(raw[last:], cur_fill)
+    plain = "".join(parts)
+    if not recognized:
+        return raw, []
+    if not spans:
+        return plain, []
+    return plain, spans
+
+
+def _solid_fill_color_from_effects(
+    effects: Dict[str, Any],
+    *,
+    fill_key: str,
+    fallback: RGBA,
+) -> RGBA:
+    v = effects.get(fill_key)
+    if not isinstance(v, dict):
+        return fallback
+    if str(v.get("mode") or "").strip().lower() != "solid":
+        return fallback
+    try:
+        return _parse_color(str(v.get("color") or "#ffffff"))
+    except Exception:
+        return fallback
+
+
+def _font_advance_px(font: ImageFont.FreeTypeFont, text: str) -> int:
+    if not text:
+        return 0
+    try:
+        if hasattr(font, "getlength"):
+            return int(round(float(font.getlength(text))))
+    except Exception:
+        pass
+    bbox = font.getbbox(text, stroke_width=0, anchor="la")
+    return max(0, int(bbox[2] - bbox[0]))
+
 
 def _fc_list_lines() -> List[str]:
     try:
@@ -327,15 +467,18 @@ def _discover_font_path_by_family(prefer: Sequence[str]) -> Optional[str]:
     prefer_norm = [p.lower() for p in prefer if isinstance(p, str) and p.strip()]
     if not prefer_norm:
         return None
-    for line in _fc_list_lines():
-        if ":" not in line:
-            continue
-        font_path = line.split(":", 1)[0].strip()
-        hay = line.lower()
-        if any(p in hay for p in prefer_norm):
-            p = Path(font_path)
-            if p.exists():
-                return str(p)
+
+    lines = _fc_list_lines()
+    for needle in prefer_norm:
+        for line in lines:
+            if ":" not in line:
+                continue
+            font_path = line.split(":", 1)[0].strip()
+            hay = line.lower()
+            if needle in hay:
+                p = Path(font_path)
+                if p.exists():
+                    return str(p)
     return None
 
 
@@ -367,6 +510,7 @@ def _render_text_lines(
     align: str,
     max_width: int,
     fill: Dict[str, Any],
+    inline_spans: Optional[List[List[Tuple[int, int, RGBA]]]] = None,
     stroke_enabled: bool,
     stroke_color: RGBA,
     stroke_width: int,
@@ -452,7 +596,19 @@ def _render_text_lines(
     if mode == "solid":
         color = _parse_color(str(fill.get("color") or "#ffffff"))
         draw = ImageDraw.Draw(img)
-        for line, x_pos, y_pos, _bbox in packed:
+        for i, (line, x_pos, y_pos, _bbox) in enumerate(packed):
+            spans = inline_spans[i] if inline_spans and i < len(inline_spans) else None
+            if spans:
+                for start, end, span_color in spans:
+                    if start >= end:
+                        continue
+                    seg = line[start:end]
+                    if not seg:
+                        continue
+                    prefix = line[:start]
+                    x_run = x_pos + _font_advance_px(font, prefix)
+                    draw.text((x_run, y_pos), seg, font=font, fill=span_color, anchor="la")
+                continue
             draw.text((x_pos, y_pos), line, font=font, fill=color, anchor="la")
         return img
 
@@ -531,6 +687,49 @@ def _apply_horizontal_overlay(
     overlay.putalpha(mask)
     return Image.alpha_composite(img, overlay)
 
+def _apply_vertical_overlay(
+    base: Image.Image,
+    *,
+    y0: float,
+    y1: float,
+    color: RGBA,
+    alpha_top: float,
+    alpha_bottom: float,
+) -> Image.Image:
+    """
+    Apply a vertical alpha gradient overlay between y0..y1 (normalized 0..1).
+    """
+    img = base.convert("RGBA")
+    w, h = img.size
+    y0 = max(0.0, min(1.0, float(y0)))
+    y1 = max(0.0, min(1.0, float(y1)))
+    if y1 <= y0 + 1e-6:
+        return img
+    a0 = max(0.0, min(1.0, float(alpha_top)))
+    a1 = max(0.0, min(1.0, float(alpha_bottom)))
+
+    start_px = int(round(y0 * h))
+    end_px = int(round(y1 * h))
+    start_px = max(0, min(h, start_px))
+    end_px = max(0, min(h, end_px))
+    if end_px <= start_px:
+        return img
+
+    values: List[int] = [0] * h
+    span = max(1, end_px - start_px)
+    for y in range(start_px, end_px):
+        t = (y - start_px) / span
+        alpha = (a0 * (1.0 - t)) + (a1 * t)
+        values[y] = int(round(alpha * 255))
+
+    mask_col = Image.new("L", (1, h), 0)
+    mask_col.putdata(values)
+    mask = mask_col.resize((w, h))
+
+    overlay = Image.new("RGBA", (w, h), (color[0], color[1], color[2], 255))
+    overlay.putalpha(mask)
+    return Image.alpha_composite(img, overlay)
+
 def compose_text_layout(
     base_image_path: Path,
     *,
@@ -571,6 +770,38 @@ def compose_text_layout(
             alpha_right=alpha_right,
         )
 
+    top_band = overlays_cfg.get("top_band") if isinstance(overlays_cfg.get("top_band"), dict) else None
+    if isinstance(top_band, dict) and bool(top_band.get("enabled", True)):
+        y0 = float(top_band.get("y0", 0.0))
+        y1 = float(top_band.get("y1", 0.25))
+        alpha_top = float(top_band.get("alpha_top", 0.70))
+        alpha_bottom = float(top_band.get("alpha_bottom", 0.0))
+        col = _parse_color(str(top_band.get("color") or "#000000"))
+        base = _apply_vertical_overlay(
+            base,
+            y0=y0,
+            y1=y1,
+            color=col,
+            alpha_top=alpha_top,
+            alpha_bottom=alpha_bottom,
+        )
+
+    bottom_band = overlays_cfg.get("bottom_band") if isinstance(overlays_cfg.get("bottom_band"), dict) else None
+    if isinstance(bottom_band, dict) and bool(bottom_band.get("enabled", True)):
+        y0 = float(bottom_band.get("y0", 0.70))
+        y1 = float(bottom_band.get("y1", 1.0))
+        alpha_top = float(bottom_band.get("alpha_top", 0.0))
+        alpha_bottom = float(bottom_band.get("alpha_bottom", 0.80))
+        col = _parse_color(str(bottom_band.get("color") or "#000000"))
+        base = _apply_vertical_overlay(
+            base,
+            y0=y0,
+            y1=y1,
+            color=col,
+            alpha_top=alpha_top,
+            alpha_bottom=alpha_bottom,
+        )
+
     fonts_cfg = global_cfg.get("fonts") if isinstance(global_cfg.get("fonts"), dict) else {}
     effects = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
     stroke_cfg = effects.get("stroke") if isinstance(effects.get("stroke"), dict) else {}
@@ -591,6 +822,7 @@ def compose_text_layout(
         off_x, off_y = (6, 6)
     blur = int(shadow_cfg.get("blur_px", 10))
     shadow_spec = ShadowSpec(color=shadow_color, offset=(off_x, off_y), blur=blur)
+    shadow_rgb_default = (shadow_color[0], shadow_color[1], shadow_color[2])
 
     glow_cfg = effects.get("glow") if isinstance(effects.get("glow"), dict) else {}
     glow_alpha = float(glow_cfg.get("alpha", 0.0))
@@ -625,9 +857,6 @@ def compose_text_layout(
             raw_text = str(text_override.get(slot_name) or "")
         else:
             raw_text = str(text_payload.get(slot_name) or "")
-        raw_text = _decode_text_escapes(raw_text).strip()
-        if not raw_text:
-            continue
 
         box = slot_cfg.get("box")
         if not isinstance(box, list) or len(box) != 4:
@@ -645,44 +874,149 @@ def compose_text_layout(
         if not isinstance(fill, dict):
             fill = {"mode": "solid", "color": "#ffffff"}
 
+        raw_text = _decode_text_escapes(raw_text).strip()
+        if not raw_text:
+            continue
+        plain_text, spans = _parse_inline_fill_tags(raw_text, default_fill_key=fill_key)
+        plain_text = plain_text.strip()
+        if not plain_text:
+            continue
+
         base_size = int(slot_cfg.get("base_size_px", 64))
         max_lines = int(slot_cfg.get("max_lines", 2))
         align = str(slot_cfg.get("align") or "left").strip().lower()
         if align not in {"left", "center", "right"}:
             align = "left"
 
+        valign = str(slot_cfg.get("valign") or "top").strip().lower()
+        if valign in {"center", "middle"}:
+            valign = "middle"
+        if valign not in {"top", "middle", "bottom"}:
+            valign = "top"
+
         stroke_enabled = bool(slot_cfg.get("stroke", True))
-        shadow_enabled = bool(slot_cfg.get("shadow", True))
+
+        shadow_cfg_override: Optional[Dict[str, Any]] = None
+        raw_shadow_override = slot_cfg.get("shadow_override")
+        if isinstance(raw_shadow_override, dict):
+            shadow_cfg_override = raw_shadow_override
+
+        raw_shadow = slot_cfg.get("shadow", True)
+        if isinstance(raw_shadow, dict):
+            # Legacy: allow dict in shadow (older authored specs).
+            shadow_cfg_override = raw_shadow
+            shadow_enabled = bool(raw_shadow.get("enabled", True))
+        else:
+            shadow_enabled = bool(raw_shadow)
         glow_enabled = bool(slot_cfg.get("glow", False))
 
+        slot_stroke_width = stroke_width
+        if slot_cfg.get("stroke_width_px") is not None:
+            try:
+                slot_stroke_width = int(slot_cfg.get("stroke_width_px"))
+            except Exception:
+                slot_stroke_width = stroke_width
+        slot_stroke_width = max(0, int(slot_stroke_width))
+
+        shadow_spec_slot = shadow_spec
+        if shadow_cfg_override is not None:
+            alpha = shadow_alpha
+            if shadow_cfg_override.get("alpha") is not None:
+                try:
+                    alpha = float(shadow_cfg_override.get("alpha"))
+                except Exception:
+                    alpha = shadow_alpha
+            alpha = max(0.0, min(1.0, float(alpha)))
+
+            rgb = shadow_rgb_default
+            if shadow_cfg_override.get("color") is not None:
+                try:
+                    c = _parse_color(str(shadow_cfg_override.get("color") or "#000000"))
+                    rgb = (c[0], c[1], c[2])
+                except Exception:
+                    rgb = shadow_rgb_default
+
+            offset_x, offset_y = off_x, off_y
+            if shadow_cfg_override.get("offset_px") is not None:
+                try:
+                    v = shadow_cfg_override.get("offset_px") or [off_x, off_y]
+                    offset_x = int(v[0])
+                    offset_y = int(v[1])
+                except Exception:
+                    offset_x, offset_y = off_x, off_y
+
+            blur_px = blur
+            if shadow_cfg_override.get("blur_px") is not None:
+                try:
+                    blur_px = int(shadow_cfg_override.get("blur_px"))
+                except Exception:
+                    blur_px = blur
+
+            shadow_spec_slot = ShadowSpec(
+                color=(rgb[0], rgb[1], rgb[2], int(round(alpha * 255))),
+                offset=(int(offset_x), int(offset_y)),
+                blur=max(0, int(blur_px)),
+            )
+
         fit = _fit_text_to_box(
-            raw_text,
+            plain_text,
             font_path=font_path,
             base_size=base_size,
             max_width=max(1, w),
             max_height=max(1, h),
             max_lines=max(1, max_lines),
-            stroke_width=stroke_width if stroke_enabled else 0,
+            stroke_width=slot_stroke_width if stroke_enabled else 0,
         )
         if not fit.lines:
             continue
+
+        inline_spans: Optional[List[List[Tuple[int, int, RGBA]]]] = None
+        if spans and len(fit.lines) == 1 and "\n" not in plain_text and fit.lines[0] == plain_text:
+            mode = str(fill.get("mode") or "solid").strip().lower()
+            if mode == "solid":
+                try:
+                    fallback_color = _parse_color(str(fill.get("color") or "#ffffff"))
+                except Exception:
+                    fallback_color = (255, 255, 255, 255)
+                colored: List[Tuple[int, int, RGBA]] = []
+                for start, end, span_fill_key in spans:
+                    colored.append(
+                        (start, end, _solid_fill_color_from_effects(effects, fill_key=span_fill_key, fallback=fallback_color))
+                    )
+                inline_spans = [colored]
+
+        y_draw = y0
+        if valign != "top":
+            text_h = _total_text_height_px(
+                lines=fit.lines,
+                font_path=font_path,
+                font_size=fit.font_size,
+                line_gap=fit.line_gap,
+                stroke_width=fit.stroke_width if stroke_enabled else 0,
+            )
+            if text_h > 0 and text_h < h:
+                if valign == "bottom":
+                    y_draw = int(y0 + (h - text_h))
+                else:
+                    y_draw = int(y0 + (h - text_h) // 2)
 
         out = _render_text_lines(
             out,
             lines=fit.lines,
             x=x0,
-            y=y0,
+            y=y_draw,
             font_path=font_path,
             font_size=fit.font_size,
             line_gap=fit.line_gap,
             align=align,
             max_width=max(1, w),
             fill=fill,
+            inline_spans=inline_spans,
             stroke_enabled=stroke_enabled,
             stroke_color=stroke_color,
             stroke_width=fit.stroke_width if stroke_enabled else 0,
             glow=glow_spec if glow_enabled else None,
-            shadow=shadow_spec if shadow_enabled else None,
+            shadow=shadow_spec_slot if shadow_enabled else None,
         )
 
     return out

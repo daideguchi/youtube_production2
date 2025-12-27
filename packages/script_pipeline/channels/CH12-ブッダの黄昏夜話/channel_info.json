@@ -55,14 +55,45 @@
   "audience_profile": "60代以降。夜になると不安・孤独・後悔が増えやすく、難しい言葉抜きで「今夜から軽くなる一手」が欲しい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "強めの悩みフック→因果/線引き→具体策の展開テンポ参考（煽りは安全に調整）"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",
         "path": "ブッダ系/バズ台本構造分析.md",
         "label": "参考台本/メモ",
         "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      },
+      {
+        "base": "research",
+        "path": "ブッダ系/バズった台本１",
+        "label": "参考台本/メモ",
+        "note": "バズ台本サンプル（1）"
+      },
+      {
+        "base": "research",
+        "path": "ブッダ系/バズった台本２",
+        "label": "参考台本/メモ",
+        "note": "バズ台本サンプル（2）"
+      },
+      {
+        "base": "research",
+        "path": "ブッダ系/バズった台本３",
+        "label": "参考台本/メモ",
+        "note": "バズ台本サンプル（3）"
+      },
+      {
+        "base": "research",
+        "path": "ブッダ系/バズった台本４",
+        "label": "参考台本/メモ",
+        "note": "バズ台本サンプル（4）"
       }
     ],
     "notes": "ベンチマークはUIから追加してください。"

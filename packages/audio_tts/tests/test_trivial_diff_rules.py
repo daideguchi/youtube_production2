@@ -1,11 +1,3 @@
-import sys
-from pathlib import Path
-
-# Ensure repository root on path
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from audio_tts.tts.risk_utils import is_trivial_diff
 
 

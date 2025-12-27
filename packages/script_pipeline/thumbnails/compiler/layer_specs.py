@@ -12,6 +12,12 @@ import json
 import yaml
 
 from factory_common import paths as fpaths
+from script_pipeline.thumbnails.compiler.layer_specs_schema_v3 import (
+    ImagePromptsSpecV3,
+    TextLayoutSpecV3,
+    parse_image_prompts_v3,
+    parse_text_layout_v3,
+)
 
 
 @dataclass(frozen=True)
@@ -118,6 +124,49 @@ def load_layer_spec_yaml(spec_id: str) -> Dict[str, Any]:
     except FileNotFoundError:
         mtime = 0.0
     return _load_layer_spec_yaml_cached(spec_id, mtime)
+
+
+@lru_cache(maxsize=32)
+def _load_layer_spec_typed_cached(spec_id: str, mtime: float) -> Any:
+    ref = resolve_layer_spec_ref(spec_id)
+    data = _load_layer_spec_yaml_cached(spec_id, mtime)
+    spec_path = str((fpaths.repo_root() / ref.path).resolve())
+
+    if ref.kind == "image_prompts" and int(ref.version) == 3:
+        return parse_image_prompts_v3(data, spec_path=spec_path)
+    if ref.kind == "text_layout" and int(ref.version) == 3:
+        return parse_text_layout_v3(data, spec_path=spec_path)
+    raise ValueError(f"unsupported layer spec kind/version: kind={ref.kind} version={ref.version} ({spec_id})")
+
+
+def load_layer_spec_typed(spec_id: str) -> Any:
+    ref = resolve_layer_spec_ref(spec_id)
+    path = fpaths.repo_root() / ref.path
+    try:
+        mtime = path.stat().st_mtime
+    except FileNotFoundError:
+        mtime = 0.0
+    return _load_layer_spec_typed_cached(spec_id, mtime)
+
+
+def load_image_prompts_v3_typed(spec_id: str) -> ImagePromptsSpecV3:
+    ref = resolve_layer_spec_ref(spec_id)
+    if ref.kind != "image_prompts":
+        raise ValueError(f"expected image_prompts spec_id, got kind={ref.kind}: {spec_id}")
+    spec = load_layer_spec_typed(spec_id)
+    if not isinstance(spec, ImagePromptsSpecV3):
+        raise TypeError(f"invalid typed spec: expected ImagePromptsSpecV3: {spec_id}")
+    return spec
+
+
+def load_text_layout_v3_typed(spec_id: str) -> TextLayoutSpecV3:
+    ref = resolve_layer_spec_ref(spec_id)
+    if ref.kind != "text_layout":
+        raise ValueError(f"expected text_layout spec_id, got kind={ref.kind}: {spec_id}")
+    spec = load_layer_spec_typed(spec_id)
+    if not isinstance(spec, TextLayoutSpecV3):
+        raise TypeError(f"invalid typed spec: expected TextLayoutSpecV3: {spec_id}")
+    return spec
 
 
 def find_image_prompt_for_video(spec: Dict[str, Any], video_id: str) -> Optional[str]:

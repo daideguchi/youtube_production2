@@ -76,7 +76,7 @@
 
 **Keep（現行依存あり）**
 - `src/`, `tools/`（archive除く）, `server/`, `config/`, `templates/`, `docs/`, `scripts/`, `tests/`
-- `audio_sync_status.json` は `workspaces/video/_state/audio_sync_status.json` が正本（legacy: `packages/video_pipeline/progress/audio_sync_status.json`）
+- `audio_sync_status.json` は `workspaces/video/_state/audio_sync_status.json` が正本（legacy: packages/video_pipeline/progress/audio_sync_status.json）
 
 **Legacy隔離**
 - （削除済み）`tools/archive/`：過去版。参照ゼロのためアーカイブ後に削除済み（正本: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）。
@@ -86,7 +86,7 @@
 **Trash候補（run外の残骸）**
 > `rg`参照ゼロ・SoTフロー外。管理者確認後に削除。
 - `packages/video_pipeline/images/`（残骸）
-- `packages/video_pipeline/src/runtime/logs/notifications.jsonl`（コード参照なしのコミット残骸）
+- packages/video_pipeline/src/runtime/logs/notifications.jsonl（コード参照なしのコミット残骸）
 
 ### 3.2 `packages/audio_tts/`
 
@@ -110,7 +110,7 @@
 - SoT は `workspaces/scripts/`（撤去済み: `packages/script_pipeline/data` symlink）
 
 **Legacy隔離候補**
-- （削除済み）`packages/script_pipeline/openrouter_tests_report.md`（一時検証メモ）は archive-first で `backups/graveyard/20251225T103329Z__remove_unused_package_docs/` に退避し、repo から削除した（証跡: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）。
+- （削除済み）OpenRouter の一時検証メモは archive-first で退避し、repo から削除した（正本: `backups/graveyard/20251225T103329Z__remove_unused_package_docs/manifest.tsv`）。
 
 ### 3.4 `apps/ui-*`
 
@@ -124,7 +124,7 @@
 ### 3.5 `tests/`
 
 **Keep（現行対象）**
-- `test_*` のうち `script_pipeline` / `audio_tts` / `commentary_02` / `factory_common` を直接テストするもの。
+- `test_*` のうち `script_pipeline` / `audio_tts` / `video_pipeline` / `factory_common` を直接テストするもの。
 
 **Legacy隔離（旧名依存）**
 旧 `commentary_01_srtfile_v2` 依存テストは誤参照の原因になりやすいため、**archive-first** で `backups/graveyard/` に退避したうえで repo から削除する（実施済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` の Step 18）。
@@ -165,7 +165,7 @@
 
 - `data/hazard_readings.yaml` の参照経路が二重化していたが、`packages/audio_tts/tts/risk_utils.py` を修正して **repo root の hazard 辞書を優先**するようにした（2025-12-17）。  
   → 現在は `repo_root()/data/hazard_readings.yaml` → `audio_pkg_root()/data/hazard_readings.yaml` の順で探索する。
-- `packages/video_pipeline/data/visual_bible.json` と root `data/visual_bible.json` の二重管理。  
-  → 画像パイプライン側の正本を Stage4/LLM統合のタイミングで確定。
+- Visual Bible（任意入力）の扱いが揺れやすい（SoT の固定が必要）。  
+  → 現行は「run_dir に保存（例: `workspaces/video/runs/{run_id}/visual_bible.json`）」を正とし、外部ファイルを使う場合のみ `SRT2IMAGES_VISUAL_BIBLE_PATH` で指定する（`ssot/ops/OPS_ENV_VARS.md` 参照）。
 - `scripts/` と `tools/` の中に旧ライン（route1/route2 等）が混在。  
   → Stage3後に「Active / Legacy / Trash」を **ファイル単位で再棚卸し**する。

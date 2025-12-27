@@ -77,9 +77,6 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
 run_dir は:
 - `workspaces/video/runs/CH02-034_regen_20251213_091300/`
 
-補足:
-- 旧パス `commentary_02_srt2images_timeline/output/...` は廃止（過去の互換symlink履歴）。正本は `workspaces/video/runs/...`。
-
 **条件**
 - run_dir に `image_cues.json` が存在すること
 - run_dir に `images/` ディレクトリがあること（空でも可。生成で埋める）
@@ -114,9 +111,6 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_c
 ### 3.3 CapCutドラフトを再ビルド（ここで assets/image が置換される）
 SoT の SRT は必ず final を使う:
 - `workspaces/audio/final/CH02/034/CH02-034.srt`
-
-補足:
-- 旧パス `audio_tts_v2/artifacts/final/...` は廃止（過去の互換symlink履歴）。正本は `workspaces/audio/final/...`。
 
 ```bash
 PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \

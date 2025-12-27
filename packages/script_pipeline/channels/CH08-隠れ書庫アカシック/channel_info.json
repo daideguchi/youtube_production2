@@ -7,9 +7,9 @@
     "avatar_url": "https://yt3.ggpht.com/H-0wLdC-RY_yxyfAKKSxmgFZPHddGMlWEj4wjhpWYYrcVtz6qRznAdaxkMZaSToY5x1F_jGd=s88-c-k-c0x00ffffff-no-rj",
     "banner_url": "https://yt3.googleusercontent.com/NMuvREJCLe6ekKL5GuQagRpaW7RuifWOGvSmbPMpDP51ZvYnMm6fUZlRADuAXWEZhCDYScEIeQ",
     "title": "静かな夜の心理図書室",
-    "subscriber_count": 0,
-    "view_count": 0,
-    "video_count": 1,
+    "subscriber_count": 1,
+    "view_count": 52,
+    "video_count": 8,
     "custom_url": "@calm_mind_lab-n9n",
     "handle": "@calm_mind_lab-n9n",
     "url": "https://www.youtube.com/channel/UCUPj4bRwrMUfHHuy1knBDIQ",
@@ -21,10 +21,10 @@
     "custom_url": "@calm_mind_lab-n9n",
     "handle": "@calm_mind_lab-n9n",
     "url": "https://www.youtube.com/channel/UCUPj4bRwrMUfHHuy1knBDIQ",
-    "view_count": 0,
-    "subscriber_count": 0,
-    "video_count": 1,
-    "synced_at": "2025-12-19T07:02:44.413797+00:00",
+    "view_count": 52,
+    "subscriber_count": 1,
+    "video_count": 8,
+    "synced_at": "2025-12-26T07:33:27.011822+00:00",
     "source": "UCUPj4bRwrMUfHHuy1knBDIQ",
     "published_at": null
   },
@@ -70,7 +70,7 @@
   "youtube_description": "この動画は、「静かな夜の心理図書室」の長時間コンテンツです。\n心理とスピリチュアルを静かにほどく夜の朗読室。眠れない夜に、呼吸と小さな気づきで心をゆるめます。\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
+    "updated_at": "2025-12-27",
     "channels": [
       {
         "handle": "@himitu-o4p",
@@ -85,6 +85,12 @@
         "path": "心理学スピリチュアル系/秘密の図書館01",
         "label": "参考台本/メモ",
         "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      },
+      {
+        "base": "research",
+        "path": "心理学スピリチュアル系/秘密の図書館02",
+        "label": "参考台本/メモ",
+        "note": "別サンプル（構成/テンポ/雰囲気）参考"
       }
     ],
     "notes": "ベンチマークはUIから追加してください。"

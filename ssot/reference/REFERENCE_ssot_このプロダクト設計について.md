@@ -162,7 +162,7 @@ PDCAがうまく回るようにする
 flowchart LR
     A[企画CSV\nworkspaces/planning/channels/CHxx.csv] --> B[台本A/B生成\n(script_pipeline など)]
     B --> C[TTS生成\nworkspaces/audio/final/<ch>/<vid>]
-    C --> D[画像/帯生成\ncommentary_02]
+    C --> D[画像/帯生成\nvideo_pipeline]
     D --> E[CapCut / Remotion Draft]
     E --> F[納品ZIP / delivery]
     F --> G[投稿承認\nUI]
@@ -187,7 +187,7 @@ flowchart LR
 ## 9. API / CLI 依存関係（主要）
 - `/api/planning/*` ↔ `planning_store` / SSOT guard ↔ `workspaces/planning/channels/CHxx.csv`
 - `/api/channels/{code}/profile` ↔ `channel_profile`, `workspaces/planning/personas`
-- `/api/video-production/*` ↔ `commentary_02` CLI (`generate_belt_layers.py`, `capcut_bulk_insert.py`)
+- `/api/video-production/*` ↔ `video_pipeline` tools (`packages/video_pipeline/tools/generate_belt_layers.py`, `packages/video_pipeline/tools/capcut_bulk_insert.py`)
 - `/api/ssot/persona/{channel}` ↔ `workspaces/planning/personas/CHxx_PERSONA.md`
 - 台本ステージは `PYTHONPATH=".:packages" python3 -m script_pipeline.cli run-all --channel CHxx --video NNN` を唯一の入口とし、CLI が `status.json` と `workspaces/planning/channels/CHxx.csv` を同期する。手動更新は禁止。
 

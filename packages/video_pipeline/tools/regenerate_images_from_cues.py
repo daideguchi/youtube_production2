@@ -16,40 +16,25 @@ import argparse
 import json
 import os
 import re
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
+tool_bootstrap(load_env=False)
 
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
-
-from factory_common.paths import repo_root, video_pkg_root  # noqa: E402
+from factory_common.paths import video_pkg_root  # noqa: E402
 
 PROJECT_ROOT = video_pkg_root()
-REPO_ROOT = repo_root()
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-if str(PROJECT_ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
-from srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
-from srt2images.nanobanana_client import generate_image_batch  # noqa: E402
+from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
+from video_pipeline.src.srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
+from video_pipeline.src.srt2images.nanobanana_client import generate_image_batch  # noqa: E402
 
 
 DEFAULT_CH02_NEGATIVE = (

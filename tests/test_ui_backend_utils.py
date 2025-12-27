@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import sys
 import wave
 from pathlib import Path
 
@@ -15,21 +14,8 @@ def _clear_path_caches() -> None:
     paths.workspace_root.cache_clear()
 
 
-@pytest.fixture()
-def backend_on_path():
-    backend_root = paths.repo_root() / "apps" / "ui-backend" / "backend"
-    sys.path.insert(0, str(backend_root))
-    try:
-        yield
-    finally:
-        try:
-            sys.path.remove(str(backend_root))
-        except ValueError:
-            pass
-
-
-def test_pause_tags_parsing(backend_on_path):
-    from audio import pause_tags
+def test_pause_tags_parsing():
+    from backend.audio import pause_tags
 
     cleaned, tags = pause_tags.remove_pause_tags("テスト[0.50s] です")
     assert cleaned == "テスト です".replace("  ", " ").strip()
@@ -43,8 +29,8 @@ def test_pause_tags_parsing(backend_on_path):
     assert tags2 == []
 
 
-def test_strip_pause_tags_from_lines(backend_on_path):
-    from audio import pause_tags
+def test_strip_pause_tags_from_lines():
+    from backend.audio import pause_tags
 
     cleaned_lines, tags = pause_tags.strip_pause_tags_from_lines(["こんにちは", "[1.00s]", "世界"])
     assert cleaned_lines == ["こんにちは", "世界"]
@@ -52,8 +38,8 @@ def test_strip_pause_tags_from_lines(backend_on_path):
     assert pause_tags.extract_last_pause_seconds(tags) == pytest.approx(1.0)
 
 
-def test_script_loader_sections(backend_on_path, tmp_path: Path):
-    from audio.script_loader import iterate_sections
+def test_script_loader_sections(tmp_path: Path):
+    from backend.audio.script_loader import iterate_sections
 
     p = tmp_path / "sample.txt"
     p.write_text("a\nb\n\nc\n\n\n d \n", encoding="utf-8")
@@ -64,8 +50,8 @@ def test_script_loader_sections(backend_on_path, tmp_path: Path):
     assert sections[2].lines == [" d "]
 
 
-def test_wav_duration(backend_on_path, tmp_path: Path):
-    from audio import wav_tools
+def test_wav_duration(tmp_path: Path):
+    from backend.audio import wav_tools
 
     wav_path = tmp_path / "tone.wav"
     framerate = 8000
@@ -78,7 +64,7 @@ def test_wav_duration(backend_on_path, tmp_path: Path):
     assert wav_tools.duration_from_file(wav_path) == pytest.approx(1.0, abs=1e-3)
 
 
-def test_workflow_precheck_gather_pending(backend_on_path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_workflow_precheck_gather_pending(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("YTM_WORKSPACE_ROOT", str(tmp_path / "workspaces"))
     _clear_path_caches()
 
@@ -94,7 +80,7 @@ def test_workflow_precheck_gather_pending(backend_on_path, tmp_path: Path, monke
         encoding="utf-8",
     )
 
-    from core.tools.workflow_precheck import gather_pending
+    from backend.core.tools.workflow_precheck import gather_pending
 
     summaries = gather_pending(channel_codes=["CH99"], limit=1)
     assert len(summaries) == 1
@@ -103,7 +89,7 @@ def test_workflow_precheck_gather_pending(backend_on_path, tmp_path: Path, monke
     assert len(summaries[0].items) == 1
 
 
-def test_workflow_precheck_collect_ready_for_audio(backend_on_path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_workflow_precheck_collect_ready_for_audio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("YTM_WORKSPACE_ROOT", str(tmp_path / "workspaces"))
     _clear_path_caches()
 
@@ -141,7 +127,7 @@ def test_workflow_precheck_collect_ready_for_audio(backend_on_path, tmp_path: Pa
         encoding="utf-8",
     )
 
-    from core.tools.workflow_precheck import collect_ready_for_audio
+    from backend.core.tools.workflow_precheck import collect_ready_for_audio
 
     ready = collect_ready_for_audio(channel_code="CH99")
     assert [(r.channel, r.video_number) for r in ready] == [("CH99", "001")]
@@ -150,4 +136,3 @@ def test_workflow_precheck_collect_ready_for_audio(backend_on_path, tmp_path: Pa
     script_path.write_text("台本が変更されました。\n", encoding="utf-8")
     ready2 = collect_ready_for_audio(channel_code="CH99")
     assert ready2 == []
-

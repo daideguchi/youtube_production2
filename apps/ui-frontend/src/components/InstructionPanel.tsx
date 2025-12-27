@@ -22,7 +22,7 @@ export function InstructionPanel() {
         </p>
       </div>
       <p className="muted small">
-        詳細なオペレーション手順は <code>docs/ui/WORKFLOW.md</code> とスプレッドシートを参照してください。
+        詳細なオペレーション手順は <code>ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md</code> と <code>ssot/ops/OPS_SCRIPT_GUIDE.md</code> を参照してください。
       </p>
     </div>
   );

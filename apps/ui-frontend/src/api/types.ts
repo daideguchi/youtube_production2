@@ -522,6 +522,7 @@ export interface ChannelProfileResponse {
   audio_section_voice_rules?: Record<string, string>;
   default_min_characters: number;
   default_max_characters: number;
+  chapter_count?: number | null;
   llm_model?: string | null;
   quality_check_template?: string | null;
   planning_persona?: string | null;
@@ -573,6 +574,20 @@ export interface ChannelAuditItemResponse {
 export interface ApiErrorShape {
   detail?: string;
   status?: string;
+}
+
+export interface TtsProgressChannel {
+  channel: string;
+  total_episodes: number;
+  completed_episodes: number;
+  completed_ids: string[];
+  missing_ids: string[];
+  progress_percent: number;
+}
+
+export interface TtsProgressResponse {
+  channels: TtsProgressChannel[];
+  overall_progress: number;
 }
 
 export interface TtsValidationIssue {
@@ -1438,6 +1453,10 @@ export interface PromptTemplateContentResponse {
 export interface VideoProductionChannelPreset {
   channelId: string;
   name: string;
+  imageGeneration?: {
+    basePeriod?: number | null;
+    modelKey?: string | null;
+  };
   promptTemplate?: string | null;
   style?: string | null;
   capcutTemplate?: string | null;
@@ -1457,6 +1476,40 @@ export interface VideoProductionChannelPreset {
   notes?: string;
   status?: string;
   srtFiles?: VideoProductionSrtFile[];
+}
+
+export interface VideoImageModelInfo {
+  key: string;
+  provider: string;
+  model_name: string;
+}
+
+export interface VideoImageStylePreset {
+  key: string;
+  label: string;
+  prompt: string;
+}
+
+export interface VideoImageVariantSample {
+  path: string;
+  url: string;
+}
+
+export interface VideoImageVariantInfo {
+  id: string;
+  created_at: string;
+  style_key?: string | null;
+  style: string;
+  model_key?: string | null;
+  prompt_template?: string | null;
+  images_dir: string;
+  image_count: number;
+  sample_images?: VideoImageVariantSample[] | null;
+}
+
+export interface VideoImageVariantsResponse {
+  project_id: string;
+  variants: VideoImageVariantInfo[];
 }
 
 export interface ChannelPresetUpdatePayload {
@@ -1625,4 +1678,66 @@ export interface AudioAnalysis {
   voicevox_kana_llm_ref?: unknown | null;
   voicevox_accent_phrases?: unknown | null;
   warnings: string[];
+}
+
+// Audio check (log.json) viewer
+export interface AudioCheckRecentItem {
+  channel: string;
+  video: string;
+  mtime?: number;
+  updated_at?: string;
+}
+
+export interface AudioCheckSegment {
+  text: string;
+  reading: string;
+  mecab: string;
+  voicevox: string;
+  verdict: string;
+  heading?: boolean;
+  pre?: number;
+  post?: number;
+  duration?: number;
+}
+
+export interface AudioCheckLog {
+  channel: string;
+  video: string;
+  engine?: string;
+  timestamp?: number;
+  segments: AudioCheckSegment[];
+}
+
+// Batch TTS (progress panel)
+export interface BatchTtsChannelProgress {
+  total: number;
+  completed: number;
+  success: number;
+  failed: number;
+}
+
+export interface BatchTtsProgressError {
+  channel: string;
+  video: string;
+  error?: string;
+  issues?: string[];
+}
+
+export interface BatchTtsProgressResponse {
+  status: string;
+  current_channel: string | null;
+  current_video: string | null;
+  completed: number;
+  total: number;
+  success: number;
+  failed: number;
+  current_step: string | null;
+  errors: BatchTtsProgressError[];
+  updated_at: string | null;
+  channels: Record<string, BatchTtsChannelProgress> | null;
+}
+
+export interface BatchTtsStartResponse {
+  status: string;
+  message: string;
 }

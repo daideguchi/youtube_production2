@@ -1,34 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-type Job = {
-  id: string;
-  status: string;
-  channel: string;
-  video: string;
-  title?: string;
-  attempts?: number;
-  max_retries?: number;
-  created_at?: string;
-  updated_at?: string;
-};
-
-type ApiResult = { raw: string; data?: Job[] };
-
-async function callApi(path: string, options: RequestInit = {}): Promise<ApiResult> {
-  const resp = await fetch(path, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(text || `HTTP ${resp.status}`);
-  }
-  return resp.json();
-}
+import {
+  cancelScriptPipelineJob,
+  fetchScriptPipelineJobs,
+  purgeScriptPipelineJobs,
+  ScriptPipelineJob,
+} from "../api/client";
 
 export function JobsPage() {
   const [raw, setRaw] = useState<string>("");
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<ScriptPipelineJob[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,13 +17,9 @@ export function JobsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await callApi("/api/jobs");
+      const data = await fetchScriptPipelineJobs();
       setRaw(data.raw || "");
-      if (Array.isArray(data.data)) {
-        setJobs(data.data);
-      } else {
-        setJobs([]);
-      }
+      setJobs(Array.isArray(data.jobs) ? data.jobs : []);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -58,7 +35,7 @@ export function JobsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await callApi("/api/jobs/purge", { method: "POST" });
+      const data = await purgeScriptPipelineJobs();
       setRaw(data.raw || "");
       await fetchList();
     } catch (e) {
@@ -68,12 +45,13 @@ export function JobsPage() {
     }
   }, [fetchList]);
 
-  const handleStop = useCallback(
+  const handleCancel = useCallback(
     async (jobId: string) => {
       setLoading(true);
       setError(null);
       try {
-        await callApi(`/api/jobs/${encodeURIComponent(jobId)}/stop`, { method: "POST" });
+        const data = await cancelScriptPipelineJob(jobId);
+        setRaw(data.raw || "");
         await fetchList();
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -150,8 +128,8 @@ export function JobsPage() {
                   </td>
                   <td>{j.updated_at}</td>
                   <td>
-                    <button onClick={() => handleStop(j.id)} disabled={loading}>
-                      停止
+                    <button onClick={() => handleCancel(j.id)} disabled={loading}>
+                      キャンセル
                     </button>
                   </td>
                 </tr>

@@ -2,6 +2,9 @@ templates:
   outline:
     heading: アウトライン
     path: packages/script_pipeline/prompts/outline_prompt.txt
+  master_plan:
+    heading: 設計図（Master Plan）
+    path: packages/script_pipeline/prompts/master_plan_prompt.txt
   chapter_brief:
     heading: 章ブリーフ
     path: packages/script_pipeline/prompts/chapter_brief_prompt.txt

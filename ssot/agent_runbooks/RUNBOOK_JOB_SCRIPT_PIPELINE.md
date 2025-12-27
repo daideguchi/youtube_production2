@@ -7,12 +7,18 @@
 - **最終更新日**: 2025-12-12
 
 ## 1. 目的（DoD）
-- `python -m script_pipeline.cli ...` を THINK MODE で完走。
+- 入口固定（runbook）を THINK MODE で完走し、`script_validation` まで収束させる。
 
 ## 2. 実行
 ```bash
 ./scripts/think.sh --script -- \
-  python -m script_pipeline.cli run-all --channel CH06 --video 033
+  ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH06 --video 033
+```
+
+既存台本の調整/途中再開なら:
+```bash
+./scripts/think.sh --script -- \
+  ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH06 --video 033
 ```
 
 ## 3. pending が出たら
@@ -21,4 +27,3 @@
 - bundle の指示どおりに出力を作って:
   - `python scripts/agent_runner.py complete <TASK_ID> --content-file /path/to/content.txt`
 - 元コマンドを rerun
-

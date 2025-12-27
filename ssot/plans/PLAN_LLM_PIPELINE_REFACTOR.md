@@ -116,7 +116,7 @@ models:
 5. **統合**: 既存の `generate_draft_readings` → `audit_blocks` の前に挿入し、LLM 出力が空なら従来の MeCab ドラフトにフォールバック。
 
 ### 5.2 画像ドラフト強化
-- **Visual Bible**: `packages/video_pipeline/data/visual_bible.json`（新設）にキャラ設定・色味・カメラワークを保存。`LLMContextAnalyzer` のプロンプトに `visual_bible` を system として注入。
+- **Visual Bible**: run_dir に `visual_bible.json` を保存（例: `workspaces/video/runs/{run_id}/visual_bible.json`）。`LLMContextAnalyzer` のプロンプトに `visual_bible` を system として注入。外部ファイルを使う場合は `SRT2IMAGES_VISUAL_BIBLE_PATH` で指定。
 - **セクション計画 (`visual_section_plan`)**: `analyze_story_sections` を heavy_reasoning tier で再実行し、セクションごとに `visual_focus`/`persona_needed` を強化。
 - **チャンクプロンプト生成 (`visual_prompt_from_chunk`)**: 各 cue を heavy_reasoning モデルに渡し、Visual Bible + 直前/直後セクション文脈を含むプロンプトを生成。既存の機械的 summary を置換、Gemini Image へ渡す下準備を統一。
 
@@ -156,7 +156,7 @@ models:
 1) script_pipeline: stages.yaml/templates.yaml に task を明示し、`_run_llm` で `resolve_task` を必須にする（fallback 直指定禁止）。  
 2) script_pipeline: `script_outline`/`script_chapter_review`/`script_global_consistency` を新設（空でもよい）し、ルータ経由で実行できるようにする。  
 3) TTS: `tts_annotate`→`tts_text_prepare`→`tts_reading` の三段階を導線化し、旧 `llm_client` 参照を全削除。  
-4) commentary_02: `LLMContextAnalyzer` と image prompt 生成を router 経由に統一し、nanobanana=direct 以外の分岐を削除。  
+4) video_pipeline: `LLMContextAnalyzer` と image prompt 生成を router 経由に統一し、nanobanana=direct 以外の分岐を削除。  
 5) E2E: script→tts→image の最小ケースを `tests/test_e2e_pipeline.py` などで追加し、環境変数で実行可否を制御。  
 
 ## 8. 付録

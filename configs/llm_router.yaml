@@ -78,6 +78,28 @@ models:
       json_mode: true
       max_tokens: 8192
 
+  # Open reasoning (thinking) model — preferred fallback for script-writing when V3.2 is unavailable.
+  or_kimi_k2_thinking:
+    provider: openrouter
+    model_name: "moonshotai/kimi-k2-thinking"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 65535
+
+  # Premium (very expensive) — use ONLY for script_master_plan (blueprint) when explicitly enabled.
+  # OpenRouter model id verified via /api/v1/models: anthropic/claude-opus-4.5
+  or_claude_opus_4_5:
+    provider: openrouter
+    model_name: "anthropic/claude-opus-4.5"
+    capabilities:
+      mode: chat
+      # Allow temperature; control cost via task defaults + master-plan env guards.
+      reasoning: false
+      json_mode: false
+      max_tokens: 32000
+
   # or_o3_mini:
   #   provider: openrouter
   #   model_name: "openai/o3-mini"
@@ -137,12 +159,7 @@ tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
     - or_deepseek_v3_2_exp
-    - or_deepseek_r1_distill_qwen_32b
-    - or_deepseek_r1
-    - or_deepseek_r1_0528
-    # - or_o3_mini  # expensive; keep commented out by default
-    # Keep Azure as optional fallback / A-B test; default is OpenRouter-first for cost.
-    - azure_gpt5_mini
+    - or_kimi_k2_thinking
   
   # Standard tasks
   standard:
@@ -166,6 +183,10 @@ tiers:
   # Special purpose: Vision captioning (image + text)
   vision_caption:
     - or_qwen_2_5_vl_72b_instruct
+
+  # Dedicated tier for master plan refinement (single-model only; cost guard in runner).
+  master_plan_opus:
+    - or_claude_opus_4_5
 
 tasks:
   # --- Script Pipeline ---
@@ -200,6 +221,26 @@ tasks:
     tier: heavy_reasoning
     timeout: 300
 
+  # Master plan (blueprint) — optional Opus one-shot
+  # Enable via env:
+  #   SCRIPT_MASTER_PLAN_LLM=1
+  #   SCRIPT_MASTER_PLAN_LLM_TASK=script_master_plan_opus
+  #   SCRIPT_MASTER_PLAN_LLM_CHANNELS=CH10
+  script_master_plan_opus:
+    tier: master_plan_opus
+    timeout: 120
+    defaults:
+      temperature: 0.2
+      max_tokens: 1200
+
+  # A-text seed (short draft) — default for seed-expand mode (low cost)
+  script_a_text_seed:
+    tier: standard
+    timeout: 180
+    defaults:
+      temperature: 0.2
+      max_tokens: 4096
+
   # A-text quality gate: Judge (diagnose) + Fixer (minimal rewrite)
   script_a_text_quality_judge:
     tier: heavy_reasoning
@@ -213,7 +254,7 @@ tasks:
     tier: heavy_reasoning
     timeout: 240
     defaults:
-      temperature: 0.4
+      temperature: 0.2
       max_tokens: 16384
 
   # A-text hard rescue: extend-only (length shortage)

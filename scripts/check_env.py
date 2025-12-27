@@ -5,6 +5,10 @@ import os
 import sys
 from pathlib import Path
 
+from _bootstrap import bootstrap
+
+REPO_ROOT = bootstrap(load_env=False)
+
 REQUIRED_KEYS = [
     "OPENROUTER_API_KEY",
     "OPENAI_API_KEY",
@@ -30,16 +34,7 @@ WARNING_KEYS = {
 OPTIONAL_PAIRS = [
     ("AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT"),
 ]
-
-def _find_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
-
-
-DEFAULT_ENV_FILE = str(_find_repo_root(Path(__file__).resolve()) / ".env")
+DEFAULT_ENV_FILE = str(REPO_ROOT / ".env")
 
 
 def parse_env_file(path: Path) -> dict:
@@ -55,6 +50,43 @@ def parse_env_file(path: Path) -> dict:
         key, value = line.split("=", 1)
         env[key.strip()] = value.strip()
     return env
+
+
+def _warn_workspace_layout(repo_root: Path) -> None:
+    ws_root = repo_root / "workspaces"
+    scripts_root = ws_root / "scripts"
+
+    if not scripts_root.exists():
+        print("⚠️  workspaces/scripts が見つかりません（台本SoTが消えている/退避された可能性）")
+        print(f"    expected: {scripts_root}")
+        return
+    if scripts_root.is_symlink():
+        print("⚠️  workspaces/scripts が symlink です（SoTは実ディレクトリ推奨）")
+        print(f"    path: {scripts_root}")
+
+    offloaded_sentinel = scripts_root / "README_OFFLOADED.txt"
+    if offloaded_sentinel.exists():
+        print("⚠️  workspaces/scripts が offload 済みの可能性があります（README_OFFLOADED.txt 検出）")
+        print(f"    sentinel: {offloaded_sentinel}")
+
+    planning_channels_dir = ws_root / "planning" / "channels"
+    if not planning_channels_dir.exists() or not planning_channels_dir.is_dir():
+        return
+
+    planning_channels = {p.stem.upper() for p in planning_channels_dir.glob("CH*.csv") if p.is_file()}
+    if not planning_channels:
+        return
+
+    script_channels = {p.name.upper() for p in scripts_root.glob("CH*") if p.is_dir()}
+    missing = sorted(planning_channels - script_channels)
+    if not missing:
+        return
+
+    shown = ", ".join(missing[:8])
+    suffix = " ..." if len(missing) > 8 else ""
+    print(f"⚠️  workspaces/scripts に存在しないチャンネルdirがあります: {len(missing)}件")
+    print(f"    missing (first): {shown}{suffix}")
+    print("    NOTE: UIのチャンネル一覧はPlanning/ChannelProfileからも表示できますが、台本画面は scripts SoT が必要です。")
 
 
 def main() -> int:
@@ -111,6 +143,12 @@ def main() -> int:
                 f"⚠️  Optional provider config incomplete: {missing_key} is missing "
                 f"but {present_key} is set. Azure is optional; set both to enable Azure."
             )
+
+    # Soft warnings: SoT directories (non-fatal)
+    try:
+        _warn_workspace_layout(REPO_ROOT)
+    except Exception:
+        pass
 
     print("✅ All required environment variables are set")
     return 0

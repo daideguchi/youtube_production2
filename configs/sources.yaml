@@ -22,6 +22,8 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH02-静寂の哲学/script_prompt.txt
     web_search_policy: required
     chapter_count: 5
+    target_chars_min: 8000
+    target_chars_max: 10000
   CH03:
     planning_csv: workspaces/planning/channels/CH03.csv
     persona: workspaces/planning/personas/CH03_PERSONA.md
@@ -36,23 +38,24 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH04-隠れ書庫アカシック/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 5000
-    target_chars_max: 7000
+    target_chars_min: 8000
+    target_chars_max: 10000
   CH05:
     planning_csv: workspaces/planning/channels/CH05.csv
     persona: workspaces/planning/personas/CH05_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH05-シニア恋愛/script_prompt.txt
     web_search_policy: disabled
     chapter_count: 5
-    target_chars_min: 1800
-    target_chars_max: 2200
+    target_chars_min: 6000
+    target_chars_max: 8000
   CH06:
     planning_csv: workspaces/planning/channels/CH06.csv
     persona: workspaces/planning/personas/CH06_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 8000
+    target_chars_min: 20000
+    target_chars_max: 26000
   CH07:
     planning_csv: workspaces/planning/channels/CH07.csv
     persona: workspaces/planning/personas/CH07_PERSONA.md
@@ -75,8 +78,8 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH09-不動の指針/script_prompt.txt
     web_search_policy: required
     chapter_count: 1
-    target_chars_min: 5500
-    target_chars_max: 6500
+    target_chars_min: 8000
+    target_chars_max: 10000
   CH10:
     planning_csv: workspaces/planning/channels/CH10.csv
     persona: workspaces/planning/personas/CH10_PERSONA.md
@@ -91,6 +94,8 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH11-ブッダの法話/script_prompt.txt
     web_search_policy: required
     chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 10000
   CH12:
     planning_csv: workspaces/planning/channels/CH12.csv
     persona: workspaces/planning/personas/CH12_PERSONA.md
@@ -121,72 +126,72 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt
     web_search_policy: required
     chapter_count: 8
-    target_chars_min: 6500
-    target_chars_max: 8500
+    target_chars_min: 7000
+    target_chars_max: 9000
   CH16:
     planning_csv: workspaces/planning/channels/CH16.csv
     persona: workspaces/planning/personas/CH16_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt
     web_search_policy: required
     chapter_count: 8
-    target_chars_min: 6500
-    target_chars_max: 8500
+    target_chars_min: 7000
+    target_chars_max: 9000
   CH17:
     planning_csv: workspaces/planning/channels/CH17.csv
     persona: workspaces/planning/personas/CH17_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH17-安らぎ仏教夜話/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 18000
-    target_chars_max: 26000
+    target_chars_min: 36000
+    target_chars_max: 44000
   CH18:
     planning_csv: workspaces/planning/channels/CH18.csv
     persona: workspaces/planning/personas/CH18_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH18-ゆったり仏教伝説紀行/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 18000
-    target_chars_max: 26000
+    target_chars_min: 36000
+    target_chars_max: 44000
   CH19:
     planning_csv: workspaces/planning/channels/CH19.csv
     persona: workspaces/planning/personas/CH19_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH19-眠れる昔ばなし朗読館/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 18000
-    target_chars_max: 26000
+    target_chars_min: 36000
+    target_chars_max: 44000
   CH20:
     planning_csv: workspaces/planning/channels/CH20.csv
     persona: workspaces/planning/personas/CH20_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH20-ゆったり雑学ナイトラジオ/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 18000
-    target_chars_max: 26000
+    target_chars_min: 36000
+    target_chars_max: 44000
   CH21:
     planning_csv: workspaces/planning/channels/CH21.csv
     persona: workspaces/planning/personas/CH21_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH21-夢見るゆる旅案内/script_prompt.txt
     web_search_policy: required
     chapter_count: 7
-    target_chars_min: 18000
-    target_chars_max: 26000
+    target_chars_min: 36000
+    target_chars_max: 44000
   CH22:
     planning_csv: workspaces/planning/channels/CH22.csv
     persona: workspaces/planning/personas/CH22_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH22-老後の友人関係ラボ/script_prompt.txt
     web_search_policy: required
     chapter_count: 5
-    target_chars_min: 4500
-    target_chars_max: 6500
+    target_chars_min: 8000
+    target_chars_max: 9000
   CH23:
     planning_csv: workspaces/planning/channels/CH23.csv
     persona: workspaces/planning/personas/CH23_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH23-熟年夫婦の現実ノート/script_prompt.txt
     web_search_policy: required
     chapter_count: 5
-    target_chars_min: 4500
-    target_chars_max: 6500
+    target_chars_min: 8000
+    target_chars_max: 9000
   CH24:
     planning_csv: workspaces/planning/channels/CH24.csv
     persona: workspaces/planning/personas/CH24_PERSONA.md
@@ -204,3 +209,12 @@ channels:
     chapter_count: 7
     target_chars_min: 20000
     target_chars_max: 26000
+
+  CH26:
+    planning_csv: workspaces/planning/channels/CH26.csv
+    persona: workspaces/planning/personas/CH26_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH26-拝啓、偉人より/script_prompt.txt
+    web_search_policy: required
+    chapter_count: 7
+    target_chars_min: 15000
+    target_chars_max: 20000

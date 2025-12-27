@@ -7,7 +7,7 @@ This script is meant to be called from the UI backend job system to:
   2) Upload the mp4 to Google Drive (OAuth) and persist the webViewLink back into the run_dir
 
 Why this exists:
-  - commentary_02 run_dir does not contain audio wav by default
+  - workspaces/video run_dir does not contain audio wav by default (audio SoT is workspaces/audio/final)
   - Remotion scaffolding in srt2images is intentionally lightweight
   - UI needs a single command with logs + deterministic output locations
 """
@@ -448,7 +448,7 @@ def main(argv: list[str]) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_render = sub.add_parser("render", help="Render run_dir to mp4 (no upload)")
-    p_render.add_argument("--run-dir", required=True, help="commentary_02 output run_dir")
+    p_render.add_argument("--run-dir", required=True, help="video run_dir (e.g. workspaces/video/runs/<run_id>)")
     p_render.add_argument("--channel", help="CHxx (preset/layout lookup)")
     p_render.add_argument("--title", help="Optional title override")
     p_render.add_argument("--srt", help="Optional SRT path (defaults to first *.srt in run_dir)")
@@ -460,7 +460,7 @@ def main(argv: list[str]) -> int:
     p_render.set_defaults(func=cmd_render)
 
     p_upload = sub.add_parser("upload", help="Upload an existing mp4 to Drive and persist URL back to run_dir")
-    p_upload.add_argument("--run-dir", required=True, help="commentary_02 output run_dir")
+    p_upload.add_argument("--run-dir", required=True, help="video run_dir (e.g. workspaces/video/runs/<run_id>)")
     p_upload.add_argument("--channel", help="CHxx (used for Drive folder path)")
     p_upload.add_argument("--file", help="mp4 path (default: <run_dir>/remotion/output/final.mp4 or latest mp4 under run_dir)")
     p_upload.add_argument("--name", help="Drive file name (default: <run_dir.name>.mp4)")

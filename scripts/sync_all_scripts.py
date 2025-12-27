@@ -15,29 +15,19 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import re
 
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
 
-PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-PACKAGES_ROOT = PROJECT_ROOT / "packages"
-if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(PACKAGES_ROOT))
+bootstrap(load_env=False)
 
-from factory_common.paths import planning_root, script_data_root
+from factory_common.paths import planning_root, repo_root, script_data_root
 
 CHANNELS_DIR = planning_root() / "channels"
 DATA_ROOT = script_data_root()
 
 def _to_repo_relative(path: Path) -> str:
     try:
-        return path.resolve().relative_to(PROJECT_ROOT).as_posix()
+        return path.resolve().relative_to(repo_root()).as_posix()
     except Exception:
         return path.as_posix()
 
@@ -83,7 +73,7 @@ def sort_rows_inplace(csv_path: Path, rows: List[Dict[str, str]]) -> None:
 
 
 def load_csv(path: Path) -> Tuple[List[Dict[str, str]], List[str]]:
-    with path.open(encoding="utf-8", newline="") as f:
+    with path.open(encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
         fieldnames = reader.fieldnames or []
@@ -99,7 +89,7 @@ def save_csv(path: Path, rows: List[Dict[str, str]], fieldnames: List[str]) -> N
     for key in sorted(extra_keys):
         if key not in all_fields:
             all_fields.append(key)
-    with path.open("w", encoding="utf-8", newline="") as f:
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=all_fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)

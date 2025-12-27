@@ -217,21 +217,18 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
 
   が成功することは確認済み。
 
-* 現状の問題は、
+* 現状の注意点は、
 
-  * `nanobanana_client.py` が `from core.config import config` や `from google import genai`
-    に依存して壊れていること
-  * CLI `ddnanobanana` を呼ぼうとして `nano_banana_cli.py` がないエラーになっていること
+  * `nanobanana_client.py` は **directモードの正ルート**が `factory_common.image_client.ImageClient`。
+    旧依存（`from core.config import config` / `from google import genai`）は撤去済み。
+  * `cli` モードはローカル実行ファイル（`nanobanana` / `ddnanobanana`）が無いと失敗する
+    （その場合は `direct` を使うか、placeholder フォールバックになる）。
 
 ### 2. 画像生成で「やるべきこと」
 
-1. `nanobanana_client.py` の direct モード（`_run_direct`）を、
-   **LLMRouter + gemini_2_5_flash_image ベースの実装に作り変える。**
-
-   * `from google import genai` は **すべて削除**。
-   * `get_router()` を使って、
-     `task="visual_image_gen"` を叩く実装に置き換える。
-   * `prompt` → 画像 → `output_path` に PNG 保存、という I/O は既存仕様を維持。
+1. `nanobanana_client.py` の direct モード（`_run_direct`）は、
+   `ImageClient(task="visual_image_gen")` を使う（LLMRouterはレガシー経路）。
+   * I/O: `prompt` → 画像bytes → `output_path` へ PNG 保存（既存仕様を維持）
 
 2. `auto_capcut_run.py` / `run_pipeline.py` 側で、
 

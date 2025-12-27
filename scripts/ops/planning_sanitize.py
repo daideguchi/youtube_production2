@@ -124,7 +124,7 @@ class Change:
 
 
 def sanitize_csv(csv_path: Path, channel: str) -> tuple[list[dict[str, str]], list[str], list[Change]]:
-    with csv_path.open("r", encoding="utf-8", newline="") as f:
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         headers = list(reader.fieldnames or [])
         rows = list(reader)
@@ -245,7 +245,7 @@ def main(argv: list[str]) -> int:
         )
         return 3
 
-    with csv_path.open("w", encoding="utf-8", newline="") as f:
+    with csv_path.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)

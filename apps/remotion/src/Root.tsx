@@ -3,6 +3,7 @@ import { Composition } from "remotion";
 import "./font.css";
 import { Timeline } from "./Timeline";
 import { BeltConfig, SubtitleCue } from "./lib/types";
+import { parseSrt } from "./lib/parseSrt";
 
 export type SceneItem = {
   imgPath: string;
@@ -180,27 +181,3 @@ export const RemotionRoot: React.FC = () => {
 };
 
 export default RemotionRoot;
-
-function parseSrt(text: string): SubtitleCue[] {
-  const blocks = text.split(/\r?\n\r?\n/);
-  const cues: SubtitleCue[] = [];
-  for (const b of blocks) {
-    const lines = b.trim().split(/\r?\n/).filter(Boolean);
-    if (lines.length < 2) continue;
-    const tm = (lines[1] || lines[0]).match(/(.+)\s-->\s(.+)/);
-    if (!tm) continue;
-    const start = parseTime(tm[1].trim());
-    const end = parseTime(tm[2].trim());
-    const content = lines.slice(2).join(" ").trim();
-    if (!Number.isFinite(start) || !Number.isFinite(end) || !content) continue;
-    cues.push({ start, end, text: content });
-  }
-  return cues.sort((a, b) => a.start - b.start);
-}
-
-function parseTime(t: string): number {
-  const m = t.match(/(\d+):(\d+):(\d+),(\d+)/);
-  if (!m) return 0;
-  const [, h, mnt, s, ms] = m;
-  return Number(h) * 3600 + Number(mnt) * 60 + Number(s) + Number(ms) / 1000;
-}

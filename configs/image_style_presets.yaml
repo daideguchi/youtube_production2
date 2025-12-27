@@ -1,0 +1,94 @@
+version: 1
+# Shared style presets for image generation (UI + manual tests).
+# Each preset is a short "style prefix" string that can be prepended to a scene prompt.
+presets:
+  watercolor_washi:
+    label: "水彩 / 和紙"
+    prompt: "Japanese watercolor illustration, soft bleed, gentle ink outlines, washi paper texture, warm and calm palette"
+  sumi_e:
+    label: "墨絵"
+    prompt: "Traditional Japanese sumi-e ink wash painting, minimal brush strokes, lots of negative space"
+  ukiyo_e:
+    label: "浮世絵"
+    prompt: "Ukiyo-e woodblock print style, flat colors, bold outlines, subtle paper texture"
+  anime_modern:
+    label: "現代アニメ（2D）"
+    prompt: "Modern Japanese 2D anime illustration (seinen), clean lineart, smooth gradient shading, soft key light, gentle rim light, no photorealism"
+  manga_ink_wash:
+    label: "漫画インク+水彩"
+    prompt: "Manga pen-and-ink linework with watercolor wash, expressive strokes, subtle paper texture, no screentone text"
+  noir_lineart:
+    label: "ノワール線画"
+    prompt: "Monochrome pen-and-ink line art, cross-hatching, high contrast noir lighting"
+  storyboard_sketch:
+    label: "絵コンテ"
+    prompt: "Storyboard sketch, loose pencil lines, simple shading, cinematic framing, clean negative space"
+  vector_poster:
+    label: "ベクターポスター"
+    prompt: "Flat vector poster design, clean geometric shapes, limited palette, crisp edges"
+  midcentury_modern:
+    label: "ミッドセンチュリー"
+    prompt: "Mid-century modern illustration, geometric forms, warm muted palette, simple shapes, poster-like composition"
+  linocut_print:
+    label: "リノカット版画"
+    prompt: "Linocut print, bold carved texture, high contrast, limited colors, rough paper grain"
+  pixel_art:
+    label: "ピクセルアート"
+    prompt: "Pixel art, 32-bit era, dithering, limited palette, readable silhouettes"
+  isometric_diorama:
+    label: "アイソメ / ジオラマ"
+    prompt: "Isometric diorama, miniature scene, soft shadows, clean details"
+  low_poly_3d:
+    label: "ローポリ3D"
+    prompt: "Low-poly 3D render, faceted geometry, clean materials, soft studio lighting"
+  clay_3d:
+    label: "クレイ/ストップモーション"
+    prompt: "3D claymation style, handcrafted look, soft global illumination, subtle imperfections"
+  papercraft_cutout:
+    label: "ペーパークラフト"
+    prompt: "Papercraft cutout collage, layered paper edges, soft shadows, handcrafted look"
+  origami:
+    label: "折り紙"
+    prompt: "Origami paper sculpture style, folded paper forms, crisp creases, clean background"
+  oil_paint:
+    label: "油彩"
+    prompt: "Oil painting, visible brush strokes, painterly texture, soft edge blending"
+  gouache_storybook:
+    label: "ガッシュ絵本"
+    prompt: "Gouache painting, matte texture, storybook illustration, warm soft lighting"
+  charcoal_sketch:
+    label: "木炭スケッチ"
+    prompt: "Charcoal sketch on textured paper, smudged shading, expressive strokes, monochrome"
+  chalkboard:
+    label: "チョーク"
+    prompt: "Chalk drawing on blackboard, dusty texture, simple shapes, soft vignette"
+  crayon_handmade:
+    label: "クレヨン"
+    prompt: "Handmade crayon drawing, visible wax texture, warm friendly palette, simple forms"
+  stained_glass:
+    label: "ステンドグラス"
+    prompt: "Stained glass art, bold leading lines, jewel-tone colors, light passing through"
+  art_nouveau:
+    label: "アール・ヌーヴォー"
+    prompt: "Art Nouveau illustration, elegant curves, ornamental framing, muted pastel palette"
+  collage_magazine:
+    label: "雑誌コラージュ"
+    prompt: "Vintage magazine collage, torn paper edges, layered textures, subtle halftone, curated color palette"
+  watercolor_minimal:
+    label: "ミニマル水彩"
+    prompt: "Minimal watercolor illustration, lots of white space, soft gradients, gentle pigment pooling"
+  cinematic_film_still:
+    label: "シネマ風"
+    prompt: "Cinematic film still, 35mm film grain, shallow depth of field, natural soft lighting, gentle color grading"
+  miniature_tiltshift:
+    label: "ミニチュア/チルトシフト"
+    prompt: "Miniature tilt-shift look, shallow depth of field, toy-like details, soft bokeh"
+  synthwave_80s:
+    label: "シンセウェーブ80s"
+    prompt: "Synthwave 1980s retro poster, neon gradients, atmospheric glow, cinematic framing"
+  cyberpunk_neon:
+    label: "サイバーパンク"
+    prompt: "Cyberpunk concept art, neon accents, moody haze, high contrast lighting"
+  surreal_dream:
+    label: "シュルレアリスム"
+    prompt: "Surreal dreamlike illustration, symbolic composition, soft haze, unexpected scale, calm palette"

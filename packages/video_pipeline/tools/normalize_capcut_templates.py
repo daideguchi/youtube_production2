@@ -29,12 +29,22 @@ from pathlib import Path
 from typing import Any, Optional
 
 
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
+
+tool_bootstrap(load_env=False)
+
+from factory_common.paths import video_pkg_root  # noqa: E402
+
+
 DEFAULT_DRAFT_ROOT = (
     Path(os.getenv("CAPCUT_DRAFT_ROOT", "")).expanduser()
     if os.getenv("CAPCUT_DRAFT_ROOT")
     else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
 )
-DEFAULT_PRESETS_PATH = Path(__file__).resolve().parent.parent / "config" / "channel_presets.json"
+DEFAULT_PRESETS_PATH = video_pkg_root() / "config" / "channel_presets.json"
 
 
 def _try_load_json(path: Path) -> tuple[Optional[dict[str, Any]], str]:

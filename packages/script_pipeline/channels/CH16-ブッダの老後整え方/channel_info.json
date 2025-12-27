@@ -55,8 +55,15 @@
   "audience_profile": "60代以降。老後のお金・健康・家の乱れ・見通し不安が重なり、順番を整えて安心を増やしたい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "老後/孤独不安など中高年フックの作り方と締め方の参考"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",

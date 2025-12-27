@@ -4,27 +4,30 @@
 from __future__ import annotations
 
 import json
-import shutil
-import tempfile
-import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from PIL import Image, ImageEnhance
-
 from factory_common import paths as fpaths
-from factory_common.image_client import ImageClient, ImageGenerationError, ImageTaskOptions
-from script_pipeline.thumbnails.compiler.compose_text_layout import compose_text_layout
+from factory_common.image_client import ImageClient
 from script_pipeline.thumbnails.compiler.layer_specs import (
-    find_image_prompt_for_video,
+    find_text_layout_item_for_video,
+    load_image_prompts_v3_typed,
     load_layer_spec_yaml,
+    load_text_layout_v3_typed,
     resolve_channel_layer_spec_ids,
 )
-
-
-SUPPORTED_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
+from script_pipeline.thumbnails.compiler.layer_specs_schema_v3 import ImagePromptsSpecV3, TextLayoutSpecV3
+from script_pipeline.thumbnails.layers.image_layer import (
+    BgEnhanceParams,
+    crop_resize_to_16x9,
+    enhanced_bg_path,
+    generate_background_with_retries,
+    resolve_background_source,
+)
+from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
+from script_pipeline.tools import planning_store
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,54 @@ def _normalize_video(video: str) -> str:
         raise ValueError(f"invalid video: {video}")
     return digits.zfill(3)
 
+def _load_planning_copy(channel: str, video: str) -> Dict[str, str]:
+    """
+    Load copy fields from planning CSV.
+
+    Returns:
+      {upper, title, lower}
+    """
+    ch = _normalize_channel(channel)
+    v = _normalize_video(video)
+    try:
+        rows = planning_store.get_rows(ch, force_refresh=True)
+    except Exception:
+        return {}
+    for row in rows:
+        try:
+            row_v = _normalize_video(row.video_number or "")
+        except Exception:
+            continue
+        if row_v != v:
+            continue
+        raw = row.raw if isinstance(row.raw, dict) else {}
+        upper = str(raw.get("サムネタイトル上") or "").strip()
+        title = str(raw.get("サムネタイトル") or "").strip()
+        lower = str(raw.get("サムネタイトル下") or "").strip()
+
+        # CH01 など: サムネタイトルに3行をまとめて入れる運用を許容
+        if title and not upper and not lower:
+            decoded = str(title).replace("\\n", "\n")
+            if "\n" in decoded:
+                lines = [ln.strip() for ln in decoded.splitlines() if ln.strip()]
+                if len(lines) >= 3:
+                    upper, title, lower = lines[0], lines[1], lines[2]
+                elif len(lines) == 2:
+                    upper, title = lines[0], lines[1]
+        return {"upper": upper, "title": title, "lower": lower}
+    return {}
+
+
+def _planning_value_for_slot(slot_name: str, copy: Dict[str, str]) -> str:
+    name = str(slot_name or "").strip().lower()
+    if name in {"line1", "upper", "top"}:
+        return str(copy.get("upper") or "").strip()
+    if name in {"line2", "title", "main"}:
+        return str(copy.get("title") or "").strip()
+    if name in {"line3", "lower", "accent"}:
+        return str(copy.get("lower") or "").strip()
+    return ""
+
 
 def iter_targets_from_layer_specs(channel: str, videos: Optional[List[str]]) -> List[BuildTarget]:
     """
@@ -62,16 +113,10 @@ def iter_targets_from_layer_specs(channel: str, videos: Optional[List[str]]) -> 
     if not img_id or not txt_id:
         raise RuntimeError(f"layer_specs not configured for channel: {ch}")
 
-    img_spec = load_layer_spec_yaml(img_id)
-    items = img_spec.get("items")
-    if not isinstance(items, list):
-        raise RuntimeError("layer_specs.image_prompts items missing")
-
     vids: List[str] = []
-    for item in items:
-        if not isinstance(item, dict):
-            continue
-        vid = str(item.get("video_id") or "").strip()
+    img_spec = load_image_prompts_v3_typed(img_id)
+    for item in img_spec.items:
+        vid = str(item.video_id).strip()
         if not vid.startswith(f"{ch}-"):
             continue
         suffix = vid.split("-", 1)[1] if "-" in vid else ""
@@ -80,107 +125,6 @@ def iter_targets_from_layer_specs(channel: str, videos: Optional[List[str]]) -> 
     if not vids:
         raise RuntimeError(f"no video targets found in layer spec for channel={ch}")
     return [BuildTarget(channel=ch, video=v) for v in sorted(set(vids))]
-
-
-def crop_resize_to_16x9(src_path: Path, dest_path: Path, *, width: int, height: int) -> None:
-    """
-    Center-crop to 16:9 then resize to (width,height), and save as PNG.
-    """
-    with Image.open(src_path) as img:
-        img = img.convert("RGBA")
-        src_w, src_h = img.size
-        target_ratio = width / float(height)
-        src_ratio = src_w / float(src_h)
-
-        if abs(src_ratio - target_ratio) > 1e-3:
-            if src_ratio > target_ratio:
-                new_w = int(src_h * target_ratio)
-                left = max(0, (src_w - new_w) // 2)
-                img = img.crop((left, 0, left + new_w, src_h))
-            else:
-                new_h = int(src_w / target_ratio)
-                top = max(0, (src_h - new_h) // 2)
-                img = img.crop((0, top, src_w, top + new_h))
-
-        img = img.resize((width, height), Image.LANCZOS)
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-        img.save(dest_path, format="PNG", optimize=True)
-
-
-def _apply_gamma_rgb(img: Image.Image, gamma: float) -> Image.Image:
-    g = float(gamma)
-    if g <= 0:
-        raise ValueError("gamma must be > 0")
-    if abs(g - 1.0) < 1e-6:
-        return img
-    lut = [int(round(((i / 255.0) ** g) * 255.0)) for i in range(256)]
-    if img.mode == "RGB":
-        return img.point(lut * 3)
-    if img.mode == "L":
-        return img.point(lut)
-    return img.convert("RGB").point(lut * 3)
-
-
-def apply_bg_enhancements(
-    img: Image.Image,
-    *,
-    brightness: float,
-    contrast: float,
-    color: float,
-    gamma: float,
-) -> Image.Image:
-    b = float(brightness)
-    c = float(contrast)
-    s = float(color)
-    g = float(gamma)
-    if abs(b - 1.0) < 1e-6 and abs(c - 1.0) < 1e-6 and abs(s - 1.0) < 1e-6 and abs(g - 1.0) < 1e-6:
-        return img
-
-    rgba = img.convert("RGBA")
-    alpha = rgba.getchannel("A")
-    rgb = rgba.convert("RGB")
-
-    if abs(g - 1.0) >= 1e-6:
-        rgb = _apply_gamma_rgb(rgb, g)
-    if abs(b - 1.0) >= 1e-6:
-        rgb = ImageEnhance.Brightness(rgb).enhance(b)
-    if abs(c - 1.0) >= 1e-6:
-        rgb = ImageEnhance.Contrast(rgb).enhance(c)
-    if abs(s - 1.0) >= 1e-6:
-        rgb = ImageEnhance.Color(rgb).enhance(s)
-
-    out = rgb.convert("RGBA")
-    out.putalpha(alpha)
-    return out
-
-
-def _legacy_background_candidates(channel_root: Path, video: str) -> List[Path]:
-    out: List[Path] = []
-    for ext in sorted(SUPPORTED_EXTS):
-        out.append(channel_root / f"{video}{ext}")
-    for ext in sorted(SUPPORTED_EXTS):
-        out.append(channel_root / f"{int(video)}{ext}")
-    return out
-
-
-def _find_existing_background(video_dir: Path) -> Optional[Path]:
-    preferred = [
-        video_dir / "10_bg.png",
-        video_dir / "10_bg.jpg",
-        video_dir / "10_bg.jpeg",
-        video_dir / "10_bg.webp",
-        video_dir / "90_bg_legacy.png",
-        video_dir / "90_bg_legacy.jpg",
-        video_dir / "90_bg_legacy.jpeg",
-        video_dir / "90_bg_legacy.webp",
-    ]
-    for p in preferred:
-        if p.exists() and p.is_file():
-            return p
-    for p in sorted(video_dir.iterdir(), key=lambda path: path.as_posix().lower()):
-        if p.is_file() and p.suffix.lower() in SUPPORTED_EXTS:
-            return p
-    return None
 
 
 def _load_thumbnail_projects_path() -> Path:
@@ -239,6 +183,9 @@ def upsert_fs_variant(
 
     if title:
         project["title"] = title
+    if status:
+        project["status"] = status
+        project["status_updated_at"] = datetime.now(timezone.utc).isoformat()
     project.setdefault("variants", [])
     if not isinstance(project["variants"], list):
         project["variants"] = []
@@ -298,24 +245,39 @@ def _resolve_title_from_specs(
     *,
     channel: str,
     video_id: str,
-    image_spec: Dict[str, Any],
-    text_spec: Dict[str, Any],
+    image_spec: ImagePromptsSpecV3,
+    text_spec: TextLayoutSpecV3,
 ) -> Optional[str]:
-    items = text_spec.get("items")
-    if isinstance(items, list):
-        for item in items:
-            if isinstance(item, dict) and str(item.get("video_id") or "").strip() == video_id:
-                t = str(item.get("title") or "").strip()
-                if t:
-                    return t
-    items = image_spec.get("items")
-    if isinstance(items, list):
-        for item in items:
-            if isinstance(item, dict) and str(item.get("video_id") or "").strip() == video_id:
-                t = str(item.get("title") or "").strip()
-                if t:
-                    return t
+    for item in text_spec.items:
+        if str(item.video_id).strip() == str(video_id).strip():
+            t = str(item.title).strip()
+            if t:
+                return t
+    for item in image_spec.items:
+        if str(item.video_id).strip() == str(video_id).strip():
+            t = str(item.title).strip()
+            if t:
+                return t
     return None
+
+
+def _sanitize_prompt_for_generation(*, channel: str, prompt: str) -> str:
+    """
+    Avoid giving the image model literal copy strings that it might render into the image.
+    """
+    p = str(prompt or "").strip()
+    if not p:
+        return ""
+    ch = _normalize_channel(channel)
+    if ch == "CH26":
+        lines: List[str] = []
+        for raw in p.splitlines():
+            s = raw.strip()
+            if s.startswith("テーマ:") or s.startswith("テーマ："):
+                continue
+            lines.append(raw)
+        return "\n".join(lines).strip()
+    return p
 
 
 def build_channel_thumbnails(
@@ -340,8 +302,9 @@ def build_channel_thumbnails(
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
     if not img_id or not txt_id:
         raise RuntimeError(f"layer_specs not configured for channel: {ch}")
-    image_spec = load_layer_spec_yaml(img_id)
+    image_spec = load_image_prompts_v3_typed(img_id)
     text_spec = load_layer_spec_yaml(txt_id)
+    text_spec_typed = load_text_layout_v3_typed(txt_id)
 
     model_key = _resolve_model_key_from_templates(ch)
     if not model_key:
@@ -374,113 +337,83 @@ def build_channel_thumbnails(
                 print(f"[{idx}/{len(targets)}] {target.video_id}: skip (already built)")
             continue
 
-        bg_src = _find_existing_background(video_dir)
-        legacy_moved_from: Optional[str] = None
-        if bg_src is None:
-            for legacy in _legacy_background_candidates(assets_root, target.video):
-                if legacy.exists() and legacy.is_file():
-                    dest = video_dir / "90_bg_legacy.png"
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.move(str(legacy), str(dest))
-                    bg_src = dest
-                    legacy_moved_from = str(legacy)
-                    break
+        bg_source = resolve_background_source(video_dir=video_dir, channel_root=assets_root, video=target.video)
+        bg_src = bg_source.bg_src
+        legacy_moved_from = bg_source.legacy_moved_from
 
         generated: Optional[Dict[str, Any]] = None
         if bg_src is None:
             if skip_generate:
                 print(f"[{idx}/{len(targets)}] {target.video_id}: missing bg (skip_generate)")
                 continue
-            prompt = find_image_prompt_for_video(image_spec, target.video_id)
-            if not prompt:
+            prompt = next((it.prompt_ja for it in image_spec.items if it.video_id == target.video_id), None)
+            if not isinstance(prompt, str) or not prompt.strip():
                 raise RuntimeError(f"image prompt missing for {target.video_id}")
-
-            result = None
-            last_exc: Optional[Exception] = None
-            attempts = max(1, int(max_gen_attempts))
-            for attempt in range(1, attempts + 1):
-                try:
-                    print(f"[{idx}/{len(targets)}] {target.video_id}: generating bg via {model_key} (attempt {attempt}/{attempts}) ...")
-                    result = client.generate(
-                        ImageTaskOptions(
-                            task="thumbnail_image_gen",
-                            prompt=prompt,
-                            aspect_ratio="16:9",
-                            n=1,
-                            extra={"model_key": model_key, "allow_fallback": False},
-                        )
-                    )
-                    if result.images:
-                        break
-                    last_exc = RuntimeError("image generation returned no image bytes")
-                except ImageGenerationError as exc:
-                    last_exc = exc
-                except Exception as exc:  # noqa: BLE001
-                    last_exc = exc
-                time.sleep(max(0.5, float(sleep_sec)))
-
-            if not result or not result.images:
-                msg = f"[{idx}/{len(targets)}] {target.video_id}: generation failed ({last_exc})"
+            prompt = _sanitize_prompt_for_generation(channel=ch, prompt=prompt)
+            try:
+                gen = generate_background_with_retries(
+                    client=client,
+                    prompt=prompt,
+                    model_key=model_key,
+                    out_raw_path=video_dir / "90_bg_ai_raw.png",
+                    video_id=target.video_id,
+                    max_attempts=int(max_gen_attempts),
+                    sleep_sec=float(sleep_sec),
+                )
+            except Exception as exc:  # noqa: BLE001
+                msg = f"[{idx}/{len(targets)}] {target.video_id}: generation failed ({exc})"
                 if continue_on_error:
                     print(msg)
                     continue
-                raise RuntimeError(f"image generation failed for {target.video_id}: {last_exc}") from last_exc
-
-            raw_path = video_dir / "90_bg_ai_raw.png"
-            raw_path.write_bytes(result.images[0])
-            bg_src = raw_path
-            generated = {
-                "provider": result.provider,
-                "model": result.model,
-                "model_key": model_key,
-                "request_id": result.request_id,
-                "metadata": result.metadata,
-            }
-            time.sleep(max(0.0, float(sleep_sec)))
+                raise
+            bg_src = gen.raw_path
+            generated = gen.generated
 
         if not bg_src:
             raise RuntimeError(f"background source resolution failed for {target.video_id}")
         crop_resize_to_16x9(bg_src, out_bg, width=width, height=height)
 
         print(f"[{idx}/{len(targets)}] {target.video_id}: composing text ...")
-        base_for_text = out_bg
-        tmp_bg: Optional[Path] = None
-        if any(
-            abs(x - 1.0) >= 1e-6
-            for x in (
-                float(bg_brightness),
-                float(bg_contrast),
-                float(bg_color),
-                float(bg_gamma),
-            )
-        ):
-            bg_img = Image.open(out_bg).convert("RGBA")
-            bg_img = apply_bg_enhancements(
-                bg_img,
-                brightness=float(bg_brightness),
-                contrast=float(bg_contrast),
-                color=float(bg_color),
-                gamma=float(bg_gamma),
-            )
-            handle = tempfile.NamedTemporaryFile(prefix=f"{target.video_id}_bg_", suffix=".png", delete=False)
-            try:
-                tmp_bg = Path(handle.name)
-            finally:
-                handle.close()
-            bg_img.save(tmp_bg, format="PNG", optimize=True)
-            base_for_text = tmp_bg
+        bg_params = BgEnhanceParams(
+            brightness=float(bg_brightness),
+            contrast=float(bg_contrast),
+            color=float(bg_color),
+            gamma=float(bg_gamma),
+        )
+        item = find_text_layout_item_for_video(text_spec, target.video_id) if isinstance(text_spec, dict) else None
+        template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
+        templates = text_spec.get("templates") if isinstance(text_spec, dict) else None
+        slots = None
+        if template_id and isinstance(templates, dict):
+            tpl = templates.get(template_id)
+            slots = tpl.get("slots") if isinstance(tpl, dict) else None
+        text_payload = item.get("text") if isinstance(item, dict) else None
+        planning_copy = _load_planning_copy(ch, target.video)
+        text_override: Dict[str, str] = {}
+        if planning_copy and isinstance(slots, dict):
+            for slot_name in slots.keys():
+                # Only override missing slot text (keeps existing CH10 specs intact)
+                cur = ""
+                if isinstance(text_payload, dict):
+                    cur = str(text_payload.get(slot_name) or "").strip()
+                if cur:
+                    continue
+                val = _planning_value_for_slot(slot_name, planning_copy)
+                if val:
+                    text_override[str(slot_name)] = val
 
-        out_img = compose_text_layout(base_for_text, text_layout_spec=text_spec, video_id=target.video_id)
-        out_img.save(out_thumb, format="PNG", optimize=True)
+        with enhanced_bg_path(out_bg, params=bg_params, temp_prefix=f"{target.video_id}_bg_") as base_for_text:
+            compose_text_to_png(
+                base_for_text,
+                text_layout_spec=text_spec,
+                video_id=target.video_id,
+                out_path=out_thumb,
+                text_override=text_override if text_override else None,
+            )
         if flat_out:
             flat_out.write_bytes(out_thumb.read_bytes())
-        if tmp_bg:
-            try:
-                tmp_bg.unlink()
-            except Exception:
-                pass
 
-        title = _resolve_title_from_specs(channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec)
+        title = _resolve_title_from_specs(channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec_typed)
         rel_thumb = f"{ch}/{target.video}/00_thumb.png"
         upsert_fs_variant(channel=ch, video=target.video, title=title, image_rel_path=rel_thumb, label="thumb_00", status="review")
 
@@ -497,6 +430,12 @@ def build_channel_thumbnails(
                 "width": width,
                 "height": height,
             },
+            "bg_enhance": {
+                "brightness": bg_params.brightness,
+                "contrast": bg_params.contrast,
+                "color": bg_params.color,
+                "gamma": bg_params.gamma,
+            },
             "sources": {
                 "legacy_moved_from": legacy_moved_from,
                 "bg_src": str(bg_src.relative_to(fpaths.repo_root())),
@@ -505,4 +444,3 @@ def build_channel_thumbnails(
         }
         meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"[{idx}/{len(targets)}] {target.video_id}: OK -> {out_thumb}")
-

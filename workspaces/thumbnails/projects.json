@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-26T01:28:28.284887+00:00",
+  "updated_at": "2025-12-27T06:49:50.467561+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -2849,6 +2849,606 @@
       "title": "期待するほど心が苦しい【弘法大師の教え】",
       "updated_at": "2025-12-25T12:26:38.543658+00:00",
       "selected_variant_id": "fs::ch24_030_kobo_best"
+    },
+    {
+      "channel": "CH26",
+      "video": "001",
+      "variants": [
+        {
+          "id": "fs::ch26_001_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/001/00_thumb.png",
+          "image_path": "CH26/001/00_thumb.png",
+          "created_at": "2025-12-27T03:11:16.225485+00:00",
+          "updated_at": "2025-12-27T06:49:50.467550+00:00"
+        }
+      ],
+      "title": "【ノイマン式】結論、成果は設計で決まる",
+      "updated_at": "2025-12-27T06:49:50.467552+00:00",
+      "selected_variant_id": "fs::ch26_001_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T06:49:50.467537+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "002",
+      "variants": [
+        {
+          "id": "fs::ch26_002_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/002/00_thumb.png",
+          "image_path": "CH26/002/00_thumb.png",
+          "created_at": "2025-12-27T03:11:31.479194+00:00",
+          "updated_at": "2025-12-27T06:47:54.940508+00:00"
+        }
+      ],
+      "title": "【岡潔流】本当に賢い人は情報を減らす",
+      "updated_at": "2025-12-27T06:47:54.940510+00:00",
+      "selected_variant_id": "fs::ch26_002_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T06:47:54.940494+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "003",
+      "variants": [
+        {
+          "id": "fs::ch26_003_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/003/00_thumb.png",
+          "image_path": "CH26/003/00_thumb.png",
+          "created_at": "2025-12-27T03:11:44.880019+00:00",
+          "updated_at": "2025-12-27T06:47:58.621915+00:00"
+        }
+      ],
+      "title": "【チューリング式】結論、手順を外に出すと進む",
+      "updated_at": "2025-12-27T06:47:58.621916+00:00",
+      "selected_variant_id": "fs::ch26_003_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T06:47:58.621899+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "004",
+      "variants": [
+        {
+          "id": "fs::ch26_004_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/004/00_thumb.png",
+          "image_path": "CH26/004/00_thumb.png",
+          "created_at": "2025-12-27T03:11:58.614833+00:00",
+          "updated_at": "2025-12-27T06:48:02.883222+00:00"
+        }
+      ],
+      "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
+      "updated_at": "2025-12-27T06:48:02.883224+00:00",
+      "selected_variant_id": "fs::ch26_004_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T06:48:02.883198+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "005",
+      "variants": [
+        {
+          "id": "fs::ch26_005_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/005/00_thumb.png",
+          "image_path": "CH26/005/00_thumb.png",
+          "created_at": "2025-12-27T03:38:43.952700+00:00",
+          "updated_at": "2025-12-27T04:15:16.890796+00:00"
+        }
+      ],
+      "title": "【ゲーム理論】期待値で選べ：一回で揺れるな",
+      "updated_at": "2025-12-27T04:15:16.890800+00:00",
+      "selected_variant_id": "fs::ch26_005_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:16.890772+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "006",
+      "variants": [
+        {
+          "id": "fs::ch26_006_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/006/00_thumb.png",
+          "image_path": "CH26/006/00_thumb.png",
+          "created_at": "2025-12-27T03:38:55.373351+00:00",
+          "updated_at": "2025-12-27T04:15:19.647834+00:00"
+        }
+      ],
+      "title": "【サイモン式】最適解を捨てると成果が増える",
+      "updated_at": "2025-12-27T04:15:19.647838+00:00",
+      "selected_variant_id": "fs::ch26_006_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:19.647821+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "007",
+      "variants": [
+        {
+          "id": "fs::ch26_007_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/007/00_thumb.png",
+          "image_path": "CH26/007/00_thumb.png",
+          "created_at": "2025-12-27T03:39:08.236850+00:00",
+          "updated_at": "2025-12-27T04:15:23.855898+00:00"
+        }
+      ],
+      "title": "【ドラッカー流】結論、成果の定義が先だ",
+      "updated_at": "2025-12-27T04:15:23.855900+00:00",
+      "selected_variant_id": "fs::ch26_007_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:23.855884+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "008",
+      "variants": [
+        {
+          "id": "fs::ch26_008_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/008/00_thumb.png",
+          "image_path": "CH26/008/00_thumb.png",
+          "created_at": "2025-12-27T03:39:21.332372+00:00",
+          "updated_at": "2025-12-27T04:15:27.661317+00:00"
+        }
+      ],
+      "title": "【孫子の型】最悪を先に固定すると迷いが消える",
+      "updated_at": "2025-12-27T04:15:27.661318+00:00",
+      "selected_variant_id": "fs::ch26_008_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:27.661302+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "009",
+      "variants": [
+        {
+          "id": "fs::ch26_009_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/009/00_thumb.png",
+          "image_path": "CH26/009/00_thumb.png",
+          "created_at": "2025-12-27T03:39:36.636749+00:00",
+          "updated_at": "2025-12-27T04:15:31.295585+00:00"
+        }
+      ],
+      "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
+      "updated_at": "2025-12-27T04:15:31.295586+00:00",
+      "selected_variant_id": "fs::ch26_009_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:31.295571+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "010",
+      "variants": [
+        {
+          "id": "fs::ch26_010_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/010/00_thumb.png",
+          "image_path": "CH26/010/00_thumb.png",
+          "created_at": "2025-12-27T03:39:50.496505+00:00",
+          "updated_at": "2025-12-27T04:15:34.847373+00:00"
+        }
+      ],
+      "title": "【デカルト式】複雑ほど先に骨格を置け",
+      "updated_at": "2025-12-27T04:15:34.847375+00:00",
+      "selected_variant_id": "fs::ch26_010_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:34.847358+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "011",
+      "variants": [
+        {
+          "id": "fs::ch26_011_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/011/00_thumb.png",
+          "image_path": "CH26/011/00_thumb.png",
+          "created_at": "2025-12-27T03:40:02.542979+00:00",
+          "updated_at": "2025-12-27T04:15:37.914925+00:00"
+        }
+      ],
+      "title": "【カント流】結論、ルールが先だ",
+      "updated_at": "2025-12-27T04:15:37.914927+00:00",
+      "selected_variant_id": "fs::ch26_011_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:37.914912+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "012",
+      "variants": [
+        {
+          "id": "fs::ch26_012_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/012/00_thumb.png",
+          "image_path": "CH26/012/00_thumb.png",
+          "created_at": "2025-12-27T03:40:16.612139+00:00",
+          "updated_at": "2025-12-27T04:15:42.035135+00:00"
+        }
+      ],
+      "title": "【ニーチェ式】成果は“強さ”ではなく“整い”だ",
+      "updated_at": "2025-12-27T04:15:42.035136+00:00",
+      "selected_variant_id": "fs::ch26_012_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:42.035119+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "013",
+      "variants": [
+        {
+          "id": "fs::ch26_013_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/013/00_thumb.png",
+          "image_path": "CH26/013/00_thumb.png",
+          "created_at": "2025-12-27T03:40:28.654650+00:00",
+          "updated_at": "2025-12-27T04:15:46.469758+00:00"
+        }
+      ],
+      "title": "【ユング的】最悪を言葉にすると動ける",
+      "updated_at": "2025-12-27T04:15:46.469761+00:00",
+      "selected_variant_id": "fs::ch26_013_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:46.469746+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "014",
+      "variants": [
+        {
+          "id": "fs::ch26_014_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/014/00_thumb.png",
+          "image_path": "CH26/014/00_thumb.png",
+          "created_at": "2025-12-27T03:40:40.199643+00:00",
+          "updated_at": "2025-12-27T04:15:50.002371+00:00"
+        }
+      ],
+      "title": "【フロイト流】進めない原因は能力じゃない",
+      "updated_at": "2025-12-27T04:15:50.002372+00:00",
+      "selected_variant_id": "fs::ch26_014_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:50.002356+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "015",
+      "variants": [
+        {
+          "id": "fs::ch26_015_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/015/00_thumb.png",
+          "image_path": "CH26/015/00_thumb.png",
+          "created_at": "2025-12-27T03:40:54.613228+00:00",
+          "updated_at": "2025-12-27T04:15:54.328618+00:00"
+        }
+      ],
+      "title": "【スミス式】期待値で選べ：損を減らせ",
+      "updated_at": "2025-12-27T04:15:54.328619+00:00",
+      "selected_variant_id": "fs::ch26_015_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:54.328601+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "016",
+      "variants": [
+        {
+          "id": "fs::ch26_016_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/016/00_thumb.png",
+          "image_path": "CH26/016/00_thumb.png",
+          "created_at": "2025-12-27T03:41:06.371302+00:00",
+          "updated_at": "2025-12-27T04:15:58.820066+00:00"
+        }
+      ],
+      "title": "【ケインズ式】一回の上下で判断を変えるな",
+      "updated_at": "2025-12-27T04:15:58.820068+00:00",
+      "selected_variant_id": "fs::ch26_016_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:15:58.820052+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "017",
+      "variants": [
+        {
+          "id": "fs::ch26_017_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/017/00_thumb.png",
+          "image_path": "CH26/017/00_thumb.png",
+          "created_at": "2025-12-27T03:41:17.980703+00:00",
+          "updated_at": "2025-12-27T04:16:02.274348+00:00"
+        }
+      ],
+      "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
+      "updated_at": "2025-12-27T04:16:02.274349+00:00",
+      "selected_variant_id": "fs::ch26_017_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:02.274335+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "018",
+      "variants": [
+        {
+          "id": "fs::ch26_018_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/018/00_thumb.png",
+          "image_path": "CH26/018/00_thumb.png",
+          "created_at": "2025-12-27T03:41:32.496714+00:00",
+          "updated_at": "2025-12-27T04:16:06.438098+00:00"
+        }
+      ],
+      "title": "【キュリー式】結論、測定が更新を速くする",
+      "updated_at": "2025-12-27T04:16:06.438100+00:00",
+      "selected_variant_id": "fs::ch26_018_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:06.438082+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "019",
+      "variants": [
+        {
+          "id": "fs::ch26_019_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/019/00_thumb.png",
+          "image_path": "CH26/019/00_thumb.png",
+          "created_at": "2025-12-27T03:41:45.906731+00:00",
+          "updated_at": "2025-12-27T04:16:10.778554+00:00"
+        }
+      ],
+      "title": "【ファラデー流】成果は仕組みで積み上がる",
+      "updated_at": "2025-12-27T04:16:10.778568+00:00",
+      "selected_variant_id": "fs::ch26_019_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:10.778538+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "020",
+      "variants": [
+        {
+          "id": "fs::ch26_020_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/020/00_thumb.png",
+          "image_path": "CH26/020/00_thumb.png",
+          "created_at": "2025-12-27T03:42:00.091727+00:00",
+          "updated_at": "2025-12-27T04:16:14.467768+00:00"
+        }
+      ],
+      "title": "【ダーウィン式】結論、更新の反復が成果を作る",
+      "updated_at": "2025-12-27T04:16:14.467769+00:00",
+      "selected_variant_id": "fs::ch26_020_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:14.467753+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "021",
+      "variants": [
+        {
+          "id": "fs::ch26_021_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/021/00_thumb.png",
+          "image_path": "CH26/021/00_thumb.png",
+          "created_at": "2025-12-27T03:42:11.411000+00:00",
+          "updated_at": "2025-12-27T04:16:17.848795+00:00"
+        }
+      ],
+      "title": "【エジソン式】結論、更新回数が成果を決める",
+      "updated_at": "2025-12-27T04:16:17.848796+00:00",
+      "selected_variant_id": "fs::ch26_021_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:17.848781+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "022",
+      "variants": [
+        {
+          "id": "fs::ch26_022_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/022/00_thumb.png",
+          "image_path": "CH26/022/00_thumb.png",
+          "created_at": "2025-12-27T03:42:24.427300+00:00",
+          "updated_at": "2025-12-27T04:16:22.095054+00:00"
+        }
+      ],
+      "title": "【ジョブズ流】重要な2つだけ残せ",
+      "updated_at": "2025-12-27T04:16:22.095055+00:00",
+      "selected_variant_id": "fs::ch26_022_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:22.095040+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "023",
+      "variants": [
+        {
+          "id": "fs::ch26_023_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/023/00_thumb.png",
+          "image_path": "CH26/023/00_thumb.png",
+          "created_at": "2025-12-27T03:42:37.461170+00:00",
+          "updated_at": "2025-12-27T04:16:26.556699+00:00"
+        }
+      ],
+      "title": "【マスク式】結論、順序を整えると止まらない",
+      "updated_at": "2025-12-27T04:16:26.556701+00:00",
+      "selected_variant_id": "fs::ch26_023_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:26.556678+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "024",
+      "variants": [
+        {
+          "id": "fs::ch26_024_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/024/00_thumb.png",
+          "image_path": "CH26/024/00_thumb.png",
+          "created_at": "2025-12-27T03:42:49.004417+00:00",
+          "updated_at": "2025-12-27T04:16:30.612216+00:00"
+        }
+      ],
+      "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
+      "updated_at": "2025-12-27T04:16:30.612220+00:00",
+      "selected_variant_id": "fs::ch26_024_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:30.612201+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "025",
+      "variants": [
+        {
+          "id": "fs::ch26_025_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/025/00_thumb.png",
+          "image_path": "CH26/025/00_thumb.png",
+          "created_at": "2025-12-27T03:42:59.827355+00:00",
+          "updated_at": "2025-12-27T04:16:33.659783+00:00"
+        }
+      ],
+      "title": "【ベゾス流】結論、基準がないから止まる",
+      "updated_at": "2025-12-27T04:16:33.659784+00:00",
+      "selected_variant_id": "fs::ch26_025_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:33.659766+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "026",
+      "variants": [
+        {
+          "id": "fs::ch26_026_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
+          "image_path": "CH26/026/00_thumb.png",
+          "created_at": "2025-12-27T03:43:11.960825+00:00",
+          "updated_at": "2025-12-27T04:16:37.772828+00:00"
+        }
+      ],
+      "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
+      "updated_at": "2025-12-27T04:16:37.772829+00:00",
+      "selected_variant_id": "fs::ch26_026_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:37.772815+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "027",
+      "variants": [
+        {
+          "id": "fs::ch26_027_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/027/00_thumb.png",
+          "image_path": "CH26/027/00_thumb.png",
+          "created_at": "2025-12-27T03:43:24.202855+00:00",
+          "updated_at": "2025-12-27T04:16:42.071021+00:00"
+        }
+      ],
+      "title": "【デミング式】結論、平均を上げるのが最強",
+      "updated_at": "2025-12-27T04:16:42.071024+00:00",
+      "selected_variant_id": "fs::ch26_027_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:42.071002+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "028",
+      "variants": [
+        {
+          "id": "fs::ch26_028_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/028/00_thumb.png",
+          "image_path": "CH26/028/00_thumb.png",
+          "created_at": "2025-12-27T03:43:37.154009+00:00",
+          "updated_at": "2025-12-27T04:16:45.711361+00:00"
+        }
+      ],
+      "title": "【TPSの型】冗長性で崩れない仕組みを作れ",
+      "updated_at": "2025-12-27T04:16:45.711362+00:00",
+      "selected_variant_id": "fs::ch26_028_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:45.711343+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "029",
+      "variants": [
+        {
+          "id": "fs::ch26_029_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/029/00_thumb.png",
+          "image_path": "CH26/029/00_thumb.png",
+          "created_at": "2025-12-27T03:43:47.989830+00:00",
+          "updated_at": "2025-12-27T04:16:49.471269+00:00"
+        }
+      ],
+      "title": "【コヴィー流】重要な2つだけ残せ",
+      "updated_at": "2025-12-27T04:16:49.471270+00:00",
+      "selected_variant_id": "fs::ch26_029_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:49.471255+00:00"
+    },
+    {
+      "channel": "CH26",
+      "video": "030",
+      "variants": [
+        {
+          "id": "fs::ch26_030_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/030/00_thumb.png",
+          "image_path": "CH26/030/00_thumb.png",
+          "created_at": "2025-12-27T03:43:59.517457+00:00",
+          "updated_at": "2025-12-27T04:16:53.067587+00:00"
+        }
+      ],
+      "title": "【セネカ式】結論、基準がないから焦る",
+      "updated_at": "2025-12-27T04:16:53.067589+00:00",
+      "selected_variant_id": "fs::ch26_030_00_thumb",
+      "status": "review",
+      "status_updated_at": "2025-12-27T04:16:53.067574+00:00"
     }
   ]
 }

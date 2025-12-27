@@ -1,0 +1,107 @@
+version: 3
+name: CH01_text_layout_memo9_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+coordinate_system: 'normalized_0_to_1'
+global:
+  safe_zones:
+    left_TSZ: {x0: 0.00, x1: 0.60}
+  overlays:
+    left_tsz:
+      enabled: true
+      color: '#000000'
+      x0: 0.00
+      x1: 0.66
+      alpha_left: 0.60
+      alpha_right: 0.00
+  fonts:
+    headline_sans_priority: ['Noto Sans JP Black','Source Han Sans JP Heavy','BIZ UDPGothic Bold','Hiragino Sans W8','Yu Gothic UI Bold']
+  effects_defaults:
+    stroke: {color: '#000000', width_px: 12, join: 'round'}
+    shadow: {color: '#000000', alpha: 0.70, offset_px: [8,8], blur_px: 12}
+    glow: {color: '#ffffff', alpha: 0.00, blur_px: 0}
+    white_fill: {mode: 'solid', color: '#FFFFFF'}
+    yellow_fill: {mode: 'solid', color: '#FFD400'}
+    red_fill: {mode: 'solid', color: '#FF2A2A'}
+  fit_rules:
+    - '3行は原則1行固定。長い場合は縮小して収める。'
+    - '行内の色分けはタグで指定: [y]..[/y] [r]..[/r]（slot fill はデフォルト色）'
+
+templates:
+  M09_left_3line_strong:
+    description: 'メモ9: 左3行固定（右に人物、左に強い文字）'
+    slots:
+      line1:
+        box: [0.0469, 0.1296, 0.5208, 0.2000]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 140
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      line2:
+        box: [0.0469, 0.3889, 0.5208, 0.2200]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 200
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      line3:
+        box: [0.0469, 0.7037, 0.5208, 0.2000]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 170
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+
+items:
+  - video_id: CH01-001
+    title: 'むしろ孤独は強みに変わる | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-002
+    title: '完璧じゃなくていい | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-003
+    title: '苦しみはむしろプラスになる | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-004
+    title: '自分を縛る枠を壊す！自我の解体で見つける真の幸せ'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-005
+    title: '反逆の瞑想 - 「ルールを破る瞑想、心の自由を解き放つ」'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+

@@ -1,2 +1,1 @@
-"""Server-side helpers for UI/backends (commentary_02)."""
-
+"""Server-side helpers for the UI backend (video_pipeline)."""

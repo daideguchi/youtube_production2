@@ -24,8 +24,8 @@
     "max_output_tokens": 4096
   },
   "script_rewrite": {
-    "provider": "azure",
-    "model": "gpt-5-mini",
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v3.2-exp",
     "thinkingLevel": "low",
     "max_output_tokens": 4096
   },

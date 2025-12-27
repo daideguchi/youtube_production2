@@ -45,8 +45,6 @@ def _collect_scripts(repo_root: Path) -> list[str]:
         rel = p.relative_to(repo_root).as_posix()
         if "/__pycache__/" in rel:
             continue
-        if rel.startswith("scripts/_adhoc/") and not rel.endswith("README.md"):
-            continue
         out.append(rel)
     return sorted(out)
 

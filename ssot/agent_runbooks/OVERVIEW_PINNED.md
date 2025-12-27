@@ -11,6 +11,7 @@
 - 構成パターン（骨格固定）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 - 大量生産アーキテクチャ: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 - 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
 
 運用の結論（最短で収束させる）:
 1) まず「SSOTパターンで骨格と分量」を固定する（自由に書かせない）
@@ -24,12 +25,13 @@
 - Aテキスト向けLLM呼び出しでは `channel_prompt` をそのまま渡さず、衝突しやすい「構成/形式/記号」指示を落とした `a_text_channel_prompt`（派生）を渡す（骨格はSSOTパターンが唯一の正本）。
 
 台本が壊れている時の最短復旧（コマンド）:
-- SSOTパターンからAテキストを再構築（plan→draft）:
-  - `python -m script_pipeline.cli a-text-rebuild --channel CHxx --video NNN`
-- 仕上げの品質ゲート（内容はLLM Judge、形式はハード検査）:
-  - `python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+- 既存台本の調整/再検証（基本）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
+- 新規/完全やり直し（混線/大ズレ/破損がある）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
 - 音声（台本が validated のものだけ）:
-  - `python -m script_pipeline.cli audio --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli audio --channel CHxx --video NNN`
 
 コスト/モデル（重要）:
 - `o3` 系は使用禁止（コストが高い）。設定は無効化済み。

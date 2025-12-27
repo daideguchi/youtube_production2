@@ -1,11 +1,5 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(ROOT))
-
 from audio_tts.tts.reading_dict import (
     ReadingEntry,
     export_words_for_word_dict,

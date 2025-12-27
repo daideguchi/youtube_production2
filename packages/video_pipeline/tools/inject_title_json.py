@@ -4,7 +4,7 @@ Inject title track/segment directly into CapCut draft JSON (draft_content.json +
 Use when pyJianYingDraft title constructors are flaky.
 
 Usage:
-    python3 tools/inject_title_json.py --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/192_draft" \
+    PYTHONPATH=".:packages" python3 -m video_pipeline.tools.inject_title_json --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/192_draft" \
         --title "人生の道標 192話 ～タイトル～" --duration 30.0
 """
 import argparse

@@ -136,6 +136,32 @@ def collect_candidates(*, keep_days: int, ignore_locks: bool) -> tuple[list[Dele
     return candidates, skipped_locked
 
 
+def _is_under(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except Exception:
+        return False
+
+
+def _is_safe_candidate(path: Path, data_root: Path) -> bool:
+    """
+    Extra safety: refuse to delete anything outside workspaces/scripts, and only allow
+    the explicitly intended targets (L3 logs + audio_prep/logs dirs).
+    """
+    if not _is_under(path, data_root):
+        return False
+    if path == data_root:
+        return False
+
+    state_logs_dir = _script_state_logs_dir(data_root)
+    if path.is_file():
+        return path.suffix == ".log" and _is_under(path, state_logs_dir)
+
+    # Directory candidates are strictly limited to these rebuildable subtrees.
+    return path.name in {"audio_prep", "logs"}
+
+
 def _delete_path(path: Path) -> None:
     if path.is_dir() and not path.is_symlink():
         shutil.rmtree(path)
@@ -189,15 +215,22 @@ def main() -> int:
         print(msg)
         return 0
 
+    data_root = _script_data_root()
     deleted = 0
+    skipped_unsafe = 0
     for c in candidates:
         try:
+            if not _is_safe_candidate(c.path, data_root):
+                skipped_unsafe += 1
+                continue
             _delete_path(c.path)
             deleted += 1
         except Exception:
             continue
 
     msg = f"[cleanup_data] deleted {deleted} paths"
+    if skipped_unsafe:
+        msg += f" (skipped_unsafe={skipped_unsafe})"
     if skipped_locked:
         msg += f" (skipped_locked={skipped_locked})"
     print(msg)

@@ -16,33 +16,16 @@ import warnings
 # Silence upstream deprecation warnings from pyJianYingDraft usage.
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
+tool_bootstrap(load_env=False)
 
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+from factory_common.paths import channels_csv_path, repo_root  # noqa: E402
 
-from factory_common.paths import channels_csv_path, repo_root, video_pkg_root  # noqa: E402
-
-PROJECT_ROOT = video_pkg_root()
 REPO_ROOT = repo_root()
-SRC_DIR = PROJECT_ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 # CapCut API path
 # Ensure pyJianYingDraft is importable in local environments
@@ -69,9 +52,9 @@ from typing import Optional
 import json as _json2
 import logging
 import traceback
-from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path
-from src.config.style_resolver import StyleResolver
-from src.adapters.capcut.style_mapper import CapCutStyleAdapter
+from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
+from video_pipeline.src.config.style_resolver import StyleResolver  # noqa: E402
+from video_pipeline.src.adapters.capcut.style_mapper import CapCutStyleAdapter  # noqa: E402
 
 # Channel-specific post processors (per-channel hooks)
 CHANNEL_HOOKS = {}
@@ -479,7 +462,8 @@ def parse_srt_file(srt_path: Path):
             'index': int(index),
             'start_us': time_to_us(start_time),
             'end_us': time_to_us(end_time),
-            'text': text.strip().replace('\n', ' ')
+            # Preserve intentional in-cue line breaks.
+            'text': text.strip().replace('\r\n', '\n').replace('\r', '\n')
         })
     
     return subtitles
@@ -3158,7 +3142,7 @@ def main():
         logger.info("✅ Draft files synchronized - CapCut will now recognize all changes")
     else:
         logger.warning("⚠️  Draft sync failed - manual sync may be required")
-        logger.warning(f"   Run: python3 tools/sync_draft_files_complete.py '{draft_dir}'")
+        logger.warning(f"   Run: PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.sync_draft_files_complete '{draft_dir}'")
 
     # Ensure absolute_index is populated so CapCut shows inserted tracks
     ensure_absolute_indices(draft_dir)
@@ -3324,7 +3308,7 @@ def main():
                 pass
         run_capcut_link.symlink_to(draft_dir)
 
-        # Also drop an info JSON for quick reference/search in output/
+        # Also drop an info JSON for quick reference/search in run_dir
         info = {
             'draft_name': args.new,
             'draft_path': str(draft_dir),

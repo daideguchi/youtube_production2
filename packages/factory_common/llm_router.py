@@ -113,6 +113,20 @@ DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
 
+_OPENROUTER_REASONING_MODEL_ALLOWLIST_SUBSTR = {
+    # OpenRouter "reasoning.enabled" is only forwarded for allowlisted models.
+    # Keeping this strict prevents 400s when a task falls back to a non-reasoning model.
+    "deepseek-v3.2-exp",
+    "kimi-k2-thinking",
+}
+
+
+def _openrouter_model_allows_reasoning(model_name: str) -> bool:
+    mn = str(model_name or "").strip().lower()
+    if not mn:
+        return False
+    return any(tok in mn for tok in _OPENROUTER_REASONING_MODEL_ALLOWLIST_SUBSTR)
+
 
 def _parse_ratio_env(name: str) -> Optional[float]:
     raw = (os.getenv(name) or "").strip()
@@ -307,13 +321,69 @@ class LLMRouter:
                 return []
             return [p.strip() for p in text.split(",") if p.strip()]
 
+        def _resolve_model_key_alias(token: str) -> Optional[str]:
+            """
+            Best-effort: resolve non-key aliases to a configured model key.
+
+            Supported aliases (for runtime overrides):
+            - OpenRouter model id: "deepseek/deepseek-v3.2-exp"
+            - Azure deployment: "gpt-5-mini"
+            - Explicit provider prefix: "openrouter:deepseek/deepseek-v3.2-exp", "azure:gpt-5-mini"
+            """
+
+            raw = str(token or "").strip()
+            if not raw:
+                return None
+
+            provider: Optional[str] = None
+            model_id = raw
+            if ":" in raw:
+                left, right = raw.split(":", 1)
+                left = left.strip().lower()
+                right = right.strip()
+                if left and right:
+                    provider = left
+                    model_id = right
+
+            matches: List[str] = []
+            for model_key, conf in models_conf.items():
+                if not isinstance(conf, dict):
+                    continue
+                conf_provider = str(conf.get("provider") or "").strip().lower()
+                if provider and conf_provider != provider:
+                    continue
+                deployment = conf.get("deployment")
+                model_name = conf.get("model_name")
+                if isinstance(deployment, str) and deployment.strip() == model_id:
+                    matches.append(model_key)
+                    continue
+                if isinstance(model_name, str) and model_name.strip() == model_id:
+                    matches.append(model_key)
+                    continue
+
+            if len(matches) == 1:
+                return matches[0]
+            if len(matches) > 1:
+                logger.warning("LLM_FORCE_MODELS alias is ambiguous for %s: %s", raw, matches)
+            return None
+
+        def _normalize_forced_models(forced: List[str]) -> List[str]:
+            out: List[str] = []
+            seen: set[str] = set()
+            for tok in forced:
+                mk = tok if tok in models_conf else _resolve_model_key_alias(tok)
+                if mk and mk not in seen:
+                    out.append(mk)
+                    seen.add(mk)
+            return out
+
         forced_task_json = (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
         if forced_task_json:
             try:
                 mapping = json.loads(forced_task_json)
                 if isinstance(mapping, dict) and task in mapping:
                     forced = _split_model_keys(mapping.get(task))
-                    forced_valid = [mk for mk in forced if mk in models_conf]
+                    forced_valid = _normalize_forced_models(forced)
                     if forced_valid:
                         return forced_valid
                     if forced:
@@ -324,7 +394,7 @@ class LLMRouter:
         forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
         if forced_all:
             forced = _split_model_keys(forced_all)
-            forced_valid = [mk for mk in forced if mk in models_conf]
+            forced_valid = _normalize_forced_models(forced)
             if forced_valid:
                 return forced_valid
             if forced:
@@ -536,11 +606,13 @@ class LLMRouter:
                 finish_reason = meta.get("finish_reason")
                 retry_meta = meta.get("retry")
                 logger.info(f"Router: cache hit for {task} (task_id={task_id})")
+                routing_key = (os.getenv("LLM_ROUTING_KEY") or "").strip() or None
                 self._log_usage(
                     {
                         "status": "success",
                         "task": task,
                         "task_id": str(task_id),
+                        "routing_key": routing_key,
                         "model": model_key,
                         "provider": provider_name,
                         "chain": chain,
@@ -749,6 +821,7 @@ class LLMRouter:
                     "status": "success",
                     "task": task,
                     "task_id": str(task_id) if task_id else None,
+                    "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
                     "model": model_key,
                     "provider": provider_name,
                     "chain": chain,
@@ -822,6 +895,7 @@ class LLMRouter:
             {
                 "status": "fail",
                 "task": task,
+                "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
                 "chain": tried,
                 "error": str(last_error),
                 "error_class": last_error_class,
@@ -854,11 +928,50 @@ class LLMRouter:
         # Merge defaults
         defaults = model_conf.get("defaults", {})
         params = {**defaults, **kwargs}
+
+        # OpenRouter quirk/guard:
+        # - `moonshotai/kimi-k2-thinking` can return empty content unless `extra_body.reasoning.enabled=true` is set.
+        # - For safety, enable reasoning by default for this model when callers forgot to attach it.
+        #   (Callers can still override by explicitly providing extra_body.reasoning.)
+        if provider == "openrouter":
+            try:
+                mn = str(model_conf.get("model_name") or "").strip().lower()
+            except Exception:
+                mn = ""
+            if "kimi-k2-thinking" in mn:
+                eb = params.get("extra_body")
+                if not isinstance(eb, dict):
+                    eb = {}
+                reasoning = eb.get("reasoning")
+                if not isinstance(reasoning, dict):
+                    eb["reasoning"] = {"enabled": True, "exclude": True}
+                else:
+                    if "enabled" not in reasoning:
+                        reasoning["enabled"] = True
+                    if "exclude" not in reasoning:
+                        reasoning["exclude"] = True
+                    eb["reasoning"] = reasoning
+                params["extra_body"] = eb
         
         # Params are already sanitized in call(); just forward with minimal mapping
         api_args = {}
         for k, v in params.items():
             if v is None:
+                continue
+            if k == "extra_body":
+                # OpenRouter supports provider-specific extensions (e.g. reasoning.enabled).
+                # Other providers (Azure, etc.) should never receive extra_body.
+                if provider != "openrouter":
+                    continue
+                if not isinstance(v, dict):
+                    continue
+                extra_body = dict(v)
+                reasoning = extra_body.get("reasoning")
+                if reasoning is not None and not _openrouter_model_allows_reasoning(model_conf.get("model_name")):
+                    # Only allow reasoning payload for explicitly allowlisted OpenRouter models.
+                    extra_body.pop("reasoning", None)
+                if extra_body:
+                    api_args["extra_body"] = extra_body
                 continue
             if k == "response_format" and v == "json_object":
                 if cap.get("json_mode"):

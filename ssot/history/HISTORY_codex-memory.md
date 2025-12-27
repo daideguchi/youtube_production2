@@ -181,3 +181,21 @@
   - 既存: `scripts/ops/script_runbook.py resume --channel CH07 --video 019 --until script_validation` → `script_validated`（semantic_alignment verdict `ok`）。
   - 新規: `scripts/ops/script_runbook.py new --channel CH10 --video 007` → `resume --until script_validation` で `script_validated`（semantic_alignment verdict `minor`）。
 - 検証（技術）: `python3 -m compileall -q packages/script_pipeline/runner.py`, `.venv/bin/pytest -q tests/test_script_pipeline_runner_import.py tests/test_script_validation_llm_gate_skip.py tests/test_planning_lint_tag_mismatch_strict.py tests/test_semantic_alignment_policy.py`
+
+## 2025-12-26
+- CH01: `belt.opening_offset` を 3.0 → 0.0 に変更し、CH01 の黒画面オフセットを廃止（`packages/video_pipeline/config/channel_presets.json`, `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`, `ssot/reference/【消さないで！人間用】確定ロジック.md`, `apps/remotion/README.md`）。
+- CH01 統合（外部管理→本repoへ寄せる）:
+  - 200番台の既存台本（外部 `01_人生の道標/scripts/*_script*.txt`）を `workspaces/scripts/CH01/{NNN}/content/assembled_human.md` / `assembled.md` に取り込み（207,211,215,216,217,220,231,233,235,237,239,240,244,247,249,250）。
+  - 企画CSV（`workspaces/planning/channels/CH01.csv`）の `作成フラグ=TRUE` を全て `進捗=投稿済み` に整合。
+  - ダミー本文（外部管理プレースホルダ）を「未完成」として扱うようにし、reconcile で script_review を誤って completed にしない（`packages/script_pipeline/runner.py`, `packages/script_pipeline/validator.py`, `packages/script_pipeline/cli.py`）。
+  - 台本執筆ルール/運用ドキュメントを最小限で移植（`workspaces/research/ブッダ系/人生の道標_docs/`）+ CH01 補助スクリプト追加（`scripts/ch01/*`）。導線を `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` に追記。
+- CH01: 台本執筆プロンプト（史実で証明→日常へ橋渡し→実践）を生成ロジックへ反映。
+  - SSOTパターン追加: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`（`ch01_historical_proof_bridge_v1`）。
+  - チャンネルプロンプト抽出に残る要点を追記し、テンプレ混入を防ぐマーカーを追加: `packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt`, `packages/script_pipeline/prompts/channels/CH01.yaml`。
+
+## 2025-12-27
+- SoT保護（台本）: `scripts/check_env.py` に `workspaces/scripts` の欠落/README_OFFLOADED 検知/Planning CSVとの差分を警告するソフトチェックを追加。
+- cleanup安全性: `scripts/cleanup_data.py` に「削除対象を audio_prep/logs + _state/logs/*.log のみに限定」する追加ガードを実装。
+- archive安全性: `scripts/ops/archive_published_episodes.py` に domain root の範囲チェック + `workspaces/scripts` へ触れないガードを追加。
+- UI表示: チャンネル表示名は `branding.title/youtube_title` より `channel.name`（内部名）を優先するように統一（`apps/ui-frontend/src/components/ChannelListSection.tsx` ほか）。
+- 検証: `python3 -m py_compile scripts/check_env.py scripts/cleanup_data.py scripts/ops/archive_published_episodes.py`, `python3 -m pytest apps/ui-backend/backend/tests -q`, `CI=true npm -C apps/ui-frontend test -- --watchAll=false`

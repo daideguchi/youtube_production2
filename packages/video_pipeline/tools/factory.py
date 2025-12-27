@@ -12,9 +12,9 @@ Intents:
   check : Validate inputs and generate cues/belt (no draft)
 
 Examples:
-  factory-commentary CH02 commentary_02_哲学系/CH02-015.srt check
-  factory-commentary CH02 commentary_02_哲学系/CH02-015.srt new
-  factory-commentary CH02 commentary_02_哲学系/CH02-015.srt draft
+  factory-commentary CH02 workspaces/video/input/CH02_<PresetName>/CH02-015.srt check
+  factory-commentary CH02 workspaces/video/input/CH02_<PresetName>/CH02-015.srt new
+  factory-commentary CH02 workspaces/video/input/CH02_<PresetName>/CH02-015.srt draft
 """
 import sys
 import argparse
@@ -27,21 +27,12 @@ import glob
 import re
 import json
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
-
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+tool_bootstrap(load_env=False)
 
 from factory_common.paths import (  # noqa: E402
     audio_artifacts_root,
@@ -55,15 +46,7 @@ REPO_ROOT = repo_root()
 
 from factory_common.timeline_manifest import EpisodeId, parse_episode_id, resolve_final_audio_srt
 
-# Import using the installed package structure
-try:
-    from video_pipeline.src.core.config import config
-except ImportError:
-    # Fallback to relative import if the package isn't properly installed
-    import sys
-    sys.path.append(str(PROJECT_ROOT))
-    sys.path.append(str(PROJECT_ROOT / "src"))
-    from src.core.config import config
+from video_pipeline.src.core.config import config
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

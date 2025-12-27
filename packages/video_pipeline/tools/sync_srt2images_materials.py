@@ -10,7 +10,7 @@ What it does:
 - Does NOT touch other tracks or timeranges.
 
 Usage:
-  python3 tools/sync_srt2images_materials.py \
+  PYTHONPATH=".:packages" python3 -m video_pipeline.tools.sync_srt2images_materials \
     --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft-【手動調整後4】"
 """
 

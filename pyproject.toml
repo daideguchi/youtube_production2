@@ -73,6 +73,7 @@ exclude = ["tests*", "docs*", "logs*", "output*", "data*", "asset*", "thumbnails
 [tool.pytest.ini_options]
 pythonpath = [
     ".",
-    "packages"
+    "packages",
+    "apps/ui-backend"
 ]
-testpaths = ["tests"]
+testpaths = ["tests", "packages/audio_tts/tests"]

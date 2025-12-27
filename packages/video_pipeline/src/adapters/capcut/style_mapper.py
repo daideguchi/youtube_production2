@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Tuple
 import logging
-from src.core.domain.style_schema import VideoStyle, TextStyle
+from ...core.domain.style_schema import VideoStyle, TextStyle
 
 logger = logging.getLogger(__name__)
 

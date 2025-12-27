@@ -6,10 +6,10 @@ Combines episode title from spreadsheet and chapter titles from SRT analysis
 to create belt layer JSON configuration.
 
 Usage:
-    python3 tools/generate_belt_layers.py \
-        --episode-info output/jinsei186/episode_info.json \
-        --chapters output/jinsei186/chapters.json \
-        --output output/jinsei186/belt_config.json
+    PYTHONPATH=".:packages" python3 -m video_pipeline.tools.generate_belt_layers \
+        --episode-info workspaces/video/runs/<run_id>/episode_info.json \
+        --chapters workspaces/video/runs/<run_id>/chapters.json \
+        --output workspaces/video/runs/<run_id>/belt_config.json
 """
 import json
 import argparse

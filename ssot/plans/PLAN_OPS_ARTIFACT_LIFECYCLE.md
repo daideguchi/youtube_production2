@@ -62,6 +62,8 @@
   - `content/final/scenes.json`, `content/final/cta.txt`
 - **L2/Intermediate**
   - `content/analysis/research/*`（research_brief, references, quality_review 等）
+  - `content/analysis/quality_gate/*`（script_validation の judge/fix レポート）
+  - `content/analysis/alignment/*`（semantic_alignment 等）
   - `content/outline.md`
   - `content/chapters/*`
   - `content/chapters/chapter_briefs.json`
@@ -248,6 +250,18 @@ python -m scripts.cleanup_workspace --all --run --yes
 
 ※ `--purge-level/--respect-status/--archive-dir` 等の高度なフラグは今後拡張（下の 4.2/7 を参照）。
 
+#### 4.1.1 投稿済み（進捗=投稿済み）をまとめてアーカイブ（横断）
+
+「投稿済みは全てアーカイブへ移す」運用を、Planning SoT に従って横断実行する入口を追加する。
+
+- 入口: `python3 scripts/ops/archive_published_episodes.py --dry-run --channel CHxx` → OKなら `--run --yes`
+- 判定: `workspaces/planning/channels/CHxx.csv` の `進捗=投稿済み`
+- 退避先（ドメイン別）:
+  - audio: `workspaces/audio/_archive_audio/<timestamp>/`
+  - thumbnails: `workspaces/thumbnails/_archive/<timestamp>/`
+  - video: `workspaces/video/_archive/<timestamp>/`
+- 運用SoT: `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
+
 ### 4.2 ステータス連動
 - `status.json.stage` と `workspaces/planning/channels` の進捗を組み合わせて安全判定。
 - **削除条件が満たされない限り purge しない**（dry-run で差分確認）。
@@ -256,22 +270,11 @@ python -m scripts.cleanup_workspace --all --run --yes
 - `scripts/cleanup_data.py` は L3/一部L2の簡易版として残すが、
   - 新 cleanup が安定したら **本体に統合**し、cron も新コマンドへ移行。
 
-### 4.4 外部SSDへのオフロード（任意 / 容量・探索ノイズ対策）
-ローカルディスクを軽くするため、既に `_archive/` に退避済みの成果物や `backups/graveyard/` を **外部SSDへオフロード**できるようにする。
+### 4.4 外部SSDへのオフロード（採用しない）
+外部SSDへの依存は不安定になりやすいため、SSOTの運用コマンドとしては採用しない。
 
-- 対象（原則）:
-  - `workspaces/**/_archive/**`（L2/L3 の退避物）
-  - `backups/graveyard/**`（archive-first の退避）
-- 非対象（既定では触らない）:
-  - `workspaces/audio/final/**`（L0/SoT）
-  - `workspaces/video/runs/**`（現行run。先に `_archive/` へ退避してからオフロードする）
-
-運用:
-- 入口: `python3 scripts/ops/offload_archives_to_external.py --help`
-- 外部SSDのルートは `YTM_OFFLOAD_ROOT`（または `--external-root`）で指定する:
-  - 例: `YTM_OFFLOAD_ROOT=/Volumes/FactorySSD/ytm_offload`
-- 既定は dry-run（差分確認）→ OKなら `--run`（必要なら `--mode move` でローカルを削除して容量回収）
-- 実行ログ/マニフェストは `workspaces/logs/regression/offload_archives_to_external/` に残す（復元/追跡のため）
+- `backups/graveyard/**` と `workspaces/**/_archive/**` は **ローカルに保持**する（必要なときに参照できることを優先）。
+- 容量/探索ノイズは `cleanup_workspace` の keep-days と `_archive/` のローテで解決する。
 
 ## 5. 既存ディレクトリ再編との整合（PLAN_REPO_DIRECTORY_REFACTOR 連動）
 - `workspaces/` へ移設後のパスをこの計画の正本にする。

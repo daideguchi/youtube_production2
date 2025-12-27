@@ -1,25 +1,22 @@
 import os
-import sys
 
 import pytest
-
-from factory_common.paths import video_pkg_root
 
 
 if os.getenv("YTM_RUN_INTEGRATION_TESTS") != "1":
     pytest.skip("Set YTM_RUN_INTEGRATION_TESTS=1 to run Gemini integration tests", allow_module_level=True)
 
-sys.path.insert(0, str(video_pkg_root()))
-
 try:
-    from src.core.config import config  # type: ignore
+    from video_pipeline.src.core.config import config
 except Exception as exc:  # pragma: no cover
-    pytest.skip(f"commentary_02 config unavailable: {exc}", allow_module_level=True)
+    pytest.skip(f"video_pipeline config unavailable: {exc}", allow_module_level=True)
 
 genai = pytest.importorskip("google.genai", reason="google-genai is not installed")
 types = pytest.importorskip("google.genai.types", reason="google-genai types are not available")
 
-if not getattr(config, "GEMINI_API_KEY", None):
+try:
+    _ = config.GEMINI_API_KEY
+except Exception:
     pytest.skip("GEMINI_API_KEY is not configured", allow_module_level=True)
 
 

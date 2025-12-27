@@ -64,6 +64,7 @@ export type WorkspaceView =
   | "benchmarks"
   | "research"
   | "thumbnails"
+  | "imageManagement"
   | "channelWorkspace"
   | "channelSettings"
   | "promptManager"
@@ -181,6 +182,18 @@ function sanitizeReadyFilter(value: string | null): ReadyFilter {
   return "all";
 }
 
+function normalizeChannelStorageKey(channel: string): string {
+  return channel.trim().toUpperCase();
+}
+
+function videoKeywordStorageKey(channel: string): string {
+  return `ui.video.keyword.${normalizeChannelStorageKey(channel)}`;
+}
+
+function readyFilterStorageKey(channel: string): string {
+  return `ui.video.readyFilter.${normalizeChannelStorageKey(channel)}`;
+}
+
 function sanitizeDetailTabParam(value: string | null): DetailTab | null {
   if (!value) {
     return null;
@@ -261,6 +274,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/thumbnails", pathname)) {
     return "thumbnails";
   }
+  if (matchPath("/image-management", pathname)) {
+    return "imageManagement";
+  }
   if (matchPath("/prompts", pathname)) {
     return "promptManager";
   }
@@ -279,7 +295,7 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/audio-tts", pathname)) {
     return "audioTts";
   }
-  if (matchPath("/audio-integrity", pathname)) {
+  if (matchPath("/audio-integrity/:channel/:video", pathname) || matchPath("/audio-integrity", pathname)) {
     return "audioIntegrity";
   }
   if (matchPath("/reports", pathname)) {
@@ -363,6 +379,10 @@ const PLACEHOLDER_COPY: Record<
     title: "サムネイル管理",
     description: "サムネイル案のステータスや採用状況を整理し、ドラフトの差し替えを素早く行えます。",
   },
+  imageManagement: {
+    title: "画像管理",
+    description: "run_dir 単位でモデル/画風/プロンプトを確認し、複数画風の画像バリアントを生成します。",
+  },
   jobs: {
     title: "バッチ実行",
     description: "音声やスクリプトのジョブをキューに入れて並列制御します。（将来のバッチUI用プレースホルダー）",
@@ -444,16 +464,26 @@ export function AppShell() {
     if (typeof window === "undefined") {
       return "";
     }
-    return safeGet("ui.video.keyword") ?? "";
+    const channel = safeGet("ui.channel.selected");
+    if (!channel) {
+      return "";
+    }
+    return safeGet(videoKeywordStorageKey(channel)) ?? "";
   });
   const [readyFilter, setReadyFilterState] = useState<ReadyFilter>(() => {
     if (typeof window === "undefined") {
       return "all";
     }
-    return sanitizeReadyFilter(safeGet("ui.video.readyFilter"));
+    const channel = safeGet("ui.channel.selected");
+    if (!channel) {
+      return "all";
+    }
+    return sanitizeReadyFilter(safeGet(readyFilterStorageKey(channel)));
   });
   const [summaryFilter, setSummaryFilter] = useState<"blocked" | "review" | "pendingAudio" | null>(null);
   const pendingAudioReadyFilterRef = useRef<ReadyFilter>("all");
+  const videoKeywordPersistRef = useRef<{ channel: string | null; value: string }>({ channel: null, value: "" });
+  const readyFilterPersistRef = useRef<{ channel: string | null; value: ReadyFilter }>({ channel: null, value: "all" });
 
   const [detailTab, setDetailTabState] = useState<DetailTab>(() => {
     if (typeof window === "undefined") {
@@ -598,15 +628,44 @@ export function AppShell() {
     if (typeof window === "undefined") {
       return;
     }
-    safeSet("ui.video.keyword", videoKeyword);
-  }, [videoKeyword]);
+    const previous = videoKeywordPersistRef.current;
+    videoKeywordPersistRef.current = { channel: selectedChannel, value: videoKeyword };
+    if (!selectedChannel) {
+      return;
+    }
+    // Avoid writing the previous channel's keyword into the new channel bucket.
+    if (previous.channel !== selectedChannel && previous.value === videoKeyword) {
+      return;
+    }
+    safeSet(videoKeywordStorageKey(selectedChannel), videoKeyword);
+  }, [selectedChannel, videoKeyword]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
-    safeSet("ui.video.readyFilter", readyFilter);
-  }, [readyFilter]);
+    if (!selectedChannel) {
+      return;
+    }
+    setVideoKeyword(safeGet(videoKeywordStorageKey(selectedChannel)) ?? "");
+    setReadyFilterState(sanitizeReadyFilter(safeGet(readyFilterStorageKey(selectedChannel))));
+  }, [selectedChannel]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const previous = readyFilterPersistRef.current;
+    readyFilterPersistRef.current = { channel: selectedChannel, value: readyFilter };
+    if (!selectedChannel) {
+      return;
+    }
+    // Avoid writing the previous channel's filter into the new channel bucket.
+    if (previous.channel !== selectedChannel && previous.value === readyFilter) {
+      return;
+    }
+    safeSet(readyFilterStorageKey(selectedChannel), readyFilter);
+  }, [selectedChannel, readyFilter]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -1161,14 +1220,9 @@ export function AppShell() {
     placeholderPanel,
   };
 
-  // ★ここを修正: URLを /audio-integrity/{channel}/{video} にできるようにする
-  // まずはサイドバーのリンク先を現在選択中のチャンネル・動画にする
   const audioIntegrityLink = useMemo(() => {
     if (selectedChannel && selectedVideo) {
-      // 本来は /audio-integrity?channel=...&video=... とするか
-      // ルーティング側でパラメータを受け取る形にするのがベストだが、
-      // ここでは簡易的に現在の選択状態を引き継ぐクエリパラメータ付きリンクにする
-      return `/audio-integrity?channel=${selectedChannel}&video=${selectedVideo}`;
+      return `/audio-integrity/${encodeURIComponent(selectedChannel)}/${encodeURIComponent(selectedVideo)}`;
     }
     return "/audio-integrity";
   }, [selectedChannel, selectedVideo]);
@@ -1211,6 +1265,7 @@ export function AppShell() {
           { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
+          { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
         ],
       },
       {
@@ -1280,7 +1335,7 @@ export function AppShell() {
                           isActive ||
                           (isChannelWorkspaceItem && isChannelWorkspaceRoute) ||
                           (isChannelPortalItem && isChannelPortalRoute) ||
-                          (item.key === "audioIntegrity" && location.pathname === "/audio-integrity");
+                          (item.key === "audioIntegrity" && location.pathname.startsWith("/audio-integrity"));
                         return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
                       }}
                     >

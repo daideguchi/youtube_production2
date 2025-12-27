@@ -66,7 +66,7 @@ def _iter_planning_rows(
         if excludes and channel in excludes:
             continue
         try:
-            with csv_path.open("r", encoding="utf-8", newline="") as handle:
+            with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
                 for row_no, row in enumerate(reader, start=2):  # header=1
                     video_number = _normalize_video(row.get("動画番号") or row.get("VideoNumber") or row.get("No."))

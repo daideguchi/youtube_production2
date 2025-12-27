@@ -24,7 +24,7 @@ class NanobananaGenerator(ImageGenerator):
         Raises:
             QuotaExhaustedError: 429エラーが連続した場合
         """
-        from srt2images.nanobanana_client import generate_image_batch as nanobanana_generate_batch
+        from .nanobanana_client import generate_image_batch as nanobanana_generate_batch
         # Note: QuotaExhaustedErrorはgenerate_image_batch内から投げられ、
         # ここではキャッチせずに上位（pipeline.py）に伝播させる
         

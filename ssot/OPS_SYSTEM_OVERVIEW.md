@@ -48,8 +48,8 @@
 | フェーズ | SoT（正本） | 主な生成物/ミラー | 主な入口 |
 | --- | --- | --- | --- |
 | Planning（企画/進捗） | `workspaces/planning/channels/CHxx.csv` / `workspaces/planning/personas/CHxx_PERSONA.md` | — | UI `/planning` / `python3 scripts/ops/planning_lint.py` |
-| Script（台本） | `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled_human.md`（あれば優先） | `content/assembled.md`（ミラー）/ `content/analysis/**` | `python -m script_pipeline.cli ...` / UI `/channels/:channelCode/videos/:video` |
-| Audio（音声/SRT） | `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` | `workspaces/scripts/**/audio_prep/**`（中間） | `python -m script_pipeline.cli audio ...` / UI `/audio-tts` |
+| Script（台本） | `workspaces/scripts/{CH}/{NNN}/status.json` + `content/assembled_human.md`（あれば優先） | `content/assembled.md`（ミラー）/ `content/analysis/**` | `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...` / UI `/channels/:channelCode/videos/:video` |
+| Audio（音声/SRT） | `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` | `workspaces/scripts/**/audio_prep/**`（中間） | `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli audio ...` / UI `/audio-tts` |
 | Video（画像/CapCut） | `workspaces/video/runs/{run_id}/` | `workspaces/video/input/**` / CapCut draft / images / belt | UI `/capcut-edit/*` / `python3 -m video_pipeline.tools.*` |
 | Thumbnails（独立） | `workspaces/thumbnails/projects.json` | `workspaces/thumbnails/templates.json` / `workspaces/thumbnails/assets/**` | UI `/thumbnails` |
 | Publish（外部SoT） | Google Sheets（`YT_PUBLISH_SHEET`） | 実行ログ: `workspaces/logs/**` | `python3 scripts/youtube_publisher/publish_from_sheet.py --run` |
@@ -71,7 +71,8 @@
 
 ### 2.2 Script（台本生成）
 
-- 正規入口: `python -m script_pipeline.cli ...`（詳細: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`）
+- 正規入口（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`（詳細: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` / `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`）
+- 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli ...`
 - ステージは概ね以下の順（SoTは `status.json`）:
   - `topic_research` → `script_outline` → `chapter_brief` → `script_draft` → `script_review` → `quality_check` → `script_validation`
 
@@ -96,7 +97,7 @@
 ### 2.4 Audio（TTS/SRT）
 
 正規入口
-- `python -m script_pipeline.cli audio --channel CHxx --video NNN`
+- `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli audio --channel CHxx --video NNN`
 
 正本の固定
 - 下流（CapCut/AutoDraft/UI）は **必ず** `workspaces/audio/final/{CH}/{NNN}/` を読む
@@ -138,11 +139,13 @@
 起動（推奨）
 - `bash scripts/start_all.sh start`
 - ガード込みヘルスチェック: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
+- UI配線（route↔API）: `ssot/ops/OPS_UI_WIRING.md`
 
 主要ページ（抜粋）
 - `/planning`: Planning CSV を閲覧/編集（SoT: `workspaces/planning/channels/**`）
 - `/channels/:channelCode/videos/:video`: 台本/音声/SRTの確認と人間編集（SoT: `workspaces/scripts/**`, `workspaces/audio/final/**`）
 - `/capcut-edit/*`: run_dir（動画生成）を扱う（SoT: `workspaces/video/runs/**`）
+- `/image-management`: 画像variants/差し替え支援（SoT: `workspaces/video/runs/**`）
 - `/thumbnails`: サムネ動線（SoT: `workspaces/thumbnails/projects.json`）
 - `/channel-settings`: チャンネル登録/監査/ベンチマーク編集（SoT: `channel_info.json` の `benchmarks` 等）
 - `/agent-org` `/agent-board`: エージェント協調（board/locks/memos）
@@ -194,11 +197,12 @@ Runbook入口
 
 1. Planning更新（CSV）→ lint
 2. Script生成（必要なところまで）
-   - `python -m script_pipeline.cli run-all --channel CHxx --video NNN`
+   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CHxx --video NNN`
 3. 人間チェック（必要ならUIで A/B 修正 → 保存）
 4. `script_validation` を通す
+   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
 5. Audio生成
-   - `python -m script_pipeline.cli audio --channel CHxx --video NNN`
+   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli audio --channel CHxx --video NNN`
 6. Video run を作る（CapCut）
 7. Publish（外部SoTの承認後）
 

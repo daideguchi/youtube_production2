@@ -13,8 +13,8 @@
       },
       "script_rewrite": {
         "label": "台本リライト",
-        "provider": "azure",
-        "model": "gpt-5-mini"
+        "provider": "openrouter",
+        "model": "deepseek/deepseek-v3.2-exp"
       },
       "natural_command": {
         "label": "ナチュラルコマンド",

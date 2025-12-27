@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-BACKEND_ROOT = Path(__file__).resolve().parent.parent
-PARAMS_PATH = BACKEND_ROOT / "app" / "ui_params.json"
+from factory_common.paths import repo_root
+
+PARAMS_PATH = repo_root() / "apps" / "ui-backend" / "backend" / "app" / "ui_params.json"
 
 
 def _load_params() -> Dict[str, Any]:

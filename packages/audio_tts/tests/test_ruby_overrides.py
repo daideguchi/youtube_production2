@@ -1,13 +1,6 @@
 import json
-import sys
-import json
-from pathlib import Path
 
 import pytest
-
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from audio_tts.tts import auditor
 from audio_tts.tts.reading_structs import RubyToken

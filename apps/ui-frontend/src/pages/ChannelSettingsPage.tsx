@@ -774,9 +774,9 @@ export function ChannelSettingsPage() {
       return "";
     }
     return (
+      selectedChannelSummary?.name ??
       selectedChannelSummary?.branding?.title ??
       selectedChannelSummary?.youtube_title ??
-      selectedChannelSummary?.name ??
       selectedChannel
     );
   }, [selectedChannel, selectedChannelSummary]);

@@ -17,7 +17,7 @@
 - git tracked symlink（mode=120000）がゼロ
 - ルート直下の別名ディレクトリがゼロ（互換symlink禁止）
 - 実行コード/SSOT/Docs が `apps/` / `packages/` / `workspaces/` の正本パスのみを参照
-- import は `PYTHONPATH=".:packages"`（または `sitecustomize.py`）で成立し、symlink に依存しない
+- import は `PYTHONPATH=".:packages"`（推奨: `./scripts/with_ytm_env.sh`）で成立し、symlink に依存しない
 
 ## 実行順序（安全）
 1. 参照の統一（Docs/コード/.gitignore）
@@ -32,7 +32,7 @@
 - Stage 4: tracked symlink 撤去 + 参照統一（進行中）
 
 ## チェックリスト（2025-12-25）
-- [x] root: `audio_tts_v2`, `script_pipeline`, `commentary_02_srt2images_timeline`, `factory_common`, `logs`, `progress`, `thumbnails`, `00_research`, `remotion`, `ui/*` を撤去
+- [x] root: 旧 alias（ルート直下の互換ディレクトリ/互換symlink）を撤去（正本は `apps/` / `packages/` / `workspaces/`）
 - [x] apps: `apps/remotion/input`, `apps/remotion/public/input` の撤去/置換
 - [x] config: `configs/drive_oauth_client.json` の symlink 廃止（ローカル実ファイル運用へ）
 - [x] ガード: tracked symlink と旧パス直書きを検出する audit を追加

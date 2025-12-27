@@ -19,10 +19,15 @@ _RE_MD_REF = re.compile(r"\[[^\]]+\]\[\d+\]")
 _RE_NUM_FOOTNOTE = re.compile(r"\[(\d{2,})\]")
 _RE_BULLET_LINE = re.compile(r"^\s*(?:[-*•]|・)\s+")
 _RE_NUMBERED_LINE = re.compile(r"^\s*\d+\s*[.)）:、]\s+")
+_RE_LETTERED_LINE = re.compile(r"^\s*[A-Za-z]\s*[.)）:、]\s+")
 _RE_MD_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _RE_BAD_SEPARATOR = re.compile(r"^\s*(?:\*{3,}|_{3,}|/{3,}|={3,}|-{4,})\s*$")
 _RE_TEMPLATE_TOKEN = re.compile(r"<<[A-Z0-9_]{2,}>>")
 _RE_PERCENT_OR_PERCENT_WORD = re.compile(r"[%％]|パーセント")
+_RE_LENGTH_META = re.compile(r"約\s*\d{2,5}\s*字")
+_RE_MD_BOLD_MARKER = re.compile(r"\*\*")
+_RE_EPISODE_HEADER_LINE = re.compile(r"^\s*CH\d{2}-\d{3}\s*[:：]\s*\S+")
+_RE_META_BLOCK_HEADER = re.compile(r"^\s*(?:設定|CSVデータ|詳細構成|構成案|プロット)\s*$")
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
 _RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
 
@@ -31,6 +36,11 @@ _RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
 _SUSPICIOUS_GLYPH_REPLACEMENTS: Dict[str, str] = {
     "厊": "厳",
 }
+
+_DUMMY_A_TEXT_MARKERS = (
+    "この動画の台本本文は外部管理です",
+    "ダミー本文を配置しています",
+)
 
 
 def _unicode_desc(ch: str) -> str:
@@ -169,6 +179,16 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
         if not stripped:
             continue
 
+        if any(marker in line for marker in _DUMMY_A_TEXT_MARKERS):
+            issues.append(
+                {
+                    "code": "dummy_a_text",
+                    "message": "Dummy/external-managed placeholder text detected; replace with real A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
         # Forbidden/suspicious characters (TTS/readability guardrails)
         if "\ufffd" in line:
             issues.append(
@@ -234,6 +254,26 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 }
             )
 
+        if _RE_EPISODE_HEADER_LINE.match(stripped):
+            issues.append(
+                {
+                    "code": "meta_episode_header",
+                    "message": "Episode header lines (e.g. `CHxx-NNN: ...`) must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        if _RE_META_BLOCK_HEADER.match(stripped):
+            issues.append(
+                {
+                    "code": "meta_block_header",
+                    "message": "Structured meta blocks (e.g. 設定/CSVデータ) must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
         if _RE_BULLET_LINE.match(stripped):
             issues.append(
                 {
@@ -254,6 +294,16 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 }
             )
 
+        if _RE_LETTERED_LINE.match(stripped):
+            issues.append(
+                {
+                    "code": "forbidden_lettered_list",
+                    "message": "Lettered list lines (e.g. `A. ...`) are not allowed in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
         if _RE_URL.search(line):
             issues.append(
                 {
@@ -269,6 +319,26 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 {
                     "code": "forbidden_statistics",
                     "message": "Percent/statistical claims must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        if _RE_LENGTH_META.search(line):
+            issues.append(
+                {
+                    "code": "length_meta",
+                    "message": "Outline/meta length markers (e.g. 約600字) must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        if _RE_MD_BOLD_MARKER.search(line):
+            issues.append(
+                {
+                    "code": "markdown_bold",
+                    "message": "Markdown emphasis markers (`**...**`) must not appear in A-text",
                     "line": idx,
                     "severity": "error",
                 }

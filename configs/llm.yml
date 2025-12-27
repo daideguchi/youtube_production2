@@ -142,7 +142,18 @@ models:
       allow_json_mode: true
       allow_temperature: true
       allow_stop: true
-      max_output_tokens: 8192
+      max_output_tokens: 16384
+
+  or_kimi_k2_thinking:
+    provider: openrouter
+    api_type: chat
+    model: "moonshotai/kimi-k2-thinking"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: true
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 65535
 
   # or_o3_mini:
   #   provider: openrouter
@@ -224,11 +235,8 @@ models:
 
 tiers:
   heavy_reasoning:
-    - or_deepseek_r1_0528
-    - or_deepseek_r1
-    - or_deepseek_r1_distill_qwen_32b
     - or_deepseek_v3_2_exp
-    - azure_gpt5_mini
+    - or_kimi_k2_thinking
     # - or_o3_mini  # disabled by default (cost)
 
   standard:
@@ -257,42 +265,70 @@ tasks:
     tier: heavy_reasoning
     defaults:
       timeout: 300
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_outline:
     tier: heavy_reasoning
     defaults:
       timeout: 180
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_chapter_brief:
     tier: heavy_reasoning
     defaults:
       timeout: 180
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_chapter_draft:
     tier: heavy_reasoning
     defaults:
       timeout: 240
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_chapter_review:
     tier: heavy_reasoning
     defaults:
       timeout: 180
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_cta:
     tier: heavy_reasoning
     defaults:
       timeout: 180
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_quality_check:
     tier: heavy_reasoning
     defaults:
       timeout: 300
       thinking_level: high
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_format:
     tier: standard

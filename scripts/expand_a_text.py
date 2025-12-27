@@ -3,27 +3,15 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
 
-REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-PACKAGES_ROOT = REPO_ROOT / "packages"
-if PACKAGES_ROOT.exists() and str(PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(PACKAGES_ROOT))
+bootstrap(load_env=False)
 
 from factory_common.llm_router import get_router  # noqa: E402
 from factory_common.paths import repo_root, script_data_root, video_root  # noqa: E402
@@ -495,7 +483,7 @@ def main() -> int:
             try:
                 import csv as _csv
 
-                with cp.open(encoding="utf-8", newline="") as f:
+                with cp.open(encoding="utf-8-sig", newline="") as f:
                     rows = list(_csv.reader(f))
                 if rows:
                     header = rows[0]

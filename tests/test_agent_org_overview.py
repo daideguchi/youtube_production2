@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -11,20 +10,7 @@ import pytest
 from factory_common import paths
 
 
-@pytest.fixture()
-def backend_on_path():
-    backend_root = paths.repo_root() / "apps" / "ui-backend" / "backend"
-    sys.path.insert(0, str(backend_root))
-    try:
-        yield
-    finally:
-        try:
-            sys.path.remove(str(backend_root))
-        except ValueError:
-            pass
-
-
-def test_agent_org_overview_aggregates_agents_locks_memos(backend_on_path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_agent_org_overview_aggregates_agents_locks_memos(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     queue_dir = tmp_path / "agent_tasks"
     monkeypatch.setenv("LLM_AGENT_QUEUE_DIR", str(queue_dir))
 
@@ -171,7 +157,7 @@ def test_agent_org_overview_aggregates_agents_locks_memos(backend_on_path, tmp_p
         encoding="utf-8",
     )
 
-    from routers import agent_org as agent_org_router
+    from backend.routers import agent_org as agent_org_router
 
     res = agent_org_router.get_overview(stale_sec=30, limit_memos=1, include_expired_locks=False)
     assert res["queue_dir"] == str(queue_dir)

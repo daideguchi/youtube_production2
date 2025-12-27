@@ -15,13 +15,12 @@ from typing import Dict, List, Tuple, Any
 from PIL import Image
 import re
 
-def _repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
+
+REPO_ROOT = tool_bootstrap(load_env=False)
 
 
 # CapCut API path
@@ -31,7 +30,7 @@ if env_api_root:
     _CANDIDATE_API_PATHS.append(Path(env_api_root).expanduser())
 _CANDIDATE_API_PATHS.extend([
     Path.home() / "capcut_api",
-    _repo_root() / "packages" / "capcut_api",
+    REPO_ROOT / "packages" / "capcut_api",
 ])
 for _candidate in _CANDIDATE_API_PATHS:
     if _candidate.exists():
@@ -401,11 +400,11 @@ def main():
         epilog="""
 使用例:
   # 基本検証（画像のみ）
-  python3 comprehensive_validation.py --run ./output/auto_20250905_121136
+  PYTHONPATH=".:packages" python3 -m video_pipeline.tools.comprehensive_validation --run workspaces/video/runs/<run_id>
   
   # 完全検証（CapCut + SRT含む）
-  python3 comprehensive_validation.py \\
-    --run ./output/auto_20250905_121136 \\
+  PYTHONPATH=".:packages" python3 -m video_pipeline.tools.comprehensive_validation \\
+    --run workspaces/video/runs/<run_id> \\
     --draft-dir "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/001_シニアの朗読_画像版" \\
     --srt-file "./path/to/script.srt"
         """

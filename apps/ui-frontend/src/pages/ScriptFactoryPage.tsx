@@ -426,7 +426,7 @@ useEffect(() => {
   const channelNameMap = useMemo(() => {
     const map = new Map<string, string>();
     channels.forEach((channel) => {
-      const name = channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
+      const name = channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
       map.set(channel.code, name);
     });
     return map;
@@ -900,7 +900,7 @@ useEffect(() => {
         ) : (
           <div className="channel-chip-compact-grid">
             {channels.map((channel) => {
-              const displayName = channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
+              const displayName = channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
               const avatarUrl = channel.branding?.avatar_url ?? null;
               const themeColor = channel.branding?.theme_color ?? "#e2e8f0";
               const isActive = selectedChannel === channel.code;

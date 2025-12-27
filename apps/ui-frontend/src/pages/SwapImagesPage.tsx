@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { apiUrl } from "../api/baseUrl";
 
 type SwapRequest = {
   draft_path: string;
@@ -114,7 +115,7 @@ export const SwapImagesPage: React.FC = () => {
 
   // 初期ロード: ドラフト一覧取得＋最初のドラフトを自動選択→run_dir推定（画像はユーザー操作でロード）
   useEffect(() => {
-    fetch(`${API_BASE}/api/swap/drafts`)
+    fetch(apiUrl("/api/swap/drafts"))
       .then((r) => r.json())
       .then((data) => {
         const list = data.items || [];
@@ -126,7 +127,7 @@ export const SwapImagesPage: React.FC = () => {
             draft_path: first.path,
             only_allow_draft_substring: first.name,
           }));
-          fetch(`${API_BASE}/api/swap/auto-run-dir?draft_name=${encodeURIComponent(first.name)}`)
+          fetch(apiUrl(`/api/swap/auto-run-dir?draft_name=${encodeURIComponent(first.name)}`))
             .then((res) => res.json())
             .then((rd) => setForm((f) => ({ ...f, run_dir: rd.run_dir || f.run_dir })))
             .finally(() => setToast("ドラフトを選択しました。必要なときだけ「画像を読み込む」を押してください。"));
@@ -150,14 +151,14 @@ export const SwapImagesPage: React.FC = () => {
       let runDir = form.run_dir;
       if (!runDir) {
         const nm = draft.split("/").pop() || "";
-        const rd = await fetch(`${API_BASE}/api/swap/auto-run-dir?draft_name=${encodeURIComponent(nm)}`).then((r) => r.json());
+        const rd = await fetch(apiUrl(`/api/swap/auto-run-dir?draft_name=${encodeURIComponent(nm)}`)).then((r) => r.json());
         if (rd.run_dir) {
           runDir = rd.run_dir;
           setForm((f) => ({ ...f, run_dir: rd.run_dir }));
         }
       }
       const params = new URLSearchParams({ draft_path: draft });
-      const res = await fetch(`${API_BASE}/api/swap/images/list?${params.toString()}`);
+      const res = await fetch(apiUrl(`/api/swap/images/list?${params.toString()}`));
       if (!res.ok) {
         setToast("読み込み失敗");
         return;
@@ -167,7 +168,7 @@ export const SwapImagesPage: React.FC = () => {
       const snapsByIdx: Record<number, { prompt: string; timestamp: string }> = {};
       if (runDir) {
         try {
-          const cues = await fetch(`${API_BASE}/api/swap/image-cues?run_dir=${encodeURIComponent(runDir)}`).then((r) => r.json());
+          const cues = await fetch(apiUrl(`/api/swap/image-cues?run_dir=${encodeURIComponent(runDir)}`)).then((r) => r.json());
           (cues.items || []).forEach((c: any) => {
             if (typeof c.index === "number") cuesByIdx[c.index] = c.prompt || c.raw_prompt || c.positive || "";
           });
@@ -175,7 +176,7 @@ export const SwapImagesPage: React.FC = () => {
           // ignore
         }
         try {
-          const snaps = await fetch(`${API_BASE}/api/swap/prompt-snapshots?run_dir=${encodeURIComponent(runDir)}`).then((r) => r.json());
+          const snaps = await fetch(apiUrl(`/api/swap/prompt-snapshots?run_dir=${encodeURIComponent(runDir)}`)).then((r) => r.json());
           (snaps.items || []).forEach((s: any) => {
             if (typeof s.index === "number") snapsByIdx[s.index] = { prompt: s.prompt || "", timestamp: s.timestamp || "" };
           });
@@ -213,7 +214,7 @@ export const SwapImagesPage: React.FC = () => {
         only_allow_draft_substring: form.only_allow_draft_substring || form.draft_path.split("/").pop() || "",
         apply: true,
       };
-      const res = await fetch(`${API_BASE}/api/swap/images`, {
+      const res = await fetch(apiUrl("/api/swap/images"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -238,14 +239,22 @@ export const SwapImagesPage: React.FC = () => {
     setRunning(true);
     setToast(`カット#${index} を直前に戻しています...`);
     try {
-      const hist = await fetch(`${API_BASE}/api/swap/images/history?${new URLSearchParams({ draft_path: form.draft_path, index: String(index), limit: "1" }).toString()}`).then((r) =>
+      const hist = await fetch(
+        apiUrl(
+          `/api/swap/images/history?${new URLSearchParams({
+            draft_path: form.draft_path,
+            index: String(index),
+            limit: "1",
+          }).toString()}`
+        )
+      ).then((r) =>
         r.json()
       );
       const item = (hist.items || [])[0];
       if (!item) {
         setToast("履歴がありません");
       } else {
-        const res = await fetch(`${API_BASE}/api/swap/images/rollback`, {
+        const res = await fetch(apiUrl("/api/swap/images/rollback"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ draft_path: form.draft_path, index, history_path: item.path }),
@@ -373,7 +382,9 @@ export const SwapImagesPage: React.FC = () => {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
             {renderImages.map((item) => {
               const baseSrc = item.material_name
-                ? `${API_BASE}/api/swap/images/file?draft_path=${encodeURIComponent(form.draft_path)}&material_name=${encodeURIComponent(item.material_name)}`
+                ? apiUrl(
+                    `/api/swap/images/file?draft_path=${encodeURIComponent(form.draft_path)}&material_name=${encodeURIComponent(item.material_name)}`
+                  )
                 : undefined;
               const imgSrc =
                 baseSrc && useThumbnails && thumbnailMaxDim > 0 ? `${baseSrc}&max_dim=${thumbnailMaxDim}` : baseSrc;
@@ -525,4 +536,3 @@ export const SwapImagesPage: React.FC = () => {
 };
 
 export default SwapImagesPage;
-const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";

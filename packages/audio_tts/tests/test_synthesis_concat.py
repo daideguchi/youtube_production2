@@ -12,7 +12,7 @@ def _make_silent_wav(path: Path, seconds: float, framerate: int = 16000):
 
 
 def test_concat_wavs():
-    from tts.synthesis import _concat_wavs
+    from audio_tts.tts.synthesis import _concat_wavs
 
     tmp = Path("tmp_test_concat")
     tmp.mkdir(exist_ok=True)

@@ -19,34 +19,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
-def _bootstrap_sys_path() -> None:
-    """
-    Make repo-root and `packages/` importable even when running from `scripts/`.
-    (Do not rely on sitecustomize.py, which is not auto-loaded in this mode.)
-    """
+from _bootstrap import bootstrap
 
-    start = Path(__file__).resolve()
-    cur = start.parent
-    repo = None
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            repo = candidate
-            break
-    if repo is None:
-        raise SystemExit("repo root not found (pyproject.toml missing)")
-
-    for path in (repo, repo / "packages"):
-        p = str(path)
-        if p not in sys.path:
-            sys.path.insert(0, p)
-
-
-_bootstrap_sys_path()
+bootstrap(load_env=False)
 
 from factory_common.paths import status_path  # noqa: E402
 
@@ -228,4 +207,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

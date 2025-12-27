@@ -7,6 +7,8 @@ channels:
     persona: workspaces/planning/personas/CH06_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/script_prompt.txt
     chapter_count: 7
+    target_chars_min: 20000
+    target_chars_max: 26000
   CH05:
     planning_csv: workspaces/planning/channels/CH05.csv
     persona: workspaces/planning/personas/CH05_PERSONA.md

@@ -56,8 +56,15 @@
   "audience_profile": "60代以降。人間関係のストレスや不安で疲れ、角を立てずに「線を引く言葉」と「心の置き場所」が欲しい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "悩みの言語化→仏教視点→実践フレーズで締める型の参考"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",

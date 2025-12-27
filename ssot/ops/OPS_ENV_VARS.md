@@ -21,6 +21,8 @@
 - `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
 - LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
+  - `llm_usage.jsonl` には `routing_key`（例: `CH10-010`）が記録されるため、1本あたりの呼び出し回数/トークン量を後追いできる。
+  - 例: `python3 scripts/ops/llm_usage_report.py --channel CH10 --video 010 --task-prefix script_`
 - TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
@@ -45,6 +47,40 @@
 - `YTM_WEB_SEARCH_COUNT`（default: `8`）: 検索結果の最大件数
 - `YTM_WEB_SEARCH_TIMEOUT_S`（default: `20`）: 検索リクエストの timeout（秒）
 - `YTM_WEB_SEARCH_FORCE`（default: `0`）: `1` で既存の `search_results.json` があっても再検索
+
+## Script pipeline: Master Plan（設計図 / 高コスト推論はここで1回だけ）
+`packages/script_pipeline/runner.py` の `script_master_plan` に適用される。
+
+目的:
+- 長尺で起きる「迷子/脱線/終盤の崩壊」を **章執筆前** に抑える。
+- 高コストモデル（例: Claude Opus 4.5）を使う場合は **この工程で1回だけ**（本文を書かせない）。
+
+出力:
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/master_plan.json`
+
+有効化（デフォルトOFF）:
+- `SCRIPT_MASTER_PLAN_LLM`（default: `0`）: `1` で LLM による設計図サマリ生成を試す（失敗しても自動で決定論に戻して続行）。
+- `SCRIPT_MASTER_PLAN_LLM_TASK`（default: 空）: 使う task key（`configs/llm_router.yaml: tasks`）。例: `script_master_plan_opus`（Opus専用に作る）。
+- `SCRIPT_MASTER_PLAN_LLM_CHANNELS`（default: 空）: 実行を許可するチャンネルの allowlist（例: `CH10`）。`all` または `*` で全チャンネル（非推奨）。
+
+コスト暴走防止（強制推奨）:
+- `SCRIPT_MASTER_PLAN_LLM_STRICT_SINGLE_MODEL`（default: `1`）:
+  - `1`: task の tier が **1モデルのみ**のときだけ実行。複数候補や `LLM_FORCE_MODELS` で複数指定がある場合は自動スキップ。
+  - `0`: 上記制限を外す（非推奨）。
+
+微調整（任意）:
+- `SCRIPT_MASTER_PLAN_LLM_MAX_TOKENS`（default: `1200`）
+- `SCRIPT_MASTER_PLAN_LLM_TEMPERATURE`（default: `0.2`）
+
+観測（必ず残る）:
+- 実行結果: `workspaces/scripts/{CH}/{NNN}/status.json: stages.script_master_plan.details`
+
+## Script runbook: seed-expand（Seed→Expand / Seed生成は原則低コスト）
+`scripts/ops/script_runbook.py seed-expand` に適用される。
+
+目的:
+- 長文を一撃で書かせず、短いSeed→追記（`script_validation` の Extend/Expand）で収束させる。
+- Seed生成は **原則低コスト**で1回だけ（リトライでコストを増やさない）。
 
 ## Script pipeline: Aテキスト品質ゲート（任意）
 `packages/script_pipeline/runner.py` の `script_validation` に適用される。
@@ -73,7 +109,7 @@
   - `0`: `verdict: major` のみ停止（ok/minor は合格; 量産デフォルト）
   - `1`: `verdict: ok` 以外は停止（minor/major は停止; より厳密にブロック）
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX`（default: `1`）: `script_validation` 内で最小リライト（auto-fix）を試す。
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR`（default: `1`）: minor の auto-fix を許可（`minor -> ok` を狙って1回だけシャープにする用途）。コストを絞りたい場合は `0`。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR`（default: `0`）: minor の auto-fix を許可（`minor -> ok` を狙って1回だけシャープにする用途）。必要なときだけ `1`。
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR`（default: `1`）: major の auto-fix を許可。
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS`（default: `1`）: auto-fix リトライ回数（最大2）。
 - `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS`（default: `30000`）: 判定に渡す最大文字数（超過時は先頭+末尾抜粋で判定し、auto-fix は安全のためスキップ）。

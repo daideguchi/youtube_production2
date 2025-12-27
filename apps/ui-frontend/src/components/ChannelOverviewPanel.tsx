@@ -2,7 +2,7 @@ import type { ChannelSummary } from "../api/types";
 import { Link } from "react-router-dom";
 
 function resolveDisplayName(channel: ChannelSummary): string {
-  return channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
+  return channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
 }
 
 function formatHandle(value?: string | null): string | null {

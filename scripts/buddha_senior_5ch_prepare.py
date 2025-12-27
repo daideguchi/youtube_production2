@@ -13,34 +13,13 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Set, Tuple
 
+from _bootstrap import bootstrap
 
-def _bootstrap_sys_path() -> None:
-    """
-    Make repo-root and `packages/` importable even when running from `scripts/`.
-    (Do not rely on sitecustomize.py, which is not auto-loaded in this mode.)
-    """
-
-    start = Path(__file__).resolve()
-    cur = start.parent
-    repo = None
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            repo = candidate
-            break
-    if repo is None:
-        repo = cur
-    for path in (repo, repo / "packages"):
-        p = str(path)
-        if p not in sys.path:
-            sys.path.insert(0, p)
-
-
-_bootstrap_sys_path()
+bootstrap(load_env=False)
 
 from factory_common.paths import channels_csv_path, status_path  # noqa: E402
 
@@ -153,7 +132,7 @@ def _iter_planning_rows(channel: str) -> Iterable[Tuple[str, str]]:
     path = channels_csv_path(channel)
     if not path.exists():
         raise SystemExit(f"Planning CSV not found: {path}")
-    with path.open("r", encoding="utf-8", newline="") as handle:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
             video_raw = (row.get("動画番号") or "").strip()

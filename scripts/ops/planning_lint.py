@@ -26,13 +26,14 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
 from _bootstrap import bootstrap
 
 PROJECT_ROOT = bootstrap(load_env=False)
 
 from factory_common.paths import logs_root, repo_root
+from script_pipeline.tools import planning_requirements
 
 
 _TAG_RE = re.compile(r"^\s*【([^】]{1,30})】")
@@ -68,14 +69,6 @@ def _normalize_channel(ch: str) -> str:
     return s
 
 
-def _read_channels_config() -> dict[str, Any]:
-    path = repo_root() / "packages" / "script_pipeline" / "channels" / "channels.json"
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
 def _planning_csv_path(channel: str) -> Path:
     return repo_root() / "workspaces" / "planning" / "channels" / f"{channel}.csv"
 
@@ -96,6 +89,26 @@ def _video_number_from_row(row: dict[str, str]) -> str:
         if m:
             return m.group(1)
     return "???"
+
+def _is_published_row(row: dict[str, str]) -> bool:
+    progress = str(row.get("進捗") or "").strip()
+    if not progress:
+        return False
+    # Planning SoT treats these as published locks; required planning fields no longer matter.
+    if "投稿済み" in progress:
+        return True
+    if progress.lower() in {"published"}:
+        return True
+    return False
+
+def _maybe_int(value: str) -> Optional[int]:
+    raw = (value or "").strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except Exception:
+        return None
 
 
 @dataclass(frozen=True)
@@ -119,21 +132,6 @@ class LintIssue:
             "columns": self.columns,
         }
 
-
-def _required_columns_for_channel(channel: str) -> list[str]:
-    cfg = _read_channels_config()
-    key = channel.lower()
-    base = ["タイトル"]
-    ch_cfg = cfg.get(key) if isinstance(cfg, dict) else None
-    specific = []
-    if isinstance(ch_cfg, dict):
-        sc = ch_cfg.get("specific_columns")
-        if isinstance(sc, list):
-            specific = [str(x) for x in sc if str(x).strip()]
-    # Always treat these identifiers as required for lint context, but allow header variants.
-    return base + specific
-
-
 def _detect_contamination_signals(row: dict[str, str]) -> list[tuple[str, str]]:
     # (code, matched_column)
     signals: list[tuple[str, str]] = []
@@ -154,7 +152,6 @@ def _detect_contamination_signals(row: dict[str, str]) -> list[tuple[str, str]]:
 def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bool = False) -> dict[str, Any]:
     issues: list[LintIssue] = []
     channel = _normalize_channel(channel)
-    required = _required_columns_for_channel(channel)
 
     if not csv_path.exists():
         return {
@@ -176,13 +173,13 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
             ],
         }
 
-    with csv_path.open("r", encoding="utf-8") as f:
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         headers = reader.fieldnames or []
         rows = list(reader)
 
     # Header-level checks
-    missing_required = [c for c in required if c not in headers]
+    missing_required = ["タイトル"] if "タイトル" not in headers else []
     # Allow common variants for these:
     id_ok = any(h in headers for h in ("動画番号", "No.", "VideoNumber", "video_number", "video"))
     if not id_ok:
@@ -201,9 +198,34 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
             )
         )
 
+    # Policy-level required columns (SoT = planning_requirements; aligns with UI planning guard).
+    required_cols_union: set[str] = set()
+    for row in rows:
+        if _is_published_row(row):
+            continue
+        video = _video_number_from_row(row)
+        numeric_video = _maybe_int(video)
+        for col in planning_requirements.resolve_required_columns(channel, numeric_video):
+            if col:
+                required_cols_union.add(col)
+    missing_policy_required = [c for c in sorted(required_cols_union) if c not in headers]
+    if missing_policy_required:
+        issues.append(
+            LintIssue(
+                channel=channel,
+                video="???",
+                row_index=0,
+                severity="error",
+                code="missing_required_columns_by_policy",
+                message="Missing required columns (planning_requirements policy): " + ", ".join(missing_policy_required),
+                columns=missing_policy_required,
+            )
+        )
+
     # Row-level checks
     for idx, row in enumerate(rows, start=1):
         video = _video_number_from_row(row)
+        numeric_video = _maybe_int(video)
         title = (row.get("タイトル") or "").strip()
         if not title:
             issues.append(
@@ -240,20 +262,23 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
                 )
             )
 
-        # Required-for-channel checks (deterministic).
-        for col in ("企画意図", "ターゲット層", "具体的な内容（話の構成案）"):
-            if col in required and not (row.get(col) or "").strip():
-                issues.append(
-                    LintIssue(
-                        channel=channel,
-                        video=video,
-                        row_index=idx,
-                        severity="error",
-                        code="missing_required_field",
-                        message=f"{col} is empty (required for this channel)",
-                        columns=[col],
+        # Required fields (deterministic). SoT = planning_requirements (same as UI planning guard).
+        if not _is_published_row(row):
+            for col in planning_requirements.resolve_required_columns(channel, numeric_video):
+                if col not in headers:
+                    continue
+                if not (row.get(col) or "").strip():
+                    issues.append(
+                        LintIssue(
+                            channel=channel,
+                            video=video,
+                            row_index=idx,
+                            severity="error",
+                            code="missing_required_field",
+                            message=f"{col} is empty (planning_requirements required)",
+                            columns=[col],
+                        )
                     )
-                )
 
         # Soft signals for human/agent confusion (not used as pipeline inputs).
         for code, col in _detect_contamination_signals(row):

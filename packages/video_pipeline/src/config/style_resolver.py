@@ -1,13 +1,11 @@
 import json
 from pathlib import Path
 from typing import Dict, Optional
-from src.core.domain.style_schema import VideoStyle, TextStyle
+from ..core.domain.style_schema import VideoStyle, TextStyle
 
 from factory_common.paths import repo_root, video_pkg_root
 
-# Default path to the master styles SSOT
-# Resolved relative to project root (commentary_02)
-# src/config/style_resolver.py -> src/config -> src -> commentary_02 -> factory_commentary -> ssot
+# Default path to the master styles SSOT (repo-level).
 DEFAULT_STYLE_PATH = repo_root() / "ssot" / "ops" / "master_styles.json"
 # Fallback path to local config copy
 FALLBACK_STYLE_PATH = video_pkg_root() / "config" / "master_styles.json"

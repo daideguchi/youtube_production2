@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../api/baseUrl";
 
 // iframe は 3000 上のページに埋め込むだけなので、スタジオ自体は 3100 を直接参照する。
 // 必要なら REACT_APP_REMOTION_STUDIO_URL で上書き。
@@ -45,7 +46,7 @@ export function RemotionStudioPage() {
   const handleRestart = async () => {
     // このエンドポイントは存在しない場合があるので、叩けるときだけ使う。
     try {
-      const res = await fetch(RESTART_URL, { method: "POST" });
+      const res = await fetch(apiUrl(RESTART_URL), { method: "POST" });
       if (!res.ok) {
         alert("Remotion preview の再起動に失敗しました (endpoint missing)");
       } else {

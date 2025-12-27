@@ -11,7 +11,7 @@
 
 - **SoTは1つ**：フェーズごとに“正本”は1つに限定する（複数あると必ず破綻する）。
 - **ミラーは編集禁止**：UI/集計の都合で写しているだけ。編集するなら同期ツールとセット。
-- **生成物は捨てて良い**：再生成できるものはL2/L3扱い。保持/削除は `PLAN_OPS_ARTIFACT_LIFECYCLE` が正本。
+- **生成物は原則“再生成可能”**：SoT以外の中間物/ログは基本的に捨ててよい（必要なら再生成できる）。保持/削除は `PLAN_OPS_ARTIFACT_LIFECYCLE` を正本にする。
 - **パスはpaths SSOT**：コードは `packages/factory_common/paths.py` を通す（物理移設しても壊れないため）。
 
 ---
@@ -52,7 +52,7 @@
     - `assembled.md` は **ミラー/互換入力**。`assembled_human.md` がある状態での手動編集は禁止（混乱の元）。
 
 ### 2.3 Generated（派生物）
-- `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（L3: 証跡/デバッグ）
+- `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（証跡/デバッグ）
 - `workspaces/scripts/{CH}/{NNN}/content/*`（段階生成物、運用で採用するファイルを固定する）
 
 ### 2.4 入口（Entry points）

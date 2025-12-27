@@ -1,18 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-
-interface ChannelProgress {
-    channel: string;
-    total_episodes: number;
-    completed_episodes: number;
-    completed_ids: string[];
-    missing_ids: string[];
-    progress_percent: number;
-}
-
-interface TtsProgressResponse {
-    channels: ChannelProgress[];
-    overall_progress: number;
-}
+import { fetchTtsProgress } from "../api/client";
+import type { TtsProgressResponse } from "../api/types";
 
 const TtsProgressPage: React.FC = () => {
     const [data, setData] = useState<TtsProgressResponse | null>(null);
@@ -22,9 +10,7 @@ const TtsProgressPage: React.FC = () => {
 
     const fetchProgress = useCallback(async () => {
         try {
-            const response = await fetch('/api/tts-progress');
-            if (!response.ok) throw new Error('Failed to fetch progress');
-            const result = await response.json();
+            const result = await fetchTtsProgress();
             setData(result);
             setLastUpdate(new Date());
             setError(null);

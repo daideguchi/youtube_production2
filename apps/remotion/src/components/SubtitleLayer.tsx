@@ -9,8 +9,8 @@ type Props = {
 };
 
 function normalizeText(text: string) {
-  // remove SRT numbers and timestamps if left in, and collapse whitespace
-  return text.replace(/\r/g, "").replace(/\s+/g, " ").trim();
+  // Preserve cue text exactly (only normalize line endings).
+  return text.replace(/\r/g, "");
 }
 
 export const SubtitleLayer: React.FC<Props> = ({ cues, bottomPx = 50, maxWidthPct = 94, fontSize = 64 }) => {
@@ -52,6 +52,7 @@ export const SubtitleLayer: React.FC<Props> = ({ cues, bottomPx = 50, maxWidthPc
           fontSize: fontSize,
           lineHeight: 1.5,
           textAlign: "center",
+          whiteSpace: "pre-line",
           maxWidth: `${maxWidthPct}%`,
           opacity,
           transition: "none",

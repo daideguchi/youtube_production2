@@ -11,10 +11,14 @@ Solution V2:
 4. Scan ALL tracks and replace references from the Old UUID to the New UUID.
 5. This forces CapCut to treat it as a completely new asset, bypassing all caches.
 
-Usage:
-    python3 tools/regenerate_and_swap_v2.py \
-        --run-dir output/jinsei191_3 \
-        --draft-path "$HOME/Movies/CapCut/.../DraftName" \
+NOTE:
+  - このツールは `video_pipeline.tools.safe_image_swap` からのみ呼び出す（バックアップ/同期/ガード込み）。
+  - 直接実行する場合は `SAFE_IMAGE_SWAP_ALLOW=1` が必須（事故防止のため）。
+
+Debug usage (非推奨):
+    SAFE_IMAGE_SWAP_ALLOW=1 GEMINI_API_KEY=... PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_and_swap_v2 \
+        --run-dir workspaces/video/runs/<run_id> \
+        --draft-path "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<draft_name>" \
         --indices 6 7 16 19 \
         --style-mode illustration
 """
@@ -29,15 +33,14 @@ import logging
 import uuid
 from pathlib import Path
 
-# Add project root to path
-root_dir = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(root_dir))
-
 try:
-    from src.srt2images.image_regenerator import ImageRegenerator
-except ImportError:
-    sys.path.insert(0, str(Path.cwd()))
-    from src.srt2images.image_regenerator import ImageRegenerator
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
+
+tool_bootstrap(load_env=False)
+
+from video_pipeline.src.srt2images.image_regenerator import ImageRegenerator  # noqa: E402
 
 # Setup logging
 logging.basicConfig(

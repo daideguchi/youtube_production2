@@ -1,0 +1,254 @@
+version: 3
+name: CH25_text_layout_ijin_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+coordinate_system: 'normalized_0_to_1'
+global:
+  fonts:
+    headline_sans_priority: ['Noto Sans JP Black','Source Han Sans JP Heavy','BIZ UDPGothic Bold','Hiragino Sans W8','Yu Gothic UI Bold']
+  effects_defaults:
+    stroke: {color: '#000000', width_px: 16, join: 'round'}
+    shadow: {color: '#000000', alpha: 0.80, offset_px: [10,10], blur_px: 14}
+    glow: {color: '#ffffff', alpha: 0.00, blur_px: 0}
+    white_fill: {mode: 'solid', color: '#FFFFFF'}
+    red_fill: {mode: 'solid', color: '#D61A1A'}
+  fit_rules:
+    - '上=白（短文）、下=赤（結論ワード）。右側に配置し、左の肖像を邪魔しない。'
+
+templates:
+  CH25_right_two_lines_v1:
+    description: 'CH25: 右2行（上白/下赤）'
+    slots:
+      top:
+        box: [0.5400, 0.0800, 0.4300, 0.2000]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 96
+        align: left
+        tracking: 0
+        max_lines: 2
+        stroke: true
+        shadow: true
+        glow: false
+      accent:
+        box: [0.5400, 0.6500, 0.4300, 0.2600]
+        font: headline_sans_priority
+        fill: red_fill
+        base_size_px: 140
+        align: left
+        tracking: 0
+        max_lines: 2
+        stroke: true
+        shadow: true
+        glow: false
+
+items:
+  - video_id: CH25-001
+    title: '【睡眠用】不安が静かに薄れる。テスラが守った「頭を休める順番」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-002
+    title: '【睡眠用】自信が戻る夜。ダ・ヴィンチの「未完成の扱い方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-003
+    title: '【睡眠用】比べる癖が止まる。アインシュタインの「遅さの価値」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-004
+    title: '【睡眠用】努力が報われない夜に。キュリーの「続ける理由の作り方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-005
+    title: '【睡眠用】人に振り回されない。リンカーンの「怒りを鎮める型」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-006
+    title: '【睡眠用】考えすぎが止まる。皇帝哲学の「手放す練習」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-007
+    title: '【睡眠用】失敗が怖い夜に。セネカの「最悪を薄める準備」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-008
+    title: '【睡眠用】迷いが消える。ガンジーの「決めたことを守る静かな技術」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-009
+    title: '【睡眠用】自分を大きく見せない。ナポレオンの「過信を切る習慣」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-010
+    title: '【睡眠用】落ち込みが深い夜に。チャーチルの「暗さの抜け方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-011
+    title: '【睡眠用】やる気が戻る。ジョブズの「一点に絞る夜の整理」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-012
+    title: '【睡眠用】罪悪感が抜けない夜に。ナイチンゲールの「優しさの境界線」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-013
+    title: '【睡眠用】心が乱れる夜に。武蔵の「勝つ前に整える呼吸」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-014
+    title: '【睡眠用】耐えるしかない夜に。家康の「待つ力の作り方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-015
+    title: '【睡眠用】停滞が続く夜に。龍馬の「流れを変える小さな一手」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-016
+    title: '【睡眠用】後悔で眠れない夜に。西郷の「やり直しの考え方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-017
+    title: '【睡眠用】お金の不安が薄れる。松下幸之助の「安心の作り方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-018
+    title: '【睡眠用】仕事の意味が見えない夜に。渋沢の「稼ぐと徳の両立」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-019
+    title: '【睡眠用】希望が見えない夜に。ケラーの「光の見つけ方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-020
+    title: '【睡眠用】受け入れられない夜に。ベートーヴェンの「運命との折り合い」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-021
+    title: '【睡眠用】孤独で眠れない夜に。紫式部の「一人の整え方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-022
+    title: '【睡眠用】他人の目が怖い夜に。清少納言の「気にしない言葉の刃」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-023
+    title: '【睡眠用】続ける力が切れそうな夜に。北斎の「老いて伸びる習慣」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-024
+    title: '【睡眠用】自分がわからない夜に。岡本太郎の「怖さを燃やす方法」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-025
+    title: '【睡眠用】心が散る夜に。空海の「整える言葉と呼吸」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-026
+    title: '【睡眠用】苦しみが重い夜に。釈迦の「苦を軽くする見方」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-027
+    title: '【睡眠用】手放せない夜に。老子の「ゆるめる力」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-028
+    title: '【睡眠用】悩みが止まらない夜に。荘子の「悩みを夢にする話」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-029
+    title: '【睡眠用】まじめで苦しい夜に。孔子の「心を壊さない努力」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+
+  - video_id: CH25-030
+    title: '【睡眠用】選べない夜に。ソクラテスの「問いで整える方法」'
+    template_id: CH25_right_two_lines_v1
+    text:
+      top: ''
+      accent: ''
+

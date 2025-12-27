@@ -31,6 +31,7 @@ import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
 import { AgentOrgPage } from "./pages/AgentOrgPage";
 import { AgentBoardPage } from "./pages/AgentBoardPage";
 import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
+import { ImageManagementPage } from "./pages/ImageManagementPage";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
         <Route path="/benchmarks" element={<BenchmarksPage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
+        <Route path="/image-management" element={<ImageManagementPage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/agent-org" element={<AgentOrgPage />} />
         <Route path="/agent-board" element={<AgentBoardPage />} />
@@ -62,6 +64,7 @@ function App() {
         <Route path="/video-remotion" element={<RemotionWorkspacePage />} />
         <Route path="/audio-tts" element={<AudioTtsPage />} />
         <Route path="/audio-integrity" element={<AudioIntegrityPage />} />
+        <Route path="/audio-integrity/:channel/:video" element={<AudioIntegrityPage />} />
         <Route path="/tts-progress" element={<TtsProgressPage />} />
         <Route path="/planning" element={<PlanningPage />} />
         <Route path="/jobs" element={<JobsPage />} />

@@ -337,11 +337,11 @@ def run_tts_pipeline(
         t_risk_start = time.time()
         if engine == "voicevox" and phase != "srt_only":
             print("[AUDIT] Running Twin-Engine Analysis (MeCab vs Voicevox)...", flush=True)
-            from tts.voicevox_api import VoicevoxClient
+            from audio_tts.tts.voicevox_api import VoicevoxClient
             vv_client = VoicevoxClient(engine_url=cfg.voicevox_url)
             speaker_id = 0
             try:
-                from tts.routing import resolve_voicevox_speaker_id
+                from audio_tts.tts.routing import resolve_voicevox_speaker_id
                 speaker_id = resolve_voicevox_speaker_id(channel, cfg)
             except:
                 pass

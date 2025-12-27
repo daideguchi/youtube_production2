@@ -1,4 +1,4 @@
-"""Background job manager for commentary_02 React API."""
+"""Background job manager for video_pipeline (React UI backend)."""
 from __future__ import annotations
 
 import json
@@ -6,7 +6,6 @@ import logging
 import os
 import queue
 import subprocess
-import sys
 import threading
 import uuid
 from dataclasses import dataclass, field
@@ -15,11 +14,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
-from factory_common.paths import video_pkg_root
-
-PROJECT_ROOT = video_pkg_root()
-sys.path.append(str(PROJECT_ROOT / "src"))
-from config.template_registry import resolve_template_path, is_registered_template  # noqa: E402
+from video_pipeline.src.config.template_registry import resolve_template_path, is_registered_template
 
 logger = logging.getLogger(__name__)
 
@@ -273,6 +268,8 @@ class CommandBuilder:
             return self._build_analyze_srt(context, options)
         if action == "regenerate_images":
             return self._build_regenerate_images(context, options)
+        if action == "generate_image_variants":
+            return self._build_generate_image_variants(context, options)
         if action == "generate_belt":
             return self._build_generate_belt(context, options)
         if action == "validate_capcut":
@@ -406,6 +403,82 @@ class CommandBuilder:
         ]
 
         summary = f"ベルト設定生成 ({context.project_id})"
+        return CommandSpec(command=command, cwd=self._project_root, env=env, summary=summary)
+
+    def _build_generate_image_variants(self, context: ProjectContext, options: Dict[str, Any]) -> CommandSpec:
+        run_dir = context.project_dir
+        cues_path = run_dir / "image_cues.json"
+        if not cues_path.exists():
+            raise ValueError(f"image_cues.json が見つかりません: {cues_path}")
+
+        env = self._base_env()
+        command: List[str] = [
+            str(self._with_env_script()),
+            self._python,
+            str(self._tools_root / "generate_image_variants.py"),
+            "--run",
+            str(run_dir),
+        ]
+
+        # styles
+        style_presets = options.get("style_presets")
+        if isinstance(style_presets, list):
+            for item in style_presets:
+                if isinstance(item, str) and item.strip():
+                    command.extend(["--preset", item.strip()])
+
+        custom_styles = options.get("custom_styles")
+        if isinstance(custom_styles, list):
+            for item in custom_styles:
+                if isinstance(item, str) and item.strip():
+                    command.extend(["--style", item.strip()])
+
+        if (model_key := options.get("model_key")) is not None:
+            mk = str(model_key).strip()
+            if mk:
+                command.extend(["--model-key", mk])
+
+        if (max_cues := options.get("max")) is not None:
+            try:
+                max_int = int(max_cues)
+                if max_int > 0:
+                    command.extend(["--max", str(max_int)])
+            except Exception:
+                pass
+
+        if (negative := options.get("negative")) is not None:
+            neg = str(negative).strip()
+            if neg:
+                command.extend(["--negative", neg])
+
+        if (timeout_sec := options.get("timeout_sec")) is not None:
+            try:
+                t = int(timeout_sec)
+                if t > 0:
+                    command.extend(["--timeout-sec", str(t)])
+            except Exception:
+                pass
+
+        if options.get("retry_until_success"):
+            command.append("--retry-until-success")
+
+        if (max_retries := options.get("max_retries")) is not None:
+            try:
+                r = int(max_retries)
+                if r > 0:
+                    command.extend(["--max-retries", str(r)])
+            except Exception:
+                pass
+
+        if options.get("force"):
+            command.append("--force")
+
+        if (channel := options.get("channel")) is not None:
+            ch = str(channel).strip()
+            if ch:
+                command.extend(["--channel", ch])
+
+        summary = f"画像バリアント生成 ({context.project_id})"
         return CommandSpec(command=command, cwd=self._project_root, env=env, summary=summary)
 
     def _build_validate_capcut(self, context: ProjectContext, options: Dict[str, Any]) -> CommandSpec:

@@ -39,41 +39,10 @@ import time
 
 import logging
 
-def _bootstrap_sys_path() -> None:
-    """
-    Ensure monorepo imports work when launching the backend as `uvicorn main:app`
-    from inside `apps/ui-backend/backend/`.
-
-    We intentionally avoid loading env files here; `.env` is handled by the
-    repo-level `sitecustomize.py` / callers.
-    """
-
-    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
-    if override:
-        repo_root = Path(override).expanduser().resolve()
-    else:
-        start = Path(__file__).resolve()
-        cur = start if start.is_dir() else start.parent
-        repo_root = cur
-        for candidate in (cur, *cur.parents):
-            if (candidate / "pyproject.toml").exists():
-                repo_root = candidate.resolve()
-                break
-
-    candidates = [
-        repo_root,
-        repo_root / "packages",
-        repo_root / "apps" / "ui-backend",
-    ]
-    for path in candidates:
-        if not path.exists():
-            continue
-        path_str = str(path)
-        if path_str not in sys.path:
-            sys.path.insert(0, path_str)
-
-
-_bootstrap_sys_path()
+# NOTE: Do not mutate sys.path here.
+# Supported entrypoints (e.g. `scripts/start_all.sh`, `apps/ui-backend/tools/start_manager.py`)
+# set a deterministic PYTHONPATH and run uvicorn from `apps/ui-backend/` so imports resolve
+# without per-module bootstrapping.
 
 from fastapi.staticfiles import StaticFiles
 # audio_tts routing helpers
@@ -330,6 +299,19 @@ DEFAULT_UI_SETTINGS: Dict[str, Any] = {
     }
 }
 UI_SETTINGS: Dict[str, Any] = {}
+UI_SETTINGS_DISK_STATE: Dict[str, Optional[float]] = {
+    "ui_settings_mtime": None,
+    "llm_registry_mtime": None,
+}
+
+
+def _safe_mtime(path: Path) -> Optional[float]:
+    try:
+        return path.stat().st_mtime
+    except FileNotFoundError:
+        return None
+    except Exception:
+        return None
 
 
 def _prompt_spec(
@@ -364,6 +346,44 @@ def _discover_template_prompt_specs() -> List[Dict[str, Any]]:
                 prompt_id=f"template_{stem}",
                 label=f"テンプレート {stem}",
                 description=f"{stem} 用の台本テンプレート",
+                primary_path=path,
+            )
+        )
+    return specs
+
+
+def _discover_script_pipeline_prompt_specs() -> List[Dict[str, Any]]:
+    """
+    Discover non-template script_pipeline prompt files.
+
+    Notes:
+    - Prompt Manager is a human-facing tool; missing prompts cause "where is the real prompt?"
+      confusion, especially in multi-agent setups.
+    - We keep curated base specs (stable IDs/labels) but also expose the rest as auto-discovered
+      entries to avoid "hidden prompts".
+    """
+    specs: List[Dict[str, Any]] = []
+    if not SCRIPT_PIPELINE_PROMPTS_ROOT.exists():
+        return specs
+
+    # Avoid duplicates: these are already exposed as curated base specs with stable IDs/labels.
+    curated = {
+        "youtube_description_prompt.txt",
+        "phase2_audio_prompt.txt",
+        "llm_polish_template.txt",
+        "orchestrator_prompt.txt",
+        "chapter_enhancement_prompt.txt",
+        "init.txt",
+    }
+    for path in sorted(SCRIPT_PIPELINE_PROMPTS_ROOT.glob("*.txt")):
+        if path.name in curated:
+            continue
+        stem = path.stem
+        specs.append(
+            _prompt_spec(
+                prompt_id=f"script_pipeline_prompt_{stem}",
+                label=f"script_pipeline {stem}",
+                description="script_pipeline prompt (auto-discovered)",
                 primary_path=path,
             )
         )
@@ -437,10 +457,11 @@ def _load_prompt_documents() -> Dict[str, Dict[str, Any]]:
             primary_path=SCRIPT_PIPELINE_PROMPTS_ROOT / "init.txt",
         ),
     ]
+    script_pipeline_specs = _discover_script_pipeline_prompt_specs()
     template_specs = _discover_template_prompt_specs()
     channel_specs = _discover_channel_prompt_specs()
     merged: Dict[str, Dict[str, Any]] = {}
-    for spec in [*base_specs, *template_specs, *channel_specs]:
+    for spec in [*base_specs, *script_pipeline_specs, *template_specs, *channel_specs]:
         merged[spec["id"]] = spec
     return merged
 
@@ -578,6 +599,8 @@ def _load_ui_settings_from_disk() -> None:
             except Exception as exc:  # pragma: no cover
                 logger.warning("Failed to read llm registry %s: %s", LLM_REGISTRY_PATH, exc)
         UI_SETTINGS = settings
+        UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
+        UI_SETTINGS_DISK_STATE["llm_registry_mtime"] = _safe_mtime(LLM_REGISTRY_PATH)
 
 
 def _write_ui_settings(settings: Dict[str, Any]) -> None:
@@ -585,16 +608,31 @@ def _write_ui_settings(settings: Dict[str, Any]) -> None:
     with SETTINGS_LOCK:
         UI_SETTINGS_PATH.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
         UI_SETTINGS.update(copy.deepcopy(settings))
+        UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
         # phase_models を registry にも書き出す
         phase_models = settings.get("llm", {}).get("phase_models") or {}
         try:
             LLM_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
             LLM_REGISTRY_PATH.write_text(json.dumps(phase_models, ensure_ascii=False, indent=2), encoding="utf-8")
+            UI_SETTINGS_DISK_STATE["llm_registry_mtime"] = _safe_mtime(LLM_REGISTRY_PATH)
         except Exception as exc:  # pragma: no cover
             logger.warning("Failed to write llm registry %s: %s", LLM_REGISTRY_PATH, exc)
 
 
+def _maybe_reload_ui_settings_from_disk() -> None:
+    ui_mtime = _safe_mtime(UI_SETTINGS_PATH)
+    registry_mtime = _safe_mtime(LLM_REGISTRY_PATH)
+    with SETTINGS_LOCK:
+        if (
+            ui_mtime == UI_SETTINGS_DISK_STATE.get("ui_settings_mtime")
+            and registry_mtime == UI_SETTINGS_DISK_STATE.get("llm_registry_mtime")
+        ):
+            return
+    _load_ui_settings_from_disk()
+
+
 def _get_ui_settings() -> Dict[str, Any]:
+    _maybe_reload_ui_settings_from_disk()
     with SETTINGS_LOCK:
         return copy.deepcopy(UI_SETTINGS)
 
@@ -1807,6 +1845,24 @@ def _resolve_channel_target_chars(channel_code: str) -> Tuple[int, int]:
     return (chars_min, chars_max)
 
 
+def _resolve_channel_chapter_count(channel_code: str) -> Optional[int]:
+    sources = _load_sources_doc()
+    channels = sources.get("channels") or {}
+    if not isinstance(channels, dict):
+        return None
+    entry = channels.get(channel_code.upper()) or {}
+    if not isinstance(entry, dict):
+        return None
+    raw = entry.get("chapter_count")
+    if raw is None:
+        return None
+    try:
+        value = int(str(raw).strip())
+    except Exception:
+        return None
+    return value if value >= 1 else None
+
+
 def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse:
     try:
         profile = load_channel_profile(channel_code)
@@ -1839,6 +1895,7 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
             benchmarks = None
 
     chars_min, chars_max = _resolve_channel_target_chars(channel_code)
+    chapter_count = _resolve_channel_chapter_count(channel_code)
 
     return ChannelProfileResponse(
         channel_code=profile.code,
@@ -1857,6 +1914,7 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         audio_section_voice_rules=audio_rules if isinstance(audio_rules, dict) else {},
         default_min_characters=chars_min,
         default_max_characters=chars_max,
+        chapter_count=chapter_count,
         planning_persona=planning_persona or profile.persona_summary or profile.audience_profile,
         planning_persona_path=planning_persona_path,
         planning_required_fieldsets=planning_required,
@@ -2196,6 +2254,50 @@ def list_channel_dirs() -> List[Path]:
     return sorted(p for p in DATA_ROOT.iterdir() if p.is_dir() and p.name.upper().startswith("CH"))
 
 
+def _channel_sort_key(code: str) -> tuple[int, str]:
+    upper = code.upper()
+    match = re.match(r"^CH(\d+)$", upper)
+    if not match:
+        return (10**9, upper)
+    return (int(match.group(1)), upper)
+
+
+def list_known_channel_codes(channel_info_map: Optional[Dict[str, dict]] = None) -> List[str]:
+    """
+    Return a stable list of known channel codes.
+
+    UI should be able to show channels even when `workspaces/scripts/CHxx/` is missing.
+    Sources (union):
+    - `workspaces/planning/channels/CHxx.csv` (Planning SoT)
+    - `packages/script_pipeline/channels/CHxx-*/` (channel profiles)
+    - `workspaces/scripts/CHxx/` (existing script data)
+    - `channel_info_map` keys (already loaded from channels_info.json / channel_info.json)
+    """
+
+    codes: set[str] = set()
+
+    if channel_info_map:
+        codes.update(code.upper() for code in channel_info_map.keys())
+
+    if CHANNEL_PLANNING_DIR.exists():
+        for csv_path in CHANNEL_PLANNING_DIR.glob("CH*.csv"):
+            codes.add(csv_path.stem.upper())
+
+    for channel_dir in list_channel_dirs():
+        codes.add(channel_dir.name.upper())
+
+    if CHANNELS_DIR.exists():
+        for child in CHANNELS_DIR.iterdir():
+            if not child.is_dir():
+                continue
+            code = child.name.split("-", 1)[0].upper()
+            if code:
+                codes.add(code)
+
+    filtered = [code for code in codes if re.match(r"^CH\d+$", code)]
+    return sorted(filtered, key=_channel_sort_key)
+
+
 def list_video_dirs(channel_code: str) -> List[Path]:
     channel_dir = DATA_ROOT / channel_code
     if not channel_dir.exists():
@@ -2303,10 +2405,18 @@ def normalize_channel_code(channel: str) -> str:
     if not raw or Path(raw).name != raw:
         raise HTTPException(status_code=400, detail="Invalid channel identifier")
     channel_code = raw.upper()
-    channel_path = DATA_ROOT / channel_code
-    if not channel_path.is_dir():
-        raise HTTPException(status_code=404, detail=f"Channel {channel_code} not found")
-    return channel_code
+    if not re.match(r"^CH\d+$", channel_code):
+        raise HTTPException(status_code=400, detail="Invalid channel identifier")
+    if (DATA_ROOT / channel_code).is_dir():
+        return channel_code
+    if (CHANNEL_PLANNING_DIR / f"{channel_code}.csv").is_file():
+        return channel_code
+    if find_channel_directory(channel_code) is not None:
+        return channel_code
+    # Fallback: allow channels known only via channels_info.json cache.
+    if channel_code in refresh_channel_info():
+        return channel_code
+    raise HTTPException(status_code=404, detail=f"Channel {channel_code} not found")
 
 
 def normalize_video_number(video: str) -> str:
@@ -2801,6 +2911,50 @@ def load_status(channel_code: str, video_number: str) -> dict:
     if not status_path.exists():
         raise HTTPException(status_code=404, detail="status.json not found")
     return load_json(status_path)
+
+
+def load_status_optional(channel_code: str, video_number: str) -> Optional[dict]:
+    status_path = DATA_ROOT / channel_code / video_number / "status.json"
+    if not status_path.exists():
+        return None
+    return load_json(status_path)
+
+
+def _default_status_payload(channel_code: str, video_number: str) -> dict:
+    return {
+        "script_id": f"{channel_code}-{video_number}",
+        "channel": channel_code,
+        "status": "pending",
+        "metadata": {},
+        "stages": {stage: {"status": "pending", "details": {}} for stage in STAGE_ORDER},
+    }
+
+
+def load_or_init_status(channel_code: str, video_number: str) -> dict:
+    status = load_status_optional(channel_code, video_number)
+    if status is not None:
+        return status
+
+    payload = _default_status_payload(channel_code, video_number)
+    # Best-effort: bootstrap title from planning CSV (if available).
+    try:
+        for row in planning_store.get_rows(channel_code, force_refresh=True):
+            if not row.video_number:
+                continue
+            if normalize_video_number(row.video_number) != video_number:
+                continue
+            title = row.raw.get("タイトル") if isinstance(row.raw, dict) else None
+            if isinstance(title, str) and title.strip():
+                meta = payload.setdefault("metadata", {})
+                meta.setdefault("sheet_title", title.strip())
+                meta.setdefault("title", title.strip())
+                meta.setdefault("expected_title", title.strip())
+            break
+    except Exception:
+        pass
+
+    save_status(channel_code, video_number, payload)
+    return payload
 
 
 def ensure_expected_updated_at(status: dict, expected: Optional[str]) -> None:
@@ -4769,6 +4923,7 @@ class BenchmarkScriptSampleSpec(BaseModel):
 class ChannelBenchmarksSpec(BaseModel):
     version: int = Field(1, ge=1, description="schema version")
     updated_at: Optional[str] = Field(None, description="更新日 (YYYY-MM-DD)")
+    allow_empty_channels: bool = Field(False, description="競合を特定しない例外フラグ（channels を空にしてよい）")
     channels: List[BenchmarkChannelSpec] = Field(default_factory=list)
     script_samples: List[BenchmarkScriptSampleSpec] = Field(default_factory=list)
     notes: Optional[str] = Field(None, description="総評（任意）")
@@ -4844,6 +4999,7 @@ class ChannelProfileResponse(BaseModel):
     audio_section_voice_rules: Dict[str, str] = Field(default_factory=dict)
     default_min_characters: int = Field(8000, ge=1000)
     default_max_characters: int = Field(12000, ge=1000)
+    chapter_count: Optional[int] = Field(None, ge=1)
     llm_model: str = Field("qwen/qwen3-14b:free", description="OpenRouter model ID used for量産")
     quality_check_template: Optional[str] = None
     planning_persona: Optional[str] = Field(
@@ -6285,8 +6441,7 @@ def register_channel(payload: ChannelRegisterRequest):
 def list_channels():
     channels = []
     channel_info_map = refresh_channel_info(force=True)
-    for channel_dir in list_channel_dirs():
-        code = channel_dir.name.upper()
+    for code in list_known_channel_codes(channel_info_map):
         info = channel_info_map.get(code, {"channel_id": code})
         if YOUTUBE_CLIENT is not None:
             info = _ensure_youtube_metrics(code, info)
@@ -6344,9 +6499,11 @@ def audit_channels():
         bench_channels_count = 0
         bench_samples_count = 0
         bench_samples: List[dict] = []
+        allow_empty_benchmark_channels = False
         if isinstance(raw_bench, dict):
             bench_channels = raw_bench.get("channels") or []
             bench_samples = raw_bench.get("script_samples") or []
+            allow_empty_benchmark_channels = bool(raw_bench.get("allow_empty_channels"))
             if isinstance(bench_channels, list):
                 bench_channels_count = len(
                     [
@@ -6375,7 +6532,7 @@ def audit_channels():
             issues.append("missing_youtube_description")
         if default_tags_count == 0:
             issues.append("missing_default_tags")
-        if bench_channels_count == 0:
+        if bench_channels_count == 0 and not allow_empty_benchmark_channels:
             issues.append("missing_benchmark_channels")
         if bench_samples_count == 0:
             issues.append("missing_benchmark_script_samples")
@@ -9298,7 +9455,11 @@ def get_thumbnail_library_asset(channel: str, asset_path: str):
 def get_video_detail(channel: str, video: str):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
+    status_missing = False
+    status = load_status_optional(channel_code, video_number)
+    if status is None:
+        status_missing = True
+        status = _default_status_payload(channel_code, video_number)
     metadata = status.get("metadata", {})
     # CSV の最新情報を統合する（UI が常に最新の企画情報を参照できるようにする）
     planning_row = None
@@ -9367,6 +9528,8 @@ def get_video_detail(channel: str, video: str):
     script_audio_human_path = content_dir / "script_audio_human.txt"
 
     warnings: List[str] = []
+    if status_missing:
+        warnings.append(f"status.json missing for {channel_code}-{video_number}")
     # Bテキスト: audio_prep/b_text_with_pauses.txt を唯一のソースとする。無い場合は警告付きで空にする。
     b_with_pauses = base_dir / "audio_prep" / "b_text_with_pauses.txt"
     if not b_with_pauses.exists():
@@ -9911,7 +10074,7 @@ def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
 def get_human_scripts(channel: str, video: str):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
+    status = load_status_optional(channel_code, video_number) or _default_status_payload(channel_code, video_number)
     metadata = status.get("metadata") or {}
     base_dir = video_base_dir(channel_code, video_number)
     content_dir = base_dir / "content"
@@ -9921,6 +10084,8 @@ def get_human_scripts(channel: str, video: str):
     script_audio = content_dir / "script_audio.txt"
     script_audio_human = content_dir / "script_audio_human.txt"
     warnings: List[str] = []
+    if not (base_dir / "status.json").exists():
+        warnings.append(f"status.json missing for {channel_code}-{video_number}")
     b_with_pauses = base_dir / "audio_prep" / "b_text_with_pauses.txt"
     if not b_with_pauses.exists():
         warnings.append(f"b_text_with_pauses.txt missing for {channel_code}-{video_number}")
@@ -9953,7 +10118,7 @@ def get_human_scripts(channel: str, video: str):
 def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateRequest):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
+    status = load_or_init_status(channel_code, video_number)
     ensure_expected_updated_at(status, payload.expected_updated_at)
     base_dir = video_base_dir(channel_code, video_number)
     content_dir = base_dir / "content"

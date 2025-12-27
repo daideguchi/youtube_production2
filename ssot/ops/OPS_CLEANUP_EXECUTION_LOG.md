@@ -5,7 +5,7 @@
 
 注:
 - `legacy/` ディレクトリは廃止し、退避先は `backups/graveyard/` + `workspaces/_scratch/` に統一した（詳細: Step 103）。過去の記録中の `legacy/...` は当時の履歴として読む。
-- 旧「repo root 直下の互換 alias」（例: `script_pipeline/`, `audio_tts_v2/`, `commentary_02_srt2images_timeline/`, `ui/`, `thumbnails/`, `progress/`）は廃止。現行の正本は `packages/**` と `workspaces/**`。過去の記録に旧パスが出る場合は当時の履歴として読み、再現する場合は現行パスへ読み替える。
+- 旧「repo root 直下の互換 alias/旧パス」（例: `./audio_tts_v2/`, `./commentary_02_srt2images_timeline/`, `./ui/`, `./thumbnails/`, `./progress/` など）は廃止。過去の記録で root 直下の `script_pipeline/...` が出る場合もあるが、現行の正本は `packages/script_pipeline/` と `workspaces/**`。再現が必要な場合は現行パスへ読み替える。
 
 ---
 
@@ -1552,3 +1552,406 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 - `pytest -q`（root tests）
 - `pytest -q packages/audio_tts/tests packages/video_pipeline/tests`
 - `npm -C apps/ui-frontend run build`
+
+### 105) `scripts/_adhoc/` の参照ゼロ（ローカル未追跡）を排除（探索ノイズ削減）
+
+意図:
+- `scripts/_adhoc/` は P3（一時）で `.gitignore` 対象だが、ローカルに残ると探索ノイズと誤誘導の温床になる。
+- **code参照ゼロ + docs参照ゼロ** のものは「確実ゴミ」として、README以外を排除する（repo tracked ではないため archive-first 不要）。
+
+事前確認:
+- `python3 scripts/ops/repo_ref_audit.py --target scripts/_adhoc/channel_info_normalize.py --target scripts/_adhoc/compose_ch24_kobo_thumbs.py --target scripts/_adhoc/planning_seed_ch17_21.py --target scripts/_adhoc/planning_seed_ch22_23.py --target scripts/_adhoc/thumbnails/build_thumbnails_from_layer_specs.py --target scripts/_adhoc/thumbnails/sync_layer_specs_to_planning.py --stdout`（refs=0 を確認）
+- `git check-ignore -v scripts/_adhoc/...`（`.gitignore: scripts/_adhoc/**` を確認）
+
+追従（SSOT/ツール）:
+- `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` から旧互換入口 `scripts/_adhoc/thumbnails/build_thumbnails_from_layer_specs.py` を撤去（統一CLIへ一本化）
+- `scripts/ops/scripts_inventory.py` を修正し、`scripts/_adhoc/**` も棚卸し対象に含めて再混入を検出できるようにする
+- `python3 scripts/ops/scripts_inventory.py --write`
+
+削除（untracked/ignored）:
+- `rm -f scripts/_adhoc/channel_info_normalize.py scripts/_adhoc/compose_ch24_kobo_thumbs.py scripts/_adhoc/planning_seed_ch17_21.py scripts/_adhoc/planning_seed_ch22_23.py scripts/_adhoc/thumbnails/build_thumbnails_from_layer_specs.py scripts/_adhoc/thumbnails/sync_layer_specs_to_planning.py`
+- `bash scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` を削除）
+
+### 106) `packages/video_pipeline/tools/srt_to_capcut_complete.py`（旧統合版）を削除（archive-first / 迷いどころ削減）
+
+意図:
+- `srt_to_capcut_complete.py` は旧統合版の残骸で、現行の主線（`auto_capcut_run.py` / `factory.py` / `server/jobs.py`）と設計が異なる。
+- SSOT上でも「要確認」となっており、**迷いどころ** になるため archive-first で退避した上で削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/video_pipeline/tools/srt_to_capcut_complete.py --stdout`（code_refs=0 / docs_refs>0 を確認）
+
+追従（SSOT）:
+- `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` から当該ファイルの記載を撤去（Video/CapCut + 自動抽出リスト）
+
+アーカイブ:
+- `backups/graveyard/20251226T063749Z__remove_video_pipeline_legacy_srt_to_capcut_complete/manifest.tsv`
+- `backups/graveyard/20251226T063749Z__remove_video_pipeline_legacy_srt_to_capcut_complete/packages/video_pipeline/tools/srt_to_capcut_complete.py`
+
+削除（tracked）:
+- `packages/video_pipeline/tools/srt_to_capcut_complete.py`
+
+### 107) （撤回済み）`backups/graveyard/` の tracked アーカイブを外部SSDへ退避し、repo から撤去（探索ノイズ/肥大化対策）
+
+注記:
+- この手順は Step 108 により **撤回** しました（外部SSDは運用に採用しない）。今後は再実行しない。
+
+意図:
+- `backups/` は `.gitignore` で原則 ignore のため、巨大アーカイブを tracked で残すと repo が肥大化し、探索ノイズになる。
+- 既に「退避済み」の性質を持つため、外部SSD（`ytm_offload`）へ退避し、repo からは撤去する。
+
+退避（外部SSD）:
+- 実行: `python3 scripts/ops/offload_archives_to_external.py --external-root /Volumes/外部SSD/ytm_offload --mode move --min-age-days 0 --limit 20 --run`
+- report: `workspaces/logs/regression/offload_archives_to_external/offload_report_20251226T065741Z.json`
+- 外部配置: `/Volumes/外部SSD/ytm_offload/backups/graveyard/*`
+
+削除（tracked）:
+- `backups/graveyard/20251217_021441_commentary02_package_extras.tar.gz`
+- `backups/graveyard/20251217_022233_commentary02_bin_legacy.tar.gz`
+- `backups/graveyard/20251217_121820_scripts_maintain_consciousness.tar.gz`
+
+### 108) 外部SSDへの依存を撤回（SSOTから撤去 + offloadスクリプト削除）
+
+意図:
+- 外部SSDへの依存は不安定になりやすく、運用SSOTに組み込むと事故要因になるため採用しない。
+- 代替は「ローカル保持 + `_archive/` ローテ + archive-first」に統一する。
+
+追従（SSOT）:
+- `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` の「外部SSDへのオフロード」を **採用しない** に更新
+- `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md` から `offload_archives_to_external.py` の記載を撤去
+- `python3 scripts/ops/scripts_inventory.py --write`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T090604Z__remove_offload_archives_to_external/manifest.tsv`
+- `backups/graveyard/20251226T090604Z__remove_offload_archives_to_external/scripts/ops/offload_archives_to_external.py`
+
+削除（tracked）:
+- `scripts/ops/offload_archives_to_external.py`
+
+注記:
+- Step 107 で外部SSDへ退避したアーカイブは、SSOT非依存化のためローカル `backups/graveyard/` にも復元して二重化した。
+
+### 109) `packages/video_pipeline/tools/*.py` の参照ゼロを削除（archive-first / 迷いどころ削減）
+
+意図:
+- `video_pipeline.tools.*` として import/実行可能なスクリプトが増えるほど、運用の入口が増えて迷いどころになる。
+- SSOT/コードから参照できないもの（ファイルパス参照ゼロ + モジュール名参照ゼロ + basename 参照ゼロ）は運用外レガシーとして archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/tools/*.py" --max-targets 200 --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target video_pipeline.tools.<name> ... --stdout`（`<name>` は対象スクリプトの stem）
+- `python3 scripts/ops/repo_ref_audit.py --target <name>.py --stdout`（`packages/video_pipeline/server/jobs.py` 等は basename 指定で呼ぶため）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T092450Z__remove_video_pipeline_tools_ref_zero/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T092450Z__remove_video_pipeline_tools_ref_zero/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 110) `packages/video_pipeline/tools/{analysis,maintenance}/*.py` を削除（archive-first / 迷いどころ削減）
+
+意図:
+- `analysis/` と `maintenance/` はデバッグ/修復系のスクリプト群だが、現行フロー/SSOT運用から参照できない状態で残ると迷いどころになる。
+- 「参照ゼロ（コード参照ゼロ + 運用SSOT参照ゼロ）」を満たすものは archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/tools/analysis/*.py" --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/tools/maintenance/*.py" --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target <name>.py --stdout`（basename 経由の呼び出し検出）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T100004Z__remove_video_pipeline_tools_analysis_maintenance_ref_zero/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T100004Z__remove_video_pipeline_tools_analysis_maintenance_ref_zero/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 111) `packages/video_pipeline/tools/*.py` の参照ゼロを追加削除（archive-first / 迷いどころ削減）
+
+意図:
+- 参照ゼロ（コード参照ゼロ + 運用SSOT参照ゼロ）のまま残っているスクリプトは運用外レガシーとして削除し、入口の迷いを潰す。
+- 特に `Path(__file__)` から repo root を推測する旧ブートストラップや外部依存を含むスクリプトは、参照ゼロの状態で残すと誤用/再混入の温床になる。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/tools/*.py" --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target <name>.py --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target video_pipeline.tools.<name> --stdout`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T100522Z__remove_video_pipeline_tools_ref_zero_more/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T100522Z__remove_video_pipeline_tools_ref_zero_more/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 112) `capcut_apply_image_scale.py` を削除（archive-first / 参照ゼロ）
+
+意図:
+- `capcut_apply_image_scale.py` は CapCut ドラフトを直接パッチする特殊用途で、現行の運用SSOT/コードから参照されていない状態で残ると迷いどころになる。
+- 参照ゼロ（コード参照ゼロ + 運用SSOT参照ゼロ）を満たすため archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/video_pipeline/tools/capcut_apply_image_scale.py --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target capcut_apply_image_scale.py --stdout`
+- `python3 scripts/ops/repo_ref_audit.py --target video_pipeline.tools.capcut_apply_image_scale --stdout`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T100941Z__remove_video_pipeline_capcut_apply_image_scale_ref_zero/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T100941Z__remove_video_pipeline_capcut_apply_image_scale_ref_zero/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 113) `script_pipeline` の未使用 formatter を削除（archive-first / 迷いどころ削減）
+
+意図:
+- `format_lines_responses.py` は単発の整形ユーティリティだが、SSOT/コードから参照されず、対応 prompt も実体と齟齬がある状態で残ると迷いどころになる。
+- 参照ゼロ（コード参照ゼロ + 運用SSOT参照ゼロ）を満たすため archive-first で退避して削除する。
+
+追従（SSOT）:
+- `python3 scripts/ops/prompts_inventory.py --write`（`prompts/PROMPTS_INDEX.md` を再生成）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T101717Z__remove_script_pipeline_unused_format_lines/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T101717Z__remove_script_pipeline_unused_format_lines/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 114) `scripts/ops/stage2_cutover_workspaces.py` を廃止（archive-first / 互換symlink禁止）
+
+意図:
+- 本スクリプトは旧alias（例: `audio_tts_v2/`, `commentary_02_srt2images_timeline/`, `script_pipeline/`）を **互換symlinkとして残す** ための一括cutoverであり、現行SSOTの「ルート直下互換symlink禁止」（`ssot/ops/OPS_REPO_DIRECTORY_SSOT.md`）と矛盾する。
+- 旧パス名が運用ツールとして残るだけで探索ノイズ/誤参照の温床になるため、archive-first で退避して削除し、代替は `scripts/ops/init_workspaces.py`（workspaces雛形生成のみ）に置き換える。
+
+参照確認:
+- `rg "stage2_cutover_workspaces" -S .`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T104958Z__retire_stage2_cutover_workspaces/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T104958Z__retire_stage2_cutover_workspaces/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 115) repo root の `sitecustomize.py` を削除（archive-first / 誤誘導排除）
+
+意図:
+- Homebrew Python が標準ライブラリ側の `sitecustomize` を先に読み込むため、repo root の `sitecustomize.py` は自動実行されず、存在自体が「`.env` が勝手に入る」「cwd非依存」などの誤誘導になる。
+- env/PYTHONPATH の正規ルートは `scripts/with_ytm_env.sh` と `_bootstrap` に一本化するため、archive-first で退避して削除する。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T105908Z__remove_repo_root_sitecustomize/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T105908Z__remove_repo_root_sitecustomize/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 116) `scripts/sitecustomize.py` を削除（archive-first / sitecustomize依存の排除）
+
+意図:
+- Homebrew Python の `sitecustomize` 競合により、`scripts/sitecustomize.py` は期待通りに自動実行されない環境がある（運用の再現性が落ちる）。
+- `scripts/**` の実行は `_bootstrap`（`scripts/_bootstrap.py`, `scripts/ops/_bootstrap.py`）と `scripts/with_ytm_env.sh` を正とし、sitecustomize 依存を排除する。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T110100Z__remove_scripts_sitecustomize/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T110100Z__remove_scripts_sitecustomize/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 117) `packages/video_pipeline/config/default.json` を削除（archive-first / 未使用設定のノイズ排除）
+
+意図:
+- `packages/video_pipeline/config/default.json` は旧設定フォーマットで、現行の `channel_presets.json` + `default_parameters.yaml`（`ParameterManager`）系の運用から参照されていない。
+- 中身に存在しない `tools/debug/retry_japanese.py` 等の古いパスが残っており、SSOT/運用導線のノイズ・誤参照の温床になるため、archive-first で退避して削除する。
+
+参照確認:
+- `rg "packages/video_pipeline/config/default.json" -S .`
+- `rg "\"retry_script\"" -S packages/video_pipeline`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T114722Z__remove_video_pipeline_unused_default_json/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T114722Z__remove_video_pipeline_unused_default_json/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 118) `packages/video_pipeline/scripts/` の未使用スクリプトを削除（archive-first / 迷いどころ削減）
+
+意図:
+- `packages/video_pipeline/scripts/` 配下に、現行フロー/SSOT/コードから参照されない単発スクリプトが残っていると探索ノイズになる。
+- CapCut導線の正本は `packages/video_pipeline/tools/*` と UI jobs (`packages/video_pipeline/server/jobs.py`) に集約しているため、参照ゼロのものは archive-first で退避して削除する。
+
+参照確認:
+- `rg "capcut_export_timeline|capcut_link_images|clean_capcut_drafts\\.sh" -S .`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T115013Z__remove_video_pipeline_unused_scripts/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T115013Z__remove_video_pipeline_unused_scripts/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 119) `packages/video_pipeline/scripts/` の参照ゼロ LLM系lintを削除（archive-first / 迷いどころ削減）
+
+意図:
+- `packages/video_pipeline/scripts/` に残っていた LLM設定のlint/差分スクリプト群が、現行の運用SSOT/フローから参照されない状態で残っており、探索ノイズになる。
+- 既に正本のlint導線（例: `video_pipeline.tools.validate_prompt_template_registry`）は SSOT から参照されているため、参照ゼロのもののみ archive-first で退避して削除する。
+
+参照確認:
+- `rg "find_llm_refs\\.py|lint_check_llm_configs\\.py|lint_check_models\\.py|llm_config_diff\\.py" -S .`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T122833Z__remove_video_pipeline_unused_llm_lints/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T122833Z__remove_video_pipeline_unused_llm_lints/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 120) `workspaces/thumbnails/README_OFFLOADED.txt` を撤去（外部SSD表記の迷いどころ削減）
+
+意図:
+- 外部SSDは安定しないため、現行運用は external offload を前提にしない。
+- `workspaces/thumbnails/README_OFFLOADED.txt` の「外部SSDへ退避済み」表記が残存すると、現状と矛盾して誤誘導の温床になるため撤去する。
+
+参照確認:
+- `rg -n "README_OFFLOADED|外部SSD/_offload|yt_workspaces_thumbnails" -S --glob '!backups/**' .`
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T153747Z__remove_thumbnails_readme_offloaded/manifest.tsv`
+
+削除（untracked）:
+- `backups/graveyard/20251226T153747Z__remove_thumbnails_readme_offloaded/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 121) `packages/video_pipeline/プロンプト` を削除（ref=0 のメモ残骸）
+
+意図:
+- `packages/video_pipeline/` 直下に拡張子なしのメモファイル（`プロンプト`）が残っていると、探索/grep時のノイズになる。
+- 現行フロー/SSOT/コードから参照されない（ref=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/プロンプト" --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T165433Z__remove_video_pipeline_prompt_note_file/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T165433Z__remove_video_pipeline_prompt_note_file/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 122) `tests/manual_generate_fireworks_flux_schnell.py` を削除（ref=0 の手動スクリプト）
+
+意図:
+- `tests/` 配下に “手動実行用の単発スクリプト” が残っていると、テスト/実装の探索ノイズになる。
+- 現行フロー/SSOT/コードから参照されない（ref=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target tests/manual_generate_fireworks_flux_schnell.py --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T165839Z__remove_manual_fireworks_flux_script/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T165839Z__remove_manual_fireworks_flux_script/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 123) `packages/audio_tts/inputs/` を削除（ref=0 のサンプル入力群）
+
+意図:
+- `packages/` 配下に大量のサンプル入力（`packages/audio_tts/inputs/CHxx/*.txt`）が残っていると、探索ノイズになる。
+- 現行フローの SoT は `workspaces/` に閉じており、`packages/audio_tts/inputs/` は参照ゼロ（ref=0）であるため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/audio_tts/inputs --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T170414Z__remove_audio_tts_inputs_samples/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T170414Z__remove_audio_tts_inputs_samples/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 124) `packages/audio_tts/` 直下の ref=0 `.txt` を削除（ノイズ削減）
+
+意図:
+- `packages/audio_tts/` 直下に単発の `.txt`（ルール/テスト用メモ）が散在していると、探索ノイズになる。
+- 現行フロー/SSOT/コードから参照されない（ref=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/audio_tts/README_rules.txt --target packages/audio_tts/test_dna.txt --target packages/audio_tts/test_final_exam.txt --target packages/audio_tts/test_custom_readings.txt --target packages/audio_tts/test_input_short.txt --target packages/audio_tts/data/test_CH01_sample.txt --target packages/audio_tts/data/ch_test_a.txt --stdout`（全て code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T170643Z__remove_audio_tts_ref_zero_txt_fixtures/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T170643Z__remove_audio_tts_ref_zero_txt_fixtures/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 125) `packages/audio_tts/data/gkb_deletion_log.json` を削除（ref=0 のログ残骸）
+
+意図:
+- `packages/` 配下に運用ログ（削除ログ）が残存すると、SoT/生成物の境界が曖昧になり探索ノイズになる。
+- 現行フロー/SSOT/コードから参照されない（ref=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/audio_tts/data/gkb_deletion_log.json --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T170858Z__remove_audio_tts_gkb_deletion_log/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T170858Z__remove_audio_tts_gkb_deletion_log/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 126) `packages/script_pipeline/channels/*/info.txt` を削除（ref=0 の旧メモ）
+
+意図:
+- `channel_info.json` / `channels.json` が正本になっているため、旧メモ（`info.txt`）が残存すると誤誘導の温床になる。
+- 現行フロー/SSOT/コードから参照されない（ref=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/script_pipeline/channels/CH01-人生の道標/info.txt" --target "packages/script_pipeline/channels/CH02-静寂の哲学/info.txt" --target "packages/script_pipeline/channels/CH04-隠れ書庫アカシック/info.txt" --target "packages/script_pipeline/channels/CH05-シニア恋愛/info.txt" --target "packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/info.txt" --target "packages/script_pipeline/channels/CH11-ブッダの法話/info.txt" --stdout`（全て code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T171052Z__remove_script_pipeline_channel_info_txt_ref_zero/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T171052Z__remove_script_pipeline_channel_info_txt_ref_zero/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 127) `packages/video_pipeline/src/capcut_ui/` を削除（ref=0 / 旧UI実験コード）
+
+意図:
+- `capcut_ui` は現行フロー/入口索引/実行コードから参照されず、旧UI実験コードが探索ノイズになっていた。
+- 誤参照や「どっちが正本？」の混乱を防ぐため、archive-first で退避して削除する。
+
+参照確認:
+- `rg -n "capcut_ui" apps packages scripts tests` のヒットが当該ディレクトリ内のみであることを確認（self import）。
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/src/capcut_ui/**" --max-targets 200 --stdout`（全て code_refs=0, docs_refs=0）
+- `rg -n "capcut_ui" ssot README.md START_HERE.md prompts` のヒットは history のみ（現行SSOT/導線ではない）。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251226T235535Z__remove_video_pipeline_capcut_ui_ref_zero/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251226T235535Z__remove_video_pipeline_capcut_ui_ref_zero/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 128) `configs/` の重複/誤誘導ファイルを撤去（OpenRouterメタ + 旧OAuth JSON）
+
+意図:
+- `configs/openrouter_models.json` が残っていると、`packages/script_pipeline/config/openrouter_models.json`（正本）との二重化になり、**古い方が優先されうる**ため誤誘導/品質ブレの原因になる。
+- Google OAuth の `client_secret_*.json` が `configs/` に残っていると、`configs/drive_oauth_client.json`（正本）との二重化になり、迷いどころになる。
+
+参照確認:
+- `scripts/drive_oauth_setup.py` / `scripts/youtube_publisher/oauth_setup.py` は既定で `configs/drive_oauth_client.json` を参照（`client_secret_*.json` は未参照）。
+- `packages/script_pipeline/tools/openrouter_models.py` は `openrouter_models.json` をキャッシュとして読むが、正本は `packages/script_pipeline/config/openrouter_models.json`。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251227T004024Z__remove_redundant_configs_oauth_and_openrouter_models/manifest.tsv`
+
+削除:
+- tracked: `configs/openrouter_models.json`（`git rm`）
+- untracked: `configs/client_secret_785338258106-1ia6khrj8uj4ime448h0a2iufhb5gm23.apps.googleusercontent.com.json`（`rm`）
+
+付随修正:
+- `packages/script_pipeline/tools/openrouter_models.py` は **package SoT（`packages/script_pipeline/config/openrouter_models.json`）を優先**し、`configs/` はローカルfallbackのみにした。
+
+### 129) `packages/video_pipeline/tests/*.py` を削除（refs=0 / 非実行のパッケージ内テスト）
+
+意図:
+- `packages/video_pipeline/tests/` 配下のテストが残っていると「テストがあるのに走っていない（=誤安心）」状態になり、探索ノイズ/誤誘導になる。
+- 現行の `pytest` 実行は `tests/` のみ（`pyproject.toml` の `testpaths`）なので、このディレクトリのテストは **非実行**。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target "packages/video_pipeline/tests/*.py" --stdout`（全て code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251227T035424Z__remove_video_pipeline_unused_package_tests_ref0/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251227T035424Z__remove_video_pipeline_unused_package_tests_ref0/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。

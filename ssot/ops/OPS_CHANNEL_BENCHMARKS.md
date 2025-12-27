@@ -29,6 +29,7 @@
   "benchmarks": {
     "version": 1,
     "updated_at": "2025-12-23",
+    "allow_empty_channels": false,
     "channels": [
       {
         "handle": "@example",
@@ -56,13 +57,24 @@
   - 例: `base="research", path="ブッダ系/バズ台本構造分析.md"`
   - 例: `base="scripts", path="CH10/002/content/assembled.md"`
 
+#### 推奨: ジャンル索引（迷わない入口）
+`workspaces/research` は **ジャンル別**で運用し、各ジャンルに `INDEX.md` を置く。
+
+- 入口: `workspaces/research/INDEX.md`（ジャンル一覧）
+- ジャンル別: `workspaces/research/<genre>/INDEX.md`
+- 未整理（迷ったら一旦ここ）: `workspaces/research/INBOX/`
+- 生成/更新: `python3 scripts/ops/research_genre_index.py --apply`
+  - `INDEX.md` 内の `<!-- MANUAL START/END -->` ブロックは手動メモ用（自動生成で保持）。
+
 ---
 
 ## 3. 運用ルール（事故防止）
 
-- **最低限の要件**
+- **最低限の要件（原則）**
   - `benchmarks.channels` に 1 件以上（競合/参考チャンネル）。`handle`（推奨）または `url` のどちらかは必須。
   - `benchmarks.script_samples` に 1 件以上（台本サンプル）。
+- **例外（競合を特定しないチャンネル）**
+  - 競合を特定しない場合は `benchmarks.allow_empty_channels=true` を明示し、`benchmarks.notes` に理由を書く（監査で「欠損」と区別するため）。
 - **迷ったら**
   - まず `workspaces/research/` 内の該当ジャンル資料を `script_samples` に紐付ける（後から競合URLを追加してよい）。
 - **「見つけたが未確定」を放置しない**

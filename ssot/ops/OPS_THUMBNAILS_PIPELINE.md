@@ -94,6 +94,43 @@ CLI の “毎回同じ指定” を減らすため、`templates.json` の各チ
 - CLI の引数が “既定値（例: brightness=1.0）” のままなら、`compiler_defaults` を適用してよい。
 - 明示指定があれば CLI を優先する（SSOT上の原則: “手動指定が最強”）。
 
+### 3.5 型管理（Typed Specs）とレイヤ分離（必須設計）
+サムネ量産/修正を「全チャンネルでスケール」させるため、Compiler は **型（schema）とレイヤ**を明確に分離する。
+
+原則:
+- **Image Layer（画像レイヤ）** と **Text Layer（文字レイヤ）** を別モジュールに分ける（責務の混在を禁止）。
+- `layer_specs_v3` の YAML は **Typed schema で読み込み時に検証**し、壊れた入力を早期に落とす（dict丸投げ禁止）。
+
+役割:
+- Image Layer:
+  - 入力: `assets/{CH}/{NNN}/10_bg.*` + `bg_enhance` + canvas
+  - 出力: **必ず canvas サイズに正規化された背景**（16:9の crop/resize を含む）
+  - ルール: 元画像は上書きしない（合成時に一時PNG化）
+- Text Layer:
+  - 入力: 正規化済み背景 + `text_layout_v3`（動画ごとのテキスト/テンプレ）
+  - 出力: 最終PNG
+  - ルール: 背景の明るさ/サイズ変更をしない（画像は Image Layer の責務）
+
+実装の入口（参照先）:
+- Typed schema: `packages/script_pipeline/thumbnails/compiler/layer_specs_schema_v3.py`
+- Typed loader: `packages/script_pipeline/thumbnails/compiler/layer_specs.py`
+- Image Layer: `packages/script_pipeline/thumbnails/layers/image_layer.py`
+- Text Layer: `packages/script_pipeline/thumbnails/layers/text_layer.py`
+
+#### 3.5.1 行内の色分け（タグ・最小拡張）
+メモ9の「黄/赤の部分強調」を安定運用するため、Text Layer は **行内タグ**を解釈できる（solid fill のみ / 1行出力時のみ）。
+
+- 記法: `[y]...[/y]`（黄） / `[r]...[/r]`（赤） / `[w]...[/w]`（白）
+- 実装: `packages/script_pipeline/thumbnails/compiler/compose_text_layout.py`
+- 注意: 自動折り返しが入るケース（複数行）はタグを無視して通常描画する（崩れ防止）
+
+#### 3.5.2 Planning CSV からのコピー注入（空欄のみ）
+`layer_specs_v3` の `items[].text` を空欄にした場合、build 時に Planning CSV のコピーで補完できる（既存specを壊さないため **空欄のみ**）。
+
+- 対応列: `サムネタイトル上` / `サムネタイトル` / `サムネタイトル下`
+- 3行まとめ運用（CH01想定）: `サムネタイトル` に `\\n` 区切りで 3行を入れてもよい
+- 実装: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py`
+
 ---
 
 ## 4. “量産”と“修正（リテイク）”を同じ入口にする

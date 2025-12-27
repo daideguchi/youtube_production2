@@ -14,7 +14,7 @@
 | `health_probe.py` | FastAPI/React ヘルスチェック | ✅ 実装済 (Step 4) |
 | `assets_sync.py` | workspaces/thumbnails/assets 同期補助 | ✅ 実装済 (Step 5) |
 
-詳細な計画は `docs/ui/TOOLS_PLAN.md` を参照してください。ツールの実装が完了したら README も随時更新します。
+詳細は SSOT の入口（`ssot/DOCS_INDEX.md` / `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`）を参照してください。ツールの追加・変更があれば README も随時更新します。
 
 ## ツールメモ
 

@@ -1,6 +1,6 @@
 # PROMPTS_INDEX — プロンプト配置の正本一覧（自動生成）
 
-Generated: `2025-12-26T01:55:01.819280Z` by `scripts/ops/prompts_inventory.py`
+Generated: `2025-12-27T04:54:50.903603Z` by `scripts/ops/prompts_inventory.py`
 
 原則:
 - プロンプトの正本は `packages/**` 側（複製・同期しない）
@@ -15,15 +15,16 @@ Generated: `2025-12-26T01:55:01.819280Z` by `scripts/ops/prompts_inventory.py`
 - `packages/script_pipeline/prompts/a_text_quality_shrink_prompt.txt`
 - `packages/script_pipeline/prompts/a_text_rebuild_draft_prompt.txt`
 - `packages/script_pipeline/prompts/a_text_rebuild_plan_prompt.txt`
+- `packages/script_pipeline/prompts/a_text_seed_prompt.txt`
 - `packages/script_pipeline/prompts/chapter_brief_prompt.txt`
 - `packages/script_pipeline/prompts/chapter_enhancement_prompt.txt`
 - `packages/script_pipeline/prompts/chapter_prompt.txt`
 - `packages/script_pipeline/prompts/chapter_review_prompt.txt`
 - `packages/script_pipeline/prompts/consistency_prompt.txt`
 - `packages/script_pipeline/prompts/cta_prompt.txt`
-- `packages/script_pipeline/prompts/format_lines_prompt.txt`
 - `packages/script_pipeline/prompts/init.txt`
 - `packages/script_pipeline/prompts/llm_polish_template.txt`
+- `packages/script_pipeline/prompts/master_plan_prompt.txt`
 - `packages/script_pipeline/prompts/orchestrator_prompt.txt`
 - `packages/script_pipeline/prompts/outline_prompt.txt`
 - `packages/script_pipeline/prompts/phase2_audio_prompt.txt`
@@ -35,7 +36,7 @@ Generated: `2025-12-26T01:55:01.819280Z` by `scripts/ops/prompts_inventory.py`
 - `packages/script_pipeline/prompts/tts_reading_prompt.txt`
 - `packages/script_pipeline/prompts/youtube_description_prompt.txt`
 
-- 件数: 26
+- 件数: 27
 
 ## Script pipeline — テンプレ（templates/*.txt）
 
@@ -91,8 +92,9 @@ Generated: `2025-12-26T01:55:01.819280Z` by `scripts/ops/prompts_inventory.py`
 - `packages/script_pipeline/channels/CH23-熟年夫婦の現実ノート/script_prompt.txt`
 - `packages/script_pipeline/channels/CH24-叡智の扉/script_prompt.txt`
 - `packages/script_pipeline/channels/CH25-寝落ち偉人講話【眠りながら学ぶ】/script_prompt.txt`
+- `packages/script_pipeline/channels/CH26-拝啓、偉人より/script_prompt.txt`
 
-- 件数: 25
+- 件数: 26
 
 ## Video — 画像生成 system prompt
 

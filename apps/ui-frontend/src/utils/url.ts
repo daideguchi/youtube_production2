@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../api/client";
+import { API_BASE_URL } from "../api/baseUrl";
 
 const ABSOLUTE_URL_PATTERN = /^(?:https?:)?\/\//i;
 

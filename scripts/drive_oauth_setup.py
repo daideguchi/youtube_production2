@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from _bootstrap import bootstrap
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
@@ -25,16 +26,8 @@ SCOPES = [
 ]
 
 
-def _find_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
-
-
 def main() -> None:
-    base_dir = _find_repo_root(Path(__file__).resolve())
+    base_dir = bootstrap(load_env=False)
     client_path = Path(
         os.environ.get("DRIVE_OAUTH_CLIENT_PATH")
         or (base_dir / "configs" / "drive_oauth_client.json")

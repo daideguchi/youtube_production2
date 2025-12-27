@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Any
 from pydantic import BaseModel, Field
-from core.domain.style_schema import VideoStyle
+from .style_schema import VideoStyle
 
 class BeltConfig(BaseModel):
     enabled: bool = True

@@ -3,9 +3,9 @@
 One-shot CapCut draft builder for any channel/SRT.
 
 Usage:
-    python3 tools/auto_capcut_run.py \
+    PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \
         --channel CH01 \
-        --srt input/CH01_人生の道標/192.srt \
+        --srt workspaces/video/input/CH01_人生の道標/192.srt \
         --run-name jinsei192_v3 \
         --title "人生の道標 192話 ～タイトル～" \
         --labels "序章:導入,転機:気づき,対策:実行,結び:未来"
@@ -28,21 +28,12 @@ import datetime
 import time
 import uuid
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
-
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+tool_bootstrap(load_env=False)
 
 from factory_common.paths import (  # noqa: E402
     audio_artifacts_root,
@@ -64,15 +55,7 @@ from factory_common.timeline_manifest import (
     write_timeline_manifest,
 )
 
-# Import using the installed package structure
-try:
-    from video_pipeline.src.core.config import config
-except ImportError:
-    # Fallback to relative import if the package isn't properly installed
-    import sys
-    sys.path.append(str(PROJECT_ROOT))
-    sys.path.append(str(PROJECT_ROOT / "src"))
-    from src.core.config import config
+from video_pipeline.src.core.config import config
 
 def _truncate_summary(text: str, limit: int = 60) -> str:
     """Shorten text for LLM belt prompts; keep it safe for JSON."""
@@ -412,7 +395,7 @@ def main():
         default=True,
         help="Insert voice WAV into CapCut draft when available (default: true)",
     )
-    ap.add_argument("--run-name", help="Output run directory name under output/ (default: <srtname>_<timestamp>)")
+    ap.add_argument("--run-name", help="Output run directory name under workspaces/video/runs/ (default: <srtname>_<timestamp>)")
     ap.add_argument("--title", help="Title to set in CapCut draft (if omitted, LLM generates from cues)")
     ap.add_argument("--labels", help="Comma-separated 4 labels for belts (equal split)")
     ap.add_argument("--size", default="1920x1080", help="Output size, default 1920x1080")

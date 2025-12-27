@@ -2,27 +2,15 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
 
-# Make repo-root imports work even when executed from scripts/ (sys.path[0] == scripts/)
-_REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
-_PACKAGES_ROOT = _REPO_ROOT / "packages"
-if _PACKAGES_ROOT.exists() and str(_PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PACKAGES_ROOT))
+bootstrap(load_env=False)
 
 from factory_common.paths import repo_root, script_data_root, video_root
 from factory_common.text_sanitizer import strip_meta_from_script

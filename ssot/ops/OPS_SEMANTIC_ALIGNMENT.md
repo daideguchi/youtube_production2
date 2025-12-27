@@ -37,20 +37,25 @@
 運用者は基本 **`major` だけ**気にすればOKです（`minor` はログ）。
 CLI は「レポート閲覧」と「最小リライト適用」に使います。
 
+判定の目安（人間向け）:
+- `ok`: タイトル/サムネが約束する主題とベネフィットを、本文が最後まで回収している（芯がブレない）。
+- `minor`: 主題は合っているが、焦点が少しズレる/回収が薄い/別解釈が入りそう等の改善余地がある（既定では停止しない）。
+- `major`: 主題が外れている（別テーマに寄る/タイトルの問いに答えていない/企画意図の柱が違う）。量産ではここだけ止める。
+
 ### 2.1 チェック（書き換えなし）
 ```
-./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CH13 --video 023
+./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CH13 --video 023
 ```
 
 ### 2.2 明らかなズレだけ修正（最小リライト）
 ```
-./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CH13 --video 023 --apply
+./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CH13 --video 023 --apply
 ```
 ※ デフォルトでは `verdict: major`（明らかなズレ）のときだけ書き換えます。`minor` も直す場合は `--also-fix-minor`。
 
 ### 2.3 「minor も直す」運用（必要時のみ）
 ```
-./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CH13 --video 023 --apply --also-fix-minor
+./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CH13 --video 023 --apply --also-fix-minor
 ```
 
 ### 2.4 実行後の状態
@@ -97,6 +102,6 @@ CLI は「レポート閲覧」と「最小リライト適用」に使います�
 - 例（手動バッチ）:
 ```
 for v in 023 024 025; do
-  ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CH13 --video $v --apply
+  ./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CH13 --video $v --apply
 done
 ```

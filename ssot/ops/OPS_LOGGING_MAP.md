@@ -217,10 +217,10 @@
 - その他 `scripts/*.py|*.sh` が `workspaces/logs/*.log|*.txt` を直接生成（Stage1で paths SSOT 化→Stage2で移設予定）
 
 Legacy（削除済みのWriter。復活禁止）:
-- `scripts/audit_all.sh`（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
-- `scripts/auto_approve.sh`（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
-- `scripts/mass_regenerate_strict.sh`（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
-- `scripts/run_ch03_batch.sh`（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
+- scripts/audit_all.sh（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
+- scripts/auto_approve.sh（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
+- scripts/mass_regenerate_strict.sh（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
+- scripts/run_ch03_batch.sh（削除済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）
 
 ---
 
@@ -322,7 +322,7 @@ Legacy（削除済みのWriter。復活禁止）:
   - 現状: Swap のログ正本は `workspaces/logs/swap/swap_<timestamp>.log`（UI Hub: `/api/swap`）。
   - 種別: **L3（Legacy。存在したらTrash候補）**
 
-- `packages/video_pipeline/src/runtime/logs/notifications.jsonl`
+- packages/video_pipeline/src/runtime/logs/notifications.jsonl
   - 現状: コード参照が確認できない（過去のコミット残骸の可能性）。legacy 側の同名ログも削除済み。
   - 方針: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の基準で Trash 候補（再出現したら削除/ignore）。
   - 種別: **L3（Legacy/Trash候補）**

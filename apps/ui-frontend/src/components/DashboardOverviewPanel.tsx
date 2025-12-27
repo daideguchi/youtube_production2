@@ -110,7 +110,7 @@ export function DashboardOverviewPanel({
   const channelRows: ChannelRow[] = overview.channels.map((channel) => {
     const summary = channelMetaMap.get(channel.code);
     const displayName =
-      summary?.branding?.title ?? summary?.youtube_title ?? summary?.name ?? summary?.code ?? channel.code;
+      summary?.name ?? summary?.branding?.title ?? summary?.youtube_title ?? summary?.code ?? channel.code;
     const avatarUrl = summary?.branding?.avatar_url ?? null;
     const themeColor = summary?.branding?.theme_color ?? null;
     const total = channel.total;

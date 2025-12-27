@@ -62,6 +62,41 @@ function normalizePreviewText(value?: string | null, limit = 420): string {
   return `${trimmed.slice(0, limit)}…`;
 }
 
+const BENCHMARK_CHARS_PER_SECOND = 6.0;
+
+type BenchmarkScriptMetrics = {
+  nonWhitespaceChars: number;
+  rawChars: number;
+  lines: number;
+  nonEmptyLines: number;
+  headings: number;
+  dividers: number;
+  estimatedMinutes: number;
+  firstNonEmptyLine: string;
+};
+
+function analyzeBenchmarkContent(content: string): BenchmarkScriptMetrics {
+  const raw = content ?? "";
+  const lines = raw.split(/\r?\n/);
+  const nonEmptyLines = lines.filter((line) => line.trim().length > 0);
+  const headings = lines.filter((line) => /^#{1,6}\s+/.test(line.trim())).length;
+  const dividers = lines.filter((line) => /^(-{3,}|={3,}|_{3,})\s*$/.test(line.trim())).length;
+  const nonWhitespaceChars = raw.replace(/\s/g, "").length;
+  const estimatedMinutes = nonWhitespaceChars / BENCHMARK_CHARS_PER_SECOND / 60;
+  const firstNonEmptyLine = (nonEmptyLines[0] ?? "").trim();
+
+  return {
+    nonWhitespaceChars,
+    rawChars: raw.length,
+    lines: lines.length,
+    nonEmptyLines: nonEmptyLines.length,
+    headings,
+    dividers,
+    estimatedMinutes,
+    firstNonEmptyLine,
+  };
+}
+
 function normalizeHandle(value?: string | null): string {
   if (!value) {
     return "—";
@@ -130,7 +165,7 @@ function compareChannelCode(a: string, b: string): number {
 }
 
 function resolveChannelDisplayName(channel: ChannelSummary): string {
-  return channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
+  return channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
 }
 
 export function ChannelPortalPage() {
@@ -179,12 +214,13 @@ export function ChannelPortalPage() {
   const [channelSearch, setChannelSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [benchmarkPreview, setBenchmarkPreview] = useState<{
-    label: string;
-    loading: boolean;
-    content: string;
-    error: string | null;
-  } | null>(null);
+	  const [benchmarkPreview, setBenchmarkPreview] = useState<{
+	    label: string;
+	    loading: boolean;
+	    content: string;
+	    error: string | null;
+	    metrics: BenchmarkScriptMetrics | null;
+	  } | null>(null);
 
   const videosByNumber = useMemo(() => {
     const map = new Map<string, VideoSummary>();
@@ -324,6 +360,17 @@ export function ChannelPortalPage() {
       setPresetError(null);
       return;
     }
+    // CapCut presets are only required for capcut workflow channels.
+    // vrew/remotion workflows don't have entries in video_production presets and would 404.
+    const workflowKey = selectedChannelSummary?.video_workflow?.key ?? null;
+    const shouldLoadPreset = workflowKey === "capcut";
+
+    if (!workflowKey || !shouldLoadPreset) {
+      setChannelPreset(null);
+      setPresetLoading(false);
+      setPresetError(null);
+      return;
+    }
     let cancelled = false;
     setPresetLoading(true);
     setPresetError(null);
@@ -344,7 +391,7 @@ export function ChannelPortalPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedChannel]);
+  }, [selectedChannel, selectedChannelSummary?.video_workflow?.key]);
 
   useEffect(() => {
     if (!selectedChannel) {
@@ -450,6 +497,7 @@ export function ChannelPortalPage() {
   const workflowSpec = profile?.video_workflow ?? selectedChannelSummary.video_workflow ?? null;
   const workflowLabel = workflowSpec ? `${workflowSpec.label}（${workflowSpec.id}）` : "—";
   const workflowDescription = trimOrNull(workflowSpec?.description ?? null);
+  const isCapCutWorkflow = workflowSpec?.key === "capcut";
 
   const audioTemplateVoiceLine =
     (profile?.youtube_description ?? "")
@@ -468,22 +516,30 @@ export function ChannelPortalPage() {
   const benchmarksScriptsCount = benchmarkSamples.length;
   const hasBenchmarkMinimum = benchmarksChannelsCount >= 1 && benchmarksScriptsCount >= 1;
 
-  const handleBenchmarkPreview = async (sample: BenchmarkScriptSampleSpec) => {
-    const base = sample.base;
-    const path = (sample.path ?? "").trim();
-    const label = sample.label?.trim() || path || "プレビュー";
-    if (!path) {
-      setBenchmarkPreview({ label, loading: false, content: "", error: "path が空です。" });
-      return;
-    }
-    setBenchmarkPreview({ label, loading: true, content: "", error: null });
-    try {
-      const response = await fetchResearchFile(base, path);
-      setBenchmarkPreview({ label, loading: false, content: response.content, error: null });
-    } catch (err) {
-      setBenchmarkPreview({ label, loading: false, content: "", error: err instanceof Error ? err.message : String(err) });
-    }
-  };
+	  const handleBenchmarkPreview = async (sample: BenchmarkScriptSampleSpec) => {
+	    const base = sample.base;
+	    const path = (sample.path ?? "").trim();
+	    const label = sample.label?.trim() || path || "プレビュー";
+	    if (!path) {
+	      setBenchmarkPreview({ label, loading: false, content: "", error: "path が空です。", metrics: null });
+	      return;
+	    }
+	    setBenchmarkPreview({ label, loading: true, content: "", error: null, metrics: null });
+	    try {
+	      const response = await fetchResearchFile(base, path);
+	      const content = response.content ?? "";
+	      const metrics = content ? analyzeBenchmarkContent(content) : null;
+	      setBenchmarkPreview({ label, loading: false, content, error: null, metrics });
+	    } catch (err) {
+	      setBenchmarkPreview({
+	        label,
+	        loading: false,
+	        content: "",
+	        error: err instanceof Error ? err.message : String(err),
+	        metrics: null,
+	      });
+	    }
+	  };
   const scriptRewritePhase = llmSettings?.llm?.phase_models?.script_rewrite ?? null;
   const scriptRewriteDisplay = scriptRewritePhase?.model ? `${scriptRewritePhase.provider}:${scriptRewritePhase.model}` : "—";
   const captionProvider = llmSettings?.llm?.caption_provider ?? null;
@@ -670,13 +726,16 @@ export function ChannelPortalPage() {
 	                  <dt>制作型</dt>
 	                  <dd>{workflowLabel}</dd>
 
-	                  <dt>字数レンジ</dt>
-	                  <dd>
-	                    {profile?.default_min_characters ?? "—"}〜{profile?.default_max_characters ?? "—"}
-	                  </dd>
+		                  <dt>字数レンジ</dt>
+		                  <dd>
+		                    {profile?.default_min_characters ?? "—"}〜{profile?.default_max_characters ?? "—"}
+		                  </dd>
 
-	                  <dt>音声</dt>
-	                  <dd>{audioTemplateVoice ?? profile?.audio_default_voice_key ?? "—"}</dd>
+		                  <dt>章数</dt>
+		                  <dd>{profile?.chapter_count ?? "—"}</dd>
+
+		                  <dt>音声</dt>
+		                  <dd>{audioTemplateVoice ?? profile?.audio_default_voice_key ?? "—"}</dd>
 
                   <dt>Persona</dt>
                   <dd>{personaText ? normalizePreviewText(personaText, 140) : "—"}</dd>
@@ -740,13 +799,15 @@ export function ChannelPortalPage() {
                 >
                   LLM設定
                 </button>
-                <button
-                  type="button"
-                  className="channel-card__action"
-                  onClick={() => navigate("/capcut-edit")}
-                >
-                  CapCutへ
-                </button>
+                {isCapCutWorkflow ? (
+                  <button
+                    type="button"
+                    className="channel-card__action"
+                    onClick={() => navigate("/capcut-edit")}
+                  >
+                    CapCutへ
+                  </button>
+                ) : null}
               </div>
             </div>
 
@@ -761,58 +822,66 @@ export function ChannelPortalPage() {
               <dd>{captionProvider ? `${captionProvider}:${captionModel ?? "—"}` : "—"}</dd>
             </dl>
 
-            {presetLoading ? <p className="muted" style={{ marginTop: 12 }}>CapCut設定 読み込み中…</p> : null}
-            {presetError ? <div className="main-alert main-alert--error">{presetError}</div> : null}
+            {isCapCutWorkflow ? (
+              <>
+                {presetLoading ? <p className="muted" style={{ marginTop: 12 }}>CapCut設定 読み込み中…</p> : null}
+                {presetError ? <div className="main-alert main-alert--error">{presetError}</div> : null}
 
-	            {!presetLoading && !presetError ? (
-	              <dl className="portal-kv" style={{ marginTop: 12 }}>
-	                <dt>Preset</dt>
-	                <dd>{channelPreset?.name ?? "—"}</dd>
+                {!presetLoading && !presetError ? (
+                  <dl className="portal-kv" style={{ marginTop: 12 }}>
+                    <dt>Preset</dt>
+                    <dd>{channelPreset?.name ?? "—"}</dd>
 
-                <dt>CapCutテンプレ</dt>
-                <dd>{channelPreset?.capcutTemplate ?? "—"}</dd>
+                    <dt>CapCutテンプレ</dt>
+                    <dd>{channelPreset?.capcutTemplate ?? "—"}</dd>
 
-		                <dt>スタイル</dt>
-		                <dd>{channelPreset?.style ?? "—"}</dd>
+                    <dt>スタイル</dt>
+                    <dd>{channelPreset?.style ?? "—"}</dd>
 
-		                <dt>画像プロンプト</dt>
-		                <dd>{resolvedPromptTemplateText ? normalizePreviewText(resolvedPromptTemplateText, 260) : "—"}</dd>
+                    <dt>画像プロンプト</dt>
+                    <dd>{resolvedPromptTemplateText ? normalizePreviewText(resolvedPromptTemplateText, 260) : "—"}</dd>
 
-	                <dt>ベルト</dt>
-	                <dd>
-	                  {channelPreset?.belt?.enabled
-                    ? `enabled (opening_offset=${channelPreset.belt.opening_offset ?? 0})`
-                    : "disabled"}
-                </dd>
+                    <dt>ベルト</dt>
+                    <dd>
+                      {channelPreset?.belt?.enabled
+                        ? `enabled (opening_offset=${channelPreset.belt.opening_offset ?? 0})`
+                        : "disabled"}
+                    </dd>
 
-                <dt>位置</dt>
-                <dd>
-                  {channelPreset?.position
-                    ? `tx=${channelPreset.position.tx ?? 0}, ty=${channelPreset.position.ty ?? 0}, scale=${channelPreset.position.scale ?? 1}`
-	                    : "—"}
-	                </dd>
-	              </dl>
-	            ) : null}
+                    <dt>位置</dt>
+                    <dd>
+                      {channelPreset?.position
+                        ? `tx=${channelPreset.position.tx ?? 0}, ty=${channelPreset.position.ty ?? 0}, scale=${channelPreset.position.scale ?? 1}`
+                        : "—"}
+                    </dd>
+                  </dl>
+                ) : null}
 
-	              <details className="portal-details" style={{ marginTop: 12 }} open>
-	                <summary>画像プロンプト（全文）</summary>
-	                {promptTemplateLoading ? <p className="muted">読み込み中…</p> : null}
-	                {promptTemplateError ? <p className="muted">取得失敗: {promptTemplateError}</p> : null}
-	                <pre>
-	                  {resolvedPromptTemplateText
-	                    ? resolvedPromptTemplateText
-	                    : rawPromptTemplateValue
-	                      ? "（テンプレ本文を取得できませんでした。AutoDraft のテンプレ設定を確認してください。）"
-	                      : "—"}
-	                </pre>
-	              </details>
+                <details className="portal-details" style={{ marginTop: 12 }} open>
+                  <summary>画像プロンプト（全文）</summary>
+                  {promptTemplateLoading ? <p className="muted">読み込み中…</p> : null}
+                  {promptTemplateError ? <p className="muted">取得失敗: {promptTemplateError}</p> : null}
+                  <pre>
+                    {resolvedPromptTemplateText
+                      ? resolvedPromptTemplateText
+                      : rawPromptTemplateValue
+                        ? "（テンプレ本文を取得できませんでした。AutoDraft のテンプレ設定を確認してください。）"
+                        : "—"}
+                  </pre>
+                </details>
 
-	            {channelPreset?.notes ? (
-	              <details className="portal-details" style={{ marginTop: 12 }}>
-	                <summary>メモ</summary>
-                <pre>{channelPreset.notes}</pre>
-              </details>
-            ) : null}
+                {channelPreset?.notes ? (
+                  <details className="portal-details" style={{ marginTop: 12 }}>
+                    <summary>メモ</summary>
+                    <pre>{channelPreset.notes}</pre>
+                  </details>
+                ) : null}
+              </>
+            ) : (
+              <p className="muted" style={{ marginTop: 12 }}>
+                このチャンネルは {workflowLabel} のため、CapCut設定は未使用です。
+              </p>
+            )}
           </div>
 
           <div className="channel-card">
@@ -1052,15 +1121,36 @@ export function ChannelPortalPage() {
 	                閉じる
 	              </button>
 	            </header>
-	            <div className="modal__body" style={{ maxHeight: "70vh", overflow: "auto" }}>
-	              {benchmarkPreview.loading ? <p className="muted">読み込み中…</p> : null}
-	              {benchmarkPreview.error ? <div className="main-alert main-alert--error">{benchmarkPreview.error}</div> : null}
-	              {benchmarkPreview.content ? (
-	                <pre style={{ whiteSpace: "pre-wrap" }}>{benchmarkPreview.content}</pre>
-	              ) : !benchmarkPreview.loading && !benchmarkPreview.error ? (
-	                <p className="muted">（内容が空です）</p>
-	              ) : null}
-	            </div>
+		            <div className="modal__body" style={{ maxHeight: "70vh", overflow: "auto" }}>
+		              {benchmarkPreview.loading ? <p className="muted">読み込み中…</p> : null}
+		              {benchmarkPreview.error ? <div className="main-alert main-alert--error">{benchmarkPreview.error}</div> : null}
+		              {benchmarkPreview.metrics ? (
+		                <dl className="portal-kv" style={{ marginTop: 0, marginBottom: 12 }}>
+		                  <dt>文字数</dt>
+		                  <dd>
+		                    {benchmarkPreview.metrics.nonWhitespaceChars.toLocaleString("ja-JP")}字（推定{" "}
+		                    {benchmarkPreview.metrics.estimatedMinutes.toFixed(1)}分）
+		                  </dd>
+
+		                  <dt>行</dt>
+		                  <dd>
+		                    {benchmarkPreview.metrics.lines.toLocaleString("ja-JP")}（非空{" "}
+		                    {benchmarkPreview.metrics.nonEmptyLines.toLocaleString("ja-JP")}）
+		                  </dd>
+
+		                  <dt>見出し / 区切り</dt>
+		                  <dd>
+		                    {benchmarkPreview.metrics.headings.toLocaleString("ja-JP")} /{" "}
+		                    {benchmarkPreview.metrics.dividers.toLocaleString("ja-JP")}
+		                  </dd>
+		                </dl>
+		              ) : null}
+		              {benchmarkPreview.content ? (
+		                <pre style={{ whiteSpace: "pre-wrap" }}>{benchmarkPreview.content}</pre>
+		              ) : !benchmarkPreview.loading && !benchmarkPreview.error ? (
+		                <p className="muted">（内容が空です）</p>
+		              ) : null}
+		            </div>
 	          </div>
 	        </div>
 	      ) : null}

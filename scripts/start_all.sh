@@ -90,6 +90,10 @@ start_remotion_studio() {
     warn "remotion dir not found: $remotion_dir"
     return
   fi
+  if [ ! -d "$remotion_dir/node_modules" ]; then
+    info "Skipping Remotion Studio (deps not installed). To enable: (cd apps/remotion && npm ci)"
+    return
+  fi
   # Ensure workspace video input exists (preview reads runs from here).
   mkdir -p "$YTM_ROOT/workspaces/video/input" 2>/dev/null || true
   info "Starting Remotion Studio preview on port $port"
@@ -106,43 +110,10 @@ start_remotion_studio() {
     fi
     sleep 0.5
   done
-  warn "Remotion Studio did not become ready on port ${port} (check ${log_file})"
+  info "Remotion Studio not ready yet on port ${port} (optional). Check ${log_file} if you need Studio."
 }
 
 main() {
-  # Ensure monorepo imports work without root-level symlinks.
-  export PYTHONPATH="$YTM_ROOT:$YTM_ROOT/packages${PYTHONPATH:+:$PYTHONPATH}"
-
-  info "Checking environment variables via scripts/check_env.py"
-  if ! "$PYTHON_BIN" "$YTM_ROOT/scripts/check_env.py" --env-file "$ENV_FILE"; then
-    err "Environment validation failed. Aborting start_all."
-    exit 1
-  fi
-
-  # Ensure backend Python deps are present (idempotent)
-  if [ -f "$BACKEND_REQUIREMENTS" ]; then
-    info "Installing backend deps from apps/ui-backend/backend/requirements.txt (idempotent)"
-    "$PYTHON_BIN" -m pip install $PIP_OPTS -r "$BACKEND_REQUIREMENTS" || warn "pip install failed; backend may not start"
-  fi
-
-  # Keep planning CSV/status in sync for all channels before起動
-  if [ -f "$YTM_ROOT/scripts/sync_all_scripts.py" ]; then
-    info "Syncing planning/status via sync_all_scripts.py"
-    "$PYTHON_BIN" "$YTM_ROOT/scripts/sync_all_scripts.py" || warn "sync_all_scripts failed"
-  fi
-
-  # Sync audio artifacts into video input (safe: no overwrite)
-  if [ -f "$YTM_ROOT/packages/video_pipeline/tools/sync_audio_inputs.py" ]; then
-    "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
-  fi
-
-  if [ -f "$ENV_FILE" ]; then
-    info "Loading environment from $ENV_FILE"
-    load_env_file "$ENV_FILE" || warn "Failed to parse $ENV_FILE; continuing without sourcing"
-  else
-    warn "ENV file $ENV_FILE not found; continuing without sourcing"
-  fi
-
   if [ "$#" -eq 0 ]; then
     set -- start
   fi
@@ -150,7 +121,47 @@ main() {
   command="$1"
   shift || true
 
-    info "Delegating to start_manager ($command)"
+  # Ensure monorepo imports work without root-level symlinks.
+  # Keep deterministic; do NOT inherit global PYTHONPATH to avoid legacy import shadowing.
+  export PYTHONPATH="$YTM_ROOT:$YTM_ROOT/packages"
+
+  if [[ "$command" == "start" || "$command" == "restart" ]]; then
+    # NOTE: env validation is handled by apps/ui-backend/tools/start_manager.py
+
+    # Ensure backend Python deps are present (idempotent)
+    if [ -f "$BACKEND_REQUIREMENTS" ]; then
+      if "$PYTHON_BIN" -c "import sys; print(int(sys.prefix != getattr(sys, 'base_prefix', sys.prefix)))" 2>/dev/null | grep -q "^1$"; then
+        info "Installing backend deps from apps/ui-backend/backend/requirements.txt (idempotent)"
+        export PIP_DISABLE_PIP_VERSION_CHECK=1
+        "$PYTHON_BIN" -m pip install $PIP_OPTS -r "$BACKEND_REQUIREMENTS" || warn "pip install failed; backend may not start"
+      else
+        info "Skipping backend deps install (not running in a venv). To enable: python3 -m venv .venv && .venv/bin/pip install -r apps/ui-backend/backend/requirements.txt"
+      fi
+    fi
+
+    # Keep planning CSV/status in sync for all channels before起動
+    if [ -f "$YTM_ROOT/scripts/sync_all_scripts.py" ]; then
+      info "Syncing planning/status via sync_all_scripts.py"
+      "$PYTHON_BIN" "$YTM_ROOT/scripts/sync_all_scripts.py" \
+        > >(grep -v "non-numeric 'No.' rows" || true) \
+        2> >(grep -v "non-numeric 'No.' rows" >&2 || true) \
+        || warn "sync_all_scripts failed"
+    fi
+
+    # Sync audio artifacts into video input (safe: no overwrite)
+    if [ -f "$YTM_ROOT/packages/video_pipeline/tools/sync_audio_inputs.py" ]; then
+      "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
+    fi
+
+    if [ -f "$ENV_FILE" ]; then
+      info "Loading environment from $ENV_FILE"
+      load_env_file "$ENV_FILE" || warn "Failed to parse $ENV_FILE; continuing without sourcing"
+    else
+      warn "ENV file $ENV_FILE not found; continuing without sourcing"
+    fi
+  fi
+
+  info "Delegating to start_manager ($command)"
 
   # Direct path to avoid needing root ui/ package
   START_MANAGER="$YTM_ROOT/apps/ui-backend/tools/start_manager.py"

@@ -3,11 +3,15 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from pathlib import Path
 import os
-import sys
 import shutil
+import sys
 import urllib.request
+from pathlib import Path
+
+from _bootstrap import bootstrap
+
+bootstrap(load_env=True)
 
 # requests is optional; fall back to urllib when not installed.
 try:
@@ -15,42 +19,7 @@ try:
 except Exception:
     requests = None  # type: ignore
 
-# python-dotenv is optional; sitecustomize/with_ytm_env.sh already load .env.
-try:
-    from dotenv import load_dotenv  # type: ignore
-except Exception:
-    load_dotenv = None
-
-# Discover repo root without relying on relative directory depth.
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
-
-def _discover_tts_root(start: Path) -> Path:
-    """
-    Resolve audio_tts package root by searching for `tts/` and `configs/`.
-    Avoid relying on fixed directory depth (`parents[N]`).
-    """
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "tts").is_dir() and (candidate / "configs").is_dir():
-            return candidate.resolve()
-    return cur.resolve()
-
-# Ensure project root and audio_tts are in sys.path
-_PROJECT_ROOT = _discover_repo_root(Path(__file__).resolve())
-_TTS_ROOT = _discover_tts_root(Path(__file__).resolve())
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
-if str(_TTS_ROOT) not in sys.path:
-    sys.path.insert(0, str(_TTS_ROOT))
-
-# New Strict Orchestrator (Proposed)
-# from tts.strict_orchestrator import run_strict_pipeline
-from tts.routing import load_routing_config, decide_engine
+from audio_tts.tts.routing import decide_engine, load_routing_config
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run audio_tts STRICT pipeline")
@@ -98,18 +67,6 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 def main() -> None:
-    # Load .env (SSOT at repo root). Use python-dotenv if available, otherwise fallback parse.
-    env_path = _PROJECT_ROOT / ".env"
-    if load_dotenv is not None:
-        load_dotenv(dotenv_path=env_path, override=True)
-    else:
-        if env_path.exists():
-            for line in env_path.read_text(encoding="utf-8").splitlines():
-                stripped = line.strip()
-                if not stripped or stripped.startswith("#") or "=" not in stripped:
-                    continue
-                k, v = stripped.split("=", 1)
-                os.environ[k.strip()] = v.strip().strip("\"'")
     skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
     if args.reading_source:
@@ -317,7 +274,7 @@ def main() -> None:
         sanitized_path = None
 
     # Import Lazy to avoid circular dependency if any
-    from tts.strict_orchestrator import run_strict_pipeline
+    from audio_tts.tts.strict_orchestrator import run_strict_pipeline
 
     try:
         # Strict Mode Pipeline

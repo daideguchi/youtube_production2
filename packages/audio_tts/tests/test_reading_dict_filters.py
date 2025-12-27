@@ -1,11 +1,3 @@
-import sys
-from pathlib import Path
-
-# Ensure repository root is on sys.path for package resolution
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from audio_tts.tts.reading_dict import is_banned_surface, export_words_for_word_dict
 
 

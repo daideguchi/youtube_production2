@@ -1,64 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { API_BASE_URL } from "../api/client";
-import type { ChannelSummary } from "../api/types";
-
-interface ChannelProgress {
-    total: number;
-    completed: number;
-    success: number;
-    failed: number;
-}
-
-interface BatchTtsProgress {
-    status: string;
-    current_channel: string | null;
-    current_video: string | null;
-    completed: number;
-    total: number;
-    success: number;
-    failed: number;
-    current_step: string | null;
-    errors: Array<{ channel: string; video: string; error?: string; issues?: string[] }>;
-    updated_at: string | null;
-    channels: Record<string, ChannelProgress> | null;
-}
-
-async function fetchBatchProgress(): Promise<BatchTtsProgress> {
-    const res = await fetch(`${API_BASE_URL}/api/batch-tts/progress`);
-    if (!res.ok) throw new Error(`Failed: ${res.status}`);
-    return res.json();
-}
-
-async function startBatchRegeneration(channels: string[]): Promise<{ status: string; message: string }> {
-    const res = await fetch(`${API_BASE_URL}/api/batch-tts/start`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channels }),
-    });
-    if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || `Failed: ${res.status}`);
-    }
-    return res.json();
-}
-
-async function fetchBatchLog(): Promise<string> {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/batch-tts/log`);
-        if (!res.ok) return "";
-        return res.text();
-    } catch {
-        return "";
-    }
-}
-
-async function resetBatch(): Promise<void> {
-    const res = await fetch(`${API_BASE_URL}/api/batch-tts/reset`, { method: "POST" });
-    if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || `Failed: ${res.status}`);
-    }
-}
+import { fetchBatchTtsLog, fetchBatchTtsProgress, resetBatchTts, startBatchTtsRegeneration } from "../api/client";
+import type { BatchTtsProgressResponse, ChannelSummary } from "../api/types";
 
 type BatchTtsProgressPanelProps = {
     channels?: ChannelSummary[];
@@ -95,7 +37,7 @@ export function BatchTtsProgressPanel({
     channels: availableChannels = [],
     channelsLoading = false,
 }: BatchTtsProgressPanelProps) {
-    const [progress, setProgress] = useState<BatchTtsProgress | null>(null);
+    const [progress, setProgress] = useState<BatchTtsProgressResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [starting, setStarting] = useState(false);
     const [selectedChannels, setSelectedChannels] = useState<Set<string>>(() => loadSavedSelection());
@@ -133,13 +75,13 @@ export function BatchTtsProgressPanel({
 
     const refresh = useCallback(async () => {
         try {
-            const data = await fetchBatchProgress();
+            const data = await fetchBatchTtsProgress();
             setProgress(data);
             setError(null);
 
             // ログも取得
             if (data.status === "running" && showLog) {
-                const log = await fetchBatchLog();
+                const log = await fetchBatchTtsLog().catch(() => "");
                 setLogContent(log);
             }
         } catch (err) {
@@ -161,7 +103,7 @@ export function BatchTtsProgressPanel({
         setStarting(true);
         setError(null);
         try {
-            await startBatchRegeneration(Array.from(selectedChannels).sort(compareChannelCode));
+            await startBatchTtsRegeneration(Array.from(selectedChannels).sort(compareChannelCode));
             await refresh();
             setShowLog(true);
         } catch (err) {
@@ -173,7 +115,7 @@ export function BatchTtsProgressPanel({
 
     const handleReset = useCallback(async () => {
         try {
-            await resetBatch();
+            await resetBatchTts();
             setShowLog(false);
             setLogContent("");
             await refresh();

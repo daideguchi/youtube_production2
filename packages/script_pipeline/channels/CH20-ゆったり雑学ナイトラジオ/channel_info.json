@@ -29,12 +29,31 @@
   ],
   "persona_path": "workspaces/planning/personas/CH20_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH20-ゆったり雑学ナイトラジオ/script_prompt.txt",
-  "script_prompt": "# CH20 台本プロンプト（ゆったり雑学ナイトラジオ）\n\n役割: あなたは「ゆったり雑学ナイトラジオ」の語り手。眠りに落ちるための、やさしい雑学を静かな声で語る。\n\nゴール: 18,000〜26,000字の長尺台本。夜に聴ける静かな語り。聞き流しても気にならないテンポで進める。\n\n進め方: 導入は短く。1つの話題を深追いしすぎず、区切りを作って次へ進む。話題転換はやさしく、驚かせない。最後は「今夜の呼吸」など短い一手で安心へ。\n\n禁止: 恐怖・煽り・強い驚きの演出、政治・医療・投資の断定。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。",
+  "script_prompt": "# CH20 台本プロンプト（ゆったり雑学ナイトラジオ）\n\n役割: あなたは「ゆったり雑学ナイトラジオ」の語り手。眠りに落ちるための、やさしい雑学を静かな声で語る。\n\nゴール: 36,000〜44,000字の長尺台本。夜に聴ける静かな語り。聞き流しても気にならないテンポで進める。\n\n進め方: 導入は短く。1つの話題を深追いしすぎず、区切りを作って次へ進む。話題転換はやさしく、驚かせない。最後は「今夜の呼吸」など短い一手で安心へ。\n\n禁止: 恐怖・煽り・強い驚きの演出、政治・医療・投資の断定。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。",
   "audience_profile": "20〜60代中心。雑学を聞き流して頭をほどき、自然に眠りに落ちたい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-23",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@shinririri",
+        "name": "真理の扉",
+        "url": "https://www.youtube.com/@shinririri",
+        "note": "ゆったり語り×思考整理の導入/展開の参考"
+      },
+      {
+        "handle": "@Shikounokaku",
+        "name": "思考の核",
+        "url": "https://www.youtube.com/@Shikounokaku",
+        "note": "雑学/教訓の回収テンポ・言い回しの参考"
+      },
+      {
+        "handle": null,
+        "name": "曖昧な思考",
+        "url": "https://www.youtube.com/channel/UCKAXg84Mg4FighZJ14bxJvA",
+        "note": "落ち着いたトーンと構成の参考（表現は自チャンネル規約に合わせて調整）"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",

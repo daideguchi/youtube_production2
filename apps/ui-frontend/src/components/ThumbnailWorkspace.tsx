@@ -9,7 +9,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   assignThumbnailLibraryAsset,
   composeThumbnailVariant,
@@ -218,6 +218,48 @@ const normalizeVideoInput = (value?: string | null): string => {
   return String(parseInt(trimmed, 10));
 };
 
+const CHANNEL_ICON_MAP: Record<string, string> = {
+  CH01: "🎯",
+  CH02: "📚",
+  CH03: "💡",
+  CH04: "🧭",
+  CH05: "💞",
+  CH06: "🕯️",
+  CH07: "🌿",
+  CH08: "🌙",
+  CH09: "🏛️",
+  CH10: "🧠",
+  CH11: "📜",
+  CH24: "🙏",
+};
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function channelIconLabel(channelCode: string): string {
+  const code = (channelCode ?? "").trim().toUpperCase();
+  const digits = code.replace(/[^0-9]/g, "");
+  if (digits) {
+    return digits.length > 3 ? digits.slice(-3) : digits;
+  }
+  return code ? code.slice(0, 3) : "CH";
+}
+
+function channelIconColor(channelCode: string): string {
+  const hue = hashString((channelCode ?? "").trim().toUpperCase()) % 360;
+  return `hsl(${hue} 70% 44%)`;
+}
+
+function channelIconText(channelCode: string): string {
+  const code = (channelCode ?? "").trim().toUpperCase();
+  return CHANNEL_ICON_MAP[code] ?? channelIconLabel(code);
+}
+
 function renderPromptTemplate(template: string, context: Record<string, string>): string {
   let rendered = template ?? "";
   Object.entries(context).forEach(([key, value]) => {
@@ -337,9 +379,10 @@ function isSupportedThumbnailFile(file: File): boolean {
 }
 
 export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = {}) {
+  const location = useLocation();
   const [overview, setOverview] = useState<ThumbnailOverview | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("bulk");
+  const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("gallery");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -405,6 +448,14 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const summary = activeChannel?.summary;
   const activeChannelName = activeChannel?.channel_title ?? activeChannel?.channel ?? null;
   const channelVideos = activeChannel?.videos ?? [];
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get("channel");
+    if (channelParam && channelParam.trim()) {
+      setSelectedChannel(channelParam.trim().toUpperCase());
+    }
+  }, [location.search]);
 
   useEffect(() => {
     setGalleryProjectSaving({});
@@ -2789,14 +2840,28 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             <nav className="thumbnail-hub__tabs thumbnail-hub__tabs--channels" aria-label="チャンネル選択">
               {overview.channels.map((channel) => {
                 const isActive = channel.channel === activeChannel?.channel;
+                const title = (channel.channel_title ?? "").trim();
+                const buttonTitle = title ? `${channel.channel} ${title}` : channel.channel;
                 return (
                   <button
                     key={channel.channel}
                     type="button"
-                    className={`thumbnail-hub__tab ${isActive ? "thumbnail-hub__tab--active" : ""}`}
+                    className={`thumbnail-hub__tab thumbnail-hub__tab--channel ${isActive ? "thumbnail-hub__tab--active" : ""}`}
                     onClick={() => setSelectedChannel(channel.channel)}
+                    aria-pressed={isActive}
+                    title={buttonTitle}
                   >
-                    {channel.channel_title ? `${channel.channel} ${channel.channel_title}` : channel.channel}
+                    <span
+                      className="thumbnail-hub__channel-icon"
+                      aria-hidden="true"
+                      style={{ backgroundColor: channelIconColor(channel.channel) }}
+                    >
+                      {channelIconText(channel.channel)}
+                    </span>
+                    <span className="thumbnail-hub__channel-meta">
+                      <span className="thumbnail-hub__channel-code">{channel.channel}</span>
+                      {title ? <span className="thumbnail-hub__channel-title">{title}</span> : null}
+                    </span>
                     <span className="thumbnail-hub__tab-count">{channel.summary.total}</span>
                   </button>
                 );

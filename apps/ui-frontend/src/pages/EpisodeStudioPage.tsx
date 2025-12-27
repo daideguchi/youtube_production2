@@ -11,7 +11,7 @@ import {
 } from "../api/client";
 import type { VideoJobRecord, VideoProjectDetail } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
-import { apiUrl } from "../utils/apiClient";
+import { apiUrl } from "../api/baseUrl";
 import { resolveAudioSubtitleState } from "../utils/video";
 
 function normalizeChannel(value: string | null): string | null {

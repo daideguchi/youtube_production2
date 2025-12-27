@@ -1,13 +1,10 @@
-import sys
-from pathlib import Path
-
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+from factory_common.paths import audio_pkg_root
 
-from tts.routing import load_routing_config, decide_engine, resolve_voicevox_speaker_id  # noqa: E402
+ROOT = audio_pkg_root()
+
+from audio_tts.tts.routing import load_routing_config, decide_engine, resolve_voicevox_speaker_id
 
 
 def test_decide_engine():

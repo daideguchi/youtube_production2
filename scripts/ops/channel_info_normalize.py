@@ -618,7 +618,8 @@ def normalize_channel_info(
                 b2["script_samples"] = [sample]
                 changed = True
                 notes.append("seed benchmark script_samples")
-        if isinstance(b2.get("channels"), list) and len(b2.get("channels")) == 0:
+        allow_empty_channels = bool(b2.get("allow_empty_channels"))
+        if (not allow_empty_channels) and isinstance(b2.get("channels"), list) and len(b2.get("channels")) == 0:
             seeded = _extract_benchmark_channels_from_persona(channel_code)
             if seeded:
                 b2["channels"] = seeded

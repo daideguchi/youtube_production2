@@ -85,6 +85,39 @@ PAUSE_PROMPT = (
     "Be concise and context-aware; longer pause for major topic shift, shorter for minor shift, none inside a clause."
 )
 
+SRT_LINEBREAK_PROMPT = (
+    "You are a Japanese subtitle line-break formatter for SRT.\n"
+    "Input is JSON:\n"
+    "{\n"
+    "  \"max_lines\": int,\n"
+    "  \"max_chars_per_line\": int,\n"
+    "  \"items\": [{\"index\": int, \"text\": string}, ...]\n"
+    "}\n"
+    "\n"
+    "Task:\n"
+    "- For each item, decide where to insert line breaks to maximize readability.\n"
+    "- You MUST preserve the original text EXACTLY. Do not paraphrase. Do not change characters.\n"
+    "- Only decide break positions; output as an array of lines.\n"
+    "\n"
+    "Hard constraints (must satisfy):\n"
+    "- 1 <= lines.length <= max_lines\n"
+    "- For every line: len(line) <= max_chars_per_line\n"
+    "- CRITICAL: concatenation of output lines (\"\".join(lines)) must be EXACTLY equal to input text.\n"
+    "- Do not introduce or remove spaces/punctuation/characters.\n"
+    "\n"
+    "Quality preferences (best-effort, do not get stuck):\n"
+    "- Do not break in the middle of a word/meaning chunk.\n"
+    "- Avoid starting a line with particles (は/が/を/に/で/と/も/へ/や/の) when possible.\n"
+    "- Avoid starting a line with punctuation (、。！？）」』）など) when possible.\n"
+    "- Avoid splitting numbers + units/dates/percent (例: 2025年, 12.5%, 3日, 10万円).\n"
+    "- If there is no good break, return a single line.\n"
+    "\n"
+    "Output JSON only (no extra text):\n"
+    "{\n"
+    "  \"items\": [{\"index\": int, \"lines\": [string, ...]}, ...]\n"
+    "}\n"
+)
+
 READING_SYSTEM_PROMPT = (
     "You are a Japanese reading disambiguation assistant.\n"
     "Given a sentence and candidate tokens, return only JSON: "
@@ -486,6 +519,164 @@ def suggest_pauses(blocks: list[dict], model: str | None = None, api_key: str | 
 
 
 def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: int = 24, timeout: int = 30, batch_size: int = 20) -> list[dict]:
+    """
+    Format SRT cue texts by inserting intentional newlines (\\n) to improve readability.
+
+    Safety contract:
+    - Content MUST NOT change (no paraphrase). Only newline insertion is allowed.
+    - If LLM output violates constraints or content equality, fall back to the original cue text.
+
+    Tuning (env overrides):
+    - SRT_LINEBREAK_ENABLED (default: 1)
+    - SRT_LINEBREAK_MAX_LINES (default: 2)
+    - SRT_LINEBREAK_MAX_CHARS_PER_LINE (default: target_len)
+    - SRT_LINEBREAK_RETRY_LIMIT (default: 1)
+    """
+    if not entries:
+        return entries
+    if LOCAL_INFERENCE_ONLY:
+        return entries
+
+    enabled = (os.getenv("SRT_LINEBREAK_ENABLED", "1") or "").strip().lower() not in ("0", "false", "no", "off")
+    if not enabled:
+        return entries
+
+    def _to_int(value: object, default: int) -> int:
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return default
+
+    max_lines = max(1, _to_int(os.getenv("SRT_LINEBREAK_MAX_LINES", "2"), 2))
+    max_chars = max(4, _to_int(os.getenv("SRT_LINEBREAK_MAX_CHARS_PER_LINE", str(target_len)), int(target_len)))
+    retry_limit = max(0, _to_int(os.getenv("SRT_LINEBREAK_RETRY_LIMIT", "1"), 1))
+    bs = max(1, _to_int(batch_size, 20))
+
+    # Map entries by index (1-based).
+    by_index: dict[int, dict] = {}
+    originals: dict[int, str] = {}
+    pending: list[int] = []
+    for i, ent in enumerate(entries):
+        try:
+            idx = int(ent.get("index", i + 1))  # type: ignore[arg-type]
+        except Exception:
+            idx = i + 1
+        by_index[idx] = ent
+        raw = str(ent.get("text", "") or "")
+        compact = raw.replace("\r", "").replace("\n", "")
+        originals[idx] = compact
+        if not compact.strip():
+            continue
+        # Skip if already fits in one line (no wrap expected under this char budget).
+        if len(compact) <= max_chars:
+            continue
+        # Skip if impossible to satisfy strict constraint without changing characters.
+        if len(compact) > (max_chars * max_lines):
+            continue
+        pending.append(idx)
+
+    if not pending:
+        return entries
+
+    def _is_valid_lines(lines: object, original: str) -> bool:
+        if not isinstance(lines, list) or not lines:
+            return False
+        if len(lines) > max_lines:
+            return False
+        out_parts: list[str] = []
+        for ln in lines:
+            s = str(ln)
+            if "\n" in s or "\r" in s:
+                return False
+            if len(s) > max_chars:
+                return False
+            out_parts.append(s)
+        return "".join(out_parts) == original
+
+    def _chunks(seq: list[int], size: int) -> list[list[int]]:
+        return [seq[i : i + size] for i in range(0, len(seq), size)]
+
+    # Retry loop: only for items that fail validation.
+    for attempt in range(retry_limit + 1):
+        if not pending:
+            break
+        attempt_note = ""
+        if attempt > 0:
+            attempt_note = (
+                "\nNOTE: Your previous output violated constraints. Fix strictly:\n"
+                "- Ensure lines.length <= max_lines\n"
+                "- Ensure each line length <= max_chars_per_line\n"
+                "- Ensure concatenation equals input text exactly (no missing/extra characters)\n"
+            )
+
+        next_pending: list[int] = []
+        for chunk in _chunks(pending, bs):
+            payload = {
+                "max_lines": max_lines,
+                "max_chars_per_line": max_chars,
+                "items": [{"index": idx, "text": originals.get(idx, "")} for idx in chunk],
+            }
+            messages = [
+                {"role": "system", "content": SRT_LINEBREAK_PROMPT + attempt_note},
+                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+            ]
+            try:
+                call_with_raw = getattr(router, "call_with_raw", None)
+                if callable(call_with_raw):
+                    result = call_with_raw(
+                        task="tts_text_prepare",
+                        messages=messages,
+                        response_format="json_object",
+                        timeout=timeout,
+                        max_tokens=1200,
+                    )
+                    content = result.get("content")
+                    _log_llm_meta(
+                        "tts_text_prepare",
+                        {k: result.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")},
+                    )
+                else:
+                    content = router.call(
+                        task="tts_text_prepare",
+                        messages=messages,
+                        response_format="json_object",
+                        timeout=timeout,
+                        max_tokens=1200,
+                    )
+            except Exception as e:
+                print(f"[LLM_WARN] format_srt_lines call failed: {e}")
+                return entries
+
+            obj = _parse_json_lenient(str(content or ""))
+            items = obj.get("items") if isinstance(obj, dict) else None
+            if not isinstance(items, list):
+                # Treat as batch failure: keep originals for this chunk and try next attempt.
+                next_pending.extend(chunk)
+                continue
+
+            returned: dict[int, list[str]] = {}
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                try:
+                    idx = int(it.get("index"))
+                except Exception:
+                    continue
+                lines = it.get("lines")
+                if isinstance(lines, list):
+                    returned[idx] = [str(x) for x in lines]
+
+            for idx in chunk:
+                original = originals.get(idx, "")
+                lines = returned.get(idx)
+                if lines is None or not _is_valid_lines(lines, original):
+                    next_pending.append(idx)
+                    continue
+                by_index[idx]["text"] = "\n".join(lines)
+
+        pending = next_pending
+
+    # Final fallback: leave remaining pending cues untouched.
     return entries
 
 

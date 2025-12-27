@@ -17,7 +17,7 @@ Purpose:
     3. is_overlap: true is critical
 
 Usage:
-    python3 tools/fix_fade_transitions_correct.py \
+    PYTHONPATH=".:packages" python3 -m video_pipeline.tools.fix_fade_transitions_correct \
         --draft "/path/to/draft" \
         --fade-duration 0.5 \
         --image-track-name "srt2images_jinsei187_new"

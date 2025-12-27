@@ -57,20 +57,29 @@ apps/remotion/public/_bgm/
 
 # Frontend build output (generated; do not commit)
 apps/ui-frontend/build/
-packages/audio_tts_v2/artifacts
-backups
+
+# Legacy/stray artifacts under packages/ (SoT is workspaces/**)
+packages/audio_tts/artifacts/
+
+# Backups (keep archive-first graveyard tracked; ignore everything else)
+backups/**
+!backups/README.md
+!backups/graveyard/
+!backups/graveyard/**
 *スクリーンショット*archive_20251206/
 _old
 
 # API Keys and sensitive configuration files
 *API_KEY*
 *api_key*
-*secret*
-*SECRET*
-*token*
-*TOKEN*
-*_key*
-*_KEY*
+
+# Secrets/tokens/keys (avoid hiding source code files from rg/audits)
+*secret*.json
+*secret*.txt
+*token*.json
+*token*.txt
+*_key*.json
+*_key*.txt
 
 # Allowlisted helper scripts (match *_key* but are not secrets)
 !scripts/openrouter_key_probe.py

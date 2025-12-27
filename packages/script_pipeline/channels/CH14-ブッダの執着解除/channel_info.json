@@ -55,8 +55,15 @@
   "audience_profile": "60代以降。後悔・恨み・比較・お金不安など、頭から離れない執着で苦しく、ほどける順番が知りたい人。",
   "benchmarks": {
     "version": 1,
-    "updated_at": "2025-12-24",
-    "channels": [],
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "執着/人間関係の線引きテーマの導入フックと回収の参考"
+      }
+    ],
     "script_samples": [
       {
         "base": "research",

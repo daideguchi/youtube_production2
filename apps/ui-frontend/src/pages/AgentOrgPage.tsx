@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { apiUrl } from "../api/baseUrl";
 import "./AgentOrgPage.css";
 
 type OrchestratorStatus = {
@@ -94,8 +95,15 @@ function lockBadgeClass(status: LockRow["status"]): string {
   return "agent-org-page__badge";
 }
 
+function buildUrl(path: string): string {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return apiUrl(path);
+}
+
 async function fetchJson<T>(path: string): Promise<T> {
-  const resp = await fetch(path, { headers: { "Content-Type": "application/json" } });
+  const resp = await fetch(buildUrl(path), { headers: { "Content-Type": "application/json" } });
   if (!resp.ok) {
     const text = await resp.text();
     throw new Error(text || `HTTP ${resp.status}`);
@@ -104,7 +112,7 @@ async function fetchJson<T>(path: string): Promise<T> {
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const resp = await fetch(path, {
+  const resp = await fetch(buildUrl(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

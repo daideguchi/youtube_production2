@@ -1,8 +1,8 @@
-# OPS_SCRIPT_FACTORY_MODES — 台本工場（入口固定 / 4パターンSSOT）
+# OPS_SCRIPT_FACTORY_MODES — 台本工場（入口固定 / 5パターンSSOT）
 
 目的:
 - 「タイトル/企画の趣旨からズレた台本」を **仕組みで止める**。
-- 大量運用のため、**叩く入口を1つに固定**し、運用パターンを4つに限定する。
+- 大量運用のため、**叩く入口を1つに固定**し、運用パターンを5つに限定する。
 - 人間がフローを100%追えるように、**図（分岐）とSoT** を固定する（迷ったらこのSSOTを正とする）。
 
 このSSOTは「複雑な仕様書」ではなく、運用者が迷わないための **1枚設計図**。
@@ -16,12 +16,45 @@
 
 ---
 
+## 全体図（入口固定 / 5モード）
+
+```
+[Planning SoT]  workspaces/planning/channels/CHxx.csv（タイトル/企画要約/タグ…）
+     |
+     v
+[入口固定]  ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...
+     |
+     v
+[Script SoT]  workspaces/scripts/{CH}/{NNN}/status.json
+           +  workspaces/scripts/{CH}/{NNN}/content/assembled_human.md（優先）/ assembled.md（ミラー）
+     |
+     v
+script_validation（機械チェック→LLM Judge→意味整合）
+     |
+     +-- completed → 合格（下流: 音声/動画へ進む）
+     |
+     +-- pending   → 不合格（止める: error_codes / fix_hints を見て対処）
+```
+
+```
+MODEの選び方（入口は同じ、分岐だけが違う）:
+
+  new         : 企画CSVから 1から作る
+  redo-full   : いったん捨てて 最初から作り直す（reset→再生成）
+  resume      : 既存台本の調整（体裁/品質/整合の再検証）/ 途中から再開
+  rewrite     : ユーザー指示で「表現だけ」直す（主題は変えない）
+  seed-expand : Seed→Expand（短いSeed→追記で収束）
+```
+
 ## 0) これだけ覚える（最重要）
 
+- 日常運用の **メイン処理は2つ**:
+  - `new`（新規でゼロから作る）
+  - `resume`（要修正のものを調整して合格させる。途中再開もここ）
 - **タイトルが絶対に正（SoT）**: Planning CSV の `タイトル` 列が基準。タイトルと別テーマに寄ったら不合格。
 - **入口は1つだけ**: `scripts/ops/script_runbook.py`（下にコマンド固定）。
 - **成功条件（Done）**: `script_validation` が `completed`（= “通った台本だけ” を下流へ渡す）。
-- **機械チェック（LLMなし）は安全弁**: 形式崩れ/ぶつ切り/段落重複などの「壊れ方」を止めるだけ。内容や言い回しを固定しない。
+- **機械チェック（LLMなし）は安全弁**: URL/見出し/箇条書き/末尾ぶつ切り/段落重複などの「壊れ方」を止めるだけ。**文章を新規に書いたり、主題を変えたりはしない**（質を下げるための処理ではない）。
 - 不明点が出たら勝手に解釈しない（運用者に確認する）。
 
 ---
@@ -38,6 +71,11 @@
   - 例: タイトルは「縁」なのに、企画要約が「朝習慣」の話になっている。
 - 決定論（deterministic）:
   - 同じ入力→同じ出力になる処理（LLMを呼ばない）。目的は「再現性」と「事故防止」。
+- 設計図（master plan）:
+  - `script_outline` の後に作る **台本の設計図JSON**（SoTではなく中間生成物）。
+  - 出力: `workspaces/scripts/{CH}/{NNN}/content/analysis/master_plan.json`
+  - 役割: 章の狙い/字数配分/脱線防止の“非交渉条件”を固定し、長尺でも迷子になりにくくする。
+  - 任意: 高コスト推論モデルを **この工程で1回だけ**使い、設計図サマリの質を底上げできる（デフォルトOFF）。
 - 自動安全フォールバック（LLMなし。旧称: 決定論フォールバック）:
   - LLMの出来に依存せず「事故を止める」ための安全弁。**文章を新規に書かず**、末尾ぶつ切りのトリム/重複段落の削除/禁則の修復など「壊れ方」だけを直す（内容品質を下げるためではない）。
   - 重要: フォールバック後も `validate_a_text`（機械ルール）に通らなければ **書き込まずに停止**する。中途半端な台本を“合格扱い”にする仕組みではない。
@@ -54,7 +92,7 @@
 
 台本パイプラインの運用入口は **これだけ**。
 
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <MODE> ...`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
 
 ※ `python -m script_pipeline.cli ...` は低レベルCLI（内部/詳細制御用）。**日常運用では入口を増やさない**。
 
@@ -82,8 +120,9 @@
 flowchart TD
   A["いま何をしたい？"] -->|新規で1から作る| NEW["new"]
   A -->|最初から完全に作り直す| REDO["redo-full"]
-  A -->|途中から再開する| RESUME["resume"]
-  RESUME -->|表現だけ直す（ユーザー指示あり）| REWRITE["rewrite"]
+  A -->|途中で止まったところから再開| RESUME["resume"]
+  A -->|表現だけ直す（ユーザー指示あり）| REWRITE["rewrite"]
+  A -->|短いSeedから仕上げる（追記で収束）| SEED["seed-expand"]
 ```
 
 ### 3.2 分岐図（テキスト / コピペ可）
@@ -93,17 +132,12 @@ flowchart TD
             │ 今やりたいのはどれ？       │
             └───────────────┬───────────┘
                             │
-          ┌─────────────────┼─────────────────┐
-          │                 │                 │
-      新規で作る         完全に作り直す      途中から続ける
-     (status無し)     (作り直し確定)       (status有り)
-          │                 │                 │
-        new            redo-full            resume
-                                              │
-                                              └── 言い回し等の修正だけ？
-                                                  （指示が必須）
-                                                      │
-                                                   rewrite
+      ┌──────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+      │ 新規で作る     │ 完全に作り直す  │ 途中で止まった │ 表現だけ直す   │ 短いSeed→仕上げ │
+      │ (status無し)  │ (作り直し確定)  │ (status有り)   │ (指示が必須)   │ (追記で収束)     │
+      └───────┬──────┴───────┬───────┴───────┬───────┴───────┬───────┴───────┬───────┘
+              │              │               │               │               │
+             new          redo-full         resume          rewrite        seed-expand
 ```
 
 ### 3.3 パイプライン（stage）図（入口→検証→合格）
@@ -113,16 +147,17 @@ flowchart TD
   A["入口: script_runbook.py <MODE>"] --> P["Planning SoT: CHxx.csv"]
   P --> R["topic_research (search_results.json / references.json)"]
   R --> O["script_outline (アウトライン)"]
-  O -->|意味整合ゲート| W["chapter_brief → script_draft → script_review"]
+  O --> M["script_master_plan（設計図）\\nmaster_plan.json（任意で高コスト推論を1回だけ）"]
+  M -->|意味整合ゲート| W["chapter_brief → script_draft → script_review"]
   W --> V["script_validation (機械禁則 + LLM品質 + 意味整合)"]
   V -->|合格のみ| S["audio_synthesis"]
 ```
 
 ---
 
-## 4) 4つの運用パターン（これ以外は増やさない）
+## 4) 5つの運用パターン（これ以上は増やさない）
 
-「どれを叩くか」だけを固定する。細かい実装やステージは `OPS_SCRIPT_PIPELINE_SSOT.md` 側で扱う。
+「どれを叩くか」だけを固定する。日常運用は `new / resume` の2つが主で、残り3つは例外対応。細かい実装やステージは `OPS_SCRIPT_PIPELINE_SSOT.md` 側で扱う。
 
 ### 4.1 new（新規で1から台本を書く）
 
@@ -131,7 +166,7 @@ flowchart TD
 - 企画CSV（タイトル/サムネ/企画意図）を元に、台本を最初から生成したい。
 
 入口:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CHxx --video NNN`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CHxx --video NNN`
 
 何が起きる:
 - `workspaces/scripts/{CH}/{NNN}/status.json` を作り、ステージを進めて `script_validation` まで行く。
@@ -146,7 +181,7 @@ flowchart TD
 - 企画CSVが変わった（旧台本を引きずると事故る）。
 
 入口:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to MMM`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to MMM`
   - 調査も消す（高確度で混入源を潰す）: `--wipe-research`
 
 何が起きる:
@@ -158,11 +193,16 @@ flowchart TD
 ### 4.3 resume（途中から再開）
 
 用途:
-- 途中で止まった（LLM失敗/手動介入/中断）。
-- 既存出力を活かして、未完了ステージだけ進めたい。
+- **要修正の台本を「調整」して合格させる（体裁/品質/意味整合の再検証）**。
+- 途中で止まった（LLM失敗/手動介入/中断）ものを続きから回す。
+- 既存出力を活かして、必要なところだけ進めたい（無駄な再生成を避ける）。
 
 入口:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
+
+何が起きる（重要）:
+- `configs/sources.yaml` の最新ターゲット（`target_chars_*`）を `status.json` に同期する（本文は書き換えない）。
+- `content/assembled_human.md` / `assembled.md` が手で直されていた場合、`script_validation` を **completed のまま放置せず** `pending` に戻して再検証する（“調整したのに検証が走らない”事故を潰す）。
 
 成功条件（Done）:
 - `script_validation` が `completed`。
@@ -178,11 +218,28 @@ flowchart TD
 - `--instruction-file <path>`
 
 入口:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CHxx --video NNN --instruction \"...\"`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py rewrite --channel CHxx --video NNN --instruction \"...\"`
 
 正本の扱い:
 - 出力は `content/assembled_human.md`（正本）に反映する。
 - 反映後は `script_validation` を必ず再実行し、OKになった台本だけ下流（音声）へ進む。
+
+### 4.5 seed-expand（Seed→Expand：短い本文Seed→追記で目標字数へ）
+
+用途:
+- 「長文を一撃で書かせるとズレる/破綻する」チャンネルで、**コストを抑えつつ一貫性を上げたい**。
+- すでに `content/assembled.md` に **Seed（短い本文/アウトライン）** があるので、それをベースに **追記で収束**させたい（例: CH22/CH23）。
+
+入口:
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py seed-expand --channel CHxx --video NNN`
+
+何が起きる（固定）:
+- Seed が無い場合: Seed を **1回だけ**生成し、短い本文Seed（Aテキスト形式）を作る。
+- Seed がある場合: それを上書きせずに使う（再Seed生成はしない）。
+- その後 `script_validation` で、**追記（extend/expand）** を使って `target_chars_min〜max` に収め、禁則/末尾ぶつ切り/意味整合を通す。
+
+成功条件（Done）:
+- `script_validation` が `completed`（台本合格）。
 
 ---
 
@@ -203,10 +260,10 @@ flowchart TD
 
 ---
 
-## 6) 補助（4パターン以外。運用のズルはここに隔離）
+## 6) 補助（5パターン以外。運用のズルはここに隔離）
 
 大量検証で「再生成せず、今ある台本が通るかだけ見たい」場合:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CHxx --from NNN --to MMM --mode validate`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CHxx --from NNN --to MMM --mode validate`
 
 注意:
 - これは “作り直し” ではなく “検査”。

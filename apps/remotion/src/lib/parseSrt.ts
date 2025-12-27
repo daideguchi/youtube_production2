@@ -7,17 +7,9 @@ function timeToSeconds(t: string): number {
   return Number(hh) * 3600 + Number(mm) * 60 + Number(ss) + Number(ms) / 1000;
 }
 
-function sanitize(s: string): string {
-  // drop HTML-ish tags and SRT style residues, collapse whitespace and strip leading numbers if present
-  return s
-    .replace(/<\/?[^>]+>/g, "")
-    .replace(/\{\\.*?\}/g, "")
-    .replace(/\u3000+/g, " ") // full-width spaces
-    .replace(/^\[[^\]]+\]\s*/g, "") // leading [Music] style tags
-    .replace(/^\([^)]*\)\s*/g, "") // leading (Music) style tags
-    .replace(/^\d+\s+/, "")
-    .replace(/\s+/g, " ")
-    .trim();
+function normalizeCueText(s: string): string {
+  // Preserve the SRT cue text as-is (except line-ending normalization).
+  return s.replace(/\r/g, "");
 }
 
 export function parseSrt(text: string): SubtitleCue[] {
@@ -34,9 +26,9 @@ export function parseSrt(text: string): SubtitleCue[] {
     const start = timeToSeconds(match[1]);
     const end = timeToSeconds(match[2]);
     const textLines = lines.slice(lines.indexOf(timeLine) + 1).join("\n");
-    const norm = sanitize(textLines);
-    if (!norm) continue;
-    cues.push({ start, end, text: norm });
+    const cueText = normalizeCueText(textLines);
+    if (!cueText.trim()) continue;
+    cues.push({ start, end, text: cueText });
   }
   // merge overlapping cues with identical text to reduce flicker
   const merged: SubtitleCue[] = [];

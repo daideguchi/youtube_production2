@@ -52,7 +52,7 @@ def _make_cues_with_llm_context(
 ) -> List[Dict]:
     """LLM文脈理解による自然なセクション分割"""
     from .llm_context_analyzer import LLMContextAnalyzer
-    from config.channel_resolver import ChannelPresetResolver
+    from ..config.channel_resolver import ChannelPresetResolver
     
     try:
         # Load base_seconds from channel config (SSOT)

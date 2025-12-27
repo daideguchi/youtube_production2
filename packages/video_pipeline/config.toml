@@ -1,9 +1,9 @@
 [input]
-srt = "input/example.srt"
+srt = "" # set via --srt
 channel = ""
 
 [output]
-out = "output/default"
+out = "" # set via --out (canonical: workspaces/video/runs/<run_id>)
 engine = "none"
 size = "1920x1080"
 fps = 30

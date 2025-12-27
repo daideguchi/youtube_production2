@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  API_BASE_URL,
   fetchAudioReviewItems,
   fetchChannels,
   runAudioTtsFromScript,
@@ -10,6 +9,7 @@ import {
 } from "../api/client";
 import type { AudioReviewItem, ChannelSummary } from "../api/types";
 import { translateStatus } from "../utils/i18n";
+import { resolveMediaUrl } from "../utils/url";
 import { BatchTtsProgressPanel } from "./BatchTtsProgressPanel";
 import { RedoBadge } from "./RedoBadge";
 
@@ -93,14 +93,7 @@ function normalizeWorkspacePath(rawPath: string | null | undefined): string {
 }
 
 function resolveAudioSrc(path?: string | null): string | null {
-  if (!path) {
-    return null;
-  }
-  if (/^https?:\/\//i.test(path)) {
-    return path;
-  }
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  return `${API_BASE_URL}${normalized}`;
+  return resolveMediaUrl(path);
 }
 
 export function AudioReviewPage() {
@@ -123,11 +116,6 @@ export function AudioReviewPage() {
   const [aTextModalContent, setATextModalContent] = useState<string>("");
   const [aTextModalError, setATextModalError] = useState<string | null>(null);
   const [aTextModalLoading, setATextModalLoading] = useState(false);
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 2500);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
   useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(null), 2500);

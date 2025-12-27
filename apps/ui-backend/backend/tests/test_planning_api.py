@@ -27,6 +27,7 @@ def planning_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     planning_root = tmp_path / "workspaces" / "planning"
     channels_dir = planning_root / "channels"
     channels_dir.mkdir(parents=True, exist_ok=True)
+    scripts_root = tmp_path / "workspaces" / "scripts"
     planning_csv = channels_dir / "CH01.csv"
     planning_csv.write_text(_read_planning_header() + "\n", encoding="utf-8")
 
@@ -45,15 +46,19 @@ def planning_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "PROJECT_ROOT", tmp_path)
     monkeypatch.setattr(main, "PLANNING_CSV_PATH", None)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", channels_dir)
+    monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
     monkeypatch.setattr(planning_requirements, "SSOT_DIR", persona_dir)
     monkeypatch.setattr(planning_requirements, "YTM_ROOT", tmp_path)
     planning_requirements.clear_persona_cache()
     monkeypatch.setattr(main.planning_store, "refresh", lambda force=False: None)
+    monkeypatch.setattr(main.planning_store, "CHANNELS_DIR", channels_dir)
 
     with TestClient(app) as client:
         yield {
             "client": client,
             "channels_dir": channels_dir,
+            "scripts_root": scripts_root,
             "persona_text": persona_text,
             "persona_text_path": str(persona_dir / "CH01_PERSONA.md"),
         }

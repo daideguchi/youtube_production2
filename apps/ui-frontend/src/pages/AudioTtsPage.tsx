@@ -1,22 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext, useSearchParams } from "react-router-dom";
-import { runAudioTtsFromScript } from "../api/client";
-import type { ChannelSummary } from "../api/types";
+import { fetchTtsProgress, runAudioTtsFromScript } from "../api/client";
+import type { ChannelSummary, TtsProgressResponse } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
-
-interface ChannelProgress {
-  channel: string;
-  total_episodes: number;
-  completed_episodes: number;
-  completed_ids: string[];
-  missing_ids: string[];
-  progress_percent: number;
-}
-
-interface TtsProgressResponse {
-  channels: ChannelProgress[];
-  overall_progress: number;
-}
 
 function compareChannelCode(a: string, b: string): number {
   const an = Number.parseInt(a.replace(/[^0-9]/g, ""), 10);
@@ -73,11 +59,8 @@ export const AudioTtsPage: React.FC = () => {
   // 進捗を取得
   const fetchProgress = useCallback(async () => {
     try {
-      const response = await fetch("/api/tts-progress");
-      if (response.ok) {
-        const data = await response.json();
-        setProgress(data);
-      }
+      const data = await fetchTtsProgress();
+      setProgress(data);
     } catch (e) {
       console.error("Failed to fetch progress:", e);
     }

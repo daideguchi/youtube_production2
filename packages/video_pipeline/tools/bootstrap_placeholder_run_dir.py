@@ -19,41 +19,22 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from PIL import Image, ImageChops
 
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
+tool_bootstrap(load_env=False)
 
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
-
-from factory_common.paths import repo_root, video_pkg_root  # noqa: E402
-
-PROJECT_ROOT = video_pkg_root()
-REPO_ROOT = repo_root()
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-if str(PROJECT_ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / "src"))
-
-from config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
-from srt2images.srt_parser import parse_srt  # noqa: E402
-from srt2images.cues_plan import make_cues_from_sections, plan_sections_via_router  # noqa: E402
+from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
+from video_pipeline.src.srt2images.srt_parser import parse_srt  # noqa: E402
+from video_pipeline.src.srt2images.cues_plan import make_cues_from_sections, plan_sections_via_router  # noqa: E402
 from factory_common.artifacts.srt_segments import build_srt_segments_artifact, write_srt_segments_artifact  # noqa: E402
 from factory_common.artifacts.visual_cues_plan import (  # noqa: E402
     build_visual_cues_plan_artifact,
@@ -158,7 +139,7 @@ def bootstrap_run_dir(
                 plan = load_visual_cues_plan(plan_path, expected_srt_path=srt_path)
                 if plan.status != "ready":
                     raise ValueError(f"status={plan.status}")
-                from srt2images.cues_plan import PlannedSection as _PlannedSection  # noqa: WPS433
+                from video_pipeline.src.srt2images.cues_plan import PlannedSection as _PlannedSection  # noqa: WPS433,E402
 
                 planned = [
                     _PlannedSection(

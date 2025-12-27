@@ -5,13 +5,100 @@ import argparse
 import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from pprint import pprint
 
 from .runner import run_stage, run_next
 from .sot import init_status, load_status, status_path
 from .runner import _load_stage_defs  # internal use for init ordering
+from .runner import _load_sources  # internal use for SSOT syncing
+from .sot import save_status
 from .sot import DATA_ROOT
+
+
+def _utc_now_compact() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _truthy(value: object) -> bool:
+    if value is True:
+        return True
+    if value in (None, "", 0, False):
+        return False
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _parse_int(value: object) -> int | None:
+    if value in (None, ""):
+        return None
+    try:
+        return int(str(value).strip())
+    except Exception:
+        return None
+
+
+def _sync_episode_targets_from_sources(ch: str, no: str) -> bool:
+    """
+    Keep per-episode `status.json` length targets in sync with channel SSOT (`configs/sources.yaml`).
+
+    Why:
+    - `runner.ensure_status()` is intentionally backfill-only for existing status.json.
+    - Operators/agents sometimes run this CLI directly (not via script_runbook.py),
+      which can lead to stale `target_chars_*` and expensive "length rescue" loops.
+
+    This is metadata-only and never rewrites A-text.
+    To pin manual per-episode overrides, set `metadata.targets_locked=1`.
+    """
+    if not status_path(ch, no).exists():
+        return False
+
+    st = load_status(ch, no)
+    meta = st.metadata or {}
+    if _truthy(meta.get("targets_locked")):
+        return False
+
+    cfg = _load_sources(ch) or {}
+    cfg_min = _parse_int(cfg.get("target_chars_min"))
+    cfg_max = _parse_int(cfg.get("target_chars_max"))
+    cur_min = _parse_int(meta.get("target_chars_min"))
+    cur_max = _parse_int(meta.get("target_chars_max"))
+
+    changed = False
+    if isinstance(cfg_min, int) and cfg_min != cur_min:
+        meta["target_chars_min"] = cfg_min
+        changed = True
+    if isinstance(cfg_max, int) and cfg_max != cur_max:
+        meta["target_chars_max"] = cfg_max
+        changed = True
+
+    if changed:
+        # Keep WORD_TARGET derivation aligned with runner._total_word_target biasing.
+        tmin = _parse_int(meta.get("target_chars_min"))
+        tmax = _parse_int(meta.get("target_chars_max"))
+        twc: int | None = None
+        if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin:
+            twc = int(round(tmin + (tmax - tmin) * 0.6))
+        elif isinstance(tmin, int):
+            twc = tmin
+        elif isinstance(tmax, int):
+            twc = tmax
+        if isinstance(twc, int) and twc > 0:
+            meta["target_word_count"] = twc
+
+        # If validation was already completed under old targets, force re-validation.
+        sv = st.stages.get("script_validation") if isinstance(st.stages, dict) else None
+        if sv is not None and getattr(sv, "status", "") == "completed":
+            sv.status = "pending"
+            if isinstance(getattr(sv, "details", None), dict):
+                sv.details["revalidated_due_to_target_change"] = True
+
+        meta["targets_synced_at"] = _utc_now_compact()
+        meta["targets_synced_from"] = "configs/sources.yaml"
+        st.metadata = meta
+        save_status(st)
+
+    return changed
 
 
 def parse_args() -> argparse.Namespace:
@@ -41,7 +128,12 @@ def parse_args() -> argparse.Namespace:
     run_all_p.add_argument("--max-iter", type=int, default=30, help="Maximum stage executions (default: 30)")
     sub.add_parser("status", parents=[common], help="Show status.json")
     sub.add_parser("validate", parents=[common], help="Validate required outputs")
-    sub.add_parser("reconcile", parents=[common], help="Reconcile status based on existing outputs")
+    reconcile_p = sub.add_parser("reconcile", parents=[common], help="Reconcile status based on existing outputs")
+    reconcile_p.add_argument(
+        "--allow-downgrade",
+        action="store_true",
+        help="Allow downgrading completed stages when required artifacts are missing/invalid",
+    )
     reset_p = sub.add_parser("reset", parents=[common], help="Reset outputs/status for a video")
     reset_p.add_argument("--wipe-research", action="store_true", help="Also delete research outputs")
 
@@ -116,6 +208,7 @@ def main() -> None:
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
     if args.command == "a-text-rebuild":
+        _sync_episode_targets_from_sources(ch, no)
         from .runner import rebuild_a_text_from_patterns
 
         out = rebuild_a_text_from_patterns(
@@ -251,12 +344,14 @@ def main() -> None:
         return
 
     if args.command == "run":
+        _sync_episode_targets_from_sources(ch, no)
         st = run_stage(ch, no, args.stage, title=title)
         print(f"ran stage: {args.stage}")
         pprint(st.__dict__)
         return
 
     if args.command == "run-all":
+        _sync_episode_targets_from_sources(ch, no)
         max_iter = args.max_iter
         last_pending = None
         for i in range(max_iter):
@@ -277,6 +372,7 @@ def main() -> None:
         return
 
     if args.command == "next":
+        _sync_episode_targets_from_sources(ch, no)
         st = run_next(ch, no, title=title)
         pprint(st.__dict__)
         return
@@ -290,6 +386,7 @@ def main() -> None:
         return
 
     if args.command == "validate":
+        _sync_episode_targets_from_sources(ch, no)
         from .validator import validate_stage
 
         errors = validate_stage(ch, no, _load_stage_defs())
@@ -304,7 +401,7 @@ def main() -> None:
     if args.command == "reconcile":
         from .runner import reconcile_status
 
-        st = reconcile_status(ch, no)
+        st = reconcile_status(ch, no, allow_downgrade=bool(getattr(args, "allow_downgrade", False)))
         print("reconciled status:")
         pprint(st.__dict__)
         return

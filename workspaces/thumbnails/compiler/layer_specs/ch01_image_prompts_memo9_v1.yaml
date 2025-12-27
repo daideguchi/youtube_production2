@@ -1,0 +1,219 @@
+version: 3
+name: CH01_image_prompts_memo9_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  left_TSZ:
+    x0: 0.00
+    x1: 0.60
+    rule: '左60%は文字スペース：暗く滑らか（物体/発光/粒子/模様禁止）'
+  subject_right:
+    x0_min: 0.55
+    x1_max: 1.00
+  forbid_text: true
+  style: memo9_illustration_ink_watercolor
+items:
+  - video_id: CH01-001
+    title: 'むしろ孤独は強みに変わる | ブッダの教え'
+    person_key: buddhist_monk
+    anchors: {prop: 'Holding dark wooden prayer beads', light: 'Warm golden halo + rim light'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (LOCKED):
+      Strong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.
+
+      COMPOSITION (LOCKED):
+      Place the main subject on the FAR RIGHT, pushing to the edge.
+      The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right.
+      The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).
+
+      SUBJECT (FIXED for CH01):
+      A powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.
+
+      POSE / GAZE (LOCKED):
+      3/4 view turned slightly LEFT, eyes looking toward the left text area, calm and dignified authority (NOT angry).
+
+      CROP (LOCKED):
+      Tight close-up (head + upper torso), large face, strong silhouette, head fully visible.
+
+      LIGHTING (LOCKED):
+      Warm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).
+
+      BACKGROUND (LOCKED):
+      Near-black / deep charcoal background, soft smoke/mist.
+      Very faint temple silhouettes ONLY behind the subject on the right side.
+      The left text area should be darker and smoother with minimal texture.
+
+      PROP (optional):
+      Holding dark wooden prayer beads
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+      NEGATIVE:
+      Avoid: angry face, shouting, open mouth, scary/horror, busy background, bright left area, high-detail textures on the left, heavy particles on the left, text/letters/numbers, watermark/logo/signature, cropped head.
+
+  - video_id: CH01-002
+    title: '完璧じゃなくていい | ブッダの教え'
+    person_key: buddhist_monk
+    anchors: {prop: 'Holding dark wooden prayer beads', light: 'Warm golden halo + rim light'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (LOCKED):
+      Strong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.
+
+      COMPOSITION (LOCKED):
+      Place the main subject on the FAR RIGHT, pushing to the edge.
+      The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right.
+      The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).
+
+      SUBJECT (FIXED for CH01):
+      A powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.
+
+      POSE / GAZE (LOCKED):
+      3/4 view turned slightly LEFT, eyes looking toward the left text area, calm and dignified authority (NOT angry).
+
+      CROP (LOCKED):
+      Tight close-up (head + upper torso), large face, strong silhouette, head fully visible.
+
+      LIGHTING (LOCKED):
+      Warm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).
+
+      BACKGROUND (LOCKED):
+      Near-black / deep charcoal background, soft smoke/mist.
+      Very faint temple silhouettes ONLY behind the subject on the right side.
+      The left text area should be darker and smoother with minimal texture.
+
+      PROP (optional):
+      Holding dark wooden prayer beads
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+      NEGATIVE:
+      Avoid: angry face, shouting, open mouth, scary/horror, busy background, bright left area, high-detail textures on the left, heavy particles on the left, text/letters/numbers, watermark/logo/signature, cropped head.
+
+  - video_id: CH01-003
+    title: '苦しみはむしろプラスになる | ブッダの教え'
+    person_key: buddhist_monk
+    anchors: {prop: 'Holding dark wooden prayer beads', light: 'Warm golden halo + rim light'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (LOCKED):
+      Strong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.
+
+      COMPOSITION (LOCKED):
+      Place the main subject on the FAR RIGHT, pushing to the edge.
+      The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right.
+      The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).
+
+      SUBJECT (FIXED for CH01):
+      A powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.
+
+      POSE / GAZE (LOCKED):
+      3/4 view turned slightly LEFT, eyes looking toward the left text area, calm and dignified authority (NOT angry).
+
+      CROP (LOCKED):
+      Tight close-up (head + upper torso), large face, strong silhouette, head fully visible.
+
+      LIGHTING (LOCKED):
+      Warm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).
+
+      BACKGROUND (LOCKED):
+      Near-black / deep charcoal background, soft smoke/mist.
+      Very faint temple silhouettes ONLY behind the subject on the right side.
+      The left text area should be darker and smoother with minimal texture.
+
+      PROP (optional):
+      Holding dark wooden prayer beads
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+      NEGATIVE:
+      Avoid: angry face, shouting, open mouth, scary/horror, busy background, bright left area, high-detail textures on the left, heavy particles on the left, text/letters/numbers, watermark/logo/signature, cropped head.
+
+  - video_id: CH01-004
+    title: '自分を縛る枠を壊す！自我の解体で見つける真の幸せ'
+    person_key: buddhist_monk
+    anchors: {prop: 'Holding dark wooden prayer beads', light: 'Warm golden halo + rim light'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (LOCKED):
+      Strong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.
+
+      COMPOSITION (LOCKED):
+      Place the main subject on the FAR RIGHT, pushing to the edge.
+      The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right.
+      The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).
+
+      SUBJECT (FIXED for CH01):
+      A powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.
+
+      POSE / GAZE (LOCKED):
+      3/4 view turned slightly LEFT, eyes looking toward the left text area, calm and dignified authority (NOT angry).
+
+      CROP (LOCKED):
+      Tight close-up (head + upper torso), large face, strong silhouette, head fully visible.
+
+      LIGHTING (LOCKED):
+      Warm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).
+
+      BACKGROUND (LOCKED):
+      Near-black / deep charcoal background, soft smoke/mist.
+      Very faint temple silhouettes ONLY behind the subject on the right side.
+      The left text area should be darker and smoother with minimal texture.
+
+      PROP (optional):
+      Holding dark wooden prayer beads
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+      NEGATIVE:
+      Avoid: angry face, shouting, open mouth, scary/horror, busy background, bright left area, high-detail textures on the left, heavy particles on the left, text/letters/numbers, watermark/logo/signature, cropped head.
+
+  - video_id: CH01-005
+    title: '反逆の瞑想 - 「ルールを破る瞑想、心の自由を解き放つ」'
+    person_key: buddhist_monk
+    anchors: {prop: 'Holding dark wooden prayer beads', light: 'Warm golden halo + rim light'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (LOCKED):
+      Strong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.
+
+      COMPOSITION (LOCKED):
+      Place the main subject on the FAR RIGHT, pushing to the edge.
+      The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right.
+      The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).
+
+      SUBJECT (FIXED for CH01):
+      A powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.
+
+      POSE / GAZE (LOCKED):
+      3/4 view turned slightly LEFT, eyes looking toward the left text area, calm and dignified authority (NOT angry).
+
+      CROP (LOCKED):
+      Tight close-up (head + upper torso), large face, strong silhouette, head fully visible.
+
+      LIGHTING (LOCKED):
+      Warm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).
+
+      BACKGROUND (LOCKED):
+      Near-black / deep charcoal background, soft smoke/mist.
+      Very faint temple silhouettes ONLY behind the subject on the right side.
+      The left text area should be darker and smoother with minimal texture.
+
+      PROP (optional):
+      Holding dark wooden prayer beads
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+      NEGATIVE:
+      Avoid: angry face, shouting, open mouth, scary/horror, busy background, bright left area, high-detail textures on the left, heavy particles on the left, text/letters/numbers, watermark/logo/signature, cropped head.
+

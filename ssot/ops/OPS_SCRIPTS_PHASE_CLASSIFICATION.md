@@ -66,7 +66,7 @@ notes: <消し忘れ防止の一言>
 
 ### Phase B. Script Pipeline（台本生成）
 - P0:
-  - 台本工場（入口固定/4モード）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <mode> ...`
+  - 台本工場（入口固定/5モード）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <mode> ...`
   - 生成主線: `python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
   - 長尺（セクション分割）: `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
   - 超長尺（Marathon）: `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
@@ -92,6 +92,7 @@ notes: <消し忘れ防止の一言>
 - P0:
   - UI（推奨）: `/thumbnails`
   - inventory同期（整合）: `python3 scripts/sync_thumbnail_inventory.py`（通常は start_manager guard で check）
+  - 統一CLI（量産/リテイク/QC）: `python scripts/thumbnails/build.py --help`
 
 ### Phase F. Publish（YouTube）
 - P0:
@@ -122,6 +123,14 @@ notes: <消し忘れ防止の一言>
 - タイトルを正として、汚染しやすい「テーマ補助列」だけを決定論で再整列:
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM`（dry-run）
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
+- 企画の上書き/部分更新（差分ログ）:
+  - `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml --apply`
+- 投稿済みロック（`published_lock`）の誤設定を修正:
+  - `python3 scripts/ops/publish_lock_cli.py unlock --channel CHxx --video NNN`
+  - 進捗を特定値へ戻す場合: `--restore-progress "script: drafted"`
+
+### Production Pack（量産投入前のスナップショット）
+- `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`
 
 ### Script（補助/リカバリ）
 - `python3 scripts/sanitize_a_text.py --channel CHxx --videos NNN --mode dry-run|run`（Aテキストから出典/URL等のメタ混入を退避→除去→同期）
@@ -129,9 +138,18 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/episode_ssot.py --help`（エピソード/パターンSSOTの監査・同期）
 - `python3 scripts/buddha_senior_5ch_prepare.py --help`（CH12–CH16 初期化/メタ補完の補助）
 - `python3 scripts/buddha_senior_5ch_generate_scripts.py --help`（CH12–CH16 の一括生成（APIなし）補助）
+- CH01（人生の道標）執筆補助:
+  - `python3 scripts/ch01/generate_prompt_input.py --video-id CH01-216`
+  - `python3 scripts/ch01/check_script.py workspaces/scripts/CH01/216/content/assembled_human.md`
+- CH01（人生の道標）移行（legacy台本のtext-only import）:
+  - `python3 scripts/ops/import_ch01_legacy_scripts.py --help`
 - channel_info 正規化（benchmarks/説明文/voice_config の足場）:
   - `python3 scripts/ops/channel_info_normalize.py`（dry-run）
   - `python3 scripts/ops/channel_info_normalize.py --apply`
+
+### Research（補助/索引）
+- `python3 scripts/ops/research_genre_index.py`（dry-run）
+- `python3 scripts/ops/research_genre_index.py --apply`（`workspaces/research/**/INDEX.md` を生成し、参照の迷いを減らす）
 
 ### Health / Audit
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
@@ -148,15 +166,15 @@ notes: <消し忘れ防止の一言>
 ### Reports（集計/確認）
 - `python3 scripts/aggregate_llm_usage.py`（LLM利用集計の簡易サマリ）
 - `python3 scripts/llm_usage_report.py` / `python3 scripts/llm_logs_combined_report.py`（ログ集計の補助）
+- `python3 scripts/ops/llm_usage_report.py --channel CHxx --video NNN`（1本単位のusage集計（routing_key=CHxx-NNN））
 - `python3 scripts/image_usage_report.py`（画像生成の利用状況サマリ）
 - `python3 scripts/audio_integrity_report.py`（final音声の整合/欠損チェック）
 - `python3 scripts/aggregate_voicevox_reading_logs.py`（VOICEVOX読みログの集計）
 - `python3 scripts/notifications.py`（Slack webhook の疎通/通知テスト）
 
 ### Bootstrap（内部依存・消さない）
-- `scripts/sitecustomize.py`（`python3 scripts/foo.py` で repo-root を sys.path に載せ `.env` をロードするための bootstrap）
-- `scripts/_bootstrap.py`（`python3 scripts/foo.py` から `packages/` を見えるようにする薄い bootstrap）
-- `scripts/ops/_bootstrap.py`（`python3 scripts/ops/foo.py` 用 bootstrap。ops系ツールが `from _bootstrap import bootstrap` で依存）
+- `scripts/_bootstrap.py`（`python3 scripts/<tool>.py` から `packages/` を見えるようにする薄い bootstrap）
+- `scripts/ops/_bootstrap.py`（`python3 scripts/ops/<tool>.py` 用 bootstrap。ops系ツールが `from _bootstrap import bootstrap` で依存）
 
 ### Video（補助）
 - `python3 scripts/build_video_payload.py --project-id <run_id>`（run_dir から CapCut/Remotion 互換の payload を生成）
@@ -164,6 +182,7 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/repair_manager.py --help`（SRT/Audio/Run の repair 補助。`ssot/ops/OPS_LOGGING_MAP.md` 参照）
 
 ### SRT（補助）
+- `python3 scripts/format_srt_linebreaks.py <in.srt> --in-place`（字幕本文に「意図した改行」を付与。内容は変えない）
 - `python3 scripts/generate_subtitles.py CHxx-NNN ...`（既存SRTのタイミングを保持して本文だけ差し替え）
 
 ### Audio（補助/バッチ）
@@ -182,10 +201,10 @@ notes: <消し忘れ防止の一言>
 - `bash scripts/ops/cleanup_caches.sh`（pycache等）
 - `python3 scripts/ops/restore_video_runs.py --report ...`（run復旧）
 - `python3 scripts/ops/logs_snapshot.py`（logsの現状スナップショット: 件数/サイズ）
-- `python3 scripts/ops/offload_archives_to_external.py`（dry-run既定）→ OKなら `--run`（`workspaces/**/_archive/**` と `backups/graveyard/**` を外部SSDへオフロード。`YTM_OFFLOAD_ROOT` で指定）
 - `python3 scripts/ops/cleanup_broken_symlinks.py --run`（壊れたsymlink削除: 探索ノイズ低減）
 - `python3 scripts/ops/cleanup_remotion_artifacts.py --run`（remotion生成物のローテ）
 - `python3 scripts/ops/prune_video_run_legacy_files.py --run`（video runs内の *.legacy.* を prune）
+- `python3 scripts/ops/archive_published_episodes.py --dry-run --channel CHxx`（Planningの `進捗=投稿済み` を根拠に、audio/thumbnails/video input/runs を横断で `_archive/` へ移動。`--run --yes` で実行）
 - `python3 scripts/ops/archive_capcut_local_drafts.py --run`（capcutローカルドラフトを _archive へ移動）
 - `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（thumbnails旧dirを _archive へ移動）
 - `python3 scripts/ops/purge_legacy_agent_task_queues.py --run`（旧agent task queue残骸を archive-first で削除）
@@ -200,7 +219,7 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/repo_ref_audit.py --target <path-or-glob> --stdout`（参照ゼロの機械棚卸し）
 - `python3 scripts/ops/repo_sanity_audit.py --verbose`（tracked symlink / ルート互換symlink の再混入ガード）
 - `bash scripts/ops/save_patch.sh`（gitが不安定な場合のパッチ保存）
-- `python3 scripts/ops/stage2_cutover_workspaces.py`（移設/互換symlink計画の一括適用。通常運用では触らない）
+- `python3 scripts/ops/init_workspaces.py --run`（workspaces/ の雛形生成（README/.gitignore）。互換symlink/旧aliasは作らない）
 
 ### Publish / OAuth（初回セットアップ）
 - `python3 scripts/drive_oauth_setup.py`（Drive OAuth 初回セットアップ）

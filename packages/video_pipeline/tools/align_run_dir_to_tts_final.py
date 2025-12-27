@@ -16,7 +16,7 @@ What it does:
   5) Overwrites image_cues.json (backup created) and writes timeline_manifest.json (strict validation).
 
 Usage:
-  python3 tools/align_run_dir_to_tts_final.py --run workspaces/video/runs/CH06-002_capcut_v1
+  PYTHONPATH=".:packages" python3 -m video_pipeline.tools.align_run_dir_to_tts_final --run workspaces/video/runs/CH06-002_capcut_v1
 """
 
 from __future__ import annotations
@@ -29,23 +29,12 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
-import sys
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
-
-
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+tool_bootstrap(load_env=False)
 
 from factory_common.paths import repo_root, video_pkg_root  # noqa: E402
 

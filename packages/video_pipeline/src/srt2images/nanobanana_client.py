@@ -17,16 +17,9 @@ from factory_common.image_client import (
     ImageGenerationError,
     ImageTaskOptions,
 )
-from factory_common.paths import repo_root, video_pkg_root
+from factory_common.paths import repo_root
 
-try:
-    from video_pipeline.src.core.config import config
-except ImportError:
-    # Fallback to relative import if the package isn't properly installed
-    import sys
-    project_root = video_pkg_root()
-    sys.path.insert(0, str(project_root / "src"))
-    from core.config import config
+from video_pipeline.src.core.config import config
 
 
 # ==== 429 Resilient Pipeline: QuotaExhaustedError ====
@@ -517,7 +510,7 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
     out_path = cue["image_path"]
     prompt = cue.get("prompt", cue.get("summary", ""))
     try:
-        # Prepend persona if available in run_dir (output/<run>/persona.*)
+        # Prepend persona if available in run_dir (workspaces/video/runs/<run_id>/persona.*)
         run_dir = Path(out_path).resolve().parent.parent  # images/.. -> run_dir
         persona_mode = _load_persona_mode(run_dir)
         persona = _load_persona(run_dir)

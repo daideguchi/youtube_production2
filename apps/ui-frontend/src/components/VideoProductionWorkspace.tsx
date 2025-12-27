@@ -52,6 +52,7 @@ import type {
 } from "../api/types";
 import { INTEGRITY_LABEL, getIntegrityStatusLabel } from "../copy/videoProduction";
 import { loadWorkspaceSelection, saveWorkspaceSelection } from "../utils/workspaceSelection";
+import { VideoImageVariantsPanel } from "./VideoImageVariantsPanel";
 
 type StepState = { id: string; label: string; state: "done" | "active" | "todo" | "danger" };
 type PipelineStepPlan = {
@@ -105,6 +106,7 @@ const STEP_SEQUENCE: Array<{ id: string; label: string }> = [
 const JOB_LABELS: Record<string, string> = {
   analyze_srt: "SRT解析",
   regenerate_images: "画像生成",
+  generate_image_variants: "画像バリアント",
   generate_belt: "帯生成",
   validate_capcut: INTEGRITY_LABEL,
   build_capcut_draft: "CapCutドラフト",
@@ -342,6 +344,14 @@ export function VideoProductionWorkspace() {
     }
     return channelPresets.find((preset) => preset.channelId === channelFilter) ?? null;
   }, [channelFilter, channelPresets]);
+
+  const projectChannelPreset = useMemo(() => {
+    const channelId = resolveChannelId(projectDetail?.summary ?? undefined);
+    if (channelId) {
+      return channelPresets.find((preset) => preset.channelId === channelId) ?? null;
+    }
+    return selectedChannelPreset;
+  }, [channelPresets, projectDetail?.summary, selectedChannelPreset]);
 
   const createChannelPreset = useMemo(() => {
     const channelId = normalizeChannelToken(projectCreateDraft.channelId);
@@ -1100,6 +1110,17 @@ export function VideoProductionWorkspace() {
             onReplace={handleImageReplace}
             onSelectImage={setActiveImageIndex}
           />
+          {projectDetail ? (
+            <details className="vp-section-block">
+              <summary>画像バリアント</summary>
+              <VideoImageVariantsPanel
+                project={projectDetail}
+                channelPreset={projectChannelPreset}
+                generationOptions={generationDraft}
+                onQuickJob={handleQuickJob}
+              />
+            </details>
+          ) : null}
           {projectDetail ? (
             <details className="vp-section-block" open>
               <summary>帯 / レイアウト</summary>

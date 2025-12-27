@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from factory_common import paths
+from factory_common.repo_layout import unexpected_repo_root_entries
 
 
 def _clear_caches():
@@ -54,3 +55,10 @@ def test_default_roots_point_to_current_layout():
 
     logs_new = root / "workspaces" / "logs"
     assert paths.logs_root() == logs_new
+
+
+def test_repo_root_has_no_unexpected_dirs_or_symlinks():
+    _clear_caches()
+    root = paths.repo_root()
+    unexpected = unexpected_repo_root_entries(root)
+    assert not unexpected, f"Unexpected repo-root dirs/symlinks: {[p.name for p in unexpected]}"

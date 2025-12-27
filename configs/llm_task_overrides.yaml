@@ -28,86 +28,241 @@ tasks:
       max_tokens: 8000
 
   # A-text quality gate (script_validation): reasoning Judge + Fixer
+  #
+  # NOTE (cost/quality):
+  # - DeepSeek V3.2 exp supports OpenRouter "reasoning.enabled" via `extra_body`.
+  # - We enforce thinking for script-writing tasks by attaching:
+  #     extra_body: { reasoning: { enabled: true, exclude: true } }
+  #   (The router will only forward this to OpenRouter + allowlisted models: V3.2 exp / Kimi K2 Thinking.)
+  # - If V3.2 is unavailable, we fall back to Kimi K2 Thinking (intrinsic reasoning) to keep "thinking required".
+
+  # Planning steps: prefer V3.2(exp)+thinking; fall back to Kimi K2 Thinking.
+  script_outline:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 2600
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  script_chapter_brief:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      response_format: json_object
+      temperature: 0.2
+      max_tokens: 2600
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  script_quality_check:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 2600
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  # Writing steps: thinking required.
+  script_topic_research:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 4200
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  script_chapter_draft:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 11000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  script_chapter_review:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 12000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  script_cta:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 1200
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  # Seed→Expand seed generation (one-shot short A-text).
+  script_a_text_seed:
+    tier: standard
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      max_tokens: 4096
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  # Semantic alignment (title/thumbnail ↔ script core).
+  script_semantic_alignment_check:
+    tier: standard
+    models:
+      - or_deepseek_v3_2_exp
+    options:
+      # NOTE: This task must return strict JSON.
+      # With OpenRouter reasoning enabled, some providers can burn the completion budget on internal reasoning
+      # and end up with finish_reason=length (empty / broken JSON). Keep this task "non-reasoning-param" for stability.
+      # Also: Kimi K2 Thinking can return empty content if called without `extra_body.reasoning.enabled`,
+      # so we intentionally avoid falling back to Kimi for this non-reasoning-param task.
+      max_tokens: 1600
+
+  script_semantic_alignment_fix:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
+    options:
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
   script_a_text_quality_judge:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_distill_qwen_32b
-      - or_deepseek_r1_0528
-      - or_deepseek_r1
+      - or_kimi_k2_thinking
     options:
       temperature: 0.0
       response_format: json_object
       # IMPORTANT: local llm_router config may not define per-task defaults for this task.
       # Without an explicit cap, OpenRouter can assume a very large max_tokens budget and 402 due to credits.
       max_tokens: 1800
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_a_text_quality_fix:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_distill_qwen_32b
-      - or_deepseek_r1_0528
-      - or_deepseek_r1
+      - or_kimi_k2_thinking
     options:
       temperature: 0.4
       # IMPORTANT: Keep below typical OpenRouter credit-limit ceilings to avoid 402 loops.
       # Must still be large enough to output a full A-text rewrite for long-form scripts.
       max_tokens: 11000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   # A-text hard rescue: extend-only (length shortage)
   script_a_text_quality_extend:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_0528
+      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
       max_tokens: 1200
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   # A-text hard rescue: expand-only (large length shortage; JSON insertions)
   script_a_text_quality_expand:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_0528
+      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
       max_tokens: 4096
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   # A-text hard rescue: shrink-only (length excess)
   script_a_text_quality_shrink:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_0528
+      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 11000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   # A-text rebuild (plan -> draft): last-resort for non-converging scripts
   script_a_text_rebuild_plan:
     tier: heavy_reasoning
     models:
-      - or_deepseek_r1_0528
       - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
       max_tokens: 1800
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   script_a_text_rebuild_draft:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_deepseek_r1_distill_qwen_32b
-      - or_deepseek_r1_0528
-      - or_deepseek_r1
+      - or_kimi_k2_thinking
     options:
       temperature: 0.25
       max_tokens: 11000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
 
   # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
   # script_outline:

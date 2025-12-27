@@ -111,7 +111,8 @@ if __name__ == "__main__":
 # Helpers for UI/backend -----------------------------------------------------
 
 def _load_cached_models() -> List[Dict[str, Any]]:
-    for p in (CONFIG_PATH, OUTPUT_PATH):
+    # Prefer the package SoT (OUTPUT_PATH). CONFIG_PATH is a local fallback only.
+    for p in (OUTPUT_PATH, CONFIG_PATH):
         if p.exists():
             try:
                 return json.loads(p.read_text(encoding="utf-8"))

@@ -93,7 +93,10 @@ export function WorkflowPage() {
     channel && video ? `/channels/${encodeURIComponent(channel)}/videos/${encodeURIComponent(video)}` : null;
   const scriptEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=script` : "/channel-workspace";
   const audioEditLink = episodeBaseLink ? `${episodeBaseLink}?tab=audio` : "/channel-workspace";
-  const audioIntegrityLink = channel && video ? `/audio-integrity?channel=${channel}&video=${video}` : "/audio-integrity";
+  const audioIntegrityLink =
+    channel && video
+      ? `/audio-integrity/${encodeURIComponent(channel)}/${encodeURIComponent(video)}`
+      : "/audio-integrity";
   const planningLink =
     channel && video ? `/planning?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/planning";
   const ttsListLink = channel ? `/audio-tts?channel=${encodeURIComponent(channel)}` : "/audio-tts";

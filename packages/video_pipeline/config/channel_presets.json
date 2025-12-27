@@ -26,7 +26,7 @@
       },
       "belt": {
         "enabled": true,
-        "opening_offset": 3.0,
+        "opening_offset": 0.0,
         "requires_config": true
       },
       "belt_labels": "",
@@ -327,7 +327,7 @@
       "persona_required": true,
       "image_min_bytes": 60000,
       "notes": "長尺睡眠導入動画。宇宙・潜在意識・引き寄せのイメージ。",
-      "status": "active"
+      "status": "draft"
     },
     "CH11": {
       "name": "未設定プレースホルダ11（偉人/人物系想定）",
@@ -428,7 +428,7 @@
       "persona_required": false,
       "image_min_bytes": 60000,
       "notes": "画像は15秒/枚を目安に分割。友人/近所/コミュニティの摩耗を“心理描写”で見せる。人物一貫性を最優先。",
-      "status": "active"
+      "status": "draft"
     },
     "CH23": {
       "name": "熟年夫婦の現実ノート",
@@ -463,7 +463,7 @@
       "persona_required": false,
       "image_min_bytes": 60000,
       "notes": "画像は15秒/枚を目安に分割。夫婦/家族/介護の摩耗を“心理描写”で見せる。人物一貫性を最優先。",
-      "status": "active"
+      "status": "draft"
     }
   }
 }

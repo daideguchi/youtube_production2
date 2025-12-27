@@ -100,10 +100,7 @@ export function ChannelListSection({
     <section className={containerClass}>
       {variant === "sidebar" ? (
         <header className="shell-panel__header">
-          <div>
-            <h2 className="shell-panel__title">チャンネル一覧</h2>
-            <p className="shell-panel__subtitle">全 {formatNumber(channels.length)} チャンネル</p>
-          </div>
+          <div />
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <Link className="shell-link" to="/channel-settings?add=1">
               ＋追加
@@ -145,7 +142,7 @@ export function ChannelListSection({
             {channels.map((channel) => {
               const stats = statsMap.get(channel.code);
               const displayName =
-                channel.branding?.title ?? channel.youtube_title ?? channel.name ?? channel.code;
+                channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
               const total = stats?.total ?? channel.video_count ?? 0;
               const scriptCompleted = stats?.script_completed ?? 0;
               const audioCompleted = stats?.audio_completed ?? 0;
@@ -167,9 +164,6 @@ export function ChannelListSection({
               );
               const youtubeUrl = channel.branding?.url ?? (customPath ? `https://www.youtube.com/${customPath}` : null);
               const launchDate = formatLaunchDate(channel.branding?.launch_date);
-              const spreadsheetUrl = channel.spreadsheet_id
-                ? `https://docs.google.com/spreadsheets/d/${channel.spreadsheet_id}`
-                : null;
               const primaryMetrics = [
                 { key: "videos", icon: "🗂️", label: "案件数", value: formatNumber(total) },
                 { key: "script", icon: "📝", label: "台本完了", value: formatPercent(scriptCompleted, total) },
@@ -211,7 +205,7 @@ export function ChannelListSection({
                     className={cardClass(isActive)}
                     onClick={() => handleSelect(channel.code)}
                     aria-label={`${displayName} の詳細を表示`}
-                >
+                  >
                     <div className="channel-sidebar-card">
                       <div className="channel-sidebar-card__row">
                         <div
@@ -224,34 +218,7 @@ export function ChannelListSection({
                         <div className="channel-sidebar-card__texts">
                           <span className="channel-sidebar-card__code">{channel.code}</span>
                           <span className="channel-sidebar-card__name">{displayName}</span>
-                          {genreLabel ? <span className="channel-sidebar-card__genre">{genreLabel}</span> : null}
                         </div>
-                      </div>
-                      <div className="channel-sidebar-card__links">
-                        {spreadsheetUrl ? (
-                          <a
-                            href={spreadsheetUrl}
-                            className="channel-sidebar-card__link"
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            管理シート ↗
-                          </a>
-                        ) : (
-                          <span className="channel-sidebar-card__link channel-sidebar-card__link--disabled">管理シート情報なし</span>
-                        )}
-                        {youtubeUrl ? (
-                          <a
-                            href={youtubeUrl}
-                            className="channel-sidebar-card__link"
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            YouTube ↗
-                          </a>
-                        ) : null}
                       </div>
                     </div>
                   </button>

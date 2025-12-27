@@ -14,7 +14,17 @@ import json
 import sys
 from pathlib import Path
 
-CONFIG_WHITELIST = Path(__file__).resolve().parent.parent / "config" / "track_whitelist.json"
+
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
+
+tool_bootstrap(load_env=False)
+
+from factory_common.paths import video_pkg_root  # noqa: E402
+
+CONFIG_WHITELIST = video_pkg_root() / "config" / "track_whitelist.json"
 
 
 def load_json(path: Path):

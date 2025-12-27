@@ -40,6 +40,11 @@ stages:
         AUDIENCE_PROFILE: from_persona
         CHANNEL_STYLE_GUIDE: from_style
         CHAPTER_COUNT: from_chapter_count
+  - name: script_master_plan
+    description: Build master plan (deterministic; optionally LLM-refined)
+    outputs:
+      - path: content/analysis/master_plan.json
+        required: true
   - name: chapter_brief
     description: Chapter-level brief instructions
     outputs:

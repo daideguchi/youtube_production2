@@ -5,28 +5,15 @@ import argparse
 import hashlib
 import json
 import os
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
-def _discover_repo_root(start: Path) -> Path:
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate.resolve()
-    return cur.resolve()
+from _bootstrap import bootstrap
 
 
-# Make repo-root imports work even when executed from another CWD.
-_REPO_ROOT = _discover_repo_root(Path(__file__).resolve())
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
-_PACKAGES_ROOT = _REPO_ROOT / "packages"
-if _PACKAGES_ROOT.exists() and str(_PACKAGES_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PACKAGES_ROOT))
-
+bootstrap(load_env=False)
 
 from factory_common.paths import audio_final_dir, script_data_root, status_path, video_root, video_runs_root, workspace_root  # noqa: E402
 from factory_common.timeline_manifest import parse_episode_id  # noqa: E402

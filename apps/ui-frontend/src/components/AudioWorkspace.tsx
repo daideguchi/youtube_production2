@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { VideoDetail } from "../api/types";
+import { apiUrl } from "../api/baseUrl";
+import { fetchPlainTtsScript, runAudioTtsFromScript } from "../api/client";
 import { translateStatus } from "../utils/i18n";
-import { API_BASE_URL, fetchPlainTtsScript, runAudioTtsFromScript } from "../api/client";
+import { resolveMediaUrl } from "../utils/url";
 
 type AudioWorkspaceHandlers = {
   onSaveSrt: (content: string) => Promise<unknown>;
@@ -203,33 +205,24 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
   );
 
   const audioPlaybackUrl = useMemo(() => {
-    const url = latestAudioUrl ?? detail.audio_url;
-    if (!url) {
+    const resolved = resolveMediaUrl(latestAudioUrl ?? detail.audio_url);
+    if (!resolved) {
       return null;
     }
-    if (/^https?:/i.test(url)) {
-      const separator = url.includes("?") ? "&" : "?";
-      return `${url}${separator}v=${encodeURIComponent(versionToken)}`;
-    }
-    const normalized = url.startsWith("/") ? url : `/${url}`;
-    const base = `${API_BASE_URL}${normalized}`;
-    const separator = base.includes("?") ? "&" : "?";
-    return `${base}${separator}v=${encodeURIComponent(versionToken)}`;
+    const separator = resolved.includes("?") ? "&" : "?";
+    return `${resolved}${separator}v=${encodeURIComponent(versionToken)}`;
   }, [detail.audio_url, latestAudioUrl, versionToken]);
 
   const srtDownloadUrl = useMemo(() => {
     if (latestSrtUrl) {
-      if (/^https?:/i.test(latestSrtUrl)) {
-          const separator = latestSrtUrl.includes("?") ? "&" : "?";
-          return `${latestSrtUrl}${separator}v=${encodeURIComponent(versionToken)}`;
+      const resolved = resolveMediaUrl(latestSrtUrl);
+      if (!resolved) {
+        return null;
       }
-      const normalized = latestSrtUrl.startsWith("/") ? latestSrtUrl : `/${latestSrtUrl}`;
-      const base = `${API_BASE_URL}${normalized}`;
-      const separator = base.includes("?") ? "&" : "?";
-      return `${base}${separator}v=${encodeURIComponent(versionToken)}`;
+      const separator = resolved.includes("?") ? "&" : "?";
+      return `${resolved}${separator}v=${encodeURIComponent(versionToken)}`;
     }
-    const base = API_BASE_URL?.replace(/\/$/, "") ?? "";
-    const path = `${base}/api/channels/${encodeURIComponent(detail.channel)}/videos/${encodeURIComponent(detail.video)}/srt`;
+    const path = apiUrl(`/api/channels/${encodeURIComponent(detail.channel)}/videos/${encodeURIComponent(detail.video)}/srt`);
     const separator = path.includes("?") ? "&" : "?";
     return `${path}${separator}v=${encodeURIComponent(versionToken)}`;
   }, [detail.channel, detail.video, latestSrtUrl, versionToken]);
@@ -255,33 +248,33 @@ export function AudioWorkspace({ detail, handlers, refreshing, onDirtyChange, sh
         : "";
       setRunMessage(`TTS実行成功: engine=${res.engine ?? "n/a"}, wav=${res.wav_path}${metaLabel}`);
       // 最新ファイルを即反映
-      const absoluteWav = /^https?:/i.test(res.wav_path)
-        ? res.wav_path
-        : `${API_BASE_URL}${res.wav_path.startsWith("/") ? res.wav_path : `/${res.wav_path}`}`;
-      setLatestAudioUrl(absoluteWav);
+      const absoluteWav = resolveMediaUrl(res.wav_path);
+      if (absoluteWav) {
+        setLatestAudioUrl(absoluteWav);
+      }
       if (res.srt_path) {
-        const absoluteSrt = /^https?:/i.test(res.srt_path)
-          ? res.srt_path
-          : `${API_BASE_URL}${res.srt_path.startsWith("/") ? res.srt_path : `/${res.srt_path}`}`;
-        setLatestSrtUrl(absoluteSrt);
+        const absoluteSrt = resolveMediaUrl(res.srt_path);
+        if (absoluteSrt) {
+          setLatestSrtUrl(absoluteSrt);
+        }
       }
       if (res.final_wav) {
-        const absoluteFinalWav = /^https?:/i.test(res.final_wav)
-          ? res.final_wav
-          : `${API_BASE_URL}${res.final_wav.startsWith("/") ? res.final_wav : `/${res.final_wav}`}`;
-        setLatestAudioUrl(absoluteFinalWav);
+        const absoluteFinalWav = resolveMediaUrl(res.final_wav);
+        if (absoluteFinalWav) {
+          setLatestAudioUrl(absoluteFinalWav);
+        }
       }
       if (res.final_srt) {
-        const absoluteFinalSrt = /^https?:/i.test(res.final_srt)
-          ? res.final_srt
-          : `${API_BASE_URL}${res.final_srt.startsWith("/") ? res.final_srt : `/${res.final_srt}`}`;
-        setLatestSrtUrl(absoluteFinalSrt);
+        const absoluteFinalSrt = resolveMediaUrl(res.final_srt);
+        if (absoluteFinalSrt) {
+          setLatestSrtUrl(absoluteFinalSrt);
+        }
       }
       if (res.log) {
-        const absoluteLog = /^https?:/i.test(res.log)
-          ? res.log
-          : `${API_BASE_URL}${res.log.startsWith("/") ? res.log : `/${res.log}`}`;
-        setLatestLogUrl(absoluteLog);
+        const absoluteLog = resolveMediaUrl(res.log);
+        if (absoluteLog) {
+          setLatestLogUrl(absoluteLog);
+        }
       }
     } catch (runErr) {
       const msg = runErr instanceof Error ? runErr.message : String(runErr ?? "TTS実行に失敗しました");

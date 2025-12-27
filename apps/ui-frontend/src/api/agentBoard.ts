@@ -1,4 +1,5 @@
 import type { AgentBoard } from "../types/agentBoard";
+import { apiUrl } from "./baseUrl";
 
 export type AgentBoardGetResponse = {
   queue_dir: string;
@@ -33,8 +34,15 @@ export type AgentBoardAreaSetRequest = {
   clear?: boolean;
 };
 
+function buildUrl(path: string): string {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return apiUrl(path);
+}
+
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const resp = await fetch(path, {
+  const resp = await fetch(buildUrl(path), {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -72,4 +80,3 @@ export async function postAgentBoardArea(body: AgentBoardAreaSetRequest): Promis
     body: JSON.stringify(body),
   });
 }
-

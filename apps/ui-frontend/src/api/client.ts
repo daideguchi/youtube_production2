@@ -1,6 +1,8 @@
 import {
   ApiErrorShape,
   AudioReviewItem,
+  BatchTtsProgressResponse,
+  BatchTtsStartResponse,
   BatchQueueEntry,
   BatchWorkflowLogResponse,
   BatchWorkflowRequestPayload,
@@ -65,6 +67,9 @@ import {
   RemotionProjectSummary,
   VideoGenerationOptions,
   VideoProjectCapcutSettings,
+  VideoImageModelInfo,
+  VideoImageStylePreset,
+  VideoImageVariantsResponse,
   LlmSettings,
   LlmSettingsUpdate,
   LlmModelInfo,
@@ -83,6 +88,8 @@ import {
   ResearchFileResponse,
   UiParams,
   UiParamsResponse,
+  AudioCheckLog,
+  AudioCheckRecentItem,
   AudioIntegrityItem,
   AudioAnalysis,
   PublishLockPayload,
@@ -99,14 +106,14 @@ import {
   SrtSegmentsArtifact,
   VisualCuesPlanArtifact,
   VisualCuesPlanUpdatePayload,
+  TtsProgressResponse,
 } from "./types";
 
-import { apiUrl } from "../utils/apiClient";
+import { apiUrl } from "./baseUrl";
 
 export type { VideoJobCreatePayload, VideoProjectCreatePayload } from "./types";
 
-const DEFAULT_API_BASE_URL = ""; // use relative path by default
-export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? DEFAULT_API_BASE_URL;
+export { API_BASE_URL } from "./baseUrl";
 
 type GitHubRepoInfo = {
   owner: string;
@@ -928,6 +935,79 @@ export function fetchBatchWorkflowLog(taskId: string, tail = 200): Promise<Batch
   return request<BatchWorkflowLogResponse>(path);
 }
 
+export function fetchTtsProgress(): Promise<TtsProgressResponse> {
+  return request<TtsProgressResponse>("/api/tts-progress");
+}
+
+export function fetchBatchTtsProgress(): Promise<BatchTtsProgressResponse> {
+  return request<BatchTtsProgressResponse>("/api/batch-tts/progress");
+}
+
+export function startBatchTtsRegeneration(channels: string[]): Promise<BatchTtsStartResponse> {
+  return request<BatchTtsStartResponse>("/api/batch-tts/start", {
+    method: "POST",
+    body: JSON.stringify({ channels }),
+  });
+}
+
+export function fetchBatchTtsLog(): Promise<string> {
+  return requestText("/api/batch-tts/log", { cache: "no-store" });
+}
+
+export async function resetBatchTts(): Promise<void> {
+  await request<void>("/api/batch-tts/reset", { method: "POST" });
+}
+
+export interface ScriptPipelineJob {
+  id: string;
+  status: string;
+  channel: string;
+  video: string;
+  title?: string;
+  attempts?: number;
+  max_retries?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+type ScriptPipelineJobsListResponse = {
+  raw: string;
+  data?: unknown;
+};
+
+type ScriptPipelineJobsRawResponse = {
+  raw: string;
+};
+
+function isScriptPipelineJob(value: unknown): value is ScriptPipelineJob {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.status === "string" &&
+    typeof v.channel === "string" &&
+    typeof v.video === "string"
+  );
+}
+
+export async function fetchScriptPipelineJobs(): Promise<{ raw: string; jobs: ScriptPipelineJob[] }> {
+  const payload = await request<ScriptPipelineJobsListResponse>("/api/jobs");
+  const jobs = Array.isArray(payload.data) ? payload.data.filter(isScriptPipelineJob) : [];
+  return {
+    raw: payload.raw ?? "",
+    jobs,
+  };
+}
+
+export function purgeScriptPipelineJobs(): Promise<ScriptPipelineJobsRawResponse> {
+  return request<ScriptPipelineJobsRawResponse>("/api/jobs/purge", { method: "POST" });
+}
+
+export function cancelScriptPipelineJob(jobId: string): Promise<ScriptPipelineJobsRawResponse> {
+  const params = new URLSearchParams({ job_id: jobId });
+  return request<ScriptPipelineJobsRawResponse>(`/api/jobs/cancel?${params.toString()}`, { method: "POST" });
+}
+
 export function fetchAudioReviewItems(params?: { channel?: string; status?: string; video?: string }): Promise<AudioReviewItem[]> {
   const search = new URLSearchParams();
   if (params?.channel) {
@@ -1317,6 +1397,44 @@ export function fetchAudioAnalysis(channel: string, video: string): Promise<Audi
   return request<AudioAnalysis>(`/api/audio/analysis/${encodeURIComponent(channel)}/${encodeURIComponent(video)}`);
 }
 
+export function fetchAudioCheckRecent(limit = 10): Promise<AudioCheckRecentItem[]> {
+  const search = new URLSearchParams();
+  if (limit) {
+    search.set("limit", String(limit));
+  }
+  const path = `/api/audio-check/recent${search.toString() ? `?${search.toString()}` : ""}`;
+  return request<AudioCheckRecentItem[]>(path);
+}
+
+export async function fetchAudioCheckLog(channel: string, video: string): Promise<AudioCheckLog | null> {
+  const path = `/api/audio-check/${encodeURIComponent(channel)}/${encodeURIComponent(video)}`;
+  const response = await fetch(buildUrl(path), {
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    let message = `${response.status} ${response.statusText}`;
+    try {
+      const data: ApiErrorShape = await response.json();
+      if (data.detail) {
+        message = data.detail;
+      }
+    } catch (error) {
+      // ignore parse failure
+    }
+    throw new Error(message);
+  }
+  if (response.status === 204) {
+    return null;
+  }
+  return (await response.json()) as AudioCheckLog;
+}
+
 type SourceStatusResponse = {
   channel?: string | null;
   video_number?: string | null;
@@ -1397,6 +1515,10 @@ type VideoProjectDetailResponse = Omit<
 };
 type VideoProductionChannelPresetResponse = VideoProductionChannelPreset & {
   channel_id: string;
+  image_generation?: {
+    base_period?: number | string | null;
+    model_key?: string | null;
+  } | null;
   prompt_template?: string | null;
   capcut_template?: string | null;
   persona_required?: boolean;
@@ -1515,6 +1637,17 @@ function normalizeChannelPreset(raw: VideoProductionChannelPresetResponse): Vide
   return {
     ...rest,
     channelId: raw.channel_id,
+    imageGeneration: raw.image_generation
+      ? {
+          basePeriod:
+            typeof raw.image_generation.base_period === "number"
+              ? raw.image_generation.base_period
+              : raw.image_generation.base_period != null
+                ? Number(raw.image_generation.base_period)
+                : null,
+          modelKey: raw.image_generation.model_key ?? null,
+        }
+      : undefined,
     promptTemplate: raw.promptTemplate ?? raw.prompt_template ?? null,
     capcutTemplate: raw.capcutTemplate ?? raw.capcut_template ?? null,
     personaRequired: raw.personaRequired ?? raw.persona_required ?? undefined,
@@ -1869,6 +2002,20 @@ export async function fetchVideoProductionChannels(includeSrts = false): Promise
   const suffix = query ? `?${query}` : "";
   const data = await request<VideoProductionChannelPresetResponse[]>(`/api/video-production/channels${suffix}`);
   return data.map(normalizeChannelPreset);
+}
+
+export function fetchVideoImageModels(): Promise<VideoImageModelInfo[]> {
+  return request<VideoImageModelInfo[]>("/api/video-production/image-models");
+}
+
+export function fetchVideoImageStylePresets(): Promise<VideoImageStylePreset[]> {
+  return request<VideoImageStylePreset[]>("/api/video-production/image-style-presets");
+}
+
+export function fetchVideoImageVariants(projectId: string): Promise<VideoImageVariantsResponse> {
+  return request<VideoImageVariantsResponse>(
+    `/api/video-production/projects/${encodeURIComponent(projectId)}/image-variants`
+  );
 }
 
 export function fetchChannelPreset(channelId: string): Promise<VideoProductionChannelPreset> {

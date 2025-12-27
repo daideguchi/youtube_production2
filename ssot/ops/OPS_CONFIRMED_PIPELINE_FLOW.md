@@ -52,7 +52,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 1.1 .env / 環境変数ロード
 - 秘密鍵・モデル設定は **リポジトリ直下 `.env` が正本**。  
-- Python起動時: `sitecustomize.py` と各CLIが `.env` を強制ロードする（CWD非依存）。  
+- Python起動時: `scripts/with_ytm_env.sh <cmd>`（推奨）で `.env` を export する。`_bootstrap` は repo root/`packages` を sys.path に入れ、`.env` を fail-soft でロードする（CWD非依存）。  
 - シェル/Node等: `scripts/with_ytm_env.sh <cmd>` を通して `.env` をexportして実行。
 - 例外的に各パッケージ内 `.env` / `credentials/*` へ複製は禁止（`ssot/ops/OPS_ENV_VARS.md` 参照）。
 
@@ -98,24 +98,24 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI（正規）:  
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli init --channel CHxx --video NNN --title "<title>"`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage <stage>`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli init --channel CHxx --video NNN --title "<title>"`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage <stage>`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
 - UI（補助）: `/api/script-*` 系（main.py側でrunner呼び出し）
 
 **補助ツール（推奨 / 事故防止）**
 - Aテキスト決定論lint（反復/禁則混入の早期検出）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 - 長尺Aテキスト（セクション分割→合成）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run。出力: `content/analysis/section_compose/`）
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`（反映＋`script_validation`をpending化して安全に再ゲート）
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run。出力: `content/analysis/section_compose/`）
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`（反映＋`script_validation`をpending化して安全に再ゲート）
   - セクション単位の決定論バリデーションでNGなら **そのセクションだけ**自動再生成（最大N回、既定3）
   - 組み上げ後に禁則違反が残る場合は **組み上げのみ**再試行（最大M回、既定1）
   - 設計詳細: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 - 超長尺Aテキスト（2〜3時間級 / 全文LLM禁止: Marathon）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`（planのみ）
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run: `content/analysis/longform/`）
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`（canonical を上書き）
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`（planのみ）
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run: `content/analysis/longform/`）
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`（canonical を上書き）
   - 設計詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`
 
 **SoT / Inputs**
@@ -143,23 +143,29 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 2. `script_outline`
    - Outputs:
      - `content/outline.md` (required)
-3. `chapter_brief`
+3. `script_master_plan`
+   - Outputs:
+     - `content/analysis/master_plan.json` (required)
+   - 注:
+     - デフォルトは決定論（SSOT patterns）で作成する（LLMなし）。
+     - 任意で高コスト推論（例: Opus）を **ここで1回だけ**使い、設計図サマリを補強できる（コスト暴走防止ガードあり）。
+4. `chapter_brief`
    - Outputs:
      - `content/chapters/chapter_briefs.json` (required)
-4. `script_draft`
+5. `script_draft`
    - Outputs:
      - `content/chapters/chapter_1.md` (required, 以後章数分増える想定)
-5. `script_enhancement`
+6. `script_enhancement`
    - Outputs: なし（内容改善のみ）
-6. `script_review`
+7. `script_review`
    - Outputs:
      - `content/assembled.md` (required)  ※最終Aテキスト
      - `content/final/cta.txt` (optional)
      - `content/final/scenes.json` (optional)
-7. `quality_check`
+8. `quality_check`
    - Outputs:
      - `content/analysis/research/quality_review.md` (required)
-8. `script_validation`
+9. `script_validation`
    - Outputs: なし（status.json の stage details に結果を記録）
    - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`, `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`）
      - チェック対象: `content/assembled_human.md`（優先）→ `content/assembled.md`
@@ -168,10 +174,14 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - NG の場合は **LLM Fixer** が “必要最小限の加除修正” を行い、再度 Judge を回す（既定: 最大3回。`SCRIPT_VALIDATION_LLM_MAX_ROUNDS=3`、コード上限=3）。
          - コスト優先なら `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる（ただし不合格率が上がる）。
        - 目的: 「字数だけ満たす低品質」「不自然な流れ」「同趣旨の水増し」を構造的に排除する。
-       - 証跡: `status.json: stages.script_validation.details` と、`content/analysis/quality_gate/` に judge/fix レポートを保存する。
+       - 証跡:
+         - `status.json: stages.script_validation.details`（合否/統計/レポートパス）
+         - `content/analysis/quality_gate/`（judge/fix レポート）
+         - `content/analysis/quality_gate/judge_latest.json`（LLM Judgeの要点: summary/must_fix/nice_to_fix）
+         - `content/analysis/alignment/semantic_alignment.json`（意味整合の要点: mismatch_points/fix_actions）
      - 企画↔台本の整合も検証する（alignment freshness gate）
        - `status.json: metadata.alignment` が missing/suspect/不一致（Planning行 or Aテキストが変更された）なら **pending のまま停止**
-       - 修復: `./scripts/with_ytm_env.sh .venv/bin/python scripts/enforce_alignment.py --channels CHxx --apply`（または `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
+       - 修復: `./scripts/with_ytm_env.sh python3 scripts/enforce_alignment.py --channels CHxx --apply`（または `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
      - タイトル/サムネ↔台本の意味整合も検証する（semantic alignment gate）
        - レポート: `content/analysis/alignment/semantic_alignment.json`
        - 既定では `verdict: major` のみ停止（ok/minor は合格）
@@ -179,10 +189,10 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
          - 厳密にする場合（ok 以外は停止）: `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）
          - 数の約束（例: 「7つ」）は、台本側の `一つ目〜Nつ目` を決定論でサニティチェックし、LLMの誤判定で止まる事故を防ぐ。
        - 手動修復（最小リライト）:
-         - major のみ修復: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
-         - minor も修復: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
+         - major のみ修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
+         - minor も修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
      - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
-9. `audio_synthesis`（Audioフェーズ呼び出し口）
+10. `audio_synthesis`（Audioフェーズ呼び出し口）
    - Outputs（参照先はAudio側で確定）:
      - `audio_prep/script_sanitized.txt` (required)
      - `audio_prep/chunks/` (optional)

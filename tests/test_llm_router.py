@@ -131,6 +131,75 @@ class TestLLMRouter(unittest.TestCase):
         os.environ["LLM_FORCE_MODELS"] = "does_not_exist"
         self.assertEqual(router.get_models_for_task("general"), ["m_a"])
 
+    def test_force_models_openrouter_model_id_alias(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "or_deepseek_v3_2_exp": {
+                    "provider": "openrouter",
+                    "model_name": "deepseek/deepseek-v3.2-exp",
+                    "capabilities": {"mode": "chat"},
+                },
+            },
+            "tiers": {"standard": ["or_deepseek_v3_2_exp"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "deepseek/deepseek-v3.2-exp"
+        self.assertEqual(router.get_models_for_task("general"), ["or_deepseek_v3_2_exp"])
+
+    def test_force_models_openrouter_prefixed_alias(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "or_deepseek_v3_2_exp": {
+                    "provider": "openrouter",
+                    "model_name": "deepseek/deepseek-v3.2-exp",
+                    "capabilities": {"mode": "chat"},
+                },
+            },
+            "tiers": {"standard": ["or_deepseek_v3_2_exp"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "openrouter:deepseek/deepseek-v3.2-exp"
+        self.assertEqual(router.get_models_for_task("general"), ["or_deepseek_v3_2_exp"])
+
+    def test_force_models_azure_deployment_alias(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"azure": {"env_api_key": "AZURE_OPENAI_API_KEY", "env_endpoint": "AZURE_OPENAI_ENDPOINT"}},
+            "models": {
+                "azure_gpt5_mini": {
+                    "provider": "azure",
+                    "deployment": "gpt-5-mini",
+                    "capabilities": {"mode": "chat"},
+                },
+            },
+            "tiers": {"standard": ["azure_gpt5_mini"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "gpt-5-mini"
+        self.assertEqual(router.get_models_for_task("general"), ["azure_gpt5_mini"])
+
+    def test_force_models_alias_ambiguous_falls_back(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
+            "models": {
+                "m_a": {"provider": "openrouter", "model_name": "dup", "capabilities": {"mode": "chat"}},
+                "m_b": {"provider": "openrouter", "model_name": "dup", "capabilities": {"mode": "chat"}},
+            },
+            "tiers": {"standard": ["m_a", "m_b"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "dup"
+        self.assertEqual(router.get_models_for_task("general"), ["m_a", "m_b"])
+
     def test_force_task_models_invalid_json_falls_back(self):
         router = LLMRouter()
         router.config = {

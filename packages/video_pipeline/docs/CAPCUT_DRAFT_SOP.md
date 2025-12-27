@@ -29,14 +29,14 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \
 - `auto_capcut_run` が `belt_config.json` を適用し、`inject_title_json` でタイトルを注入。
 - CapCut draft: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/<ep>_draft`
 - `auto_run_info.json` を確認: `belt_mode=grouped`, `template`, `title`, `replacements` をログ。
-- CH01 の時間オフセット: 映像/帯/タイトルは +3.0s に配置し、0-3s は黒画面。BGM・字幕は 0 秒開始のまま。
+- CH01 の時間オフセット: `opening_offset=0.0s`（映像/帯/タイトルも 0 秒開始。黒画面挿入なし）。
 
 ## 4. Image regen + replace（唯一の方法）
 1) `image_regenerator` で `custom_prompt=persona付き` で再生成（必要カットのみ）。  
 2) `safe_image_swap.py` **のみ使用する**（他の差し替えツールは使用禁止）  
-   - 例: `GEMINI_API_KEY=... python3 tools/safe_image_swap.py --run-dir <run> --draft "<draft_path>" --indices <list> --style-mode illustration --custom-prompt "<persona>" --only-allow-draft-substring "手動調整後4" --skip-full-sync`  
+   - 例: `GEMINI_API_KEY=... PYTHONPATH=".:packages" python3 -m video_pipeline.tools.safe_image_swap --run-dir <run> --draft "<draft_path>" --indices <list> --style-mode illustration --custom-prompt "<persona>" --only-allow-draft-substring "手動調整後4" --skip-full-sync`  
    - draft_content の srt2images セグメントだけを差し替え、draft_info のトラック構造は触らない。  
-   - 差し替え後、`tools/sync_srt2images_materials.py --draft "<draft_path>"` で srt2images トラックの material_id を draft_info に同期（timerange/トラック構造は不変）。  
+   - 差し替え後、`PYTHONPATH=".:packages" python3 -m video_pipeline.tools.sync_srt2images_materials --draft "<draft_path>"` で srt2images トラックの material_id を draft_info に同期（timerange/トラック構造は不変）。  
 3) CapCutで該当カットを目視確認。  
 4) `auto_run_info.json` の `replacements` を確認。必要なら `docs/run_notes*.md` に番号を追記。
 

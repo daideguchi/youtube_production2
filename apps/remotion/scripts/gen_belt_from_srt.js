@@ -43,7 +43,7 @@ const REMOTION_ROOT = path.join(REPO_ROOT, "apps", "remotion");
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const opts = { labels: 4, noFallback: false, openingOffset: 3.0 };
+  const opts = { labels: 4, noFallback: false, openingOffset: 0.0 };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === "--srt") opts.srt = args[++i];
@@ -51,7 +51,7 @@ function parseArgs() {
     else if (a === "--labels") opts.labels = Math.max(1, Number(args[++i] || 4));
     else if (a === "--title") opts.title = args[++i];
     else if (a === "--no-fallback") opts.noFallback = true;
-    else if (a === "--opening-offset") opts.openingOffset = Number(args[++i] || 3.0);
+    else if (a === "--opening-offset") opts.openingOffset = Number(args[++i] || 0.0);
   }
   if (!opts.srt) throw new Error("--srt <file> is required");
   return opts;

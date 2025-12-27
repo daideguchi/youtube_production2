@@ -11,6 +11,7 @@
 - レガシー判定/削除基準: `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`
 - 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
 - パスSSOT（コード）: `packages/factory_common/paths.py`
+- repo rootレイアウト（ガード/許可リスト）: `packages/factory_common/repo_layout.py`
 
 ---
 
@@ -32,8 +33,9 @@
   - 生成物（ログ/成果物）は `workspaces/` へ。
 - `packages/`:
   - Pythonパッケージ群（`script_pipeline`, `audio_tts`, `video_pipeline`, `factory_common` 等）。
+  - 注: `script_pipeline` は現行の **パッケージ名**（`packages/script_pipeline/`）。repo root 直下に `script_pipeline/` が見える場合は **旧資産/誤残置**（互換symlink含む）なので撤去対象。
   - 生成物を置かない（例外: テスト用の小さなfixture）。
-  - 旧名（`audio_tts_v2`, `commentary_02_srt2images_timeline`）は廃止。SSOT/コード/運用コマンドで使わない。
+  - 旧名/互換aliasの履歴は `ssot/history/LEGACY_ALIASES.md` に退避（現行フローでは参照しない）。
 - `scripts/`:
   - 運用CLI（thin wrapper / orchestration / ops）。
   - “恒久的なロジック”は原則 `packages/` へ寄せ、`scripts/` は入口に徹する。

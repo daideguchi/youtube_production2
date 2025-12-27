@@ -9,16 +9,17 @@ Safe image swapper for existing CapCut drafts.
 - 実行前にドラフト全体をバックアップ（タイムスタンプ付）しておく。
 
 使い方:
-  # まず --dry-run（デフォルト）で計画確認
-  GEMINI_API_KEY=... python3 tools/safe_image_swap.py \
-      --run-dir output/jinsei195_v1 \
+  # デフォルトはプレビュー（--apply なし）
+  GEMINI_API_KEY=... PYTHONPATH=".:packages" python3 -m video_pipeline.tools.safe_image_swap \
+      --run-dir workspaces/video/runs/<run_id> \
       --draft "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/195_draft" \
       --indices 4 5 6 \
       --style-mode illustration \
-      --custom-prompt "Persona指示をここに"
+      --custom-prompt "Persona指示をここに" \
+      --only-allow-draft-substring "手動調整後4"
 
   # 実行する場合は --apply を必ず付ける（バックアップ→差し替え→同期）
-  GEMINI_API_KEY=... python3 tools/safe_image_swap.py ... --apply
+  GEMINI_API_KEY=... PYTHONPATH=".:packages" python3 -m video_pipeline.tools.safe_image_swap ... --apply
 
 前提:
 - run_dir に新しい画像を生成できること（Geminiキーが必要）。
@@ -34,21 +35,12 @@ import time
 import json
 from pathlib import Path
 
-def _bootstrap_repo_root() -> Path:
-    start = Path(__file__).resolve()
-    cur = start if start.is_dir() else start.parent
-    for candidate in (cur, *cur.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return cur
+try:
+    from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
+except Exception:
+    from _tool_bootstrap import bootstrap as tool_bootstrap  # type: ignore
 
-
-_BOOTSTRAP_REPO = _bootstrap_repo_root()
-_PACKAGES_ROOT = _BOOTSTRAP_REPO / "packages"
-for p in (_BOOTSTRAP_REPO, _PACKAGES_ROOT):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+tool_bootstrap(load_env=False)
 
 from factory_common.paths import video_pkg_root  # noqa: E402
 

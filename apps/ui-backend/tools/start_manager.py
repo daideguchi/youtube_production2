@@ -10,6 +10,7 @@ tools.
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import os
 import signal
@@ -47,20 +48,60 @@ ENV_FILE = YTM_ROOT / ".env"
 
 
 def info(msg: str) -> None:
-    print(f"\033[32m[INFO]\033[0m {msg}")
+    print(f"\033[32m[INFO]\033[0m {msg}", flush=True)
 
 
 def warn(msg: str) -> None:
-    print(f"\033[33m[WARN]\033[0m {msg}")
+    print(f"\033[33m[WARN]\033[0m {msg}", flush=True)
 
 
 def err(msg: str) -> None:
-    print(f"\033[31m[ERR ]\033[0m {msg}")
+    print(f"\033[31m[ERR ]\033[0m {msg}", flush=True)
+
+
+def load_env_defaults(env_path: Path) -> None:
+    """
+    Fail-soft dotenv loader (does not override existing env vars).
+
+    This keeps `start_manager.py` usable even when callers did not `source .env`.
+    """
+
+    if not env_path.exists():
+        return
+    try:
+        for raw in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :].lstrip()
+                if not line or "=" not in line:
+                    continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+
+            if not key or not (key[0].isalpha() or key[0] == "_"):
+                continue
+            if not all(ch.isalnum() or ch == "_" for ch in key):
+                continue
+
+            if len(value) >= 2 and ((value[0] == value[-1] == '"') or (value[0] == value[-1] == "'")):
+                value = value[1:-1]
+
+            os.environ.setdefault(key, value)
+    except Exception as exc:
+        warn(f"Failed to load env defaults from {env_path}: {exc}")
 
 
 # Component definitions -------------------------------------------------------
 
 Component = Dict[str, object]
+
+def build_pythonpath() -> str:
+    """Return a deterministic PYTHONPATH for monorepo imports (no global contamination)."""
+
+    return os.pathsep.join([str(YTM_ROOT), str(YTM_ROOT / "packages")])
 
 
 def component_definitions() -> List[Component]:
@@ -78,23 +119,30 @@ def component_definitions() -> List[Component]:
     frontend_env = {
         "BROWSER": "none",
     }
+    existing_node_options = os.environ.get("NODE_OPTIONS") or ""
+    if "--no-deprecation" not in existing_node_options:
+        frontend_env["NODE_OPTIONS"] = (
+            f"{existing_node_options} --no-deprecation".strip() if existing_node_options else "--no-deprecation"
+        )
     if "REACT_APP_API_BASE_URL" not in os.environ:
         frontend_env["REACT_APP_API_BASE_URL"] = "http://127.0.0.1:8000"
 
     return [
         {
             "name": "backend",
-            "cwd": BACKEND_DIR,
+            "cwd": UI_DIR,
             "cmd": [
                 sys.executable,
                 "-m",
                 "uvicorn",
-                "main:app",
+                "backend.main:app",
                 "--host",
                 "127.0.0.1",
                 "--port",
                 "8000",
                 "--reload",
+                "--reload-dir",
+                "backend",
             ],
             "port": 8000,
             "log": LOG_ROOT / "backend.log",
@@ -121,21 +169,12 @@ def run_check_env(env_file: Path) -> None:
     """Run scripts/check_env.py to ensure required variables exist."""
     info("Checking environment via scripts/check_env.py")
     check_env_py = YTM_ROOT / "scripts" / "check_env.py"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = build_pythonpath()
     # Full check (all required keys)
     subprocess.run(
-        ["python3", str(check_env_py), "--env-file", str(env_file)],
-        check=True,
-    )
-    # Explicit OpenRouter API check to catch unset/placeholder states early
-    subprocess.run(
-        [
-            "python3",
-            str(check_env_py),
-            "--env-file",
-            str(env_file),
-            "--keys",
-            "OPENROUTER_API_KEY",
-        ],
+        [sys.executable, str(check_env_py), "--env-file", str(env_file)],
+        env=env,
         check=True,
     )
 
@@ -160,6 +199,46 @@ def remove_pidfile(name: str) -> None:
         path.unlink()
 
 
+def _child_pids(parent_pid: int) -> List[int]:
+    """Return direct child PIDs for `parent_pid` (best-effort, POSIX-oriented)."""
+
+    proc = subprocess.run(
+        ["ps", "-o", "pid=", "-ppid", str(parent_pid)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return []
+    pids: List[int] = []
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            pids.append(int(line))
+        except ValueError:
+            continue
+    return pids
+
+
+def _descendant_pids(root_pid: int) -> List[int]:
+    """Return all descendant PIDs for `root_pid` (best-effort)."""
+
+    descendants: List[int] = []
+    seen = {root_pid}
+    queue = [root_pid]
+    while queue:
+        current = queue.pop()
+        for child in _child_pids(current):
+            if child in seen:
+                continue
+            seen.add(child)
+            descendants.append(child)
+            queue.append(child)
+    return descendants
+
+
 def ensure_port_free(port: int, label: str) -> None:
     """Attempt to free a TCP port by killing existing processes."""
     cmd = ["lsof", "-ti", f"tcp:{port}"]
@@ -169,8 +248,9 @@ def ensure_port_free(port: int, label: str) -> None:
         out = ""
     if not out:
         return
-    warn(f"{label} port {port} in use by PID(s): {out}")
-    for pid_str in out.splitlines():
+    pids = sorted({line.strip() for line in out.splitlines() if line.strip()})
+    info(f"{label} port {port} in use by PID(s): {', '.join(pids)} (terminating)")
+    for pid_str in pids:
         try:
             os.kill(int(pid_str), signal.SIGTERM)
         except OSError:
@@ -183,8 +263,9 @@ def ensure_port_free(port: int, label: str) -> None:
         out = ""
     if not out:
         return
-    warn(f"Forcing remaining PID(s) on {label}: {out}")
-    for pid_str in out.splitlines():
+    pids = sorted({line.strip() for line in out.splitlines() if line.strip()})
+    warn(f"Forcing remaining PID(s) on {label}: {', '.join(pids)}")
+    for pid_str in pids:
         try:
             os.kill(int(pid_str), signal.SIGKILL)
         except OSError:
@@ -214,6 +295,7 @@ def start_component(component: Component) -> None:
         env=env,
         stdout=log_file,
         stderr=subprocess.STDOUT,
+        start_new_session=True,
     )
     pidfile_path(name).write_text(str(proc.pid))
 
@@ -226,9 +308,23 @@ def stop_component(component: Component, force: bool = False) -> None:
         return
     sig = signal.SIGKILL if force else signal.SIGTERM
     info(f"Stopping {name} (pid={pid})")
+    descendants = _descendant_pids(pid)
     try:
-        os.kill(pid, sig)
+        pgid = os.getpgid(pid) if hasattr(os, "getpgid") else None
+        if pgid == pid and hasattr(os, "killpg"):
+            os.killpg(pid, sig)
+        else:
+            os.kill(pid, sig)
+            for child_pid in descendants:
+                try:
+                    os.kill(child_pid, sig)
+                except OSError:
+                    continue
     except OSError as exc:
+        if exc.errno == errno.ESRCH:
+            info(f"{name}: stale PID file ({pid}); removing")
+            remove_pidfile(name)
+            return
         warn(f"{name}: failed to send signal ({exc})")
     else:
         # wait briefly for process to exit
@@ -337,7 +433,7 @@ def fetch_backend_health(url: str = "http://127.0.0.1:8000/api/healthz", timeout
             payload = json.loads(data or "{}")
             ok = resp.status < 500 and payload.get("status") in {"ok", "degraded"}
             return ok, payload, None
-    except (urllib_error.HTTPError, urllib_error.URLError, json.JSONDecodeError) as exc:
+    except (urllib_error.HTTPError, urllib_error.URLError, json.JSONDecodeError, TimeoutError, OSError) as exc:
         return False, None, str(exc)
 
 
@@ -349,6 +445,8 @@ def check_http_head(url: str, timeout: float = 2.0) -> tuple[bool, Optional[str]
     except urllib_error.HTTPError as exc:
         return exc.code < 500, f"HTTP {exc.code} {exc.reason}"
     except urllib_error.URLError as exc:
+        return False, str(exc)
+    except (TimeoutError, OSError) as exc:
         return False, str(exc)
 
 
@@ -587,6 +685,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_health.set_defaults(func=cmd_health)
 
     args = parser.parse_args(argv)
+    raw_env_file = getattr(args, "env_file", str(ENV_FILE))
+    load_env_defaults(Path(raw_env_file))
     return args.func(args) or 0
 
 

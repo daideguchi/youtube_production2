@@ -7,9 +7,11 @@
 
 全チャンネル共通の読み台本ルール（Aテキスト品質の下限）は `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md` が正本。
 
+複数エージェント競合でカオスになった場合の止血・復帰は `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md` が正本。
+
 推奨実行（共通）:
-- **必ず** `./scripts/with_ytm_env.sh .venv/bin/python ...` を使う（.envロード + venv依存を固定）。
-  - 例: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
+- **必ず** `./scripts/with_ytm_env.sh python3 ...` を使う（.envロード + PYTHONPATH固定）。
+  - 例: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
 
 ---
 
@@ -23,25 +25,27 @@
 
 ---
 
-## 1. 入口（絶対固定 / 4パターン）
+## 1. 入口（絶対固定 / 5パターン）
 
 日常運用で叩く入口は **これだけ**。  
-モード（new/redo-full/resume/rewrite）の正本は `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`。
+モード（new/redo-full/resume/rewrite/seed-expand）の正本は `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`。
 
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <MODE> ...`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
 
 代表例:
 - 新規で1から:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
+- Seed→Expand（短い本文Seed→追記で収束）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py seed-expand --channel CH10 --video 008`
 - 最初から完全にやり直す:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
 - 途中から再開:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
 - リライト修正（ユーザー指示必須）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
 
 補助（検査だけ。再生成しない）:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
 
 注意:
 - `python -m script_pipeline.cli ...` は内部/詳細制御。入口を増やすと事故るので、通常は使わない（必要時のみ「付録A」を参照）。
@@ -63,9 +67,9 @@
 
 - 基本: 入口固定（`scripts/ops/script_runbook.py ...`）の出力JSONを見て判断する（`ok / pending / note`）。
 - 内部CLI（必要時のみ。付録A）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CH06 --video 033`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CH06 --video 033`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli status --channel CH06 --video 033`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli validate --channel CH06 --video 033`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reconcile --channel CH06 --video 033`（既存出力からstatusを補正）
 
 ### 3.0 UI（Episode Studio）での復旧
 
@@ -77,14 +81,21 @@ UI側でも「詰まったらまずここ」を固定する。
 - `script_validation` が NG の場合:
   - `status.json: stages.script_validation.details.error_codes / issues / fix_hints` を読み、`assembled_human.md`（なければ `assembled.md`）を修正してから再実行する。
   - 追加の品質ゲート（LLM Judge/Fixer）が有効な場合は、`content/analysis/quality_gate/` の judge/fix レポートも確認する（どこが不自然か／何を直せば良いかが残る）。
+  - QCフィードバックは LLM 出力を正にする（決定論サマリは作らない）:
+    - `content/analysis/quality_gate/judge_latest.json`
+    - `content/analysis/alignment/semantic_alignment.json`
 
 ### 3.1 Script Validation（品質ゲート）
 
 - 実行（推奨: 入口固定）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
 - （内部CLI。必要時のみ）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
 - NG時: `status.json: stages.script_validation.details.error_codes / issues` に理由が残る（UIにも表示される想定）。修正後に同じコマンドを再実行する。
+- QCの要点（人間が読む用）:
+  - `content/analysis/quality_gate/judge_latest.json`
+  - `content/analysis/alignment/semantic_alignment.json`
+- 入口（`scripts/ops/script_runbook.py`）の出力JSONにもパスが出る（`judge_report_json` / `semantic_alignment_report_json`）。
 - 判定基準（正本）:
   - `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`（禁則・TTS事故防止の下限）
   - `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`（字数合格だけを禁止。LLM Judge→Fixer の2段階）
@@ -94,13 +105,13 @@ UI側でも「詰まったらまずここ」を固定する。
 - 既定では `verdict: major` のみ停止（ok/minor は合格）。minor/major は可能なら最小リライトを自動適用して収束させる。
 - 厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok 以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
 - 手動で直す場合（内部CLI。通常は不要）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（チェックのみ）
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`（最小リライト）
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（チェックのみ）
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`（最小リライト）
 
 字数NG（短すぎ/長すぎ）への対処:
 - 原則: reset→再生成（混入/水増しの副作用が最小）
 - “軽い短尺補正” のみ許可する場合:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
+  - `./scripts/with_ytm_env.sh python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
   - 実行後に `script_validation` を再実行して通す（長尺2〜3h級はMarathon推奨）
 
 ---
@@ -112,10 +123,10 @@ UI側でも「詰まったらまずここ」を固定する。
 - 企画CSVを直したら、台本は **reset→再生成** を基本にする（旧台本が残ると混乱源）。
 
 コマンド（推奨: 入口固定）:
-- `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
 
 （内部CLI。必要時のみ）:
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
+- `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
 ### 4.2 人間が台本を直した場合
 原則:
@@ -159,17 +170,17 @@ UI側でも「詰まったらまずここ」を固定する。
 入口固定（`scripts/ops/script_runbook.py`）を守るため、ここは必要時だけに限定する。
 
 - 状態:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli status --channel CHxx --video NNN`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli validate --channel CHxx --video NNN`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reconcile --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli status --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli validate --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reconcile --channel CHxx --video NNN`
 - 初期化（status.jsonが無いときだけ）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli init --channel CHxx --video NNN --title \"<title>\"`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli init --channel CHxx --video NNN --title \"<title>\"`
 - 実行:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli next --channel CHxx --video NNN`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run-all --channel CHxx --video NNN`
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_outline`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli next --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run-all --channel CHxx --video NNN`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage script_outline`
 - リセット（やり直しの強制。redo-fullの代替）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
+  - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
 ---
 
@@ -179,21 +190,21 @@ UI側でも「詰まったらまずここ」を固定する。
 したがって「章分割→機械（非LLM）アセンブル」を前提にした Marathon を使う（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
 
 - planのみ（設計だけ作る）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
 - dry-run（analysis/longform に生成、正本は触らない）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`
 - apply（canonical を上書き）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
 - ブロック雛形（章の箱）を指定したい場合:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
   - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
 
 確認（推奨）:
 - 機械lint（非LLM。禁則/反復/まとめ重複）:
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 
 注意:
 - Marathon は `content/analysis/longform/` に plan/候補/検証ログを残す（やり直し・原因追跡用）。
 - 超長尺で `script_validation` を回す場合は **全文LLMを無効化**して機械チェックだけ使う:
-  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
+  - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
   - 追加の安全弁（runner側）: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）超過時は、全文LLMゲートが自動スキップされる（強制は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。

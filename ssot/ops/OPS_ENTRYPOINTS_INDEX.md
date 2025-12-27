@@ -12,9 +12,10 @@
 ## 1. 最重要（E2E主動線）
 
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`
-- 台本（Script / 入口固定）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py <MODE> ...`
-  - 運用モード正本（new/redo-full/resume/rewrite）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
-  - 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli ...`（`packages/script_pipeline/cli.py`）
+- 台本（Script / 入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
+  - 運用モード正本（new/redo-full/resume/rewrite/seed-expand）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
+  - カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
+  - 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli ...`（`packages/script_pipeline/cli.py`）
 - 音声（Audio/TTS）:
   - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
@@ -46,6 +47,8 @@
     - `POST /api/batch-tts/start`（backend が `scripts/batch_regenerate_tts.py` を起動）
     - `GET /api/batch-tts/progress`, `GET /api/batch-tts/log`, `POST /api/batch-tts/reset`
 - Frontend (React): `apps/ui-frontend`
+  - 配線SSOT（UI↔Backend）: `ssot/ops/OPS_UI_WIRING.md`
+  - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）
 
 ---
 
@@ -59,17 +62,33 @@
 - ベンチマーク/タグ/説明文の一括整備（channel_info 正規化 + カタログ再生成）:
   - `python3 scripts/ops/channel_info_normalize.py`（dry-run）
   - `python3 scripts/ops/channel_info_normalize.py --apply`
+- Research索引（workspaces/research をジャンルで逆引きできるINDEXを生成）:
+  - `python3 scripts/ops/research_genre_index.py`（dry-run）
+  - `python3 scripts/ops/research_genre_index.py --apply`
 - `scripts/buddha_senior_5ch_prepare.py`（CH12–CH16: status init + metadata補完）
 - `scripts/buddha_senior_5ch_generate_scripts.py`（CH12–CH16: 台本一括生成（APIなし））
 - Planning lint（機械チェック・混入検知）:
   - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
+- Production Pack（量産投入前のスナップショット + QA gate）:
+  - `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`
+  - SSOT: `ssot/ops/OPS_PRODUCTION_PACK.md`
+- Planning Patch（企画の上書き/部分更新を差分ログ付きで適用）:
+  - `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml --apply`
+  - SSOT: `ssot/ops/OPS_PLANNING_PATCHES.md`
+- SRT（字幕本文の意図改行を付与。内容は変えない）:
+  - `python3 scripts/format_srt_linebreaks.py workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt --in-place`
+  - SSOT: `ssot/ops/OPS_SRT_LINEBREAK_FORMAT.md`
+- CH01（人生の道標）台本執筆の補助:
+  - 企画CSV→入力テンプレ生成: `python3 scripts/ch01/generate_prompt_input.py --video-id CH01-216`
+  - Aテキスト簡易セルフチェック: `python3 scripts/ch01/check_script.py workspaces/scripts/CH01/216/content/assembled_human.md`
 - Script運用Runbook（新規/やり直しの定型化）:
   - モード正本: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py new --channel CH10 --video 008`
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py resume --channel CH07 --video 019`
-  - `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
-  - 既存本文を通すだけ（安い）: `./scripts/with_ytm_env.sh .venv/bin/python scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py seed-expand --channel CH10 --video 008`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
+  - 既存本文を通すだけ（安い）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
 - Planning sanitize（機械チェック・混入クリーナ。dry-runがデフォルト）:
   - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時のみ `--apply`
 - Planning 列の再整列（機械チェック・タイトルを正としてテーマ補助列のみ修正）:
@@ -102,17 +121,18 @@
 - `packages/audio_tts/scripts/extract_reading_candidates.py`
 - `packages/audio_tts/scripts/sync_voicevox_user_dict.py`
 
-### 3.3 Video/CapCut（commentary_02）
+### 3.3 Video/CapCut（video_pipeline）
 - `packages/video_pipeline/tools/auto_capcut_run.py`
 - `packages/video_pipeline/tools/run_pipeline.py`
-- `packages/video_pipeline/tools/srt_to_capcut_complete.py`（旧統合版・運用は要確認）
 - `packages/video_pipeline/tools/bootstrap_placeholder_run_dir.py`（run_dir を cues+images でブートストラップ。THINK MODE では `visual_image_cues_plan` が pending 化）
+- `packages/video_pipeline/tools/validate_prompt_template_registry.py`（`channel_presets.json:prompt_template` が `template_registry.json` に登録されているか検査）
 - `packages/video_pipeline/tools/build_ch02_drafts_range.py`（CH02の一括ドラフト生成ラッパー）
 - `packages/video_pipeline/tools/align_run_dir_to_tts_final.py`（run_dir の cue を final SRT に retime / LLMなし）
 - `packages/video_pipeline/tools/patch_draft_audio_subtitles_from_manifest.py`（テンプレdraftに audio/subtitles を SoT(manifest) から注入）
 - `packages/video_pipeline/tools/validate_ch02_drafts.py`（CH02 draft 破壊検知: belt/voice/subtitles）
+- `packages/video_pipeline/tools/regenerate_images_from_cues.py`（既存 run_dir の `image_cues.json` から `images/*.png` を実生成で再作成して置換）
+- `packages/video_pipeline/tools/generate_image_variants.py`（既存 run_dir の `image_cues.json` から画像バリアントを生成。UI の Quick Job からも実行）
 - `packages/video_pipeline/tools/sync_*`（同期/保守）
-- `packages/video_pipeline/tools/maintenance/*`（修復系）
 
 ### 3.4 Agent/THINK MODE（複数AIエージェント運用）
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
@@ -143,8 +163,6 @@
   - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
   - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
   - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
-- 互換（旧入口。内部は新実装へ委譲）:
-  - `python scripts/_adhoc/thumbnails/build_thumbnails_from_layer_specs.py --help`
 
 ### 3.6 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
@@ -153,7 +171,7 @@
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
   - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
 - `scripts/audit_alignment_semantic.py`（read-only。タイトル/サムネcatch ↔ 台本文脈の語彙整合を監査。`--out` でJSON保存可）
-- `./scripts/with_ytm_env.sh .venv/bin/python -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
+- `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
 ### 3.8 Remotion（実験ライン / 再レンダ）
@@ -184,6 +202,7 @@
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `workspaces/logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `workspaces/logs/regression/video_runs_legacy_prune/`）
+- `scripts/ops/archive_published_episodes.py --dry-run --channel CHxx`（Planningの `進捗=投稿済み` を根拠に、audio/thumbnails/video input/runs を横断で `_archive/` へ移動。`--run --yes` で実行。report: `workspaces/logs/regression/archive_published_episodes/`）
 - `scripts/ops/archive_capcut_local_drafts.py --run`（`workspaces/video/_capcut_drafts` のローカル退避ドラフトを `_archive/<timestamp>/` へ移動して探索ノイズ/重複を削減。report: `workspaces/logs/regression/capcut_local_drafts_archive/`）
 - `scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（`workspaces/thumbnails/CHxx_*|CHxx-*` の旧ディレクトリを `_archive/<timestamp>/` へ退避して探索ノイズを削減。report: `workspaces/logs/regression/thumbnails_legacy_archive/`）
 - `scripts/ops/purge_legacy_agent_task_queues.py --run`（旧 `workspaces/logs/agent_tasks_*`（実験残骸）を archive-first で削除。report: `workspaces/logs/regression/agent_tasks_legacy_purge/`）
@@ -218,10 +237,10 @@
 - `packages/video_pipeline/tools/factory.py`
 - `packages/video_pipeline/tools/build_ch02_drafts_range.py`
 - `packages/video_pipeline/tools/run_pipeline.py`
-- `packages/video_pipeline/tools/srt_to_capcut_complete.py`
 - `packages/video_pipeline/tools/align_run_dir_to_tts_final.py`
 - `packages/video_pipeline/tools/patch_draft_audio_subtitles_from_manifest.py`
 - `packages/video_pipeline/tools/validate_ch02_drafts.py`
+- `packages/video_pipeline/tools/generate_image_variants.py`
 - `packages/script_pipeline/cli.py`
 - `packages/script_pipeline/job_runner.py`
 - `scripts/youtube_publisher/publish_from_sheet.py`
