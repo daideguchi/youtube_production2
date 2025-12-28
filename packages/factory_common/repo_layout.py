@@ -13,7 +13,9 @@ ALLOWED_REPO_ROOT_DIR_NAMES = frozenset(
         "configs",
         "credentials",
         "data",
+        "docs",
         "packages",
+        "pages",
         "prompts",
         "scripts",
         "ssot",
@@ -73,4 +75,3 @@ __all__ = [
     "IGNORED_REPO_ROOT_DIR_NAMES",
     "unexpected_repo_root_entries",
 ]
-

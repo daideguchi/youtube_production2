@@ -120,6 +120,18 @@ models:
       allow_stop: true
       max_output_tokens: 65535
 
+  # Premium (expensive) — use ONLY when explicitly enabled (e.g. master-plan tier candidates).
+  or_claude_opus_4_5:
+    provider: openrouter
+    api_type: chat
+    model: "anthropic/claude-opus-4.5"
+    capabilities:
+      allow_reasoning: false
+      allow_json_mode: false
+      allow_temperature: true
+      allow_stop: true
+      max_output_tokens: 32000
+
   # or_o3_mini:
   #   provider: openrouter
   #   api_type: chat

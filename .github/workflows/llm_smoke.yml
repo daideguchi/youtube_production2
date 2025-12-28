@@ -26,41 +26,32 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests pyyaml
 
-      - name: Lint templates vs presets
+      - name: SSOT audit
         run: |
           set -e
-          python commentary_02_srt2images_timeline/scripts/lint_check_templates.py
+          python3 scripts/ops/ssot_audit.py --path-audit --link-audit
 
-      - name: Lint model configs
+      - name: Repo sanity audit
         run: |
           set -e
-          python commentary_02_srt2images_timeline/scripts/lint_check_models.py
+          python3 scripts/ops/repo_sanity_audit.py --verbose
 
-      - name: Lint llm config references
+      - name: Lint unified LLM config
         run: |
           set -e
-          python commentary_02_srt2images_timeline/scripts/lint_check_llm_configs.py
+          python3 scripts/ops/lint_llm_config.py
+
+      - name: Validate prompt templates (video_pipeline)
+        run: |
+          set -e
+          PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_prompt_template_registry
 
       - name: Summarize LLM logs (if present)
         run: |
           set -e
           python scripts/llm_logs_combined_report.py || true
-
-      - name: Run LLM phase smoke (skip if keys missing)
-        env:
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          set -e
-          if [ -z "$AZURE_OPENAI_API_KEY" ] && [ -z "$OPENROUTER_API_KEY" ]; then
-            echo 'No LLM keys provided; running in skip mode'
-            python scripts/smoke_llm_phase_models.py --allow-missing-keys || exit 0
-            exit 0
-          fi
-          python scripts/smoke_llm_phase_models.py --allow-missing-keys
 
       - name: Upload LLM logs (best-effort)
         if: always()
@@ -68,7 +59,7 @@ jobs:
         with:
           name: llm-logs
           path: |
-            logs/llm_usage.jsonl
-            logs/llm_context_analyzer.log
-            logs/tts_llm_usage.log
+            workspaces/logs/llm_usage.jsonl
+            workspaces/logs/llm_context_analyzer.log
+            workspaces/logs/tts_llm_usage.log
           if-no-files-found: ignore
