@@ -53,9 +53,9 @@
 - Frontend (React): `apps/ui-frontend`
   - 配線SSOT（UI↔Backend）: `ssot/ops/OPS_UI_WIRING.md`
   - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）
-- Script Viewer（GitHub Pages / 静的）: `pages/script_viewer/`
+- Script Viewer（GitHub Pages / 静的）: `docs/`
   - 索引生成（台本一覧・パス）: `python3 scripts/ops/pages_script_viewer_index.py --write`
-  - Deploy: `.github/workflows/pages_script_viewer.yml`（GitHub Actions → Pages）
+  - Deploy: GitHub Pages（branch の `/docs` を公開）
 
 ---
 

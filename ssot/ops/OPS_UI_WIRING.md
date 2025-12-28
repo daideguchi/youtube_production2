@@ -27,7 +27,7 @@
   - 注意: `REACT_APP_API_BASE_URL` は末尾 `/` なしに正規化される。
   - fetch直叩きが残る場合でも、URL組み立ては `apiUrl()`（or `client.ts` の `resolveApiUrl()`）を通す。
 - 例外（静的）: **Script Viewer（Pages）** は backend を使わない（APIなし）。
-  - 静的ページ: `pages/script_viewer/`
+  - 静的ページ: `docs/`
   - 索引生成: `python3 scripts/ops/pages_script_viewer_index.py --write`
   - 台本本文の参照: `workspaces/scripts/**/assembled.md` を GitHub raw から読む（複製しない）。
 

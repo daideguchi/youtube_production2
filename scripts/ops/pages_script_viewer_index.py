@@ -7,7 +7,7 @@ pages_script_viewer_index.py — GitHub Pages用 Script Viewer の index.json �
   - 台本本文の複製はせず、GitHub の raw URL から参照する（Pages 側は静的）
 
 出力:
-  - `pages/script_viewer/data/index.json`
+  - `docs/data/index.json`
 
 Usage:
   python3 scripts/ops/pages_script_viewer_index.py --stdout
@@ -153,8 +153,8 @@ def build_index(repo_root: Path) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Generate pages/script_viewer/data/index.json (script viewer index).")
-    ap.add_argument("--write", action="store_true", help="Write pages/script_viewer/data/index.json")
+    ap = argparse.ArgumentParser(description="Generate docs/data/index.json (script viewer index).")
+    ap.add_argument("--write", action="store_true", help="Write docs/data/index.json")
     ap.add_argument("--stdout", action="store_true", help="Print JSON to stdout (default)")
     args = ap.parse_args()
 
@@ -163,7 +163,7 @@ def main() -> int:
     content = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
 
     if args.write:
-        out_path = repo_root / "pages" / "script_viewer" / "data" / "index.json"
+        out_path = repo_root / "docs" / "data" / "index.json"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content, encoding="utf-8")
         print(f"[pages_script_viewer_index] wrote {out_path.relative_to(repo_root)} (items={payload['count']})")
@@ -175,4 +175,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

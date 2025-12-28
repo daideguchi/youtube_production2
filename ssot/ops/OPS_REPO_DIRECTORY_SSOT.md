@@ -60,11 +60,9 @@
   - LLM/画像/Drive/YT等。機密は入れない（鍵は `.env` / `credentials/`）。
 - `credentials/`（機密/トークン）:
   - OAuth token / client_secret 等（git管理しない）。
-- `pages/`（GitHub Pages向けの静的サイト素材）:
-  - 例: `pages/script_viewer/`（台本ビューア）
-- `docs/`（GitHub Pages 公開ルート / 互換）:
-  - 現行のGitHub Pages設定が `./docs` を参照しているための公開ルート。
-  - `pages/script_viewer/` のミラーとして運用する（生成/同期の正本は `pages/` 側）。
+- `docs/`（GitHub Pages 公開ルート）:
+  - 現行のGitHub Pages設定が `./docs` を参照しているため、このディレクトリが公開ルート（= 静的サイトの正本）。
+  - Script Viewer（台本ビューア）もここに置く（重複防止のため `pages/` は使わない）。
 - `prompts/`（索引/ハブ）:
   - **人間/UI向けの“入口”**。実体の正本をここに複製・同期しない（= 二重SoTを作らない）。
   - 参照先の一覧: `prompts/PROMPTS_INDEX.md`

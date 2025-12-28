@@ -15,7 +15,6 @@ ALLOWED_REPO_ROOT_DIR_NAMES = frozenset(
         "data",
         "docs",
         "packages",
-        "pages",
         "prompts",
         "scripts",
         "ssot",

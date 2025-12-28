@@ -5,7 +5,7 @@ on:
   push:
     branches: [ new-main, main ]
     paths:
-      - "pages/script_viewer/**"
+      - "docs/**"
       - "scripts/ops/pages_script_viewer_index.py"
       - "workspaces/scripts/**"
       - "workspaces/planning/channels/**"
@@ -45,7 +45,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: pages/script_viewer
+          path: docs
 
       - name: Deploy to GitHub Pages
         id: deployment

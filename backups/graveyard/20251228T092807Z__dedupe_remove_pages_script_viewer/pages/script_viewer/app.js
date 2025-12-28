@@ -24,17 +24,6 @@ function stripPauseSeparators(raw) {
   return filtered.replace(/\n{3,}/g, "\n\n").trim();
 }
 
-function planChunkCopy(text, chunkIndex, chunkSize = CHUNK_SIZE) {
-  const total = text.length;
-  if (!total) return null;
-  const totalChunks = Math.max(1, Math.ceil(total / chunkSize));
-  const safeIndex = chunkIndex * chunkSize >= total ? 0 : Math.max(0, chunkIndex);
-  const start = safeIndex * chunkSize;
-  const end = Math.min(start + chunkSize, total);
-  const nextIndex = end >= total ? 0 : safeIndex + 1;
-  return { chunk: text.slice(start, end), start, end, total, totalChunks, currentChunk: safeIndex + 1, nextIndex };
-}
-
 async function copyText(text) {
   if (navigator.clipboard?.writeText) {
     try {
@@ -99,7 +88,7 @@ let items = [];
 let grouped = new Map();
 let selected = null;
 let loadedText = "";
-let chunkIndex = 0;
+let loadedNoSepText = "";
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
@@ -110,6 +99,7 @@ const metaPath = $("metaPath");
 const openRaw = $("openRaw");
 const contentPre = $("contentPre");
 const copyStatus = $("copyStatus");
+const copyNoSepChunks = $("copyNoSepChunks");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
 
@@ -206,10 +196,50 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
+function renderNoSepChunkButtons() {
+  const cleaned = loadedNoSepText;
+  copyNoSepChunks.innerHTML = "";
+
+  const total = cleaned.length;
+  if (!total) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn--ghost btn--chunk";
+    btn.textContent = "1";
+    btn.disabled = true;
+    copyNoSepChunks.appendChild(btn);
+    return;
+  }
+
+  const totalChunks = Math.max(1, Math.ceil(total / CHUNK_SIZE));
+  for (let idx = 0; idx < totalChunks; idx += 1) {
+    const start = idx * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, total);
+    const label = `${idx + 1}/${totalChunks}`;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn--ghost btn--chunk";
+    btn.textContent = label;
+    btn.title = `${label} (${start + 1}-${end})`;
+    btn.addEventListener("click", async () => {
+      const chunk = cleaned.slice(start, end);
+      if (!chunk.trim()) {
+        setCopyStatus("台本が空です", true);
+        return;
+      }
+      const ok = await copyText(chunk);
+      setCopyStatus(ok ? `コピーしました (${label} ${start + 1}-${end})` : "コピーに失敗しました", !ok);
+    });
+    copyNoSepChunks.appendChild(btn);
+  }
+}
+
 async function loadScript(it) {
   selected = it;
   loadedText = "";
-  chunkIndex = 0;
+  loadedNoSepText = "";
+  renderNoSepChunkButtons();
 
   metaTitle.textContent = it.title ? `${it.video_id} · ${it.title}` : it.video_id;
   metaPath.textContent = it.assembled_path;
@@ -224,6 +254,8 @@ async function loadScript(it) {
     if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
     const text = await res.text();
     loadedText = normalizeNewlines(text);
+    loadedNoSepText = stripPauseSeparators(loadedText);
+    renderNoSepChunkButtons();
     contentPre.textContent = loadedText;
     footerMeta.textContent = `index: ${indexData?.count || items.length} items · loaded: ${it.video_id} · chars: ${loadedText.length.toLocaleString(
       "ja-JP"
@@ -232,6 +264,8 @@ async function loadScript(it) {
     console.error(err);
     contentPre.textContent = `読み込みに失敗しました。\n\n${String(err)}`;
     footerMeta.textContent = "—";
+    loadedNoSepText = "";
+    renderNoSepChunkButtons();
   } finally {
     setLoading(false);
   }
@@ -336,24 +370,7 @@ function setupEvents() {
     const ok = await copyText(loadedText);
     setCopyStatus(ok ? "コピーしました" : "コピーに失敗しました", !ok);
   });
-
-  $("copyNoSep").addEventListener("click", async () => {
-    const cleaned = stripPauseSeparators(loadedText);
-    const plan = planChunkCopy(cleaned, chunkIndex);
-    if (!plan?.chunk) {
-      setCopyStatus("台本が空です", true);
-      return;
-    }
-    const ok = await copyText(plan.chunk);
-    if (ok) {
-      chunkIndex = plan.nextIndex;
-      setCopyStatus(`コピーしました (${plan.currentChunk}/${plan.totalChunks} ${plan.start + 1}-${plan.end})`);
-    } else {
-      setCopyStatus("コピーに失敗しました", true);
-    }
-  });
 }
 
 setupEvents();
 void reloadIndex();
-

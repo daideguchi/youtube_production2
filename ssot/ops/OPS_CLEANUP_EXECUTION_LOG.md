@@ -2123,3 +2123,15 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 
 projects.json 整理:
 - CH12 の各 video について `variants` を `selected_variant_id` の1件のみに縮退
+
+### 141) `pages/script_viewer/` を廃止（`docs/` に統合 / 重複排除）
+
+意図:
+- GitHub Pages の公開ルートが `./docs` のため、`pages/` と二重管理になると探索ノイズ/更新漏れの原因になる。
+- Script Viewer（静的）は `docs/` に統一し、1箇所だけを正本として運用する。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T092807Z__dedupe_remove_pages_script_viewer/manifest.tsv`
+
+削除（tracked）:
+- `git rm -r pages`
