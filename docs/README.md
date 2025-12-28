@@ -22,6 +22,7 @@ python3 -m http.server 8009
 
 このリポジトリは GitHub Pages の公開ルートとして `./docs` を使います（= `docs/` が正本）。
 
-初回のみ GitHub 側で Pages を有効化してください（いずれか）:
-- Settings → Pages → Build and deployment → Source: **Deploy from a branch** → Branch: `new-main` / Folder: `/docs`
-- （任意）Source: **GitHub Actions**（Actionsでデプロイする場合）
+デプロイ:
+- GitHub Actions（推奨/現行）: `.github/workflows/pages_script_viewer.yml`
+  - Settings → Pages → Build and deployment → Source: **GitHub Actions**
+  - 反映対象ブランチ: `main`

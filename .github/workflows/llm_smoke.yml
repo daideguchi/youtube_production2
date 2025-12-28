@@ -3,9 +3,9 @@ name: LLM Smoke
 on:
   workflow_dispatch:
   push:
-    branches: [ new-main, main ]
+    branches: [ main ]
   pull_request:
-    branches: [ new-main, main ]
+    branches: [ main ]
 
 env:
   PYTHONDONTWRITEBYTECODE: 1

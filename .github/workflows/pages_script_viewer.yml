@@ -3,7 +3,7 @@ name: Pages — Script Viewer
 on:
   workflow_dispatch:
   push:
-    branches: [ new-main, main ]
+    branches: [ main ]
     paths:
       - "docs/**"
       - "scripts/ops/pages_script_viewer_index.py"

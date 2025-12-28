@@ -61,7 +61,7 @@ function resolveRawBase() {
   const rawBaseOverride = params.get("rawBase");
   if (rawBaseOverride) return rawBaseOverride.replace(/\/+$/, "") + "/";
 
-  const branch = params.get("branch") || "new-main";
+  const branch = params.get("branch") || "main";
   const owner = params.get("owner");
   const repo = params.get("repo");
   if (owner && repo) {
