@@ -22,6 +22,11 @@ _REPO_FILE_RE = re.compile(
     r"[A-Za-z0-9_./\\-]+\.(?:md|py|sh|jsonl|json|yaml|yml|txt|tsx|ts|jsx|js|css))"
 )
 
+_LOCAL_ONLY_CONFIG_PATHS = {
+    # Secrets / local-only configs (not tracked; expected to be absent in CI).
+    "configs/drive_oauth_client.json",
+}
+
 
 @dataclass(frozen=True)
 class SsotAuditReport:
@@ -169,6 +174,17 @@ def _extract_repo_file_paths(fragment: str) -> set[str]:
     return out
 
 
+def _is_ignored_missing_repo_path(repo_path: str) -> bool:
+    p = (repo_path or "").strip().replace("\\", "/").lstrip("./")
+    if not p:
+        return True
+    if p in _LOCAL_ONLY_CONFIG_PATHS:
+        return True
+    if p.startswith("configs/") and ".local." in p:
+        return True
+    return False
+
+
 def _audit_repo_paths_from_ssot_docs(
     *,
     docs: Iterable[Path],
@@ -191,6 +207,8 @@ def _audit_repo_paths_from_ssot_docs(
             # 1) backticks: may include commands containing paths
             for token in re.findall(r"`([^`]+)`", line):
                 for repo_path in _extract_repo_file_paths(token):
+                    if _is_ignored_missing_repo_path(repo_path):
+                        continue
                     if repo_path not in missing_repo_paths and not (REPO_ROOT / repo_path).exists():
                         missing_repo_paths[repo_path] = f"ssot/{src_rel}:{line_no}"
                 ssot_ref = _normalize_ssot_rel(token)
@@ -200,6 +218,8 @@ def _audit_repo_paths_from_ssot_docs(
             # 2) markdown links: e.g. [text](ssot/ops/OPS_*.md)
             for target in _extract_markdown_link_targets(line):
                 for repo_path in _extract_repo_file_paths(target):
+                    if _is_ignored_missing_repo_path(repo_path):
+                        continue
                     if repo_path not in missing_repo_paths and not (REPO_ROOT / repo_path).exists():
                         missing_repo_paths[repo_path] = f"ssot/{src_rel}:{line_no}"
                 ssot_ref = _normalize_ssot_rel(target)
