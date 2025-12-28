@@ -3,7 +3,7 @@ name: Pages — Script Viewer
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ new-main, main ]
     paths:
       - "pages/script_viewer/**"
       - "scripts/ops/pages_script_viewer_index.py"
@@ -50,4 +50,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
