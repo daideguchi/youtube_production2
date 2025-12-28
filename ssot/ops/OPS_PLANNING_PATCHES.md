@@ -26,6 +26,20 @@
 最小の運用単位（推奨）:
 - **episode 単位**: `channel` + `video (NNN)`
 
+### 1.1 シリーズ/テンプレの“まとめ変更”はどう扱うか（現行の最適解）
+
+現状は「運用の安全性（壊さない）」「差分の追跡（何が変わったか）」「競合の回避（並列衝突しにくい）」を優先し、
+**まとめ変更も最終的には episode 単位（1 patch = 1 episode）に分解して運用**する。
+
+- メリット:
+  - `workspaces/logs/regression/planning_patch/` に **episode単位の差分ログ**が残る（監査しやすい）
+  - apply が途中で止まっても、どこまで反映したかが追える（復旧しやすい）
+  - 既存ライン（channel+video が最小キー）と自然に接続できる
+
+補助（任意）:
+- 複数episode分の patch YAML をまとめて作りたい場合は `planning_patch_gen` を使う:
+  - `python3 scripts/ops/planning_patch_gen.py --op set --channel CHxx --from 1 --to 10 --set '進捗=topic_research: pending' --label reset_progress --write`
+
 将来の拡張（必要になってから）:
 - series 単位: `series_id` や `企画ID` 等の列をキーにする
 - template 単位: `template_id` 等で一括差し替え
@@ -97,13 +111,20 @@ notes: |
 
 推奨フロー:
 1) 対象 CSV の lock を確認し、自分の作業範囲に lock を置く
-2) Patch を適用（dry-run → run）
-3) 適用後に Planning lint を実行し、危険な汚染/欠落が無いことを確認
-4) 差分ログ（before/after + 要約）を `workspaces/logs/regression/planning_patch/` に残す
+2) dry-run（差分ログ + candidate CSV 生成）→ 内容確認
+3) apply（CSVへ反映）
+   - `planning_apply_patch.py` は candidate に対して `planning_lint` を実行し、**lint error がある場合は apply を自動停止**する（壊さないための安全弁）
+4) 必要なら Production Pack を再生成し、diff で「何が変わったか」を固定する
 
 CLI:
 - dry-run: `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml`
 - apply: `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml --apply`
+  - 複数 patch を一括で適用する場合: `--patch` を複数指定できる（例: `... --patch A.yaml --patch B.yaml --apply`）
+
+生成されるログ（例）:
+- `workspaces/logs/regression/planning_patch/planning_patch_<label>__<ts>.json|.md`（差分/結果）
+- `workspaces/logs/regression/planning_patch/planning_patch_<label>__candidate__<ts>.csv`（dry-run時の候補CSV）
+- `workspaces/logs/regression/planning_patch/backup_<CH>_<NNN>__<patch_id>__<ts>.csv`（apply時の退避）
 
 ※ CSV を直接編集して上書きする場合でも、Patch で差分を残してから行う（追跡可能性のため）。
 

@@ -11,6 +11,7 @@ import shutil
 import time
 import random
 import os
+import hashlib
 import warnings
 
 # Silence upstream deprecation warnings from pyJianYingDraft usage.
@@ -329,6 +330,235 @@ def _normalize_draft_dir_for_pyjiaying(draft_dir: Path) -> None:
     # Write both files (ensure existence)
     content_path.write_text(json.dumps(content_data, ensure_ascii=False), encoding="utf-8")
     info_path.write_text(json.dumps(info_data, ensure_ascii=False), encoding="utf-8")
+
+
+def _localize_external_audio_assets(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Copy any audio material files referenced outside draft_dir into draft_dir/materials/audio
+    and rewrite paths in draft_content.json / draft_info.json.
+
+    Why:
+      - CapCut templates often reference BGM via absolute paths outside the draft folder.
+      - After duplication, those external paths can become inaccessible (sandbox/iCloud),
+        causing the template BGM to disappear or be treated as missing.
+    """
+
+    def _resolve_no_strict(p: Path) -> Path:
+        try:
+            return p.expanduser().resolve(strict=False)
+        except TypeError:
+            # Python <3.9 compatibility (strict arg not supported)
+            return p.expanduser().resolve()
+        except Exception:
+            return p.expanduser().absolute()
+
+    def _is_within(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except Exception:
+            return False
+
+    audio_dir = draft_dir / "materials" / "audio"
+    draft_root_resolved = _resolve_no_strict(draft_dir)
+
+    # Map external absolute source path -> localized absolute dest path
+    localized: dict[str, str] = {}
+    changed_any = False
+
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        data, _reason = _try_load_json_file(path)
+        if data is None:
+            continue
+
+        mats = data.get("materials") if isinstance(data, dict) else None
+        if not isinstance(mats, dict):
+            continue
+        audios = mats.get("audios")
+        if not isinstance(audios, list) or not audios:
+            continue
+
+        file_changed = False
+        for audio in audios:
+            if not isinstance(audio, dict):
+                continue
+            raw = audio.get("path")
+            if not isinstance(raw, str) or not raw.strip():
+                continue
+
+            src_path = Path(raw.strip()).expanduser()
+            # If it's a relative path, assume it's already draft-local.
+            if not src_path.is_absolute():
+                continue
+
+            src_resolved = _resolve_no_strict(src_path)
+            if _is_within(src_resolved, draft_root_resolved):
+                continue
+            if not src_resolved.exists() or not src_resolved.is_file():
+                continue
+
+            key = str(src_resolved)
+            dest_str = localized.get(key)
+            if not dest_str:
+                audio_dir.mkdir(parents=True, exist_ok=True)
+                digest = hashlib.sha1(key.encode("utf-8", errors="ignore")).hexdigest()[:8]
+                dest_path = audio_dir / f"{digest}__{src_resolved.name}"
+                if not dest_path.exists():
+                    try:
+                        shutil.copy2(src_resolved, dest_path)
+                    except Exception as exc:
+                        logger.warning("⚠️ Failed to localize audio %s -> %s: %s", src_resolved, dest_path, exc)
+                        continue
+                dest_str = str(dest_path)
+                localized[key] = dest_str
+
+            if audio.get("path") != dest_str:
+                audio["path"] = dest_str
+                file_changed = True
+
+        if file_changed:
+            path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            changed_any = True
+
+    if changed_any:
+        logger.info("🔊 Localized external audio assets into draft materials/audio")
+
+
+def _ensure_bgm_covers_duration(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Ensure the primary BGM track spans the full draft duration by repeating existing BGM segments.
+
+    Why:
+      - Templates often contain a finite number of repeated BGM segments (e.g., 10 x 2min),
+        which can be shorter than the generated video/audio length.
+      - If BGM ends early, the tail becomes silent and feels like a bug to viewers.
+
+    Behavior:
+      - Operates on draft_content.json only (draft_info.json is synced later).
+      - Never adds new audio materials; only duplicates existing segments (new UUIDs).
+      - Targets the track named 'audio_1' when present, else falls back to a single non-voice audio track.
+    """
+
+    content_path = draft_dir / "draft_content.json"
+    data, _reason = _try_load_json_file(content_path)
+    if data is None or not isinstance(data, dict):
+        return
+
+    tracks = data.get("tracks")
+    if not isinstance(tracks, list) or not tracks:
+        return
+
+    def _range_end_us(seg: dict) -> int:
+        tt = seg.get("target_timerange")
+        if not isinstance(tt, dict):
+            return 0
+        start = int(tt.get("start") or 0)
+        dur = int(tt.get("duration") or 0)
+        return start + dur
+
+    # Determine target duration (prefer voiceover end; fallback to draft duration).
+    voice_end_us = 0
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if tr.get("type") != "audio":
+            continue
+        if str(tr.get("name") or "") != "voiceover":
+            continue
+        for seg in tr.get("segments") or []:
+            if isinstance(seg, dict):
+                voice_end_us = max(voice_end_us, _range_end_us(seg))
+
+    try:
+        draft_duration_us = int(data.get("duration") or 0)
+    except Exception:
+        draft_duration_us = 0
+
+    target_us = max(voice_end_us, draft_duration_us)
+    if target_us <= 0:
+        return
+
+    # Pick BGM track.
+    bgm_track = None
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if tr.get("type") == "audio" and str(tr.get("name") or "") == "audio_1":
+            bgm_track = tr
+            break
+
+    if bgm_track is None:
+        candidates = [
+            tr
+            for tr in tracks
+            if isinstance(tr, dict)
+            and tr.get("type") == "audio"
+            and str(tr.get("name") or "") not in ("", "voiceover")
+        ]
+        if len(candidates) == 1:
+            bgm_track = candidates[0]
+    if bgm_track is None:
+        return
+
+    segments = [s for s in (bgm_track.get("segments") or []) if isinstance(s, dict)]
+    if not segments:
+        return
+
+    # Normalize ordering and compute current end.
+    segments.sort(key=lambda s: int((s.get("target_timerange") or {}).get("start") or 0))
+    current_end = max((_range_end_us(s) for s in segments), default=0)
+    if current_end >= target_us:
+        return
+
+    pattern = segments[:]  # reuse template repetition pattern
+    if not pattern:
+        return
+
+    import uuid
+
+    appended = 0
+    max_append = 500  # safety cap (e.g., ~10h at 72s/segment)
+    idx = 0
+    while current_end < target_us and appended < max_append:
+        base = pattern[idx % len(pattern)]
+        idx += 1
+
+        base_tt = base.get("target_timerange") if isinstance(base.get("target_timerange"), dict) else {}
+        base_st = base.get("source_timerange") if isinstance(base.get("source_timerange"), dict) else {}
+        base_dur = int(base_tt.get("duration") or base_st.get("duration") or 0)
+        if base_dur <= 0:
+            break
+
+        remaining = target_us - current_end
+        new_dur = min(base_dur, remaining)
+        if new_dur <= 0:
+            break
+
+        seg = copy.deepcopy(base)
+        seg["id"] = str(uuid.uuid4()).upper()
+        seg_tt = seg.get("target_timerange")
+        if not isinstance(seg_tt, dict):
+            seg_tt = {}
+            seg["target_timerange"] = seg_tt
+        seg_tt["start"] = int(current_end)
+        seg_tt["duration"] = int(new_dur)
+
+        seg_st = seg.get("source_timerange")
+        if not isinstance(seg_st, dict):
+            seg_st = {"start": 0}
+            seg["source_timerange"] = seg_st
+        # Keep source start; clamp duration to match segment duration.
+        seg_st["duration"] = int(new_dur)
+
+        segments.append(seg)
+        appended += 1
+        current_end += int(new_dur)
+
+    if appended:
+        bgm_track["segments"] = segments
+        content_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info("🔊 Extended BGM to %.1fmin (+%d segments)", target_us / 1_000_000 / 60.0, appended)
 
 
 def pre_flight_check(args, logger: logging.Logger) -> list[str]:
@@ -2686,6 +2916,7 @@ def main():
     # (If we purge after load, in-memory script.content will overwrite the JSON back.)
     _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_text_tracks)
     _purge_stale_managed_tracks_in_template_copy(draft_dir, logger)
+    _localize_external_audio_assets(draft_dir, logger)
 
     script = df.load_template(args.new)
     assets_dir = draft_dir / 'assets' / 'image'
@@ -2764,65 +2995,86 @@ def main():
     except Exception:
         pass
 
-    # Insert images
+    # Insert images/videos (b-roll)
     prev_end_us = None
     for i, cue in enumerate(cues):
-        img = images_dir / f"{i+1:04d}.png"
-        dest = assets_dir / img.name
+        # Prefer injected asset_relpath from image_cues.json (e.g., broll/*.mp4)
+        rel = None
+        if isinstance(cue, dict):
+            rel = (cue.get("asset_relpath") or "").strip() or None
+
+        src = (run_dir / rel).resolve() if rel else (images_dir / f"{i+1:04d}.png")
+        if not src.exists():
+            raise FileNotFoundError(f"Asset missing for cue[{i}]: {src}")
+
+        dest = assets_dir / src.name
         try:
-            shutil.copy2(img, dest)
-        except Exception:
-            pass
+            shutil.copy2(src, dest)
+        except Exception as exc:
+            if not dest.exists():
+                raise RuntimeError(f"Failed to copy asset for cue[{i}]: {src} -> {dest}: {exc}") from exc
         # Absolute timing from cues
         start_us, dur_us = schedule[i]
         # Material: reference draft-local asset path to avoid relinking
         if _VIDEO_MATERIAL_REQUIRES_TYPE:
-            mat = Video_material(material_type='photo', path=str(dest), material_name=img.name)
+            mat = Video_material(material_type='photo', path=str(dest), material_name=src.name)
         else:
-            mat = Video_material(path=str(dest), material_name=img.name)
+            mat = Video_material(path=str(dest), material_name=src.name)
         # Register material into the draft to ensure materials.images contains it
         try:
             script.add_material(mat)
         except Exception as e:
-            print(f"Warning: Failed to add_material for {img.name}: {e}")
+            print(f"Warning: Failed to add_material for {src.name}: {e}")
+
+        is_video = str(getattr(mat, "material_type", "") or "").lower() == "video"
+        # For videos, cap source duration to the material's duration (allow mild slow-down when shorter).
+        src_dur_us = int(dur_us)
+        if is_video:
+            try:
+                mdur = int(getattr(mat, "duration", dur_us) or dur_us)
+                src_dur_us = max(1, min(mdur, int(dur_us)))
+            except Exception:
+                src_dur_us = max(1, int(dur_us))
 
         seg = Video_segment(
             mat,
             target_timerange=Timerange(start_us, dur_us),
-            source_timerange=Timerange(0, dur_us),
+            source_timerange=Timerange(0, src_dur_us),
+            volume=0.0 if is_video else 1.0,
             clip_settings=Clip_settings(transform_x=args.tx, transform_y=args.ty, scale_x=args.scale, scale_y=args.scale),
         )
 
-        # Gentle Ken Burns drift（安全マージン確保: 基本スケール固定＋微小移動）
-        try:
-            if 'clip' not in seg.__dict__:
-                seg.clip = {}
-            seg.clip.setdefault('transform', {})
-            seg.clip.setdefault('scale', {})
+        if not is_video:
+            # Gentle Ken Burns drift（安全マージン確保: 基本スケール固定＋微小移動）
+            try:
+                if 'clip' not in seg.__dict__:
+                    seg.clip = {}
+                seg.clip.setdefault('transform', {})
+                seg.clip.setdefault('scale', {})
 
-            rng = random.Random(7739 + i)  # deterministic per index
-            pos_jitter = 0.02  # small move to avoid cropping
-            start_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
-            start_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
-            end_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
-            end_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
-            # scale: keep constant (global rule: all images = args.scale)
-            start_scale = args.scale
-            end_scale = args.scale
+                rng = random.Random(7739 + i)  # deterministic per index
+                pos_jitter = 0.02  # small move to avoid cropping
+                start_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
+                start_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
+                end_tx = args.tx + rng.uniform(-pos_jitter, pos_jitter)
+                end_ty = args.ty + rng.uniform(-pos_jitter, pos_jitter)
+                # scale: keep constant (global rule: all images = args.scale)
+                start_scale = args.scale
+                end_scale = args.scale
 
-            seg.clip['transform']['x'] = start_tx
-            seg.clip['transform']['y'] = start_ty
-            seg.clip['scale']['x'] = start_scale
-            seg.clip['scale']['y'] = start_scale
+                seg.clip['transform']['x'] = start_tx
+                seg.clip['transform']['y'] = start_ty
+                seg.clip['scale']['x'] = start_scale
+                seg.clip['scale']['y'] = start_scale
 
-            seg.add_keyframe(KeyframeProperty.position_x, 0, start_tx)
-            seg.add_keyframe(KeyframeProperty.position_y, 0, start_ty)
-            seg.add_keyframe(KeyframeProperty.uniform_scale, 0, start_scale)
-            seg.add_keyframe(KeyframeProperty.position_x, dur_us, end_tx)
-            seg.add_keyframe(KeyframeProperty.position_y, dur_us, end_ty)
-            seg.add_keyframe(KeyframeProperty.uniform_scale, dur_us, end_scale)
-        except Exception:
-            pass
+                seg.add_keyframe(KeyframeProperty.position_x, 0, start_tx)
+                seg.add_keyframe(KeyframeProperty.position_y, 0, start_ty)
+                seg.add_keyframe(KeyframeProperty.uniform_scale, 0, start_scale)
+                seg.add_keyframe(KeyframeProperty.position_x, dur_us, end_tx)
+                seg.add_keyframe(KeyframeProperty.position_y, dur_us, end_ty)
+                seg.add_keyframe(KeyframeProperty.uniform_scale, dur_us, end_scale)
+            except Exception:
+                pass
         # Apply transition to current segment (CapCut applies transition at boundary; clips should not overlap)
         # Disabled due to pyJianYingDraft 0.2.x API changes
         # if args.transition and crossfade > 0 and i > 0 and prev_end_us is not None and abs(start_us - prev_end_us) < int(0.02 * SEC):
@@ -3120,6 +3372,7 @@ def main():
             sys.exit(1)
 
     _merge_info_tracks_into_content(draft_dir)
+    _ensure_bgm_covers_duration(draft_dir, logger)
     print(f"Inserted {len(cues)} images into draft: {args.new}\nLocation: {args.draft_root}/{args.new}")
 
     # ========================================

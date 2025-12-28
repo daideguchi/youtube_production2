@@ -18,6 +18,7 @@ from .routing import (
     RoutingConfig,
 )
 from .reading_structs import KanaPatch
+from .text_normalizer import normalize_text_for_tts
 
 
 def apply_kana_patches(
@@ -281,6 +282,7 @@ def voicevox_synthesis(
     cfg = cfg or load_routing_config()
     speaker_id = resolve_voicevox_speaker_id(channel, cfg)
     client = VoicevoxClient(engine_url=cfg.voicevox_url)
+    b_text = normalize_text_for_tts(b_text)
     query = client.audio_query(b_text, speaker_id)
     if patches:
         patched = apply_kana_patches(query.get("accent_phrases"), patches)
@@ -368,6 +370,7 @@ def voicevox_synthesis_chunks(
         # Signal-based pause logic: '#' はポーズマーカーとして機能したが、
         # 音声合成エンジンには渡さない（"シャープ"と読まれるのを防ぐ）
         text_for_tts = tts_input.lstrip("#").strip()
+        text_for_tts = normalize_text_for_tts(text_for_tts)
         if not text_for_tts:
              # マーカーのみの行だった場合は無音として処理（またはスキップ）したいが、synthesisでは空文字エラーになるため
              # ここでは空文字ならスキップ、あるいは空白にする。Voicevoxは空文字でエラーになる可能性がある。
@@ -414,10 +417,11 @@ def voicevox_synthesis_chunks(
             sub_parts.append(part)
             sub_meta.append({"index": idx * 100, "text": text, "wav_path": str(part), "duration_sec": meta["duration_sec"]})
         except Exception:
-            subtexts = _split_for_voicevox(text)
+            subtexts = _split_for_voicevox(text_for_tts)
             if not subtexts:
                 raise
             for s_i, s_txt in enumerate(subtexts):
+                s_txt = normalize_text_for_tts(s_txt)
                 q_sub = client.audio_query(s_txt, speaker_id)
                 if not kana:
                     kana = str(q_sub.get("kana") or "")
@@ -537,6 +541,7 @@ def voicepeak_synthesis(
         # Prefer b_text (reading script) if available, otherwise fallback to text
         tts_input = str(chunk.get("b_text") or text)
         text_for_tts = tts_input.lstrip("#").strip()
+        text_for_tts = normalize_text_for_tts(text_for_tts)
         if not text_for_tts:
             continue
             

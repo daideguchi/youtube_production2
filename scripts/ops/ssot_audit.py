@@ -49,6 +49,8 @@ def _extract_backticks(text: str) -> list[str]:
 
 def _normalize_ssot_rel(p: str) -> str:
     raw = (p or "").strip().replace("\\", "/")
+    raw = raw.removeprefix("./")
+    raw = raw.lstrip("/")
     raw = raw.removeprefix("ssot/").lstrip("/")
     return raw
 
@@ -129,9 +131,29 @@ def _iter_ssot_markdown_files(
     return sorted(out)
 
 
+def _is_in_audit_scope(
+    rel: str,
+    *,
+    include_history: bool,
+    include_completed: bool,
+    include_cleanup_log: bool,
+) -> bool:
+    rel = (rel or "").strip().replace("\\", "/")
+    if not rel:
+        return False
+    if rel == "ops/OPS_CLEANUP_EXECUTION_LOG.md" and not include_cleanup_log:
+        return False
+    top = rel.split("/", 1)[0]
+    if top == "history" and not include_history:
+        return False
+    if top == "completed" and not include_completed:
+        return False
+    return True
+
+
 def _extract_markdown_link_targets(line: str) -> list[str]:
     # NOTE: intentionally simplistic markdown parsing.
-    return re.findall(r"\[[^\\]]+\\]\\(([^)]+)\\)", line or "")
+    return re.findall(r"\[[^\]]+\]\(([^)]+)\)", line or "")
 
 
 def _extract_repo_file_paths(fragment: str) -> set[str]:
@@ -279,9 +301,23 @@ def main() -> int:
         if args.path_audit:
             problems["broken_repo_paths"] = [f"{p} | {missing_repo_paths[p]}" for p in sorted(missing_repo_paths.keys())]
         if args.link_audit:
-            incoming_all: dict[str, int] = {p: 0 for p in ssot_files}
-            incoming_non_index: dict[str, int] = {p: 0 for p in ssot_files}
             index_docs = {"DOCS_INDEX.md", "plans/PLAN_STATUS.md"}
+            ssot_nodes = {
+                p
+                for p in ssot_files
+                if p in index_docs
+                or (
+                    _looks_like_ssot_file(p)
+                    and _is_in_audit_scope(
+                        p,
+                        include_history=args.include_history,
+                        include_completed=args.include_completed,
+                        include_cleanup_log=args.include_cleanup_log,
+                    )
+                )
+            }
+            incoming_all: dict[str, int] = {p: 0 for p in ssot_nodes}
+            incoming_non_index: dict[str, int] = {p: 0 for p in ssot_nodes}
 
             for src, dsts in ssot_edges.items():
                 for dst in dsts:

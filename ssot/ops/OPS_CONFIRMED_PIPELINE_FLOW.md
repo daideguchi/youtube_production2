@@ -43,8 +43,8 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - 実装: `scripts/youtube_publisher/publish_from_sheet.py`
 
 ### 0.3 旧名/参照の注意
-- `commentary_01_srtfile_v2` は廃止（ディレクトリ実体なし）。  
-  コード/テストへ再導入しないこと。Docs/履歴に残る場合は **Legacy参照** とみなし、段階的に更新/整理する。
+- 旧リポジトリ名/旧パスの参照が Docs/履歴に残ることがあるが、**現行コード/テストへ再導入しない**。  
+- 棚卸し/監査の入口（正本）: `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`
 
 ---
 
@@ -260,7 +260,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - CLI（正規/推奨）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`
 - CLI（詳細制御）:
-  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`
+  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --run-name <run_id> ...`
 - UI:
   - `/api/auto-draft/*`（SRT選択→ドラフト生成）
   - `/api/video-production/*`（プロジェクト管理/画像再生成/ベルト編集/設定更新）
@@ -289,6 +289,19 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
 	     - `workspaces/video/runs/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
+	1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
+	   - 既定はOFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）。ONにする場合の既定は provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）。
+	   - CLI指定（`--broll-provider/--broll-ratio`）がある場合は sources.yaml より優先される。
+	   - 目的: “画像だけ”の単調さを避けるため、文脈に合う stock video（mp4）を全体の約20%だけ差し込む。
+	   - 選定は `image_cues.json` の `visual_focus/summary` を使ったスコアリング（等間隔ではない）。
+	   - CapCut挿入は `asset_relpath` があれば mp4 を優先し、動画はミュートで挿入する。
+	   - Outputs:
+	     - `workspaces/video/runs/{run_id}/broll/<provider>/*.mp4`
+	     - `workspaces/video/runs/{run_id}/broll_manifest.json`（クレジット/デバッグ）
+	   - 必要env（.envでOK）:
+	     - `PEXELS_API_KEY`（pixel/pexels）
+	     - `PIXABAY_API_KEY`（pixabay）
+	     - `COVERR_API_KEY`（coverr）
 	2. ベルト生成（belt_mode既定=auto）
 	   - Outputs:
 	     - `workspaces/video/runs/{run_id}/belt_config.json`（日本語4本が正）
@@ -448,7 +461,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 ## 4. Legacy / 旧フローの扱い（ゴミ判定の基準）
 
 ### 4.1 Legacyとみなす根拠
-- 実体の無い `commentary_01_srtfile_v2` 参照（現在は主にDocs/履歴に残存。コード/テストからは削除済み）。
+- 実体の無い旧名/旧パス参照（現在は主に Docs/履歴に残存。コード/テストからは削除済み）。
 - `workspaces/_scratch/`（ローカル作業）や `backups/graveyard/`（archive-first 退避）配下の試作/履歴。
 - 既に削除済みの旧資産（旧PoC/旧静的ビルド等）は `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` を正として扱う（復元は `backups/graveyard/`）。
 

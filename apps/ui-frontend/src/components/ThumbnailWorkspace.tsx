@@ -9,7 +9,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   assignThumbnailLibraryAsset,
   composeThumbnailVariant,
@@ -19,12 +19,14 @@ import {
   fetchPlanningChannelCsv,
   fetchThumbnailImageModels,
   fetchThumbnailLibrary,
+  fetchThumbnailQcNotes,
   fetchThumbnailVideoLayerSpecs,
   fetchThumbnailOverview,
   fetchThumbnailTemplates,
   generateThumbnailVariants,
   importThumbnailLibraryAsset,
   resolveApiUrl,
+  updateThumbnailQcNote,
   updatePlanning,
   updateThumbnailProject,
   updateThumbnailTemplates,
@@ -33,22 +35,25 @@ import {
 } from "../api/client";
 import { ThumbnailBulkPanel } from "./ThumbnailBulkPanel";
 import {
+  ChannelSummary,
   PlanningCreatePayload,
   ThumbnailChannelBlock,
   ThumbnailChannelVideo,
   ThumbnailChannelTemplates,
   ThumbnailImageModelInfo,
   ThumbnailLibraryAsset,
+  ThumbnailQcNotes,
   ThumbnailOverview,
   ThumbnailProject,
   ThumbnailProjectStatus,
   ThumbnailVariant,
   ThumbnailVariantStatus,
 } from "../api/types";
+import { safeLocalStorage } from "../utils/safeStorage";
 
 type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "archived";
 
-type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "templates" | "library" | "channel";
+type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "qc" | "templates" | "library" | "channel";
 
 type VariantFormState = {
   projectKey: string;
@@ -165,6 +170,7 @@ const THUMBNAIL_WORKSPACE_TABS: { key: ThumbnailWorkspaceTab; label: string; des
   { key: "bulk", label: "量産", description: "コピー編集→Canva一括CSV" },
   { key: "projects", label: "案件", description: "サムネ案の登録・生成・採用" },
   { key: "gallery", label: "ギャラリー", description: "選択サムネ一覧 / ZIPダウンロード" },
+  { key: "qc", label: "QC", description: "コンタクトシートで一括確認" },
   { key: "templates", label: "テンプレ", description: "チャンネルの型（AI生成用）" },
   { key: "library", label: "ライブラリ", description: "参考サムネの登録・紐付け" },
   { key: "channel", label: "チャンネル", description: "KPI / 最新動画プレビュー" },
@@ -206,6 +212,27 @@ const VARIANT_STATUS_LABELS: Record<ThumbnailVariantStatus, string> = VARIANT_ST
 
 const SUPPORTED_THUMBNAIL_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
 const THUMBNAIL_ASSET_BASE_PATH = "workspaces/thumbnails/assets";
+const DEFAULT_GALLERY_LIMIT = 30;
+
+const isQcLibraryAsset = (asset: ThumbnailLibraryAsset): boolean => {
+  const rel = (asset.relative_path ?? "").replace(/\\/g, "/");
+  if (
+    rel.startsWith("_qc/")
+    || rel.startsWith("library/qc/")
+    || rel.startsWith("qc/")
+  ) {
+    return true;
+  }
+  const fileName = asset.file_name ?? "";
+  return fileName.startsWith("qc__") || fileName.startsWith("contactsheet");
+};
+
+const withCacheBust = (url: string, token?: string | null): string => {
+  const value = (token ?? "").trim();
+  if (!value) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(value)}`;
+};
 
 const normalizeVideoInput = (value?: string | null): string => {
   if (!value) {
@@ -230,7 +257,21 @@ const CHANNEL_ICON_MAP: Record<string, string> = {
   CH09: "🏛️",
   CH10: "🧠",
   CH11: "📜",
+  CH12: "🪷",
+  CH13: "👪",
+  CH14: "🧩",
+  CH15: "⚖️",
+  CH16: "🪶",
+  CH17: "🕊️",
+  CH18: "🧿",
+  CH19: "🔮",
+  CH20: "🌊",
+  CH21: "🌸",
+  CH22: "🧭",
+  CH23: "🧵",
   CH24: "🙏",
+  CH25: "🧲",
+  CH26: "🪄",
 };
 
 function hashString(value: string): number {
@@ -258,6 +299,25 @@ function channelIconColor(channelCode: string): string {
 function channelIconText(channelCode: string): string {
   const code = (channelCode ?? "").trim().toUpperCase();
   return CHANNEL_ICON_MAP[code] ?? channelIconLabel(code);
+}
+
+function channelSortKey(channelCode: string): number {
+  const normalized = (channelCode ?? "").trim().toUpperCase();
+  const match = normalized.match(/^CH(\d+)$/);
+  if (match) {
+    return Number(match[1]);
+  }
+  return Number.POSITIVE_INFINITY;
+}
+
+function sortThumbnailChannels(channels: ThumbnailChannelBlock[]): ThumbnailChannelBlock[] {
+  return [...channels].sort((a, b) => {
+    const diff = channelSortKey(a.channel) - channelSortKey(b.channel);
+    if (diff !== 0) {
+      return diff;
+    }
+    return a.channel.localeCompare(b.channel);
+  });
 }
 
 function renderPromptTemplate(template: string, context: Record<string, string>): string {
@@ -378,13 +438,33 @@ function isSupportedThumbnailFile(file: File): boolean {
   return SUPPORTED_THUMBNAIL_EXTENSIONS.test(file.name);
 }
 
-export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = {}) {
+type ThumbnailWorkspaceProps = {
+  compact?: boolean;
+  channelSummaries?: ChannelSummary[] | null;
+};
+
+export function ThumbnailWorkspace({ compact = false, channelSummaries }: ThumbnailWorkspaceProps = {}) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const channelSummaryMap = useMemo(() => {
+    const map = new Map<string, ChannelSummary>();
+    (channelSummaries ?? []).forEach((summary) => map.set(summary.code, summary));
+    return map;
+  }, [channelSummaries]);
   const [overview, setOverview] = useState<ThumbnailOverview | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(() => {
+    const params = new URLSearchParams(location.search);
+    const fromQuery = (params.get("channel") ?? "").trim().toUpperCase();
+    if (fromQuery) {
+      return fromQuery;
+    }
+    const stored = (safeLocalStorage.getItem("ui.channel.selected") ?? "").trim().toUpperCase();
+    return stored || null;
+  });
   const [activeTab, setActiveTab] = useState<ThumbnailWorkspaceTab>("gallery");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [galleryLimit, setGalleryLimit] = useState<number>(DEFAULT_GALLERY_LIMIT);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [updatingProjectId, setUpdatingProjectId] = useState<string | null>(null);
@@ -397,6 +477,10 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const [libraryAssets, setLibraryAssets] = useState<ThumbnailLibraryAsset[]>([]);
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [libraryError, setLibraryError] = useState<string | null>(null);
+  const [qcNotes, setQcNotes] = useState<ThumbnailQcNotes>({});
+  const [qcNotesDraft, setQcNotesDraft] = useState<Record<string, string>>({});
+  const [qcNotesSaving, setQcNotesSaving] = useState<Record<string, boolean>>({});
+  const [qcNotesError, setQcNotesError] = useState<string | null>(null);
   const [libraryForms, setLibraryForms] = useState<Record<string, LibraryFormState>>({});
   const libraryUploadInputRef = useRef<HTMLInputElement | null>(null);
   const [libraryUploadStatus, setLibraryUploadStatus] = useState<{
@@ -417,7 +501,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const feedbackTimers = useRef<Map<string, number>>(new Map());
   const dropzoneFileInputs = useRef(new Map<string, HTMLInputElement>());
   const [activeDropProject, setActiveDropProject] = useState<string | null>(null);
+  const [expandedProjectKey, setExpandedProjectKey] = useState<string | null>(null);
   const libraryRequestRef = useRef(0);
+  const qcNotesRequestRef = useRef(0);
   const [imageModels, setImageModels] = useState<ThumbnailImageModelInfo[]>([]);
   const [imageModelsError, setImageModelsError] = useState<string | null>(null);
   const [channelTemplates, setChannelTemplates] = useState<ThumbnailChannelTemplates | null>(null);
@@ -433,6 +519,32 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
+  const [channelAvatarErrors, setChannelAvatarErrors] = useState<Record<string, boolean>>({});
+  const [channelPickerOpen, setChannelPickerOpen] = useState(true);
+  const [channelPickerQuery, setChannelPickerQuery] = useState("");
+  const channelPickerButtonRef = useRef<HTMLButtonElement | null>(null);
+  const channelPickerPanelRef = useRef<HTMLDivElement | null>(null);
+
+  const selectChannel = useCallback(
+    (channelCode: string) => {
+      const normalized = channelCode.trim().toUpperCase();
+      setSelectedChannel(normalized);
+
+      const params = new URLSearchParams(location.search);
+      if (normalized) {
+        params.set("channel", normalized);
+      } else {
+        params.delete("channel");
+      }
+      const query = params.toString();
+      const nextUrl = `${location.pathname}${query ? `?${query}` : ""}`;
+      const currentUrl = `${location.pathname}${location.search}`;
+      if (nextUrl !== currentUrl) {
+        navigate(nextUrl, { replace: true });
+      }
+    },
+    [location.pathname, location.search, navigate]
+  );
 
   const activeChannel: ThumbnailChannelBlock | undefined = useMemo(() => {
     if (!overview || overview.channels.length === 0) {
@@ -448,18 +560,121 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const summary = activeChannel?.summary;
   const activeChannelName = activeChannel?.channel_title ?? activeChannel?.channel ?? null;
   const channelVideos = activeChannel?.videos ?? [];
+  const channelPickerChannels: ThumbnailChannelBlock[] = useMemo(() => {
+    if (!overview) {
+      return [];
+    }
+    const query = channelPickerQuery.trim().toLowerCase();
+    if (!query) {
+      return overview.channels;
+    }
+    return overview.channels.filter((channel) => {
+      const title = (channel.channel_title ?? "").trim();
+      const channelInfo = channelSummaryMap.get(channel.channel);
+      const fallbackTitle = (
+        channelInfo?.name ??
+        channelInfo?.branding?.title ??
+        channelInfo?.youtube_title ??
+        ""
+      ).trim();
+      const resolvedTitle = title || fallbackTitle;
+      const hay = `${channel.channel} ${resolvedTitle}`.toLowerCase();
+      return hay.includes(query);
+    });
+  }, [channelPickerQuery, channelSummaryMap, overview]);
+
+  useEffect(() => {
+    if (!channelPickerOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+      event.preventDefault();
+      setChannelPickerOpen(false);
+      channelPickerButtonRef.current?.focus();
+    };
+
+    const onPointerDown = (event: MouseEvent | PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      if (channelPickerPanelRef.current?.contains(target)) {
+        return;
+      }
+      if (channelPickerButtonRef.current?.contains(target)) {
+        return;
+      }
+      setChannelPickerOpen(false);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [channelPickerOpen]);
+  const galleryProjects = useMemo(() => {
+    if (!activeChannel) {
+      return [];
+    }
+    const projects = [...activeChannel.projects];
+    projects.sort((a, b) => {
+      const aVideo = Number(normalizeVideoInput(a.video));
+      const bVideo = Number(normalizeVideoInput(b.video));
+      if (Number.isFinite(aVideo) && Number.isFinite(bVideo) && aVideo !== bVideo) {
+        return bVideo - aVideo; // desc
+      }
+      return (b.video ?? "").localeCompare(a.video ?? "");
+    });
+
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return projects;
+    }
+    return projects.filter((project) => {
+      const hay = `${project.video} ${project.title ?? ""} ${project.sheet_title ?? ""}`.toLowerCase();
+      return hay.includes(query);
+    });
+  }, [activeChannel, searchTerm]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const channelParam = params.get("channel");
-    if (channelParam && channelParam.trim()) {
-      setSelectedChannel(channelParam.trim().toUpperCase());
+    const channelParam = (params.get("channel") ?? "").trim().toUpperCase();
+    if (channelParam) {
+      if (selectedChannel !== channelParam) {
+        setSelectedChannel(channelParam);
+      }
+      return;
     }
-  }, [location.search]);
+  }, [location.search, selectedChannel]);
+
+  useEffect(() => {
+    if (!selectedChannel) {
+      return;
+    }
+    const normalized = selectedChannel.trim().toUpperCase();
+    if (normalized !== selectedChannel) {
+      setSelectedChannel(normalized);
+      return;
+    }
+    // Persist last-used channel without forcing URL rewrites (avoids navigation loops).
+    safeLocalStorage.setItem("ui.channel.selected", normalized);
+  }, [selectedChannel]);
 
   useEffect(() => {
     setGalleryProjectSaving({});
     setGalleryNotesDraft({});
+    setExpandedProjectKey(null);
+    setGalleryLimit(DEFAULT_GALLERY_LIMIT);
+    setQcNotes({});
+    setQcNotesDraft({});
+    setQcNotesSaving({});
+    setQcNotesError(null);
   }, [activeChannel?.channel]);
 
   const loadPlanning = useCallback(
@@ -604,14 +819,32 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   const handleGalleryProjectStatusChange = useCallback(
     async (project: ThumbnailProject, status: ThumbnailProjectStatus) => {
       const projectKey = getProjectKey(project);
+      const draftNotes = galleryNotesDraft[projectKey];
+      const currentNotes = project.notes ?? "";
+      const notesDirty = draftNotes !== undefined && draftNotes !== currentNotes;
+      const trimmedNotes = notesDirty ? draftNotes.trim() : "";
+      const notesPayload = notesDirty ? (trimmedNotes ? trimmedNotes : null) : undefined;
       setGalleryProjectSaving((current) => ({ ...current, [projectKey]: true }));
       setProjectFeedback(projectKey, null);
       try {
-        await updateThumbnailProject(project.channel, project.video, { status });
-        patchProjectInOverview(project.channel, project.video, { status });
+        await updateThumbnailProject(project.channel, project.video, {
+          status,
+          ...(notesPayload !== undefined ? { notes: notesPayload } : {}),
+        });
+        patchProjectInOverview(project.channel, project.video, {
+          status,
+          ...(notesPayload !== undefined ? { notes: notesPayload } : {}),
+        });
+        if (notesPayload !== undefined) {
+          setGalleryNotesDraft((current) => {
+            const next = { ...current };
+            delete next[projectKey];
+            return next;
+          });
+        }
         setProjectFeedback(projectKey, {
           type: "success",
-          message: "保存しました。",
+          message: notesPayload !== undefined ? "ステータスとコメントを保存しました。" : "保存しました。",
           timestamp: Date.now(),
         });
       } catch (error) {
@@ -625,7 +858,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         setGalleryProjectSaving((current) => ({ ...current, [projectKey]: false }));
       }
     },
-    [patchProjectInOverview, setProjectFeedback]
+    [galleryNotesDraft, patchProjectInOverview, setProjectFeedback]
   );
 
   const handleGalleryNotesChange = useCallback((projectKey: string, value: string) => {
@@ -675,6 +908,48 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     [galleryNotesDraft, patchProjectInOverview, setProjectFeedback]
   );
 
+  const handleQcNotesChange = useCallback((relativePath: string, value: string) => {
+    setQcNotesDraft((current) => ({
+      ...current,
+      [relativePath]: value,
+    }));
+  }, []);
+
+  const handleQcNotesSave = useCallback(
+    async (relativePath: string) => {
+      const channelCode = activeChannel?.channel;
+      if (!channelCode) {
+        return;
+      }
+      const draft = qcNotesDraft[relativePath];
+      const currentNote = qcNotes[relativePath] ?? "";
+      if (draft === undefined || draft === currentNote) {
+        return;
+      }
+      const trimmed = draft.trim();
+      setQcNotesSaving((current) => ({ ...current, [relativePath]: true }));
+      setQcNotesError(null);
+      try {
+        const next = await updateThumbnailQcNote(channelCode, {
+          relative_path: relativePath,
+          note: trimmed ? trimmed : null,
+        });
+        setQcNotes(next);
+        setQcNotesDraft((current) => {
+          const copy = { ...current };
+          delete copy[relativePath];
+          return copy;
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setQcNotesError(message);
+      } finally {
+        setQcNotesSaving((current) => ({ ...current, [relativePath]: false }));
+      }
+    },
+    [activeChannel?.channel, qcNotes, qcNotesDraft]
+  );
+
   useEffect(() => {
     const timers = feedbackTimers.current;
     return () => {
@@ -692,17 +967,19 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       }
       try {
         const data = await fetchThumbnailOverview();
-        setOverview(data);
+        const sortedChannels = sortThumbnailChannels(data.channels ?? []);
+        const sortedOverview = { ...data, channels: sortedChannels };
+        setOverview(sortedOverview);
         setSelectedChannel((prev) => {
-          if (!data.channels.length) {
+          if (!sortedChannels.length) {
             return null;
           }
-          if (prev && data.channels.some((channel) => channel.channel === prev)) {
+          if (prev && sortedChannels.some((channel) => channel.channel === prev)) {
             return prev;
           }
-          return data.channels[0].channel;
+          return sortedChannels[0].channel;
         });
-        return data;
+        return sortedOverview;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (!silent) {
@@ -767,6 +1044,33 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     []
   );
 
+  const loadQcNotes = useCallback(
+    async (channelCode: string, options?: { silent?: boolean }) => {
+      const silent = options?.silent ?? false;
+      const requestId = Date.now();
+      qcNotesRequestRef.current = requestId;
+      if (!silent) {
+        setQcNotesError(null);
+      }
+      try {
+        const notes = await fetchThumbnailQcNotes(channelCode);
+        if (qcNotesRequestRef.current !== requestId) {
+          return notes;
+        }
+        setQcNotes(notes);
+        return notes;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (qcNotesRequestRef.current === requestId) {
+          setQcNotes({});
+          setQcNotesError(message);
+        }
+        throw error;
+      }
+    },
+    []
+  );
+
   const loadTemplates = useCallback(
     async (channelCode: string, options?: { silent?: boolean }) => {
       const silent = options?.silent ?? false;
@@ -795,6 +1099,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
   );
 
   useEffect(() => {
+    if (activeTab !== "library" && activeTab !== "qc") {
+      return;
+    }
     if (!activeChannel?.channel) {
       setLibraryAssets([]);
       setLibraryForms({});
@@ -805,7 +1112,22 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     loadLibrary(activeChannel.channel).catch(() => {
       // loadLibrary 内でエラー表示済み
     });
-  }, [activeChannel?.channel, loadLibrary]);
+  }, [activeChannel?.channel, activeTab, loadLibrary]);
+
+  useEffect(() => {
+    if (activeTab !== "qc") {
+      return;
+    }
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      setQcNotes({});
+      setQcNotesError(null);
+      return;
+    }
+    loadQcNotes(channelCode).catch(() => {
+      // loadQcNotes 内でエラー表示済み
+    });
+  }, [activeChannel?.channel, activeTab, loadQcNotes]);
 
   useEffect(() => {
     fetchData().catch(() => {
@@ -834,10 +1156,13 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       setTemplatesStatus({ pending: false, error: null, success: null });
       return;
     }
+    if (activeTab !== "templates" && activeTab !== "projects" && activeTab !== "bulk") {
+      return;
+    }
     loadTemplates(channelCode).catch(() => {
       // loadTemplates 内でエラー表示済み
     });
-  }, [activeChannel?.channel, loadTemplates]);
+  }, [activeChannel?.channel, activeTab, loadTemplates]);
 
   useEffect(() => {
     const channelCode = activeChannel?.channel;
@@ -847,10 +1172,13 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       setPlanningError(null);
       return;
     }
+    if (activeTab === "templates" || activeTab === "library" || activeTab === "qc" || activeTab === "channel") {
+      return;
+    }
     loadPlanning(channelCode).catch(() => {
       // error is shown in planningError
     });
-  }, [activeChannel?.channel, loadPlanning]);
+  }, [activeChannel?.channel, activeTab, loadPlanning]);
 
   const bulkPanel = activeChannel ? (
     <ThumbnailBulkPanel
@@ -966,6 +1294,13 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           <p>選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。</p>
         </div>
         <div className="thumbnail-gallery-panel__actions">
+          <input
+            type="search"
+            className="thumbnail-gallery-panel__search"
+            placeholder="番号・タイトルで検索"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
           <a
             className="btn btn--ghost"
             href={resolveApiUrl(
@@ -991,7 +1326,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         </div>
       </div>
       <div className="thumbnail-gallery-grid">
-        {activeChannel.projects.map((project) => {
+        {galleryProjects.slice(0, galleryLimit).map((project) => {
           const projectKey = getProjectKey(project);
           const selectedVariant =
             project.variants.find((variant) => variant.is_selected) ??
@@ -1012,7 +1347,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
               </article>
             );
           }
-          const imageUrl =
+          const cacheBustToken =
+            selectedVariant.updated_at ?? project.updated_at ?? project.status_updated_at ?? null;
+          const imageUrlBase =
             selectedVariant.preview_url
               ? resolveApiUrl(selectedVariant.preview_url)
               : selectedVariant.image_url
@@ -1020,6 +1357,7 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 : selectedVariant.image_path
                   ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
                   : null;
+          const imageUrl = imageUrlBase ? withCacheBust(imageUrlBase, cacheBustToken) : null;
           const statusLabel = PROJECT_STATUS_LABELS[project.status] ?? project.status;
           const feedback = cardFeedback[projectKey];
           const busy = galleryProjectSaving[projectKey] ?? false;
@@ -1138,6 +1476,20 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           );
         })}
       </div>
+      {galleryProjects.length > galleryLimit ? (
+        <div className="thumbnail-gallery-panel__more">
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => setGalleryLimit((prev) => prev + DEFAULT_GALLERY_LIMIT)}
+          >
+            さらに表示
+          </button>
+          <span className="muted small-text">
+            {Math.min(galleryLimit, galleryProjects.length)} / {galleryProjects.length}
+          </span>
+        </div>
+      ) : null}
     </section>
   ) : (
     <section className="thumbnail-library-panel">
@@ -1606,12 +1958,13 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
           make_selected: project.variants.length === 0,
         });
 
-        const previewUrl =
+        const previewUrlBase =
           variant.preview_url?.trim()
             ? resolveApiUrl(variant.preview_url)
             : variant.image_path?.trim()
               ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
               : null;
+        const previewUrl = previewUrlBase ? withCacheBust(previewUrlBase, variant.updated_at) : null;
 
         setProjectFeedback(projectKey, {
           type: "success",
@@ -1784,16 +2137,18 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     if (!activeChannel) {
       return [];
     }
-        const projects = [...activeChannel.projects];
-        projects.sort((a, b) => {
-          const keyA = a.selected_variant_id ? 0 : 1;
-          const keyB = b.selected_variant_id ? 0 : 1;
-          if (keyA !== keyB) {
-            return keyA - keyB;
-          }
-          return (b.updated_at ?? "").localeCompare(a.updated_at ?? "");
-        });
-        let result = projects;
+
+    const projects = [...activeChannel.projects];
+    projects.sort((a, b) => {
+      const aVideo = Number(normalizeVideoInput(a.video));
+      const bVideo = Number(normalizeVideoInput(b.video));
+      if (Number.isFinite(aVideo) && Number.isFinite(bVideo) && aVideo !== bVideo) {
+        return bVideo - aVideo; // desc
+      }
+      return (b.video ?? "").localeCompare(a.video ?? "");
+    });
+
+    let result = projects;
     if (statusFilter !== "all") {
       result = result.filter((project) => {
         if (statusFilter === "approved") {
@@ -1909,6 +2264,10 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     }
     handleOpenVariantForm(filteredProjects[0]);
   }, [filteredProjects, handleOpenVariantForm]);
+
+  const toggleProjectVariants = useCallback((projectKey: string) => {
+    setExpandedProjectKey((current) => (current === projectKey ? null : projectKey));
+  }, []);
 
   const handleCancelVariantForm = useCallback(() => {
     setVariantForm(null);
@@ -2369,6 +2728,118 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
     [handleDropzoneFiles]
   );
 
+  const qcLibraryAssets = useMemo(() => {
+    const assets = libraryAssets.filter(isQcLibraryAsset).slice();
+    assets.sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
+    return assets;
+  }, [libraryAssets]);
+
+  const visibleLibraryAssets = useMemo(() => {
+    const assets = libraryAssets.filter((asset) => !isQcLibraryAsset(asset)).slice();
+    assets.sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
+    return assets;
+  }, [libraryAssets]);
+
+  const qcPanel = activeChannel ? (
+    <section className="thumbnail-library-panel">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>QC（コンタクトシート）</h3>
+          <p>
+            <code>python scripts/thumbnails/build.py qc</code> が生成する contactsheet を表示します（例:
+            <code>workspaces/thumbnails/assets/{activeChannel.channel}/library/qc/contactsheet.png</code>）。
+          </p>
+        </div>
+        <button
+          type="button"
+          className="thumbnail-refresh-button"
+          onClick={() => {
+            handleLibraryRefresh();
+            loadQcNotes(activeChannel.channel, { silent: true }).catch(() => {
+              // loadQcNotes 内でエラー表示済み
+            });
+          }}
+          disabled={libraryLoading}
+        >
+          {libraryLoading ? "読込中…" : "QC再読み込み"}
+        </button>
+      </div>
+      {libraryError ? <p className="thumbnail-library__alert">{libraryError}</p> : null}
+      {qcNotesError ? <p className="thumbnail-library__alert">{qcNotesError}</p> : null}
+      {qcLibraryAssets.length === 0 && !libraryError ? (
+        <p className="thumbnail-library__placeholder">
+          {libraryLoading ? "QC画像を読み込んでいます…" : "QC画像が見つかりませんでした。"}
+        </p>
+      ) : null}
+      {qcLibraryAssets.length > 0 ? (
+        <div className="thumbnail-library-grid">
+          {qcLibraryAssets.map((asset) => {
+            const previewUrlBase = resolveApiUrl(asset.public_url);
+            const previewUrl = withCacheBust(previewUrlBase, asset.updated_at);
+            const relativePath = asset.relative_path;
+            const currentNote = qcNotes[relativePath] ?? "";
+            const draftNote = qcNotesDraft[relativePath];
+            const noteValue = draftNote !== undefined ? draftNote : currentNote;
+            const noteDirty = draftNote !== undefined && draftNote !== currentNote;
+            const noteSaving = qcNotesSaving[relativePath] ?? false;
+            const assetPath = `${THUMBNAIL_ASSET_BASE_PATH}/${activeChannel.channel}/${relativePath}`;
+            return (
+              <article key={asset.id} className="thumbnail-library-card">
+                <div className="thumbnail-library-card__preview">
+                  <a href={previewUrl} target="_blank" rel="noreferrer" title="別タブで表示">
+                    <img src={previewUrl} alt={asset.file_name} loading="lazy" />
+                  </a>
+                </div>
+                <div className="thumbnail-library-card__meta">
+                  <strong title={asset.file_name}>{asset.file_name}</strong>
+                  <div className="thumbnail-library-card__meta-info">{asset.relative_path}</div>
+                  <div className="thumbnail-library-card__meta-info">
+                    {formatBytes(asset.size_bytes)}・{formatDate(asset.updated_at)}
+                  </div>
+                  <label className="thumbnail-library-card__describe">
+                    <span>コメント</span>
+                    <textarea
+                      rows={2}
+                      value={noteValue}
+                      onChange={(event) => handleQcNotesChange(relativePath, event.target.value)}
+                      onBlur={() => {
+                        if (noteDirty && !noteSaving) {
+                          void handleQcNotesSave(relativePath);
+                        }
+                      }}
+                      placeholder="指示・メモ（例: 021-030 はフォント小さめに、帯を明るく）"
+                    />
+                  </label>
+                  <div className="thumbnail-library-card__actions">
+                    <button type="button" className="btn btn--ghost" onClick={() => handleCopyAssetPath(assetPath)}>
+                      パスコピー
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleQcNotesSave(relativePath)}
+                      disabled={noteSaving || !noteDirty}
+                    >
+                      {noteSaving ? "保存中…" : noteDirty ? "コメント保存" : "保存済み"}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : null}
+    </section>
+  ) : (
+    <section className="thumbnail-library-panel">
+      <div className="thumbnail-library-panel__header">
+        <div>
+          <h3>QC（コンタクトシート）</h3>
+          <p>チャンネルを選択するとQC画像が表示されます。</p>
+        </div>
+      </div>
+    </section>
+  );
 
   const libraryPanel = activeChannel ? (
     <section className="thumbnail-library-panel">
@@ -2379,6 +2850,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
             {activeChannel.library_path
               ? `${activeChannel.library_path} 配下の PNG / JPG / WEBP が一覧に並びます。`
               : "PNG / JPG / WEBP をドラッグ & ドロップ / URL で追加できます。"}
+          </p>
+          <p className="muted small-text" style={{ marginTop: "6px" }}>
+            QC（コンタクトシート）は <strong>QCタブ</strong> に集約しました。
           </p>
         </div>
         <button type="button" className="thumbnail-refresh-button" onClick={handleLibraryRefresh} disabled={libraryLoading}>
@@ -2449,14 +2923,14 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
       {libraryImportStatus.success ? (
         <p className="thumbnail-library__message thumbnail-library__message--success">{libraryImportStatus.success}</p>
       ) : null}
-      {libraryAssets.length === 0 && !libraryError ? (
+      {visibleLibraryAssets.length === 0 && !libraryError ? (
         <p className="thumbnail-library__placeholder">
-          {libraryLoading ? "画像を読み込んでいます…" : "画像ファイルを追加するとここにサムネイルが並びます。"}
+          {libraryLoading ? "画像を読み込んでいます…" : "参考サムネがありません（QCはQCタブ）。"}
         </p>
       ) : null}
-      {libraryAssets.length > 0 ? (
+      {visibleLibraryAssets.length > 0 ? (
         <div className="thumbnail-library-grid">
-          {libraryAssets.map((asset) => {
+          {visibleLibraryAssets.map((asset) => {
             const previewUrl = resolveApiUrl(asset.public_url);
             const formState = libraryForms[asset.id] ?? { video: "", pending: false };
             const describeState = libraryDescribeState[asset.id];
@@ -2837,36 +3311,136 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         </header>
         <div className="thumbnail-hub">
           {overview && overview.channels.length > 1 ? (
-            <nav className="thumbnail-hub__tabs thumbnail-hub__tabs--channels" aria-label="チャンネル選択">
-              {overview.channels.map((channel) => {
-                const isActive = channel.channel === activeChannel?.channel;
-                const title = (channel.channel_title ?? "").trim();
-                const buttonTitle = title ? `${channel.channel} ${title}` : channel.channel;
+            <div className="thumbnail-channel-picker" aria-label="チャンネル選択">
+              <button
+                ref={channelPickerButtonRef}
+                type="button"
+                className="thumbnail-channel-picker__trigger"
+                onClick={() => setChannelPickerOpen((current) => !current)}
+                aria-expanded={channelPickerOpen}
+              >
+                <span className="thumbnail-channel-picker__label">チャンネル</span>
+                {activeChannel ? (() => {
+                  const channelInfo = channelSummaryMap.get(activeChannel.channel);
+                  const avatarUrl = channelInfo?.branding?.avatar_url ?? null;
+                  const themeColor = channelInfo?.branding?.theme_color ?? null;
+                  const avatarEnabled = Boolean(avatarUrl && !channelAvatarErrors[activeChannel.channel]);
+                const iconStyle = { backgroundColor: themeColor ?? channelIconColor(activeChannel.channel) };
                 return (
-                  <button
-                    key={channel.channel}
-                    type="button"
-                    className={`thumbnail-hub__tab thumbnail-hub__tab--channel ${isActive ? "thumbnail-hub__tab--active" : ""}`}
-                    onClick={() => setSelectedChannel(channel.channel)}
-                    aria-pressed={isActive}
-                    title={buttonTitle}
-                  >
-                    <span
-                      className="thumbnail-hub__channel-icon"
-                      aria-hidden="true"
-                      style={{ backgroundColor: channelIconColor(channel.channel) }}
+                  <span className="thumbnail-channel-picker__current">
+                      <span className="thumbnail-hub__channel-icon" aria-hidden="true" style={iconStyle}>
+                        {channelIconText(activeChannel.channel)}
+                        {avatarEnabled ? (
+                          <img
+                            className="thumbnail-hub__channel-avatar"
+                            src={avatarUrl ?? undefined}
+                            alt=""
+                            loading="lazy"
+                            onError={() =>
+                              setChannelAvatarErrors((current) => ({ ...current, [activeChannel.channel]: true }))
+                            }
+                          />
+                        ) : null}
+                      </span>
+                      <span className="thumbnail-channel-picker__current-meta">
+                        <span className="thumbnail-channel-picker__current-code">{activeChannel.channel}</span>
+                        {activeChannelName ? (
+                          <span className="thumbnail-channel-picker__current-title">{activeChannelName}</span>
+                        ) : null}
+                      </span>
+                      <span className="thumbnail-channel-picker__count">{activeChannel.summary.total}</span>
+                    </span>
+                  );
+                })() : <span className="thumbnail-channel-picker__current">—</span>}
+                <span className="thumbnail-channel-picker__chevron" aria-hidden="true">
+                  {channelPickerOpen ? "▴" : "▾"}
+                </span>
+              </button>
+              {channelPickerOpen ? (
+                <div className="thumbnail-channel-picker__panel" ref={channelPickerPanelRef}>
+                  <div className="thumbnail-channel-picker__controls">
+                    <input
+                      type="search"
+                      value={channelPickerQuery}
+                      onChange={(event) => setChannelPickerQuery(event.target.value)}
+                      placeholder="CHコード・チャンネル名で検索"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => setChannelPickerQuery("")}
+                      disabled={!channelPickerQuery.trim()}
                     >
-                      {channelIconText(channel.channel)}
-                    </span>
-                    <span className="thumbnail-hub__channel-meta">
-                      <span className="thumbnail-hub__channel-code">{channel.channel}</span>
-                      {title ? <span className="thumbnail-hub__channel-title">{title}</span> : null}
-                    </span>
-                    <span className="thumbnail-hub__tab-count">{channel.summary.total}</span>
-                  </button>
-                );
-              })}
-            </nav>
+                      クリア
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => setChannelPickerOpen(false)}
+                    >
+                      閉じる
+                    </button>
+                  </div>
+                  <div className="thumbnail-channel-picker__list" role="listbox" aria-label="チャンネル一覧">
+                    {channelPickerChannels.map((channel) => {
+                      const isActive = channel.channel === activeChannel?.channel;
+                      const title = (channel.channel_title ?? "").trim();
+                      const channelInfo = channelSummaryMap.get(channel.channel);
+                      const fallbackTitle = (
+                        channelInfo?.name ??
+                        channelInfo?.branding?.title ??
+                        channelInfo?.youtube_title ??
+                        ""
+                      ).trim();
+                      const resolvedTitle = title || fallbackTitle;
+                      const buttonTitle = resolvedTitle ? `${channel.channel} ${resolvedTitle}` : channel.channel;
+                      const avatarUrl = channelInfo?.branding?.avatar_url ?? null;
+                      const themeColor = channelInfo?.branding?.theme_color ?? null;
+                      const avatarEnabled = Boolean(avatarUrl && !channelAvatarErrors[channel.channel]);
+                      const iconStyle = { backgroundColor: themeColor ?? channelIconColor(channel.channel) };
+                      return (
+                        <button
+                          key={channel.channel}
+                          type="button"
+                          className={`thumbnail-hub__tab thumbnail-hub__tab--channel ${isActive ? "thumbnail-hub__tab--active" : ""}`}
+                          onClick={() => {
+                            selectChannel(channel.channel);
+                            setChannelPickerOpen(false);
+                            setChannelPickerQuery("");
+                          }}
+                          aria-pressed={isActive}
+                          title={buttonTitle}
+                        >
+                          <span className="thumbnail-hub__channel-icon" aria-hidden="true" style={iconStyle}>
+                            {channelIconText(channel.channel)}
+                            {avatarEnabled ? (
+                              <img
+                                className="thumbnail-hub__channel-avatar"
+                                src={avatarUrl ?? undefined}
+                                alt=""
+                                loading="lazy"
+                                onError={() =>
+                                  setChannelAvatarErrors((current) => ({ ...current, [channel.channel]: true }))
+                                }
+                              />
+                            ) : null}
+                          </span>
+                          <span className="thumbnail-hub__channel-meta">
+                            <span className="thumbnail-hub__channel-code">{channel.channel}</span>
+                            {resolvedTitle ? <span className="thumbnail-hub__channel-title">{resolvedTitle}</span> : null}
+                          </span>
+                          <span className="thumbnail-hub__tab-count">{channel.summary.total}</span>
+                        </button>
+                      );
+                    })}
+                    {channelPickerChannels.length === 0 ? (
+                      <p className="thumbnail-channel-picker__empty">該当するチャンネルが見つかりませんでした。</p>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+            </div>
           ) : null}
           <nav className="thumbnail-hub__tabs thumbnail-hub__tabs--views" aria-label="表示切替">
             {THUMBNAIL_WORKSPACE_TABS.map((tab) => (
@@ -2936,13 +3510,32 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                 const primaryTitle = project.title ?? project.sheet_title ?? "タイトル未設定";
                 const secondaryTitle =
                   project.sheet_title && project.sheet_title !== primaryTitle ? project.sheet_title : null;
-                const selectedVariant = project.variants.find((variant) => variant.is_selected);
+                const selectedVariant =
+                  project.variants.find((variant) => variant.is_selected) ??
+                  (project.selected_variant_id
+                    ? project.variants.find((variant) => variant.id === project.selected_variant_id)
+                    : undefined) ??
+                  project.variants[0];
+                const selectedVariantLabel = selectedVariant ? selectedVariant.label ?? selectedVariant.id : null;
+                const expanded = expandedProjectKey === projectKey;
+                const selectedVariantToken = selectedVariant?.updated_at ?? project.updated_at ?? null;
+                const selectedVariantImageBase = selectedVariant
+                  ? selectedVariant.preview_url
+                    ? resolveApiUrl(selectedVariant.preview_url)
+                    : selectedVariant.image_url
+                      ? resolveApiUrl(selectedVariant.image_url)
+                      : selectedVariant.image_path
+                        ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
+                        : null
+                  : null;
+                const selectedVariantImage = selectedVariantImageBase
+                  ? withCacheBust(selectedVariantImageBase, selectedVariantToken)
+                  : null;
                 const feedback = cardFeedback[projectKey];
                 const assetPath = `${THUMBNAIL_ASSET_BASE_PATH}/${project.channel}/${project.video}/`;
                 const hasExtraInfo = Boolean(
                   secondaryTitle || project.summary || project.notes || (project.tags && project.tags.length > 0)
                 );
-                const selectedVariantLabel = selectedVariant ? selectedVariant.label ?? selectedVariant.id : null;
                 const cardClasses = [
                   "thumbnail-card",
                   projectUpdating ? "is-updating" : "",
@@ -3086,50 +3679,93 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
                         {project.variants.length === 0 ? (
                           <p className="thumbnail-library__placeholder">まだサムネイル案が登録されていません。</p>
                         ) : (
-                          <div className="thumbnail-variant-grid">
-                            {project.variants.map((variant) => {
-                              const variantImage =
-                                variant.preview_url
-                                  ? resolveApiUrl(variant.preview_url)
-                                  : variant.image_url
-                                    ? resolveApiUrl(variant.image_url)
-                                    : variant.image_path
-                                      ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
-                                      : null;
-                              const variantSelected =
-                                Boolean(variant.is_selected) || project.selected_variant_id === variant.id;
-                              return (
-                                <button
-                                  type="button"
-                                  key={variant.id}
-                                  className={`thumbnail-variant-tile${variantSelected ? " is-selected" : ""}`}
-                                  onClick={() => handleSelectVariant(project, variant)}
-                                >
-                                  <div className="thumbnail-variant-tile__media">
-                                    {variantImage ? (
-                                      <img src={variantImage} alt={variant.label ?? variant.id} loading="lazy" />
-                                    ) : (
-                                      <span className="thumbnail-variant-tile__placeholder">No Image</span>
-                                    )}
-                                  </div>
-                                  <div className="thumbnail-variant-tile__content">
-                                    <div className="thumbnail-variant-tile__title">{variant.label ?? variant.id}</div>
-                                    <div className="thumbnail-variant-tile__badge">
-                                      {VARIANT_STATUS_LABELS[variant.status]}
-                                    </div>
-                                  </div>
-                                  {typeof variant.cost_usd === "number" && Number.isFinite(variant.cost_usd) ? (
-                                    <div
-                                      className="thumbnail-variant-tile__meta"
-                                      title={variant.model_key ?? variant.model ?? undefined}
-                                    >
-                                      実コスト {formatUsdAmount(variant.cost_usd)}
-                                    </div>
+                          <>
+                            <div className="thumbnail-card__selected">
+                              <div className="thumbnail-card__selected-media">
+                                {selectedVariantImage ? (
+                                  <a href={selectedVariantImage} target="_blank" rel="noreferrer" title="別タブで表示">
+                                    <img
+                                      src={selectedVariantImage}
+                                      alt={selectedVariantLabel ?? `${project.channel}-${project.video}`}
+                                      loading="lazy"
+                                    />
+                                  </a>
+                                ) : (
+                                  <div className="thumbnail-card__selected-placeholder">No Image</div>
+                                )}
+                              </div>
+                              <div className="thumbnail-card__selected-meta">
+                                <div className="thumbnail-card__selected-title">
+                                  <strong>{selectedVariantLabel ?? "（案名なし）"}</strong>
+                                  {selectedVariant ? (
+                                    <span className="thumbnail-card__selected-badge">
+                                      {VARIANT_STATUS_LABELS[selectedVariant.status]}
+                                    </span>
                                   ) : null}
-                                </button>
-                              );
-                            })}
-                          </div>
+                                </div>
+                                <div className="thumbnail-card__selected-actions">
+                                  <button
+                                    type="button"
+                                    className="btn btn--ghost"
+                                    onClick={() => toggleProjectVariants(projectKey)}
+                                    disabled={disableVariantActions}
+                                  >
+                                    {expanded ? "案一覧を閉じる" : `案一覧を開く (${project.variants.length})`}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            {expanded ? (
+                              <div className="thumbnail-variant-grid thumbnail-variant-grid--expanded">
+                                {project.variants.map((variant) => {
+                                  const variantImageBase =
+                                    variant.preview_url
+                                      ? resolveApiUrl(variant.preview_url)
+                                      : variant.image_url
+                                        ? resolveApiUrl(variant.image_url)
+                                        : variant.image_path
+                                          ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
+                                          : null;
+                                  const variantImage = variantImageBase
+                                    ? withCacheBust(variantImageBase, variant.updated_at ?? project.updated_at)
+                                    : null;
+                                  const variantSelected =
+                                    Boolean(variant.is_selected) || project.selected_variant_id === variant.id;
+                                  return (
+                                    <button
+                                      type="button"
+                                      key={variant.id}
+                                      className={`thumbnail-variant-tile${variantSelected ? " is-selected" : ""}`}
+                                      onClick={() => handleSelectVariant(project, variant)}
+                                      disabled={disableVariantActions}
+                                    >
+                                      <div className="thumbnail-variant-tile__media">
+                                        {variantImage ? (
+                                          <img src={variantImage} alt={variant.label ?? variant.id} loading="lazy" />
+                                        ) : (
+                                          <span className="thumbnail-variant-tile__placeholder">No Image</span>
+                                        )}
+                                      </div>
+                                      <div className="thumbnail-variant-tile__content">
+                                        <div className="thumbnail-variant-tile__title">{variant.label ?? variant.id}</div>
+                                        <div className="thumbnail-variant-tile__badge">
+                                          {VARIANT_STATUS_LABELS[variant.status]}
+                                        </div>
+                                      </div>
+                                      {typeof variant.cost_usd === "number" && Number.isFinite(variant.cost_usd) ? (
+                                        <div
+                                          className="thumbnail-variant-tile__meta"
+                                          title={variant.model_key ?? variant.model ?? undefined}
+                                        >
+                                          実コスト {formatUsdAmount(variant.cost_usd)}
+                                        </div>
+                                      ) : null}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            ) : null}
+                          </>
                         )}
                       </div>
                       <div
@@ -3307,6 +3943,9 @@ export function ThumbnailWorkspace({ compact = false }: { compact?: boolean } = 
         ) : null}
             {activeTab === "gallery" ? (
               <div className="thumbnail-hub__pane thumbnail-hub__pane--gallery">{galleryPanel}</div>
+            ) : null}
+            {activeTab === "qc" ? (
+              <div className="thumbnail-hub__pane thumbnail-hub__pane--qc">{qcPanel}</div>
             ) : null}
             {activeTab === "templates" ? (
               <div className="thumbnail-hub__pane thumbnail-hub__pane--templates">{templatesPanel}</div>

@@ -307,6 +307,19 @@ body,
   background: #f6f7fb;
 }
 
+.dashboard-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+
+.dashboard-flow__chip {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
 @media (max-width: 960px) {
   .dashboard-only-shell {
     padding: 20px;
@@ -2414,6 +2427,38 @@ body,
   gap: 24px;
 }
 
+.detail-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.detail-nav-button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.detail-nav-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.detail-nav-position {
+  font-size: 12px;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .detail-title {
   font-size: 16px;
   font-weight: 600;
@@ -2787,6 +2832,76 @@ button:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.overview-meta__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.overview-meta__details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.overview-meta__list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.overview-paths {
+  margin-top: 10px;
+}
+
+.overview-paths summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.overview-paths__list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overview-paths__row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.overview-paths__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.overview-paths__path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .overview-paths__row {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-paths__path {
+    white-space: normal;
+  }
 }
 
 .progress-list {
@@ -5996,32 +6111,54 @@ button:hover:not(:disabled) {
 
 /* === Final layout overrides (flatten conflicting definitions) === */
 
+.app-shell {
+  height: 100vh;
+  overflow: hidden;
+}
+
 .workspace {
   width: 100%;
   min-width: 0;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
   padding: 0;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .shell-sidebar {
-  position: static;
-  top: auto;
-  align-self: start;
-  height: auto;
+  position: sticky;
+  top: 0;
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background: #111318;
   color: #f8fafc;
   border-radius: 0;
   padding: 16px;
   box-shadow: none;
-  overflow: visible;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.shell-sidebar__content {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .shell-sidebar__scroll {
-  max-height: none;
-  overflow: visible;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Keep vertical scroll isolated, but allow horizontal overscroll gestures (macOS back/forward swipe). */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: auto;
 }
 
 .shell-nav {
@@ -6088,9 +6225,14 @@ button:hover:not(:disabled) {
   width: 100%;
   min-width: 0;
   padding: 0 0 32px 0;
+  height: 100%;
   max-height: none;
-  overflow: visible;
+  overflow-y: auto;
+  /* Keep vertical scroll isolated, but allow horizontal overscroll gestures (macOS back/forward swipe). */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: auto;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .main-content {
@@ -7118,6 +7260,69 @@ button:hover:not(:disabled) {
   outline: none;
   border-color: rgba(59, 130, 246, 0.55);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.tts-reading {
+  margin-top: 12px;
+}
+
+.tts-reading__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tts-reading__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tts-reading__section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tts-reading__section-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tts-reading__section-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tts-reading__textarea {
+  width: 100%;
+  min-height: 120px;
+  background: #f8fafc;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.tts-reading__textarea--mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.tts-reading__warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: #b45309;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .script-editor__messages {
@@ -14344,9 +14549,16 @@ body {
 }
 
 @media (max-width: 960px) {
+  .app-shell {
+    height: auto;
+    overflow: visible;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
     gap: 16px;
+    height: auto;
+    overflow: visible;
   }
 
   .shell-sidebar {
@@ -14365,6 +14577,7 @@ body {
     max-height: none;
     overflow: visible;
     padding: 0;
+    height: auto;
   }
 }
 
@@ -14615,13 +14828,56 @@ body,
 
 .channel-benchmarks-panel__row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 1fr)) repeat(2, minmax(160px, 1fr)) auto;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
-  align-items: end;
+  align-items: start;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 10px;
+}
+
+.channel-benchmarks-panel__row.is-invalid {
+  border-color: #f87171;
+  background: #fff1f2;
+}
+
+.channel-benchmarks-panel__row-title {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.channel-benchmarks-panel__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(29, 78, 216, 0.12);
+  color: #1d4ed8;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.channel-benchmarks-panel__row-title-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.channel-benchmarks-panel__row-link {
+  margin-left: auto;
+  font-size: 12px;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.channel-benchmarks-panel__row-link:hover {
+  text-decoration: underline;
 }
 
 .channel-benchmarks-panel__row label {
@@ -14630,6 +14886,7 @@ body,
   gap: 6px;
   font-size: 12px;
   color: #64748b;
+  min-width: 0;
 }
 
 .channel-benchmarks-panel__row label span {
@@ -14637,7 +14894,9 @@ body,
 }
 
 .channel-benchmarks-panel__row label input,
-.channel-benchmarks-panel__row label select {
+.channel-benchmarks-panel__row label select,
+.channel-benchmarks-panel__row label textarea {
+  width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   padding: 8px 10px;
@@ -14647,13 +14906,15 @@ body,
 }
 
 .channel-benchmarks-panel__row label.wide {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .channel-benchmarks-panel__row-actions {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  grid-column: 1 / -1;
 }
 
 .channel-benchmarks-panel__notes {
@@ -14677,7 +14938,8 @@ body,
   padding: 10px;
   font-size: 13px;
   color: #0f172a;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: inherit;
+  line-height: 1.6;
   background: #ffffff;
 }
 
@@ -14706,6 +14968,15 @@ body,
 .channel-benchmarks-panel__error {
   color: #b91c1c;
   font-size: 12px;
+}
+
+.channel-benchmarks-panel__preview-content {
+  white-space: pre-wrap;
+  margin: 0;
+  font-family: inherit;
+  line-height: 1.7;
+  font-size: 13px;
+  color: #0f172a;
 }
 
 .mono {

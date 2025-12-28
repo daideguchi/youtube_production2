@@ -1,6 +1,6 @@
 # PROMPTS_INDEX — プロンプト配置の正本一覧（自動生成）
 
-Generated: `2025-12-27T04:54:50.903603Z` by `scripts/ops/prompts_inventory.py`
+Generated: `2025-12-27T23:31:46.673740Z` by `scripts/ops/prompts_inventory.py`
 
 原則:
 - プロンプトの正本は `packages/**` 側（複製・同期しない）
@@ -8,6 +8,7 @@ Generated: `2025-12-27T04:54:50.903603Z` by `scripts/ops/prompts_inventory.py`
 
 ## Script pipeline — 共通プロンプト（.txt）
 
+- `packages/script_pipeline/prompts/a_text_final_polish_prompt.txt`
 - `packages/script_pipeline/prompts/a_text_quality_expand_prompt.txt`
 - `packages/script_pipeline/prompts/a_text_quality_extend_prompt.txt`
 - `packages/script_pipeline/prompts/a_text_quality_fix_prompt.txt`
@@ -36,7 +37,7 @@ Generated: `2025-12-27T04:54:50.903603Z` by `scripts/ops/prompts_inventory.py`
 - `packages/script_pipeline/prompts/tts_reading_prompt.txt`
 - `packages/script_pipeline/prompts/youtube_description_prompt.txt`
 
-- 件数: 27
+- 件数: 28
 
 ## Script pipeline — テンプレ（templates/*.txt）
 

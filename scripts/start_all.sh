@@ -113,6 +113,32 @@ start_remotion_studio() {
   info "Remotion Studio not ready yet on port ${port} (optional). Check ${log_file} if you need Studio."
 }
 
+# Ensure `workspaces/scripts/CHxx/` exists for every planning CSV channel.
+# This avoids confusing startup warnings for "未着手" channels (empty dir is fine).
+ensure_script_channel_dirs() {
+  local planning_channels_dir="$YTM_ROOT/workspaces/planning/channels"
+  local scripts_root="$YTM_ROOT/workspaces/scripts"
+  local csv stem code target_dir
+
+  if [ ! -d "$planning_channels_dir" ] || [ ! -d "$scripts_root" ]; then
+    return
+  fi
+
+  shopt -s nullglob
+  for csv in "$planning_channels_dir"/CH*.csv; do
+    stem="$(basename "$csv" .csv)"
+    code="$(printf '%s' "$stem" | tr '[:lower:]' '[:upper:]')"
+    if [[ ! "$code" =~ ^CH[0-9]+$ ]]; then
+      continue
+    fi
+    target_dir="$scripts_root/$code"
+    if [ ! -d "$target_dir" ]; then
+      mkdir -p "$target_dir" 2>/dev/null || true
+    fi
+  done
+  shopt -u nullglob
+}
+
 main() {
   if [ "$#" -eq 0 ]; then
     set -- start
@@ -148,6 +174,8 @@ main() {
         || warn "sync_all_scripts failed"
     fi
 
+    ensure_script_channel_dirs
+
     # Sync audio artifacts into video input (safe: no overwrite)
     if [ -f "$YTM_ROOT/packages/video_pipeline/tools/sync_audio_inputs.py" ]; then
       "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
@@ -168,7 +196,10 @@ main() {
 
   case "$command" in
     start|restart)
-      start_remotion_studio
+      # Remotion Studio (3100) is opt-in. Prefer starting it from the UI button.
+      if [ "${REMOTION_AUTO_START:-0}" = "1" ]; then
+        start_remotion_studio
+      fi
       exec "$PYTHON_BIN" "$START_MANAGER" "$command" --env-file "$ENV_FILE" "$@"
       ;;
     *)

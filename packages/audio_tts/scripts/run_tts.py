@@ -9,9 +9,31 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from _bootstrap import bootstrap
+def _discover_repo_root(start: Path) -> Path:
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    raise RuntimeError(
+        "repo root not found (pyproject.toml). Run from inside the repo or set PYTHONPATH/ YTM_REPO_ROOT."
+    )
 
-bootstrap(load_env=True)
+try:
+    from _bootstrap import bootstrap
+except ModuleNotFoundError:
+    # Allow running as a script without PYTHONPATH:
+    #   python3 packages/audio_tts/scripts/run_tts.py ...
+    _repo_root = _discover_repo_root(Path(__file__).resolve())
+    for p in (_repo_root, _repo_root / "packages"):
+        if not p.exists():
+            continue
+        p_str = str(p)
+        if p_str not in sys.path:
+            sys.path.insert(0, p_str)
+    from _bootstrap import bootstrap
+
+
+REPO_ROOT = bootstrap(load_env=True)
 
 # requests is optional; fall back to urllib when not installed.
 try:

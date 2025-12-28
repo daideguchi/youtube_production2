@@ -17,15 +17,16 @@ tasks:
       response_format: json_object
 
   # srt2images one-shot cue planning (segments → cue ranges + visual_focus)
-  # NOTE: Prefer Azure here to avoid OpenRouter credit-limit 402 loops during batch runs.
   visual_image_cues_plan:
     tier: heavy_reasoning
     models:
+      - or_deepseek_v3_2_exp
+      - or_kimi_k2_thinking
       - azure_gpt5_mini
     options:
       temperature: 0.3
       response_format: json_object
-      max_tokens: 8000
+      max_tokens: 12000
 
   # A-text quality gate (script_validation): reasoning Judge + Fixer
   #
@@ -171,7 +172,7 @@ tasks:
       response_format: json_object
       # IMPORTANT: local llm_router config may not define per-task defaults for this task.
       # Without an explicit cap, OpenRouter can assume a very large max_tokens budget and 402 due to credits.
-      max_tokens: 1800
+      max_tokens: 3600
       extra_body:
         reasoning:
           enabled: true
@@ -183,10 +184,27 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
-      temperature: 0.4
+      temperature: 0.25
       # IMPORTANT: Keep below typical OpenRouter credit-limit ceilings to avoid 402 loops.
       # Must still be large enough to output a full A-text rewrite for long-form scripts.
-      max_tokens: 11000
+      # NOTE: 11k is too small for CH10-class long A-text; it triggers finish_reason=length and a second paid retry.
+      max_tokens: 22000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
+  # Final polish (whole A-text): tone consistency + repetition control.
+  # Runs at most once in script_validation (opt-in via SCRIPT_VALIDATION_FINAL_POLISH=1 or auto).
+  script_a_text_final_polish:
+    tier: heavy_reasoning
+    models:
+      - or_kimi_k2_thinking
+      - or_deepseek_v3_2_exp
+    options:
+      temperature: 0.2
+      # NOTE: Whole-script rewrite; allow enough headroom to avoid finish_reason=length retries.
+      max_tokens: 22000
       extra_body:
         reasoning:
           enabled: true
@@ -201,7 +219,9 @@ tasks:
     options:
       temperature: 0.2
       response_format: json_object
-      max_tokens: 1200
+      # NOTE: Small JSON task, but models can still return finish_reason=length if cap is too low.
+      # Keep this comfortably large to avoid failover-to-think queue.
+      max_tokens: 6000
       extra_body:
         reasoning:
           enabled: true
@@ -216,7 +236,8 @@ tasks:
     options:
       temperature: 0.2
       response_format: json_object
-      max_tokens: 4096
+      # NOTE: max_tokens は小さすぎると finish_reason=length→THINKフォールバックの原因になるので余裕を持たせる。
+      max_tokens: 6000
       extra_body:
         reasoning:
           enabled: true

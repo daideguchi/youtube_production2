@@ -1,0 +1,72 @@
+/*
+  Shell scrolling fixes
+  - Desktop: sidebar scroll + main scroll are independent (no body scroll).
+  - Mobile: fall back to normal document scroll.
+*/
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+.app-shell {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.workspace {
+  height: 100%;
+  overflow: hidden;
+}
+
+.workspace__main {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Keep vertical scroll isolated, but allow horizontal overscroll gestures (macOS back/forward swipe). */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: auto;
+}
+
+.shell-sidebar {
+  height: 100%;
+  overflow: hidden;
+}
+
+.shell-sidebar__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Keep vertical scroll isolated, but allow horizontal overscroll gestures (macOS back/forward swipe). */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: auto;
+  /* Hide scrollbar (keep scrolling) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.shell-sidebar__scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+@media (max-width: 960px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell,
+  .workspace,
+  .workspace__main,
+  .shell-sidebar {
+    height: auto;
+    overflow: visible;
+  }
+}

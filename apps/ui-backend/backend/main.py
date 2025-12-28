@@ -251,6 +251,8 @@ THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 THUMBNAIL_SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 THUMBNAIL_PROJECTS_LOCK = threading.Lock()
 THUMBNAIL_TEMPLATES_LOCK = threading.Lock()
+THUMBNAIL_QC_NOTES_PATH = ssot_thumbnails_root() / "qc_notes.json"
+THUMBNAIL_QC_NOTES_LOCK = threading.Lock()
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 OPENROUTER_GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
@@ -1897,6 +1899,24 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
     chars_min, chars_max = _resolve_channel_target_chars(channel_code)
     chapter_count = _resolve_channel_chapter_count(channel_code)
 
+    # Default model token used by batch/script rewrite (exposed for UI defaults).
+    # NOTE: Avoid provider validation here; profile view should work even without API keys.
+    llm_model = "qwen/qwen3-14b:free"
+    try:
+        ui_settings = _get_ui_settings()
+        llm = ui_settings.get("llm", {}) if isinstance(ui_settings, dict) else {}
+        phase_models = llm.get("phase_models") if isinstance(llm, dict) else None
+        if isinstance(phase_models, dict):
+            entry = phase_models.get("script_rewrite") or {}
+            if isinstance(entry, dict):
+                provider = entry.get("provider")
+                model = entry.get("model")
+                provider_s = str(provider).strip().lower() if isinstance(provider, str) and provider.strip() else "openrouter"
+                model_s = str(model).strip() if isinstance(model, str) and model.strip() else "qwen/qwen3-14b:free"
+                llm_model = f"{provider_s}:{model_s}" if provider_s else model_s
+    except Exception:
+        llm_model = "qwen/qwen3-14b:free"
+
     return ChannelProfileResponse(
         channel_code=profile.code,
         channel_name=profile.name,
@@ -1915,6 +1935,7 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         default_min_characters=chars_min,
         default_max_characters=chars_max,
         chapter_count=chapter_count,
+        llm_model=llm_model,
         planning_persona=planning_persona or profile.persona_summary or profile.audience_profile,
         planning_persona_path=planning_persona_path,
         planning_required_fieldsets=planning_required,
@@ -2096,13 +2117,13 @@ def _launch_batch_task(
     # llm_model の解決 (Noneならデフォルト設定を適用)
     if config.llm_model is None:
         current_settings = _get_ui_settings()
-        _, resolved_model = _resolve_phase_choice(
+        resolved_provider, resolved_model = _resolve_phase_choice(
             current_settings.get("llm", {}),
             "script_rewrite",
             default_provider="openrouter",
             default_model="qwen/qwen3-14b:free"
         )
-        config.llm_model = resolved_model
+        config.llm_model = f"{resolved_provider}:{resolved_model}" if resolved_provider else resolved_model
 
     config_path = log_path.with_suffix(".config.json")
     config_payload = config.model_dump()
@@ -2305,6 +2326,44 @@ def list_video_dirs(channel_code: str) -> List[Path]:
     return sorted((p for p in channel_dir.iterdir() if p.is_dir() and p.name.isdigit()), key=lambda p: int(p.name))
 
 
+def list_planning_video_numbers(channel_code: str) -> List[str]:
+    """
+    Return normalized video numbers from Planning SoT (`workspaces/planning/channels/CHxx.csv`).
+
+    Notes:
+    - This intentionally does not depend on `planning_store.CHANNELS_DIR` so tests can monkeypatch
+      `CHANNEL_PLANNING_DIR` safely.
+    - Non-numeric video numbers are ignored (best-effort: digit extraction).
+    """
+
+    channel_code = channel_code.upper()
+    csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
+    if not csv_path.exists():
+        return []
+
+    numbers: List[str] = []
+    try:
+        with csv_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                if not isinstance(row, dict):
+                    continue
+                token = normalize_planning_video_number(row.get("動画番号") or row.get("VideoNumber") or "")
+                if token:
+                    numbers.append(token)
+    except Exception:
+        return []
+
+    seen: set[str] = set()
+    unique: List[str] = []
+    for number in numbers:
+        if number in seen:
+            continue
+        seen.add(number)
+        unique.append(number)
+    return unique
+
+
 def _parse_int(value: Any) -> Optional[int]:
     if value is None:
         return None
@@ -2426,6 +2485,28 @@ def normalize_video_number(video: str) -> str:
     if not raw.isdigit():
         raise HTTPException(status_code=400, detail="Video identifier must be numeric")
     return raw.zfill(3)
+
+
+def normalize_planning_video_number(value: Any) -> Optional[str]:
+    """
+    Best-effort normalization for Planning SoT columns ("動画番号" etc).
+
+    - Extract digits (so inputs like "1", "001", "第1話" do not crash the API).
+    - Return `None` when no numeric token is found.
+
+    This is intentionally more permissive than `normalize_video_number`, which validates
+    user-provided path params strictly.
+    """
+
+    if value is None:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    digits = "".join(ch for ch in raw if ch.isdigit())
+    if not digits:
+        return None
+    return digits.zfill(3)
 
 
 def video_base_dir(channel_code: str, video_number: str) -> Path:
@@ -4510,6 +4591,14 @@ class PlanningCsvRowResponse(BaseModel):
     columns: Dict[str, Optional[str]] = Field(default_factory=dict)
 
 
+class PlanningProgressUpdateRequest(BaseModel):
+    progress: str = Field(..., description="企画CSVの進捗列を更新する。")
+    expected_updated_at: Optional[str] = Field(
+        default=None,
+        description="競合検知用の更新トークン（CSVの更新日時列）。列が未存在/空の場合はベストエフォートで更新する。",
+    )
+
+
 class PlanningSpreadsheetResponse(BaseModel):
     channel: str
     headers: List[str]
@@ -5000,7 +5089,10 @@ class ChannelProfileResponse(BaseModel):
     default_min_characters: int = Field(8000, ge=1000)
     default_max_characters: int = Field(12000, ge=1000)
     chapter_count: Optional[int] = Field(None, ge=1)
-    llm_model: str = Field("qwen/qwen3-14b:free", description="OpenRouter model ID used for量産")
+    llm_model: str = Field(
+        "qwen/qwen3-14b:free",
+        description="量産で使用するモデル指定（例: openrouter:deepseek/... , azure:gpt-5-mini）",
+    )
     quality_check_template: Optional[str] = None
     planning_persona: Optional[str] = Field(
         None, description="SSOT のチャンネル共通ペルソナ（channels CSV のターゲット層に使用）"
@@ -5403,6 +5495,11 @@ class ThumbnailVariantComposeRequest(BaseModel):
 class ThumbnailLibraryImportRequest(BaseModel):
     url: str = Field(..., min_length=1)
     file_name: Optional[str] = None
+
+
+class ThumbnailQcNoteUpdateRequest(BaseModel):
+    relative_path: str = Field(..., min_length=1)
+    note: Optional[str] = None
 
 
 class ThumbnailDescriptionResponse(BaseModel):
@@ -5921,6 +6018,78 @@ def _read_thumbnail_quick_history(channel_code: Optional[str], limit: int) -> Li
     return entries
 
 
+def _is_thumbnail_qc_relative_path(relative_path: str) -> bool:
+    rel = (relative_path or "").strip().replace("\\", "/")
+    if not rel:
+        return False
+    if rel.startswith("/") or rel.startswith("../") or "/../" in rel:
+        return False
+    if rel.startswith("_qc/") or rel.startswith("library/qc/") or rel.startswith("qc/"):
+        return True
+    name = Path(rel).name
+    return name.startswith("qc__") or name.startswith("contactsheet")
+
+
+def _load_thumbnail_qc_notes_document() -> Dict[str, Dict[str, str]]:
+    path = THUMBNAIL_QC_NOTES_PATH
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    out: Dict[str, Dict[str, str]] = {}
+    for channel_code, raw_notes in payload.items():
+        if not isinstance(channel_code, str) or not isinstance(raw_notes, dict):
+            continue
+        normalized_channel = channel_code.strip().upper()
+        if not normalized_channel:
+            continue
+        notes: Dict[str, str] = {}
+        for rel, note in raw_notes.items():
+            if not isinstance(rel, str) or not isinstance(note, str):
+                continue
+            rel_norm = rel.strip().replace("\\", "/")
+            note_norm = note.strip()
+            if not rel_norm or not note_norm:
+                continue
+            notes[rel_norm] = note_norm
+        if notes:
+            out[normalized_channel] = notes
+    return out
+
+
+def _write_thumbnail_qc_notes_document(notes_by_channel: Dict[str, Dict[str, str]]) -> None:
+    THUMBNAIL_QC_NOTES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    payload: Dict[str, Dict[str, str]] = {}
+    for channel_code, notes in notes_by_channel.items():
+        if not isinstance(channel_code, str) or not isinstance(notes, dict):
+            continue
+        normalized_channel = channel_code.strip().upper()
+        if not normalized_channel:
+            continue
+        cleaned: Dict[str, str] = {}
+        for rel, note in notes.items():
+            if not isinstance(rel, str) or not isinstance(note, str):
+                continue
+            rel_norm = rel.strip().replace("\\", "/")
+            note_norm = note.strip()
+            if not rel_norm or not note_norm:
+                continue
+            cleaned[rel_norm] = note_norm
+        if cleaned:
+            payload[normalized_channel] = dict(sorted(cleaned.items(), key=lambda item: item[0]))
+
+    tmp_path = THUMBNAIL_QC_NOTES_PATH.with_suffix(".tmp")
+    tmp_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    tmp_path.replace(THUMBNAIL_QC_NOTES_PATH)
+
+
 def _color_name(rgb: tuple[int, int, int]) -> str:
     r, g, b = rgb
     if max(rgb) < 60:
@@ -6012,61 +6181,6 @@ except Exception as e:
 # API routes (/thumbnails/library/, /thumbnails/assets/). Use the API routes.
 
 
-@app.get("/api/redo/summary", response_model=List[RedoSummaryItem])
-def get_redo_summary(channel: Optional[str] = None):
-    """チャンネル別のリテイク件数サマリを返す。channel を指定しない場合は全チャンネル集計。"""
-    def _list_planning_channels() -> List[str]:
-        base = CHANNEL_PLANNING_DIR
-        if not base.exists():
-            return []
-        return [p.stem for p in base.glob("*.csv")]
-
-    def planning_csv_rows(channel_code: str) -> List[Dict[str, str]]:
-        path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
-        if not path.exists():
-            return []
-        import csv
-        with path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            return [row for row in reader]
-
-    rows = []
-    if channel:
-        ch = normalize_channel_code(channel)
-        rows = planning_csv_rows(ch)
-    else:
-        for ch in _list_planning_channels():
-            try:
-                rows.extend(planning_csv_rows(ch))
-            except Exception:
-                continue
-    summary: Dict[str, Dict[str, int]] = {}
-    for row in rows:
-        ch = row.get("チャンネル") or row.get("channel") or row.get("Channel") or ""
-        if not ch:
-            continue
-        s_flag = row.get("redo_script", "true").lower()
-        a_flag = row.get("redo_audio", "true").lower()
-        redo_s = s_flag not in ["false", "0", "no", "n"]
-        redo_a = a_flag not in ["false", "0", "no", "n"]
-        bucket = summary.setdefault(ch, {"redo_script": 0, "redo_audio": 0, "redo_both": 0})
-        if redo_s and redo_a:
-            bucket["redo_both"] += 1
-        if redo_s:
-            bucket["redo_script"] += 1
-        if redo_a:
-            bucket["redo_audio"] += 1
-    return [
-        RedoSummaryItem(
-            channel=ch,
-            redo_script=data["redo_script"],
-            redo_audio=data["redo_audio"],
-            redo_both=data["redo_both"],
-        )
-        for ch, data in summary.items()
-    ]
-
-
 @app.get("/api/thumbnails/lookup")
 def thumbnail_lookup(
     channel: str = Query(..., description="CHコード (例: CH02)"),
@@ -6085,26 +6199,100 @@ try:
 except Exception as e:
     logger.error("Failed to load auto_draft router: %s", e)
 
-# Remotion preview restart (best-effort, local only)
+# Remotion preview restart (local dev, best-effort)
 @app.post("/api/remotion/restart_preview")
 def restart_remotion_preview(port: int = 3100):
-    preview_cmd = ["pkill", "-f", "remotion preview"]
     remotion_dir = PROJECT_ROOT / "apps" / "remotion"
-    start_cmd = [
-        "bash",
-        "-lc",
-        f"cd {remotion_dir} && BROWSER=none npx remotion preview --entry src/index.ts --root . --public-dir public --port {port} >/dev/null 2>&1 &",
-    ]
+    if not remotion_dir.exists():
+        raise HTTPException(status_code=404, detail=f"remotion dir not found: {remotion_dir}")
+    if not (remotion_dir / "node_modules").is_dir():
+        raise HTTPException(
+            status_code=400,
+            detail="Remotion deps are not installed. Run: (cd apps/remotion && npm ci)",
+        )
+
+    # Kill only listeners on the target port (avoid broad pkill).
     try:
-        subprocess.run(preview_cmd, check=False)
+        lsof = subprocess.run(
+            ["lsof", "-ti", f"tcp:{port}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        pids = [pid.strip() for pid in (lsof.stdout or "").splitlines() if pid.strip().isdigit()]
+        if pids:
+            subprocess.run(["kill", "-TERM", *pids], check=False)
+            time.sleep(0.6)
+            subprocess.run(["kill", "-KILL", *pids], check=False)
+    except FileNotFoundError:
+        # Fallback: keep legacy behavior if lsof is unavailable.
+        try:
+            subprocess.run(["pkill", "-f", "remotion preview"], check=False)
+        except Exception:
+            pass
     except Exception as e:
-        logger.warning("Failed to kill remotion preview: %s", e)
+        logger.warning("Failed to stop remotion preview on port %s: %s", port, e)
+
+    # Ensure workspace exists (preview reads runs from here).
     try:
-        subprocess.run(start_cmd, check=False)
+        ssot_video_input_root().mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+
+    log_dir = PROJECT_ROOT / "workspaces" / "logs" / "ui_hub"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "remotion_studio.log"
+    pid_path = log_dir / "remotion_studio.pid"
+
+    try:
+        with log_path.open("a", encoding="utf-8") as fp:
+            proc = subprocess.Popen(
+                [
+                    "npx",
+                    "remotion",
+                    "preview",
+                    "--entry",
+                    "src/index.ts",
+                    "--root",
+                    ".",
+                    "--public-dir",
+                    "public",
+                    "--port",
+                    str(port),
+                ],
+                cwd=str(remotion_dir),
+                env={**os.environ, "BROWSER": "none"},
+                stdin=subprocess.DEVNULL,
+                stdout=fp,
+                stderr=fp,
+                start_new_session=True,
+            )
+        pid_path.write_text(f"{proc.pid}\n", encoding="utf-8")
     except Exception as e:
         logger.error("Failed to start remotion preview: %s", e)
         raise HTTPException(status_code=500, detail=f"start failed: {e}")
-    return {"status": "ok", "port": port}
+
+    url = f"http://localhost:{port}"
+    deadline = time.time() + 10.0
+    last_error: Optional[str] = None
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=0.6):
+                return {
+                    "status": "ok",
+                    "port": port,
+                    "url": url,
+                    "pid": proc.pid,
+                    "log_path": safe_relative_path(log_path) or str(log_path),
+                }
+        except Exception as e:
+            last_error = str(e)
+            time.sleep(0.5)
+
+    raise HTTPException(
+        status_code=500,
+        detail=f"Remotion preview did not start on {url}. Check {log_path} (last_error={last_error})",
+    )
 
 
 @app.get("/api/workspaces/video/input/{run_id}/{asset_path:path}")
@@ -6368,11 +6556,14 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
         branding = None
     youtube_info = info.get("youtube") or {}
     branding_info = branding_payload if isinstance(branding_payload, dict) else {}
+    planned_video_numbers = list_planning_video_numbers(code)
+    video_numbers = set(planned_video_numbers)
+    video_numbers.update(video_dir.name for video_dir in list_video_dirs(code))
     return ChannelSummaryResponse(
         code=code,
         name=info.get("name"),
         description=info.get("description"),
-        video_count=len(list_video_dirs(code)),
+        video_count=len(video_numbers),
         branding=branding,
         spreadsheet_id=info.get("spreadsheet_id"),
         youtube_title=(youtube_info.get("title") or info.get("youtube_title")),
@@ -6733,6 +6924,85 @@ def create_planning_entry(payload: PlanningCreateRequest):
     )
 
 
+@app.put(
+    "/api/planning/channels/{channel_code}/{video_number}/progress",
+    response_model=PlanningCsvRowResponse,
+)
+def update_planning_channel_progress(channel_code: str, video_number: str, payload: PlanningProgressUpdateRequest):
+    channel_code = normalize_channel_code(channel_code)
+    video_token = _normalize_video_number_token(video_number)
+    csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
+    if not csv_path.exists():
+        raise HTTPException(status_code=404, detail="planning csv not found")
+
+    fieldnames, rows = _read_channel_csv_rows(channel_code)
+    if "進捗" not in fieldnames:
+        fieldnames.append("進捗")
+    if "更新日時" not in fieldnames:
+        fieldnames.append("更新日時")
+
+    target_row: Optional[Dict[str, str]] = None
+    for row in rows:
+        row_channel = (row.get("チャンネル") or "").strip().upper()
+        if row_channel and row_channel != channel_code:
+            continue
+        raw_video = row.get("動画番号") or row.get("No.") or ""
+        if not raw_video:
+            continue
+        try:
+            existing_token = _normalize_video_number_token(str(raw_video))
+        except HTTPException:
+            continue
+        if existing_token == video_token:
+            target_row = row
+            break
+
+    if target_row is None:
+        raise HTTPException(status_code=404, detail=f"{channel_code}-{video_token} の企画行が見つかりません。")
+
+    current_updated_at = normalize_optional_text(target_row.get("更新日時"))
+    expected_updated_at = normalize_optional_text(payload.expected_updated_at)
+    if expected_updated_at is not None and current_updated_at:
+        if expected_updated_at != current_updated_at:
+            raise HTTPException(
+                status_code=409,
+                detail="他のセッションで更新されました。最新の情報を再取得してからもう一度保存してください。",
+            )
+
+    normalized_progress = payload.progress.strip()
+    current_progress = str(target_row.get("進捗") or "").strip()
+    if normalized_progress != current_progress:
+        target_row["進捗"] = normalized_progress
+        target_row["更新日時"] = current_timestamp()
+        _write_csv_with_lock(csv_path, fieldnames, rows)
+
+    script_id = (
+        normalize_optional_text(target_row.get("台本番号"))
+        or normalize_optional_text(target_row.get("動画ID"))
+        or f"{channel_code}-{video_token}"
+    )
+    planning_payload = build_planning_payload_from_row(target_row)
+    character_count_raw = target_row.get("文字数")
+    try:
+        character_value = int(character_count_raw) if character_count_raw else None
+    except ValueError:
+        character_value = None
+
+    return PlanningCsvRowResponse(
+        channel=channel_code,
+        video_number=video_token,
+        script_id=script_id,
+        title=normalize_optional_text(target_row.get("タイトル")),
+        script_path=normalize_optional_text(target_row.get("台本")),
+        progress=normalize_optional_text(target_row.get("進捗")),
+        quality_check=normalize_optional_text(target_row.get("品質チェック結果")),
+        character_count=character_value,
+        updated_at=normalize_optional_text(target_row.get("更新日時")),
+        planning=planning_payload,
+        columns=target_row,
+    )
+
+
 @app.post("/api/channels/{channel}/branding/refresh", response_model=ChannelSummaryResponse)
 def refresh_channel_branding(channel: str, ignore_backoff: bool = Query(False, description="true で一時停止中でも強制実行")):
     channel_code = normalize_channel_code(channel)
@@ -7050,24 +7320,22 @@ def dashboard_overview(
     stage_matrix: Dict[str, Dict[str, Dict[str, int]]] = {}
     alerts: List[DashboardAlert] = []
 
-    for channel_dir in list_channel_dirs():
-        channel_code = channel_dir.name.upper()
+    for channel_code in list_known_channel_codes():
         if channel_filter and channel_code not in channel_filter:
             continue
 
         summary = DashboardChannelSummary(code=channel_code)
-        video_dirs = list_video_dirs(channel_code)
+        planned_video_numbers = list_planning_video_numbers(channel_code)
+        video_numbers = (
+            planned_video_numbers if planned_video_numbers else [video_dir.name for video_dir in list_video_dirs(channel_code)]
+        )
 
-        for video_dir in video_dirs:
-            video_number = video_dir.name
-            try:
-                status_payload = load_status(channel_code, video_number)
-            except HTTPException as exc:  # pragma: no cover - unexpected errors propagate
-                if exc.status_code == 404:
-                    continue
-                raise
+        for video_number in video_numbers:
+            status_payload = load_status_optional(channel_code, video_number)
+            if status_payload is None:
+                status_payload = _default_status_payload(channel_code, video_number)
 
-            base_dir = video_dir  # path to script root
+            base_dir = video_base_dir(channel_code, video_number)
             status_value = status_payload.get("status", "unknown")
             if status_filter and status_value not in status_filter:
                 continue
@@ -7129,7 +7397,8 @@ def dashboard_overview(
                 alerts=alerts,
             )
 
-        if summary.total > 0:
+        include_zeros = not (status_filter or from_dt or to_dt) or bool(channel_filter)
+        if summary.total > 0 or include_zeros:
             overview_channels.append(summary)
 
     return DashboardOverviewResponse(
@@ -7376,10 +7645,12 @@ def run_natural_command(channel: str, video: str, payload: NaturalCommandRequest
 @app.get("/api/channels/{channel}/videos", response_model=List[VideoSummaryResponse])
 def list_videos(channel: str):
     channel_code = normalize_channel_code(channel)
-    planning_rows = {
-        normalize_video_number(row.video_number): row for row in planning_store.get_rows(channel_code, force_refresh=True)
-        if row.video_number
-    }
+    planning_rows: Dict[str, planning_store.PlanningRow] = {}
+    for row in planning_store.get_rows(channel_code, force_refresh=True):
+        token = normalize_planning_video_number(row.video_number)
+        if not token:
+            continue
+        planning_rows[token] = row
     video_dirs = list_video_dirs(channel_code)
     video_numbers = set(p.name for p in video_dirs)
     video_numbers.update(planning_rows.keys())
@@ -9205,6 +9476,54 @@ def get_thumbnail_library(channel: str):
     return _list_channel_thumbnail_library(channel_code)
 
 
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/qc-notes",
+    response_model=Dict[str, str],
+)
+def get_thumbnail_qc_notes(channel: str):
+    channel_code = normalize_channel_code(channel)
+    with THUMBNAIL_QC_NOTES_LOCK:
+        document = _load_thumbnail_qc_notes_document()
+    return document.get(channel_code, {})
+
+
+@app.put(
+    "/api/workspaces/thumbnails/{channel}/qc-notes",
+    response_model=Dict[str, str],
+)
+def upsert_thumbnail_qc_note(channel: str, payload: ThumbnailQcNoteUpdateRequest):
+    channel_code = normalize_channel_code(channel)
+    rel = (payload.relative_path or "").strip().replace("\\", "/")
+    while rel.startswith("./"):
+        rel = rel[2:]
+    if not _is_thumbnail_qc_relative_path(rel):
+        raise HTTPException(status_code=400, detail="invalid QC relative_path")
+
+    base_dir = (THUMBNAIL_ASSETS_DIR / channel_code).resolve()
+    candidate = (THUMBNAIL_ASSETS_DIR / channel_code / rel).resolve()
+    try:
+        candidate.relative_to(base_dir)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="invalid relative_path") from exc
+    if not candidate.exists():
+        raise HTTPException(status_code=404, detail="QC asset not found")
+
+    note = (payload.note or "").strip()
+    with THUMBNAIL_QC_NOTES_LOCK:
+        document = _load_thumbnail_qc_notes_document()
+        channel_notes = dict(document.get(channel_code, {}))
+        if note:
+            channel_notes[rel] = note
+        else:
+            channel_notes.pop(rel, None)
+        if channel_notes:
+            document[channel_code] = channel_notes
+        else:
+            document.pop(channel_code, None)
+        _write_thumbnail_qc_notes_document(document)
+        return document.get(channel_code, {})
+
+
 @app.patch(
     "/api/workspaces/thumbnails/{channel}/library/{asset_name}",
     response_model=ThumbnailLibraryAssetResponse,
@@ -9436,7 +9755,8 @@ def get_thumbnail_asset(channel: str, video: str, asset_path: str):
         if not resolved_candidate.is_file():
             continue
         media_type = mimetypes.guess_type(resolved_candidate.name)[0] or "application/octet-stream"
-        return FileResponse(resolved_candidate, media_type=media_type, filename=resolved_candidate.name)
+        headers = {"Cache-Control": "no-store", "Pragma": "no-cache", "Expires": "0"}
+        return FileResponse(resolved_candidate, media_type=media_type, filename=resolved_candidate.name, headers=headers)
 
     raise HTTPException(status_code=404, detail="thumbnail asset not found")
 
@@ -9448,7 +9768,8 @@ def get_thumbnail_library_asset(channel: str, asset_path: str):
         raise HTTPException(status_code=404, detail="invalid channel")
     _, candidate = _resolve_library_asset_path(channel_code, asset_path)
     media_type = mimetypes.guess_type(candidate.name)[0] or "application/octet-stream"
-    return FileResponse(candidate, media_type=media_type, filename=candidate.name)
+    headers = {"Cache-Control": "no-store", "Pragma": "no-cache", "Expires": "0"}
+    return FileResponse(candidate, media_type=media_type, filename=candidate.name, headers=headers)
 
 
 @app.get("/api/channels/{channel}/videos/{video}", response_model=VideoDetailResponse)
@@ -9956,44 +10277,111 @@ def list_redo_summary(
     channel: Optional[str] = Query(None, description="CHコード (例: CH02)"),
 ):
     channel_filter = normalize_channel_code(channel) if channel else None
+
+    def _iter_channel_codes() -> List[str]:
+        if channel_filter:
+            return [channel_filter]
+        codes: set[str] = set()
+        if CHANNEL_PLANNING_DIR.exists():
+            for csv_path in CHANNEL_PLANNING_DIR.glob("CH*.csv"):
+                codes.add(csv_path.stem.upper())
+        for ch_dir in list_channel_dirs():
+            codes.add(ch_dir.name.upper())
+        filtered = [code for code in codes if re.match(r"^CH\\d+$", code)]
+        return sorted(filtered, key=_channel_sort_key)
+
+    def _is_progress_published(value: Any) -> bool:
+        s = str(value or "").strip()
+        if not s:
+            return False
+        return "投稿済み" in s or "公開済み" in s or s.lower() in {"published", "posted"}
+
     summaries: Dict[str, Dict[str, int]] = {}
 
-    for ch_dir in list_channel_dirs():
-        ch_code = ch_dir.name.upper()
-        if channel_filter and ch_code != channel_filter:
-            continue
-        sums = summaries.setdefault(ch_code, {"redo_script": 0, "redo_audio": 0, "redo_both": 0})
+    for ch_code in _iter_channel_codes():
+        # Snapshot redo flags from status.json (if present).
+        status_redo: Dict[str, Dict[str, Any]] = {}
         for vid_dir in list_video_dirs(ch_code):
-            st_path = vid_dir / "status.json"
-            if not st_path.exists():
+            st = load_status_optional(ch_code, vid_dir.name)
+            if not st:
                 continue
+            meta = st.get("metadata") if isinstance(st, dict) else None
+            meta = meta if isinstance(meta, dict) else {}
+            redo_script = meta.get("redo_script")
+            redo_audio = meta.get("redo_audio")
+            published_lock = bool(meta.get("published_lock"))
+            status_redo[vid_dir.name] = {
+                "redo_script": True if redo_script is None else bool(redo_script),
+                "redo_audio": True if redo_audio is None else bool(redo_audio),
+                "published_lock": published_lock,
+            }
+
+        sums = summaries.setdefault(ch_code, {"redo_script": 0, "redo_audio": 0, "redo_both": 0})
+
+        csv_path = CHANNEL_PLANNING_DIR / f"{ch_code}.csv"
+        if csv_path.exists():
             try:
-                st = load_status(ch_code, vid_dir.name)
-                meta = st.get("metadata", {}) if isinstance(st.get("metadata", {}), dict) else {}
-                redo_script = meta.get("redo_script")
-                redo_audio = meta.get("redo_audio")
-                if redo_script is None:
+                with csv_path.open("r", encoding="utf-8", newline="") as handle:
+                    reader = csv.DictReader(handle)
+                    rows = list(reader)
+            except Exception:
+                rows = []
+
+            for row in rows:
+                raw_video = (row.get("動画番号") or row.get("video") or row.get("Video") or "").strip()
+                token = normalize_planning_video_number(raw_video)
+                if not token:
+                    continue
+                progress_value = row.get("進捗") or row.get("progress")
+                published_locked = _is_progress_published(progress_value)
+
+                snap = status_redo.get(token)
+                if snap:
+                    published_locked = published_locked or bool(snap.get("published_lock"))
+                    redo_script = bool(snap.get("redo_script", True))
+                    redo_audio = bool(snap.get("redo_audio", True))
+                else:
                     redo_script = True
-                if redo_audio is None:
                     redo_audio = True
+
+                if published_locked:
+                    redo_script = False
+                    redo_audio = False
+
                 if redo_script:
                     sums["redo_script"] += 1
                 if redo_audio:
                     sums["redo_audio"] += 1
                 if redo_script and redo_audio:
                     sums["redo_both"] += 1
-            except Exception:
-                continue
+        else:
+            # Legacy fallback: no planning CSV; count from status.json only.
+            for video_number, snap in status_redo.items():
+                published_locked = bool(snap.get("published_lock"))
+                redo_script = bool(snap.get("redo_script", True))
+                redo_audio = bool(snap.get("redo_audio", True))
+                if published_locked:
+                    redo_script = False
+                    redo_audio = False
+                if redo_script:
+                    sums["redo_script"] += 1
+                if redo_audio:
+                    sums["redo_audio"] += 1
+                if redo_script and redo_audio:
+                    sums["redo_both"] += 1
 
-    return [
+    out = [
         RedoSummaryItem(
             channel=ch,
             redo_script=vals["redo_script"],
             redo_audio=vals["redo_audio"],
             redo_both=vals["redo_both"],
         )
-        for ch, vals in sorted(summaries.items())
+        for ch, vals in sorted(summaries.items(), key=lambda item: _channel_sort_key(item[0]))
     ]
+    if channel_filter:
+        return out
+    return [item for item in out if item.redo_script or item.redo_audio or item.redo_both]
 
 
 @app.get("/api/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
@@ -11755,7 +12143,7 @@ def api_planning_channel(channel_code: str):
         # merge redo flags from status.json (default True when missing)
         for row in rows:
             video_num = row.get("動画番号") or row.get("video") or row.get("Video") or ""
-            norm_video = normalize_video_number(video_num) if video_num else None
+            norm_video = normalize_planning_video_number(video_num)
             if not norm_video:
                 continue
             meta: Dict[str, Any] = {}

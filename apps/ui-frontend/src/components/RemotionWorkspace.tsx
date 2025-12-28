@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_GENERATION_OPTIONS, createVideoJob, fetchRemotionProjects, fetchVideoJobs, fetchVideoJobLog, fetchVideoProjectDetail, resolveApiUrl, updateVideoGenerationOptions } from "../api/client";
+import { DEFAULT_GENERATION_OPTIONS, createVideoJob, fetchRemotionProjects, fetchVideoJobs, fetchVideoJobLog, fetchVideoProjectDetail, resolveApiUrl, restartRemotionPreview, updateVideoGenerationOptions } from "../api/client";
 import type { RemotionProjectSummary, RemotionAssetStatus, RemotionRenderOutput, VideoJobRecord, VideoGenerationOptions } from "../api/types";
 import { loadWorkspaceSelection, saveWorkspaceSelection } from "../utils/workspaceSelection";
 
 const CHANNEL_FILTER_ALL = "ALL";
 const CHANNEL_FILTER_UNKNOWN = "__UNKNOWN__";
 const STATUS_FILTER_ALL = "ALL";
+const REMOTION_STUDIO_URL = process.env.REACT_APP_REMOTION_STUDIO_URL || "http://localhost:3100";
 const REMOTION_STATUS_OPTIONS: RemotionProjectSummary["status"][] = [
   "missing_assets",
   "assets_ready",
@@ -98,6 +99,7 @@ export function RemotionWorkspace() {
   const [projects, setProjects] = useState<RemotionProjectSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [studioStarting, setStudioStarting] = useState(false);
   const selectionRef = useRef(loadWorkspaceSelection());
   const [selectedId, setSelectedId] = useState<string | null>(() => selectionRef.current?.projectId ?? null);
   const [banner, setBanner] = useState<Banner | null>(null);
@@ -135,6 +137,21 @@ export function RemotionWorkspace() {
   const handleResetGenerationOptions = useCallback(() => {
     setAndTrackGenerationOptions(DEFAULT_GENERATION_OPTIONS);
   }, [setAndTrackGenerationOptions]);
+
+  const handleStartRemotionStudio = useCallback(async () => {
+    setStudioStarting(true);
+    try {
+      const result = await restartRemotionPreview();
+      const url = result.url ?? REMOTION_STUDIO_URL;
+      showBanner({ type: "success", message: `Remotion Studio を起動しました (${url})` });
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      showBanner({ type: "error", message: `Remotion Studio 起動に失敗しました: ${message}` });
+    } finally {
+      setStudioStarting(false);
+    }
+  }, [showBanner]);
 
   const loadProjects = useCallback(async (attempt = 0) => {
     setLoading(true);
@@ -495,6 +512,15 @@ export function RemotionWorkspace() {
         <div className="remotion-workspace__actions">
           <button type="button" className="remotion-button" onClick={handleRefresh} disabled={loading}>
             {loading ? "更新中..." : "最新を取得"}
+          </button>
+          <button
+            type="button"
+            className="remotion-button remotion-button--secondary"
+            onClick={handleStartRemotionStudio}
+            disabled={studioStarting}
+            title="必要なときだけ Remotion Studio (3100) を起動します"
+          >
+            {studioStarting ? "Studio起動中..." : "Studio (3100) 起動"}
           </button>
           <a
             className="remotion-button remotion-button--secondary"

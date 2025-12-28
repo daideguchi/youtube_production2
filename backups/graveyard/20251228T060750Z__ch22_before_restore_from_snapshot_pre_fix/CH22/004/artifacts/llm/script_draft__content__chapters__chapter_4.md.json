@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:49:38+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "004",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/chapters/chapter_4.md",
+    "sha1": "9622fccce46fdd47ff4582db7976e70b0341a4ee"
+  },
+  "content": "直接「既読ついてますか」と聞き出すのは、なかなか気が引けてしまいますね。人間関係にひびが入りそうで、怖い。でも、そのまま黙って心の中で悶々とするのも、じわりと疲れがたまります。どちらも選びたくない、そんな風に感じることはありませんか。\n\n実は、その板挟みから抜け出す方法があります。相手に直接働きかけるのではなく、ご自身の関わり方を、そっと整えていくという道です。波風を立てずに、静かに距離を調整する。それは、関係を壊すこととは違います。\n\n例えば、LINEのグループでのおしゃべりを思い浮かべてみてください。かつてなら井戸端で交わしていた、天気の話やちょっとした世間話。今ではそれがグループトークに移っています。もちろん、楽しいときもあります。ですが、毎回毎回、何かしら反応を返さなければと感じてしまうと、それは少し重たい荷物になってきませんか。\n\nそこで一手。重要な連絡以外は、控えめにしてみるという選択です。次に何かを書き込もうとしたとき、一度手を止めてみます。これは本当に伝える必要があることだろうか、と自分に問いかけてみる。町内会の回覧のような大切な知らせなら別ですが、そうでなければ、無理に発信しなくてもいいのです。\n\n読み流してもいい。あるいは、スタンプ一つで受け流してもいい。全ての会話に参加する義務は、どこにもありません。あなたのペースで、あなたが気楽にいられる範囲で関わればいい。それだけで、自然と送るメッセージの数は減っていき、その結果として「既読がつくかつかないか」という場面そのものが、少しずつ減っていきます。\n\nもう一手は、返信のペースをゆっくりにしてみることです。通知が来たらすぐに見て、すぐに返さなければと思いがちですが、少し時間を置いてみましょう。お茶を淹れている間、窓の外をぼんやり眺めている間、ほんの数分でも手元から離す。すぐに返さないと失礼だという気持ちはわかりますが、あなたにも都合やリズムがあるはずです。\n\n急ぎの用事でなければ、一呼吸置いてから応える。それはごく自然なことです。返信が遅くなったとしても、多くの場合、相手はそれほど気にしていないものです。むしろ、あなた自身が「すぐに返さなくては」というプレッシャーから解放されることで、心に余白が生まれます。\n\nこうした変化は、相手を拒絶することとは違います。拒絶は、関係を断ち切る行為です。でも、ここでお話ししているのは、関わり方のペースや量を、あなたにとって無理のない範囲に調整するということ。丁度いい塩加減に整える、そんなイメージです。\n\n関係を壊さずに、ほどよい距離を作る。その核心は、全てを相手のペースに合わせるのをやめ、自分自身の心地よさを少しだけ優先してみる点にあります。それはわがままではなく、長い付き合いを続けていくための、大切な自己管理だと言えるかもしれません。\n\n今日からできるのは、ほんの小さな一歩です。次にグループトークに何かが流れてきたら、すぐに手を伸ばすのを、一度だけ我慢してみる。あるいは、返信する前に、深呼吸を一つしてみる。それだけでも、感じ方は変わってくるでしょう。\n\nこうした調整を続けるうちに、やがて「既読」そのものを追いかけることから、自然と離れていけるかもしれません。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "1b6453892473a467d07372d45eb05abc2031647a"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "aaeeeeba0e570b6042edd49dec0591742170c57d"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "e4aa0e5723f5426ee1d42f2fd1718eed687ffcab"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/outline.md",
+      "sha1": "30d39d4c18caf8454135665d551440efc87ca3b6"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "64c5ffff3937e046e883f141c930d8263cee0f91"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "bf6803a07c7f5aef98783055cb7c1f2d46fbcde1"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "306b486396b621437badcf62e02b1928c64de491"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897312-V5760ceKeIiGOjr9fCjL",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 66183,
+    "usage": {
+      "prompt_tokens": 9038,
+      "completion_tokens": 2196,
+      "total_tokens": 11234
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/59/5974327aeefe3c36a808d0bc2521721c.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/logs/script_draft_prompt.txt"
+}

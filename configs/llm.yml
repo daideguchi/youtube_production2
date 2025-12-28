@@ -6,11 +6,9 @@
 # 2025-12-13 01:59:12 +0900
 # Low-cost 3-rank routing (user directive; OpenRouter model IDs verified via /api/v1/models).
 #
-# Rank A (reasoning-heavy):
-#   deepseek/deepseek-r1-distill-qwen-32b
-#   → deepseek/deepseek-r1-0528
-#   → deepseek/deepseek-r1
-#   → deepseek/deepseek-v3.2-exp
+# Rank A (script / thinking required):
+#   deepseek/deepseek-v3.2-exp
+#   → moonshotai/kimi-k2-thinking
 #
 # Rank B (general):
 #   deepseek/deepseek-v3.2-exp
@@ -99,39 +97,6 @@ models:
       allow_temperature: true
       allow_stop: true
       max_output_tokens: 4096
-
-  or_deepseek_r1:
-    provider: openrouter
-    api_type: chat
-    model: "deepseek/deepseek-r1"
-    capabilities:
-      allow_reasoning: false
-      allow_json_mode: true
-      allow_temperature: true
-      allow_stop: true
-      max_output_tokens: 8192
-
-  or_deepseek_r1_0528:
-    provider: openrouter
-    api_type: chat
-    model: "deepseek/deepseek-r1-0528"
-    capabilities:
-      allow_reasoning: false
-      allow_json_mode: true
-      allow_temperature: true
-      allow_stop: true
-      max_output_tokens: 8192
-
-  or_deepseek_r1_distill_qwen_32b:
-    provider: openrouter
-    api_type: chat
-    model: "deepseek/deepseek-r1-distill-qwen-32b"
-    capabilities:
-      allow_reasoning: false
-      allow_json_mode: true
-      allow_temperature: true
-      allow_stop: true
-      max_output_tokens: 8192
 
   or_deepseek_v3_2_exp:
     provider: openrouter

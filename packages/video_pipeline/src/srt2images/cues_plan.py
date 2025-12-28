@@ -317,7 +317,28 @@ def plan_sections_via_router(
             "- Prefer one sustained scene over rapid cuts when the motif/setting continues.\n"
         )
 
+    buddhist_narrator_channels = {"CH12", "CH13", "CH14", "CH15", "CH16", "CH17"}
+    extra_buddhist = ""
+    if (channel_id or "").upper() in buddhist_narrator_channels:
+        extra_buddhist = (
+            "\n"
+            "- Visual motif (CH12-17): it is OK (often recommended) to depict a calm Japanese monk narrator (40–60s) or subtle Buddhist/temple elements even if not explicitly spelled out.\n"
+            "- If a person appears, keep the same face/clothes/age across all sections for that character.\n"
+            "- Still avoid adding extra unrelated characters; keep scenes simple and calm.\n"
+            "- Do NOT default to sitting/meditation poses unless explicitly described; prefer standing/walking/handling simple props.\n"
+        )
+
     style_block = f"\nChannel style hints:\n{style_hint}\n" if style_hint.strip() else ""
+
+    monk_policy = (
+        "- Do NOT invent extra characters.\n"
+        "- Do NOT default to monks/meditation/正座/赤鉢巻/鎌おじさん unless the script explicitly demands it.\n"
+    )
+    if (channel_id or "").upper() in buddhist_narrator_channels:
+        monk_policy = (
+            "- Do NOT invent extra characters.\n"
+            "- CH12-17 exception: a consistent monk narrator motif is allowed; avoid extra random people.\n"
+        )
 
     prompt = f"""
 You are preparing storyboard image cues for a narrated YouTube video.
@@ -329,9 +350,10 @@ Each section must:
 - Average around ~{base_seconds:.1f}s per image, but DO NOT be perfectly uniform; create pacing variation.
 - Describe ONE clear visual idea the viewer should picture (concrete action/pose/setting/props/lighting).
 - Avoid putting text inside the scene.
-- Do NOT invent extra characters. Do NOT default to monks/meditation/正座/赤鉢巻/鎌おじさん unless the script explicitly demands it.
+{monk_policy.rstrip()}
 {extra_rapid}
 {extra_slow}
+{extra_buddhist}
 Return ONLY a JSON object (no markdown) with this schema:
 {{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type],...]}}
 

@@ -26,6 +26,10 @@
   - 正本実装: `apps/ui-frontend/src/api/baseUrl.ts`
   - 注意: `REACT_APP_API_BASE_URL` は末尾 `/` なしに正規化される。
   - fetch直叩きが残る場合でも、URL組み立ては `apiUrl()`（or `client.ts` の `resolveApiUrl()`）を通す。
+- 例外（静的）: **Script Viewer（Pages）** は backend を使わない（APIなし）。
+  - 静的ページ: `pages/script_viewer/`
+  - 索引生成: `python3 scripts/ops/pages_script_viewer_index.py --write`
+  - 台本本文の参照: `workspaces/scripts/**/assembled.md` を GitHub raw から読む（複製しない）。
 
 ---
 
@@ -54,6 +58,7 @@
 | route | page | 主なAPI | 主なSoT |
 | --- | --- | --- | --- |
 | `/dashboard` | `apps/ui-frontend/src/pages/DashboardPage.tsx` | dashboard系（`client.ts`） | `workspaces/**` |
+| `/audit` | `apps/ui-frontend/src/pages/AuditPage.tsx` | `/api/channels/audit`, `/api/guards/workflow-precheck` | `workspaces/**` |
 | `/workflow` | `apps/ui-frontend/src/pages/WorkflowPage.tsx` | workflow系（`client.ts`） | `workspaces/**` |
 | `/studio` | `apps/ui-frontend/src/pages/EpisodeStudioPage.tsx` | scripts/audio/video系（`client.ts`） | `workspaces/scripts/**`, `workspaces/audio/**`, `workspaces/video/**` |
 | `/projects` | `apps/ui-frontend/src/pages/ScriptFactoryPage.tsx` | scripts系（`client.ts`） | `workspaces/scripts/**` |
@@ -69,7 +74,7 @@
 | `/capcut-edit/draft` | `apps/ui-frontend/src/pages/CapcutDraftPage.tsx` | `/api/video-production/*` | `workspaces/video/runs/**` |
 | `/capcut-edit/swap` | `apps/ui-frontend/src/pages/CapcutSwapPage.tsx` | `/api/swap/*` | `workspaces/video/runs/**` |
 | `/image-management` | `apps/ui-frontend/src/pages/ImageManagementPage.tsx` | `/api/video-production/*`（画像variants含む） | `workspaces/video/runs/**` |
-| `/thumbnails` | `apps/ui-frontend/src/pages/ThumbnailsPage.tsx` | `/api/workspaces/thumbnails/*` | `workspaces/thumbnails/**` |
+| `/thumbnails` | `apps/ui-frontend/src/pages/ThumbnailsPage.tsx` | `/api/workspaces/thumbnails/*` | `workspaces/thumbnails/**`（QC: `assets/{CH}/library/qc/*`） |
 | `/channel-settings` | `apps/ui-frontend/src/pages/ChannelSettingsPage.tsx` | `/api/channels/register` 等 | `packages/script_pipeline/channels/**`, `workspaces/planning/**` |
 | `/prompts` | `apps/ui-frontend/src/pages/PromptManagerPage.tsx` | `/api/prompts*` | `packages/**/prompts/**` |
 | `/agent-org` | `apps/ui-frontend/src/pages/AgentOrgPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**`（board/locks/memos） |
@@ -79,3 +84,30 @@
 補足:
 - fetch直叩きが残っている箇所は、原則 `apps/ui-frontend/src/api/client.ts` へ集約して“配線”を減らす（例外: streaming / blob 等）。
   - 直叩きが必要な場合でも `apiUrl()` / `resolveApiUrl()` を必ず通し、base URL の不整合を作らない。
+
+---
+
+## 4) 重要エンドポイントの SoT/意味（バグを増やさないための固定）
+
+### 4-1) 🎛️ 台本・音声字幕管理（Dashboard Overview）
+
+- UI: `apps/ui-frontend/src/pages/ChannelWorkspacePage.tsx` → `fetchDashboardOverview()` → `GET /api/dashboard/overview`
+- SoT/意味:
+  - `channels[].total`（UI表示「企画総数」）は **Planning SoT** を正とする  
+    (`workspaces/planning/channels/CHxx.csv` の動画番号行。CHxx の scripts が無くても表示する)
+  - `script_completed` / `ready_for_audio` / `audio_completed` / `srt_completed` は **status.json / 成果物** を参照  
+    status.json が無い企画は `pending` 扱いとして `stage_matrix` も埋める（UIが 100%着手 と誤判定しないため）
+
+### 4-2) リテイク件数（Redo Summary）
+
+- UI: `apps/ui-frontend/src/layouts/AppShell.tsx` / `apps/ui-frontend/src/pages/PlanningPage.tsx` → `fetchRedoSummary()` → `GET /api/redo/summary`
+- SoT/意味:
+  - Planning CSV を母集団とし、`workspaces/scripts/{CHxx}/{NNN}/status.json` の `metadata.redo_*` で上書きする  
+    （status が無い場合は default `true`、投稿済みロックは強制 `false`）
+  - 目的: 「未処理（redo=true）」が残っている企画の量をチャンネル単位で把握する
+
+### 4-3) Planning CSV（UI向け）
+
+- UI: `apps/ui-frontend/src/pages/PlanningPage.tsx` → `GET /api/planning/channels/{channel_code}`
+- SoT/意味:
+  - `workspaces/planning/channels/CHxx.csv` を読み、UIが扱いやすい形に補助列を付与する（redo/published_lock/thumbnail/alignment等）

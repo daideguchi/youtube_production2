@@ -1,0 +1,20 @@
+{
+  "schema": "ytm.thumbnail.compiler.build.v1",
+  "built_at": "2025-12-19T08:25:51.082138+00:00",
+  "channel": "CH12",
+  "video": "004",
+  "stylepack_id": "ch12_buddha_left_3line_v1",
+  "stylepack_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/compiler/stylepacks/CH12_buddha_left_3line_v1.yaml",
+  "base_image": "/Users/dd/10_YouTube_Automation/factory_commentary/asset/thumbnails/CH12/ch12_buddha_bg_1536x1024.png",
+  "flip_base": true,
+  "impact": true,
+  "belt_enabled": false,
+  "text": {
+    "upper": "やるほど逆",
+    "title": "最悪妄想",
+    "lower": "すぐ静まる"
+  },
+  "output": {
+    "image": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/assets/CH12/004/compiler/build_20251219T082549Z/out_01.png"
+  }
+}

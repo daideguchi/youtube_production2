@@ -879,6 +879,13 @@ export interface ThumbnailLibraryAsset {
   relative_path: string;
 }
 
+export type ThumbnailQcNotes = Record<string, string>;
+
+export interface ThumbnailQcNoteUpdatePayload {
+  relative_path: string;
+  note?: string | null;
+}
+
 export interface ThumbnailQuickHistoryEntry {
   channel: string;
   video: string;

@@ -3,6 +3,10 @@
 - 全体像（まず読む）: `ssot/OPS_SYSTEM_OVERVIEW.md`
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- 入口〜量産投入直前（参照フレーム）: `ssot/ops/OPS_PREPRODUCTION_FRAME.md`
+- 入口〜投入前の入力カタログ（必須/任意/上書き）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
+- 入口〜投入前の修復導線（issue→直す場所）: `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`
+- Planning運用（CSVの扱い/必須列/投稿済みロック）: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - 全体TODO（次に何をやるか）: `ssot/ops/OPS_GLOBAL_TODO.md`
 - 台本パイプライン導線: `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md`
 - 台本工場（入口固定/5モード）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`

@@ -3,7 +3,7 @@
 目的:
 - 「台本が破綻する/水増しする/タイトルとズレる/同じ話を繰り返す」事故を、**手作業やリトライではなく仕組み**で止める。
 - 新規作成とやり直し（Redo）を、低知能エージェントでも迷わず実行できる **確定フロー**にする。
-- 2〜3時間級（超長尺）でも破綻しない運用を、**全文LLM禁止**を前提に固定する。
+- 2〜3時間級（超長尺）でも破綻しない運用を、**一発の全文生成は禁止**（章/ゲートで収束）を前提に固定する。
 
 この文書は「台本パイプラインの単一SSOT（1枚）」である。詳細は必要時にリンク先へ降りるが、**迷ったら本書の手順を優先**する。
 
@@ -15,6 +15,35 @@
   - 例（新規）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
   - 例（Seed→Expand）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py seed-expand --channel CH10 --video 008`
   - 例（途中再開）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+
+---
+
+## QUICK START（迷ったらこれだけ / 入口は固定）
+
+目的 → 叩くコマンド（入口固定）:
+- **新規でゼロから執筆**: `script_runbook.py new`
+- **最初から完全にやり直す（既存を捨てて作り直し）**: `script_runbook.py redo-full`
+- **途中から再開 / 既存台本を調整して合格させる**（体裁/品質/整合を再検証）: `script_runbook.py resume`
+- **リライト修正（ユーザー指示が必須）**: `script_runbook.py rewrite`
+- **長尺を安定させたい（短い本文Seed→追記で収束）**: `script_runbook.py seed-expand`
+
+判断の最小ルール:
+- 「本文を直した/ターゲット字数が変わった/タイトルが変わった」→ `resume --until script_validation`（再検証だけ回すのが最安）
+- 「プロンプト/QC/ルールを更新したので、同じ本文でも検証を回し直したい」→ `resume --until script_validation --force-script-validation`
+- 「企画（CSV）が変わった/混線している」→ `redo-full`（旧生成物を引きずらないのが最安）
+- 「表現だけ変えたい（主題は変えない）」→ `rewrite`（ユーザー指示なしでは使わない）
+
+Mermaid（入口選択の1枚図）:
+
+```mermaid
+flowchart TD
+  A["開始（入口は script_runbook.py）"] --> B{"いまの目的は？"}
+  B -->|"新規でゼロから"| NEW["new\n（0→執筆→QC）"]
+  B -->|"長尺を安定させたい\n（短いSeed→追記）"| SEED["seed-expand\n（Seed→script_validation）"]
+  B -->|"既存がある（調整/再開/直した）"| RESUME["resume\n（必要なところだけ→QC）"]
+  B -->|"企画が変わった/混線\n（別テーマが混ざる）"| REDO["redo-full\n（reset→再生成）"]
+  B -->|"表現だけ変えたい\n（ユーザー指示あり）"| REWRITE["rewrite\n（表現のみ）"]
+```
 
 関連（詳細/分割SSOT）:
 - 確定E2Eフロー（観測ベースの正本）: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
@@ -54,8 +83,9 @@ SoT（正本）:
 
 機械チェック（LLMなし）がやること（例）:
 - 形式/禁則: URL、脚注、箇条書き、区切り記号の混入を止める
-- 破損検知: 末尾ぶつ切り（未完）を止める、同一段落の丸ごと重複を止める
-- 安全な機械修復: “書き足す”のではなく、壊れた尻尾のトリム・重複段落の削除など **安全な除去だけ**（必ず証跡を残す）
+- 破損検知: 末尾ぶつ切り（未完）、同一段落の丸ごと重複などを検出して止める（内容を“勝手に直して合格扱い”にしない）
+- 安全な機械修復（OK）: **内容に触れない形式レベル**の正規化だけ（例: 行内 `---` を1行単独へ、制作メタ混入の除去）
+  - 重要: 末尾トリム/重複段落削除/機械トリムなど **内容に触れる決定論修正**はデフォルト無効（`SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=0`）。
 
 LLMがやること（柔軟性が必要な領域）:
 - アウトライン設計（`script_outline`）と章執筆（`script_draft`）
@@ -364,27 +394,39 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 ### 5.1 機械チェック（必須）
 - 禁則/字数/区切り/括弧上限など（台本本文にURL/脚注/箇条書き等を混ぜない）
 - 入口/運用: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
-- 事故の多い壊れ方は、LLMに頼らず **機械で修復→再判定**する（コスト削減）:
-  - 末尾ぶつ切り（未完）: 追記生成ではなく、最後の文境界まで **トリム**して止める
-  - 同一段落の丸ごと重複: 後続の重複段落を **削除**して止める
-  - 証跡: `status.json: stages.script_validation.details.deterministic_cleanup`
+- 機械チェックの役割は「質を編集する」ではなく **事故を確実に止める**こと。
+  - 形式レベルの安全修復（例: 行内 `---` の正規化、メタ混入の除去）は許容（TTS事故防止）。
+  - **内容に触れる決定論修正**（末尾トリム/重複段落削除/機械トリムなど）はバグの温床になりやすいためデフォルト無効（`SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=0`）。
+  - 使った場合は証跡を `status.json: stages.script_validation.details` に残す（いつ/なぜ有効化したかが追える状態にする）。
 
 ### 5.2 LLM品質ゲート（推論; 収束上限あり）
 - 正本: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 方針:
   - 既定: Judge 最大3回（fail→Fix→Judge→Fix→Judge）、Fix 最大2回、救済（Extend/Expand/Shrink）は必要時のみ（各Fix後に最大1回）
+  - **途中で止まっても無駄撃ちしない（コスト最重要）**:
+    - 同一入力（=同一 fingerprint）で前回 `fail` だった場合でも、Fixer の出力（`content/analysis/quality_gate/fix_latest.md`）が残っていれば、次回 `script_validation` は **そこを起点に再開**して収束を試みる（同じJudge→Fixを最初から繰り返さない）。
+    - 例外: SSOT/プロンプト更新で fingerprint が変わった場合は、古い fix を起点にしない（ルールが変わったため）。
   - それでもNGなら pending で止め、人間が `assembled_human.md` を直す
   - コストを優先して短く止めたい場合は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる
+  - 最終磨き込み（任意）: Judge/Fix で合格した本文に対し、必要な場合だけ **最大1回** “全体ポリッシュ” を実行してトーン統一・反復抑制を行う（`SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`）。
+    - 安全条件（実装）:
+      - 出力の `---` 行数が入力と一致する場合のみ採用（不一致なら捨てる）。
+      - `validate_a_text` のハードエラーが無い場合のみ採用（不一致なら捨てる）。
+  - Judge の “must_fix を消す” 決定論運用はしない（低品質が pass する原因になるためデフォルトOFF）。
+  - キャッシュ（重要）:
+    - LLM APIキャッシュはコスト削減のために有効（同一プロンプトの再実行は cache hit になり得る）。
+    - ただし「古い fail が再利用されて収束しない」時は、その回だけキャッシュ除外して再評価する。
+      - 例: `LLM_API_CACHE_EXCLUDE_TASKS=script_a_text_quality_fix,script_a_text_quality_judge ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH10 --video 006 --until script_validation`
 
-### 5.2.1 文字数収束（不足/超過の救済: 非LLMの自動救済あり）
+### 5.2.1 文字数収束（不足/超過の救済: 基本はLLM。決定論はデフォルトoff）
 - 字数不足:
   - 不足が小さい（`<=1500`）は Extend（1段落の追記）で埋める。
   - 不足が大きい（`>1500`）は Expand（複数箇所の追記）で埋める。
   - 事前救済は **最大3パス（固定）**。上限でコスト暴走を防ぎつつ、3パス目まで打ち切らず「あと少し足りない」事故を潰す。
 - 字数超過:
   - Shrink（削除/圧縮）を実行する。
-  - LLMが削り不足を返すケースがあるため、最終的に **機械トリム（`---` 区切り単位の予算配分）**で必ずレンジ内へ収束させる（=文章を“書く”のではなく、余剰を安全に“削る”だけ）。
-    - 証跡: `status.json: stages.script_validation.details.auto_length_fix_fallback` に `deterministic_budget_trim` を記録。
+  - Shrinkが削り不足でレンジ内に収束しない場合は **pendingで停止**する（内容を機械的に削って合格扱いにしない）。
+  - 例外（非推奨・緊急時のみ）: `SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1` のときだけ、`---` 区切り単位の **機械トリム**を許可できる（証跡は `status.json` に残る）。
 
 ### 5.3 意味整合（必須: 企画↔台本のズレを止める）
 - 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`

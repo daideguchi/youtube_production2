@@ -600,3 +600,59 @@
   cursor: pointer;
   font-weight: 600;
 }
+
+.planning-page__progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.planning-page__progress-input {
+  flex: 1 1 auto;
+  min-width: 120px;
+  border: 1px solid #d0d4da;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.planning-page__progress-edit,
+.planning-page__progress-save,
+.planning-page__progress-cancel {
+  border: 1px solid #d0d4da;
+  background: #fff;
+  color: #111827;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.planning-page__progress-save {
+  border-color: #0b6efd;
+  color: #0b6efd;
+  font-weight: 700;
+}
+
+.planning-page__progress-cancel {
+  color: #6b7280;
+}
+
+.planning-page__progress-edit:disabled,
+.planning-page__progress-save:disabled,
+.planning-page__progress-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.planning-page__progress-error {
+  color: #b91c1c;
+  font-size: 11px;
+  margin-left: 6px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

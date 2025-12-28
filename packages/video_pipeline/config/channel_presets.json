@@ -361,16 +361,17 @@
       "status": "draft"
     },
     "CH12": {
-      "name": "寓話×仏教解説（CH01寄せ）",
+      "name": "ブッダの黄昏夜話",
       "image_generation": {
-        "base_period": 25.0
+        "base_period": 25.0,
+        "model_key": "fireworks_flux_1_schnell_fp8"
       },
-      "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt",
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
       "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
-      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "tone_profile": "トーン: 油絵（キャンバスの筆致と質感）で、暖かい金色の光×冷たい青グレーの影のコントラスト。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せでノスタルジックに。文字は入れない。",
       "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
-      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
-      "capcut_template": "CH12-テンプレ",
+      "style": "Oil painting on textured canvas, cinematic, calm spiritual mood, warm amber tones, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
       "position": {
         "tx": 0.0,
         "ty": 0.0,
@@ -385,14 +386,189 @@
       },
       "belt": {
         "enabled": true,
-        "opening_offset": 3.0,
+        "opening_offset": 0.0,
         "requires_config": true
       },
       "belt_labels": "",
       "persona_required": false,
       "image_min_bytes": 60000,
       "video_style_id": "jinsei_standard_v2",
-      "notes": "CH01の画風/帯構造に寄せた暫定プリセット。",
+      "notes": "CH12は油絵(schnell)がデフォルト。CapCutテンプレはCH12-テンプレ正（CH12-CH17で共用）。",
+      "status": "active"
+    },
+    "CH13": {
+      "name": "ブッダの禅処方箋",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CapCutテンプレはCH12-テンプレ正を共用。",
+      "status": "active"
+    },
+    "CH14": {
+      "name": "ブッダの執着解除",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CapCutテンプレはCH12-テンプレ正を共用。",
+      "status": "active"
+    },
+    "CH15": {
+      "name": "ブッダの心胆鍛錬",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CapCutテンプレはCH12-テンプレ正を共用。",
+      "status": "active"
+    },
+    "CH16": {
+      "name": "ブッダの老後整え方",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CapCutテンプレはCH12-テンプレ正を共用。",
+      "status": "active"
+    },
+    "CH17": {
+      "name": "安らぎ仏教夜話",
+      "image_generation": {
+        "base_period": 25.0
+      },
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt",
+      "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
+      "tone_profile": "トーン: 暖かい金色の光と冷たい青グレー石のコントラスト。デジタル水彩+インク、にじみ・ぼかし多め、和紙の粒感と金の斑点テクスチャ。静寂・瞑想的で神聖な空気感を優先。わずかなフィルム調ノイズと色褪せたニュアンスでノスタルジックに。人物は台本の文脈に沿って統一。",
+      "character_note": "キャラは台本に出てくる人物だけを使い、顔立ち・性別・年齢・人種・服装・特徴は台本の指示どおりに設定し全カットで一貫。台本に人物指定がなければ人を描かない。不要な新キャラは追加しない。",
+      "style": "Japanese digital illustration, soft watercolor style, hand-drawn lines, gentle lighting, warm colors, NO photorealism",
+      "capcut_template": "CH12-テンプレ正",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": true
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "CapCutテンプレはCH12-テンプレ正を共用。",
       "status": "active"
     },
     "CH22": {

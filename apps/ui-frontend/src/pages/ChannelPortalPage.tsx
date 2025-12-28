@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   fetchAutoDraftPromptTemplateContent,
@@ -9,6 +9,9 @@ import {
   fetchPlanningRows,
   fetchPlanningTemplate,
   fetchResearchFile,
+  markVideoPublishedLocked,
+  unmarkVideoPublishedLocked,
+  updatePlanningChannelProgress,
 } from "../api/client";
 import type {
   BenchmarkScriptSampleSpec,
@@ -26,6 +29,7 @@ import { ChannelOverviewPanel } from "../components/ChannelOverviewPanel";
 import { pickCurrentStage, resolveStageStatus } from "../components/StageProgress";
 import type { ShellOutletContext } from "../layouts/AppShell";
 import { translateStage, translateStatus } from "../utils/i18n";
+import { safeLocalStorage } from "../utils/safeStorage";
 import { resolveAudioSubtitleState } from "../utils/video";
 import "./ChannelPortalPage.css";
 
@@ -63,6 +67,14 @@ function normalizePreviewText(value?: string | null, limit = 420): string {
 }
 
 const BENCHMARK_CHARS_PER_SECOND = 6.0;
+
+type PortalTopTab = "channel" | "production" | "benchmarks";
+
+const PORTAL_TOP_TABS: { key: PortalTopTab; label: string }[] = [
+  { key: "channel", label: "チャンネル" },
+  { key: "production", label: "制作設定" },
+  { key: "benchmarks", label: "ベンチマーク" },
+];
 
 type BenchmarkScriptMetrics = {
   nonWhitespaceChars: number;
@@ -168,6 +180,32 @@ function resolveChannelDisplayName(channel: ChannelSummary): string {
   return channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
 }
 
+function copyToClipboard(text: string): Promise<boolean> {
+  const value = String(text ?? "");
+  if (!value) {
+    return Promise.resolve(false);
+  }
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    return navigator.clipboard
+      .writeText(value)
+      .then(() => true)
+      .catch(() => false);
+  }
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return Promise.resolve(Boolean(ok));
+  } catch {
+    return Promise.resolve(false);
+  }
+}
+
 export function ChannelPortalPage() {
   const navigate = useNavigate();
   const {
@@ -211,16 +249,35 @@ export function ChannelPortalPage() {
   const [promptTemplateLoading, setPromptTemplateLoading] = useState(false);
   const [promptTemplateError, setPromptTemplateError] = useState<string | null>(null);
 
-  const [channelSearch, setChannelSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [progressDraft, setProgressDraft] = useState<Record<string, string>>({});
+  const [progressSaving, setProgressSaving] = useState<Record<string, boolean>>({});
+  const [progressError, setProgressError] = useState<Record<string, string>>({});
+  const [publishingKey, setPublishingKey] = useState<string | null>(null);
+  const [unpublishingKey, setUnpublishingKey] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<Record<string, string>>({});
+  const [copiedVideo, setCopiedVideo] = useState<string | null>(null);
+  const copiedTimerRef = useRef<number | null>(null);
 
-	  const [benchmarkPreview, setBenchmarkPreview] = useState<{
-	    label: string;
-	    loading: boolean;
-	    content: string;
-	    error: string | null;
-	    metrics: BenchmarkScriptMetrics | null;
-	  } | null>(null);
+  const [portalTopTab, setPortalTopTab] = useState<PortalTopTab>(() => {
+    const raw = (safeLocalStorage.getItem("ui.portal.topTab") ?? "").trim();
+    if (raw === "channel" || raw === "production" || raw === "benchmarks") {
+      return raw as PortalTopTab;
+    }
+    return "channel";
+  });
+
+  useEffect(() => {
+    safeLocalStorage.setItem("ui.portal.topTab", portalTopTab);
+  }, [portalTopTab]);
+
+  const [benchmarkPreview, setBenchmarkPreview] = useState<{
+    label: string;
+    loading: boolean;
+    content: string;
+    error: string | null;
+    metrics: BenchmarkScriptMetrics | null;
+  } | null>(null);
 
   const videosByNumber = useMemo(() => {
     const map = new Map<string, VideoSummary>();
@@ -235,18 +292,6 @@ export function ChannelPortalPage() {
     list.sort((left, right) => compareChannelCode(left.code, right.code));
     return list;
   }, [channels]);
-
-  const filteredChannels = useMemo(() => {
-    const keyword = channelSearch.trim().toLowerCase();
-    if (!keyword) {
-      return sortedChannels;
-    }
-    return sortedChannels.filter((channel) => {
-      const displayName = resolveChannelDisplayName(channel);
-      const searchText = `${channel.code} ${displayName}`.toLowerCase();
-      return searchText.includes(keyword);
-    });
-  }, [channelSearch, sortedChannels]);
 
   useEffect(() => {
     let cancelled = false;
@@ -443,6 +488,15 @@ export function ChannelPortalPage() {
   }, [selectedChannel]);
 
   useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current) {
+        window.clearTimeout(copiedTimerRef.current);
+        copiedTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     setBenchmarkPreview(null);
   }, [selectedChannel]);
 
@@ -470,6 +524,172 @@ export function ChannelPortalPage() {
     }
     return sortedPlanningRows.filter((row) => buildPlanningSearchText(row).includes(keyword));
   }, [sortedPlanningRows, searchTerm]);
+
+  const applyProgressDraft = useCallback((video: string, value: string) => {
+    setProgressDraft((current) => ({ ...current, [video]: value }));
+    setProgressError((current) => {
+      if (!current[video]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[video];
+      return next;
+    });
+  }, []);
+
+  const saveProgress = useCallback(
+    async (row: PlanningCsvRow) => {
+      if (!selectedChannel) {
+        return;
+      }
+      const video = row.video_number;
+      const draft = progressDraft[video];
+      const nextProgress = (draft ?? row.progress ?? "").trim();
+      if (!nextProgress) {
+        setProgressError((current) => ({ ...current, [video]: "進捗が空です。" }));
+        return;
+      }
+      const currentProgress = (row.progress ?? "").trim();
+      if (nextProgress === currentProgress) {
+        setProgressDraft((current) => {
+          if (current[video] === undefined) return current;
+          const next = { ...current };
+          delete next[video];
+          return next;
+        });
+        return;
+      }
+      setProgressSaving((current) => ({ ...current, [video]: true }));
+      setProgressError((current) => {
+        const next = { ...current };
+        delete next[video];
+        return next;
+      });
+      try {
+        const updated = await updatePlanningChannelProgress(selectedChannel, video, {
+          progress: nextProgress,
+          expectedUpdatedAt: row.updated_at ?? null,
+        });
+        setPlanningRows((current) => current.map((item) => (item.video_number === video ? updated : item)));
+        setProgressDraft((current) => {
+          const next = { ...current };
+          delete next[video];
+          return next;
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setProgressError((current) => ({ ...current, [video]: message }));
+      } finally {
+        setProgressSaving((current) => ({ ...current, [video]: false }));
+      }
+    },
+    [progressDraft, selectedChannel]
+  );
+
+  const markPublished = useCallback(
+    async (videoRaw: string) => {
+      if (!selectedChannel) {
+        return;
+      }
+      const videoToken = String(videoRaw ?? "").trim();
+      if (!videoToken) {
+        return;
+      }
+      const key = `${selectedChannel}-${videoToken}`;
+      setPublishingKey(key);
+      setPublishError((current) => {
+        if (!current[videoToken]) return current;
+        const next = { ...current };
+        delete next[videoToken];
+        return next;
+      });
+      try {
+        await markVideoPublishedLocked(selectedChannel, videoToken, { force_complete: true });
+        const nextRows = await fetchPlanningRows(selectedChannel);
+        setPlanningRows(nextRows);
+        setProgressDraft((current) => {
+          if (current[videoToken] === undefined) return current;
+          const next = { ...current };
+          delete next[videoToken];
+          return next;
+        });
+        setProgressError((current) => {
+          if (!current[videoToken]) return current;
+          const next = { ...current };
+          delete next[videoToken];
+          return next;
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setPublishError((current) => ({ ...current, [videoToken]: message }));
+      } finally {
+        setPublishingKey(null);
+      }
+    },
+    [selectedChannel]
+  );
+
+  const unmarkPublished = useCallback(
+    async (videoRaw: string) => {
+      if (!selectedChannel) {
+        return;
+      }
+      const videoToken = String(videoRaw ?? "").trim();
+      if (!videoToken) {
+        return;
+      }
+      const key = `${selectedChannel}-${videoToken}`;
+      if (!window.confirm(`投稿済みロックを解除しますか？ (${key})`)) {
+        return;
+      }
+      setUnpublishingKey(key);
+      setPublishError((current) => {
+        if (!current[videoToken]) return current;
+        const next = { ...current };
+        delete next[videoToken];
+        return next;
+      });
+      try {
+        await unmarkVideoPublishedLocked(selectedChannel, videoToken);
+        const nextRows = await fetchPlanningRows(selectedChannel);
+        setPlanningRows(nextRows);
+        setProgressDraft((current) => {
+          if (current[videoToken] === undefined) return current;
+          const next = { ...current };
+          delete next[videoToken];
+          return next;
+        });
+        setProgressError((current) => {
+          if (!current[videoToken]) return current;
+          const next = { ...current };
+          delete next[videoToken];
+          return next;
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setPublishError((current) => ({ ...current, [videoToken]: message }));
+      } finally {
+        setUnpublishingKey(null);
+      }
+    },
+    [selectedChannel]
+  );
+
+  const handleCopyTitle = useCallback(async (row: PlanningCsvRow) => {
+    const title = pickRowTitle(row);
+    const ok = await copyToClipboard(title);
+    if (!ok) {
+      return;
+    }
+    setCopiedVideo(row.video_number);
+    if (copiedTimerRef.current) {
+      window.clearTimeout(copiedTimerRef.current);
+    }
+    copiedTimerRef.current = window.setTimeout(() => {
+      setCopiedVideo(null);
+      copiedTimerRef.current = null;
+    }, 1200);
+  }, []);
 
   if (!selectedChannel || !selectedChannelSummary || !selectedChannelSnapshot) {
     return (
@@ -620,64 +840,36 @@ export function ChannelPortalPage() {
           </div>
 
           <div className="channel-portal-switcher-tools">
-            <input
-              type="search"
-              className="channel-portal-switcher-search"
-              value={channelSearch}
-              onChange={(event) => setChannelSearch(event.target.value)}
-              placeholder="チャンネル検索（CH番号 / 名前）"
-              aria-label="チャンネル検索"
-            />
+            <label className="channel-portal-switcher-label">
+              チャンネル切替:
+              <select
+                className="channel-portal-switcher-select"
+                value={selectedChannel ?? ""}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  if (!next) {
+                    return;
+                  }
+                  navigate(`/channels/${encodeURIComponent(next)}/portal`);
+                }}
+                disabled={channelsLoading || Boolean(channelsError)}
+              >
+                <option value="" disabled>
+                  {channelsLoading ? "読み込み中…" : channelsError ? "取得失敗" : "選択してください"}
+                </option>
+                {sortedChannels.map((channel) => {
+                  const displayName = resolveChannelDisplayName(channel);
+                  return (
+                    <option key={channel.code} value={channel.code}>
+                      {channel.code} {displayName}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
             <span className="muted channel-portal-switcher-count">
-              {filteredChannels.length}/{sortedChannels.length}
+              {sortedChannels.length}
             </span>
-          </div>
-
-          <div className="channel-portal-switcher" role="tablist" aria-label="チャンネル切り替え">
-            {channelsLoading ? (
-              <span className="muted">チャンネル読み込み中…</span>
-            ) : channelsError ? (
-              <span className="muted">チャンネル取得に失敗: {channelsError}</span>
-            ) : null}
-            {!channelsLoading && !channelsError && filteredChannels.length === 0 ? (
-              <span className="muted">一致するチャンネルがありません。</span>
-            ) : null}
-            {filteredChannels.map((channel) => {
-              const isActive = channel.code === selectedChannel;
-              const displayName = resolveChannelDisplayName(channel);
-              const avatarUrl = channel.branding?.avatar_url ?? null;
-              const themeColor = channel.branding?.theme_color ?? null;
-              const avatarStyle =
-                avatarUrl != null
-                  ? { backgroundImage: `url(${avatarUrl})` }
-                  : themeColor
-                    ? { background: themeColor }
-                    : undefined;
-              const avatarLabel = displayName.slice(0, 2);
-              return (
-                <button
-                  key={channel.code}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  className={`channel-portal-switcher__item${isActive ? " is-active" : ""}`}
-                  onClick={() => navigate(`/channels/${encodeURIComponent(channel.code)}/portal`)}
-                  title={displayName}
-                >
-                  <span
-                    className={`channel-portal-switcher__avatar${avatarUrl ? " is-image" : ""}`}
-                    style={avatarStyle}
-                    aria-hidden
-                  >
-                    {!avatarUrl ? avatarLabel : null}
-                  </span>
-                  <span className="channel-portal-switcher__meta">
-                    <span className="channel-portal-switcher__code">{channel.code}</span>
-                    <span className="channel-portal-switcher__name">{displayName}</span>
-                  </span>
-                </button>
-              );
-            })}
           </div>
         </section>
       </div>
@@ -692,8 +884,23 @@ export function ChannelPortalPage() {
       </section>
 
       <section className="main-content main-content--workspace channel-portal-content">
-        <div className="channel-portal-top-grid">
-          <div className="channel-card">
+        <div className="channel-portal-top">
+          <nav className="portal-tabs" aria-label="ポータルセクション">
+            {PORTAL_TOP_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`portal-tab${portalTopTab === tab.key ? " portal-tab--active" : ""}`}
+                onClick={() => setPortalTopTab(tab.key)}
+                aria-pressed={portalTopTab === tab.key}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+
+          {portalTopTab === "channel" ? (
+            <div className="channel-card">
             <div className="channel-card__header">
               <div className="channel-card__heading">
                 <h4>チャンネル情報</h4>
@@ -783,9 +990,11 @@ export function ChannelPortalPage() {
                 </details>
               </div>
             ) : null}
-          </div>
+            </div>
+          ) : null}
 
-          <div className="channel-card">
+          {portalTopTab === "production" ? (
+            <div className="channel-card">
             <div className="channel-card__header">
               <div className="channel-card__heading">
                 <h4>既定モデル / CapCut設定</h4>
@@ -857,7 +1066,7 @@ export function ChannelPortalPage() {
                   </dl>
                 ) : null}
 
-                <details className="portal-details" style={{ marginTop: 12 }} open>
+                <details className="portal-details" style={{ marginTop: 12 }}>
                   <summary>画像プロンプト（全文）</summary>
                   {promptTemplateLoading ? <p className="muted">読み込み中…</p> : null}
                   {promptTemplateError ? <p className="muted">取得失敗: {promptTemplateError}</p> : null}
@@ -882,9 +1091,11 @@ export function ChannelPortalPage() {
                 このチャンネルは {workflowLabel} のため、CapCut設定は未使用です。
               </p>
             )}
-          </div>
+            </div>
+          ) : null}
 
-          <div className="channel-card">
+          {portalTopTab === "benchmarks" ? (
+            <div className="channel-card">
             <div className="channel-card__header">
 	              <div className="channel-card__heading">
 	                <h4>ベンチマーク</h4>
@@ -913,7 +1124,7 @@ export function ChannelPortalPage() {
                   </div>
                 ) : null}
 
-                <details className="portal-details" open>
+                <details className="portal-details">
                   <summary>競合チャンネル（{benchmarksChannelsCount}）</summary>
                   {benchmarkChannels.length ? (
                     <ul className="portal-list">
@@ -971,7 +1182,8 @@ export function ChannelPortalPage() {
                 ) : null}
               </div>
             ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
 
         <section className="channel-projects channel-portal-planning">
@@ -1007,6 +1219,7 @@ export function ChannelPortalPage() {
                   <th scope="col">番号</th>
                   <th scope="col">タイトル</th>
                   <th scope="col">進捗</th>
+                  <th scope="col">投稿</th>
                   <th scope="col">音声</th>
                   <th scope="col">更新</th>
                   <th scope="col" className="channel-projects__actions-column">
@@ -1017,13 +1230,13 @@ export function ChannelPortalPage() {
               <tbody>
                 {planningLoading ? (
                   <tr>
-                    <td colSpan={6} className="channel-projects__empty">
+                    <td colSpan={7} className="channel-projects__empty">
                       読み込み中…
                     </td>
                   </tr>
                 ) : filteredPlanningRows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="channel-projects__empty">
+                    <td colSpan={7} className="channel-projects__empty">
                       条件に一致する企画はありません。
                     </td>
                   </tr>
@@ -1048,6 +1261,17 @@ export function ChannelPortalPage() {
                       pickPlanningValue(row, "悩みタグ_サブ") ?? "",
                       pickPlanningValue(row, "ライフシーン") ?? "",
                     ].filter((item) => item && item.trim().length > 0);
+                    const progressValue = progressDraft[row.video_number] ?? row.progress ?? "";
+                    const progressChanged = progressValue.trim() !== (row.progress ?? "").trim();
+                    const progressBusy = Boolean(progressSaving[row.video_number]);
+                    const progressErr = progressError[row.video_number] ?? null;
+                    const publishedLocked =
+                      String(row.progress ?? "").includes("投稿済み") || String(row.progress ?? "").includes("公開済み");
+                    const publishKey = `${selectedChannel}-${row.video_number}`;
+                    const isPublishing = publishingKey === publishKey;
+                    const isUnpublishing = unpublishingKey === publishKey;
+                    const publishBusy = isPublishing || isUnpublishing;
+                    const publishErr = publishError[row.video_number] ?? null;
                     return (
                       <tr
                         key={row.video_number}
@@ -1057,6 +1281,16 @@ export function ChannelPortalPage() {
                         <td>
                           <div className="channel-projects__title">{rowTitle}</div>
                           <div className="portal-chip-row">
+                            <button
+                              type="button"
+                              className="link-button"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                handleCopyTitle(row);
+                              }}
+                            >
+                              {copiedVideo === row.video_number ? "コピー済み" : "タイトルをコピー"}
+                            </button>
                             {summary?.status ? (
                               <span className={`status-badge status-badge--${summary.status ?? "pending"}`}>
                                 {translateStatus(summary.status)}
@@ -1072,7 +1306,77 @@ export function ChannelPortalPage() {
                           </div>
                           <div className="channel-projects__meta">{metaParts.length ? metaParts.join(" / ") : "—"}</div>
                         </td>
-                        <td>{row.progress ?? "—"}</td>
+                        <td>
+                          <div className="channel-projects__progress">
+                            <input
+                              type="text"
+                              className="channel-projects__progress-input"
+                              value={progressValue}
+                              onChange={(event) => applyProgressDraft(row.video_number, event.target.value)}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  saveProgress(row);
+                                }
+                                if (event.key === "Escape") {
+                                  event.preventDefault();
+                                  setProgressDraft((current) => {
+                                    const next = { ...current };
+                                    delete next[row.video_number];
+                                    return next;
+                                  });
+                                  setProgressError((current) => {
+                                    const next = { ...current };
+                                    delete next[row.video_number];
+                                    return next;
+                                  });
+                                }
+                              }}
+                              disabled={planningLoading || progressBusy}
+                              aria-label={`${row.video_number} 進捗`}
+                            />
+                            <button
+                              type="button"
+                              className="link-button"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                saveProgress(row);
+                              }}
+                              disabled={planningLoading || progressBusy || !progressChanged}
+                              title={progressChanged ? "進捗を保存" : "変更なし"}
+                            >
+                              {progressBusy ? "保存中…" : "保存"}
+                            </button>
+                          </div>
+                          {progressErr ? <div className="channel-projects__progress-error">{progressErr}</div> : null}
+                        </td>
+                        <td>
+                          <label
+                            className="portal-publish-toggle"
+                            title={
+                              publishedLocked
+                                ? "投稿済み（ロック中）: クリックで解除できます"
+                                : "チェックで投稿済みにする（ロック）"
+                            }
+                          >
+                            <input
+                              type="checkbox"
+                              checked={publishedLocked || publishBusy}
+                              disabled={publishBusy}
+                              onChange={(event) => {
+                                const next = event.target.checked;
+                                if (next && !publishedLocked) {
+                                  void markPublished(row.video_number);
+                                  return;
+                                }
+                                if (!next && publishedLocked) {
+                                  void unmarkPublished(row.video_number);
+                                }
+                              }}
+                            />
+                          </label>
+                          {publishErr ? <div className="portal-publish-error">{publishErr}</div> : null}
+                        </td>
                         <td>{audioLabel}</td>
                         <td>{formatDate(row.updated_at)}</td>
                         <td className="channel-projects__actions-cell">

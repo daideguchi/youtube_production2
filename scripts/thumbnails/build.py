@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -209,6 +210,35 @@ def _default_buddha_base() -> Optional[Path]:
     return p if p.exists() else None
 
 
+def _parse_buddha_bases(raw: Optional[List[str]]) -> List[Path]:
+    if not raw:
+        return []
+    out: List[Path] = []
+    for item in raw:
+        if not item:
+            continue
+        for part in str(item).split(","):
+            p = part.strip()
+            if not p:
+                continue
+            out.append(Path(p).expanduser())
+    return out
+
+
+def _group_videos_by_bucket_bases(*, videos: List[str], bases: List[Path], bucket_size: int) -> Dict[Path, List[str]]:
+    if bucket_size <= 0:
+        raise ValueError("bucket_size must be > 0")
+    if not bases:
+        raise ValueError("bases must be non-empty")
+
+    groups: Dict[Path, List[str]] = {}
+    for v in [_normalize_video(v) for v in videos]:
+        idx = (int(v) - 1) // bucket_size
+        base = bases[idx % len(bases)]
+        groups.setdefault(base, []).append(v)
+    return {k: sorted(vs) for k, vs in groups.items()}
+
+
 def _append_fix_note(existing: Optional[str], line: str) -> str:
     suffix = line.strip()
     if not suffix:
@@ -306,6 +336,28 @@ def build_contactsheet(
     return out_path
 
 
+def _publish_qc_to_library(*, channel: str, qc_path: Path) -> Optional[Path]:
+    """
+    Publish a QC contactsheet into the per-channel thumbnail library so it can be
+    viewed easily from the UI (Thumbnails > QC tab).
+    """
+    ch = _normalize_channel(channel)
+    if not qc_path.exists():
+        return None
+    dest_dir = fpaths.thumbnails_root() / "assets" / ch / "library" / "qc"
+    dest = dest_dir / "contactsheet.png"
+    try:
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_suffix(dest.suffix + ".tmp")
+        shutil.copyfile(qc_path, tmp)
+        tmp.replace(dest)
+        print(f"[QC] published {dest}")
+        return dest
+    except Exception as e:
+        print(f"[QC] WARN: failed to publish to library: {e}", file=sys.stderr)
+        return None
+
+
 def _cmd_build(args: argparse.Namespace) -> int:
     _apply_compiler_defaults(args)
     channel = _normalize_channel(args.channel)
@@ -323,6 +375,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
             height=int(args.height),
             force=bool(args.force),
             skip_generate=bool(args.skip_generate),
+            regen_bg=bool(getattr(args, "regen_bg", False)),
             continue_on_error=bool(args.continue_on_error),
             max_gen_attempts=int(args.max_gen_attempts),
             export_flat=bool(args.export_flat),
@@ -332,6 +385,16 @@ def _cmd_build(args: argparse.Namespace) -> int:
             bg_contrast=float(args.bg_contrast),
             bg_color=float(args.bg_color),
             bg_gamma=float(args.bg_gamma),
+            bg_zoom=float(args.bg_zoom),
+            bg_pan_x=float(args.bg_pan_x),
+            bg_pan_y=float(args.bg_pan_y),
+            bg_band_brightness=float(args.bg_band_brightness),
+            bg_band_contrast=float(args.bg_band_contrast),
+            bg_band_color=float(args.bg_band_color),
+            bg_band_gamma=float(args.bg_band_gamma),
+            bg_band_x0=float(args.bg_band_x0),
+            bg_band_x1=float(args.bg_band_x1),
+            bg_band_power=float(args.bg_band_power),
         )
         built_videos = [t.video for t in targets]
         if args.qc:
@@ -339,26 +402,56 @@ def _cmd_build(args: argparse.Namespace) -> int:
             grid = QcGrid(tile_w=args.qc_tile_w, tile_h=args.qc_tile_h, cols=args.qc_cols, pad=args.qc_pad)
             build_contactsheet(channel=channel, videos=built_videos, out_path=out, grid=grid)
             print(f"[QC] wrote {out}")
+            _publish_qc_to_library(channel=channel, qc_path=out)
         return 0
 
     # buddha_3line_v1
     if not videos:
         raise SystemExit("buddha_3line requires --videos (or --status)")
-    base = Path(args.base).expanduser() if args.base else (_default_buddha_base() or None)
-    if not base:
-        raise SystemExit("buddha_3line requires --base (or install default base under asset/thumbnails/CH12/)")
+    bases = _parse_buddha_bases(getattr(args, "bases", None))
+    if not bases:
+        base = Path(args.base).expanduser() if args.base else (_default_buddha_base() or None)
+        if not base:
+            raise SystemExit("buddha_3line requires --base (or install default base under asset/thumbnails/CH12/)")
+        bases = [base]
+
+    missing = [str(p) for p in bases if not p.exists()]
+    if missing:
+        raise SystemExit(f"buddha_3line base image not found: {', '.join(missing)}")
+
     build_id = args.build_id or datetime.now(timezone.utc).strftime("build_%Y%m%dT%H%M%SZ")
-    build_buddha_3line(
-        channel=channel,
-        videos=videos,
-        base_image_path=base,
-        build_id=build_id,
-        font_path=args.font_path,
-        flip_base=not args.no_flip_base,
-        impact=not args.no_impact,
-        belt_override=True if args.belt else (False if args.no_belt else None),
-        select_variant=bool(args.select_variant),
-    )
+    if len(bases) == 1:
+        build_buddha_3line(
+            channel=channel,
+            videos=videos,
+            base_image_path=bases[0],
+            build_id=build_id,
+            font_path=args.font_path,
+            flip_base=not args.no_flip_base,
+            impact=not args.no_impact,
+            belt_override=True if args.belt else (False if args.no_belt else None),
+            select_variant=bool(args.select_variant),
+        )
+    else:
+        bucket_size = int(getattr(args, "base_bucket_size", 0) or 0)
+        if bucket_size <= 0:
+            if channel == "CH12":
+                bucket_size = 10
+            else:
+                raise SystemExit("--base-bucket-size is required when using --bases (e.g. 10)")
+        groups = _group_videos_by_bucket_bases(videos=videos, bases=bases, bucket_size=bucket_size)
+        for base, vids in groups.items():
+            build_buddha_3line(
+                channel=channel,
+                videos=vids,
+                base_image_path=base,
+                build_id=build_id,
+                font_path=args.font_path,
+                flip_base=not args.no_flip_base,
+                impact=not args.no_impact,
+                belt_override=True if args.belt else (False if args.no_belt else None),
+                select_variant=bool(args.select_variant),
+            )
     if args.qc:
         # For buddha builds, contactsheet sources are under compiler/<build_id>/out_01.png
         out = fpaths.thumbnails_root() / "assets" / channel / "_qc" / args.qc
@@ -371,6 +464,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
             source_name=f"compiler/{build_id}/out_01.png",
         )
         print(f"[QC] wrote {out}")
+        _publish_qc_to_library(channel=channel, qc_path=out)
     return 0
 
 
@@ -384,7 +478,31 @@ def _cmd_retake(args: argparse.Namespace) -> int:
         return 0
 
     qc_name = args.qc or f"contactsheet_retake_{len(videos)}_{args.qc_tile_w}x{args.qc_tile_h}.png"
-    built_note = f"修正済み: engine={engine} bg(b={args.bg_brightness:.2f} c={args.bg_contrast:.2f} s={args.bg_color:.2f} g={args.bg_gamma:.2f}) / QC={qc_name} / {_now_iso()}"
+    has_pan_zoom = not (
+        abs(float(args.bg_zoom) - 1.0) < 1e-9
+        and abs(float(args.bg_pan_x)) < 1e-9
+        and abs(float(args.bg_pan_y)) < 1e-9
+    )
+    pan_zoom_note = ""
+    if has_pan_zoom:
+        pan_zoom_note = f" pan(z={args.bg_zoom:.2f} px={args.bg_pan_x:.2f} py={args.bg_pan_y:.2f})"
+    has_band = not (
+        abs(float(args.bg_band_brightness) - 1.0) < 1e-9
+        and abs(float(args.bg_band_contrast) - 1.0) < 1e-9
+        and abs(float(args.bg_band_color) - 1.0) < 1e-9
+        and abs(float(args.bg_band_gamma) - 1.0) < 1e-9
+    )
+    band_note = ""
+    if has_band:
+        band_note = (
+            f" band(x={args.bg_band_x0:.2f}-{args.bg_band_x1:.2f} p={args.bg_band_power:.2f}"
+            f" b={args.bg_band_brightness:.2f} c={args.bg_band_contrast:.2f}"
+            f" s={args.bg_band_color:.2f} g={args.bg_band_gamma:.2f})"
+        )
+    built_note = (
+        f"修正済み: engine={engine} bg(b={args.bg_brightness:.2f} c={args.bg_contrast:.2f}"
+        f" s={args.bg_color:.2f} g={args.bg_gamma:.2f}){pan_zoom_note}{band_note} / QC={qc_name} / {_now_iso()}"
+    )
 
     # Build (force) then mark review
     ns = argparse.Namespace(**vars(args))
@@ -415,6 +533,8 @@ def _cmd_qc(args: argparse.Namespace) -> int:
     grid = QcGrid(tile_w=args.tile_w, tile_h=args.tile_h, cols=args.cols, pad=args.pad)
     build_contactsheet(channel=channel, videos=videos, out_path=out, grid=grid, source_name=args.source_name)
     print(f"[QC] wrote {out}")
+    if args.out is None:
+        _publish_qc_to_library(channel=channel, qc_path=out)
     return 0
 
 
@@ -439,6 +559,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     b.add_argument("--height", type=int, default=1080)
     b.add_argument("--force", action="store_true")
     b.add_argument("--skip-generate", action="store_true")
+    b.add_argument("--regen-bg", action="store_true", help="Regenerate background even if assets already exist (overwrites 90_bg_ai_raw/10_bg)")
     b.add_argument("--continue-on-error", action="store_true")
     b.add_argument("--max-gen-attempts", type=int, default=2)
     b.add_argument("--export-flat", action="store_true")
@@ -448,9 +569,30 @@ def main(argv: Optional[List[str]] = None) -> int:
     b.add_argument("--bg-contrast", type=float, default=1.0)
     b.add_argument("--bg-color", type=float, default=1.0)
     b.add_argument("--bg-gamma", type=float, default=1.0)
+    b.add_argument("--bg-zoom", type=float, default=1.0)
+    b.add_argument("--bg-pan-x", type=float, default=0.0)
+    b.add_argument("--bg-pan-y", type=float, default=0.0)
+    b.add_argument("--bg-band-brightness", type=float, default=1.0)
+    b.add_argument("--bg-band-contrast", type=float, default=1.0)
+    b.add_argument("--bg-band-color", type=float, default=1.0)
+    b.add_argument("--bg-band-gamma", type=float, default=1.0)
+    b.add_argument("--bg-band-x0", type=float, default=0.0)
+    b.add_argument("--bg-band-x1", type=float, default=0.0)
+    b.add_argument("--bg-band-power", type=float, default=1.0)
 
     # buddha args (ignored by layer_specs engine)
     b.add_argument("--base", help="Base background image path for buddha_3line")
+    b.add_argument(
+        "--bases",
+        nargs="*",
+        help="Multiple base backgrounds for buddha_3line (split by --base-bucket-size, default bucket=10 for CH12)",
+    )
+    b.add_argument(
+        "--base-bucket-size",
+        type=int,
+        default=0,
+        help="Bucket size when using --bases (e.g. 10 => 001-010 use base[0], 011-020 base[1], ...)",
+    )
     b.add_argument("--build-id", help="compiler build_id (default: timestamp)")
     b.add_argument("--font-path", help="Optional font path override (TTF/OTF/TTC)")
     b.add_argument("--no-flip-base", action="store_true")
@@ -474,6 +616,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     r.add_argument("--width", type=int, default=1920)
     r.add_argument("--height", type=int, default=1080)
     r.add_argument("--skip-generate", action="store_true")
+    r.add_argument("--regen-bg", action="store_true", help="Regenerate background even if assets already exist (overwrites 90_bg_ai_raw/10_bg)")
     r.add_argument("--continue-on-error", action="store_true")
     r.add_argument("--max-gen-attempts", type=int, default=2)
     r.add_argument("--no-export-flat", action="store_false", dest="export_flat", default=True)
@@ -483,7 +626,28 @@ def main(argv: Optional[List[str]] = None) -> int:
     r.add_argument("--bg-contrast", type=float, default=1.0)
     r.add_argument("--bg-color", type=float, default=1.0)
     r.add_argument("--bg-gamma", type=float, default=1.0)
+    r.add_argument("--bg-zoom", type=float, default=1.0)
+    r.add_argument("--bg-pan-x", type=float, default=0.0)
+    r.add_argument("--bg-pan-y", type=float, default=0.0)
+    r.add_argument("--bg-band-brightness", type=float, default=1.0)
+    r.add_argument("--bg-band-contrast", type=float, default=1.0)
+    r.add_argument("--bg-band-color", type=float, default=1.0)
+    r.add_argument("--bg-band-gamma", type=float, default=1.0)
+    r.add_argument("--bg-band-x0", type=float, default=0.0)
+    r.add_argument("--bg-band-x1", type=float, default=0.0)
+    r.add_argument("--bg-band-power", type=float, default=1.0)
     r.add_argument("--base", help="Base background image path for buddha_3line (if needed)")
+    r.add_argument(
+        "--bases",
+        nargs="*",
+        help="Multiple base backgrounds for buddha_3line (split by --base-bucket-size, default bucket=10 for CH12)",
+    )
+    r.add_argument(
+        "--base-bucket-size",
+        type=int,
+        default=0,
+        help="Bucket size when using --bases (e.g. 10 => 001-010 use base[0], 011-020 base[1], ...)",
+    )
     r.add_argument("--build-id", help="compiler build_id (default: timestamp)")
     r.add_argument("--font-path", help="Optional font path override (TTF/OTF/TTC)")
     r.add_argument("--no-flip-base", action="store_true")

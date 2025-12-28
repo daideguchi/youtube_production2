@@ -32,13 +32,16 @@ import { AgentOrgPage } from "./pages/AgentOrgPage";
 import { AgentBoardPage } from "./pages/AgentBoardPage";
 import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
 import { ImageManagementPage } from "./pages/ImageManagementPage";
+import { AuditPage } from "./pages/AuditPage";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route element={<AppShell />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/audit" element={<AuditPage />} />
+        <Route path="/qc" element={<Navigate to="/audit" replace />} />
         <Route path="/workflow" element={<WorkflowPage />} />
         <Route path="/studio" element={<EpisodeStudioPage />} />
         <Route path="/projects" element={<ScriptFactoryPage />} />

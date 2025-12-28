@@ -72,8 +72,9 @@ SRT生成後、字幕本文が「改行なし」のままGUI側の自動折り�
 機械的な強制分割（等分/固定幅カット）は行わない。
 
 ## 組み込み方針（疎結合）
-- **TTS生成パイプライン**: `packages/audio_tts/tts/orchestrator.py` が SRT書き出し直前に `format_srt_lines()` を呼ぶ（自動）。
-  - 実装: `packages/audio_tts/tts/llm_adapter.py` の `format_srt_lines()`
+- **TTS生成パイプライン（現行）**: Strict pipeline は `packages/audio_tts/tts/strict_synthesizer.py` の `generate_srt()` で SRT を生成し、改行整形は後処理として `scripts/format_srt_linebreaks.py` を必要に応じて実行する。
+  - 実装: `packages/audio_tts/tts/llm_adapter.py` の `format_srt_lines()` / `scripts/format_srt_linebreaks.py`
+- **TTS生成パイプライン（Legacy）**: 旧 orchestrator は SRT 書き出し直前に `format_srt_lines()` を呼ぶ設計だった（現在はアーカイブ）。
 - **CapCut（ドラフト注入）**: SRTパース時にキュー内改行を潰さない（改行保持）。
   - 実装: `packages/video_pipeline/tools/capcut_bulk_insert.py` の `parse_srt_file()`
 - **Remotion**: SRTパースで改行を保持し、字幕描画で改行を表示できるよう `whiteSpace: pre-line` を適用。
@@ -81,4 +82,3 @@ SRT生成後、字幕本文が「改行なし」のままGUI側の自動折り�
 ## 手動実行（後処理としての入口）
 - `scripts/format_srt_linebreaks.py`
   - 例: `python3 scripts/format_srt_linebreaks.py workspaces/audio/final/CH01/216/CH01-216.srt --in-place`
-

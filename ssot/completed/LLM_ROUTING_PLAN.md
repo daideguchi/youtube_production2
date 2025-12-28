@@ -52,7 +52,7 @@
   - `overrides:` で channel/環境別に tier やモデル候補を上書き可能にする。
 - 新規ファイル案 `configs/llm_tier_candidates.yaml`:
   - tier→[model keys] の優先リストを保持し、fallback 順序を明示。
-  - 例: `heavy_reasoning: [openrouter/kimi-k2-thinking, openrouter/deepseek-r1, azure/gpt-5-chat]`。
+  - 例: `heavy_reasoning: [openrouter/deepseek-v3.2-exp, openrouter/kimi-k2-thinking]`。
 
 ### 2.3 呼び出しパイプラインの分離と正規化
 - **抽象クライアント**を用意し、provider 固有処理（Azure responses/chat, OpenRouter, Gemini）を adapter に閉じ込める。呼び出し前に capability/param resolver が `max_tokens_key` や `reasoning` の表現を統一し、送信 payload を生成。

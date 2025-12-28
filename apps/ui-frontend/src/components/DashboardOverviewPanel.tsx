@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./dashboard-clean.css";
 import type { ChannelSummary, DashboardOverview, StageMatrix } from "../api/types";
@@ -51,8 +51,7 @@ function computeScriptStarted(total: number, matrix: StageMatrix | undefined, co
     return total;
   }
   const pending = stageCounts.pending ?? 0;
-  const skipped = stageCounts.skipped ?? 0;
-  const started = total - pending + skipped;
+  const started = total - pending;
   return Math.max(0, Math.min(total, started));
 }
 
@@ -80,6 +79,7 @@ export function DashboardOverviewPanel({
 }: DashboardOverviewPanelProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [channelFilter, setChannelFilter] = useState("");
   if (loading) {
     return (
       <section className="dashboard-overview dashboard-clean">
@@ -107,34 +107,66 @@ export function DashboardOverviewPanel({
     }
   }
 
-  const channelRows: ChannelRow[] = overview.channels.map((channel) => {
-    const summary = channelMetaMap.get(channel.code);
-    const displayName =
-      summary?.name ?? summary?.branding?.title ?? summary?.youtube_title ?? summary?.code ?? channel.code;
-    const avatarUrl = summary?.branding?.avatar_url ?? null;
-    const themeColor = summary?.branding?.theme_color ?? null;
-    const total = channel.total;
-    const scriptStarted = computeScriptStarted(total, overview.stage_matrix, channel.code);
-    const scriptCompleted = channel.script_completed;
-    const ttsReady = channel.ready_for_audio;
-    const audioCompleted = channel.audio_completed;
-    const subtitleCompleted = channel.srt_completed ?? 0;
-    const audioSubtitleCompleted = Math.min(audioCompleted, subtitleCompleted);
-    const audioSubtitleBacklog = Math.max(total - audioSubtitleCompleted, 0);
-    return {
-      code: channel.code,
-      displayName,
-      avatarUrl,
-      themeColor,
-      total,
-      scriptStarted,
-      scriptCompleted,
-      ttsReady,
-      audioSubtitleCompleted,
-      blocked: channel.blocked,
-      audioSubtitleBacklog,
-    };
-  });
+  const overviewChannelMap = new Map<string, DashboardOverview["channels"][number]>();
+  overview.channels.forEach((channel) => overviewChannelMap.set(channel.code, channel));
+
+  const allChannelCodes = new Set<string>();
+  overview.channels.forEach((channel) => allChannelCodes.add(channel.code));
+  channels?.forEach((channel) => allChannelCodes.add(channel.code));
+
+  const sortKey = (code: string) => {
+    const match = code.trim().toUpperCase().match(/^CH(\d+)$/);
+    return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+  };
+
+  const allChannelCodesList: string[] = [];
+  allChannelCodes.forEach((code) => allChannelCodesList.push(code));
+
+  const channelRows: ChannelRow[] = allChannelCodesList
+    .sort((a, b) => {
+      const diff = sortKey(a) - sortKey(b);
+      if (diff !== 0) return diff;
+      return a.localeCompare(b);
+    })
+    .map((code) => {
+      const channel = overviewChannelMap.get(code) ?? {
+        code,
+        total: 0,
+        script_completed: 0,
+        audio_completed: 0,
+        srt_completed: 0,
+        blocked: 0,
+        ready_for_audio: 0,
+        pending_sync: 0,
+      };
+
+      const summary = channelMetaMap.get(code);
+      const displayName =
+        summary?.name ?? summary?.branding?.title ?? summary?.youtube_title ?? summary?.code ?? channel.code;
+      const avatarUrl = summary?.branding?.avatar_url ?? null;
+      const themeColor = summary?.branding?.theme_color ?? null;
+      const total = channel.total;
+      const scriptStarted = computeScriptStarted(total, overview.stage_matrix, channel.code);
+      const scriptCompleted = channel.script_completed;
+      const ttsReady = channel.ready_for_audio;
+      const audioCompleted = channel.audio_completed;
+      const subtitleCompleted = channel.srt_completed ?? 0;
+      const audioSubtitleCompleted = Math.min(audioCompleted, subtitleCompleted);
+      const audioSubtitleBacklog = Math.max(total - audioSubtitleCompleted, 0);
+      return {
+        code: channel.code,
+        displayName,
+        avatarUrl,
+        themeColor,
+        total,
+        scriptStarted,
+        scriptCompleted,
+        ttsReady,
+        audioSubtitleCompleted,
+        blocked: channel.blocked,
+        audioSubtitleBacklog,
+      };
+    });
 
   const totals = channelRows.reduce(
     (acc, row) => {
@@ -206,6 +238,37 @@ export function DashboardOverviewPanel({
           },
         ]
       : [];
+
+  const normalizedFilter = channelFilter.trim().toLowerCase();
+  const filteredChannelRows = normalizedFilter
+    ? channelRows.filter((row) => {
+        const code = row.code.toLowerCase();
+        const name = (row.displayName ?? "").toLowerCase();
+        return code.includes(normalizedFilter) || name.includes(normalizedFilter);
+      })
+    : channelRows;
+
+  const filteredTotals = filteredChannelRows.reduce(
+    (acc, row) => {
+      acc.total += row.total;
+      acc.scriptStarted += row.scriptStarted;
+      acc.scriptCompleted += row.scriptCompleted;
+      acc.ttsReady += row.ttsReady;
+      acc.audioSubtitleCompleted += row.audioSubtitleCompleted;
+      acc.blocked += row.blocked;
+      acc.audioSubtitleBacklog += row.audioSubtitleBacklog;
+      return acc;
+    },
+    {
+      total: 0,
+      scriptStarted: 0,
+      scriptCompleted: 0,
+      ttsReady: 0,
+      audioSubtitleCompleted: 0,
+      blocked: 0,
+      audioSubtitleBacklog: 0,
+    }
+  );
 
   const handleRowSelect = (code: string) => {
     const target = `/channels/${encodeURIComponent(code)}`;
@@ -302,6 +365,28 @@ export function DashboardOverviewPanel({
         </section>
       ) : null}
 
+      <div className="dashboard-overview__controls" aria-label="チャンネル絞り込み">
+        <label className="dashboard-filter">
+          <span className="dashboard-filter__label">絞り込み</span>
+          <input
+            type="search"
+            value={channelFilter}
+            placeholder="CH13 / チャンネル名…"
+            onChange={(event) => setChannelFilter(event.target.value)}
+          />
+        </label>
+        <div className="dashboard-overview__controls-meta">
+          <span className="muted small-text">
+            表示 {formatNumber(filteredChannelRows.length)} / {formatNumber(channelRows.length)} チャンネル
+          </span>
+          {normalizedFilter ? (
+            <button type="button" className="dashboard-filter__clear" onClick={() => setChannelFilter("")}>
+              クリア
+            </button>
+          ) : null}
+        </div>
+      </div>
+
       <div className="dashboard-table-wrapper">
         <table className="dashboard-table">
           <thead>
@@ -315,7 +400,7 @@ export function DashboardOverviewPanel({
             </tr>
           </thead>
           <tbody>
-            {channelRows.map((row) => (
+            {filteredChannelRows.map((row) => (
               <tr
                 key={row.code}
                 className={`dashboard-table__row${selectedChannel === row.code ? " dashboard-table__row--selected" : ""}`}
@@ -360,11 +445,11 @@ export function DashboardOverviewPanel({
           <tfoot>
             <tr>
               <td>合計</td>
-              <td>{formatNumber(totals.total)}</td>
-              <td>{renderCount(totals.scriptStarted, totals.total)}</td>
-              <td>{renderCount(totals.scriptCompleted, totals.total)}</td>
-              <td>{renderCount(totals.ttsReady, totals.total)}</td>
-              <td>{renderCount(totals.audioSubtitleCompleted, totals.total)}</td>
+              <td>{formatNumber(filteredTotals.total)}</td>
+              <td>{renderCount(filteredTotals.scriptStarted, filteredTotals.total)}</td>
+              <td>{renderCount(filteredTotals.scriptCompleted, filteredTotals.total)}</td>
+              <td>{renderCount(filteredTotals.ttsReady, filteredTotals.total)}</td>
+              <td>{renderCount(filteredTotals.audioSubtitleCompleted, filteredTotals.total)}</td>
             </tr>
           </tfoot>
         </table>

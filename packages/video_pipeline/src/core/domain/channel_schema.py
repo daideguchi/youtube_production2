@@ -47,7 +47,7 @@ class ChannelConfig(BaseModel):
     belt: BeltConfig = Field(default_factory=BeltConfig)
     image_generation: ImageGenConfig = Field(default_factory=ImageGenConfig)
     
-    # Reference to a style ID in master_styles_v2.json
+    # Reference to a style ID in `ssot/ops/master_styles.json` (fallback: `packages/video_pipeline/config/master_styles.json`)
     video_style_id: Optional[str] = None
     
     # Embed full VideoStyle for strict validation, 

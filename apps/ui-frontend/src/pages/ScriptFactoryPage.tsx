@@ -197,7 +197,8 @@ export function ScriptFactoryPage() {
     fetchLlmSettings()
       .then((settings) => {
         if (cancelled) return;
-        const defaultModel = settings.llm.phase_models?.script_rewrite?.model;
+        const phase = settings.llm.phase_models?.script_rewrite;
+        const defaultModel = phase?.model ? `${phase.provider}:${phase.model}` : null;
         if (defaultModel) {
           setFormValues((prev) => {
             if (!prev.llmModel || prev.llmModel === FALLBACK_LLM_MODEL) {

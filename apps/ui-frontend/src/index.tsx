@@ -14,12 +14,10 @@ const mockMode = searchParams.get('mock') === '1';
 
 // basenameを動的に設定
 const getRouterBasename = (): string => {
-  // GitHub PagesのURL（youtube_production2）かを判定
-  const currentOrigin = window.location.origin;
   const currentPath = window.location.pathname;
-  const isGitHubPages = currentOrigin.includes('github.io') && currentPath.startsWith('/youtube_production2');
-
-  return isGitHubPages ? '/youtube_production2' : '/';
+  const basePath = '/youtube_production2';
+  const hasBasePath = currentPath === basePath || currentPath.startsWith(`${basePath}/`);
+  return hasBasePath ? basePath : '/';
 };
 
 root.render(

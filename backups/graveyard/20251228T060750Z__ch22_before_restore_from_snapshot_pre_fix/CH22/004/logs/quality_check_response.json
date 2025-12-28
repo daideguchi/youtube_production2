@@ -1,0 +1,16 @@
+{
+  "task": "script_quality_check",
+  "provider": "openrouter",
+  "model": "or_deepseek_v3_2_exp",
+  "request_id": "gen-1766897479-2QWeGBFOj7rtlKEZIBQK",
+  "chain": [
+    "or_deepseek_v3_2_exp"
+  ],
+  "latency_ms": 56092,
+  "response": "{\n  \"tone_consistency\": \"OK。共感的で落ち着いたトーンが一貫しており、煽りや説教がない。\",\n  \"persuasion\": \"感情導線は良好。より具体的な日常シーンを追加すると、視聴者の共感をさらに引き出せる。\",\n  \"fact_check\": \"問題なし。\",\n  \"wording_issues\": \"問題なし。\",\n  \"readability\": \"全体的に読みやすいが、一部の文が長いため、短く分割するとより聴きやすくなる。\",\n  \"overall\": \"総合的にはチャンネルの意図に沿っている。最優先の改善点は、長い文を短く分割して読みやすさを向上させること。\"\n}",
+  "usage": {
+    "prompt_tokens": 7933,
+    "completion_tokens": 1764,
+    "total_tokens": 9697
+  }
+}

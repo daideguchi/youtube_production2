@@ -62,6 +62,7 @@ from script_pipeline.runner import (  # noqa: E402
     _sanitize_a_text_markdown_headings,
     _sanitize_inline_pause_markers,
     _sanitize_quality_gate_context,
+    _write_prompt_snapshot,
 )
 
 
@@ -163,12 +164,33 @@ def _maybe_force_revalidate_script_validation_on_input_change(channel: str, vide
     except Exception:
         return False
 
+    md = st.metadata if isinstance(st.metadata, dict) else {}
+
+    def _to_int(value: Any) -> Optional[int]:
+        if value in (None, ""):
+            return None
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return None
+
+    cur_target_min = _to_int(md.get("target_chars_min"))
+    cur_target_max = _to_int(md.get("target_chars_max"))
+    cur_title = str(md.get("sheet_title") or md.get("expected_title") or md.get("title") or "").strip()
+
+    details = getattr(sv, "details", None)
+    if not isinstance(details, dict):
+        details = {}
+
     baseline_hash = ""
     try:
-        details = getattr(sv, "details", None) or {}
         baseline_hash = str(details.get("validated_script_hash") or "").strip()
     except Exception:
         baseline_hash = ""
+
+    baseline_target_min = _to_int(details.get("validated_target_chars_min"))
+    baseline_target_max = _to_int(details.get("validated_target_chars_max"))
+    baseline_title = str(details.get("validated_expected_title") or "").strip()
 
     if not baseline_hash:
         try:
@@ -191,6 +213,43 @@ def _maybe_force_revalidate_script_validation_on_input_change(channel: str, vide
                     "path": str(in_path),
                 }
                 sv.details["validated_script_hash"] = cur_hash
+                sv.details["validated_target_chars_min"] = cur_target_min
+                sv.details["validated_target_chars_max"] = cur_target_max
+                sv.details["validated_expected_title"] = cur_title
+        except Exception:
+            pass
+        try:
+            st.metadata["redo_audio"] = True
+            st.status = "script_in_progress"
+            save_status(st)
+        except Exception:
+            return False
+        return True
+
+    targets_missing = (baseline_target_min is None and cur_target_min is not None) or (
+        baseline_target_max is None and cur_target_max is not None
+    )
+    targets_changed = (baseline_target_min is not None and cur_target_min is not None and baseline_target_min != cur_target_min) or (
+        baseline_target_max is not None and cur_target_max is not None and baseline_target_max != cur_target_max
+    )
+    title_missing = not baseline_title and bool(cur_title)
+    title_changed = bool(baseline_title) and bool(cur_title) and baseline_title != cur_title
+
+    if baseline_hash and baseline_hash == cur_hash and (targets_missing or targets_changed or title_missing or title_changed):
+        try:
+            sv.status = "pending"
+            if isinstance(getattr(sv, "details", None), dict):
+                sv.details.setdefault("revalidate", {})["forced_due_to_validation_context_change"] = {
+                    "at": _utc_now_compact(),
+                    "baseline_script_hash": baseline_hash,
+                    "current_script_hash": cur_hash,
+                    "baseline_target_chars_min": baseline_target_min,
+                    "baseline_target_chars_max": baseline_target_max,
+                    "current_target_chars_min": cur_target_min,
+                    "current_target_chars_max": cur_target_max,
+                    "baseline_expected_title": baseline_title,
+                    "current_expected_title": cur_title,
+                }
         except Exception:
             pass
         try:
@@ -204,8 +263,15 @@ def _maybe_force_revalidate_script_validation_on_input_change(channel: str, vide
     if baseline_hash and baseline_hash == cur_hash:
         # Bootstrap the per-stage hash for older episodes.
         try:
-            if isinstance(getattr(sv, "details", None), dict) and not sv.details.get("validated_script_hash"):
-                sv.details["validated_script_hash"] = cur_hash
+            if isinstance(getattr(sv, "details", None), dict):
+                if not sv.details.get("validated_script_hash"):
+                    sv.details["validated_script_hash"] = cur_hash
+                if "validated_target_chars_min" not in sv.details:
+                    sv.details["validated_target_chars_min"] = cur_target_min
+                if "validated_target_chars_max" not in sv.details:
+                    sv.details["validated_target_chars_max"] = cur_target_max
+                if "validated_expected_title" not in sv.details:
+                    sv.details["validated_expected_title"] = cur_title
                 save_status(st)
         except Exception:
             pass
@@ -220,6 +286,9 @@ def _maybe_force_revalidate_script_validation_on_input_change(channel: str, vide
                 "current_script_hash": cur_hash,
                 "path": str(in_path),
             }
+            sv.details["validated_target_chars_min"] = cur_target_min
+            sv.details["validated_target_chars_max"] = cur_target_max
+            sv.details["validated_expected_title"] = cur_title
         st.metadata["redo_audio"] = True
         st.status = "script_in_progress"
         save_status(st)
@@ -256,6 +325,12 @@ def _stamp_script_validation_hash(channel: str, video: str) -> None:
         if isinstance(getattr(sv, "details", None), dict):
             sv.details["validated_script_hash"] = cur_hash
             sv.details["validated_script_hash_at"] = _utc_now_compact()
+            md = st.metadata if isinstance(st.metadata, dict) else {}
+            sv.details["validated_target_chars_min"] = md.get("target_chars_min")
+            sv.details["validated_target_chars_max"] = md.get("target_chars_max")
+            sv.details["validated_expected_title"] = str(
+                md.get("sheet_title") or md.get("expected_title") or md.get("title") or ""
+            ).strip()
         save_status(st)
     except Exception:
         return
@@ -273,6 +348,13 @@ class ItemResult:
     judge_report_json: str
     semantic_verdict: str
     semantic_alignment_report_json: str
+    a_text_path: str
+    a_text_local_ok: bool
+    a_text_hard_issue_codes: List[str]
+    a_text_stats: Dict[str, Any]
+    a_text_validated_script_hash: str
+    a_text_current_script_hash: str
+    a_text_hash_match: Optional[bool]
     planning_coherence: str
     status_json: str
     note: str = ""
@@ -289,6 +371,13 @@ class ItemResult:
             "judge_report_json": self.judge_report_json,
             "semantic_verdict": self.semantic_verdict,
             "semantic_alignment_report_json": self.semantic_alignment_report_json,
+            "a_text_path": self.a_text_path,
+            "a_text_local_ok": self.a_text_local_ok,
+            "a_text_hard_issue_codes": list(self.a_text_hard_issue_codes or []),
+            "a_text_stats": dict(self.a_text_stats or {}),
+            "a_text_validated_script_hash": self.a_text_validated_script_hash,
+            "a_text_current_script_hash": self.a_text_current_script_hash,
+            "a_text_hash_match": self.a_text_hash_match,
             "planning_coherence": self.planning_coherence,
             "status_json": self.status_json,
             "note": self.note,
@@ -478,6 +567,7 @@ def _render_seed_prompt(st, *, seed_target: Dict[str, int]) -> str:
     plan_summary = _a_text_plan_summary_for_prompt(st, max_chars=1100)
     persona = _sanitize_quality_gate_context(str(st.metadata.get("persona") or ""), max_chars=900)
     channel_prompt = _sanitize_quality_gate_context(str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=900)
+    benchmarks = _sanitize_quality_gate_context(str(st.metadata.get("a_text_benchmark_excerpts") or ""), max_chars=650)
     rules = _a_text_rules_summary(st.metadata or {})
 
     placeholders = {
@@ -492,6 +582,7 @@ def _render_seed_prompt(st, *, seed_target: Dict[str, int]) -> str:
         "A_TEXT_PLAN_SUMMARY": plan_summary,
         "PERSONA": persona,
         "CHANNEL_PROMPT": channel_prompt,
+        "BENCHMARK_EXCERPTS": benchmarks,
         "A_TEXT_RULES_SUMMARY": rules,
     }
 
@@ -555,6 +646,16 @@ def cmd_seed_expand(args: argparse.Namespace) -> int:
 
         seed_target = _seed_targets(st.metadata or {})
         prompt = _render_seed_prompt(st, seed_target=seed_target)
+        try:
+            base = status_path(ch, no).parent
+            _write_prompt_snapshot(
+                base / "content" / "analysis" / "prompt_snapshots",
+                "seed_expand_prompt.txt",
+                prompt,
+                base=base,
+            )
+        except Exception:
+            pass
 
         router = get_router()
         prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
@@ -686,7 +787,70 @@ def _result_for(channel: str, video: str, mode: str, note: str = "") -> ItemResu
     st = load_status(channel, video)
     judge_verdict, judge_report, sem_report = _safe_llm_qc_reports(st)
     semantic_verdict = _safe_semantic_verdict(st)
-    ok = (_safe_stage_status(st, "script_validation") == "completed") and (semantic_verdict != "major")
+    # Deterministic local QC (no LLM):
+    # - validate the *current* canonical A-text against global rules
+    # - detect stale "completed" status when humans/agents edited the file after validation
+    a_text_path = ""
+    a_text_local_ok = False
+    a_text_hard_issue_codes: List[str] = []
+    a_text_stats: Dict[str, Any] = {}
+    a_text_validated_script_hash = ""
+    a_text_current_script_hash = ""
+    a_text_hash_match: Optional[bool] = None
+
+    try:
+        from factory_common.alignment import sha1_file
+    except Exception:
+        sha1_file = None  # type: ignore[assignment]
+
+    try:
+        from script_pipeline.validator import validate_a_text
+    except Exception:
+        validate_a_text = None  # type: ignore[assignment]
+
+    try:
+        human_path, mirror_path = _canonical_paths(channel, video)
+        in_path = human_path if human_path.exists() else mirror_path
+        if in_path.exists():
+            a_text_path = str(in_path)
+            if sha1_file is not None:
+                try:
+                    a_text_current_script_hash = str(sha1_file(in_path))
+                except Exception:
+                    a_text_current_script_hash = ""
+
+            if validate_a_text is not None:
+                try:
+                    text = in_path.read_text(encoding="utf-8")
+                    issues, stats = validate_a_text(text, st.metadata or {})
+                    a_text_stats = stats if isinstance(stats, dict) else {}
+                    hard = [
+                        it
+                        for it in (issues or [])
+                        if isinstance(it, dict) and str(it.get("severity") or "error").lower() != "warning"
+                    ]
+                    a_text_hard_issue_codes = sorted(
+                        {str(it.get("code")) for it in hard if it.get("code")}
+                    )[:12]
+                    a_text_local_ok = len(hard) == 0
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    try:
+        sv = st.stages.get("script_validation") if isinstance(getattr(st, "stages", None), dict) else None
+        if sv is not None and isinstance(getattr(sv, "details", None), dict):
+            a_text_validated_script_hash = str(sv.details.get("validated_script_hash") or "").strip()
+    except Exception:
+        a_text_validated_script_hash = ""
+
+    if a_text_validated_script_hash and a_text_current_script_hash:
+        a_text_hash_match = a_text_validated_script_hash == a_text_current_script_hash
+
+    script_validation_completed = _safe_stage_status(st, "script_validation") == "completed"
+    fresh_enough = (a_text_hash_match is not False)  # True/None are OK; False means stale
+    ok = bool(script_validation_completed) and (semantic_verdict != "major") and bool(a_text_local_ok) and bool(fresh_enough)
     return ItemResult(
         channel=channel,
         video=video,
@@ -698,6 +862,13 @@ def _result_for(channel: str, video: str, mode: str, note: str = "") -> ItemResu
         judge_report_json=judge_report,
         semantic_verdict=semantic_verdict,
         semantic_alignment_report_json=sem_report,
+        a_text_path=a_text_path,
+        a_text_local_ok=bool(a_text_local_ok),
+        a_text_hard_issue_codes=list(a_text_hard_issue_codes or []),
+        a_text_stats=dict(a_text_stats or {}),
+        a_text_validated_script_hash=a_text_validated_script_hash,
+        a_text_current_script_hash=a_text_current_script_hash,
+        a_text_hash_match=a_text_hash_match,
         planning_coherence=_safe_planning_coherence(st),
         status_json=str(status_path(channel, video)),
         note=note,
@@ -771,6 +942,13 @@ def cmd_redo(args: argparse.Namespace) -> int:
                     judge_report_json="",
                     semantic_verdict="",
                     semantic_alignment_report_json="",
+                    a_text_path="",
+                    a_text_local_ok=False,
+                    a_text_hard_issue_codes=[],
+                    a_text_stats={},
+                    a_text_validated_script_hash="",
+                    a_text_current_script_hash="",
+                    a_text_hash_match=None,
                     planning_coherence="",
                     status_json=str(status_path(ch, no)),
                     note=f"status_missing ({note})",
@@ -824,6 +1002,19 @@ def cmd_resume(args: argparse.Namespace) -> int:
     # If operators manually adjusted the A-text, ensure `script_validation` is actually re-executed on resume.
     if until in {"script_validation", "audio_synthesis"}:
         _maybe_force_revalidate_script_validation_on_input_change(ch, no)
+
+    if bool(getattr(args, "force_script_validation", False)) and until in {"script_validation", "audio_synthesis"}:
+        try:
+            st = load_status(ch, no)
+            sv = st.stages.get("script_validation") if isinstance(getattr(st, "stages", None), dict) else None
+            if sv is not None:
+                sv.status = "pending"
+                if isinstance(getattr(sv, "details", None), dict):
+                    sv.details.setdefault("revalidate", {})["forced_by_operator"] = {"at": _utc_now_compact()}
+                st.status = "script_in_progress"
+                save_status(st)
+        except Exception:
+            pass
 
     # Safety: resuming to `script_validation` should not implicitly regenerate earlier stages
     # (those stages may be intentionally purged while A-text already exists).
@@ -1025,6 +1216,12 @@ def main() -> int:
     resume_p.add_argument("--video", required=True)
     resume_p.add_argument("--until", default="script_validation", help="Stop when this stage is completed (default: script_validation).")
     resume_p.add_argument("--max-iter", type=int, default=30)
+    resume_p.add_argument(
+        "--force-script-validation",
+        action="store_true",
+        default=False,
+        help="Force `script_validation` to re-run even if it's already completed (use when prompts/QC changed and you want revalidation without touching the script file).",
+    )
     resume_p.add_argument(
         "--no-reconcile",
         dest="reconcile",

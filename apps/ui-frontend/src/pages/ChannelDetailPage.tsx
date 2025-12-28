@@ -1,11 +1,39 @@
-import { useOutletContext } from "react-router-dom";
+import { useCallback, useMemo } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChannelOverviewPanel } from "../components/ChannelOverviewPanel";
 import { VideoDetailPanel } from "../components/VideoDetailPanel";
 import { InstructionPanel } from "../components/InstructionPanel";
 import { ActivityLog } from "../components/ActivityLog";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import type { VideoSummary } from "../api/types";
+
+function videoSortKey(videoId: string): number {
+  const trimmed = (videoId ?? "").trim();
+  if (!trimmed) {
+    return Number.POSITIVE_INFINITY;
+  }
+  if (/^\d+$/.test(trimmed)) {
+    try {
+      return Number(trimmed);
+    } catch {
+      return Number.POSITIVE_INFINITY;
+    }
+  }
+  return Number.POSITIVE_INFINITY;
+}
+
+function sortVideosByNumber(videos: VideoSummary[]): VideoSummary[] {
+  return [...videos].sort((a, b) => {
+    const diff = videoSortKey(a.video) - videoSortKey(b.video);
+    if (diff !== 0) {
+      return diff;
+    }
+    return a.video.localeCompare(b.video);
+  });
+}
 
 export function ChannelDetailPage() {
+  const navigate = useNavigate();
   const {
     selectedChannel,
     selectedChannelSummary,
@@ -21,7 +49,50 @@ export function ChannelDetailPage() {
     hasUnsavedChanges,
     setHasUnsavedChanges,
     activityItems,
+    videos,
   } = useOutletContext<ShellOutletContext>();
+
+  const orderedVideos = useMemo(() => sortVideosByNumber(videos), [videos]);
+
+  const { previousVideo, nextVideo, positionLabel } = useMemo(() => {
+    const currentVideo = videoDetail?.video ?? null;
+    if (!currentVideo || orderedVideos.length === 0) {
+      return { previousVideo: null, nextVideo: null, positionLabel: null as string | null };
+    }
+    const index = orderedVideos.findIndex((item) => item.video === currentVideo);
+    if (index < 0) {
+      return { previousVideo: null, nextVideo: null, positionLabel: null as string | null };
+    }
+    const previous = index > 0 ? orderedVideos[index - 1] : null;
+    const next = index < orderedVideos.length - 1 ? orderedVideos[index + 1] : null;
+    return {
+      previousVideo: previous,
+      nextVideo: next,
+      positionLabel: `${index + 1} / ${orderedVideos.length}`,
+    };
+  }, [orderedVideos, videoDetail?.video]);
+
+  const handleNavigateVideo = useCallback(
+    (targetVideo: string) => {
+      if (!selectedChannel) {
+        return;
+      }
+      if (hasUnsavedChanges) {
+        const ok = window.confirm("未保存の変更があります。このまま別の台本へ移動しますか？");
+        if (!ok) {
+          return;
+        }
+        setHasUnsavedChanges(false);
+      }
+      const params = new URLSearchParams();
+      if (detailTab !== "script") {
+        params.set("tab", detailTab);
+      }
+      const query = params.toString();
+      navigate(`/channels/${encodeURIComponent(selectedChannel)}/videos/${encodeURIComponent(targetVideo)}${query ? `?${query}` : ""}`);
+    },
+    [detailTab, hasUnsavedChanges, navigate, selectedChannel, setHasUnsavedChanges]
+  );
 
   return (
     <>
@@ -58,6 +129,10 @@ export function ChannelDetailPage() {
             <VideoDetailPanel
               detail={videoDetail}
               refreshing={detailLoading}
+              previousVideo={previousVideo ? { video: previousVideo.video, title: previousVideo.title ?? null } : null}
+              nextVideo={nextVideo ? { video: nextVideo.video, title: nextVideo.title ?? null } : null}
+              positionLabel={positionLabel}
+              onNavigateVideo={handleNavigateVideo}
               onSaveAssembled={detailHandlers.onSaveAssembled}
               onSaveTts={detailHandlers.onSaveTts}
               onValidateTts={detailHandlers.onValidateTts}

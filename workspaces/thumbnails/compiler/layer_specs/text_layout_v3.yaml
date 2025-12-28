@@ -25,6 +25,7 @@ global:
     gold_fill: {mode: 'linear_gradient', stops: [['#FFF3B0',0.0],['#F2C14E',0.55],['#D99A2B',1.0]]}
     white_fill: {mode: 'solid', color: '#FFFFFF'}
     red_fill: {mode: 'solid', color: '#D61A1A'}
+    hot_red_fill: {mode: 'solid', color: '#FF2A2A'}
     purple_fill: {mode: 'solid', color: '#B57CFF'}
     yellow_fill: {mode: 'solid', color: '#FFD84A'}
   fit_rules:
@@ -320,6 +321,105 @@ templates:
         shadow: true
     fallbacks: ['P06_shock_gold', 'P03_sleep_drug', 'P02_left_white_stack']
 
+  P08_big_red_hot:
+    description: '巨大赤（明るめ）で視認性重視。'
+    slots:
+      top:
+        box: [0.0500, 0.0600, 0.4600, 0.1200]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 76
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: true
+      main:
+        box: [0.0500, 0.2200, 0.5000, 0.4000]
+        font: headline_sans_priority
+        fill: hot_red_fill
+        base_size_px: 220
+        align: left
+        tracking: 0
+        max_lines: 2
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        glow: true
+      accent:
+        box: [0.0500, 0.6600, 0.6200, 0.1400]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 108
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: true
+      author:
+        box: [0.0500, 0.8200, 0.4600, 0.1000]
+        font: headline_serif_priority
+        fill: white_fill
+        base_size_px: 58
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+    fallbacks: ['P06_shock_gold', 'P03_sleep_drug', 'P02_left_white_stack']
+
+  P08_big_red_hot_one_line:
+    description: '巨大赤（1行固定）。長めでも1行で収める。'
+    slots:
+      top:
+        box: [0.0500, 0.0600, 0.4600, 0.1200]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 76
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: true
+      main:
+        box: [0.0500, 0.2200, 0.5600, 0.4000]
+        font: headline_sans_priority
+        fill: hot_red_fill
+        base_size_px: 210
+        align: left
+        valign: middle
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        glow: true
+      accent:
+        box: [0.0500, 0.6200, 0.6200, 0.1400]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 108
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: true
+      author:
+        box: [0.0500, 0.8200, 0.4600, 0.1000]
+        font: headline_serif_priority
+        fill: white_fill
+        base_size_px: 58
+        align: left
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+    fallbacks: ['P06_shock_gold', 'P03_sleep_drug', 'P02_left_white_stack']
+
   P01_top_gold_bottom_red:
     description: 'イベント/記念日系。上に大きな金、下に赤のキッカー。'
     slots:
@@ -411,8 +511,8 @@ items:
 
   - video_id: CH10-005
     title: '【岡潔流】本当に頭がいい人は速さより深さを選ぶ理由'
-    template_id: P02_left_white_stack
-    fallbacks: ['P04_story_love', 'P05_purple_series', 'P03_sleep_drug']
+    template_id: P08_big_red_hot
+    fallbacks: ['P06_shock_gold', 'P03_sleep_drug', 'P02_left_white_stack']
     text:
       top: '頭が静かになる'
       main: '速さより\n深さが賢い'
@@ -551,11 +651,11 @@ items:
 
   - video_id: CH10-019
     title: '【岡本太郎流】削ることが人生の本質である理由'
-    template_id: P08_big_red
+    template_id: P08_big_red_hot_one_line
     fallbacks: ['P06_shock_gold', 'P03_sleep_drug', 'P02_left_white_stack']
     text:
       top: '本質だけ残す'
-      main: '削るほど\n自由'
+      main: '削るほど自由'
       accent: '人生の核が見える'
       author: '岡本太郎'
 

@@ -28,6 +28,8 @@ import datetime
 import time
 import uuid
 
+from typing import Any, Dict, Tuple
+
 try:
     from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
 except Exception:
@@ -56,6 +58,69 @@ from factory_common.timeline_manifest import (
 )
 
 from video_pipeline.src.core.config import config
+
+def _load_sources_doc() -> Dict[str, Any]:
+    """
+    Load channel SoT (`configs/sources.yaml`) and return the parsed dict.
+    Keep this local to avoid importing script_pipeline at runtime.
+    """
+    try:
+        import yaml  # type: ignore
+    except Exception:
+        return {}
+
+    path = repo_root() / "configs" / "sources.yaml"
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+
+
+def _resolve_broll_from_sources(channel: str) -> Tuple[str, float]:
+    """
+    Resolve stock B-roll defaults from `configs/sources.yaml: channels.<CH>.video_broll`.
+
+    Rules (user SSOT):
+    - default: none (disabled)
+    - when enabled: default provider = pexels
+    - default ratio = 8:2 => 0.2
+    """
+
+    def _to_float(value: Any, default: float) -> float:
+        if value in (None, ""):
+            return default
+        try:
+            return float(value)
+        except Exception:
+            return default
+
+    doc = _load_sources_doc()
+    channels = doc.get("channels") if isinstance(doc, dict) else None
+    ch_cfg = channels.get(str(channel).upper()) if isinstance(channels, dict) else None
+    if not isinstance(ch_cfg, dict):
+        return "none", 0.2
+
+    vb = ch_cfg.get("video_broll")
+    if not isinstance(vb, dict):
+        return "none", 0.2
+
+    enabled = bool(vb.get("enabled", False))
+    ratio = _to_float(vb.get("ratio"), 0.2)
+    if ratio < 0:
+        ratio = 0.0
+    if ratio > 0.95:
+        ratio = 0.95
+
+    if not enabled:
+        return "none", ratio
+
+    provider = str(vb.get("provider") or "pexels").strip().lower()
+    if not provider or provider == "none":
+        provider = "pexels"
+    if provider == "pixels":
+        provider = "pexels"
+    return provider, ratio
+
 
 def _truncate_summary(text: str, limit: int = 60) -> str:
     """Shorten text for LLM belt prompts; keep it safe for JSON."""
@@ -421,6 +486,18 @@ def main():
         default="auto",
         help="Belt generation mode: auto (preset-driven), existing (use belt_config.json as-is), equal (manual labels), grouped (chapters/episode_info), llm (from image_cues via LLM)",
     )
+    ap.add_argument(
+        "--broll-provider",
+        choices=["none", "pixel", "pexels", "pixabay", "coverr"],
+        default="none",
+        help="Optional stock B-roll provider to inject into image_cues.json (default: none)",
+    )
+    ap.add_argument(
+        "--broll-ratio",
+        type=float,
+        default=0.2,
+        help="Approximate ratio of cues to replace with B-roll (default: 0.2)",
+    )
     # IMPORTANT: User requested no time-based interruption. Stop on abort patterns instead.
     ap.add_argument("--timeout-ms", type=int, default=0, help="Timeout per command (ms) (default: 0 = unlimited)")
     ap.add_argument("--abort-on-log", help="Comma-separated patterns; abort if any appears in child stdout/stderr")
@@ -437,6 +514,20 @@ def main():
         help="Include '__<title>' suffix in CapCut draft directory name (default: true)",
     )
     args = ap.parse_args()
+
+    # Derive optional stock B-roll settings from channel SoT when CLI doesn't specify.
+    argv = sys.argv[1:]
+    broll_provider_cli = any(a == "--broll-provider" or a.startswith("--broll-provider=") for a in argv)
+    broll_ratio_cli = any(a == "--broll-ratio" or a.startswith("--broll-ratio=") for a in argv)
+    if not (broll_provider_cli and broll_ratio_cli):
+        cfg_provider, cfg_ratio = _resolve_broll_from_sources(args.channel)
+        allowed = {"none", "pixel", "pexels", "pixabay", "coverr"}
+        if cfg_provider not in allowed:
+            cfg_provider = "none"
+        if not broll_provider_cli:
+            args.broll_provider = cfg_provider
+        if not broll_ratio_cli:
+            args.broll_ratio = cfg_ratio
 
     if args.nanobanana not in ("direct", "none"):
         print(f"⚠️ nanobanana={args.nanobanana} is deprecated; falling back to 'direct'")
@@ -652,6 +743,25 @@ def main():
     else:
         pipeline_res = None
         print("ℹ️ resume mode: skipping pipeline (reuse existing cues/images)")
+
+    # Optional: inject stock B-roll videos (~20%) into image_cues.json (muted in CapCut insertion).
+    broll_summary = None
+    if args.broll_provider and args.broll_provider != "none":
+        try:
+            from video_pipeline.src.stock_broll import inject_broll_into_run
+
+            broll_summary = inject_broll_into_run(
+                run_dir=run_dir,
+                provider=args.broll_provider,
+                ratio=float(args.broll_ratio or 0.0),
+            )
+            print(
+                f"🎞️ B-roll injected: {broll_summary.injected_count}/{broll_summary.target_count} "
+                f"({broll_summary.provider})"
+            )
+        except Exception as e:
+            print(f"⚠️ B-roll injection failed: {e}")
+            broll_summary = None
 
     # 2) belt_config generation (optional)
     labels = args.labels or preset.get("belt_labels") or ""
@@ -880,6 +990,11 @@ def main():
         "force": args.force,
         "template": template_override,
         "belt_mode": args.belt_mode,
+        "broll_provider": args.broll_provider,
+        "broll_ratio": float(args.broll_ratio or 0.0),
+        "broll_injected": int(getattr(broll_summary, "injected_count", 0) or 0),
+        "broll_target": int(getattr(broll_summary, "target_count", 0) or 0),
+        "broll_manifest": str(getattr(broll_summary, "manifest_path", "") or ""),
         "resume": args.resume,
         "fallback_if_missing_cues": args.fallback_if_missing_cues,
         "timeout_ms": args.timeout_ms,

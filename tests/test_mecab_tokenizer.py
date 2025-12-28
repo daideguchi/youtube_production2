@@ -1,9 +1,7 @@
 """
 MeCab tokenizer test - Updated for current package structure.
-Tests audio_tts_v2.tts module.
+Tests `audio_tts.tts.mecab_tokenizer`.
 """
-import sys
-from pathlib import Path
 
 import pytest
 
@@ -19,12 +17,11 @@ def mecab_available():
 
 def test_mecab_tokenizer_inserts_silence_tag(mecab_available):  # noqa: ARG001
     """Test that silence tags are properly tokenized."""
-    # Import from correct package path
-    try:
-        from audio_tts_v2.tts.preprocess import sanitize_a_text
-        # Basic sanity check - the preprocess module exists and works
-        result = sanitize_a_text("テスト文章です。")
-        assert isinstance(result, str)
-        assert len(result) > 0
-    except ImportError:
-        pytest.skip("audio_tts_v2.tts.preprocess not available")
+    from audio_tts.tts.mecab_tokenizer import tokenize_with_mecab
+
+    text = "こんにちは[1.2]さようなら"
+    tokens = tokenize_with_mecab(text)
+
+    silence = [t for t in tokens if t.get("pos") == "silence_tag"]
+    assert len(silence) == 1
+    assert silence[0]["surface"] == "[1.2]"

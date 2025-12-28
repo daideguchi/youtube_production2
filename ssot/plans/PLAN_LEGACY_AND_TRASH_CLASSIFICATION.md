@@ -127,7 +127,7 @@
 - `test_*` のうち `script_pipeline` / `audio_tts` / `video_pipeline` / `factory_common` を直接テストするもの。
 
 **Legacy隔離（旧名依存）**
-旧 `commentary_01_srtfile_v2` 依存テストは誤参照の原因になりやすいため、**archive-first** で `backups/graveyard/` に退避したうえで repo から削除する（実施済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` の Step 18）。
+旧パイプライン名/旧構成に依存するテストは誤参照の原因になりやすいため、**archive-first** で `backups/graveyard/` に退避したうえで repo から削除する（実施済み: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` の Step 18）。
 
 対象（削除済み）:
 - `tests/test_synthesis_concat.py`

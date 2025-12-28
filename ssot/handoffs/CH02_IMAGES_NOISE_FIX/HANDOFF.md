@@ -169,7 +169,7 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.build_ch02_drafts_range 
 ---
 
 ## 5. 作業記録（必須）
-- 作業記録は `TEMPLATE_WORKLOG.md` をコピーして、その日のログとして残す。
+- 作業記録は [`TEMPLATE_WORKLOG.md`](/ssot/handoffs/CH02_IMAGES_NOISE_FIX/TEMPLATE_WORKLOG.md) をコピーして、その日のログとして残す。
 - 1動画ごとに「run_name」「cue数」「画像生成結果」「validate結果」を必ず書く。
 
 ---

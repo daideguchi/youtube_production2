@@ -7,6 +7,7 @@
 
 関連:
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
+- 参照フレーム（入口〜投入前の整理）: `ssot/ops/OPS_PREPRODUCTION_FRAME.md`
 - 企画SoT（CSV）: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - 入力契約（タイトル=正）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - 整合チェック: `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md`
@@ -41,6 +42,7 @@ Pack は「量産投入の前段」で使う（= ここで止めれば事故が�
 生成（CLI）:
 - `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`
 - 出力: `workspaces/logs/regression/production_pack/`
+- 終了コード（自動化向け）: `0=pass`, `1=warn`, `2=fail`
 
 ---
 
@@ -54,9 +56,10 @@ Pack は「量産投入の前段」で使う（= ここで止めれば事故が�
 
 ### 2.2 任意（無くても動くが、あると品質/精度が上がる）
 - Persona（例: `workspaces/planning/personas/CHxx_PERSONA.md`）
-- ベンチマーク/バズ台本/勝ちパターン（例: `workspaces/research/**`）
-- サムネ参照（既存サムネ/訴求メモ/レイヤー仕様）
-- 動画テンプレ参照（CapCutテンプレ/チャンネルpreset）
+- ベンチマーク/バズ台本/勝ちパターン（例: `packages/script_pipeline/channels/CHxx-*/channel_info.json: benchmarks` → `workspaces/research/**`）
+- サムネ参照（例: `workspaces/thumbnails/projects.json`, `workspaces/thumbnails/assets/{CH}/{NNN}/`）
+- 動画テンプレ参照（例: `packages/video_pipeline/config/channel_presets.json`）
+- チャンネルの入出典（chapter_count/文字数など）: `configs/sources.yaml`
 
 任意入力は **「欠落=空」でもパイプラインが進む** ように扱い、存在する場合のみ後段の品質に効かせる。
 
@@ -75,6 +78,16 @@ Pack は最低限、次を保持する:
 
 出力形式は JSON を基本とする（例: `schema: ytm.production_pack.v1`）。
 
+### 3.1 現行 `production_pack.py` がスナップショットする主な参照（実装ベース）
+- Planning: `workspaces/planning/channels/CHxx.csv` の該当行（row snapshot）+ planning_lint（targeted）
+- Planning Patch: `workspaces/planning/patches/*.yaml`（該当episodeのみ、best-effort）
+- Sources: `configs/sources.yaml`（+ overlay `packages/script_pipeline/config/sources.yaml`）の該当CH設定（`resolved.sources.*`）
+- Script: `packages/script_pipeline/channels/CHxx-*/script_prompt.txt`, `channel_info.json`, `templates.yaml`, `stages.yaml`
+- Audio: `packages/script_pipeline/audio/channels/CHxx/voice_config.json`（音声設定の正本。存在/JSON妥当性をゲートする）
+- Video: `packages/video_pipeline/config/channel_presets.json`（該当CHのpreset解決）, `template_registry.json`（prompt_template の登録表）, `system_prompt_for_image_generation.txt`
+- Thumbnails: `workspaces/thumbnails/templates.json`, `workspaces/thumbnails/projects.json`, `workspaces/thumbnails/assets/{CH}/{NNN}/`（存在のみ）
+- 任意: `workspaces/planning/personas/CHxx_PERSONA.md`, `workspaces/planning/templates/CHxx_planning_template.csv`, `benchmarks_summary`（channel_info由来）
+
 ---
 
 ## 4. QA Gate（最低限の合否/警告の考え方）
@@ -85,10 +98,18 @@ Production Pack 生成時に、最低限ここまでを判定する:
 - Planning CSV が存在しない / 該当行が見つからない
 - `タイトル` が空
 - チャンネル定義が壊れている（例: channels registry の欠落）
+- 音声設定が壊れている（`packages/script_pipeline/audio/channels/CHxx/voice_config.json` が無い/壊れている）
+- `video_workflow=capcut` なのに、Video preset が欠落/壊れ（`channel_presets.json` に該当CHが無い、または `capcut_template` が空）
+- `prompt_template` を指定しているのに、テンプレファイルが存在しない（実行時に停止するため）
 
 **Warn（投入はできるが、後段の品質リスクが高い）**
 - Persona が無い（必須ではないが品質劣化しやすい）
 - Planning lint が warning を含む（内容混入の兆候など）
+- sources.yaml の CH 定義が欠落（例: `configs/sources.yaml: channels.CHxx` が無い）
+- Planning 行がポリシー必須フィールドを欠落（`planning_requirements` が要求する列が空/欠落。チャンネル/動画番号によって適用される）
+- Planning 行が「投稿済み（published lock）」っぽい（誤って再投入しないための注意喚起）
+- `video_workflow=capcut` で `prompt_template` が未指定（既定テンプレで進むが、画風/品質が安定しにくい）
+- `prompt_template` が `template_registry.json` に未登録（ガバナンス上のwarning）
 
 **Pass**
 - 上記 fail/warn に該当しない
@@ -99,6 +120,7 @@ Production Pack 生成時に、最低限ここまでを判定する:
 
 メモ:
 - `production_pack.py` の `qa_gate` には `result (pass/warn/fail)` に加えて `score (0-100)` と `counts` を含める（運用の目安）。
+- `qa_gate.issues[*].fix_hints`（任意）がある場合は、それが最短の修復導線。体系は `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
 
 ---
 
@@ -131,6 +153,8 @@ diff では `generated_at` や `tool.*` など「毎回変わるノイズ」は�
 Phase 0（今すぐ）:
 - Pack は「生成して眺める」だけで良い（現行 runner を変更しない）。
 - Pack の pass/warn/fail を人間/UI が参照して投入判断する。
+- 併用（推奨）: `preproduction_audit` でチャンネル横断の抜け漏れを先に潰す（`python3 scripts/ops/preproduction_audit.py --all --write-latest`）。
+- 修復は `qa_gate.issues[*].fix_hints`（任意）と `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
 
 Phase 1（運用が固まってから）:
 - UI で「Production Pack を生成 → Gate 結果を表示」する。

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChannelSummary, DashboardChannelSummary } from "../api/types";
 
@@ -71,11 +71,53 @@ export function ChannelListSection({
   variant = "sidebar",
   redoSummary = {},
 }: ChannelListSectionProps) {
+  const [query, setQuery] = useState("");
   const statsMap = useMemo(() => {
     const map = new Map<string, DashboardChannelSummary>();
     channelStats?.forEach((stat) => map.set(stat.code, stat));
     return map;
   }, [channelStats]);
+
+  const sortedChannels = useMemo(() => {
+    const copy = [...channels];
+    const sortKey = (code: string) => {
+      const match = code.toUpperCase().match(/^CH(\d+)$/);
+      return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+    };
+    copy.sort((a, b) => {
+      const diff = sortKey(a.code) - sortKey(b.code);
+      if (diff !== 0) return diff;
+      return a.code.localeCompare(b.code);
+    });
+    return copy;
+  }, [channels]);
+
+  const visibleChannels = useMemo(() => {
+    if (variant !== "sidebar") {
+      return sortedChannels;
+    }
+    const token = query.trim().toLowerCase();
+    if (!token) {
+      return sortedChannels;
+    }
+    return sortedChannels.filter((channel) => {
+      const displayName = channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
+      const haystack = [
+        channel.code,
+        displayName,
+        channel.youtube_handle,
+        channel.branding?.handle,
+        channel.branding?.custom_url,
+        channel.branding?.title,
+        channel.youtube_title,
+        channel.genre,
+      ]
+        .filter((value): value is string => typeof value === "string")
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(token);
+    });
+  }, [query, sortedChannels, variant]);
 
   const handleSelect = (code: string) => {
     if (variant !== "dashboard" && selectedChannel === code) {
@@ -119,6 +161,20 @@ export function ChannelListSection({
         </header>
       )}
 
+      {variant === "sidebar" && !loading && !error ? (
+        <div style={{ padding: "0 16px 12px" }}>
+          <input
+            type="search"
+            className="channel-projects__search"
+            placeholder="CHxx / 名前 / @handle で検索"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="チャンネル検索"
+            style={{ width: "100%", minWidth: 0 }}
+          />
+        </div>
+      ) : null}
+
       {loading ? (
         <p className={variant === "dashboard" ? "channel-list__message" : "shell-panel__message"}>
           チャンネルを読み込み中です…
@@ -135,20 +191,25 @@ export function ChannelListSection({
       ) : null}
 
       {!loading && !error ? (
-        channels.length === 0 ? (
-          <p className={variant === "dashboard" ? "channel-list__message" : "shell-panel__message"}>チャンネルが登録されていません。</p>
+        visibleChannels.length === 0 ? (
+          <p className={variant === "dashboard" ? "channel-list__message" : "shell-panel__message"}>
+            {channels.length === 0 ? "チャンネルが登録されていません。" : "該当するチャンネルがありません。"}
+          </p>
         ) : (
           <div className={gridClass}>
-            {channels.map((channel) => {
+            {visibleChannels.map((channel) => {
               const stats = statsMap.get(channel.code);
+              const hasStats = Boolean(stats);
               const displayName =
                 channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
-              const total = stats?.total ?? channel.video_count ?? 0;
-              const scriptCompleted = stats?.script_completed ?? 0;
-              const audioCompleted = stats?.audio_completed ?? 0;
-              const readyForAudio = stats?.ready_for_audio ?? 0;
-              const backlogAudio = Math.max(total - audioCompleted, 0);
-              const backlogScript = Math.max(total - scriptCompleted, 0);
+              // NOTE: "案件数/制作進捗" は Planning/Status SoT（dashboard overview）に準拠。
+              // YouTube側の投稿数は別枠で表示するため、stats が取れない場合はダッシュで扱う。
+              const total = hasStats ? stats?.total ?? 0 : 0;
+              const scriptCompleted = hasStats ? stats?.script_completed ?? 0 : 0;
+              const audioCompleted = hasStats ? stats?.audio_completed ?? 0 : 0;
+              const readyForAudio = hasStats ? stats?.ready_for_audio ?? 0 : 0;
+              const backlogAudio = hasStats ? Math.max(total - audioCompleted, 0) : 0;
+              const backlogScript = hasStats ? Math.max(total - scriptCompleted, 0) : 0;
               const isActive = selectedChannel === channel.code;
               const avatarLabel = displayName.slice(0, 2);
               const avatarUrl = channel.branding?.avatar_url ?? null;
@@ -165,10 +226,10 @@ export function ChannelListSection({
               const youtubeUrl = channel.branding?.url ?? (customPath ? `https://www.youtube.com/${customPath}` : null);
               const launchDate = formatLaunchDate(channel.branding?.launch_date);
               const primaryMetrics = [
-                { key: "videos", icon: "🗂️", label: "案件数", value: formatNumber(total) },
-                { key: "script", icon: "📝", label: "台本完了", value: formatPercent(scriptCompleted, total) },
-                { key: "audio", icon: "🎙️", label: "音声完了", value: formatPercent(audioCompleted, total) },
-                { key: "ready", icon: "🔊", label: "音声準備", value: formatPercent(readyForAudio, total) },
+                { key: "videos", icon: "🗂️", label: "案件数", value: hasStats ? formatNumber(total) : "—" },
+                { key: "script", icon: "📝", label: "台本完了", value: hasStats ? formatPercent(scriptCompleted, total) : "—" },
+                { key: "audio", icon: "🎙️", label: "音声完了", value: hasStats ? formatPercent(audioCompleted, total) : "—" },
+                { key: "ready", icon: "🔊", label: "音声準備", value: hasStats ? formatPercent(readyForAudio, total) : "—" },
               ];
 
               const youtubeMetrics: { key: string; icon: string; label: string; value: string }[] = [];
@@ -231,7 +292,7 @@ export function ChannelListSection({
                   type="button"
                   className={cardClass(isActive)}
                   onClick={() => handleSelect(channel.code)}
-                    aria-label={`${displayName} の詳細を表示`}
+                  aria-label={`${displayName} の詳細を表示`}
                 >
                   <div className="channel-chip__main">
                     <div className="channel-chip__header">
@@ -304,13 +365,19 @@ export function ChannelListSection({
                     </div>
                   </div>
                   <div className="channel-chip__badges">
-                    {backlogScript > 0 ? (
+                    {hasStats ? (
+                      <span className="channel-chip__badge channel-chip__badge--ghost">
+                        音声準備 {formatNumber(readyForAudio)}
+                      </span>
+                    ) : (
+                      <span className="channel-chip__badge channel-chip__badge--ghost">進捗未取得</span>
+                    )}
+                    {hasStats && backlogScript > 0 ? (
                       <span className="channel-chip__badge">台本未完 {formatNumber(backlogScript)}</span>
                     ) : null}
-                    {backlogAudio > 0 ? (
+                    {hasStats && backlogAudio > 0 ? (
                       <span className="channel-chip__badge">音声未完 {formatNumber(backlogAudio)}</span>
                     ) : null}
-                    <span className="channel-chip__badge channel-chip__badge--ghost">音声準備 {formatNumber(readyForAudio)}</span>
                   </div>
                 </button>
               );

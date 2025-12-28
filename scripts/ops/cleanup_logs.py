@@ -100,6 +100,8 @@ def _iter_files(root: Path) -> Iterable[Path]:
 def _should_keep(path: Path) -> bool:
     if path.name in KEEP_ALWAYS_FILENAMES:
         return True
+    if path.name.endswith("__latest.json") or path.name.endswith("__latest.md"):
+        return True
     if path.suffix in KEEP_ALWAYS_SUFFIXES:
         return True
     if path.suffix == ".pid":
@@ -130,7 +132,7 @@ def collect_candidates(
             continue
         if _should_keep(p):
             continue
-        if p.suffix not in {".log", ".out", ".txt", ".json", ".png"}:
+        if p.suffix not in {".log", ".out", ".txt", ".json", ".md", ".png"}:
             continue
         if _is_older_than(p, cutoff):
             if locks and find_blocking_lock(p, locks):
@@ -144,7 +146,7 @@ def collect_candidates(
         for p in sorted(_iter_files(base)):
             if _should_keep(p):
                 continue
-            allowed_suffixes = {".log", ".out", ".txt", ".json"}
+            allowed_suffixes = {".log", ".out", ".txt", ".json", ".md"}
             if rel == "swap":
                 allowed_suffixes |= {".png"}
             if p.suffix not in allowed_suffixes:

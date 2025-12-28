@@ -36,6 +36,8 @@ import {
   ThumbnailChannelTemplatesUpdate,
   ThumbnailQuickHistoryEntry,
   ThumbnailOverview,
+  ThumbnailQcNotes,
+  ThumbnailQcNoteUpdatePayload,
   ThumbnailProjectStatus,
   ThumbnailVariant,
   ThumbnailVariantGeneratePayload,
@@ -145,14 +147,21 @@ function buildUrl(path: string): string {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  const headers = new Headers(init?.headers ?? {});
+  const hasBody = init?.body !== undefined && init?.body !== null;
+  // NOTE: Only set JSON content-type when we actually send a body.
+  // Setting it on GET triggers CORS preflight and can cause noisy failures.
+  if (hasBody && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(buildUrl(path), {
     ...init,
+    method,
     // 明示的にキャッシュを無効化し、最新の設定を取得する
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -494,6 +503,23 @@ export function fetchPlanningRows(channel?: string): Promise<PlanningCsvRow[]> {
 
 export function fetchPlanningSpreadsheet(channel: string): Promise<PlanningSpreadsheetResponse> {
   return request<PlanningSpreadsheetResponse>(`/api/planning/spreadsheet?channel=${encodeURIComponent(channel)}`);
+}
+
+export function updatePlanningChannelProgress(
+  channel: string,
+  video: string,
+  payload: { progress: string; expectedUpdatedAt?: string | null }
+): Promise<PlanningCsvRow> {
+  return request<PlanningCsvRow>(
+    `/api/planning/channels/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/progress`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        progress: payload.progress,
+        expected_updated_at: payload.expectedUpdatedAt ?? null,
+      }),
+    }
+  );
 }
 
 export function fetchPromptDocuments(): Promise<PromptDocumentSummary[]> {
@@ -1245,6 +1271,26 @@ export function uploadThumbnailVariantAsset(
 export function fetchThumbnailLibrary(channel: string): Promise<ThumbnailLibraryAsset[]> {
   return request<ThumbnailLibraryAsset[]>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/library`
+  );
+}
+
+export function fetchThumbnailQcNotes(channel: string): Promise<ThumbnailQcNotes> {
+  return request<ThumbnailQcNotes>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/qc-notes`
+  );
+}
+
+export function updateThumbnailQcNote(channel: string, payload: ThumbnailQcNoteUpdatePayload): Promise<ThumbnailQcNotes> {
+  const body: JsonMap = {
+    relative_path: payload.relative_path,
+    note: payload.note ?? null,
+  };
+  return request<ThumbnailQcNotes>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/qc-notes`,
+    {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }
   );
 }
 
@@ -2249,4 +2295,20 @@ export function fetchCapcutDraftDetail(draftName: string): Promise<CapcutDraftDe
 export async function fetchRemotionProjects(): Promise<RemotionProjectSummary[]> {
   const data = await request<RemotionProjectSummaryResponse[]>("/api/video-production/remotion/projects");
   return data.map(normalizeRemotionProject);
+}
+
+export type RemotionPreviewRestartResponse = {
+  status: string;
+  port: number;
+  url?: string | null;
+  pid?: number | null;
+  log_path?: string | null;
+};
+
+export function restartRemotionPreview(port = 3100): Promise<RemotionPreviewRestartResponse> {
+  const params = new URLSearchParams();
+  params.set("port", String(port));
+  return request<RemotionPreviewRestartResponse>(`/api/remotion/restart_preview?${params.toString()}`, {
+    method: "POST",
+  });
 }

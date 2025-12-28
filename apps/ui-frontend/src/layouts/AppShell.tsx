@@ -6,13 +6,13 @@ import {
   useState,
 } from "react";
 import {
-  NavLink,
   Outlet,
   useLocation,
   useNavigate,
   useSearchParams,
   matchPath,
 } from "react-router-dom";
+import { AppSidebar, type NavSection } from "./AppSidebar";
 import {
   fetchChannels,
   fetchVideos,
@@ -41,7 +41,6 @@ import {
 } from "../api/types";
 import { translateStatus, STAGE_LABELS } from "../utils/i18n";
 import { pickCurrentStage, resolveStageStatus } from "../components/StageProgress";
-import { ChannelListSection } from "../components/ChannelListSection";
 import { resolveAudioSubtitleState } from "../utils/video";
 import type { DetailTab } from "../components/VideoDetailPanel";
 import { safeLocalStorage } from "../utils/safeStorage";
@@ -50,11 +49,13 @@ import "./channel-clean.css";
 import "./audio-clean.css";
 import "./thumbnail-clean.css";
 import "./remotion-clean.css";
+import "./shell-layout-fixes.css";
 
 export type ReadyFilter = "all" | "ready" | "not_ready";
 
 export type WorkspaceView =
   | "dashboard"
+  | "audit"
   | "workflow"
   | "studio"
   | "channel"
@@ -238,6 +239,9 @@ function formatDateTime(value?: string | null): string {
 }
 
 function determineView(pathname: string): WorkspaceView {
+  if (matchPath("/audit", pathname)) {
+    return "audit";
+  }
   if (matchPath("/channels/:channelCode/videos/:video", pathname)) {
     return "channelVideo";
   }
@@ -320,6 +324,10 @@ const PLACEHOLDER_COPY: Record<
   Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo" | "channelPortal">,
   PlaceholderCopy
 > = {
+  audit: {
+    title: "監査（欠損チェック / Precheck）",
+    description: "チャンネル監査とPrecheckをまとめて確認し、欠損や詰まりを先に潰します。",
+  },
   studio: {
     title: "Episode Studio",
     description: "企画→台本→音声→動画を、エピソード単位で“次に押すべきボタン”が分かる形に統合します。",
@@ -854,40 +862,22 @@ export function AppShell() {
     const params = new URLSearchParams(location.search);
     const channelParam = params.get("channel");
     const videoParam = params.get("video");
-    const strictQuerySelection = view === "workflow" || view === "studio";
-
-    if (strictQuerySelection && !channelParam) {
-      if (selectedChannel !== null) {
-        setSelectedChannel(null);
-      }
-      if (selectedVideo !== null) {
-        setSelectedVideo(null);
-      }
-      if (videoDetail) {
-        setVideoDetail(null);
-      }
-      return;
-    }
+    // NOTE: query params are treated as an optional override.
+    // When absent (e.g. opening `/workflow` from the sidebar), keep the last selection
+    // to avoid forcing users to re-pick channel/video every time.
     if (channelParam) {
       const normalizedChannel = channelParam.trim().toUpperCase();
       if (normalizedChannel && normalizedChannel !== selectedChannel) {
         setSelectedChannel(normalizedChannel);
-        if (strictQuerySelection && selectedVideo !== null) {
+        // If the URL overrides channel without specifying video, clear the video selection
+        // to avoid temporarily showing a mismatched episode while the list refreshes.
+        if (!videoParam && selectedVideo !== null) {
           setSelectedVideo(null);
         }
-        if (strictQuerySelection && videoDetail) {
+        if (videoDetail) {
           setVideoDetail(null);
         }
       }
-    }
-    if (!videoParam && strictQuerySelection) {
-      if (selectedVideo !== null) {
-        setSelectedVideo(null);
-      }
-      if (videoDetail) {
-        setVideoDetail(null);
-      }
-      return;
     }
     if (videoParam) {
       const normalizedVideo = videoParam.trim();
@@ -1053,10 +1043,11 @@ export function AppShell() {
       setSelectedVideo(video);
       const url = buildChannelVideoUrl(video);
       if (url) {
-        navigate(url);
+        const currentUrl = `${location.pathname}${location.search}`;
+        navigate(url, { replace: currentUrl === url });
       }
     },
-    [buildChannelVideoUrl, navigate]
+    [buildChannelVideoUrl, location.pathname, location.search, navigate]
   );
 
   const handleOpenScript = useCallback(
@@ -1065,10 +1056,11 @@ export function AppShell() {
       applyDetailTab("script");
       const url = buildChannelVideoUrl(video, "script");
       if (url) {
-        navigate(url);
+        const currentUrl = `${location.pathname}${location.search}`;
+        navigate(url, { replace: currentUrl === url });
       }
     },
-    [applyDetailTab, buildChannelVideoUrl, navigate]
+    [applyDetailTab, buildChannelVideoUrl, location.pathname, location.search, navigate]
   );
 
   const handleOpenAudio = useCallback(
@@ -1077,10 +1069,11 @@ export function AppShell() {
       applyDetailTab("audio");
       const url = buildChannelVideoUrl(video, "audio");
       if (url) {
-        navigate(url);
+        const currentUrl = `${location.pathname}${location.search}`;
+        navigate(url, { replace: currentUrl === url });
       }
     },
-    [applyDetailTab, buildChannelVideoUrl, navigate]
+    [applyDetailTab, buildChannelVideoUrl, location.pathname, location.search, navigate]
   );
 
   const perform = useCallback(
@@ -1174,51 +1167,98 @@ export function AppShell() {
     [view, selectedChannel, selectedVideo, videoDetail]
   );
 
-  const contextValue: ShellOutletContext = {
-    view,
-    channels,
-    channelsLoading,
-    channelsError,
-    dashboardOverview,
-    dashboardLoading,
-    dashboardError,
-    redoSummary,
-    selectedChannel,
-    selectedChannelSummary,
-    selectedChannelSnapshot,
-    selectChannel: handleSelectChannel,
-    selectChannelFromSidebar: handleSidebarChannelSelect,
-    navigateToChannel: handleDashboardSelectChannel,
-    videos,
-    filteredVideos,
-    videosLoading,
-    videosError,
-    videoKeyword,
-    setVideoKeyword: handleKeywordChange,
-    readyFilter,
-    setReadyFilter: handleReadyFilterChange,
-    summaryFilter,
-    applySummaryFilter,
-    clearSummaryFilter: handleClearSummaryFilter,
-    selectedVideo,
-    selectVideo: handleSelectListVideo,
-    openScript: handleOpenScript,
-    openAudio: handleOpenAudio,
-    videoDetail,
-    detailLoading,
-    detailError,
-    refreshCurrentDetail,
-    detailTab,
-    setDetailTab: applyDetailTab,
-    shouldShowDetailPanel,
-    detailHandlers,
-    hasUnsavedChanges,
-    setHasUnsavedChanges,
-    activityItems,
-    handleFocusAudioBacklog,
-    handleFocusNeedsAttention,
-    placeholderPanel,
-  };
+  const contextValue = useMemo<ShellOutletContext>(
+    () => ({
+      view,
+      channels,
+      channelsLoading,
+      channelsError,
+      dashboardOverview,
+      dashboardLoading,
+      dashboardError,
+      redoSummary,
+      selectedChannel,
+      selectedChannelSummary,
+      selectedChannelSnapshot,
+      selectChannel: handleSelectChannel,
+      selectChannelFromSidebar: handleSidebarChannelSelect,
+      navigateToChannel: handleDashboardSelectChannel,
+      videos,
+      filteredVideos,
+      videosLoading,
+      videosError,
+      videoKeyword,
+      setVideoKeyword: handleKeywordChange,
+      readyFilter,
+      setReadyFilter: handleReadyFilterChange,
+      summaryFilter,
+      applySummaryFilter,
+      clearSummaryFilter: handleClearSummaryFilter,
+      selectedVideo,
+      selectVideo: handleSelectListVideo,
+      openScript: handleOpenScript,
+      openAudio: handleOpenAudio,
+      videoDetail,
+      detailLoading,
+      detailError,
+      refreshCurrentDetail,
+      detailTab,
+      setDetailTab: applyDetailTab,
+      shouldShowDetailPanel,
+      detailHandlers,
+      hasUnsavedChanges,
+      setHasUnsavedChanges,
+      activityItems,
+      handleFocusAudioBacklog,
+      handleFocusNeedsAttention,
+      placeholderPanel,
+    }),
+    [
+      activityItems,
+      applyDetailTab,
+      applySummaryFilter,
+      channels,
+      channelsError,
+      channelsLoading,
+      dashboardError,
+      dashboardLoading,
+      dashboardOverview,
+      detailHandlers,
+      detailError,
+      detailLoading,
+      detailTab,
+      filteredVideos,
+      handleClearSummaryFilter,
+      handleDashboardSelectChannel,
+      handleFocusAudioBacklog,
+      handleFocusNeedsAttention,
+      handleKeywordChange,
+      handleOpenAudio,
+      handleOpenScript,
+      handleReadyFilterChange,
+      handleSelectChannel,
+      handleSelectListVideo,
+      handleSidebarChannelSelect,
+      hasUnsavedChanges,
+      placeholderPanel,
+      redoSummary,
+      refreshCurrentDetail,
+      selectedChannel,
+      selectedChannelSnapshot,
+      selectedChannelSummary,
+      selectedVideo,
+      setHasUnsavedChanges,
+      shouldShowDetailPanel,
+      videoDetail,
+      videoKeyword,
+      videos,
+      videosError,
+      videosLoading,
+      readyFilter,
+      summaryFilter,
+      view,
+    ]
+  );
 
   const audioIntegrityLink = useMemo(() => {
     if (selectedChannel && selectedVideo) {
@@ -1236,11 +1276,20 @@ export function AppShell() {
   }, [routeChannelCode, selectedChannel]);
 
   const planningLink = useMemo(() => {
+    const code = selectedChannel ?? routeChannelCode ?? safeGet("ui.channel.selected") ?? null;
+    if (code) {
+      return `/planning?channel=${encodeURIComponent(code)}`;
+    }
     return "/planning";
-  }, []);
+  }, [routeChannelCode, selectedChannel]);
 
-  type NavItem = { key: WorkspaceView; label: string; icon: string; path: string };
-  type NavSection = { title: string; items: NavItem[] };
+  const thumbnailsLink = useMemo(() => {
+    const code = selectedChannel ?? routeChannelCode ?? safeGet("ui.channel.selected") ?? null;
+    if (code) {
+      return `/thumbnails?channel=${encodeURIComponent(code)}`;
+    }
+    return "/thumbnails";
+  }, [routeChannelCode, selectedChannel]);
 
   const navSections = useMemo<NavSection[]>(
     () => [
@@ -1264,7 +1313,7 @@ export function AppShell() {
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
           { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
-          { key: "thumbnails", label: "サムネ", icon: "🖼️", path: "/thumbnails" },
+          { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
         ],
       },
@@ -1284,10 +1333,9 @@ export function AppShell() {
         ],
       },
     ],
-    [audioIntegrityLink, channelPortalLink, planningLink]
+    [audioIntegrityLink, channelPortalLink, planningLink, thumbnailsLink]
   );
 
-  const channelStats = dashboardOverview?.channels;
   const workspaceModifiers: string[] = [];
   if (view === "thumbnails") {
     workspaceModifiers.push("workspace--thumbnail-clean");
@@ -1300,110 +1348,10 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <div className={workspaceClass}>
-        <aside className="shell-sidebar">
-          <div className="shell-sidebar__header">
-            <div className="shell-sidebar__brand">
-              <span className="shell-avatar" aria-hidden>
-                QC
-              </span>
-              <div>
-                <h2 className="shell-sidebar__title">AI 制作スタジオ</h2>
-                <p className="shell-sidebar__subtitle">品質管理コンソール</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="shell-nav" aria-label="主要メニュー">
-            {navSections.map((section) => (
-              <div key={section.title} className="shell-nav__section">
-                <div className="shell-nav__section-title">{section.title}</div>
-                {section.items.map((item) => {
-                  const isChannelWorkspaceRoute =
-                    Boolean(
-                      matchPath("/channels/:channelCode/videos/:video", location.pathname) ||
-                        matchPath("/channels/:channelCode", location.pathname)
-                    ) || location.pathname.startsWith("/channel-workspace");
-                  const isChannelPortalRoute = Boolean(matchPath("/channels/:channelCode/portal", location.pathname));
-                  const isChannelWorkspaceItem = item.key === "channelWorkspace";
-                  const isChannelPortalItem = item.key === "channelPortal";
-                  return (
-                    <NavLink
-                      key={item.key}
-                      to={item.path}
-                      className={({ isActive }) => {
-                        const active =
-                          isActive ||
-                          (isChannelWorkspaceItem && isChannelWorkspaceRoute) ||
-                          (isChannelPortalItem && isChannelPortalRoute) ||
-                          (item.key === "audioIntegrity" && location.pathname.startsWith("/audio-integrity"));
-                        return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
-                      }}
-                    >
-                      <span className="shell-nav__icon" aria-hidden>
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                    </NavLink>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
-
-
-          <div className="shell-sidebar__content">
-            <div className="shell-sidebar__scroll">
-              <section className="shell-panel shell-panel--sidebar">
-                <header className="shell-panel__header">
-                  <div>
-                    <h2 className="shell-panel__title">関連シート</h2>
-                  </div>
-                </header>
-                <ul className="sidebar-link-list">
-                  <li>
-                    <a
-                      className="sidebar-link"
-                      href="https://docs.google.com/spreadsheets/d/1BABrIWO68_7GVSnBZUgi8YUt6eLwdT3KhX8t6N8qohQ/edit?gid=0"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      総合管理シート ↗
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="sidebar-link"
-                      href="https://docs.google.com/spreadsheets/d/1tDM0W3qmvfjMGvpo3_6savBHViJ3qTm--Q4O48I0pbY/edit?gid=0"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      ベンチマーク分析シート ↗
-                    </a>
-                  </li>
-                </ul>
-              </section>
-
-              <ChannelListSection
-                variant="sidebar"
-                channels={channels}
-                channelStats={channelStats}
-                selectedChannel={selectedChannel}
-                loading={channelsLoading}
-                error={channelsError}
-                onSelectChannel={handleSidebarChannelSelect}
-              />
-            </div>
-          </div>
-
-          <footer className="shell-sidebar__footer">
-            <button type="button" className="shell-footer__link">
-              ヘルプセンター
-            </button>
-            <button type="button" className="shell-footer__link">
-              運用ガイド
-            </button>
-          </footer>
-        </aside>
+        <AppSidebar
+          navSections={navSections}
+          pathname={location.pathname}
+        />
 
         <main className="workspace__main">
           <Outlet context={contextValue} />

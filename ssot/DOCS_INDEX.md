@@ -11,6 +11,7 @@
 - `ops/DATA_LAYOUT.md`: 現行データ格納の実態（SoT/生成物の場所対応）。
 - `ops/OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
 - `history/HISTORY_codex-memory.md`: 変更履歴（運用ログ）。旧履歴は `_old/ssot_old/history/` を参照。
+- `history/README.md`: 履歴アーカイブ（非正本）の扱い方（旧名/旧パスが出てきたときの入口）。
 - `handoffs/README.md`: 作業完走用の引き継ぎパッケージ置き場（短期・再現性重視）。
 - `reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`: 直書きパス/旧名参照の監査入口（現行正本）。スナップショットは `history/REFERENCE_PATH_HARDCODE_INVENTORY_20251212.md`。
 - `ops/master_styles.json`: チャンネル別スタイル・画風の正本。
@@ -28,6 +29,9 @@
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
 - `ops/OPS_PRODUCTION_PACK.md`: 量産投入前の「Production Pack」定義（スナップショット + QA gate + 差分ログ）。
+- `ops/OPS_PREPRODUCTION_FRAME.md`: 入口〜量産投入直前の参照フレーム（SoT/拡張/差分ログの線引き）。
+- `ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`: 入口〜投入前の入力カタログ（SoT/必須/任意/上書きの一覧）。
+- `ops/OPS_PREPRODUCTION_REMEDIATION.md`: 入口〜投入前の“抜け漏れ”修復導線（issue→直す場所→検証）。
 - `ops/OPS_REPO_DIRECTORY_SSOT.md`: リポジトリのディレクトリ構造（正本）。配置/移設/互換symlink方針の基準。
 - `ops/OPS_SCRIPT_SOURCE_MAP.md`: 台本/音声/動画の“ソース元”対応表（SoT→生成物）。
 - `ops/OPS_SCRIPT_FACTORY_MODES.md`: 台本工場の入口固定（new/redo-full/resume/rewrite）と運用分岐の正本。

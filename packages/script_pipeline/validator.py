@@ -28,6 +28,7 @@ _RE_LENGTH_META = re.compile(r"約\s*\d{2,5}\s*字")
 _RE_MD_BOLD_MARKER = re.compile(r"\*\*")
 _RE_EPISODE_HEADER_LINE = re.compile(r"^\s*CH\d{2}-\d{3}\s*[:：]\s*\S+")
 _RE_META_BLOCK_HEADER = re.compile(r"^\s*(?:設定|CSVデータ|詳細構成|構成案|プロット)\s*$")
+_RE_CHAPTER_HEADING_LINE = re.compile(r"^\s*(?:では、)?第[0-9一二三四五六七八九十]+章(?:を始めましょう)?[。！？!?]?\s*$")
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
 _RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
 
@@ -269,6 +270,16 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 {
                     "code": "meta_block_header",
                     "message": "Structured meta blocks (e.g. 設定/CSVデータ) must not appear in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        if _RE_CHAPTER_HEADING_LINE.match(stripped):
+            issues.append(
+                {
+                    "code": "chapter_heading_meta",
+                    "message": "Chapter headings (e.g. 第3章/第3章を始めましょう) must not appear in A-text",
                     "line": idx,
                     "severity": "error",
                 }

@@ -9,4 +9,4 @@
 - パスは SSOT の正本に合わせる（例: `workspaces/...`, `packages/...`）。旧パスは原則禁止。履歴として触れる場合は「廃止/deprecated」と明記し、現行パスを必ず併記する
 
 ## 一覧
-- `CH02_IMAGES_NOISE_FIX/`: CH02ドラフトでノイズ画像が挿入される問題の再現/修正/検証手順
+- [`CH02_IMAGES_NOISE_FIX/`](/ssot/handoffs/CH02_IMAGES_NOISE_FIX/): CH02ドラフトでノイズ画像が挿入される問題の再現/修正/検証手順（入口: [`HANDOFF.md`](/ssot/handoffs/CH02_IMAGES_NOISE_FIX/HANDOFF.md)）

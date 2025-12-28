@@ -79,6 +79,13 @@ function normalizeWhitespace(value: string): string {
   return (value ?? "").replace(/\s+/g, " ").trim();
 }
 
+function withCacheBust(url: string, token?: string | null): string {
+  const value = (token ?? "").trim();
+  if (!value) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(value)}`;
+}
+
 function renderInlinePreview(lines: { label: string; value: string; className: string }[]): ReactNode {
   return (
     <div className="thumbnail-bulk-preview">
@@ -289,12 +296,13 @@ export function ThumbnailBulkPanel({
           status: "draft",
           make_selected: false,
         });
-        const previewUrl =
+        const previewUrlBase =
           variant.preview_url?.trim()
             ? resolveApiUrl(variant.preview_url)
             : variant.image_path?.trim()
               ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
               : undefined;
+        const previewUrl = previewUrlBase ? withCacheBust(previewUrlBase, variant.updated_at) : undefined;
 
         setComposeStateByVideo((current) => ({
           ...current,
@@ -390,12 +398,13 @@ export function ThumbnailBulkPanel({
           status: "draft",
           make_selected: false,
         });
-        const previewUrl =
+        const previewUrlBase =
           variant.preview_url?.trim()
             ? resolveApiUrl(variant.preview_url)
             : variant.image_path?.trim()
               ? resolveApiUrl(`/thumbnails/assets/${variant.image_path}`)
               : undefined;
+        const previewUrl = previewUrlBase ? withCacheBust(previewUrlBase, variant.updated_at) : undefined;
 
         setComposeStateByVideo((current) => ({
           ...current,

@@ -4,13 +4,12 @@ import time
 import wave
 import struct
 import io
-import re
 from .strict_structure import AudioSegment
 from .voicevox_api import VoicevoxClient
 from .voicepeak_cli import synthesize_chunk
-from .mecab_tokenizer import tokenize_with_mecab
 from .reading_structs import KanaPatch
 from .synthesis import apply_kana_patches
+from .text_normalizer import normalize_text_for_tts
 
 
 def generate_silence(duration_sec: float, frame_rate: int, sample_width: int, channels: int) -> bytes:
@@ -82,7 +81,7 @@ def strict_synthesis(
                 skip_regen = True
 
             if not skip_regen:
-                text_to_speak = (seg.reading or seg.text or "").strip()
+                text_to_speak = normalize_text_for_tts((seg.reading or seg.text or "").strip())
                 if text_to_speak:
                     synthesize_chunk(
                         text=text_to_speak,
@@ -215,53 +214,10 @@ def strict_synthesis(
             except Exception as e:
                  print(f"[ERROR] Failed to load chunk {chunk_path}: {e}")
                  # Fallback to regen if load fails?
-                 skip_regen = False
+            skip_regen = False
         
         if not skip_regen:
-            text_to_speak = seg.reading if seg.reading else seg.text
-            # TTSに渡す前に中点（・）を削除（固有名詞の場合のみ）
-            if "・" in text_to_speak:
-                tokens = tokenize_with_mecab(text_to_speak)
-                result_parts = []
-                for idx_t, token in enumerate(tokens):
-                    surface = token.get("surface", "")
-                    pos = token.get("pos", "")
-                    subpos = token.get("subpos", "")
-                    
-                    if surface == "・":
-                        prev_token = tokens[idx_t - 1] if idx_t > 0 else None
-                        next_token = tokens[idx_t + 1] if idx_t < len(tokens) - 1 else None
-                        
-                        prev_is_proper = False
-                        next_is_proper = False
-                        
-                        if prev_token:
-                            prev_pos = prev_token.get("pos", "")
-                            prev_subpos = prev_token.get("subpos", "")
-                            prev_is_proper = (
-                                "固有名詞" in prev_subpos or 
-                                "人名" in prev_subpos or 
-                                "地名" in prev_subpos or
-                                (prev_pos == "名詞" and prev_subpos in ["固有名詞", "一般"] and 
-                                 any(ord(c) >= 0x30A0 and ord(c) <= 0x30FF for c in prev_token.get("surface", "")))
-                            )
-                        
-                        if next_token:
-                            next_pos = next_token.get("pos", "")
-                            next_subpos = next_token.get("subpos", "")
-                            next_is_proper = (
-                                "固有名詞" in next_subpos or 
-                                "人名" in next_subpos or 
-                                "地名" in next_subpos or
-                                (next_pos == "名詞" and next_subpos in ["固有名詞", "一般"] and 
-                                 any(ord(c) >= 0x30A0 and ord(c) <= 0x30FF for c in next_token.get("surface", "")))
-                            )
-                        
-                        if prev_is_proper or next_is_proper:
-                            continue
-                    
-                    result_parts.append(surface)
-                text_to_speak = "".join(result_parts)
+            text_to_speak = normalize_text_for_tts(seg.reading or seg.text or "")
 
             try:
                 query = client.audio_query(text_to_speak, speaker_id)

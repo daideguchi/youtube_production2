@@ -3,6 +3,9 @@
 目的:
 - 「いつ / 何を / なぜ」変えたかを SSOT として残し、運用やリファクタリングの判断を誤らないようにする。
 
+補足（重要）:
+- 履歴アーカイブの扱い方（旧名/旧パスが出てきたときの入口）: [`ssot/history/README.md`](/ssot/history/README.md)
+
 運用ルール:
 - 1 エントリ = 1 セッション（または 1 日）
 - 変更対象（ファイル/機能）と理由、影響範囲を短く書く
@@ -199,3 +202,40 @@
 - archive安全性: `scripts/ops/archive_published_episodes.py` に domain root の範囲チェック + `workspaces/scripts` へ触れないガードを追加。
 - UI表示: チャンネル表示名は `branding.title/youtube_title` より `channel.name`（内部名）を優先するように統一（`apps/ui-frontend/src/components/ChannelListSection.tsx` ほか）。
 - 検証: `python3 -m py_compile scripts/check_env.py scripts/cleanup_data.py scripts/ops/archive_published_episodes.py`, `python3 -m pytest apps/ui-backend/backend/tests -q`, `CI=true npm -C apps/ui-frontend test -- --watchAll=false`
+- Planning Patch: `scripts/ops/planning_apply_patch.py` を「candidate に対する planning_lint で事前検証 → 安全なら apply → 最終レポートに結果を固定」に改善（Patch YAML/CSVのメタ、candidate lint、backup、post-apply lint を記録）。
+- Production Pack: `scripts/ops/production_pack.py` のスナップショットを拡張（planning template/benchmarks概要/サムネSoT、video preset解決、channel_info.json 等を記録）。
+- SSOT/入口整理: 参照フレーム `ssot/ops/OPS_PREPRODUCTION_FRAME.md` を追加し、`START_HERE.md` と `ssot/DOCS_INDEX.md`、関連SSOT（`ssot/ops/OPS_PLANNING_PATCHES.md`, `ssot/ops/OPS_PRODUCTION_PACK.md`）を更新。
+- 検証: `python3 -m py_compile scripts/ops/planning_apply_patch.py scripts/ops/production_pack.py`, `pytest -q tests/test_planning_patch_add_row.py tests/test_production_pack_diff.py`
+- Preproduction Audit: 入口〜量産投入直前の“抜け漏れ”を決定論で列挙する `scripts/ops/preproduction_audit.py` を追加（出力: `workspaces/logs/regression/preproduction_audit/`）。入口索引と参照フレームを更新（`ssot/ops/OPS_ENTRYPOINTS_INDEX.md`, `ssot/ops/OPS_PREPRODUCTION_FRAME.md`）。
+- Production Pack: `video_workflow` に基づき「capcut のみ video preset 必須」を厳密化し、`configs/sources.yaml`（+ overlay）を `resolved.sources.*` としてスナップショット。さらに `planning_requirements` の必須列欠落（空/欠落）を warning として可視化（`scripts/ops/production_pack.py`, `ssot/ops/OPS_PRODUCTION_PACK.md`）。
+- 検証: `python3 -m py_compile scripts/ops/production_pack.py scripts/ops/preproduction_audit.py`, `pytest -q tests/test_production_pack_diff.py`。運用ログ生成: `python3 scripts/ops/preproduction_audit.py --channel CH01 --write-latest`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`
+- Preproduction Audit: 監査結果の切り分けを運用可能にするため、issue に `channel` を付与し、`channels[].gate`（チャンネル別 pass/warn/fail）と `issues_sample` を出力（`scripts/ops/preproduction_audit.py`, `ssot/ops/OPS_PREPRODUCTION_FRAME.md`）。
+- ログ保持: `workspaces/logs/regression/{planning_patch,production_pack,preproduction_audit}/*__latest.{json,md}` を L1（keep-latest pointer）として明文化し、`cleanup_logs` で削除対象外にした。あわせて `.md` ログも 30日ローテ対象に含めて探索ノイズを抑制（`ssot/ops/OPS_LOGGING_MAP.md`, `scripts/ops/cleanup_logs.py`）。
+- 検証: `python3 -m py_compile scripts/ops/preproduction_audit.py scripts/ops/cleanup_logs.py`, `pytest -q tests/test_production_pack_diff.py`, `python3 scripts/ops/preproduction_audit.py --channel CH01 --write-latest`, `python3 scripts/ops/cleanup_logs.py --keep-days 30`
+- Production Pack: `template_registry.json` のチェック対象を誤って `capcut_template` にしていたため、正の `prompt_template`（登録表）へ修正。`resolved.video_pipeline.prompt_template`（ファイルメタ）と `prompt_template_registered` をスナップショット（`scripts/ops/production_pack.py`）。
+- Preproduction Audit: capcut チャンネルに対して `prompt_template` の欠落/ファイル欠落/registry未登録を error として検出し、`voice_config.json` の存在/JSON妥当性も監査対象に追加（`scripts/ops/preproduction_audit.py`）。SSOT注記: `template_registry.json` は prompt_template の登録表（`ssot/ops/OPS_PRODUCTION_PACK.md`）。
+- 検証: `python3 -m py_compile scripts/ops/production_pack.py scripts/ops/preproduction_audit.py`, `pytest -q tests/test_production_pack_diff.py`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`
+- planning_lint 精度改善: `contains_bullet_like_opener` を「`-` 単独」では検知しない（`-J77...` のような YouTubeID 先頭 `-` の誤検知を防止）。加えて「デザイン指示」列と `YouTubeID` 列は汚染シグナル対象から除外し、warn の実用性を上げた（`scripts/ops/planning_lint.py`）。
+- planning_sanitize 適用: CH08/CH09 の L3 相当列（`台本本文（冒頭サンプル）` 等）から「深夜の偉人ラジオへようこそ」混入を決定論で除去し、planning_lint/preproduction_audit を pass へ収束（`scripts/ops/planning_sanitize.py`, `workspaces/planning/channels/CH08.csv`, `workspaces/planning/channels/CH09.csv`）。
+- 検証: `python3 scripts/ops/planning_lint.py --channel CH01|CH03|CH08|CH09 --write-latest`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`（gate=pass）
+- Production Pack: capcut チャンネルの投入前ゲートを強化し、`prompt_template`（ファイル/registry）と `voice_config.json`（存在/JSON妥当性）を fail 条件として追加。SSOTを追従し、ログ配置マップに planning_lint/planning_sanitize の回帰ログを追記（`scripts/ops/production_pack.py`, `ssot/ops/OPS_PRODUCTION_PACK.md`, `ssot/ops/OPS_LOGGING_MAP.md`）。
+- 検証: `python3 -m py_compile scripts/ops/production_pack.py`, `pytest -q tests/test_production_pack_diff.py`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`
+- 入口〜投入前の“整理”を強化:
+  - 入力カタログSSOTを追加: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`（SoT/Config/Extension/Artifact、必須/任意、上書きレイヤを1枚化）。
+  - 修復導線SSOTを追加: `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`（issue→直す場所→再検証を固定）。
+  - 入口更新: `START_HERE.md`, `ssot/DOCS_INDEX.md`, `ssot/ops/OPS_PREPRODUCTION_FRAME.md` にリンク/注記を追記。
+- 監査/Pack出力を“直せるログ”へ:
+  - `preproduction_audit` と `production_pack` の issue に `fix_hints`（任意）を付与し、Markdownレポートにも remediation SSOT を明記（`scripts/ops/preproduction_audit.py`, `scripts/ops/production_pack.py`, `scripts/ops/preproduction_issue_catalog.py`）。
+  - Gate整合: `prompt_template` は **未指定でも既定テンプレで進める**ため warn へ変更。`video_workflow=capcut` の `channel_presets.json` 欠落/`capcut_template` 欠落は fail（`scripts/ops/production_pack.py`, `scripts/ops/preproduction_audit.py`, `ssot/ops/OPS_PRODUCTION_PACK.md`）。
+- 検証: `python3 -m py_compile scripts/ops/preproduction_audit.py scripts/ops/production_pack.py scripts/ops/preproduction_issue_catalog.py`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`（gate=pass）, `pytest -q tests/test_production_pack_diff.py`, `python3 scripts/ops/ssot_audit.py --write`
+- Preproduction: `fix_hints` の抜けを解消し、`production_pack`/`preproduction_audit` が出す全 issue code に対して修復ヒントが出るようにした（`scripts/ops/preproduction_issue_catalog.py`）。
+- SSOT: `missing_sources_yaml` の修復導線と、planning lint warning の最短修復（`planning_realign_to_title`）を追記（`ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`）。
+- SSOT: 説明文テンプレの入力位置を明示（Planningの説明文列 + `channel_info.json: youtube_description`）し、補完導線も追記（`ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`）。
+- 検証: `pytest -q tests/test_preproduction_issue_catalog.py tests/test_production_pack_diff.py`
+
+## 2025-12-28
+- Preproduction: `planning_lint.<code>` の prefix 付き issue でも `fix_hints` を付与できるようにし、Production Pack の修復導線が欠けないように改善（`scripts/ops/preproduction_issue_catalog.py`）。
+- 検証: `python3 scripts/ops/preproduction_audit.py --all --write-latest`, `python3 scripts/ops/production_pack.py --channel CH07 --video 1 --write-latest`
+- Planning Patch: シリーズ/テンプレ等の“まとめ変更”を episode patch に分解して安全に運用するため、patch雛形の一括生成ツール `scripts/ops/planning_patch_gen.py` を追加。入口/運用SSOTも追従（`ssot/ops/OPS_PLANNING_PATCHES.md`, `workspaces/planning/patches/README.md`, `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`, `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`）。
+- SSOT: `scripts/ops/scripts_inventory.py --write` で `ssot/ops/OPS_SCRIPTS_INVENTORY.md` を更新。
+- 検証: `python3 -m py_compile scripts/ops/planning_patch_gen.py`, `pytest -q tests/test_planning_patch_gen.py`, `python3 scripts/ops/ssot_audit.py --write`（problems=0）

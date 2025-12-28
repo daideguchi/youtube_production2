@@ -29,7 +29,7 @@
 - 整形ステージ (`script_draft_format`) はチャンクに分割し、29〜35文字制限を LLM で再改行。失敗時フォールバックや警告記録のみで進行。【F:packages/script_pipeline/runner.py†L1347-L1400】【F:packages/script_pipeline/runner.py†L1504-L1573】
 
 ### 2.3 TTS（Bテキスト）と音声生成フロー
-- `packages/audio_tts/tts/orchestrator.py` で Aテキストを前処理→MeCab トークン化→かなエンジン構築→SRT ブロック生成。見出し検証・グループ付与後にドラフト読み（MeCab）を付与。【F:packages/audio_tts/tts/orchestrator.py†L138-L260】
+- 現行の入口は Strict pipeline（例: `packages/audio_tts/scripts/run_tts.py`）で、Aテキストを `strict_segmenter.py` でセグメント化→`arbiter.py`/`auditor.py` で読みを解決→`strict_synthesizer.py` で合成 + SRT を出力する（SoT: `packages/audio_tts/tts/strict_orchestrator.py`）。
 - LLM は `llm_adapter` 経由で「危険トークン注釈」「セグメント分割」「ポーズ推定」等を行うが、Bテキスト生成（待ちタグ含む）は単一プロンプト `B_TEXT_GEN_PROMPT` で一括生成し、構造的な三段階化は未導入。【F:packages/audio_tts/tts/llm_adapter.py†L81-L218】
 - QA/annotation は Router 経由。失敗時はデフォルトのカナを返してパイプライン継続する設計（`llm_adapter` 内でフォールバック実装）。
 
@@ -50,7 +50,7 @@
 - **タスク→tier→model** マッピング（例 YAML）:
 ```yaml
 tiers:
-  heavy_reasoning: [openrouter:deepseek-v3.2-exp, openrouter:deepseek-r1-distill-qwen-32b, azure:gpt-5-mini]
+  heavy_reasoning: [openrouter:deepseek-v3.2-exp, openrouter:kimi-k2-thinking]
   standard: [openrouter:deepseek-v3.2-exp, openrouter:tencent/hunyuan-a13b-instruct, openrouter:qwen-2.5-7b-instruct]
   cheap: [openrouter:google/gemma-3n-e2b-it:free, openrouter:mistralai/mistral-7b-instruct:free]
   vision_caption: [openrouter:qwen2.5-vl-72b-instruct]
@@ -109,7 +109,7 @@ models:
 
 ## 5. TTS 用 Bテキストと画像ドラフトの改善案
 ### 5.1 Bテキスト生成パイプライン
-1. **分割**: MeCab + 見出し維持で文・文節を区切り (`_raw_sentence_blocks_for_srt` 既存)。【F:packages/audio_tts/tts/orchestrator.py†L214-L245】
+1. **分割**: `strict_segmenter.py` の `strict_segmentation` で文・文節を区切る（メタ除去は `factory_common.text_sanitizer.strip_meta_from_script`）。
 2. **誤読リスク判定**: `annotate_tokens` を `task=tts_annotate` として標準 tier の JSON モードで呼び、危険トークンを抽出。【F:packages/audio_tts/tts/llm_adapter.py†L103-L218】
 3. **読みやすさ整形**: 新タスク `tts_text_prepare` で Aテキストに対し、「読み替え」「ゆっくりタグ」だけを返す JSON `{segments:[{text, reading_hint, pause_sec}]}` を生成。`B_TEXT_GEN_PROMPT` はこの出力を組み立てる最終ステップとして分離。
 4. **SSML/ポーズ挿入**: 生成した pause 情報から `[wait=...]` または `<break time="..."/>` を付与し、`builder.py` で Bテキストを構成。
@@ -162,7 +162,7 @@ models:
 ## 8. 付録
 - **主要関数**
   - script_pipeline: `_call_azure_chat`, `_call_openrouter_chat`, `_call_gemini_generate`, `_run_llm`（ステージ共通 LLＭ 呼び出し）、章生成ループ。【F:packages/script_pipeline/runner.py†L345-L463】【F:packages/script_pipeline/runner.py†L465-L508】【F:packages/script_pipeline/runner.py†L510-L619】【F:packages/script_pipeline/runner.py†L1213-L1350】
-  - TTS: `azure_responses` / `gemini_generate_content`（LLM クライアント）, `annotate_tokens`/`B_TEXT_GEN_PROMPT`（読み・Bテキスト変換）, `run_tts_pipeline`（前処理～ドラフト）。【F:packages/audio_tts/tts/llm_client.py†L84-L180】【F:packages/audio_tts/tts/llm_adapter.py†L81-L218】【F:packages/audio_tts/tts/orchestrator.py†L138-L260】
+  - TTS: `packages/factory_common/llm_router.py`（共通ルーター）, `packages/audio_tts/tts/llm_adapter.py`（tts_* タスク/JSON I/O）, `packages/audio_tts/tts/strict_orchestrator.py`（Strict pipeline 入口）, `packages/audio_tts/tts/strict_synthesizer.py`（合成 + SRT）, `packages/audio_tts/scripts/run_tts.py`（CLI 入口）。
   - 画像: `LLMContextAnalyzer` + `cue_maker.make_cues`（セクション解析）。【F:packages/video_pipeline/src/srt2images/llm_context_analyzer.py†L37-L214】【F:packages/video_pipeline/src/srt2images/cue_maker.py†L13-L112】
 - **簡易フローチャート（テキスト）**
   - **Script**: CSV/metadata → outline plan → chapter drafts (LLM) → format (LLM) → assembled Aテキスト.

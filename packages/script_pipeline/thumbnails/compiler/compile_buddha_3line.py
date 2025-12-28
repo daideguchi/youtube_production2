@@ -18,6 +18,7 @@ import yaml
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from factory_common import paths as fpaths
+from script_pipeline.thumbnails.layers.image_layer import BgEnhanceParams, apply_bg_enhancements, apply_pan_zoom
 from script_pipeline.tools.optional_fields_registry import OPTIONAL_FIELDS
 
 
@@ -83,6 +84,95 @@ def _resize_cover(img: Image.Image, size: Tuple[int, int]) -> Image.Image:
     left = max(0, (new_w - target_w) // 2)
     top = max(0, (new_h - target_h) // 2)
     return resized.crop((left, top, left + target_w, top + target_h))
+
+
+def _parse_enhance_params(value: Any) -> Optional[BgEnhanceParams]:
+    if not isinstance(value, dict):
+        return None
+    if value.get("enabled") is False:
+        return None
+    try:
+        return BgEnhanceParams(
+            brightness=float(value.get("brightness", 1.0)),
+            contrast=float(value.get("contrast", 1.0)),
+            color=float(value.get("color", 1.0)),
+            gamma=float(value.get("gamma", 1.0)),
+        )
+    except Exception:
+        return None
+
+
+def _apply_left_band_enhancements(
+    img: Image.Image,
+    *,
+    x0: float,
+    x1: float,
+    params: BgEnhanceParams,
+    power: float = 1.0,
+) -> Image.Image:
+    """
+    Apply enhancements to the LEFT side with a smooth fade-out toward the right.
+
+    The effect is full on the far left, then fades out between x0..x1, and is disabled on the right of x1.
+    """
+    if params.is_identity():
+        return img
+
+    w, h = img.size
+    if w <= 0 or h <= 0:
+        return img
+
+    x0f = max(0.0, min(1.0, float(x0)))
+    x1f = max(0.0, min(1.0, float(x1)))
+    if x1f <= x0f + 1e-6:
+        return img
+
+    start_px = int(round(x0f * w))
+    end_px = int(round(x1f * w))
+    if end_px <= start_px:
+        return img
+
+    p = float(power)
+    if p <= 0:
+        p = 1.0
+
+    adjusted = apply_bg_enhancements(img, params=params)
+
+    span = max(1, end_px - start_px)
+    values: List[int] = []
+    for x in range(w):
+        if x <= start_px:
+            t = 1.0
+        elif x >= end_px:
+            t = 0.0
+        else:
+            t = 1.0 - ((x - start_px) / span)
+        if abs(p - 1.0) > 1e-6:
+            t = t**p
+        values.append(int(round(t * 255)))
+
+    mask_row = Image.new("L", (w, 1), 0)
+    mask_row.putdata(values)
+    mask = mask_row.resize((w, h))
+    return Image.composite(adjusted, img, mask)
+
+
+def _parse_pan_zoom(value: Any) -> Tuple[float, float, float]:
+    if not isinstance(value, dict):
+        return (1.0, 0.0, 0.0)
+    if value.get("enabled") is False:
+        return (1.0, 0.0, 0.0)
+    try:
+        zoom = float(value.get("zoom", 1.0))
+        pan_x = float(value.get("pan_x", 0.0))
+        pan_y = float(value.get("pan_y", 0.0))
+    except Exception:
+        return (1.0, 0.0, 0.0)
+    if zoom <= 0:
+        zoom = 1.0
+    pan_x = max(-1.0, min(1.0, pan_x))
+    pan_y = max(-1.0, min(1.0, pan_y))
+    return (zoom, pan_x, pan_y)
 
 
 def _discover_font_path_via_fc_list(prefer: List[str]) -> Optional[str]:
@@ -321,6 +411,11 @@ def compose_buddha_3line(
         img = ImageOps.mirror(img)
     img = _resize_cover(img, (canvas_w, canvas_h)).convert("RGBA")
 
+    render_cfg = stylepack.get("render") or {}
+    z, px, py = _parse_pan_zoom(render_cfg.get("base_pan_zoom"))
+    if abs(float(z) - 1.0) >= 1e-6:
+        img = apply_pan_zoom(img, zoom=z, pan_x=px, pan_y=py)
+
     layout = stylepack.get("layout") or {}
     safe = layout.get("safe_margin") or {}
     safe_left = int(safe.get("left", 56))
@@ -354,6 +449,23 @@ def compose_buddha_3line(
 
     usable_w = canvas_w - safe_left - safe_right
     x_split = safe_left + int(round(usable_w * split_left_ratio))
+
+    subj_params = _parse_enhance_params(render_cfg.get("subject_enhance"))
+    if subj_params:
+        band = render_cfg.get("subject_band") or {}
+        try:
+            band_x0 = float(band.get("x0", 0.0))
+            band_x1 = float(band.get("x1", 0.0))
+            band_power = float(band.get("power", 1.0))
+        except Exception:
+            band_x0, band_x1, band_power = 0.0, 0.0, 1.0
+        if band_x1 > band_x0 + 1e-6:
+            img = _apply_left_band_enhancements(
+                img, x0=band_x0, x1=band_x1, params=subj_params, power=band_power
+            )
+        else:
+            img = apply_bg_enhancements(img, params=subj_params)
+
     region_x0 = x_split
     region_x1 = canvas_w - safe_right
     region_y0 = safe_top

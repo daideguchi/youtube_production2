@@ -124,8 +124,10 @@ def component_definitions() -> List[Component]:
         frontend_env["NODE_OPTIONS"] = (
             f"{existing_node_options} --no-deprecation".strip() if existing_node_options else "--no-deprecation"
         )
-    if "REACT_APP_API_BASE_URL" not in os.environ:
-        frontend_env["REACT_APP_API_BASE_URL"] = "http://127.0.0.1:8000"
+    # NOTE: do not force REACT_APP_API_BASE_URL in dev.
+    # Default behaviour in `apps/ui-frontend/src/api/baseUrl.ts` is a relative
+    # path, which lets CRA's dev proxy (`apps/ui-frontend/src/setupProxy.js`)
+    # route `/api/*` to the backend without any CORS preflight.
 
     return [
         {

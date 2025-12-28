@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageFilter
 
 from factory_common.image_client import ImageClient, ImageGenerationError, ImageTaskOptions
 
@@ -71,6 +71,147 @@ def find_existing_background(video_dir: Path) -> Optional[Path]:
     return None
 
 
+def find_existing_portrait(video_dir: Path) -> Optional[Path]:
+    """
+    Find a per-video portrait cutout (foreground) file.
+
+    Convention:
+      - 20_portrait.png (preferred, with transparency)
+      - also accepts jpg/jpeg/webp, but PNG with alpha is recommended.
+    """
+    preferred = [
+        video_dir / "20_portrait.png",
+        video_dir / "20_portrait.jpg",
+        video_dir / "20_portrait.jpeg",
+        video_dir / "20_portrait.webp",
+    ]
+    for p in preferred:
+        if p.exists() and p.is_file():
+            return p
+    return None
+
+
+def _apply_foreground_enhancements(img: Image.Image, *, brightness: float, contrast: float, color: float) -> Image.Image:
+    rgba = img.convert("RGBA")
+    alpha = rgba.getchannel("A")
+    rgb = rgba.convert("RGB")
+    if abs(float(brightness) - 1.0) >= 1e-6:
+        rgb = ImageEnhance.Brightness(rgb).enhance(float(brightness))
+    if abs(float(contrast) - 1.0) >= 1e-6:
+        rgb = ImageEnhance.Contrast(rgb).enhance(float(contrast))
+    if abs(float(color) - 1.0) >= 1e-6:
+        rgb = ImageEnhance.Color(rgb).enhance(float(color))
+    out = rgb.convert("RGBA")
+    out.putalpha(alpha)
+    return out
+
+
+def composite_portrait_on_base(
+    base: Image.Image,
+    *,
+    portrait_path: Path,
+    dest_box_px: Tuple[int, int, int, int],
+    anchor: str = "bottom_center",
+    fg_brightness: float = 1.20,
+    fg_contrast: float = 1.08,
+    fg_color: float = 0.98,
+    shadow_offset_px: Tuple[int, int] = (0, 10),
+    shadow_blur_px: int = 18,
+    shadow_alpha: float = 0.75,
+) -> Image.Image:
+    """
+    Composite a portrait (ideally transparent PNG) onto the base image.
+    """
+    img = base.convert("RGBA")
+    x0, y0, w, h = (int(dest_box_px[0]), int(dest_box_px[1]), int(dest_box_px[2]), int(dest_box_px[3]))
+    if w <= 0 or h <= 0:
+        return img
+
+    with Image.open(portrait_path) as fg_in:
+        fg = fg_in.convert("RGBA")
+
+    # Resize to fit within dest box (preserve aspect ratio).
+    pw, ph = fg.size
+    if pw <= 0 or ph <= 0:
+        return img
+    scale = min(w / float(pw), h / float(ph))
+    new_w = max(1, int(round(pw * scale)))
+    new_h = max(1, int(round(ph * scale)))
+    fg = fg.resize((new_w, new_h), Image.LANCZOS)
+    fg = _apply_foreground_enhancements(fg, brightness=fg_brightness, contrast=fg_contrast, color=fg_color)
+
+    # Placement within the dest box.
+    if str(anchor).lower() == "center":
+        px = int(x0 + (w - new_w) // 2)
+        py = int(y0 + (h - new_h) // 2)
+    else:
+        # default: bottom_center
+        px = int(x0 + (w - new_w) // 2)
+        py = int(y0 + (h - new_h))
+
+    # Soft shadow from alpha channel.
+    alpha = fg.getchannel("A")
+    if shadow_alpha > 0 and (shadow_blur_px > 0 or shadow_offset_px != (0, 0)):
+        shadow_col = (0, 0, 0, int(round(max(0.0, min(1.0, float(shadow_alpha))) * 255)))
+        shadow = Image.new("RGBA", fg.size, shadow_col)
+        shadow.putalpha(alpha)
+        if shadow_blur_px > 0:
+            shadow = shadow.filter(ImageFilter.GaussianBlur(radius=int(shadow_blur_px)))
+        img.alpha_composite(shadow, dest=(px + int(shadow_offset_px[0]), py + int(shadow_offset_px[1])))
+
+    img.alpha_composite(fg, dest=(px, py))
+    return img
+
+
+@contextmanager
+def composited_portrait_path(
+    base_bg_path: Path,
+    *,
+    portrait_path: Path,
+    dest_box_px: Tuple[int, int, int, int],
+    temp_prefix: str,
+    anchor: str = "bottom_center",
+    fg_brightness: float = 1.20,
+    fg_contrast: float = 1.08,
+    fg_color: float = 0.98,
+    shadow_offset_px: Tuple[int, int] = (0, 10),
+    shadow_blur_px: int = 18,
+    shadow_alpha: float = 0.75,
+) -> Iterator[Path]:
+    """
+    Yield a temp PNG path for (background + portrait) composited image.
+    """
+    tmp_path: Optional[Path] = None
+    handle = tempfile.NamedTemporaryFile(prefix=temp_prefix, suffix=".png", delete=False)
+    try:
+        tmp_path = Path(handle.name)
+    finally:
+        handle.close()
+
+    try:
+        base = Image.open(base_bg_path).convert("RGBA")
+        out = composite_portrait_on_base(
+            base,
+            portrait_path=portrait_path,
+            dest_box_px=dest_box_px,
+            anchor=anchor,
+            fg_brightness=float(fg_brightness),
+            fg_contrast=float(fg_contrast),
+            fg_color=float(fg_color),
+            shadow_offset_px=(int(shadow_offset_px[0]), int(shadow_offset_px[1])),
+            shadow_blur_px=int(shadow_blur_px),
+            shadow_alpha=float(shadow_alpha),
+        )
+        out.save(tmp_path, format="PNG", optimize=True)
+        yield tmp_path
+    finally:
+        if tmp_path:
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+
+
 def resolve_background_source(*, video_dir: Path, channel_root: Path, video: str) -> BackgroundSourceResult:
     bg_src = find_existing_background(video_dir)
     legacy_moved_from: Optional[str] = None
@@ -91,6 +232,7 @@ def generate_background_with_retries(
     client: ImageClient,
     prompt: str,
     model_key: str,
+    negative_prompt: Optional[str] = None,
     out_raw_path: Path,
     video_id: str,
     max_attempts: int,
@@ -109,6 +251,7 @@ def generate_background_with_retries(
                     aspect_ratio="16:9",
                     size="1920x1080",
                     n=1,
+                    negative_prompt=str(negative_prompt).strip() if negative_prompt else None,
                     extra={"model_key": model_key, "allow_fallback": False},
                 )
             )
@@ -200,15 +343,132 @@ def apply_bg_enhancements(img: Image.Image, *, params: BgEnhanceParams) -> Image
     return out
 
 
+def apply_horizontal_band_enhancements(
+    img: Image.Image,
+    *,
+    x0: float,
+    x1: float,
+    params: BgEnhanceParams,
+    power: float = 1.0,
+) -> Image.Image:
+    """
+    Apply additional enhancements to a horizontal band (x0..x1) with a smooth gradient mask.
+
+    This is useful for "人物を濃く" のように、画面右側だけトーンを締めたいときに使う。
+    """
+    if params.is_identity():
+        return img
+
+    w, h = img.size
+    if w <= 0 or h <= 0:
+        return img
+
+    x0f = max(0.0, min(1.0, float(x0)))
+    x1f = max(0.0, min(1.0, float(x1)))
+    if x1f <= x0f + 1e-6:
+        return img
+
+    start_px = int(round(x0f * w))
+    end_px = int(round(x1f * w))
+    if end_px <= start_px:
+        return img
+
+    p = float(power)
+    if p <= 0:
+        p = 1.0
+
+    adjusted = apply_bg_enhancements(img, params=params)
+
+    span = max(1, end_px - start_px)
+    values: List[int] = []
+    for x in range(w):
+        if x <= start_px:
+            t = 0.0
+        elif x >= end_px:
+            t = 1.0
+        else:
+            t = (x - start_px) / span
+        if abs(p - 1.0) > 1e-6:
+            t = t**p
+        values.append(int(round(t * 255)))
+
+    mask_row = Image.new("L", (w, 1), 0)
+    mask_row.putdata(values)
+    mask = mask_row.resize((w, h))
+    return Image.composite(adjusted, img, mask)
+
+def apply_pan_zoom(
+    img: Image.Image,
+    *,
+    zoom: float = 1.0,
+    pan_x: float = 0.0,
+    pan_y: float = 0.0,
+) -> Image.Image:
+    """
+    Apply a lightweight pan/zoom (digital zoom + crop) to adjust framing.
+
+    - zoom: >=1.0 (1.0 = no zoom)
+    - pan_x/pan_y: -1..1 (0 = centered). Effective only when zoom > 1.0.
+    """
+    z = float(zoom)
+    if z <= 1.0 + 1e-6:
+        return img
+
+    w, h = img.size
+    if w <= 0 or h <= 0:
+        return img
+
+    # Clamp pan to [-1, 1]
+    px = max(-1.0, min(1.0, float(pan_x)))
+    py = max(-1.0, min(1.0, float(pan_y)))
+
+    scaled_w = max(1, int(round(w * z)))
+    scaled_h = max(1, int(round(h * z)))
+    scaled = img.resize((scaled_w, scaled_h), Image.LANCZOS)
+
+    max_dx = max(0, (scaled_w - w) // 2)
+    max_dy = max(0, (scaled_h - h) // 2)
+
+    cx = (scaled_w // 2) + int(round(px * max_dx))
+    cy = (scaled_h // 2) + int(round(py * max_dy))
+
+    left = int(cx - (w // 2))
+    top = int(cy - (h // 2))
+    left = max(0, min(left, scaled_w - w))
+    top = max(0, min(top, scaled_h - h))
+    return scaled.crop((left, top, left + w, top + h))
+
+
 @contextmanager
-def enhanced_bg_path(base_bg_path: Path, *, params: BgEnhanceParams, temp_prefix: str) -> Iterator[Path]:
+def enhanced_bg_path(
+    base_bg_path: Path,
+    *,
+    params: BgEnhanceParams,
+    temp_prefix: str,
+    zoom: float = 1.0,
+    pan_x: float = 0.0,
+    pan_y: float = 0.0,
+    band_params: Optional[BgEnhanceParams] = None,
+    band_x0: float = 0.0,
+    band_x1: float = 0.0,
+    band_power: float = 1.0,
+) -> Iterator[Path]:
     """
     Yield a path to an enhanced background PNG.
 
-    - If params are identity -> yield `base_bg_path` directly.
+    - If all settings are identity -> yield `base_bg_path` directly.
     - Otherwise, write a temp PNG and clean it up on exit.
     """
-    if params.is_identity():
+    z = float(zoom)
+    px = float(pan_x)
+    py = float(pan_y)
+    if (
+        params.is_identity()
+        and (band_params is None or band_params.is_identity())
+        and abs(z - 1.0) < 1e-6
+        and abs(px) < 1e-6
+        and abs(py) < 1e-6
+    ):
         yield base_bg_path
         return
 
@@ -221,7 +481,18 @@ def enhanced_bg_path(base_bg_path: Path, *, params: BgEnhanceParams, temp_prefix
 
     try:
         bg_img = Image.open(base_bg_path).convert("RGBA")
-        bg_img = apply_bg_enhancements(bg_img, params=params)
+        if abs(z - 1.0) >= 1e-6:
+            bg_img = apply_pan_zoom(bg_img, zoom=z, pan_x=px, pan_y=py)
+        if not params.is_identity():
+            bg_img = apply_bg_enhancements(bg_img, params=params)
+        if band_params is not None and not band_params.is_identity():
+            bg_img = apply_horizontal_band_enhancements(
+                bg_img,
+                x0=float(band_x0),
+                x1=float(band_x1),
+                params=band_params,
+                power=float(band_power),
+            )
         bg_img.save(tmp_path, format="PNG", optimize=True)
         yield tmp_path
     finally:

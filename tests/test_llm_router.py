@@ -185,6 +185,24 @@ class TestLLMRouter(unittest.TestCase):
         os.environ["LLM_FORCE_MODELS"] = "gpt-5-mini"
         self.assertEqual(router.get_models_for_task("general"), ["azure_gpt5_mini"])
 
+    def test_force_models_azure_prefixed_deployment_alias(self):
+        router = LLMRouter()
+        router.config = {
+            "providers": {"azure": {"env_api_key": "AZURE_OPENAI_API_KEY", "env_endpoint": "AZURE_OPENAI_ENDPOINT"}},
+            "models": {
+                "azure_gpt5_mini": {
+                    "provider": "azure",
+                    "deployment": "gpt-5-mini",
+                    "capabilities": {"mode": "chat"},
+                },
+            },
+            "tiers": {"standard": ["azure_gpt5_mini"]},
+            "tasks": {"general": {"tier": "standard"}},
+        }
+        router.task_overrides = {}
+        os.environ["LLM_FORCE_MODELS"] = "azure:gpt-5-mini"
+        self.assertEqual(router.get_models_for_task("general"), ["azure_gpt5_mini"])
+
     def test_force_models_alias_ambiguous_falls_back(self):
         router = LLMRouter()
         router.config = {

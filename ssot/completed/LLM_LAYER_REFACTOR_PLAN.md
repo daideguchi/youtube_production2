@@ -117,7 +117,7 @@ models:
 
 ```yaml
 tiers:
-  heavy_reasoning: [or_kimi_k2, or_deepseek_r1, azure_gpt5_mini]
+  heavy_reasoning: [or_deepseek_v3_2_exp, or_kimi_k2_thinking]
   standard: [azure_gpt5_mini, or_qwen_free]
   cheap: [or_qwen_free]
   image: [gemini_flash_image, openai_gpt_image_1]
@@ -176,7 +176,7 @@ class LLMClient:
   - バッチ上限 `max_batch_n` を超える場合は分割送信。
 
 ### 4.3 台本系 heavy_reasoning ポリシー
-- tier `heavy_reasoning` の優先候補: `openrouter/kimi-k2-thinking` → `openrouter/deepseek-r1` → `azure/gpt-5-mini`（fallback）。
+- tier `heavy_reasoning` の優先候補: `openrouter/deepseek-v3.2-exp` → `openrouter/kimi-k2-thinking`（2モデル固定）。
 - コスト制約時は standard/cheap を先にダウングレードし、heavy_reasoning は最後に gpt-5-mini へフォールバックする優先順位を明記。
 
 ### 4.4 監視・テレメトリの統一

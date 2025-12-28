@@ -14,6 +14,8 @@ export function DashboardPage() {
     selectChannel,
   } = useOutletContext<ShellOutletContext>();
 
+  const selectedChannelParam = selectedChannel ? encodeURIComponent(selectedChannel) : null;
+
   const handleSelect = (code: string | null) => {
     selectChannel(code);
     if (code) {
@@ -47,116 +49,47 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="dashboard-focus" aria-label="制作フロー I/O">
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/planning")}>
-            <div className="dashboard-focus-card__header">
-              <h2>🗂️ 企画CSV</h2>
-            </div>
-            <div className="dashboard-focus-card__body">
-              <p className="dashboard-focus-card__channel">
-                SoT: <code>workspaces/planning/channels/CHxx.csv</code>
-              </p>
-              <p className="dashboard-focus-card__footnote">企画/タイトル/タグ/進捗の正本（チャンネルはページ内で選択）</p>
-            </div>
-            <button
-              type="button"
-              className="dashboard-focus-card__action"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/planning");
-              }}
-            >
-              開く
-            </button>
-          </div>
-
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/projects")}>
-            <div className="dashboard-focus-card__header">
-              <h2>📝 台本作成</h2>
-            </div>
-            <div className="dashboard-focus-card__body">
-              <p className="dashboard-focus-card__channel">
-                SoT: <code>workspaces/scripts/{"{CH}"}/{"{NNN}"}/status.json</code>
-              </p>
-              <p className="dashboard-focus-card__footnote">出力: assembled.md / status.json（チャンネル選択→行選択）</p>
-            </div>
-            <button
-              type="button"
-              className="dashboard-focus-card__action"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/projects");
-              }}
-            >
-              開く
-            </button>
-          </div>
-
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/audio-tts")}>
-            <div className="dashboard-focus-card__header">
-              <h2>🔊 音声生成</h2>
-            </div>
-            <div className="dashboard-focus-card__body">
-              <p className="dashboard-focus-card__channel">
-                SoT: <code>workspaces/audio/final/{"{CH}"}/{"{NNN}"}/</code>
-              </p>
-              <p className="dashboard-focus-card__footnote">下流は final の WAV/SRT だけ参照（ページ内でチャンネル選択）</p>
-            </div>
-            <button
-              type="button"
-              className="dashboard-focus-card__action"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/audio-tts");
-              }}
-            >
-              開く
-            </button>
-          </div>
-
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/capcut-edit")}>
-            <div className="dashboard-focus-card__header">
-              <h2>🎬 動画（CapCut）</h2>
-            </div>
-            <div className="dashboard-focus-card__body">
-              <p className="dashboard-focus-card__channel">
-                SoT: <code>workspaces/video/runs/{"{run_id}"}/</code>
-              </p>
-              <p className="dashboard-focus-card__footnote">入力: final SRT / 出力: images + capcut_draft</p>
-            </div>
-            <button
-              type="button"
-              className="dashboard-focus-card__action"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/capcut-edit");
-              }}
-            >
-              開く
-            </button>
-          </div>
-
-          <div className="dashboard-focus-card dashboard-focus-card--clickable" onClick={() => navigate("/thumbnails")}>
-            <div className="dashboard-focus-card__header">
-              <h2>🖼️ サムネ</h2>
-            </div>
-            <div className="dashboard-focus-card__body">
-              <p className="dashboard-focus-card__channel">
-                SoT: <code>workspaces/thumbnails/projects.json</code>
-              </p>
-              <p className="dashboard-focus-card__footnote">案の管理・割当・反映（チャンネル別フィルタはUIで操作）</p>
-            </div>
-            <button
-              type="button"
-              className="dashboard-focus-card__action"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/thumbnails");
-              }}
-            >
-              開く
-            </button>
-          </div>
+        <div className="dashboard-flow" aria-label="制作フロー I/O">
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate(selectedChannelParam ? `/planning?channel=${selectedChannelParam}` : "/planning")}
+            title={`SoT: workspaces/planning/channels/CHxx.csv\n企画/タイトル/タグ/進捗の正本（チャンネルはページ内で選択）`}
+          >
+            🗂️ 企画CSV
+          </button>
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate(selectedChannelParam ? `/projects?channel=${selectedChannelParam}` : "/projects")}
+            title={`SoT: workspaces/scripts/{CH}/{NNN}/status.json\n出力: assembled.md / status.json（チャンネル選択→行選択）`}
+          >
+            📝 台本作成
+          </button>
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate(selectedChannelParam ? `/audio-tts?channel=${selectedChannelParam}` : "/audio-tts")}
+            title={`SoT: workspaces/audio/final/{CH}/{NNN}/\n下流は final の WAV/SRT だけ参照（ページ内でチャンネル選択）`}
+          >
+            🔊 音声生成
+          </button>
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate("/capcut-edit")}
+            title={`SoT: workspaces/video/runs/{run_id}/\n入力: final SRT / 出力: images + capcut_draft`}
+          >
+            🎬 動画（CapCut）
+          </button>
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate(selectedChannelParam ? `/thumbnails?channel=${selectedChannelParam}` : "/thumbnails")}
+            title={`SoT: workspaces/thumbnails/projects.json\n案の管理・割当・反映（チャンネル別フィルタはUIで操作）`}
+          >
+            🖼️ サムネ
+          </button>
         </div>
 
         <ChannelListSection

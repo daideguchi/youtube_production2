@@ -20,10 +20,26 @@ export function ThumbnailLibraryGallery() {
   const [channelStates, setChannelStates] = useState<Record<string, ChannelLibraryState>>({});
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showQcOnly, setShowQcOnly] = useState<boolean>(false);
+  const [refreshNonce, setRefreshNonce] = useState<number>(0);
   const loadedChannelsRef = useRef<Set<string>>(new Set());
 
   const channels: ThumbnailChannelBlock[] = useMemo(() => overview?.channels ?? [], [overview]);
   const activeState = selectedChannel ? channelStates[selectedChannel] : undefined;
+  const visibleAssets = useMemo(() => {
+    const assets = [...(activeState?.assets ?? [])];
+    assets.sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
+    if (!showQcOnly) return assets;
+    return assets.filter((asset) => {
+      const rel = (asset.relative_path ?? "").replace(/\\/g, "/");
+      return (
+        rel.startsWith("_qc/")
+        || rel.startsWith("library/qc/")
+        || rel.startsWith("qc/")
+        || asset.file_name.startsWith("qc__")
+      );
+    });
+  }, [activeState?.assets, showQcOnly]);
 
   useEffect(() => {
     let active = true;
@@ -82,7 +98,7 @@ export function ThumbnailLibraryGallery() {
     return () => {
       canceled = true;
     };
-  }, [selectedChannel]);
+  }, [selectedChannel, refreshNonce]);
 
   return (
     <section className="thumbnail-library-panel">
@@ -121,18 +137,44 @@ export function ThumbnailLibraryGallery() {
               )
             : null}
         </div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => {
+              if (!selectedChannel) return;
+              loadedChannelsRef.current.delete(selectedChannel);
+              setRefreshNonce((v) => v + 1);
+            }}
+            disabled={!selectedChannel}
+          >
+            再読み込み
+          </button>
+          <label className="muted small-text" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              checked={showQcOnly}
+              onChange={(event) => setShowQcOnly(event.target.checked)}
+            />
+            QCのみ
+          </label>
+        </div>
       </div>
 
       {activeState?.error ? <p className="thumbnail-library__alert">{activeState.error}</p> : null}
       {activeState?.loading ? <p className="thumbnail-library__placeholder">画像を読み込んでいます…</p> : null}
-      {!activeState?.loading && (activeState?.assets?.length ?? 0) === 0 ? (
-        <p className="thumbnail-library__placeholder">画像が見つかりませんでした。</p>
+      {!activeState?.loading && visibleAssets.length === 0 ? (
+        <p className="thumbnail-library__placeholder">
+          {showQcOnly ? "QC画像が見つかりませんでした。" : "画像が見つかりませんでした。"}
+        </p>
       ) : null}
 
-      {activeState?.assets?.length ? (
+      {visibleAssets.length ? (
         <div className="thumbnail-library-grid">
-          {activeState.assets.map((asset) => {
-            const previewUrl = resolveApiUrl(asset.public_url);
+          {visibleAssets.map((asset) => {
+            const baseUrl = resolveApiUrl(asset.public_url);
+            const sep = baseUrl.includes("?") ? "&" : "?";
+            const previewUrl = `${baseUrl}${sep}v=${encodeURIComponent(asset.updated_at ?? "")}`;
             return (
               <article key={asset.id} className="thumbnail-library-card">
                 <div className="thumbnail-library-card__preview">

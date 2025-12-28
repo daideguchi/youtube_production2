@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
-import { ChannelAuditPanel } from "../components/ChannelAuditPanel";
 import { ChannelBenchmarksPanel } from "../components/ChannelBenchmarksPanel";
 import { ChannelProfilePanel } from "../components/ChannelProfilePanel";
 import {
@@ -966,13 +965,18 @@ export function ChannelSettingsPage() {
         ))}
       </div>
 
-      <ChannelAuditPanel
-        selectedChannel={selectedChannel}
-        onSelectChannel={(code) => {
-          selectChannel(code);
-          navigate(`/channel-settings?channel=${encodeURIComponent(code)}`, { replace: true });
-        }}
-      />
+      <div className="main-status" style={{ justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <span className="status-chip">🧾 監査/Precheck は `/audit` に集約</span>
+        <button
+          type="button"
+          className="workspace-button"
+          onClick={() =>
+            navigate(selectedChannel ? `/audit?channel=${encodeURIComponent(selectedChannel)}` : "/audit")
+          }
+        >
+          監査を開く
+        </button>
+      </div>
 
       <SectionCard
         title="新規チャンネル登録（ハンドル必須）"

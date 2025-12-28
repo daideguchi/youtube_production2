@@ -1,0 +1,29 @@
+{
+  "schema": "ytm.web_search_results.v1",
+  "provider": "openrouter:perplexity/sonar",
+  "query": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
+  "retrieved_at": "2025-12-28T04:52:18Z",
+  "hits": [
+    {
+      "title": "「私は送迎係…？」酒好きママ友との外出で車を出すのが ...",
+      "url": "https://baby-calendar.jp/smilenews/detail/80092",
+      "snippet": "「私は送迎係…？」酒好きママ友との外出で車を出すのが当たり前に…→ある日、聞き捨てならない衝撃発言を！？ · ママ友とは一緒にどこかへ出かけることも多いの ...",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "仲の良い(と個人的には思ってた)ママさんとの関係に少し悩んで ...",
+      "url": "https://h-navi.jp/qa/questions/186089",
+      "snippet": "仲の良い(と個人的には思ってた)ママさんとの関係に少し悩んでます。 数ヶ月前から我が子は保育園に勧められ、園と提携の療育施設に通っています。",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "結婚式会場まで距離500キロ！ 親戚一同の送迎係を頼まれた ...",
+      "url": "https://news.careerconnection.jp/lifestyle/145539/",
+      "snippet": "結婚式に招待されるのは喜ばしいが、会場が遠いとたどり着くまでが一苦労だ。富山県の30代男性（未婚／営業／年収550万円）は、「会場まで片道500キロの ...",
+      "source": null,
+      "age": null
+    }
+  ]
+}

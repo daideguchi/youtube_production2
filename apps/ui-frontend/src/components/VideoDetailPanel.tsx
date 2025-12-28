@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
+  AudioAnalysis,
   LlmArtifactListItem,
   LlmTextArtifact,
   SrtVerifyResponse,
@@ -21,6 +22,7 @@ import {
   updateLlmArtifact,
   updateHumanScripts,
   fetchAText,
+  fetchAudioAnalysis,
   updateVideoRedo,
 } from "../api/client";
 import { STAGE_ORDER, translateStage, translateStatus } from "../utils/i18n";
@@ -38,6 +40,19 @@ const STAGE_STATUS_OPTIONS = [
 ];
 
 const DEFAULT_AI_CHECK_INSTRUCTION = `YouTube向けナレーション台本として適切かを次の観点で評価してください。\n- 冒頭の引き込み力\n- 構成と論理展開の明瞭さ\n- 表現の自然さと語尾・敬体の統一\n- 情緒とテンポ（冗長さや重複の有無）\n\n50〜120文字程度の要約と、改善の優先提案を3点以内で日本語で示してください。`;
+
+function pickFirstNonEmptyText(...candidates: Array<string | null | undefined>): string {
+  for (const candidate of candidates) {
+    if (typeof candidate !== "string") {
+      continue;
+    }
+    if (candidate.trim().length === 0) {
+      continue;
+    }
+    return candidate;
+  }
+  return "";
+}
 
 export type DetailTab = "overview" | "script" | "audio" | "video" | "history";
 type DetailMode = "diff";
@@ -65,8 +80,14 @@ type AudioHistoryEntry = {
   log_text?: string | null;
 };
 
+export type AdjacentVideo = { video: string; title?: string | null };
+
 interface VideoDetailPanelProps {
   detail: VideoDetail;
+  previousVideo?: AdjacentVideo | null;
+  nextVideo?: AdjacentVideo | null;
+  positionLabel?: string | null;
+  onNavigateVideo?: (video: string) => void;
   onSaveAssembled: (content: string) => Promise<unknown>;
   onSaveTts: (request: {
     plainContent?: string;
@@ -104,6 +125,29 @@ function stripPauseSeparators(raw: string): string {
   return filtered.replace(/\n{3,}/g, "\n\n").trim();
 }
 
+const COPY_NO_SEP_CHUNK_SIZE = 10_000;
+
+function planChunkCopy(text: string, chunkIndex: number, chunkSize = COPY_NO_SEP_CHUNK_SIZE) {
+  const total = text.length;
+  if (total <= 0) {
+    return null;
+  }
+  const totalChunks = Math.max(1, Math.ceil(total / chunkSize));
+  const currentIndex = chunkIndex * chunkSize >= total ? 0 : Math.max(0, chunkIndex);
+  const start = currentIndex * chunkSize;
+  const end = Math.min(start + chunkSize, total);
+  const nextIndex = end >= total ? 0 : currentIndex + 1;
+  return {
+    chunk: text.slice(start, end),
+    start,
+    end,
+    total,
+    totalChunks,
+    currentChunk: currentIndex + 1,
+    nextIndex,
+  };
+}
+
 async function copyTextToClipboard(text: string): Promise<void> {
   if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
     try {
@@ -134,6 +178,10 @@ async function copyTextToClipboard(text: string): Promise<void> {
 
 export function VideoDetailPanel({
   detail,
+  previousVideo,
+  nextVideo,
+  positionLabel,
+  onNavigateVideo,
   onSaveAssembled: _onSaveAssembled,
   onSaveTts: _onSaveTts,
   onValidateTts,
@@ -148,48 +196,45 @@ export function VideoDetailPanel({
   activeTab: activeTabProp,
   onTabChange,
 }: VideoDetailPanelProps) {
-  const [assembledAiContent, setAssembledAiContent] = useState(detail.assembled_content ?? "");
-  const [assembledDraft, setAssembledDraft] = useState(
-    detail.assembled_human_content ?? detail.assembled_content ?? ""
+  const initialAssembledAi = pickFirstNonEmptyText(detail.assembled_content);
+  const initialAssembled = pickFirstNonEmptyText(detail.assembled_human_content, detail.assembled_content);
+  const initialTtsAi = pickFirstNonEmptyText(
+    detail.script_audio_content,
+    detail.tts_plain_content,
+    detail.tts_content
   );
-  const [assembledBase, setAssembledBase] = useState(
-    detail.assembled_human_content ?? detail.assembled_content ?? ""
+  const initialTts = pickFirstNonEmptyText(
+    detail.script_audio_human_content,
+    detail.script_audio_content,
+    detail.tts_plain_content,
+    detail.tts_content
   );
 
-  const [ttsAiContent, setTtsAiContent] = useState(
-    detail.script_audio_content ?? detail.tts_plain_content ?? detail.tts_content ?? ""
-  );
-const [ttsDraft, setTtsDraft] = useState(
-  detail.script_audio_human_content ??
-    detail.script_audio_content ??
-    detail.tts_plain_content ??
-    detail.tts_content ??
-    ""
-);
-const [ttsBase, setTtsBase] = useState(
-  detail.script_audio_human_content ??
-    detail.script_audio_content ??
-    detail.tts_plain_content ??
-    detail.tts_content ??
-    ""
-);
-const [aTextModalOpen, setATextModalOpen] = useState(false);
-const [aTextModalContent, setATextModalContent] = useState<string>("");
-const [aTextModalLoading, setATextModalLoading] = useState(false);
-const [aTextModalError, setATextModalError] = useState<string | null>(null);
-const [llmBoxesOpen, setLlmBoxesOpen] = useState(false);
-const [llmArtifacts, setLlmArtifacts] = useState<LlmArtifactListItem[]>([]);
-const [llmArtifactsLoading, setLlmArtifactsLoading] = useState(false);
-const [llmArtifactsError, setLlmArtifactsError] = useState<string | null>(null);
-const [llmEditorOpen, setLlmEditorOpen] = useState(false);
-const [llmEditorName, setLlmEditorName] = useState<string | null>(null);
-const [llmEditorLoading, setLlmEditorLoading] = useState(false);
-const [llmEditorSaving, setLlmEditorSaving] = useState(false);
-const [llmEditorError, setLlmEditorError] = useState<string | null>(null);
-const [llmEditorArtifact, setLlmEditorArtifact] = useState<LlmTextArtifact | null>(null);
-const [llmEditorStatus, setLlmEditorStatus] = useState<"pending" | "ready">("pending");
-const [llmEditorApplyOutput, setLlmEditorApplyOutput] = useState(true);
-const [llmEditorContent, setLlmEditorContent] = useState<string>("");
+  const [assembledAiContent, setAssembledAiContent] = useState(initialAssembledAi);
+  const [assembledDraft, setAssembledDraft] = useState(initialAssembled);
+  const [assembledBase, setAssembledBase] = useState(initialAssembled);
+
+  const [ttsAiContent, setTtsAiContent] = useState(initialTtsAi);
+  const [ttsDraft, setTtsDraft] = useState(initialTts);
+  const [ttsBase, setTtsBase] = useState(initialTts);
+
+  const [aTextModalOpen, setATextModalOpen] = useState(false);
+  const [aTextModalContent, setATextModalContent] = useState<string>("");
+  const [aTextModalLoading, setATextModalLoading] = useState(false);
+  const [aTextModalError, setATextModalError] = useState<string | null>(null);
+  const [llmBoxesOpen, setLlmBoxesOpen] = useState(false);
+  const [llmArtifacts, setLlmArtifacts] = useState<LlmArtifactListItem[]>([]);
+  const [llmArtifactsLoading, setLlmArtifactsLoading] = useState(false);
+  const [llmArtifactsError, setLlmArtifactsError] = useState<string | null>(null);
+  const [llmEditorOpen, setLlmEditorOpen] = useState(false);
+  const [llmEditorName, setLlmEditorName] = useState<string | null>(null);
+  const [llmEditorLoading, setLlmEditorLoading] = useState(false);
+  const [llmEditorSaving, setLlmEditorSaving] = useState(false);
+  const [llmEditorError, setLlmEditorError] = useState<string | null>(null);
+  const [llmEditorArtifact, setLlmEditorArtifact] = useState<LlmTextArtifact | null>(null);
+  const [llmEditorStatus, setLlmEditorStatus] = useState<"pending" | "ready">("pending");
+  const [llmEditorApplyOutput, setLlmEditorApplyOutput] = useState(true);
+  const [llmEditorContent, setLlmEditorContent] = useState<string>("");
 
   // 音声タブの操作を常時有効にするため、人手チェックフラグは常に true で扱う
   const [audioReviewed, setAudioReviewed] = useState<boolean>(true);
@@ -199,6 +244,15 @@ const [llmEditorContent, setLlmEditorContent] = useState<string>("");
   const [audioScriptUpdatedAt, setAudioScriptUpdatedAt] = useState<string | null>(detail.audio_updated_at ?? null);
   const [audioScriptLoading, setAudioScriptLoading] = useState(false);
   const [audioScriptError, setAudioScriptError] = useState<string | null>(null);
+  const [showTtsReading, setShowTtsReading] = useState(false);
+  const [audioAnalysis, setAudioAnalysis] = useState<AudioAnalysis | null>(null);
+  const [audioAnalysisLoading, setAudioAnalysisLoading] = useState(false);
+  const [audioAnalysisError, setAudioAnalysisError] = useState<string | null>(null);
+  const [copyAudioInputStatus, setCopyAudioInputStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyAudioKanaStatus, setCopyAudioKanaStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyAudioKanaCorrectedStatus, setCopyAudioKanaCorrectedStatus] = useState<"idle" | "copied" | "error">(
+    "idle"
+  );
   const [statusDraft, setStatusDraft] = useState(detail.status ?? "");
   const [readyDraft, setReadyDraft] = useState(detail.ready_for_audio);
   const [stageDrafts, setStageDrafts] = useState<Record<string, string>>(detail.stages ?? {});
@@ -214,57 +268,86 @@ const [llmEditorContent, setLlmEditorContent] = useState<string>("");
   const [ttsValidating, setTtsValidating] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error" | "unsupported">("idle");
   const [copyAssembledNoSepStatus, setCopyAssembledNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
-  const [copyTtsNoSepStatus, setCopyTtsNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyAssembledNoSepInfo, setCopyAssembledNoSepInfo] = useState<string | null>(null);
+  const [copyAssembledChunkIndex, setCopyAssembledChunkIndex] = useState(0);
   const [copyATextNoSepStatus, setCopyATextNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
-const [aiInstruction, setAiInstruction] = useState(DEFAULT_AI_CHECK_INSTRUCTION);
-const [aiBusy, setAiBusy] = useState(false);
-const [aiResult, setAiResult] = useState<string | null>(null);
-const [aiError, setAiError] = useState<string | null>(null);
-const [aiCopyStatus, setAiCopyStatus] = useState<"idle" | "copied" | "error" | "unsupported">("idle");
-const [validationStatus, setValidationStatus] = useState<ValidationStatus>("idle");
-const [activeTabInternal, setActiveTabInternal] = useState<DetailTab>(activeTabProp ?? "script");
-const [showAudioHistory, setShowAudioHistory] = useState(false);
-const [showStageDetails, setShowStageDetails] = useState(false);
-const [humanLoading, setHumanLoading] = useState(false);
-const [humanError, setHumanError] = useState<string | null>(null);
-const [copyDescStatus, setCopyDescStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copyATextNoSepInfo, setCopyATextNoSepInfo] = useState<string | null>(null);
+  const [copyATextChunkIndex, setCopyATextChunkIndex] = useState(0);
+  const [aiInstruction, setAiInstruction] = useState(DEFAULT_AI_CHECK_INSTRUCTION);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiCopyStatus, setAiCopyStatus] = useState<"idle" | "copied" | "error" | "unsupported">("idle");
+  const [validationStatus, setValidationStatus] = useState<ValidationStatus>("idle");
+  const [activeTabInternal, setActiveTabInternal] = useState<DetailTab>(activeTabProp ?? "script");
+  const [showAudioHistory, setShowAudioHistory] = useState(false);
+  const [showStageDetails, setShowStageDetails] = useState(false);
+  const [humanLoading, setHumanLoading] = useState(false);
+  const [humanError, setHumanError] = useState<string | null>(null);
+  const [copyDescStatus, setCopyDescStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [copySotStatus, setCopySotStatus] = useState<"idle" | "copied" | "error">("idle");
   const warningMessages = useMemo(() => detail.warnings?.filter(Boolean) ?? [], [detail.warnings]);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (copySotStatus === "idle") {
+      return;
+    }
+    const timer = window.setTimeout(() => setCopySotStatus("idle"), 1500);
+    return () => window.clearTimeout(timer);
+  }, [copySotStatus]);
   useEffect(() => {
     setRedoScript(detail.redo_script ?? true);
     setRedoAudio(detail.redo_audio ?? true);
     setRedoNote(detail.redo_note ?? "");
   }, [detail.redo_script, detail.redo_audio, detail.redo_note]);
-const SHOW_AI_SECTION = false; // AI生成版は非表示
-const openATextModal = useCallback(async () => {
-  setATextModalOpen(true);
-  setATextModalContent("");
-  setATextModalError(null);
-  setATextModalLoading(true);
-  try {
-    const text = await fetchAText(detail.channel, detail.video);
-    setATextModalContent(text);
-  } catch (err) {
-    setATextModalError(err instanceof Error ? err.message : String(err));
-  } finally {
-    setATextModalLoading(false);
-  }
-}, [detail.channel, detail.video]);
-
-const refreshLlmArtifacts = useCallback(async () => {
-  setLlmArtifactsLoading(true);
-  setLlmArtifactsError(null);
-  try {
-    const items = await listLlmArtifacts(detail.channel, detail.video);
-    setLlmArtifacts(items);
-    if (items.some((item) => item.status === "pending")) {
-      setLlmBoxesOpen(true);
+  const SHOW_AI_SECTION = false; // AI生成版は非表示
+  const openATextModal = useCallback(async () => {
+    setATextModalOpen(true);
+    setATextModalContent("");
+    setATextModalError(null);
+    setATextModalLoading(true);
+    setCopyATextNoSepStatus("idle");
+    setCopyATextNoSepInfo(null);
+    setCopyATextChunkIndex(0);
+    try {
+      const text = await fetchAText(detail.channel, detail.video);
+      setATextModalContent(text);
+    } catch (err) {
+      setATextModalError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setATextModalLoading(false);
     }
-  } catch (err) {
-    setLlmArtifactsError(err instanceof Error ? err.message : String(err));
-  } finally {
-    setLlmArtifactsLoading(false);
-  }
-}, [detail.channel, detail.video]);
+  }, [detail.channel, detail.video]);
+
+  const copySotValue = useCallback(async (value: string | null | undefined) => {
+    if (!value) {
+      return;
+    }
+    try {
+      await copyTextToClipboard(value);
+      setCopySotStatus("copied");
+    } catch {
+      setCopySotStatus("error");
+    }
+  }, []);
+
+  const refreshLlmArtifacts = useCallback(async () => {
+    setLlmArtifactsLoading(true);
+    setLlmArtifactsError(null);
+    try {
+      const items = await listLlmArtifacts(detail.channel, detail.video);
+      setLlmArtifacts(items);
+      if (items.some((item) => item.status === "pending")) {
+        setLlmBoxesOpen(true);
+      }
+    } catch (err) {
+      setLlmArtifactsError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLlmArtifactsLoading(false);
+    }
+  }, [detail.channel, detail.video]);
 
 const openLlmEditor = useCallback(
   async (artifactName: string) => {
@@ -386,12 +469,10 @@ useEffect(() => {
   }, [copyAssembledNoSepStatus]);
 
   useEffect(() => {
-    if (copyTtsNoSepStatus === "idle") {
-      return;
-    }
-    const timer = window.setTimeout(() => setCopyTtsNoSepStatus("idle"), 2000);
-    return () => window.clearTimeout(timer);
-  }, [copyTtsNoSepStatus]);
+    setCopyAssembledNoSepStatus("idle");
+    setCopyAssembledNoSepInfo(null);
+    setCopyAssembledChunkIndex(0);
+  }, [assembledDraft]);
 
   useEffect(() => {
     if (copyATextNoSepStatus === "idle") {
@@ -419,14 +500,19 @@ useEffect(() => {
         if (cancelled) {
           return;
         }
-        const aiA = data.assembled_content ?? detail.assembled_content ?? "";
-        const humanA = data.assembled_human_content ?? aiA;
+        const aiA = pickFirstNonEmptyText(data.assembled_content, detail.assembled_content);
+        const humanA = pickFirstNonEmptyText(data.assembled_human_content, aiA);
         setAssembledAiContent(aiA);
         setAssembledDraft(humanA);
         setAssembledBase(humanA);
 
-        const aiB = data.script_audio_content ?? detail.script_audio_content ?? detail.tts_plain_content ?? detail.tts_content ?? "";
-        const humanB = data.script_audio_human_content ?? aiB;
+        const aiB = pickFirstNonEmptyText(
+          data.script_audio_content,
+          detail.script_audio_content,
+          detail.tts_plain_content,
+          detail.tts_content
+        );
+        const humanB = pickFirstNonEmptyText(data.script_audio_human_content, detail.script_audio_human_content, aiB);
         setTtsAiContent(aiB);
         setTtsDraft(humanB);
         setTtsBase(humanB);
@@ -439,14 +525,18 @@ useEffect(() => {
           return;
         }
         setHumanError(loadError instanceof Error ? loadError.message : String(loadError ?? "台本取得に失敗しました"));
-        const fallbackA = detail.assembled_human_content ?? detail.assembled_content ?? "";
-        setAssembledAiContent(detail.assembled_content ?? "");
+        const fallbackA = pickFirstNonEmptyText(detail.assembled_human_content, detail.assembled_content);
+        setAssembledAiContent(pickFirstNonEmptyText(detail.assembled_content));
         setAssembledDraft(fallbackA);
         setAssembledBase(fallbackA);
 
-        const fallbackB =
-          detail.script_audio_human_content ?? detail.script_audio_content ?? detail.tts_plain_content ?? detail.tts_content ?? "";
-        setTtsAiContent(detail.script_audio_content ?? detail.tts_plain_content ?? detail.tts_content ?? "");
+        const fallbackAiB = pickFirstNonEmptyText(
+          detail.script_audio_content,
+          detail.tts_plain_content,
+          detail.tts_content
+        );
+        const fallbackB = pickFirstNonEmptyText(detail.script_audio_human_content, fallbackAiB);
+        setTtsAiContent(fallbackAiB);
         setTtsDraft(fallbackB);
         setTtsBase(fallbackB);
         setAudioReviewed(detail.audio_reviewed ?? false);
@@ -476,11 +566,21 @@ useEffect(() => {
     setAiError(null);
     setCopyStatus("idle");
     setCopyAssembledNoSepStatus("idle");
-    setCopyTtsNoSepStatus("idle");
+    setCopyAssembledNoSepInfo(null);
+    setCopyAssembledChunkIndex(0);
     setCopyATextNoSepStatus("idle");
+    setCopyATextNoSepInfo(null);
+    setCopyATextChunkIndex(0);
     setAiCopyStatus("idle");
     setAudioScriptUpdatedAt(detail.audio_updated_at ?? null);
     setAudioScriptError(null);
+    setShowTtsReading(false);
+    setAudioAnalysis(null);
+    setAudioAnalysisLoading(false);
+    setAudioAnalysisError(null);
+    setCopyAudioInputStatus("idle");
+    setCopyAudioKanaStatus("idle");
+    setCopyAudioKanaCorrectedStatus("idle");
     setRedoScript(detail.redo_script ?? true);
     setRedoAudio(detail.redo_audio ?? true);
     setRedoNote(detail.redo_note ?? "");
@@ -532,48 +632,123 @@ useEffect(() => {
 
   const handleCopyAssembledWithoutSeparators = useCallback(async () => {
     const cleaned = stripPauseSeparators(assembledDraft);
-    if (!cleaned) {
+    const plan = planChunkCopy(cleaned, copyAssembledChunkIndex);
+    if (!plan?.chunk) {
       setCopyAssembledNoSepStatus("error");
       return;
     }
     try {
-      await copyTextToClipboard(cleaned);
+      await copyTextToClipboard(plan.chunk);
       setCopyAssembledNoSepStatus("copied");
+      setCopyAssembledNoSepInfo(`${plan.currentChunk}/${plan.totalChunks} (${plan.start + 1}-${plan.end})`);
+      setCopyAssembledChunkIndex(plan.nextIndex);
     } catch (copyError) {
       console.error("Failed to copy A text", copyError);
       setCopyAssembledNoSepStatus("error");
     }
-  }, [assembledDraft]);
+  }, [assembledDraft, copyAssembledChunkIndex]);
 
-  const handleCopyTtsWithoutSeparators = useCallback(async () => {
-    const cleaned = stripPauseSeparators(ttsDraft);
-    if (!cleaned) {
-      setCopyTtsNoSepStatus("error");
+  const handleLoadAudioAnalysis = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      if (!detail.channel || !detail.video) {
+        setAudioAnalysisError("channel/video が未設定です。");
+        return;
+      }
+      if (audioAnalysisLoading) {
+        return;
+      }
+      if (audioAnalysis && !force) {
+        return;
+      }
+      setAudioAnalysisLoading(true);
+      setAudioAnalysisError(null);
+      try {
+        const result = await fetchAudioAnalysis(detail.channel, detail.video);
+        setAudioAnalysis(result);
+      } catch (analysisError) {
+        const message =
+          analysisError instanceof Error ? analysisError.message : String(analysisError ?? "読み情報の取得に失敗しました。");
+        setAudioAnalysis(null);
+        setAudioAnalysisError(message);
+      } finally {
+        setAudioAnalysisLoading(false);
+      }
+    },
+    [audioAnalysis, audioAnalysisLoading, detail.channel, detail.video]
+  );
+
+  const handleToggleTtsReading = useCallback(
+    (open: boolean) => {
+      setShowTtsReading(open);
+      if (open) {
+        void handleLoadAudioAnalysis();
+      }
+    },
+    [handleLoadAudioAnalysis]
+  );
+
+  const handleCopyFinalTtsInput = useCallback(async () => {
+    const text = audioAnalysis?.b_text_with_pauses ?? "";
+    if (!text.trim()) {
+      setCopyAudioInputStatus("error");
       return;
     }
     try {
-      await copyTextToClipboard(cleaned);
-      setCopyTtsNoSepStatus("copied");
+      await copyTextToClipboard(text);
+      setCopyAudioInputStatus("copied");
     } catch (copyError) {
-      console.error("Failed to copy B text", copyError);
-      setCopyTtsNoSepStatus("error");
+      console.error("Failed to copy final TTS input", copyError);
+      setCopyAudioInputStatus("error");
     }
-  }, [ttsDraft]);
+  }, [audioAnalysis?.b_text_with_pauses]);
+
+  const handleCopyVoicevoxKana = useCallback(async () => {
+    const text = audioAnalysis?.voicevox_kana ?? "";
+    if (!text.trim()) {
+      setCopyAudioKanaStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(text);
+      setCopyAudioKanaStatus("copied");
+    } catch (copyError) {
+      console.error("Failed to copy voicevox kana", copyError);
+      setCopyAudioKanaStatus("error");
+    }
+  }, [audioAnalysis?.voicevox_kana]);
+
+  const handleCopyVoicevoxKanaCorrected = useCallback(async () => {
+    const text = audioAnalysis?.voicevox_kana_corrected ?? "";
+    if (!text.trim()) {
+      setCopyAudioKanaCorrectedStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(text);
+      setCopyAudioKanaCorrectedStatus("copied");
+    } catch (copyError) {
+      console.error("Failed to copy voicevox kana corrected", copyError);
+      setCopyAudioKanaCorrectedStatus("error");
+    }
+  }, [audioAnalysis?.voicevox_kana_corrected]);
 
   const handleCopyATextModalWithoutSeparators = useCallback(async () => {
     const cleaned = stripPauseSeparators(aTextModalContent);
-    if (!cleaned) {
+    const plan = planChunkCopy(cleaned, copyATextChunkIndex);
+    if (!plan?.chunk) {
       setCopyATextNoSepStatus("error");
       return;
     }
     try {
-      await copyTextToClipboard(cleaned);
+      await copyTextToClipboard(plan.chunk);
       setCopyATextNoSepStatus("copied");
+      setCopyATextNoSepInfo(`${plan.currentChunk}/${plan.totalChunks} (${plan.start + 1}-${plan.end})`);
+      setCopyATextChunkIndex(plan.nextIndex);
     } catch (copyError) {
       console.error("Failed to copy modal A text", copyError);
       setCopyATextNoSepStatus("error");
     }
-  }, [aTextModalContent]);
+  }, [aTextModalContent, copyATextChunkIndex]);
 
   const handleCopyAiResult = useCallback(async () => {
     if (!aiResult) {
@@ -882,6 +1057,9 @@ useEffect(() => {
   const studioLink = useMemo(() => {
     return `/studio?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
   }, [detail.channel, detail.video]);
+  const thumbnailsLink = useMemo(() => {
+    return `/thumbnails?channel=${encodeURIComponent(detail.channel)}`;
+  }, [detail.channel]);
 
   const completedLabel = useMemo(() => {
     if (!detail.completed_at) {
@@ -992,6 +1170,26 @@ useEffect(() => {
   );
 
   const youtubeDescription = detail.youtube_description ?? "";
+  const planningHighlights = useMemo(() => {
+    const fields = detail.planning?.fields ?? [];
+    return fields.filter((field) => (field.value ?? "").trim() !== "").slice(0, 8);
+  }, [detail.planning]);
+  const sotItems = useMemo(
+    () => [
+      { key: "assembled", label: "Aテキスト", path: detail.assembled_human_path ?? detail.assembled_path ?? null },
+      { key: "script_audio", label: "Bテキスト（音声用）", path: detail.script_audio_human_path ?? detail.script_audio_path ?? null },
+      { key: "audio", label: "最終WAV", path: detail.audio_path ?? null },
+      { key: "srt", label: "最終SRT", path: detail.srt_path ?? null },
+    ],
+    [
+      detail.assembled_human_path,
+      detail.assembled_path,
+      detail.script_audio_human_path,
+      detail.script_audio_path,
+      detail.audio_path,
+      detail.srt_path,
+    ]
+  );
   const episodeId = `${detail.channel}-${detail.video}`;
   const workflowLink = `/workflow?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
   const capcutDraftLink = `/capcut-edit/draft?channel=${encodeURIComponent(detail.channel)}&video=${encodeURIComponent(detail.video)}`;
@@ -1075,6 +1273,149 @@ useEffect(() => {
     }
   }, [youtubeDescription]);
 
+  const ttsReadingCard = (
+    <div className="tts-reading">
+      <CollapseCard
+        title="TTS読み（Voicevox）"
+        subtitle={audioAnalysisLoading ? "取得中…" : audioAnalysis ? "取得済み" : "未取得"}
+        open={showTtsReading}
+        onToggle={handleToggleTtsReading}
+      >
+        <p className="muted small-text">
+          最終音声生成で作られた <code>audio_prep</code> の成果物を表示します（未保存のBテキスト編集内容には追随しません）。
+        </p>
+
+        <div className="tts-reading__actions">
+          <button
+            type="button"
+            className="workspace-button workspace-button--ghost workspace-button--sm"
+            onClick={() => void handleLoadAudioAnalysis({ force: true })}
+            disabled={audioAnalysisLoading}
+          >
+            {audioAnalysisLoading ? "取得中…" : "更新"}
+          </button>
+          {audioAnalysisError && <span className="error small-text">{audioAnalysisError}</span>}
+        </div>
+
+        {audioAnalysis ? (
+          <>
+            <div className="tts-reading__section">
+              <div className="tts-reading__section-header">
+                <h4>最終TTS入力（b_text_with_pauses.txt）</h4>
+                <div className="tts-reading__section-actions">
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => void handleCopyFinalTtsInput()}
+                    disabled={busyAction !== null || !(audioAnalysis.b_text_with_pauses ?? "").trim()}
+                  >
+                    コピー
+                  </button>
+                  <span className="muted small-text">
+                    {copyAudioInputStatus === "copied"
+                      ? "コピーしました"
+                      : copyAudioInputStatus === "error"
+                        ? "コピーに失敗しました"
+                        : ""}
+                  </span>
+                </div>
+              </div>
+              <textarea
+                className="tts-reading__textarea"
+                value={audioAnalysis.b_text_with_pauses ?? ""}
+                readOnly
+                aria-readonly="true"
+                aria-label="最終TTS入力（b_text_with_pauses）"
+                placeholder="まだ生成されていません（audio_prep がありません）"
+              />
+            </div>
+
+            {audioAnalysis.voicevox_kana_corrected ? (
+              <div className="tts-reading__section">
+                <div className="tts-reading__section-header">
+                  <h4>TTS読み（voicevox_kana_corrected）</h4>
+                  <div className="tts-reading__section-actions">
+                    <button
+                      type="button"
+                      className="workspace-button workspace-button--ghost workspace-button--sm"
+                      onClick={() => void handleCopyVoicevoxKanaCorrected()}
+                      disabled={busyAction !== null || !(audioAnalysis.voicevox_kana_corrected ?? "").trim()}
+                    >
+                      コピー
+                    </button>
+                    <span className="muted small-text">
+                      {copyAudioKanaCorrectedStatus === "copied"
+                        ? "コピーしました"
+                        : copyAudioKanaCorrectedStatus === "error"
+                          ? "コピーに失敗しました"
+                          : ""}
+                    </span>
+                  </div>
+                </div>
+                <textarea
+                  className="tts-reading__textarea tts-reading__textarea--mono"
+                  value={audioAnalysis.voicevox_kana_corrected ?? ""}
+                  readOnly
+                  aria-readonly="true"
+                  aria-label="TTS読み（voicevox_kana_corrected）"
+                  placeholder="まだ生成されていません（engine metadata がありません）"
+                />
+              </div>
+            ) : null}
+
+            <div className="tts-reading__section">
+              <div className="tts-reading__section-header">
+                <h4>TTS読み（voicevox_kana）</h4>
+                <div className="tts-reading__section-actions">
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => void handleCopyVoicevoxKana()}
+                    disabled={busyAction !== null || !(audioAnalysis.voicevox_kana ?? "").trim()}
+                  >
+                    コピー
+                  </button>
+                  <span className="muted small-text">
+                    {copyAudioKanaStatus === "copied"
+                      ? "コピーしました"
+                      : copyAudioKanaStatus === "error"
+                        ? "コピーに失敗しました"
+                        : ""}
+                  </span>
+                </div>
+              </div>
+              <textarea
+                className="tts-reading__textarea tts-reading__textarea--mono"
+                value={audioAnalysis.voicevox_kana ?? ""}
+                readOnly
+                aria-readonly="true"
+                aria-label="TTS読み（voicevox_kana）"
+                placeholder="まだ生成されていません（engine metadata がありません）"
+              />
+            </div>
+
+            {audioAnalysis.warnings?.length ? (
+              <div className="tts-reading__section">
+                <h4>注意</h4>
+                <ul className="tts-reading__warnings">
+                  {audioAnalysis.warnings.map((warning, index) => (
+                    <li key={`${warning}-${index}`}>{warning}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </>
+        ) : audioAnalysisLoading ? (
+          <p className="muted small-text">読み情報を取得中です…</p>
+        ) : (
+          <p className="muted small-text">
+            まだ読み情報がありません。音声生成（audio_prep）を作成すると表示できます。
+          </p>
+        )}
+      </CollapseCard>
+    </div>
+  );
+
   return (
     <div className="panel detail-panel" id="video-detail">
       <header className="detail-header">
@@ -1082,6 +1423,29 @@ useEffect(() => {
           <h2>
             {detail.channel} / {detail.video}
           </h2>
+          {onNavigateVideo && (previousVideo || nextVideo) ? (
+            <nav className="detail-header__nav" aria-label="前後エピソードへ移動">
+              <button
+                type="button"
+                className="detail-nav-button"
+                onClick={() => previousVideo && onNavigateVideo(previousVideo.video)}
+                disabled={!previousVideo}
+                title={previousVideo?.title ? `${previousVideo.video} ${previousVideo.title}` : previousVideo?.video ?? "前へ"}
+              >
+                ← {previousVideo?.video ?? "前へ"}
+              </button>
+              {positionLabel ? <span className="detail-nav-position">{positionLabel}</span> : null}
+              <button
+                type="button"
+                className="detail-nav-button"
+                onClick={() => nextVideo && onNavigateVideo(nextVideo.video)}
+                disabled={!nextVideo}
+                title={nextVideo?.title ? `${nextVideo.video} ${nextVideo.title}` : nextVideo?.video ?? "次へ"}
+              >
+                {nextVideo?.video ?? "次へ"} →
+              </button>
+            </nav>
+          ) : null}
           <p className="muted">{detail.script_id ?? "スクリプトID未設定"}</p>
           <p className="detail-title">{detail.title ?? "タイトル未設定"}</p>
           <p className="muted">
@@ -1168,7 +1532,7 @@ useEffect(() => {
           <Link className="action-chip" to={videoProductionLink}>
             CapCut管理
           </Link>
-          <Link className="action-chip" to="/thumbnails">
+          <Link className="action-chip" to={thumbnailsLink}>
             サムネ
           </Link>
           {activeTab === "audio" && audioHistoryAvailable ? (
@@ -1270,6 +1634,60 @@ useEffect(() => {
                 </div>
               </div>
 
+              <div className="panel-card overview-meta-card">
+                <header className="panel-card__header">
+                  <h3>要点 / 判定</h3>
+                  <span className="muted small-text">迷いどころをここに集約します</span>
+                </header>
+                <div className="overview-meta__chips">
+                  <span className="status-chip">status: {translateStatus(detail.status)}</span>
+                  <span className={`status-chip${readyDraft ? "" : " status-chip--warning"}`}>
+                    ready_for_audio: {readyDraft ? "READY" : "未準備"}
+                  </span>
+                  <span className={`status-chip${detail.alignment_status === "NG" ? " status-chip--danger" : ""}`}>
+                    整合: {detail.alignment_status ?? "—"}
+                  </span>
+                  <span className="status-chip">音声品質: {audioQualityLabel}</span>
+                  {redoScript || redoAudio ? (
+                    <span className="status-chip status-chip--warning">
+                      redo: {redoScript ? "台本" : ""}
+                      {redoScript && redoAudio ? "+" : ""}
+                      {redoAudio ? "音声" : ""}
+                    </span>
+                  ) : (
+                    <span className="status-chip">redo: なし</span>
+                  )}
+                </div>
+                {detail.alignment_reason ? (
+                  <p className="muted small-text">整合理由: {detail.alignment_reason}</p>
+                ) : null}
+                {redoNote ? <p className="muted small-text">redo note: {redoNote}</p> : null}
+                {warningMessages.length > 0 ? (
+                  <details className="overview-meta__details">
+                    <summary>警告 {warningMessages.length} 件</summary>
+                    <ul className="overview-meta__list">
+                      {warningMessages.map((msg) => (
+                        <li key={msg}>{msg}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : (
+                  <p className="muted small-text">警告はありません。</p>
+                )}
+                {planningHighlights.length > 0 ? (
+                  <details className="overview-meta__details">
+                    <summary>企画（抜粋）</summary>
+                    <ul className="overview-meta__list">
+                      {planningHighlights.map((field) => (
+                        <li key={`${field.key}-${field.column}`}>
+                          <strong>{field.label || field.key}:</strong> {field.value}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </div>
+
               <div className="panel-card overview-assets-card">
                 <header className="panel-card__header">
                   <h3>音声・字幕ファイル</h3>
@@ -1310,6 +1728,31 @@ useEffect(() => {
                   </button>
                 </div>
                 {!audioDownloadUrl ? <p className="muted small-text">音声がまだ生成されていません。</p> : null}
+
+                <details className="overview-paths">
+                  <summary>SoTパス（コピー）</summary>
+                  <div className="overview-paths__list">
+                    {sotItems.map((item) => (
+                      <div key={item.key} className="overview-paths__row">
+                        <span className="overview-paths__label">{item.label}</span>
+                        <code className="overview-paths__path" title={item.path ?? undefined}>
+                          {item.path ?? "—"}
+                        </code>
+                        <button
+                          type="button"
+                          className="workspace-button workspace-button--ghost"
+                          onClick={() => void copySotValue(item.path)}
+                          disabled={!item.path}
+                        >
+                          コピー
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="muted small-text">
+                    {copySotStatus === "copied" ? "コピーしました" : copySotStatus === "error" ? "コピーに失敗しました" : ""}
+                  </p>
+                </details>
               </div>
 
               <div className="panel-card overview-description-card">
@@ -1538,13 +1981,15 @@ useEffect(() => {
                         className="workspace-button workspace-button--ghost workspace-button--sm"
                         onClick={() => void handleCopyAssembledWithoutSeparators()}
                         disabled={busyAction !== null || !assembledDraft.trim()}
-                        title="区切り線（---）を除去してコピー"
+                        title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
                       >
                         ---なしでコピー
                       </button>
                       <span className="muted small-text">
                         {copyAssembledNoSepStatus === "copied"
-                          ? "コピーしました"
+                          ? copyAssembledNoSepInfo
+                            ? `コピーしました (${copyAssembledNoSepInfo})`
+                            : "コピーしました"
                           : copyAssembledNoSepStatus === "error"
                             ? "コピーに失敗しました"
                             : ""}
@@ -1586,22 +2031,6 @@ useEffect(() => {
                       <button
                         type="button"
                         className="workspace-button workspace-button--ghost workspace-button--sm"
-                        onClick={() => void handleCopyTtsWithoutSeparators()}
-                        disabled={busyAction !== null || !ttsDraft.trim()}
-                        title="区切り線（---）を除去してコピー"
-                      >
-                        ---なしでコピー
-                      </button>
-                      <span className="muted small-text">
-                        {copyTtsNoSepStatus === "copied"
-                          ? "コピーしました"
-                          : copyTtsNoSepStatus === "error"
-                            ? "コピーに失敗しました"
-                            : ""}
-                      </span>
-                      <button
-                        type="button"
-                        className="workspace-button workspace-button--ghost workspace-button--sm"
                         onClick={() => {
                           setTtsDraft(ttsAiContent);
                           setMessage("AI版を人間編集版へコピーしました。");
@@ -1621,6 +2050,8 @@ useEffect(() => {
                     aria-label="音声用テキスト（人間編集版）"
                     placeholder="音声読み上げ用テキスト（人間編集版）を入力してください"
                   />
+
+                  {ttsReadingCard}
                 </div>
               </div>
             </div>
@@ -1651,6 +2082,7 @@ useEffect(() => {
 
         {activeTab === "audio" && (
           <div className="detail-tab-panel detail-tab-panel--audio" role="tabpanel">
+            {ttsReadingCard}
             <AudioWorkspace
               detail={detail}
               handlers={audioWorkspaceHandlers}
@@ -1875,15 +2307,21 @@ useEffect(() => {
               <h3>Aテキスト</h3>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <button
-                  className="workspace-button workspace-button--ghost"
-                  onClick={() => void handleCopyATextModalWithoutSeparators()}
-                  disabled={!aTextModalContent.trim()}
-                  title="区切り線（---）を除去してコピー"
-                >
-                  ---なしでコピー
-                </button>
+	                  className="workspace-button workspace-button--ghost"
+	                  onClick={() => void handleCopyATextModalWithoutSeparators()}
+	                  disabled={!aTextModalContent.trim()}
+	                  title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
+	                >
+	                  ---なしでコピー
+	                </button>
                 <span className="muted small-text">
-                  {copyATextNoSepStatus === "copied" ? "コピーしました" : copyATextNoSepStatus === "error" ? "失敗" : ""}
+                  {copyATextNoSepStatus === "copied"
+                    ? copyATextNoSepInfo
+                      ? `コピーしました (${copyATextNoSepInfo})`
+                      : "コピーしました"
+                    : copyATextNoSepStatus === "error"
+                      ? "失敗"
+                      : ""}
                 </span>
                 <button className="workspace-button workspace-button--ghost" onClick={() => setATextModalOpen(false)}>
                   閉じる

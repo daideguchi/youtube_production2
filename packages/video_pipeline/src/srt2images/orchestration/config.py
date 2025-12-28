@@ -7,7 +7,11 @@ from factory_common.paths import video_pkg_root
 
 def get_args():
     parser = argparse.ArgumentParser(description="SRT -> images timeline & engine deployer")
-    parser.add_argument("--config", default="config.toml", help="Path to config.toml file")
+    parser.add_argument(
+        "--config",
+        default=str(video_pkg_root() / "config.toml"),
+        help="Path to config.toml file",
+    )
     parser.add_argument("--srt", help="Path to input .srt")
     parser.add_argument(
         "--channel",

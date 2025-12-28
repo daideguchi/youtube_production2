@@ -3,9 +3,8 @@ from __future__ import annotations
 import re
 
 GLOBAL_IMAGE_GUARDRAILS = (
-    "人物が出る場合は動画全体で一貫させる。登場人物の人種・性別・年齢層・髪型・服装・体型・雰囲気を毎枚そろえる。"
-    " 人物が不要なシーンでは人を描かない。"
-    " 画像の中にテキスト・字幕・サイン・看板・UI・ロゴ・スタンプなどの文字要素を絶対に描かない。"
+    "Keep characters consistent if present; do NOT add people unless needed. "
+    "NO text in image (subtitles, captions, signage, UI, logos, watermarks, handwriting, letters, numbers)."
 )
 
 

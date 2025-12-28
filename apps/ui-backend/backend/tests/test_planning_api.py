@@ -112,3 +112,50 @@ def test_create_planning_entry_sets_persona_and_defaults(planning_test_env):
     assert channel_csv.exists()
     content = channel_csv.read_text(encoding="utf-8")
     assert "優しさを利用されがちなあなたへ" in content
+
+
+def test_update_planning_progress_updates_csv(planning_test_env):
+    client: TestClient = planning_test_env["client"]  # type: ignore[assignment]
+    channels_dir: Path = planning_test_env["channels_dir"]  # type: ignore[assignment]
+
+    payload = {
+        "channel": "CH01",
+        "video_number": "193",
+        "title": "【TEST】progress update",
+        "fields": {
+            "primary_pain_tag": "人間関係",
+            "secondary_pain_tag": "罪悪感",
+            "life_scene": "家庭",
+            "key_concept": "慈悲",
+            "benefit_blurb": "距離を置ける",
+            "analogy_image": "光の輪",
+        },
+    }
+    created = client.post("/api/planning", json=payload)
+    assert created.status_code == 201
+    created_data = created.json()
+    created_updated_at = created_data.get("updated_at")
+
+    updated = client.put(
+        "/api/planning/channels/CH01/193/progress",
+        json={
+            "progress": "script_draft: completed",
+            "expected_updated_at": created_updated_at,
+        },
+    )
+    assert updated.status_code == 200
+    updated_data = updated.json()
+    assert updated_data["progress"] == "script_draft: completed"
+    assert updated_data.get("updated_at")
+
+    content = (channels_dir / "CH01.csv").read_text(encoding="utf-8")
+    assert "script_draft: completed" in content
+
+    conflict = client.put(
+        "/api/planning/channels/CH01/193/progress",
+        json={
+            "progress": "topic_research: pending",
+            "expected_updated_at": created_updated_at,
+        },
+    )
+    assert conflict.status_code == 409

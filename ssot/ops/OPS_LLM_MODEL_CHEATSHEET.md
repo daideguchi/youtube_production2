@@ -41,18 +41,30 @@
 ## 2. 現行のモデル（正本: configs/llm_router.yaml の要約）
 
 ### 2.1 テキストLLM（台本/読み/補助）
-- `script_pipeline`（台本）は「thinking必須」を固定するため、モデルチェーンを **2つに固定**している。
+- `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、モデルチェーンを **2つに固定**する（原則）。
   - primary: `or_deepseek_v3_2_exp`（OpenRouter / DeepSeek V3.2 Exp）
   - fallback: `or_kimi_k2_thinking`（OpenRouter / MoonshotAI: Kimi K2 Thinking）
+
+#### 2.1.1 Decision（2025-12-28）: 台本系モデルは「2つ」に固定（DeepSeek v3.2 exp / Kimi K2 Thinking）
+対象（正本）:
+- `configs/llm_router.yaml`
+- `configs/llm_task_overrides.yaml`
+
+結論:
+- `script_pipeline`（台本）の **“本文執筆/品質審査/字数救済/最終磨き込み”** は原則この2つだけを使う。
+  - primary: `or_deepseek_v3_2_exp`
+  - fallback: `or_kimi_k2_thinking`
+
+理由（品質×コスト）:
+- 執筆は thinking 必須（指示）。モデルチェーンを増やすと「文体ぶれ/契約ぶれ/収束不安定」を増やし、結果的にコストが上がる。
+- Kimi K2 Thinking は `extra_body.reasoning.enabled` が無いと空文字になり得るため、`packages/factory_common/llm_router.py` が自動付与でガードしている（呼び出し側の付け忘れ耐性）。
+
+運用ルール（重要: 憶測でパラメータを決めない）:
+- モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら `https://openrouter.ai/api/v1/models` を参照し、ローカルでは `packages/script_pipeline/config/openrouter_models.json` を更新してから調整する。
 - thinking必須の実装（主に“執筆”タスク）:
   - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
   - 例外: `script_semantic_alignment_check` は **出力が厳格JSON** のため、OpenRouterの `reasoning` を付けると finish_reason=length で空/破損しやすい。ここは reasoning を付けない（モデル自体の推論は使うが、拡張パラメータは送らない）。
-    - さらに、Kimi K2 Thinking は `extra_body.reasoning.enabled` 無しだと空文字になりうるため、このタスクは **DeepSeek固定**（Kimiへフォールバックしない）。
-  - 併せて `configs/llm_task_overrides.yaml` で台本系タスクの `max_tokens` を明示（デフォルト依存での空文字/途中切れを避け、コスト暴走も抑える）
-  - `packages/factory_common/llm_router.py` が allowlist（V3.2 Exp / Kimi K2 Thinking）にだけ `extra_body.reasoning` を転送する
-  - 追加ガード: `packages/factory_common/llm_router.py` は Kimi K2 Thinking に対して `extra_body.reasoning.enabled=true` を自動付与し、空文字事故を避ける（呼び出し側の付け忘れに強くする）。
-  - 重要（実挙動）: reasoning を有効にすると completion 側で reasoning tokens を消費するため、`max_tokens` が小さすぎると `finish_reason=length` で **本文が空文字**になることがある（短いチェック系タスクでも起きうる）。  
-    対策: `max_tokens` を十分に確保する / `LLM_RETRY_ON_LENGTH=1` を有効にしてリトライで回収する（one-shotでリトライ禁止の箇所は特に注意）。
+    - さらに、このタスクは **DeepSeek固定**（Kimiへフォールバックしない）。
 
 ### 2.2 画像生成（SRT→画像）
 - `image_gen` / `image`
@@ -73,6 +85,7 @@
 - `script_cta`: CTA/締め（重い推論、thinking高）
 - `script_quality_check`: 全体品質チェック（重い推論、thinking高）
 - `script_format`: 体裁整形（標準）
+- `script_a_text_quality_judge` / `script_a_text_quality_fix`: `script_validation` の QC（judge→fix）。fix は安定性優先で Kimi を先に試す（コスト増だが「途中で切れる/部分出力」事故を減らす）。
 
 ### 3.2 TTS（音声）
 - `tts_annotate`: 注釈付け（json_object）

@@ -1955,3 +1955,171 @@ final wav/srt/log を守りつつ、再生成可能な残骸（L2/L3）をまと
 
 削除（tracked）:
 - `backups/graveyard/20251227T035424Z__remove_video_pipeline_unused_package_tests_ref0/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 130) `ssot/reference/ch01/` を撤去（refs=0 / 孤立ドキュメント）
+
+意図:
+- `ssot/reference/` は「現行の正本（参照仕様）」に寄せる。チャンネル個別の旧メモが残ると、正本の迷いどころになる。
+- CH01の正本は `packages/script_pipeline/channels/CH01-*/script_prompt.txt` 等にあり、SSOT側の当該2ファイルは参照ゼロ（refs=0）だったため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target ssot/reference/ch01/script_prompt.md --target ssot/reference/ch01/台本構造の参考.md --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251227T073756Z__archive_orphan_ssot_reference_ch01/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251227T073756Z__archive_orphan_ssot_reference_ch01/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 131) `packages/video_pipeline/config/master_styles_v2.json` を削除（refs=0 / 旧スタイル定義）
+
+意図:
+- Video のスタイル正本は `ssot/ops/master_styles.json`。
+- `packages/video_pipeline/config/master_styles_v2.json` は現行コード/SSOTから参照されておらず、探索ノイズのため archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/video_pipeline/config/master_styles_v2.json --stdout`（code_refs=0, docs_refs=0）
+- `rg -n "master_styles_v2\\.json" packages` のヒットが `channel_schema.py` のコメントのみであることを確認。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251227T075403Z__remove_video_pipeline_master_styles_v2_ref0/manifest.tsv`
+
+削除（tracked）:
+- `backups/graveyard/20251227T075403Z__remove_video_pipeline_master_styles_v2_ref0/manifest.tsv` を正本とする（このログ自体が参照になって ref=0 判定を汚染するのを防ぐため、ここでは列挙しない）。
+
+### 132) `data/visual_bible_backup_20251211_ch02before_clear.json` を退避（untracked/ignored）
+
+意図:
+- `data/` 直下にバックアップ残骸が残ると探索ノイズになるため、ローカル退避先へ移動して整理する。
+
+参照確認:
+- `rg -n "data/visual_bible_backup_20251211_ch02before_clear\\.json" -S .` がヒットしない（refs=0）。
+
+退避（ローカル / gitignore）:
+- `workspaces/_scratch/_archive/20251227T232221Z__archive_unused_visual_bible_backup/visual_bible_backup_20251211_ch02before_clear.json`
+- `workspaces/_scratch/_archive/20251227T232221Z__archive_unused_visual_bible_backup/README.md`
+
+### 133) `.agent/workflows/*.md` を削除（refs=0 / 未使用のエージェント運用メモ）
+
+意図:
+- `.agent/workflows/` 配下に旧運用メモが残ると、SSOT（`AGENTS.md` / `ssot/ops/OPS_AGENT_PLAYBOOK.md`）と二重化し、迷いどころになる。
+- 現行フロー/SSOT/コードから参照されない（refs=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target .agent/workflows/agent_mode_llm_queue.md --target .agent/workflows/batch_tts.md --target .agent/workflows/interactive_tts.md --target .agent/workflows/think_mode.md --target .agent/workflows/tts-audio-generation.md --target .agent/workflows/tts-interactive-protocol.md --target .agent/workflows/turbo.md --stdout`（全て code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251227T235814Z__archive_agent_workflows_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm -r .agent/workflows`
+
+### 134) `packages/video_pipeline/src/` の未使用モジュールを削除（refs=0）
+
+意図:
+- `video_pipeline/src` 配下に未使用の旧モジュールが残ると、探索ノイズになり「どれが正本？」の迷いどころになる。
+- 現行フロー/コードから参照されない（refs=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `rg -n "parameter_manager" apps packages scripts tests -S` のヒットが当該ファイル内のみであることを確認。
+- `rg -n "asset_schema" apps packages scripts tests -S` がヒットしないことを確認。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T001157Z__remove_video_pipeline_src_unused_modules_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm packages/video_pipeline/src/config/parameter_manager.py packages/video_pipeline/src/core/domain/asset_schema.py`
+
+### 135) `packages/audio_tts/tts/orchestrator.py` を削除（refs=0 / 旧TTSパイプライン）
+
+意図:
+- Strict pipeline（`packages/audio_tts/tts/strict_orchestrator.py` / `packages/audio_tts/scripts/run_tts.py`）が正本になっており、旧 `orchestrator.py` が残ると探索ノイズ/誤誘導になるため。
+- “現行ラインに合わせて” 正本の参照先を揃え、再現性と保守性を上げる。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/audio_tts/tts/orchestrator.py --stdout`（code_refs=0, docs_refs=0）
+
+付随修正（SSOT-first）:
+- `ssot/ops/OPS_LOGGING_MAP.md`（TTS reading log の writer 記述を現行に合わせて更新）
+- `ssot/ops/OPS_SRT_LINEBREAK_FORMAT.md`（現行の入口を `scripts/format_srt_linebreaks.py` に寄せ、旧 orchestrator 参照を除去）
+- `ssot/plans/PLAN_LLM_PIPELINE_REFACTOR.md` / `ssot/plans/PLAN_LLM_USAGE_MODEL_EVAL.md` / `ssot/plans/PLAN_OPS_VOICEVOX_READING_REFORM.md`（旧 orchestrator 参照の棚卸し）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T003410Z__remove_audio_tts_orchestrator_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm packages/audio_tts/tts/orchestrator.py`
+
+### 136) `packages/audio_tts/tts/` の旧モジュールを削除（refs=0 / orchestrator撤去後に孤立）
+
+意図:
+- 旧 `orchestrator.py` の撤去後に refs=0 となった補助モジュールが残ると、探索ノイズ/誤誘導になるため archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/audio_tts/tts/annotations.py --target packages/audio_tts/tts/kana_engine.py --target packages/audio_tts/tts/local_generator.py --target packages/audio_tts/tts/logger.py --target packages/audio_tts/tts/qa.py --stdout`（全て code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T003610Z__remove_audio_tts_tts_legacy_modules_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm packages/audio_tts/tts/annotations.py packages/audio_tts/tts/kana_engine.py packages/audio_tts/tts/local_generator.py packages/audio_tts/tts/logger.py packages/audio_tts/tts/qa.py`
+
+### 137) `packages/factory_common/llm_client_experimental.py` を削除（refs=0 / 未使用の実験用クライアント）
+
+意図:
+- LLM 呼び出しの正本は `packages/factory_common/llm_router.py` / `packages/factory_common/llm_client.py` に寄せており、未参照の実験用クライアントが残ると探索ノイズ/誤誘導になるため。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/factory_common/llm_client_experimental.py --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T022048Z__remove_factory_common_llm_client_experimental_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm packages/factory_common/llm_client_experimental.py`
+
+### 138) `packages/video_pipeline/src/config/llm_resolver.py` を削除（refs=0 / 未使用のLLM設定リゾルバ）
+
+意図:
+- `video_pipeline/src/config` 配下に refs=0 の設定リゾルバが残ると、「どれが現行の正本？」の探索ノイズになりやすい。
+- 現行フロー/コードから参照されない（refs=0）ため、archive-first で退避して削除する。
+
+参照確認:
+- `python3 scripts/ops/repo_ref_audit.py --target packages/video_pipeline/src/config/llm_resolver.py --stdout`（code_refs=0, docs_refs=0）
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T030518Z__remove_video_pipeline_src_llm_resolver_ref0/manifest.tsv`
+
+削除（tracked）:
+- `git rm packages/video_pipeline/src/config/llm_resolver.py`
+
+### 139) CH12 サムネのQC contactsheet を整理（探索ノイズ低減 / archive-first）
+
+意図:
+- `workspaces/thumbnails/assets/CH12/_qc/` に contactsheet が溜まり、どれを見れば良いか混乱するため。
+- UI で確認する正本は `workspaces/thumbnails/assets/CH12/library/qc/contactsheet.png` に寄せ、古いQCは退避する。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T073452Z__prune_CH12_qc_contactsheets/manifest.tsv`
+
+移動（untracked / workspace artifacts）:
+- `workspaces/thumbnails/assets/CH12/_qc/contactsheet_ch12_3buddhas_30_640x360.png`
+- `workspaces/thumbnails/assets/CH12/_qc/contactsheet_ch12_3buddhas_edge_30_640x360.png`
+- `workspaces/thumbnails/assets/CH12/_qc/contactsheet_ch12_buddha_bright_30_640x360.png`
+- `workspaces/thumbnails/assets/CH12/_qc/contactsheet_ch12_fix_011_030_640x360.png`
+- `workspaces/thumbnails/assets/CH12/_qc/contactsheet_ch12_init_30_640x360.png`
+
+### 140) CH12 サムネの不要ビルド/バリアントを整理（ミス分削除・探索ノイズ低減 / archive-first）
+
+意図:
+- CH12 のサムネ出力が大量に残り、UI/ファイル上で「どれを見れば良いか」混乱するため。
+- `projects.json` の `selected_variant_id` を正として、未選択のビルド出力を退避して探索ノイズを消す。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20251228T081901Z__prune_CH12_thumbnail_variants/manifest.tsv`
+
+移動（untracked / workspace artifacts）:
+- `workspaces/thumbnails/assets/CH12/**/compiler/*` のうち、各 video の `selected_variant_id` に対応するディレクトリ以外を退避
+
+projects.json 整理:
+- CH12 の各 video について `variants` を `selected_variant_id` の1件のみに縮退

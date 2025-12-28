@@ -35,6 +35,7 @@ from factory_common.paths import (
     audio_final_dir,
     channels_csv_path,
     persona_path as persona_md_path,
+    research_root,
     repo_root,
     script_pkg_root,
     script_data_root,
@@ -207,6 +208,7 @@ A_TEXT_QUALITY_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_f
 A_TEXT_QUALITY_EXTEND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_extend_prompt.txt"
 A_TEXT_QUALITY_EXPAND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_expand_prompt.txt"
 A_TEXT_QUALITY_SHRINK_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_shrink_prompt.txt"
+A_TEXT_FINAL_POLISH_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_final_polish_prompt.txt"
 A_TEXT_REBUILD_PLAN_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_plan_prompt.txt"
 A_TEXT_REBUILD_DRAFT_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_rebuild_draft_prompt.txt"
 
@@ -1794,13 +1796,12 @@ def _extract_a_text_channel_prompt_for_llm(script_prompt: str) -> str:
     if not raw:
         return ""
 
-    lines_in = [ln.strip() for ln in raw.split("\n")]
+    # Preserve blank lines so we can treat them as section boundaries.
+    lines_in = [ln.rstrip() for ln in raw.split("\n")]
     # Stop at explicit "input area" markers (templates often include them).
     trimmed: list[str] = []
     for ln in lines_in:
-        if not ln:
-            continue
-        if "プロンプト入力欄" in ln or ln.startswith("▼▼▼"):
+        if "プロンプト入力欄" in ln or ln.lstrip().startswith("▼▼▼"):
             break
         trimmed.append(ln)
 
@@ -1869,6 +1870,41 @@ def _extract_a_text_channel_prompt_for_llm(script_prompt: str) -> str:
         "シニア",
     ]
 
+    # Section-aware capture: keep the *content lines* under these headings, because
+    # important constraints are often expressed as bullet lines that don't contain keep_keywords.
+    keep_block_headers = [
+        "題材の境界",
+        "題材の範囲",
+        "登場人物",
+        "人物",
+        "視点",
+        "描写ルール",
+        "描写",
+        "時間の圧縮",
+        "禁止",
+        "必須",
+        "外さ",
+        "避け",
+        "しない",
+        "注意",
+        "トーン",
+        "語り",
+        "語り口",
+        "言葉遣い",
+    ]
+    drop_block_headers = [
+        "構造",
+        "構成",
+        "台本構成",
+        "出力仕様",
+        "出力形式",
+        "出力フォーマット",
+        "TTS前提",
+        "TTS",
+        "入力情報",
+        "プロンプト入力",
+    ]
+
     def _has_any(text: str, keywords: list[str]) -> bool:
         return any(k in text for k in keywords)
 
@@ -1890,16 +1926,46 @@ def _extract_a_text_channel_prompt_for_llm(script_prompt: str) -> str:
         return score
 
     selected: list[str] = []
+    mode: str | None = None  # keep|drop|None
     for ln in trimmed:
         s = ln.strip()
         if not s:
+            mode = None
             continue
         # Drop markdown headings and obvious template placeholders.
         if s.startswith("#"):
             continue
         if "{{" in s or "}}" in s or ("【" in s and "】" in s and ("記入" in s or "入力" in s)):
             continue
-        # Structure/format directives are owned by SSOT.
+
+        # Treat short "Section:" lines as headers and keep/drop the following bullet block accordingly.
+        if s.endswith((":", "：")) and len(s) <= 80:
+            header = s.rstrip("：:").strip()
+            if _has_any(header, drop_block_headers) or _has_any(header, drop_keywords) or _has_any(header, format_keywords):
+                mode = "drop"
+                continue
+            if _has_any(header, keep_block_headers) or _has_any(header, keep_keywords):
+                mode = "keep"
+                # Keep header as a label (without the trailing colon).
+                selected.append(header)
+                continue
+            mode = None
+            continue
+
+        if mode == "drop":
+            continue
+
+        if mode == "keep":
+            # Structure/format directives are owned by SSOT.
+            if "---" in s:
+                continue
+            if _is_step_line(s):
+                continue
+            if len(s) <= 360:
+                selected.append(s)
+            continue
+
+        # Default heuristic (non-block lines).
         if "---" in s:
             continue
         if _is_step_line(s):
@@ -1945,6 +2011,153 @@ def _extract_a_text_channel_prompt_for_llm(script_prompt: str) -> str:
 
     out = "\n".join(out_lines).strip()
     return _sanitize_quality_gate_context(out, max_chars=1200)
+
+
+def _resolve_benchmark_base_dir(base: str | None) -> Path | None:
+    key = str(base or "").strip().lower()
+    if not key:
+        return None
+    if key in {"research", "workspace/research", "workspaces/research"}:
+        return research_root()
+    if key in {"scripts", "workspace/scripts", "workspaces/scripts"}:
+        return DATA_ROOT
+    if key in {"repo", "project", "root"}:
+        return PROJECT_ROOT
+    return None
+
+
+def _coerce_benchmark_source_file(path: Path) -> Path | None:
+    if not path.exists():
+        return None
+    if path.is_file():
+        return path
+    if not path.is_dir():
+        return None
+    for name in ("INDEX.md", "index.md", "README.md", "readme.md"):
+        candidate = path / name
+        if candidate.exists() and candidate.is_file():
+            return candidate
+    md_files = sorted(path.glob("*.md"))
+    if md_files:
+        return md_files[0]
+    return None
+
+
+def _extract_benchmark_guidelines_text(text: str) -> str:
+    """
+    Benchmarks are often stored as markdown memos / observation notes.
+    For LLM context we keep only compact, non-meta guideline lines.
+    """
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not raw:
+        return ""
+
+    keep: list[str] = []
+    for ln in raw.split("\n"):
+        s = ln.strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            continue
+        if s.startswith("- "):
+            s = s[2:].strip()
+        # Drop update instructions / operational meta.
+        if "UIで更新" in s or "UIで" in s:
+            continue
+        if "追記するもの" in s or "追記してください" in s:
+            continue
+        if "競合チャンネル" in s and "追加" in s:
+            continue
+        if "台本サンプル" in s and "相対パス" in s:
+            continue
+        if len(s) > 260:
+            continue
+        keep.append(s)
+
+    out_lines: list[str] = []
+    seen: set[str] = set()
+    for s in keep:
+        key = re.sub(r"\s+", " ", s).strip()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out_lines.append(s)
+
+    out = "\n".join(out_lines).strip()
+    return _sanitize_quality_gate_context(out, max_chars=600)
+
+
+def _extract_a_text_benchmark_excerpts_for_llm(channel_prompt_path: Path) -> str:
+    """
+    Read channel_info.json benchmarks (optional) and build a compact style reference.
+
+    Important:
+    - This is a "style/tone/structure hint", not content to copy.
+    - Keep it short to avoid prompt bloat.
+    """
+    try:
+        info_path = channel_prompt_path.parent / "channel_info.json"
+    except Exception:
+        return ""
+    if not info_path.exists():
+        return ""
+    try:
+        info = json.loads(info_path.read_text(encoding="utf-8"))
+    except Exception:
+        info = {}
+    if not isinstance(info, dict):
+        return ""
+    benchmarks = info.get("benchmarks")
+    if not isinstance(benchmarks, dict) or not benchmarks:
+        return ""
+
+    parts: list[str] = []
+
+    # Short notes about reference channels (if provided).
+    channels = benchmarks.get("channels")
+    if isinstance(channels, list):
+        for it in channels[:3]:
+            if not isinstance(it, dict):
+                continue
+            name = str(it.get("name") or "").strip()
+            handle = str(it.get("handle") or "").strip()
+            note = str(it.get("note") or "").strip()
+            line = " / ".join([v for v in (name, handle, note) if v])
+            if line:
+                parts.append(line)
+
+    # Prefer a single compact memo-like sample (avoid huge script dumps).
+    samples = benchmarks.get("script_samples")
+    if isinstance(samples, list):
+        for it in samples:
+            if not isinstance(it, dict):
+                continue
+            rel = str(it.get("path") or "").strip()
+            if not rel:
+                continue
+            base = _resolve_benchmark_base_dir(str(it.get("base") or ""))
+            if base is None:
+                continue
+            src = _coerce_benchmark_source_file((base / rel).resolve())
+            if src is None:
+                continue
+            try:
+                text = src.read_text(encoding="utf-8")
+            except Exception:
+                continue
+            excerpt = _extract_benchmark_guidelines_text(text)
+            if not excerpt:
+                continue
+            label = str(it.get("label") or "").strip()
+            note = str(it.get("note") or "").strip()
+            header = " / ".join([v for v in (label, note) if v])
+            if header:
+                parts.append(header)
+            parts.append(excerpt)
+            break
+
+    out = "\n".join([p for p in parts if p]).strip()
+    return _sanitize_quality_gate_context(out, max_chars=650)
 
 
 def _prune_spurious_tts_hazard(judge_obj: Dict[str, Any], stats: Dict[str, Any]) -> Dict[str, Any]:
@@ -1996,8 +2209,6 @@ def _prune_spurious_pause_requirement(
     """
     if not isinstance(judge_obj, dict):
         return {}
-    if not isinstance(pause_target_min, int) or pause_target_min <= 0:
-        return judge_obj
     must_fix = judge_obj.get("must_fix")
     if not isinstance(must_fix, list) or not must_fix:
         return judge_obj
@@ -2006,7 +2217,7 @@ def _prune_spurious_pause_requirement(
         pause_lines = int(stats.get("pause_lines")) if stats.get("pause_lines") is not None else None
     except Exception:
         pause_lines = None
-    if not isinstance(pause_lines, int) or pause_lines < pause_target_min:
+    if not isinstance(pause_lines, int):
         return judge_obj
 
     def _is_pause_claim(item: Dict[str, Any]) -> bool:
@@ -2015,6 +2226,57 @@ def _prune_spurious_pause_requirement(
         fs = str(item.get("fix_strategy") or "")
         blob = f"{loc}\n{why}\n{fs}"
         return ("---" in blob) or ("ポーズ" in blob)
+
+    def _infer_required_min(item: Dict[str, Any]) -> int | None:
+        """
+        Infer "required minimum pause lines" from a must-fix item.
+        We only use this when we can extract an explicit numeric requirement like:
+        - 最少6本以上
+        - 6本以上
+        - 最低6本
+        """
+        try:
+            loc = str(item.get("location_hint") or "")
+            why = str(item.get("why_bad") or "")
+            fs = str(item.get("fix_strategy") or "")
+        except Exception:
+            return None
+        blob = f"{loc}\n{why}\n{fs}"
+        # Normalize fullwidth digits.
+        blob = blob.translate(str.maketrans("０１２３４５６７８９", "0123456789"))
+        patterns = [
+            r"最少\s*(\d+)\s*本",
+            r"最低\s*(\d+)\s*本",
+            r"(\d+)\s*本以上",
+        ]
+        for pat in patterns:
+            m = re.search(pat, blob)
+            if not m:
+                continue
+            try:
+                n = int(m.group(1))
+            except Exception:
+                continue
+            if n > 0:
+                return n
+        return None
+
+    required_min: int | None = None
+    if isinstance(pause_target_min, int) and pause_target_min > 0:
+        required_min = pause_target_min
+    else:
+        inferred: list[int] = []
+        for it in must_fix:
+            if isinstance(it, dict) and str(it.get("type") or "").strip() == "channel_requirement" and _is_pause_claim(it):
+                n = _infer_required_min(it)
+                if isinstance(n, int) and n > 0:
+                    inferred.append(n)
+        if inferred:
+            # Be conservative: require meeting the strongest stated minimum.
+            required_min = max(inferred)
+
+    if not isinstance(required_min, int) or required_min <= 0 or pause_lines < required_min:
+        return judge_obj
 
     filtered: list[Any] = []
     removed = False
@@ -2895,6 +3157,7 @@ def rebuild_a_text_from_patterns(
             "CHANNEL_PROMPT": _sanitize_quality_gate_context(
                 str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=850
             ),
+            "BENCHMARK_EXCERPTS": _sanitize_quality_gate_context(str(st.metadata.get("a_text_benchmark_excerpts") or ""), max_chars=650),
             "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(_a_text_rules_summary(st.metadata or {}), max_chars=650),
         },
     )
@@ -3258,6 +3521,15 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
                     if st.metadata.get("a_text_channel_prompt") != derived:
                         st.metadata["a_text_channel_prompt"] = derived
                         changed = True
+                    bench = _extract_a_text_benchmark_excerpts_for_llm(resolved_prompt)
+                    if bench:
+                        if st.metadata.get("a_text_benchmark_excerpts") != bench:
+                            st.metadata["a_text_benchmark_excerpts"] = bench
+                            changed = True
+                    else:
+                        if "a_text_benchmark_excerpts" in st.metadata:
+                            st.metadata.pop("a_text_benchmark_excerpts", None)
+                            changed = True
 
         # Normalize/repair contaminated titles (avoid long story-like metadata.title).
         sheet_title = str(st.metadata.get("sheet_title") or "").strip()
@@ -3392,6 +3664,9 @@ def ensure_status(channel: str, video: str, title: str | None) -> Status:
             raw_prompt = resolved_prompt.read_text(encoding="utf-8")
             extra_meta["script_prompt"] = raw_prompt
             extra_meta["a_text_channel_prompt"] = _extract_a_text_channel_prompt_for_llm(raw_prompt)
+            bench = _extract_a_text_benchmark_excerpts_for_llm(resolved_prompt)
+            if bench:
+                extra_meta["a_text_benchmark_excerpts"] = bench
             extra_meta["script_prompt_path"] = str(resolved_prompt)
     chapter_count = sources.get("chapter_count")
     if chapter_count:
@@ -4448,6 +4723,20 @@ def _rel_to_base(path: Path, base: Path) -> str:
     except Exception:
         return str(path)
 
+
+def _write_prompt_snapshot(prompt_dir: Path, filename: str, prompt: str, *, base: Path) -> str | None:
+    """
+    Best-effort logging: store the *exact* prompt string that was sent to an LLM.
+    This is used for incident/debug (rule drift, missing injections, etc) and must
+    never affect generation behavior.
+    """
+    try:
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+        path = (prompt_dir / filename).resolve()
+        path.write_text(str(prompt or ""), encoding="utf-8")
+        return _rel_to_base(path, base)
+    except Exception:
+        return None
 
 def _append_llm_call(st: Status, stage: str, payload: Dict[str, Any]) -> None:
     try:
@@ -5719,7 +6008,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         save_status(st)
         return st
     elif stage_name == "script_review":
-        # run CTA generation, then assemble chapters + CTA, and write scenes.json + cta.txt
+        # Run CTA generation (optional), then assemble chapters, and write scenes.json + cta.txt.
         outputs = sd.get("outputs") or []
         assembled_path = base / "content" / "assembled.md"
         scenes_path = base / "content" / "final" / "scenes.json"
@@ -5759,8 +6048,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             st.stages[stage_name].details["cta_warning"] = "cta_too_long_ignored"
             cta_text = ""
         assembled_body_parts = [t for t in chapter_texts if t]
-        if cta_text and include_cta:
-            assembled_body_parts.append(cta_text)
         assembled_body = "\n\n---\n\n".join(assembled_body_parts).strip()
         assembled_path.parent.mkdir(parents=True, exist_ok=True)
         assembled_path.write_text((assembled_body + "\n") if assembled_body else "", encoding="utf-8")
@@ -6252,13 +6539,29 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             for it in cur_errors
                             if isinstance(it, dict) and it.get("code")
                         }
-                        allowed_codes = {"length_too_short", "too_many_quotes", "too_many_parentheses", "forbidden_statistics"}
+                        allowed_codes = {
+                            "length_too_short",
+                            "too_many_quotes",
+                            "too_many_parentheses",
+                            "forbidden_statistics",
+                            # Expand can accidentally introduce these; repair deterministically and keep rescuing.
+                            "duplicate_paragraph",
+                            "incomplete_ending",
+                        }
                         if not (cur_codes and "length_too_short" in cur_codes and cur_codes.issubset(allowed_codes)):
                             break
 
                         # Keep the length-rescue loop focused: clear fixable non-length codes deterministically.
                         if "forbidden_statistics" in cur_codes:
                             rescued2 = _sanitize_a_text_forbidden_statistics(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "duplicate_paragraph" in cur_codes:
+                            rescued2, _dup_details = _repair_a_text_duplicate_paragraphs(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "incomplete_ending" in cur_codes:
+                            rescued2, _ending_details = _repair_a_text_incomplete_ending(rescued)
                             if rescued2 != rescued:
                                 rescued = rescued2
                         if "too_many_quotes" in cur_codes and isinstance(quote_max2, int) and quote_max2 > 0:
@@ -6378,7 +6681,24 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 total_max = min(total_max, cur_room)
                                 total_min = min(total_min, total_max)
 
-                            n_insert = max(3, (total_min + 699) // 700)
+                            # Avoid output truncation / THINK-mode failover on very large shortages:
+                            # cap each expand pass so we can converge over multiple passes.
+                            try:
+                                max_total_addition = int(
+                                    os.getenv("SCRIPT_VALIDATION_QUALITY_EXPAND_MAX_TOTAL_CHARS", "3200")
+                                )
+                            except Exception:
+                                max_total_addition = 3200
+                            max_total_addition = max(1200, max_total_addition)
+                            if total_min > max_total_addition:
+                                total_min = max_total_addition
+                            if total_max > max_total_addition + 200:
+                                total_max = max_total_addition + 200
+                            if total_max < total_min:
+                                total_max = total_min
+
+                            # Prefer fewer, thicker insertions (easier to hit char budgets and reduces thin repetition).
+                            n_insert = max(3, (total_min + 999) // 1000)
                             n_insert = min(6, n_insert)
                             each_min = max(250, total_min // max(1, n_insert))
                             each_max = max(each_min, (total_max + max(1, n_insert) - 1) // max(1, n_insert))
@@ -7070,7 +7390,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             if str((it or {}).get("severity") or "error").lower() != "warning"
                         ]
                         # Fallback: deterministic budget trim when LLM shrink under-delivers on length.
-                        if re_errors:
+                        # Disabled by default because it edits content and can degrade quality.
+                        # Enable only for emergency recovery:
+                        #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
+                        if re_errors and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
                             re_codes = {
                                 str(it.get("code"))
                                 for it in re_errors
@@ -7764,6 +8087,198 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                                 break
                                 except Exception:
                                     pass
+                            # If the only remaining failure is length underflow, reuse the existing extend prompt.
+                            if codes2 == {"length_too_short"}:
+                                try:
+                                    target_min = (
+                                        int(stats2.get("target_chars_min"))
+                                        if stats2.get("target_chars_min") is not None
+                                        else None
+                                    )
+                                    target_max = (
+                                        int(stats2.get("target_chars_max"))
+                                        if stats2.get("target_chars_max") is not None
+                                        else None
+                                    )
+                                    char_count = (
+                                        int(stats2.get("char_count")) if stats2.get("char_count") is not None else None
+                                    )
+                                    if (
+                                        isinstance(target_min, int)
+                                        and target_min > 0
+                                        and isinstance(target_max, int)
+                                        and target_max >= target_min
+                                        and isinstance(char_count, int)
+                                        and char_count < target_min
+                                    ):
+                                        shortage = target_min - char_count
+                                        room = target_max - char_count
+                                        if shortage > 0 and room > 0 and shortage <= 8000:
+                                            extend_task = os.getenv(
+                                                "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                                            ).strip()
+                                            # Target a modest buffer to avoid bouncing on the min boundary.
+                                            add_min = shortage + 120
+                                            add_max = shortage + 360
+                                            add_max = min(add_max, room)
+                                            add_min = min(add_min, add_max)
+                                            add_min = max(220, add_min)
+                                            add_max = max(add_min, add_max)
+
+                                            # Best-effort pattern/targets (optional; keep safe defaults if unknown).
+                                            pattern_id = ""
+                                            pause_lines_target_min = ""
+                                            modern_examples_max_target = "1"
+                                            core_episode_required = "0"
+                                            core_episode_guide = ""
+                                            try:
+                                                patterns_doc = _load_a_text_patterns_doc()
+                                                pat = (
+                                                    _select_a_text_pattern(patterns_doc, st.channel, title_for_alignment)
+                                                    if patterns_doc
+                                                    else {}
+                                                )
+                                                if isinstance(pat, dict):
+                                                    pattern_id = str(pat.get("id") or "").strip()
+                                                    plan_cfg = pat.get("plan") if isinstance(pat.get("plan"), dict) else {}
+                                                    mp = plan_cfg.get("modern_example_policy") if isinstance(plan_cfg, dict) else None
+                                                    if isinstance(mp, dict) and mp.get("max_examples") not in (None, ""):
+                                                        modern_examples_max_target = str(max(0, int(mp.get("max_examples"))))
+                                                    sections = plan_cfg.get("sections") if isinstance(plan_cfg, dict) else None
+                                                    if isinstance(sections, list):
+                                                        sec_count = len(
+                                                            [
+                                                                s
+                                                                for s in sections
+                                                                if isinstance(s, dict) and str(s.get("name") or "").strip()
+                                                            ]
+                                                        )
+                                                        if sec_count > 0:
+                                                            pause_lines_target_min = str(max(0, sec_count - 1))
+                                                    cands = (
+                                                        plan_cfg.get("core_episode_candidates")
+                                                        or plan_cfg.get("buddhist_episode_candidates")
+                                                    ) if isinstance(plan_cfg, dict) else None
+                                                    if isinstance(cands, list) and cands:
+                                                        core_episode_required = "1"
+                                                        picked = _pick_core_episode(cands, title_for_alignment)
+                                                        if not isinstance(picked, dict) and isinstance(cands[0], dict):
+                                                            picked = cands[0]
+                                                        if isinstance(picked, dict):
+                                                            topic = str(picked.get("topic") or picked.get("id") or "").strip()
+                                                            safe_retelling = str(picked.get("safe_retelling") or "").strip()
+                                                            if safe_retelling:
+                                                                safe_retelling = re.sub(r"\s+", " ", safe_retelling).strip()
+                                                                if len(safe_retelling) > 620:
+                                                                    safe_retelling = safe_retelling[:620].rstrip() + "…"
+                                                            lines: list[str] = []
+                                                            if topic:
+                                                                lines.append(f"- {topic}")
+                                                            if safe_retelling:
+                                                                lines.append(f"  safe_retelling: {safe_retelling}")
+                                                            core_episode_guide = "\n".join(lines).strip()
+                                            except Exception:
+                                                pass
+
+                                            extend_prompt = _render_template(
+                                                A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                                                {
+                                                    "CHANNEL_CODE": str(st.channel),
+                                                    "VIDEO_ID": str(st.video),
+                                                    "TITLE": title_for_alignment,
+                                                    "TARGET_CHARS_MIN": str(target_min or ""),
+                                                    "TARGET_CHARS_MAX": str(target_max or ""),
+                                                    "A_TEXT_PATTERN_ID": pattern_id,
+                                                    "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
+                                                    "PAUSE_LINES_TARGET_MIN": pause_lines_target_min,
+                                                    "CORE_EPISODE_REQUIRED": core_episode_required,
+                                                    "CORE_EPISODE_GUIDE": _sanitize_quality_gate_context(
+                                                        core_episode_guide, max_chars=650
+                                                    ),
+                                                    "LENGTH_FEEDBACK": _a_text_length_feedback(draft, st.metadata or {}),
+                                                    "SHORTAGE_CHARS": str(shortage),
+                                                    "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                                    "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                                                    "PLANNING_HINT": _sanitize_quality_gate_context(
+                                                        _build_planning_hint(st.metadata or {}), max_chars=700
+                                                    ),
+                                                    "PERSONA": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("persona") or ""), max_chars=1500
+                                                    ),
+                                                    "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("a_text_channel_prompt") or ""),
+                                                        max_chars=1500,
+                                                    ),
+                                                    "A_TEXT_RULES_SUMMARY": _a_text_rules_summary(st.metadata or {}),
+                                                    "A_TEXT": (draft or "").strip(),
+                                                },
+                                            )
+                                            extend_result = router_client.call_with_raw(
+                                                task=extend_task,
+                                                messages=[{"role": "user", "content": extend_prompt}],
+                                            )
+                                            extend_raw = _extract_llm_text_content(extend_result)
+                                            extend_obj = _parse_json_lenient(extend_raw)
+                                            after_pause_index = (
+                                                (extend_obj or {}).get("after_pause_index", 0)
+                                                if isinstance(extend_obj, dict)
+                                                else 0
+                                            )
+                                            addition = (
+                                                str((extend_obj or {}).get("addition") or "")
+                                                if isinstance(extend_obj, dict)
+                                                else ""
+                                            )
+                                            extended = _insert_addition_after_pause(
+                                                draft,
+                                                after_pause_index,
+                                                addition,
+                                                max_addition_chars=add_max,
+                                                min_addition_chars=add_min,
+                                            )
+                                            # Re-apply deterministic repairs + validate again.
+                                            extended2 = _sanitize_inline_pause_markers(extended)
+                                            extended2 = _sanitize_a_text_forbidden_statistics(extended2)
+                                            extended2 = _sanitize_a_text_markdown_headings(extended2)
+                                            extended2 = _sanitize_a_text_bullet_prefixes(extended2)
+                                            if isinstance(quote_max_i, int) and quote_max_i >= 0:
+                                                extended2 = _reduce_quote_marks(extended2, quote_max_i)
+                                            if isinstance(paren_max_i, int) and paren_max_i >= 0:
+                                                extended2 = _reduce_paren_marks(extended2, paren_max_i)
+
+                                            issues3, stats3 = validate_a_text(extended2, st.metadata or {})
+                                            errors3 = [
+                                                it
+                                                for it in issues3
+                                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                                            ]
+                                            if not errors3:
+                                                draft = extended2
+                                                fix_meta = {
+                                                    "provider": fix_result.get("provider"),
+                                                    "model": fix_result.get("model"),
+                                                    "request_id": fix_result.get("request_id"),
+                                                    "chain": fix_result.get("chain"),
+                                                    "latency_ms": fix_result.get("latency_ms"),
+                                                    "usage": fix_result.get("usage") or {},
+                                                    "attempts": attempt,
+                                                    "stats": stats2,
+                                                    "postprocess_length_extend": {
+                                                        "task": extend_task,
+                                                        "provider": extend_result.get("provider"),
+                                                        "model": extend_result.get("model"),
+                                                        "request_id": extend_result.get("request_id"),
+                                                        "chain": extend_result.get("chain"),
+                                                        "latency_ms": extend_result.get("latency_ms"),
+                                                        "usage": extend_result.get("usage") or {},
+                                                        "after_pause_index": after_pause_index,
+                                                        "stats": stats3,
+                                                    },
+                                                }
+                                                last_fix_errors = None
+                                                break
+                                except Exception:
+                                    pass
                             if not errors2:
                                 fix_meta = {
                                     "provider": fix_result.get("provider"),
@@ -7919,6 +8434,18 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             "SCRIPT_PIPELINE_DRY", "0"
         ) != "1"
         prev_gate = stage_details.get("llm_quality_gate") if isinstance(stage_details.get("llm_quality_gate"), dict) else {}
+        prev_gate_fp = ""
+        prev_gate_verdict = ""
+        prev_gate_fix_output = ""
+        try:
+            if isinstance(prev_gate, dict):
+                prev_gate_fp = str(prev_gate.get("input_fingerprint") or "").strip()
+                prev_gate_verdict = str(prev_gate.get("verdict") or "").strip().lower()
+                prev_gate_fix_output = str(prev_gate.get("fix_output") or "").strip()
+        except Exception:
+            prev_gate_fp = ""
+            prev_gate_verdict = ""
+            prev_gate_fix_output = ""
         fingerprint = _script_validation_input_fingerprint(a_text, st.metadata or {})
         force_llm_gate = _truthy_env("SCRIPT_VALIDATION_FORCE_LLM_GATE", "0")
         prev_verdict = str(prev_gate.get("verdict") or "").strip().lower()
@@ -7989,6 +8516,21 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             if max_rounds_requested != max_rounds:
                 llm_gate_details["max_rounds_capped"] = True
 
+            # Cost guard: if a previous run already produced a Fixer candidate under the same
+            # fingerprint (same script + same SSOT/prompts), allow this run to resume from it.
+            # This avoids paying for the same Judge->Fix->(length rescue) loop repeatedly.
+            resume_from_fix_output = ""
+            try:
+                if (
+                    prev_gate_verdict == "fail"
+                    and prev_gate_fp
+                    and prev_gate_fp == fingerprint
+                    and prev_gate_fix_output
+                ):
+                    resume_from_fix_output = prev_gate_fix_output
+            except Exception:
+                resume_from_fix_output = ""
+
             # Clear stale artifacts from previous runs/modes so status.json reflects this run.
             for _k in (
                 "round",
@@ -8025,6 +8567,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
             quality_dir = content_dir / "analysis" / "quality_gate"
             quality_dir.mkdir(parents=True, exist_ok=True)
+            prompt_snap_dir = content_dir / "analysis" / "prompt_snapshots"
             judge_latest_path = quality_dir / "judge_latest.json"
             judge_round1_path = quality_dir / "judge_round1.json"
             judge_round2_path = quality_dir / "judge_round2.json"
@@ -8150,6 +8693,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "CHANNEL_PROMPT": _sanitize_quality_gate_context(
                     str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=850
                 ),
+                "BENCHMARK_EXCERPTS": _sanitize_quality_gate_context(str(st.metadata.get("a_text_benchmark_excerpts") or ""), max_chars=650),
                 "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(_a_text_rules_summary(st.metadata or {}), max_chars=650),
                 "A_TEXT_PATTERN_ID": pattern_id,
                 "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
@@ -8211,6 +8755,19 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         "LENGTH_FEEDBACK": _a_text_length_feedback(text or "", st.metadata or {}),
                     },
                 )
+                try:
+                    snap = _write_prompt_snapshot(
+                        prompt_snap_dir,
+                        f"script_validation_judge_round{round_no}_prompt.txt",
+                        judge_prompt,
+                        base=base,
+                    )
+                    if snap:
+                        llm_gate_details["judge_prompt"] = snap
+                        llm_gate_details[f"judge_round{round_no}_prompt"] = snap
+                except Exception:
+                    pass
+
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                 os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
                 try:
@@ -8243,20 +8800,24 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     pause_target = int(pt) if pt else None
                 except Exception:
                     pause_target = None
-                judge_obj = _prune_spurious_pause_requirement(judge_obj, det_stats, pause_target)
-                judge_obj = _prune_spurious_tts_hazard(judge_obj, det_stats)
-                # Guard against false "modern_examples_count" failures (generic hypotheticals miscounted as person stories).
-                max_examples_target: int | None = None
-                try:
-                    me = str(placeholders_base.get("MODERN_EXAMPLES_MAX_TARGET") or "").strip()
-                    max_examples_target = int(me) if me else None
-                except Exception:
-                    max_examples_target = None
-                judge_obj = _prune_spurious_modern_examples_requirement(judge_obj, text or "", max_examples_target)
-                # Guard against over-strict qualitative must-fix items that cause non-converging loops.
-                judge_obj = _prune_spurious_flow_break(judge_obj, det_issues, text or "")
-                judge_obj = _prune_soft_poetic_filler(judge_obj)
-                judge_obj = _prune_soft_repetition(judge_obj, det_issues)
+                # Prune ONLY objective miscounts by default (cost guard against false fails).
+                # Do NOT prune qualitative issues (repetition/flow/tone), otherwise low-quality scripts can slip through.
+                if _truthy_env("SCRIPT_VALIDATION_PRUNE_JUDGE_OBJECTIVE_MISCOUNTS", "1"):
+                    judge_obj = _prune_spurious_pause_requirement(judge_obj, det_stats, pause_target)
+                    judge_obj = _prune_spurious_tts_hazard(judge_obj, det_stats)
+                    # Guard against false "modern_examples_count" failures (generic hypotheticals miscounted as person stories).
+                    max_examples_target: int | None = None
+                    try:
+                        me = str(placeholders_base.get("MODERN_EXAMPLES_MAX_TARGET") or "").strip()
+                        max_examples_target = int(me) if me else None
+                    except Exception:
+                        max_examples_target = None
+                    judge_obj = _prune_spurious_modern_examples_requirement(judge_obj, text or "", max_examples_target)
+                if _truthy_env("SCRIPT_VALIDATION_PRUNE_JUDGE_QUALITATIVE_MUST_FIX", "0"):
+                    # Not recommended: can hide real quality problems. Keep OFF by default.
+                    judge_obj = _prune_spurious_flow_break(judge_obj, det_issues, text or "")
+                    judge_obj = _prune_soft_poetic_filler(judge_obj)
+                    judge_obj = _prune_soft_repetition(judge_obj, det_issues)
 
                 # Optional deterministic must-fix hooks (OFF by default).
                 if _truthy_env("SCRIPT_VALIDATION_FORCED_MUST_FIX", "0"):
@@ -8301,19 +8862,22 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     out = sanitized.text
                 except Exception:
                     pass
-                # Deterministic repairs to reduce non-converging fix loops.
-                try:
-                    repaired, dup_details = _repair_a_text_duplicate_paragraphs(out)
-                    if dup_details and repaired.strip() and repaired.strip() != out.strip():
-                        out = repaired
-                except Exception:
-                    pass
-                try:
-                    repaired, ending_details = _repair_a_text_incomplete_ending(out)
-                    if ending_details and repaired.strip() and repaired.strip() != out.strip():
-                        out = repaired
-                except Exception:
-                    pass
+                # Deterministic content edits are OFF by default (bug magnet / can change meaning).
+                # If you *really* need them for emergency recovery, explicitly enable:
+                #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
+                if _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
+                    try:
+                        repaired, dup_details = _repair_a_text_duplicate_paragraphs(out)
+                        if dup_details and repaired.strip() and repaired.strip() != out.strip():
+                            out = repaired
+                    except Exception:
+                        pass
+                    try:
+                        repaired, ending_details = _repair_a_text_incomplete_ending(out)
+                        if ending_details and repaired.strip() and repaired.strip() != out.strip():
+                            out = repaired
+                    except Exception:
+                        pass
                 # Keep candidate within deterministic symbol budgets (TTS safety).
                 try:
                     quote_max = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
@@ -8720,6 +9284,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         "MODERN_EXAMPLES_MAX": modern_max,
                     },
                 )
+                try:
+                    snap = _write_prompt_snapshot(
+                        prompt_snap_dir,
+                        "script_validation_rebuild_draft_prompt.txt",
+                        draft_prompt,
+                        base=base,
+                    )
+                    if snap:
+                        llm_gate_details["rebuild_draft_prompt"] = snap
+                except Exception:
+                    pass
 
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                 os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
@@ -8747,6 +9322,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 return draft_text
 
             current_text = a_text
+            if resume_from_fix_output:
+                try:
+                    resume_path = base / resume_from_fix_output
+                    if resume_path.exists():
+                        resumed = _sanitize_candidate(resume_path.read_text(encoding="utf-8"))
+                        hard_errors, _hard_stats = _non_warning_errors(resumed)
+                        if not hard_errors:
+                            current_text = resumed
+                            llm_gate_details.setdefault("resume", {})["from_fix_output"] = resume_from_fix_output
+                except Exception:
+                    pass
             judge_obj: Dict[str, Any] = {}
             for round_no in range(1, max_rounds + 1):
                 verdict, judge_obj, _judge_result, _judge_raw = _run_judge(current_text or "", round_no=round_no)
@@ -8823,6 +9409,18 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
                     },
                 )
+                try:
+                    snap = _write_prompt_snapshot(
+                        prompt_snap_dir,
+                        f"script_validation_fix_round{round_no}_prompt.txt",
+                        fixer_prompt,
+                        base=base,
+                    )
+                    if snap:
+                        llm_gate_details["fix_prompt"] = snap
+                        llm_gate_details[f"fix_round{round_no}_prompt"] = snap
+                except Exception:
+                    pass
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                 os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
                 try:
@@ -9063,6 +9661,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "CHANNEL_PROMPT": _sanitize_quality_gate_context(
                     str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=850
                 ),
+                "BENCHMARK_EXCERPTS": _sanitize_quality_gate_context(str(st.metadata.get("a_text_benchmark_excerpts") or ""), max_chars=650),
                 "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(_a_text_rules_summary(st.metadata or {}), max_chars=650),
                 "A_TEXT_PATTERN_ID": pattern_id,
                 "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
@@ -9104,6 +9703,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             "LENGTH_FEEDBACK": _a_text_length_feedback(seed_text or "", st.metadata or {}),
                         },
                     )
+                    try:
+                        snap = _write_prompt_snapshot(
+                            prompt_snap_dir,
+                            "script_validation_rebuild_plan_prompt.txt",
+                            plan_prompt,
+                            base=base,
+                        )
+                        if snap:
+                            llm_gate_details["rebuild_plan_prompt"] = snap
+                    except Exception:
+                        pass
 
                     prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                     os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
@@ -9152,14 +9762,23 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         **placeholders_base,
                         "PLAN_JSON": json.dumps(plan_obj or {}, ensure_ascii=False, indent=2),
                         "LENGTH_FEEDBACK": _a_text_targets_feedback(st.metadata or {}),
-                        "PAUSE_MARKERS_REQUIRED": str(
-                            max(0, len((plan_obj.get("sections") or [])) - 1)
-                        ),
+                        "PAUSE_MARKERS_REQUIRED": str(max(0, len((plan_obj.get("sections") or [])) - 1)),
                         "MODERN_EXAMPLES_MAX": str(
                             ((plan_obj.get("modern_examples_policy") or {}).get("max_examples") or "")
                         ).strip(),
                     },
                 )
+                try:
+                    snap = _write_prompt_snapshot(
+                        prompt_snap_dir,
+                        "script_validation_rebuild_draft_prompt.txt",
+                        draft_prompt,
+                        base=base,
+                    )
+                    if snap:
+                        llm_gate_details["rebuild_draft_prompt"] = snap
+                except Exception:
+                    pass
 
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                 os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
@@ -9751,6 +10370,18 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
                     },
                 )
+                try:
+                    snap = _write_prompt_snapshot(
+                        prompt_snap_dir,
+                        f"script_validation_fix_round{round_no}_prompt.txt",
+                        fixer_prompt,
+                        base=base,
+                    )
+                    if snap:
+                        llm_gate_details["fix_prompt"] = snap
+                        llm_gate_details[f"fix_round{round_no}_prompt"] = snap
+                except Exception:
+                    pass
 
                 prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
                 os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
@@ -10308,6 +10939,267 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
 
                 current_text = candidate
 
+        # Optional: final polish (whole-script) after the LLM quality gate.
+        # Goal: enforce tone consistency + reduce repetition without inventing new facts.
+        # Safety: apply ONLY if structural invariants stay intact (esp. `---` count).
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            try:
+                final_polish_mode = os.getenv("SCRIPT_VALIDATION_FINAL_POLISH", "auto").strip().lower()
+            except Exception:
+                final_polish_mode = "auto"
+            try:
+                final_polish_task = os.getenv(
+                    "SCRIPT_VALIDATION_FINAL_POLISH_TASK", "script_a_text_final_polish"
+                ).strip()
+            except Exception:
+                final_polish_task = "script_a_text_final_polish"
+            try:
+                final_polish_min_chars = int(os.getenv("SCRIPT_VALIDATION_FINAL_POLISH_MIN_CHARS", "12000").strip())
+            except Exception:
+                final_polish_min_chars = 12000
+
+            def _count_pause_lines(text: str) -> int:
+                return sum(1 for ln in (text or "").splitlines() if ln.strip() == "---")
+
+            should_final_polish = False
+            # Allow auto-polish when:
+            # - LLM gate actually ran in this execution, OR
+            # - LLM gate was skipped due to unchanged input (previous pass), so polishing can retry safely.
+            try:
+                _skip_reason = str(llm_gate_details.get("skip_reason") or "").strip().lower()
+            except Exception:
+                _skip_reason = ""
+            allow_auto_polish = bool(llm_gate_enabled) and (not bool(skip_llm_gate) or _skip_reason == "unchanged_input")
+            if final_polish_mode in {"1", "true", "yes", "on"}:
+                should_final_polish = True
+            elif final_polish_mode in {"0", "false", "no", "off"}:
+                should_final_polish = False
+            else:
+                if not allow_auto_polish:
+                    should_final_polish = False
+                else:
+                    # auto: only when long-form or when the LLM gate already had to intervene.
+                    try:
+                        tgt_min = int(str(st.metadata.get("target_chars_min") or "0").strip())
+                    except Exception:
+                        tgt_min = 0
+                    try:
+                        gate_round = int(str(llm_gate_details.get("round") or "0").strip())
+                    except Exception:
+                        gate_round = 0
+                    should_final_polish = bool(
+                        (isinstance(tgt_min, int) and tgt_min >= final_polish_min_chars)
+                        or (isinstance(gate_round, int) and gate_round >= 2)
+                        or bool(llm_gate_details.get("fix_output"))
+                        or bool(llm_gate_details.get("rebuild_draft_output"))
+                    )
+
+            # If the LLM gate is disabled/skipped, do not run final polish unless explicitly forced.
+            if should_final_polish and final_polish_mode not in {"1", "true", "yes", "on"} and not allow_auto_polish:
+                should_final_polish = False
+
+            if isinstance(llm_gate_details, dict):
+                prev_fp = ""
+                prev_status = ""
+                prev_polish = llm_gate_details.get("final_polish")
+                if isinstance(prev_polish, dict):
+                    prev_fp = str(prev_polish.get("input_fingerprint") or "").strip()
+                    prev_status = str(prev_polish.get("status") or "").strip().lower()
+
+                try:
+                    polish_fp = _script_validation_input_fingerprint(final_text or "", st.metadata or {})
+                except Exception:
+                    polish_fp = ""
+
+                if prev_status == "applied" and prev_fp and polish_fp and prev_fp == polish_fp:
+                    should_final_polish = False
+
+                llm_gate_details["final_polish"] = {
+                    "enabled": bool(should_final_polish),
+                    "mode": final_polish_mode,
+                    "task": final_polish_task,
+                    "min_chars": final_polish_min_chars,
+                    "input_fingerprint": polish_fp,
+                }
+
+            if should_final_polish:
+                try:
+                    quality_dir = content_dir / "analysis" / "quality_gate"
+                    quality_dir.mkdir(parents=True, exist_ok=True)
+                    polish_latest_path = quality_dir / "final_polish_latest.md"
+
+                    # Pause markers must remain stable for TTS.
+                    # To prevent the LLM from adding/removing `---`, we replace them with immutable tokens
+                    # (e.g. <<<PAUSE_1>>>), require the LLM to preserve them, then restore to `---`.
+                    pause_tokens: List[str] = []
+                    a_text_for_polish = (final_text or "").replace("\r\n", "\n").replace("\r", "\n")
+                    try:
+                        pause_n = 0
+                        out_lines: List[str] = []
+                        for ln in a_text_for_polish.split("\n"):
+                            if ln.strip() == "---":
+                                pause_n += 1
+                                tok = f"<<<PAUSE_{pause_n}>>>"
+                                pause_tokens.append(tok)
+                                out_lines.append(tok)
+                            else:
+                                out_lines.append(ln)
+                        a_text_for_polish = "\n".join(out_lines)
+                    except Exception:
+                        pause_tokens = []
+                        a_text_for_polish = (final_text or "").replace("\r\n", "\n").replace("\r", "\n")
+
+                    pre_pause = len(pause_tokens) if pause_tokens else _count_pause_lines(final_text or "")
+
+                    polish_prompt = _render_template(
+                        A_TEXT_FINAL_POLISH_PROMPT_PATH,
+                        {
+                            "CHANNEL_CODE": str(st.channel),
+                            "VIDEO_ID": f"{st.channel}-{st.video}",
+                            "TITLE": str(st.metadata.get("sheet_title") or st.metadata.get("title") or "").strip(),
+                            "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
+                            "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                            "PERSONA": _sanitize_quality_gate_context(str(st.metadata.get("persona") or ""), max_chars=850),
+                            "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                                str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""),
+                                max_chars=850,
+                            ),
+                            "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(
+                                _a_text_rules_summary(st.metadata or {}), max_chars=650
+                            ),
+                            "A_TEXT": a_text_for_polish.strip(),
+                        },
+                    )
+                    try:
+                        prompt_snap_dir = content_dir / "analysis" / "prompt_snapshots"
+                        snap = _write_prompt_snapshot(
+                            prompt_snap_dir,
+                            "script_validation_final_polish_prompt.txt",
+                            polish_prompt,
+                            base=base,
+                        )
+                        if (
+                            snap
+                            and isinstance(llm_gate_details, dict)
+                            and isinstance(llm_gate_details.get("final_polish"), dict)
+                        ):
+                            llm_gate_details["final_polish"]["prompt"] = snap
+                    except Exception:
+                        pass
+
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        polish_result = router_client.call_with_raw(
+                            task=final_polish_task,
+                            messages=[{"role": "user", "content": polish_prompt}],
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    polished_raw = _extract_llm_text_content(polish_result) or ""
+                    polished = (polished_raw or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                    applied = False
+                    polish_error = ""
+                    if not polished:
+                        polish_error = "empty_output"
+                    else:
+                        # Verify pause tokens were preserved (order + standalone lines + no extras).
+                        if pause_tokens:
+                            try:
+                                raw_lines = [ln.strip() for ln in polished.splitlines()]
+                                token_lines = [ln for ln in raw_lines if ln in pause_tokens]
+                                extra_tokens = [
+                                    ln
+                                    for ln in raw_lines
+                                    if re.fullmatch(r"<<<PAUSE_\d+>>>", ln or "") and ln not in pause_tokens
+                                ]
+                                if extra_tokens:
+                                    polish_error = "pause_token_extra"
+                                elif token_lines != pause_tokens:
+                                    polish_error = "pause_token_mismatch"
+                            except Exception:
+                                polish_error = "pause_token_check_failed"
+
+                        if not polish_error and pause_tokens:
+                            # Restore tokens -> `---` before any sanitizers/meta stripping.
+                            try:
+                                restored = polished
+                                for tok in pause_tokens:
+                                    restored = restored.replace(tok, "---")
+                                polished = restored
+                            except Exception:
+                                polish_error = "pause_restore_failed"
+
+                        if not polish_error:
+                            polished = _sanitize_a_text_markdown_headings(polished)
+                            polished = _sanitize_a_text_bullet_prefixes(polished)
+                            polished = _sanitize_a_text_forbidden_statistics(polished)
+                            polished = _sanitize_inline_pause_markers(polished)
+                            try:
+                                from factory_common.text_sanitizer import strip_meta_from_script
+
+                                meta_sanitized = strip_meta_from_script(polished)
+                                polished = meta_sanitized.text
+                            except Exception:
+                                pass
+                            polished = polished.strip()
+                            polished = polished + "\n" if polished else ""
+
+                            post_pause = _count_pause_lines(polished)
+                            if pre_pause != post_pause:
+                                polish_error = f"pause_mismatch(pre={pre_pause},post={post_pause})"
+
+                    if not polish_error:
+                        issues2, stats2 = validate_a_text(polished, st.metadata or {})
+                        hard2 = [
+                            it
+                            for it in issues2
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        if hard2:
+                            polish_error = "invalid_a_text"
+                            try:
+                                llm_gate_details["final_polish"]["invalid_codes"] = sorted(
+                                    {str(it.get("code")) for it in hard2 if isinstance(it, dict) and it.get("code")}
+                                )
+                            except Exception:
+                                pass
+                        else:
+                            final_text = polished
+                            applied = True
+
+                    try:
+                        polish_latest_path.write_text(polished or "", encoding="utf-8")
+                        if isinstance(llm_gate_details, dict) and isinstance(llm_gate_details.get("final_polish"), dict):
+                            llm_gate_details["final_polish"]["output"] = str(polish_latest_path.relative_to(base))
+                            llm_gate_details["final_polish"]["llm_meta"] = {
+                                "provider": polish_result.get("provider"),
+                                "model": polish_result.get("model"),
+                                "request_id": polish_result.get("request_id"),
+                                "chain": polish_result.get("chain"),
+                                "latency_ms": polish_result.get("latency_ms"),
+                                "usage": polish_result.get("usage") or {},
+                                "finish_reason": polish_result.get("finish_reason"),
+                                "routing": polish_result.get("routing"),
+                                "cache": polish_result.get("cache"),
+                            }
+                            llm_gate_details["final_polish"]["status"] = "applied" if applied else "skipped"
+                            if polish_error:
+                                llm_gate_details["final_polish"]["error"] = polish_error
+                    except Exception:
+                        pass
+                except Exception:
+                    try:
+                        if isinstance(llm_gate_details, dict) and isinstance(llm_gate_details.get("final_polish"), dict):
+                            llm_gate_details["final_polish"]["status"] = "failed"
+                            llm_gate_details["final_polish"]["error"] = "exception"
+                    except Exception:
+                        pass
+
         # If the LLM gate produced a new draft, re-run the deterministic validator before writing.
         if final_text != a_text:
             re_issues, re_stats = validate_a_text(final_text, st.metadata or {})
@@ -10351,6 +11243,46 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     llm_gate_details["backup_path"] = str(backup_path.relative_to(base))
             except Exception:
                 pass
+
+            # Safety: avoid auto-overwriting human-authored SoT (assembled_human.md) by default.
+            default_auto_apply = "0" if canonical_path.resolve() == human_path.resolve() else "1"
+            auto_apply = _truthy_env("SCRIPT_VALIDATION_LLM_AUTO_APPLY", default_auto_apply)
+            llm_gate_details["auto_apply"] = bool(auto_apply)
+            llm_gate_details["auto_apply_default"] = default_auto_apply
+
+            if not auto_apply:
+                proposed_path = analysis_dir / f"proposed_{_utc_now_compact()}_{canonical_path.name}"
+                try:
+                    proposed_path.write_text(final_text.strip() + "\n", encoding="utf-8")
+                    llm_gate_details["proposed_path"] = str(proposed_path.relative_to(base))
+                except Exception:
+                    proposed_path = analysis_dir / "proposed_llm_gate.md"
+                    try:
+                        proposed_path.write_text(final_text.strip() + "\n", encoding="utf-8")
+                        llm_gate_details["proposed_path"] = str(proposed_path.relative_to(base))
+                    except Exception:
+                        pass
+
+                stage_details["error"] = "llm_gate_proposed_not_applied"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"llm_gate_proposed_not_applied"}
+                )
+                proposed_rel = str(llm_gate_details.get("proposed_path") or "").strip()
+                fix_hints = [
+                    "LLM品質ゲートの修正版は自動適用しません（安全のため）。必要なら提案ファイルを確認して手動で反映してください。",
+                    f"proposed: {proposed_rel}",
+                ]
+                if proposed_rel:
+                    fix_hints.append(f"apply: cp \"{(base / proposed_rel).resolve()}\" \"{canonical_path.resolve()}\"")
+                stage_details["fix_hints"] = fix_hints
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
 
             try:
                 canonical_path.parent.mkdir(parents=True, exist_ok=True)

@@ -21,29 +21,22 @@
 ## 1) 基本方針（LLM + ハードガードで品質を固定）
 
 ### 1.0 ハードガード（機械チェック/非LLM）を先に通す
-- `script_validation` はまず機械チェック（非LLM）で「禁則/字数/区切り/括弧上限」等を検査し、必要なら **最小差分**で修正してから LLM Judge に渡す。
+- `script_validation` はまず機械チェック（非LLM）で「禁則/字数/区切り/括弧上限」等を検査し、必要なら **TTS事故を防ぐための形式レベルの最小差分**（例: 行内 `---` の正規化、メタ混入の除去）だけを行ってから LLM Judge に渡す。
   - 括弧（鉤括弧/二重鉤括弧/丸括弧）の超過は、SSOT上の **ハード上限**として扱う（超過は不合格）。
+  - 「重複段落を消す」「末尾を切る」など **内容に触れる決定論修正**はバグの温床になりやすいため、デフォルトでは無効（`SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=0`）。
 - LLM Judge は「流れ/冗長/反復/整合」の合否に集中させる（機械的な文字一致チェックをさせない）。
   - **「タイトルの語句が本文に出るか」は必須要件ではない**（意味として回収できているかで判定）。これだけで fail にしない。
 
-### 1.0.1 Judge の “誤判定” を決定論で刈り取る（コスト暴走防止）
-LLM Judge は便利だが、ログを見ていると「機械計測で足りているのに `must_fix` に入れる」などの誤判定が起きる。  
-この誤判定で Fix ループが回るとコストが跳ねるため、`script_validation` 内では **決定論フィルタ**を通す。
+### 1.0.1 Judge の“数え間違い”だけを補正する（任意・安全弁）
+LLM Judge は「内容品質」を見るのが役割だが、**数え間違い**（`---` 本数、`「」/（）` の個数、人物例の数など）を起こすことがある。  
+ここで誤って `must_fix` になり Fix ループが回るとコストが跳ねるため、`script_validation` では **客観的に検証できる“数”だけ**を（任意で）補正できる。
 
-- **pause/記号/人物例の誤判定は prune**（機械計測が正）:
+- デフォルトON（推奨）: `SCRIPT_VALIDATION_PRUNE_JUDGE_OBJECTIVE_MISCOUNTS=1`
   - `---` 本数（pause_lines）
   - `「」`/`（）` の上限（tts_hazard）
   - “人物例” の数え間違い（modern_examples_count）
-- **soft must_fix は prune して warning に落とす（収束優先）**:
-  - 例: “弱い結び” など主観が大きい `flow_break`（ただし末尾ぶつ切り＝`incomplete_ending` は別でハード停止）
-  - 例: `poetic_filler`/`filler` は主観が大きく、Fix ループが収束しない原因になりやすい。
-    - **原則 prune（minor/major は warning に落とす）**。ただし `critical` は停止側に残す（コストより安全優先）。
-  - 例: `repetition` の過剰指摘（重複段落は機械バリデータでハード停止）
-- prune した項目は `content/analysis/quality_gate/judge_latest.json` の `judge.pruned_must_fix` に残す（見える化）。
-
-意図:
-- “LLMの気分” で止まらない（大量運用で破綻しない）。
-- Fix ループを必要最小限にして **コストを安定**させる。
+- デフォルトOFF（非推奨）: `SCRIPT_VALIDATION_PRUNE_JUDGE_QUALITATIVE_MUST_FIX=1`
+  - `repetition` / `poetic_filler` / `flow_break` など **内容品質の must_fix を決定論で消す**のは、低品質が pass する原因になりうるため通常は使わない。
 
 ### 1.1 Judge（審査）
 - 入力: チャンネル情報（persona / a_text_channel_prompt（channel_promptから衝突要素を落とした派生） / planning meta）+ Aテキスト本文 + 全チャンネル共通ルール（SSOT）
@@ -57,6 +50,21 @@ LLM Judge は便利だが、ログを見ていると「機械計測で足りて�
   - ただし「水増し回避」を最優先し、厚みは **具体の追加**で作る。
   - 機械的な等間隔の `---` 挿入は禁止（文脈ベース）。
   - 可能な限り **既存本文を保持**し、問題のある段落だけを差し替える（全文リライトは最終手段）。
+
+### 1.2.1 Final Polish（最終納品の磨き込み / 任意）
+目的:
+- 章/セクションごとの “温度差” を消し、**トーン統一・反復抑制・概念混線解消** を 1 回で仕上げる。
+
+位置づけ:
+- `script_validation` の最後に、必要な場合だけ **最大1回**走らせる（常時ではない）。
+- 出力は必ず `validate_a_text` に通し、かつ入力の `---` 本数/順序を維持できた場合だけ採用する（事故を混入させない）。
+
+制御（Env）:
+- `SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`
+  - `auto`（既定）: 長尺（例: target_chars_min>=12000）など “崩れやすい条件” のときだけ実行。
+  - `0`: 無効
+  - `1`: 強制
+- task: `SCRIPT_VALIDATION_FINAL_POLISH_TASK=script_a_text_final_polish`（既定）
 
 ### 1.3 Extend（字数不足の救済 / 追記専用）
 - 目的: Fixer が内容を良くした結果、字数が下限を割る事故を防ぐ（“短文化ループ”を止める）。
@@ -90,8 +98,8 @@ LLM Judge は便利だが、ログを見ていると「機械計測で足りて�
   - `---` の位置や回数は原則維持し、機械的に増減しない。
 - 収束の実装方針（現行）:
   - まず LLM Shrink を最大N回（既定: `SCRIPT_VALIDATION_AUTO_SHRINK_MAX_ROUNDS=5`）まで試す。
-  - それでも `length_too_long` が残る場合、最後の手段として **機械（非LLM）の「区切り（`---`）単位の予算トリム」**で目標レンジに収める（`---` の位置と個数は維持）。
-    - 証跡: `status.json: stages.script_validation.details.auto_length_fix_fallback` に `deterministic_budget_trim` を記録。
+  - それでも `length_too_long` が残る場合は **pendingで停止**する（内容を機械的に削って合格扱いにしない）。
+  - 例外（非推奨・緊急時のみ）: `SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1` のときだけ、`---` 区切り単位の **機械トリム**を許可できる（証跡は `status.json` に残る）。
 
 ### 1.6 Rebuild（最終手段 / 作り直し）
 - 目的: Judge が重大な冗長・反復・流れ崩壊を指摘し、Fixer で収束しない場合に “一貫性ある長文” を再構築する。

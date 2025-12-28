@@ -1,6 +1,5 @@
 import type { KeyboardEvent } from "react";
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { VideoSummary } from "../api/types";
 import { translateStatus, translateStage } from "../utils/i18n";
 import { resolveAudioSubtitleState } from "../utils/video";
@@ -53,7 +52,6 @@ export function ChannelProjectList({
   onOpenScript,
   onOpenAudio,
 }: ChannelProjectListProps) {
-  const navigate = useNavigate();
   const totals = useMemo(() => ({
     total: videos.length,
     filtered: filteredVideos.length,
@@ -88,25 +86,10 @@ export function ChannelProjectList({
     };
   }, [videos]);
 
-  const navigateToDetail = (videoId: string, options?: { tab?: string }) => {
-    if (!channelCode) {
-      return;
-    }
-    const params = new URLSearchParams();
-    if (options?.tab) {
-      params.set("tab", options.tab);
-    }
-    const query = params.toString();
-    navigate(
-      `/channels/${encodeURIComponent(channelCode)}/videos/${encodeURIComponent(videoId)}${query ? `?${query}` : ""}`
-    );
-  };
-
   const handleRowKeyDown = (event: KeyboardEvent<HTMLTableRowElement>, videoId: string) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onSelectVideo(videoId);
-      navigateToDetail(videoId);
     }
   };
 
@@ -233,7 +216,6 @@ export function ChannelProjectList({
                     className={`channel-projects__row${isSelected ? " channel-projects__row--active" : ""}`}
                     onClick={() => {
                       onSelectVideo(video.video);
-                      navigateToDetail(video.video);
                     }}
                     onKeyDown={(event) => handleRowKeyDown(event, video.video)}
                     tabIndex={0}
@@ -282,7 +264,6 @@ export function ChannelProjectList({
                         onClick={(event) => {
                           event.stopPropagation();
                           onOpenScript(video.video);
-                          navigateToDetail(video.video, { tab: "script" });
                         }}
                       >
                         台本を開く
@@ -293,7 +274,6 @@ export function ChannelProjectList({
                         onClick={(event) => {
                           event.stopPropagation();
                           onOpenAudio(video.video);
-                          navigateToDetail(video.video, { tab: "audio" });
                         }}
                       >
                         音声・字幕

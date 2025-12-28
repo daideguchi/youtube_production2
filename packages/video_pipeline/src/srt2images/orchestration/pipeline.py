@@ -40,18 +40,14 @@ from factory_common.paths import video_pkg_root
 
 def run_pipeline(args):
     resolver = ChannelPresetResolver()
-    parser_defaults = {
-        "prompt_template": args.prompt_template,
-        "style": args.style,
-    }
+    # NOTE: argparse defaults are not preserved after config merging, so detect explicit CLI overrides via argv.
+    cli_overrides_prompt_template = "--prompt-template" in sys.argv
+    cli_overrides_style = "--style" in sys.argv
     detected_channel = args.channel or infer_channel_id_from_path(args.srt)
     channel_preset = resolver.resolve(detected_channel)
     if channel_preset:
         args.channel = detected_channel
-        if channel_preset.prompt_template and (
-            args.prompt_template == parser_defaults["prompt_template"]
-            or not args.prompt_template
-        ):
+        if channel_preset.prompt_template and not cli_overrides_prompt_template:
             resolved_template = channel_preset.resolved_prompt_template()
             if resolved_template:
                 logging.info(
@@ -59,9 +55,7 @@ def run_pipeline(args):
                     resolved_template,
                 )
                 args.prompt_template = resolved_template
-        if channel_preset.style and (
-            args.style == parser_defaults["style"] or not args.style
-        ):
+        if channel_preset.style and not cli_overrides_style:
             logging.info("Applying channel preset style (%s)", channel_preset.style)
             args.style = channel_preset.style
     else:
@@ -449,7 +443,82 @@ def run_pipeline(args):
         return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
 
     # PromptRefinerのrole_hintsを取得（プロンプト構築に活用）
-    refiner_hints = PromptRefiner().role_hints if hasattr(PromptRefiner, 'role_hints') else {}
+    refiner_hints = PromptRefiner().role_hints if hasattr(PromptRefiner, "role_hints") else {}
+    buddhist_narrator_channels = {"CH12", "CH13", "CH14", "CH15", "CH16", "CH17"}
+    if channel_upper in buddhist_narrator_channels:
+        # CH12-17: monk narrator motif is valid; avoid generic hints that forbid monks/statues.
+        refiner_hints = dict(refiner_hints)
+        refiner_hints.update(
+            {
+                "viewer_address": "Talk directly to viewer; a calm Japanese monk narrator is acceptable if consistent. Avoid extra random people. Simple setting. No text.",
+                "explanation": "Show the idea clearly; a consistent monk narrator OR symbolic objects/environment are both acceptable. Calm mood. No text.",
+                "hook": "High-contrast, cinematic hook; monk narrator is acceptable if consistent. Avoid extra random people. No sitting unless stated. No text.",
+            }
+        )
+
+    # In-image text tends to appear when raw script excerpts are included in prompts (esp. JP).
+    # Default: DO NOT include script excerpt unless explicitly enabled.
+    include_script_excerpt = (os.getenv("SRT2IMAGES_INCLUDE_SCRIPT_EXCERPT") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    english_only_prompt = (os.getenv("SRT2IMAGES_PROMPT_ENGLISH_ONLY") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+    def _contains_japanese(text: str) -> bool:
+        import re
+
+        return bool(re.search(r"[一-龠ぁ-んァ-ン]", text or ""))
+
+    def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
+        s = str(visual_focus or "").strip()
+        if not s:
+            return ""
+        lower = s.lower()
+
+        # Avoid prompting the model to render any text-like artifacts.
+        text_words = (
+            "text",
+            "subtitle",
+            "subtitles",
+            "caption",
+            "captions",
+            "sign",
+            "signage",
+            "logo",
+            "watermark",
+            "letter",
+            "letters",
+            "number",
+            "numbers",
+            "word",
+            "words",
+            "write",
+            "writing",
+            "handwriting",
+            "calligraphy",
+        )
+        icon_words = ("icon", "icons", "symbol", "symbols")
+
+        if any(w in lower for w in text_words):
+            if "note" in lower:
+                return "Small blank note by pillow, soft moonlight, quiet room"
+            if any(w in lower for w in ("journal", "notebook", "paper", "page")):
+                return "Hand with pen above blank notebook page, warm lantern light"
+            return "Hand holding pen above blank paper, warm lantern light"
+
+        if any(w in lower for w in icon_words):
+            if any(w in lower for w in ("breath", "inhale", "exhale", "cool in", "warm out", "pause")):
+                return "Incense smoke showing inhale–pause–exhale cycle"
+            return "Three simple objects arranged neatly on a wooden table"
+
+        return s
 
     for cue in cues:
         parts = []
@@ -463,11 +532,16 @@ def run_pipeline(args):
             # === 正規ルート: llm_context_analyzerの出力を直接使用 ===
             # visual_focusが最も重要 - 画像の主題を直接記述
             if cue.get("visual_focus"):
-                parts.append(f"Visual Focus: {cue['visual_focus']}")
+                vf = _sanitize_visual_focus_for_no_text(str(cue.get("visual_focus") or ""))
+                if vf:
+                    cue["visual_focus"] = vf
+                    parts.append(f"Visual Focus: {vf}")
             
             # summaryはシーン説明
             if cue.get("summary"):
-                parts.append(f"Scene: {cue['summary']}")
+                scene = str(cue["summary"])
+                if not (english_only_prompt and _contains_japanese(scene)):
+                    parts.append(f"Scene: {scene}")
             
             # emotional_toneは雰囲気指定
             if cue.get("emotional_tone"):
@@ -476,7 +550,9 @@ def run_pipeline(args):
             # role_tagに基づくヒント追加（refinerのrole_hintsを活用）
             role_tag = cue.get("role_tag", "").lower()
             if role_tag and role_tag in refiner_hints:
-                parts.append(f"Role Guidance: {refiner_hints[role_tag]}")
+                hint = str(refiner_hints[role_tag] or "").strip()
+                if hint and not (english_only_prompt and _contains_japanese(hint)):
+                    parts.append(f"Role Guidance: {hint}")
             elif cue.get("role_tag"):
                 parts.append(f"Role: {cue['role_tag']}")
             
@@ -484,20 +560,26 @@ def run_pipeline(args):
             if cue.get("section_type"):
                 parts.append(f"Section Type: {cue['section_type']}")
             
-            # 台本抜粋は補助情報として短く
-            if cue.get("text"):
+            # 台本抜粋は文字混入（字幕化）の原因になりやすいのでデフォルトOFF
+            if include_script_excerpt and cue.get("text"):
                 parts.append(f"Script excerpt: {_truncate(cue['text'], 120)}")
             
             # チャンネルプリセットの追加情報
             if channel_preset:
                 if channel_preset.prompt_suffix:
-                    parts.append(channel_preset.prompt_suffix)
+                    suffix = str(channel_preset.prompt_suffix)
+                    if not (english_only_prompt and _contains_japanese(suffix)):
+                        parts.append(suffix)
                 if channel_preset.character_note:
-                    parts.append(channel_preset.character_note)
+                    note = str(channel_preset.character_note)
+                    if not (english_only_prompt and _contains_japanese(note)):
+                        parts.append(note)
 
         # Common technical guardrails (always apply)
         if cue.get("diversity_note"):
-            parts.append(cue["diversity_note"])
+            dn = str(cue["diversity_note"])
+            if not (english_only_prompt and _contains_japanese(dn)):
+                parts.append(dn)
             
         summary_for_prompt = " \n".join(parts)
         

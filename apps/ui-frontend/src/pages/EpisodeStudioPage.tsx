@@ -161,6 +161,7 @@ export function EpisodeStudioPage() {
   const planningLink =
     channel && video ? `/planning?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}` : "/planning";
   const ttsListLink = channel ? `/audio-tts?channel=${encodeURIComponent(channel)}` : "/audio-tts";
+  const thumbnailsLink = channel ? `/thumbnails?channel=${encodeURIComponent(channel)}` : "/thumbnails";
   const capcutDraftLink =
     channel && video
       ? `/capcut-edit/draft?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(video)}`
@@ -755,7 +756,7 @@ export function EpisodeStudioPage() {
                 サムネは別動線です（ここから独立ページへ移動します）。
               </p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link className="button button--ghost" to="/thumbnails">
+                <Link className="button button--ghost" to={thumbnailsLink}>
                   サムネへ
                 </Link>
               </div>

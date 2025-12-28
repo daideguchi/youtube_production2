@@ -24,6 +24,8 @@ RGBA = Tuple[int, int, int, int]
 
 _INLINE_TAG_RE = re.compile(r"\[(?P<close>/)?(?P<tag>[A-Za-z_]+)\]")
 
+_FC_MATCH_CACHE: Dict[str, Optional[str]] = {}
+
 
 def _parse_hex_color(value: str) -> RGBA:
     v = value.strip()
@@ -160,13 +162,80 @@ def _tokenize_for_wrap(text: str) -> List[str]:
     return tokens
 
 
-def _measure_line(font: ImageFont.FreeTypeFont, text: str, stroke_width: int) -> Tuple[int, int]:
+def _iter_text_glyph_offsets(font: ImageFont.FreeTypeFont, text: str, tracking: int) -> Iterable[Tuple[str, int]]:
+    """
+    Yield (char, x_offset_px) for `text` when applying per-glyph tracking (letter spacing).
+
+    Notes:
+    - This is used to emulate "tracking" for Pillow which doesn't support letter spacing.
+    - We intentionally treat the string as a sequence of glyphs (Python chars) to keep the
+      implementation dependency-free and deterministic.
+    """
+    t = int(tracking or 0)
+    x = 0
+    for i, ch in enumerate(text):
+        yield ch, x
+        if i == len(text) - 1:
+            break
+        adv = _font_advance_px(font, ch)
+        x += int(adv + t)
+
+
+def _bbox_text_with_tracking(
+    font: ImageFont.FreeTypeFont,
+    text: str,
+    *,
+    stroke_width: int,
+    tracking: int,
+) -> Tuple[int, int, int, int]:
+    """
+    Compute a tight bbox for `text` with per-glyph tracking.
+
+    Returned bbox is in the same coordinate space as `font.getbbox(..., anchor="la")`,
+    i.e. relative to the anchor point (0,0) for the rendered text.
+    """
+    sw = int(stroke_width or 0)
+    tr = int(tracking or 0)
+    if not text or tr == 0:
+        return font.getbbox(text or "", stroke_width=sw, anchor="la")
+
+    x0: Optional[int] = None
+    y0: Optional[int] = None
+    x1: Optional[int] = None
+    y1: Optional[int] = None
+
+    for ch, x_off in _iter_text_glyph_offsets(font, text, tr):
+        bbox = font.getbbox(ch, stroke_width=sw, anchor="la")
+        gx0 = int(x_off + bbox[0])
+        gy0 = int(bbox[1])
+        gx1 = int(x_off + bbox[2])
+        gy1 = int(bbox[3])
+        if x0 is None:
+            x0, y0, x1, y1 = gx0, gy0, gx1, gy1
+        else:
+            x0 = min(x0, gx0)
+            y0 = min(y0 or 0, gy0)
+            x1 = max(x1 or 0, gx1)
+            y1 = max(y1 or 0, gy1)
+
+    if x0 is None or y0 is None or x1 is None or y1 is None:
+        return (0, 0, 0, 0)
+    return (int(x0), int(y0), int(x1), int(y1))
+
+
+def _measure_line(
+    font: ImageFont.FreeTypeFont,
+    text: str,
+    *,
+    stroke_width: int,
+    tracking: int,
+) -> Tuple[int, int]:
     if not text:
         return (0, 0)
-    bbox = font.getbbox(text, stroke_width=int(stroke_width or 0), anchor="la")
+    bbox = _bbox_text_with_tracking(font, text, stroke_width=int(stroke_width or 0), tracking=int(tracking or 0))
     w = bbox[2] - bbox[0]
     h = bbox[3] - bbox[1]
-    return (max(0, w), max(0, h))
+    return (max(0, int(w)), max(0, int(h)))
 
 
 def _wrap_tokens_to_lines(
@@ -175,6 +244,7 @@ def _wrap_tokens_to_lines(
     max_width: int,
     max_lines: int,
     stroke_width: int,
+    tracking: int,
 ) -> Tuple[List[str], bool]:
     lines: List[str] = []
     cur = ""
@@ -199,7 +269,7 @@ def _wrap_tokens_to_lines(
         if tok == " " and not cur:
             continue
         candidate = cur + tok
-        w, _ = _measure_line(font, candidate, stroke_width=stroke_width)
+        w, _ = _measure_line(font, candidate, stroke_width=stroke_width, tracking=tracking)
         if w <= max_width:
             cur = candidate
             continue
@@ -211,7 +281,7 @@ def _wrap_tokens_to_lines(
             hard = ""
             for ch in tok:
                 cand = hard + ch
-                w2, _ = _measure_line(font, cand, stroke_width=stroke_width)
+                w2, _ = _measure_line(font, cand, stroke_width=stroke_width, tracking=tracking)
                 if w2 <= max_width or not hard:
                     hard = cand
                     continue
@@ -249,6 +319,7 @@ def _fit_text_to_box(
     max_height: int,
     max_lines: int,
     stroke_width: int,
+    tracking: int = 0,
     min_size: int = 22,
 ) -> FitResult:
     raw = (text or "").strip()
@@ -257,14 +328,22 @@ def _fit_text_to_box(
 
     tokens = _tokenize_for_wrap(raw)
     size = max(min_size, int(base_size))
+    tr = int(tracking or 0)
     while size >= min_size:
-        font = ImageFont.truetype(font_path, size)
-        lines, overflow = _wrap_tokens_to_lines(tokens, font, max_width=max_width, max_lines=max_lines, stroke_width=stroke_width)
+        font = _load_truetype(font_path, size)
+        lines, overflow = _wrap_tokens_to_lines(
+            tokens,
+            font,
+            max_width=max_width,
+            max_lines=max_lines,
+            stroke_width=stroke_width,
+            tracking=tr,
+        )
         gap = max(2, int(round(size * 0.03)))
         total_h = 0
         max_w = 0
         for idx, line in enumerate(lines):
-            w, h = _measure_line(font, line, stroke_width=stroke_width)
+            w, h = _measure_line(font, line, stroke_width=stroke_width, tracking=tr)
             max_w = max(max_w, w)
             total_h += h
             if idx > 0:
@@ -273,8 +352,8 @@ def _fit_text_to_box(
             return FitResult(lines=lines, font_size=size, line_gap=gap, stroke_width=stroke_width)
         size -= 2
 
-    font = ImageFont.truetype(font_path, min_size)
-    lines, _ = _wrap_tokens_to_lines(tokens, font, max_width=max_width, max_lines=max_lines, stroke_width=stroke_width)
+    font = _load_truetype(font_path, min_size)
+    lines, _ = _wrap_tokens_to_lines(tokens, font, max_width=max_width, max_lines=max_lines, stroke_width=stroke_width, tracking=tr)
     gap = max(2, int(round(min_size * 0.03)))
     return FitResult(lines=lines, font_size=min_size, line_gap=gap, stroke_width=stroke_width)
 
@@ -289,7 +368,7 @@ def _total_text_height_px(
 ) -> int:
     if not lines:
         return 0
-    font = ImageFont.truetype(font_path, int(font_size))
+    font = _load_truetype(font_path, int(font_size))
     sw = int(stroke_width or 0)
     total = 0
     for idx, line in enumerate(lines):
@@ -437,9 +516,17 @@ def _solid_fill_color_from_effects(
         return fallback
 
 
-def _font_advance_px(font: ImageFont.FreeTypeFont, text: str) -> int:
+def _font_advance_px(font: ImageFont.FreeTypeFont, text: str, *, tracking: int = 0) -> int:
     if not text:
         return 0
+    if len(text) >= 2 and int(tracking or 0) != 0:
+        tr = int(tracking or 0)
+        total = 0
+        for i, ch in enumerate(text):
+            total += _font_advance_px(font, ch)
+            if i < len(text) - 1:
+                total += tr
+        return int(total)
     try:
         if hasattr(font, "getlength"):
             return int(round(float(font.getlength(text))))
@@ -447,6 +534,30 @@ def _font_advance_px(font: ImageFont.FreeTypeFont, text: str) -> int:
         pass
     bbox = font.getbbox(text, stroke_width=0, anchor="la")
     return max(0, int(bbox[2] - bbox[0]))
+
+
+def _split_font_ref(font_ref: str) -> Tuple[str, int]:
+    """
+    Support TTC face selection using a compact "path#index" encoding.
+
+    Pillow's FreeType loader supports an explicit face `index`, but our layer specs
+    historically only carried a font *path*. Returning "path#index" from discovery
+    keeps the surface area small and backward compatible.
+    """
+    s = str(font_ref or "").strip()
+    if not s:
+        return ("", 0)
+    if "#" not in s:
+        return (s, 0)
+    path, idx = s.rsplit("#", 1)
+    if idx.isdigit():
+        return (path, int(idx))
+    return (s, 0)
+
+
+def _load_truetype(font_ref: str, size: int) -> ImageFont.FreeTypeFont:
+    path, index = _split_font_ref(font_ref)
+    return ImageFont.truetype(path, int(size), index=int(index))
 
 
 def _fc_list_lines() -> List[str]:
@@ -463,13 +574,86 @@ def _fc_list_lines() -> List[str]:
     return proc.stdout.splitlines()
 
 
-def _discover_font_path_by_family(prefer: Sequence[str]) -> Optional[str]:
-    prefer_norm = [p.lower() for p in prefer if isinstance(p, str) and p.strip()]
-    if not prefer_norm:
+def _parse_fc_match_font_ref(stdout: str) -> Optional[str]:
+    file_path: Optional[str] = None
+    index = 0
+    for raw in (stdout or "").splitlines():
+        line = raw.strip()
+        if line.startswith("file:"):
+            # Example: file: "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc"(s)
+            if '"' in line:
+                try:
+                    file_path = line.split('"', 2)[1]
+                except Exception:
+                    file_path = None
+            else:
+                val = line.split(":", 1)[1].strip()
+                file_path = val.split("(", 1)[0].strip()
+            continue
+        if line.startswith("index:"):
+            # Example: index: 2(i)(w)
+            m = re.search(r"index:\s*(\d+)", line)
+            if m:
+                try:
+                    index = int(m.group(1))
+                except Exception:
+                    index = 0
+            continue
+
+    if not file_path:
+        return None
+    p = Path(file_path)
+    if not p.exists():
+        return None
+    return f"{p}#{index}" if index else str(p)
+
+
+def _fc_match_font_ref(family: str) -> Optional[str]:
+    key = str(family or "").strip()
+    if not key:
+        return None
+    if key in _FC_MATCH_CACHE:
+        return _FC_MATCH_CACHE[key]
+    try:
+        proc = subprocess.run(
+            ["fc-match", "-v", key],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except Exception:
+        _FC_MATCH_CACHE[key] = None
         return None
 
+    out = proc.stdout or ""
+    # Avoid accepting unrelated fallback fonts: require the queried family to appear.
+    # NOTE: fc-match patterns may include modifiers like ":style=Bold", which won't
+    # necessarily appear verbatim in the verbose output. In that case, validate only
+    # the base family portion before ":".
+    family_key = key.split(":", 1)[0].strip() if ":" in key else key
+    if family_key.lower() not in out.lower():
+        _FC_MATCH_CACHE[key] = None
+        return None
+
+    ref = _parse_fc_match_font_ref(out)
+    _FC_MATCH_CACHE[key] = ref
+    return ref
+
+
+def _discover_font_ref_by_family(prefer: Sequence[str]) -> Optional[str]:
+    prefer_clean = [str(p).strip() for p in prefer if isinstance(p, str) and str(p).strip()]
+    if not prefer_clean:
+        return None
+
+    for fam in prefer_clean:
+        ref = _fc_match_font_ref(fam)
+        if ref:
+            return ref
+
+    # Fallback: older fc-list based discovery (no TTC face index support).
     lines = _fc_list_lines()
-    for needle in prefer_norm:
+    for needle in [p.lower() for p in prefer_clean]:
         for line in lines:
             if ":" not in line:
                 continue
@@ -492,7 +676,7 @@ def _fallback_font_path() -> str:
 def _resolve_font_path_from_spec(fonts: Dict[str, Any], font_key: str) -> str:
     families = fonts.get(font_key)
     if isinstance(families, list):
-        found = _discover_font_path_by_family([str(x) for x in families])
+        found = _discover_font_ref_by_family([str(x) for x in families])
         if found:
             return found
     return _fallback_font_path()
@@ -508,6 +692,7 @@ def _render_text_lines(
     font_size: int,
     line_gap: int,
     align: str,
+    tracking: int,
     max_width: int,
     fill: Dict[str, Any],
     inline_spans: Optional[List[List[Tuple[int, int, RGBA]]]] = None,
@@ -518,7 +703,8 @@ def _render_text_lines(
     shadow: Optional[ShadowSpec],
 ) -> Image.Image:
     img = base.convert("RGBA")
-    font = ImageFont.truetype(font_path, font_size)
+    font = _load_truetype(font_path, font_size)
+    tr = int(tracking or 0)
 
     # Precompute packed positions so that the *visible* top of each line starts at y and lines are tightly stacked.
     packed: List[Tuple[str, int, int, Tuple[int, int, int, int]]] = []
@@ -527,7 +713,7 @@ def _render_text_lines(
     for line in lines:
         if not line:
             continue
-        bbox = font.getbbox(line, stroke_width=sw, anchor="la")
+        bbox = _bbox_text_with_tracking(font, line, stroke_width=sw, tracking=tr)
         bw = max(0, bbox[2] - bbox[0])
         bh = max(0, bbox[3] - bbox[1])
         if align == "center":
@@ -541,18 +727,64 @@ def _render_text_lines(
         packed.append((line, x_anchor, y_anchor, bbox))
         y_cursor += bh + int(line_gap)
 
+    def _draw_line_solid(
+        draw: ImageDraw.ImageDraw,
+        *,
+        line: str,
+        x_anchor: int,
+        y_anchor: int,
+        color_default: RGBA,
+        spans: Optional[List[Tuple[int, int, RGBA]]],
+        stroke_w: int = 0,
+        stroke_fill: Optional[RGBA] = None,
+    ) -> None:
+        if not line:
+            return
+        if tr == 0 and not spans:
+            draw.text(
+                (x_anchor, y_anchor),
+                line,
+                font=font,
+                fill=color_default,
+                stroke_width=int(stroke_w),
+                stroke_fill=stroke_fill,
+                anchor="la",
+            )
+            return
+        colors: Optional[List[RGBA]] = None
+        if spans:
+            colors = [color_default] * len(line)
+            for start, end, c in spans:
+                s = max(0, int(start))
+                e = min(len(line), int(end))
+                if s >= e:
+                    continue
+                for i in range(s, e):
+                    colors[i] = c
+        for idx, (ch, x_off) in enumerate(_iter_text_glyph_offsets(font, line, tr)):
+            fill_col = colors[idx] if colors is not None and idx < len(colors) else color_default
+            draw.text(
+                (int(x_anchor + x_off), int(y_anchor)),
+                ch,
+                font=font,
+                fill=fill_col,
+                stroke_width=int(stroke_w),
+                stroke_fill=stroke_fill,
+                anchor="la",
+            )
+
     # Glow: draw once on a separate layer, then blur (offset can be 0,0).
     if glow and (glow.offset != (0, 0) or glow.blur > 0):
         glow_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
         gd = ImageDraw.Draw(glow_layer)
         for line, x_pos, y_pos, _bbox in packed:
-            gd.text(
-                (x_pos + glow.offset[0], y_pos + glow.offset[1]),
-                line,
-                font=font,
-                fill=glow.color,
-                stroke_width=0,
-                anchor="la",
+            _draw_line_solid(
+                gd,
+                line=line,
+                x_anchor=int(x_pos + glow.offset[0]),
+                y_anchor=int(y_pos + glow.offset[1]),
+                color_default=glow.color,
+                spans=None,
             )
         if glow.blur > 0:
             glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(radius=glow.blur))
@@ -563,13 +795,13 @@ def _render_text_lines(
         shadow_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
         sd = ImageDraw.Draw(shadow_layer)
         for line, x_pos, y_pos, _bbox in packed:
-            sd.text(
-                (x_pos + shadow.offset[0], y_pos + shadow.offset[1]),
-                line,
-                font=font,
-                fill=shadow.color,
-                stroke_width=0,
-                anchor="la",
+            _draw_line_solid(
+                sd,
+                line=line,
+                x_anchor=int(x_pos + shadow.offset[0]),
+                y_anchor=int(y_pos + shadow.offset[1]),
+                color_default=shadow.color,
+                spans=None,
             )
         if shadow.blur > 0:
             shadow_layer = shadow_layer.filter(ImageFilter.GaussianBlur(radius=shadow.blur))
@@ -580,14 +812,15 @@ def _render_text_lines(
         stroke_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
         sd = ImageDraw.Draw(stroke_layer)
         for line, x_pos, y_pos, _bbox in packed:
-            sd.text(
-                (x_pos, y_pos),
-                line,
-                font=font,
-                fill=(0, 0, 0, 0),
-                stroke_width=stroke_width,
+            _draw_line_solid(
+                sd,
+                line=line,
+                x_anchor=int(x_pos),
+                y_anchor=int(y_pos),
+                color_default=(0, 0, 0, 0),
+                spans=None,
+                stroke_w=int(stroke_width),
                 stroke_fill=stroke_color,
-                anchor="la",
             )
         img = Image.alpha_composite(img, stroke_layer)
 
@@ -598,24 +831,13 @@ def _render_text_lines(
         draw = ImageDraw.Draw(img)
         for i, (line, x_pos, y_pos, _bbox) in enumerate(packed):
             spans = inline_spans[i] if inline_spans and i < len(inline_spans) else None
-            if spans:
-                for start, end, span_color in spans:
-                    if start >= end:
-                        continue
-                    seg = line[start:end]
-                    if not seg:
-                        continue
-                    prefix = line[:start]
-                    x_run = x_pos + _font_advance_px(font, prefix)
-                    draw.text((x_run, y_pos), seg, font=font, fill=span_color, anchor="la")
-                continue
-            draw.text((x_pos, y_pos), line, font=font, fill=color, anchor="la")
+            _draw_line_solid(draw, line=line, x_anchor=int(x_pos), y_anchor=int(y_pos), color_default=color, spans=spans)
         return img
 
     if mode == "linear_gradient":
         stops = fill.get("stops") or []
         for line, x_anchor, y_anchor, _bbox in packed:
-            bbox0 = font.getbbox(line, stroke_width=0, anchor="la")
+            bbox0 = _bbox_text_with_tracking(font, line, stroke_width=0, tracking=tr)
             w = max(1, bbox0[2] - bbox0[0])
             h = max(1, bbox0[3] - bbox0[1])
             grad = _build_vertical_gradient((w, h), stops=stops)
@@ -623,6 +845,7 @@ def _render_text_lines(
             mask = Image.new("L", (w, h), 0)
             md = ImageDraw.Draw(mask)
             # Draw into the tight bbox so (0,0) aligns with bbox0's top-left.
+            # NOTE: tracking is not supported for gradient fills; keep mask consistent with bbox.
             md.text((-bbox0[0], -bbox0[1]), line, font=font, fill=255, anchor="la")
 
             fill_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -883,6 +1106,7 @@ def compose_text_layout(
             continue
 
         base_size = int(slot_cfg.get("base_size_px", 64))
+        tracking = int(slot_cfg.get("tracking", 0))
         max_lines = int(slot_cfg.get("max_lines", 2))
         align = str(slot_cfg.get("align") or "left").strip().lower()
         if align not in {"left", "center", "right"}:
@@ -966,6 +1190,7 @@ def compose_text_layout(
             max_height=max(1, h),
             max_lines=max(1, max_lines),
             stroke_width=slot_stroke_width if stroke_enabled else 0,
+            tracking=tracking,
         )
         if not fit.lines:
             continue
@@ -1009,6 +1234,7 @@ def compose_text_layout(
             font_size=fit.font_size,
             line_gap=fit.line_gap,
             align=align,
+            tracking=tracking,
             max_width=max(1, w),
             fill=fill,
             inline_spans=inline_spans,

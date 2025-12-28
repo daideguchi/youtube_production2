@@ -20,6 +20,7 @@ from .reading_dict import (
 from .risk_utils import is_trivial_diff
 from . import auditor
 from .reading_structs import KanaPatch
+from .text_normalizer import normalize_text_for_tts
 
 from factory_common.paths import audio_pkg_root, logs_root, video_root
 
@@ -282,7 +283,7 @@ def resolve_readings_strict(
                 patched_parts.append(kb.words[surface])
             else:
                 patched_parts.append(surface)
-        patched_text = "".join(patched_parts)
+        patched_text = normalize_text_for_tts("".join(patched_parts))
 
         # 3.2 Voicevox audio_query は辞書/override適用後のテキストで実行
         try:

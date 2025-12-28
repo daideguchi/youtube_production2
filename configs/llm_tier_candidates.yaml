@@ -1,9 +1,21 @@
 tiers:
   heavy_reasoning:
-  - azure_gpt5_mini
+    - or_deepseek_v3_2_exp
+    - or_kimi_k2_thinking
   standard:
-  - azure_gpt5_mini
+    - or_deepseek_v3_2_exp
+    - or_hunyuan_a13b_instruct
+    - or_qwen_2_5_7b_instruct
+    - or_gemma_3n_e2b_it_free
+    - azure_gpt5_mini
   cheap:
-  - azure_gpt5_mini
+    - or_gemma_3n_e2b_it_free
+    - or_hunyuan_a13b_instruct
+    - or_mistral_7b_instruct_free
+    - or_qwen_2_5_7b_instruct
   image_gen:
-  - gemini_2_5_flash_image
+    - gemini_2_5_flash_image
+  vision_caption:
+    - or_qwen_2_5_vl_72b_instruct
+  master_plan_opus:
+    - or_claude_opus_4_5

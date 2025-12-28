@@ -21,6 +21,10 @@
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
 - 動画（SRT→画像→CapCut）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
+    - 任意（飽き防止B-roll）:
+      - デフォルト: OFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）
+      - ON時の既定: provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）
+      - CLI上書き: `--broll-provider {none|pixel|pexels|pixabay|coverr} --broll-ratio 0.2`（要env: `PEXELS_API_KEY` / `PIXABAY_API_KEY` / `COVERR_API_KEY`）
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
@@ -49,6 +53,9 @@
 - Frontend (React): `apps/ui-frontend`
   - 配線SSOT（UI↔Backend）: `ssot/ops/OPS_UI_WIRING.md`
   - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）
+- Script Viewer（GitHub Pages / 静的）: `pages/script_viewer/`
+  - 索引生成（台本一覧・パス）: `python3 scripts/ops/pages_script_viewer_index.py --write`
+  - Deploy: `.github/workflows/pages_script_viewer.yml`（GitHub Actions → Pages）
 
 ---
 
@@ -72,8 +79,12 @@
 - Production Pack（量産投入前のスナップショット + QA gate）:
   - `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`
   - SSOT: `ssot/ops/OPS_PRODUCTION_PACK.md`
+- Pre-production audit（入口〜投入前の抜け漏れ監査）:
+  - `python3 scripts/ops/preproduction_audit.py --all --write-latest`
+  - SSOT: `ssot/ops/OPS_PREPRODUCTION_FRAME.md`
 - Planning Patch（企画の上書き/部分更新を差分ログ付きで適用）:
   - `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml --apply`
+  - まとめ変更（patch雛形の一括生成）: `python3 scripts/ops/planning_patch_gen.py --help`
   - SSOT: `ssot/ops/OPS_PLANNING_PATCHES.md`
 - SRT（字幕本文の意図改行を付与。内容は変えない）:
   - `python3 scripts/format_srt_linebreaks.py workspaces/audio/final/CHxx/NNN/CHxx-NNN.srt --in-place`
@@ -175,6 +186,8 @@
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
 ### 3.8 Remotion（実験ライン / 再レンダ）
+- UI（推奨 / 3100起動）: `/video-remotion` → 「Studio (3100) 起動」ボタン（`POST /api/remotion/restart_preview`）
+  - deps未導入なら: `(cd apps/remotion && npm ci)`
 - 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
 - バッチレンダ（容量節約・lock尊重・report出力）: `python3 scripts/ops/render_remotion_batch.py --help`
 

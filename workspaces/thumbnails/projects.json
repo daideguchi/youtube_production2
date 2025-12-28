@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-27T06:49:50.467561+00:00",
+  "updated_at": "2025-12-28T08:25:28.648239+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -1727,12 +1727,15 @@
           "image_url": "/thumbnails/assets/CH10/001/00_thumb.png",
           "image_path": "CH10/001/00_thumb.png",
           "created_at": "2025-12-24T11:54:54.343851+00:00",
-          "updated_at": "2025-12-24T11:54:54.343861+00:00"
+          "updated_at": "2025-12-27T11:31:29.193000+00:00"
         }
       ],
       "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術",
-      "updated_at": "2025-12-24T13:42:40.465851+00:00",
-      "selected_variant_id": "fs::ch10_001_00_thumb"
+      "updated_at": "2025-12-27T11:41:42.700840+00:00",
+      "selected_variant_id": "fs::ch10_001_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:41:42.700840+00:00",
+      "notes": "明るすぎ。。。。。\n修正済み: engine=layer_specs_v3 bg(b=1.35 c=1.15 s=1.08 g=0.92) band(x=0.55-1.00 p=1.20 b=0.82 c=1.25 s=1.12 g=1.08) / QC=contactsheet_retake_inprog_8_bg135_c115_g092_band082_c125_g108_640x360.png / 2025-12-27T11:30:40.069711+00:00"
     },
     {
       "channel": "CH10",
@@ -1749,11 +1752,11 @@
         }
       ],
       "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:18:21.703102+00:00",
       "selected_variant_id": "fs::ch10_002_00_thumb",
       "notes": "ちょっと文字弱いからもっと強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:18:21.703102+00:00"
     },
     {
       "channel": "CH10",
@@ -1766,12 +1769,15 @@
           "image_url": "/thumbnails/assets/CH10/003/00_thumb.png",
           "image_path": "CH10/003/00_thumb.png",
           "created_at": "2025-12-24T11:54:58.341783+00:00",
-          "updated_at": "2025-12-24T11:54:58.341795+00:00"
+          "updated_at": "2025-12-27T10:52:26.046571+00:00"
         }
       ],
       "title": "【ニコラ・テスラ流】369の周波数で夢を叶える",
-      "updated_at": "2025-12-24T13:42:44.899678+00:00",
-      "selected_variant_id": "fs::ch10_003_00_thumb"
+      "updated_at": "2025-12-27T11:15:19.535304+00:00",
+      "selected_variant_id": "fs::ch10_003_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:15:19.535304+00:00",
+      "notes": "人物はもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.90 c=1.15 s=1.10 g=0.65) / QC=contactsheet_retake_review_11_b190_c115_s110_g065_640x360.png / 2025-12-27T10:52:07.057427+00:00"
     },
     {
       "channel": "CH10",
@@ -1784,15 +1790,15 @@
           "image_url": "/thumbnails/assets/CH10/004/00_thumb.png",
           "image_path": "CH10/004/00_thumb.png",
           "created_at": "2025-12-24T11:55:00.445207+00:00",
-          "updated_at": "2025-12-24T11:55:00.445222+00:00"
+          "updated_at": "2025-12-27T12:04:41.218614+00:00"
         }
       ],
       "title": "【ニコラ・テスラ流】未来を引き寄せる7つの教え",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T12:12:09.093320+00:00",
       "selected_variant_id": "fs::ch10_004_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
-      "notes": "もっと文字強く。ちなみに背景画像はもっと明るく\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T12:12:09.093320+00:00",
+      "notes": "人物もっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.28 c=1.12 s=1.06 g=0.94) pan(z=1.06 px=-0.35 py=0.00) band(x=0.55-1.00 p=1.10 b=1.12 c=1.40 s=1.12 g=0.92) / QC=contactsheet_retake_inprog_3_bg128_c112_g094_z106_pxm035_band112_c140_g092_640x360.png / 2025-12-27T12:04:27.856343+00:00"
     },
     {
       "channel": "CH10",
@@ -1805,15 +1811,15 @@
           "image_url": "/thumbnails/assets/CH10/005/00_thumb.png",
           "image_path": "CH10/005/00_thumb.png",
           "created_at": "2025-12-24T11:55:02.615742+00:00",
-          "updated_at": "2025-12-24T11:55:02.615758+00:00"
+          "updated_at": "2025-12-27T12:04:54.755052+00:00"
         }
       ],
       "title": "【岡潔流】本当に頭がいい人は速さより深さを選ぶ理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T12:12:16.985354+00:00",
       "selected_variant_id": "fs::ch10_005_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
-      "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T12:12:16.985354+00:00",
+      "notes": "文字見にくい\nもっと目立たせて\n修正済み: engine=layer_specs_v3 bg(b=1.28 c=1.12 s=1.06 g=0.94) pan(z=1.06 px=-0.35 py=0.00) band(x=0.55-1.00 p=1.10 b=1.12 c=1.40 s=1.12 g=0.92) / QC=contactsheet_retake_inprog_3_bg128_c112_g094_z106_pxm035_band112_c140_g092_640x360.png / 2025-12-27T12:04:27.856343+00:00"
     },
     {
       "channel": "CH10",
@@ -1826,12 +1832,15 @@
           "image_url": "/thumbnails/assets/CH10/006/00_thumb.png",
           "image_path": "CH10/006/00_thumb.png",
           "created_at": "2025-12-24T11:55:05.351084+00:00",
-          "updated_at": "2025-12-24T11:55:05.351096+00:00"
+          "updated_at": "2025-12-27T11:36:12.331971+00:00"
         }
       ],
       "title": "【ニコラ・テスラ流】少ない行動で結果を出す思考術",
-      "updated_at": "2025-12-24T13:42:52.884955+00:00",
-      "selected_variant_id": "fs::ch10_006_00_thumb"
+      "updated_at": "2025-12-27T11:41:57.994502+00:00",
+      "selected_variant_id": "fs::ch10_006_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:41:57.994502+00:00",
+      "notes": "人物を濃くして\n修正済み: engine=layer_specs_v3 bg(b=1.35 c=1.15 s=1.08 g=0.92) band(x=0.55-1.00 p=1.20 b=0.82 c=1.25 s=1.12 g=1.08) / QC=contactsheet_retake_inprog_8_bg135_c115_g092_band082_c125_g108_640x360.png / 2025-12-27T11:30:40.069711+00:00"
     },
     {
       "channel": "CH10",
@@ -1844,12 +1853,15 @@
           "image_url": "/thumbnails/assets/CH10/007/00_thumb.png",
           "image_path": "CH10/007/00_thumb.png",
           "created_at": "2025-12-24T11:55:07.787627+00:00",
-          "updated_at": "2025-12-24T11:55:07.787639+00:00"
+          "updated_at": "2025-12-27T11:36:38.522042+00:00"
         }
       ],
       "title": "【ニコラ・テスラ流】常識を超えて考える力",
-      "updated_at": "2025-12-24T13:42:55.762061+00:00",
-      "selected_variant_id": "fs::ch10_007_00_thumb"
+      "updated_at": "2025-12-27T11:41:56.416317+00:00",
+      "selected_variant_id": "fs::ch10_007_00_thumb",
+      "notes": "人物を濃くして\n修正済み: engine=layer_specs_v3 bg(b=1.35 c=1.15 s=1.08 g=0.92) band(x=0.55-1.00 p=1.20 b=0.82 c=1.25 s=1.12 g=1.08) / QC=contactsheet_retake_inprog_8_bg135_c115_g092_band082_c125_g108_640x360.png / 2025-12-27T11:30:40.069711+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:41:56.416317+00:00"
     },
     {
       "channel": "CH10",
@@ -1866,10 +1878,10 @@
         }
       ],
       "title": "【岡潔流】考える量と賢さは無関係である理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:19:36.337235+00:00",
       "selected_variant_id": "fs::ch10_008_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:19:36.337235+00:00",
       "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -1887,8 +1899,10 @@
         }
       ],
       "title": "【周波数は嘘をつかない】現実を作る意識の法則（ホーキンズ）",
-      "updated_at": "2025-12-24T13:43:00.740508+00:00",
-      "selected_variant_id": "fs::ch10_009_00_thumb"
+      "updated_at": "2025-12-27T10:19:50.148864+00:00",
+      "selected_variant_id": "fs::ch10_009_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:19:50.148864+00:00"
     },
     {
       "channel": "CH10",
@@ -1905,10 +1919,10 @@
         }
       ],
       "title": "【岡潔流】賢さの本質は『感じながら考える』にある",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:19:45.365814+00:00",
       "selected_variant_id": "fs::ch10_010_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:19:45.365814+00:00",
       "notes": "文字インパクト弱い\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -1926,11 +1940,11 @@
         }
       ],
       "title": "【ショーペンハウアー流】年齢を重ねて気づいた幸福の本質",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:19:41.356412+00:00",
       "selected_variant_id": "fs::ch10_011_00_thumb",
       "notes": "文字インパクト弱い\n\n幸せの\n正体\n\nが正しい\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:19:41.356412+00:00"
     },
     {
       "channel": "CH10",
@@ -1947,10 +1961,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】考えない時間が成果を生む",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:19:43.671687+00:00",
       "selected_variant_id": "fs::ch10_012_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:19:43.671687+00:00",
       "notes": "もっと文字強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -1964,12 +1978,15 @@
           "image_url": "/thumbnails/assets/CH10/013/00_thumb.png",
           "image_path": "CH10/013/00_thumb.png",
           "created_at": "2025-12-24T12:03:12.936495+00:00",
-          "updated_at": "2025-12-24T12:03:12.936513+00:00"
+          "updated_at": "2025-12-27T10:53:41.852825+00:00"
         }
       ],
       "title": "【岡本太郎流】凡人が天才に勝てるたった一つの理由",
-      "updated_at": "2025-12-24T13:43:12.719059+00:00",
-      "selected_variant_id": "fs::ch10_013_00_thumb"
+      "updated_at": "2025-12-27T11:16:49.218567+00:00",
+      "selected_variant_id": "fs::ch10_013_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:16:49.218567+00:00",
+      "notes": "もっと人物明るく\n修正済み: engine=layer_specs_v3 bg(b=1.90 c=1.15 s=1.10 g=0.65) / QC=contactsheet_retake_review_11_b190_c115_s110_g065_640x360.png / 2025-12-27T10:52:07.057427+00:00"
     },
     {
       "channel": "CH10",
@@ -1986,10 +2003,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】知識を増やすほど思考が鈍くなる理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:20:05.526037+00:00",
       "selected_variant_id": "fs::ch10_014_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:05.526037+00:00",
       "notes": "頭が重い本当の理由\n\nこれをもっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2003,12 +2020,15 @@
           "image_url": "/thumbnails/assets/CH10/015/00_thumb.png",
           "image_path": "CH10/015/00_thumb.png",
           "created_at": "2025-12-24T12:03:40.252455+00:00",
-          "updated_at": "2025-12-24T12:03:40.252472+00:00"
+          "updated_at": "2025-12-27T11:37:03.025088+00:00"
         }
       ],
       "title": "【岡本太郎流】成功よりも爆発を選ぶべき理由",
-      "updated_at": "2025-12-24T13:43:18.518439+00:00",
-      "selected_variant_id": "fs::ch10_015_00_thumb"
+      "updated_at": "2025-12-27T11:42:41.892952+00:00",
+      "selected_variant_id": "fs::ch10_015_00_thumb",
+      "notes": "人物を濃く\n修正済み: engine=layer_specs_v3 bg(b=1.35 c=1.15 s=1.08 g=0.92) band(x=0.55-1.00 p=1.20 b=0.82 c=1.25 s=1.12 g=1.08) / QC=contactsheet_retake_inprog_8_bg135_c115_g092_band082_c125_g108_640x360.png / 2025-12-27T11:30:40.069711+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:42:41.892952+00:00"
     },
     {
       "channel": "CH10",
@@ -2025,11 +2045,11 @@
         }
       ],
       "title": "【宮沢賢治流】力を抜いた人が最後に勝つ理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:40:47.043127+00:00",
       "selected_variant_id": "fs::ch10_016_00_thumb",
       "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:40:47.043127+00:00"
     },
     {
       "channel": "CH10",
@@ -2046,8 +2066,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】心臓が止まっても君が消えない理由",
-      "updated_at": "2025-12-24T13:43:24.646163+00:00",
-      "selected_variant_id": "fs::ch10_017_00_thumb"
+      "updated_at": "2025-12-27T11:16:53.979196+00:00",
+      "selected_variant_id": "fs::ch10_017_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:16:53.979196+00:00"
     },
     {
       "channel": "CH10",
@@ -2064,8 +2086,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】複雑な問題を単純化する思考術",
-      "updated_at": "2025-12-24T13:43:27.262345+00:00",
-      "selected_variant_id": "fs::ch10_018_00_thumb"
+      "updated_at": "2025-12-27T10:20:39.551781+00:00",
+      "selected_variant_id": "fs::ch10_018_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:39.551781+00:00"
     },
     {
       "channel": "CH10",
@@ -2078,12 +2102,15 @@
           "image_url": "/thumbnails/assets/CH10/019/00_thumb.png",
           "image_path": "CH10/019/00_thumb.png",
           "created_at": "2025-12-24T12:04:31.195510+00:00",
-          "updated_at": "2025-12-24T12:04:31.195533+00:00"
+          "updated_at": "2025-12-27T13:21:50.411919+00:00"
         }
       ],
       "title": "【岡本太郎流】削ることが人生の本質である理由",
-      "updated_at": "2025-12-24T13:43:29.773691+00:00",
-      "selected_variant_id": "fs::ch10_019_00_thumb"
+      "updated_at": "2025-12-27T21:50:20.180014+00:00",
+      "selected_variant_id": "fs::ch10_019_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T21:50:20.180014+00:00",
+      "notes": "文字の改行位置がおかしい\n「削るほど自由」\n\n一行にしろ。人物はもっと右！！！！！そしてもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.45 c=1.15 s=1.08 g=0.88) pan(z=1.25 px=0.05 py=0.00) band(x=0.62-1.00 p=1.20 b=0.90 c=1.30 s=1.05 g=1.06) / QC=contactsheet_retake_review_1_bg145_c115_s108_g088_z125_px005_band090_c130_s105_g106_x062_tight_640x360.png / 2025-12-27T13:21:27.934755+00:00"
     },
     {
       "channel": "CH10",
@@ -2100,11 +2127,11 @@
         }
       ],
       "title": "【ラッセル流】忙しさの中で自分の軸を整える方法",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:20:19.905531+00:00",
       "selected_variant_id": "fs::ch10_020_00_thumb",
       "notes": "文字はめちゃくちゃ強くして\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:19.905531+00:00"
     },
     {
       "channel": "CH10",
@@ -2121,10 +2148,10 @@
         }
       ],
       "title": "【岡本太郎流】人に好かれても良いことなんてない理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:20:44.929214+00:00",
       "selected_variant_id": "fs::ch10_021_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:44.929214+00:00",
       "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2142,8 +2169,10 @@
         }
       ],
       "title": "成果は速度ではなく深度で決まる｜ニコラ・テスラ",
-      "updated_at": "2025-12-24T13:43:38.026810+00:00",
-      "selected_variant_id": "fs::ch10_022_00_thumb"
+      "updated_at": "2025-12-27T10:20:50.952122+00:00",
+      "selected_variant_id": "fs::ch10_022_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:50.952122+00:00"
     },
     {
       "channel": "CH10",
@@ -2160,8 +2189,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】行動を減らして結果を出す思考術",
-      "updated_at": "2025-12-24T13:43:41.422923+00:00",
-      "selected_variant_id": "fs::ch10_023_00_thumb"
+      "updated_at": "2025-12-27T10:20:53.136583+00:00",
+      "selected_variant_id": "fs::ch10_023_00_thumb",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:20:53.136583+00:00"
     },
     {
       "channel": "CH10",
@@ -2174,15 +2205,15 @@
           "image_url": "/thumbnails/assets/CH10/024/00_thumb.png",
           "image_path": "CH10/024/00_thumb.png",
           "created_at": "2025-12-24T13:02:58.966468+00:00",
-          "updated_at": "2025-12-24T13:02:58.966508+00:00"
+          "updated_at": "2025-12-27T11:38:06.086668+00:00"
         }
       ],
       "title": "【セネカ流】人生の短さについて 悔いなく生きる考え方",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T11:43:40.044075+00:00",
       "selected_variant_id": "fs::ch10_024_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
-      "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:43:40.044075+00:00",
+      "notes": "眩しすぎ\n修正済み: engine=layer_specs_v3 bg(b=1.35 c=1.15 s=1.08 g=0.92) band(x=0.55-1.00 p=1.20 b=0.82 c=1.25 s=1.12 g=1.08) / QC=contactsheet_retake_inprog_8_bg135_c115_g092_band082_c125_g108_640x360.png / 2025-12-27T11:30:40.069711+00:00"
     },
     {
       "channel": "CH10",
@@ -2199,10 +2230,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】思考停止に入る直前の変化を見抜く方法",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:21:18.263738+00:00",
       "selected_variant_id": "fs::ch10_025_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:21:18.263738+00:00",
       "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2220,10 +2251,10 @@
         }
       ],
       "title": "【岡本太郎流】嫌われる勇気より『見せる勇気』が人生を変える理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:21:19.362059+00:00",
       "selected_variant_id": "fs::ch10_026_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:21:19.362059+00:00",
       "notes": "もっと全体的にインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2241,10 +2272,10 @@
         }
       ],
       "title": "【岡潔流】悩みが消えない本当の理由は心の使い方にある",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:21:20.671146+00:00",
       "selected_variant_id": "fs::ch10_027_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:21:20.671146+00:00",
       "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2262,10 +2293,10 @@
         }
       ],
       "title": "【アドラー心理学】考えすぎをリセットする方法",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:21:23.042419+00:00",
       "selected_variant_id": "fs::ch10_028_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:21:23.042419+00:00",
       "notes": "もっと強く。明るくインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2279,15 +2310,15 @@
           "image_url": "/thumbnails/assets/CH10/029/00_thumb.png",
           "image_path": "CH10/029/00_thumb.png",
           "created_at": "2025-12-24T13:12:36.338950+00:00",
-          "updated_at": "2025-12-24T13:12:36.338969+00:00"
+          "updated_at": "2025-12-27T10:55:06.633227+00:00"
         }
       ],
       "title": "【エミール・シオラン流】人生は無意味 それでも続ける理由",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T11:18:20.962743+00:00",
       "selected_variant_id": "fs::ch10_029_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
-      "notes": "もっとインパクト強く！！！！\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
+      "status": "approved",
+      "status_updated_at": "2025-12-27T11:18:20.962743+00:00",
+      "notes": "もっとインパクト強く！！！！\n\nもっと力強いフォントで。人物はめちゃくちゃ明るくして\n修正済み: engine=layer_specs_v3 bg(b=1.90 c=1.15 s=1.10 g=0.65) / QC=contactsheet_retake_review_11_b190_c115_s110_g065_640x360.png / 2025-12-27T10:52:07.057427+00:00"
     },
     {
       "channel": "CH10",
@@ -2304,10 +2335,10 @@
         }
       ],
       "title": "【ニコラ・テスラ流】一つの問いで現実を動かす思考術",
-      "updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "updated_at": "2025-12-27T10:21:25.720783+00:00",
       "selected_variant_id": "fs::ch10_030_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-26T01:28:28.284887+00:00",
+      "status": "approved",
+      "status_updated_at": "2025-12-27T10:21:25.720783+00:00",
       "notes": "もっとインパクト強く\n修正済み: 明るさ強化(b=1.30 c=1.10 s=1.06 g=0.88) / QC=contactsheet_retake_18_640x360.png / 2025-12-26T01:28:28.284887+00:00"
     },
     {
@@ -2861,14 +2892,14 @@
           "image_url": "/thumbnails/assets/CH26/001/00_thumb.png",
           "image_path": "CH26/001/00_thumb.png",
           "created_at": "2025-12-27T03:11:16.225485+00:00",
-          "updated_at": "2025-12-27T06:49:50.467550+00:00"
+          "updated_at": "2025-12-28T07:49:02.470052+00:00"
         }
       ],
       "title": "【ノイマン式】結論、成果は設計で決まる",
-      "updated_at": "2025-12-27T06:49:50.467552+00:00",
+      "updated_at": "2025-12-28T07:49:02.470054+00:00",
       "selected_variant_id": "fs::ch26_001_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T06:49:50.467537+00:00"
+      "status_updated_at": "2025-12-28T07:49:02.469988+00:00"
     },
     {
       "channel": "CH26",
@@ -2881,14 +2912,14 @@
           "image_url": "/thumbnails/assets/CH26/002/00_thumb.png",
           "image_path": "CH26/002/00_thumb.png",
           "created_at": "2025-12-27T03:11:31.479194+00:00",
-          "updated_at": "2025-12-27T06:47:54.940508+00:00"
+          "updated_at": "2025-12-28T07:49:20.861372+00:00"
         }
       ],
       "title": "【岡潔流】本当に賢い人は情報を減らす",
-      "updated_at": "2025-12-27T06:47:54.940510+00:00",
+      "updated_at": "2025-12-28T07:49:20.861378+00:00",
       "selected_variant_id": "fs::ch26_002_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T06:47:54.940494+00:00"
+      "status_updated_at": "2025-12-28T07:49:20.861335+00:00"
     },
     {
       "channel": "CH26",
@@ -2901,14 +2932,14 @@
           "image_url": "/thumbnails/assets/CH26/003/00_thumb.png",
           "image_path": "CH26/003/00_thumb.png",
           "created_at": "2025-12-27T03:11:44.880019+00:00",
-          "updated_at": "2025-12-27T06:47:58.621915+00:00"
+          "updated_at": "2025-12-28T07:49:37.779163+00:00"
         }
       ],
       "title": "【チューリング式】結論、手順を外に出すと進む",
-      "updated_at": "2025-12-27T06:47:58.621916+00:00",
+      "updated_at": "2025-12-28T07:49:37.779164+00:00",
       "selected_variant_id": "fs::ch26_003_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T06:47:58.621899+00:00"
+      "status_updated_at": "2025-12-28T07:49:37.779120+00:00"
     },
     {
       "channel": "CH26",
@@ -2921,14 +2952,14 @@
           "image_url": "/thumbnails/assets/CH26/004/00_thumb.png",
           "image_path": "CH26/004/00_thumb.png",
           "created_at": "2025-12-27T03:11:58.614833+00:00",
-          "updated_at": "2025-12-27T06:48:02.883222+00:00"
+          "updated_at": "2025-12-28T07:50:03.928265+00:00"
         }
       ],
       "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
-      "updated_at": "2025-12-27T06:48:02.883224+00:00",
+      "updated_at": "2025-12-28T07:50:03.928268+00:00",
       "selected_variant_id": "fs::ch26_004_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T06:48:02.883198+00:00"
+      "status_updated_at": "2025-12-28T07:50:03.928062+00:00"
     },
     {
       "channel": "CH26",
@@ -2941,14 +2972,14 @@
           "image_url": "/thumbnails/assets/CH26/005/00_thumb.png",
           "image_path": "CH26/005/00_thumb.png",
           "created_at": "2025-12-27T03:38:43.952700+00:00",
-          "updated_at": "2025-12-27T04:15:16.890796+00:00"
+          "updated_at": "2025-12-27T13:18:53.088504+00:00"
         }
       ],
       "title": "【ゲーム理論】期待値で選べ：一回で揺れるな",
-      "updated_at": "2025-12-27T04:15:16.890800+00:00",
+      "updated_at": "2025-12-27T13:18:53.088506+00:00",
       "selected_variant_id": "fs::ch26_005_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:16.890772+00:00"
+      "status_updated_at": "2025-12-27T13:18:53.088480+00:00"
     },
     {
       "channel": "CH26",
@@ -2961,14 +2992,14 @@
           "image_url": "/thumbnails/assets/CH26/006/00_thumb.png",
           "image_path": "CH26/006/00_thumb.png",
           "created_at": "2025-12-27T03:38:55.373351+00:00",
-          "updated_at": "2025-12-27T04:15:19.647834+00:00"
+          "updated_at": "2025-12-27T13:19:05.644085+00:00"
         }
       ],
       "title": "【サイモン式】最適解を捨てると成果が増える",
-      "updated_at": "2025-12-27T04:15:19.647838+00:00",
+      "updated_at": "2025-12-27T13:19:05.644087+00:00",
       "selected_variant_id": "fs::ch26_006_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:19.647821+00:00"
+      "status_updated_at": "2025-12-27T13:19:05.644076+00:00"
     },
     {
       "channel": "CH26",
@@ -2981,14 +3012,14 @@
           "image_url": "/thumbnails/assets/CH26/007/00_thumb.png",
           "image_path": "CH26/007/00_thumb.png",
           "created_at": "2025-12-27T03:39:08.236850+00:00",
-          "updated_at": "2025-12-27T04:15:23.855898+00:00"
+          "updated_at": "2025-12-27T13:19:19.487883+00:00"
         }
       ],
       "title": "【ドラッカー流】結論、成果の定義が先だ",
-      "updated_at": "2025-12-27T04:15:23.855900+00:00",
+      "updated_at": "2025-12-27T13:19:19.487888+00:00",
       "selected_variant_id": "fs::ch26_007_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:23.855884+00:00"
+      "status_updated_at": "2025-12-27T13:19:19.487875+00:00"
     },
     {
       "channel": "CH26",
@@ -3001,14 +3032,14 @@
           "image_url": "/thumbnails/assets/CH26/008/00_thumb.png",
           "image_path": "CH26/008/00_thumb.png",
           "created_at": "2025-12-27T03:39:21.332372+00:00",
-          "updated_at": "2025-12-27T04:15:27.661317+00:00"
+          "updated_at": "2025-12-27T13:19:33.953690+00:00"
         }
       ],
       "title": "【孫子の型】最悪を先に固定すると迷いが消える",
-      "updated_at": "2025-12-27T04:15:27.661318+00:00",
+      "updated_at": "2025-12-27T13:19:33.953691+00:00",
       "selected_variant_id": "fs::ch26_008_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:27.661302+00:00"
+      "status_updated_at": "2025-12-27T13:19:33.953671+00:00"
     },
     {
       "channel": "CH26",
@@ -3021,14 +3052,14 @@
           "image_url": "/thumbnails/assets/CH26/009/00_thumb.png",
           "image_path": "CH26/009/00_thumb.png",
           "created_at": "2025-12-27T03:39:36.636749+00:00",
-          "updated_at": "2025-12-27T04:15:31.295585+00:00"
+          "updated_at": "2025-12-27T13:19:47.911704+00:00"
         }
       ],
       "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
-      "updated_at": "2025-12-27T04:15:31.295586+00:00",
+      "updated_at": "2025-12-27T13:19:47.911706+00:00",
       "selected_variant_id": "fs::ch26_009_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:31.295571+00:00"
+      "status_updated_at": "2025-12-27T13:19:47.911694+00:00"
     },
     {
       "channel": "CH26",
@@ -3041,14 +3072,14 @@
           "image_url": "/thumbnails/assets/CH26/010/00_thumb.png",
           "image_path": "CH26/010/00_thumb.png",
           "created_at": "2025-12-27T03:39:50.496505+00:00",
-          "updated_at": "2025-12-27T04:15:34.847373+00:00"
+          "updated_at": "2025-12-27T13:20:00.311112+00:00"
         }
       ],
       "title": "【デカルト式】複雑ほど先に骨格を置け",
-      "updated_at": "2025-12-27T04:15:34.847375+00:00",
+      "updated_at": "2025-12-27T13:20:00.311114+00:00",
       "selected_variant_id": "fs::ch26_010_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:34.847358+00:00"
+      "status_updated_at": "2025-12-27T13:20:00.311102+00:00"
     },
     {
       "channel": "CH26",
@@ -3061,14 +3092,14 @@
           "image_url": "/thumbnails/assets/CH26/011/00_thumb.png",
           "image_path": "CH26/011/00_thumb.png",
           "created_at": "2025-12-27T03:40:02.542979+00:00",
-          "updated_at": "2025-12-27T04:15:37.914925+00:00"
+          "updated_at": "2025-12-27T13:20:13.058405+00:00"
         }
       ],
       "title": "【カント流】結論、ルールが先だ",
-      "updated_at": "2025-12-27T04:15:37.914927+00:00",
+      "updated_at": "2025-12-27T13:20:13.058407+00:00",
       "selected_variant_id": "fs::ch26_011_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:37.914912+00:00"
+      "status_updated_at": "2025-12-27T13:20:13.058384+00:00"
     },
     {
       "channel": "CH26",
@@ -3081,14 +3112,14 @@
           "image_url": "/thumbnails/assets/CH26/012/00_thumb.png",
           "image_path": "CH26/012/00_thumb.png",
           "created_at": "2025-12-27T03:40:16.612139+00:00",
-          "updated_at": "2025-12-27T04:15:42.035135+00:00"
+          "updated_at": "2025-12-27T13:20:24.611033+00:00"
         }
       ],
       "title": "【ニーチェ式】成果は“強さ”ではなく“整い”だ",
-      "updated_at": "2025-12-27T04:15:42.035136+00:00",
+      "updated_at": "2025-12-27T13:20:24.611035+00:00",
       "selected_variant_id": "fs::ch26_012_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:42.035119+00:00"
+      "status_updated_at": "2025-12-27T13:20:24.611017+00:00"
     },
     {
       "channel": "CH26",
@@ -3101,14 +3132,14 @@
           "image_url": "/thumbnails/assets/CH26/013/00_thumb.png",
           "image_path": "CH26/013/00_thumb.png",
           "created_at": "2025-12-27T03:40:28.654650+00:00",
-          "updated_at": "2025-12-27T04:15:46.469758+00:00"
+          "updated_at": "2025-12-27T13:20:38.267063+00:00"
         }
       ],
       "title": "【ユング的】最悪を言葉にすると動ける",
-      "updated_at": "2025-12-27T04:15:46.469761+00:00",
+      "updated_at": "2025-12-27T13:20:38.267065+00:00",
       "selected_variant_id": "fs::ch26_013_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:46.469746+00:00"
+      "status_updated_at": "2025-12-27T13:20:38.267045+00:00"
     },
     {
       "channel": "CH26",
@@ -3121,14 +3152,14 @@
           "image_url": "/thumbnails/assets/CH26/014/00_thumb.png",
           "image_path": "CH26/014/00_thumb.png",
           "created_at": "2025-12-27T03:40:40.199643+00:00",
-          "updated_at": "2025-12-27T04:15:50.002371+00:00"
+          "updated_at": "2025-12-27T13:20:52.296738+00:00"
         }
       ],
       "title": "【フロイト流】進めない原因は能力じゃない",
-      "updated_at": "2025-12-27T04:15:50.002372+00:00",
+      "updated_at": "2025-12-27T13:20:52.296740+00:00",
       "selected_variant_id": "fs::ch26_014_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:50.002356+00:00"
+      "status_updated_at": "2025-12-27T13:20:52.296728+00:00"
     },
     {
       "channel": "CH26",
@@ -3141,14 +3172,14 @@
           "image_url": "/thumbnails/assets/CH26/015/00_thumb.png",
           "image_path": "CH26/015/00_thumb.png",
           "created_at": "2025-12-27T03:40:54.613228+00:00",
-          "updated_at": "2025-12-27T04:15:54.328618+00:00"
+          "updated_at": "2025-12-27T13:21:05.884848+00:00"
         }
       ],
       "title": "【スミス式】期待値で選べ：損を減らせ",
-      "updated_at": "2025-12-27T04:15:54.328619+00:00",
+      "updated_at": "2025-12-27T13:21:05.884853+00:00",
       "selected_variant_id": "fs::ch26_015_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:54.328601+00:00"
+      "status_updated_at": "2025-12-27T13:21:05.884838+00:00"
     },
     {
       "channel": "CH26",
@@ -3161,14 +3192,14 @@
           "image_url": "/thumbnails/assets/CH26/016/00_thumb.png",
           "image_path": "CH26/016/00_thumb.png",
           "created_at": "2025-12-27T03:41:06.371302+00:00",
-          "updated_at": "2025-12-27T04:15:58.820066+00:00"
+          "updated_at": "2025-12-27T13:21:18.782517+00:00"
         }
       ],
       "title": "【ケインズ式】一回の上下で判断を変えるな",
-      "updated_at": "2025-12-27T04:15:58.820068+00:00",
+      "updated_at": "2025-12-27T13:21:18.782518+00:00",
       "selected_variant_id": "fs::ch26_016_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:15:58.820052+00:00"
+      "status_updated_at": "2025-12-27T13:21:18.782508+00:00"
     },
     {
       "channel": "CH26",
@@ -3181,14 +3212,14 @@
           "image_url": "/thumbnails/assets/CH26/017/00_thumb.png",
           "image_path": "CH26/017/00_thumb.png",
           "created_at": "2025-12-27T03:41:17.980703+00:00",
-          "updated_at": "2025-12-27T04:16:02.274348+00:00"
+          "updated_at": "2025-12-27T13:21:37.208167+00:00"
         }
       ],
       "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
-      "updated_at": "2025-12-27T04:16:02.274349+00:00",
+      "updated_at": "2025-12-27T13:21:37.208168+00:00",
       "selected_variant_id": "fs::ch26_017_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:02.274335+00:00"
+      "status_updated_at": "2025-12-27T13:21:37.208155+00:00"
     },
     {
       "channel": "CH26",
@@ -3201,14 +3232,14 @@
           "image_url": "/thumbnails/assets/CH26/018/00_thumb.png",
           "image_path": "CH26/018/00_thumb.png",
           "created_at": "2025-12-27T03:41:32.496714+00:00",
-          "updated_at": "2025-12-27T04:16:06.438098+00:00"
+          "updated_at": "2025-12-27T13:21:51.303683+00:00"
         }
       ],
       "title": "【キュリー式】結論、測定が更新を速くする",
-      "updated_at": "2025-12-27T04:16:06.438100+00:00",
+      "updated_at": "2025-12-27T13:21:51.303685+00:00",
       "selected_variant_id": "fs::ch26_018_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:06.438082+00:00"
+      "status_updated_at": "2025-12-27T13:21:51.303663+00:00"
     },
     {
       "channel": "CH26",
@@ -3221,14 +3252,14 @@
           "image_url": "/thumbnails/assets/CH26/019/00_thumb.png",
           "image_path": "CH26/019/00_thumb.png",
           "created_at": "2025-12-27T03:41:45.906731+00:00",
-          "updated_at": "2025-12-27T04:16:10.778554+00:00"
+          "updated_at": "2025-12-27T13:22:05.782606+00:00"
         }
       ],
       "title": "【ファラデー流】成果は仕組みで積み上がる",
-      "updated_at": "2025-12-27T04:16:10.778568+00:00",
+      "updated_at": "2025-12-27T13:22:05.782607+00:00",
       "selected_variant_id": "fs::ch26_019_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:10.778538+00:00"
+      "status_updated_at": "2025-12-27T13:22:05.782574+00:00"
     },
     {
       "channel": "CH26",
@@ -3241,14 +3272,14 @@
           "image_url": "/thumbnails/assets/CH26/020/00_thumb.png",
           "image_path": "CH26/020/00_thumb.png",
           "created_at": "2025-12-27T03:42:00.091727+00:00",
-          "updated_at": "2025-12-27T04:16:14.467768+00:00"
+          "updated_at": "2025-12-27T13:22:19.329371+00:00"
         }
       ],
       "title": "【ダーウィン式】結論、更新の反復が成果を作る",
-      "updated_at": "2025-12-27T04:16:14.467769+00:00",
+      "updated_at": "2025-12-27T13:22:19.329372+00:00",
       "selected_variant_id": "fs::ch26_020_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:14.467753+00:00"
+      "status_updated_at": "2025-12-27T13:22:19.329357+00:00"
     },
     {
       "channel": "CH26",
@@ -3261,14 +3292,14 @@
           "image_url": "/thumbnails/assets/CH26/021/00_thumb.png",
           "image_path": "CH26/021/00_thumb.png",
           "created_at": "2025-12-27T03:42:11.411000+00:00",
-          "updated_at": "2025-12-27T04:16:17.848795+00:00"
+          "updated_at": "2025-12-27T13:22:32.728602+00:00"
         }
       ],
       "title": "【エジソン式】結論、更新回数が成果を決める",
-      "updated_at": "2025-12-27T04:16:17.848796+00:00",
+      "updated_at": "2025-12-27T13:22:32.728604+00:00",
       "selected_variant_id": "fs::ch26_021_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:17.848781+00:00"
+      "status_updated_at": "2025-12-27T13:22:32.728574+00:00"
     },
     {
       "channel": "CH26",
@@ -3281,14 +3312,14 @@
           "image_url": "/thumbnails/assets/CH26/022/00_thumb.png",
           "image_path": "CH26/022/00_thumb.png",
           "created_at": "2025-12-27T03:42:24.427300+00:00",
-          "updated_at": "2025-12-27T04:16:22.095054+00:00"
+          "updated_at": "2025-12-27T13:22:44.247917+00:00"
         }
       ],
       "title": "【ジョブズ流】重要な2つだけ残せ",
-      "updated_at": "2025-12-27T04:16:22.095055+00:00",
+      "updated_at": "2025-12-27T13:22:44.247919+00:00",
       "selected_variant_id": "fs::ch26_022_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:22.095040+00:00"
+      "status_updated_at": "2025-12-27T13:22:44.247906+00:00"
     },
     {
       "channel": "CH26",
@@ -3301,14 +3332,14 @@
           "image_url": "/thumbnails/assets/CH26/023/00_thumb.png",
           "image_path": "CH26/023/00_thumb.png",
           "created_at": "2025-12-27T03:42:37.461170+00:00",
-          "updated_at": "2025-12-27T04:16:26.556699+00:00"
+          "updated_at": "2025-12-27T13:22:58.422198+00:00"
         }
       ],
       "title": "【マスク式】結論、順序を整えると止まらない",
-      "updated_at": "2025-12-27T04:16:26.556701+00:00",
+      "updated_at": "2025-12-27T13:22:58.422202+00:00",
       "selected_variant_id": "fs::ch26_023_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:26.556678+00:00"
+      "status_updated_at": "2025-12-27T13:22:58.422177+00:00"
     },
     {
       "channel": "CH26",
@@ -3321,14 +3352,14 @@
           "image_url": "/thumbnails/assets/CH26/024/00_thumb.png",
           "image_path": "CH26/024/00_thumb.png",
           "created_at": "2025-12-27T03:42:49.004417+00:00",
-          "updated_at": "2025-12-27T04:16:30.612216+00:00"
+          "updated_at": "2025-12-27T13:23:10.199302+00:00"
         }
       ],
       "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
-      "updated_at": "2025-12-27T04:16:30.612220+00:00",
+      "updated_at": "2025-12-27T13:23:10.199303+00:00",
       "selected_variant_id": "fs::ch26_024_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:30.612201+00:00"
+      "status_updated_at": "2025-12-27T13:23:10.199293+00:00"
     },
     {
       "channel": "CH26",
@@ -3341,14 +3372,14 @@
           "image_url": "/thumbnails/assets/CH26/025/00_thumb.png",
           "image_path": "CH26/025/00_thumb.png",
           "created_at": "2025-12-27T03:42:59.827355+00:00",
-          "updated_at": "2025-12-27T04:16:33.659783+00:00"
+          "updated_at": "2025-12-27T13:23:25.863103+00:00"
         }
       ],
       "title": "【ベゾス流】結論、基準がないから止まる",
-      "updated_at": "2025-12-27T04:16:33.659784+00:00",
+      "updated_at": "2025-12-27T13:23:25.863107+00:00",
       "selected_variant_id": "fs::ch26_025_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:33.659766+00:00"
+      "status_updated_at": "2025-12-27T13:23:25.863078+00:00"
     },
     {
       "channel": "CH26",
@@ -3361,14 +3392,14 @@
           "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
           "image_path": "CH26/026/00_thumb.png",
           "created_at": "2025-12-27T03:43:11.960825+00:00",
-          "updated_at": "2025-12-27T04:16:37.772828+00:00"
+          "updated_at": "2025-12-27T13:23:40.976150+00:00"
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-27T04:16:37.772829+00:00",
+      "updated_at": "2025-12-27T13:23:40.976151+00:00",
       "selected_variant_id": "fs::ch26_026_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:37.772815+00:00"
+      "status_updated_at": "2025-12-27T13:23:40.976141+00:00"
     },
     {
       "channel": "CH26",
@@ -3381,14 +3412,14 @@
           "image_url": "/thumbnails/assets/CH26/027/00_thumb.png",
           "image_path": "CH26/027/00_thumb.png",
           "created_at": "2025-12-27T03:43:24.202855+00:00",
-          "updated_at": "2025-12-27T04:16:42.071021+00:00"
+          "updated_at": "2025-12-27T13:23:54.448011+00:00"
         }
       ],
       "title": "【デミング式】結論、平均を上げるのが最強",
-      "updated_at": "2025-12-27T04:16:42.071024+00:00",
+      "updated_at": "2025-12-27T13:23:54.448013+00:00",
       "selected_variant_id": "fs::ch26_027_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:42.071002+00:00"
+      "status_updated_at": "2025-12-27T13:23:54.448003+00:00"
     },
     {
       "channel": "CH26",
@@ -3401,14 +3432,14 @@
           "image_url": "/thumbnails/assets/CH26/028/00_thumb.png",
           "image_path": "CH26/028/00_thumb.png",
           "created_at": "2025-12-27T03:43:37.154009+00:00",
-          "updated_at": "2025-12-27T04:16:45.711361+00:00"
+          "updated_at": "2025-12-27T13:24:08.187229+00:00"
         }
       ],
       "title": "【TPSの型】冗長性で崩れない仕組みを作れ",
-      "updated_at": "2025-12-27T04:16:45.711362+00:00",
+      "updated_at": "2025-12-27T13:24:08.187230+00:00",
       "selected_variant_id": "fs::ch26_028_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:45.711343+00:00"
+      "status_updated_at": "2025-12-27T13:24:08.187218+00:00"
     },
     {
       "channel": "CH26",
@@ -3421,14 +3452,14 @@
           "image_url": "/thumbnails/assets/CH26/029/00_thumb.png",
           "image_path": "CH26/029/00_thumb.png",
           "created_at": "2025-12-27T03:43:47.989830+00:00",
-          "updated_at": "2025-12-27T04:16:49.471269+00:00"
+          "updated_at": "2025-12-27T13:24:21.119969+00:00"
         }
       ],
       "title": "【コヴィー流】重要な2つだけ残せ",
-      "updated_at": "2025-12-27T04:16:49.471270+00:00",
+      "updated_at": "2025-12-27T13:24:21.119970+00:00",
       "selected_variant_id": "fs::ch26_029_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:49.471255+00:00"
+      "status_updated_at": "2025-12-27T13:24:21.119958+00:00"
     },
     {
       "channel": "CH26",
@@ -3441,14 +3472,734 @@
           "image_url": "/thumbnails/assets/CH26/030/00_thumb.png",
           "image_path": "CH26/030/00_thumb.png",
           "created_at": "2025-12-27T03:43:59.517457+00:00",
-          "updated_at": "2025-12-27T04:16:53.067587+00:00"
+          "updated_at": "2025-12-27T13:24:36.750033+00:00"
         }
       ],
       "title": "【セネカ式】結論、基準がないから焦る",
-      "updated_at": "2025-12-27T04:16:53.067589+00:00",
+      "updated_at": "2025-12-27T13:24:36.750035+00:00",
       "selected_variant_id": "fs::ch26_030_00_thumb",
       "status": "review",
-      "status_updated_at": "2025-12-27T04:16:53.067574+00:00"
+      "status_updated_at": "2025-12-27T13:24:36.750016+00:00"
+    },
+    {
+      "channel": "CH12",
+      "video": "001",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/001/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/001/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:02.609819+00:00",
+          "updated_at": "2025-12-28T00:13:02.609819+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:09:58.831796+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "002",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/002/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/002/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:02.965852+00:00",
+          "updated_at": "2025-12-28T00:13:02.965852+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:09:59.557114+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "003",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/003/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/003/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:03.316040+00:00",
+          "updated_at": "2025-12-28T00:13:03.316040+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:00.399523+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "004",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/004/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/004/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:03.654903+00:00",
+          "updated_at": "2025-12-28T00:13:03.654903+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:01.190908+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "005",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/005/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/005/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:04.012517+00:00",
+          "updated_at": "2025-12-28T00:13:04.012517+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:01.800181+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "006",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/006/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/006/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:04.372504+00:00",
+          "updated_at": "2025-12-28T00:13:04.372504+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:02.495519+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "007",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/007/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/007/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:04.757917+00:00",
+          "updated_at": "2025-12-28T00:13:04.757917+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:03.142453+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "008",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/008/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/008/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:05.121400+00:00",
+          "updated_at": "2025-12-28T00:13:05.121400+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:03.821133+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "009",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/009/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/009/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:05.473018+00:00",
+          "updated_at": "2025-12-28T00:13:05.473018+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:04.507799+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "010",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/010/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/010/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:05.816425+00:00",
+          "updated_at": "2025-12-28T00:13:05.816425+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:05.133508+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "011",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/011/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/011/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:06.110610+00:00",
+          "updated_at": "2025-12-28T00:13:06.110610+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:05.872087+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "012",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/012/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/012/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:06.423760+00:00",
+          "updated_at": "2025-12-28T00:13:06.423760+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:06.608443+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "013",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/013/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/013/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:06.686252+00:00",
+          "updated_at": "2025-12-28T00:13:06.686252+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:07.294094+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "014",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/014/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/014/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:06.950015+00:00",
+          "updated_at": "2025-12-28T00:13:06.950015+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:08.012811+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "015",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/015/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/015/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:07.210881+00:00",
+          "updated_at": "2025-12-28T00:13:07.210881+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:08.635852+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "016",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/016/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/016/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:07.469753+00:00",
+          "updated_at": "2025-12-28T00:13:07.469753+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:09.178766+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "017",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/017/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/017/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:07.723412+00:00",
+          "updated_at": "2025-12-28T00:13:07.723412+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:09.727070+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "018",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/018/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/018/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:07.983865+00:00",
+          "updated_at": "2025-12-28T00:13:07.983865+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:10.343631+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "019",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/019/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/019/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:08.245032+00:00",
+          "updated_at": "2025-12-28T00:13:08.245032+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:10.909671+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "020",
+      "variants": [
+        {
+          "id": "compiler::build_20251228T001301Z",
+          "label": "文字サムネ（build_20251228T001301Z）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/020/compiler/build_20251228T001301Z/out_01.png",
+          "image_path": "CH12/020/compiler/build_20251228T001301Z/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T00:13:08.508894+00:00",
+          "updated_at": "2025-12-28T00:13:08.508894+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:11.538542+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_20251228T001301Z"
+    },
+    {
+      "channel": "CH12",
+      "video": "021",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/021/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/021/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:39.999823+00:00",
+          "updated_at": "2025-12-28T05:59:39.999823+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:12.169980+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "022",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/022/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/022/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:40.252171+00:00",
+          "updated_at": "2025-12-28T05:59:40.252171+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:12.655913+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "023",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/023/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/023/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:40.515035+00:00",
+          "updated_at": "2025-12-28T05:59:40.515035+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:13.200065+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "024",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/024/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/024/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:40.755230+00:00",
+          "updated_at": "2025-12-28T05:59:40.755230+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:13.747366+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "025",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/025/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/025/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:41.005224+00:00",
+          "updated_at": "2025-12-28T05:59:41.005224+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:14.357205+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "026",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/026/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/026/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:41.340301+00:00",
+          "updated_at": "2025-12-28T05:59:41.340301+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:15.053107+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "027",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/027/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/027/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:41.601715+00:00",
+          "updated_at": "2025-12-28T05:59:41.601715+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:15.580873+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "028",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/028/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/028/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:41.846192+00:00",
+          "updated_at": "2025-12-28T05:59:41.846192+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:16.207377+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "029",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/029/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/029/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:42.195675+00:00",
+          "updated_at": "2025-12-28T05:59:42.195675+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:16.836021+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH12",
+      "video": "030",
+      "variants": [
+        {
+          "id": "compiler::build_ch12_gapfix_021_030",
+          "label": "文字サムネ（build_ch12_gapfix_021_030）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH12/030/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "image_path": "CH12/030/compiler/build_ch12_gapfix_021_030/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-28T05:59:42.445137+00:00",
+          "updated_at": "2025-12-28T05:59:42.445137+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-27T22:10:17.422255+00:00",
+      "updated_at": "2025-12-28T08:25:28.648239+00:00",
+      "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
     }
   ]
 }

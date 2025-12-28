@@ -12,6 +12,24 @@ module.exports = function configureProxy(app) {
     })
   );
 
+  // Non-API asset routes served by the backend (avoid CORS in dev).
+  // - /thumbnails/assets/* (workspaces/thumbnails/assets)
+  // - /thumbnails/library/* (thumbnail library)
+  app.use(
+    "/thumbnails/assets",
+    createProxyMiddleware({
+      target: "http://localhost:8000",
+      changeOrigin: true,
+    })
+  );
+  app.use(
+    "/thumbnails/library",
+    createProxyMiddleware({
+      target: "http://localhost:8000",
+      changeOrigin: true,
+    })
+  );
+
   // Serve Remotion-related artifacts for UI preview.
   // __dirname = apps/ui-frontend/src. Repo root = ../../.. from here.
   const repoRoot = path.resolve(__dirname, "../../..");

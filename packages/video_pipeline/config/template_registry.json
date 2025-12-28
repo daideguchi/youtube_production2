@@ -14,7 +14,7 @@
 
     { "id": "japanese_visual.txt", "label": "legacy: japanese_visual", "scope": ["legacy"], "status": "inactive" },
     { "id": "jinsei_contextual_variety.txt", "label": "legacy: jinsei_contextual_variety", "scope": ["legacy"], "status": "inactive" },
-    { "id": "jinsei_no_michishirube_buddhist.txt", "label": "legacy: jinsei_no_michishirube_buddhist", "scope": ["legacy"], "status": "inactive" },
+    { "id": "jinsei_no_michishirube_buddhist.txt", "label": "CH12-CH17 仏教（静けさ・瞑想）", "scope": ["CH12", "CH13", "CH14", "CH15", "CH16", "CH17"], "status": "active" },
     { "id": "jinsei_no_michishirube_contextual.txt", "label": "legacy: jinsei_no_michishirube_contextual", "scope": ["legacy"], "status": "inactive" },
     { "id": "jinsei_standard_illustration.txt", "label": "legacy: jinsei_standard_illustration", "scope": ["legacy"], "status": "inactive" },
     { "id": "jinsei191_masako_strict.txt", "label": "legacy: jinsei191_masako_strict", "scope": ["legacy"], "status": "inactive" },

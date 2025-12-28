@@ -100,7 +100,7 @@
   - 種別: **L1**
 
 - `workspaces/logs/tts_voicevox_reading.jsonl`  
-  - Writer: `packages/audio_tts/tts/orchestrator.py`, `packages/audio_tts/tts/auditor.py`, `packages/audio_tts/scripts/run_contextual_reading_llm.py`
+  - Writer: `packages/audio_tts/tts/auditor.py`, `packages/audio_tts/scripts/run_contextual_reading_llm.py`
   - 形式: 1行JSON
     - 読み/ルビ補正のイベントログ（観測キー例）:
       - `timestamp`, `channel`, `video`, `block_id`, `token_index`
@@ -145,12 +145,12 @@
 ### 1.4 UI / Ops（グローバル）
 
 - `workspaces/logs/ui_hub/backend.log`, `backend.manual.log`, `frontend.log`, `frontend.manual.log`, `remotion_studio.log`, `start_all.nohup.log`  
-  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`
+  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`, `apps/ui-backend/backend/main.py`（`POST /api/remotion/restart_preview`）
   - 形式: stdout/stderr 合流ログ（起動ごとに上書き）
   - 種別: **L3 / keep-last‑N**
 
 - `workspaces/logs/ui_hub/*.pid`  
-  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`
+  - Writer: `apps/ui-backend/tools/start_manager.py`, `scripts/start_all.sh`, `apps/ui-backend/backend/main.py`（`POST /api/remotion/restart_preview`）
   - 種別: **L3 / 状態ファイル**
 
 - `workspaces/logs/ui_hub/video_production/<job_id>.log`  
@@ -182,11 +182,17 @@
     - `apps/ui-backend/backend/main.py`（`thumbnail_quick_history.jsonl` / `ssot_sync/*`）
     - `scripts/episode_ssot.py`（`archive_video_runs_dryrun_<CH>_<timestamp>.json`）
     - `scripts/ops/cleanup_video_runs.py`（`video_runs_cleanup_dryrun_<timestamp>.json`）
+    - `scripts/ops/planning_lint.py`（`planning_lint_<CH>__<ts>.{json,md}` + `planning_lint_<CH>__latest.{json,md}` under `workspaces/logs/regression/planning_lint/`）
+    - `scripts/ops/planning_sanitize.py`（`planning_sanitize_<CH>__<ts>.{json,md}` + `planning_sanitize_<CH>__latest.{json,md}` under `workspaces/logs/regression/planning_sanitize/`）
+    - `scripts/ops/planning_apply_patch.py`（`planning_patch_<label>__<ts>.{json,md}` + `planning_patch_<label>__latest.{json,md}` under `workspaces/logs/regression/planning_patch/`）
+    - `scripts/ops/production_pack.py`（`production_pack_<label>__<ts>.{json,md}` + `production_pack_<label>__latest.{json,md}` + `production_pack_<label>__diff__*.{json,md}` under `workspaces/logs/regression/production_pack/`）
+    - `scripts/ops/preproduction_audit.py`（`preproduction_audit_<label>__<ts>.{json,md}` + `preproduction_audit_<label>__latest.{json,md}` under `workspaces/logs/regression/preproduction_audit/`）
     - `scripts/ops/cleanup_broken_symlinks.py`（`broken_symlinks_<timestamp>.json` under `workspaces/logs/regression/broken_symlinks/`）
     - `scripts/ops/archive_capcut_local_drafts.py`（`capcut_local_drafts_archive_<timestamp>.json` under `workspaces/logs/regression/capcut_local_drafts_archive/`）
     - `scripts/ops/restore_video_runs.py`（`restore_video_runs_dryrun_<timestamp>.json` / `restore_report_<timestamp>.json`）
   - 種別:
     - `thumbnail_quick_history.jsonl` は **L1**（履歴価値あり）
+    - `*__latest.{json,md}`（keep-latest pointer）は **L1**（監査/差分の入口。`scripts/ops/cleanup_logs.py` で保護）
     - それ以外は **L3**
 
 - `workspaces/logs/ops/<operation>/<...>.log`  

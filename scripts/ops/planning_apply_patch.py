@@ -27,6 +27,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import yaml
@@ -275,9 +276,20 @@ def _write_report(payload: dict[str, Any], *, out_dir: Path, label: str, write_l
     return json_path, md_path
 
 
+def _safe_slug(text: str) -> str:
+    s = (text or "").strip()
+    if not s:
+        return "patch"
+    # Keep filenames conservative; avoid spaces and odd chars.
+    s = re.sub(r"[^0-9A-Za-z._-]+", "_", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return s or "patch"
+
+
 def _apply_patch_to_csv(
     patch: PatchSpec,
     *,
+    patch_path: Path,
     csv_path: Path,
     apply: bool,
     allow_new_columns: bool,
@@ -285,62 +297,33 @@ def _apply_patch_to_csv(
     write_latest: bool,
 ) -> tuple[dict[str, Any], int]:
     out_dir = logs_root() / "regression" / "planning_patch"
-    label = f"{patch.channel}_{patch.video}__{patch.patch_id}"
+    label = f"{patch.channel}_{patch.video}__{_safe_slug(patch.patch_id)}"
 
-    issues: list[dict[str, Any]] = []
-
-    if not csv_path.exists():
-        payload = {
-            "schema": "ytm.planning_patch_apply.v1",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "ok": False,
-            "mode": "apply" if apply else "dry-run",
-            "patch_id": patch.patch_id,
-            "target": {"channel": patch.channel, "video": patch.video},
-            "csv_path": str(csv_path),
-            "issues": [{"severity": "error", "code": "missing_csv", "message": f"CSV not found: {csv_path}"}],
-            "changes": [],
-        }
+    def _write_and_return(payload: dict[str, Any], code: int) -> tuple[dict[str, Any], int]:
         report_json, report_md = _write_report(payload, out_dir=out_dir, label=label, write_latest=write_latest)
         print(f"Wrote: {report_json}")
         print(f"Wrote: {report_md}")
-        return payload, 2
+        return payload, code
 
-    if apply and not ignore_locks:
-        locks = default_active_locks_for_mutation()
-        blocking = find_blocking_lock(csv_path, locks)
-        if blocking is not None:
-            payload = {
-                "schema": "ytm.planning_patch_apply.v1",
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "ok": False,
-                "mode": "apply",
-                "patch_id": patch.patch_id,
-                "target": {"channel": patch.channel, "video": patch.video},
-                "csv_path": str(csv_path),
-                "issues": [
-                    {
-                        "severity": "error",
-                        "code": "blocked_by_lock",
-                        "message": f"blocked by active lock: {blocking.lock_id} mode={blocking.mode} created_by={blocking.created_by}",
-                        "scopes": list(blocking.scopes),
-                    }
-                ],
-                "changes": [],
-            }
-            report_json, report_md = _write_report(payload, out_dir=out_dir, label=label, write_latest=write_latest)
-            print(f"Wrote: {report_json}")
-            print(f"Wrote: {report_md}")
-            return payload, 2
-
-    headers, rows = _read_csv(csv_path)
-    row_idx = _find_row_index(rows, channel=patch.channel, video=patch.video)
+    issues: list[dict[str, Any]] = []
     changes: list[dict[str, Any]] = []
     before_row: dict[str, str] = {}
+    row_after: dict[str, str] | None = None
+    row_index_1based: int | None = None
 
-    if patch.op == "set":
-        if row_idx is None:
-            payload = {
+    candidate_csv_path: Path | None = None
+    candidate_csv_meta: dict[str, Any] | None = None
+    candidate_lint: dict[str, Any] | None = None
+    candidate_csv_deleted_after_apply = False
+
+    applied = False
+    backup_meta: dict[str, Any] | None = None
+    post_apply_lint: dict[str, Any] | None = None
+    lint_exception: str | None = None
+
+    if not csv_path.exists():
+        return _write_and_return(
+            {
                 "schema": "ytm.planning_patch_apply.v1",
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "ok": False,
@@ -348,13 +331,60 @@ def _apply_patch_to_csv(
                 "patch_id": patch.patch_id,
                 "target": {"channel": patch.channel, "video": patch.video},
                 "csv_path": str(csv_path),
-                "issues": [{"severity": "error", "code": "missing_row", "message": f"No row for {patch.channel}/{patch.video}"}],
+                "patch_file": _file_meta(patch_path),
+                "issues": [{"severity": "error", "code": "missing_csv", "message": f"CSV not found: {csv_path}"}],
                 "changes": [],
-            }
-            report_json, report_md = _write_report(payload, out_dir=out_dir, label=label, write_latest=write_latest)
-            print(f"Wrote: {report_json}")
-            print(f"Wrote: {report_md}")
-            return payload, 2
+            },
+            2,
+        )
+
+    if apply and not ignore_locks:
+        locks = default_active_locks_for_mutation()
+        blocking = find_blocking_lock(csv_path, locks)
+        if blocking is not None:
+            return _write_and_return(
+                {
+                    "schema": "ytm.planning_patch_apply.v1",
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "ok": False,
+                    "mode": "apply",
+                    "patch_id": patch.patch_id,
+                    "target": {"channel": patch.channel, "video": patch.video},
+                    "csv_path": str(csv_path),
+                    "patch_file": _file_meta(patch_path),
+                    "issues": [
+                        {
+                            "severity": "error",
+                            "code": "blocked_by_lock",
+                            "message": f"blocked by active lock: {blocking.lock_id} mode={blocking.mode} created_by={blocking.created_by}",
+                            "scopes": list(blocking.scopes),
+                        }
+                    ],
+                    "changes": [],
+                },
+                2,
+            )
+
+    headers, rows = _read_csv(csv_path)
+    row_idx = _find_row_index(rows, channel=patch.channel, video=patch.video)
+
+    if patch.op == "set":
+        if row_idx is None:
+            return _write_and_return(
+                {
+                    "schema": "ytm.planning_patch_apply.v1",
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "ok": False,
+                    "mode": "apply" if apply else "dry-run",
+                    "patch_id": patch.patch_id,
+                    "target": {"channel": patch.channel, "video": patch.video},
+                    "csv_path": str(csv_path),
+                    "patch_file": _file_meta(patch_path),
+                    "issues": [{"severity": "error", "code": "missing_row", "message": f"No row for {patch.channel}/{patch.video}"}],
+                    "changes": [],
+                },
+                2,
+            )
 
         before_row = dict(rows[row_idx])
         for col, value in patch.values.items():
@@ -378,33 +408,33 @@ def _apply_patch_to_csv(
             rows[row_idx][col] = new
             changes.append({"column": col, "before": old, "after": new})
 
-        # Minimal safety: title must not become empty.
         title_after = (rows[row_idx].get("タイトル") or "").strip() if isinstance(rows[row_idx], dict) else ""
         if not title_after:
             issues.append({"severity": "error", "code": "missing_title_after", "message": "タイトル would become empty"})
 
+        row_after = dict(rows[row_idx])
+        row_index_1based = row_idx + 1
+
     elif patch.op == "add_row":
         if row_idx is not None:
-            payload = {
-                "schema": "ytm.planning_patch_apply.v1",
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "ok": False,
-                "mode": "apply" if apply else "dry-run",
-                "patch_id": patch.patch_id,
-                "target": {"channel": patch.channel, "video": patch.video},
-                "csv_path": str(csv_path),
-                "issues": [{"severity": "error", "code": "row_already_exists", "message": f"Row already exists for {patch.channel}/{patch.video}"}],
-                "changes": [],
-            }
-            report_json, report_md = _write_report(payload, out_dir=out_dir, label=label, write_latest=write_latest)
-            print(f"Wrote: {report_json}")
-            print(f"Wrote: {report_md}")
-            return payload, 2
+            return _write_and_return(
+                {
+                    "schema": "ytm.planning_patch_apply.v1",
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "ok": False,
+                    "mode": "apply" if apply else "dry-run",
+                    "patch_id": patch.patch_id,
+                    "target": {"channel": patch.channel, "video": patch.video},
+                    "csv_path": str(csv_path),
+                    "patch_file": _file_meta(patch_path),
+                    "issues": [{"severity": "error", "code": "row_already_exists", "message": f"Row already exists for {patch.channel}/{patch.video}"}],
+                    "changes": [],
+                },
+                2,
+            )
 
-        # Start with an empty row shaped like the current header.
         new_row: dict[str, str] = {h: "" for h in headers}
 
-        # Auto-fill common identifiers when those columns exist (and patch didn't provide them).
         if "チャンネル" in new_row and not (patch.values.get("チャンネル") or "").strip():
             new_row["チャンネル"] = patch.channel
         if "動画番号" in new_row and not (patch.values.get("動画番号") or "").strip():
@@ -443,14 +473,13 @@ def _apply_patch_to_csv(
                     continue
             new_row[col] = str(value or "")
 
-        # Minimal safety: title must exist for any new row.
         if not (new_row.get("タイトル") or "").strip():
             issues.append({"severity": "error", "code": "missing_title_after", "message": "タイトル would be empty"})
 
-        # Append row (even on dry-run, so the report shows the final row_after).
         rows.append(new_row)
         row_idx = len(rows) - 1
-        before_row = {}
+        row_after = dict(rows[row_idx])
+        row_index_1based = row_idx + 1
 
         for col in headers:
             after = str(new_row.get(col) or "")
@@ -461,13 +490,97 @@ def _apply_patch_to_csv(
         issues.append({"severity": "error", "code": "unsupported_op", "message": f"Unsupported op: {patch.op!r}"})
 
     ok = not any(it.get("severity") == "error" for it in issues)
+
+    # Validate the candidate output with planning_lint, then (optionally) apply.
+    if ok and changes:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        if apply:
+            with NamedTemporaryFile("w", encoding="utf-8-sig", newline="", suffix=".csv", dir=out_dir, delete=False) as tmp:
+                candidate_csv_path = Path(tmp.name)
+        else:
+            ts = _utc_now_compact()
+            candidate_csv_path = out_dir / f"planning_patch_{label}__candidate__{ts}.csv"
+
+        _write_csv(candidate_csv_path, headers, rows)
+        candidate_csv_meta = _file_meta(candidate_csv_path)
+
+        try:
+            import planning_lint as _planning_lint
+
+            candidate_lint = _planning_lint.lint_planning_csv(candidate_csv_path, patch.channel)
+            if isinstance(candidate_lint, dict) and not candidate_lint.get("ok", False):
+                issues.append(
+                    {
+                        "severity": "error",
+                        "code": "candidate_planning_lint_failed",
+                        "message": "planning_lint failed on candidate CSV (patch would introduce errors)",
+                        "details": {"csv": candidate_csv_meta, "counts": candidate_lint.get("counts")},
+                    }
+                )
+        except Exception as e:
+            lint_exception = repr(e)
+            issues.append(
+                {
+                    "severity": "error" if apply else "warning",
+                    "code": "candidate_planning_lint_exception",
+                    "message": f"planning_lint exception: {lint_exception}",
+                    "details": {"csv": candidate_csv_meta},
+                }
+            )
+
+    ok = not any(it.get("severity") == "error" for it in issues)
+
+    if ok and apply and changes:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = out_dir / f"backup_{patch.channel}_{patch.video}__{_safe_slug(patch.patch_id)}__{_utc_now_compact()}.csv"
+        backup_path.write_text(csv_path.read_text(encoding="utf-8-sig"), encoding="utf-8-sig")
+        backup_meta = _file_meta(backup_path)
+        print(f"Backup: {backup_path}")
+        _write_csv(csv_path, headers, rows)
+        applied = True
+        print(f"Applied: {csv_path}")
+
+        try:
+            import planning_lint as _planning_lint
+
+            post_apply_lint = _planning_lint.lint_planning_csv(csv_path, patch.channel)
+            if isinstance(post_apply_lint, dict) and not post_apply_lint.get("ok", False):
+                issues.append(
+                    {
+                        "severity": "error",
+                        "code": "post_apply_planning_lint_failed",
+                        "message": "planning_lint failed after applying patch (unexpected; candidate lint should have caught this)",
+                        "details": {"counts": post_apply_lint.get("counts")},
+                    }
+                )
+                ok = False
+        except Exception as e:
+            lint_exception = repr(e)
+            issues.append(
+                {
+                    "severity": "warning",
+                    "code": "post_apply_planning_lint_exception",
+                    "message": f"planning_lint exception after apply: {lint_exception}",
+                }
+            )
+
+    # Apply mode uses a temporary candidate CSV; remove it on success to reduce clutter.
+    if apply and candidate_csv_path is not None and applied and ok and candidate_csv_path.exists():
+        try:
+            candidate_csv_path.unlink()
+            candidate_csv_deleted_after_apply = True
+        except Exception:
+            candidate_csv_deleted_after_apply = False
+
     payload: dict[str, Any] = {
         "schema": "ytm.planning_patch_apply.v1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "ok": ok,
         "mode": "apply" if apply else "dry-run",
+        "patch_id": patch.patch_id,
         "patch": {
-            "path": str(csv_path),
+            "path": str(patch_path),
+            "file": _file_meta(patch_path),
             "patch_id": patch.patch_id,
             "target": {"channel": patch.channel, "video": patch.video},
             "apply": {patch.op: patch.values},
@@ -475,41 +588,30 @@ def _apply_patch_to_csv(
         },
         "target": {"channel": patch.channel, "video": patch.video},
         "csv_path": str(csv_path),
-        "row_index": (int(row_idx) + 1) if row_idx is not None else None,
+        "csv_file": _file_meta(csv_path),
+        "row_index": row_index_1based,
         "issues": issues,
         "changes": changes,
         "row_before": before_row,
-        "row_after": dict(rows[row_idx]) if row_idx is not None else None,
+        "row_after": row_after,
+        "candidate_csv": candidate_csv_meta,
+        "candidate_planning_lint": candidate_lint,
+        "candidate_csv_deleted_after_apply": candidate_csv_deleted_after_apply,
+        "applied": applied,
+        "backup_csv": backup_meta,
+        "post_apply_planning_lint": post_apply_lint,
     }
 
-    report_json, report_md = _write_report(payload, out_dir=out_dir, label=label, write_latest=write_latest)
-    print(f"Wrote: {report_json}")
-    print(f"Wrote: {report_md}")
+    if apply and candidate_csv_path is not None and not applied and not ok:
+        print(f"Candidate CSV kept for inspection: {candidate_csv_path}")
 
     if not ok:
-        return payload, 2
+        return _write_and_return(payload, 2)
 
-    if apply and changes:
-        out_dir.mkdir(parents=True, exist_ok=True)
-        backup_path = out_dir / f"backup_{patch.channel}__{_utc_now_compact()}.csv"
-        backup_path.write_text(csv_path.read_text(encoding="utf-8-sig"), encoding="utf-8-sig")
-        print(f"Backup: {backup_path}")
-        _write_csv(csv_path, headers, rows)
-        print(f"Applied: {csv_path}")
+    if apply and lint_exception is not None:
+        return _write_and_return(payload, 1)
 
-        # Post-apply lint (best-effort)
-        try:
-            import planning_lint as _planning_lint
-
-            lint_rep = _planning_lint.lint_planning_csv(csv_path, patch.channel)
-            payload["post_apply_planning_lint"] = lint_rep
-            if isinstance(lint_rep, dict) and not lint_rep.get("ok", False):
-                return payload, 2
-        except Exception as e:
-            payload["post_apply_planning_lint_exception"] = repr(e)
-            return payload, 1
-
-    return payload, 0
+    return _write_and_return(payload, 0)
 
 
 def main(argv: list[str]) -> int:
@@ -537,6 +639,7 @@ def main(argv: list[str]) -> int:
                 "ok": False,
                 "mode": "apply" if args.apply else "dry-run",
                 "patch_path": str(patch_path),
+                "patch_file": _file_meta(patch_path),
                 "issues": patch_issues,
                 "changes": [],
             }
@@ -549,6 +652,7 @@ def main(argv: list[str]) -> int:
         csv_path = channels_csv_path(patch.channel)
         payload, code = _apply_patch_to_csv(
             patch,
+            patch_path=patch_path,
             csv_path=csv_path,
             apply=bool(args.apply),
             allow_new_columns=bool(args.allow_new_columns),

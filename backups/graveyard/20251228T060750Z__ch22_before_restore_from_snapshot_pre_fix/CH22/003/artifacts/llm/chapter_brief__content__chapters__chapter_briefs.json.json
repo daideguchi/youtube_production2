@@ -1,0 +1,69 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:34:40+00:00",
+  "status": "ready",
+  "stage": "chapter_brief",
+  "task": "script_chapter_brief",
+  "channel": "CH22",
+  "video": "003",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/content/chapters/chapter_briefs.json",
+    "sha1": "ec2cb618cd8f941c6bc1e7c7ab661816d19ba364"
+  },
+  "content": "JSONを作成します。[\n  {\n    \"chapter\": 1,\n    \"title\": \"変わらぬ日常の中の緊張\",\n    \"hook\": \"一見平和なサークルに、なぜか気疲れを感じ始めたのはなぜでしょうか？\",\n    \"goal\": \"サークルが最初は穏やかだったのに、次第に支配的な空気が生まれる過程を理解する\",\n    \"angle\": \"日常の細かい変化を通して、緊張が芽生える様子を描く。大げさな表現は避け、具体的な場面で示す\",\n    \"must_include\": [\"絵手紙サークルの活動内容\", \"代表の和子さんの存在感の変化\", \"メンバー同士の気遣いの始まり\"],\n    \"avoid\": [\"感情の誇張\", \"和子さんを悪者として描くこと\"],\n    \"no_fly_zone\": [\"第2章で扱う具体的な気遣いの詳細\", \"孤独感の直接的な表現\"],\n    \"bridge_to_next\": \"そんな中、毎週の集まりが少しずつ重荷に変わっていく\",\n    \"tone\": \"穏やかだが、少しの違和感を感じさせる語り\",\n    \"length_hint\": 1200,\n    \"style\": \"共感的で落ち着いた語り。具体例を交えながら、静かに描写\"\n  },\n  {\n    \"chapter\": 2,\n    \"title\": \"積み重なる小さな棘\",\n    \"hook\": \"なぜ、ささいなことが気になり始めるのでしょう？\",\n    \"goal\": \"日常に散らばる小さな棘が、心を疲れさせていくメカニズムを理解する\",\n    \"angle\": \"具体的なエピソード（お茶当番の変更、作品への注釈）を通して、摩耗の過程を示す\",\n    \"must_include\": [\"和子さんからの依頼例\", \"メンバーへの冷たい視線の描写\", \"気遣いが習慣化する様子\"],\n    \"avoid\": [\"感情的な表現の連打\", \"同じ構文の繰り返し\"],\n    \"no_fly_zone\": [\"第3章の孤独感の詳細な分析\", \"第4章の排除を先取りする描写\"],\n    \"bridge_to_next\": \"こうした小さな積み重ねが、やがて孤独感を募らせる\",\n    \"tone\": \"共感的で、視聴者の経験を想起させる落ち着いた語り\",\n    \"length_hint\": 1600,\n    \"style\": \"具体例を短く示し、共感を誘うが煽らないトーン\"\n  },\n  {\n    \"chapter\": 3,\n    \"title\": \"笑顔の裏の孤独\",\n    \"hook\": \"集団の中にいながら、なぜ孤独を感じるのでしょうか？\",\n    \"goal\": \"集団の中での孤独と、我慢することが当たり前という思い込みの危険性を理解する\",\n    \"angle\": \"内面と外界の往復描写で、摩耗を現実として見せる\",\n    \"must_include\": [\"サークル前日の憂鬱\", \"帰宅後の疲労感\", \"表向きの笑顔と本心の乖離\"],\n    \"avoid\": [\"過剰な心理描写\", \"一般論の前置き\"],\n    \"no_fly_zone\": [\"第4章の具体的な事件\", \"解決策の提示\"],\n    \"bridge_to_next\": \"そんな中、ある日、ほんの少しの自己主張が、すべてを変える\",\n    \"tone\": \"静かで内省的。共感を大切に\",\n    \"length_hint\": 1600,\n    \"style\": \"視線や沈黙などの細かい動作で心理を表現する\"\n  },\n  {\n    \"chapter\": 4,\n    \"title\": \"一言で変わった関係\",\n    \"hook\": \"たった一言で、居場所が消えることはあるのでしょうか？\",\n    \"goal\": \"些細な自己主張が、どのように排除を招くかを理解する\",\n    \"angle\": \"事実を淡々と描き、破局の必然性を示す\",\n    \"must_include\": [\"作品展の出費に関する疑問\", \"場の静寂の描写\", \"席が端に移された様子\"],\n    \"avoid\": [\"ドラマチックな演出\", \"相手を非難するトーン\"],\n    \"no_fly_zone\": [\"第5章の解決策\", \"一般論の展開\"],\n    \"bridge_to_next\": \"居場所を失った後、新たな道を模索し始める\",\n    \"tone\": \"冷静で、少し切ないが、怒りではなく哀しみを基調に\",\n    \"length_hint\": 1400,\n    \"style\": \"直接話法を最小限に。地の文で状況を描写\"\n  },\n  {\n    \"chapter\": 5,\n    \"title\": \"新たな距離の測り方\",\n    \"hook\": \"すべてを失ったように感じたとき、何ができるのでしょうか？\",\n    \"goal\": \"関係を完全に断つのでも我慢し続けるのでもない、第三の道として「関わる頻度と深さを自分で選ぶ」視点を理解する\",\n    \"angle\": \"再定義と余韻。見方を1つだけ言語化し、行動を1つ提示する\",\n    \"must_include\": [\"「関わる頻度と深さを自分で選ぶ」という概念\", \"次回の集まりを「一度お休みする」という具体的な選択肢\"],\n    \"avoid\": [\"複数の解決策の提示\", \"説教調\"],\n    \"no_fly_zone\": [\"導入部分の繰り返し\", \"まとめの内容の先取り\"],\n    \"bridge_to_next\": \"\",\n    \"tone\": \"希望を持ちつつ、静かで落ち着いた語り\",\n    \"length_hint\": 1700,\n    \"style\": \"象徴的なアイテム（空いた椅子など）を用いて余韻を残す\"\n  }\n]",
+  "sources": [
+    {
+      "path": "inline:TOPIC",
+      "sha1": "5d4ee102386c8426492e71d67c51333a974d0aab"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "bce74c39a018d8942ce8b147ae4bc3b0ba4af9f8"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/content/outline.md",
+      "sha1": "fbbdfe48ad0e42870cdbe54ded7da0e8cfa86cd5"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:WORD_TARGET_TOTAL",
+      "sha1": "7f50914da1f9c70cf6359be4534e6ab0f7e1cbde"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "b81088c7a0bbc9a505017d34b8ec9ed278c0111e"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766896365-xXcTcFN2QT77IAtWGH5N",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 114512,
+    "usage": {
+      "prompt_tokens": 9783,
+      "completion_tokens": 4315,
+      "total_tokens": 14098
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_brief/e2/e223b3c09f4ebf749f7938631dffbb56.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/logs/chapter_brief_prompt.txt"
+}

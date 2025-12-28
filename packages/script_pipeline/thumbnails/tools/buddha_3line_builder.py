@@ -115,6 +115,7 @@ def upsert_compiler_variant(
         projects = []
         doc["projects"] = projects
 
+    now = datetime.now(timezone.utc).isoformat()
     project: Optional[Dict[str, Any]] = None
     for entry in projects:
         if not isinstance(entry, dict):
@@ -123,8 +124,19 @@ def upsert_compiler_variant(
             project = entry
             break
     if project is None:
-        project = {"channel": channel, "video": video, "variants": []}
+        project = {
+            "channel": channel,
+            "video": video,
+            "variants": [],
+            "status": status,
+            "status_updated_at": now,
+            "updated_at": now,
+        }
         projects.append(project)
+    elif not (isinstance(project.get("status"), str) and str(project.get("status") or "").strip()):
+        # Ensure UI-friendly status for projects created by offline builders.
+        project["status"] = status
+        project["status_updated_at"] = now
 
     if title:
         project["title"] = title
@@ -143,8 +155,8 @@ def upsert_compiler_variant(
             v["status"] = status
             v["image_url"] = f"/thumbnails/assets/{image_rel_path}"
             v["image_path"] = image_rel_path
-            v["updated_at"] = datetime.now(timezone.utc).isoformat()
-            project["updated_at"] = datetime.now(timezone.utc).isoformat()
+            v["updated_at"] = now
+            project["updated_at"] = now
             if select:
                 project["selected_variant_id"] = variant_id
             _write_thumbnail_projects(doc)
@@ -161,11 +173,11 @@ def upsert_compiler_variant(
             "notes": None,
             "tags": ["compiled"],
             "prompt": None,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": now,
+            "updated_at": now,
         },
     )
-    project["updated_at"] = datetime.now(timezone.utc).isoformat()
+    project["updated_at"] = now
     if select or not project.get("selected_variant_id"):
         project["selected_variant_id"] = variant_id
     _write_thumbnail_projects(doc)
@@ -271,4 +283,3 @@ def build_buddha_3line(
         )
 
     return wrote
-

@@ -8,6 +8,7 @@
 - スタイル: <<CHANNEL_STYLE_GUIDE>>
 - リサーチ抜粋: <<RESEARCH_BRIEF>>
 - 目標文字数: <<WORD_TARGET_TOTAL>>
+- 整合フィードバック（あれば最優先で反映）: <<ALIGNMENT_FEEDBACK>>
 
 必須フォーマット（この順番・構造以外は一切書かない）:
 ```

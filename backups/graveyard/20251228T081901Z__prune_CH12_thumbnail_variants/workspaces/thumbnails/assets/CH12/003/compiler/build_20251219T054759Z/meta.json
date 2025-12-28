@@ -1,0 +1,18 @@
+{
+  "schema": "ytm.thumbnail.compiler.build.v1",
+  "built_at": "2025-12-19T05:48:03.061193+00:00",
+  "channel": "CH12",
+  "video": "003",
+  "stylepack_id": "ch12_buddha_left_3line_v1",
+  "stylepack_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/compiler/stylepacks/CH12_buddha_left_3line_v1.yaml",
+  "base_image": "/Users/dd/10_YouTube_Automation/factory_commentary/asset/thumbnails/buddha_thumbnail_bg_1536x1024.png",
+  "flip_base": true,
+  "text": {
+    "upper": "限界です",
+    "title": "ひとりの夜",
+    "lower": "一気に楽になる"
+  },
+  "output": {
+    "image": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/assets/CH12/003/compiler/build_20251219T054759Z/out_01.png"
+  }
+}

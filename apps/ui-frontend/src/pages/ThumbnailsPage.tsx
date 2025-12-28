@@ -1,7 +1,9 @@
 import { ThumbnailWorkspace } from "../components/ThumbnailWorkspace";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
+import type { ShellOutletContext } from "../layouts/AppShell";
 
 export function ThumbnailsPage() {
+  const { channels } = useOutletContext<ShellOutletContext>();
   return (
     <section className="thumbnail-page workspace--thumbnail-clean">
       <header className="thumbnail-page__header">
@@ -29,7 +31,7 @@ export function ThumbnailsPage() {
           </span>
         </div>
       </details>
-      <ThumbnailWorkspace />
+      <ThumbnailWorkspace channelSummaries={channels} />
     </section>
   );
 }

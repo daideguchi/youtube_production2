@@ -162,8 +162,7 @@ else:
         else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
     )
     JOB_LOG_ROOT = logs_root() / "ui_hub" / "video_production"
-    # 旧 commentary_01_srtfile_v2 -> script_pipeline に移行済み
-    COMMENTARY01_DATA_ROOT = script_data_root()
+    SCRIPTS_SOT_ROOT = script_data_root()
     CHANNEL_CODE_PATTERN = re.compile(r"([A-Za-z]{2}\d{2})", re.IGNORECASE)
     VIDEO_NUMBER_PATTERN = re.compile(r"(?:(?<=-)|(?<=_)|^)(\d{3})(?=$|[^0-9])")
 
@@ -1804,7 +1803,7 @@ else:
         channel_code, video_number = project_id.split("-", 1)
         channel_code = channel_code.upper()
         video_number = video_number[:3].zfill(3)
-        base_dir = COMMENTARY01_DATA_ROOT / channel_code / video_number
+        base_dir = SCRIPTS_SOT_ROOT / channel_code / video_number
         audio_dir = base_dir / "output" / "audio"
         srt_path = audio_dir / f"{channel_code}-{video_number}_final.srt"
         audio_path = audio_dir / f"{channel_code}-{video_number}_final.wav"

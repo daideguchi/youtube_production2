@@ -22,7 +22,9 @@ from script_pipeline.thumbnails.compiler.layer_specs_schema_v3 import ImagePromp
 from script_pipeline.thumbnails.layers.image_layer import (
     BgEnhanceParams,
     crop_resize_to_16x9,
+    composited_portrait_path,
     enhanced_bg_path,
+    find_existing_portrait,
     generate_background_with_retries,
     resolve_background_source,
 )
@@ -275,9 +277,45 @@ def _sanitize_prompt_for_generation(*, channel: str, prompt: str) -> str:
             s = raw.strip()
             if s.startswith("テーマ:") or s.startswith("テーマ："):
                 continue
+            if s.startswith("人物:") or s.startswith("人物："):
+                # CH26は人物を別レイヤで合成する運用（本人肖像を使用）なので、背景生成には入れない
+                continue
             lines.append(raw)
-        return "\n".join(lines).strip()
+        out = "\n".join(lines).strip()
+        # Bench-match defaults: photoreal background (no people) + avoid obvious top/bottom bands.
+        out = out.replace(
+            "上品で落ち着いた実写風デジタルアート（または軽いイラスト風）",
+            "上品で落ち着いた超リアルな写真風の背景（人物なし、シネマティック、シャープ）",
+        )
+        out = out.replace(
+            "人物の顔が主役。人物は中央〜やや左寄りに大きく（胸上〜上半身）配置。人物の背後に薄い円形スポットライト/リムライトを控えめに。",
+            "人物は入れない（顔・身体・人影・シルエットを描かない）。中央に柔らかい円形スポットライト/リムライトを控えめに置き、後で人物を合成できる余白を確保。",
+        )
+        out = out.replace(
+            "上部18%と下部32%は文字合成のため暗い滑らかなグラデーション帯にして情報量を落とす（上部/下部に高コントラストの模様や明るい物体を置かない）",
+            "上部と下部は文字合成のため情報量を落とし、自然な暗めの余白/ビネットで読めるスペースを作る（帯のような均一な黒い矩形やはっきりした水平帯は作らない）",
+        )
+        # Strong constraints: CH26は「本人肖像（別レイヤ）」が必須。背景に人物が出ると事故なので二重に禁止。
+        out = (
+            out
+            + "\n\n"
+            + "絶対禁止: 人物/顔/肖像/人影/シルエット/頭部/手/身体/動物を描かない。"
+            + "\n"
+            + "ABSOLUTE RESTRICTIONS: NO people, NO face, NO portrait, NO silhouette, NO human figure, NO animals."
+        ).strip()
+        return out
     return p
+
+
+def _negative_prompt_for_generation(*, channel: str) -> Optional[str]:
+    ch = _normalize_channel(channel)
+    if ch == "CH26":
+        return (
+            "text, letters, words, watermark, logo, signature, UI, captions, subtitles, "
+            "people, person, human, face, portrait, silhouette, body, hands, head, animals, "
+            "文字, 英字, 日本語, ロゴ, 透かし, 署名, UI, 人物, 顔, 肖像, 人影, シルエット"
+        )
+    return None
 
 
 def build_channel_thumbnails(
@@ -297,7 +335,20 @@ def build_channel_thumbnails(
     bg_contrast: float,
     bg_color: float,
     bg_gamma: float,
+    bg_zoom: float = 1.0,
+    bg_pan_x: float = 0.0,
+    bg_pan_y: float = 0.0,
+    bg_band_brightness: float = 1.0,
+    bg_band_contrast: float = 1.0,
+    bg_band_color: float = 1.0,
+    bg_band_gamma: float = 1.0,
+    bg_band_x0: float = 0.0,
+    bg_band_x1: float = 0.0,
+    bg_band_power: float = 1.0,
+    regen_bg: bool = False,
 ) -> None:
+    if bool(regen_bg) and bool(skip_generate):
+        raise ValueError("regen_bg cannot be used with skip_generate")
     ch = _normalize_channel(channel)
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
     if not img_id or not txt_id:
@@ -338,8 +389,8 @@ def build_channel_thumbnails(
             continue
 
         bg_source = resolve_background_source(video_dir=video_dir, channel_root=assets_root, video=target.video)
-        bg_src = bg_source.bg_src
-        legacy_moved_from = bg_source.legacy_moved_from
+        bg_src = None if bool(regen_bg) else bg_source.bg_src
+        legacy_moved_from = None if bool(regen_bg) else bg_source.legacy_moved_from
 
         generated: Optional[Dict[str, Any]] = None
         if bg_src is None:
@@ -350,11 +401,13 @@ def build_channel_thumbnails(
             if not isinstance(prompt, str) or not prompt.strip():
                 raise RuntimeError(f"image prompt missing for {target.video_id}")
             prompt = _sanitize_prompt_for_generation(channel=ch, prompt=prompt)
+            negative_prompt = _negative_prompt_for_generation(channel=ch)
             try:
                 gen = generate_background_with_retries(
                     client=client,
                     prompt=prompt,
                     model_key=model_key,
+                    negative_prompt=negative_prompt,
                     out_raw_path=video_dir / "90_bg_ai_raw.png",
                     video_id=target.video_id,
                     max_attempts=int(max_gen_attempts),
@@ -380,6 +433,12 @@ def build_channel_thumbnails(
             color=float(bg_color),
             gamma=float(bg_gamma),
         )
+        band_params = BgEnhanceParams(
+            brightness=float(bg_band_brightness),
+            contrast=float(bg_band_contrast),
+            color=float(bg_band_color),
+            gamma=float(bg_band_gamma),
+        )
         item = find_text_layout_item_for_video(text_spec, target.video_id) if isinstance(text_spec, dict) else None
         template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
         templates = text_spec.get("templates") if isinstance(text_spec, dict) else None
@@ -402,14 +461,61 @@ def build_channel_thumbnails(
                 if val:
                     text_override[str(slot_name)] = val
 
-        with enhanced_bg_path(out_bg, params=bg_params, temp_prefix=f"{target.video_id}_bg_") as base_for_text:
-            compose_text_to_png(
-                base_for_text,
-                text_layout_spec=text_spec,
-                video_id=target.video_id,
-                out_path=out_thumb,
-                text_override=text_override if text_override else None,
-            )
+        with enhanced_bg_path(
+            out_bg,
+            params=bg_params,
+            zoom=float(bg_zoom),
+            pan_x=float(bg_pan_x),
+            pan_y=float(bg_pan_y),
+            band_params=band_params,
+            band_x0=float(bg_band_x0),
+            band_x1=float(bg_band_x1),
+            band_power=float(bg_band_power),
+            temp_prefix=f"{target.video_id}_bg_",
+        ) as base_for_text:
+            portrait_path = find_existing_portrait(video_dir)
+            portrait_used = False
+            if portrait_path is not None:
+                # CH26 benchmark: portrait is composited as a separate layer (本人肖像素材を使用)
+                dest_box_px = (
+                    int(round(width * 0.29)),
+                    int(round(height * 0.06)),
+                    int(round(width * 0.42)),
+                    int(round(height * 0.76)),
+                )
+                fg_brightness = 1.20
+                fg_contrast = 1.08
+                fg_color = 0.98
+                if ch == "CH26":
+                    # User feedback: portrait should be brighter, but avoid double-enhancing in portrait prep.
+                    fg_brightness = 1.26
+                    fg_contrast = 1.10
+                    fg_color = 1.00
+                with composited_portrait_path(
+                    base_for_text,
+                    portrait_path=portrait_path,
+                    dest_box_px=dest_box_px,
+                    temp_prefix=f"{target.video_id}_base_",
+                    fg_brightness=fg_brightness,
+                    fg_contrast=fg_contrast,
+                    fg_color=fg_color,
+                ) as base_with_portrait:
+                    portrait_used = True
+                    compose_text_to_png(
+                        base_with_portrait,
+                        text_layout_spec=text_spec,
+                        video_id=target.video_id,
+                        out_path=out_thumb,
+                        text_override=text_override if text_override else None,
+                    )
+            else:
+                compose_text_to_png(
+                    base_for_text,
+                    text_layout_spec=text_spec,
+                    video_id=target.video_id,
+                    out_path=out_thumb,
+                    text_override=text_override if text_override else None,
+                )
         if flat_out:
             flat_out.write_bytes(out_thumb.read_bytes())
 
@@ -436,9 +542,27 @@ def build_channel_thumbnails(
                 "color": bg_params.color,
                 "gamma": bg_params.gamma,
             },
+            "bg_pan_zoom": {
+                "zoom": float(bg_zoom),
+                "pan_x": float(bg_pan_x),
+                "pan_y": float(bg_pan_y),
+            },
+            "bg_enhance_band": {
+                "x0": float(bg_band_x0),
+                "x1": float(bg_band_x1),
+                "power": float(bg_band_power),
+                "brightness": band_params.brightness,
+                "contrast": band_params.contrast,
+                "color": band_params.color,
+                "gamma": band_params.gamma,
+            },
             "sources": {
                 "legacy_moved_from": legacy_moved_from,
                 "bg_src": str(bg_src.relative_to(fpaths.repo_root())),
+            },
+            "portrait": {
+                "used": bool(portrait_used),
+                "portrait_path": str(portrait_path.relative_to(fpaths.repo_root())) if portrait_used and portrait_path else None,
             },
             "generated": generated,
         }

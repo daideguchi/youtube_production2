@@ -19,6 +19,9 @@
 【チャンネル指針（要点）】
 <<CHANNEL_PROMPT>>
 
+【ベンチマーク（任意/要点）】
+<<BENCHMARK_EXCERPTS>>
+
 【Aテキスト共通ルール（要点）】
 <<A_TEXT_RULES_SUMMARY>>
 

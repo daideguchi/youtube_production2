@@ -135,15 +135,30 @@ class LintIssue:
 def _detect_contamination_signals(row: dict[str, str]) -> list[tuple[str, str]]:
     # (code, matched_column)
     signals: list[tuple[str, str]] = []
+
+    def _should_scan_column(code: str, column: str) -> bool:
+        col = str(column or "").strip()
+        if not col:
+            return False
+        # Bullet lists are normal in human-facing design instruction columns.
+        if code == "contains_bullet_like_opener" and "デザイン指示" in col:
+            return False
+        # YouTube IDs may start with "-" (valid ID), which previously caused false positives.
+        if code == "contains_bullet_like_opener" and col.strip().lower() in {"youtubeid", "youtube_id"}:
+            return False
+        return True
+
     patterns: list[tuple[str, re.Pattern[str]]] = [
         ("contains_deepnight_radio_opener", re.compile(r"深夜の偉人ラジオへようこそ")),
-        ("contains_bullet_like_opener", re.compile(r"^\s*[-*•]|^\s*・\s+", flags=re.MULTILINE)),
+        ("contains_bullet_like_opener", re.compile(r"^\s*[-*•]\s+|^\s*・\s+", flags=re.MULTILINE)),
     ]
     for col, val in row.items():
         s = str(val or "")
         if not s.strip():
             continue
         for code, pat in patterns:
+            if not _should_scan_column(code, col):
+                continue
             if pat.search(s):
                 signals.append((code, col))
     return signals

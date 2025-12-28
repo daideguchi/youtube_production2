@@ -123,11 +123,17 @@ notes: <消し忘れ防止の一言>
 - タイトルを正として、汚染しやすい「テーマ補助列」だけを決定論で再整列:
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM`（dry-run）
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
+- Planning Patch（まとめ変更用のpatch雛形を一括生成）:
+  - `python3 scripts/ops/planning_patch_gen.py --help`
 - 企画の上書き/部分更新（差分ログ）:
   - `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml --apply`
 - 投稿済みロック（`published_lock`）の誤設定を修正:
   - `python3 scripts/ops/publish_lock_cli.py unlock --channel CHxx --video NNN`
   - 進捗を特定値へ戻す場合: `--restore-progress "script: drafted"`
+
+### Preproduction（入口〜投入前の抜け漏れ監査）
+- `python3 scripts/ops/preproduction_audit.py --all --write-latest`
+- （internal）`scripts/ops/preproduction_issue_catalog.py`（issue→fix_hints の辞書。実行しない）
 
 ### Production Pack（量産投入前のスナップショット）
 - `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`

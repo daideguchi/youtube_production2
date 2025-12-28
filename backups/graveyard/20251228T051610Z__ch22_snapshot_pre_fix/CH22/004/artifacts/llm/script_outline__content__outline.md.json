@@ -1,0 +1,77 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:44:30+00:00",
+  "status": "ready",
+  "stage": "script_outline",
+  "task": "script_outline",
+  "channel": "CH22",
+  "video": "004",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/outline.md",
+    "sha1": "30d39d4c18caf8454135665d551440efc87ca3b6"
+  },
+  "content": "# 導入\n夜、スマホの画面をそっと伏せます。温かいお茶を一口飲みながら、窓の外の暗がりを見つめます。これでいいのだろうか、という迷いはまだ少し残っています。でも、いつもより少しだけ、胸のつかえが軽くなっているのを感じています。\n\n## 第1章、かつての井戸端会議と今の既読表示\n昔は玄関先や縁側で、顔を合わせてゆっくり話していました。会話の間や表情の一つ一つが、自然な距離感を教えてくれていたのです。今では便利なLINEのグループが、かつての井戸端会議の場を肩代わりしています。しかし、送ったメッセージに付く「既読」の二文字に、私たちの心は一喜一憂してしまうようになりました。\n\n## 第2章、アプリの不具合か、人間関係のサインか\n「私だけ既読がつかない」とき、真っ先に考えてしまうのは人間関係の悪化です。ですが、実は通知設定の変更やトークルームの誤操作、アプリの一時的な不具合など、技術的な原因は多岐に渡ります。まずは落ち着いて、自分だけの問題なのか、他の方へのメッセージでも同じか確認してみましょう。この一手で、必要以上に自分を責める気持ちを和らげられます。\n\n## 第3章、既読以外の小さなサイン\n既読表示は、あくまで「読んだ」という事実だけを示します。それ以外の部分、例えばスタンプが返ってくるか、別の話題では会話が続いているか、そうした小さなサインに目を向けてみましょう。コミュニケーションの全体像を見渡すことで、既読だけに縛られていた視点から少し自由になれます。関係の質は、一つの記号では測れないものなのです。\n\n## 第4章、波風を立てない整理の仕方\n直接「既読ついてますか？」と聞くことが気が引けるなら、無理をする必要はありません。代わりに、ご自身の関わり方を静かに整えていく方法があります。たとえば、重要な連絡以外は控えめにし、返信もゆっくりとしたペースにしてみる。これらは関係を壊す「拒絶」ではなく、ほどよい距離を作る「調整」です。\n\n## 第5章、追わないことで得られる静けさ\n既読がつくかつかないかを、もう追いかけないと決めてみましょう。その代わりに、自分の心が穏やかでいられる関わり方に意識を向けます。これは相手を無視することではなく、自分を大切にする選択です。スマホから少し視線を外し、現実の温もりに触れる時間をほんの少し増やすだけで、世界の見え方は変わっていきます。\n\n# まとめ\n「私だけ既読がつかない」というのは、静かな問いかけでした。技術的な原因を確認し、コミュニケーションの全体を見つめ直し、ご自身のペースで距離を調整する。その一連の歩みが、関係を壊さずに心を守る方法の一つです。今夜はスマホを伏せて、温かい飲み物を一口、ゆっくりと味わってみてください。",
+  "sources": [
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/analysis/research/research_brief.md",
+      "sha1": "b528c03b05bdb1c5d3c1b855cebb31e905dbffab"
+    },
+    {
+      "path": "inline:TOPIC",
+      "sha1": "e6498c73155d6ff2963a3cfff4dc2e8a95893022"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "inline:CHAPTER_COUNT",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:WORD_TARGET_TOTAL",
+      "sha1": "7f50914da1f9c70cf6359be4534e6ab0f7e1cbde"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "bf6803a07c7f5aef98783055cb7c1f2d46fbcde1"
+    },
+    {
+      "path": "inline:OUTLINE_FORMAT_EXAMPLE",
+      "sha1": "98d96add748a32b9a439264b96ea30a9463d90bd"
+    },
+    {
+      "path": "inline:ALIGNMENT_FEEDBACK",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766896981-ZeeBF3IYn2MCQihnYTVh",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 89929,
+    "usage": {
+      "prompt_tokens": 4930,
+      "completion_tokens": 3037,
+      "total_tokens": 7967
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_outline/f0/f066ad8e6e75e60a49b5f95a6a31247e.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/logs/script_outline_prompt.txt"
+}

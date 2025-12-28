@@ -84,9 +84,10 @@ def _warn_workspace_layout(repo_root: Path) -> None:
 
     shown = ", ".join(missing[:8])
     suffix = " ..." if len(missing) > 8 else ""
-    print(f"⚠️  workspaces/scripts に存在しないチャンネルdirがあります: {len(missing)}件")
+    print(f"ℹ️  scripts SoT 未作成チャンネルがあります: {len(missing)}件（未着手なら正常）")
     print(f"    missing (first): {shown}{suffix}")
-    print("    NOTE: UIのチャンネル一覧はPlanning/ChannelProfileからも表示できますが、台本画面は scripts SoT が必要です。")
+    print("    NOTE: `./start.sh` は planning channels に合わせて空dirを自動作成します（必要なら再起動）。")
+    print("    NOTE: UIのチャンネル一覧は Planning/ChannelProfile からも表示できます。台本画面のSoTは workspaces/scripts/CHxx/ です。")
 
 
 def main() -> int:
@@ -106,7 +107,7 @@ def main() -> int:
     # Warn about global PYTHONPATH pollution (legacy repos can shadow imports).
     pythonpath = os.environ.get("PYTHONPATH") or ""
     if pythonpath:
-        legacy_markers = ["youtube_master", "commentary_01_srtfile_v2"]
+        legacy_markers = ["youtube_master"]
         if any(m in pythonpath for m in legacy_markers):
             print("⚠️  Detected global PYTHONPATH containing legacy paths. Consider `unset PYTHONPATH`.")
             print("    Safer: run via `./scripts/with_ytm_env.sh ...` which prepends the correct repo paths.")

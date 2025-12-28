@@ -1,7 +1,7 @@
 {
   "definitions": {
-    "style_jinsei_standard": {
-      "description": "Standard subtitle style for 'Jinsei no Michishirube' (CH01). Validated against manual edit v191_3.",
+    "jinsei_standard_v2": {
+      "description": "CH01 subtitle style. Validated against manual edit v191_3.",
       "capcut_settings": {
         "subtitle": {
           "font_size": 5.0,
@@ -31,16 +31,34 @@
         }
       }
     },
-    "style_senior_health": {
-      "description": "Placeholder for Senior Health channel style (inherits Jinsei logic currently).",
+    "ch06_darklibrary_v1": {
+      "description": "CH06 subtitle style (dark library). Conservative default; can be refined by manual validation.",
       "capcut_settings": {
         "subtitle": {
           "font_size": 5.0,
+          "text_color": "#FFFFFF",
+          "stroke_color": "#000000",
+          "stroke_width": 0.00016,
+          "border_width": 0.06,
+          "line_spacing": 0.021,
+          "position": {
+            "x": 0.0,
+            "y": -0.8
+          },
           "background": {
-            "enabled": true,
+            "enabled": false,
             "color": "#000000",
-            "alpha": 0.8
+            "alpha": 0.0,
+            "round_radius": 0.0,
+            "width": 0.28,
+            "height": 0.28,
+            "horizontal_offset": -1.0,
+            "vertical_offset": -1.0
           }
+        },
+        "timeline": {
+          "opening_offset_sec": 3.0,
+          "description": "Default; overridden by channel preset (belt.opening_offset) when provided."
         }
       }
     }

@@ -116,6 +116,7 @@ CTR改善のための「文字サイズ・配置・明るさ補正」は、AI生
   - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
   - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
   - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
+- UIでの確認: `/thumbnails` の **QCタブ**（`workspaces/thumbnails/assets/{CHxx}/library/qc/contactsheet.png`）
 - 既定値（任意）: `workspaces/thumbnails/templates.json: channels[CHxx].compiler_defaults`
 
 今後、生成系ワークフローや評価指標を追加する際は本ディレクトリ内にサブディレクトリや補助ドキュメントを拡張してください。

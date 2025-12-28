@@ -605,39 +605,44 @@ class LLMRouter:
                 req_id = meta.get("request_id") or str(task_id)
                 finish_reason = meta.get("finish_reason")
                 retry_meta = meta.get("retry")
-                logger.info(f"Router: cache hit for {task} (task_id={task_id})")
-                routing_key = (os.getenv("LLM_ROUTING_KEY") or "").strip() or None
-                self._log_usage(
-                    {
-                        "status": "success",
-                        "task": task,
-                        "task_id": str(task_id),
-                        "routing_key": routing_key,
+                if isinstance(content, str) and not content.strip():
+                    # Empty cached content is almost always a provider extraction glitch (or a bad run).
+                    # Do not return it as a "successful" response; fall through to a real API call.
+                    logger.info(f"Router: cache hit but empty content for {task} (task_id={task_id}); ignoring cache")
+                else:
+                    logger.info(f"Router: cache hit for {task} (task_id={task_id})")
+                    routing_key = (os.getenv("LLM_ROUTING_KEY") or "").strip() or None
+                    self._log_usage(
+                        {
+                            "status": "success",
+                            "task": task,
+                            "task_id": str(task_id),
+                            "routing_key": routing_key,
+                            "model": model_key,
+                            "provider": provider_name,
+                            "chain": chain,
+                            "latency_ms": 0,
+                            "usage": usage,
+                            "request_id": req_id,
+                            "finish_reason": finish_reason,
+                            "retry": retry_meta,
+                            "cache": {"hit": True, "path": str(cache_file)},
+                            "timestamp": time.time(),
+                        }
+                    )
+                    return {
+                        "content": content,
+                        "raw": None,
+                        "usage": usage,
+                        "request_id": req_id,
                         "model": model_key,
                         "provider": provider_name,
                         "chain": chain,
                         "latency_ms": 0,
-                        "usage": usage,
-                        "request_id": req_id,
                         "finish_reason": finish_reason,
                         "retry": retry_meta,
-                        "cache": {"hit": True, "path": str(cache_file)},
-                        "timestamp": time.time(),
+                        "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
                     }
-                )
-                return {
-                    "content": content,
-                    "raw": None,
-                    "usage": usage,
-                    "request_id": req_id,
-                    "model": model_key,
-                    "provider": provider_name,
-                    "chain": chain,
-                    "latency_ms": 0,
-                    "finish_reason": finish_reason,
-                    "retry": retry_meta,
-                    "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
-                }
 
         # Optional: split traffic between Azure and non-Azure providers (roughly).
         # - Enable via env: LLM_AZURE_SPLIT_RATIO=0.5
@@ -785,6 +790,8 @@ class LLMRouter:
                         finish_reason = finish_reason_retry
 
                 content = self._extract_content(provider_name, model_conf, raw_result)
+                if isinstance(content, str) and not content.strip():
+                    raise RuntimeError("empty_content")
                 usage = self._extract_usage(raw_result)
                 req_id = _extract_request_id(raw_result)
                 latency_ms = int((time.time() - start) * 1000)
@@ -931,14 +938,15 @@ class LLMRouter:
 
         # OpenRouter quirk/guard:
         # - `moonshotai/kimi-k2-thinking` can return empty content unless `extra_body.reasoning.enabled=true` is set.
-        # - For safety, enable reasoning by default for this model when callers forgot to attach it.
+        # - For script-writing we also require thinking for `deepseek/deepseek-v3.2-exp`.
+        # - For safety, enable reasoning by default for these models when callers forgot to attach it.
         #   (Callers can still override by explicitly providing extra_body.reasoning.)
         if provider == "openrouter":
             try:
                 mn = str(model_conf.get("model_name") or "").strip().lower()
             except Exception:
                 mn = ""
-            if "kimi-k2-thinking" in mn:
+            if ("kimi-k2-thinking" in mn) or ("deepseek-v3.2-exp" in mn):
                 eb = params.get("extra_body")
                 if not isinstance(eb, dict):
                     eb = {}

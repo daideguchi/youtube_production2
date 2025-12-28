@@ -16,6 +16,20 @@
 - ログ正本: `ssot/ops/OPS_LOGGING_MAP.md`
 - 生成物の保持/削除: `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
 - 低知能エージェント運用（lock/SSOT/削除/パッチ）: `ssot/ops/OPS_AGENT_PLAYBOOK.md`（repo全体ルールは `AGENTS.md`）
+- Aテキスト技法（差し込みパッケージ）: `ssot/ops/OPS_A_TEXT_TECHNIQUE_PACKAGES.md`
+- 画像API（進捗/運用メモ）: `ssot/ops/IMAGE_API_PROGRESS.md`
+- LLM usage/cost 検証計画: `ssot/plans/PLAN_LLM_USAGE_MODEL_EVAL.md`
+- AI依頼テンプレ（質問の粒度を揃える）: `ssot/reference/CHAT_AI_QUESTION_TEMPLATE.md`
+
+追加リンク（深掘り）
+- 直書きパス/旧名参照の監査入口: `ssot/reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`
+- UI整理（ワークスペース整流）: `ssot/plans/PLAN_UI_WORKSPACE_CLEANUP.md`
+- LLMモデル使い分け: `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md`
+- LLM usage 集計ツール仕様: `ssot/ops/TOOLS_LLM_USAGE.md`
+- Video runs の archive/restore: `ssot/ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`
+- CH02 CapCutドラフト SOP: `ssot/ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`
+- artifact駆動パイプライン設計: `ssot/ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`
+- master styles（チャンネル別スタイル定義）: `ssot/ops/master_styles.json`
 
 ---
 

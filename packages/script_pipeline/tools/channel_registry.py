@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import io
 import json
 import re
 from dataclasses import dataclass
@@ -228,6 +229,12 @@ def _render_sources_channel_block(
         lines.append(f"    target_chars_min: {int(target_chars_min)}\n")
     if target_chars_max is not None:
         lines.append(f"    target_chars_max: {int(target_chars_max)}\n")
+    lines += [
+        "    video_broll:\n",
+        "      enabled: false\n",
+        "      provider: pexels\n",
+        "      ratio: 0.2\n",
+    ]
     return lines
 
 
@@ -329,6 +336,7 @@ def create_channel_scaffold(
 
     # SoT locations (workspaces)
     ws_planning_csv = planning_root() / "channels" / f"{code}.csv"
+    ws_planning_template = planning_root() / "templates" / f"{code}_planning_template.csv"
     ws_persona = planning_root() / "personas" / f"{code}_PERSONA.md"
 
     # UI channel list source (workspaces/scripts)
@@ -339,6 +347,12 @@ def create_channel_scaffold(
     headers = _default_planning_headers()
     csv_content = ",".join(headers) + "\n"
     _write_text(ws_planning_csv, csv_content, overwrite=overwrite)
+    # planning template (header + empty sample row)
+    tpl_stream = io.StringIO()
+    tpl_writer = csv.writer(tpl_stream, lineterminator="\n")
+    tpl_writer.writerow(headers)
+    tpl_writer.writerow(["" for _ in headers])
+    _write_text(ws_planning_template, tpl_stream.getvalue(), overwrite=overwrite)
 
     # persona stub
     persona_summary = f"{display_name} の視聴者ペルソナ（要約）をここに 1 行で書く。"

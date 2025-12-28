@@ -50,34 +50,6 @@ models:
       json_mode: true
       max_tokens: 16384
 
-  # Low-cost reasoning-ish fallback (distill)
-  or_deepseek_r1_distill_qwen_32b:
-    provider: openrouter
-    model_name: "deepseek/deepseek-r1-distill-qwen-32b"
-    capabilities:
-      mode: chat
-      reasoning: false
-      json_mode: true
-      max_tokens: 16384
-
-  or_deepseek_r1:
-    provider: openrouter
-    model_name: "deepseek/deepseek-r1"
-    capabilities:
-      mode: chat
-      reasoning: false
-      json_mode: true
-      max_tokens: 8192
-
-  or_deepseek_r1_0528:
-    provider: openrouter
-    model_name: "deepseek/deepseek-r1-0528"
-    capabilities:
-      mode: chat
-      reasoning: false
-      json_mode: true
-      max_tokens: 8192
-
   # Open reasoning (thinking) model — preferred fallback for script-writing when V3.2 is unavailable.
   or_kimi_k2_thinking:
     provider: openrouter
@@ -235,7 +207,7 @@ tasks:
 
   # A-text seed (short draft) — default for seed-expand mode (low cost)
   script_a_text_seed:
-    tier: standard
+    tier: heavy_reasoning
     timeout: 180
     defaults:
       temperature: 0.2
@@ -301,7 +273,7 @@ tasks:
 
   # Semantic alignment: title/thumbnail promise ↔ A-text core message
   script_semantic_alignment_check:
-    tier: standard
+    tier: heavy_reasoning
     timeout: 90
     defaults:
       response_format: "json_object"
@@ -316,8 +288,17 @@ tasks:
       max_tokens: 16384
 
   script_format:
-    tier: standard
+    tier: heavy_reasoning
     timeout: 60
+
+  # Final polish (whole A-text): tone consistency + repetition control.
+  # Runs at most once in script_validation (opt-in via SCRIPT_VALIDATION_FINAL_POLISH=1 or auto).
+  script_a_text_final_polish:
+    tier: heavy_reasoning
+    timeout: 300
+    defaults:
+      temperature: 0.2
+      max_tokens: 16384
 
   # --- TTS Pipeline ---
   tts_annotate:

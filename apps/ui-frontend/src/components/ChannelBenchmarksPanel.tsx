@@ -12,6 +12,41 @@ type ChannelBenchmarksPanelProps = {
 
 type BannerState = { type: "success" | "error" | "info"; text: string };
 
+const BENCHMARK_CHARS_PER_SECOND = 6.0;
+
+type BenchmarkScriptMetrics = {
+  nonWhitespaceChars: number;
+  rawChars: number;
+  lines: number;
+  nonEmptyLines: number;
+  headings: number;
+  dividers: number;
+  estimatedMinutes: number;
+  firstNonEmptyLine: string;
+};
+
+function analyzeBenchmarkContent(content: string): BenchmarkScriptMetrics {
+  const raw = content ?? "";
+  const lines = raw.split(/\r?\n/);
+  const nonEmptyLines = lines.filter((line) => line.trim().length > 0);
+  const headings = lines.filter((line) => /^#{1,6}\s+/.test(line.trim())).length;
+  const dividers = lines.filter((line) => /^(-{3,}|={3,}|_{3,})\s*$/.test(line.trim())).length;
+  const nonWhitespaceChars = raw.replace(/\s/g, "").length;
+  const estimatedMinutes = nonWhitespaceChars / BENCHMARK_CHARS_PER_SECOND / 60;
+  const firstNonEmptyLine = (nonEmptyLines[0] ?? "").trim();
+
+  return {
+    nonWhitespaceChars,
+    rawChars: raw.length,
+    lines: lines.length,
+    nonEmptyLines: nonEmptyLines.length,
+    headings,
+    dividers,
+    estimatedMinutes,
+    firstNonEmptyLine,
+  };
+}
+
 function buildEmptyBenchmarks(): ChannelBenchmarksSpec {
   return {
     version: 1,
@@ -61,6 +96,7 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
     label: string;
     loading: boolean;
     content: string;
+    metrics: BenchmarkScriptMetrics | null;
     error: string | null;
   } | null>(null);
 
@@ -137,13 +173,15 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
   const handlePreview = useCallback(async (sample: BenchmarkScriptSampleSpec) => {
     const base = sample.base;
     const path = sample.path?.trim() || "";
+    const label = sample.label?.trim() || path || "プレビュー";
     if (!path) {
       setPreview({
         base,
         path: "",
-        label: sample.label?.trim() || path || "プレビュー",
+        label,
         loading: false,
         content: "",
+        metrics: null,
         error: "path が空です。",
       });
       return;
@@ -151,19 +189,23 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
     setPreview({
       base,
       path,
-      label: sample.label?.trim() || path,
+      label,
       loading: true,
       content: "",
+      metrics: null,
       error: null,
     });
     try {
       const response = await fetchResearchFile(base, path);
+      const content = response.content ?? "";
+      const metrics = content ? analyzeBenchmarkContent(content) : null;
       setPreview((current) =>
         current
           ? {
               ...current,
               loading: false,
-              content: response.content,
+              content,
+              metrics,
               error: null,
             }
           : null
@@ -236,7 +278,33 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
               ) : (
                 <div className="channel-benchmarks-panel__list">
                   {benchmarks.channels.map((item, index) => (
-                    <div key={`bench-ch-${index}`} className="channel-benchmarks-panel__row">
+                    <div
+                      key={`bench-ch-${index}`}
+                      className={`channel-benchmarks-panel__row${
+                        !(item.handle?.trim() || item.url?.trim()) ? " is-invalid" : ""
+                      }`}
+                    >
+                      <div className="channel-benchmarks-panel__row-title">
+                        <span className="channel-benchmarks-panel__badge">#{index + 1}</span>
+                        {item.handle?.trim() ? (
+                          <code>{normalizeHandle(item.handle)}</code>
+                        ) : (
+                          <span className="muted">handle未設定</span>
+                        )}
+                        {item.name?.trim() ? (
+                          <span className="channel-benchmarks-panel__row-title-name">{item.name.trim()}</span>
+                        ) : null}
+                        {item.url?.trim() ? (
+                          <a
+                            className="channel-benchmarks-panel__row-link"
+                            href={item.url.trim()}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            開く
+                          </a>
+                        ) : null}
+                      </div>
                       <label>
                         <span>handle</span>
                         <input
@@ -284,10 +352,10 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
                       </label>
                       <label className="wide">
                         <span>note</span>
-                        <input
-                          type="text"
+                        <textarea
+                          rows={2}
                           value={item.note ?? ""}
-                          placeholder="何を学ぶか（任意）"
+                          placeholder="何を学ぶか（任意。複数行OK）"
                           onChange={(event) =>
                             setBenchmarks((prev) => {
                               const next = [...prev.channels];
@@ -297,19 +365,21 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
                           }
                         />
                       </label>
-                      <button
-                        type="button"
-                        className="channel-profile-button channel-profile-button--danger"
-                        onClick={() =>
-                          setBenchmarks((prev) => ({
-                            ...prev,
-                            channels: prev.channels.filter((_, idx) => idx !== index),
-                          }))
-                        }
-                        title="削除"
-                      >
-                        削除
-                      </button>
+                      <div className="channel-benchmarks-panel__row-actions">
+                        <button
+                          type="button"
+                          className="channel-profile-button channel-profile-button--danger"
+                          onClick={() =>
+                            setBenchmarks((prev) => ({
+                              ...prev,
+                              channels: prev.channels.filter((_, idx) => idx !== index),
+                            }))
+                          }
+                          title="削除"
+                        >
+                          削除
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -337,7 +407,17 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
               ) : (
                 <div className="channel-benchmarks-panel__list">
                   {benchmarks.script_samples.map((item, index) => (
-                    <div key={`bench-sample-${index}`} className="channel-benchmarks-panel__row">
+                    <div
+                      key={`bench-sample-${index}`}
+                      className={`channel-benchmarks-panel__row${!item.path?.trim() ? " is-invalid" : ""}`}
+                    >
+                      <div className="channel-benchmarks-panel__row-title">
+                        <span className="channel-benchmarks-panel__badge">#{index + 1}</span>
+                        <code>{item.base}</code>
+                        <span className="channel-benchmarks-panel__row-title-name">
+                          {(item.label?.trim() || item.path?.trim() || "（未設定）").slice(0, 96)}
+                        </span>
+                      </div>
                       <label>
                         <span>base</span>
                         <select
@@ -353,6 +433,21 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
                           <option value="research">research</option>
                           <option value="scripts">scripts</option>
                         </select>
+                      </label>
+                      <label>
+                        <span>label</span>
+                        <input
+                          type="text"
+                          value={item.label ?? ""}
+                          placeholder="表示名（任意）"
+                          onChange={(event) =>
+                            setBenchmarks((prev) => {
+                              const next = [...prev.script_samples];
+                              next[index] = { ...next[index], label: event.target.value };
+                              return { ...prev, script_samples: next };
+                            })
+                          }
+                        />
                       </label>
                       <label className="wide">
                         <span>path</span>
@@ -370,26 +465,11 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
                         />
                       </label>
                       <label className="wide">
-                        <span>label</span>
-                        <input
-                          type="text"
-                          value={item.label ?? ""}
-                          placeholder="表示名（任意）"
-                          onChange={(event) =>
-                            setBenchmarks((prev) => {
-                              const next = [...prev.script_samples];
-                              next[index] = { ...next[index], label: event.target.value };
-                              return { ...prev, script_samples: next };
-                            })
-                          }
-                        />
-                      </label>
-                      <label className="wide">
                         <span>note</span>
-                        <input
-                          type="text"
+                        <textarea
+                          rows={2}
                           value={item.note ?? ""}
-                          placeholder="使いどころ（任意）"
+                          placeholder="使いどころ（任意。複数行OK）"
                           onChange={(event) =>
                             setBenchmarks((prev) => {
                               const next = [...prev.script_samples];
@@ -439,26 +519,56 @@ export function ChannelBenchmarksPanel({ channelCode }: ChannelBenchmarksPanelPr
           </section>
 
           {preview ? (
-            <section className="channel-benchmarks-panel__preview">
-              <div className="channel-benchmarks-panel__preview-header">
-                <div>
-                  <strong>プレビュー</strong>
-                  <div className="channel-benchmarks-panel__preview-path">
+            <div className="modal-backdrop" onClick={() => setPreview(null)}>
+              <div className="modal" onClick={(event) => event.stopPropagation()}>
+                <header className="modal__header">
+                  <h3>{preview.label || "プレビュー"}</h3>
+                  <button type="button" className="channel-profile-button channel-profile-button--ghost" onClick={() => setPreview(null)}>
+                    閉じる
+                  </button>
+                </header>
+                <div className="modal__body" style={{ maxHeight: "70vh", overflow: "auto" }}>
+                  <p className="muted" style={{ marginTop: 0 }}>
                     {preview.base} / <code>{preview.path || "—"}</code>
-                  </div>
+                  </p>
+                  {preview.loading ? <p className="muted">読み込み中…</p> : null}
+                  {preview.error ? <div className="main-alert main-alert--error">{preview.error}</div> : null}
+                  {preview.metrics ? (
+                    <dl className="portal-kv" style={{ marginTop: 0, marginBottom: 12 }}>
+                      <dt>文字数</dt>
+                      <dd>
+                        {preview.metrics.nonWhitespaceChars.toLocaleString("ja-JP")}字（推定{" "}
+                        {preview.metrics.estimatedMinutes.toFixed(1)}分）
+                      </dd>
+
+                      <dt>行</dt>
+                      <dd>
+                        {preview.metrics.lines.toLocaleString("ja-JP")}（非空 {preview.metrics.nonEmptyLines.toLocaleString("ja-JP")}）
+                      </dd>
+
+                      <dt>見出し / 区切り</dt>
+                      <dd>
+                        <span className={`mono ${preview.metrics.headings > 0 ? "is-warn" : "is-ok"}`}>
+                          {preview.metrics.headings.toLocaleString("ja-JP")}
+                        </span>{" "}
+                        /{" "}
+                        <span className={`mono ${preview.metrics.dividers > 0 ? "is-warn" : "is-ok"}`}>
+                          {preview.metrics.dividers.toLocaleString("ja-JP")}
+                        </span>
+                      </dd>
+
+                      <dt>先頭</dt>
+                      <dd>{preview.metrics.firstNonEmptyLine ? preview.metrics.firstNonEmptyLine.slice(0, 64) : "—"}</dd>
+                    </dl>
+                  ) : null}
+                  {preview.content ? (
+                    <pre className="channel-benchmarks-panel__preview-content">{preview.content}</pre>
+                  ) : !preview.loading && !preview.error ? (
+                    <p className="muted">（内容が空です）</p>
+                  ) : null}
                 </div>
-                <button type="button" className="channel-profile-button channel-profile-button--ghost" onClick={() => setPreview(null)}>
-                  閉じる
-                </button>
               </div>
-              {preview.loading ? (
-                <p className="channel-benchmarks-panel__placeholder">読み込み中…</p>
-              ) : preview.error ? (
-                <p className="channel-benchmarks-panel__error">{preview.error}</p>
-              ) : (
-                <textarea readOnly rows={10} value={preview.content} />
-              )}
-            </section>
+            </div>
           ) : null}
         </>
       )}
