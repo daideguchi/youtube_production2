@@ -26,6 +26,7 @@
 - `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
+- `ops/OPS_GIT_BRANCH_POLICY.md`: ブランチ運用ルール（main/feature/snapshot を固定して迷子を防ぐ）。
 - `ops/OPS_UI_WIRING.md`: UI(React) ↔ Backend(FastAPI) の配線SSOT（route/API/SoT対応）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
@@ -105,6 +106,7 @@
 - `plans/PLAN_OPS_VOICEVOX_READING_REFORM.md` (Active): VOICEVOX読み誤り対策とTTS改善計画。
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`: 処理が遅い/詰まる課題の集約（観測→DoD付き改善）。
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`: 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
+- `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md` (Draft): サムネ作成・編集を「高品質×高速×スケール」させる計画（Spec-first/SoT分離/UI-CLI統合）。
 
 ### 3.5 テンプレ
 - `plans/PLAN_TEMPLATE.md`: 新規計画書作成テンプレ。

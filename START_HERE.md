@@ -3,6 +3,7 @@
 - 全体像（まず読む）: `ssot/OPS_SYSTEM_OVERVIEW.md`
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- Gitブランチ運用（main/feature/snapshot）: `ssot/ops/OPS_GIT_BRANCH_POLICY.md`
 - 入口〜量産投入直前（参照フレーム）: `ssot/ops/OPS_PREPRODUCTION_FRAME.md`
 - 入口〜投入前の入力カタログ（必須/任意/上書き）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
 - 入口〜投入前の修復導線（issue→直す場所）: `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`

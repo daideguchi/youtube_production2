@@ -6,6 +6,7 @@
 - 通常のエージェントは git の破壊的操作（ロールバック/履歴改変）を実行しない。
 - Orchestrator は **commit/push のみ** 実施してよい（ただしロールバック系は絶対に実行しない）。
 - 変更を細かく共有したい場合は `bash scripts/ops/save_patch.sh` でパッチ保存し、Orchestrator が apply→commit→push する。
+- ブランチ運用（どこにマージするか）: `ssot/ops/OPS_GIT_BRANCH_POLICY.md`
 
 ---
 
