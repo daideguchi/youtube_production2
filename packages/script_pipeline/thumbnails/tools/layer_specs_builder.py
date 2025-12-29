@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import yaml
+
 from factory_common import paths as fpaths
 from factory_common.image_client import ImageClient
 from script_pipeline.thumbnails.compiler.layer_specs import (
@@ -27,6 +29,7 @@ from script_pipeline.thumbnails.layers.image_layer import (
     find_existing_portrait,
     generate_background_with_retries,
     resolve_background_source,
+    suppressed_center_region_path,
 )
 from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
 from script_pipeline.tools import planning_store
@@ -318,6 +321,50 @@ def _negative_prompt_for_generation(*, channel: str) -> Optional[str]:
     return None
 
 
+def _load_ch26_portrait_policy() -> Dict[str, Any]:
+    path = fpaths.thumbnails_root() / "compiler" / "policies" / "ch26_portrait_overrides_v1.yaml"
+    if not path.exists():
+        return {}
+    try:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    return doc if isinstance(doc, dict) else {}
+
+
+def _as_float(value: Any, default: float) -> float:
+    try:
+        return float(value)
+    except Exception:
+        return float(default)
+
+
+def _as_norm_box(value: Any, default: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        return default
+    out: List[float] = []
+    for v in value:
+        try:
+            f = float(v)
+        except Exception:
+            return default
+        if f < 0.0 or f > 1.0:
+            return default
+        out.append(f)
+    return (out[0], out[1], out[2], out[3])
+
+
+def _as_norm_offset(value: Any, default: tuple[float, float]) -> tuple[float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return default
+    try:
+        x = float(value[0])
+        y = float(value[1])
+    except Exception:
+        return default
+    return (x, y)
+
+
 def build_channel_thumbnails(
     *,
     channel: str,
@@ -365,6 +412,7 @@ def build_channel_thumbnails(
     assets_root.mkdir(parents=True, exist_ok=True)
 
     client = ImageClient()
+    portrait_policy = _load_ch26_portrait_policy() if ch == "CH26" else {}
 
     for idx, target in enumerate(targets, start=1):
         video_dir = assets_root / target.video
@@ -477,37 +525,92 @@ def build_channel_thumbnails(
             portrait_used = False
             if portrait_path is not None:
                 # CH26 benchmark: portrait is composited as a separate layer (本人肖像素材を使用)
-                dest_box_px = (
-                    int(round(width * 0.29)),
-                    int(round(height * 0.06)),
-                    int(round(width * 0.42)),
-                    int(round(height * 0.76)),
-                )
+                dest_box_norm_default = (0.29, 0.06, 0.42, 0.76)
+                dest_box_norm = dest_box_norm_default
+                anchor = "bottom_center"
+                portrait_zoom = 1.0
+                portrait_offset_px = (0, 0)
+                trim_transparent = False
+
                 fg_brightness = 1.20
                 fg_contrast = 1.08
                 fg_color = 0.98
+
                 if ch == "CH26":
-                    # User feedback: portrait should be brighter, but avoid double-enhancing in portrait prep.
-                    fg_brightness = 1.26
-                    fg_contrast = 1.10
-                    fg_color = 1.00
-                with composited_portrait_path(
-                    base_for_text,
-                    portrait_path=portrait_path,
-                    dest_box_px=dest_box_px,
-                    temp_prefix=f"{target.video_id}_base_",
-                    fg_brightness=fg_brightness,
-                    fg_contrast=fg_contrast,
-                    fg_color=fg_color,
-                ) as base_with_portrait:
-                    portrait_used = True
-                    compose_text_to_png(
-                        base_with_portrait,
-                        text_layout_spec=text_spec,
-                        video_id=target.video_id,
-                        out_path=out_thumb,
-                        text_override=text_override if text_override else None,
-                    )
+                    cfg_defaults = portrait_policy.get("defaults") if isinstance(portrait_policy.get("defaults"), dict) else {}
+                    cfg_overrides = portrait_policy.get("overrides") if isinstance(portrait_policy.get("overrides"), dict) else {}
+                    ov = cfg_overrides.get(target.video) if isinstance(cfg_overrides, dict) else None
+                    ov = ov if isinstance(ov, dict) else {}
+
+                    dest_box_norm = _as_norm_box(ov.get("dest_box") or cfg_defaults.get("dest_box"), dest_box_norm_default)
+                    anchor = str(ov.get("anchor") or cfg_defaults.get("anchor") or anchor).strip() or anchor
+                    portrait_zoom = _as_float(ov.get("zoom") if "zoom" in ov else cfg_defaults.get("zoom"), 1.0)
+                    off_norm = _as_norm_offset(ov.get("offset") if "offset" in ov else cfg_defaults.get("offset"), (0.0, 0.0))
+                    portrait_offset_px = (int(round(width * off_norm[0])), int(round(height * off_norm[1])))
+                    trim_transparent = bool(ov.get("trim_transparent") if "trim_transparent" in ov else cfg_defaults.get("trim_transparent"))
+
+                    fg_defaults = cfg_defaults.get("fg") if isinstance(cfg_defaults.get("fg"), dict) else {}
+                    fg_override = ov.get("fg") if isinstance(ov.get("fg"), dict) else {}
+                    fg_brightness = _as_float(fg_override.get("brightness") if "brightness" in fg_override else fg_defaults.get("brightness"), 1.26)
+                    fg_contrast = _as_float(fg_override.get("contrast") if "contrast" in fg_override else fg_defaults.get("contrast"), 1.10)
+                    fg_color = _as_float(fg_override.get("color") if "color" in fg_override else fg_defaults.get("color"), 1.00)
+
+                dest_box_px = (
+                    int(round(width * dest_box_norm[0])),
+                    int(round(height * dest_box_norm[1])),
+                    int(round(width * dest_box_norm[2])),
+                    int(round(height * dest_box_norm[3])),
+                )
+                if ch == "CH26":
+                    # CH26 backgrounds may already contain a portrait; suppress the center region to avoid "double face".
+                    with suppressed_center_region_path(
+                        base_for_text,
+                        dest_box_px=dest_box_px,
+                        temp_prefix=f"{target.video_id}_bg_supp_",
+                    ) as suppressed_bg:
+                        with composited_portrait_path(
+                            suppressed_bg,
+                            portrait_path=portrait_path,
+                            dest_box_px=dest_box_px,
+                            temp_prefix=f"{target.video_id}_base_",
+                            anchor=anchor,
+                            portrait_zoom=float(portrait_zoom),
+                            portrait_offset_px=portrait_offset_px,
+                            trim_transparent=bool(trim_transparent),
+                            fg_brightness=fg_brightness,
+                            fg_contrast=fg_contrast,
+                            fg_color=fg_color,
+                        ) as base_with_portrait:
+                            portrait_used = True
+                            compose_text_to_png(
+                                base_with_portrait,
+                                text_layout_spec=text_spec,
+                                video_id=target.video_id,
+                                out_path=out_thumb,
+                                text_override=text_override if text_override else None,
+                            )
+                else:
+                    with composited_portrait_path(
+                        base_for_text,
+                        portrait_path=portrait_path,
+                        dest_box_px=dest_box_px,
+                        temp_prefix=f"{target.video_id}_base_",
+                        anchor=anchor,
+                        portrait_zoom=float(portrait_zoom),
+                        portrait_offset_px=portrait_offset_px,
+                        trim_transparent=bool(trim_transparent),
+                        fg_brightness=fg_brightness,
+                        fg_contrast=fg_contrast,
+                        fg_color=fg_color,
+                    ) as base_with_portrait:
+                        portrait_used = True
+                        compose_text_to_png(
+                            base_with_portrait,
+                            text_layout_spec=text_spec,
+                            video_id=target.video_id,
+                            out_path=out_thumb,
+                            text_override=text_override if text_override else None,
+                        )
             else:
                 compose_text_to_png(
                     base_for_text,

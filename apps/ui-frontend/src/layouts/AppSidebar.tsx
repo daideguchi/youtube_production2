@@ -7,11 +7,15 @@ export type NavSection = { title: string; items: NavItem[] };
 interface AppSidebarProps {
   navSections: NavSection[];
   pathname: string;
+  repoLabel?: string | null;
+  buildLabel?: string | null;
 }
 
 export const AppSidebar = memo(function AppSidebar({
   navSections,
   pathname,
+  repoLabel,
+  buildLabel,
 }: AppSidebarProps) {
   const isChannelWorkspaceRoute =
     Boolean(matchPath("/channels/:channelCode/videos/:video", pathname) || matchPath("/channels/:channelCode", pathname)) ||
@@ -29,6 +33,13 @@ export const AppSidebar = memo(function AppSidebar({
           <div>
             <h2 className="shell-sidebar__title">AI 制作スタジオ</h2>
             <p className="shell-sidebar__subtitle">品質管理コンソール</p>
+            {repoLabel || buildLabel ? (
+              <p className="shell-sidebar__build mono">
+                {repoLabel ? <span className="shell-sidebar__build-repo">{repoLabel}</span> : null}
+                {repoLabel && buildLabel ? <span className="shell-sidebar__build-sep"> · </span> : null}
+                {buildLabel ? <span className="shell-sidebar__build-sha">{buildLabel}</span> : null}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

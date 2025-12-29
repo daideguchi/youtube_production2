@@ -55,8 +55,32 @@ def _extract_tag(text: str) -> str | None:
 def _normalize_tag_for_compare(tag: str | None) -> str:
     s = unicodedata.normalize("NFKC", str(tag or "")).strip()
     # Remove whitespace and common separators/punctuation that often fluctuate in planning tags.
-    s = re.sub(r"[\\s\\u3000・･·、,\\.／/\\\\\\-‐‑‒–—―ー〜~]", "", s)
+    s = re.sub(r"[\s\u3000・･·、,\.／/\\\-‐‑‒–—―ー〜~]", "", s)
     return s
+
+
+def _resolve_episode_key(row: dict[str, str]) -> tuple[str, str]:
+    """
+    Return (raw_key, normalized_key) for episode-duplication detection.
+
+    Primary SoT: キーコンセプト
+    Fallbacks (deterministic, channel-agnostic):
+    - タイトル先頭の【...】
+    - 悩みタグ_メイン / 悩みタグ_サブ
+    """
+    raw = str(row.get("キーコンセプト") or "").strip()
+    if raw:
+        return raw, _normalize_tag_for_compare(raw)
+    title_tag = _extract_tag(str(row.get("タイトル") or ""))
+    if title_tag:
+        return title_tag, _normalize_tag_for_compare(title_tag)
+    main_tag = str(row.get("悩みタグ_メイン") or "").strip()
+    if main_tag:
+        return main_tag, _normalize_tag_for_compare(main_tag)
+    sub_tag = str(row.get("悩みタグ_サブ") or "").strip()
+    if sub_tag:
+        return sub_tag, _normalize_tag_for_compare(sub_tag)
+    return "", ""
 
 
 def _normalize_channel(ch: str) -> str:
@@ -96,6 +120,8 @@ def _is_published_row(row: dict[str, str]) -> bool:
         return False
     # Planning SoT treats these as published locks; required planning fields no longer matter.
     if "投稿済み" in progress:
+        return True
+    if "公開済み" in progress:
         return True
     if progress.lower() in {"published"}:
         return True
@@ -192,6 +218,22 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
         reader = csv.DictReader(f)
         headers = reader.fieldnames or []
         rows = list(reader)
+
+    # Episode duplication guard (published inventory).
+    # SoT: Planning CSV (進捗=投稿済み/公開済み) + キーコンセプト
+    published_key_concepts: dict[str, list[str]] = {}
+    published_missing_key_concept: list[str] = []
+    unpublished_missing_key_concept: list[str] = []
+    if "キーコンセプト" in headers:
+        for row in rows:
+            if not _is_published_row(row):
+                continue
+            if not str(row.get("キーコンセプト") or "").strip():
+                published_missing_key_concept.append(_video_number_from_row(row))
+            key_raw, key_norm = _resolve_episode_key(row)
+            if not key_norm:
+                continue
+            published_key_concepts.setdefault(key_norm, []).append(_video_number_from_row(row))
 
     # Header-level checks
     missing_required = ["タイトル"] if "タイトル" not in headers else []
@@ -308,6 +350,67 @@ def lint_planning_csv(csv_path: Path, channel: str, *, tag_mismatch_is_error: bo
                     columns=[col],
                 )
             )
+
+        # Episode duplication guard: warn when an unpublished row reuses a published key concept.
+        if published_key_concepts and not _is_published_row(row):
+            if not str(row.get("キーコンセプト") or "").strip():
+                unpublished_missing_key_concept.append(video)
+            key_raw, key_norm = _resolve_episode_key(row)
+            if key_norm:
+                published = published_key_concepts.get(key_norm) or []
+                if published:
+                    published_list = ", ".join(published[:8]) + (" …" if len(published) > 8 else "")
+                    issues.append(
+                        LintIssue(
+                            channel=channel,
+                            video=video,
+                            row_index=idx,
+                            severity="warning",
+                            code="duplicate_key_concept_with_published",
+                            message=(
+                                "採用済み（進捗=投稿済み/公開済み）の回とエピソードキーが重複しています: "
+                                f"{key_raw!r} (published={published_list})。"
+                                "意図的に被せる場合は、企画意図に差分を明記してください。"
+                            ),
+                            columns=["キーコンセプト", "タイトル", "進捗"],
+                        )
+                    )
+
+    # Aggregated warnings: key concept is the primary ops parameter, but legacy rows may not have it populated yet.
+    if published_missing_key_concept:
+        sample = ", ".join(published_missing_key_concept[:12]) + (" …" if len(published_missing_key_concept) > 12 else "")
+        issues.append(
+            LintIssue(
+                channel=channel,
+                video="???",
+                row_index=0,
+                severity="warning",
+                code="missing_key_concept_published_rows",
+                message=(
+                    f"採用済み（進捗=投稿済み/公開済み）の行で `キーコンセプト` が空です: "
+                    f"{len(published_missing_key_concept)}件（例: {sample}）。"
+                    "重複検知はタイトル先頭【...】/悩みタグをフォールバックにしますが、厳密運用するなら埋めてください。"
+                ),
+                columns=["キーコンセプト", "タイトル", "進捗"],
+            )
+        )
+    if unpublished_missing_key_concept:
+        sample = ", ".join(unpublished_missing_key_concept[:12]) + (" …" if len(unpublished_missing_key_concept) > 12 else "")
+        issues.append(
+            LintIssue(
+                channel=channel,
+                video="???",
+                row_index=0,
+                severity="warning",
+                code="missing_key_concept_unpublished_rows",
+                message=(
+                    f"未採用（進捗!=投稿済み/公開済み）の行で `キーコンセプト` が空です: "
+                    f"{len(unpublished_missing_key_concept)}件（例: {sample}）。"
+                    "タイトル先頭【...】/悩みタグで推定できる場合は重複検知できますが、キーコンセプトを埋めると運用が安定します。"
+                ),
+                columns=["キーコンセプト", "タイトル", "進捗"],
+            )
+        )
 
     ok = not any(i.severity == "error" for i in issues)
     by_code = Counter(i.code for i in issues)

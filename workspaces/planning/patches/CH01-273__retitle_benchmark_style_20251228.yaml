@@ -1,0 +1,11 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-273__retitle_benchmark_style_20251228
+target:
+  channel: CH01
+  video: '273'
+apply:
+  set:
+    タイトル: 【警告】過去を捨てられない人は晩年が地獄になります。後悔と恨みを手放す「放下着」ルーティン
+    更新日時: '2025-12-29 07:54:19'
+notes: Retitle to match benchmark (@buddha-no09) title style (2-sentence + strong
+  bracket tags).

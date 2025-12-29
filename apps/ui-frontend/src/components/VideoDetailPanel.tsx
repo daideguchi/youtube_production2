@@ -25,19 +25,10 @@ import {
   fetchAudioAnalysis,
   updateVideoRedo,
 } from "../api/client";
-import { STAGE_ORDER, translateStage, translateStatus } from "../utils/i18n";
+import { STAGE_ORDER, translateStatus } from "../utils/i18n";
 import { apiUrl } from "../api/baseUrl";
 import { resolveMediaUrl } from "../utils/url";
 import { AudioWorkspace } from "./AudioWorkspace";
-import { StageProgress } from "./StageProgress";
-
-const STAGE_STATUS_OPTIONS = [
-  { value: "pending", label: "未着手" },
-  { value: "in_progress", label: "進行中" },
-  { value: "blocked", label: "要対応" },
-  { value: "review", label: "レビュー待ち" },
-  { value: "completed", label: "完了" },
-];
 
 const DEFAULT_AI_CHECK_INSTRUCTION = `YouTube向けナレーション台本として適切かを次の観点で評価してください。\n- 冒頭の引き込み力\n- 構成と論理展開の明瞭さ\n- 表現の自然さと語尾・敬体の統一\n- 情緒とテンポ（冗長さや重複の有無）\n\n50〜120文字程度の要約と、改善の優先提案を3点以内で日本語で示してください。`;
 
@@ -125,7 +116,7 @@ function stripPauseSeparators(raw: string): string {
   return filtered.replace(/\n{3,}/g, "\n\n").trim();
 }
 
-const COPY_NO_SEP_CHUNK_SIZE = 10_000;
+const COPY_NO_SEP_CHUNK_SIZE = 8_000;
 
 function planChunkCopy(text: string, chunkIndex: number, chunkSize = COPY_NO_SEP_CHUNK_SIZE) {
   const total = text.length;
@@ -255,7 +246,6 @@ export function VideoDetailPanel({
   );
   const [statusDraft, setStatusDraft] = useState(detail.status ?? "");
   const [readyDraft, setReadyDraft] = useState(detail.ready_for_audio);
-  const [stageDrafts, setStageDrafts] = useState<Record<string, string>>(detail.stages ?? {});
   const [redoScript, setRedoScript] = useState(detail.redo_script ?? true);
   const [redoAudio, setRedoAudio] = useState(detail.redo_audio ?? true);
   const [redoNote, setRedoNote] = useState(detail.redo_note ?? "");
@@ -281,7 +271,6 @@ export function VideoDetailPanel({
   const [validationStatus, setValidationStatus] = useState<ValidationStatus>("idle");
   const [activeTabInternal, setActiveTabInternal] = useState<DetailTab>(activeTabProp ?? "script");
   const [showAudioHistory, setShowAudioHistory] = useState(false);
-  const [showStageDetails, setShowStageDetails] = useState(false);
   const [humanLoading, setHumanLoading] = useState(false);
   const [humanError, setHumanError] = useState<string | null>(null);
   const [copyDescStatus, setCopyDescStatus] = useState<"idle" | "copied" | "error">("idle");
@@ -412,6 +401,7 @@ useEffect(() => {
 }, [activeTabProp, activeTabInternal, refreshLlmArtifacts]);
 
   const ttsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const youtubeDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
   const detailKeyRef = useRef<string | null>(null);
 
   const assembledDirty = useMemo(() => assembledDraft !== assembledBase, [assembledDraft, assembledBase]);
@@ -473,6 +463,12 @@ useEffect(() => {
     setCopyAssembledNoSepInfo(null);
     setCopyAssembledChunkIndex(0);
   }, [assembledDraft]);
+
+  useEffect(() => {
+    setCopyATextNoSepStatus("idle");
+    setCopyATextNoSepInfo(null);
+    setCopyATextChunkIndex(0);
+  }, [aTextModalContent]);
 
   useEffect(() => {
     if (copyATextNoSepStatus === "idle") {
@@ -556,7 +552,6 @@ useEffect(() => {
   useEffect(() => {
     setStatusDraft(detail.status ?? "");
     setReadyDraft(detail.ready_for_audio);
-    setStageDrafts(detail.stages ?? {});
     setMessage(null);
     setError(null);
     setTtsValidation(null);
@@ -647,6 +642,23 @@ useEffect(() => {
       setCopyAssembledNoSepStatus("error");
     }
   }, [assembledDraft, copyAssembledChunkIndex]);
+
+  const handleCopyAssembledWithoutSeparatorsAll = useCallback(async () => {
+    const cleaned = stripPauseSeparators(assembledDraft);
+    if (!cleaned.trim()) {
+      setCopyAssembledNoSepStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(cleaned);
+      setCopyAssembledNoSepStatus("copied");
+      setCopyAssembledNoSepInfo(`全体（${cleaned.length.toLocaleString("ja-JP")}文字）`);
+      setCopyAssembledChunkIndex(0);
+    } catch (copyError) {
+      console.error("Failed to copy A text (all)", copyError);
+      setCopyAssembledNoSepStatus("error");
+    }
+  }, [assembledDraft]);
 
   const handleLoadAudioAnalysis = useCallback(
     async ({ force = false }: { force?: boolean } = {}) => {
@@ -749,6 +761,23 @@ useEffect(() => {
       setCopyATextNoSepStatus("error");
     }
   }, [aTextModalContent, copyATextChunkIndex]);
+
+  const handleCopyATextModalWithoutSeparatorsAll = useCallback(async () => {
+    const cleaned = stripPauseSeparators(aTextModalContent);
+    if (!cleaned.trim()) {
+      setCopyATextNoSepStatus("error");
+      return;
+    }
+    try {
+      await copyTextToClipboard(cleaned);
+      setCopyATextNoSepStatus("copied");
+      setCopyATextNoSepInfo(`全体（${cleaned.length.toLocaleString("ja-JP")}文字）`);
+      setCopyATextChunkIndex(0);
+    } catch (copyError) {
+      console.error("Failed to copy modal A text (all)", copyError);
+      setCopyATextNoSepStatus("error");
+    }
+  }, [aTextModalContent]);
 
   const handleCopyAiResult = useCallback(async () => {
     if (!aiResult) {
@@ -941,11 +970,6 @@ useEffect(() => {
   const handleSaveStatus = useCallback(
     () => wrapAction("案件ステータス", () => onUpdateStatus(statusDraft)),
     [onUpdateStatus, statusDraft, wrapAction]
-  );
-
-  const handleSaveStages = useCallback(
-    () => wrapAction("ステージ進捗", () => onUpdateStages(stageDrafts)),
-    [onUpdateStages, stageDrafts, wrapAction]
   );
 
   const handleSaveReady = useCallback(
@@ -1148,27 +1172,6 @@ useEffect(() => {
     [progressSummary]
   );
 
-  const stageEntries = useMemo(
-    () =>
-      STAGE_ORDER.filter((stage) => stage in detail.stages || stageDrafts[stage] !== undefined).map((stage) => {
-        const raw = stageDrafts[stage] ?? detail.stages?.[stage] ?? "";
-        const label = translateStage(stage);
-        const statusLabel = translateStatus(raw || "");
-        const tone =
-          raw === "completed"
-            ? "success"
-            : raw === "review"
-              ? "warning"
-              : raw === "blocked"
-                ? "danger"
-                : raw === "in_progress"
-                  ? "info"
-                  : undefined;
-        return { stage, label, status: raw ?? "", statusLabel, tone };
-      }),
-    [detail.stages, stageDrafts]
-  );
-
   const youtubeDescription = detail.youtube_description ?? "";
   const planningHighlights = useMemo(() => {
     const fields = detail.planning?.fields ?? [];
@@ -1268,10 +1271,22 @@ useEffect(() => {
       setCopyDescStatus("copied");
       window.setTimeout(() => setCopyDescStatus("idle"), 2000);
     } catch (_error) {
+      try {
+        youtubeDescriptionRef.current?.focus();
+        youtubeDescriptionRef.current?.select();
+        const ok = document.execCommand("copy");
+        if (ok) {
+          setCopyDescStatus("copied");
+          window.setTimeout(() => setCopyDescStatus("idle"), 2000);
+          return;
+        }
+      } catch (_fallbackError) {
+        // ignore
+      }
       setCopyDescStatus("error");
       window.setTimeout(() => setCopyDescStatus("idle"), 2000);
     }
-  }, [youtubeDescription]);
+  }, [youtubeDescription, youtubeDescriptionRef]);
 
   const ttsReadingCard = (
     <div className="tts-reading">
@@ -1588,52 +1603,6 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="panel-card overview-stage-card">
-                <header className="panel-card__header stage-card__header">
-                  <div>
-                    <h3>進捗ステージ</h3>
-                    <p className="muted small-text">ステージ変更は必要な場合のみ行ってください。</p>
-                  </div>
-                  <button type="button" className="stage-card__toggle" onClick={() => setShowStageDetails((value) => !value)}>
-                    {showStageDetails ? "折りたたむ" : "詳細を表示"}
-                  </button>
-                </header>
-                <StageProgress stages={detail.stages} />
-                {showStageDetails ? (
-                  <div className="stage-detail-grid">
-                    {stageEntries.map((entry) => (
-                      <label key={entry.stage} className={`stage-detail${entry.tone ? ` stage-detail--${entry.tone}` : ""}`}>
-                        <span className="stage-detail__label">{entry.label}</span>
-                        <select
-                          value={entry.status ?? ""}
-                          onChange={(event) =>
-                            setStageDrafts((current) => ({
-                              ...current,
-                              [entry.stage]: event.target.value,
-                            }))
-                          }
-                        >
-                          <option value="">未設定</option>
-                          {STAGE_STATUS_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                        <span className="stage-detail__status">{entry.statusLabel}</span>
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="muted small-text">詳細を開くとステージの編集が可能です。</p>
-                )}
-                <div className="actions actions--compact">
-                  <button type="button" onClick={handleSaveStages} disabled={busyAction !== null}>
-                    進捗を保存
-                  </button>
-                </div>
-              </div>
-
               <div className="panel-card overview-meta-card">
                 <header className="panel-card__header">
                   <h3>要点 / 判定</h3>
@@ -1760,15 +1729,28 @@ useEffect(() => {
                   <h3>YouTube説明文</h3>
                   <span className="muted small-text">投稿時にコピペできます（自動生成）</span>
                 </header>
+                <p className="muted small-text">文字数: {youtubeDescription.length}（目安: 5000 以内）</p>
                 <textarea
                   className="youtube-description-textarea"
                   value={youtubeDescription}
                   readOnly
                   placeholder="説明文が生成されていません"
+                  ref={youtubeDescriptionRef}
+                  spellCheck={false}
                 />
                 <div className="actions actions--compact">
                   <button type="button" onClick={handleCopyDescription} disabled={!youtubeDescription}>
                     コピー
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      youtubeDescriptionRef.current?.focus();
+                      youtubeDescriptionRef.current?.select();
+                    }}
+                    disabled={!youtubeDescription}
+                  >
+                    全選択
                   </button>
                   <span className="muted small-text">
                     {copyDescStatus === "copied"
@@ -1916,36 +1898,44 @@ useEffect(() => {
             {/* 人間編集版の行: A' | B' */}
             <div className="script-row">
               <h2 className="script-row__title">人間編集版（編集可能）</h2>
-              <div className="redo-panel">
-                <div className="redo-panel__controls">
-                  <label className="redo-panel__toggle">
-                    <input
-                      type="checkbox"
-                      checked={redoScript}
-                      onChange={(e) => setRedoScript(e.target.checked)}
-                    />
-                    台本リテイクが必要
-                  </label>
-                  <label className="redo-panel__toggle">
-                    <input
-                      type="checkbox"
-                      checked={redoAudio}
-                      onChange={(e) => setRedoAudio(e.target.checked)}
-                    />
-                    音声リテイクが必要
-                  </label>
-                </div>
-                <div className="redo-panel__note">
-                  <textarea
-                    value={redoNote}
-                    onChange={(e) => setRedoNote(e.target.value)}
-                    placeholder="リテイク理由や指示をメモ"
-                    rows={2}
-                  />
+              <div className={`script-flow-callout${redoDirty ? " script-flow-callout--dirty" : ""}`}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                    <strong>リテイク</strong>
+                    <button
+                      type="button"
+                      className={`action-chip${redoScript ? " action-chip--active" : ""}`}
+                      aria-pressed={redoScript}
+                      onClick={() => setRedoScript((value) => !value)}
+                      disabled={redoSaving || busyAction !== null}
+                    >
+                      台本
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-chip${redoAudio ? " action-chip--active" : ""}`}
+                      aria-pressed={redoAudio}
+                      onClick={() => setRedoAudio((value) => !value)}
+                      disabled={redoSaving || busyAction !== null}
+                    >
+                      音声
+                    </button>
+                    <button
+                      type="button"
+                      className="action-chip"
+                      onClick={() => {
+                        setRedoScript(false);
+                        setRedoAudio(false);
+                      }}
+                      disabled={redoSaving || busyAction !== null || (!redoScript && !redoAudio)}
+                    >
+                      クリア
+                    </button>
+                  </div>
                   <button
                     type="button"
                     className="workspace-button workspace-button--primary workspace-button--sm"
-                    disabled={redoSaving || (!redoDirty)}
+                    disabled={redoSaving || (!redoDirty) || busyAction !== null}
                     onClick={async () => {
                       setRedoSaving(true);
                       try {
@@ -1960,9 +1950,16 @@ useEffect(() => {
                       }
                     }}
                   >
-                    {redoSaving ? "保存中..." : "リテイク情報を保存"}
+                    {redoSaving ? "保存中..." : "保存"}
                   </button>
                 </div>
+                <textarea
+                  value={redoNote}
+                  onChange={(e) => setRedoNote(e.target.value)}
+                  placeholder="リテイク理由や指示をメモ"
+                  rows={2}
+                  disabled={redoSaving || busyAction !== null}
+                />
               </div>
               <div className="script-tab__layout">
                 {/* A' テキスト 人間版 */}
@@ -1979,11 +1976,20 @@ useEffect(() => {
                       <button
                         type="button"
                         className="workspace-button workspace-button--ghost workspace-button--sm"
+                        onClick={() => void handleCopyAssembledWithoutSeparatorsAll()}
+                        disabled={busyAction !== null || !assembledDraft.trim()}
+                        title="区切り線（---）を除去して全体をコピー（失敗する場合は「8,000字コピー」を使用）"
+                      >
+                        ---なしで全体コピー
+                      </button>
+                      <button
+                        type="button"
+                        className="workspace-button workspace-button--ghost workspace-button--sm"
                         onClick={() => void handleCopyAssembledWithoutSeparators()}
                         disabled={busyAction !== null || !assembledDraft.trim()}
                         title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
                       >
-                        ---なしでコピー
+                        ---なしで{COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}字コピー
                       </button>
                       <span className="muted small-text">
                         {copyAssembledNoSepStatus === "copied"
@@ -2308,11 +2314,19 @@ useEffect(() => {
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <button
 	                  className="workspace-button workspace-button--ghost"
+	                  onClick={() => void handleCopyATextModalWithoutSeparatorsAll()}
+	                  disabled={!aTextModalContent.trim()}
+	                  title="区切り線（---）を除去して全体をコピー（失敗する場合は「8,000字コピー」を使用）"
+	                >
+	                  ---なしで全体コピー
+	                </button>
+                <button
+	                  className="workspace-button workspace-button--ghost"
 	                  onClick={() => void handleCopyATextModalWithoutSeparators()}
 	                  disabled={!aTextModalContent.trim()}
 	                  title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
 	                >
-	                  ---なしでコピー
+	                  ---なしで{COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}字コピー
 	                </button>
                 <span className="muted small-text">
                   {copyATextNoSepStatus === "copied"

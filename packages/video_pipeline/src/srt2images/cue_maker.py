@@ -57,12 +57,8 @@ def _make_cues_with_llm_context(
     try:
         # Load base_seconds from channel config (SSOT)
         base_seconds = 30.0
-        
-        # CH01 override: force faster pace (12s) unless manually overridden
-        if (channel_id or "").upper() == "CH01":
-            base_seconds = 12.0
-            logging.info("⚙️ CH01 detected: forcing base_seconds=%.1f for rapid pacing", base_seconds)
-        elif channel_id:
+
+        if channel_id:
             resolver = ChannelPresetResolver()
             preset = resolver.resolve(channel_id)
             if preset and preset.config_model and preset.config_model.image_generation:

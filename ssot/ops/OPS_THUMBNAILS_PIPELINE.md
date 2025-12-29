@@ -7,6 +7,9 @@
 このドキュメントは **Thumbnail Compiler（ローカル合成）** の運用正本。  
 UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと整合させる。
 
+関連:
+- `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`（遅い/詰まる課題の観測→DoD付き改善）
+
 ---
 
 ## 1. SoT（正本）と役割分担
@@ -201,3 +204,90 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
    - 推奨: `layer_specs_v3`（`templates.json.channels[CHxx].layer_specs` を設定）
    - 互換: `buddha_3line_v1`（stylepackを用意）
 4) `scripts/thumbnails/build.py build ...` で量産 → QC → UIでレビュー
+
+---
+
+## 9. 課題（処理が遅い/カオス化する原因の確定メモ）
+
+ここは **憶測を書かない**（観測できた事実 + 影響 + 直す入口だけを書く）。  
+改善タスクは `ssot/ops/OPS_GLOBAL_TODO.md` に起票して追う。
+
+### 9.1 CH22: `bg_pan_zoom` が混在している（フレーミングが毎回変わる）
+
+- 観測: `workspaces/thumbnails/assets/CH22/*/meta.json:bg_pan_zoom` に以下の **3パターンが混在**（2025-12-29時点）
+  - `(zoom=1.0, pan_y=0.0)` → `001,003,004,007,008,009,010,013,015,016,017,018,021`
+  - `(zoom=1.2, pan_y=-1.0)` → `002,005,006,011,014,019,020,022,023,024,025,026,027,028,029,030`
+  - `(zoom=1.15, pan_y=-0.6)` → `012`
+- 影響: 「画像をもっと下に」「文字と顔が被ってる」系の修正が、動画ごとに効いたり効かなかったりして収束しない（レビューが地獄化）。
+- 原因（確定）:
+  - `scripts/thumbnails/build.py:_apply_compiler_defaults()` は `bg_enhance` は適用するが、`bg_pan_zoom` は適用しない。
+  - `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py` は `bg_zoom/bg_pan_*` を **CLI引数からのみ**受け取り、チャンネル別SoTが無い。
+
+確認ワンライナー（混在チェック）:
+`python - <<'PY'\nimport json\nfrom pathlib import Path\ncombos={}\nfor p in sorted(Path('workspaces/thumbnails/assets/CH22').glob('*/meta.json')):\n  vid=p.parent.name\n  if not vid.isdigit():\n    continue\n  pan=json.loads(p.read_text(encoding='utf-8')).get('bg_pan_zoom',{})\n  k=(pan.get('zoom'),pan.get('pan_x'),pan.get('pan_y'))\n  combos.setdefault(k,[]).append(vid)\nfor k,vids in sorted(combos.items(), key=lambda kv: str(kv[0])):\n  print(k, len(vids), vids)\nPY`
+
+### 9.2 CH22: Layer Specs がコピーを保持していない（Planning CSV 依存が強い）
+
+- 観測: `workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1.yaml` の `items[].text` が空で、build時に planning CSV の `サムネタイトル上/サムネタイトル/サムネタイトル下` を **空欄のみ注入**する設計（`packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()`）。
+- 影響: 「どのコピーがSoTか」が見えにくく、CSV側の未更新/空欄があると、thumbが空文字になって原因切り分けに時間が掛かる。
+
+### 9.3 build が Planning CSV を動画ごとに都度ロードしている（バッチが遅い）
+
+- 観測: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()` が `planning_store.get_rows(... force_refresh=True)` を **動画ごとに**呼ぶ。
+- 影響: 30本などのバッチ合成で同じCSVを何度も読み、処理が遅くなる（I/O無駄）。
+
+### 9.4 “作業メモ/抽出物” の置き場が揺れて「消えた」に見える
+
+- 観測: `log_research/` は scratch で、収束後 `backups/_incident_archives/**/log_research/` に退避され、repo直下には残さない（`log_research/README.md`）。
+- 影響: `log_research/` に置いた復元メモ/抽出ファイルは後で参照できず「消えた」事故になる。恒久情報は SSOT / `workspaces/logs/` / `projects.json:notes` に置く。
+
+### 9.5 チャンネル固有の “フレーミング調整” の SoT が無い
+
+- 観測: CH26は `workspaces/thumbnails/compiler/policies/ch26_portrait_overrides_v1.yaml` のように per-video override の入口があるが、CH22の `bg_pan_zoom` は同等のSoT入口が無い。
+- 影響: 「画像を下に」等の指示が、毎回 CLI の手動パラメータに依存して混在し、結果がカオス化する。
+
+---
+
+## 9. 現状の課題（速度/安定性）
+
+このパイプラインは「崩れない・直せる」を優先している一方で、現状の実装/運用だと **大量リテイク時に時間がかかりすぎる** / **PNG破損で止まる** 事故が起きやすい。
+
+### 9.1 PNG書き込みが重い（`optimize=True`）
+
+- 症状: `build/retake/qc` が数十本規模で数分〜十数分かかる（反復修正に不向き）
+- 主因: Pillow の `save(..., optimize=True)` が CPU/IO を食う
+  - `packages/script_pipeline/thumbnails/layers/image_layer.py: crop_resize_to_16x9`
+  - `packages/script_pipeline/thumbnails/layers/image_layer.py: enhanced_bg_path`
+  - `packages/script_pipeline/thumbnails/layers/text_layer.py: compose_text_to_png`
+  - `scripts/thumbnails/build.py: build_contactsheet`
+- 対応案（P0）:
+  - 反復作業用に `optimize=False` / `compress_level=1` 等へ切替できるフラグ（env/CLI）を追加し、最終出力のみ最適化する
+  - QC も「作業中は軽量」「納品前に最適化」を分離する
+
+### 9.2 非アトミック上書き → PNG破損（truncated）
+
+- 症状: `OSError: image file is truncated` でビルドが停止し、`10_bg.png` / `00_thumb.png` が壊れて再作業になる
+- 主因:
+  - 画像保存が **直接destへ上書き**（中断/同時実行/長時間書き込みで部分ファイルが残る）
+  - `optimize=True` が書き込み時間を伸ばし、破損リスクを増幅
+- 対応案（P0）:
+  - 画像保存を `tmp` に書いて `replace()` する atomic write helper を導入し、全保存箇所へ適用する
+  - build 前に破損検知（open+verify）を走らせ、必要なら自動復旧/スキップできる仕組みを用意する
+  - 同名 `src==dest` の上書きパスを避ける（常に別名tmp）
+
+### 9.3 無駄な再読込（Planning/Fonts）
+
+- 症状: 1枚あたりの合成が遅い（小さな変更でも待ちが発生）
+- 主因:
+  - Planning CSV を動画ごとに `force_refresh=True` で読んでいる（`packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy`）
+  - フォントロードが重い（`PIL.ImageFont.truetype`）
+- 対応案（P1）:
+  - Planning rows は build 実行単位で 1 回ロードして共有（キャッシュ）する
+  - フォントロードは LRU でキャッシュする（対応済み: `packages/script_pipeline/thumbnails/compiler/compose_text_layout.py:_load_truetype`）
+
+### 9.4 「手動背景」チャンネル（例: CH22）のリテイクが止まりやすい
+
+- 症状: 「背景が間違い/要再生成」系のコメント対応が、背景差し替え導線の弱さで止まりやすい
+- 対応案（P1）:
+  - `templates.json` に「作業用の生成テンプレ」を追加し、必要時だけ `--regen-bg` で作り直せる運用を定義する
+  - もしくは `image_prompts_v3.yaml` を全動画分まで拡充し、背景生成の入口を整備する

@@ -73,10 +73,13 @@ def write_srt(path: Path, cues: List[SRTCue]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Insert intentional line breaks into SRT cue texts (LLM-assisted, safe fallback).")
+    parser = argparse.ArgumentParser(
+        description="Insert intentional line breaks into SRT cue texts (heuristic by default; optional LLM mode)."
+    )
     parser.add_argument("srt", help="Input .srt path")
     parser.add_argument("--out", help="Output .srt path (default: <input>.linebreak.srt)")
     parser.add_argument("--in-place", action="store_true", help="Overwrite input file in-place")
+    parser.add_argument("--mode", choices=["heuristic", "llm", "off"], default="heuristic", help="Linebreak mode (default: heuristic)")
     parser.add_argument("--max-lines", type=int, default=2, help="MAX_LINES (default: 2)")
     parser.add_argument("--max-chars", type=int, default=24, help="MAX_CHARS_PER_LINE (default: 24)")
     parser.add_argument("--retry-limit", type=int, default=1, help="RETRY_LIMIT (default: 1)")
@@ -94,6 +97,7 @@ def main() -> int:
         os.environ["LLM_FORCE_MODELS"] = str(args.llm_model).strip()
 
     os.environ["SRT_LINEBREAK_ENABLED"] = "0" if args.disable else "1"
+    os.environ["SRT_LINEBREAK_MODE"] = "off" if args.mode == "off" else str(args.mode)
     os.environ["SRT_LINEBREAK_MAX_LINES"] = str(max(1, int(args.max_lines)))
     os.environ["SRT_LINEBREAK_MAX_CHARS_PER_LINE"] = str(max(4, int(args.max_chars)))
     os.environ["SRT_LINEBREAK_RETRY_LIMIT"] = str(max(0, int(args.retry_limit)))
@@ -137,4 +141,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

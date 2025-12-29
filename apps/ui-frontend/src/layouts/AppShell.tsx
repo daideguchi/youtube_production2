@@ -15,6 +15,7 @@ import {
 import { AppSidebar, type NavSection } from "./AppSidebar";
 import {
   fetchChannels,
+  fetchMeta,
   fetchVideos,
   fetchVideoDetail,
   updateAssembled,
@@ -34,6 +35,7 @@ import {
   VideoSummary,
   VideoDetail,
   DashboardOverview,
+  MetaResponse,
   TtsSaveResponse,
   TtsReplaceResponse,
   TtsValidationResponse,
@@ -442,6 +444,8 @@ export function AppShell() {
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(() => determineView(location.pathname), [location.pathname]);
 
+  const [meta, setMeta] = useState<MetaResponse | null>(null);
+
   const [channels, setChannels] = useState<ChannelSummary[]>([]);
   const [channelsLoading, setChannelsLoading] = useState(false);
   const [channelsError, setChannelsError] = useState<string | null>(null);
@@ -528,6 +532,22 @@ export function AppShell() {
   const routeChannelCode =
     channelVideoMatch?.params.channelCode ?? channelPortalMatch?.params.channelCode ?? channelMatch?.params.channelCode ?? null;
   const routeVideoNumber = channelVideoMatch?.params.video ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMeta()
+      .then((data) => {
+        if (cancelled) return;
+        setMeta(data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setMeta(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const refreshChannels = useCallback(async () => {
     setChannelsLoading(true);
@@ -1345,12 +1365,29 @@ export function AppShell() {
   }
   const workspaceClass = ["workspace", ...workspaceModifiers].join(" ");
 
+  const buildLabel = useMemo(() => {
+    const sha = String(meta?.git?.sha ?? "").trim();
+    if (!sha) return null;
+    const dirtyMark = meta?.git?.dirty ? "*" : "";
+    const branch = String(meta?.git?.branch ?? "").trim();
+    return branch ? `${sha}${dirtyMark} (${branch})` : `${sha}${dirtyMark}`;
+  }, [meta]);
+
+  const repoLabel = useMemo(() => {
+    const root = String(meta?.repo_root ?? "").trim();
+    if (!root) return null;
+    const parts = root.split(/[\\/]/).filter(Boolean);
+    return parts[parts.length - 1] ?? null;
+  }, [meta]);
+
   return (
     <div className="app-shell">
       <div className={workspaceClass}>
         <AppSidebar
           navSections={navSections}
           pathname={location.pathname}
+          buildLabel={buildLabel}
+          repoLabel={repoLabel}
         />
 
         <main className="workspace__main">

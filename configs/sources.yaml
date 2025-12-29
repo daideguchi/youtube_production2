@@ -149,7 +149,7 @@ channels:
     target_chars_min: 7000
     target_chars_max: 9000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH13:
@@ -161,7 +161,7 @@ channels:
     target_chars_min: 6500
     target_chars_max: 8500
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH14:
@@ -173,7 +173,7 @@ channels:
     target_chars_min: 7000
     target_chars_max: 9000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH15:
@@ -185,7 +185,7 @@ channels:
     target_chars_min: 7000
     target_chars_max: 9000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH16:
@@ -197,7 +197,7 @@ channels:
     target_chars_min: 7000
     target_chars_max: 9000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH17:
@@ -209,7 +209,7 @@ channels:
     target_chars_min: 36000
     target_chars_max: 44000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH18:
@@ -266,8 +266,8 @@ channels:
     channel_prompt: packages/script_pipeline/channels/CH22-老後の友人関係ラボ/script_prompt.txt
     web_search_policy: required
     chapter_count: 5
-    target_chars_min: 8000
-    target_chars_max: 9000
+    target_chars_min: 6000
+    target_chars_max: 8000
     video_broll:
       enabled: false
       provider: pexels

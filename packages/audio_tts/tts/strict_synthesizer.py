@@ -287,7 +287,17 @@ def generate_srt(segments: List[AudioSegment], output_srt: Path) -> None:
         return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
     current_time = 0.0
-    entries = []
+
+    # Apply safe in-cue linebreak formatting (defaults to heuristic; no text changes).
+    cue_entries: list[dict] = [{"index": i + 1, "text": seg.text} for i, seg in enumerate(segments)]
+    try:
+        from audio_tts.tts.llm_adapter import format_srt_lines  # type: ignore
+
+        cue_entries = format_srt_lines(cue_entries, model="", api_key="")
+    except Exception as e:
+        print(f"[SRT] linebreak formatter failed (pass-through): {e}")
+
+    entries: list[str] = []
     
     for i, seg in enumerate(segments):
         # Pre-pause
@@ -298,7 +308,8 @@ def generate_srt(segments: List[AudioSegment], output_srt: Path) -> None:
         end_time = start_time + duration
         
         # Text for SRT (Display Text)
-        text = seg.text
+        ent = cue_entries[i] if i < len(cue_entries) else {}
+        text = str(ent.get("text", seg.text) or seg.text)
         
         entries.append(f"{i+1}\n{format_time(start_time)} --> {format_time(end_time)}\n{text}\n")
         

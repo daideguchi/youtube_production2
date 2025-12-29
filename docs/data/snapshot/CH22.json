@@ -1,0 +1,1047 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:23.709618Z",
+  "channel": "CH22",
+  "planning_csv": "workspaces/planning/channels/CH22.csv",
+  "planning_count": 30,
+  "scripts_count": 29,
+  "episodes": [
+    {
+      "channel": "CH22",
+      "video": "001",
+      "video_id": "CH22-001",
+      "title": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
+      "planning": {
+        "動画番号": "001",
+        "タイトル": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "疎外感",
+        "ライフシーン": "ランチ会",
+        "キーコンセプト": "距離感",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/001/content/assembled.md",
+      "script": null
+    },
+    {
+      "channel": "CH22",
+      "video": "002",
+      "video_id": "CH22-002",
+      "title": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
+      "planning": {
+        "動画番号": "002",
+        "タイトル": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "居場所がない",
+        "ライフシーン": "住宅街",
+        "キーコンセプト": "境界線",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/002/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "003",
+      "video_id": "CH22-003",
+      "title": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
+      "planning": {
+        "動画番号": "003",
+        "タイトル": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "疎外感",
+        "悩みタグ_サブ": "仲間外れ",
+        "ライフシーン": "公民館",
+        "キーコンセプト": "選ぶ",
+        "ベネフィット一言": "楽になる",
+        "内容（企画要約）": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/003/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "004",
+      "video_id": "CH22-004",
+      "title": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
+      "planning": {
+        "動画番号": "004",
+        "タイトル": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "反すう",
+        "ライフシーン": "夜の部屋",
+        "キーコンセプト": "追わない",
+        "ベネフィット一言": "静まる",
+        "内容（企画要約）": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/004/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "005",
+      "video_id": "CH22-005",
+      "title": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
+      "planning": {
+        "動画番号": "005",
+        "タイトル": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "疲れ",
+        "悩みタグ_サブ": "都合のいい人",
+        "ライフシーン": "駐車場",
+        "キーコンセプト": "断る",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/005/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "processing",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "006",
+      "video_id": "CH22-006",
+      "title": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
+      "planning": {
+        "動画番号": "006",
+        "タイトル": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "後悔",
+        "悩みタグ_サブ": "お金の溝",
+        "ライフシーン": "自宅テーブル",
+        "キーコンセプト": "線引き",
+        "ベネフィット一言": "軽くなる",
+        "内容（企画要約）": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/006/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "007",
+      "video_id": "CH22-007",
+      "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "planning": {
+        "動画番号": "007",
+        "タイトル": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "虚しさ",
+        "悩みタグ_サブ": "比較",
+        "ライフシーン": "健康教室",
+        "キーコンセプト": "比べない",
+        "ベネフィット一言": "ほどける",
+        "内容（企画要約）": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/007/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "008",
+      "video_id": "CH22-008",
+      "title": "友人宅に私の席がない｜『友達』じゃなかった現実",
+      "planning": {
+        "動画番号": "008",
+        "タイトル": "友人宅に私の席がない｜『友達』じゃなかった現実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "居場所",
+        "ライフシーン": "友人宅リビング",
+        "キーコンセプト": "受け止める",
+        "ベネフィット一言": "楽になる",
+        "内容（企画要約）": "友人宅に私の席がない｜『友達』じゃなかった現実",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/008/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "009",
+      "video_id": "CH22-009",
+      "title": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
+      "planning": {
+        "動画番号": "009",
+        "タイトル": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "嫉妬",
+        "悩みタグ_サブ": "劣等感",
+        "ライフシーン": "玄関",
+        "キーコンセプト": "距離を置く",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/009/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "010",
+      "video_id": "CH22-010",
+      "title": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
+      "planning": {
+        "動画番号": "010",
+        "タイトル": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "疎外感",
+        "悩みタグ_サブ": "仲間",
+        "ライフシーン": "カフェ",
+        "キーコンセプト": "離れる",
+        "ベネフィット一言": "軽くなる",
+        "内容（企画要約）": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/010/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "011",
+      "video_id": "CH22-011",
+      "title": "孫の話ばかりで息が詰まる｜比べる会の地獄",
+      "planning": {
+        "動画番号": "011",
+        "タイトル": "孫の話ばかりで息が詰まる｜比べる会の地獄",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "苦しさ",
+        "悩みタグ_サブ": "比較",
+        "ライフシーン": "リビング",
+        "キーコンセプト": "境界線",
+        "ベネフィット一言": "楽になる",
+        "内容（企画要約）": "孫の話ばかりで息が詰まる｜比べる会の地獄",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/011/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "012",
+      "video_id": "CH22-012",
+      "title": "友人の夫から一本の電話｜噂が広がる夜",
+      "planning": {
+        "動画番号": "012",
+        "タイトル": "友人の夫から一本の電話｜噂が広がる夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "噂",
+        "ライフシーン": "夜の部屋",
+        "キーコンセプト": "確認する",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "友人の夫から一本の電話｜噂が広がる夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/012/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "013",
+      "video_id": "CH22-013",
+      "title": "貸したお金が戻らない｜友情が終わる一線",
+      "planning": {
+        "動画番号": "013",
+        "タイトル": "貸したお金が戻らない｜友情が終わる一線",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不信",
+        "悩みタグ_サブ": "お金",
+        "ライフシーン": "テーブル",
+        "キーコンセプト": "線引き",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "貸したお金が戻らない｜友情が終わる一線",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/013/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "014",
+      "video_id": "CH22-014",
+      "title": "町内会の集金で突然敵に｜正しいのに孤立する現実",
+      "planning": {
+        "動画番号": "014",
+        "タイトル": "町内会の集金で突然敵に｜正しいのに孤立する現実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "孤立",
+        "悩みタグ_サブ": "噂",
+        "ライフシーン": "集会所",
+        "キーコンセプト": "距離感",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "町内会の集金で突然敵に｜正しいのに孤立する現実",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "015",
+      "video_id": "CH22-015",
+      "title": "冗談のつもりが一言で崩壊｜友人関係の末路",
+      "planning": {
+        "動画番号": "015",
+        "タイトル": "冗談のつもりが一言で崩壊｜友人関係の末路",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "後悔",
+        "悩みタグ_サブ": "言葉",
+        "ライフシーン": "食卓",
+        "キーコンセプト": "正語",
+        "ベネフィット一言": "軽くなる",
+        "内容（企画要約）": "冗談のつもりが一言で崩壊｜友人関係の末路",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "016",
+      "video_id": "CH22-016",
+      "title": "お悔やみの席で友情が終わった｜その一言はない",
+      "planning": {
+        "動画番号": "016",
+        "タイトル": "お悔やみの席で友情が終わった｜その一言はない",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "悲しみ",
+        "悩みタグ_サブ": "無神経",
+        "ライフシーン": "葬儀控室",
+        "キーコンセプト": "守る",
+        "ベネフィット一言": "静まる",
+        "内容（企画要約）": "お悔やみの席で友情が終わった｜その一言はない",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": null,
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "017",
+      "video_id": "CH22-017",
+      "title": "録音に入ってた私の悪口｜静かに絶縁した夜",
+      "planning": {
+        "動画番号": "017",
+        "タイトル": "録音に入ってた私の悪口｜静かに絶縁した夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "ショック",
+        "悩みタグ_サブ": "裏切り",
+        "ライフシーン": "夜の部屋",
+        "キーコンセプト": "切り替える",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "録音に入ってた私の悪口｜静かに絶縁した夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": null,
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/017/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "018",
+      "video_id": "CH22-018",
+      "title": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
+      "planning": {
+        "動画番号": "018",
+        "タイトル": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "疲れ",
+        "悩みタグ_サブ": "対等でない",
+        "ライフシーン": "カフェ",
+        "キーコンセプト": "対等",
+        "ベネフィット一言": "軽くなる",
+        "内容（企画要約）": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/018/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "019",
+      "video_id": "CH22-019",
+      "title": "旅行の部屋割りで立場が決まった｜余り者の現実",
+      "planning": {
+        "動画番号": "019",
+        "タイトル": "旅行の部屋割りで立場が決まった｜余り者の現実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "惨めさ",
+        "悩みタグ_サブ": "格差",
+        "ライフシーン": "旅館",
+        "キーコンセプト": "離れる",
+        "ベネフィット一言": "ほどける",
+        "内容（企画要約）": "旅行の部屋割りで立場が決まった｜余り者の現実",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/019/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "020",
+      "video_id": "CH22-020",
+      "title": "優しさが怖い友人｜近づくほど奪われる関係",
+      "planning": {
+        "動画番号": "020",
+        "タイトル": "優しさが怖い友人｜近づくほど奪われる関係",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "支配",
+        "ライフシーン": "室内",
+        "キーコンセプト": "境界線",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "優しさが怖い友人｜近づくほど奪われる関係",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/020/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "021",
+      "video_id": "CH22-021",
+      "title": "謝罪の品を突き返された｜もう戻れない夜",
+      "planning": {
+        "動画番号": "021",
+        "タイトル": "謝罪の品を突き返された｜もう戻れない夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "後悔",
+        "悩みタグ_サブ": "終わり",
+        "ライフシーン": "玄関",
+        "キーコンセプト": "受け止める",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "謝罪の品を突き返された｜もう戻れない夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/021/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "022",
+      "video_id": "CH22-022",
+      "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+      "planning": {
+        "動画番号": "022",
+        "タイトル": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "警戒",
+        "ライフシーン": "新しい住宅街",
+        "キーコンセプト": "見極める",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/022/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "023",
+      "video_id": "CH22-023",
+      "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
+      "planning": {
+        "動画番号": "023",
+        "タイトル": "最後に残った、たった一人の友｜孤独がほどける夜話",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "寂しさ",
+        "ライフシーン": "公園",
+        "キーコンセプト": "支え",
+        "ベネフィット一言": "安心する",
+        "内容（企画要約）": "最後に残った、たった一人の友｜孤独がほどける夜話",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/023/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "024",
+      "video_id": "CH22-024",
+      "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
+      "planning": {
+        "動画番号": "024",
+        "タイトル": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "虚しさ",
+        "悩みタグ_サブ": "格差",
+        "ライフシーン": "ランチ会",
+        "キーコンセプト": "同調圧力",
+        "ベネフィット一言": "軽くなる",
+        "内容（企画要約）": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/024/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "025",
+      "video_id": "CH22-025",
+      "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
+      "planning": {
+        "動画番号": "025",
+        "タイトル": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不信",
+        "悩みタグ_サブ": "お金",
+        "ライフシーン": "会計",
+        "キーコンセプト": "線引き",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/025/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "026",
+      "video_id": "CH22-026",
+      "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
+      "planning": {
+        "動画番号": "026",
+        "タイトル": "同窓会で感じた格差｜『昔のまま』は残酷だった",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "虚しさ",
+        "悩みタグ_サブ": "過去",
+        "ライフシーン": "同窓会",
+        "キーコンセプト": "手放す",
+        "ベネフィット一言": "ほどける",
+        "内容（企画要約）": "同窓会で感じた格差｜『昔のまま』は残酷だった",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/026/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "027",
+      "video_id": "CH22-027",
+      "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
+      "planning": {
+        "動画番号": "027",
+        "タイトル": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "疲れ",
+        "悩みタグ_サブ": "利用される",
+        "ライフシーン": "ボランティア",
+        "キーコンセプト": "断る",
+        "ベネフィット一言": "守れる",
+        "内容（企画要約）": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/027/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "028",
+      "video_id": "CH22-028",
+      "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
+      "planning": {
+        "動画番号": "028",
+        "タイトル": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "噂",
+        "ライフシーン": "ゴミ置き場",
+        "キーコンセプト": "距離感",
+        "ベネフィット一言": "落ち着く",
+        "内容（企画要約）": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/028/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "029",
+      "video_id": "CH22-029",
+      "title": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
+      "planning": {
+        "動画番号": "029",
+        "タイトル": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "恐れ",
+        "悩みタグ_サブ": "羞恥",
+        "ライフシーン": "夜の部屋",
+        "キーコンセプト": "守る",
+        "ベネフィット一言": "安心する",
+        "内容（企画要約）": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": null,
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/029/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH22",
+      "video": "030",
+      "video_id": "CH22-030",
+      "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
+      "planning": {
+        "動画番号": "030",
+        "タイトル": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-23 18:20:28",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "自己否定",
+        "ライフシーン": "夜の書斎",
+        "キーコンセプト": "受け止める",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
+        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+      },
+      "assembled_path": "workspaces/scripts/CH22/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/030/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    }
+  ]
+}

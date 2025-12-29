@@ -7,6 +7,7 @@
 関連:
 - 新規チャンネル追加: `ssot/ops/OPS_CHANNEL_LAUNCH_MANUAL.md`
 - 参照/編集する正本: `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md`
+- 競合メタ収集（yt-dlp）: `ssot/ops/OPS_YT_DLP.md`
 
 ---
 

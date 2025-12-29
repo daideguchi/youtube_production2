@@ -125,6 +125,48 @@ const normalizeVideo = (value: any): string => {
   return digits.padStart(3, "0");
 };
 
+const normalizeKeyConcept = (value: any): string => {
+  const raw = String(value ?? "");
+  const normalized = raw.normalize("NFKC").trim();
+  return normalized.replace(/[\s\u3000・･·、,.／/\\\-‐‑‒–—―ー〜~]/g, "");
+};
+
+const extractTitleTag = (title: any): string => {
+  const raw = String(title ?? "").trim();
+  const match = raw.match(/^\s*【([^】]{1,40})】/);
+  return (match?.[1] ?? "").trim();
+};
+
+const resolveEpisodeKey = (row: Row): { keyRaw: string; keyNorm: string } => {
+  const keyConcept = String(row["キーコンセプト"] ?? "").trim();
+  const keyConceptNorm = normalizeKeyConcept(keyConcept);
+  if (keyConceptNorm) return { keyRaw: keyConcept, keyNorm: keyConceptNorm };
+
+  const titleTag = extractTitleTag(row["タイトル"]);
+  const titleTagNorm = normalizeKeyConcept(titleTag);
+  if (titleTagNorm) return { keyRaw: titleTag, keyNorm: titleTagNorm };
+
+  const mainTag = String(row["悩みタグ_メイン"] ?? "").trim();
+  const mainTagNorm = normalizeKeyConcept(mainTag);
+  if (mainTagNorm) return { keyRaw: mainTag, keyNorm: mainTagNorm };
+
+  const subTag = String(row["悩みタグ_サブ"] ?? "").trim();
+  const subTagNorm = normalizeKeyConcept(subTag);
+  if (subTagNorm) return { keyRaw: subTag, keyNorm: subTagNorm };
+
+  return { keyRaw: "", keyNorm: "" };
+};
+
+const isAdoptedEpisodeRow = (row: Row): boolean => {
+  const progress = String(row["進捗"] ?? (row as any)["progress"] ?? "");
+  return (
+    toBool((row as any)["published_lock"], false) ||
+    progress.includes("投稿済み") ||
+    progress.includes("公開済み") ||
+    progress.trim().toLowerCase() === "published"
+  );
+};
+
 export function PlanningPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -579,6 +621,38 @@ export function PlanningPage() {
     next.slice(0, 40).forEach(requestThumbForRow);
   }, [rows, redoOnly, channel, requestThumbForRow]);
 
+  const keyConceptDupes = useMemo(() => {
+    const adoptedByKey: Record<string, string[]> = {};
+    rows.forEach((row) => {
+      if (!isAdoptedEpisodeRow(row)) return;
+      const { keyNorm } = resolveEpisodeKey(row);
+      if (!keyNorm) return;
+      const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+      if (!vid) return;
+      adoptedByKey[keyNorm] = [...(adoptedByKey[keyNorm] ?? []), vid];
+    });
+    Object.keys(adoptedByKey).forEach((k) => {
+      adoptedByKey[k] = Array.from(new Set(adoptedByKey[k])).sort();
+    });
+
+    const dupByRow: Record<string, { keyRaw: string; conflicts: string[] }> = {};
+    rows.forEach((row) => {
+      if (isAdoptedEpisodeRow(row)) return;
+      const { keyRaw, keyNorm } = resolveEpisodeKey(row);
+      if (!keyNorm) return;
+      const conflicts = adoptedByKey[keyNorm] ?? [];
+      if (!conflicts.length) return;
+      const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
+      const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+      if (!ch || !vid) return;
+      dupByRow[`${ch}-${vid}`] = { keyRaw, conflicts };
+    });
+
+    return { adoptedByKey, dupByRow };
+  }, [rows, channel]);
+
+  const duplicateKeyConceptCount = useMemo(() => Object.keys(keyConceptDupes.dupByRow).length, [keyConceptDupes]);
+
   const columns = useMemo(() => {
     const first = rows[0];
     if (!first) return ["動画番号", "タイトル", "進捗", "投稿完了", "更新日時", "台本パス"];
@@ -704,6 +778,14 @@ export function PlanningPage() {
             <RedoBadge note="両方リテイク件数" label={`両方 ${redoSummary.redo_both}`} />
           </div>
         ) : null}
+        {duplicateKeyConceptCount > 0 ? (
+          <div
+            className="planning-page__dup-summary"
+            title="採用済み回とキーコンセプトが重複している未採用行の数です"
+          >
+            キーコンセプト重複 {duplicateKeyConceptCount}
+          </div>
+        ) : null}
         {loading && <span className="planning-page__status">読み込み中...</span>}
         {error && <span className="planning-page__error">{error}</span>}
       </div>
@@ -723,18 +805,24 @@ export function PlanningPage() {
             </tr>
           </thead>
           <tbody>
-	            {filteredRows.map((row, idx) => (
-	              <tr
-	                key={idx}
-	                className="planning-page__row"
-	                onClick={() => openDetailRow(row)}
-	              >
+            {filteredRows.map((row, idx) => {
+              const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
+              const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+              const rowKey = ch && vid ? `${ch}-${vid}` : "";
+              const dup = rowKey ? keyConceptDupes.dupByRow[rowKey] : null;
+              return (
+                <tr
+                  key={idx}
+                  className={`planning-page__row${dup ? " planning-page__row--dup-key-concept" : ""}`}
+                  onClick={() => openDetailRow(row)}
+                >
                 {columns.map((col) => {
                   const isRedo = toBool(row["redo_script"], true) || toBool(row["redo_audio"], true);
                   const isLong = LONG_COLUMNS.has(col);
                   const isNarrow = NARROW_COLUMNS.has(col);
                   const isMedium = MEDIUM_COLUMNS.has(col);
                   const isThumb = THUMB_COLUMNS.has(col);
+                  const isDupKeyConcept = col === "キーコンセプト" && Boolean(dup);
                   const thumbKey = `${row["チャンネル"] || channel}-${row["動画番号"] || row["video"] || ""}`;
                   const thumbs = thumbMap[thumbKey] || [];
                   if (isThumb && !thumbMap[thumbKey]) {
@@ -745,7 +833,9 @@ export function PlanningPage() {
                       key={col}
                       className={`${isLong ? "planning-page__cell planning-page__cell--long" : "planning-page__cell"}${isNarrow ? " planning-page__cell--narrow" : ""}${
                         isMedium ? " planning-page__cell--medium" : ""
-                      }${isThumb ? " planning-page__cell--thumb" : ""} ${isRedo ? "planning-page__cell--redo" : ""}`}
+                      }${isThumb ? " planning-page__cell--thumb" : ""}${isDupKeyConcept ? " planning-page__cell--dup-key-concept" : ""} ${
+                        isRedo ? "planning-page__cell--redo" : ""
+                      }`}
                       title={row[col] ?? ""}
                     >
                       {col === "タイトル" && isRedo ? (
@@ -755,7 +845,41 @@ export function PlanningPage() {
                           aria-label="リテイク対象"
                         />
                       ) : null}
-                      {col === "投稿完了" ? (
+                      {col === "キーコンセプト" ? (
+                        (() => {
+                          const value = String(row[col] ?? "");
+                          if (!dup) {
+                            return <span className="planning-page__cell-text">{value}</span>;
+                          }
+                          const conflictVideos = dup.conflicts ?? [];
+                          const targetChannel = String(row["チャンネル"] || channel || "").trim().toUpperCase();
+                          return (
+                            <span className="planning-page__dup-cell" title="採用済み回とキーコンセプトが重複しています">
+                              <span className="planning-page__badge planning-page__badge--dup">重複</span>
+                              <span className="planning-page__cell-text planning-page__cell-text--flex">
+                                {value || dup.keyRaw}
+                              </span>
+                              <span className="planning-page__dup-links">
+                                {conflictVideos.slice(0, 6).map((v) => (
+                                  <button
+                                    key={`${targetChannel}-${v}`}
+                                    type="button"
+                                    className="planning-page__dup-link"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      goToVideoPage(targetChannel, v);
+                                    }}
+                                    title={`${targetChannel}-${v} を開く`}
+                                  >
+                                    {v}
+                                  </button>
+                                ))}
+                                {conflictVideos.length > 6 ? <span className="muted">…</span> : null}
+                              </span>
+                            </span>
+                          );
+                        })()
+                      ) : col === "投稿完了" ? (
                         (() => {
                           const progress = String(row["進捗"] ?? row["progress"] ?? "");
                           const locked =
@@ -998,7 +1122,8 @@ export function PlanningPage() {
                   );
                 })}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         )}
@@ -1067,11 +1192,39 @@ export function PlanningPage() {
                 const vid = detailRow["動画番号"] || detailRow["video"] || "";
                 const token = normalizeVideo(vid);
                 const key = `${ch}-${token}`;
+                const chNorm = String(ch || "").trim().toUpperCase();
+                const rowKey = chNorm && token ? `${chNorm}-${token}` : "";
+                const dup = rowKey ? keyConceptDupes.dupByRow[rowKey] : null;
                 const isPublishing = publishingKey === key;
                 const isUnpublishing = unpublishingKey === key;
                 const isBusy = isPublishing || isUnpublishing;
                 return (
                   <>
+                    {dup ? (
+                      <div className="planning-page__detail-row">
+                        <div className="planning-page__detail-key">キーコンセプト重複</div>
+                        <div className="planning-page__detail-value">
+                          <span className="planning-page__badge planning-page__badge--dup">重複</span>
+                          <span className="planning-page__dup-links">
+                            {(dup.conflicts ?? []).slice(0, 12).map((v) => (
+                              <button
+                                key={`${chNorm}-${v}`}
+                                type="button"
+                                className="planning-page__dup-link"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  goToVideoPage(chNorm, v);
+                                }}
+                                title={`${chNorm}-${v} を開く`}
+                              >
+                                {v}
+                              </button>
+                            ))}
+                            {(dup.conflicts ?? []).length > 12 ? <span className="muted">…</span> : null}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
                     <div className="planning-page__detail-row">
                       <div className="planning-page__detail-key">投稿完了</div>
                       <div className="planning-page__detail-value">

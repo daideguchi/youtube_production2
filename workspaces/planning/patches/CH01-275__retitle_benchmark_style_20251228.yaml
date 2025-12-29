@@ -1,0 +1,11 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-275__retitle_benchmark_style_20251228
+target:
+  channel: CH01
+  video: '275'
+apply:
+  set:
+    タイトル: 【見抜き方】謝れない人のプライドが人生を壊します。最後に失うもの｜ブッダの教え
+    更新日時: '2025-12-29 07:54:19'
+notes: Retitle to match benchmark (@buddha-no09) title style (2-sentence + strong
+  bracket tags).

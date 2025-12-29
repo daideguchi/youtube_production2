@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-28T08:25:28.648239+00:00",
+  "updated_at": "2025-12-29T12:01:54.930780+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -2886,600 +2886,886 @@
       "video": "001",
       "variants": [
         {
-          "id": "fs::ch26_001_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/001/00_thumb.png",
-          "image_path": "CH26/001/00_thumb.png",
+          "id": "fs::ch26_001_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/001/00_thumb_1.png",
+          "image_path": "CH26/001/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:16.225485+00:00",
-          "updated_at": "2025-12-28T07:49:02.470052+00:00"
+          "updated_at": "2025-12-29T08:07:16.713305+00:00"
+        },
+        {
+          "id": "fs::ch26_001_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/001/00_thumb_2.png",
+          "image_path": "CH26/001/00_thumb_2.png",
+          "created_at": "2025-12-27T03:11:16.225485+00:00",
+          "updated_at": "2025-12-29T08:07:16.711038+00:00"
         }
       ],
       "title": "【ノイマン式】結論、成果は設計で決まる",
-      "updated_at": "2025-12-28T07:49:02.470054+00:00",
-      "selected_variant_id": "fs::ch26_001_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-28T07:49:02.469988+00:00"
+      "notes": "インパクト弱すぎ。もっとアップに",
+      "updated_at": "2025-12-29T08:07:16.713308+00:00",
+      "selected_variant_id": "fs::ch26_001_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:16.713301+00:00"
     },
     {
       "channel": "CH26",
       "video": "002",
       "variants": [
         {
-          "id": "fs::ch26_002_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/002/00_thumb.png",
-          "image_path": "CH26/002/00_thumb.png",
+          "id": "fs::ch26_002_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/002/00_thumb_1.png",
+          "image_path": "CH26/002/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:31.479194+00:00",
-          "updated_at": "2025-12-28T07:49:20.861372+00:00"
+          "updated_at": "2025-12-29T08:07:23.115552+00:00"
+        },
+        {
+          "id": "fs::ch26_002_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/002/00_thumb_2.png",
+          "image_path": "CH26/002/00_thumb_2.png",
+          "created_at": "2025-12-27T03:11:31.479194+00:00",
+          "updated_at": "2025-12-29T08:07:23.113579+00:00"
         }
       ],
       "title": "【岡潔流】本当に賢い人は情報を減らす",
-      "updated_at": "2025-12-28T07:49:20.861378+00:00",
-      "selected_variant_id": "fs::ch26_002_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-28T07:49:20.861335+00:00"
+      "notes": "もっとアップに。",
+      "updated_at": "2025-12-29T08:07:23.115553+00:00",
+      "selected_variant_id": "fs::ch26_002_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:23.115549+00:00"
     },
     {
       "channel": "CH26",
       "video": "003",
       "variants": [
         {
-          "id": "fs::ch26_003_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/003/00_thumb.png",
-          "image_path": "CH26/003/00_thumb.png",
+          "id": "fs::ch26_003_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/003/00_thumb_1.png",
+          "image_path": "CH26/003/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:44.880019+00:00",
-          "updated_at": "2025-12-28T07:49:37.779163+00:00"
+          "updated_at": "2025-12-29T08:07:29.317087+00:00"
+        },
+        {
+          "id": "fs::ch26_003_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/003/00_thumb_2.png",
+          "image_path": "CH26/003/00_thumb_2.png",
+          "created_at": "2025-12-27T03:11:44.880019+00:00",
+          "updated_at": "2025-12-29T08:07:29.315016+00:00"
         }
       ],
       "title": "【チューリング式】結論、手順を外に出すと進む",
-      "updated_at": "2025-12-28T07:49:37.779164+00:00",
-      "selected_variant_id": "fs::ch26_003_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-28T07:49:37.779120+00:00"
+      "notes": "偉人はもっと下に、アップに",
+      "updated_at": "2025-12-29T08:07:29.317090+00:00",
+      "selected_variant_id": "fs::ch26_003_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:29.317081+00:00"
     },
     {
       "channel": "CH26",
       "video": "004",
       "variants": [
         {
-          "id": "fs::ch26_004_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/004/00_thumb.png",
-          "image_path": "CH26/004/00_thumb.png",
+          "id": "fs::ch26_004_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/004/00_thumb_1.png",
+          "image_path": "CH26/004/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:58.614833+00:00",
-          "updated_at": "2025-12-28T07:50:03.928265+00:00"
+          "updated_at": "2025-12-29T08:07:35.435193+00:00"
+        },
+        {
+          "id": "fs::ch26_004_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/004/00_thumb_2.png",
+          "image_path": "CH26/004/00_thumb_2.png",
+          "created_at": "2025-12-27T03:11:58.614833+00:00",
+          "updated_at": "2025-12-29T08:07:35.433302+00:00"
         }
       ],
       "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
-      "updated_at": "2025-12-28T07:50:03.928268+00:00",
-      "selected_variant_id": "fs::ch26_004_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-28T07:50:03.928062+00:00"
+      "notes": "偉人はもっとアップに",
+      "updated_at": "2025-12-29T08:07:35.435197+00:00",
+      "selected_variant_id": "fs::ch26_004_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:35.435189+00:00"
     },
     {
       "channel": "CH26",
       "video": "005",
       "variants": [
         {
-          "id": "fs::ch26_005_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/005/00_thumb.png",
-          "image_path": "CH26/005/00_thumb.png",
+          "id": "fs::ch26_005_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/005/00_thumb_1.png",
+          "image_path": "CH26/005/00_thumb_1.png",
           "created_at": "2025-12-27T03:38:43.952700+00:00",
-          "updated_at": "2025-12-27T13:18:53.088504+00:00"
+          "updated_at": "2025-12-29T08:07:40.315120+00:00"
+        },
+        {
+          "id": "fs::ch26_005_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/005/00_thumb_2.png",
+          "image_path": "CH26/005/00_thumb_2.png",
+          "created_at": "2025-12-27T03:38:43.952700+00:00",
+          "updated_at": "2025-12-29T08:07:40.313127+00:00"
         }
       ],
       "title": "【ゲーム理論】期待値で選べ：一回で揺れるな",
-      "updated_at": "2025-12-27T13:18:53.088506+00:00",
-      "selected_variant_id": "fs::ch26_005_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:18:53.088480+00:00"
+      "updated_at": "2025-12-29T08:07:40.315121+00:00",
+      "selected_variant_id": "fs::ch26_005_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:07:40.315117+00:00"
     },
     {
       "channel": "CH26",
       "video": "006",
       "variants": [
         {
-          "id": "fs::ch26_006_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/006/00_thumb.png",
-          "image_path": "CH26/006/00_thumb.png",
+          "id": "fs::ch26_006_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/006/00_thumb_1.png",
+          "image_path": "CH26/006/00_thumb_1.png",
           "created_at": "2025-12-27T03:38:55.373351+00:00",
-          "updated_at": "2025-12-27T13:19:05.644085+00:00"
+          "updated_at": "2025-12-29T08:07:46.306828+00:00"
+        },
+        {
+          "id": "fs::ch26_006_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/006/00_thumb_2.png",
+          "image_path": "CH26/006/00_thumb_2.png",
+          "created_at": "2025-12-27T03:38:55.373351+00:00",
+          "updated_at": "2025-12-29T08:07:46.305021+00:00"
         }
       ],
       "title": "【サイモン式】最適解を捨てると成果が増える",
-      "updated_at": "2025-12-27T13:19:05.644087+00:00",
-      "selected_variant_id": "fs::ch26_006_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:19:05.644076+00:00"
+      "notes": "偉人は中心に。（もっと右に配置）",
+      "updated_at": "2025-12-29T08:07:46.306829+00:00",
+      "selected_variant_id": "fs::ch26_006_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:46.306825+00:00"
     },
     {
       "channel": "CH26",
       "video": "007",
       "variants": [
         {
-          "id": "fs::ch26_007_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/007/00_thumb.png",
-          "image_path": "CH26/007/00_thumb.png",
+          "id": "fs::ch26_007_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/007/00_thumb_1.png",
+          "image_path": "CH26/007/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:08.236850+00:00",
-          "updated_at": "2025-12-27T13:19:19.487883+00:00"
+          "updated_at": "2025-12-29T08:07:51.806245+00:00"
+        },
+        {
+          "id": "fs::ch26_007_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/007/00_thumb_2.png",
+          "image_path": "CH26/007/00_thumb_2.png",
+          "created_at": "2025-12-27T03:39:08.236850+00:00",
+          "updated_at": "2025-12-29T08:07:51.803936+00:00"
         }
       ],
       "title": "【ドラッカー流】結論、成果の定義が先だ",
-      "updated_at": "2025-12-27T13:19:19.487888+00:00",
-      "selected_variant_id": "fs::ch26_007_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:19:19.487875+00:00"
+      "updated_at": "2025-12-29T08:07:51.806247+00:00",
+      "selected_variant_id": "fs::ch26_007_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:07:51.806239+00:00"
     },
     {
       "channel": "CH26",
       "video": "008",
       "variants": [
         {
-          "id": "fs::ch26_008_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/008/00_thumb.png",
-          "image_path": "CH26/008/00_thumb.png",
+          "id": "fs::ch26_008_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/008/00_thumb_1.png",
+          "image_path": "CH26/008/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:21.332372+00:00",
-          "updated_at": "2025-12-27T13:19:33.953690+00:00"
+          "updated_at": "2025-12-29T08:07:57.117139+00:00"
+        },
+        {
+          "id": "fs::ch26_008_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/008/00_thumb_2.png",
+          "image_path": "CH26/008/00_thumb_2.png",
+          "created_at": "2025-12-27T03:39:21.332372+00:00",
+          "updated_at": "2025-12-29T08:07:57.114762+00:00"
         }
       ],
       "title": "【孫子の型】最悪を先に固定すると迷いが消える",
-      "updated_at": "2025-12-27T13:19:33.953691+00:00",
-      "selected_variant_id": "fs::ch26_008_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:19:33.953671+00:00"
+      "updated_at": "2025-12-29T08:07:57.117141+00:00",
+      "selected_variant_id": "fs::ch26_008_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:07:57.117131+00:00",
+      "notes": "もっと明るく"
     },
     {
       "channel": "CH26",
       "video": "009",
       "variants": [
         {
-          "id": "fs::ch26_009_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/009/00_thumb.png",
-          "image_path": "CH26/009/00_thumb.png",
+          "id": "fs::ch26_009_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/009/00_thumb_1.png",
+          "image_path": "CH26/009/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:36.636749+00:00",
-          "updated_at": "2025-12-27T13:19:47.911704+00:00"
+          "updated_at": "2025-12-29T08:08:03.727420+00:00"
+        },
+        {
+          "id": "fs::ch26_009_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/009/00_thumb_2.png",
+          "image_path": "CH26/009/00_thumb_2.png",
+          "created_at": "2025-12-27T03:39:36.636749+00:00",
+          "updated_at": "2025-12-29T08:08:03.724975+00:00"
         }
       ],
       "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
-      "updated_at": "2025-12-27T13:19:47.911706+00:00",
-      "selected_variant_id": "fs::ch26_009_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:19:47.911694+00:00"
+      "notes": "もっと偉人の顔はアップ",
+      "updated_at": "2025-12-29T08:08:03.727421+00:00",
+      "selected_variant_id": "fs::ch26_009_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:08:03.727412+00:00"
     },
     {
       "channel": "CH26",
       "video": "010",
       "variants": [
         {
-          "id": "fs::ch26_010_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/010/00_thumb.png",
-          "image_path": "CH26/010/00_thumb.png",
+          "id": "fs::ch26_010_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/010/00_thumb_1.png",
+          "image_path": "CH26/010/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:50.496505+00:00",
-          "updated_at": "2025-12-27T13:20:00.311112+00:00"
+          "updated_at": "2025-12-29T08:08:09.469592+00:00"
+        },
+        {
+          "id": "fs::ch26_010_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/010/00_thumb_2.png",
+          "image_path": "CH26/010/00_thumb_2.png",
+          "created_at": "2025-12-27T03:39:50.496505+00:00",
+          "updated_at": "2025-12-29T08:08:09.467669+00:00"
         }
       ],
       "title": "【デカルト式】複雑ほど先に骨格を置け",
-      "updated_at": "2025-12-27T13:20:00.311114+00:00",
-      "selected_variant_id": "fs::ch26_010_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:20:00.311102+00:00"
+      "updated_at": "2025-12-29T08:08:09.469593+00:00",
+      "selected_variant_id": "fs::ch26_010_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:09.469583+00:00"
     },
     {
       "channel": "CH26",
       "video": "011",
       "variants": [
         {
-          "id": "fs::ch26_011_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/011/00_thumb.png",
-          "image_path": "CH26/011/00_thumb.png",
+          "id": "fs::ch26_011_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/011/00_thumb_1.png",
+          "image_path": "CH26/011/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:02.542979+00:00",
-          "updated_at": "2025-12-27T13:20:13.058405+00:00"
+          "updated_at": "2025-12-29T08:08:15.470074+00:00"
+        },
+        {
+          "id": "fs::ch26_011_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/011/00_thumb_2.png",
+          "image_path": "CH26/011/00_thumb_2.png",
+          "created_at": "2025-12-27T03:40:02.542979+00:00",
+          "updated_at": "2025-12-29T08:08:15.468276+00:00"
         }
       ],
       "title": "【カント流】結論、ルールが先だ",
-      "updated_at": "2025-12-27T13:20:13.058407+00:00",
-      "selected_variant_id": "fs::ch26_011_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:20:13.058384+00:00"
+      "updated_at": "2025-12-29T08:08:15.470075+00:00",
+      "selected_variant_id": "fs::ch26_011_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:15.470070+00:00"
     },
     {
       "channel": "CH26",
       "video": "012",
       "variants": [
         {
-          "id": "fs::ch26_012_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/012/00_thumb.png",
-          "image_path": "CH26/012/00_thumb.png",
+          "id": "fs::ch26_012_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/012/00_thumb_1.png",
+          "image_path": "CH26/012/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:16.612139+00:00",
-          "updated_at": "2025-12-27T13:20:24.611033+00:00"
+          "updated_at": "2025-12-29T08:08:21.028298+00:00"
+        },
+        {
+          "id": "fs::ch26_012_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/012/00_thumb_2.png",
+          "image_path": "CH26/012/00_thumb_2.png",
+          "created_at": "2025-12-27T03:40:16.612139+00:00",
+          "updated_at": "2025-12-29T08:08:21.026352+00:00"
         }
       ],
       "title": "【ニーチェ式】成果は“強さ”ではなく“整い”だ",
-      "updated_at": "2025-12-27T13:20:24.611035+00:00",
-      "selected_variant_id": "fs::ch26_012_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:20:24.611017+00:00"
+      "updated_at": "2025-12-29T08:08:21.028302+00:00",
+      "selected_variant_id": "fs::ch26_012_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:21.028291+00:00"
     },
     {
       "channel": "CH26",
       "video": "013",
       "variants": [
         {
-          "id": "fs::ch26_013_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/013/00_thumb.png",
-          "image_path": "CH26/013/00_thumb.png",
+          "id": "fs::ch26_013_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/013/00_thumb_1.png",
+          "image_path": "CH26/013/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:28.654650+00:00",
-          "updated_at": "2025-12-27T13:20:38.267063+00:00"
+          "updated_at": "2025-12-29T08:08:27.630459+00:00"
+        },
+        {
+          "id": "fs::ch26_013_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/013/00_thumb_2.png",
+          "image_path": "CH26/013/00_thumb_2.png",
+          "created_at": "2025-12-27T03:40:28.654650+00:00",
+          "updated_at": "2025-12-29T08:08:27.627468+00:00"
         }
       ],
       "title": "【ユング的】最悪を言葉にすると動ける",
-      "updated_at": "2025-12-27T13:20:38.267065+00:00",
-      "selected_variant_id": "fs::ch26_013_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:20:38.267045+00:00"
+      "updated_at": "2025-12-29T08:08:27.630460+00:00",
+      "selected_variant_id": "fs::ch26_013_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:27.630450+00:00"
     },
     {
       "channel": "CH26",
       "video": "014",
       "variants": [
         {
-          "id": "fs::ch26_014_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/014/00_thumb.png",
-          "image_path": "CH26/014/00_thumb.png",
+          "id": "fs::ch26_014_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/014/00_thumb_1.png",
+          "image_path": "CH26/014/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:40.199643+00:00",
-          "updated_at": "2025-12-27T13:20:52.296738+00:00"
+          "updated_at": "2025-12-29T08:08:33.547295+00:00"
+        },
+        {
+          "id": "fs::ch26_014_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/014/00_thumb_2.png",
+          "image_path": "CH26/014/00_thumb_2.png",
+          "created_at": "2025-12-27T03:40:40.199643+00:00",
+          "updated_at": "2025-12-29T08:08:33.538193+00:00"
         }
       ],
       "title": "【フロイト流】進めない原因は能力じゃない",
-      "updated_at": "2025-12-27T13:20:52.296740+00:00",
-      "selected_variant_id": "fs::ch26_014_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:20:52.296728+00:00"
+      "updated_at": "2025-12-29T08:08:33.547296+00:00",
+      "selected_variant_id": "fs::ch26_014_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:33.547285+00:00"
     },
     {
       "channel": "CH26",
       "video": "015",
       "variants": [
         {
-          "id": "fs::ch26_015_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/015/00_thumb.png",
-          "image_path": "CH26/015/00_thumb.png",
+          "id": "fs::ch26_015_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/015/00_thumb_1.png",
+          "image_path": "CH26/015/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:54.613228+00:00",
-          "updated_at": "2025-12-27T13:21:05.884848+00:00"
+          "updated_at": "2025-12-29T08:08:40.119023+00:00"
+        },
+        {
+          "id": "fs::ch26_015_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/015/00_thumb_2.png",
+          "image_path": "CH26/015/00_thumb_2.png",
+          "created_at": "2025-12-27T03:40:54.613228+00:00",
+          "updated_at": "2025-12-29T08:08:40.117232+00:00"
         }
       ],
       "title": "【スミス式】期待値で選べ：損を減らせ",
-      "updated_at": "2025-12-27T13:21:05.884853+00:00",
-      "selected_variant_id": "fs::ch26_015_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:21:05.884838+00:00"
+      "notes": "偉人はもっと右。中心に配置せよ",
+      "updated_at": "2025-12-29T08:08:40.119024+00:00",
+      "selected_variant_id": "fs::ch26_015_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:08:40.119020+00:00"
     },
     {
       "channel": "CH26",
       "video": "016",
       "variants": [
         {
-          "id": "fs::ch26_016_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/016/00_thumb.png",
-          "image_path": "CH26/016/00_thumb.png",
+          "id": "fs::ch26_016_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/016/00_thumb_1.png",
+          "image_path": "CH26/016/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:06.371302+00:00",
-          "updated_at": "2025-12-27T13:21:18.782517+00:00"
+          "updated_at": "2025-12-29T08:08:45.258450+00:00"
+        },
+        {
+          "id": "fs::ch26_016_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/016/00_thumb_2.png",
+          "image_path": "CH26/016/00_thumb_2.png",
+          "created_at": "2025-12-27T03:41:06.371302+00:00",
+          "updated_at": "2025-12-29T08:08:45.256422+00:00"
         }
       ],
       "title": "【ケインズ式】一回の上下で判断を変えるな",
-      "updated_at": "2025-12-27T13:21:18.782518+00:00",
-      "selected_variant_id": "fs::ch26_016_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:21:18.782508+00:00"
+      "updated_at": "2025-12-29T08:08:45.258451+00:00",
+      "selected_variant_id": "fs::ch26_016_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:08:45.258445+00:00"
     },
     {
       "channel": "CH26",
       "video": "017",
       "variants": [
         {
-          "id": "fs::ch26_017_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/017/00_thumb.png",
-          "image_path": "CH26/017/00_thumb.png",
+          "id": "fs::ch26_017_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/017/00_thumb_1.png",
+          "image_path": "CH26/017/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:17.980703+00:00",
-          "updated_at": "2025-12-27T13:21:37.208167+00:00"
+          "updated_at": "2025-12-29T08:08:50.486030+00:00"
+        },
+        {
+          "id": "fs::ch26_017_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/017/00_thumb_2.png",
+          "image_path": "CH26/017/00_thumb_2.png",
+          "created_at": "2025-12-27T03:41:17.980703+00:00",
+          "updated_at": "2025-12-29T08:08:50.484271+00:00"
         }
       ],
       "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
-      "updated_at": "2025-12-27T13:21:37.208168+00:00",
-      "selected_variant_id": "fs::ch26_017_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:21:37.208155+00:00"
+      "notes": "偉人をもっと大きく、少し下。",
+      "updated_at": "2025-12-29T08:08:50.486031+00:00",
+      "selected_variant_id": "fs::ch26_017_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:08:50.486027+00:00"
     },
     {
       "channel": "CH26",
       "video": "018",
       "variants": [
         {
-          "id": "fs::ch26_018_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/018/00_thumb.png",
-          "image_path": "CH26/018/00_thumb.png",
+          "id": "fs::ch26_018_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/018/00_thumb_1.png",
+          "image_path": "CH26/018/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:32.496714+00:00",
-          "updated_at": "2025-12-27T13:21:51.303683+00:00"
+          "updated_at": "2025-12-29T08:08:55.778666+00:00"
+        },
+        {
+          "id": "fs::ch26_018_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/018/00_thumb_2.png",
+          "image_path": "CH26/018/00_thumb_2.png",
+          "created_at": "2025-12-27T03:41:32.496714+00:00",
+          "updated_at": "2025-12-29T08:08:55.775797+00:00"
         }
       ],
       "title": "【キュリー式】結論、測定が更新を速くする",
-      "updated_at": "2025-12-27T13:21:51.303685+00:00",
-      "selected_variant_id": "fs::ch26_018_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:21:51.303663+00:00"
+      "notes": "偉人はめちゃくちゃインパクト強くしたい。大きく明るく",
+      "updated_at": "2025-12-29T08:08:55.778668+00:00",
+      "selected_variant_id": "fs::ch26_018_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:08:55.778653+00:00"
     },
     {
       "channel": "CH26",
       "video": "019",
       "variants": [
         {
-          "id": "fs::ch26_019_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/019/00_thumb.png",
-          "image_path": "CH26/019/00_thumb.png",
+          "id": "fs::ch26_019_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/019/00_thumb_1.png",
+          "image_path": "CH26/019/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:45.906731+00:00",
-          "updated_at": "2025-12-27T13:22:05.782606+00:00"
+          "updated_at": "2025-12-29T08:09:04.903632+00:00"
+        },
+        {
+          "id": "fs::ch26_019_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/019/00_thumb_2.png",
+          "image_path": "CH26/019/00_thumb_2.png",
+          "created_at": "2025-12-27T03:41:45.906731+00:00",
+          "updated_at": "2025-12-29T08:09:04.899803+00:00"
         }
       ],
       "title": "【ファラデー流】成果は仕組みで積み上がる",
-      "updated_at": "2025-12-27T13:22:05.782607+00:00",
-      "selected_variant_id": "fs::ch26_019_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:22:05.782574+00:00"
+      "updated_at": "2025-12-29T08:09:04.903634+00:00",
+      "selected_variant_id": "fs::ch26_019_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:09:04.903626+00:00"
     },
     {
       "channel": "CH26",
       "video": "020",
       "variants": [
         {
-          "id": "fs::ch26_020_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/020/00_thumb.png",
-          "image_path": "CH26/020/00_thumb.png",
+          "id": "fs::ch26_020_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/020/00_thumb_1.png",
+          "image_path": "CH26/020/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:00.091727+00:00",
-          "updated_at": "2025-12-27T13:22:19.329371+00:00"
+          "updated_at": "2025-12-29T08:09:14.577079+00:00"
+        },
+        {
+          "id": "fs::ch26_020_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/020/00_thumb_2.png",
+          "image_path": "CH26/020/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:00.091727+00:00",
+          "updated_at": "2025-12-29T08:09:14.573871+00:00"
         }
       ],
       "title": "【ダーウィン式】結論、更新の反復が成果を作る",
-      "updated_at": "2025-12-27T13:22:19.329372+00:00",
-      "selected_variant_id": "fs::ch26_020_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:22:19.329357+00:00"
+      "updated_at": "2025-12-29T08:09:14.577080+00:00",
+      "selected_variant_id": "fs::ch26_020_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:09:14.577073+00:00",
+      "notes": "もっと偉人を明るく"
     },
     {
       "channel": "CH26",
       "video": "021",
       "variants": [
         {
-          "id": "fs::ch26_021_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/021/00_thumb.png",
-          "image_path": "CH26/021/00_thumb.png",
+          "id": "fs::ch26_021_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/021/00_thumb_1.png",
+          "image_path": "CH26/021/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:11.411000+00:00",
-          "updated_at": "2025-12-27T13:22:32.728602+00:00"
+          "updated_at": "2025-12-29T08:09:21.272227+00:00"
+        },
+        {
+          "id": "fs::ch26_021_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/021/00_thumb_2.png",
+          "image_path": "CH26/021/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:11.411000+00:00",
+          "updated_at": "2025-12-29T08:09:21.270091+00:00"
         }
       ],
       "title": "【エジソン式】結論、更新回数が成果を決める",
-      "updated_at": "2025-12-27T13:22:32.728604+00:00",
-      "selected_variant_id": "fs::ch26_021_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:22:32.728574+00:00"
+      "updated_at": "2025-12-29T08:09:21.272229+00:00",
+      "selected_variant_id": "fs::ch26_021_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:09:21.272218+00:00"
     },
     {
       "channel": "CH26",
       "video": "022",
       "variants": [
         {
-          "id": "fs::ch26_022_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/022/00_thumb.png",
-          "image_path": "CH26/022/00_thumb.png",
+          "id": "fs::ch26_022_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/022/00_thumb_1.png",
+          "image_path": "CH26/022/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:24.427300+00:00",
-          "updated_at": "2025-12-27T13:22:44.247917+00:00"
+          "updated_at": "2025-12-29T08:09:28.341739+00:00"
+        },
+        {
+          "id": "fs::ch26_022_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/022/00_thumb_2.png",
+          "image_path": "CH26/022/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:24.427300+00:00",
+          "updated_at": "2025-12-29T08:09:28.331766+00:00"
         }
       ],
       "title": "【ジョブズ流】重要な2つだけ残せ",
-      "updated_at": "2025-12-27T13:22:44.247919+00:00",
-      "selected_variant_id": "fs::ch26_022_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:22:44.247906+00:00"
+      "updated_at": "2025-12-29T08:09:28.341740+00:00",
+      "selected_variant_id": "fs::ch26_022_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:09:28.341730+00:00"
     },
     {
       "channel": "CH26",
       "video": "023",
       "variants": [
         {
-          "id": "fs::ch26_023_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/023/00_thumb.png",
-          "image_path": "CH26/023/00_thumb.png",
+          "id": "fs::ch26_023_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/023/00_thumb_1.png",
+          "image_path": "CH26/023/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:37.461170+00:00",
-          "updated_at": "2025-12-27T13:22:58.422198+00:00"
+          "updated_at": "2025-12-29T08:09:34.544079+00:00"
+        },
+        {
+          "id": "fs::ch26_023_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/023/00_thumb_2.png",
+          "image_path": "CH26/023/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:37.461170+00:00",
+          "updated_at": "2025-12-29T08:09:34.542088+00:00"
         }
       ],
       "title": "【マスク式】結論、順序を整えると止まらない",
-      "updated_at": "2025-12-27T13:22:58.422202+00:00",
-      "selected_variant_id": "fs::ch26_023_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:22:58.422177+00:00"
+      "updated_at": "2025-12-29T08:09:34.544080+00:00",
+      "selected_variant_id": "fs::ch26_023_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:09:34.544073+00:00"
     },
     {
       "channel": "CH26",
       "video": "024",
       "variants": [
         {
-          "id": "fs::ch26_024_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/024/00_thumb.png",
-          "image_path": "CH26/024/00_thumb.png",
+          "id": "fs::ch26_024_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/024/00_thumb_1.png",
+          "image_path": "CH26/024/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:49.004417+00:00",
-          "updated_at": "2025-12-27T13:23:10.199302+00:00"
+          "updated_at": "2025-12-29T08:09:40.622030+00:00"
+        },
+        {
+          "id": "fs::ch26_024_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/024/00_thumb_2.png",
+          "image_path": "CH26/024/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:49.004417+00:00",
+          "updated_at": "2025-12-29T08:09:40.619977+00:00"
         }
       ],
       "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
-      "updated_at": "2025-12-27T13:23:10.199303+00:00",
-      "selected_variant_id": "fs::ch26_024_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:23:10.199293+00:00"
+      "updated_at": "2025-12-29T08:09:40.622031+00:00",
+      "selected_variant_id": "fs::ch26_024_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:09:40.622027+00:00",
+      "notes": "偉人をもっと右に（つまり中央に）。そしてもっと明るく"
     },
     {
       "channel": "CH26",
       "video": "025",
       "variants": [
         {
-          "id": "fs::ch26_025_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/025/00_thumb.png",
-          "image_path": "CH26/025/00_thumb.png",
+          "id": "fs::ch26_025_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/025/00_thumb_1.png",
+          "image_path": "CH26/025/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:59.827355+00:00",
-          "updated_at": "2025-12-27T13:23:25.863103+00:00"
+          "updated_at": "2025-12-29T08:09:47.089101+00:00"
+        },
+        {
+          "id": "fs::ch26_025_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/025/00_thumb_2.png",
+          "image_path": "CH26/025/00_thumb_2.png",
+          "created_at": "2025-12-27T03:42:59.827355+00:00",
+          "updated_at": "2025-12-29T08:09:47.086898+00:00"
         }
       ],
       "title": "【ベゾス流】結論、基準がないから止まる",
-      "updated_at": "2025-12-27T13:23:25.863107+00:00",
-      "selected_variant_id": "fs::ch26_025_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:23:25.863078+00:00"
+      "updated_at": "2025-12-29T08:09:47.089102+00:00",
+      "selected_variant_id": "fs::ch26_025_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:09:47.089095+00:00"
     },
     {
       "channel": "CH26",
       "video": "026",
       "variants": [
         {
-          "id": "fs::ch26_026_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
-          "image_path": "CH26/026/00_thumb.png",
+          "id": "fs::ch26_026_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/026/00_thumb_1.png",
+          "image_path": "CH26/026/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:11.960825+00:00",
-          "updated_at": "2025-12-27T13:23:40.976150+00:00"
+          "updated_at": "2025-12-29T08:09:54.864371+00:00"
+        },
+        {
+          "id": "fs::ch26_026_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/026/00_thumb_2.png",
+          "image_path": "CH26/026/00_thumb_2.png",
+          "created_at": "2025-12-27T03:43:11.960825+00:00",
+          "updated_at": "2025-12-29T08:09:54.861337+00:00"
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-27T13:23:40.976151+00:00",
-      "selected_variant_id": "fs::ch26_026_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:23:40.976141+00:00"
+      "updated_at": "2025-12-29T08:09:54.864372+00:00",
+      "selected_variant_id": "fs::ch26_026_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:09:54.864364+00:00",
+      "notes": "もっと偉人を明るく"
     },
     {
       "channel": "CH26",
       "video": "027",
       "variants": [
         {
-          "id": "fs::ch26_027_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/027/00_thumb.png",
-          "image_path": "CH26/027/00_thumb.png",
+          "id": "fs::ch26_027_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/027/00_thumb_1.png",
+          "image_path": "CH26/027/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:24.202855+00:00",
-          "updated_at": "2025-12-27T13:23:54.448011+00:00"
+          "updated_at": "2025-12-29T08:10:01.503437+00:00"
+        },
+        {
+          "id": "fs::ch26_027_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/027/00_thumb_2.png",
+          "image_path": "CH26/027/00_thumb_2.png",
+          "created_at": "2025-12-27T03:43:24.202855+00:00",
+          "updated_at": "2025-12-29T08:10:01.500548+00:00"
         }
       ],
       "title": "【デミング式】結論、平均を上げるのが最強",
-      "updated_at": "2025-12-27T13:23:54.448013+00:00",
-      "selected_variant_id": "fs::ch26_027_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:23:54.448003+00:00"
+      "updated_at": "2025-12-29T08:10:01.503439+00:00",
+      "selected_variant_id": "fs::ch26_027_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:10:01.503432+00:00",
+      "notes": "偉人はもっと明るく"
     },
     {
       "channel": "CH26",
       "video": "028",
       "variants": [
         {
-          "id": "fs::ch26_028_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/028/00_thumb.png",
-          "image_path": "CH26/028/00_thumb.png",
+          "id": "fs::ch26_028_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/028/00_thumb_1.png",
+          "image_path": "CH26/028/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:37.154009+00:00",
-          "updated_at": "2025-12-27T13:24:08.187229+00:00"
+          "updated_at": "2025-12-29T08:10:08.382350+00:00"
+        },
+        {
+          "id": "fs::ch26_028_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/028/00_thumb_2.png",
+          "image_path": "CH26/028/00_thumb_2.png",
+          "created_at": "2025-12-27T03:43:37.154009+00:00",
+          "updated_at": "2025-12-29T08:10:08.380140+00:00"
         }
       ],
       "title": "【TPSの型】冗長性で崩れない仕組みを作れ",
-      "updated_at": "2025-12-27T13:24:08.187230+00:00",
-      "selected_variant_id": "fs::ch26_028_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:24:08.187218+00:00"
+      "updated_at": "2025-12-29T08:10:08.382351+00:00",
+      "selected_variant_id": "fs::ch26_028_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:10:08.382345+00:00",
+      "notes": "偉人はもっと下にずらす"
     },
     {
       "channel": "CH26",
       "video": "029",
       "variants": [
         {
-          "id": "fs::ch26_029_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/029/00_thumb.png",
-          "image_path": "CH26/029/00_thumb.png",
+          "id": "fs::ch26_029_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/029/00_thumb_1.png",
+          "image_path": "CH26/029/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:47.989830+00:00",
-          "updated_at": "2025-12-27T13:24:21.119969+00:00"
+          "updated_at": "2025-12-29T08:10:14.621583+00:00"
+        },
+        {
+          "id": "fs::ch26_029_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH26/029/00_thumb_2.png",
+          "image_path": "CH26/029/00_thumb_2.png",
+          "created_at": "2025-12-27T03:43:47.989830+00:00",
+          "updated_at": "2025-12-29T08:10:14.619901+00:00"
         }
       ],
       "title": "【コヴィー流】重要な2つだけ残せ",
-      "updated_at": "2025-12-27T13:24:21.119970+00:00",
-      "selected_variant_id": "fs::ch26_029_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:24:21.119958+00:00"
+      "updated_at": "2025-12-29T08:10:14.621586+00:00",
+      "selected_variant_id": "fs::ch26_029_00_thumb_1",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:10:14.621576+00:00"
     },
     {
       "channel": "CH26",
       "video": "030",
       "variants": [
         {
-          "id": "fs::ch26_030_00_thumb",
-          "label": "thumb_00",
-          "status": "review",
-          "image_url": "/thumbnails/assets/CH26/030/00_thumb.png",
-          "image_path": "CH26/030/00_thumb.png",
+          "id": "fs::ch26_030_00_thumb_1",
+          "label": "顔B（実在）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/030/00_thumb_1.png",
+          "image_path": "CH26/030/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:59.517457+00:00",
-          "updated_at": "2025-12-27T13:24:36.750033+00:00"
+          "updated_at": "2025-12-29T08:10:22.565567+00:00"
+        },
+        {
+          "id": "fs::ch26_030_00_thumb_2",
+          "label": "顔A（背景）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH26/030/00_thumb_2.png",
+          "image_path": "CH26/030/00_thumb_2.png",
+          "created_at": "2025-12-27T03:43:59.517457+00:00",
+          "updated_at": "2025-12-29T08:10:22.562595+00:00"
         }
       ],
       "title": "【セネカ式】結論、基準がないから焦る",
-      "updated_at": "2025-12-27T13:24:36.750035+00:00",
-      "selected_variant_id": "fs::ch26_030_00_thumb",
-      "status": "review",
-      "status_updated_at": "2025-12-27T13:24:36.750016+00:00"
+      "updated_at": "2025-12-29T08:10:22.565569+00:00",
+      "selected_variant_id": "fs::ch26_030_00_thumb_1",
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:10:22.565560+00:00",
+      "notes": "偉人はもっと明るく"
     },
     {
       "channel": "CH12",
@@ -4200,6 +4486,3536 @@
       "status_updated_at": "2025-12-27T22:10:17.422255+00:00",
       "updated_at": "2025-12-28T08:25:28.648239+00:00",
       "selected_variant_id": "compiler::build_ch12_gapfix_021_030"
+    },
+    {
+      "channel": "CH22",
+      "video": "001",
+      "variants": [
+        {
+          "id": "fs::ch22_001_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/001/00_thumb.png",
+          "image_path": "CH22/001/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T04:28:17.518479+00:00"
+        }
+      ],
+      "title": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
+      "status": "approved",
+      "status_updated_at": "2025-12-29T04:28:17.518479+00:00",
+      "updated_at": "2025-12-29T04:28:17.518479+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_001_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "002",
+      "variants": [
+        {
+          "id": "fs::ch22_002_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/002/00_thumb.png",
+          "image_path": "CH22/002/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:09:08.409489+00:00"
+        }
+      ],
+      "title": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:09:08.409280+00:00",
+      "updated_at": "2025-12-29T10:09:08.409491+00:00",
+      "notes": "もっと画像下にずらす",
+      "selected_variant_id": "fs::ch22_002_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "003",
+      "variants": [
+        {
+          "id": "fs::ch22_003_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/003/00_thumb.png",
+          "image_path": "CH22/003/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T11:59:34.132968+00:00"
+        }
+      ],
+      "title": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T11:59:34.132835+00:00",
+      "updated_at": "2025-12-29T11:59:34.132970+00:00",
+      "notes": "画像をもっとインパクト強く。やり直し",
+      "selected_variant_id": "fs::ch22_003_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "004",
+      "variants": [
+        {
+          "id": "fs::ch22_004_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/004/00_thumb.png",
+          "image_path": "CH22/004/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:29:19.904700+00:00"
+        }
+      ],
+      "title": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:29:19.904684+00:00",
+      "updated_at": "2025-12-29T09:29:19.904702+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_004_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "005",
+      "variants": [
+        {
+          "id": "fs::ch22_005_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/005/00_thumb.png",
+          "image_path": "CH22/005/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:09:42.799463+00:00"
+        }
+      ],
+      "title": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:09:42.799435+00:00",
+      "updated_at": "2025-12-29T10:09:42.799465+00:00",
+      "notes": "画像をもっと下にずらさないと文字と顔が被ってる",
+      "selected_variant_id": "fs::ch22_005_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "006",
+      "variants": [
+        {
+          "id": "fs::ch22_006_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/006/00_thumb.png",
+          "image_path": "CH22/006/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:10:12.164699+00:00"
+        }
+      ],
+      "title": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:10:12.164682+00:00",
+      "updated_at": "2025-12-29T10:10:12.164701+00:00",
+      "notes": "画像をもっと下にずらさないと文字と顔が被ってる",
+      "selected_variant_id": "fs::ch22_006_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "007",
+      "variants": [
+        {
+          "id": "fs::ch22_007_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/007/00_thumb.png",
+          "image_path": "CH22/007/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T11:59:48.811729+00:00"
+        }
+      ],
+      "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "status": "review",
+      "status_updated_at": "2025-12-29T11:59:48.811704+00:00",
+      "updated_at": "2025-12-29T11:59:48.811730+00:00",
+      "notes": "画像をやり直し",
+      "selected_variant_id": "fs::ch22_007_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "008",
+      "variants": [
+        {
+          "id": "fs::ch22_008_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/008/00_thumb.png",
+          "image_path": "CH22/008/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:31:08.641111+00:00"
+        }
+      ],
+      "title": "友人宅に私の席がない｜『友達』じゃなかった現実",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:31:08.641099+00:00",
+      "updated_at": "2025-12-29T09:31:08.641112+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_008_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "009",
+      "variants": [
+        {
+          "id": "fs::ch22_009_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/009/00_thumb.png",
+          "image_path": "CH22/009/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:31:35.926246+00:00"
+        }
+      ],
+      "title": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:31:35.926239+00:00",
+      "updated_at": "2025-12-29T09:31:35.926248+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_009_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "010",
+      "variants": [
+        {
+          "id": "fs::ch22_010_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/010/00_thumb.png",
+          "image_path": "CH22/010/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:00:21.155863+00:00"
+        }
+      ],
+      "title": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:00:21.155838+00:00",
+      "updated_at": "2025-12-29T12:00:21.155869+00:00",
+      "notes": "画像間違ってる。やり直し",
+      "selected_variant_id": "fs::ch22_010_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "011",
+      "variants": [
+        {
+          "id": "fs::ch22_011_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/011/00_thumb.png",
+          "image_path": "CH22/011/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:10:43.506683+00:00"
+        }
+      ],
+      "title": "孫の話ばかりで息が詰まる｜比べる会の地獄",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:10:43.506661+00:00",
+      "updated_at": "2025-12-29T10:10:43.506685+00:00",
+      "notes": "画像を少しだけに下にずらす",
+      "selected_variant_id": "fs::ch22_011_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "012",
+      "variants": [
+        {
+          "id": "fs::ch22_012_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/012/00_thumb.png",
+          "image_path": "CH22/012/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:00:43.054974+00:00"
+        }
+      ],
+      "title": "友人の夫から一本の電話｜噂が広がる夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:00:43.054953+00:00",
+      "updated_at": "2025-12-29T12:00:43.054977+00:00",
+      "notes": "キャッチ弱い。",
+      "selected_variant_id": "fs::ch22_012_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "013",
+      "variants": [
+        {
+          "id": "fs::ch22_013_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/013/00_thumb.png",
+          "image_path": "CH22/013/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:01:11.311671+00:00"
+        }
+      ],
+      "title": "貸したお金が戻らない｜友情が終わる一線",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:01:11.311637+00:00",
+      "updated_at": "2025-12-29T12:01:11.311673+00:00",
+      "notes": "キャッチと画像があってない　生成し直し",
+      "selected_variant_id": "fs::ch22_013_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "014",
+      "variants": [
+        {
+          "id": "fs::ch22_014_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/014/00_thumb.png",
+          "image_path": "CH22/014/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:11:07.542132+00:00"
+        }
+      ],
+      "title": "町内会の集金で突然敵に｜正しいのに孤立する現実",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:11:07.542116+00:00",
+      "updated_at": "2025-12-29T10:11:07.542138+00:00",
+      "notes": "もっと画像下にずらす",
+      "selected_variant_id": "fs::ch22_014_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "015",
+      "variants": [
+        {
+          "id": "fs::ch22_015_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/015/00_thumb.png",
+          "image_path": "CH22/015/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:34:01.510453+00:00"
+        }
+      ],
+      "title": "冗談のつもりが一言で崩壊｜友人関係の末路",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:34:01.510441+00:00",
+      "updated_at": "2025-12-29T09:34:01.510455+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_015_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "016",
+      "variants": [
+        {
+          "id": "fs::ch22_016_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/016/00_thumb.png",
+          "image_path": "CH22/016/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:34:30.188373+00:00"
+        }
+      ],
+      "title": "お悔やみの席で友情が終わった｜その一言はない",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:34:30.188353+00:00",
+      "updated_at": "2025-12-29T09:34:30.188374+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_016_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "017",
+      "variants": [
+        {
+          "id": "fs::ch22_017_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/017/00_thumb.png",
+          "image_path": "CH22/017/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:34:59.289202+00:00"
+        }
+      ],
+      "title": "録音に入ってた私の悪口｜静かに絶縁した夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:34:59.289192+00:00",
+      "updated_at": "2025-12-29T09:34:59.289203+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_017_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "018",
+      "variants": [
+        {
+          "id": "fs::ch22_018_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/018/00_thumb.png",
+          "image_path": "CH22/018/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:01:30.709140+00:00"
+        }
+      ],
+      "title": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:01:30.709118+00:00",
+      "updated_at": "2025-12-29T12:01:30.709143+00:00",
+      "notes": "サムネ画像をもっとタイトルの感じに。再生成",
+      "selected_variant_id": "fs::ch22_018_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "019",
+      "variants": [
+        {
+          "id": "fs::ch22_019_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/019/00_thumb.png",
+          "image_path": "CH22/019/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:11:26.180728+00:00"
+        }
+      ],
+      "title": "旅行の部屋割りで立場が決まった｜余り者の現実",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:11:26.180706+00:00",
+      "updated_at": "2025-12-29T10:11:26.180729+00:00",
+      "notes": "画像もう少しだけ下",
+      "selected_variant_id": "fs::ch22_019_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "020",
+      "variants": [
+        {
+          "id": "fs::ch22_020_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/020/00_thumb.png",
+          "image_path": "CH22/020/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:11:47.888821+00:00"
+        }
+      ],
+      "title": "優しさが怖い友人｜近づくほど奪われる関係",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:11:47.888809+00:00",
+      "updated_at": "2025-12-29T10:11:47.888822+00:00",
+      "notes": "画像もう少しだけ下\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_020_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "021",
+      "variants": [
+        {
+          "id": "fs::ch22_021_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/021/00_thumb.png",
+          "image_path": "CH22/021/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T09:36:29.567988+00:00"
+        }
+      ],
+      "title": "謝罪の品を突き返された｜もう戻れない夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T09:36:29.567969+00:00",
+      "updated_at": "2025-12-29T09:36:29.567993+00:00",
+      "notes": null,
+      "selected_variant_id": "fs::ch22_021_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "022",
+      "variants": [
+        {
+          "id": "fs::ch22_022_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/022/00_thumb.png",
+          "image_path": "CH22/022/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:12:20.070419+00:00"
+        }
+      ],
+      "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:12:20.070392+00:00",
+      "updated_at": "2025-12-29T10:12:20.070421+00:00",
+      "notes": "もっと画像を下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_022_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "023",
+      "variants": [
+        {
+          "id": "fs::ch22_023_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/023/00_thumb.png",
+          "image_path": "CH22/023/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:12:46.189021+00:00"
+        }
+      ],
+      "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:12:46.189002+00:00",
+      "updated_at": "2025-12-29T10:12:46.189023+00:00",
+      "notes": "画像もう少しだけ下\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_023_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "024",
+      "variants": [
+        {
+          "id": "fs::ch22_024_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/024/00_thumb.png",
+          "image_path": "CH22/024/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:01:38.929387+00:00"
+        }
+      ],
+      "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:01:38.929359+00:00",
+      "updated_at": "2025-12-29T12:01:38.929389+00:00",
+      "notes": "画像とキャッチがズレてる\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_024_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "025",
+      "variants": [
+        {
+          "id": "fs::ch22_025_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/025/00_thumb.png",
+          "image_path": "CH22/025/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T12:01:54.930767+00:00"
+        }
+      ],
+      "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
+      "status": "review",
+      "status_updated_at": "2025-12-29T12:01:54.930740+00:00",
+      "updated_at": "2025-12-29T12:01:54.930770+00:00",
+      "notes": "画像間違ってるから生成し直し\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_025_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "026",
+      "variants": [
+        {
+          "id": "fs::ch22_026_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/026/00_thumb.png",
+          "image_path": "CH22/026/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:13:16.671423+00:00"
+        }
+      ],
+      "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:13:16.671400+00:00",
+      "updated_at": "2025-12-29T10:13:16.671425+00:00",
+      "notes": "画像もっと下に",
+      "selected_variant_id": "fs::ch22_026_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "027",
+      "variants": [
+        {
+          "id": "fs::ch22_027_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/027/00_thumb.png",
+          "image_path": "CH22/027/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:13:48.492002+00:00"
+        }
+      ],
+      "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:13:48.491970+00:00",
+      "updated_at": "2025-12-29T10:13:48.492005+00:00",
+      "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_027_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "028",
+      "variants": [
+        {
+          "id": "fs::ch22_028_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/028/00_thumb.png",
+          "image_path": "CH22/028/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:14:18.108843+00:00"
+        }
+      ],
+      "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:14:18.108835+00:00",
+      "updated_at": "2025-12-29T10:14:18.108845+00:00",
+      "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_028_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "029",
+      "variants": [
+        {
+          "id": "fs::ch22_029_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/029/00_thumb.png",
+          "image_path": "CH22/029/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:14:47.982384+00:00"
+        }
+      ],
+      "title": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:14:47.982358+00:00",
+      "updated_at": "2025-12-29T10:14:47.982386+00:00",
+      "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_029_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "030",
+      "variants": [
+        {
+          "id": "fs::ch22_030_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/030/00_thumb.png",
+          "image_path": "CH22/030/00_thumb.png",
+          "created_at": "2025-12-29T04:28:17.518479+00:00",
+          "updated_at": "2025-12-29T10:15:13.326112+00:00"
+        }
+      ],
+      "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
+      "status": "review",
+      "status_updated_at": "2025-12-29T10:15:13.325830+00:00",
+      "updated_at": "2025-12-29T10:15:13.326119+00:00",
+      "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
+      "selected_variant_id": "fs::ch22_030_00_thumb"
+    },
+    {
+      "channel": "CH13",
+      "video": "001",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/001/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/001/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:39.057071+00:00",
+          "updated_at": "2025-12-29T00:21:39.057071+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "画像はもっと右に。画像はもっと明るく。010まで同様"
+    },
+    {
+      "channel": "CH13",
+      "video": "002",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/002/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/002/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:39.308647+00:00",
+          "updated_at": "2025-12-29T00:21:39.308647+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "003",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/003/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/003/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:39.784012+00:00",
+          "updated_at": "2025-12-29T00:21:39.784012+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "004",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/004/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/004/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:40.032325+00:00",
+          "updated_at": "2025-12-29T00:21:40.032325+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "005",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/005/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/005/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:40.271008+00:00",
+          "updated_at": "2025-12-29T00:21:40.271008+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "006",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/006/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/006/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:40.517206+00:00",
+          "updated_at": "2025-12-29T00:21:40.517206+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "007",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/007/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/007/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:40.754798+00:00",
+          "updated_at": "2025-12-29T00:21:40.754798+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "008",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/008/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/008/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:40.995368+00:00",
+          "updated_at": "2025-12-29T00:21:40.995368+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "009",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/009/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/009/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:41.257060+00:00",
+          "updated_at": "2025-12-29T00:21:41.257060+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "010",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/010/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/010/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:41.515425+00:00",
+          "updated_at": "2025-12-29T00:21:41.515425+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "011",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/011/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/011/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:41.809596+00:00",
+          "updated_at": "2025-12-29T00:21:41.809596+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "012",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/012/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/012/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:42.041759+00:00",
+          "updated_at": "2025-12-29T00:21:42.041759+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "013",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/013/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/013/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:42.286674+00:00",
+          "updated_at": "2025-12-29T00:21:42.286674+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "014",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/014/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/014/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:42.536200+00:00",
+          "updated_at": "2025-12-29T00:21:42.536200+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "015",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH13/015/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/015/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:42.772051+00:00",
+          "updated_at": "2025-12-29T00:21:42.772051+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "016",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/016/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/016/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:43.005740+00:00",
+          "updated_at": "2025-12-29T00:21:43.005740+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "サムネキャッチ意味不明すぎ"
+    },
+    {
+      "channel": "CH13",
+      "video": "017",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/017/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/017/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:43.243798+00:00",
+          "updated_at": "2025-12-29T00:21:43.243798+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "018",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/018/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/018/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:43.483834+00:00",
+          "updated_at": "2025-12-29T00:21:43.483834+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "019",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/019/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/019/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:43.718502+00:00",
+          "updated_at": "2025-12-29T00:21:43.718502+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "大丈夫の右側のスペースが不自然"
+    },
+    {
+      "channel": "CH13",
+      "video": "020",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/020/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/020/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:43.964515+00:00",
+          "updated_at": "2025-12-29T00:21:43.964515+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い\n\nとてもひどい"
+    },
+    {
+      "channel": "CH13",
+      "video": "021",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/021/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/021/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:44.365150+00:00",
+          "updated_at": "2025-12-29T00:21:44.365150+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "022",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/022/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/022/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:44.593644+00:00",
+          "updated_at": "2025-12-29T00:21:44.593644+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字のバランス悪い\n\n文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "023",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/023/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/023/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:44.832774+00:00",
+          "updated_at": "2025-12-29T00:21:44.832774+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "024",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/024/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/024/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:45.058297+00:00",
+          "updated_at": "2025-12-29T00:21:45.058297+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "025",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/025/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/025/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:45.288051+00:00",
+          "updated_at": "2025-12-29T00:21:45.288051+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "026",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH13/026/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/026/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:45.507442+00:00",
+          "updated_at": "2025-12-29T00:21:45.507442+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1",
+      "notes": "文字の右側に空欄あるからバランス悪い"
+    },
+    {
+      "channel": "CH13",
+      "video": "027",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/027/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/027/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:45.746215+00:00",
+          "updated_at": "2025-12-29T00:21:45.746215+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "028",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/028/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/028/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:45.969845+00:00",
+          "updated_at": "2025-12-29T00:21:45.969845+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "029",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/029/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/029/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:46.222854+00:00",
+          "updated_at": "2025-12-29T00:21:46.222854+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH13",
+      "video": "030",
+      "variants": [
+        {
+          "id": "compiler::build_ch13_buddha_v1",
+          "label": "文字サムネ（build_ch13_buddha_v1）",
+          "status": "approved",
+          "image_url": "/thumbnails/assets/CH13/030/compiler/build_ch13_buddha_v1/out_01.png",
+          "image_path": "CH13/030/compiler/build_ch13_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:21:46.463948+00:00",
+          "updated_at": "2025-12-29T00:21:46.463948+00:00"
+        }
+      ],
+      "status": "approved",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch13_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "001",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/001/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/001/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:22:58.999061+00:00",
+          "updated_at": "2025-12-29T00:22:58.999061+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1",
+      "notes": "画像もっと明るく。画像もっと左。010まで"
+    },
+    {
+      "channel": "CH14",
+      "video": "002",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/002/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/002/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:22:59.251849+00:00",
+          "updated_at": "2025-12-29T00:22:59.251849+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "003",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/003/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/003/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:22:59.480772+00:00",
+          "updated_at": "2025-12-29T00:22:59.480772+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "004",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/004/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/004/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:22:59.717199+00:00",
+          "updated_at": "2025-12-29T00:22:59.717199+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "005",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/005/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/005/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:22:59.949434+00:00",
+          "updated_at": "2025-12-29T00:22:59.949434+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "006",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/006/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/006/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:00.184920+00:00",
+          "updated_at": "2025-12-29T00:23:00.184920+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "007",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/007/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/007/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:00.450801+00:00",
+          "updated_at": "2025-12-29T00:23:00.450801+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "008",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/008/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/008/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:00.680877+00:00",
+          "updated_at": "2025-12-29T00:23:00.680877+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "009",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/009/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/009/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:00.925916+00:00",
+          "updated_at": "2025-12-29T00:23:00.925916+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "010",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/010/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/010/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:01.152762+00:00",
+          "updated_at": "2025-12-29T00:23:01.152762+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "011",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH14/011/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/011/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:01.435793+00:00",
+          "updated_at": "2025-12-29T00:23:01.435793+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1",
+      "notes": "ブッダの向きに合わせる必要がある\n\nこのパターンは文字配置は左　020まで"
+    },
+    {
+      "channel": "CH14",
+      "video": "012",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/012/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/012/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:01.688005+00:00",
+          "updated_at": "2025-12-29T00:23:01.688005+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "013",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/013/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/013/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:01.950741+00:00",
+          "updated_at": "2025-12-29T00:23:01.950741+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "014",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/014/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/014/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:02.202301+00:00",
+          "updated_at": "2025-12-29T00:23:02.202301+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "015",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/015/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/015/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:02.457165+00:00",
+          "updated_at": "2025-12-29T00:23:02.457165+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "016",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/016/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/016/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:02.711978+00:00",
+          "updated_at": "2025-12-29T00:23:02.711978+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "017",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/017/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/017/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:02.940931+00:00",
+          "updated_at": "2025-12-29T00:23:02.940931+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "018",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/018/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/018/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:03.203777+00:00",
+          "updated_at": "2025-12-29T00:23:03.203777+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "019",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/019/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/019/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:03.457413+00:00",
+          "updated_at": "2025-12-29T00:23:03.457413+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "020",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/020/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/020/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:03.811651+00:00",
+          "updated_at": "2025-12-29T00:23:03.811651+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "021",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH14/021/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/021/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.036342+00:00",
+          "updated_at": "2025-12-29T00:23:04.036342+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1",
+      "notes": "画像暗すぎ。やり直し 030まで"
+    },
+    {
+      "channel": "CH14",
+      "video": "022",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/022/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/022/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.223584+00:00",
+          "updated_at": "2025-12-29T00:23:04.223584+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "023",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/023/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/023/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.405890+00:00",
+          "updated_at": "2025-12-29T00:23:04.405890+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "024",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/024/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/024/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.586365+00:00",
+          "updated_at": "2025-12-29T00:23:04.586365+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "025",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/025/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/025/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.775958+00:00",
+          "updated_at": "2025-12-29T00:23:04.775958+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "026",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/026/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/026/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:04.958523+00:00",
+          "updated_at": "2025-12-29T00:23:04.958523+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "027",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/027/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/027/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:05.147461+00:00",
+          "updated_at": "2025-12-29T00:23:05.147461+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "028",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/028/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/028/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:05.350740+00:00",
+          "updated_at": "2025-12-29T00:23:05.350740+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "029",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/029/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/029/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:05.538640+00:00",
+          "updated_at": "2025-12-29T00:23:05.538640+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH14",
+      "video": "030",
+      "variants": [
+        {
+          "id": "compiler::build_ch14_buddha_v1",
+          "label": "文字サムネ（build_ch14_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH14/030/compiler/build_ch14_buddha_v1/out_01.png",
+          "image_path": "CH14/030/compiler/build_ch14_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:23:05.730993+00:00",
+          "updated_at": "2025-12-29T00:23:05.730993+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch14_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "001",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH15/001/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/001/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:07.880733+00:00",
+          "updated_at": "2025-12-29T00:26:07.880733+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1",
+      "notes": "画像はok　スペースを綺麗に埋めるレイアウトにしろ　010まで"
+    },
+    {
+      "channel": "CH15",
+      "video": "002",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/002/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/002/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:08.112056+00:00",
+          "updated_at": "2025-12-29T00:26:08.112056+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "003",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/003/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/003/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:08.345152+00:00",
+          "updated_at": "2025-12-29T00:26:08.345152+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "004",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/004/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/004/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:08.583308+00:00",
+          "updated_at": "2025-12-29T00:26:08.583308+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "005",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/005/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/005/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:08.827319+00:00",
+          "updated_at": "2025-12-29T00:26:08.827319+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "006",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/006/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/006/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:09.061706+00:00",
+          "updated_at": "2025-12-29T00:26:09.061706+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "007",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/007/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/007/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:09.294401+00:00",
+          "updated_at": "2025-12-29T00:26:09.294401+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "008",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/008/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/008/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:09.516066+00:00",
+          "updated_at": "2025-12-29T00:26:09.516066+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "009",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/009/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/009/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:09.760212+00:00",
+          "updated_at": "2025-12-29T00:26:09.760212+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "010",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/010/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/010/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:10.040156+00:00",
+          "updated_at": "2025-12-29T00:26:10.040156+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "011",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH15/011/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/011/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:10.264772+00:00",
+          "updated_at": "2025-12-29T00:26:10.264772+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1",
+      "notes": "文字の右側スペースが空いてるからダメ 020まで"
+    },
+    {
+      "channel": "CH15",
+      "video": "012",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/012/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/012/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:10.464497+00:00",
+          "updated_at": "2025-12-29T00:26:10.464497+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "013",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/013/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/013/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:10.660073+00:00",
+          "updated_at": "2025-12-29T00:26:10.660073+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "014",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/014/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/014/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:10.847733+00:00",
+          "updated_at": "2025-12-29T00:26:10.847733+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "015",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/015/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/015/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:11.040007+00:00",
+          "updated_at": "2025-12-29T00:26:11.040007+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "016",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/016/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/016/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:11.218157+00:00",
+          "updated_at": "2025-12-29T00:26:11.218157+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "017",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/017/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/017/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:11.412486+00:00",
+          "updated_at": "2025-12-29T00:26:11.412486+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "018",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/018/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/018/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:11.594684+00:00",
+          "updated_at": "2025-12-29T00:26:11.594684+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "019",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/019/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/019/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:11.867445+00:00",
+          "updated_at": "2025-12-29T00:26:11.867445+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "020",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/020/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/020/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:12.078117+00:00",
+          "updated_at": "2025-12-29T00:26:12.078117+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "021",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH15/021/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/021/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:12.324156+00:00",
+          "updated_at": "2025-12-29T00:26:12.324156+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1",
+      "notes": "画像完璧。ok　だが右側がスペース空きすぎのサムネもある。 030まで"
+    },
+    {
+      "channel": "CH15",
+      "video": "022",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/022/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/022/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:12.543320+00:00",
+          "updated_at": "2025-12-29T00:26:12.543320+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "023",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/023/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/023/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:12.774304+00:00",
+          "updated_at": "2025-12-29T00:26:12.774304+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "024",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/024/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/024/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:12.987583+00:00",
+          "updated_at": "2025-12-29T00:26:12.987583+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "025",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/025/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/025/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:13.218121+00:00",
+          "updated_at": "2025-12-29T00:26:13.218121+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "026",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/026/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/026/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:13.446184+00:00",
+          "updated_at": "2025-12-29T00:26:13.446184+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "027",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/027/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/027/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:13.674716+00:00",
+          "updated_at": "2025-12-29T00:26:13.674716+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "028",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/028/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/028/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:13.914263+00:00",
+          "updated_at": "2025-12-29T00:26:13.914263+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "029",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/029/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/029/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:14.138879+00:00",
+          "updated_at": "2025-12-29T00:26:14.138879+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH15",
+      "video": "030",
+      "variants": [
+        {
+          "id": "compiler::build_ch15_buddha_v1",
+          "label": "文字サムネ（build_ch15_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH15/030/compiler/build_ch15_buddha_v1/out_01.png",
+          "image_path": "CH15/030/compiler/build_ch15_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:26:14.376060+00:00",
+          "updated_at": "2025-12-29T00:26:14.376060+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch15_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "001",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH16/001/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/001/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:26.445187+00:00",
+          "updated_at": "2025-12-29T00:27:26.445187+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1",
+      "notes": "画像もっと左"
+    },
+    {
+      "channel": "CH16",
+      "video": "002",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/002/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/002/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:26.647302+00:00",
+          "updated_at": "2025-12-29T00:27:26.647302+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "003",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/003/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/003/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:26.848248+00:00",
+          "updated_at": "2025-12-29T00:27:26.848248+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "004",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/004/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/004/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:27.050940+00:00",
+          "updated_at": "2025-12-29T00:27:27.050940+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "005",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/005/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/005/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:27.254654+00:00",
+          "updated_at": "2025-12-29T00:27:27.254654+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "006",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/006/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/006/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:27.458450+00:00",
+          "updated_at": "2025-12-29T00:27:27.458450+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "007",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/007/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/007/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:27.661888+00:00",
+          "updated_at": "2025-12-29T00:27:27.661888+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "008",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/008/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/008/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:27.862494+00:00",
+          "updated_at": "2025-12-29T00:27:27.862494+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "009",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/009/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/009/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:28.070783+00:00",
+          "updated_at": "2025-12-29T00:27:28.070783+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "010",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/010/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/010/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:28.281319+00:00",
+          "updated_at": "2025-12-29T00:27:28.281319+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "011",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/011/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/011/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:28.537587+00:00",
+          "updated_at": "2025-12-29T00:27:28.537587+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1",
+      "notes": "画像ok"
+    },
+    {
+      "channel": "CH16",
+      "video": "012",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/012/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/012/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:28.755787+00:00",
+          "updated_at": "2025-12-29T00:27:28.755787+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "013",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/013/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/013/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:28.968256+00:00",
+          "updated_at": "2025-12-29T00:27:28.968256+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "014",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/014/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/014/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:29.181499+00:00",
+          "updated_at": "2025-12-29T00:27:29.181499+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "015",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/015/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/015/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:29.404819+00:00",
+          "updated_at": "2025-12-29T00:27:29.404819+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "016",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/016/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/016/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:29.624691+00:00",
+          "updated_at": "2025-12-29T00:27:29.624691+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "017",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/017/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/017/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:29.845366+00:00",
+          "updated_at": "2025-12-29T00:27:29.845366+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "018",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/018/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/018/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:30.197435+00:00",
+          "updated_at": "2025-12-29T00:27:30.197435+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "019",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/019/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/019/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:30.419537+00:00",
+          "updated_at": "2025-12-29T00:27:30.419537+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "020",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/020/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/020/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:30.612958+00:00",
+          "updated_at": "2025-12-29T00:27:30.612958+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "021",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "in_progress",
+          "image_url": "/thumbnails/assets/CH16/021/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/021/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:30.861020+00:00",
+          "updated_at": "2025-12-29T00:27:30.861020+00:00"
+        }
+      ],
+      "status": "in_progress",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1",
+      "notes": "画像もっと強く"
+    },
+    {
+      "channel": "CH16",
+      "video": "022",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/022/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/022/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:31.069745+00:00",
+          "updated_at": "2025-12-29T00:27:31.069745+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "023",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/023/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/023/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:31.280246+00:00",
+          "updated_at": "2025-12-29T00:27:31.280246+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "024",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/024/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/024/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:31.490057+00:00",
+          "updated_at": "2025-12-29T00:27:31.490057+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "025",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/025/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/025/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:31.700464+00:00",
+          "updated_at": "2025-12-29T00:27:31.700464+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "026",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/026/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/026/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:31.912751+00:00",
+          "updated_at": "2025-12-29T00:27:31.912751+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "027",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/027/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/027/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:32.122236+00:00",
+          "updated_at": "2025-12-29T00:27:32.122236+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "028",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/028/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/028/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:32.330548+00:00",
+          "updated_at": "2025-12-29T00:27:32.330548+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "029",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/029/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/029/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:32.538369+00:00",
+          "updated_at": "2025-12-29T00:27:32.538369+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH16",
+      "video": "030",
+      "variants": [
+        {
+          "id": "compiler::build_ch16_buddha_v1",
+          "label": "文字サムネ（build_ch16_buddha_v1）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH16/030/compiler/build_ch16_buddha_v1/out_01.png",
+          "image_path": "CH16/030/compiler/build_ch16_buddha_v1/out_01.png",
+          "notes": null,
+          "tags": [
+            "compiled"
+          ],
+          "prompt": null,
+          "created_at": "2025-12-29T00:27:32.750240+00:00",
+          "updated_at": "2025-12-29T00:27:32.750240+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "updated_at": "2025-12-29T08:45:18.904379+00:00",
+      "selected_variant_id": "compiler::build_ch16_buddha_v1"
     }
   ]
 }

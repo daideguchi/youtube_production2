@@ -25,6 +25,7 @@
 - `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
 - `ops/OPS_UI_WIRING.md`: UI(React) ↔ Backend(FastAPI) の配線SSOT（route/API/SoT対応）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
@@ -58,6 +59,7 @@
 - `ops/OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
 - `ops/OPS_THUMBNAILS_PIPELINE.md`: サムネ量産/修正（ローカル合成）の運用SSOT（Compiler/retake/QC/明るさ補正）。
 - `ops/OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
+- `ops/OPS_YT_DLP.md`: yt-dlp運用（競合タイトル/メタ収集）のSSOT（DLせず公開メタのみ）。
 - `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
 - `ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`: published済みエピソードのアーカイブ（planning progress 連動、探索ノイズ削減）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
@@ -101,6 +103,7 @@
 
 ### 3.4 OPS / 生成物整理
 - `plans/PLAN_OPS_VOICEVOX_READING_REFORM.md` (Active): VOICEVOX読み誤り対策とTTS改善計画。
+- `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`: 処理が遅い/詰まる課題の集約（観測→DoD付き改善）。
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`: 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
 
 ### 3.5 テンプレ

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 from factory_common.image_client import ImageClient, ImageGenerationError, ImageTaskOptions
 
@@ -106,12 +106,25 @@ def _apply_foreground_enhancements(img: Image.Image, *, brightness: float, contr
     return out
 
 
+def _trim_transparent_border(img: Image.Image) -> Image.Image:
+    if img.mode != "RGBA":
+        return img
+    alpha = img.getchannel("A")
+    bbox = alpha.getbbox()
+    if not bbox:
+        return img
+    return img.crop(bbox)
+
+
 def composite_portrait_on_base(
     base: Image.Image,
     *,
     portrait_path: Path,
     dest_box_px: Tuple[int, int, int, int],
     anchor: str = "bottom_center",
+    portrait_zoom: float = 1.0,
+    portrait_offset_px: Tuple[int, int] = (0, 0),
+    trim_transparent: bool = False,
     fg_brightness: float = 1.20,
     fg_contrast: float = 1.08,
     fg_color: float = 0.98,
@@ -129,12 +142,15 @@ def composite_portrait_on_base(
 
     with Image.open(portrait_path) as fg_in:
         fg = fg_in.convert("RGBA")
+    if trim_transparent:
+        fg = _trim_transparent_border(fg)
 
     # Resize to fit within dest box (preserve aspect ratio).
     pw, ph = fg.size
     if pw <= 0 or ph <= 0:
         return img
-    scale = min(w / float(pw), h / float(ph))
+    zoom = float(portrait_zoom) if float(portrait_zoom) > 0 else 1.0
+    scale = min(w / float(pw), h / float(ph)) * zoom
     new_w = max(1, int(round(pw * scale)))
     new_h = max(1, int(round(ph * scale)))
     fg = fg.resize((new_w, new_h), Image.LANCZOS)
@@ -148,6 +164,9 @@ def composite_portrait_on_base(
         # default: bottom_center
         px = int(x0 + (w - new_w) // 2)
         py = int(y0 + (h - new_h))
+
+    px += int(portrait_offset_px[0])
+    py += int(portrait_offset_px[1])
 
     # Soft shadow from alpha channel.
     alpha = fg.getchannel("A")
@@ -171,6 +190,9 @@ def composited_portrait_path(
     dest_box_px: Tuple[int, int, int, int],
     temp_prefix: str,
     anchor: str = "bottom_center",
+    portrait_zoom: float = 1.0,
+    portrait_offset_px: Tuple[int, int] = (0, 0),
+    trim_transparent: bool = False,
     fg_brightness: float = 1.20,
     fg_contrast: float = 1.08,
     fg_color: float = 0.98,
@@ -195,6 +217,9 @@ def composited_portrait_path(
             portrait_path=portrait_path,
             dest_box_px=dest_box_px,
             anchor=anchor,
+            portrait_zoom=float(portrait_zoom),
+            portrait_offset_px=(int(portrait_offset_px[0]), int(portrait_offset_px[1])),
+            trim_transparent=bool(trim_transparent),
             fg_brightness=float(fg_brightness),
             fg_contrast=float(fg_contrast),
             fg_color=float(fg_color),
@@ -202,6 +227,73 @@ def composited_portrait_path(
             shadow_blur_px=int(shadow_blur_px),
             shadow_alpha=float(shadow_alpha),
         )
+        out.save(tmp_path, format="PNG", optimize=True)
+        yield tmp_path
+    finally:
+        if tmp_path:
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+
+
+def _soft_ellipse_mask(size: Tuple[int, int], *, box: Tuple[int, int, int, int], blur_px: int) -> Image.Image:
+    w, h = size
+    x0, y0, x1, y1 = box
+    x0 = max(0, min(w, int(x0)))
+    y0 = max(0, min(h, int(y0)))
+    x1 = max(0, min(w, int(x1)))
+    y1 = max(0, min(h, int(y1)))
+    mask = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(mask)
+    d.ellipse((x0, y0, x1, y1), fill=255)
+    if blur_px > 0:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=int(blur_px)))
+    return mask
+
+
+@contextmanager
+def suppressed_center_region_path(
+    base_bg_path: Path,
+    *,
+    dest_box_px: Tuple[int, int, int, int],
+    temp_prefix: str,
+    pad_ratio: float = 0.06,
+    blur_ratio: float = 0.03,
+    mask_blur_ratio: float = 0.04,
+    brightness: float = 0.60,
+    contrast: float = 0.95,
+) -> Iterator[Path]:
+    """
+    Yield a temp PNG path where the center region is blurred+darkened.
+
+    Used to suppress background portraits (avoid "double face") before overlaying
+    the real cutout portrait.
+    """
+    tmp_path: Optional[Path] = None
+    handle = tempfile.NamedTemporaryFile(prefix=temp_prefix, suffix=".png", delete=False)
+    try:
+        tmp_path = Path(handle.name)
+    finally:
+        handle.close()
+
+    try:
+        with Image.open(base_bg_path) as im:
+            img = im.convert("RGBA")
+        w, h = img.size
+        x0, y0, bw, bh = (int(dest_box_px[0]), int(dest_box_px[1]), int(dest_box_px[2]), int(dest_box_px[3]))
+        pad = int(round(min(w, h) * float(pad_ratio)))
+        box = (x0 - pad, y0 - pad, x0 + bw + pad, y0 + bh + pad)
+
+        blurred = img.filter(ImageFilter.GaussianBlur(radius=int(round(min(w, h) * float(blur_ratio)))))
+        blurred_rgb = blurred.convert("RGB")
+        blurred_rgb = ImageEnhance.Brightness(blurred_rgb).enhance(float(brightness))
+        blurred_rgb = ImageEnhance.Contrast(blurred_rgb).enhance(float(contrast))
+        blurred_dark = blurred_rgb.convert("RGBA")
+        blurred_dark.putalpha(img.getchannel("A"))
+
+        mask = _soft_ellipse_mask(img.size, box=box, blur_px=int(round(min(w, h) * float(mask_blur_ratio))))
+        out = Image.composite(blurred_dark, img, mask)
         out.save(tmp_path, format="PNG", optimize=True)
         yield tmp_path
     finally:

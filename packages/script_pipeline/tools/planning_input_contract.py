@@ -49,7 +49,7 @@ def normalize_bracket_tag(tag: str | None) -> str:
     """Normalize tags for "format-only" variations (e.g., ニコラ・テスラ vs ニコラテスラ)."""
     s = unicodedata.normalize("NFKC", str(tag or "")).strip()
     # Remove whitespace and common separators/punctuation that often fluctuate in planning tags.
-    s = re.sub(r"[\\s\\u3000・･·、,\\.／/\\\\\\-‐‑‒–—―ー〜~]", "", s)
+    s = re.sub(r"[\s\u3000・･·、,\.／/\\\-‐‑‒–—―ー〜~]", "", s)
     return s
 
 

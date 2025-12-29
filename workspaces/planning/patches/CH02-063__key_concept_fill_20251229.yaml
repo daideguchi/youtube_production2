@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH02-063__key_concept_fill_20251229
+target:
+  channel: CH02
+  video: '063'
+apply:
+  set:
+    キーコンセプト: 締切前の燃焼
+notes: 未採用行のキーコンセプト空欄を補完（タイトル先頭【...】を採用して運用を安定化）。

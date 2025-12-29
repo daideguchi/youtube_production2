@@ -1,0 +1,11 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-259__retitle_benchmark_style_20251228
+target:
+  channel: CH01
+  video: '259'
+apply:
+  set:
+    タイトル: 【静かに勝つ一言】見下された瞬間に心が折れない返し方。使える「言葉」3選
+    更新日時: '2025-12-29 07:54:19'
+notes: Retitle to match benchmark (@buddha-no09) title style (2-sentence + strong
+  bracket tags).

@@ -117,6 +117,9 @@
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。
 
+## Script pipeline: エピソード重複（採用済み回と被せない）
+- `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION`（default: `0`）: 採用済み（Planning CSV の `進捗=投稿済み/公開済み` または `published_lock=true`（UI の `投稿完了`））の回と `キーコンセプト` が重複する場合、`topic_research/script_outline/script_draft` 等の高コスト工程の前で停止する（strict運用）。既定は停止せず、lint警告のみ。
+
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
 

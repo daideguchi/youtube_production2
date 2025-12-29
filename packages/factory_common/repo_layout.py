@@ -14,6 +14,7 @@ ALLOWED_REPO_ROOT_DIR_NAMES = frozenset(
         "credentials",
         "data",
         "docs",
+        "log_research",
         "packages",
         "prompts",
         "scripts",
@@ -69,8 +70,19 @@ def unexpected_repo_root_entries(repo_root: Path, *, allow_extra: Iterable[str] 
     return unexpected
 
 
+def unexpected_repo_root_files(repo_root: Path, *, allow_extra: Iterable[str] = ()) -> List[Path]:
+    """
+    Back-compat alias for `unexpected_repo_root_entries`.
+
+    Historical naming used "files", but the check applies to repo-root entries
+    (directories/symlinks). Keep this function to avoid breaking audits/tests.
+    """
+    return unexpected_repo_root_entries(repo_root, allow_extra=allow_extra)
+
+
 __all__ = [
     "ALLOWED_REPO_ROOT_DIR_NAMES",
     "IGNORED_REPO_ROOT_DIR_NAMES",
     "unexpected_repo_root_entries",
+    "unexpected_repo_root_files",
 ]

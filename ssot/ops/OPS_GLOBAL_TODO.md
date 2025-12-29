@@ -51,6 +51,8 @@
   - `python3 scripts/agent_org.py board thread-show note__20251222T145542Z__e1c3ca6c`
 - ui: `note__20251222T145553Z__1a607eb2`
   - `python3 scripts/agent_org.py board thread-show note__20251222T145553Z__1a607eb2`
+- thumbnails: `note__20251229T130544Z__867b4dbb`
+  - `python3 scripts/agent_org.py board thread-show note__20251229T130544Z__867b4dbb`
 
 ---
 
@@ -97,6 +99,22 @@
   - scope: `workspaces/video/runs/**`, `packages/video_pipeline/**`
   - thread: `note__20251222T145542Z__e1c3ca6c`
   - DoD: “どのrunが正本か”が迷わず追え、cleanupしても参照切れしない
+
+### 4.4 Thumbnails（サムネ）
+- [ ] `TODO-THUMB-001` サムネ合成の `bg_pan_zoom` をSoTで固定し、混在をゼロにする（P1, todo）
+  - scope: `scripts/thumbnails/build.py`, `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py`, `workspaces/thumbnails/templates.json`, `workspaces/thumbnails/compiler/policies/**`, `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
+  - thread: `note__20251229T130544Z__867b4dbb`
+  - DoD: CH22の `workspaces/thumbnails/assets/CH22/*/meta.json:bg_pan_zoom` が「1つの既定 + 明示override」へ収束し、意図しない混在が消える
+
+- [ ] `TODO-THUMB-002` `layer_specs_v3` の Planning CSV ロードをビルド単位でキャッシュ（バッチ高速化）（P1, todo）
+  - scope: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py`, `packages/script_pipeline/tools/planning_store.py`
+  - thread: `note__20251229T130544Z__867b4dbb`
+  - DoD: 30本ビルド時に `planning_store.get_rows(... force_refresh=True)` が複数回走らない（同一invocation内で1回に抑制）
+
+- [ ] `TODO-THUMB-003` コピーSoT（CSV vs Layer Specs）を“迷わない1択”に固定（P1, todo）
+  - scope: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`, `workspaces/thumbnails/compiler/layer_specs/**`, `workspaces/planning/**`, `apps/ui-*`
+  - thread: `note__20251229T130544Z__867b4dbb`
+  - DoD: CH22のコピーが「どこを直せば反映されるか」UI/運用で即答できる（空欄注入の挙動も固定）
 
 ---
 

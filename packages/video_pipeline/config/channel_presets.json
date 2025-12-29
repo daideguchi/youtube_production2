@@ -3,7 +3,7 @@
     "CH01": {
       "name": "人生の道標",
       "image_generation": {
-        "base_period": 9.0,
+        "base_period": 20.0,
         "model_key": "openrouter_gemini_2_5_flash_image"
       },
       "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt",

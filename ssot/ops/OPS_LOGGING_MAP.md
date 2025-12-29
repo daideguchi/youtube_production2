@@ -34,6 +34,7 @@
 - **正本のログルートは `packages/factory_common/paths.py:logs_root()`**（現行: `workspaces/logs/`）。  
   この文書中の `workspaces/logs/...` 記載は **`logs_root()/...` の意味**で読む（CWD差や将来移設で壊れないようにする）。
 - “残す/消す/退避” の判断は本マップ（L1/L3）と `PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正本にする。
+- `log_research/` はローカル scratch（調査/復旧の一時置き場）。収束時に `backups/_incident_archives/**/log_research/` へ退避し、要約のみ `ssot/history/` に残す（詳細: `log_research/README.md`）。
 
 ## 1. ルート `workspaces/logs/`（現行のグローバルログ）
 

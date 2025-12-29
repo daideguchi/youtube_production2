@@ -315,16 +315,16 @@ Script excerpts:
         extra_ch12 = ""
         section_seconds_hint = "10–15"
         force_split_seconds = 20
-        # Increase target sections for CH01 to ensure rapid pacing
+        # CH01: align pacing with channel preset base_period (SSOT).
         if (self.channel_id or "").upper() == "CH01":
             min_sections = int(min_sections * 1.5)
             max_sections = int(max_sections * 1.5)
             extra_rapid = (
                 "\n"
-                "- **CRITICAL FOR CH01:** Maintain a rapid visual pace (max 12-15s per image).\n"
+                "- **CRITICAL FOR CH01:** Maintain a steady visual pace (aim ~15–25s per image around the target average).\n"
                 "- **ABSOLUTELY FORBIDDEN:** Do not merge distinct actions or thoughts into one long static shot.\n"
                 "- **VISUAL VARIETY:** Adjacent sections MUST have distinctly different `visual_focus`. Change angle, subject, distance, or lighting.\n"
-                "- If a segment expresses desire, regret, or a list, split it into rapid-fire short cuts (3-5s).\n"
+                "- If a segment is a list or has sharp beat changes, split it into shorter cuts (8–15s), but avoid micro-cuts unless the script truly warrants it.\n"
             )
         elif (self.channel_id or "").upper() == "CH02":
             extra_ch02 = (

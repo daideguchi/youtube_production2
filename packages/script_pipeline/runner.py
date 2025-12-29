@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import unicodedata
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Set
 
@@ -186,7 +187,9 @@ def _autoload_env(env_path: Path | None = None) -> None:
                     if not line or line.startswith("#") or "=" not in line:
                         continue
                     key, value = line.split("=", 1)
-                    os.environ[key.strip()] = value.strip()
+                    key = key.strip()
+                    if key not in os.environ:
+                        os.environ[key] = value.strip()
                 break
         except Exception:
             # best-effort load; fallback to next
@@ -3336,6 +3339,117 @@ def _load_csv_row(csv_path: Path, video: str) -> Dict[str, str]:
     return {}
 
 
+def _normalize_episode_key(value: str | None) -> str:
+    s = unicodedata.normalize("NFKC", str(value or "")).strip()
+    return re.sub(r"[\s\u3000・･·、,\.／/\\\-‐‑‒–—―ー〜~]", "", s)
+
+
+def _extract_title_tag_for_episode_key(title: str | None) -> str:
+    """
+    Extract the leading 【...】 tag for episode-key fallback.
+    Keep it short to avoid overfitting to long titles.
+    """
+    s = str(title or "").strip()
+    m = re.match(r"^\s*【([^】]{1,40})】", s)
+    return (m.group(1) or "").strip() if m else ""
+
+
+def _is_published_progress(value: str | None) -> bool:
+    progress = str(value or "").strip()
+    if not progress:
+        return False
+    if "投稿済み" in progress or "公開済み" in progress:
+        return True
+    if progress.lower() == "published":
+        return True
+    return False
+
+
+def _load_published_key_concepts(csv_path: Path) -> dict[str, list[str]]:
+    """
+    Return {normalized_key_concept: [video_numbers...]} for published rows.
+    SoT: Planning CSV (進捗=投稿済み/公開済み) + キーコンセプト
+    """
+    import csv
+
+    published: dict[str, list[str]] = {}
+    if not csv_path.exists():
+        return published
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                if not _is_published_progress(row.get("進捗")):
+                    continue
+                raw_video = (row.get("動画番号") or row.get("No.") or row.get("VideoNumber") or row.get("video") or "").strip()
+                if raw_video:
+                    try:
+                        video = f"{int(raw_video):03d}"
+                    except Exception:
+                        video = raw_video.zfill(3) if raw_video.isdigit() else raw_video
+                else:
+                    video = ""
+                raw_key = str(row.get("キーコンセプト") or "").strip()
+                if not raw_key:
+                    raw_key = _extract_title_tag_for_episode_key(row.get("タイトル"))
+                if not raw_key:
+                    raw_key = str(row.get("悩みタグ_メイン") or "").strip()
+                if not raw_key:
+                    raw_key = str(row.get("悩みタグ_サブ") or "").strip()
+                key_norm = _normalize_episode_key(raw_key)
+                if not key_norm:
+                    continue
+                published.setdefault(key_norm, []).append(video)
+    except Exception:
+        return {}
+    return published
+
+
+def _load_published_key_concepts_from_status(channel: str) -> dict[str, list[str]]:
+    """
+    Return {normalized_key_concept: [video_numbers...]} for videos marked published/locked in status.json.
+    This complements Planning CSV (進捗) because some ops flows use `published_lock` without updating `進捗`.
+    """
+    published: dict[str, list[str]] = {}
+    base = DATA_ROOT / str(channel or "").strip().upper()
+    if not base.exists():
+        return published
+    try:
+        for child in base.iterdir():
+            if not child.is_dir():
+                continue
+            status_path = child / "status.json"
+            if not status_path.exists():
+                continue
+            try:
+                payload = json.loads(status_path.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            meta = payload.get("metadata") if isinstance(payload, dict) else None
+            if not isinstance(meta, dict):
+                continue
+            if not bool(meta.get("published_lock")):
+                continue
+            planning = meta.get("planning") if isinstance(meta.get("planning"), dict) else None
+            raw_key = str(planning.get("key_concept") if planning else "").strip()
+            if not raw_key:
+                raw_key = _extract_title_tag_for_episode_key(meta.get("title") if isinstance(meta, dict) else None)
+            key_norm = _normalize_episode_key(raw_key)
+            if not key_norm:
+                continue
+            video_dir = child.name
+            video = video_dir
+            if video.isdigit():
+                try:
+                    video = f"{int(video):03d}"
+                except Exception:
+                    video = video_dir
+            published.setdefault(key_norm, []).append(video)
+    except Exception:
+        return published
+    return published
+
+
 def _merge_metadata(st: Status, extra: Dict[str, Any]) -> None:
     if not extra:
         return
@@ -4337,7 +4451,7 @@ def _build_web_search_query(topic: str | None) -> str:
     tag = _extract_bracket_tag(raw)
     cleaned = re.sub(r"【[^】]+】", "", raw).strip()
     cleaned = cleaned.replace("「", "").replace("」", "")
-    cleaned = re.sub(r"[\\s\\u3000]+", " ", cleaned).strip()
+    cleaned = re.sub(r"[\s\u3000]+", " ", cleaned).strip()
     if tag and cleaned:
         return f"{tag} {cleaned}".strip()
     return (tag or cleaned or raw).strip()
@@ -5241,6 +5355,52 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             ]
             save_status(st)
             return st
+
+    # Optional hard-stop: prevent reusing a published episode's key concept (episode duplication guard).
+    # Default OFF to avoid blocking runs; set SCRIPT_BLOCK_ON_EPISODE_DUPLICATION=1 for strict ops.
+    if stage_name in {"topic_research", "script_outline", "script_master_plan", "chapter_brief", "script_draft"} and _truthy_env(
+        "SCRIPT_BLOCK_ON_EPISODE_DUPLICATION", "0"
+    ):
+        if bool(st.metadata.get("published_lock")):
+            pass
+        else:
+            planning = st.metadata.get("planning") if isinstance(st.metadata, dict) else None
+            key_concept_raw = str(planning.get("key_concept") or "").strip() if isinstance(planning, dict) else ""
+            if not key_concept_raw:
+                key_concept_raw = _extract_title_tag_for_episode_key(st.metadata.get("title") if isinstance(st.metadata, dict) else None)
+            key_concept_norm = _normalize_episode_key(key_concept_raw)
+            if key_concept_norm:
+                try:
+                    sources = _load_sources(channel)
+                    csv_path = sources.get("planning_csv") or channels_csv_path(channel)
+                    published_map = _load_published_key_concepts(_resolve_repo_path(str(csv_path)))
+                except Exception:
+                    published_map = {}
+                try:
+                    status_map = _load_published_key_concepts_from_status(channel)
+                    for key_norm, videos in status_map.items():
+                        if not videos:
+                            continue
+                        bucket = published_map.setdefault(key_norm, [])
+                        for v in videos:
+                            if v and v not in bucket:
+                                bucket.append(v)
+                except Exception:
+                    pass
+                conflicts = [v for v in (published_map.get(key_concept_norm) or []) if v and v != st.video]
+                if conflicts:
+                    st.status = "script_in_progress"
+                    st.stages[stage_name].status = "pending"
+                    st.stages[stage_name].details["error"] = "planning_episode_duplication"
+                    st.stages[stage_name].details["duplicate_key_concept"] = key_concept_raw
+                    st.stages[stage_name].details["conflicts"] = conflicts[:12]
+                    st.stages[stage_name].details["fix_hints"] = [
+                        "Planning CSVのキーコンセプトが採用済み回と重複しているため停止しました（エピソード乱立防止）。",
+                        "対処: キーコンセプトを変更するか、意図的に被せる場合は企画意図に差分を明記してから再実行してください。",
+                        f"rerun: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage {stage_name}",
+                    ]
+                    save_status(st)
+                    return st
 
     st.status = "script_in_progress"
     st.stages[stage_name].status = "processing"

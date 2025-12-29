@@ -47,6 +47,52 @@ function formatBytes(value?: number): string | null {
   return `${mb.toFixed(1)} MB`;
 }
 
+function formatCompactNumber(value?: number | null): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("ja-JP", { notation: "compact", maximumFractionDigits: 1 }).format(value);
+}
+
+function formatShortDate(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("ja-JP");
+}
+
+function formatDurationSeconds(value?: number | null): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  const total = Math.max(0, Math.round(value));
+  const mm = Math.floor(total / 60);
+  const ss = total % 60;
+  return `${mm}:${String(ss).padStart(2, "0")}`;
+}
+
+function extractYouTubeHandleFromUrl(url: string): string | null {
+  const raw = (url ?? "").trim();
+  if (!raw) return null;
+  const match = raw.match(/\/@([^/?#]+)/);
+  if (!match) return null;
+  const value = decodeURIComponent(match[1] ?? "").trim();
+  if (!value) return null;
+  return value.startsWith("@") ? value : `@${value}`;
+}
+
+function extractYouTubeChannelIdFromUrl(url: string): string | null {
+  const raw = (url ?? "").trim();
+  if (!raw) return null;
+  const match = raw.match(/\/channel\/(UC[\\w-]+)/);
+  if (!match) return null;
+  return (match[1] ?? "").trim() || null;
+}
+
+function parseJsonObject<T>(raw: string): T {
+  const parsed: unknown = JSON.parse(raw);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("JSON root is not an object");
+  }
+  return parsed as T;
+}
+
 type GenreIndexEntry = {
   name: string;
   indexPath: string;
@@ -67,6 +113,93 @@ type GenreScriptSampleEntry = {
   note: string | null;
 };
 
+type YtDlpReportsIndexEntry = {
+  playlist_channel_id: string;
+  playlist_uploader_id?: string | null;
+  playlist_channel?: string | null;
+  channel_avatar_url?: string | null;
+  source_url?: string | null;
+  fetched_at?: string | null;
+  playlist_end?: number | null;
+  video_count?: number | null;
+  report_md_path?: string | null;
+  report_json_path?: string | null;
+  top_video?: YtDlpVideoEntry | null;
+  stats?: {
+    view_count_median?: number | null;
+    view_count_p75?: number | null;
+    duration_median_sec?: number | null;
+    title_starts_with_bracket_ratio?: number | null;
+    top_bracket_prefix?: string | null;
+  } | null;
+};
+
+type YtDlpReportsIndex = {
+  version?: number;
+  generated_at?: string;
+  entries?: YtDlpReportsIndexEntry[];
+};
+
+type YtDlpVideoEntry = {
+  id: string;
+  title?: string | null;
+  url?: string | null;
+  duration_sec?: number | null;
+  view_count?: number | null;
+  thumbnail_url?: string | null;
+  playlist_index?: number | null;
+};
+
+type YtDlpThumbnailInsight = {
+  schema?: string;
+  generated_at?: string;
+  source?: string | null;
+  model?: string | null;
+  analysis?: {
+    caption_ja?: string | null;
+    thumbnail_text?: string | null;
+    hook_type?: string | null;
+    promise?: string | null;
+    target?: string | null;
+    emotion?: string | null;
+    composition?: string | null;
+    colors?: string | null;
+    design_elements?: string[] | null;
+    tags?: string[] | null;
+  };
+};
+
+type YtDlpThumbnailSummaryEntry = {
+  value: string;
+  count: number;
+};
+
+type YtDlpThumbnailSummary = {
+  schema?: string;
+  generated_at?: string;
+  insight_count?: number;
+  top_tags?: YtDlpThumbnailSummaryEntry[];
+  hook_types?: YtDlpThumbnailSummaryEntry[];
+};
+
+type YtDlpChannelReport = {
+  version?: number;
+  fetched_at?: string;
+  playlist_end?: number;
+  channel?: {
+    playlist_channel_id?: string | null;
+    playlist_uploader_id?: string | null;
+    playlist_channel?: string | null;
+    source_url?: string | null;
+    avatar_url?: string | null;
+  };
+  top_by_views?: YtDlpVideoEntry[];
+  recent?: YtDlpVideoEntry[];
+  videos?: YtDlpVideoEntry[];
+  thumbnail_insights?: Record<string, YtDlpThumbnailInsight>;
+  thumbnail_summary?: YtDlpThumbnailSummary;
+};
+
 function extractMarkdownSectionLines(markdown: string, headingPrefix: string): string[] {
   const lines = (markdown ?? "").split(/\r?\n/);
   const startIndex = lines.findIndex((line) => line.trim().startsWith(`## ${headingPrefix}`));
@@ -85,6 +218,13 @@ function parseChannelCodes(text: string): string[] {
   const unique = Array.from(new Set(matches.map((m) => m.toUpperCase())));
   unique.sort(compareChannelCode);
   return unique;
+}
+
+function formatChannelCodesPreview(codes: string[], limit = 8): string {
+  const cleaned = (codes ?? []).map((c) => c.trim()).filter(Boolean);
+  if (!cleaned.length) return "";
+  if (cleaned.length <= limit) return cleaned.join(", ");
+  return `${cleaned.slice(0, limit).join(", ")} …+${cleaned.length - limit}`;
 }
 
 function parseResearchRootGenreIndex(markdown: string): GenreIndexEntry[] {
@@ -304,6 +444,15 @@ type SampleCacheEntry = {
   metrics?: ScriptMetrics;
 };
 
+type YtDlpReportCacheEntry = {
+  path: string;
+  loading: boolean;
+  error: string | null;
+  report: YtDlpChannelReport | null;
+  size?: number;
+  modified?: string;
+};
+
 function sampleKey(sample: BenchmarkScriptSampleSpec): string {
   return `${sample.base}:${sample.path}`;
 }
@@ -319,7 +468,16 @@ export function BenchmarksPage() {
   const { channels } = useOutletContext<ShellOutletContext>();
 
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const queryTab = (queryParams.get("tab") ?? "").trim();
   const queryGenre = (queryParams.get("genre") ?? "").trim();
+  const queryYtId = (queryParams.get("yt") ?? "").trim();
+  const queryYtKeyword = (queryParams.get("q") ?? "").trim();
+
+  const activeTab = useMemo(() => {
+    if (queryTab === "yt") return "yt";
+    if (queryTab === "genre") return "genre";
+    return queryGenre ? "genre" : "yt";
+  }, [queryGenre, queryTab]);
 
   const [genreIndex, setGenreIndex] = useState<GenreIndexEntry[]>([]);
   const [genreIndexLoading, setGenreIndexLoading] = useState(false);
@@ -340,6 +498,23 @@ export function BenchmarksPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [copyBanner, setCopyBanner] = useState<string | null>(null);
 
+  const [ytDlpIndex, setYtDlpIndex] = useState<YtDlpReportsIndex | null>(null);
+  const [ytDlpIndexLoading, setYtDlpIndexLoading] = useState(false);
+  const [ytDlpIndexError, setYtDlpIndexError] = useState<string | null>(null);
+  const [activeYtDlpEntry, setActiveYtDlpEntry] = useState<YtDlpReportsIndexEntry | null>(null);
+  const [activeYtDlpTab, setActiveYtDlpTab] = useState<"top" | "recent">("top");
+  const [activeYtDlpTagFilter, setActiveYtDlpTagFilter] = useState<string | null>(null);
+  const [activeYtDlpHookFilter, setActiveYtDlpHookFilter] = useState<string | null>(null);
+  const [ytDlpShowAnalyzedOnly, setYtDlpShowAnalyzedOnly] = useState<boolean>(false);
+  const [ytDlpExpandedCards, setYtDlpExpandedCards] = useState<Record<string, boolean>>({});
+  const [ytDlpReportCache, setYtDlpReportCache] = useState<Record<string, YtDlpReportCacheEntry>>({});
+  const [ytDlpPickerKeyword, setYtDlpPickerKeyword] = useState("");
+  const [ytSortKey, setYtSortKey] = useState<"views_median" | "views_p75" | "fetched_at" | "name">("views_median");
+
+  useEffect(() => {
+    setYtDlpExpandedCards({});
+  }, [activeYtDlpEntry?.playlist_channel_id, activeYtDlpTab]);
+
   const channelLabelByCode = useMemo(() => {
     const map = new Map<string, string>();
     for (const channel of channels ?? []) {
@@ -347,6 +522,121 @@ export function BenchmarksPage() {
     }
     return map;
   }, [channels]);
+
+  const ytDlpEntries = useMemo(() => {
+    const entries = ytDlpIndex?.entries;
+    if (!Array.isArray(entries)) return [];
+    return entries.filter(
+      (entry): entry is YtDlpReportsIndexEntry =>
+        Boolean(entry && typeof entry === "object" && (entry as YtDlpReportsIndexEntry).playlist_channel_id)
+    );
+  }, [ytDlpIndex?.entries]);
+
+  const ytDlpEntryByHandle = useMemo(() => {
+    const map = new Map<string, YtDlpReportsIndexEntry>();
+    for (const entry of ytDlpEntries) {
+      const handle = normalizeHandle(entry.playlist_uploader_id);
+      if (!handle) continue;
+      map.set(handle.toLowerCase(), entry);
+    }
+    return map;
+  }, [ytDlpEntries]);
+
+  const ytDlpEntryByChannelId = useMemo(() => {
+    const map = new Map<string, YtDlpReportsIndexEntry>();
+    for (const entry of ytDlpEntries) {
+      const cid = (entry.playlist_channel_id ?? "").trim();
+      if (!cid) continue;
+      map.set(cid, entry);
+    }
+    return map;
+  }, [ytDlpEntries]);
+
+  const ytDlpPickerEntries = useMemo(() => {
+    const keyword = ytDlpPickerKeyword.trim().toLowerCase();
+    const entries = [...ytDlpEntries].sort((a, b) => {
+      const aName = (a.playlist_channel ?? "").trim();
+      const bName = (b.playlist_channel ?? "").trim();
+      if (aName && bName) return aName.localeCompare(bName, "ja-JP");
+      if (aName) return -1;
+      if (bName) return 1;
+      const aHandle = (a.playlist_uploader_id ?? "").trim();
+      const bHandle = (b.playlist_uploader_id ?? "").trim();
+      return aHandle.localeCompare(bHandle, "ja-JP");
+    });
+    if (!keyword) return entries;
+    return entries.filter((entry) => {
+      const haystack = [
+        entry.playlist_channel_id,
+        entry.playlist_channel ?? "",
+        entry.playlist_uploader_id ?? "",
+        entry.source_url ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(keyword);
+    });
+  }, [ytDlpEntries, ytDlpPickerKeyword]);
+
+  const ytDlpSidebarEntries = useMemo(() => {
+    const keyword = ytDlpPickerKeyword.trim().toLowerCase();
+    const filtered = keyword
+      ? ytDlpEntries.filter((entry) => {
+          const haystack = [
+            entry.playlist_channel_id,
+            entry.playlist_channel ?? "",
+            entry.playlist_uploader_id ?? "",
+            entry.source_url ?? "",
+            entry.top_video?.title ?? "",
+          ]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(keyword);
+        })
+      : ytDlpEntries;
+
+    const sorted = [...filtered];
+    sorted.sort((a, b) => {
+      if (ytSortKey === "fetched_at") {
+        const at = a.fetched_at ?? "";
+        const bt = b.fetched_at ?? "";
+        return bt.localeCompare(at);
+      }
+      if (ytSortKey === "name") {
+        const an = (a.playlist_channel ?? a.playlist_uploader_id ?? a.playlist_channel_id).trim();
+        const bn = (b.playlist_channel ?? b.playlist_uploader_id ?? b.playlist_channel_id).trim();
+        return an.localeCompare(bn, "ja-JP");
+      }
+      if (ytSortKey === "views_p75") {
+        const av = typeof a.stats?.view_count_p75 === "number" ? a.stats.view_count_p75 : -1;
+        const bv = typeof b.stats?.view_count_p75 === "number" ? b.stats.view_count_p75 : -1;
+        return bv - av;
+      }
+      const av = typeof a.stats?.view_count_median === "number" ? a.stats.view_count_median : -1;
+      const bv = typeof b.stats?.view_count_median === "number" ? b.stats.view_count_median : -1;
+      return bv - av;
+    });
+
+    return sorted;
+  }, [ytDlpEntries, ytDlpPickerKeyword, ytSortKey]);
+
+  const resolveYtDlpEntry = useCallback(
+    (spec: BenchmarkChannelSpec): YtDlpReportsIndexEntry | null => {
+      const url = (spec.url ?? "").trim();
+      const handle = normalizeHandle(spec.handle) ?? (url ? extractYouTubeHandleFromUrl(url) : null);
+      if (handle) {
+        const found = ytDlpEntryByHandle.get(handle.toLowerCase());
+        if (found) return found;
+      }
+      const channelId = url ? extractYouTubeChannelIdFromUrl(url) : null;
+      if (channelId) {
+        const found = ytDlpEntryByChannelId.get(channelId);
+        if (found) return found;
+      }
+      return null;
+    },
+    [ytDlpEntryByChannelId, ytDlpEntryByHandle]
+  );
 
   const loadGenreRoot = useCallback(async () => {
     setGenreIndexLoading(true);
@@ -363,25 +653,63 @@ export function BenchmarksPage() {
   }, []);
 
   useEffect(() => {
+    if (activeTab !== "genre") return;
     void loadGenreRoot();
-  }, [loadGenreRoot]);
+  }, [activeTab, loadGenreRoot]);
+
+  const loadYtDlpIndex = useCallback(async () => {
+    setYtDlpIndexLoading(true);
+    setYtDlpIndexError(null);
+    try {
+      const response = await fetchResearchFile("research", "YouTubeベンチマーク（yt-dlp）/REPORTS.json");
+      setYtDlpIndex(parseJsonObject<YtDlpReportsIndex>(response.content));
+    } catch (err) {
+      setYtDlpIndexError(err instanceof Error ? err.message : String(err));
+      setYtDlpIndex(null);
+    } finally {
+      setYtDlpIndexLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    void loadYtDlpIndex();
+  }, [loadYtDlpIndex]);
+
+  useEffect(() => {
+    if (activeTab !== "yt") return;
+    if (!queryYtKeyword) return;
+    setYtDlpPickerKeyword((current) => (current ? current : queryYtKeyword));
+  }, [activeTab, queryYtKeyword]);
+
+  useEffect(() => {
+    if (activeTab !== "genre") return;
     if (queryGenre) return;
     if (!genreIndex.length) return;
     const params = new URLSearchParams(location.search);
+    params.set("tab", "genre");
     params.set("genre", genreIndex[0].name);
     params.delete("view");
     params.delete("channel");
     const search = params.toString();
     navigate(`/benchmarks${search ? `?${search}` : ""}`, { replace: true });
-  }, [genreIndex, location.search, navigate, queryGenre]);
+  }, [activeTab, genreIndex, location.search, navigate, queryGenre]);
+
+  const handleSelectTab = useCallback(
+    (nextTab: "yt" | "genre") => {
+      const params = new URLSearchParams(location.search);
+      params.set("tab", nextTab);
+      const search = params.toString();
+      navigate(`/benchmarks${search ? `?${search}` : ""}`, { replace: true });
+    },
+    [location.search, navigate]
+  );
 
   const handleSelectGenre = useCallback(
     (genreName: string) => {
       const value = genreName.trim();
       if (!value) return;
       const params = new URLSearchParams(location.search);
+      params.set("tab", "genre");
       params.set("genre", value);
       params.delete("view");
       params.delete("channel");
@@ -419,8 +747,19 @@ export function BenchmarksPage() {
   const effectiveGenre = useMemo(() => queryGenre || genreIndex[0]?.name || null, [genreIndex, queryGenre]);
 
   useEffect(() => {
+    if (activeTab !== "genre") return;
     setChannelFilter(null);
-  }, [effectiveGenre]);
+  }, [activeTab, effectiveGenre]);
+
+  useEffect(() => {
+    if (activeTab !== "genre") return;
+    setActiveYtDlpEntry(null);
+    setActiveYtDlpTab("top");
+    setActiveYtDlpTagFilter(null);
+    setActiveYtDlpHookFilter(null);
+    setYtDlpShowAnalyzedOnly(false);
+    setYtDlpPickerKeyword("");
+  }, [activeTab, effectiveGenre]);
 
   const selectedGenreEntry = useMemo(() => {
     if (!effectiveGenre) return null;
@@ -465,8 +804,9 @@ export function BenchmarksPage() {
   }, [selectedGenreIndexPath]);
 
   useEffect(() => {
+    if (activeTab !== "genre") return;
     void loadGenreDetails();
-  }, [loadGenreDetails]);
+  }, [activeTab, loadGenreDetails]);
 
   const visibleCompetitors = useMemo(() => {
     if (!normalizedChannelFilter) return genreCompetitors;
@@ -502,6 +842,24 @@ export function BenchmarksPage() {
     if (!activeSample) return null;
     return sampleCache[sampleKey(activeSample)] ?? null;
   }, [activeSample, sampleCache]);
+
+  const activeYtDlpReportPath = useMemo(() => {
+    const path = (activeYtDlpEntry?.report_json_path ?? "").trim();
+    return path || null;
+  }, [activeYtDlpEntry?.report_json_path]);
+
+  const activeYtDlpReportState = useMemo(() => {
+    if (!activeYtDlpReportPath) return null;
+    return ytDlpReportCache[activeYtDlpReportPath] ?? null;
+  }, [activeYtDlpReportPath, ytDlpReportCache]);
+
+  const activeYtDlpReport = useMemo(() => activeYtDlpReportState?.report ?? null, [activeYtDlpReportState?.report]);
+  const activeYtDlpAvatarUrl = useMemo(() => {
+    const fromIndex = (activeYtDlpEntry?.channel_avatar_url ?? "").trim();
+    if (fromIndex) return fromIndex;
+    const fromReport = (activeYtDlpReport?.channel?.avatar_url ?? "").trim();
+    return fromReport || null;
+  }, [activeYtDlpEntry?.channel_avatar_url, activeYtDlpReport?.channel?.avatar_url]);
 
   const loadSample = useCallback(async (sample: BenchmarkScriptSampleSpec) => {
     const key = sampleKey(sample);
@@ -567,6 +925,128 @@ export function BenchmarksPage() {
     }
   }, []);
 
+  const loadYtDlpReport = useCallback(async (path: string) => {
+    const normalized = path.trim();
+    if (!normalized) return;
+
+    setYtDlpReportCache((prev) => {
+      const current = prev[normalized];
+      if (current?.loading) return prev;
+      return {
+        ...prev,
+        [normalized]: {
+          path: normalized,
+          loading: true,
+          error: null,
+          report: current?.report ?? null,
+          size: current?.size,
+          modified: current?.modified,
+        },
+      };
+    });
+
+    try {
+      const response = await fetchResearchFile("research", normalized);
+      const report = parseJsonObject<YtDlpChannelReport>(response.content);
+      setYtDlpReportCache((prev) => ({
+        ...prev,
+        [normalized]: {
+          path: normalized,
+          loading: false,
+          error: null,
+          report,
+          size: response.size,
+          modified: response.modified,
+        },
+      }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setYtDlpReportCache((prev) => ({
+        ...prev,
+        [normalized]: {
+          path: normalized,
+          loading: false,
+          error: message,
+          report: prev[normalized]?.report ?? null,
+          size: prev[normalized]?.size,
+          modified: prev[normalized]?.modified,
+        },
+      }));
+    }
+  }, []);
+
+  const handleOpenYtDlpAnalysis = useCallback(
+    (entry: YtDlpReportsIndexEntry) => {
+      setActiveYtDlpEntry(entry);
+      setActiveYtDlpTab("top");
+      setActiveYtDlpTagFilter(null);
+      setActiveYtDlpHookFilter(null);
+      setYtDlpShowAnalyzedOnly(false);
+      const reportPath = (entry.report_json_path ?? "").trim();
+      if (!reportPath) return;
+      const cached = ytDlpReportCache[reportPath];
+      if (!cached?.report && !cached?.loading) {
+        void loadYtDlpReport(reportPath);
+      }
+    },
+    [loadYtDlpReport, ytDlpReportCache]
+  );
+
+  const handleCloseYtDlpAnalysis = useCallback(() => {
+    setActiveYtDlpEntry(null);
+    setActiveYtDlpTab("top");
+    setActiveYtDlpTagFilter(null);
+    setActiveYtDlpHookFilter(null);
+    setYtDlpShowAnalyzedOnly(false);
+  }, []);
+
+  const handleSelectYtDlpEntry = useCallback(
+    (entry: YtDlpReportsIndexEntry) => {
+      const id = (entry.playlist_channel_id ?? "").trim();
+      if (!id) return;
+      handleOpenYtDlpAnalysis(entry);
+      const params = new URLSearchParams(location.search);
+      params.set("tab", "yt");
+      params.set("yt", id);
+      const keyword = ytDlpPickerKeyword.trim();
+      if (keyword) {
+        params.set("q", keyword);
+      } else {
+        params.delete("q");
+      }
+      const search = params.toString();
+      navigate(`/benchmarks${search ? `?${search}` : ""}`, { replace: true });
+    },
+    [handleOpenYtDlpAnalysis, location.search, navigate, ytDlpPickerKeyword]
+  );
+
+  const handleCloseYtDlpAnalysisWithUrl = useCallback(() => {
+    handleCloseYtDlpAnalysis();
+    const params = new URLSearchParams(location.search);
+    params.set("tab", "yt");
+    params.delete("yt");
+    const search = params.toString();
+    navigate(`/benchmarks${search ? `?${search}` : ""}`, { replace: true });
+  }, [handleCloseYtDlpAnalysis, location.search, navigate]);
+
+  useEffect(() => {
+    if (activeTab !== "yt") return;
+    if (!queryYtId) return;
+    if (activeYtDlpEntry?.playlist_channel_id === queryYtId) return;
+    const entry = ytDlpEntries.find((it) => it.playlist_channel_id === queryYtId) ?? null;
+    if (entry) {
+      handleOpenYtDlpAnalysis(entry);
+    }
+  }, [activeTab, activeYtDlpEntry?.playlist_channel_id, handleOpenYtDlpAnalysis, queryYtId, ytDlpEntries]);
+
+  useEffect(() => {
+    if (activeTab !== "yt") return;
+    if (queryYtId) return;
+    if (activeYtDlpEntry) return;
+    if (!ytDlpEntries.length) return;
+    handleSelectYtDlpEntry(ytDlpEntries[0]);
+  }, [activeTab, activeYtDlpEntry, handleSelectYtDlpEntry, queryYtId, ytDlpEntries]);
+
   useEffect(() => {
     if (!activeSample) return;
     if (activeSampleState?.content || activeSampleState?.loading) return;
@@ -610,36 +1090,918 @@ export function BenchmarksPage() {
       setCopyBanner(`${label} をコピーしました。`);
       window.setTimeout(() => setCopyBanner(null), 1800);
     } catch (err) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        textarea.setAttribute("readonly", "true");
+        textarea.style.position = "fixed";
+        textarea.style.top = "0";
+        textarea.style.left = "0";
+        textarea.style.width = "1px";
+        textarea.style.height = "1px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (ok) {
+          setCopyBanner(`${label} をコピーしました。`);
+          window.setTimeout(() => setCopyBanner(null), 1800);
+          return;
+        }
+      } catch (_fallbackErr) {
+        // ignore
+      }
       setCopyBanner(err instanceof Error ? err.message : String(err));
       window.setTimeout(() => setCopyBanner(null), 2500);
     }
   }, []);
+
+  const activeYtDlpVideos = useMemo(() => {
+    if (!activeYtDlpReport) return [];
+    const list = activeYtDlpTab === "recent" ? activeYtDlpReport.recent : activeYtDlpReport.top_by_views;
+    if (!Array.isArray(list)) return [];
+    return list.filter((item): item is YtDlpVideoEntry => Boolean(item && typeof item === "object" && (item as YtDlpVideoEntry).id));
+  }, [activeYtDlpReport, activeYtDlpTab]);
+
+  const activeYtDlpInsights = useMemo(() => {
+    const map = activeYtDlpReport?.thumbnail_insights;
+    return map && typeof map === "object" ? map : null;
+  }, [activeYtDlpReport?.thumbnail_insights]);
+
+  const activeYtDlpTagOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const video of activeYtDlpVideos) {
+      const insight = activeYtDlpInsights?.[video.id];
+      const tags = insight?.analysis?.tags;
+      if (!Array.isArray(tags)) continue;
+      for (const raw of tags) {
+        const tag = (raw ?? "").trim();
+        if (!tag) continue;
+        counts.set(tag, (counts.get(tag) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 24)
+      .map(([tag, count]) => ({ tag, count }));
+  }, [activeYtDlpInsights, activeYtDlpVideos]);
+
+  const activeYtDlpHookOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const video of activeYtDlpVideos) {
+      const insight = activeYtDlpInsights?.[video.id];
+      const hook = (insight?.analysis?.hook_type ?? "").trim();
+      if (!hook) continue;
+      counts.set(hook, (counts.get(hook) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 16)
+      .map(([hook, count]) => ({ hook, count }));
+  }, [activeYtDlpInsights, activeYtDlpVideos]);
+
+  const activeYtDlpDesignOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const video of activeYtDlpVideos) {
+      const insight = activeYtDlpInsights?.[video.id];
+      const elements = insight?.analysis?.design_elements;
+      if (!Array.isArray(elements)) continue;
+      for (const raw of elements) {
+        const value = (raw ?? "").trim();
+        if (!value) continue;
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 18)
+      .map(([value, count]) => ({ value, count }));
+  }, [activeYtDlpInsights, activeYtDlpVideos]);
+
+  const ytDlpThumbnailSummary = useMemo(() => {
+    const summary = activeYtDlpReport?.thumbnail_summary;
+    const normalize = (items: unknown, fallback: Array<{ value: string; count: number }>) => {
+      if (!Array.isArray(items)) return fallback;
+      const out: Array<{ value: string; count: number }> = [];
+      for (const raw of items) {
+        if (!raw || typeof raw !== "object") continue;
+        const obj = raw as Partial<YtDlpThumbnailSummaryEntry>;
+        const value = typeof obj.value === "string" ? obj.value.trim() : "";
+        const count = typeof obj.count === "number" && Number.isFinite(obj.count) ? obj.count : 0;
+        if (!value || count <= 0) continue;
+        out.push({ value, count });
+      }
+      return out.length ? out : fallback;
+    };
+
+    const fallbackHooks = activeYtDlpHookOptions.map((it) => ({ value: it.hook, count: it.count }));
+    const fallbackTags = activeYtDlpTagOptions.map((it) => ({ value: it.tag, count: it.count }));
+
+    const hookTypes = normalize(summary?.hook_types, fallbackHooks).slice(0, 10);
+    const topTags = normalize(summary?.top_tags, fallbackTags).slice(0, 14);
+    const insightCount =
+      typeof summary?.insight_count === "number" && Number.isFinite(summary.insight_count)
+        ? summary.insight_count
+        : activeYtDlpVideos.length;
+    const generatedAt = typeof summary?.generated_at === "string" ? summary.generated_at : null;
+    const hasAny = hookTypes.length > 0 || topTags.length > 0 || activeYtDlpDesignOptions.length > 0;
+    if (!hasAny) return null;
+    return { hookTypes, topTags, generatedAt, insightCount };
+  }, [
+    activeYtDlpDesignOptions.length,
+    activeYtDlpHookOptions,
+    activeYtDlpReport?.thumbnail_summary,
+    activeYtDlpTagOptions,
+    activeYtDlpVideos.length,
+  ]);
+
+  const ytDlpThumbStats = useMemo(() => {
+    const total = activeYtDlpVideos.length;
+    if (!total) {
+      return { total: 0, analyzed: 0, withCaption: 0, withText: 0 };
+    }
+    let analyzed = 0;
+    let withCaption = 0;
+    let withText = 0;
+    for (const video of activeYtDlpVideos) {
+      const analysis = activeYtDlpInsights?.[video.id]?.analysis;
+      if (!analysis) continue;
+      analyzed += 1;
+      if (analysis.caption_ja?.trim()) withCaption += 1;
+      if (analysis.thumbnail_text?.trim()) withText += 1;
+    }
+    return { total, analyzed, withCaption, withText };
+  }, [activeYtDlpInsights, activeYtDlpVideos]);
+
+  const filteredYtDlpVideos = useMemo(() => {
+    const tag = (activeYtDlpTagFilter ?? "").trim();
+    return activeYtDlpVideos.filter((video) => {
+      const insight = activeYtDlpInsights?.[video.id];
+      const analysis = insight?.analysis;
+      if (ytDlpShowAnalyzedOnly && !analysis) return false;
+      const hook = (activeYtDlpHookFilter ?? "").trim();
+      if (hook && (analysis?.hook_type ?? "").trim() !== hook) return false;
+      if (!tag) return true;
+      const tags = insight?.analysis?.tags;
+      if (!Array.isArray(tags)) return false;
+      return tags.some((t) => (t ?? "").trim() === tag);
+    });
+  }, [activeYtDlpHookFilter, activeYtDlpInsights, ytDlpShowAnalyzedOnly, activeYtDlpTagFilter, activeYtDlpVideos]);
+
+  const buildYtDlpThumbExportTsv = useCallback(
+    (videos: YtDlpVideoEntry[]) => {
+      const norm = (value: unknown) =>
+        String(value ?? "")
+          .replace(/\t/g, " ")
+          .replace(/\r?\n/g, " ")
+          .trim();
+
+      const header = [
+        "video_id",
+        "views",
+        "duration_sec",
+        "duration_mmss",
+        "title",
+        "hook",
+        "promise",
+        "target",
+        "emotion",
+        "composition",
+        "colors",
+        "caption_ja",
+        "thumbnail_text",
+        "design_elements",
+        "tags",
+        "thumbnail_url",
+        "video_url",
+      ].join("\t");
+
+      const lines = videos.map((video) => {
+        const insight = activeYtDlpInsights?.[video.id];
+        const analysis = insight?.analysis;
+        const designElements = Array.isArray(analysis?.design_elements) ? (analysis?.design_elements ?? []) : [];
+        const tagsList = Array.isArray(analysis?.tags) ? (analysis?.tags ?? []) : [];
+        const design = designElements.filter(Boolean).join(", ");
+        const tags = tagsList.filter(Boolean).join(", ");
+        const durationSec = typeof video.duration_sec === "number" ? video.duration_sec : null;
+        return [
+          norm(video.id),
+          typeof video.view_count === "number" ? String(video.view_count) : "",
+          durationSec == null ? "" : String(durationSec),
+          durationSec == null ? "" : formatDurationSeconds(durationSec),
+          norm(video.title ?? ""),
+          norm(analysis?.hook_type ?? ""),
+          norm(analysis?.promise ?? ""),
+          norm(analysis?.target ?? ""),
+          norm(analysis?.emotion ?? ""),
+          norm(analysis?.composition ?? ""),
+          norm(analysis?.colors ?? ""),
+          norm(analysis?.caption_ja ?? ""),
+          norm(analysis?.thumbnail_text ?? ""),
+          norm(design),
+          norm(tags),
+          norm(video.thumbnail_url ?? ""),
+          norm(video.url ?? ""),
+        ].join("\t");
+      });
+
+      return [header, ...lines].join("\n");
+    },
+    [activeYtDlpInsights]
+  );
+
+  const handleCopyYtDlpThumbTsv = useCallback(async () => {
+    if (!activeYtDlpEntry) return;
+    if (!filteredYtDlpVideos.length) return;
+    await handleCopy(buildYtDlpThumbExportTsv(filteredYtDlpVideos), "サムネ分析TSV");
+  }, [activeYtDlpEntry, buildYtDlpThumbExportTsv, filteredYtDlpVideos, handleCopy]);
+
+  const ytDlpAnalyzeCommand = useMemo(() => {
+    const channelId = (activeYtDlpEntry?.playlist_channel_id ?? "").trim();
+    if (!channelId) return "";
+    return [
+      "python3 scripts/ops/yt_dlp_thumbnail_analyze.py",
+      `--channel-id ${channelId}`,
+      "--target both",
+      "--limit 20",
+      "--continue-on-failover",
+      "--apply",
+    ].join(" ");
+  }, [activeYtDlpEntry?.playlist_channel_id]);
 
   return (
     <section className="benchmarks-page workspace--channel-clean">
       <header className="benchmarks-header channel-card">
         <div className="benchmarks-header__title">
           <p className="eyebrow">/benchmarks</p>
-          <h1>ベンチマーク（ジャンル別）</h1>
-          <p className="benchmarks-header__subtitle">ジャンル → 競合 → 台本サンプル → 分析 を1ページで確認します。</p>
+          <h1>ベンチマーク</h1>
+          <div className="benchmarks-tabs" role="tablist" aria-label="ベンチマーク表示切替">
+            <button
+              type="button"
+              className={activeTab === "yt" ? "benchmarks-tab is-active" : "benchmarks-tab"}
+              onClick={() => handleSelectTab("yt")}
+              role="tab"
+              aria-selected={activeTab === "yt"}
+            >
+              YouTube（yt-dlp）
+            </button>
+            <button
+              type="button"
+              className={activeTab === "genre" ? "benchmarks-tab is-active" : "benchmarks-tab"}
+              onClick={() => handleSelectTab("genre")}
+              role="tab"
+              aria-selected={activeTab === "genre"}
+            >
+              ジャンル別（台本）
+            </button>
+          </div>
+          <p className="benchmarks-header__subtitle">
+            {activeTab === "yt"
+              ? "バズっている競合チャンネルの公開メタ（再生数/尺/サムネ/タイトル型）をまとめて確認します。"
+              : "ジャンル → 競合 → 台本サンプル → 分析 を1ページで確認します。"}
+          </p>
         </div>
         <div className="benchmarks-header__controls">
-          <button
-            type="button"
-            className="channel-profile-button channel-profile-button--ghost"
-            onClick={() => void loadGenreRoot()}
-            disabled={genreIndexLoading}
-          >
-            {genreIndexLoading ? "ジャンル更新中…" : "ジャンル再読み込み"}
-          </button>
+          {activeTab === "yt" ? (
+            <button
+              type="button"
+              className="channel-profile-button channel-profile-button--ghost"
+              onClick={() => void loadYtDlpIndex()}
+              disabled={ytDlpIndexLoading}
+            >
+              {ytDlpIndexLoading ? "yt-dlp読込中…" : "yt-dlp再読み込み"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="channel-profile-button channel-profile-button--ghost"
+              onClick={() => void loadGenreRoot()}
+              disabled={genreIndexLoading}
+            >
+              {genreIndexLoading ? "ジャンル更新中…" : "ジャンル再読み込み"}
+            </button>
+          )}
         </div>
       </header>
 
-      <div className="benchmarks-layout">
-        <aside className="benchmarks-sidebar channel-card">
+      {activeTab === "yt" ? (
+        <div className="benchmarks-layout">
+          <aside className="benchmarks-sidebar channel-card">
+            <div className="benchmarks-sidebar__header">
+              <h4>YouTube競合（yt-dlp）</h4>
+              <span className="benchmarks-sidebar__hint">選択すると右側に表示</span>
+            </div>
+
+            <input
+              className="benchmarks-sidebar__search"
+              type="search"
+              value={ytDlpPickerKeyword}
+              onChange={(event) => setYtDlpPickerKeyword(event.target.value)}
+              placeholder="チャンネル/タイトル/ID で検索"
+            />
+
+            <div className="benchmarks-sidebar__filters">
+              <span className="badge">{ytDlpSidebarEntries.length} 件</span>
+              <select
+                className="benchmarks-sidebar__select"
+                value={ytSortKey}
+                onChange={(event) => setYtSortKey(event.target.value as typeof ytSortKey)}
+                title="並び替え"
+              >
+                <option value="views_median">再生数（中央値）</option>
+                <option value="views_p75">再生数（p75）</option>
+                <option value="fetched_at">取得日</option>
+                <option value="name">チャンネル名</option>
+              </select>
+            </div>
+
+            {ytDlpIndexError ? (
+              <div className="channel-profile-banner channel-profile-banner--error">
+                <div>{ytDlpIndexError}</div>
+                <div className="muted" style={{ marginTop: 6 }}>
+                  生成コマンド: <code>python3 scripts/ops/yt_dlp_benchmark_analyze.py --all --apply</code>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="benchmarks-sidebar__list" role="list">
+              {ytDlpSidebarEntries.length === 0 ? (
+                <div className="benchmarks-sidebar__empty">{ytDlpIndexLoading ? "読み込み中…" : "該当データがありません。"}</div>
+              ) : (
+                ytDlpSidebarEntries.map((entry) => {
+                  const active = activeYtDlpEntry?.playlist_channel_id === entry.playlist_channel_id;
+                  const label = (entry.playlist_channel ?? entry.playlist_uploader_id ?? entry.playlist_channel_id).trim();
+                  const subLabel = entry.playlist_uploader_id ? entry.playlist_uploader_id : entry.playlist_channel_id;
+                  const avatarUrl = (entry.channel_avatar_url ?? "").trim() || null;
+                  const thumbUrl = avatarUrl ?? entry.top_video?.thumbnail_url ?? null;
+                  const medianViews =
+                    typeof entry.stats?.view_count_median === "number" ? `${formatCompactNumber(entry.stats.view_count_median)}回` : "—";
+                  const fetchedLabel = entry.fetched_at ? `取得 ${formatShortDate(entry.fetched_at)}` : "";
+                  return (
+                    <button
+                      key={entry.playlist_channel_id}
+                      type="button"
+                      className={active ? "benchmarks-yt-item is-active" : "benchmarks-yt-item"}
+                      onClick={() => handleSelectYtDlpEntry(entry)}
+                      title={label}
+                    >
+                      <div className="benchmarks-yt-item__row">
+                        <div
+                          className={
+                            avatarUrl ? "benchmarks-yt-item__thumb benchmarks-yt-item__thumb--avatar" : "benchmarks-yt-item__thumb"
+                          }
+                          aria-hidden="true"
+                        >
+                          {thumbUrl ? (
+                            <img src={thumbUrl} alt="" loading="lazy" />
+                          ) : (
+                            <div className="benchmarks-yt-item__thumb-placeholder">—</div>
+                          )}
+                        </div>
+                        <div className="benchmarks-yt-item__body">
+                          <div className="benchmarks-yt-item__name">{label}</div>
+                          <div className="benchmarks-yt-item__meta mono">
+                            {subLabel}
+                            {"  "}·{"  "}再生数中央値 {medianViews}
+                            {fetchedLabel ? `  ·  ${fetchedLabel}` : ""}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </aside>
+
+          <main className="benchmarks-main">
+            {!activeYtDlpEntry ? (
+              <div className="channel-profile-banner channel-profile-banner--info">左の一覧からチャンネルを選択してください。</div>
+            ) : (
+              <>
+                <section className="channel-card">
+                  <div className="channel-card__header">
+                    <div className="channel-card__heading">
+                      <div className="benchmarks-channel-heading">
+                        {activeYtDlpAvatarUrl ? (
+                          <img
+                            src={activeYtDlpAvatarUrl}
+                            alt=""
+                            className="benchmarks-channel-avatar"
+                            loading="lazy"
+                          />
+                        ) : null}
+                        <div className="benchmarks-channel-heading__text">
+                          <h4>{(activeYtDlpEntry.playlist_channel ?? activeYtDlpEntry.playlist_uploader_id ?? activeYtDlpEntry.playlist_channel_id).trim()}</h4>
+                          <span className="channel-card__total mono">{activeYtDlpEntry.playlist_channel_id}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="benchmarks-summary-actions">
+                      {activeYtDlpEntry.source_url ? (
+                        <a
+                          className="channel-card__action"
+                          href={activeYtDlpEntry.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="YouTubeを開く"
+                        >
+                          YouTube
+                        </a>
+                      ) : null}
+                      {activeYtDlpReportPath ? (
+                        <button
+                          type="button"
+                          className="channel-card__action"
+                          onClick={() => void loadYtDlpReport(activeYtDlpReportPath)}
+                          disabled={activeYtDlpReportState?.loading}
+                          title={activeYtDlpReportPath}
+                        >
+                          {activeYtDlpReportState?.loading ? "更新中…" : "レポート再読込"}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="channel-card__action"
+                        onClick={handleCloseYtDlpAnalysisWithUrl}
+                        title="選択解除"
+                      >
+                        閉じる
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="channel-profile-banner channel-profile-banner--info" style={{ marginBottom: 12 }}>
+                    CTR（クリック率）は競合チャンネルの公開データから取得できません（YouTube Analytics所有者指標）。代わりに公開メタ（再生数/尺/タイトル/サムネ）を整理しています。
+                  </div>
+
+                  <dl className="benchmarks-kv" style={{ marginTop: 0 }}>
+                    <dt>取得日</dt>
+                    <dd>{formatShortDate(activeYtDlpEntry.fetched_at ?? null)}</dd>
+
+                    <dt>動画数</dt>
+                    <dd>{typeof activeYtDlpEntry.video_count === "number" ? `${activeYtDlpEntry.video_count.toLocaleString("ja-JP")}本` : "—"}</dd>
+
+                    <dt>再生数（中央値）</dt>
+                    <dd>
+                      {typeof activeYtDlpEntry.stats?.view_count_median === "number"
+                        ? `${formatCompactNumber(activeYtDlpEntry.stats.view_count_median)}回`
+                        : "—"}
+                    </dd>
+
+                    <dt title="再生数の75パーセンタイル（上位25%ライン）">再生数（p75）</dt>
+                    <dd>
+                      {typeof activeYtDlpEntry.stats?.view_count_p75 === "number"
+                        ? `${formatCompactNumber(activeYtDlpEntry.stats.view_count_p75)}回`
+                        : "—"}
+                    </dd>
+
+                    <dt>尺（中央値）</dt>
+                    <dd>{formatDurationSeconds(activeYtDlpEntry.stats?.duration_median_sec ?? null)}</dd>
+
+                    <dt title="タイトルが「【...】」で始まる割合">【】始まり率</dt>
+                    <dd>
+                      {typeof activeYtDlpEntry.stats?.title_starts_with_bracket_ratio === "number"
+                        ? `${Math.round(activeYtDlpEntry.stats.title_starts_with_bracket_ratio * 100)}%`
+                        : "—"}
+                    </dd>
+
+                    <dt title="「【...】」で始まる場合の最多プレフィックス">最多【】</dt>
+                    <dd>{activeYtDlpEntry.stats?.top_bracket_prefix ?? "—"}</dd>
+                  </dl>
+                </section>
+
+                <section className="channel-card">
+                  <div className="benchmarks-card-header">
+                    <h4>サムネ分析（yt-dlp）</h4>
+                    <div className="benchmarks-card-actions">
+                      {activeYtDlpEntry ? (
+                        <button
+                          type="button"
+                          className="channel-profile-button channel-profile-button--ghost"
+                          onClick={() => void handleCopyYtDlpThumbTsv()}
+                          disabled={!filteredYtDlpVideos.length}
+                          title="表示中のサムネ分析をTSVでコピー"
+                        >
+                          TSVコピー
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="channel-profile-button channel-profile-button--ghost"
+                        onClick={() => void loadYtDlpIndex()}
+                        disabled={ytDlpIndexLoading}
+                        title="workspaces/research/YouTubeベンチマーク（yt-dlp）/REPORTS.json を再読込"
+                      >
+                        {ytDlpIndexLoading ? "更新中…" : "インデックス再読込"}
+                      </button>
+                      {activeYtDlpEntry ? (
+                        <button
+                          type="button"
+                          className="channel-profile-button channel-profile-button--ghost"
+                          onClick={handleCloseYtDlpAnalysisWithUrl}
+                        >
+                          閉じる
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {ytDlpIndexError ? <div className="channel-profile-banner channel-profile-banner--error">{ytDlpIndexError}</div> : null}
+
+                  {!activeYtDlpEntry ? (
+                    <>
+                      <p className="muted">左の一覧から選択すると、言語化データを確認できます。</p>
+                      {ytDlpEntries.length ? (
+                        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                          <input
+                            className="benchmarks-sidebar__search"
+                            type="search"
+                            value={ytDlpPickerKeyword}
+                            onChange={(event) => setYtDlpPickerKeyword(event.target.value)}
+                            placeholder="yt-dlpレポート検索（チャンネル名 / @handle）"
+                            style={{ flex: "1 1 260px", minWidth: 220, maxWidth: 520 }}
+                          />
+                          <select
+                            defaultValue=""
+                            onChange={(event) => {
+                              const selected = event.target.value;
+                              if (!selected) return;
+                              const entry = ytDlpEntries.find((it) => it.playlist_channel_id === selected);
+                              if (entry) {
+                                handleSelectYtDlpEntry(entry);
+                              }
+                            }}
+                            style={{ flex: "0 0 auto", minWidth: 260 }}
+                          >
+                            <option value="">yt-dlpレポートを選択…</option>
+                            {ytDlpPickerEntries.map((entry) => {
+                              const name =
+                                (entry.playlist_channel ?? "").trim() ||
+                                (entry.playlist_uploader_id ?? "").trim() ||
+                                entry.playlist_channel_id;
+                              const handle = normalizeHandle(entry.playlist_uploader_id);
+                              return (
+                                <option key={entry.playlist_channel_id} value={entry.playlist_channel_id}>
+                                  {handle ? `${name} (${handle})` : name}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                      ) : (
+                        <p className="muted mono">{ytDlpIndexLoading ? "yt-dlpインデックス読み込み中…" : "yt-dlpインデックスが空です。"}</p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="benchmarks-thumb-meta">
+                        <div className="benchmarks-thumb-meta__title">
+                          <strong>
+                            {activeYtDlpEntry.playlist_channel ??
+                              activeYtDlpEntry.playlist_uploader_id ??
+                              activeYtDlpEntry.playlist_channel_id}
+                          </strong>
+                          <span className="mono">{activeYtDlpEntry.playlist_uploader_id ? ` ${activeYtDlpEntry.playlist_uploader_id}` : ""}</span>
+                        </div>
+                        <div className="benchmarks-thumb-meta__sub mono">
+                          {activeYtDlpEntry.fetched_at ? `取得: ${formatShortDate(activeYtDlpEntry.fetched_at)}` : ""}
+                          {activeYtDlpEntry.video_count ? ` ・ 動画数: ${activeYtDlpEntry.video_count}` : ""}
+                          {ytDlpThumbStats.total ? ` ・ 分析: ${ytDlpThumbStats.analyzed}/${ytDlpThumbStats.total}` : ""}
+                          {activeYtDlpEntry.report_json_path ? ` ・ ${activeYtDlpEntry.report_json_path}` : ""}
+                        </div>
+                      </div>
+
+                      <div className="benchmarks-thumb-controls">
+                        <div className="benchmarks-thumb-tabs">
+                          <button
+                            type="button"
+                            className={activeYtDlpTab === "top" ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                            onClick={() => setActiveYtDlpTab("top")}
+                          >
+                            再生数上位
+                          </button>
+                          <button
+                            type="button"
+                            className={activeYtDlpTab === "recent" ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                            onClick={() => setActiveYtDlpTab("recent")}
+                          >
+                            直近
+                          </button>
+                          <button
+                            type="button"
+                            className={ytDlpShowAnalyzedOnly ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                            onClick={() => setYtDlpShowAnalyzedOnly((prev) => !prev)}
+                            title="分析済み（thumbnail_insightsあり）の動画だけ表示"
+                          >
+                            分析済みのみ
+                          </button>
+                        </div>
+
+                        {activeYtDlpHookOptions.length ? (
+                          <div className="benchmarks-thumb-tags">
+                            <span className="benchmarks-thumb-filter-label">フック:</span>
+                            <button
+                              type="button"
+                              className={!activeYtDlpHookFilter ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                              onClick={() => setActiveYtDlpHookFilter(null)}
+                              title="フック絞り込み解除"
+                            >
+                              全フック
+                            </button>
+                            {activeYtDlpHookOptions.map((item) => (
+                              <button
+                                key={item.hook}
+                                type="button"
+                                className={activeYtDlpHookFilter === item.hook ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                                onClick={() => setActiveYtDlpHookFilter((prev) => (prev === item.hook ? null : item.hook))}
+                                title={`${item.count} 件`}
+                              >
+                                {item.hook}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {activeYtDlpTagOptions.length ? (
+                          <div className="benchmarks-thumb-tags">
+                            <span className="benchmarks-thumb-filter-label">タグ:</span>
+                            <button
+                              type="button"
+                              className={!activeYtDlpTagFilter ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                              onClick={() => setActiveYtDlpTagFilter(null)}
+                              title="タグ絞り込み解除"
+                            >
+                              全タグ
+                            </button>
+                            {activeYtDlpTagOptions.map((item) => (
+                              <button
+                                key={item.tag}
+                                type="button"
+                                className={activeYtDlpTagFilter === item.tag ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                                onClick={() => setActiveYtDlpTagFilter(item.tag)}
+                                title={`${item.count} 件`}
+                              >
+                                {item.tag}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {ytDlpThumbnailSummary ? (
+                        <section className="benchmarks-thumb-style" aria-label="サムネスタイル集計">
+                          <div className="benchmarks-card-header benchmarks-thumb-style__header">
+                            <div className="benchmarks-thumb-style__header-left">
+                              <h4>サムネスタイル（言語化 / 集計）</h4>
+                              {ytDlpThumbnailSummary.generatedAt ? (
+                                <div className="benchmarks-thumb-style__meta muted small-text mono" title={ytDlpThumbnailSummary.generatedAt}>
+                                  生成: {formatShortDate(ytDlpThumbnailSummary.generatedAt)}
+                                </div>
+                              ) : null}
+                            </div>
+                            <span className="badge">{ytDlpThumbnailSummary.insightCount || ytDlpThumbStats.total} 枚</span>
+                          </div>
+                          <div className="benchmarks-thumb-style__grid">
+                            {ytDlpThumbnailSummary.hookTypes.length ? (
+                              <div className="benchmarks-thumb-style__section benchmarks-thumb-style__section--hooks">
+                                <div className="benchmarks-thumb-style__label">頻出フック</div>
+                                <div className="benchmarks-thumb-style__items">
+                                  {ytDlpThumbnailSummary.hookTypes.map((item) => (
+                                    <span key={`hook-${item.value}`} className="benchmarks-badge">
+                                      {item.value}
+                                      <span className="mono">{item.count}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {activeYtDlpDesignOptions.length ? (
+                              <div className="benchmarks-thumb-style__section benchmarks-thumb-style__section--design">
+                                <div className="benchmarks-thumb-style__label">頻出デザイン要素</div>
+                                <div className="benchmarks-thumb-style__items">
+                                  {activeYtDlpDesignOptions.slice(0, 14).map((item) => (
+                                    <span key={`design-${item.value}`} className="benchmarks-badge">
+                                      {item.value}
+                                      <span className="mono">{item.count}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {ytDlpThumbnailSummary.topTags.length ? (
+                              <div className="benchmarks-thumb-style__section benchmarks-thumb-style__section--tags">
+                                <div className="benchmarks-thumb-style__label">頻出タグ</div>
+                                <div className="benchmarks-thumb-style__items">
+                                  {ytDlpThumbnailSummary.topTags.slice(0, 16).map((item) => (
+                                    <span key={`tag-${item.value}`} className="benchmarks-badge">
+                                      {item.value}
+                                      <span className="mono">{item.count}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        </section>
+                      ) : null}
+
+                      {!activeYtDlpReportPath ? (
+                        <p className="muted">report.json の参照パスがありません。</p>
+                      ) : activeYtDlpReportState?.loading ? (
+                        <p className="muted">report.json 読み込み中…</p>
+                      ) : activeYtDlpReportState?.error ? (
+                        <div className="channel-profile-banner channel-profile-banner--error">{activeYtDlpReportState.error}</div>
+                      ) : !activeYtDlpReport ? (
+                        <p className="muted">report.json が未読み込みです。</p>
+                      ) : (
+                        <>
+                          {ytDlpThumbStats.total > 0 && ytDlpThumbStats.analyzed < ytDlpThumbStats.total ? (
+                            <div className="benchmarks-thumb-hint-row">
+                              <div className="benchmarks-thumb-hint mono">
+                                生成コマンド: {ytDlpAnalyzeCommand || "—"}
+                                {ytDlpThumbStats.total
+                                  ? `\n(analyzed: ${ytDlpThumbStats.analyzed}/${ytDlpThumbStats.total} ・ caption: ${ytDlpThumbStats.withCaption} ・ text: ${ytDlpThumbStats.withText})`
+                                  : ""}
+                              </div>
+                              {ytDlpAnalyzeCommand ? (
+                                <div className="benchmarks-thumb-hint-copy">
+                                  <button
+                                    type="button"
+                                    className="channel-profile-button channel-profile-button--ghost"
+                                    onClick={() => void handleCopy(ytDlpAnalyzeCommand, "サムネ分析生成コマンド")}
+                                    title="生成コマンドをコピー"
+                                  >
+                                    コピー
+                                  </button>
+                                </div>
+                              ) : null}
+                            </div>
+                          ) : null}
+
+                          {filteredYtDlpVideos.length === 0 ? (
+                            <p className="muted">該当する動画がありません。</p>
+                          ) : (
+                            <div className="benchmarks-thumb-grid">
+                              {filteredYtDlpVideos.map((video) => {
+                                const id = video.id;
+                                const insight = activeYtDlpInsights?.[id] ?? null;
+                                const analysis = insight?.analysis ?? null;
+                                const thumbUrl = (video.thumbnail_url ?? "").trim() || null;
+                                const videoUrl = (video.url ?? "").trim() || null;
+                                const title = (video.title ?? "").trim() || id;
+                                const viewCount = typeof video.view_count === "number" ? video.view_count : null;
+                                const durationSec = typeof video.duration_sec === "number" ? video.duration_sec : null;
+                                const tags = analysis?.tags ?? null;
+                                const design = analysis?.design_elements ?? null;
+                                const isExpanded = Boolean(ytDlpExpandedCards[id]);
+
+                                const copyValueParts: string[] = [];
+                                if (analysis?.caption_ja) copyValueParts.push(`caption: ${analysis.caption_ja}`);
+                                if (analysis?.thumbnail_text) copyValueParts.push(`thumb_text: ${analysis.thumbnail_text}`);
+                                if (analysis?.hook_type) copyValueParts.push(`hook_type: ${analysis.hook_type}`);
+                                if (analysis?.promise) copyValueParts.push(`promise: ${analysis.promise}`);
+                                if (analysis?.target) copyValueParts.push(`target: ${analysis.target}`);
+                                if (analysis?.emotion) copyValueParts.push(`emotion: ${analysis.emotion}`);
+                                if (analysis?.composition) copyValueParts.push(`composition: ${analysis.composition}`);
+                                if (analysis?.colors) copyValueParts.push(`colors: ${analysis.colors}`);
+                                if (Array.isArray(design) && design.length) copyValueParts.push(`design: ${design.join(", ")}`);
+                                if (Array.isArray(tags) && tags.length) copyValueParts.push(`tags: ${tags.join(", ")}`);
+                                const copyValue = copyValueParts.join("\n").trim();
+
+                                return (
+                                  <div key={id} className="benchmarks-thumb-card">
+                                    <div className="benchmarks-thumb-card__top">
+                                      {thumbUrl ? (
+                                        <a href={thumbUrl} target="_blank" rel="noreferrer" className="benchmarks-thumb-card__image-link">
+                                          <img src={thumbUrl} alt={title} className="benchmarks-thumb-card__image" loading="lazy" />
+                                        </a>
+                                      ) : (
+                                        <div className="benchmarks-thumb-card__image-placeholder mono">no thumbnail</div>
+                                      )}
+
+                                      <div className="benchmarks-thumb-card__body">
+                                        <div className="benchmarks-thumb-card__header">
+                                          <div className="benchmarks-thumb-card__title">{title}</div>
+                                          <div className="benchmarks-thumb-card__actions">
+                                            {videoUrl ? (
+                                              <a className="benchmarks-competitor__link" href={videoUrl} target="_blank" rel="noreferrer">
+                                                YouTube
+                                              </a>
+                                            ) : null}
+                                            {copyValue ? (
+                                              <button
+                                                type="button"
+                                                className="benchmarks-competitor__action"
+                                                onClick={() => void handleCopy(copyValue, "サムネ分析")}
+                                              >
+                                                コピー
+                                              </button>
+                                            ) : null}
+                                            {analysis ? (
+                                              <button
+                                                type="button"
+                                                className="benchmarks-competitor__action"
+                                                onClick={() =>
+                                                  setYtDlpExpandedCards((prev) => ({
+                                                    ...prev,
+                                                    [id]: !prev[id],
+                                                  }))
+                                                }
+                                                aria-expanded={isExpanded}
+                                                aria-controls={`benchmarks-thumb-details-${id}`}
+                                              >
+                                                {isExpanded ? "閉じる" : "詳細"}
+                                              </button>
+                                            ) : null}
+                                          </div>
+                                        </div>
+
+                                      <div className="benchmarks-thumb-card__meta mono">
+                                        {typeof viewCount === "number" ? `${viewCount.toLocaleString("ja-JP")}回` : "—"} ・{" "}
+                                        {formatDurationSeconds(typeof durationSec === "number" ? durationSec : undefined)}
+                                        {insight?.model ? ` ・ ${insight.model}` : ""}
+                                      </div>
+
+                                        {analysis?.caption_ja ? (
+                                          <div className="benchmarks-thumb-card__caption">{analysis.caption_ja}</div>
+                                        ) : (
+                                          <div className="muted small-text">言語化なし（未生成）</div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {analysis && isExpanded ? (
+                                      <div className="benchmarks-thumb-card__details" id={`benchmarks-thumb-details-${id}`}>
+                                        {analysis.thumbnail_text ? (
+                                          <pre className="benchmarks-thumb-card__text mono">{analysis.thumbnail_text}</pre>
+                                        ) : null}
+
+                                          <dl className="benchmarks-thumb-card__kv">
+                                            <dt>フック</dt>
+                                            <dd>{analysis?.hook_type?.trim() ? analysis.hook_type : "—"}</dd>
+                                            <dt>約束</dt>
+                                            <dd>{analysis?.promise?.trim() ? analysis.promise : "—"}</dd>
+                                            <dt>ターゲット</dt>
+                                            <dd>{analysis?.target?.trim() ? analysis.target : "—"}</dd>
+                                            <dt>感情</dt>
+                                            <dd>{analysis?.emotion?.trim() ? analysis.emotion : "—"}</dd>
+                                            <dt>構図</dt>
+                                            <dd>{analysis?.composition?.trim() ? analysis.composition : "—"}</dd>
+                                            <dt>色</dt>
+                                            <dd>{analysis?.colors?.trim() ? analysis.colors : "—"}</dd>
+                                          </dl>
+
+                                        {Array.isArray(design) && design.length ? (
+                                          <div className="benchmarks-thumb-card__chips">
+                                            {design.slice(0, 12).map((item) => (
+                                              <span key={item} className="benchmarks-badge">
+                                                {item}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        ) : null}
+
+                                        {Array.isArray(tags) && tags.length ? (
+                                          <div className="benchmarks-thumb-card__chips">
+                                            {tags.slice(0, 16).map((tag) => (
+                                              <button
+                                                key={tag}
+                                                type="button"
+                                                className={activeYtDlpTagFilter === tag ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                                                onClick={() => setActiveYtDlpTagFilter((prev) => (prev === tag ? null : tag))}
+                                              >
+                                                {tag}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
+                </section>
+              </>
+            )}
+          </main>
+        </div>
+      ) : (
+        <div className="benchmarks-layout">
+          <aside className="benchmarks-sidebar channel-card">
           <div className="benchmarks-sidebar__header">
             <h4>ジャンル一覧</h4>
-            <span className="benchmarks-sidebar__hint">クリックで切替</span>
+            <span className="benchmarks-sidebar__hint">選択すると右側に表示</span>
           </div>
 
           <input
@@ -664,6 +2026,7 @@ export function BenchmarksPage() {
               filteredGenreIndex.map((entry) => {
                 const active = effectiveGenre === entry.name;
                 const channelsText = entry.referencedChannels.join(", ");
+                const channelsPreview = formatChannelCodesPreview(entry.referencedChannels, 8);
                 return (
                   <button
                     key={entry.name}
@@ -676,7 +2039,7 @@ export function BenchmarksPage() {
                       <span className="benchmarks-genre-item__name">{entry.name}</span>
                       <span className="benchmarks-genre-item__count mono">{entry.referencedChannels.length}ch</span>
                     </div>
-                    {channelsText ? <div className="benchmarks-genre-item__meta mono">{channelsText}</div> : null}
+                    {channelsPreview ? <div className="benchmarks-genre-item__meta mono">参照: {channelsPreview}</div> : null}
                   </button>
                 );
               })
@@ -789,16 +2152,29 @@ export function BenchmarksPage() {
                       {visibleCompetitors.map((entry, idx) => {
                         const handle = normalizeHandle(entry.spec.handle);
                         const url = resolveCompetitorUrl(entry.spec);
+                        const ytDlpEntry = resolveYtDlpEntry(entry.spec);
                         const title = (entry.spec.name ?? "").trim() || handle || url || entry.raw || "—";
                         return (
                           <div key={`${entry.raw}-${idx}`} className="benchmarks-competitor">
                             <div className="benchmarks-competitor__top">
                               <div className="benchmarks-competitor__title">{title}</div>
-                              {url ? (
-                                <a className="benchmarks-competitor__link" href={url} target="_blank" rel="noreferrer">
-                                  開く
-                                </a>
-                              ) : null}
+                              <div className="benchmarks-competitor__actions">
+                                {url ? (
+                                  <a className="benchmarks-competitor__link" href={url} target="_blank" rel="noreferrer">
+                                    開く
+                                  </a>
+                                ) : null}
+                                {ytDlpEntry?.report_json_path?.trim() ? (
+                                  <button
+                                    type="button"
+                                    className="benchmarks-competitor__action"
+                                    onClick={() => handleSelectYtDlpEntry(ytDlpEntry)}
+                                    title="yt-dlpレポートからサムネ分析（言語化）を確認"
+                                  >
+                                    サムネ分析
+                                  </button>
+                                ) : null}
+                              </div>
                             </div>
                             <div className="benchmarks-competitor__meta">
                               <span className="mono">{handle ?? "—"}</span>
@@ -848,6 +2224,344 @@ export function BenchmarksPage() {
                   <pre className="benchmarks-notes">{genreManual?.trim() ? genreManual : "—"}</pre>
                 </div>
               </section>
+
+              {/*
+              <section className="channel-card">
+                <div className="benchmarks-card-header">
+                  <h4>サムネ分析（yt-dlp）</h4>
+                  <div className="benchmarks-card-actions">
+                    {activeYtDlpEntry ? (
+                      <button
+                        type="button"
+                        className="channel-profile-button channel-profile-button--ghost"
+                        onClick={() => void handleCopyYtDlpThumbTsv()}
+                        disabled={!filteredYtDlpVideos.length}
+                        title="表示中のサムネ分析をTSVでコピー"
+                      >
+                        TSVコピー
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="channel-profile-button channel-profile-button--ghost"
+                      onClick={() => void loadYtDlpIndex()}
+                      disabled={ytDlpIndexLoading}
+                      title="workspaces/research/YouTubeベンチマーク（yt-dlp）/REPORTS.json を再読込"
+                    >
+                      {ytDlpIndexLoading ? "更新中…" : "インデックス再読込"}
+                    </button>
+                    {activeYtDlpEntry ? (
+                      <button
+                        type="button"
+                        className="channel-profile-button channel-profile-button--ghost"
+                        onClick={handleCloseYtDlpAnalysis}
+                      >
+                        閉じる
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+
+                {ytDlpIndexError ? <div className="channel-profile-banner channel-profile-banner--error">{ytDlpIndexError}</div> : null}
+
+                {!activeYtDlpEntry ? (
+                  <>
+                    <p className="muted">競合チャンネルの「サムネ分析」から選択すると、言語化データを確認できます。</p>
+                    {ytDlpEntries.length ? (
+                      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                        <input
+                          className="benchmarks-sidebar__search"
+                          type="search"
+                          value={ytDlpPickerKeyword}
+                          onChange={(event) => setYtDlpPickerKeyword(event.target.value)}
+                          placeholder="yt-dlpレポート検索（チャンネル名 / @handle）"
+                          style={{ flex: "1 1 260px", minWidth: 220, maxWidth: 520 }}
+                        />
+                        <select
+                          defaultValue=""
+                          onChange={(event) => {
+                            const selected = event.target.value;
+                            if (!selected) return;
+                            const entry = ytDlpEntries.find((it) => it.playlist_channel_id === selected);
+                            if (entry) {
+                              handleOpenYtDlpAnalysis(entry);
+                            }
+                          }}
+                          style={{ flex: "0 0 auto", minWidth: 260 }}
+                        >
+                          <option value="">yt-dlpレポートを選択…</option>
+                          {ytDlpPickerEntries.map((entry) => {
+                            const name =
+                              (entry.playlist_channel ?? "").trim() ||
+                              (entry.playlist_uploader_id ?? "").trim() ||
+                              entry.playlist_channel_id;
+                            const handle = normalizeHandle(entry.playlist_uploader_id);
+                            return (
+                              <option key={entry.playlist_channel_id} value={entry.playlist_channel_id}>
+                                {handle ? `${name} (${handle})` : name}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    ) : (
+                      <p className="muted mono">{ytDlpIndexLoading ? "yt-dlpインデックス読み込み中…" : "yt-dlpインデックスが空です。"}</p>
+                    )}
+                  </>
+                ) : (
+                  <>
+		                    <div className="benchmarks-thumb-meta">
+		                      <div className="benchmarks-thumb-meta__title">
+		                        <strong>{activeYtDlpEntry.playlist_channel ?? activeYtDlpEntry.playlist_uploader_id ?? activeYtDlpEntry.playlist_channel_id}</strong>
+	                        <span className="mono">
+	                          {activeYtDlpEntry.playlist_uploader_id ? ` ${activeYtDlpEntry.playlist_uploader_id}` : ""}
+	                        </span>
+	                      </div>
+	                      <div className="benchmarks-thumb-meta__sub mono">
+	                        {activeYtDlpEntry.fetched_at ? `fetched_at: ${activeYtDlpEntry.fetched_at}` : ""}
+	                        {activeYtDlpEntry.video_count ? ` ・ videos: ${activeYtDlpEntry.video_count}` : ""}
+	                        {ytDlpThumbStats.total ? ` ・ analyzed: ${ytDlpThumbStats.analyzed}/${ytDlpThumbStats.total}` : ""}
+	                        {activeYtDlpEntry.report_json_path ? ` ・ ${activeYtDlpEntry.report_json_path}` : ""}
+	                      </div>
+	                    </div>
+
+	                    <div className="benchmarks-thumb-controls">
+	                      <div className="benchmarks-thumb-tabs">
+	                        <button
+                          type="button"
+                          className={activeYtDlpTab === "top" ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                          onClick={() => setActiveYtDlpTab("top")}
+                        >
+                          再生数上位
+                        </button>
+                        <button
+                          type="button"
+                          className={activeYtDlpTab === "recent" ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                          onClick={() => setActiveYtDlpTab("recent")}
+	                        >
+	                          直近
+	                        </button>
+	                        <button
+	                          type="button"
+	                          className={ytDlpShowAnalyzedOnly ? "benchmarks-chip is-active" : "benchmarks-chip"}
+	                          onClick={() => setYtDlpShowAnalyzedOnly((prev) => !prev)}
+	                          title="分析済み（thumbnail_insightsあり）の動画だけ表示"
+	                        >
+	                          分析済みのみ
+	                        </button>
+	                      </div>
+
+	                      {activeYtDlpHookOptions.length ? (
+	                        <div className="benchmarks-thumb-tags">
+	                          <span className="benchmarks-thumb-filter-label">hook:</span>
+	                          <button
+	                            type="button"
+	                            className={!activeYtDlpHookFilter ? "benchmarks-chip is-active" : "benchmarks-chip"}
+	                            onClick={() => setActiveYtDlpHookFilter(null)}
+	                            title="hook絞り込み解除"
+	                          >
+	                            全hook
+	                          </button>
+	                          {activeYtDlpHookOptions.map((item) => (
+	                            <button
+	                              key={item.hook}
+	                              type="button"
+	                              className={activeYtDlpHookFilter === item.hook ? "benchmarks-chip is-active" : "benchmarks-chip"}
+	                              onClick={() => setActiveYtDlpHookFilter((prev) => (prev === item.hook ? null : item.hook))}
+	                              title={`${item.count} 件`}
+	                            >
+	                              {item.hook}
+	                            </button>
+	                          ))}
+	                        </div>
+	                      ) : null}
+
+	                      {activeYtDlpTagOptions.length ? (
+	                        <div className="benchmarks-thumb-tags">
+	                          <span className="benchmarks-thumb-filter-label">tag:</span>
+	                          <button
+	                            type="button"
+	                            className={!activeYtDlpTagFilter ? "benchmarks-chip is-active" : "benchmarks-chip"}
+	                            onClick={() => setActiveYtDlpTagFilter(null)}
+                            title="タグ絞り込み解除"
+                          >
+                            全タグ
+                          </button>
+                          {activeYtDlpTagOptions.map((item) => (
+                            <button
+                              key={item.tag}
+                              type="button"
+                              className={activeYtDlpTagFilter === item.tag ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                              onClick={() => setActiveYtDlpTagFilter(item.tag)}
+                              title={`${item.count} 件`}
+                            >
+                              {item.tag}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {!activeYtDlpReportPath ? (
+                      <p className="muted">report.json の参照パスがありません。</p>
+                    ) : activeYtDlpReportState?.loading ? (
+                      <p className="muted mono">読み込み中… ({activeYtDlpReportPath})</p>
+                    ) : activeYtDlpReportState?.error ? (
+                      <div className="channel-profile-banner channel-profile-banner--error">{activeYtDlpReportState.error}</div>
+                    ) : !activeYtDlpReport ? (
+                      <p className="muted">レポートが未読み込みです。</p>
+                    ) : (
+                      <>
+                        {!activeYtDlpInsights || Object.keys(activeYtDlpInsights).length === 0 ? (
+                          <div className="channel-profile-banner channel-profile-banner--warn">
+                            サムネの言語化データが未生成です。
+                            {ytDlpAnalyzeCommand ? (
+                              <>
+                                <div className="benchmarks-thumb-hint-row">
+                                  <div className="mono benchmarks-thumb-hint">{ytDlpAnalyzeCommand}</div>
+                                  <button
+                                    type="button"
+                                    className="channel-profile-button channel-profile-button--ghost benchmarks-thumb-hint-copy"
+                                    onClick={() => void handleCopy(ytDlpAnalyzeCommand, "サムネ分析生成コマンド")}
+                                    title="生成コマンドをコピー"
+                                  >
+                                    コピー
+                                  </button>
+                                </div>
+                                <div className="muted small-text">
+                                  APIが失敗した場合はTHINK MODEにpendingが作成されます（agent_runnerで完了→同コマンド再実行）。
+                                </div>
+                              </>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        {filteredYtDlpVideos.length === 0 ? (
+                          <p className="muted">該当する動画がありません。</p>
+                        ) : (
+                          <div className="benchmarks-thumb-grid">
+                            {filteredYtDlpVideos.map((video) => {
+                              const id = video.id;
+                              const insight = activeYtDlpInsights?.[id] ?? null;
+                              const analysis = insight?.analysis ?? null;
+                              const thumbUrl = (video.thumbnail_url ?? "").trim() || null;
+                              const videoUrl = (video.url ?? "").trim() || null;
+                              const title = (video.title ?? "").trim() || id;
+                              const viewCount = typeof video.view_count === "number" ? video.view_count : null;
+                              const durationSec = typeof video.duration_sec === "number" ? video.duration_sec : null;
+                              const tags = analysis?.tags ?? null;
+                              const design = analysis?.design_elements ?? null;
+
+                              const copyValueParts: string[] = [];
+                              if (analysis?.caption_ja) copyValueParts.push(`caption: ${analysis.caption_ja}`);
+                              if (analysis?.thumbnail_text) copyValueParts.push(`thumb_text: ${analysis.thumbnail_text}`);
+                              if (analysis?.hook_type) copyValueParts.push(`hook_type: ${analysis.hook_type}`);
+                              if (analysis?.promise) copyValueParts.push(`promise: ${analysis.promise}`);
+                              if (analysis?.target) copyValueParts.push(`target: ${analysis.target}`);
+                              if (analysis?.emotion) copyValueParts.push(`emotion: ${analysis.emotion}`);
+                              if (analysis?.composition) copyValueParts.push(`composition: ${analysis.composition}`);
+                              if (analysis?.colors) copyValueParts.push(`colors: ${analysis.colors}`);
+                              if (Array.isArray(design) && design.length) copyValueParts.push(`design: ${design.join(", ")}`);
+                              if (Array.isArray(tags) && tags.length) copyValueParts.push(`tags: ${tags.join(", ")}`);
+                              const copyValue = copyValueParts.join("\n").trim();
+
+                              return (
+                                <div key={id} className="benchmarks-thumb-card">
+                                  {thumbUrl ? (
+                                    <a href={thumbUrl} target="_blank" rel="noreferrer" className="benchmarks-thumb-card__image-link">
+                                      <img src={thumbUrl} alt={title} className="benchmarks-thumb-card__image" loading="lazy" />
+                                    </a>
+                                  ) : (
+                                    <div className="benchmarks-thumb-card__image-placeholder mono">no thumbnail</div>
+                                  )}
+
+                                  <div className="benchmarks-thumb-card__body">
+                                    <div className="benchmarks-thumb-card__header">
+                                      <div className="benchmarks-thumb-card__title">{title}</div>
+                                      <div className="benchmarks-thumb-card__actions">
+                                        {videoUrl ? (
+                                          <a className="benchmarks-competitor__link" href={videoUrl} target="_blank" rel="noreferrer">
+                                            YouTube
+                                          </a>
+                                        ) : null}
+                                        {copyValue ? (
+                                          <button
+                                            type="button"
+                                            className="benchmarks-competitor__action"
+                                            onClick={() => void handleCopy(copyValue, "サムネ分析")}
+                                          >
+                                            コピー
+                                          </button>
+                                        ) : null}
+                                      </div>
+                                    </div>
+
+                                    <div className="benchmarks-thumb-card__meta mono">
+                                      {typeof viewCount === "number" ? `${viewCount.toLocaleString("ja-JP")} views` : "—"} ・{" "}
+                                      {formatDurationSeconds(durationSec)}
+                                    </div>
+
+                                    {analysis?.caption_ja ? (
+                                      <div className="benchmarks-thumb-card__caption">{analysis.caption_ja}</div>
+                                    ) : (
+                                      <div className="muted small-text">言語化なし（未生成）</div>
+                                    )}
+
+                                    {analysis?.thumbnail_text ? (
+                                      <pre className="benchmarks-thumb-card__text mono">{analysis.thumbnail_text}</pre>
+                                    ) : null}
+
+                                    <dl className="benchmarks-thumb-card__kv">
+                                      <dt>hook</dt>
+                                      <dd>{analysis?.hook_type?.trim() ? analysis.hook_type : "—"}</dd>
+                                      <dt>promise</dt>
+                                      <dd>{analysis?.promise?.trim() ? analysis.promise : "—"}</dd>
+                                      <dt>target</dt>
+                                      <dd>{analysis?.target?.trim() ? analysis.target : "—"}</dd>
+                                      <dt>emotion</dt>
+                                      <dd>{analysis?.emotion?.trim() ? analysis.emotion : "—"}</dd>
+                                      <dt>composition</dt>
+                                      <dd>{analysis?.composition?.trim() ? analysis.composition : "—"}</dd>
+                                      <dt>colors</dt>
+                                      <dd>{analysis?.colors?.trim() ? analysis.colors : "—"}</dd>
+                                    </dl>
+
+                                    {Array.isArray(design) && design.length ? (
+                                      <div className="benchmarks-thumb-card__chips">
+                                        {design.slice(0, 12).map((item) => (
+                                          <span key={item} className="benchmarks-badge">
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : null}
+
+                                    {Array.isArray(tags) && tags.length ? (
+                                      <div className="benchmarks-thumb-card__chips">
+                                        {tags.slice(0, 16).map((tag) => (
+                                          <button
+                                            key={tag}
+                                            type="button"
+                                            className={activeYtDlpTagFilter === tag ? "benchmarks-chip is-active" : "benchmarks-chip"}
+                                            onClick={() => setActiveYtDlpTagFilter((prev) => (prev === tag ? null : tag))}
+                                          >
+                                            {tag}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </section>
+              */}
 
               <section className="channel-card">
                 <div className="benchmarks-card-header">
@@ -912,7 +2626,7 @@ export function BenchmarksPage() {
                           >
                             <div className="benchmarks-sample-item__title">{label}</div>
                             <div className="benchmarks-sample-item__meta mono">
-                              {sample.base} / {sample.path}
+                              {sample.path}
                               {entry.status ? ` ・ ${entry.status}` : ""}
                             </div>
                             {noteLine ? (
@@ -970,9 +2684,9 @@ export function BenchmarksPage() {
                             <div className="benchmarks-preview__title">
                               <strong>{buildSampleLabel(activeSample)}</strong>
                               <div className="benchmarks-preview__path mono">
-                                {activeSample.base} / {activeSample.path}
+                                {activeSample.path}
                                 {activeSampleEntry?.status ? ` ・ ${activeSampleEntry.status}` : ""}
-                                {activeSampleState?.modified ? ` ・ 更新: ${activeSampleState.modified}` : ""}
+                                {activeSampleState?.modified ? ` ・ 更新: ${formatShortDate(activeSampleState.modified)}` : ""}
                                 {activeSampleState?.size ? ` ・ ${formatBytes(activeSampleState.size) ?? ""}` : ""}
                               </div>
                             </div>
@@ -1120,6 +2834,7 @@ export function BenchmarksPage() {
           )}
         </main>
       </div>
+      )}
     </section>
   );
 }

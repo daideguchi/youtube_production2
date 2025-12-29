@@ -1,0 +1,1165 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:19.700691Z",
+  "channel": "CH06",
+  "planning_csv": "workspaces/planning/channels/CH06.csv",
+  "planning_count": 33,
+  "scripts_count": 33,
+  "episodes": [
+    {
+      "channel": "CH06",
+      "video": "001",
+      "video_id": "CH06-001",
+      "title": "【禁断の福音書】トマス福音書が暴く「キリスト教の裏面史」",
+      "planning": {
+        "動画番号": "1",
+        "タイトル": "【禁断の福音書】トマス福音書が暴く「キリスト教の裏面史」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:48:48.374035Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "002",
+      "video_id": "CH06-002",
+      "title": "【オーパーツ地図】ピリ・レイスの地図に描かれた「南極」",
+      "planning": {
+        "動画番号": "2",
+        "タイトル": "【オーパーツ地図】ピリ・レイスの地図に描かれた「南極」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:48:49.486559Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "003",
+      "video_id": "CH06-003",
+      "title": "【人類の起源】生命は宇宙から来たのか―パンスペルミア説",
+      "planning": {
+        "動画番号": "3",
+        "タイトル": "【人類の起源】生命は宇宙から来たのか―パンスペルミア説",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:48:56.436658Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "004",
+      "video_id": "CH06-004",
+      "title": "【本能寺の空白】信長は死んでいない―遺体なき真実",
+      "planning": {
+        "動画番号": "4",
+        "タイトル": "【本能寺の空白】信長は死んでいない―遺体なき真実",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:01.546048Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "005",
+      "video_id": "CH06-005",
+      "title": "【20億年前の原子炉】オクロ天然原子炉は偶然か―設計か",
+      "planning": {
+        "動画番号": "5",
+        "タイトル": "【20億年前の原子炉】オクロ天然原子炉は偶然か―設計か",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T00:16:27.377381Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH06/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "006",
+      "video_id": "CH06-006",
+      "title": "【国家機密】消えた駆逐艦―フィラデルフィア実験",
+      "planning": {
+        "動画番号": "6",
+        "タイトル": "【国家機密】消えた駆逐艦―フィラデルフィア実験",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:04.745528Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH06/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "007",
+      "video_id": "CH06-007",
+      "title": "【焼失した知の王国】アレクサンドリア図書館の「禁書」",
+      "planning": {
+        "動画番号": "7",
+        "タイトル": "【焼失した知の王国】アレクサンドリア図書館の「禁書」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:05.852319Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH06/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "008",
+      "video_id": "CH06-008",
+      "title": "【人類最期の発明】シンギュラリティ―AIが支配者になる日",
+      "planning": {
+        "動画番号": "8",
+        "タイトル": "【人類最期の発明】シンギュラリティ―AIが支配者になる日",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:06.828625Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "AIの脅威",
+        "悩みタグ_サブ": "シンギュラリティ",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "ロコのバジリスク",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "「人類が最後に発明するものは、AIである」"
+      },
+      "assembled_path": "workspaces/scripts/CH06/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "009",
+      "video_id": "CH06-009",
+      "title": "【解読不能】ヴォイニッチ手稿―誰が何のために書いたのか",
+      "planning": {
+        "動画番号": "9",
+        "タイトル": "【解読不能】ヴォイニッチ手稿―誰が何のために書いたのか",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:16.200235Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "010",
+      "video_id": "CH06-010",
+      "title": "【終末の予言】ヨハネの黙示録―封印が解かれる時",
+      "planning": {
+        "動画番号": "10",
+        "タイトル": "【終末の予言】ヨハネの黙示録―封印が解かれる時",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:17.677582Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "011",
+      "video_id": "CH06-011",
+      "title": "【世界を動かす結社】フリーメイソン―象徴が語る目的",
+      "planning": {
+        "動画番号": "11",
+        "タイトル": "【世界を動かす結社】フリーメイソン―象徴が語る目的",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:18.904288Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "012",
+      "video_id": "CH06-012",
+      "title": "【4500年前の超技術】ギザのピラミッドは誰が建てた",
+      "planning": {
+        "動画番号": "12",
+        "タイトル": "【4500年前の超技術】ギザのピラミッドは誰が建てた",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:19.641064Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "013",
+      "video_id": "CH06-013",
+      "title": "【封印されたUFO】ロズウェル事件―回収された「何か」",
+      "planning": {
+        "動画番号": "13",
+        "タイトル": "【封印されたUFO】ロズウェル事件―回収された「何か」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:20.464254Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "014",
+      "video_id": "CH06-014",
+      "title": "【触れてはならない神器】契約の箱アーク―禁断の力",
+      "planning": {
+        "動画番号": "14",
+        "タイトル": "【触れてはならない神器】契約の箱アーク―禁断の力",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:26.620011Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "015",
+      "video_id": "CH06-015",
+      "title": "【海底の巨大遺跡】与那国島―人工か自然か",
+      "planning": {
+        "動画番号": "15",
+        "タイトル": "【海底の巨大遺跡】与那国島―人工か自然か",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:27.661394Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "016",
+      "video_id": "CH06-016",
+      "title": "【封印された巨大古墳】仁徳天皇陵はなぜ掘れない",
+      "planning": {
+        "動画番号": "16",
+        "タイトル": "【封印された巨大古墳】仁徳天皇陵はなぜ掘れない",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:31.816410Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "017",
+      "video_id": "CH06-017",
+      "title": "【地底世界】地球空洞説―足元に「別文明」はあるのか",
+      "planning": {
+        "動画番号": "17",
+        "タイトル": "【地底世界】地球空洞説―足元に「別文明」はあるのか",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:32.713659Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "018",
+      "video_id": "CH06-018",
+      "title": "【予言は終わっていない】ノストラダムス―恐怖の真意",
+      "planning": {
+        "動画番号": "18",
+        "タイトル": "【予言は終わっていない】ノストラダムス―恐怖の真意",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:33.862758Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "019",
+      "video_id": "CH06-019",
+      "title": "【火星の顔】NASAが否定した「文明の痕跡」",
+      "planning": {
+        "動画番号": "19",
+        "タイトル": "【火星の顔】NASAが否定した「文明の痕跡」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:35.046804Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "020",
+      "video_id": "CH06-020",
+      "title": "【消された神々】日本神話のタブー―塗りつぶされたページ",
+      "planning": {
+        "動画番号": "20",
+        "タイトル": "【消された神々】日本神話のタブー―塗りつぶされたページ",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:36.753913Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "021",
+      "video_id": "CH06-021",
+      "title": "【月は人工物か】ムーンマトリックス―行けない理由",
+      "planning": {
+        "動画番号": "21",
+        "タイトル": "【月は人工物か】ムーンマトリックス―行けない理由",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:37.742245Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "022",
+      "video_id": "CH06-022",
+      "title": "【モアイの警告】イースター島が辿った「文明崩壊」",
+      "planning": {
+        "動画番号": "22",
+        "タイトル": "【モアイの警告】イースター島が辿った「文明崩壊」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:39.031925Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "023",
+      "video_id": "CH06-023",
+      "title": "【公式発表の嘘】JFK暗殺―消された真犯人",
+      "planning": {
+        "動画番号": "23",
+        "タイトル": "【公式発表の嘘】JFK暗殺―消された真犯人",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:40.145673Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "024",
+      "video_id": "CH06-024",
+      "title": "【絶対に覗くな】ダークウェブ―最深部の闇市場",
+      "planning": {
+        "動画番号": "24",
+        "タイトル": "【絶対に覗くな】ダークウェブ―最深部の闇市場",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:41.551938Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "025",
+      "video_id": "CH06-025",
+      "title": "【痕跡なき大爆発】ツングースカ―正体不明の空中爆発",
+      "planning": {
+        "動画番号": "25",
+        "タイトル": "【痕跡なき大爆発】ツングースカ―正体不明の空中爆発",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:42.647640Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "026",
+      "video_id": "CH06-026",
+      "title": "【2012年の真相】マヤ暦は終末ではなかった",
+      "planning": {
+        "動画番号": "26",
+        "タイトル": "【2012年の真相】マヤ暦は終末ではなかった",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:43.732443Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "027",
+      "video_id": "CH06-027",
+      "title": "【古代核戦争】マハーバーラタに刻まれた「核の光」",
+      "planning": {
+        "動画番号": "27",
+        "タイトル": "【古代核戦争】マハーバーラタに刻まれた「核の光」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:44.531067Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "028",
+      "video_id": "CH06-028",
+      "title": "【宇宙人はどこにいる】フェルミのパラドックス―沈黙の理由",
+      "planning": {
+        "動画番号": "28",
+        "タイトル": "【宇宙人はどこにいる】フェルミのパラドックス―沈黙の理由",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:46.141744Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "029",
+      "video_id": "CH06-029",
+      "title": "【魔の海域】バミューダ・トライアングル―消える船と機体",
+      "planning": {
+        "動画番号": "29",
+        "タイトル": "【魔の海域】バミューダ・トライアングル―消える船と機体",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:47.073938Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "030",
+      "video_id": "CH06-030",
+      "title": "【ネット史上最大の謎】Cicada 3301―招待状の正体",
+      "planning": {
+        "動画番号": "30",
+        "タイトル": "【ネット史上最大の謎】Cicada 3301―招待状の正体",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:48.131146Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "031",
+      "video_id": "CH06-031",
+      "title": "【写真に写った未来人】1941年の謎の男―タイムトラベラー",
+      "planning": {
+        "動画番号": "31",
+        "タイトル": "【写真に写った未来人】1941年の謎の男―タイムトラベラー",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:49.646733Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/031/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/031/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "032",
+      "video_id": "CH06-032",
+      "title": "【テントを内側から切り裂いた】ディアトロフ峠事件―9人は何に追われた",
+      "planning": {
+        "動画番号": "32",
+        "タイトル": "【テントを内側から切り裂いた】ディアトロフ峠事件―9人は何に追われた",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:50.823093Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/032/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/032/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "033",
+      "video_id": "CH06-033",
+      "title": "【ピラミッドより古い神殿】ギョベクリ・テペ―歴史が崩れる瞬間",
+      "planning": {
+        "動画番号": "33",
+        "タイトル": "【ピラミッドより古い神殿】ギョベクリ・テペ―歴史が崩れる瞬間",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T13:49:52.302379Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "秘密結社",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説になる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/033/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/033/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    }
+  ]
+}

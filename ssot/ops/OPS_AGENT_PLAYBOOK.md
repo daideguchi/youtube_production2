@@ -60,6 +60,17 @@ python scripts/agent_org.py locks-audit --older-than-hours 6
 
 lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/plans/PLAN_AGENT_ORG_COORDINATION.md`）。
 
+### 2.2.5 Git write-lock（強制）
+並列エージェント運用中は `.git` を write-lock して、`git restore/checkout/reset` 等のロールバック事故を物理的に防ぐ。
+
+```bash
+python3 scripts/ops/git_write_lock.py status
+python3 scripts/ops/git_write_lock.py lock
+```
+
+push 直前だけ `unlock` し、push 後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
+`status` が `locked (external)` の場合は、環境側で `.git/` が保護されている（lock/unlock が通らない）状態。
+
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。
 内部は **1ファイル（JSON）** で、更新はファイルロック付きの read-modify-write なので並列でも壊れにくい。

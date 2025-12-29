@@ -1,0 +1,1060 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:24.617110Z",
+  "channel": "CH24",
+  "planning_csv": "workspaces/planning/channels/CH24.csv",
+  "planning_count": 30,
+  "scripts_count": 30,
+  "episodes": [
+    {
+      "channel": "CH24",
+      "video": "001",
+      "video_id": "CH24-001",
+      "title": "最大の勝ち方は「静かに距離を置く」理由【弘法大師の教え】",
+      "planning": {
+        "動画番号": "001",
+        "タイトル": "最大の勝ち方は「静かに距離を置く」理由【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:39.761018Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "距離感",
+        "悩みタグ_サブ": "無視",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/001/status.json",
+        "status": "script_validated",
+        "updated_at": "2025-12-27T10:34:39.816744Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "002",
+      "video_id": "CH24-002",
+      "title": "悪口を言う人は無視よりこれが効く【弘法大師の教え】",
+      "planning": {
+        "動画番号": "002",
+        "タイトル": "悪口を言う人は無視よりこれが効く【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:41.878292Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "悪口",
+        "悩みタグ_サブ": "沈黙",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/002/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:41.879062Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "003",
+      "video_id": "CH24-003",
+      "title": "上から目線には戦わず勝て（相手を崩す距離）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "003",
+        "タイトル": "上から目線には戦わず勝て（相手を崩す距離）【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:43.661753Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "見下し",
+        "悩みタグ_サブ": "対処",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/003/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:43.663288Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "004",
+      "video_id": "CH24-004",
+      "title": "文句が多い人は心が「飢えてる」理由【弘法大師の教え】",
+      "planning": {
+        "動画番号": "004",
+        "タイトル": "文句が多い人は心が「飢えてる」理由【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:45.098317Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "文句",
+        "悩みタグ_サブ": "不満",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/004/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:45.098861Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "005",
+      "video_id": "CH24-005",
+      "title": "優しい人ほど我慢で壊れる（壊れる前に知ること）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "005",
+        "タイトル": "優しい人ほど我慢で壊れる（壊れる前に知ること）【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:46.887753Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "我慢",
+        "悩みタグ_サブ": "優しい人",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/005/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:46.888327Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "006",
+      "video_id": "CH24-006",
+      "title": "報われない人はここを間違える「一点」【弘法大師の教え】",
+      "planning": {
+        "動画番号": "006",
+        "タイトル": "報われない人はここを間違える「一点」【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:49.186495Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "報われない",
+        "悩みタグ_サブ": "習慣",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/006/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:49.187019Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "007",
+      "video_id": "CH24-007",
+      "title": "他人の機嫌に命を渡さない方法【弘法大師の教え】",
+      "planning": {
+        "動画番号": "007",
+        "タイトル": "他人の機嫌に命を渡さない方法【弘法大師の教え】",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-27T10:34:52.732054Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "機嫌",
+        "悩みタグ_サブ": "振り回される",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/007/status.json",
+        "status": "script_completed",
+        "updated_at": "2025-12-27T10:34:52.733919Z",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "008",
+      "video_id": "CH24-008",
+      "title": "怒りの正体は「期待のしがみつき」だった【弘法大師の教え】",
+      "planning": {
+        "動画番号": "008",
+        "タイトル": "怒りの正体は「期待のしがみつき」だった【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "怒り",
+        "悩みタグ_サブ": "期待",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "009",
+      "video_id": "CH24-009",
+      "title": "奪われたら勝てる生き方でいろ（奪わせない）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "009",
+        "タイトル": "奪われたら勝てる生き方でいろ（奪わせない）【弘法大師の教え】",
+        "進捗": "作成済み",
+        "更新日時": "2025-12-25 15:55:00",
+        "作成フラグ": "1",
+        "悩みタグ_メイン": "搾取",
+        "悩みタグ_サブ": "境界線",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/009/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "010",
+      "video_id": "CH24-010",
+      "title": "決断できないのは「鎖」につながれているから【弘法大師の教え】",
+      "planning": {
+        "動画番号": "010",
+        "タイトル": "決断できないのは「鎖」につながれているから【弘法大師の教え】",
+        "進捗": "作成済み",
+        "更新日時": "2025-12-25 15:35:00",
+        "作成フラグ": "1",
+        "悩みタグ_メイン": "決断",
+        "悩みタグ_サブ": "執着",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/010/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "011",
+      "video_id": "CH24-011",
+      "title": "縁が切れるのは運が開く前兆（怖がらなくていい）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "011",
+        "タイトル": "縁が切れるのは運が開く前兆（怖がらなくていい）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "縁",
+        "悩みタグ_サブ": "運",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/011/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "012",
+      "video_id": "CH24-012",
+      "title": "握りしめている「幻」の正体（手放しの核心）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "012",
+        "タイトル": "握りしめている「幻」の正体（手放しの核心）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "執着",
+        "悩みタグ_サブ": "幻",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/012/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "013",
+      "video_id": "CH24-013",
+      "title": "友達が去ったら成功の合図（次の段階へ）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "013",
+        "タイトル": "友達が去ったら成功の合図（次の段階へ）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "友達",
+        "悩みタグ_サブ": "成功",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/013/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "014",
+      "video_id": "CH24-014",
+      "title": "都合のいい人を急に辞めてはいけない（順序がある）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "014",
+        "タイトル": "都合のいい人を急に辞めてはいけない（順序がある）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "都合のいい人",
+        "悩みタグ_サブ": "距離感",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/014/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "015",
+      "video_id": "CH24-015",
+      "title": "サビついた心に必要なもの【弘法大師の教え】",
+      "planning": {
+        "動画番号": "015",
+        "タイトル": "サビついた心に必要なもの【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "家族",
+        "悩みタグ_サブ": "雑",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/015/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "016",
+      "video_id": "CH24-016",
+      "title": "しがみついてはいけない人間関係【弘法大師の教え】",
+      "planning": {
+        "動画番号": "016",
+        "タイトル": "しがみついてはいけない人間関係【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "境界線",
+        "悩みタグ_サブ": "自己肯定感",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/016/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "017",
+      "video_id": "CH24-017",
+      "title": "線引きできない人は話を聞かれない（軽く見られる）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "017",
+        "タイトル": "線引きできない人は話を聞かれない（軽く見られる）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "境界線",
+        "悩みタグ_サブ": "信頼",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/017/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "018",
+      "video_id": "CH24-018",
+      "title": "我慢しない人が最後は勝つ（強さの正体）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "018",
+        "タイトル": "我慢しない人が最後は勝つ（強さの正体）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "我慢",
+        "悩みタグ_サブ": "強さ",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/018/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "019",
+      "video_id": "CH24-019",
+      "title": "人生で試されるのは「あの3文字」【弘法大師の教え】",
+      "planning": {
+        "動画番号": "019",
+        "タイトル": "人生で試されるのは「あの3文字」【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "人生",
+        "悩みタグ_サブ": "試練",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/019/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "020",
+      "video_id": "CH24-020",
+      "title": "後ろめたさを捨てていい（心が軽くなる）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "020",
+        "タイトル": "後ろめたさを捨てていい（心が軽くなる）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "罪悪感",
+        "悩みタグ_サブ": "手放し",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/020/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "021",
+      "video_id": "CH24-021",
+      "title": "最大の復讐は「無視」すること（争わない勝ち方）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "021",
+        "タイトル": "最大の復讐は「無視」すること（争わない勝ち方）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "復讐",
+        "悩みタグ_サブ": "無視",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/021/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "022",
+      "video_id": "CH24-022",
+      "title": "言い返すな。黙って整えろ【弘法大師の教え】",
+      "planning": {
+        "動画番号": "022",
+        "タイトル": "言い返すな。黙って整えろ【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "口論",
+        "悩みタグ_サブ": "損",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/022/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "023",
+      "video_id": "CH24-023",
+      "title": "嫉妬する人は必ず孤独になる【弘法大師の教え】",
+      "planning": {
+        "動画番号": "023",
+        "タイトル": "嫉妬する人は必ず孤独になる【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "思考",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/023/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "024",
+      "video_id": "CH24-024",
+      "title": "家族に雑にされる理由はこれ【弘法大師の教え】",
+      "planning": {
+        "動画番号": "024",
+        "タイトル": "家族に雑にされる理由はこれ【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "人間関係",
+        "悩みタグ_サブ": "自分軸",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/024/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "025",
+      "video_id": "CH24-025",
+      "title": "すぐ謝る人が損をする（自分を安売りする癖）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "025",
+        "タイトル": "すぐ謝る人が損をする（自分を安売りする癖）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "謝る",
+        "悩みタグ_サブ": "損",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/025/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "026",
+      "video_id": "CH24-026",
+      "title": "眠れない夜は心を緩めろ（不安を戻す方法）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "026",
+        "タイトル": "眠れない夜は心を緩めろ（不安を戻す方法）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "不眠",
+        "悩みタグ_サブ": "不安",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/026/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "027",
+      "video_id": "CH24-027",
+      "title": "老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】",
+      "planning": {
+        "動画番号": "027",
+        "タイトル": "老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "老後",
+        "悩みタグ_サブ": "不安",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/027/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "028",
+      "video_id": "CH24-028",
+      "title": "50代で差がつく「貧乏の口ぐせ」【弘法大師の教え】",
+      "planning": {
+        "動画番号": "028",
+        "タイトル": "50代で差がつく「貧乏の口ぐせ」【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "貧乏",
+        "悩みタグ_サブ": "口癖",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/028/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "029",
+      "video_id": "CH24-029",
+      "title": "その口ぐせ、金が逃げる【弘法大師の教え】",
+      "planning": {
+        "動画番号": "029",
+        "タイトル": "その口ぐせ、金が逃げる【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "運",
+        "悩みタグ_サブ": "口癖",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/029/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH24",
+      "video": "030",
+      "video_id": "CH24-030",
+      "title": "期待するほど心が苦しい【弘法大師の教え】",
+      "planning": {
+        "動画番号": "030",
+        "タイトル": "期待するほど心が苦しい【弘法大師の教え】",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-24 20:26:27",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "静けさ",
+        "悩みタグ_サブ": "心",
+        "ライフシーン": "日常",
+        "キーコンセプト": "弘法大師の教え",
+        "ベネフィット一言": "心が軽くなる",
+        "内容（企画要約）": "",
+        "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
+      },
+      "assembled_path": "workspaces/scripts/CH24/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH24/030/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    }
+  ]
+}

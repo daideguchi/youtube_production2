@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Production Snapshot</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div>
+          <h1>Production Snapshot</h1>
+          <p class="muted">planning + script status の俯瞰（静的 / 読み取り専用）</p>
+        </div>
+        <div class="header__right">
+          <a class="btn btn--ghost" href="../">Script Viewer</a>
+          <button id="reload" class="btn btn--ghost" type="button">再読み込み</button>
+        </div>
+      </header>
+
+      <section class="controls">
+        <label class="control">
+          <span class="control__label">Channel</span>
+          <select id="channelSelect" class="control__input"></select>
+        </label>
+        <label class="control">
+          <span class="control__label">Search</span>
+          <input id="searchInput" class="control__input" placeholder="例: CH10-005 / 005 / タイトル断片" />
+        </label>
+        <label class="control">
+          <span class="control__label">Rows</span>
+          <select id="rowsSelect" class="control__input">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="9999">All</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="alertBox" class="alert" hidden></section>
+
+      <section class="meta">
+        <div class="meta__title" id="metaTitle">—</div>
+        <div class="meta__row">
+          <div class="meta__path">
+            <span class="muted">Planning CSV:</span>
+            <a id="planningCsvLink" class="link" target="_blank" rel="noreferrer">—</a>
+          </div>
+          <div class="meta__actions">
+            <a id="openDataJson" class="btn btn--ghost" target="_blank" rel="noreferrer">data.json</a>
+          </div>
+        </div>
+      </section>
+
+      <main class="content">
+        <div id="loading" class="loading" hidden>読み込み中…</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>進捗</th>
+                <th>Script</th>
+                <th>Stages</th>
+                <th>Links</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <footer class="footer muted">
+        <span id="footerMeta">—</span>
+      </footer>
+    </div>
+  </body>
+</html>

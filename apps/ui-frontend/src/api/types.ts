@@ -1748,3 +1748,19 @@ export interface BatchTtsStartResponse {
   status: string;
   message: string;
 }
+
+export interface MetaResponse {
+  repo_root?: string;
+  git?: {
+    sha?: string | null;
+    branch?: string | null;
+    dirty?: boolean;
+    errors?: Record<string, string>;
+  };
+  process?: {
+    pid?: number;
+  };
+  time?: {
+    server_now?: number;
+  };
+}

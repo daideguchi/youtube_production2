@@ -80,6 +80,17 @@
 
 ---
 
+### 2.3 採用済みエピソードとの重複（キーコンセプト）— 乱立を未然に止める
+
+Planning の `キーコンセプト` は、台本入力の補助であると同時に「採用済みエピソード管理キー」でもある。  
+同一チャンネル内で重複しすぎると、同テーマの回が乱立して視聴者が混乱しやすい（特に CH01）。
+
+確定対策:
+- `python scripts/ops/planning_lint.py --channel CHxx` が、採用済み（Planning CSV の `進捗=投稿済み/公開済み`）の回と `キーコンセプト` が重複している行を警告する。
+- strict運用（任意）: `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION=1` で、高コスト工程（research/outline/draft）の前に停止できる（既定OFF）。判定対象の「採用済み」は Planning CSV の `進捗=投稿済み/公開済み` に加えて `published_lock=true`（UI の `投稿完了`）も含む。
+
+---
+
 ## 3) 運用（最短で迷子を止める）
 
 1) まず lint:

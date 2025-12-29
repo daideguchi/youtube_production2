@@ -258,6 +258,7 @@ export function ChannelPortalPage() {
   const [publishError, setPublishError] = useState<Record<string, string>>({});
   const [copiedVideo, setCopiedVideo] = useState<string | null>(null);
   const copiedTimerRef = useRef<number | null>(null);
+  const [channelAvatarErrors, setChannelAvatarErrors] = useState<Record<string, boolean>>({});
 
   const [portalTopTab, setPortalTopTab] = useState<PortalTopTab>(() => {
     const raw = (safeLocalStorage.getItem("ui.portal.topTab") ?? "").trim();
@@ -840,33 +841,76 @@ export function ChannelPortalPage() {
           </div>
 
           <div className="channel-portal-switcher-tools">
-            <label className="channel-portal-switcher-label">
-              チャンネル切替:
-              <select
-                className="channel-portal-switcher-select"
-                value={selectedChannel ?? ""}
-                onChange={(event) => {
-                  const next = event.target.value;
-                  if (!next) {
-                    return;
-                  }
-                  navigate(`/channels/${encodeURIComponent(next)}/portal`);
-                }}
-                disabled={channelsLoading || Boolean(channelsError)}
-              >
-                <option value="" disabled>
-                  {channelsLoading ? "読み込み中…" : channelsError ? "取得失敗" : "選択してください"}
-                </option>
-                {sortedChannels.map((channel) => {
-                  const displayName = resolveChannelDisplayName(channel);
-                  return (
-                    <option key={channel.code} value={channel.code}>
-                      {channel.code} {displayName}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
+            <div className="channel-portal-switcher-label">
+              <div className="channel-portal-switcher-row">
+                <span>チャンネル切替:</span>
+                <div className="channel-portal-channel-pills" role="list" aria-label="チャンネル選択">
+                  {sortedChannels.map((channel) => {
+                    const isActive = channel.code === selectedChannel;
+                    const displayName = resolveChannelDisplayName(channel);
+                    const avatarUrl = (channel.branding?.avatar_url ?? "").trim() || null;
+                    const avatarEnabled = Boolean(avatarUrl && !channelAvatarErrors[channel.code]);
+                    const iconLabel = channel.code.replace(/^CH/i, "") || channel.code;
+                    return (
+                      <button
+                        key={channel.code}
+                        type="button"
+                        className={`channel-portal-channel-pill${isActive ? " channel-portal-channel-pill--active" : ""}`}
+                        aria-pressed={isActive}
+                        disabled={channelsLoading || Boolean(channelsError)}
+                        title={`${channel.code} ${displayName}`}
+                        onClick={() => navigate(`/channels/${encodeURIComponent(channel.code)}/portal`)}
+                      >
+                        <span className="channel-portal-channel-pill__icon" aria-hidden="true">
+                          {avatarEnabled ? (
+                            <img
+                              className="channel-portal-channel-pill__avatar"
+                              src={avatarUrl ?? undefined}
+                              alt=""
+                              loading="lazy"
+                              onError={() =>
+                                setChannelAvatarErrors((current) => ({ ...current, [channel.code]: true }))
+                              }
+                            />
+                          ) : (
+                            <span className="channel-portal-channel-pill__icon-fallback">{iconLabel}</span>
+                          )}
+                        </span>
+                        <span className="channel-portal-channel-pill__code">{channel.code}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <details className="channel-portal-switcher-details">
+                <summary>プルダウンで選択</summary>
+                <select
+                  className="channel-portal-switcher-select"
+                  value={selectedChannel ?? ""}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    if (!next) {
+                      return;
+                    }
+                    navigate(`/channels/${encodeURIComponent(next)}/portal`);
+                  }}
+                  disabled={channelsLoading || Boolean(channelsError)}
+                >
+                  <option value="" disabled>
+                    {channelsLoading ? "読み込み中…" : channelsError ? "取得失敗" : "選択してください"}
+                  </option>
+                  {sortedChannels.map((channel) => {
+                    const displayName = resolveChannelDisplayName(channel);
+                    return (
+                      <option key={channel.code} value={channel.code}>
+                        {channel.code} {displayName}
+                      </option>
+                    );
+                  })}
+                </select>
+              </details>
+            </div>
             <span className="muted channel-portal-switcher-count">
               {sortedChannels.length}
             </span>
@@ -1276,6 +1320,23 @@ export function ChannelPortalPage() {
                       <tr
                         key={row.video_number}
                         className="channel-projects__row"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          const target = event.target as HTMLElement | null;
+                          if (target?.closest("button, a, input, select, textarea, label")) {
+                            return;
+                          }
+                          openScript(row.video_number);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.target !== event.currentTarget) {
+                            return;
+                          }
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            openScript(row.video_number);
+                          }
+                        }}
                       >
                         <th scope="row">{row.video_number}</th>
                         <td>

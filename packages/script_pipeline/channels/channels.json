@@ -16,8 +16,8 @@
     "specific_columns": ["ターゲット層"]
   },
   "ch03": {
-    "name": "シニア・健康 【シニアの健康】朗読図書館",
-    "storage_name": "シニア・健康 【シニアの健康】朗読図書館",
+    "name": "シニア健康",
+    "storage_name": "シニア健康",
     "spreadsheet_id": "1SRsNFxhJHYqAtDlzVO15l2y5iGm05HTBdlf7OzBmzIg",
     "description": "60歳以上の高齢者向け健康情報",
     "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "テキスト配置・デザイン指示 (人間/ツール向け)"],
@@ -51,15 +51,15 @@
     "name": "仏教の心【全てうまくいく】",
     "storage_name": "仏教の心【全てうまくいく】",
     "spreadsheet_id": "",
-    "description": "朝夜の不安を仏教の習慣で和らげる",
+    "description": "因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
   },
   "ch08": {
-    "name": "隠れ書庫アカシック",
-    "storage_name": "隠れ書庫アカシック",
+    "name": "静かな夜の心理図書室",
+    "storage_name": "静かな夜の心理図書室",
     "spreadsheet_id": "",
-    "description": "夜の静かな読書と呼吸で過覚醒を鎮める",
+    "description": "心理とスピリチュアルを静かにほどく夜の朗読室。眠れない夜に、呼吸と小さな気づきで心をゆるめます。",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
   },
@@ -67,7 +67,7 @@
     "name": "不動の指針",
     "storage_name": "不動の指針",
     "spreadsheet_id": "",
-    "description": "価値観メモで決断疲れを減らす",
+    "description": "偉人本人の語りで、名言と背景を物語にし、今日の焦りを静かに整える",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
   },
@@ -75,8 +75,136 @@
     "name": "人生を変える偉人思考【今日から実装】",
     "storage_name": "人生を変える偉人思考【今日から実装】",
     "spreadsheet_id": "",
-    "description": "偉人の思考を今日から実装できる形で届ける",
+    "description": "偉人の思考を今日から実装できる形で届ける長尺チャンネル",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
+  },
+  "ch11": {
+    "name": "ブッダの法話",
+    "storage_name": "ブッダの法話",
+    "spreadsheet_id": "1xfaUSqR2lE4MxC4_6O6aiodWmOm3quRBxAQzWk1eTzg",
+    "description": "仏教の教えと現代科学を融合した人生哲学",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch12": {
+    "name": "ブッダの黄昏夜話",
+    "storage_name": "ブッダの黄昏夜話",
+    "spreadsheet_id": "",
+    "description": "夜の不安を、ブッダの教えで“わかる言葉”にして静める。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch13": {
+    "name": "ブッダの禅処方箋",
+    "storage_name": "ブッダの禅処方箋",
+    "spreadsheet_id": "",
+    "description": "家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch14": {
+    "name": "ブッダの執着解除",
+    "storage_name": "ブッダの執着解除",
+    "spreadsheet_id": "",
+    "description": "後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch15": {
+    "name": "ブッダの心胆鍛錬",
+    "storage_name": "ブッダの心胆鍛錬",
+    "spreadsheet_id": "",
+    "description": "根性論ではなく、心の体力を“整えて鍛える”。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch16": {
+    "name": "ブッダの老後整え方",
+    "storage_name": "ブッダの老後整え方",
+    "spreadsheet_id": "",
+    "description": "老後の不安を煽らず、安心が増える“整える順番”を渡す。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch17": {
+    "name": "安らぎ仏教夜話",
+    "storage_name": "安らぎ仏教夜話",
+    "spreadsheet_id": "",
+    "description": "眠る前の心を、そっとほどく仏教の夜話チャンネルです。\n怒り、不安、執着、人間関係の疲れ。日々の悩みを、仏教のやさしい言葉とたとえ話で静かに整えていきます。\n\n内容は難しい説教ではなく、今日の生活にそのまま使える形に噛み砕いてお届けします。\n就寝前の寝落ち、作業用、勉強用の“聴く時間”として、長時間で淡々と進む構成です。\n\n音声：VOICEVOX（青山流星）",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch18": {
+    "name": "ゆったり仏教伝説紀行",
+    "storage_name": "ゆったり仏教伝説紀行",
+    "spreadsheet_id": "",
+    "description": "仏教にまつわる伝説・逸話・寺社の由来を、静かに語る長時間チャンネルです。\n寝落ち・作業・勉強中の“聴く旅”として、淡々と進む構成でお届けします。\n\n音声：VOICEVOX（青山流星）",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch19": {
+    "name": "眠れる昔ばなし朗読館",
+    "storage_name": "眠れる昔ばなし朗読館",
+    "spreadsheet_id": "",
+    "description": "日本と世界の昔ばなし・童話・民話を、ゆっくり朗読する睡眠用チャンネルです。\n刺激の強い表現は抑え、寝落ち・作業用に淡々と進む長時間の語りに整えています。\n\n音声：VOICEVOX（青山流星）",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch20": {
+    "name": "ゆったり雑学ナイトラジオ",
+    "storage_name": "ゆったり雑学ナイトラジオ",
+    "spreadsheet_id": "",
+    "description": "眠る前に、知的好奇心を“ちょっとだけ”満たす雑学ラジオ。\n宇宙、動物、歴史、日常の科学、文化などを、刺激を抑えて淡々と語ります。\n\nテンポは遅め、声は一定。\n驚かせる演出や大きな効果音は使わず、寝落ち・作業用に最適化しています。\n\n音声：VOICEVOX（青山流星）",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch21": {
+    "name": "夢見るゆる旅案内",
+    "storage_name": "夢見るゆる旅案内",
+    "spreadsheet_id": "",
+    "description": "目を閉じて行ける、音の旅。\n日本と世界の風景を、情景が浮かぶように静かに案内する“睡眠用トラベルガイド”です。\n\n知識の詰め込みではなく、旅の空気を味わうための言葉選び。\n寝落ち・作業用の長時間で、ゆっくり進みます。\n\n音声：VOICEVOX（青山流星）",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch22": {
+    "name": "老後の友人関係ラボ",
+    "storage_name": "老後の友人関係ラボ",
+    "spreadsheet_id": "",
+    "description": "老後の友人関係を、物語で整える。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch23": {
+    "name": "熟年夫婦の現実ノート",
+    "storage_name": "熟年夫婦の現実ノート",
+    "spreadsheet_id": "",
+    "description": "熟年夫婦の現実を、物語で整理する。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch24": {
+    "name": "叡智の扉",
+    "storage_name": "叡智の扉",
+    "spreadsheet_id": "",
+    "description": "弘法大師（空海）の教えで、心を静かに整える。",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch25": {
+    "name": "寝落ち偉人講話【眠りながら学ぶ】",
+    "storage_name": "寝落ち偉人講話【眠りながら学ぶ】",
+    "spreadsheet_id": "",
+    "description": "寝落ちしながら偉人の人生と考え方を学ぶ、長尺の睡眠用講話チャンネル",
+    "thumbnail_columns": [],
+    "specific_columns": []
+  },
+  "ch26": {
+    "name": "拝啓、偉人より",
+    "storage_name": "拝啓、偉人より",
+    "spreadsheet_id": "",
+    "description": "偉人の思考を『手紙』のように静かに届け、短い言葉（名言）から判断の型へ落とす。",
+    "thumbnail_columns": [],
+    "specific_columns": []
   }
 }

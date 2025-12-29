@@ -1,0 +1,11 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-252__retitle_benchmark_style_20251228
+target:
+  channel: CH01
+  video: '252'
+apply:
+  set:
+    タイトル: 【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）
+    更新日時: '2025-12-29 07:54:19'
+notes: Retitle to match benchmark (@buddha-no09) title style (2-sentence + strong
+  bracket tags).

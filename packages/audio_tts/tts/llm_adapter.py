@@ -528,18 +528,23 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
 
     Tuning (env overrides):
     - SRT_LINEBREAK_ENABLED (default: 1)
+    - SRT_LINEBREAK_MODE (default: heuristic)  # heuristic|llm
     - SRT_LINEBREAK_MAX_LINES (default: 2)
     - SRT_LINEBREAK_MAX_CHARS_PER_LINE (default: target_len)
     - SRT_LINEBREAK_RETRY_LIMIT (default: 1)
     """
     if not entries:
         return entries
-    if LOCAL_INFERENCE_ONLY:
-        return entries
 
     enabled = (os.getenv("SRT_LINEBREAK_ENABLED", "1") or "").strip().lower() not in ("0", "false", "no", "off")
     if not enabled:
         return entries
+
+    mode = (os.getenv("SRT_LINEBREAK_MODE", "heuristic") or "").strip().lower()
+    if mode in ("0", "false", "no", "off", "disabled"):
+        return entries
+    if mode not in ("heuristic", "llm"):
+        mode = "heuristic"
 
     def _to_int(value: object, default: int) -> int:
         try:
@@ -551,6 +556,146 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
     max_chars = max(4, _to_int(os.getenv("SRT_LINEBREAK_MAX_CHARS_PER_LINE", str(target_len)), int(target_len)))
     retry_limit = max(0, _to_int(os.getenv("SRT_LINEBREAK_RETRY_LIMIT", "1"), 1))
     bs = max(1, _to_int(batch_size, 20))
+
+    # --- Heuristic line break (fast, deterministic, no LLM) ---
+    _OPEN_BRACKETS = set("（(「『【〈《[")
+    _CLOSE_BRACKETS = set("）)」』】〉》]")
+    _BAD_LINE_START = set("、。，．。！？!?」』】）)〉》]")
+    _SMALL_KANA = set("ぁぃぅぇぉゃゅょっァィゥェォャュョッー")
+    _PARTICLES = set("はがをにでともへやの")
+    _PUNCT_STRONG = set("。！？!?…")
+    _PUNCT_WEAK = set("、，,;；:：")
+
+    def _is_kanji(ch: str) -> bool:
+        return "\u4e00" <= ch <= "\u9fff"
+
+    def _choose_break_two_lines(text: str, *, hard_max: int, max_lines: int) -> str:
+        """
+        Insert at most 1 newline into `text` (which must NOT contain newlines).
+        - Prefer punctuation boundaries near the center.
+        - Avoid starting a line with punctuation/particles when possible.
+        - Avoid splitting Kanji compounds when possible.
+        """
+        if max_lines <= 1:
+            return text
+        if "\n" in text or "\r" in text:
+            text = text.replace("\r", "").replace("\n", "")
+        n = len(text)
+        if n <= hard_max:
+            return text
+        if max_lines != 2 or n < 2:
+            return text
+
+        center = n / 2.0
+        hard_possible = n <= (hard_max * max_lines)
+
+        def _valid(i: int) -> bool:
+            if i <= 0 or i >= n:
+                return False
+            left_len = i
+            right_len = n - i
+            if left_len < 6 or right_len < 6:
+                return False
+            prev = text[i - 1]
+            nxt = text[i]
+            if nxt in _BAD_LINE_START or nxt in _SMALL_KANA:
+                return False
+            if prev in _OPEN_BRACKETS or prev in _SMALL_KANA:
+                return False
+            if hard_possible and (left_len > hard_max or right_len > hard_max):
+                return False
+            return True
+
+        def _score(i: int) -> float:
+            if not _valid(i):
+                return 1e9
+            left_len = i
+            right_len = n - i
+            prev = text[i - 1]
+            nxt = text[i]
+            max_len = max(left_len, right_len)
+
+            s = 0.0
+            s += abs(left_len - right_len) * 0.85
+            s += abs(i - center) * 0.10
+
+            if not hard_possible and max_len > hard_max:
+                s += (max_len - hard_max) * 4.0
+
+            if prev in _PUNCT_STRONG:
+                s -= 10.0
+            elif prev in _PUNCT_WEAK:
+                s -= 6.0
+            elif prev in _CLOSE_BRACKETS:
+                s -= 2.0
+
+            if _is_kanji(prev) and _is_kanji(nxt):
+                s += 10.0
+
+            if nxt in _PARTICLES:
+                s += 3.5
+
+            if prev.isascii() and nxt.isascii() and prev.isalnum() and nxt.isalnum():
+                s += 6.0
+            if prev.isdigit() and nxt.isdigit():
+                s += 4.0
+
+            return s
+
+        best_i = min(range(1, n), key=_score)
+        if _score(best_i) >= 1e8:
+            return text
+        return text[:best_i] + "\n" + text[best_i:]
+
+    def _needs_rewrap(raw_text: str) -> bool:
+        raw = str(raw_text or "")
+        if not raw.strip():
+            return False
+        if "\r" in raw:
+            return True
+        if "\n" not in raw:
+            return len(raw) > max_chars
+
+        lines = [ln for ln in raw.replace("\r", "").split("\n") if ln != ""]
+        if not lines:
+            return False
+        if len(lines) > max_lines:
+            return True
+        for ln in lines:
+            if not ln:
+                continue
+            if ln[0] in _BAD_LINE_START or ln[0] in _SMALL_KANA:
+                return True
+            if ln[-1] in _OPEN_BRACKETS or ln[-1] in _SMALL_KANA:
+                return True
+
+        compact = "".join(lines)
+        if len(lines) == 2 and lines[0] and lines[1]:
+            if _is_kanji(lines[0][-1]) and _is_kanji(lines[1][0]):
+                return True
+
+        if len(compact) <= (max_chars * max_lines):
+            if any(len(ln) > max_chars for ln in lines):
+                return True
+        return False
+
+    def _format_srt_lines_heuristic(entries_in: list[dict]) -> list[dict]:
+        for ent in entries_in:
+            raw = str(ent.get("text", "") or "")
+            if not raw.strip():
+                continue
+            if not _needs_rewrap(raw):
+                if "\r" in raw:
+                    ent["text"] = raw.replace("\r", "")
+                continue
+            compact = raw.replace("\r", "").replace("\n", "")
+            rewritten = _choose_break_two_lines(compact, hard_max=max_chars, max_lines=max_lines)
+            if rewritten.replace("\n", "") == compact:
+                ent["text"] = rewritten
+        return entries_in
+
+    if mode == "heuristic" or LOCAL_INFERENCE_ONLY:
+        return _format_srt_lines_heuristic(entries)
 
     # Map entries by index (1-based).
     by_index: dict[int, dict] = {}
@@ -645,7 +790,7 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
                     )
             except Exception as e:
                 print(f"[LLM_WARN] format_srt_lines call failed: {e}")
-                return entries
+                return _format_srt_lines_heuristic(entries)
 
             obj = _parse_json_lenient(str(content or ""))
             items = obj.get("items") if isinstance(obj, dict) else None
@@ -676,8 +821,10 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
 
         pending = next_pending
 
-    # Final fallback: leave remaining pending cues untouched.
-    return entries
+    # Final fallback:
+    # - Any remaining pending cues are left untouched (LLM could not satisfy constraints).
+    # - Any too-long cues are rewrapped heuristically (best-effort, still no text change).
+    return _format_srt_lines_heuristic(entries)
 
 
 def _split_for_segmentation(a_text: str, limit: int = 1200) -> list[str]:

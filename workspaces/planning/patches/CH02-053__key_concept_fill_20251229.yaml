@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH02-053__key_concept_fill_20251229
+target:
+  channel: CH02
+  video: '053'
+apply:
+  set:
+    キーコンセプト: 選択疲れ
+notes: 未採用行のキーコンセプト空欄を補完（タイトル先頭【...】を採用して運用を安定化）。

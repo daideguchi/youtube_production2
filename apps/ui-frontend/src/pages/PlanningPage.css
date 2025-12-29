@@ -111,6 +111,24 @@
   font-weight: 600;
 }
 
+.planning-page__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.planning-page__dup-summary {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  font-weight: 800;
+  font-size: 12px;
+}
+
 .planning-page__table-wrapper {
   overflow: auto;
   border: 1px solid #e5e7eb;
@@ -152,6 +170,18 @@
 
 .planning-page__row {
   cursor: pointer;
+}
+
+.planning-page__row--dup-key-concept td:first-child {
+  box-shadow: inset 3px 0 0 rgba(220, 38, 38, 0.55);
+}
+
+.planning-page__table tr.planning-page__row--dup-key-concept td.planning-page__cell--dup-key-concept {
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.planning-page__table tr.planning-page__row--dup-key-concept:hover td.planning-page__cell--dup-key-concept {
+  background: rgba(220, 38, 38, 0.1);
 }
 
 .planning-page__cell {
@@ -342,6 +372,43 @@
   background: #fff1e6;
   color: #b45309;
   border: 1px solid #f59e0b;
+}
+
+.planning-page__badge--dup {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border: 1px solid rgba(220, 38, 38, 0.45);
+}
+
+.planning-page__dup-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.planning-page__dup-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.planning-page__dup-link {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: #ffffff;
+  color: #991b1b;
+  cursor: pointer;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+.planning-page__dup-link:hover {
+  background: rgba(220, 38, 38, 0.08);
+  opacity: 1;
 }
 
 .planning-page__align {

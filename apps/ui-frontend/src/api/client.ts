@@ -90,6 +90,7 @@ import {
   ResearchFileResponse,
   UiParams,
   UiParamsResponse,
+  MetaResponse,
   AudioCheckLog,
   AudioCheckRecentItem,
   AudioIntegrityItem,
@@ -351,6 +352,10 @@ async function fetchGitHubResearchFile(base: string, path: string): Promise<Rese
     modified: undefined,
     content,
   };
+}
+
+export function fetchMeta(): Promise<MetaResponse> {
+  return request<MetaResponse>("/api/meta");
 }
 
 export function fetchChannels(): Promise<ChannelSummary[]> {

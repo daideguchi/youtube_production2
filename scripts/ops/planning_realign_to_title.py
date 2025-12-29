@@ -76,9 +76,9 @@ def _utc_now_compact() -> str:
 
 def _normalize_channel(ch: str) -> str:
     s = (ch or "").strip().upper()
-    if re.fullmatch(r"CH\\d{2}", s):
+    if re.fullmatch(r"CH\d{2}", s):
         return s
-    m = re.fullmatch(r"CH(\\d+)", s)
+    m = re.fullmatch(r"CH(\d+)", s)
     if m:
         return f"CH{int(m.group(1)):02d}"
     return s
@@ -97,7 +97,7 @@ def _video_number_from_row(row: dict[str, str]) -> str:
             return raw
     for key in ("動画ID", "台本番号"):
         v = (row.get(key) or "").strip()
-        m = re.search(r"\\bCH\\d{2}-(\\d{3})\\b", v)
+        m = re.search(r"\bCH\d{2}-(\d{3})\b", v)
         if m:
             return m.group(1)
     return "???"
@@ -121,7 +121,7 @@ def _parse_title_parts(title: str) -> tuple[str, str]:
 def _normalize_tag(tag: str) -> str:
     """Normalize tags for format-only variations (e.g., ニコラ・テスラ流 vs ニコラテスラ流)."""
     s = unicodedata.normalize("NFKC", str(tag or "")).strip()
-    s = re.sub(r"[\\s\\u3000・･·、,\\.／/\\\\\\-‐‑‒–—―ー〜~]", "", s)
+    s = re.sub(r"[\s\u3000・･·、,\.／/\\\-‐‑‒–—―ー〜~]", "", s)
     return s
 
 

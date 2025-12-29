@@ -133,6 +133,9 @@ ssot_old/
 
 # Local scratch
 tmp/
+log_research/**
+!log_research/README.md
+!log_research/LATEST_ARCHIVE.txt
 workspaces/_scratch/**
 workspaces/research/_local/**
 

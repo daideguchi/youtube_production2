@@ -7,6 +7,7 @@ import argparse
 import re
 import subprocess
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -555,6 +556,7 @@ def _split_font_ref(font_ref: str) -> Tuple[str, int]:
     return (s, 0)
 
 
+@lru_cache(maxsize=512)
 def _load_truetype(font_ref: str, size: int) -> ImageFont.FreeTypeFont:
     path, index = _split_font_ref(font_ref)
     return ImageFont.truetype(path, int(size), index=int(index))

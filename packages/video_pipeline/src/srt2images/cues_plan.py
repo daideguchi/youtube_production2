@@ -304,7 +304,7 @@ def plan_sections_via_router(
     if (channel_id or "").upper() == "CH01":
         extra_rapid = (
             "\n"
-            "- CRITICAL FOR CH01: rapid pacing; prefer shorter cuts when actions/thoughts change.\n"
+            "- CRITICAL FOR CH01: steady pacing; prefer shorter cuts only when actions/thoughts clearly change.\n"
             "- Adjacent sections MUST vary camera/pose/angle/subject to avoid repetition.\n"
         )
 
