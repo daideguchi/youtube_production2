@@ -138,6 +138,8 @@ log_research/**
 !log_research/LATEST_ARCHIVE.txt
 workspaces/_scratch/**
 workspaces/research/_local/**
+# Thumbnail SoT scratch backups (keep out of git; archive under backups/_incident_archives when needed)
+workspaces/thumbnails/**/*.bak_*
 
 # Tests output (generated; do not commit)
 tests/_out/**

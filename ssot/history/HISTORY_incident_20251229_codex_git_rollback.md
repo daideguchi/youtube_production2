@@ -52,10 +52,10 @@
 
 1) Codex execpolicy（破壊的Git禁止）
 - 対象: `/Users/dd/.codex/rules/default.rules`
-- 反映内容（要約）:
-  - `git` は原則 `prompt`（Codexからは実行不能）
-  - `git restore/checkout/reset/clean/revert/switch` は `forbidden`
-  - `rm -rf log_research` は `forbidden`
+- 反映内容（要約 / 事実）:
+  - `git restore/checkout/reset/clean/revert/switch` は `forbidden`（ロールバック系の遮断）
+  - `rm -rf log_research` は `forbidden`（事故ログの削除防止）
+  - macOS の複数 git 実体（`/usr/bin/git` と CLT git）で「ロールバック遮断」が効くようにルールを追加
 - 証跡: `backups/_incident_archives/factory_commentary/20251229_rollback/log_research/20251229_guardrails_execpolicy.md`
 
 2) ghost snapshot 警告（large untracked dir）対処
@@ -73,5 +73,5 @@
 
 ## 6) 未実施TODO（人間作業）
 
-- 今回の復元差分を commit/push（git操作は人間が実施）
-- `workspaces/planning/patches` の tracked/untracked 状態を整理（SSOT上は tracked 想定）
+- （完了）復元差分を commit/push（`snapshot/20251228T083510Z` へ push 済み）
+- （完了）`workspaces/planning/patches` を tracked として反映（snapshot 警告の原因を解消）
