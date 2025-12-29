@@ -14,7 +14,7 @@
   - OSレベルの強制アクセス制御（同一ユーザ上では不可能）
   - 自動で pending を完了させる常駐ワーカー群（将来）
   - UI への完全統合（将来。まずはファイルSoTを確立）
-- **最終更新日**: 2025-12-12
+- **最終更新日**: 2025-12-29
 
 ## 1. 背景
 複数の AI エージェントを同時に立ち上げて並列で作業する運用が増えたため、以下が必要になった:
@@ -86,12 +86,14 @@
 - 起動: `python scripts/agent_org.py orchestrator start --name dd-orch`
 - 状態: `python scripts/agent_org.py orchestrator status`
 - 停止: `python scripts/agent_org.py orchestrator stop`
+- 起動（推奨: guardrails + preflight 一括）: `python3 scripts/ops/orchestrator_bootstrap.py --name dd-orch`
 - request 作成（例: 役割付与）:
   - (推奨) `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_id":"<AGENT_ID>","role":"audio_worker"}' --wait-sec 3`
   - `agent_name` でも可（同名があると失敗しうる）: `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_name":"Mike","role":"audio_worker"}' --wait-sec 3`
 
 ### Agents
 - heartbeat 起動: `python scripts/agent_org.py agents start --name Mike --role worker`
+- heartbeat + board更新（推奨）: `python3 scripts/ops/agent_bootstrap.py --name Mike --role worker --doing "..." --next "..." --tags ui,cleanup`
 - 一覧: `python scripts/agent_org.py agents list`
 
 ### Locks / Memos
@@ -107,6 +109,13 @@
 - notes: `python scripts/agent_org.py board note --topic "[Q][ui] ..." <<'EOF' ... EOF`
   - reply: `python scripts/agent_org.py board note --reply-to <note_id> --topic "[REVIEW][ui] ..." <<'EOF' ... EOF`
 - ownership: `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` / `python scripts/agent_org.py board areas`
+
+### Preflight（並列運用のガードレール点検）
+- `python3 scripts/ops/parallel_ops_preflight.py`
+  - `.git` write-lock 状態
+  - Orchestrator lease 状態
+  - stale lock/agent heartbeat の概況
+  - execpolicy（rollback禁止）が有効かの probe（best-effort）
 
 ## 5. ログ設計
 - `workspaces/logs/agent_tasks/coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。

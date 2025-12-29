@@ -149,6 +149,9 @@
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
 - `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用。`overview` で「誰が何を触っているか」俯瞰可能）
+  - 並列運用の起動（Orchestrator一括ブート + preflight）: `python3 scripts/ops/orchestrator_bootstrap.py --name dd-orch`
+  - preflight（ガードレール点検のみ）: `python3 scripts/ops/parallel_ops_preflight.py`
+  - agent bootstrap（heartbeat + board更新）: `python3 scripts/ops/agent_bootstrap.py --name <NAME> --role <ROLE> --doing "..." --next "..."`
 	  - Shared Board（単一ファイルで共同）:
 	    - status: `python scripts/agent_org.py board set ...`
 	    - notes: `python scripts/agent_org.py board note ...`（返信: `--reply-to <note_id>`）
@@ -196,7 +199,7 @@
 ## 4. 生成物の掃除（容量/混乱対策）
 
 - Gitロールバック事故の予防（push前チェック含む）:
-  - `python3 scripts/ops/git_write_lock.py {status|lock|unlock}`（通常は lock。詳細: `ssot/ops/OPS_GIT_SAFETY.md`）
+  - `python3 scripts/ops/git_write_lock.py {status|lock|unlock|unlock-for-push}`（通常は lock。詳細: `ssot/ops/OPS_GIT_SAFETY.md`）
   - `python3 scripts/ops/pre_push_final_check.py --run-tests --write-ssot-report`（push前の最終チェック）
 - 統合 cleanup（推奨）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`

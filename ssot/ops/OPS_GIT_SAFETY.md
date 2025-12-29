@@ -9,7 +9,21 @@
 
 ---
 
-## 1) 仕組み（第一）: Codex execpolicy（ロールバック遮断）
+## 1) 仕組み（第一）: Codex Git Guard（ハードブロック）
+
+Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **常に失敗**させる（rollback 事故を物理的に遮断する）。
+
+実体:
+- `~/.codex/bin/git`（PATH先頭に置くラッパー）
+- `~/.zprofile` / `~/.zshenv`（Codexセッションのみ PATH を prepend）
+
+補足:
+- `python -c 'subprocess.run([\"git\", ...])'` のような “python 経由のバイパス” も PATH を経由する限り遮断できる。
+- 人間がやむを得ず実行する場合は **Codex外**で `/usr/bin/git ...` を使う（ただし運用上は原則禁止）。
+
+---
+
+## 2) 仕組み（第二）: Codex execpolicy（ロールバック遮断）
 
 `git restore/checkout/reset/clean/revert/switch` を `forbidden` にして、事故の根本原因を仕組みで遮断する。
 
@@ -19,25 +33,29 @@
 
 ---
 
-## 2) 仕組み（第二・任意）: `.git` write-lock（物理ガード）
+## 3) 仕組み（第三・任意）: `.git` write-lock（メタデータ保護）
 
-`.git/` を write-lock することで、破壊的git操作が即失敗する状態を作る。
+`.git/` を write-lock して、`checkout/reset` など **`.git` を書き換える系**を即失敗させる。
+
+注意:
+- `git restore <file>` のように worktree だけを書き換える操作は `.git` write-lock **だけでは止まらない**。
+- そのため、rollback遮断の主戦力は「Git Guard + execpolicy」で、`.git` write-lock は補助とする。
 
 コマンド:
 - 状態確認: `python3 scripts/ops/git_write_lock.py status`
 - ロック: `python3 scripts/ops/git_write_lock.py lock`
-- アンロック（push時のみ・人間限定）: `python3 scripts/ops/git_write_lock.py unlock`
+- アンロック（push時のみ）: `python3 scripts/ops/git_write_lock.py unlock-for-push`
 
 運用ルール:
 - **通常運用は常に lock**（並列エージェントが動く間は特に）
-- pushの直前だけ人間が unlock し、push後はすぐ lock に戻す（Orchestrator は unlock しない）
+- pushの直前だけ Orchestrator が一時解除し、push後はすぐ lock に戻す（`unlock-for-push` は Orchestrator lease 必須）
 
 補足:
 - `status` が `locked (external)` の場合、環境側（sandbox/OS制約）で `.git/` が保護されている状態。Codexからの破壊的git操作は既に通りにくいが、execpolicy（後述）も併用して二重化する。
 
 ---
 
-## 3) push前の最終チェック（SSOT整合）
+## 4) push前の最終チェック（SSOT整合）
 
 push前に、SSOT↔実装の不整合がないかを点検する（詳細は `scripts/ops/pre_push_final_check.py` を参照）。
 

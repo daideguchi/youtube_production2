@@ -50,7 +50,15 @@
 
 ## 4) 再発防止（実施済み / 事実）
 
-1) Codex execpolicy（破壊的Git禁止）
+1) Codex Git Guard（Codex shell で rollback コマンドを常時BLOCK）
+- 対象:
+  - `/Users/dd/.codex/bin/git`
+  - `/Users/dd/.zprofile`, `/Users/dd/.zshenv`
+- 反映内容（要約 / 事実）:
+  - Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を常に失敗させる
+  - PATH を prepend しているため、`python -c 'subprocess.run([\"git\", ...])'` 経由の呼び出しも同様に遮断できる
+
+2) Codex execpolicy（破壊的Git禁止）
 - 対象: `/Users/dd/.codex/rules/default.rules`
 - 反映内容（要約 / 事実）:
   - `git restore/checkout/reset/clean/revert/switch` は `forbidden`（ロールバック系の遮断）
@@ -58,7 +66,7 @@
   - macOS の複数 git 実体（`/usr/bin/git` と CLT git）で「ロールバック遮断」が効くようにルールを追加
 - 証跡: `backups/_incident_archives/factory_commentary/20251229_rollback/log_research/20251229_guardrails_execpolicy.md`
 
-2) ghost snapshot 警告（large untracked dir）対処
+3) ghost snapshot 警告（large untracked dir）対処
 - 対象: `/Users/dd/.codex/config.toml`
 - 追加: `[ghost_snapshot] ignore_large_untracked_dirs = false`
 - 目的: `workspaces/planning/patches` の警告抑止（snapshot/undo対象から除外されないようにする）

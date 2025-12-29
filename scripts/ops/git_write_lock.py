@@ -4,10 +4,13 @@ git_write_lock — prevent accidental git rollbacks by write-locking `.git/`.
 
 Why:
   In multi-agent environments, a single `git restore/checkout/reset` can wipe hours of work.
-  This guard locks the repository metadata so destructive git operations fail immediately.
+  This guard locks the repository metadata (`.git/`) so operations that need to write git
+  metadata (e.g. checkout/reset that update refs/index) fail immediately.
 
 Notes:
   - This does NOT affect normal file edits (agents can still modify files directly).
+  - This does NOT block worktree-only rollbacks such as `git restore <file>` (no `.git` writes).
+    For those, rely on the Codex Git Guard / execpolicy (see `ssot/ops/OPS_GIT_SAFETY.md`).
   - To commit/push, unlock temporarily, then re-lock after push.
   - Some environments forbid modifying `.git` metadata (chmod/chflags). In that case, this
     command becomes a no-op and rollback prevention relies on the Codex execpolicy.
@@ -16,6 +19,7 @@ Usage:
   python3 scripts/ops/git_write_lock.py status
   python3 scripts/ops/git_write_lock.py lock
   python3 scripts/ops/git_write_lock.py unlock
+  python3 scripts/ops/git_write_lock.py unlock-for-push
 """
 
 from __future__ import annotations
@@ -25,6 +29,7 @@ import os
 import stat as stat_mod
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from _bootstrap import bootstrap
@@ -46,6 +51,68 @@ def _darwin_has_immutable_flag(path: Path) -> bool:
     if flag is None:
         return False
     return bool(getattr(st, "st_flags", 0) & int(flag))
+
+
+def _orchestrator_lease_is_held() -> tuple[bool, str]:
+    """
+    Best-effort: treat `.git` unlock as allowed only when the single-orchestrator
+    lease is held.
+
+    This reduces the chance that a random worker unlocks `.git` and performs a
+    rollback in a parallel multi-agent run.
+    """
+    try:
+        import fcntl  # unix-only
+    except Exception:
+        return False, "fcntl unavailable (cannot validate orchestrator lease)"
+
+    try:
+        from factory_common.paths import logs_root
+
+        lock_path = logs_root() / "agent_tasks" / "coordination" / "orchestrator" / "lease.lock"
+    except Exception as exc:
+        return False, f"cannot resolve orchestrator lease lock path: {exc}"
+
+    if not lock_path.exists():
+        return False, f"orchestrator lease lock missing: {lock_path}"
+
+    lock_f = lock_path.open("a")
+    try:
+        try:
+            fcntl.flock(lock_f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True, "lease held"
+        return False, "lease not held"
+    finally:
+        try:
+            lock_f.close()
+        except Exception:
+            pass
+
+
+def _orchestrator_state_summary() -> str:
+    try:
+        import json
+        from factory_common.paths import logs_root
+
+        state_path = logs_root() / "agent_tasks" / "coordination" / "orchestrator" / "state.json"
+        if not state_path.exists():
+            return "(no state.json)"
+
+        st = json.loads(state_path.read_text(encoding="utf-8"))
+        name = st.get("name")
+        pid = st.get("pid")
+        last = st.get("last_heartbeat_at")
+        age = None
+        try:
+            if isinstance(last, str):
+                dt = datetime.fromisoformat(last.replace("Z", "+00:00"))
+                age = int((datetime.now(timezone.utc) - dt).total_seconds())
+        except Exception:
+            age = None
+        return f"name={name} pid={pid} heartbeat_age_sec={age}"
+    except Exception:
+        return "(unreadable state.json)"
 
 
 def _chmod_is_locked(path: Path) -> bool:
@@ -113,8 +180,16 @@ def cmd_status(_args: argparse.Namespace) -> int:
         print("unlocked")
         return 0
 
+    # If creation is denied, explain the best-known reason.
+    if _is_darwin() and _darwin_has_immutable_flag(git_dir):
+        print("locked (immutable)")
+        return 0
+    if _chmod_is_locked(git_dir):
+        print("locked (chmod)")
+        return 0
+
     # If permissions look writable but creation is denied, it's typically an external restriction
-    # (sandbox / OS provenance) rather than our own chmod/chflags lock.
+    # (sandbox / OS provenance).
     st = os.stat(git_dir)
     writable_bit = bool(st.st_mode & stat_mod.S_IWUSR)
     if writable_bit:
@@ -159,6 +234,20 @@ def cmd_unlock(_args: argparse.Namespace) -> int:
         print("unlocked")
         return 0
 
+    held, note = _orchestrator_lease_is_held()
+    if not held:
+        print(
+            "[FAIL] refusing to unlock .git without an active orchestrator lease (rollback prevention).",
+            file=sys.stderr,
+        )
+        print(
+            "hint: start orchestrator -> python3 scripts/agent_org.py orchestrator start --name dd-orch",
+            file=sys.stderr,
+        )
+        print(f"orchestrator_state: {_orchestrator_state_summary()}", file=sys.stderr)
+        print(f"lease_check: {note}", file=sys.stderr)
+        return 2
+
     if _is_darwin():
         _try_run(["chflags", "nouchg", str(git_dir)])
 
@@ -183,6 +272,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_lock)
 
     sp = sub.add_parser("unlock", help="unlock .git (required before commit/push)")
+    sp.set_defaults(func=cmd_unlock)
+
+    sp = sub.add_parser("unlock-for-push", help="unlock .git (requires orchestrator lease; safer)")
     sp.set_defaults(func=cmd_unlock)
 
     return ap

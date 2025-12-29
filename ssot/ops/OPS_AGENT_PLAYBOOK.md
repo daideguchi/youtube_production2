@@ -60,16 +60,27 @@ python scripts/agent_org.py locks-audit --older-than-hours 6
 
 lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/plans/PLAN_AGENT_ORG_COORDINATION.md`）。
 
-### 2.2.5 Git write-lock（強制）
-並列エージェント運用中は `.git` を write-lock して、`git restore/checkout/reset` 等のロールバック事故を物理的に防ぐ。
+### 2.2.5 Gitロールバック遮断（強制）
+並列運用では、Codex からの `git restore/checkout/reset` 等で作業ツリーが巻き戻る事故を **仕組みで封じる**。
 
+仕組み（優先順）:
+- Codex Git Guard: Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を常に BLOCK（`~/.codex/bin/git`）
+- Codex execpolicy: 上記コマンドを `forbidden`（バイパス防止）
+- `.git` write-lock（任意）: `.git/` を lock して metadata 書き換え系を失敗させる  
+  ※ `git restore` のように worktree だけ触るコマンドは、これ **単体では止まらない**
+
+コマンド（`.git` write-lock）:
 ```bash
 python3 scripts/ops/git_write_lock.py status
 python3 scripts/ops/git_write_lock.py lock
 ```
 
-push 直前だけ `unlock` し、push 後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
-`status` が `locked (external)` の場合は、環境側で `.git/` が保護されている（lock/unlock が通らない）状態。
+push直前の一時解除（Orchestratorのみ）:
+```bash
+python3 scripts/ops/git_write_lock.py unlock-for-push
+```
+
+push後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
 
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。
