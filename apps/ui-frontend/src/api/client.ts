@@ -30,15 +30,20 @@ import {
   ThumbnailLibraryAsset,
   ThumbnailLibraryAssignResponse,
   ThumbnailDescriptionResponse,
+  ThumbnailEditorContext,
   ThumbnailVideoLayerSpecs,
   ThumbnailImageModelInfo,
+  ThumbnailLayerSpecsBuildPayload,
+  ThumbnailLayerSpecsBuildResult,
   ThumbnailChannelTemplates,
   ThumbnailChannelTemplatesUpdate,
+  ThumbnailParamCatalogEntry,
   ThumbnailQuickHistoryEntry,
   ThumbnailOverview,
   ThumbnailQcNotes,
   ThumbnailQcNoteUpdatePayload,
   ThumbnailProjectStatus,
+  ThumbnailThumbSpec,
   ThumbnailVariant,
   ThumbnailVariantGeneratePayload,
   ThumbnailVariantComposePayload,
@@ -1347,6 +1352,50 @@ export function describeThumbnailLibraryAsset(
 export function fetchThumbnailVideoLayerSpecs(channel: string, video: string): Promise<ThumbnailVideoLayerSpecs> {
   return request<ThumbnailVideoLayerSpecs>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/layer-specs`
+  );
+}
+
+export function fetchThumbnailParamCatalog(): Promise<ThumbnailParamCatalogEntry[]> {
+  return request<ThumbnailParamCatalogEntry[]>("/api/workspaces/thumbnails/param-catalog");
+}
+
+export function fetchThumbnailThumbSpec(channel: string, video: string): Promise<ThumbnailThumbSpec> {
+  return request<ThumbnailThumbSpec>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`
+  );
+}
+
+export function updateThumbnailThumbSpec(
+  channel: string,
+  video: string,
+  overrides: Record<string, any>
+): Promise<ThumbnailThumbSpec> {
+  return request<ThumbnailThumbSpec>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ overrides: overrides ?? {} }),
+    }
+  );
+}
+
+export function fetchThumbnailEditorContext(channel: string, video: string): Promise<ThumbnailEditorContext> {
+  return request<ThumbnailEditorContext>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/editor-context`
+  );
+}
+
+export function buildThumbnailLayerSpecs(
+  channel: string,
+  video: string,
+  payload: ThumbnailLayerSpecsBuildPayload
+): Promise<ThumbnailLayerSpecsBuildResult> {
+  return request<ThumbnailLayerSpecsBuildResult>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/layer-specs/build`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload ?? {}),
+    }
   );
 }
 

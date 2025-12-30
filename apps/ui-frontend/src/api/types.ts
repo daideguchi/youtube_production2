@@ -953,6 +953,60 @@ export interface ThumbnailImageModelInfo {
   pricing_updated_at?: string | null;
 }
 
+export interface ThumbnailParamCatalogEntry {
+  path: string;
+  kind: string;
+  engine: string;
+  min_value?: number | null;
+  max_value?: number | null;
+}
+
+export interface ThumbnailThumbSpec {
+  exists: boolean;
+  path?: string | null;
+  schema?: string | null;
+  channel: string;
+  video: string;
+  overrides: Record<string, any>;
+  updated_at?: string | null;
+  normalized_overrides_leaf: Record<string, any>;
+}
+
+export interface ThumbnailTextTemplateOption {
+  id: string;
+  description?: string | null;
+}
+
+export interface ThumbnailEditorContext {
+  channel: string;
+  video: string;
+  video_id: string;
+  portrait_available: boolean;
+  template_id_default?: string | null;
+  template_options: ThumbnailTextTemplateOption[];
+  defaults_leaf: Record<string, any>;
+  overrides_leaf: Record<string, any>;
+  effective_leaf: Record<string, any>;
+}
+
+export type ThumbnailLayerSpecsBuildOutputMode = "draft" | "final";
+
+export interface ThumbnailLayerSpecsBuildPayload {
+  allow_generate?: boolean;
+  regen_bg?: boolean;
+  output_mode?: ThumbnailLayerSpecsBuildOutputMode;
+}
+
+export interface ThumbnailLayerSpecsBuildResult {
+  status: string;
+  channel: string;
+  video: string;
+  build_id: string;
+  thumb_url: string;
+  thumb_path: string;
+  build_meta_path?: string | null;
+}
+
 export interface ThumbnailTemplate {
   id: string;
   name: string;
