@@ -1007,6 +1007,35 @@ export interface ThumbnailLayerSpecsBuildResult {
   build_meta_path?: string | null;
 }
 
+export interface ThumbnailCommentPatchTarget {
+  channel: string;
+  video: string;
+}
+
+export type ThumbnailCommentPatchOpKind = "set" | "unset";
+
+export interface ThumbnailCommentPatchOp {
+  op: ThumbnailCommentPatchOpKind;
+  path: string;
+  value?: any;
+  reason?: string | null;
+}
+
+export interface ThumbnailCommentPatch {
+  schema: string;
+  target: ThumbnailCommentPatchTarget;
+  confidence: number;
+  clarifying_questions: string[];
+  ops: ThumbnailCommentPatchOp[];
+  provider?: string | null;
+  model?: string | null;
+}
+
+export interface ThumbnailCommentPatchPayload {
+  comment: string;
+  include_thumb_caption?: boolean;
+}
+
 export interface ThumbnailTemplate {
   id: string;
   name: string;

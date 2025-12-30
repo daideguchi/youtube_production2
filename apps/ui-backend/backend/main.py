@@ -5940,6 +5940,35 @@ class ThumbnailEditorContextResponse(BaseModel):
     overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
     effective_leaf: Dict[str, Any] = Field(default_factory=dict)
 
+THUMBNAIL_COMMENT_PATCH_SCHEMA_V1 = "ytm.thumbnail.comment_patch.v1"
+
+
+class ThumbnailCommentPatchTargetResponse(BaseModel):
+    channel: str
+    video: str
+
+
+class ThumbnailCommentPatchOpResponse(BaseModel):
+    op: Literal["set", "unset"] = "set"
+    path: str
+    value: Optional[Any] = None
+    reason: Optional[str] = None
+
+
+class ThumbnailCommentPatchResponse(BaseModel):
+    schema: str = THUMBNAIL_COMMENT_PATCH_SCHEMA_V1
+    target: ThumbnailCommentPatchTargetResponse
+    confidence: float = 0.0
+    clarifying_questions: List[str] = Field(default_factory=list)
+    ops: List[ThumbnailCommentPatchOpResponse] = Field(default_factory=list)
+    provider: Optional[str] = None
+    model: Optional[str] = None
+
+
+class ThumbnailCommentPatchRequest(BaseModel):
+    comment: str
+    include_thumb_caption: bool = False
+
 
 class LLMConfig(BaseModel):
     caption_provider: str = "openai"
@@ -9308,6 +9337,349 @@ def get_thumbnail_editor_context(channel: str, video: str):
         defaults_leaf=defaults_leaf,
         overrides_leaf=overrides_leaf,
         effective_leaf=effective_leaf,
+    )
+
+
+def _extract_thumbnail_human_comment(raw: str) -> str:
+    text = str(raw or "")
+    if not text.strip():
+        return ""
+    # Notes may have operational suffix like: "修正済み: engine=...". Strip it.
+    if "修正済み:" in text:
+        text = text.split("修正済み:", 1)[0]
+    return text.strip()
+
+
+def _strip_json_fence(text: str) -> str:
+    cleaned = str(text or "").strip()
+    if not cleaned.startswith("```"):
+        return cleaned
+    lines = cleaned.splitlines()
+    if lines and lines[0].lstrip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip() == "```":
+        lines = lines[:-1]
+    return "\n".join(lines).strip()
+
+
+def _parse_first_json_object(text: str) -> Optional[Dict[str, Any]]:
+    """
+    Best-effort parse for LLM outputs that may contain leading/trailing prose.
+
+    We try:
+      1) strict json.loads()
+      2) first "{...}" object found via JSONDecoder.raw_decode scanning
+    """
+    cleaned = _strip_json_fence(text)
+    if not cleaned:
+        return None
+    try:
+        loaded = json.loads(cleaned)
+    except Exception:
+        loaded = None
+    if isinstance(loaded, dict):
+        return loaded
+
+    decoder = json.JSONDecoder()
+    for idx, ch in enumerate(cleaned):
+        if ch != "{":
+            continue
+        try:
+            loaded, _ = decoder.raw_decode(cleaned[idx:])
+        except Exception:
+            continue
+        if isinstance(loaded, dict):
+            return loaded
+    return None
+
+
+def _flatten_overrides_to_leaf(prefix: str, payload: Any, out: Dict[str, Any]) -> None:
+    if not isinstance(payload, dict):
+        return
+    for raw_key, raw_value in payload.items():
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+        if key.startswith("overrides."):
+            if isinstance(raw_value, dict):
+                _flatten_overrides_to_leaf(key, raw_value, out)
+            else:
+                out[key] = raw_value
+            continue
+        if "." in key and prefix:
+            path = key if key.startswith(prefix + ".") else f"{prefix}.{key}"
+            if isinstance(raw_value, dict):
+                _flatten_overrides_to_leaf(path, raw_value, out)
+            else:
+                out[path] = raw_value
+            continue
+        path = f"{prefix}.{key}" if prefix else key
+        if isinstance(raw_value, dict):
+            _flatten_overrides_to_leaf(path, raw_value, out)
+        else:
+            out[path] = raw_value
+
+
+def _dedupe_questions(items: List[str]) -> List[str]:
+    out: List[str] = []
+    seen: set[str] = set()
+    for raw in items:
+        s = str(raw or "").strip()
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+    return out
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/comment-patch",
+    response_model=ThumbnailCommentPatchResponse,
+)
+def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailCommentPatchRequest):
+    """
+    Translate a human comment into a safe per-video thumb_spec patch (allowlist + validation).
+
+    Output contract: `ytm.thumbnail.comment_patch.v1` (see ssot/plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md).
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    comment = _extract_thumbnail_human_comment(request.comment)
+    if not comment:
+        raise HTTPException(status_code=400, detail="comment is required")
+
+    try:
+        from script_pipeline.thumbnails.param_catalog_v1 import PARAM_CATALOG_V1, validate_param_value_v1
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"param catalog module is not available: {exc}") from exc
+
+    context = get_thumbnail_editor_context(channel_code, video_number)
+
+    thumb_caption: Optional[str] = None
+    if bool(request.include_thumb_caption):
+        thumb_path = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "00_thumb.png"
+        if thumb_path.exists():
+            try:
+                thumb_caption, _, _ = _generate_thumbnail_caption(thumb_path)
+            except Exception:
+                thumb_caption = None
+
+    allowed_paths: set[str] = set()
+    allowed_params: List[Dict[str, Any]] = []
+    for path, spec in sorted(PARAM_CATALOG_V1.items(), key=lambda kv: str(kv[0])):
+        p = str(path)
+        if not p.startswith("overrides."):
+            continue
+        if str(spec.engine) not in {"all", "layer_specs_v3"}:
+            continue
+        allowed_paths.add(p)
+        allowed_params.append(
+            {
+                "path": p,
+                "kind": str(spec.kind),
+                "engine": str(spec.engine),
+                "min_value": (float(spec.min_value) if spec.min_value is not None else None),
+                "max_value": (float(spec.max_value) if spec.max_value is not None else None),
+            }
+        )
+
+    llm_input = {
+        "schema": "ytm.thumbnail.comment_patch_input.v1",
+        "target": {"channel": channel_code, "video": video_number},
+        "comment": comment,
+        "portrait_available": bool(getattr(context, "portrait_available", False)),
+        "thumb_caption": thumb_caption,
+        "defaults_leaf": getattr(context, "defaults_leaf", {}) or {},
+        "overrides_leaf": getattr(context, "overrides_leaf", {}) or {},
+        "effective_leaf": getattr(context, "effective_leaf", {}) or {},
+        "conventions": {
+            "bg_pan_zoom": {
+                "pan_y": "負の値で画像は下に移動（被写体が下がる）。正の値で上に移動。",
+                "pan_x": "負の値で画像は右に移動（被写体が右寄り）。正の値で左に移動。",
+                "zoom": "1.0以上。zoomを上げるとpanの効きが強くなる。",
+            },
+            "portrait": {
+                "offset_x": "正の値で肖像は右へ移動、負の値で左へ。",
+                "offset_y": "正の値で肖像は下へ移動、負の値で上へ。",
+                "zoom": "大きいほど肖像が大きくなる。",
+            },
+        },
+        "allowed_params": allowed_params,
+    }
+
+    system_prompt = (
+        "あなたはYouTubeサムネ編集アシスタント（翻訳機）です。\n"
+        "入力のコメントを、許可されたパラメータパスへの更新（ops）に変換してください。\n"
+        "\n"
+        "必ず JSON のみを返してください（前後の説明文・コードフェンス禁止）。\n"
+        "最初の文字は `{`、最後の文字は `}` にしてください。\n"
+        "出力スキーマは必ず `ytm.thumbnail.comment_patch.v1`。\n"
+        "\n"
+        "ルール:\n"
+        "- ops で使える path は入力の allowed_params に含まれるものだけ。\n"
+        "- 値は型/範囲を守る（min/max を超えない）。\n"
+        "- 既存の effective_leaf / overrides_leaf を見て、できるだけ小さな差分（微調整）にする。\n"
+        "  例: brightness/contrast/color は通常 0.05〜0.20 程度の変更で十分。極端な値（>1.6 など）は避ける。\n"
+        "- \"もっと下/上/左/右\" のような位置調整は、まず pan を動かす。\n"
+        "  ただし pan_y/pan_x が既に境界（-1/1）に張り付いている場合は、\n"
+        "  zoom を少し上げて（例: +0.05〜+0.20、最大 1.6）、同じpanでも見た目の移動量を増やす。\n"
+        "- 曖昧なら勝手に適用せず、clarifying_questions に質問を書き、confidence を下げる。\n"
+        "- 生成し直し（再生成/やり直し等）は build オプションでありパラメータではないため、ops では表現しない。必要なら質問として出す。\n"
+        "\n"
+        "出力 JSON 例:\n"
+        "{\n"
+        '  \"schema\": \"ytm.thumbnail.comment_patch.v1\",\n'
+        '  \"target\": {\"channel\": \"CH22\", \"video\": \"014\"},\n'
+        '  \"confidence\": 0.7,\n'
+        '  \"clarifying_questions\": [],\n'
+        '  \"ops\": [\n'
+        '    {\"op\": \"set\", \"path\": \"overrides.bg_pan_zoom.pan_y\", \"value\": -0.6, \"reason\": \"画像を下に\"}\n'
+        "  ]\n"
+        "}\n"
+    )
+
+    try:
+        from factory_common.llm_router import get_router
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        raise HTTPException(status_code=500, detail=f"LLMRouter is not available: {exc}") from exc
+
+    router = get_router()
+    try:
+        result = router.call_with_raw(
+            task="thumbnail_comment_patch",
+            messages=[{"role": "user", "content": json.dumps(llm_input, ensure_ascii=False)}],
+            system_prompt_override=system_prompt,
+            response_format="json_object",
+            model_keys=[
+                "azure_gpt5_mini",
+                "or_hunyuan_a13b_instruct",
+                "or_qwen_2_5_7b_instruct",
+                "or_deepseek_v3_2_exp",
+            ],
+        )
+    except SystemExit as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"thumbnail comment patch LLM failed: {exc}") from exc
+
+    provider = str(result.get("provider") or "").strip().lower() or None
+    model_key = str(result.get("model") or "").strip() or None
+    content = result.get("content")
+
+    if provider == "agent":
+        raise HTTPException(status_code=409, detail="THINK MODE の結果がまだありません。agent_runner で完了してください。")
+
+    payload: Optional[Dict[str, Any]] = None
+    if isinstance(content, dict):
+        payload = content
+    else:
+        if isinstance(content, list):
+            text = " ".join(part.get("text", "") for part in content if isinstance(part, dict)).strip()
+        else:
+            text = str(content or "").strip()
+        payload = _parse_first_json_object(text)
+
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=502, detail="thumbnail comment patch returned invalid JSON object")
+
+    confidence_raw = payload.get("confidence", 0.0)
+    try:
+        confidence = float(confidence_raw)
+    except Exception:
+        confidence = 0.0
+    confidence = max(0.0, min(1.0, confidence))
+
+    questions: List[str] = []
+    raw_questions = payload.get("clarifying_questions")
+    if isinstance(raw_questions, list):
+        for q in raw_questions:
+            if isinstance(q, str) and q.strip():
+                questions.append(q.strip())
+
+    schema = str(payload.get("schema") or "").strip()
+    ops_in = payload.get("ops")
+
+    if schema != THUMBNAIL_COMMENT_PATCH_SCHEMA_V1:
+        questions.append(f"LLMの出力 schema が想定外でした: {schema!r}（変換を試みます）")
+        confidence = min(confidence, 0.35)
+
+        if not isinstance(ops_in, list):
+            leaf: Dict[str, Any] = {}
+            if isinstance(payload.get("overrides_leaf"), dict):
+                for k, v in payload.get("overrides_leaf", {}).items():
+                    if isinstance(k, str) and k.strip():
+                        leaf[k.strip()] = v
+            if not leaf and isinstance(payload.get("overrides"), dict):
+                _flatten_overrides_to_leaf("overrides", payload.get("overrides"), leaf)
+            if leaf:
+                ops_in = []
+                for path, value in sorted(leaf.items(), key=lambda kv: str(kv[0])):
+                    if value is None:
+                        ops_in.append({"op": "unset", "path": path, "value": None, "reason": None})
+                    else:
+                        ops_in.append({"op": "set", "path": path, "value": value, "reason": None})
+            else:
+                ops_in = []
+
+    target = payload.get("target") if isinstance(payload.get("target"), dict) else {}
+    target_channel = str(target.get("channel") or "").strip().upper()
+    target_video = str(target.get("video") or "").strip()
+    target_video = target_video.zfill(3) if target_video else ""
+    target_mismatch = False
+    if target_channel and target_channel != channel_code:
+        questions.append(f"patch target.channel mismatch: {target_channel} != {channel_code}")
+        target_mismatch = True
+    if target_video and target_video != video_number:
+        questions.append(f"patch target.video mismatch: {target_video} != {video_number}")
+        target_mismatch = True
+    if target_mismatch:
+        confidence = 0.0
+        ops_in = []
+
+    ops_out: List[ThumbnailCommentPatchOpResponse] = []
+    if isinstance(ops_in, list):
+        for item in ops_in:
+            if not isinstance(item, dict):
+                continue
+            op = str(item.get("op") or "set").strip().lower()
+            path = str(item.get("path") or "").strip()
+            if not path:
+                continue
+            reason = str(item.get("reason") or "").strip() or None
+            if path not in allowed_paths:
+                questions.append(f"未対応のパラメータです: {path}")
+                continue
+            if op == "unset":
+                ops_out.append(ThumbnailCommentPatchOpResponse(op="unset", path=path, value=None, reason=reason))
+                continue
+            if op != "set":
+                questions.append(f"未対応のopです: {op} (path={path})")
+                continue
+            if "value" not in item:
+                questions.append(f"value が必要です: {path}")
+                continue
+            raw_value = item.get("value")
+            try:
+                normalized = validate_param_value_v1(path, raw_value)
+            except Exception as exc:
+                questions.append(f"値が不正です: {path} ({exc})")
+                continue
+            if isinstance(normalized, tuple):
+                normalized = list(normalized)
+            ops_out.append(ThumbnailCommentPatchOpResponse(op="set", path=path, value=normalized, reason=reason))
+
+    questions = _dedupe_questions(questions)
+
+    return ThumbnailCommentPatchResponse(
+        schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+        target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
+        confidence=confidence,
+        clarifying_questions=questions,
+        ops=ops_out,
+        provider=provider,
+        model=model_key,
     )
 
 

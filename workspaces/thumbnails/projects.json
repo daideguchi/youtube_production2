@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-30T00:48:39.330977+00:00",
+  "updated_at": "2025-12-30T07:04:20.375854+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -3737,7 +3737,7 @@
           "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
           "image_path": "CH26/026/00_thumb.png",
           "created_at": "2025-12-30T00:47:31.973687+00:00",
-          "updated_at": "2025-12-30T00:47:31.973689+00:00"
+          "updated_at": "2025-12-30T07:04:20.375844+00:00"
         },
         {
           "id": "fs::ch26_026_00_thumb_1",
@@ -3759,10 +3759,10 @@
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2025-12-30T07:04:20.375845+00:00",
       "selected_variant_id": "fs::ch26_026_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2025-12-30T07:04:20.375830+00:00",
       "notes": "もっと偉人を明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -5167,13 +5167,13 @@
           "image_url": "/thumbnails/assets/CH22/026/00_thumb.png",
           "image_path": "CH22/026/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-30T00:42:22.619712+00:00"
+          "updated_at": "2025-12-30T06:55:17.474910+00:00"
         }
       ],
       "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:42:22.619702+00:00",
-      "updated_at": "2025-12-30T00:42:22.619714+00:00",
+      "status_updated_at": "2025-12-30T06:55:17.474899+00:00",
+      "updated_at": "2025-12-30T06:55:17.474911+00:00",
       "notes": "画像もっと下に",
       "selected_variant_id": "fs::ch22_026_00_thumb"
     },

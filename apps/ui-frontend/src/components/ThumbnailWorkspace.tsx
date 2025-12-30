@@ -18,6 +18,7 @@ import {
   createThumbnailVariant,
   describeThumbnailLibraryAsset,
   fetchPlanningChannelCsv,
+  fetchThumbnailCommentPatch,
   fetchThumbnailEditorContext,
   fetchThumbnailImageModels,
   fetchThumbnailLibrary,
@@ -43,6 +44,7 @@ import {
   ThumbnailChannelBlock,
   ThumbnailChannelVideo,
   ThumbnailChannelTemplates,
+  ThumbnailCommentPatch,
   ThumbnailEditorContext,
   ThumbnailImageModelInfo,
   ThumbnailLibraryAsset,
@@ -149,6 +151,9 @@ type LayerTuningDialogState = {
   channel: string;
   video: string;
   projectTitle: string;
+  commentDraft: string;
+  commentApplying: boolean;
+  commentPatch?: ThumbnailCommentPatch;
   loading: boolean;
   saving: boolean;
   building: boolean;
@@ -264,6 +269,21 @@ const normalizeVideoInput = (value?: string | null): string => {
     return "";
   }
   return String(parseInt(trimmed, 10));
+};
+
+const extractHumanCommentFromNotes = (notes?: string | null): string => {
+  const raw = String(notes ?? "").trim();
+  if (!raw) return "";
+  const idx = raw.indexOf("修正済み:");
+  if (idx >= 0) {
+    return raw.slice(0, idx).trim();
+  }
+  return raw;
+};
+
+const shouldSuggestRegenBg = (comment: string): boolean => {
+  const text = String(comment || "");
+  return /再生成|生成し直|やり直し|作り直し|再作成|リテイク/.test(text);
 };
 
 function leafOverridesToThumbSpecOverrides(overridesLeaf: Record<string, any>): Record<string, any> {
@@ -582,6 +602,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const libraryRequestRef = useRef(0);
   const qcNotesRequestRef = useRef(0);
   const layerTuningRequestRef = useRef(0);
+  const layerTuningCommentRequestRef = useRef(0);
   const [imageModels, setImageModels] = useState<ThumbnailImageModelInfo[]>([]);
   const [imageModelsError, setImageModelsError] = useState<string | null>(null);
   const [channelTemplates, setChannelTemplates] = useState<ThumbnailChannelTemplates | null>(null);
@@ -2344,6 +2365,9 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       channel: project.channel,
       video: normalizeVideoInput(project.video) || project.video,
       projectTitle: project.title ?? project.sheet_title ?? "（タイトル未設定）",
+      commentDraft: extractHumanCommentFromNotes(project.notes),
+      commentApplying: false,
+      commentPatch: undefined,
       loading: true,
       saving: false,
       building: false,
@@ -2448,6 +2472,88 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       return { ...current, overridesLeaf: next, error: undefined };
     });
   }, []);
+
+  const handleLayerTuningCommentChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    setLayerTuningDialog((current) => (current ? { ...current, commentDraft: value } : current));
+  }, []);
+
+  const handleApplyLayerTuningComment = useCallback(async () => {
+    if (!layerTuningDialog) {
+      return;
+    }
+    const { projectKey, channel, video } = layerTuningDialog;
+    const comment = String(layerTuningDialog.commentDraft || "").trim();
+    if (!comment) {
+      setLayerTuningDialog((current) => {
+        if (!current || current.projectKey !== projectKey) {
+          return current;
+        }
+        return { ...current, error: "コメントが空です。", commentPatch: undefined };
+      });
+      return;
+    }
+
+    const requestId = Date.now();
+    layerTuningCommentRequestRef.current = requestId;
+    setLayerTuningDialog((current) => {
+      if (!current || current.projectKey !== projectKey) {
+        return current;
+      }
+      return { ...current, commentApplying: true, commentPatch: undefined, error: undefined };
+    });
+
+    try {
+      const patch = await fetchThumbnailCommentPatch(channel, video, { comment });
+      if (layerTuningCommentRequestRef.current !== requestId) {
+        return;
+      }
+
+      const leafPatch: Record<string, unknown> = {};
+      (patch.ops ?? []).forEach((op) => {
+        const path = String(op?.path ?? "").trim();
+        if (!path) {
+          return;
+        }
+        if (op.op === "unset") {
+          leafPatch[path] = null;
+          return;
+        }
+        leafPatch[path] = op.value;
+      });
+
+      if (Object.keys(leafPatch).length > 0) {
+        mergeLayerTuningOverridesLeaf(leafPatch);
+      }
+
+      setLayerTuningDialog((current) => {
+        if (!current || current.projectKey !== projectKey) {
+          return current;
+        }
+        const next: LayerTuningDialogState = {
+          ...current,
+          commentApplying: false,
+          commentPatch: patch,
+        };
+        if (shouldSuggestRegenBg(comment)) {
+          next.allowGenerate = true;
+          next.regenBg = true;
+        }
+        return next;
+      });
+    } catch (error) {
+      if (layerTuningCommentRequestRef.current !== requestId) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      setLayerTuningDialog((current) => {
+        if (!current || current.projectKey !== projectKey) {
+          return current;
+        }
+        return { ...current, commentApplying: false, error: message };
+      });
+    }
+  }, [layerTuningDialog, mergeLayerTuningOverridesLeaf]);
 
   const applyLayerTuningPreset = useCallback((presetId: string) => {
     const id = (presetId ?? "").trim();
@@ -4716,6 +4822,37 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     handleSaveLayerTuning("save_and_build");
                   }}
                 >
+                  <label className="thumbnail-planning-form__field--stacked">
+                    <span>コメント（メモ）</span>
+                    <textarea
+                      value={layerTuningDialog.commentDraft}
+                      onChange={handleLayerTuningCommentChange}
+                      rows={2}
+                      placeholder="例: 画像をもう少し下に / もっと明るく"
+                    />
+                  </label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={handleApplyLayerTuningComment}
+                      disabled={layerTuningDialog.commentApplying || !layerTuningDialog.commentDraft.trim()}
+                    >
+                      {layerTuningDialog.commentApplying ? "コメント解釈中…" : "コメントから反映"}
+                    </button>
+                    {layerTuningDialog.commentPatch ? (
+                      <span style={{ opacity: 0.8, alignSelf: "center" }}>
+                        confidence: {Number(layerTuningDialog.commentPatch.confidence ?? 0).toFixed(2)}
+                      </span>
+                    ) : null}
+                  </div>
+                  {layerTuningDialog.commentPatch?.clarifying_questions?.length ? (
+                    <div className="thumbnail-planning-form__error">
+                      {layerTuningDialog.commentPatch.clarifying_questions.map((q, idx) => (
+                        <div key={`${idx}_${q}`}>{q}</div>
+                      ))}
+                    </div>
+                  ) : null}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
                     <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("reset_all")}>
                       リセット

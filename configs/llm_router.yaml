@@ -363,6 +363,16 @@ tasks:
       temperature: 0.2
       max_tokens: 300
 
+  # Thumbnail: user comment -> fixed param patch (layer tuning)
+  thumbnail_comment_patch:
+    tier: standard
+    timeout: 60
+    system_prompt_override: "あなたはYouTubeサムネ編集アシスタントです。必ずJSONのみ返してください。"
+    defaults:
+      response_format: "json_object"
+      temperature: 0.2
+      max_tokens: 1200
+
   visual_section_plan:
     tier: heavy_reasoning
     timeout: 120

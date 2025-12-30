@@ -7,7 +7,6 @@ import {
   lookupThumbnails,
   markVideoPublishedLocked,
   unmarkVideoPublishedLocked,
-  updatePlanningChannelProgress,
 } from "../api/client";
 import { apiUrl } from "../api/baseUrl";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
@@ -20,6 +19,8 @@ type Row = Record<string, string>;
 
 type EpisodeProgressItem = {
   video: string;
+  script_status?: string | null;
+  audio_ready?: boolean | null;
   video_run_id?: string | null;
   capcut_draft_status?: string | null;
   capcut_draft_run_id?: string | null;
@@ -92,7 +93,17 @@ const LONG_COLUMNS = new Set([
   "動画内挿絵AI向けプロンプト（10個）",
 ]);
 
-const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "整合", "投稿完了", "動画run", "CapCutドラフト"]);
+const NARROW_COLUMNS = new Set([
+  "動画番号",
+  "動画ID",
+  "進捗",
+  "台本(自動)",
+  "音声(自動)",
+  "整合",
+  "投稿完了",
+  "動画run",
+  "CapCutドラフト",
+]);
 const MEDIUM_COLUMNS = new Set(["タイトル", "音声生成", "音声品質", "納品"]);
 const THUMB_COLUMNS = new Set(["サムネ"]);
 
@@ -102,6 +113,8 @@ const COMPACT_PRIORITY = [
   "タイトル",
   "サムネ",
   "進捗",
+  "台本(自動)",
+  "音声(自動)",
   "整合",
   "投稿完了",
   "動画run",
@@ -223,6 +236,19 @@ const formatCapcutLabel = (statusRaw: string, isCandidate: boolean): string => {
   return isCandidate ? `${base}(候補)` : base;
 };
 
+const formatScriptLabel = (statusRaw: string): string => {
+  const status = String(statusRaw || "").trim().toLowerCase();
+  if (!status) return "";
+  if (status === "completed" || status === "script_validated") return "完了";
+  if (status === "processing") return "処理中";
+  if (status === "in_progress" || status === "script_in_progress") return "作成中";
+  if (status === "pending") return "待ち";
+  if (status === "failed") return "失敗";
+  if (status === "missing") return "未開始";
+  if (status === "unknown") return "不明";
+  return statusRaw;
+};
+
 const attachEpisodeProgressColumns = (rows: Row[], progressMap: Record<string, EpisodeProgressItem>): Row[] => {
   return (rows ?? []).map((row) => {
     const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
@@ -232,7 +258,9 @@ const attachEpisodeProgressColumns = (rows: Row[], progressMap: Record<string, E
     const runLabel = selectedRun || (candidateRun ? `候補:${candidateRun}` : "");
     const isCandidate = !selectedRun && Boolean(candidateRun);
     const capcutLabel = item ? formatCapcutLabel(String(item.capcut_draft_status || ""), isCandidate) : "";
-    return { ...row, 動画run: runLabel, CapCutドラフト: capcutLabel };
+    const scriptLabel = item ? formatScriptLabel(String(item.script_status || "")) : "";
+    const audioLabel = item ? (item.audio_ready ? "OK" : "未生成") : "";
+    return { ...row, "台本(自動)": scriptLabel, "音声(自動)": audioLabel, 動画run: runLabel, CapCutドラフト: capcutLabel };
   });
 };
 
@@ -318,9 +346,6 @@ export function PlanningPage() {
   const [publishingKey, setPublishingKey] = useState<string | null>(null);
   const [unpublishingKey, setUnpublishingKey] = useState<string | null>(null);
   const [copiedTitleKey, setCopiedTitleKey] = useState<string | null>(null);
-  const [progressEditing, setProgressEditing] = useState<{ key: string; value: string } | null>(null);
-  const [progressSaving, setProgressSaving] = useState<Record<string, boolean>>({});
-  const [progressErrors, setProgressErrors] = useState<Record<string, string>>({});
   const [episodeProgressMap, setEpisodeProgressMap] = useState<Record<string, EpisodeProgressItem>>({});
   const thumbRequestedRef = useRef<Set<string>>(new Set());
   const deepLinkAppliedRef = useRef<string | null>(null);
@@ -419,90 +444,6 @@ export function PlanningPage() {
       }, 900);
     },
     [copyToClipboard]
-  );
-
-  const beginProgressEdit = useCallback(
-    (row: Row) => {
-      const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
-      const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
-      if (!ch || !vid) {
-        return;
-      }
-      const key = `${ch}-${vid}`;
-      const current = String(row["進捗"] ?? row["progress"] ?? "").trim();
-      setProgressEditing({ key, value: current });
-      setProgressErrors((currentErrors) => {
-        if (!currentErrors[key]) return currentErrors;
-        const next = { ...currentErrors };
-        delete next[key];
-        return next;
-      });
-    },
-    [channel]
-  );
-
-  const cancelProgressEdit = useCallback(() => {
-    setProgressEditing(null);
-  }, []);
-
-  const saveProgressEdit = useCallback(
-    async (row: Row) => {
-      const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
-      const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
-      if (!ch || !vid) {
-        return;
-      }
-      const key = `${ch}-${vid}`;
-      const nextProgressRaw =
-        progressEditing?.key === key
-          ? progressEditing.value
-          : String(row["進捗"] ?? row["progress"] ?? "");
-      const nextProgress = nextProgressRaw.trim();
-      if (!nextProgress) {
-        setProgressErrors((current) => ({ ...current, [key]: "進捗が空です。" }));
-        return;
-      }
-      const currentProgress = String(row["進捗"] ?? row["progress"] ?? "").trim();
-      if (nextProgress === currentProgress) {
-        setProgressEditing(null);
-        return;
-      }
-
-      setProgressSaving((current) => ({ ...current, [key]: true }));
-      setProgressErrors((current) => {
-        const next = { ...current };
-        delete next[key];
-        return next;
-      });
-      try {
-        const expectedUpdatedAt = String(row["更新日時"] ?? row["updated_at"] ?? "").trim() || null;
-        const updated = await updatePlanningChannelProgress(ch, vid, {
-          progress: nextProgress,
-          expectedUpdatedAt,
-        });
-        setRows((currentRows) =>
-          currentRows.map((candidate) => {
-            const candCh = String(candidate["チャンネル"] || ch || "").trim().toUpperCase();
-            const candVid = normalizeVideo(candidate["動画番号"] || candidate["video"] || "");
-            if (candCh === ch && candVid === vid) {
-              return {
-                ...candidate,
-                進捗: updated.progress ?? nextProgress,
-                更新日時: updated.updated_at ?? candidate["更新日時"] ?? "",
-              };
-            }
-            return candidate;
-          })
-        );
-        setProgressEditing(null);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        setProgressErrors((current) => ({ ...current, [key]: message }));
-      } finally {
-        setProgressSaving((current) => ({ ...current, [key]: false }));
-      }
-    },
-    [channel, progressEditing]
   );
 
   const findThumbOverride = useCallback((row: Row): string | null => {
@@ -748,7 +689,7 @@ export function PlanningPage() {
 
   const columns = useMemo(() => {
     const first = rows[0];
-    if (!first) return ["動画番号", "タイトル", "進捗", "投稿完了", "更新日時", "台本パス"];
+    if (!first) return ["動画番号", "タイトル", "進捗", "台本(自動)", "音声(自動)", "投稿完了", "動画run", "CapCutドラフト", "更新日時", "台本パス"];
     const all = Object.keys(first);
     const priority = COMPACT_PRIORITY.filter((c) => all.includes(c));
     const rest = all.filter((c) => !priority.includes(c));
@@ -1090,89 +1031,52 @@ export function PlanningPage() {
                         )
                       ) : col === "進捗" ? (
                         (() => {
-                          const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
                           const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
-                          const rowKey = ch && vid ? `${ch}-${vid}` : "";
-                          const isEditing = Boolean(rowKey && progressEditing?.key === rowKey);
-                          const busy = Boolean(rowKey && progressSaving[rowKey]);
-                          const errorMessage = rowKey ? progressErrors[rowKey] : null;
+                          const item = vid ? episodeProgressMap[vid] : undefined;
                           const currentValue = String(row["進捗"] ?? row["progress"] ?? "");
-                          const draftValue = isEditing ? progressEditing?.value ?? "" : currentValue;
-                          const changed = draftValue.trim() !== currentValue.trim();
+                          const stale = Boolean(item?.issues?.includes("planning_stale_vs_status"));
                           return (
-                            <div className="planning-page__progress">
-                              {isEditing ? (
-                                <>
-                                  <input
-                                    type="text"
-                                    value={draftValue}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => {
-                                      e.stopPropagation();
-                                      setProgressEditing((current) =>
-                                        current && current.key === rowKey ? { ...current, value: e.target.value } : current
-                                      );
-                                    }}
-                                    onKeyDown={(e) => {
-                                      e.stopPropagation();
-                                      if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        saveProgressEdit(row);
-                                      }
-                                      if (e.key === "Escape") {
-                                        e.preventDefault();
-                                        cancelProgressEdit();
-                                      }
-                                    }}
-                                    disabled={busy}
-                                    className="planning-page__progress-input"
-                                    aria-label={`${rowKey} 進捗`}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="planning-page__progress-save"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      saveProgressEdit(row);
-                                    }}
-                                    disabled={busy || !changed || !draftValue.trim()}
-                                    title={changed ? "進捗を保存" : "変更なし"}
-                                  >
-                                    {busy ? "保存中…" : "保存"}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="planning-page__progress-cancel"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      cancelProgressEdit();
-                                    }}
-                                    disabled={busy}
-                                  >
-                                    取消
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="planning-page__cell-text planning-page__cell-text--flex">
-                                    {currentValue || "—"}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="planning-page__progress-edit"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      beginProgressEdit(row);
-                                    }}
-                                    disabled={!rowKey || loading}
-                                    title="進捗を編集"
-                                  >
-                                    ✏️
-                                  </button>
-                                </>
-                              )}
-                              {errorMessage ? <span className="planning-page__progress-error">{errorMessage}</span> : null}
-                            </div>
+                            <span className="planning-page__progress-cell" title={currentValue || "—"}>
+                              {stale ? <span className="planning-page__badge planning-page__badge--stale">古い</span> : null}
+                              <span className="planning-page__cell-text planning-page__cell-text--flex">{currentValue || "—"}</span>
+                            </span>
+                          );
+                        })()
+                      ) : col === "台本(自動)" ? (
+                        (() => {
+                          const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+                          const item = vid ? episodeProgressMap[vid] : undefined;
+                          const status = String(item?.script_status || "").trim().toLowerCase();
+                          const fallback = String(row[col] ?? "").trim();
+                          const label = item ? formatScriptLabel(status) || "—" : fallback || "—";
+                          const badgeCls =
+                            status === "completed" || status === "script_validated"
+                              ? "planning-page__badge planning-page__badge--script-ok"
+                              : status === "failed"
+                                ? "planning-page__badge planning-page__badge--script-failed"
+                                : status === "processing" || status === "in_progress" || status === "script_in_progress"
+                                  ? "planning-page__badge planning-page__badge--script-running"
+                                  : "planning-page__badge planning-page__badge--script-missing";
+                          return (
+                            <span className="planning-page__script-cell" title={`script_status=${status || "unknown"}`}>
+                              <span className={badgeCls}>{label}</span>
+                            </span>
+                          );
+                        })()
+                      ) : col === "音声(自動)" ? (
+                        (() => {
+                          const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+                          const item = vid ? episodeProgressMap[vid] : undefined;
+                          const ready = Boolean(item?.audio_ready);
+                          const fallback = String(row[col] ?? "").trim();
+                          const label = item ? (ready ? "OK" : "未生成") : fallback || "—";
+                          const badgeCls = ready
+                            ? "planning-page__badge planning-page__badge--audio-ok"
+                            : "planning-page__badge planning-page__badge--audio-missing";
+                          return (
+                            <span className="planning-page__audio-cell" title={item ? `audio_ready=${ready ? "true" : "false"}` : label}>
+                              <span className={badgeCls}>{label}</span>
+                            </span>
                           );
                         })()
                       ) : col === "動画run" ? (

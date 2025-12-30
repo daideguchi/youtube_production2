@@ -31,6 +31,8 @@ import {
   ThumbnailLibraryAssignResponse,
   ThumbnailDescriptionResponse,
   ThumbnailEditorContext,
+  ThumbnailCommentPatch,
+  ThumbnailCommentPatchPayload,
   ThumbnailVideoLayerSpecs,
   ThumbnailImageModelInfo,
   ThumbnailLayerSpecsBuildPayload,
@@ -1382,6 +1384,24 @@ export function updateThumbnailThumbSpec(
 export function fetchThumbnailEditorContext(channel: string, video: string): Promise<ThumbnailEditorContext> {
   return request<ThumbnailEditorContext>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/editor-context`
+  );
+}
+
+export function fetchThumbnailCommentPatch(
+  channel: string,
+  video: string,
+  payload: ThumbnailCommentPatchPayload
+): Promise<ThumbnailCommentPatch> {
+  const body: JsonMap = {
+    comment: payload?.comment ?? "",
+    include_thumb_caption: Boolean(payload?.include_thumb_caption),
+  };
+  return request<ThumbnailCommentPatch>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/comment-patch`,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    }
   );
 }
 
