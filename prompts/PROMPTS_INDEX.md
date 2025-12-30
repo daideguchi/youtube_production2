@@ -1,6 +1,6 @@
 # PROMPTS_INDEX — プロンプト配置の正本一覧（自動生成）
 
-Generated: `2025-12-27T23:31:46.673740Z` by `scripts/ops/prompts_inventory.py`
+Generated: `2025-12-30T16:28:35.720909Z` by `scripts/ops/prompts_inventory.py`
 
 原則:
 - プロンプトの正本は `packages/**` 側（複製・同期しない）
@@ -51,9 +51,10 @@ Generated: `2025-12-27T23:31:46.673740Z` by `scripts/ops/prompts_inventory.py`
 - `packages/script_pipeline/prompts/templates/outro_prompt.txt`
 - `packages/script_pipeline/prompts/templates/quality_review_prompt.txt`
 - `packages/script_pipeline/prompts/templates/research_prompt.txt`
+- `packages/script_pipeline/prompts/templates/script_katas_6000_10000.txt`
 - `packages/script_pipeline/prompts/templates/system_base.txt`
 
-- 件数: 11
+- 件数: 12
 
 ## Script pipeline — チャンネル方針（prompts/channels/*.yaml）
 

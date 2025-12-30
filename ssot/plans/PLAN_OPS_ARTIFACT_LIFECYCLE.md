@@ -44,11 +44,15 @@
 ### 3.1 企画/進捗（planning）
 - **L0/SoT**
   - `workspaces/planning/channels/CHxx.csv`
+  - `workspaces/planning/ideas/CHxx.jsonl`（企画カード在庫 / pre-planning SoT）
   - `workspaces/planning/personas/*`
   - `workspaces/planning/templates/*`
   - `workspaces/planning/analytics/*`
+- **L2/Archive（物理退避）**
+  - `workspaces/planning/ideas/_archive/*.jsonl`（`KILL` のカードを一定期間後に退避）
 - **ルール**
   - CSV/Persona/Template/Analytics は **無期限保持**。
+  - ideas（企画カード在庫）は **無期限保持**（削除ではなく `KILL → _archive` を基本）。
   - `planning_updates_preview.csv` 等の preview は L2 として 30 日で削除可。
 
 ### 3.2 台本（workspaces/scripts）

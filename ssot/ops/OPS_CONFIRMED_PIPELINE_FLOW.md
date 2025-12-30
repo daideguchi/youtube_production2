@@ -22,6 +22,9 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - **Planning SoT**: `workspaces/planning/channels/CHxx.csv`
   - 企画/タイトル/タグ/リテイクフラグ等の正本。  
   - `packages/script_pipeline/tools/planning_store.py` が常にこれを都度読み込み。
+- **Idea Cards SoT（pre-planning）**: `workspaces/planning/ideas/CHxx.jsonl`
+  - 企画カード在庫（INBOX→選別→READY）。Planning CSVへ投入する前の “整理/評価/配置” を固定する。
+  - 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md` / 入口: `python3 scripts/ops/idea.py --help`
 - **Script SoT**: `workspaces/scripts/{CH}/{NNN}/status.json`
   - 台本生成のステージ状態とメタデータ正本。
   - `packages/script_pipeline/cli.py` / `packages/script_pipeline/runner.py` が更新。

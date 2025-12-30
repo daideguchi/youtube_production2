@@ -120,6 +120,8 @@ notes: <消し忘れ防止の一言>
   - UI/redo API が正本だが、CLI が必要な場合はこの入口を使う（lock尊重の改善はTODO）。
 
 ### Planning（補助/汚染止血）
+- 企画カード在庫（pre-planning / 整理→評価→配置）:
+  - `python3 scripts/ops/idea.py --help`（SoT: `workspaces/planning/ideas/CHxx.jsonl` / SSOT: `ssot/ops/OPS_IDEA_CARDS.md`）
 - タイトルを正として、汚染しやすい「テーマ補助列」だけを決定論で再整列:
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM`（dry-run）
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`

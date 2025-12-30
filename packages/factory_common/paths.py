@@ -78,9 +78,17 @@ def planning_root() -> Path:
     return workspace_root() / "planning"
 
 
+def planning_channels_dir() -> Path:
+    return planning_root() / "channels"
+
+
 def channels_csv_path(channel: str) -> Path:
     ch = _norm_channel(channel)
-    return planning_root() / "channels" / f"{ch}.csv"
+    return planning_channels_dir() / f"{ch}.csv"
+
+
+def planning_patches_root() -> Path:
+    return planning_root() / "patches"
 
 
 def persona_path(channel: str) -> Path:
@@ -90,6 +98,24 @@ def persona_path(channel: str) -> Path:
 
 def research_root() -> Path:
     return workspace_root() / "research"
+
+
+# ---------------------------------------------------------------------------
+# Idea cards (pre-planning inventory)
+# ---------------------------------------------------------------------------
+
+
+def ideas_root() -> Path:
+    return planning_root() / "ideas"
+
+
+def ideas_store_path(channel: str) -> Path:
+    ch = _norm_channel(channel)
+    return ideas_root() / f"{ch}.jsonl"
+
+
+def ideas_archive_root() -> Path:
+    return ideas_root() / "_archive"
 
 
 # ---------------------------------------------------------------------------

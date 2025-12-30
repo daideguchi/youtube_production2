@@ -12,6 +12,9 @@
 ## 1. 最重要（E2E主動線）
 
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`
+- 企画カード在庫（pre-planning SoT）: `workspaces/planning/ideas/CHxx.jsonl`
+  - CLI: `python3 scripts/ops/idea.py --help`
+  - 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md`
 - 台本（Script / 入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
   - 運用モード正本（new/redo-full/resume/rewrite/seed-expand）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
   - カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`

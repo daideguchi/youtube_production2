@@ -25,6 +25,7 @@
 - `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `ops/OPS_IDEA_CARDS.md`: 企画カード運用（追加/整理/評価/配置）SSOT（pre-planning 在庫）。
 - `ops/OPS_EPISODE_PROGRESS_VIEW.md`: エピソード進捗ビュー（derived view）の仕様と見方。
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
 - `ops/OPS_GIT_BRANCH_POLICY.md`: ブランチ運用ルール（main/feature/snapshot を固定して迷子を防ぐ）。
