@@ -187,13 +187,15 @@ def openrouter_web_search(
     if not q:
         raise ValueError("query is empty")
 
-    model_name = (model or os.getenv("YTM_WEB_SEARCH_OPENROUTER_MODEL") or "perplexity/sonar").strip()
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": os.getenv("OPENROUTER_REFERRER", "https://youtube-master.local/web-search"),
-        "X-Title": os.getenv("OPENROUTER_TITLE", "factory_commentary web_search"),
-    }
+    model_override = (model or os.getenv("YTM_WEB_SEARCH_OPENROUTER_MODEL") or "").strip() or None
+    task = (os.getenv("YTM_WEB_SEARCH_OPENROUTER_TASK") or "web_search_openrouter").strip() or "web_search_openrouter"
+
+    try:
+        from factory_common.llm_router import get_router
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        raise WebSearchError(f"LLMRouter is not available: {exc}") from exc
+
+    router = get_router()
     prompt = (
         "以下のクエリでWeb検索した結果を、厳密なJSONのみで返してください。\n"
         f"- 最大{int(count)}件\n"
@@ -201,25 +203,16 @@ def openrouter_web_search(
         "- 形式: {\"hits\": [{\"title\": str, \"url\": str, \"snippet\": str|null, \"source\": str|null, \"age\": str|null}]}\n"
         f"\nquery: {q}\n"
     )
-    payload: Dict[str, Any] = {
-        "model": model_name,
-        "messages": [
+    result = router.call_with_raw(
+        task=task,
+        messages=[
             {"role": "system", "content": "You are a web search assistant. Output JSON only."},
             {"role": "user", "content": prompt},
         ],
-        "temperature": 0.2,
-        "max_tokens": 1200,
-    }
-    resp = requests.post(OPENROUTER_CHAT_ENDPOINT, json=payload, headers=headers, timeout=timeout_s)
-    if resp.status_code != 200:
-        body = (resp.text or "").strip().replace("\n", " ")
-        raise WebSearchHttpError(provider="openrouter", status_code=int(resp.status_code), body_snippet=body[:200])
-
-    data = resp.json() or {}
-    try:
-        content = data["choices"][0]["message"]["content"]
-    except Exception as exc:  # pragma: no cover - malformed payload
-        raise WebSearchError(f"openrouter: unexpected response: {data}") from exc
+        model_keys=[model_override] if model_override else None,
+        timeout=int(timeout_s),
+    )
+    content = result.get("content")
     if isinstance(content, list):
         text = " ".join(str(part.get("text", "")).strip() for part in content if isinstance(part, dict)).strip()
     else:
@@ -247,7 +240,8 @@ def openrouter_web_search(
             if len(hits) >= int(count):
                 break
 
-    return WebSearchResult(provider=f"openrouter:{model_name}", query=q, retrieved_at=_utc_now_iso(), hits=hits)
+    provider = f"llm_router:{result.get('provider') or 'openrouter'}:{result.get('model') or (model_override or 'default')}"
+    return WebSearchResult(provider=provider, query=q, retrieved_at=_utc_now_iso(), hits=hits)
 
 
 def web_search(
