@@ -281,12 +281,9 @@ def main() -> None:
         if getattr(args, "allow_unvalidated", False):
             cmd.append("--allow-unvalidated")
 
-        # Write to artifacts/final by default so CapCut/preview always use latest audio/SRT.
-        final_dir = audio_final_dir(ch, no)
-        final_dir.mkdir(parents=True, exist_ok=True)
-        final_wav = final_dir / f"{ch}-{no}.wav"
-        final_log = final_dir / "log.json"
-        cmd.extend(["--out-wav", str(final_wav), "--log", str(final_log)])
+        # NOTE: Do not force --out-wav/--log here.
+        # run_tts writes intermediates under workspaces/scripts/**/audio_prep/ and then syncs
+        # outputs to workspaces/audio/final/ (downstream SoT).
         
         if args.resume:
             cmd.append("--resume")
