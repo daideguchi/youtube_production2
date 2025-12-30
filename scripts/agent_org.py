@@ -11,6 +11,7 @@ import signal
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -167,6 +168,52 @@ def _ensure_board_agent_entry(q: Path, agent: str) -> None:
     _locked_update_json(p, _update)
 
 
+def _sanitize_agent_name_part(raw: str) -> str:
+    s = (raw or "").strip()
+    if not s:
+        return ""
+    out: list[str] = []
+    for ch in s:
+        if ch.isalnum() or ch in {"-", "_"}:
+            out.append(ch)
+        else:
+            out.append("_")
+    return "".join(out).strip("_")
+
+
+def _auto_agent_name(key: str | None) -> str:
+    """
+    Generate a stable, unique-enough agent name when none is explicitly configured.
+
+    Goal:
+    - Never emit created_by="unknown" for write actions (locks/memos/board/orch requests).
+    - Avoid blocking on interactive prompts (humans do not intervene).
+    """
+    owner = (os.getenv("USER") or os.getenv("LOGNAME") or "agent").strip() or "agent"
+    owner = _sanitize_agent_name_part(owner) or "agent"
+
+    if key:
+        if key.startswith("host_pid:"):
+            suffix = _sanitize_agent_name_part(key.split(":", 1)[1])
+            if suffix:
+                return f"{owner}-codex-{suffix}"
+        if key.startswith("tty:"):
+            tty = key.split(":", 1)[1]
+            base = _sanitize_agent_name_part(Path(tty).name)
+            if base:
+                return f"{owner}-tty-{base}"
+
+    # Fallback to best-effort Codex host PID.
+    try:
+        host_pid, _cmd = _detect_codex_host_pid()
+        if host_pid:
+            return f"{owner}-codex-{int(host_pid)}"
+    except Exception:
+        pass
+
+    return f"{owner}-agent-{os.getpid()}"
+
+
 def _require_agent_name(args: argparse.Namespace, *, action: str) -> str | None:
     name = _agent_name_explicit(args)
     if name:
@@ -188,31 +235,22 @@ def _require_agent_name(args: argparse.Namespace, *, action: str) -> str | None:
                 pass
             return cached
 
-    # Interactive fallback: prompt once and remember (no need to export env vars).
-    if sys.stdin.isatty():
-        print(f"[agent_org] agent name is required for {action}.", file=sys.stderr)
-        print("Enter agent name (suggest: dd-<area>-<nn>, e.g. dd-ui-01).", file=sys.stderr)
+    # Non-interactive default: auto-generate and remember to keep attribution stable.
+    auto = _auto_agent_name(key)
+    if key:
         try:
-            sys.stderr.write("> ")
-            sys.stderr.flush()
-            typed = (sys.stdin.readline() or "").strip()
+            _store_identity_name(q, key, auto)
         except Exception:
-            typed = ""
-        if typed:
-            if key:
-                try:
-                    _store_identity_name(q, key, typed)
-                except Exception:
-                    pass
-            try:
-                _ensure_board_agent_entry(q, typed)
-            except Exception:
-                pass
-            return typed
-
-    print(f"[error] agent name is required for {action}.", file=sys.stderr)
-    print("        Set env `LLM_AGENT_NAME` or pass global `--agent-name <NAME>`.", file=sys.stderr)
-    return None
+            pass
+    try:
+        _ensure_board_agent_entry(q, auto)
+    except Exception:
+        pass
+    print(
+        f"[agent_org] auto agent name selected for {action}: {auto} (set LLM_AGENT_NAME or --agent-name to override)",
+        file=sys.stderr,
+    )
+    return auto
 
 
 def _atomic_write_json(path: Path, payload: dict) -> None:
@@ -427,6 +465,34 @@ def _try_lock_available(lock_path: Path) -> bool:
             except Exception:
                 pass
     return True
+
+
+@contextmanager
+def _with_flock(lock_path: Path):
+    """
+    Cross-process mutex using fcntl.flock (unix-only).
+    Used to make lock create/unlock operations effectively atomic.
+    """
+    try:
+        import fcntl  # unix-only
+    except Exception:
+        yield
+        return
+
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            try:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
+
+
+def _locks_lease_path(q: Path) -> Path:
+    return _locks_dir(q) / "lease.lock"
 
 
 def _normalize_scope(scope: str) -> str:
@@ -784,53 +850,55 @@ def cmd_lock(args: argparse.Namespace) -> int:
                 print(f"[warn] --ttl-min must be > 0 (got {args.ttl_min!r}); lock will not auto-expire", file=sys.stderr)
         ttl_int = None
 
-    if not bool(getattr(args, "force", False)):
-        existing = _find_locks(q, include_expired=False)
-        conflicts: list[dict] = []
-        for lk in existing:
-            if str(lk.get("_status") or "") != "active":
-                continue
-            created_by = str(lk.get("created_by") or "").strip()
-            if created_by and created_by == agent:
-                continue
-            lk_scopes = lk.get("scopes") or []
-            if not isinstance(lk_scopes, list):
-                lk_scopes = [str(lk_scopes)]
-            for new_sc in scopes:
-                hit = False
-                for old_sc in lk_scopes:
-                    if _scopes_may_intersect(new_sc, str(old_sc)):
-                        hit = True
-                        break
-                if hit:
-                    conflicts.append(lk)
-                    break
-
-        if conflicts:
-            print("[blocked] lock scope intersects existing active locks:", file=sys.stderr)
-            for lk in conflicts[:10]:
-                lid = str(lk.get("id") or Path(str(lk.get("_path") or "")).stem)
-                created_by = str(lk.get("created_by") or "-")
-                mode = str(lk.get("mode") or "-")
-                expires_at = str(lk.get("expires_at") or "-")
-                note = str(lk.get("note") or "-")
+    lease_path = _locks_lease_path(q)
+    with _with_flock(lease_path):
+        if not bool(getattr(args, "force", False)):
+            existing = _find_locks(q, include_expired=False)
+            conflicts: list[dict] = []
+            for lk in existing:
+                if str(lk.get("_status") or "") != "active":
+                    continue
+                created_by = str(lk.get("created_by") or "").strip()
+                if created_by and created_by == agent:
+                    continue
                 lk_scopes = lk.get("scopes") or []
                 if not isinstance(lk_scopes, list):
                     lk_scopes = [str(lk_scopes)]
-                scopes_str = ",".join(str(s) for s in lk_scopes[:6]) if lk_scopes else "-"
-                if isinstance(lk_scopes, list) and len(lk_scopes) > 6:
-                    scopes_str += ",..."
-                print(
-                    f"  - {lid} created_by={created_by} mode={mode} expires_at={expires_at} scopes={scopes_str} note={note}",
-                    file=sys.stderr,
-                )
-            if len(conflicts) > 10:
-                print(f"  ... ({len(conflicts) - 10} more)", file=sys.stderr)
-            print("Resolve by coordinating (board/memo) or unlocking the conflicting lock.", file=sys.stderr)
-            print("If you really need overlap, re-run with `--force` (not recommended).", file=sys.stderr)
-            return 3
+                for new_sc in scopes:
+                    hit = False
+                    for old_sc in lk_scopes:
+                        if _scopes_may_intersect(new_sc, str(old_sc)):
+                            hit = True
+                            break
+                    if hit:
+                        conflicts.append(lk)
+                        break
 
-    out = _create_lock(q, agent=agent, scopes=scopes, mode=str(args.mode), ttl_min=ttl_int, note=args.note)
+            if conflicts:
+                print("[blocked] lock scope intersects existing active locks:", file=sys.stderr)
+                for lk in conflicts[:10]:
+                    lid = str(lk.get("id") or Path(str(lk.get("_path") or "")).stem)
+                    created_by = str(lk.get("created_by") or "-")
+                    mode = str(lk.get("mode") or "-")
+                    expires_at = str(lk.get("expires_at") or "-")
+                    note = str(lk.get("note") or "-")
+                    lk_scopes = lk.get("scopes") or []
+                    if not isinstance(lk_scopes, list):
+                        lk_scopes = [str(lk_scopes)]
+                    scopes_str = ",".join(str(s) for s in lk_scopes[:6]) if lk_scopes else "-"
+                    if isinstance(lk_scopes, list) and len(lk_scopes) > 6:
+                        scopes_str += ",..."
+                    print(
+                        f"  - {lid} created_by={created_by} mode={mode} expires_at={expires_at} scopes={scopes_str} note={note}",
+                        file=sys.stderr,
+                    )
+                if len(conflicts) > 10:
+                    print(f"  ... ({len(conflicts) - 10} more)", file=sys.stderr)
+                print("Resolve by coordinating (board/memo) or unlocking the conflicting lock.", file=sys.stderr)
+                print("If you really need overlap, re-run with `--force` (not recommended).", file=sys.stderr)
+                return 3
+
+        out = _create_lock(q, agent=agent, scopes=scopes, mode=str(args.mode), ttl_min=ttl_int, note=args.note)
     print(str(out))
     _append_event(
         q,
@@ -883,14 +951,25 @@ def cmd_lock(args: argparse.Namespace) -> int:
 def cmd_unlock(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     d = _locks_dir(q)
-    p = d / f"{args.lock_id}.json"
     agent = _require_agent_name(args, action="unlock")
     if not agent:
         return 2
-    if not p.exists():
-        print(f"lock not found: {p}")
+    lock_id = str(args.lock_id or "").replace("\\", "/").strip()
+    if "/" in lock_id:
+        lock_id = lock_id.rsplit("/", 1)[-1]
+    if lock_id.endswith(".json"):
+        lock_id = lock_id[: -len(".json")]
+    if not lock_id:
+        print("lock_id is required", file=sys.stderr)
         return 2
-    p.unlink()
+
+    lease_path = _locks_lease_path(q)
+    with _with_flock(lease_path):
+        p = d / f"{lock_id}.json"
+        if not p.exists():
+            print(f"lock not found: {p}")
+            return 2
+        p.unlink()
     print(str(p))
     _append_event(
         q,
@@ -2685,43 +2764,45 @@ def _orchestrator_process_requests(
                 if not scopes_norm:
                     raise ValueError("payload.scopes is required (list)")
 
-                if not force:
-                    existing = _find_locks(q, include_expired=False)
-                    conflicts: list[dict] = []
-                    for lk in existing:
-                        if str(lk.get("_status") or "") != "active":
-                            continue
-                        created_by = str(lk.get("created_by") or "").strip()
-                        if created_by and created_by == lock_owner:
-                            continue
-                        lk_scopes = lk.get("scopes") or []
-                        if not isinstance(lk_scopes, list):
-                            lk_scopes = [str(lk_scopes)]
-                        hit = False
-                        for new_sc in scopes_norm:
-                            for old_sc in lk_scopes:
-                                if _scopes_may_intersect(new_sc, str(old_sc)):
-                                    hit = True
-                                    break
-                            if hit:
-                                break
-                        if hit:
-                            conflicts.append(lk)
-
-                    if conflicts:
-                        lid = str(conflicts[0].get("id") or Path(str(conflicts[0].get("_path") or "")).stem)
-                        by = str(conflicts[0].get("created_by") or "-")
-                        raise ValueError(
-                            f"lock scope intersects existing active locks (n={len(conflicts)}). "
-                            f"example: {lid} created_by={by} (use force=true if you truly need overlap)"
-                        )
-
                 try:
                     _ensure_board_agent_entry(q, lock_owner)
                 except Exception:
                     pass
 
-                out = _create_lock(q, agent=lock_owner, scopes=scopes_norm, mode=mode, ttl_min=ttl_int, note=note)
+                lease_path = _locks_lease_path(q)
+                with _with_flock(lease_path):
+                    if not force:
+                        existing = _find_locks(q, include_expired=False)
+                        conflicts: list[dict] = []
+                        for lk in existing:
+                            if str(lk.get("_status") or "") != "active":
+                                continue
+                            created_by = str(lk.get("created_by") or "").strip()
+                            if created_by and created_by == lock_owner:
+                                continue
+                            lk_scopes = lk.get("scopes") or []
+                            if not isinstance(lk_scopes, list):
+                                lk_scopes = [str(lk_scopes)]
+                            hit = False
+                            for new_sc in scopes_norm:
+                                for old_sc in lk_scopes:
+                                    if _scopes_may_intersect(new_sc, str(old_sc)):
+                                        hit = True
+                                        break
+                                if hit:
+                                    break
+                            if hit:
+                                conflicts.append(lk)
+
+                        if conflicts:
+                            lid = str(conflicts[0].get("id") or Path(str(conflicts[0].get("_path") or "")).stem)
+                            by = str(conflicts[0].get("created_by") or "-")
+                            raise ValueError(
+                                f"lock scope intersects existing active locks (n={len(conflicts)}). "
+                                f"example: {lid} created_by={by} (use force=true if you truly need overlap)"
+                            )
+
+                    out = _create_lock(q, agent=lock_owner, scopes=scopes_norm, mode=mode, ttl_min=ttl_int, note=note)
 
                 note_id = None
                 if announce:
@@ -2765,10 +2846,12 @@ def _orchestrator_process_requests(
                 if lock_id.endswith(".json"):
                     lock_id = lock_id[: -len(".json")]
 
-                lock_path = _locks_dir(q) / f"{lock_id}.json"
-                existed = lock_path.exists()
-                if existed:
-                    lock_path.unlink()
+                lease_path = _locks_lease_path(q)
+                with _with_flock(lease_path):
+                    lock_path = _locks_dir(q) / f"{lock_id}.json"
+                    existed = lock_path.exists()
+                    if existed:
+                        lock_path.unlink()
                 _append_event(
                     q,
                     {

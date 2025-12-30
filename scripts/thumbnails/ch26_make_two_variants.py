@@ -25,6 +25,7 @@ Notes:
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import shutil
 import sys
@@ -57,8 +58,10 @@ bootstrap()
 
 from factory_common import paths as fpaths  # noqa: E402
 from script_pipeline.thumbnails.compiler.layer_specs import resolve_channel_layer_spec_ids, load_layer_spec_yaml  # noqa: E402
+from script_pipeline.thumbnails.compiler.layer_specs import find_text_layout_item_for_video  # noqa: E402
 from script_pipeline.thumbnails.layers.image_layer import BgEnhanceParams, composited_portrait_path, enhanced_bg_path  # noqa: E402
 from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png  # noqa: E402
+from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec  # noqa: E402
 from script_pipeline.thumbnails.tools.layer_specs_builder import upsert_fs_variant  # noqa: E402
 from script_pipeline.tools import planning_store  # noqa: E402
 
@@ -329,6 +332,9 @@ def _atomic_compose_text(
     video_id: str,
     out_path: Path,
     text_override: Optional[Dict[str, str]],
+    template_id_override: Optional[str] = None,
+    effects_override: Optional[Dict[str, Any]] = None,
+    overlays_override: Optional[Dict[str, Any]] = None,
 ) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(out_path.suffix + ".tmp")
@@ -338,6 +344,9 @@ def _atomic_compose_text(
         video_id=video_id,
         out_path=tmp,
         text_override=text_override,
+        template_id_override=template_id_override,
+        effects_override=effects_override,
+        overlays_override=overlays_override,
     )
     tmp.replace(out_path)
 
@@ -414,6 +423,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             video_id = f"{ch}-{v}"
 
             width, height = 1920, 1080
+            thumb_spec = load_thumb_spec(ch, v)
+            overrides_leaf = extract_normalized_override_leaf(thumb_spec.payload) if thumb_spec else {}
+
             portrait_params = _resolve_portrait_params(policy=portrait_policy, video=v, width=width, height=height)
             dest_box_px = portrait_params["dest_box_px"]
             anchor = portrait_params["anchor"]
@@ -424,14 +436,144 @@ def main(argv: Optional[List[str]] = None) -> int:
             fg_contrast = portrait_params["fg_contrast"]
             fg_color = portrait_params["fg_color"]
 
+            if overrides_leaf:
+                if "overrides.portrait.zoom" in overrides_leaf:
+                    portrait_zoom = float(overrides_leaf["overrides.portrait.zoom"])
+                if "overrides.portrait.offset_x" in overrides_leaf:
+                    portrait_offset_px = (int(round(width * float(overrides_leaf["overrides.portrait.offset_x"]))), portrait_offset_px[1])
+                if "overrides.portrait.offset_y" in overrides_leaf:
+                    portrait_offset_px = (portrait_offset_px[0], int(round(height * float(overrides_leaf["overrides.portrait.offset_y"]))))
+                if "overrides.portrait.trim_transparent" in overrides_leaf:
+                    trim_transparent = bool(overrides_leaf["overrides.portrait.trim_transparent"])
+                if "overrides.portrait.fg_brightness" in overrides_leaf:
+                    fg_brightness = float(overrides_leaf["overrides.portrait.fg_brightness"])
+                if "overrides.portrait.fg_contrast" in overrides_leaf:
+                    fg_contrast = float(overrides_leaf["overrides.portrait.fg_contrast"])
+                if "overrides.portrait.fg_color" in overrides_leaf:
+                    fg_color = float(overrides_leaf["overrides.portrait.fg_color"])
+
             has_bg_portrait = v not in PORTRAITLESS_BG_VIDEOS
+
+            video_bg_params = BgEnhanceParams(
+                brightness=float(overrides_leaf.get("overrides.bg_enhance.brightness", bg_params.brightness)),
+                contrast=float(overrides_leaf.get("overrides.bg_enhance.contrast", bg_params.contrast)),
+                color=float(overrides_leaf.get("overrides.bg_enhance.color", bg_params.color)),
+                gamma=float(overrides_leaf.get("overrides.bg_enhance.gamma", bg_params.gamma)),
+            )
+            video_bg_zoom = float(overrides_leaf.get("overrides.bg_pan_zoom.zoom", 1.0))
+            video_bg_pan_x = float(overrides_leaf.get("overrides.bg_pan_zoom.pan_x", 0.0))
+            video_bg_pan_y = float(overrides_leaf.get("overrides.bg_pan_zoom.pan_y", 0.0))
+
+            template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
+            effects_override: Optional[Dict[str, Any]] = None
+            overlays_override: Optional[Dict[str, Any]] = None
+            if overrides_leaf:
+                stroke: Dict[str, Any] = {}
+                shadow: Dict[str, Any] = {}
+                glow: Dict[str, Any] = {}
+                fills: Dict[str, Any] = {}
+
+                if "overrides.text_effects.stroke.width_px" in overrides_leaf:
+                    stroke["width_px"] = overrides_leaf["overrides.text_effects.stroke.width_px"]
+                if "overrides.text_effects.stroke.color" in overrides_leaf:
+                    stroke["color"] = overrides_leaf["overrides.text_effects.stroke.color"]
+
+                if "overrides.text_effects.shadow.alpha" in overrides_leaf:
+                    shadow["alpha"] = overrides_leaf["overrides.text_effects.shadow.alpha"]
+                if "overrides.text_effects.shadow.offset_px" in overrides_leaf:
+                    off = overrides_leaf["overrides.text_effects.shadow.offset_px"]
+                    if isinstance(off, tuple) and len(off) == 2:
+                        shadow["offset_px"] = [int(off[0]), int(off[1])]
+                    else:
+                        shadow["offset_px"] = off
+                if "overrides.text_effects.shadow.blur_px" in overrides_leaf:
+                    shadow["blur_px"] = overrides_leaf["overrides.text_effects.shadow.blur_px"]
+                if "overrides.text_effects.shadow.color" in overrides_leaf:
+                    shadow["color"] = overrides_leaf["overrides.text_effects.shadow.color"]
+
+                if "overrides.text_effects.glow.alpha" in overrides_leaf:
+                    glow["alpha"] = overrides_leaf["overrides.text_effects.glow.alpha"]
+                if "overrides.text_effects.glow.blur_px" in overrides_leaf:
+                    glow["blur_px"] = overrides_leaf["overrides.text_effects.glow.blur_px"]
+                if "overrides.text_effects.glow.color" in overrides_leaf:
+                    glow["color"] = overrides_leaf["overrides.text_effects.glow.color"]
+
+                for fill_key in ("white_fill", "red_fill", "yellow_fill", "hot_red_fill", "purple_fill"):
+                    p = f"overrides.text_fills.{fill_key}.color"
+                    if p in overrides_leaf:
+                        fills[fill_key] = {"color": overrides_leaf[p]}
+
+                eff: Dict[str, Any] = {}
+                if stroke:
+                    eff["stroke"] = stroke
+                if shadow:
+                    eff["shadow"] = shadow
+                if glow:
+                    eff["glow"] = glow
+                if fills:
+                    eff.update(fills)
+                if eff:
+                    effects_override = eff
+
+                left_tsz: Dict[str, Any] = {}
+                top_band: Dict[str, Any] = {}
+                bottom_band: Dict[str, Any] = {}
+                for k in ("enabled", "color", "alpha_left", "alpha_right", "x0", "x1"):
+                    p = f"overrides.overlays.left_tsz.{k}"
+                    if p in overrides_leaf:
+                        left_tsz[k] = overrides_leaf[p]
+                for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+                    p = f"overrides.overlays.top_band.{k}"
+                    if p in overrides_leaf:
+                        top_band[k] = overrides_leaf[p]
+                for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+                    p = f"overrides.overlays.bottom_band.{k}"
+                    if p in overrides_leaf:
+                        bottom_band[k] = overrides_leaf[p]
+                ov: Dict[str, Any] = {}
+                if left_tsz:
+                    ov["left_tsz"] = left_tsz
+                if top_band:
+                    ov["top_band"] = top_band
+                if bottom_band:
+                    ov["bottom_band"] = bottom_band
+                if ov:
+                    overlays_override = ov
+
+            video_text_scale = float(overrides_leaf.get("overrides.text_scale", 1.0))
+            template_id_for_scale: Optional[str] = None
+            item = find_text_layout_item_for_video(text_spec, video_id)
+            if isinstance(item, dict):
+                template_id_for_scale = str(item.get("template_id") or "").strip() or None
+            if template_id_override:
+                template_id_for_scale = template_id_override
+
+            text_spec_for_render = text_spec
+            if abs(float(video_text_scale) - 1.0) > 1e-6 and isinstance(text_spec, dict):
+                text_spec_for_render = copy.deepcopy(text_spec)
+                templates_out = text_spec_for_render.get("templates") if isinstance(text_spec_for_render, dict) else None
+                tpl_out = (
+                    templates_out.get(template_id_for_scale)
+                    if isinstance(templates_out, dict) and template_id_for_scale
+                    else None
+                )
+                slots_out = tpl_out.get("slots") if isinstance(tpl_out, dict) else None
+                if isinstance(slots_out, dict):
+                    for slot_cfg in slots_out.values():
+                        if not isinstance(slot_cfg, dict):
+                            continue
+                        base_size = slot_cfg.get("base_size_px")
+                        if not isinstance(base_size, (int, float)):
+                            continue
+                        scaled = int(round(float(base_size) * float(video_text_scale)))
+                        slot_cfg["base_size_px"] = max(1, scaled)
 
             with enhanced_bg_path(
                 bg_path,
-                params=bg_params,
-                zoom=1.0,
-                pan_x=0.0,
-                pan_y=0.0,
+                params=video_bg_params,
+                zoom=float(video_bg_zoom),
+                pan_x=float(video_bg_pan_x),
+                pan_y=float(video_bg_pan_y),
                 band_params=band_params,
                 band_x0=0.0,
                 band_x1=0.0,
@@ -458,10 +600,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         ) as base_with_portrait:
                             _atomic_compose_text(
                                 base_with_portrait,
-                                text_layout_spec=text_spec,
+                                text_layout_spec=text_spec_for_render,
                                 video_id=video_id,
                                 out_path=out_1,
                                 text_override=text_override,
+                                template_id_override=template_id_override,
+                                effects_override=effects_override,
+                                overlays_override=overlays_override,
                             )
                     finally:
                         if suppressed_path:
@@ -473,10 +618,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                     # thumb_2 (ALTERNATE): keep the background portrait as-is (no overlay).
                     _atomic_compose_text(
                         base_for_text,
-                        text_layout_spec=text_spec,
+                        text_layout_spec=text_spec_for_render,
                         video_id=video_id,
                         out_path=out_2,
                         text_override=text_override,
+                        template_id_override=template_id_override,
+                        effects_override=effects_override,
+                        overlays_override=overlays_override,
                     )
                 else:
                     # Background has no portrait (001-004). Ensure thumb_1 includes a person.
@@ -499,10 +647,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         ) as base_with_portrait:
                             _atomic_compose_text(
                                 base_with_portrait,
-                                text_layout_spec=text_spec,
+                                text_layout_spec=text_spec_for_render,
                                 video_id=video_id,
                                 out_path=out_1,
                                 text_override=text_override,
+                                template_id_override=template_id_override,
+                                effects_override=effects_override,
+                                overlays_override=overlays_override,
                             )
                     finally:
                         if suppressed_path:
@@ -527,10 +678,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                     ) as base_with_portrait:
                         _atomic_compose_text(
                             base_with_portrait,
-                            text_layout_spec=text_spec,
+                            text_layout_spec=text_spec_for_render,
                             video_id=video_id,
                             out_path=out_2,
                             text_override=text_override,
+                            template_id_override=template_id_override,
+                            effects_override=effects_override,
+                            overlays_override=overlays_override,
                         )
 
             # Keep the canonical direct-reference filename in sync with thumb_1.

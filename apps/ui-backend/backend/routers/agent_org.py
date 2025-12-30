@@ -5,6 +5,7 @@ import json
 import os
 import secrets
 import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -141,6 +142,30 @@ def _try_lock_available(lock_path: Path) -> bool:
             except Exception:
                 pass
     return True
+
+
+@contextmanager
+def _with_flock(lock_path: Path):
+    """
+    Cross-process mutex using fcntl.flock (unix-only).
+    Used to make lock create/unlock operations effectively atomic.
+    """
+    try:
+        import fcntl  # unix-only
+    except Exception:
+        yield
+        return
+
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            try:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
 
 
 def _scope_matches_path(scope: str, rel_path: str) -> bool:
@@ -968,78 +993,80 @@ def create_lock(req: LockCreateRequest) -> Dict[str, Any]:
     if not scopes:
         raise HTTPException(status_code=400, detail="scopes is required")
 
-    now = datetime.now(timezone.utc)
+    lease_path = d / "lease.lock"
+    with _with_flock(lease_path):
+        now = datetime.now(timezone.utc)
 
-    if not req.force:
-        conflicts: List[Dict[str, Any]] = []
-        for fp in sorted(d.glob("*.json")):
-            obj = _read_json(fp)
-            if not obj:
-                continue
-            exp_dt = _parse_iso(obj.get("expires_at"))
-            if exp_dt and exp_dt <= now:
-                continue
+        if not req.force:
+            conflicts: List[Dict[str, Any]] = []
+            for fp in sorted(d.glob("*.json")):
+                obj = _read_json(fp)
+                if not obj:
+                    continue
+                exp_dt = _parse_iso(obj.get("expires_at"))
+                if exp_dt and exp_dt <= now:
+                    continue
 
-            created_by = str(obj.get("created_by") or "").strip()
-            if created_by and created_by == actor:
-                continue
+                created_by = str(obj.get("created_by") or "").strip()
+                if created_by and created_by == actor:
+                    continue
 
-            other_scopes = obj.get("scopes") or []
-            if not isinstance(other_scopes, list):
-                other_scopes = [str(other_scopes)]
+                other_scopes = obj.get("scopes") or []
+                if not isinstance(other_scopes, list):
+                    other_scopes = [str(other_scopes)]
 
-            hit = False
-            for new_sc in scopes:
-                for old_sc in other_scopes:
-                    if _scopes_may_intersect(new_sc, str(old_sc)):
-                        hit = True
+                hit = False
+                for new_sc in scopes:
+                    for old_sc in other_scopes:
+                        if _scopes_may_intersect(new_sc, str(old_sc)):
+                            hit = True
+                            break
+                    if hit:
                         break
                 if hit:
-                    break
-            if hit:
-                conflicts.append(
-                    {
-                        "id": obj.get("id") or fp.stem,
-                        "created_by": obj.get("created_by"),
-                        "mode": obj.get("mode"),
-                        "created_at": obj.get("created_at"),
-                        "expires_at": obj.get("expires_at"),
-                        "scopes": other_scopes,
-                        "note": obj.get("note"),
-                    }
+                    conflicts.append(
+                        {
+                            "id": obj.get("id") or fp.stem,
+                            "created_by": obj.get("created_by"),
+                            "mode": obj.get("mode"),
+                            "created_at": obj.get("created_at"),
+                            "expires_at": obj.get("expires_at"),
+                            "scopes": other_scopes,
+                            "note": obj.get("note"),
+                        }
+                    )
+
+            if conflicts:
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "error": "lock_scope_conflict",
+                        "message": "lock scope intersects existing active locks",
+                        "conflicts": conflicts[:20],
+                    },
                 )
 
-        if conflicts:
-            raise HTTPException(
-                status_code=409,
-                detail={
-                    "error": "lock_scope_conflict",
-                    "message": "lock scope intersects existing active locks",
-                    "conflicts": conflicts[:20],
-                },
-            )
+        lock_id = _new_id("lock")
+        expires_at = None
+        if req.ttl_min is not None and req.ttl_min > 0:
+            expires_at = (now.replace(microsecond=0) + timedelta(minutes=int(req.ttl_min))).isoformat()
 
-    lock_id = _new_id("lock")
-    expires_at = None
-    if req.ttl_min is not None and req.ttl_min > 0:
-        expires_at = (now.replace(microsecond=0) + timedelta(minutes=int(req.ttl_min))).isoformat()
+        payload: Dict[str, Any] = {
+            "schema_version": 1,
+            "kind": "lock",
+            "id": lock_id,
+            "created_at": now.isoformat(),
+            "created_by": actor,
+            "mode": str(req.mode or "no_touch"),
+            "scopes": scopes,
+        }
+        if req.note:
+            payload["note"] = str(req.note)
+        if expires_at:
+            payload["expires_at"] = expires_at
 
-    payload: Dict[str, Any] = {
-        "schema_version": 1,
-        "kind": "lock",
-        "id": lock_id,
-        "created_at": now.isoformat(),
-        "created_by": actor,
-        "mode": str(req.mode or "no_touch"),
-        "scopes": scopes,
-    }
-    if req.note:
-        payload["note"] = str(req.note)
-    if expires_at:
-        payload["expires_at"] = expires_at
-
-    out = d / f"{lock_id}.json"
-    _atomic_write_json(out, payload)
+        out = d / f"{lock_id}.json"
+        _atomic_write_json(out, payload)
 
     try:
         _ensure_board_agent_entry(actor)
@@ -1110,10 +1137,12 @@ def unlock_lock(req: LockUnlockRequest) -> Dict[str, Any]:
     if not lock_id:
         raise HTTPException(status_code=400, detail="lock_id is required")
 
-    lock_path = d / f"{lock_id}.json"
-    existed = lock_path.exists()
-    if existed:
-        lock_path.unlink()
+    lease_path = d / "lease.lock"
+    with _with_flock(lease_path):
+        lock_path = d / f"{lock_id}.json"
+        existed = lock_path.exists()
+        if existed:
+            lock_path.unlink()
 
     now_iso = datetime.now(timezone.utc).isoformat()
     _append_event(

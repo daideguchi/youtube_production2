@@ -458,27 +458,26 @@ def _detect_primary_face_bbox(img: Image.Image) -> Optional[Tuple[int, int, int,
     arr = np.array(im)
     gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
 
-    cascade_names = (
-        "haarcascade_frontalface_default.xml",
-        "haarcascade_frontalface_alt2.xml",
-        "haarcascade_profileface.xml",
-    )
-
-    candidates: List[Tuple[int, int, int, int]] = []
-    for name in cascade_names:
+    def _detect(name: str) -> List[Tuple[int, int, int, int]]:
         try:
             cascade = cv2.CascadeClassifier(cv2.data.haarcascades + name)
             faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
         except Exception:
-            continue
+            return []
+        out: List[Tuple[int, int, int, int]] = []
         for x, y, w, h in faces:
             x0 = int(x)
             y0 = int(y)
             x1 = int(x + w)
             y1 = int(y + h)
             if x1 > x0 and y1 > y0:
-                candidates.append((x0, y0, x1, y1))
+                out.append((x0, y0, x1, y1))
+        return out
 
+    # Prefer frontal detectors when available; only fall back to profile detection.
+    candidates = _detect("haarcascade_frontalface_default.xml") + _detect("haarcascade_frontalface_alt2.xml")
+    if not candidates:
+        candidates = _detect("haarcascade_profileface.xml")
     if not candidates:
         return None
 
@@ -505,7 +504,8 @@ def _crop_to_aspect_face_anchored(
     face_target_x: float = 0.5,
     face_target_y: float = 0.5,
     face_height_ratio: float = 0.25,
-    allow_padding: bool = True,
+    zoom: float = 1.0,
+    allow_padding: bool = False,
 ) -> Image.Image:
     """
     Crop to `target_aspect` (w/h) while keeping the detected face near the target point.
@@ -526,30 +526,53 @@ def _crop_to_aspect_face_anchored(
     if x1 <= x0 or y1 <= y0:
         return img
 
+    face_w = float(x1 - x0)
     face_h = float(y1 - y0)
-    ratio = max(0.05, min(0.95, float(face_height_ratio)))
-    crop_h = max(1, int(round(face_h / ratio)))
-    crop_w = max(1, int(round(crop_h * target)))
 
-    # Ensure crop fits within the image, while keeping aspect exact.
-    if crop_w > w:
-        crop_w = w
-        crop_h = max(1, int(round(crop_w / target)))
-    if crop_h > h:
-        crop_h = h
-        crop_w = max(1, int(round(crop_h * target)))
-    crop_w = max(1, min(w, crop_w))
-    crop_h = max(1, min(h, crop_h))
+    ratio = max(0.05, min(0.95, float(face_height_ratio)))
+    zoom_f = max(1.0, float(zoom))
+    effective_ratio = max(0.05, min(0.95, ratio * zoom_f))
+
+    # Desired crop height from face bbox size.
+    crop_h_desired = float(face_h / effective_ratio)
+    # Ensure the crop can contain the face bbox.
+    crop_h_min = max(face_h, (face_w / target) if target > 0 else face_h)
 
     cx = (x0 + x1) / 2.0
     cy = (y0 + y1) / 2.0
     tx = max(0.0, min(1.0, float(face_target_x)))
     ty = max(0.0, min(1.0, float(face_target_y)))
 
-    left = int(round(cx - (tx * crop_w)))
-    top = int(round(cy - (ty * crop_h)))
-    right = left + crop_w
-    bottom = top + crop_h
+    # Maximum crop height to keep the face center at (tx, ty) without padding.
+    max_h_y = float("inf")
+    if ty > 0.0:
+        max_h_y = min(max_h_y, cy / ty)
+    if ty < 1.0:
+        max_h_y = min(max_h_y, (float(h) - cy) / (1.0 - ty))
+
+    max_w_x = float("inf")
+    if tx > 0.0:
+        max_w_x = min(max_w_x, cx / tx)
+    if tx < 1.0:
+        max_w_x = min(max_w_x, (float(w) - cx) / (1.0 - tx))
+    max_h_x = (max_w_x / target) if target > 0 else float("inf")
+
+    crop_h_max = min(float(h), max_h_y, max_h_x)
+
+    crop_h = max(crop_h_min, crop_h_desired)
+    if crop_h_max > 0:
+        crop_h = min(crop_h, crop_h_max)
+    crop_h = max(1.0, min(float(h), crop_h))
+    crop_w = max(1.0, min(float(w), crop_h * target))
+    crop_h = max(1.0, min(float(h), (crop_w / target) if target > 0 else crop_h))
+
+    crop_w_i = max(1, int(round(crop_w)))
+    crop_h_i = max(1, int(round(crop_h)))
+
+    left = int(round(cx - (tx * crop_w_i)))
+    top = int(round(cy - (ty * crop_h_i)))
+    right = left + crop_w_i
+    bottom = top + crop_h_i
 
     if allow_padding:
         fill_rgb, _ = _border_color_stats(img)
@@ -563,9 +586,9 @@ def _crop_to_aspect_face_anchored(
             top += pad_top
 
     w2, h2 = img.size
-    left = max(0, min(w2 - crop_w, left))
-    top = max(0, min(h2 - crop_h, top))
-    return img.crop((left, top, left + crop_w, top + crop_h))
+    left = max(0, min(w2 - crop_w_i, left))
+    top = max(0, min(h2 - crop_h_i, top))
+    return img.crop((left, top, left + crop_w_i, top + crop_h_i))
 
 
 def _crop_to_aspect(img: Image.Image, *, target_aspect: float, y_bias: float = 0.45) -> Image.Image:
@@ -767,7 +790,8 @@ def prepare_portrait_png(
             face_target_x=float(face_target_x),
             face_target_y=float(face_target_y),
             face_height_ratio=float(face_height_ratio),
-            allow_padding=True,
+            zoom=float(zoom),
+            allow_padding=False,
         )
     else:
         im = _crop_to_aspect_zoomed(im, target_aspect=float(target_aspect), y_bias=float(y_bias), zoom=float(zoom))
@@ -844,6 +868,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         default=0.25,
         help="desired face bbox height / crop height (default 0.25; larger => tighter crop)",
     )
+    ap.add_argument(
+        "--zoom",
+        type=float,
+        default=1.18,
+        help="crop zoom factor (default: 1.18; affects both face-crop tightness and heuristic crop)",
+    )
+    ap.add_argument(
+        "--y-bias",
+        type=float,
+        default=0.34,
+        help="heuristic crop y-bias when no face is detected (0..1, default: 0.34)",
+    )
+    ap.add_argument("--max-height-px", type=int, default=1400, help="max output portrait height (default: 1400)")
     ap.add_argument("--dry-run", action="store_true", help="print actions without writing files")
     ap.add_argument("--sleep-sec", type=float, default=0.25, help="sleep between requests (default: 0.25)")
     args = ap.parse_args(argv)
@@ -939,12 +976,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                 brightness=1.0,
                 contrast=1.0,
                 color=1.0,
-                y_bias=0.34,
-                zoom=1.18,
+                y_bias=float(args.y_bias),
+                zoom=float(args.zoom),
                 use_face_crop=not bool(args.no_face_crop),
                 face_target_x=float(args.face_target_x),
                 face_target_y=float(args.face_target_y),
                 face_height_ratio=float(args.face_height_ratio),
+                max_height_px=int(args.max_height_px),
             )
             if not local_src:
                 meta_out.write_text(json.dumps(src.__dict__, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -254,3 +254,7 @@
   - 設定: `configs/codex_exec.yaml`（`configs/codex_exec.local.yaml` で上書き可）
   - 実装: `packages/factory_common/codex_exec_layer.py`, `packages/factory_common/llm_router.py`
 - 検証: `python3 scripts/ops/pre_push_final_check.py --write-ssot-report --run-tests`
+- AgentOrg（並列盤石化）:
+  - lock/unlock を Orchestrator 依存から切り離し、UIから即時反映できるAPIを追加（`apps/ui-backend/backend/routers/agent_org.py`, `apps/ui-frontend/src/pages/AgentOrgPage.tsx`）。
+  - lock 作成/解除を `locks/lease.lock`（flock）で直列化し、レースで二重取得しにくくした（UI/API/Orchestrator/CLI 共通）。
+  - agent name を未設定でも自動生成→端末/host_pidごとに記憶し、attribution が `unknown` になりにくいようにした（`scripts/agent_org.py`）。

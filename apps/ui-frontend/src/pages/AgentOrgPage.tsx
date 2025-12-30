@@ -147,9 +147,21 @@ export function AgentOrgPage() {
       return fromParam;
     }
     try {
-      return localStorage.getItem("agent_org_actor") || "dd";
+      const stored = (localStorage.getItem("agent_org_actor") || "").trim();
+      if (stored) {
+        return stored;
+      }
+      const suffixKey = "agent_org_actor_suffix";
+      let suffix = (localStorage.getItem(suffixKey) || "").trim();
+      if (!suffix) {
+        suffix = Math.random().toString(16).slice(2, 6);
+        localStorage.setItem(suffixKey, suffix);
+      }
+      const generated = `dd-ui-${suffix}`;
+      localStorage.setItem("agent_org_actor", generated);
+      return generated;
     } catch {
-      return "dd";
+      return "dd-ui";
     }
   });
 
@@ -269,12 +281,18 @@ export function AgentOrgPage() {
     const params = new URLSearchParams(searchParamsString);
     const tabParam = params.get("tab");
     const desiredTab: TabKey = isTabKey(tabParam) ? tabParam : "overview";
-    const desiredFrom = (params.get("from") ?? "").trim() || "dd";
+    const desiredFromRaw = params.get("from");
+    const desiredFrom = (desiredFromRaw ?? "").trim();
+    const hasFrom = desiredFromRaw != null;
     const desiredQuery = params.get("q") ?? "";
     const desiredAuto = params.get("auto") === "1";
 
     setTab((current) => (current === desiredTab ? current : desiredTab));
-    setActorName((current) => (current === desiredFrom ? current : desiredFrom));
+    setActorName((current) => {
+      if (!hasFrom) return current;
+      const next = desiredFrom || current;
+      return current === next ? current : next;
+    });
     setQuery((current) => (current === desiredQuery ? current : desiredQuery));
     setAutoRefresh((current) => (current === desiredAuto ? current : desiredAuto));
   }, [searchParamsString]);

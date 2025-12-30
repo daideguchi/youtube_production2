@@ -39,7 +39,7 @@ python scripts/agent_org.py orchestrator stop
 ## 4. Worker Agent（名前・心拍）
 重要:
 - 並列運用では **各Codex/ターミナルごと**に agent name が必須（`lock/memo/board` 等の write 操作の attribution を壊さないため）。
-- `export LLM_AGENT_NAME=...` を毎回やりたくない場合、`scripts/agent_org.py` の write系は **初回だけプロンプトで名前入力→記憶**される（以後は自動）。
+- `LLM_AGENT_NAME` を毎回セットしたくない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。必要なら `LLM_AGENT_NAME` / `--agent-name` で上書き。
 - 推奨命名: `<owner>-<area>-<nn>`（例: `dd-ui-01`）
 
 ### 4.1 heartbeat を起動（各Agentごと）
@@ -105,6 +105,7 @@ python scripts/agent_org.py locks --path apps/ui-backend/backend/main.py
 UIから行う場合: `/agent-org` → Actions タブ（`from` は agent 名に合わせる）
 ※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。必要なら `--force`（要合意）。
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
+  lock の作成/解除は `locks/lease.lock`（flock）で直列化され、レースで二重取得しにくい（UI/API/Orchestrator/CLI 共通）。
 
 ### 7.2 lock を外す
 ```bash

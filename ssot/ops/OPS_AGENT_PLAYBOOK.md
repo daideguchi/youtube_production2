@@ -26,7 +26,7 @@
 
 ### 2.1 自己識別（必須: agent_org の write系）
 - 並列作業では **各Codex/ターミナルごと**に agent name が必須（名前が無いと attribution が壊れて事故る）。
-- いちいち `export ...` したくない場合: `scripts/agent_org.py` の write系を叩いた時に **初回だけプロンプトで名前入力→記憶**される（以後は自動）。
+- `LLM_AGENT_NAME` をセットしない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。必要なら `LLM_AGENT_NAME` / `--agent-name` で上書き。
 - 推奨命名: `<owner>-<area>-<nn>`（例: `dd-capcut-01`, `dd-ui-02`, `dd-tts-01`）
 ```bash
 export LLM_AGENT_NAME=dd-ui-01
@@ -51,6 +51,7 @@ python scripts/agent_org.py lock 'packages/video_pipeline/tools/**' --mode no_to
 ※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。  
   どうしても必要な場合のみ `--force` で上書きし、必ず board/memo で合意を残す。
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
+  lock の作成/解除は `locks/lease.lock`（flock）で直列化され、レースで二重取得しにくい（UI/API/Orchestrator/CLI 共通）。
 
 3) lock の履歴（JSON）が増えすぎたら（任意: 整理）:
 ```bash
