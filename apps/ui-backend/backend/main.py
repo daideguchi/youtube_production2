@@ -10309,7 +10309,7 @@ def get_video_detail(channel: str, video: str):
         assembled_content=assembled_content,
         assembled_human_path=None,
         assembled_human_content=None,
-        # B：TTS が読む正本（script_sanitized）。無い場合は A を返す。
+        # B：最終TTS入力（final/a_text.txt を優先。なければ audio_prep/script_sanitized.txt）。
         tts_path=safe_relative_path(tts_source_path) if tts_source_path else None,
         tts_content=human_b_content,
         tts_plain_content=human_b_content,

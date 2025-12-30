@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-30T00:47:31.973697+00:00",
+  "updated_at": "2025-12-30T00:48:39.330977+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -2914,11 +2914,11 @@
         }
       ],
       "title": "【ノイマン式】結論、成果は設計で決まる",
-      "notes": "インパクト弱すぎ。もっとアップに",
-      "updated_at": "2025-12-30T00:43:34.033576+00:00",
+      "notes": "インパクト弱すぎ。もっとアップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_001_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:43:34.033547+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -2953,11 +2953,11 @@
         }
       ],
       "title": "【岡潔流】本当に賢い人は情報を減らす",
-      "notes": "もっとアップに。",
-      "updated_at": "2025-12-30T00:43:53.974583+00:00",
+      "notes": "もっとアップに。\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_002_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:43:53.974562+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -2992,11 +2992,11 @@
         }
       ],
       "title": "【チューリング式】結論、手順を外に出すと進む",
-      "notes": "偉人はもっと下に、アップに",
-      "updated_at": "2025-12-30T00:44:12.849105+00:00",
+      "notes": "偉人はもっと下に、アップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_003_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:44:12.849075+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3031,11 +3031,11 @@
         }
       ],
       "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
-      "notes": "偉人はもっとアップに",
-      "updated_at": "2025-12-30T00:44:31.360248+00:00",
+      "notes": "偉人はもっとアップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_004_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:44:31.360226+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3099,11 +3099,11 @@
         }
       ],
       "title": "【サイモン式】最適解を捨てると成果が増える",
-      "notes": "偉人は中心に。（もっと右に配置）",
-      "updated_at": "2025-12-30T00:44:49.636645+00:00",
+      "notes": "偉人は中心に。（もっと右に配置）\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_006_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:44:49.636620+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3167,11 +3167,11 @@
         }
       ],
       "title": "【孫子の型】最悪を先に固定すると迷いが消える",
-      "updated_at": "2025-12-30T00:45:05.671772+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_008_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:45:05.671747+00:00",
-      "notes": "もっと明るく"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "もっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
@@ -3206,11 +3206,11 @@
         }
       ],
       "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
-      "notes": "もっと偉人の顔はアップ",
-      "updated_at": "2025-12-30T00:45:28.719091+00:00",
+      "notes": "もっと偉人の顔はアップ\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_009_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:45:28.719066+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3390,11 +3390,11 @@
         }
       ],
       "title": "【スミス式】期待値で選べ：損を減らせ",
-      "notes": "偉人はもっと右。中心に配置せよ",
-      "updated_at": "2025-12-30T00:45:51.052984+00:00",
+      "notes": "偉人はもっと右。中心に配置せよ\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_015_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:45:51.052951+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3458,11 +3458,11 @@
         }
       ],
       "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
-      "notes": "偉人をもっと大きく、少し下。",
-      "updated_at": "2025-12-30T00:46:06.939222+00:00",
+      "notes": "偉人をもっと大きく、少し下。\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_017_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:46:06.939203+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3497,11 +3497,11 @@
         }
       ],
       "title": "【キュリー式】結論、測定が更新を速くする",
-      "notes": "偉人はめちゃくちゃインパクト強くしたい。大きく明るく",
-      "updated_at": "2025-12-30T00:46:27.413480+00:00",
+      "notes": "偉人はめちゃくちゃインパクト強くしたい。大きく明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_018_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:46:27.413451+00:00"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
     },
     {
       "channel": "CH26",
@@ -3565,11 +3565,11 @@
         }
       ],
       "title": "【ダーウィン式】結論、更新の反復が成果を作る",
-      "updated_at": "2025-12-30T00:46:51.778570+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_020_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:46:51.778539+00:00",
-      "notes": "もっと偉人を明るく"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "もっと偉人を明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
@@ -3691,11 +3691,11 @@
         }
       ],
       "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
-      "updated_at": "2025-12-30T00:47:05.969200+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_024_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:47:05.969180+00:00",
-      "notes": "偉人をもっと右に（つまり中央に）。そしてもっと明るく"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "偉人をもっと右に（つまり中央に）。そしてもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
@@ -3759,16 +3759,25 @@
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-30T00:47:31.973691+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_026_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:47:31.973662+00:00",
-      "notes": "もっと偉人を明るく"
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "もっと偉人を明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
       "video": "027",
       "variants": [
+        {
+          "id": "fs::ch26_027_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/027/00_thumb.png",
+          "image_path": "CH26/027/00_thumb.png",
+          "created_at": "2025-12-30T00:47:55.447852+00:00",
+          "updated_at": "2025-12-30T00:47:55.447854+00:00"
+        },
         {
           "id": "fs::ch26_027_00_thumb_1",
           "label": "顔B（実在）",
@@ -3789,16 +3798,25 @@
         }
       ],
       "title": "【デミング式】結論、平均を上げるのが最強",
-      "updated_at": "2025-12-29T08:10:01.503439+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_027_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:10:01.503432+00:00",
-      "notes": "偉人はもっと明るく"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "偉人はもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
       "video": "028",
       "variants": [
+        {
+          "id": "fs::ch26_028_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/028/00_thumb.png",
+          "image_path": "CH26/028/00_thumb.png",
+          "created_at": "2025-12-30T00:48:16.724796+00:00",
+          "updated_at": "2025-12-30T00:48:16.724797+00:00"
+        },
         {
           "id": "fs::ch26_028_00_thumb_1",
           "label": "顔B（実在）",
@@ -3819,11 +3837,11 @@
         }
       ],
       "title": "【TPSの型】冗長性で崩れない仕組みを作れ",
-      "updated_at": "2025-12-29T08:10:08.382351+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_028_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:10:08.382345+00:00",
-      "notes": "偉人はもっと下にずらす"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "偉人はもっと下にずらす\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH26",
@@ -3859,6 +3877,15 @@
       "video": "030",
       "variants": [
         {
+          "id": "fs::ch26_030_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/030/00_thumb.png",
+          "image_path": "CH26/030/00_thumb.png",
+          "created_at": "2025-12-30T00:48:37.885653+00:00",
+          "updated_at": "2025-12-30T00:48:37.885655+00:00"
+        },
+        {
           "id": "fs::ch26_030_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3878,11 +3905,11 @@
         }
       ],
       "title": "【セネカ式】結論、基準がないから焦る",
-      "updated_at": "2025-12-29T08:10:22.565569+00:00",
+      "updated_at": "2025-12-30T00:48:39.329618+00:00",
       "selected_variant_id": "fs::ch26_030_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:10:22.565560+00:00",
-      "notes": "偉人はもっと明るく"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "notes": "偉人はもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
       "channel": "CH12",
