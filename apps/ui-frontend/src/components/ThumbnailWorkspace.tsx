@@ -305,6 +305,23 @@ function leafOverridesToThumbSpecOverrides(overridesLeaf: Record<string, any>): 
   return out;
 }
 
+function resolveLayerTuningLeafValue(dialog: LayerTuningDialogState, path: string, fallback: any): any {
+  const overrides = dialog.overridesLeaf ?? {};
+  if (Object.prototype.hasOwnProperty.call(overrides, path)) {
+    return overrides[path];
+  }
+  const defaults = dialog.context?.defaults_leaf ?? {};
+  if (Object.prototype.hasOwnProperty.call(defaults, path)) {
+    return defaults[path];
+  }
+  return fallback;
+}
+
+function isLayerTuningLeafOverridden(dialog: LayerTuningDialogState, path: string): boolean {
+  const overrides = dialog.overridesLeaf ?? {};
+  return Object.prototype.hasOwnProperty.call(overrides, path);
+}
+
 const CHANNEL_ICON_MAP: Record<string, string> = {
   CH01: "🎯",
   CH02: "📚",
@@ -2320,6 +2337,218 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     setProjectFeedback(projectKey, null);
   }, [setProjectFeedback]);
 
+  const handleOpenLayerTuningDialog = useCallback((project: ThumbnailProject) => {
+    const projectKey = getProjectKey(project);
+    setLayerTuningDialog({
+      projectKey,
+      channel: project.channel,
+      video: normalizeVideoInput(project.video) || project.video,
+      projectTitle: project.title ?? project.sheet_title ?? "（タイトル未設定）",
+      loading: true,
+      saving: false,
+      building: false,
+      allowGenerate: true,
+      regenBg: false,
+      outputMode: "draft",
+      error: undefined,
+      context: undefined,
+      overridesLeaf: {},
+    });
+    setProjectFeedback(projectKey, null);
+  }, [setProjectFeedback]);
+
+  const handleCloseLayerTuningDialog = useCallback(() => {
+    setLayerTuningDialog(null);
+  }, []);
+
+  const layerTuningProjectKey = layerTuningDialog?.projectKey ?? null;
+  const layerTuningChannel = layerTuningDialog?.channel ?? null;
+  const layerTuningVideo = layerTuningDialog?.video ?? null;
+
+  useEffect(() => {
+    if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
+      return;
+    }
+    const requestId = Date.now();
+    layerTuningRequestRef.current = requestId;
+    const projectKey = layerTuningProjectKey;
+    setLayerTuningDialog((current) => {
+      if (!current || current.projectKey !== projectKey) {
+        return current;
+      }
+      return { ...current, loading: true, error: undefined };
+    });
+    fetchThumbnailEditorContext(layerTuningChannel, layerTuningVideo)
+      .then((context) => {
+        if (layerTuningRequestRef.current !== requestId) {
+          return;
+        }
+        setLayerTuningDialog((current) => {
+          if (!current || current.projectKey !== projectKey) {
+            return current;
+          }
+          return {
+            ...current,
+            loading: false,
+            context,
+            overridesLeaf: { ...(context?.overrides_leaf ?? {}) },
+          };
+        });
+      })
+      .catch((error) => {
+        if (layerTuningRequestRef.current !== requestId) {
+          return;
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        setLayerTuningDialog((current) => {
+          if (!current || current.projectKey !== projectKey) {
+            return current;
+          }
+          return { ...current, loading: false, error: message };
+        });
+      });
+  }, [layerTuningChannel, layerTuningProjectKey, layerTuningVideo]);
+
+  const setLayerTuningOverrideLeaf = useCallback((path: string, value: unknown | null) => {
+    setLayerTuningDialog((current) => {
+      if (!current) {
+        return current;
+      }
+      const key = (path ?? "").trim();
+      if (!key) {
+        return current;
+      }
+      const next = { ...(current.overridesLeaf ?? {}) };
+      if (value === null || value === undefined || value === "") {
+        delete next[key];
+      } else {
+        next[key] = value;
+      }
+      return { ...current, overridesLeaf: next, error: undefined };
+    });
+  }, []);
+
+  const mergeLayerTuningOverridesLeaf = useCallback((patch: Record<string, unknown>, options?: { reset?: boolean }) => {
+    setLayerTuningDialog((current) => {
+      if (!current) {
+        return current;
+      }
+      const next = options?.reset ? {} : { ...(current.overridesLeaf ?? {}) };
+      Object.entries(patch ?? {}).forEach(([rawKey, rawValue]) => {
+        const key = String(rawKey ?? "").trim();
+        if (!key) {
+          return;
+        }
+        if (rawValue === null || rawValue === undefined || rawValue === "") {
+          delete next[key];
+        } else {
+          next[key] = rawValue;
+        }
+      });
+      return { ...current, overridesLeaf: next, error: undefined };
+    });
+  }, []);
+
+  const applyLayerTuningPreset = useCallback((presetId: string) => {
+    const id = (presetId ?? "").trim();
+    if (!id) {
+      return;
+    }
+    const channel = layerTuningDialog?.channel ?? null;
+    const presetTable: Record<string, { label: string; leaf: Record<string, unknown>; channel?: string | null }> = {
+      reset_all: { label: "リセット（全部）", leaf: {} },
+      bg_bright: {
+        label: "背景: 明るめ",
+        leaf: { "overrides.bg_enhance.brightness": 1.25, "overrides.bg_enhance.gamma": 0.95 },
+      },
+      bg_dark: {
+        label: "背景: 暗め",
+        leaf: { "overrides.bg_enhance.brightness": 0.92, "overrides.bg_enhance.gamma": 1.05 },
+      },
+      bg_vivid: { label: "背景: 彩度UP", leaf: { "overrides.bg_enhance.color": 1.18 } },
+      bg_zoom_in: { label: "背景: 少しズーム", leaf: { "overrides.bg_pan_zoom.zoom": 1.12 } },
+      text_big: { label: "文字: 大きめ", leaf: { "overrides.text_scale": 1.12 } },
+      text_small: { label: "文字: 小さめ", leaf: { "overrides.text_scale": 0.92 } },
+      ch26_portrait_zoom: {
+        label: "CH26: 肖像アップ",
+        channel: "CH26",
+        leaf: { "overrides.portrait.zoom": 1.25 },
+      },
+      ch26_portrait_bright: {
+        label: "CH26: 肖像を明るく",
+        channel: "CH26",
+        leaf: { "overrides.portrait.fg_brightness": 1.32, "overrides.portrait.fg_contrast": 1.12 },
+      },
+    };
+    const preset = presetTable[id];
+    if (!preset) {
+      return;
+    }
+    if (preset.channel && channel && preset.channel !== channel) {
+      return;
+    }
+    if (id === "reset_all") {
+      mergeLayerTuningOverridesLeaf({}, { reset: true });
+      return;
+    }
+    mergeLayerTuningOverridesLeaf(preset.leaf);
+  }, [layerTuningDialog?.channel, mergeLayerTuningOverridesLeaf]);
+
+  const handleSaveLayerTuning = useCallback(
+    async (mode: "save" | "save_and_build") => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      const { projectKey, channel, video, allowGenerate, regenBg, outputMode } = layerTuningDialog;
+      const overrides = leafOverridesToThumbSpecOverrides(layerTuningDialog.overridesLeaf ?? {});
+
+      setLayerTuningDialog((current) => {
+        if (!current || current.projectKey !== projectKey) {
+          return current;
+        }
+        return { ...current, saving: true, building: mode === "save_and_build", error: undefined };
+      });
+
+      try {
+        await updateThumbnailThumbSpec(channel, video, overrides);
+
+        if (mode === "save_and_build") {
+          await buildThumbnailLayerSpecs(channel, video, {
+            allow_generate: Boolean(allowGenerate),
+            regen_bg: Boolean(regenBg),
+            output_mode: outputMode,
+          });
+        }
+
+        await fetchData({ silent: true });
+        const previewUrl = withCacheBust(resolveApiUrl(`/thumbnails/assets/${channel}/${video}/00_thumb.png`), String(Date.now()));
+        setProjectFeedback(projectKey, {
+          type: "success",
+          message: (
+            <span>
+              {mode === "save_and_build" ? "保存して再生成しました。" : "保存しました。"}
+              {" "}
+              <a href={previewUrl} target="_blank" rel="noreferrer">
+                プレビュー
+              </a>
+            </span>
+          ),
+          timestamp: Date.now(),
+        });
+        setLayerTuningDialog(null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setLayerTuningDialog((current) => {
+          if (!current || current.projectKey !== projectKey) {
+            return current;
+          }
+          return { ...current, saving: false, building: false, error: message };
+        });
+      }
+    },
+    [fetchData, layerTuningDialog, setProjectFeedback]
+  );
+
   const handleStartNewVariant = useCallback(() => {
     if (!filteredProjects.length) {
       return;
@@ -3681,6 +3910,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         <button
                           type="button"
                           className="btn"
+                          onClick={() => handleOpenLayerTuningDialog(project)}
+                          disabled={disableVariantActions}
+                        >
+                          調整
+                        </button>
+                        <button
+                          type="button"
+                          className="btn"
                           onClick={() => handleOpenVariantForm(project)}
                           disabled={disableVariantActions}
                         >
@@ -4455,11 +4692,473 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             </form>
           </div>
         </div>
-      ) : null}
-      {galleryCopyEdit ? (
-        <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
-          <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseGalleryCopyEdit} />
-          <div className="thumbnail-planning-dialog__panel">
+        ) : null}
+        {layerTuningDialog ? (
+          <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
+            <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseLayerTuningDialog} />
+            <div className="thumbnail-planning-dialog__panel">
+              <header className="thumbnail-planning-dialog__header">
+                <div className="thumbnail-planning-dialog__eyebrow">
+                  {layerTuningDialog.channel} / {layerTuningDialog.video}
+                </div>
+                <h2>サムネ調整（Layer Specs）</h2>
+                <p className="thumbnail-planning-dialog__meta">{layerTuningDialog.projectTitle}</p>
+              </header>
+              {layerTuningDialog.loading ? (
+                <div className="thumbnail-planning-form">
+                  <p>読み込み中…</p>
+                </div>
+              ) : (
+                <form
+                  className="thumbnail-planning-form"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    handleSaveLayerTuning("save_and_build");
+                  }}
+                >
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("reset_all")}>
+                      リセット
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("bg_bright")}>
+                      背景: 明るめ
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("bg_dark")}>
+                      背景: 暗め
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("bg_vivid")}>
+                      背景: 彩度UP
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("bg_zoom_in")}>
+                      背景: ズーム
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("text_big")}>
+                      文字: 大きめ
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("text_small")}>
+                      文字: 小さめ
+                    </button>
+                    {layerTuningDialog.channel === "CH26" ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() => applyLayerTuningPreset("ch26_portrait_zoom")}
+                        >
+                          CH26: 肖像アップ
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() => applyLayerTuningPreset("ch26_portrait_bright")}
+                        >
+                          CH26: 肖像を明るく
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+
+                  <div className="thumbnail-planning-form__grid">
+                    <label>
+                      <span>生成を許可</span>
+                      <input
+                        type="checkbox"
+                        checked={layerTuningDialog.allowGenerate}
+                        onChange={(event) => {
+                          const checked = event.target.checked;
+                          setLayerTuningDialog((current) =>
+                            current
+                              ? { ...current, allowGenerate: checked, regenBg: checked ? current.regenBg : false }
+                              : current
+                          );
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span>背景を作り直す（regen-bg）</span>
+                      <input
+                        type="checkbox"
+                        checked={layerTuningDialog.regenBg}
+                        disabled={!layerTuningDialog.allowGenerate}
+                        onChange={(event) => {
+                          const checked = event.target.checked;
+                          setLayerTuningDialog((current) => (current ? { ...current, regenBg: checked } : current));
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span>出力モード</span>
+                      <select
+                        value={layerTuningDialog.outputMode}
+                        onChange={(event) => {
+                          const value = event.target.value as ThumbnailLayerSpecsBuildOutputMode;
+                          setLayerTuningDialog((current) => (current ? { ...current, outputMode: value } : current));
+                        }}
+                      >
+                        <option value="draft">draft</option>
+                        <option value="final">final</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <h3 style={{ marginTop: 18, marginBottom: 8 }}>文字</h3>
+                  <div className="thumbnail-planning-form__grid">
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>
+                        テンプレ（既定: {layerTuningDialog.context?.template_id_default ?? "—"}）
+                      </span>
+                      <select
+                        value={
+                          isLayerTuningLeafOverridden(layerTuningDialog, "overrides.text_template_id")
+                            ? String(layerTuningDialog.overridesLeaf["overrides.text_template_id"] ?? "")
+                            : ""
+                        }
+                        onChange={(event) => {
+                          const next = event.target.value;
+                          setLayerTuningOverrideLeaf("overrides.text_template_id", next ? next : null);
+                        }}
+                      >
+                        <option value="">（既定を使う）</option>
+                        {(layerTuningDialog.context?.template_options ?? []).map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.id}
+                            {opt.description ? ` — ${opt.description}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>文字サイズ（scale）</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_scale", 1.0))}
+                        onChange={(event) => setLayerTuningOverrideLeaf("overrides.text_scale", Number(event.target.value))}
+                      />
+                    </label>
+                    <label>
+                      <span>上段色（red_fill）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_fills.red_fill.color", "#ff0000")
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#ff0000";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_fills.red_fill.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>中段色（yellow_fill）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_fills.yellow_fill.color",
+                              "#ffff00"
+                            )
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#ffff00";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_fills.yellow_fill.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>下段色（white_fill）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_fills.white_fill.color", "#ffffff")
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#ffffff";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_fills.white_fill.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>影（alpha）</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.shadow.alpha", 0.65))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.shadow.alpha", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>フチ（stroke px）</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={64}
+                        step={1}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.stroke.width_px", 8))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.stroke.width_px", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <h3 style={{ marginTop: 18, marginBottom: 8 }}>背景</h3>
+                  <div className="thumbnail-planning-form__grid">
+                    <label>
+                      <span>明るさ</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.01}
+                        value={Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.brightness", 1.0)
+                        )}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_enhance.brightness", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>コントラスト</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.contrast", 1.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_enhance.contrast", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>彩度</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.color", 1.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_enhance.color", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>ガンマ</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.gamma", 1.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_enhance.gamma", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>ズーム</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={1.6}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.zoom", 1.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_pan_zoom.zoom", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>位置X</span>
+                      <input
+                        type="range"
+                        min={-1}
+                        max={1}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_x", 0.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_pan_zoom.pan_x", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>位置Y</span>
+                      <input
+                        type="range"
+                        min={-1}
+                        max={1}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_y", 0.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.bg_pan_zoom.pan_y", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  {layerTuningDialog.context?.portrait_available ? (
+                    <>
+                      <h3 style={{ marginTop: 18, marginBottom: 8 }}>肖像</h3>
+                      <div className="thumbnail-planning-form__grid">
+                        <label>
+                          <span>ズーム</span>
+                          <input
+                            type="range"
+                            min={0.5}
+                            max={2}
+                            step={0.01}
+                            value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.zoom", 1.0))}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.zoom", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>位置X</span>
+                          <input
+                            type="range"
+                            min={-0.25}
+                            max={0.25}
+                            step={0.001}
+                            value={Number(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_x", 0.0)
+                            )}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.offset_x", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>位置Y</span>
+                          <input
+                            type="range"
+                            min={-0.25}
+                            max={0.25}
+                            step={0.001}
+                            value={Number(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_y", 0.0)
+                            )}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.offset_y", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>明るさ</span>
+                          <input
+                            type="range"
+                            min={0.5}
+                            max={2}
+                            step={0.01}
+                            value={Number(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_brightness", 1.2)
+                            )}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.fg_brightness", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>コントラスト</span>
+                          <input
+                            type="range"
+                            min={0.5}
+                            max={2}
+                            step={0.01}
+                            value={Number(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_contrast", 1.08)
+                            )}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.fg_contrast", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>彩度</span>
+                          <input
+                            type="range"
+                            min={0.5}
+                            max={2}
+                            step={0.01}
+                            value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_color", 0.98))}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.fg_color", Number(event.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>透明部分トリム</span>
+                          <input
+                            type="checkbox"
+                            checked={Boolean(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.trim_transparent", false)
+                            )}
+                            onChange={(event) =>
+                              setLayerTuningOverrideLeaf("overrides.portrait.trim_transparent", event.target.checked)
+                            }
+                          />
+                        </label>
+                      </div>
+                    </>
+                  ) : null}
+
+                  {layerTuningDialog.error ? (
+                    <div className="thumbnail-planning-form__error" role="alert">
+                      {layerTuningDialog.error}
+                    </div>
+                  ) : null}
+                  <div className="thumbnail-planning-form__actions">
+                    <button
+                      type="button"
+                      onClick={handleCloseLayerTuningDialog}
+                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
+                    >
+                      キャンセル
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveLayerTuning("save")}
+                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
+                    >
+                      保存
+                    </button>
+                    <button
+                      type="submit"
+                      className="thumbnail-planning-form__submit"
+                      disabled={
+                        layerTuningDialog.saving ||
+                        layerTuningDialog.building ||
+                        (layerTuningDialog.regenBg && !layerTuningDialog.allowGenerate)
+                      }
+                    >
+                      {layerTuningDialog.building ? "再生成中…" : "保存して再生成"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        ) : null}
+        {galleryCopyEdit ? (
+          <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
+            <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseGalleryCopyEdit} />
+            <div className="thumbnail-planning-dialog__panel">
             <header className="thumbnail-planning-dialog__header">
               <div className="thumbnail-planning-dialog__eyebrow">
                 {galleryCopyEdit.channel} / {galleryCopyEdit.video}
