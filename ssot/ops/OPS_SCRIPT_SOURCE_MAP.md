@@ -65,11 +65,11 @@
 
 ### 3.1 SoT（下流参照の正本）
 - `workspaces/audio/final/{CH}/{NNN}/`
-  - `{CH}-{NNN}.wav`
+  - `{CH}-{NNN}.wav`（strict。旧運用では `.flac` 等もある）
   - `{CH}-{NNN}.srt`
-  - `a_text.txt`（音声生成時点のAテキスト・スナップショット）
-  - `b_text.txt` / `b_text_with_pauses.txt`（派生Bテキスト）
-  - `log.json`（証跡）
+  - `a_text.txt`（**実際に合成したTTS入力（=Bテキスト）のスナップショット**）
+  - `log.json`（証跡。読み解決/分割/エンジンメタの根拠）
+  - 旧運用で存在する場合あり: `b_text.txt` / `b_text_with_pauses.txt` / `engine_metadata.json` / `kana_engine.json` など（互換/監査用）
 
 ### 3.2 Intermediate（作業残骸：消して良い）
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/`

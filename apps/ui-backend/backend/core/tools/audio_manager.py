@@ -26,18 +26,12 @@ def _norm_video(video: str) -> str:
 
 def _resolve_tts_input_path(channel: str, video: str) -> Path:
     base = video_root(channel, video)
-    candidates = [
-        base / "audio_prep" / "script_audio_human.txt",
-        base / "content" / "script_audio_human.txt",
-        base / "content" / "assembled_human.md",
-        base / "audio_prep" / "script_sanitized.txt",
-        base / "content" / "script_audio.txt",
-        base / "content" / "assembled.md",
-    ]
-    for cand in candidates:
-        if cand.exists():
-            return cand
-    raise FileNotFoundError(f"final tts input not found: {channel}-{video}")
+    cand = base / "audio_prep" / "script_sanitized.txt"
+    if cand.exists():
+        return cand
+    raise FileNotFoundError(
+        f"script_sanitized.txt not found for regeneration (no fallback): {channel}-{video}"
+    )
 
 
 class AudioManager:
@@ -65,11 +59,6 @@ class AudioManager:
         if not script.exists():
             raise FileNotFoundError(f"run_tts.py not found: {script}")
 
-        final_dir = audio_final_dir(channel, video)
-        final_dir.mkdir(parents=True, exist_ok=True)
-        out_wav = final_dir / f"{channel}-{video}.wav"
-        out_log = final_dir / "log.json"
-
         env = os.environ.copy()
         # Ensure packages are importable when called from arbitrary cwd.
         env["PYTHONPATH"] = f"{repo_root()}:{repo_root() / 'packages'}"
@@ -83,10 +72,6 @@ class AudioManager:
             video,
             "--input",
             str(input_path.resolve()),
-            "--out-wav",
-            str(out_wav),
-            "--log",
-            str(out_log),
         ]
         if engine_override:
             cmd.extend(["--engine-override", engine_override])
@@ -113,17 +98,19 @@ class AudioManager:
         except subprocess.CalledProcessError as exc:
             raise RuntimeError(exc.stderr or exc.stdout or str(exc)) from exc
 
-        if not out_wav.exists():
-            raise RuntimeError(f"audio_tts did not create wav: {out_wav}")
-
-        out_srt = out_wav.with_suffix(".srt")
+        final_dir = audio_final_dir(channel, video)
+        final_wav = final_dir / f"{channel}-{video}.wav"
+        final_log = final_dir / "log.json"
+        if not final_wav.exists():
+            raise RuntimeError(f"audio_tts did not create wav: {final_wav}")
+        out_srt = final_wav.with_suffix(".srt")
         return {
             "channel": channel,
             "video": video,
             "input": str(input_path),
-            "wav": str(out_wav),
+            "wav": str(final_wav),
             "srt": str(out_srt) if out_srt.exists() else None,
-            "log": str(out_log) if out_log.exists() else None,
+            "log": str(final_log) if final_log.exists() else None,
             "stdout": (completed.stdout or "").strip(),
         }
 

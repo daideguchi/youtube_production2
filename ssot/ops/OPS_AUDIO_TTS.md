@@ -7,25 +7,29 @@
 
 ## 0. SoT（正本）
 
-- 入力（正）: `workspaces/scripts/{CH}/{NNN}/` 配下の **最終確定入力**（UI/Backend の解決順）
-  1) `audio_prep/script_audio_human.txt`
-  2) `content/script_audio_human.txt`
-  3) `content/assembled_human.md`
-  4) `audio_prep/script_sanitized.txt`
-  5) `content/script_audio.txt`
-  6) `content/assembled.md`
-  - 原則: **人間が介入した最新版（*_human）を最優先**にする。
+- 入力（正 / AテキストSoT）:
+  - 優先: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+  - 代替: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
+  - ルール:
+    - 標準の音声生成（`run_tts` / `/api/audio-tts/run-from-script`）は **AテキストSoTのみ**を入力にする（暗黙フォールバック禁止）。
+    - `assembled_human.md` が存在する場合はそれが正本。必要に応じて `assembled.md` へ同期して互換入力を維持する。
+- Bテキスト（TTS入力 / 派生・必ず materialize）:
+  - `workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
+  - `run_tts` が毎回 A から生成して書き出す（サニタイズ失敗でも raw を書いて **必ず生成**）。
+  - 人手でBを編集して再生成する場合は **明示入力**（UIの「音声用テキスト保存→再生成」）として扱い、無ければ失敗（Aへ戻さない）。
 - 出力（下流参照の正）: `workspaces/audio/final/{CH}/{NNN}/`
-  - `{CH}-{NNN}.wav`
+  - `{CH}-{NNN}.wav`（strict。旧運用では `.flac` 等もある）
   - `{CH}-{NNN}.srt`
   - `log.json`
+  - `a_text.txt`（**実際に合成したTTS入力（=Bテキスト）のスナップショット**）
+  - `audio_manifest.json`（契約）
 
 ---
 
 ## 1. 入口（Entry points）
 
 ### 1.1 推奨（UI / Backend 経由）
-- `POST /api/audio-tts/run-from-script`（input_path の指定不要。上記「最終確定入力」を backend 側で解決）
+- `POST /api/audio-tts/run-from-script`（input_path の指定不要。上記「AテキストSoT」を backend 側で解決）
   - UI: Episode Studio / 音声ワークスペースの「TTS実行」
   - 返却: `/api/channels/{CH}/videos/{NNN}/audio|srt|log` の URL を返す（ファイルパスではない）
 

@@ -189,6 +189,7 @@ from factory_common.alignment import (
 )
 from factory_common.paths import (
     assets_root as ssot_assets_root,
+    audio_artifacts_root,
     audio_final_dir,
     audio_pkg_root,
     logs_root as ssot_logs_root,
@@ -2714,7 +2715,40 @@ def _load_audio_analysis(channel: str, video: str) -> AudioAnalysisResponse:
         warnings.append("pause_map.json has 0 entries")
 
     engine_meta: dict = {}
-    for candidate in (engine_metadata_path, log_path):
+    strict_log_path = final_dir / "log.json"
+    legacy_log_path = audio_prep / "log.json"
+    engine_metadata_path = audio_prep / "engine_metadata.json"
+    legacy_engine_metadata_path = final_dir / "engine_metadata.json"
+
+    derived_voicevox_kana: Optional[str] = None
+    derived_voicevox_kana_corrected: Optional[str] = None
+
+    # Strict pipeline log: segments[*].voicevox / segments[*].reading
+    if strict_log_path.exists():
+        try:
+            strict_data = json.loads(strict_log_path.read_text(encoding="utf-8"))
+            if isinstance(strict_data, dict) and isinstance(strict_data.get("segments"), list):
+                segments = strict_data.get("segments") or []
+                kana_lines: List[str] = []
+                reading_lines: List[str] = []
+                for seg in segments:
+                    if not isinstance(seg, dict):
+                        continue
+                    vv = seg.get("voicevox")
+                    rd = seg.get("reading")
+                    if isinstance(vv, str) and vv.strip():
+                        kana_lines.append(vv.strip())
+                    if isinstance(rd, str) and rd.strip():
+                        reading_lines.append(rd.strip())
+                if kana_lines:
+                    derived_voicevox_kana = "\n".join(kana_lines)
+                if reading_lines:
+                    derived_voicevox_kana_corrected = "\n".join(reading_lines)
+        except Exception:
+            warnings.append("final/log.json parse failed")
+
+    # Legacy engine metadata (engine_metadata.json or legacy log.json)
+    for candidate in (legacy_engine_metadata_path, engine_metadata_path, strict_log_path, legacy_log_path):
         if candidate.exists():
             try:
                 data = json.loads(candidate.read_text(encoding="utf-8"))
@@ -2741,8 +2775,14 @@ def _load_audio_analysis(channel: str, video: str) -> AudioAnalysisResponse:
         video=video_no,
         b_text_with_pauses=b_text,
         pause_map=pause_map,
-        voicevox_kana=engine_meta.get("voicevox_kana") if isinstance(engine_meta, dict) else None,
-        voicevox_kana_corrected=engine_meta.get("voicevox_kana_corrected") if isinstance(engine_meta, dict) else None,
+        voicevox_kana=(
+            derived_voicevox_kana
+            or (engine_meta.get("voicevox_kana") if isinstance(engine_meta, dict) else None)
+        ),
+        voicevox_kana_corrected=(
+            derived_voicevox_kana_corrected
+            or (engine_meta.get("voicevox_kana_corrected") if isinstance(engine_meta, dict) else None)
+        ),
         voicevox_kana_diff=kana_diff,
         voicevox_kana_llm_ref=engine_meta.get("voicevox_kana_llm_ref") if isinstance(engine_meta, dict) else None,
         voicevox_accent_phrases=engine_meta.get("voicevox_accent_phrases") if isinstance(engine_meta, dict) else None,
@@ -3250,6 +3290,11 @@ def _stage_status_value(stage_entry: Optional[dict]) -> str:
 
 def _detect_artifact_path(channel_code: str, video_number: str, extension: str) -> Path:
     base = audio_final_dir(channel_code, video_number)
+    if extension == ".wav":
+        for ext in (".wav", ".flac", ".mp3", ".m4a"):
+            candidate = base / f"{channel_code}-{video_number}{ext}"
+            if candidate.exists():
+                return candidate
     return base / f"{channel_code}-{video_number}{extension}"
 
 
@@ -3391,7 +3436,8 @@ def _summarize_video_detail_artifacts(
             meta={"count": _count_dir_children(audio_prep_dir)},
         )
     )
-    items.append(_entry(key="b_text_with_pauses", label="b_text_with_pauses.txt", path=b_text_with_pauses_path))
+    b_label = "TTS入力スナップショット (a_text.txt)" if b_text_with_pauses_path.name == "a_text.txt" else "b_text_with_pauses.txt"
+    items.append(_entry(key="b_text_with_pauses", label=b_label, path=b_text_with_pauses_path))
     items.append(_entry(key="audio_prep_log", label="audio_prep/log.json", path=audio_prep_dir / "log.json"))
 
     final_dir = audio_final_dir(channel_code, video_number)
@@ -9537,6 +9583,7 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
 
     try:
         from script_pipeline.thumbnails.compiler import compile_buddha_3line as compiler
+        from script_pipeline.thumbnails.io_utils import save_png_atomic
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumbnail compiler is not available: {exc}") from exc
 
@@ -9559,7 +9606,7 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
     out_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "compiler" / build_id
     out_dir.mkdir(parents=True, exist_ok=True)
     out_img_path = out_dir / "out_01.png"
-    out_meta_path = out_dir / "meta.json"
+    out_meta_path = out_dir / "build_meta.json"
 
     try:
         img = compiler.compose_buddha_3line(
@@ -9571,7 +9618,7 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
             impact=impact,
             belt_override=False,
         )
-        img.convert("RGB").save(out_img_path, format="PNG", optimize=True)
+        save_png_atomic(img.convert("RGB"), out_img_path, mode="draft", verify=True)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to compose thumbnail: {exc}") from exc
 
@@ -9582,6 +9629,8 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
             "built_at": datetime.now(timezone.utc).isoformat(),
             "channel": channel_code,
             "video": video_number,
+            "build_id": build_id,
+            "output_mode": "draft",
             "stylepack_id": stylepack.get("id"),
             "stylepack_path": stylepack.get("_stylepack_path"),
             "base_image": str(base_path),
@@ -9591,7 +9640,9 @@ def compose_thumbnail_variant(channel: str, video: str, payload: ThumbnailVarian
             "text": {"upper": upper, "title": title, "lower": lower},
             "output": {"image": str(out_img_path)},
         }
-        out_meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp_meta = out_meta_path.with_suffix(out_meta_path.suffix + ".tmp")
+        tmp_meta.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp_meta.replace(out_meta_path)
     except Exception:
         # best-effort: meta is optional
         pass
@@ -10107,11 +10158,15 @@ def get_video_detail(channel: str, video: str):
     warnings: List[str] = []
     if status_missing:
         warnings.append(f"status.json missing for {channel_code}-{video_number}")
-    # TTS入力（Bテキスト）の正本は audio_prep/script_sanitized.txt。b_text_with_pauses.txt は「最終TTS入力の参照用（読みパネル）」。
-    b_with_pauses = base_dir / "audio_prep" / "b_text_with_pauses.txt"
-    if not b_with_pauses.exists():
-        warnings.append(f"b_text_with_pauses.txt missing for {channel_code}-{video_number}")
-    tts_plain_path = base_dir / "audio_prep" / "script_sanitized.txt"
+    # TTS入力（Bテキスト）は final/a_text.txt を正とする（=実際に合成した入力スナップショット）。
+    # audio_prep/script_sanitized.txt は編集用/中間の派生（存在する場合は更新候補）。
+    final_dir = audio_final_dir(channel_code, video_number)
+    final_tts_snapshot = final_dir / "a_text.txt"
+    editable_tts_path = base_dir / "audio_prep" / "script_sanitized.txt"
+    b_with_pauses = final_tts_snapshot
+    tts_plain_path = final_tts_snapshot if final_tts_snapshot.exists() else editable_tts_path
+    if not tts_plain_path.exists():
+        warnings.append(f"TTS input missing for {channel_code}-{video_number} (a_text.txt / script_sanitized.txt)")
     tts_tagged_path = base_dir / "audio_prep" / "script_sanitized_with_pauses.txt"
     srt_path = resolve_srt_path(status, base_dir)
     audio_path = resolve_audio_path(status, base_dir)
@@ -10642,8 +10697,11 @@ def get_tts_plain_text(channel: str, video: str):
     video_number = normalize_video_number(video)
     base_dir = video_base_dir(channel_code, video_number)
     tts_path = base_dir / "audio_prep" / "script_sanitized.txt"
+    final_snapshot = audio_final_dir(channel_code, video_number) / "a_text.txt"
+    if not tts_path.exists() and final_snapshot.exists():
+        tts_path = final_snapshot
     if not tts_path.exists():
-        raise HTTPException(status_code=404, detail="script_sanitized.txt not found")
+        raise HTTPException(status_code=404, detail="TTS input text not found (script_sanitized.txt / a_text.txt)")
     content = resolve_text_file(tts_path) or ""
     updated_at = None
     try:
@@ -10792,8 +10850,6 @@ def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateReq
         if target.parent.name != "content":
             raise HTTPException(status_code=400, detail="invalid script_audio_human path")
         write_text_with_lock(target, payload.script_audio_human)
-        audio_prep_dir.mkdir(parents=True, exist_ok=True)
-        write_text_with_lock(audio_prep_dir / "b_text_with_pauses.txt", payload.script_audio_human)
         touched_b_text = True
     if payload.audio_reviewed is not None:
         metadata = status.setdefault("metadata", {})
@@ -11308,19 +11364,28 @@ def audio_tts_health():
 def audio_integrity_report():
     items: List[AudioIntegrityItem] = []
     for channel, video, video_dir in _iter_video_dirs():
-        base_dir = video_dir
-        audio_prep = base_dir / "audio_prep"
-        b_path = audio_prep / "b_text_with_pauses.txt"
-        wav_path = audio_prep / f"{channel}-{video}.wav"
-        srt_path = audio_prep / f"{channel}-{video}.srt"
+        final_dir = audio_final_dir(channel, video)
+        a_text_path = final_dir / "a_text.txt"
+        log_path = final_dir / "log.json"
+
+        audio_candidates = [
+            final_dir / f"{channel}-{video}.wav",
+            final_dir / f"{channel}-{video}.flac",
+            final_dir / f"{channel}-{video}.mp3",
+            final_dir / f"{channel}-{video}.m4a",
+        ]
+        audio_path = next((p for p in audio_candidates if p.exists()), None)
+        srt_path = final_dir / f"{channel}-{video}.srt"
         missing: List[str] = []
-        if not b_path.exists():
-            missing.append("b_text_with_pauses.txt")
-        if not wav_path.exists():
-            missing.append(f"{channel}-{video}.wav")
+        if not a_text_path.exists():
+            missing.append("a_text.txt")
+        if not log_path.exists():
+            missing.append("log.json")
+        if audio_path is None:
+            missing.append(f"{channel}-{video}.(wav|flac|mp3|m4a)")
         if not srt_path.exists():
             missing.append(f"{channel}-{video}.srt")
-        audio_duration = get_audio_duration_seconds(wav_path) if wav_path.exists() else None
+        audio_duration = get_audio_duration_seconds(audio_path) if audio_path else None
         srt_duration = _infer_srt_duration_seconds(srt_path) if srt_path.exists() else None
         duration_diff = None
         if audio_duration is not None and srt_duration is not None:
@@ -11332,9 +11397,9 @@ def audio_integrity_report():
                 channel=channel,
                 video=video,
                 missing=missing,
-                audio_path=safe_relative_path(wav_path) if wav_path.exists() else None,
+                audio_path=safe_relative_path(audio_path) if audio_path else None,
                 srt_path=safe_relative_path(srt_path) if srt_path.exists() else None,
-                b_text_path=safe_relative_path(b_path) if b_path.exists() else None,
+                b_text_path=safe_relative_path(a_text_path) if a_text_path.exists() else None,
                 audio_duration=audio_duration,
                 srt_duration=srt_duration,
                 duration_diff=duration_diff,
@@ -11365,23 +11430,18 @@ def _resolve_script_pipeline_input_path(channel: str, video: str) -> Path:
 
 def _resolve_final_tts_input_path(channel: str, video: str) -> Path:
     """
-    音声生成で必ず参照する最終確定入力を解決する。
-    優先度（人手が介入した最新版を最優先）:
-    1) audio_prep/script_audio_human.txt
-    2) content/script_audio_human.txt
-    3) content/assembled_human.md
-    4) audio_prep/script_sanitized.txt
-    5) content/script_audio.txt
-    6) content/assembled.md
+    標準の音声生成で必ず参照する「AテキストSoT」を解決する。
+    優先度:
+    1) content/assembled_human.md
+    2) content/assembled.md
+
+    重要: 旧運用の `script_sanitized.txt` / `script_audio_human.txt` 等へ暗黙フォールバックしない。
+    （入力不足は 404 で止め、事故を防ぐ）
     見つからない場合は 404 を返す。
     """
     base = DATA_ROOT / channel / video
     candidates = [
-        base / "audio_prep" / "script_audio_human.txt",
-        base / "content" / "script_audio_human.txt",
         base / "content" / "assembled_human.md",
-        base / "audio_prep" / "script_sanitized.txt",
-        base / "content" / "script_audio.txt",
         base / "content" / "assembled.md",
     ]
     for cand in candidates:
@@ -11393,13 +11453,12 @@ def _resolve_final_tts_input_path(channel: str, video: str) -> Path:
 def _resolve_a_text_display_path(channel: str, video: str) -> Path:
     """
     Aテキスト（表示用）用に解決するパス。
-    優先: content/assembled_human.md -> content/assembled.md -> audio_prep/script_sanitized.txt
+    優先: content/assembled_human.md -> content/assembled.md
     """
     base = DATA_ROOT / channel / video
     candidates = [
         base / "content" / "assembled_human.md",
         base / "content" / "assembled.md",
-        base / "audio_prep" / "script_sanitized.txt",
     ]
     for cand in candidates:
         if cand.exists():
@@ -11411,7 +11470,7 @@ def _resolve_a_text_display_path(channel: str, video: str) -> Path:
 def api_get_a_text(channel: str, video: str):
     """
     Aテキスト（表示用原稿）を返す。優先順位:
-    content/assembled_human.md -> content/assembled.md -> audio_prep/script_sanitized.txt
+    content/assembled_human.md -> content/assembled.md
     """
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)
@@ -11485,12 +11544,13 @@ def _run_audio_tts(req: TtsRequest) -> Dict[str, Any]:
         str(input_path),
     ]
 
-    # Always write to artifacts/final so downstream CapCut uses latest audio/SRT.
+    # NOTE: Do NOT force --out-wav/--log here.
+    # run_tts must write intermediates under workspaces/scripts/**/audio_prep/
+    # (including audio_prep/script_sanitized.txt) and then sync to workspaces/audio/final/.
     final_dir = audio_final_dir(req.channel, req.video)
-    final_dir.mkdir(parents=True, exist_ok=True)
     final_wav_path = final_dir / f"{req.channel}-{req.video}.wav"
+    final_srt_path = final_dir / f"{req.channel}-{req.video}.srt"
     final_log_path = final_dir / "log.json"
-    cmd.extend(["--out-wav", str(final_wav_path), "--log", str(final_log_path)])
     if req.engine_override:
         cmd.extend(["--engine-override", req.engine_override])
     if req.reading_source:
@@ -11510,7 +11570,6 @@ def _run_audio_tts(req: TtsRequest) -> Dict[str, Any]:
     stdout = completed.stdout.strip()
     if not final_wav_path.exists():
         raise HTTPException(status_code=500, detail=f"audio_tts did not create wav: {stdout}")
-    final_srt_path = final_wav_path.with_suffix(".srt")
     wav_file_path = str(final_wav_path.resolve())
     srt_file_path = str(final_srt_path.resolve()) if final_srt_path.exists() else None
     log_file_path = str(final_log_path.resolve()) if final_log_path.exists() else None
@@ -11886,18 +11945,19 @@ def get_lock_metrics():
 def list_recent_audio_checks(limit: int = 10):
     """Find recently generated audio logs."""
     results = []
-    if not DATA_ROOT.exists():
+    audio_root = audio_artifacts_root() / "final"
+    if not audio_root.exists():
         return []
     
-    # Search for log.json files in workspaces/scripts/CHxx/xxx/audio_prep/log.json
-    for channel_dir in DATA_ROOT.iterdir():
+    # Search for log.json files in workspaces/audio/final/CHxx/xxx/log.json
+    for channel_dir in audio_root.iterdir():
         if not channel_dir.is_dir() or not channel_dir.name.startswith("CH"):
             continue
         for video_dir in channel_dir.iterdir():
             if not video_dir.is_dir() or not video_dir.name.isdigit():
                 continue
             
-            log_path = video_dir / "audio_prep" / "log.json"
+            log_path = video_dir / "log.json"
             if log_path.exists():
                 try:
                     stat = log_path.stat()
@@ -11919,11 +11979,11 @@ def list_recent_audio_checks(limit: int = 10):
 @app.get("/api/audio-check/{channel_id}/{video_id}")
 def get_audio_integrity_log(channel_id: str, video_id: str):
     """Retrieve audio integrity logs from log.json."""
-    # SCRIPT_PIPELINE_DATA_ROOT is defined in ui/server/main.py but not here.
-    # Re-derive it or use DATA_ROOT which is workspaces/scripts
-    log_path = DATA_ROOT / channel_id / video_id / "audio_prep" / "log.json"
+    channel_code = normalize_channel_code(channel_id)
+    video_no = normalize_video_number(video_id)
+    log_path = audio_final_dir(channel_code, video_no) / "log.json"
     if not log_path.exists():
-        raise HTTPException(status_code=404, detail="Audio log not found. Run Strict Pipeline first.")
+        raise HTTPException(status_code=404, detail="Audio log not found. Run TTS first.")
     
     try:
         with open(log_path, "r", encoding="utf-8") as f:

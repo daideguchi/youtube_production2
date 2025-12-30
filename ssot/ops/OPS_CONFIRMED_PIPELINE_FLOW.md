@@ -241,7 +241,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
   - `log.json`
-  - `a_text.txt`（入力Aテキストのスナップショット）
+  - `a_text.txt`（**実際に合成したTTS入力（=Bテキスト）のスナップショット**）
   - `audio_manifest.json`（契約。schema: `ytm.audio_manifest.v1`）
   - run_tts が必ず最新を同期するため、**下流はここだけ読めばよい**。
 
