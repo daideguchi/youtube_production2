@@ -27,6 +27,20 @@ def _ensure_paths():
         TEMPLATE_ROOT.mkdir(parents=True, exist_ok=True)
 
 
+def _resolve_srt_under_input_root(path: str, *, require_exists: bool = True) -> Path:
+    _ensure_paths()
+    target = Path(path).expanduser().resolve()
+    try:
+        target.relative_to(INPUT_ROOT)
+    except Exception:
+        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
+    if require_exists and not target.exists():
+        raise HTTPException(status_code=404, detail=f"srt not found: {target}")
+    if target.suffix.lower() != ".srt":
+        raise HTTPException(status_code=400, detail="target is not an .srt file")
+    return target
+
+
 @router.get("/srts")
 def list_srts() -> Dict[str, Any]:
     """List available SRT files under input/."""
@@ -44,16 +58,7 @@ def read_srt(path: str) -> Dict[str, Any]:
     """
     Return the content of a selected SRT for quick preview in UI.
     """
-    _ensure_paths()
-    target = Path(path).expanduser().resolve()
-    try:
-        target.relative_to(INPUT_ROOT)
-    except Exception:
-        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
-    if not target.exists():
-        raise HTTPException(status_code=404, detail=f"srt not found: {target}")
-    if target.suffix.lower() != ".srt":
-        raise HTTPException(status_code=400, detail="target is not an .srt file")
+    target = _resolve_srt_under_input_root(path)
     try:
         stat = target.stat()
         content = target.read_text(encoding="utf-8", errors="ignore")
@@ -73,18 +78,11 @@ def write_srt(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Overwrite a selected SRT with provided content.
     """
-    _ensure_paths()
     path = payload.get("path")
     content = payload.get("content", "")
     if not path:
         raise HTTPException(status_code=400, detail="path is required")
-    target = Path(str(path)).expanduser().resolve()
-    try:
-        target.relative_to(INPUT_ROOT)
-    except Exception:
-        raise HTTPException(status_code=400, detail=f"srt_path must be under {INPUT_ROOT}")
-    if target.suffix.lower() != ".srt":
-        raise HTTPException(status_code=400, detail="target is not an .srt file")
+    target = _resolve_srt_under_input_root(str(path), require_exists=False)
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(str(content), encoding="utf-8")
@@ -141,6 +139,65 @@ def get_prompt_template(path: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=f"template not found: {target}")
     content = target.read_text(encoding="utf-8", errors="ignore")
     return {"name": target.name, "path": str(target), "content": content, "template_root": str(TEMPLATE_ROOT)}
+
+
+@router.post("/vrew-prompts")
+def generate_vrew_prompts(
+    srt_path: str = Body(..., embed=True),
+    style_prefix: str | None = Body(None, embed=True),
+    constraints: str | None = Body(None, embed=True),
+    banned_terms: List[str] | None = Body(None, embed=True),
+    scene_max_chars: int | None = Body(None, embed=True),
+    min_chars: int | None = Body(None, embed=True),
+    max_chars: int | None = Body(None, embed=True),
+) -> Dict[str, Any]:
+    """
+    Generate Vrew-import prompt lines for the given final SRT.
+
+    Notes:
+      - Deterministic (no LLM)
+      - Output is intended for copy/paste into Vrew (1 line = 1 prompt, endswith "。", no internal "。")
+    """
+    target = _resolve_srt_under_input_root(srt_path)
+
+    try:
+        from video_pipeline.src.vrew_route.prompt_generation import generate_vrew_prompts_and_manifest
+        from video_pipeline.src.vrew_route.style_preset import StylePreset
+    except Exception as exc:  # pragma: no cover - import guard
+        raise HTTPException(status_code=500, detail=f"vrew_route module import failed: {exc}") from exc
+
+    base = StylePreset()
+    if style_prefix is not None or constraints is not None or banned_terms is not None:
+        base = StylePreset(
+            style_prefix=(style_prefix if style_prefix is not None else base.style_prefix),
+            constraints=(constraints if constraints is not None else base.constraints),
+            banned_terms=[str(x) for x in (banned_terms or base.banned_terms) if str(x).strip()],
+            default_duration_ms=base.default_duration_ms,
+            image_spec=base.image_spec,
+        )
+
+    try:
+        prompts, _manifest = generate_vrew_prompts_and_manifest(
+            source_type="srt",
+            source_path=target,
+            preset=base,
+            project_id=target.stem,
+            scene_max_chars=int(scene_max_chars) if scene_max_chars is not None else 70,
+            min_chars=int(min_chars) if min_chars is not None else 20,
+            max_chars=int(max_chars) if max_chars is not None else 220,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to generate vrew prompts: {exc}") from exc
+
+    return {
+        "ok": True,
+        "srt_path": str(target),
+        "line_count": len(prompts),
+        "prompts": prompts,
+        "prompts_text": "\n".join(prompts) + ("\n" if prompts else ""),
+    }
 
 
 @router.post("/create")

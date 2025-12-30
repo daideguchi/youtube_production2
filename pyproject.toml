@@ -60,6 +60,9 @@ Repository = "https://github.com/your-username/factory_commentary"
 
 [project.scripts]
 factory-commentary = "video_pipeline.tools.factory:main"
+generate-vrew-prompts = "video_pipeline.tools.generate_vrew_prompts:main"
+render-images = "video_pipeline.tools.import_vrew_images:main"
+place-images-to-capcut = "video_pipeline.tools.place_images_to_capcut:main"
 
 # Use find_packages with explicit configuration to handle the multiple project structure
 [tool.setuptools.packages.find]

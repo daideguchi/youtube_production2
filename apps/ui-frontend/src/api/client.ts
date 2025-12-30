@@ -88,6 +88,7 @@ import {
   AutoDraftListResponse,
   AutoDraftCreateResponse,
   AutoDraftCreatePayload,
+  AutoDraftVrewPromptsResponse,
   AutoDraftSrtItem,
   AutoDraftSrtContent,
   ProjectSrtContent,
@@ -1948,6 +1949,17 @@ type AutoDraftSrtContentRaw = {
   ok?: boolean;
 };
 
+type AutoDraftVrewPromptsResponseRaw = {
+  ok: boolean;
+  srt_path?: string;
+  srtPath?: string;
+  line_count?: number;
+  lineCount?: number;
+  prompts?: string[];
+  prompts_text?: string;
+  promptsText?: string;
+};
+
 type ProjectSrtContentRaw = AutoDraftSrtContentRaw;
 
 type PromptTemplateListResponseRaw = {
@@ -2047,6 +2059,20 @@ export async function updateAutoDraftSrtContent(path: string, content: string): 
     content,
     sizeBytes: data.size_bytes ?? null,
     modifiedTime: data.modified_time ?? null,
+  };
+}
+
+export async function fetchAutoDraftVrewPrompts(srtPath: string): Promise<AutoDraftVrewPromptsResponse> {
+  const data = await request<AutoDraftVrewPromptsResponseRaw>("/api/auto-draft/vrew-prompts", {
+    method: "POST",
+    body: JSON.stringify({ srt_path: srtPath }),
+  });
+  return {
+    ok: Boolean(data.ok),
+    srtPath: data.srt_path ?? data.srtPath ?? srtPath,
+    lineCount: data.line_count ?? data.lineCount ?? 0,
+    prompts: data.prompts ?? [],
+    promptsText: data.prompts_text ?? data.promptsText ?? "",
   };
 }
 

@@ -8,6 +8,7 @@ import {
   fetchAutoDraftPromptTemplates,
   fetchAutoDraftPromptTemplateContent,
   fetchAutoDraftSrtContent,
+  fetchAutoDraftVrewPrompts,
   updateAutoDraftSrtContent,
 } from "../api/client";
 import {
@@ -99,6 +100,13 @@ export function AutoDraftPage() {
   const [showFullSrt, setShowFullSrt] = useState(false);
   const [srtEdit, setSrtEdit] = useState("");
   const [savingSrt, setSavingSrt] = useState(false);
+  const [vrewPrompts, setVrewPrompts] = useState<{
+    status: "idle" | "loading" | "ready" | "error";
+    text: string;
+    lineCount: number;
+    srtPath: string;
+    error?: string;
+  }>({ status: "idle", text: "", lineCount: 0, srtPath: "", error: undefined });
   const [showCapcutManual, setShowCapcutManual] = useState(false);
   const [showPromptManual, setShowPromptManual] = useState(false);
   const appliedInitialSelectionRef = useRef(false);
@@ -241,6 +249,7 @@ export function AutoDraftPage() {
     const defaults = deriveDefaults(item);
     setForm((prev) => ({ ...prev, ...defaults }));
     setPromptPreview({ status: "idle", content: "", path: "", error: undefined });
+    setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: item.path, error: undefined });
   };
 
   const currentPromptPath = useMemo(() => {
@@ -280,10 +289,12 @@ export function AutoDraftPage() {
       setSrtPreview({ status: "idle", content: "", path: "", error: undefined, meta: "" });
       setSrtFilter("");
       setSrtEdit("");
+      setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: "", error: undefined });
       return;
     }
     let cancelled = false;
     setSrtPreview({ status: "loading", content: "", path: target, error: undefined, meta: "" });
+    setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: target, error: undefined });
     fetchAutoDraftSrtContent(target)
       .then((res: AutoDraftSrtContent) => {
         if (cancelled) return;
@@ -370,6 +381,44 @@ export function AutoDraftPage() {
     try {
       await navigator.clipboard.writeText(srtPreview.content);
       setToast("SRTをコピーしました");
+    } catch (err: any) {
+      setToast(err?.message || "コピーに失敗しました");
+    }
+  };
+
+  const handleGenerateVrewPrompts = async () => {
+    if (!form.srtPath) {
+      setToast("SRTが未選択です");
+      return;
+    }
+    setVrewPrompts({ status: "loading", text: "", lineCount: 0, srtPath: form.srtPath, error: undefined });
+    try {
+      const res = await fetchAutoDraftVrewPrompts(form.srtPath);
+      setVrewPrompts({
+        status: "ready",
+        text: res.promptsText,
+        lineCount: res.lineCount,
+        srtPath: res.srtPath,
+        error: undefined,
+      });
+      setToast(`Vrewプロンプト生成: ${res.lineCount}行`);
+    } catch (err: any) {
+      setVrewPrompts({
+        status: "error",
+        text: "",
+        lineCount: 0,
+        srtPath: form.srtPath,
+        error: err?.message || "Vrewプロンプト生成に失敗しました",
+      });
+      setToast("");
+    }
+  };
+
+  const handleCopyVrewPrompts = async () => {
+    if (vrewPrompts.status !== "ready" || !vrewPrompts.text) return;
+    try {
+      await navigator.clipboard.writeText(vrewPrompts.text);
+      setToast("Vrewプロンプトをコピーしました");
     } catch (err: any) {
       setToast(err?.message || "コピーに失敗しました");
     }
@@ -730,6 +779,76 @@ export function AutoDraftPage() {
               </button>
             </div>
           </div>
+        </div>
+
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, background: "#fff", padding: 14, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div>
+              <strong>Vrewインポート用プロンプト</strong>
+              <div style={{ fontSize: 12, color: "#64748b" }}>コピペしてVrewへ（1行=1枚 / 末尾は「。」）</div>
+              {vrewPrompts.status === "ready" && (
+                <div style={{ fontSize: 11, color: "#94a3b8" }}>{vrewPrompts.lineCount} 行</div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={handleGenerateVrewPrompts}
+                disabled={!form.srtPath || vrewPrompts.status === "loading"}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: !form.srtPath || vrewPrompts.status === "loading" ? "#e5e7eb" : "#0f172a",
+                  color: "#fff",
+                  cursor: !form.srtPath || vrewPrompts.status === "loading" ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                {vrewPrompts.status === "loading" ? "生成中..." : "生成"}
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyVrewPrompts}
+                disabled={vrewPrompts.status !== "ready"}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  background: vrewPrompts.status === "ready" ? "#f8fafc" : "#e5e7eb",
+                  color: "#0f172a",
+                  cursor: vrewPrompts.status === "ready" ? "pointer" : "not-allowed",
+                  fontWeight: 600,
+                }}
+              >
+                コピー
+              </button>
+            </div>
+          </div>
+          {vrewPrompts.status === "error" && (
+            <div style={{ fontSize: 12, color: "#b91c1c" }}>{vrewPrompts.error || "生成に失敗しました"}</div>
+          )}
+          <textarea
+            readOnly
+            value={
+              vrewPrompts.status === "ready"
+                ? vrewPrompts.text
+                : vrewPrompts.status === "loading"
+                  ? "生成中..."
+                  : "SRTを選択して「生成」を押すと、Vrewに貼り付ける本文が出ます。"
+            }
+            style={{
+              width: "100%",
+              minHeight: 180,
+              borderRadius: 10,
+              border: "1px solid #cbd5e1",
+              padding: 10,
+              fontFamily: "SFMono-Regular, Menlo, Consolas, monospace",
+              fontSize: 12,
+              background: "#fff",
+              whiteSpace: "pre",
+            }}
+          />
         </div>
 
         <div style={{ display: "grid", gap: 12 }}>

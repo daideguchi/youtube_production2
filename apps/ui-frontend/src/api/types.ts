@@ -1524,6 +1524,14 @@ export interface AutoDraftCreatePayload {
   imgDuration?: number | null;
 }
 
+export interface AutoDraftVrewPromptsResponse {
+  ok: boolean;
+  srtPath: string;
+  lineCount: number;
+  prompts: string[];
+  promptsText: string;
+}
+
 export interface PromptTemplateItem {
   name: string;
   path: string;
