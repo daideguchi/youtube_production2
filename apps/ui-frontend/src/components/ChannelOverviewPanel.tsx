@@ -31,6 +31,7 @@ function formatLaunchDate(value?: string | null): string | null {
 
 interface ChannelOverviewSnapshot {
   total: number;
+  publishedCount: number;
   scriptCompleted: number;
   audioSubtitleCompleted: number;
   readyForAudio: number;
@@ -87,7 +88,7 @@ export function ChannelOverviewPanel({ channel, snapshot, onBackToDashboard, bac
   const avatarLabel = displayName.slice(0, 2);
   const description = channel.description ?? null;
 
-  const { total, scriptCompleted, audioSubtitleCompleted, readyForAudio, audioSubtitleBacklog } = snapshot;
+  const { total, publishedCount, scriptCompleted, audioSubtitleCompleted, readyForAudio, audioSubtitleBacklog } = snapshot;
   const scriptPercent = toPercent(scriptCompleted, total);
   const audioSubtitlePercent = toPercent(audioSubtitleCompleted, total);
 
@@ -156,6 +157,10 @@ export function ChannelOverviewPanel({ channel, snapshot, onBackToDashboard, bac
         <div className="metric-card">
           <span className="metric-card__label">企画総数</span>
           <span className="metric-card__value">{formatNumber(total)}</span>
+        </div>
+        <div className="metric-card">
+          <span className="metric-card__label">投稿済み</span>
+          <span className="metric-card__value">{formatNumber(publishedCount)}</span>
         </div>
         <div className="metric-card">
           <span className="metric-card__label">音声・字幕準備済み</span>

@@ -151,6 +151,7 @@
 - `scripts/think.sh`（THINK MODE 一発ラッパー）
 - `scripts/agent_runner.py`（pending/results キュー操作、外部チャット用 prompt 生成）
 - `scripts/agent_org.py`（Orchestrator/Agents/Locks/Memos の協調運用。`overview` で「誰が何を触っているか」俯瞰可能）
+  - 重要: `lock/memo/board/*` などの **write系は agent name が必須**（`LLM_AGENT_NAME` または `--agent-name`。未設定なら初回プロンプトで入力→記憶される）
   - 並列運用の起動（Orchestrator一括ブート + preflight）: `python3 scripts/ops/orchestrator_bootstrap.py --name dd-orch`
   - preflight（ガードレール点検のみ）: `python3 scripts/ops/parallel_ops_preflight.py`
   - agent bootstrap（heartbeat + board更新）: `python3 scripts/ops/agent_bootstrap.py --name <NAME> --role <ROLE> --doing "..." --next "..."`

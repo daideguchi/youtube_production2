@@ -157,6 +157,7 @@ export type DetailHandlers = {
 
 export type ChannelSnapshot = {
   total: number;
+  publishedCount: number;
   scriptCompleted: number;
   audioSubtitleCompleted: number;
   readyForAudio: number;
@@ -782,16 +783,21 @@ export function AppShell() {
     if (total === 0) {
       return {
         total: 0,
+        publishedCount: 0,
         scriptCompleted: 0,
         audioSubtitleCompleted: 0,
         readyForAudio: 0,
         audioSubtitleBacklog: 0,
       };
     }
+    let publishedCount = 0;
     let scriptCompleted = 0;
     let audioCompleted = 0;
     let readyForAudio = 0;
     videos.forEach((video) => {
+      if (Boolean(video.published_lock)) {
+        publishedCount += 1;
+      }
       const stages = video.stages ?? {};
       if (SCRIPT_STAGE_KEYS.some((key) => COMPLETED_STATUSES.has((stages[key] ?? "").toLowerCase()))) {
         scriptCompleted += 1;
@@ -806,6 +812,7 @@ export function AppShell() {
     const audioSubtitleBacklog = Math.max(total - audioCompleted - readyForAudio, 0);
     return {
       total,
+      publishedCount,
       scriptCompleted,
       audioSubtitleCompleted: audioCompleted,
       readyForAudio,

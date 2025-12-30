@@ -437,7 +437,10 @@ def build_episode_progress_view(
 
     issues_summary: dict[str, int] = {}
     episodes_with_issues = 0
+    episodes_published = 0
     for ep in episodes:
+        if ep.get("published_locked"):
+            episodes_published += 1
         tokens = ep.get("issues") or []
         if tokens:
             episodes_with_issues += 1
@@ -454,6 +457,7 @@ def build_episode_progress_view(
         "planning_csv_path": str(channels_csv_path(ch)),
         "planning_duplicate_videos": planning_dupes,
         "episodes_total": len(episodes),
+        "episodes_published": episodes_published,
         "episodes_with_issues": episodes_with_issues,
         "issues_summary": dict(sorted(issues_summary.items(), key=lambda kv: (-kv[1], kv[0]))),
         "episodes": episodes,

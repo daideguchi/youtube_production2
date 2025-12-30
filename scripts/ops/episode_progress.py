@@ -42,6 +42,7 @@ def _print_summary(view: dict[str, Any]) -> None:
     if view.get("planning_duplicate_videos"):
         print(f"planning_duplicate_videos\t{','.join(view.get('planning_duplicate_videos') or [])}")
     print(f"episodes_total\t{int(view.get('episodes_total') or 0)}")
+    print(f"episodes_published\t{int(view.get('episodes_published') or 0)}")
     print(f"episodes_with_issues\t{int(view.get('episodes_with_issues') or 0)}")
     print("issues_summary")
     summary = view.get("issues_summary") or {}
@@ -107,7 +108,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.issues_only:
         episodes = [ep for ep in (view.get("episodes") or []) if ep.get("issues")]
         issues_summary: dict[str, int] = {}
+        episodes_published = 0
         for ep in episodes:
+            if ep.get("published_locked"):
+                episodes_published += 1
             for issue in ep.get("issues") or []:
                 token = str(issue or "").strip()
                 if not token:
@@ -117,6 +121,7 @@ def main(argv: list[str] | None = None) -> int:
             **view,
             "episodes": episodes,
             "episodes_total": len(episodes),
+            "episodes_published": episodes_published,
             "episodes_with_issues": len(episodes),
             "issues_summary": dict(sorted(issues_summary.items(), key=lambda kv: (-kv[1], kv[0]))),
         }

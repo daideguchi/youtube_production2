@@ -5,6 +5,13 @@
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT_DIR/.env"
+
+# Prefer repo-local virtualenv when present (Homebrew Python is PEP668 externally-managed).
+VENV_DIR="$ROOT_DIR/.venv"
+if [[ -x "$VENV_DIR/bin/python3" || -x "$VENV_DIR/bin/python" ]]; then
+  export PATH="$VENV_DIR/bin:$PATH"
+fi
+
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ .env not found at $ENV_FILE" >&2
   exit 1

@@ -9,7 +9,7 @@ import shutil
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Tuple
 
 def _discover_repo_root(start: Path) -> Path:
     cur = start if start.is_dir() else start.parent
@@ -133,35 +133,37 @@ def _resolve_input_mode_and_path(
     video_dir: Path,
     final_dir: Path,
     provided: Path,
-) -> tuple[Literal["a_text", "b_text"], Path]:
+) -> Tuple[Literal["a_text", "b_text"], Path]:
     p = provided
     if not p.is_absolute():
-        p = (repo_root_path / p).resolve(strict=False)
+        p = (repo_root_path / p).resolve()
     else:
-        p = p.resolve(strict=False)
+        p = p.resolve()
 
     content_dir = video_dir / "content"
     audio_prep_dir = video_dir / "audio_prep"
 
-    a_human = (content_dir / "assembled_human.md").resolve(strict=False)
-    a_auto = (content_dir / "assembled.md").resolve(strict=False)
-    b_prep = (audio_prep_dir / "script_sanitized.txt").resolve(strict=False)
-    b_final = (final_dir / "a_text.txt").resolve(strict=False)
-
-    if p == a_human or p == a_auto:
+    a_candidates = {
+        (content_dir / "assembled_human.md").resolve(),
+        (content_dir / "assembled.md").resolve(),
+    }
+    b_candidates = {
+        (audio_prep_dir / "script_sanitized.txt").resolve(),
+        (final_dir / "a_text.txt").resolve(),
+    }
+    if p in a_candidates:
         return "a_text", p
-    if p == b_prep or p == b_final:
+    if p in b_candidates:
         return "b_text", p
-
     raise SystemExit(
         "\n".join(
             [
                 f"[ERROR] Unsupported --input path: {p}",
                 "Expected one of:",
-                f"  - {a_human}",
-                f"  - {a_auto}",
-                f"  - {b_prep} (explicit B-text regeneration)",
-                f"  - {b_final} (explicit B-text snapshot regeneration)",
+                f"  - {content_dir / 'assembled_human.md'}",
+                f"  - {content_dir / 'assembled.md'}",
+                f"  - {audio_prep_dir / 'script_sanitized.txt'} (explicit B-text regeneration)",
+                f"  - {final_dir / 'a_text.txt'} (explicit B-text snapshot regeneration)",
             ]
         )
     )
@@ -186,8 +188,6 @@ def _enforce_b_text_not_stale(*, channel: str, video: str, a_path: Path, b_path:
     """
     if not a_path.exists():
         raise SystemExit(f"[ERROR] A-text not found for B-text regeneration: {a_path}")
-    if not b_path.exists():
-        raise SystemExit(f"[ERROR] B-text not found for B-text regeneration: {b_path}")
     try:
         a_text = a_path.read_text(encoding="utf-8")
         b_text = b_path.read_text(encoding="utf-8")
@@ -231,7 +231,6 @@ def _enforce_b_text_not_stale(*, channel: str, video: str, a_path: Path, b_path:
         )
     )
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run audio_tts STRICT pipeline")
     p.add_argument("--channel", required=True, help="Channel ID (e.g. CH05)")
@@ -240,11 +239,7 @@ def parse_args() -> argparse.Namespace:
         "--input",
         required=True,
         type=Path,
-        help=(
-            "Input path (explicit). "
-            "Allowed: content/assembled_human.md or content/assembled.md (A-text), "
-            "audio_prep/script_sanitized.txt or audio/final/*/a_text.txt (explicit B-text)."
-        ),
+        help="Input path (A-text: content/assembled*.md) or explicit B-text (audio_prep/script_sanitized.txt or final/a_text.txt)",
     )
     
     # Optional overrides
@@ -342,16 +337,17 @@ def main() -> None:
     from factory_common.paths import repo_root, video_root, audio_final_dir, channels_csv_path, status_path
     from factory_common.alignment import ALIGNMENT_SCHEMA, planning_hash_from_row, sha1_file as sha1_file_bytes
 
-    repo_root_path = repo_root()
+    base_dir = repo_root()
     video_dir = video_root(args.channel, args.video)
     final_dir = audio_final_dir(args.channel, args.video)
-
     input_mode, input_path = _resolve_input_mode_and_path(
-        repo_root_path=repo_root_path,
+        repo_root_path=base_dir,
         video_dir=video_dir,
         final_dir=final_dir,
         provided=args.input,
     )
+    if not input_path.exists():
+        raise SystemExit(f"[ERROR] Input file not found: {input_path}")
 
     # --- Alignment guard: Planning(title/thumbnail) <-> Script(A-text) -----------------
     # Prevent generating audio from a script that drifted from the current planning title/thumbnail.
@@ -421,27 +417,18 @@ def main() -> None:
     except Exception as exc:
         raise SystemExit(f"[ALIGN] failed to verify alignment: {exc}")
 
-    # --- Global guard: resolve canonical inputs (STOP on ambiguous A/B) --------------
-    # A-text SoT: content/assembled_human.md (if exists) else content/assembled.md
-    # B-text explicit: audio_prep/script_sanitized.txt or audio/final/*/a_text.txt
+    # --- Global guard: assemble the right script before synthesis -----------------
+    # ルール:
+    # - チャンネル/動画配下の content に assembled_human.md があれば、それが最終確定版。
+    # - assembled_human.md が存在し、assembled.md と内容が異なる場合は、
+    #   assembled_human.md を assembled.md に自動で同期してから進む。
+    # - assembled_human.md が無ければ、assembled.md をそのまま使う。
     #
-    # No implicit fallback between A/B modes; the caller must pick --input explicitly.
+    # これにより「古い assembled.md を参照して誤って合成する」事故を防ぐ。
     content_dir = video_dir / "content"
-    _ensure_a_text_mirror_consistency(content_dir=content_dir, channel=args.channel, video=args.video)
-
     human_path = content_dir / "assembled_human.md"
     assembled_path = content_dir / "assembled.md"
-    canonical_a = human_path if human_path.exists() else assembled_path
-
-    if not input_path.exists():
-        raise SystemExit(f"[ERROR] Input file not found: {input_path}")
-    if not canonical_a.exists():
-        raise SystemExit(f"[ERROR] A-text not found: {canonical_a}")
-
-    if input_mode == "a_text":
-        print(f"[INPUT] A-text: {canonical_a}")
-    else:
-        print(f"[INPUT] B-text: {input_path} (A-text SoT: {canonical_a})")
+    _ensure_a_text_mirror_consistency(content_dir=content_dir, channel=args.channel, video=args.video)
 
     # Output to workspaces/scripts/... (legacy: script_pipeline/data/...).
     artifact_root = video_dir / "audio_prep"
@@ -461,6 +448,7 @@ def main() -> None:
     # If input script is newer than existing artifacts, purge audio_prep (A-text mode only).
     # NOTE: In explicit B-text mode, never purge the whole directory (it may contain the authoritative input).
     if input_mode == "a_text":
+        canonical_a = human_path if human_path.exists() else assembled_path
         script_mtime = canonical_a.stat().st_mtime
         if artifact_root.exists():
             artifacts_mtime = _latest_mtime(artifact_root)
@@ -488,8 +476,10 @@ def main() -> None:
     
     # Resolve actual synthesis input.
     if input_mode == "a_text":
+        canonical_a = human_path if human_path.exists() else assembled_path
         input_text = canonical_a.read_text(encoding="utf-8")
     else:
+        canonical_a = human_path if human_path.exists() else assembled_path
         _enforce_b_text_not_stale(
             channel=args.channel,
             video=args.video,

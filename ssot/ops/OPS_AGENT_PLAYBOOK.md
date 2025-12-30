@@ -24,10 +24,17 @@
 
 ## 2. 作業開始の儀式（必須）
 
-### 2.1 自己識別（推奨）
+### 2.1 自己識別（必須: agent_org の write系）
+- 並列作業では **各Codex/ターミナルごと**に agent name が必須（名前が無いと attribution が壊れて事故る）。
+- いちいち `export ...` したくない場合: `scripts/agent_org.py` の write系を叩いた時に **初回だけプロンプトで名前入力→記憶**される（以後は自動）。
+- 推奨命名: `<owner>-<area>-<nn>`（例: `dd-capcut-01`, `dd-ui-02`, `dd-tts-01`）
 ```bash
-export LLM_AGENT_NAME=Mike
-python scripts/agent_org.py agents start --name Mike --role worker
+export LLM_AGENT_NAME=dd-ui-01
+python scripts/agent_org.py agents start --name "$LLM_AGENT_NAME" --role worker
+```
+（推奨: heartbeat + board を同時に更新）:
+```bash
+python3 scripts/ops/agent_bootstrap.py --name "$LLM_AGENT_NAME" --role worker --doing "ui: ..." --next "..." --tags ui
 ```
 
 ### 2.2 Orchestrator/lock を確認（強制）
@@ -41,6 +48,9 @@ python scripts/agent_org.py locks --path packages/video_pipeline/tools/auto_capc
 ```bash
 python scripts/agent_org.py lock 'packages/video_pipeline/tools/**' --mode no_touch --ttl-min 60 --note 'working'
 ```
+※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。  
+  どうしても必要な場合のみ `--force` で上書きし、必ず board/memo で合意を残す。
+  lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
 
 3) lock の履歴（JSON）が増えすぎたら（任意: 整理）:
 ```bash
@@ -81,6 +91,24 @@ python3 scripts/ops/git_write_lock.py unlock-for-push
 ```
 
 push後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
+
+### 2.2.6 kill/pkill/killall 遮断（強制）
+並列運用では、Codex からの `kill/pkill/killall` によるプロセス破壊（UI/バッチ/生成の途中停止）事故が起きやすい。  
+したがって Codex 環境では **kill系を仕組みで封じる**（人間が明示OKした時だけ例外解除）。
+
+仕組み:
+- `~/.codex/bin/kill`（ターミナルに大きな警告を出して `exit 42` で停止）
+  - `~/.codex/bin/pkill` / `~/.codex/bin/killall` は symlink で同じガードに集約
+- zsh: Codex セッションでは `kill` builtin を `disable` して PATH 側のガードを必ず通す（`.zshenv`）
+- bash: Codex から起動した非対話 bash でも `kill` builtin を無効化する（`BASH_ENV=~/.codex/bash_env_guard.sh`）
+
+例外（Break-glass。人間がOKした時だけ）:
+- `CODEX_KILL_BREAKGLASS=1 kill ...`（または `pkill/killall`）
+- **非対話実行（TTYなし）では例外解除できない**（=暴走/バッチから守る）
+- 実行直前に表示されるワンタイム文字列 `ALLOW <cmd> <CODE>` を完全一致入力できた場合のみ `/bin/kill` 等へ通す
+
+注意:
+- エージェント（Codex）は kill を使わない。必要なら手順・原因を提示して **人間判断**へエスカレーションする。
 
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。

@@ -203,7 +203,7 @@ def main(argv: List[str] | None = None) -> int:
     # Agent identity is optional, but strongly recommended for collaboration.
     agent_name = os.getenv("LLM_AGENT_NAME") or ""
     if not agent_name.strip():
-        warnings.append("LLM_AGENT_NAME is not set (recommended for board/locks attribution)")
+        warnings.append("LLM_AGENT_NAME is not set (agent_org write commands require it; also recommended for attribution)")
 
     # Orchestrator status (do not assume running).
     orch_status: Dict[str, Any] | None = None
@@ -249,6 +249,37 @@ def main(argv: List[str] | None = None) -> int:
     if no_expiry_old:
         warnings.append(f"found {len(no_expiry_old)} no-expiry locks older than 6h (run locks-audit)")
 
+    # Shared board usage (visibility): warn when lock owners are not visible on the board.
+    board_path = coord_root / "board.json"
+    board_agents: Dict[str, Any] = {}
+    if board_path.exists():
+        try:
+            board_obj = json.loads(board_path.read_text(encoding="utf-8"))
+            if isinstance(board_obj, dict) and isinstance(board_obj.get("agents"), dict):
+                board_agents = board_obj.get("agents") or {}
+        except Exception as exc:  # noqa: BLE001
+            warnings.append(f"cannot parse shared board: {exc}")
+
+    active_locks: List[Dict[str, Any]] = []
+    try:
+        locks_any = _run_json([sys.executable, "scripts/agent_org.py", "locks", "--json"])
+        if isinstance(locks_any, list):
+            active_locks = [x for x in locks_any if isinstance(x, dict)]
+    except Exception as exc:  # noqa: BLE001
+        warnings.append(f"cannot list active locks: {exc}")
+
+    lock_owners = sorted({str(l.get('created_by') or '').strip() for l in active_locks if str(l.get('created_by') or '').strip()})
+    if lock_owners and not board_agents:
+        warnings.append(
+            f"found {len(lock_owners)} active lock owner(s), but board has no status entries "
+            "(run scripts/ops/agent_bootstrap.py --name <NAME> ...)"
+        )
+    elif lock_owners:
+        missing = [a for a in lock_owners if a not in board_agents]
+        if missing:
+            preview = ", ".join(missing[:6]) + (" ..." if len(missing) > 6 else "")
+            warnings.append(f"{len(missing)} lock owner(s) have no board status entry: {preview}")
+
     # Agent heartbeat overview (active/stale/dead).
     agents = _agent_records(coord_root)
     agents_summary = _classify_agents(agents, stale_sec=int(args.stale_sec))
@@ -269,6 +300,8 @@ def main(argv: List[str] | None = None) -> int:
         "git_in_path": git_path,
         "git_write_lock": git_lock,
         "orchestrator": orch_status,
+        "board": {"path": str(board_path), "exists": bool(board_path.exists()), "agent_status_count": len(board_agents)},
+        "locks": {"active_count": len(active_locks), "owners": lock_owners},
         "locks_audit": {"no_expiry_older_than_6h": no_expiry_old},
         "agents": agents_summary,
         "execpolicy": execpolicy_probe,

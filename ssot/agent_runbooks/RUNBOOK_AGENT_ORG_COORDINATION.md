@@ -34,11 +34,23 @@ python scripts/agent_org.py orchestrator stop
 ※ Orchestrator は `flock` で単一リースを保持する。2人目は起動できない。
 
 ## 4. Worker Agent（名前・心拍）
+重要:
+- 並列運用では **各Codex/ターミナルごと**に agent name が必須（`lock/memo/board` 等の write 操作の attribution を壊さないため）。
+- `export LLM_AGENT_NAME=...` を毎回やりたくない場合、`scripts/agent_org.py` の write系は **初回だけプロンプトで名前入力→記憶**される（以後は自動）。
+- 推奨命名: `<owner>-<area>-<nn>`（例: `dd-ui-01`）
+
 ### 4.1 heartbeat を起動（各Agentごと）
 ```bash
-python scripts/agent_org.py agents start --name Mike --role worker
-python scripts/agent_org.py agents start --name Eric --role worker
+export LLM_AGENT_NAME=Mike
+python scripts/agent_org.py agents start --name "$LLM_AGENT_NAME" --role worker
+# 別ターミナルでもう1体:
+export LLM_AGENT_NAME=Eric
+python scripts/agent_org.py agents start --name "$LLM_AGENT_NAME" --role worker
 python scripts/agent_org.py agents list
+```
+（推奨: heartbeat + board を同時に更新）:
+```bash
+python3 scripts/ops/agent_bootstrap.py --name "$LLM_AGENT_NAME" --role worker --doing "ui: ..." --next "..." --tags ui
 ```
 
 ### 4.2 停止（不要なら）
@@ -82,10 +94,13 @@ python scripts/agent_org.py memos --to Mike
 ## 7. 作業スコープロック（soft access control）
 ### 7.1 lock を置く（触る前に）
 ```bash
+export LLM_AGENT_NAME=dd-ui-01
 python scripts/agent_org.py lock 'apps/ui-frontend/**' --mode no_touch --ttl-min 60 --note 'dd working'
 python scripts/agent_org.py lock 'apps/ui-backend/**' --mode no_touch --ttl-min 60 --note 'dd working'
 python scripts/agent_org.py locks --path apps/ui-backend/backend/main.py
 ```
+※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。必要なら `--force`（要合意）。
+  lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
 
 ### 7.2 lock を外す
 ```bash

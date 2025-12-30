@@ -13,10 +13,19 @@
 ## 1) 仕組み（第一）: Codex Git Guard（ハードブロック）
 
 Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **常に失敗**させる（rollback 事故を物理的に遮断する）。
+該当コマンドを叩いた瞬間に、**ターミナルへ超目立つアラート（AA + bell）** を出して `exit 42` で止める（＝Codexにも失敗として通知される）。
 
 実体:
 - `~/.codex/bin/git`（PATH先頭に置くラッパー）
 - `~/.zprofile` / `~/.zshenv`（Codexセッションのみ PATH を prepend）
+
+挙動:
+- 既定: 該当サブコマンドは **常にブロック**（rollback は絶対に走らない）
+- `restore` / `checkout` は特に事故率が高いため **MAXIMUM ALERT**（より強いアラート）で止める
+- 例外（Break-glass）: **人間がOKした時だけ**、対話的確認を通過した場合に限り実行を許可する
+  - `CODEX_GIT_ROLLBACK_BREAKGLASS=1 git <subcmd> ...`
+  - **非対話実行（TTYなし）では例外解除できない**（=暴走/バッチから守る）
+  - 実行直前に表示されるワンタイム文字列 `ALLOW <subcmd> <CODE>` を完全一致入力できた場合のみ `/usr/bin/git` に通す
 
 補足:
 - `python -c 'subprocess.run([\"git\", ...])'` のような “python 経由のバイパス” も PATH を経由する限り遮断できる。

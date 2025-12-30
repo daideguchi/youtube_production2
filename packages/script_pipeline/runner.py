@@ -3952,6 +3952,17 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
             continue
         outputs = sd.get("outputs") or []
 
+        # Safety: semantic-major must not be treated as validated.
+        # This must apply regardless of stage_defs outputs configuration.
+        if name == "script_validation" and _semantic_major():
+            if state.status in {"processing", "completed"}:
+                state.status = "pending"
+                if isinstance(state.details, dict):
+                    state.details.setdefault("error", "semantic_alignment_major")
+                    state.details["reconciled_semantic_major_demote"] = True
+                changed = True
+            continue
+
         # Once assembled is present, upstream intermediates are allowed missing.
         # Still perform light housekeeping (clear stale error markers / update chapter_count when possible).
         if assembled_ok and name in {"topic_research", "script_outline", "script_master_plan", "chapter_brief", "script_draft"}:

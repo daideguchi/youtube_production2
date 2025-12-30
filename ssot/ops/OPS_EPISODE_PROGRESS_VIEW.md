@@ -49,6 +49,7 @@ episode_progress は以下を参照して集計する（書き換えない）:
 
 ### 2.1.1 集計サマリ（一覧の上に出せる）
 - `episodes_total`: エピソード総数（view に含まれる件数）
+- `episodes_published`: 投稿済みロック件数（published_locked=true の件数）
 - `episodes_with_issues`: issues が1つ以上あるエピソード数
 - `issues_summary`: issues の出現回数サマリ
 - `planning_duplicate_videos`: Planning CSV 側で動画番号が重複しているもの（存在する場合）

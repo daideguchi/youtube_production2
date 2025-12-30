@@ -443,6 +443,130 @@ def _download_binary(url: str, dest: Path) -> None:
     resp.raise_for_status()
     dest.write_bytes(resp.content)
 
+def _detect_primary_face_bbox(img: Image.Image) -> Optional[Tuple[int, int, int, int]]:
+    """
+    Best-effort face bbox detection using OpenCV Haar cascades.
+    Returns (x0, y0, x1, y1) in the image coordinate space.
+    """
+    try:
+        import cv2  # type: ignore
+        import numpy as np  # type: ignore
+    except Exception:
+        return None
+
+    im = img.convert("RGB")
+    arr = np.array(im)
+    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+
+    cascade_names = (
+        "haarcascade_frontalface_default.xml",
+        "haarcascade_frontalface_alt2.xml",
+        "haarcascade_profileface.xml",
+    )
+
+    candidates: List[Tuple[int, int, int, int]] = []
+    for name in cascade_names:
+        try:
+            cascade = cv2.CascadeClassifier(cv2.data.haarcascades + name)
+            faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+        except Exception:
+            continue
+        for x, y, w, h in faces:
+            x0 = int(x)
+            y0 = int(y)
+            x1 = int(x + w)
+            y1 = int(y + h)
+            if x1 > x0 and y1 > y0:
+                candidates.append((x0, y0, x1, y1))
+
+    if not candidates:
+        return None
+
+    w, h = im.size
+    center_x = w / 2.0
+    center_y = h / 2.0
+
+    def _score(b: Tuple[int, int, int, int]) -> Tuple[float, float]:
+        x0, y0, x1, y1 = b
+        area = float((x1 - x0) * (y1 - y0))
+        cx = (x0 + x1) / 2.0
+        cy = (y0 + y1) / 2.0
+        dist2 = (cx - center_x) ** 2 + (cy - center_y) ** 2
+        return area, -dist2
+
+    return max(candidates, key=_score)
+
+
+def _crop_to_aspect_face_anchored(
+    img: Image.Image,
+    *,
+    target_aspect: float,
+    face_bbox: Tuple[int, int, int, int],
+    face_target_x: float = 0.5,
+    face_target_y: float = 0.5,
+    face_height_ratio: float = 0.25,
+    allow_padding: bool = True,
+) -> Image.Image:
+    """
+    Crop to `target_aspect` (w/h) while keeping the detected face near the target point.
+
+    - `face_target_x/y`: where the face center should land within the crop (0..1).
+    - `face_height_ratio`: desired face bbox height relative to crop height.
+    - `allow_padding`: if True, pad the source image with border-median color so the face can be centered
+      even when it is near edges.
+    """
+    w, h = img.size
+    if w <= 0 or h <= 0:
+        return img
+    target = float(target_aspect)
+    if target <= 0:
+        return img
+
+    x0, y0, x1, y1 = face_bbox
+    if x1 <= x0 or y1 <= y0:
+        return img
+
+    face_h = float(y1 - y0)
+    ratio = max(0.05, min(0.95, float(face_height_ratio)))
+    crop_h = max(1, int(round(face_h / ratio)))
+    crop_w = max(1, int(round(crop_h * target)))
+
+    # Ensure crop fits within the image, while keeping aspect exact.
+    if crop_w > w:
+        crop_w = w
+        crop_h = max(1, int(round(crop_w / target)))
+    if crop_h > h:
+        crop_h = h
+        crop_w = max(1, int(round(crop_h * target)))
+    crop_w = max(1, min(w, crop_w))
+    crop_h = max(1, min(h, crop_h))
+
+    cx = (x0 + x1) / 2.0
+    cy = (y0 + y1) / 2.0
+    tx = max(0.0, min(1.0, float(face_target_x)))
+    ty = max(0.0, min(1.0, float(face_target_y)))
+
+    left = int(round(cx - (tx * crop_w)))
+    top = int(round(cy - (ty * crop_h)))
+    right = left + crop_w
+    bottom = top + crop_h
+
+    if allow_padding:
+        fill_rgb, _ = _border_color_stats(img)
+        pad_left = max(0, -left)
+        pad_top = max(0, -top)
+        pad_right = max(0, right - w)
+        pad_bottom = max(0, bottom - h)
+        if pad_left or pad_top or pad_right or pad_bottom:
+            img = ImageOps.expand(img, border=(pad_left, pad_top, pad_right, pad_bottom), fill=fill_rgb)
+            left += pad_left
+            top += pad_top
+
+    w2, h2 = img.size
+    left = max(0, min(w2 - crop_w, left))
+    top = max(0, min(h2 - crop_h, top))
+    return img.crop((left, top, left + crop_w, top + crop_h))
+
 
 def _crop_to_aspect(img: Image.Image, *, target_aspect: float, y_bias: float = 0.45) -> Image.Image:
     """
@@ -624,13 +748,29 @@ def prepare_portrait_png(
     color: float = 1.0,
     y_bias: float = 0.34,
     zoom: float = 1.18,
+    use_face_crop: bool = True,
+    face_target_x: float = 0.5,
+    face_target_y: float = 0.5,
+    face_height_ratio: float = 0.25,
     max_height_px: int = 1400,
 ) -> None:
     with Image.open(src_path) as im_in:
         im = ImageOps.exif_transpose(im_in)
         im = im.convert("RGB")
 
-    im = _crop_to_aspect_zoomed(im, target_aspect=float(target_aspect), y_bias=float(y_bias), zoom=float(zoom))
+    face_bbox = _detect_primary_face_bbox(im) if use_face_crop else None
+    if face_bbox:
+        im = _crop_to_aspect_face_anchored(
+            im,
+            target_aspect=float(target_aspect),
+            face_bbox=face_bbox,
+            face_target_x=float(face_target_x),
+            face_target_y=float(face_target_y),
+            face_height_ratio=float(face_height_ratio),
+            allow_padding=True,
+        )
+    else:
+        im = _crop_to_aspect_zoomed(im, target_aspect=float(target_aspect), y_bias=float(y_bias), zoom=float(zoom))
 
     # Keep files lightweight; the compositor downsizes anyway (dest box ~820px tall).
     mh = int(max_height_px)
@@ -690,6 +830,20 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--lang", default="ja", help="wikipedia language (default: ja)")
     ap.add_argument("--videos", action="append", help="target videos (e.g. --videos 001,002)")
     ap.add_argument("--overwrite", action="store_true", help="overwrite existing portrait files")
+    ap.add_argument(
+        "--reuse-src",
+        action="store_true",
+        help="use existing 20_portrait_src.* in each video folder and skip download (for manual sources)",
+    )
+    ap.add_argument("--no-face-crop", action="store_true", help="disable face-based crop and use heuristic crop only")
+    ap.add_argument("--face-target-x", type=float, default=0.5, help="face center target X in crop (0..1, default 0.5)")
+    ap.add_argument("--face-target-y", type=float, default=0.5, help="face center target Y in crop (0..1, default 0.5)")
+    ap.add_argument(
+        "--face-height-ratio",
+        type=float,
+        default=0.25,
+        help="desired face bbox height / crop height (default 0.25; larger => tighter crop)",
+    )
     ap.add_argument("--dry-run", action="store_true", help="print actions without writing files")
     ap.add_argument("--sleep-sec", type=float, default=0.25, help="sleep between requests (default: 0.25)")
     args = ap.parse_args(argv)
@@ -724,44 +878,62 @@ def main(argv: Optional[List[str]] = None) -> int:
             skipped += 1
             continue
 
-        person_title = _resolve_person_title(person_raw)
-        page_url, image_url, chosen_file, info = resolve_best_portrait_image_url(person_title=person_title, wikipedia_lang=lang)
-        if not image_url:
-            print(f"{ch}-{vid}: failed to resolve page image for '{person_title}' ({person_raw})")
-            failed += 1
-            continue
-
-        filename = _filename_from_image_url(image_url)
-        ext = Path(filename).suffix.lower() or ".jpg"
-        src_out = video_dir / f"20_portrait_src{ext}"
         meta_out = video_dir / "20_portrait.source.json"
 
-        src = PortraitSource(
-            person_raw=person_raw,
-            person_title=person_title,
-            wikipedia_lang=lang,
-            wikipedia_page_url=page_url,
-            image_url=image_url,
-            image_filename=filename,
-            downloaded_at=_now_iso(),
-            license_short=info.get("license_short"),
-            license_url=info.get("license_url"),
-            artist=info.get("artist"),
-            credit=info.get("credit"),
-            attribution_required=info.get("attribution_required"),
-            description_url=info.get("description_url"),
-        )
+        local_src: Optional[Path] = None
+        if args.reuse_src:
+            candidates = sorted(video_dir.glob("20_portrait_src.*"))
+            for candidate in candidates:
+                if candidate.suffix.lower() in GOOD_EXTS:
+                    local_src = candidate
+                    break
+            if not local_src and candidates:
+                local_src = candidates[0]
 
-        chosen_note = f" ({chosen_file})" if chosen_file else ""
-        print(f"{ch}-{vid}: {person_title} -> {image_url}{chosen_note}")
+        if local_src:
+            src_path = local_src
+            print(f"{ch}-{vid}: reuse {src_path.name} (skip download)")
+        else:
+            person_title = _resolve_person_title(person_raw)
+            page_url, image_url, chosen_file, info = resolve_best_portrait_image_url(
+                person_title=person_title, wikipedia_lang=lang
+            )
+            if not image_url:
+                print(f"{ch}-{vid}: failed to resolve page image for '{person_title}' ({person_raw})")
+                failed += 1
+                continue
+
+            filename = _filename_from_image_url(image_url)
+            ext = Path(filename).suffix.lower() or ".jpg"
+            src_path = video_dir / f"20_portrait_src{ext}"
+
+            src = PortraitSource(
+                person_raw=person_raw,
+                person_title=person_title,
+                wikipedia_lang=lang,
+                wikipedia_page_url=page_url,
+                image_url=image_url,
+                image_filename=filename,
+                downloaded_at=_now_iso(),
+                license_short=info.get("license_short"),
+                license_url=info.get("license_url"),
+                artist=info.get("artist"),
+                credit=info.get("credit"),
+                attribution_required=info.get("attribution_required"),
+                description_url=info.get("description_url"),
+            )
+
+            chosen_note = f" ({chosen_file})" if chosen_file else ""
+            print(f"{ch}-{vid}: {person_title} -> {image_url}{chosen_note}")
         if args.dry_run:
             ok += 1
             continue
 
         try:
-            _download_binary(image_url, src_out)
+            if not local_src:
+                _download_binary(image_url, src_path)
             prepare_portrait_png(
-                src_out,
+                src_path,
                 png_out,
                 target_aspect=float(target_aspect),
                 brightness=1.0,
@@ -769,8 +941,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                 color=1.0,
                 y_bias=0.34,
                 zoom=1.18,
+                use_face_crop=not bool(args.no_face_crop),
+                face_target_x=float(args.face_target_x),
+                face_target_y=float(args.face_target_y),
+                face_height_ratio=float(args.face_height_ratio),
             )
-            meta_out.write_text(json.dumps(src.__dict__, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            if not local_src:
+                meta_out.write_text(json.dumps(src.__dict__, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             ok += 1
         except Exception as exc:  # noqa: BLE001
             print(f"{ch}-{vid}: ERROR {exc}")

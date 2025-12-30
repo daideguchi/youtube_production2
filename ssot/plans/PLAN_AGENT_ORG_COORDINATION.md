@@ -126,7 +126,7 @@
 
 ## 6. 運用ルール（事故防止）
 - 作業前に:
-  - `LLM_AGENT_NAME` を設定し、pending は claim して担当者を残す
+  - `LLM_AGENT_NAME` を設定し、pending は claim して担当者を残す（`scripts/agent_org.py` の lock/memo/board 等の write 操作では必須）
   - 触るスコープに lock を置く（最低 30min TTL）
 - 複数エージェントで判断/レビュー/申し送りが必要な場合は Shared Board を正本にする（BEP-1: `ssot/ops/OPS_AGENT_PLAYBOOK.md`）。
 - Orchestrator の seat は 1つ。交代は stop/start で明示する。

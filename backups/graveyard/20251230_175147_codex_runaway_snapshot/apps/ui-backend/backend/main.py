@@ -5260,7 +5260,6 @@ class VideoSummaryResponse(BaseModel):
     title: Optional[str]
     status: str
     ready_for_audio: bool
-    published_lock: bool = False
     stages: Dict[str, str]
     updated_at: Optional[str] = None
     character_count: Optional[int] = None
@@ -8096,31 +8095,6 @@ def list_videos(channel: str):
                 character_count = fallback_chars
         if audio_exists and srt_exists and status_value != "completed":
             status_value = "completed"
-
-        # 投稿済み（ロック）:
-        # - 正本は Planning CSV の「進捗」（人間が手動で更新するのは基本ここだけ）。
-        # - status.json の metadata.published_lock は補助ソース。
-        progress_value = ""
-        if planning_row:
-            progress_value = str(planning_row.raw.get("進捗") or planning_row.raw.get("progress") or "").strip()
-
-        published_locked = False
-        if progress_value:
-            lower = progress_value.lower()
-            if "投稿済み" in progress_value or "公開済み" in progress_value or lower in {"published", "posted"}:
-                published_locked = True
-        if not published_locked and isinstance(metadata, dict) and bool(metadata.get("published_lock")):
-            published_locked = True
-        if published_locked:
-            status_value = "completed"
-            stages["audio_synthesis"] = "completed"
-            stages["srt_generation"] = "completed"
-
-        updated_at = status.get("updated_at") if status else None
-        if not updated_at and planning_row:
-            fallback_updated_at = str(planning_row.raw.get("更新日時") or "").strip()
-            if fallback_updated_at:
-                updated_at = fallback_updated_at
         youtube_description = _build_youtube_description(
             channel_code, video_number, metadata, metadata.get("title") or metadata.get("sheet_title")
         )
@@ -8136,9 +8110,8 @@ def list_videos(channel: str):
                 title=metadata.get("sheet_title") or metadata.get("title") or (planning_row.raw.get("タイトル") if planning_row else "(draft)"),
                 status=status_value,
                 ready_for_audio=bool(metadata.get("ready_for_audio", False)),
-                published_lock=bool(published_locked),
                 stages=stages,
-                updated_at=updated_at,
+                updated_at=status.get("updated_at") if status else None,
                 character_count=character_count,
                 planning=planning_payload,
                 youtube_description=youtube_description,
@@ -9483,21 +9456,6 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
     comment = _extract_thumbnail_human_comment(request.comment)
     if not comment:
         raise HTTPException(status_code=400, detail="comment is required")
-
-    # Disabled: thumbnail tuning comments are processed in the operator chat (this conversation),
-    # not via backend LLM translation.
-    return ThumbnailCommentPatchResponse(
-        schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
-        target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
-        confidence=0.0,
-        clarifying_questions=[
-            "コメントの解釈はこのチャットで実施します（UI/API では自動変換しません）。"
-            "必要な調整は thumb_spec.json の overrides に落として保存してください。",
-        ],
-        ops=[],
-        provider=None,
-        model=None,
-    )
 
     try:
         from script_pipeline.thumbnails.param_catalog_v1 import PARAM_CATALOG_V1, validate_param_value_v1
@@ -11711,12 +11669,6 @@ def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateReq
         if target.parent.name != "content":
             raise HTTPException(status_code=400, detail="invalid script_audio_human path")
         write_text_with_lock(target, payload.script_audio_human)
-        # Mirror B-text into audio_prep/script_sanitized.txt so regeneration + UI preview use the same source of truth.
-        audio_prep_dir.mkdir(parents=True, exist_ok=True)
-        prep_plain = audio_prep_dir / "script_sanitized.txt"
-        if prep_plain.parent.name != "audio_prep":
-            raise HTTPException(status_code=400, detail="invalid script_sanitized path")
-        write_text_with_lock(prep_plain, payload.script_audio_human)
         touched_b_text = True
     if payload.audio_reviewed is not None:
         metadata = status.setdefault("metadata", {})

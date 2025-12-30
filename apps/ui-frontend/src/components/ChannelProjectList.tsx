@@ -197,10 +197,14 @@ export function ChannelProjectList({
             ) : (
               filteredVideos.map((video) => {
                 const isSelected = selectedVideo === video.video;
+                const publishedLocked = Boolean(video.published_lock);
                 const audioState = resolveAudioSubtitleState(video);
-                const derivedStatus = audioState === "completed" ? "completed" : video.status ?? "unknown";
+                const derivedStatus =
+                  publishedLocked || audioState === "completed" ? "completed" : video.status ?? "unknown";
                 const statusLabel =
-                  audioState === "completed"
+                  publishedLocked
+                    ? "投稿済み（ロック）"
+                    : audioState === "completed"
                     ? "台本・音声・字幕 完了"
                     : audioState === "ready"
                       ? "台本チェック済み（音声待ち）"
@@ -233,7 +237,9 @@ export function ChannelProjectList({
                             return (
                               <>
                                 <span className="status-badge status-badge--completed">全工程完了</span>
-                                <div className="status-cell__hint">音声・字幕まで完了</div>
+                                <div className="status-cell__hint">
+                                  {publishedLocked ? "投稿済みロック中" : "音声・字幕まで完了"}
+                                </div>
                               </>
                             );
                           }
@@ -252,7 +258,7 @@ export function ChannelProjectList({
                     </td>
                     <td>
                       <div className="status-cell">
-                        <span className={`status-badge status-badge--${video.status ?? "default"}`}>{statusLabel}</span>
+                        <span className={`status-badge status-badge--${derivedStatus ?? "default"}`}>{statusLabel}</span>
                       </div>
                     </td>
                     <td>{charLabel}</td>

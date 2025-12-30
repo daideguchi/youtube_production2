@@ -166,6 +166,7 @@ export interface VideoSummary {
   title?: string | null;
   status: string;
   ready_for_audio: boolean;
+  published_lock?: boolean;
   stages: Record<string, string>;
   updated_at?: string | null;
   character_count?: number | null;

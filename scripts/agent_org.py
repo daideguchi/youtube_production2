@@ -50,6 +50,171 @@ def _agent_name(args: argparse.Namespace) -> str | None:
         return None
 
 
+def _agent_name_explicit(args: argparse.Namespace) -> str | None:
+    """
+    Explicit agent identity used for write operations.
+
+    Important:
+    - No USER/LOGNAME fallback here. In parallel work that fallback makes attribution ambiguous
+      and increases the chance of "I overwrote someone else's work" accidents.
+    """
+    raw = (getattr(args, "agent_name", None) or os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip()
+    return raw or None
+
+
+def _identities_path(q: Path) -> Path:
+    return _coord_dir(q) / "identities.json"
+
+
+def _identity_key() -> str | None:
+    """
+    Best-effort key to remember agent name per terminal/session.
+
+    Priority:
+    1) TTY (best for "each terminal tab gets a name")
+    2) Codex host PID (best-effort, when TTY unavailable)
+    """
+    try:
+        if sys.stdin.isatty():
+            tty = os.ttyname(sys.stdin.fileno())
+            if tty:
+                return f"tty:{tty}"
+    except Exception:
+        pass
+
+    try:
+        host_pid, _cmd = _detect_codex_host_pid()
+        if host_pid:
+            return f"host_pid:{int(host_pid)}"
+    except Exception:
+        pass
+
+    return None
+
+
+def _load_identity_name(q: Path, key: str) -> str | None:
+    p = _identities_path(q)
+    obj = _load_json_maybe(p)
+    by_key = obj.get("by_key") if isinstance(obj, dict) else None
+    if not isinstance(by_key, dict):
+        return None
+    rec = by_key.get(key)
+    if isinstance(rec, dict):
+        name = str(rec.get("name") or "").strip()
+        return name or None
+    if isinstance(rec, str):
+        name = rec.strip()
+        return name or None
+    return None
+
+
+def _store_identity_name(q: Path, key: str, name: str) -> None:
+    p = _identities_path(q)
+    now = _now_iso_utc()
+
+    def _update(cur: dict) -> dict:
+        if not isinstance(cur, dict):
+            cur = {}
+        cur.setdefault("schema_version", 1)
+        cur.setdefault("kind", "agent_identities")
+        cur["updated_at"] = now
+        by_key = cur.get("by_key")
+        if not isinstance(by_key, dict):
+            by_key = {}
+        by_key[key] = {"name": str(name), "set_at": now}
+        cur["by_key"] = by_key
+        return cur
+
+    _locked_update_json(p, _update)
+
+
+def _ensure_board_agent_entry(q: Path, agent: str) -> None:
+    """
+    Make sure the shared board contains a status entry for this agent.
+
+    This enables "who is doing what" visibility without requiring humans to
+    remember extra commands.
+    """
+    p = _board_path(q)
+    now = _now_iso_utc()
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {})
+        agents = cur.get("agents") if isinstance(cur.get("agents"), dict) else {}
+        if not isinstance(agents, dict):
+            agents = {}
+
+        st = agents.get(agent)
+        if not isinstance(st, dict):
+            st = {"doing": "-", "blocked": "-", "next": "-", "note": "(auto)"}
+            st["updated_at"] = now
+            agents[agent] = st
+            cur["agents"] = agents
+            cur["updated_at"] = now
+            return cur
+
+        # Do not clobber existing status. Only ensure minimum fields.
+        st.setdefault("doing", "-")
+        st.setdefault("blocked", "-")
+        st.setdefault("next", "-")
+        st.setdefault("note", "-")
+        st.setdefault("updated_at", now)
+        agents[agent] = st
+        cur["agents"] = agents
+        cur["updated_at"] = now
+        return cur
+
+    _locked_update_json(p, _update)
+
+
+def _require_agent_name(args: argparse.Namespace, *, action: str) -> str | None:
+    name = _agent_name_explicit(args)
+    if name:
+        try:
+            q = Path(args.queue_dir) if getattr(args, "queue_dir", None) else get_queue_dir()
+            _ensure_board_agent_entry(q, name)
+        except Exception:
+            pass
+        return name
+
+    q = Path(args.queue_dir) if getattr(args, "queue_dir", None) else get_queue_dir()
+    key = _identity_key()
+    if key:
+        cached = _load_identity_name(q, key)
+        if cached:
+            try:
+                _ensure_board_agent_entry(q, cached)
+            except Exception:
+                pass
+            return cached
+
+    # Interactive fallback: prompt once and remember (no need to export env vars).
+    if sys.stdin.isatty():
+        print(f"[agent_org] agent name is required for {action}.", file=sys.stderr)
+        print("Enter agent name (suggest: dd-<area>-<nn>, e.g. dd-ui-01).", file=sys.stderr)
+        try:
+            sys.stderr.write("> ")
+            sys.stderr.flush()
+            typed = (sys.stdin.readline() or "").strip()
+        except Exception:
+            typed = ""
+        if typed:
+            if key:
+                try:
+                    _store_identity_name(q, key, typed)
+                except Exception:
+                    pass
+            try:
+                _ensure_board_agent_entry(q, typed)
+            except Exception:
+                pass
+            return typed
+
+    print(f"[error] agent name is required for {action}.", file=sys.stderr)
+    print("        Set env `LLM_AGENT_NAME` or pass global `--agent-name <NAME>`.", file=sys.stderr)
+    return None
+
+
 def _atomic_write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -311,6 +476,84 @@ def _scope_matches_path(scope: str, rel_path: str) -> bool:
     return rel_path.startswith(scope_norm + "/")
 
 
+_SCOPE_GLOB_CHARS = {"*", "?", "[", "]"}
+
+
+def _scope_has_glob(scope: str) -> bool:
+    s = (scope or "").strip()
+    if not s:
+        return False
+    if "**" in s:
+        return True
+    return any(ch in s for ch in _SCOPE_GLOB_CHARS)
+
+
+def _scope_static_prefix(scope: str) -> str:
+    """
+    Best-effort non-glob prefix for overlap detection.
+    Examples:
+      - "apps/ui/**" -> "apps/ui/"
+      - "packages/**/tests/*" -> "packages/"
+    """
+    s = (scope or "").strip()
+    if not s:
+        return ""
+    # Prefer the earliest single-glob char as the cut point.
+    for i, ch in enumerate(s):
+        if ch in _SCOPE_GLOB_CHARS:
+            return s[:i]
+    if "**" in s:
+        return s.split("**", 1)[0]
+    return s
+
+
+def _is_same_or_parent(parent: str, child: str) -> bool:
+    p = (parent or "").strip().rstrip("/")
+    c = (child or "").strip().rstrip("/")
+    if not p or not c:
+        return False
+    if p == c:
+        return True
+    return c.startswith(p + "/")
+
+
+def _scopes_may_intersect(scope_a: str, scope_b: str) -> bool:
+    """
+    Conservative (safe) overlap check between two scopes (paths or globs).
+
+    We intentionally bias toward "might overlap" to prevent two agents from
+    taking conflicting locks. If you truly need overlap, use --force and
+    coordinate via the shared board.
+    """
+    a = (scope_a or "").strip().replace("\\", "/").strip("/")
+    b = (scope_b or "").strip().replace("\\", "/").strip("/")
+    if not a or not b:
+        return False
+
+    a_glob = _scope_has_glob(a)
+    b_glob = _scope_has_glob(b)
+
+    # Exact path/dir relationship.
+    if not a_glob and not b_glob:
+        return _is_same_or_parent(a, b) or _is_same_or_parent(b, a)
+
+    a_prefix = _scope_static_prefix(a).replace("\\", "/").strip("/")
+    b_prefix = _scope_static_prefix(b).replace("\\", "/").strip("/")
+    if a_prefix and b_prefix and (_is_same_or_parent(a_prefix, b_prefix) or _is_same_or_parent(b_prefix, a_prefix)):
+        return True
+
+    # Probe pattern match using the most specific stable candidate we have.
+    a_probe = a_prefix if a_glob and a_prefix else a
+    b_probe = b_prefix if b_glob and b_prefix else b
+    try:
+        if fnmatch.fnmatchcase(a_probe, b) or fnmatch.fnmatchcase(b_probe, a):
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
 def _create_memo(
     q: Path,
     *,
@@ -414,7 +657,9 @@ def _find_agents_by_name(q: Path, name: str) -> list[dict]:
 
 def cmd_memo(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
-    agent = _agent_name(args) or "unknown"
+    agent = _require_agent_name(args, action="memo")
+    if not agent:
+        return 2
     to_list = args.to if args.to else ["*"]
 
     body = ""
@@ -511,7 +756,9 @@ def cmd_memo_show(args: argparse.Namespace) -> int:
 
 def cmd_lock(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
-    agent = _agent_name(args) or "unknown"
+    agent = _require_agent_name(args, action="lock")
+    if not agent:
+        return 2
     scopes = [_normalize_scope(s) for s in (args.scopes or []) if str(s).strip()]
     if not scopes:
         print("at least one scope is required")
@@ -537,6 +784,52 @@ def cmd_lock(args: argparse.Namespace) -> int:
                 print(f"[warn] --ttl-min must be > 0 (got {args.ttl_min!r}); lock will not auto-expire", file=sys.stderr)
         ttl_int = None
 
+    if not bool(getattr(args, "force", False)):
+        existing = _find_locks(q, include_expired=False)
+        conflicts: list[dict] = []
+        for lk in existing:
+            if str(lk.get("_status") or "") != "active":
+                continue
+            created_by = str(lk.get("created_by") or "").strip()
+            if created_by and created_by == agent:
+                continue
+            lk_scopes = lk.get("scopes") or []
+            if not isinstance(lk_scopes, list):
+                lk_scopes = [str(lk_scopes)]
+            for new_sc in scopes:
+                hit = False
+                for old_sc in lk_scopes:
+                    if _scopes_may_intersect(new_sc, str(old_sc)):
+                        hit = True
+                        break
+                if hit:
+                    conflicts.append(lk)
+                    break
+
+        if conflicts:
+            print("[blocked] lock scope intersects existing active locks:", file=sys.stderr)
+            for lk in conflicts[:10]:
+                lid = str(lk.get("id") or Path(str(lk.get("_path") or "")).stem)
+                created_by = str(lk.get("created_by") or "-")
+                mode = str(lk.get("mode") or "-")
+                expires_at = str(lk.get("expires_at") or "-")
+                note = str(lk.get("note") or "-")
+                lk_scopes = lk.get("scopes") or []
+                if not isinstance(lk_scopes, list):
+                    lk_scopes = [str(lk_scopes)]
+                scopes_str = ",".join(str(s) for s in lk_scopes[:6]) if lk_scopes else "-"
+                if isinstance(lk_scopes, list) and len(lk_scopes) > 6:
+                    scopes_str += ",..."
+                print(
+                    f"  - {lid} created_by={created_by} mode={mode} expires_at={expires_at} scopes={scopes_str} note={note}",
+                    file=sys.stderr,
+                )
+            if len(conflicts) > 10:
+                print(f"  ... ({len(conflicts) - 10} more)", file=sys.stderr)
+            print("Resolve by coordinating (board/memo) or unlocking the conflicting lock.", file=sys.stderr)
+            print("If you really need overlap, re-run with `--force` (not recommended).", file=sys.stderr)
+            return 3
+
     out = _create_lock(q, agent=agent, scopes=scopes, mode=str(args.mode), ttl_min=ttl_int, note=args.note)
     print(str(out))
     _append_event(
@@ -553,6 +846,37 @@ def cmd_lock(args: argparse.Namespace) -> int:
             "ttl_min": ttl_int,
         },
     )
+
+    if bool(getattr(args, "announce", False)):
+        try:
+            lock_obj = _load_json_maybe(out)
+            lock_id = str(lock_obj.get("id") or Path(str(out)).stem)
+            expires_at = str(lock_obj.get("expires_at") or "-")
+            announce_tags = _parse_tags_csv(getattr(args, "announce_tags", None)) or ["lock", "coordination"]
+            msg_lines = [
+                "scope:",
+                *[f"- {s}" for s in scopes],
+                "locks:",
+                f"- {lock_id}",
+                "mode:",
+                f"- {str(args.mode)}",
+                "ttl_min:",
+                f"- {ttl_int if ttl_int is not None else '-'}",
+                "expires_at:",
+                f"- {expires_at}",
+                "note:",
+                f"- {str(args.note) if args.note else '-'}",
+            ]
+            _, note_id = _board_append_note(
+                q,
+                agent=agent,
+                topic=f"[FYI][lock] {agent}",
+                message="\n".join(msg_lines) + "\n",
+                tags=announce_tags,
+            )
+            print(f"[info] board note created: {note_id}", file=sys.stderr)
+        except Exception as e:
+            print(f"[warn] failed to create board note: {e}", file=sys.stderr)
     return 0
 
 
@@ -560,12 +884,14 @@ def cmd_unlock(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     d = _locks_dir(q)
     p = d / f"{args.lock_id}.json"
+    agent = _require_agent_name(args, action="unlock")
+    if not agent:
+        return 2
     if not p.exists():
         print(f"lock not found: {p}")
         return 2
     p.unlink()
     print(str(p))
-    agent = _agent_name(args) or "unknown"
     _append_event(
         q,
         {
@@ -752,6 +1078,9 @@ def cmd_locks_prune(args: argparse.Namespace) -> int:
     - no-expiry locks are never touched (they require manual review)
     """
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _require_agent_name(args, action="locks-prune")
+    if not agent:
+        return 2
     d = _locks_dir(q)
     d.mkdir(parents=True, exist_ok=True)
 
@@ -813,7 +1142,6 @@ def cmd_locks_prune(args: argparse.Namespace) -> int:
         else:
             src.replace(dst)
 
-    agent = _agent_name(args) or "unknown"
     _append_event(
         q,
         {
@@ -989,6 +1317,9 @@ def cmd_board_normalize(args: argparse.Namespace) -> int:
     - ensure thread_id exists
     """
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _require_agent_name(args, action="board normalize")
+    if not agent:
+        return 2
     p = _board_path(q)
     if not p.exists():
         print("(no board)")
@@ -1056,7 +1387,6 @@ def cmd_board_normalize(args: argparse.Namespace) -> int:
     log2 = obj2.get("log") if isinstance(obj2.get("log"), list) else []
     stats_after = _compute_stats([e for e in log2 if isinstance(e, dict)])
 
-    agent = _agent_name(args) or "unknown"
     _append_event(
         q,
         {
@@ -1372,7 +1702,9 @@ def cmd_board_thread_show(args: argparse.Namespace) -> int:
 
 def cmd_board_set(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
-    agent = _agent_name(args) or "unknown"
+    agent = _require_agent_name(args, action="board set")
+    if not agent:
+        return 2
     p = _board_path(q)
     now = _now_iso_utc()
     tags = _parse_tags_csv(getattr(args, "tags", None))
@@ -1470,7 +1802,9 @@ def cmd_board_areas(args: argparse.Namespace) -> int:
 
 def cmd_board_area_set(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
-    agent = _agent_name(args) or "unknown"
+    agent = _require_agent_name(args, action="board area-set")
+    if not agent:
+        return 2
     p = _board_path(q)
     now = _now_iso_utc()
     area = str(args.area).strip()
@@ -1526,41 +1860,34 @@ def cmd_board_area_set(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_board_note(args: argparse.Namespace) -> int:
-    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
-    agent = _agent_name(args) or "unknown"
+def _board_append_note(
+    q: Path,
+    *,
+    agent: str,
+    topic: str,
+    message: str,
+    tags: list[str] | None = None,
+    reply_to: str | None = None,
+) -> tuple[Path, str]:
     p = _board_path(q)
     now = _now_iso_utc()
-    tags = _parse_tags_csv(getattr(args, "tags", None))
+    topic = str(topic or "").strip()
+    msg = str(message or "").strip()
+    tags = tags or []
 
-    msg = None
-    if getattr(args, "message_file", None):
-        msg = Path(str(args.message_file)).read_text(encoding="utf-8")
-    elif getattr(args, "message", None):
-        msg = str(args.message)
-    else:
-        raw = sys.stdin.read()
-        if raw and raw.strip():
-            msg = raw
-
-    if not msg or not str(msg).strip():
-        print("message is required (use --message, --message-file, or stdin)")
-        return 2
-
-    topic = str(args.topic).strip()
     if not topic:
-        print("topic is required")
-        return 2
+        raise ValueError("topic is required")
+    if not msg:
+        raise ValueError("message is required")
 
     note_id = _new_id("note")
-    reply_to = str(getattr(args, "reply_to", "") or "").strip() or None
     entry = {
         "id": note_id,
         "thread_id": note_id,  # overwritten for replies
         "ts": now,
         "agent": agent,
         "topic": topic,
-        "message": str(msg).strip(),
+        "message": msg,
         "tags": tags,
     }
 
@@ -1600,12 +1927,7 @@ def cmd_board_note(args: argparse.Namespace) -> int:
         cur["updated_at"] = now
         return cur
 
-    try:
-        _locked_update_json(p, _update)
-    except Exception as e:
-        print(str(e), file=sys.stderr)
-        return 2
-
+    _locked_update_json(p, _update)
     _append_event(
         q,
         {
@@ -1618,6 +1940,39 @@ def cmd_board_note(args: argparse.Namespace) -> int:
             "topic": topic,
         },
     )
+    return p, note_id
+
+
+def cmd_board_note(args: argparse.Namespace) -> int:
+    q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
+    agent = _require_agent_name(args, action="board note")
+    if not agent:
+        return 2
+    tags = _parse_tags_csv(getattr(args, "tags", None))
+
+    msg = None
+    if getattr(args, "message_file", None):
+        msg = Path(str(args.message_file)).read_text(encoding="utf-8")
+    elif getattr(args, "message", None):
+        msg = str(args.message)
+    else:
+        raw = sys.stdin.read()
+        if raw and raw.strip():
+            msg = raw
+
+    reply_to = str(getattr(args, "reply_to", "") or "").strip() or None
+    try:
+        p, note_id = _board_append_note(
+            q,
+            agent=agent,
+            topic=str(args.topic),
+            message=str(msg or ""),
+            tags=tags,
+            reply_to=reply_to,
+        )
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        return 2
 
     print(str(p))
     print(f"note_id: {note_id}")
@@ -2098,6 +2453,38 @@ def cmd_agents_start(args: argparse.Namespace) -> int:
     name = (args.name or _agent_name(args) or "agent").strip() or "agent"
     role = (args.role or "worker").strip() or "worker"
     agent_id = _new_id("agent")
+
+    # Soft warning: duplicate agent names make board/locks attribution ambiguous.
+    try:
+        stale_sec = 30
+        now = datetime.now(timezone.utc)
+        for rec in _find_agents_by_name(q, name):
+            if str(rec.get("stopped_at") or "").strip():
+                continue
+            pid = rec.get("pid")
+            pid_alive = False
+            try:
+                pid_alive = bool(pid and _pid_is_alive(int(pid)))
+            except Exception:
+                pid_alive = False
+            last_dt = _parse_iso(rec.get("last_seen_at"))
+            age = None
+            if last_dt:
+                try:
+                    age = int((now - last_dt).total_seconds())
+                except Exception:
+                    age = None
+            if pid_alive and age is not None and age <= stale_sec:
+                rid = str(rec.get("id") or "-")
+                last_seen = str(rec.get("last_seen_at") or "-")
+                print(
+                    f"[warn] agent name already in use: name={name!r} agent_id={rid} pid={pid} last_seen_at={last_seen}. "
+                    "Use a unique LLM_AGENT_NAME (e.g., dd-ui-02) to avoid clobbering.",
+                    file=sys.stderr,
+                )
+                break
+    except Exception:
+        pass
 
     d = _agents_dir(q)
     d.mkdir(parents=True, exist_ok=True)
@@ -2643,7 +3030,9 @@ def cmd_orchestrator_request(args: argparse.Namespace) -> int:
     inbox.mkdir(parents=True, exist_ok=True)
     outbox.mkdir(parents=True, exist_ok=True)
 
-    from_agent = _agent_name(args) or "unknown"
+    from_agent = _require_agent_name(args, action="orchestrator request")
+    if not from_agent:
+        return 2
     req_id = _new_id("req")
 
     payload: dict = {}
@@ -2746,6 +3135,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--mode", default="no_write", choices=["no_write", "read_only", "no_touch"])
     sp.add_argument("--ttl-min", dest="ttl_min", default=None, help="optional TTL minutes (auto-expire)")
     sp.add_argument("--note", default=None, help="optional note/reason")
+    sp.add_argument(
+        "--force",
+        action="store_true",
+        help="allow creating a lock even if it overlaps existing active locks (not recommended)",
+    )
+    announce_grp = sp.add_mutually_exclusive_group()
+    announce_grp.add_argument("--announce", dest="announce", action="store_true", default=True, help="post a shared-board note about this lock (default)")
+    announce_grp.add_argument("--no-announce", dest="announce", action="store_false", help="do not post to the shared board")
+    sp.add_argument("--announce-tags", default=None, help="board note tags (comma-separated; default: lock,coordination)")
     sp.set_defaults(func=cmd_lock)
 
     sp = sub.add_parser("unlock", help="remove a lock by id")

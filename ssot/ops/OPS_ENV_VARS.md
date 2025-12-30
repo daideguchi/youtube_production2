@@ -181,8 +181,8 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 ### キュー配置
 - `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`
 
-### 担当エージェント名（推奨）
-- `LLM_AGENT_NAME`（推奨）: 例 `LLM_AGENT_NAME=Mike`
+### 担当エージェント名（推奨 / agent_org write系は必須）
+- `LLM_AGENT_NAME`（推奨 / `scripts/agent_org.py` の lock/memo/board 等の write 操作では **必須**）: 例 `LLM_AGENT_NAME=Mike`
   - pending 生成時に `claimed_by` / `claimed_at` を自動付与（担当者の見える化）
   - `python scripts/agent_runner.py complete ...` 実行時に results の `completed_by` に保存
 - `AGENT_NAME`（任意）: 互換用の別名（`LLM_AGENT_NAME` が未指定のときのみ参照）

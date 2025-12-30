@@ -11,16 +11,18 @@
   - 優先: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
   - 代替: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
   - ルール:
-    - 標準の音声生成（`run_tts` / `/api/audio-tts/run-from-script`）は **AテキストSoT** を入力にする（暗黙フォールバック禁止）。
-    - `assembled_human.md` が存在する場合はそれが正本、`assembled.md` は互換用の mirror。
-    - split-brain（`assembled_human.md` と `assembled.md` が差分）:
-      - human が新しい: `assembled.md` を human に同期（.bak付き）
-      - assembled が新しい（または同時刻）: **STOP**（明示解決が必要）
+    - 標準の音声生成（`run_tts` / `/api/audio-tts/run-from-script`）は **AテキストSoTのみ**を入力にする（暗黙フォールバック禁止）。
+    - `assembled_human.md` が存在する場合はそれが正本（`assembled.md` はミラー/互換入力）。
+      - `assembled_human.md` が新しい → `run_tts` が `assembled.md` に自動同期（安全）
+      - `assembled.md` が新しい（または同時刻）かつ内容差分 → **停止（CONFLICT）**。明示解決してから進む（事故防止）。
+        - 解決（例）:
+          - `python3 scripts/episode_ssot.py confirm-a --channel CH02 --video 014 --prefer human`
+          - `python3 scripts/episode_ssot.py confirm-a --channel CH02 --video 014 --prefer assembled`
 - Bテキスト（TTS入力 / 派生・必ず materialize）:
   - `workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
-  - `run_tts` は毎回 `audio_prep/script_sanitized.txt` を materialize して書き出す（サニタイズ失敗でも raw を書いて **必ず生成**）。
-  - Bを入力にして再生成する場合（UIの「音声用テキスト保存→再生成」など）は **明示入力**として扱う（無ければ失敗。Aへ戻さない）。
-  - さらに safety: Bが `sanitize(A)` と一致せず、かつ BがAより古い場合は **STOP（STALE）**（誤台本で合成しない）。
+  - `run_tts` が毎回 A から生成して書き出す（サニタイズ失敗でも raw を書いて **必ず生成**）。
+  - 人手でBを編集して再生成する場合は **明示入力**（UIの「音声用テキスト保存→再生成」）として扱い、無ければ失敗（Aへ戻さない）。
+  - 安全ガード: `run_tts` は **BがAより古く、かつ sanitize(A) と不一致** の場合は停止する（Bの取り残し事故防止）。
 - 出力（下流参照の正）: `workspaces/audio/final/{CH}/{NNN}/`
   - `{CH}-{NNN}.wav`（strict。旧運用では `.flac` 等もある）
   - `{CH}-{NNN}.srt`
@@ -42,7 +44,7 @@
   - 途中再開（chunksを再利用）: `... --resume`
 
 ### 1.3 直叩き（audio_tts）
-- `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled_human.md`（無ければ `assembled.md`）
+- `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --channel CH06 --video 033 --input workspaces/scripts/CH06/033/content/assembled.md`
 
 ### 1.4 整合ガード（Planning ↔ Script）
 - `run_tts` は `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment`（schema=`ytm.alignment.v1`）を検証し、**無い/不一致なら停止**する（誤台本で音声を作らないため）。

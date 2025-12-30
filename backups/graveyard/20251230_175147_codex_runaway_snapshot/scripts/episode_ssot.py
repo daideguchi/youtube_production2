@@ -431,90 +431,60 @@ def cmd_confirm_a(args: argparse.Namespace) -> int:
     ch = _norm_channel(args.channel)
     vid = _norm_video(args.video)
     human_a, assembled_a = _resolve_a_paths(ch, vid)
-    prefer = getattr(args, "prefer", None)
-    if prefer and getattr(args, "sync_mirror", False):
-        raise SystemExit("--prefer and --sync-mirror are mutually exclusive (pick one).")
-
+    prefer = (getattr(args, "prefer", None) or "").strip().lower()
     if not human_a.exists():
         _require_existing_file(assembled_a, "assembled.md")
         _write_text(human_a, _read_text(assembled_a))
         print(f"[CREATE] {human_a} (copied from assembled.md)")
 
-    def _sync_assembled_from_human(*, reason: str) -> None:
-        human_text = _read_text(human_a)
-        if assembled_a.exists():
-            assembled_text = _read_text(assembled_a)
-            if human_text == assembled_text:
-                return
-            backup = assembled_a.with_suffix(f".md.bak.{_utc_now_compact()}")
-            _write_text(backup, assembled_text)
-            _write_text(assembled_a, human_text)
-            print(f"[SYNC] assembled_human.md -> assembled.md ({reason}; backup: {backup.name})")
-            return
-        _write_text(assembled_a, human_text)
-        print(f"[SYNC] assembled_human.md -> assembled.md ({reason}; created mirror)")
+    if prefer:
+        if prefer not in {"human", "assembled", "latest"}:
+            raise SystemExit(f"invalid --prefer: {prefer}")
 
-    def _sync_human_from_assembled(*, reason: str) -> None:
-        _require_existing_file(assembled_a, "assembled.md")
-        assembled_text = _read_text(assembled_a)
-        human_text = _read_text(human_a)
-        if assembled_text == human_text:
-            return
-        backup = human_a.with_suffix(f".md.bak.{_utc_now_compact()}")
-        _write_text(backup, human_text)
-        _write_text(human_a, assembled_text)
-        print(f"[SYNC] assembled.md -> assembled_human.md ({reason}; backup: {backup.name})")
-
-    # Split-brain resolution (explicit, no silent fallback).
-    if assembled_a.exists():
-        try:
-            human_hash = _sha1_text(_read_text(human_a))
-            assembled_hash = _sha1_text(_read_text(assembled_a))
-        except Exception as exc:
-            raise SystemExit(f"failed to read/compare A-text files: {exc}") from exc
-
-        if human_hash != assembled_hash:
-            if prefer == "human":
-                _sync_assembled_from_human(reason="prefer=human")
-            elif prefer == "assembled":
-                _sync_human_from_assembled(reason="prefer=assembled")
-                _sync_assembled_from_human(reason="mirror after prefer=assembled")
-            elif prefer == "latest":
-                human_mtime = human_a.stat().st_mtime
-                assembled_mtime = assembled_a.stat().st_mtime
-                if human_mtime == assembled_mtime:
-                    raise SystemExit(
-                        "split-brain detected but mtimes are equal; pass --prefer human or --prefer assembled."
-                    )
-                if human_mtime > assembled_mtime:
-                    _sync_assembled_from_human(reason="prefer=latest(human newer)")
-                else:
-                    _sync_human_from_assembled(reason="prefer=latest(assembled newer)")
-                    _sync_assembled_from_human(reason="mirror after prefer=latest(assembled newer)")
-            elif getattr(args, "sync_mirror", False):
-                _sync_assembled_from_human(reason="sync-mirror")
+        if prefer == "latest":
+            if assembled_a.exists() and human_a.exists():
+                prefer = "assembled" if assembled_a.stat().st_mtime > human_a.stat().st_mtime else "human"
+            elif assembled_a.exists():
+                prefer = "assembled"
             else:
-                raise SystemExit(
-                    "\n".join(
-                        [
-                            "[CONFLICT] A-text split-brain detected (STOP).",
-                            f"- episode: {ch}-{vid}",
-                            f"- SoT: {human_a}",
-                            f"- mirror: {assembled_a}",
-                            "",
-                            "Fix (choose one):",
-                            f"  python3 scripts/episode_ssot.py confirm-a --channel {ch} --video {vid} --prefer human",
-                            f"  python3 scripts/episode_ssot.py confirm-a --channel {ch} --video {vid} --prefer assembled",
-                        ]
-                    )
-                )
-        elif getattr(args, "sync_mirror", False):
-            _sync_assembled_from_human(reason="sync-mirror(no-op)")
-    else:
+                prefer = "human"
+
         if prefer == "assembled":
-            raise SystemExit("assembled.md is missing; cannot --prefer assembled.")
-        if getattr(args, "sync_mirror", False) or prefer in ("human", "latest"):
-            _sync_assembled_from_human(reason="materialize mirror")
+            _require_existing_file(assembled_a, "assembled.md")
+            human_text = _read_text(human_a) if human_a.exists() else ""
+            assembled_text = _read_text(assembled_a)
+            if human_text != assembled_text:
+                backup = human_a.with_suffix(f".md.bak.{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}")
+                _write_text(backup, human_text)
+                _write_text(human_a, assembled_text)
+                print(f"[RESOLVE] assembled.md -> assembled_human.md (backup: {backup.name})")
+        elif prefer == "human":
+            if assembled_a.exists():
+                human_text = _read_text(human_a)
+                assembled_text = _read_text(assembled_a)
+                if human_text != assembled_text:
+                    backup = assembled_a.with_suffix(
+                        f".md.bak.{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+                    )
+                    _write_text(backup, assembled_text)
+                    _write_text(assembled_a, human_text)
+                    print(f"[RESOLVE] assembled_human.md -> assembled.md (backup: {backup.name})")
+            else:
+                _write_text(assembled_a, _read_text(human_a))
+                print("[RESOLVE] assembled_human.md -> assembled.md (created mirror)")
+
+    if args.sync_mirror:
+        if assembled_a.exists():
+            human_text = _read_text(human_a)
+            assembled_text = _read_text(assembled_a)
+            if human_text != assembled_text:
+                backup = assembled_a.with_suffix(f".md.bak.{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}")
+                _write_text(backup, assembled_text)
+                _write_text(assembled_a, human_text)
+                print(f"[SYNC] assembled_human.md -> assembled.md (backup: {backup.name})")
+        else:
+            _write_text(assembled_a, _read_text(human_a))
+            print(f"[SYNC] assembled_human.md -> assembled.md (created mirror)")
 
     a_sha1 = _sha1_text(_read_text(human_a))
     status_p = _update_status_metadata(

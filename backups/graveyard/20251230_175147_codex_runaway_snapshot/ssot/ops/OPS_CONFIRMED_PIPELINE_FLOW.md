@@ -205,7 +205,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
      - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt` (required, 正本)
 
 **Downstream dependencies**
-- AudioフェーズのA入力は `content/assembled_human.md`（あれば）→ `content/assembled.md`。Script確定後に進む。
+- Audioフェーズは `content/assembled.md` を入力とするため、Script確定後に進む。
 
 ---
 
@@ -213,22 +213,22 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **Entry points**
 - CLI（正規）:
-  - `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled_human.md`
+  - `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`
   - `python -m script_pipeline.cli audio --channel CHxx --video NNN`（run_tts wrapper）
 - UI（補助）:
   - `/api/redo` / `/api/channels/{ch}/videos/{no}/redo`（リテイク管理）
   - `/api/auto-draft/srt` でSRTをUI修正（final配下のみ許可）
 
 **Inputs**
-- Aテキスト（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（あれば）→ `.../content/assembled.md`
-  - mirror整合（split-brain防止）:
-    - `assembled_human.md` が新しい場合のみ `assembled.md` へ同期（.bak付き）
-    - `assembled.md` が新しい（または同時刻）かつ差分がある場合は **STOP（CONFLICT）**
-  - `script_pipeline.cli audio` は上記SoTを自動解決して `run_tts` へ渡す（暗黙フォールバックは禁止）。
-  - Bテキスト（明示入力のみ）:
-    - `workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
-    - `workspaces/audio/final/{CH}/{NNN}/a_text.txt`
-    - safety: Bが `sanitize(A)` と一致せず、かつ BがAより古い場合は **STOP（STALE）**
+- Aテキスト（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（優先）→ `content/assembled.md`
+  - `assembled_human.md` が新しい → run_tts が `assembled.md` に自動同期（human版が正本 / 安全）
+  - `assembled.md` が新しい（または同時刻）かつ内容差分 → run_tts は **停止（CONFLICT）**（SoT取り違え事故防止）
+    - 解決（例）:
+      - `python3 scripts/episode_ssot.py confirm-a --channel CH02 --video 014 --prefer human`
+      - `python3 scripts/episode_ssot.py confirm-a --channel CH02 --video 014 --prefer assembled`
+  - NOTE: `content/assembled.md` はミラー/互換入力（humanがある状態での手動編集は禁止）
+    - まず `assembled_human.md` を直し、ミラー同期で運用する
+    - 既にsplit-brainになっている場合は上記 `confirm-a --prefer ...` で直す
   - Planning ↔ Script の整合スタンプ（必須）:
     - `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment.schema == "ytm.alignment.v1"`
     - `run_tts` は **無い/不一致なら停止**（誤台本で音声を作らないため）
@@ -240,6 +240,10 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
     - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
     - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する
     - 混入している場合は `scripts/sanitize_a_text.py` で退避→除去→同期してから再生成する
+- Bテキスト（TTS入力の明示オーバーライド; 任意）:
+  - `workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
+  - `workspaces/audio/final/{CH}/{NNN}/a_text.txt`（実際に合成したTTS入力スナップショット）
+  - 安全ガード: Bを明示入力する場合、**BがAより古いのに sanitize(A) と不一致なら停止**（B取り残し事故防止）
 - LLM（読み/分割/ポーズ等）:
   - `packages/audio_tts/tts/llm_adapter.py` → `packages/factory_common/llm_router.py`（tasks: `tts_*`）
 - Voiceエンジン:
@@ -248,7 +252,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 **Outputs（確定）**
 - 作業領域（中間正本）: `workspaces/scripts/{CH}/{NNN}/audio_prep/`
   - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt`, `log.json`, `chunks/` 等
-  - **Aテキスト入力の場合のみ、スクリプトが新しいなら audio_prep を自動 purge**（B明示入力では purge しない）
+  - **スクリプトが新しい場合は audio_prep を自動 purge**（run_ttsの確定ルール）
 - 最終参照正本: `workspaces/audio/final/{CH}/{NNN}/`
   - `{CH}-{NNN}.wav`
   - `{CH}-{NNN}.srt`
@@ -298,14 +302,13 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 		     - `workspaces/video/runs/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
 		     - `workspaces/video/runs/{run_id}/image_cues.json`
 		     - `workspaces/video/runs/{run_id}/images/0001.png ...`
-    	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
+	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
 	     - `workspaces/video/runs/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
      - 画像の人物一貫性（use_persona=true）:
        - `image_cues.json` の `input_images` に guide 画像が入り、生成時に **前フレーム画像を追加参照**して identity drift を抑える（guide + prev）。
        - OpenRouter 側が multimodal を拒否した場合は **text-only に自動フォールバック**して継続する。
-       - **投稿済み/確定済み**の run/draft は不変（事故防止）: 既存runを上書き再生成しない。必ず `run_id` を新規にして再生成する。
- 	1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
+	1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
 	   - 既定はOFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）。ONにする場合の既定は provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）。
 	   - CLI指定（`--broll-provider/--broll-ratio`）がある場合は sources.yaml より優先される。
 	   - 目的: “画像だけ”の単調さを避けるため、文脈に合う stock video（mp4）を全体の約20%だけ差し込む。

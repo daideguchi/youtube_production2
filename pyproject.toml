@@ -35,6 +35,7 @@ dependencies = [
     # Image processing
     "pillow>=10.0.0",
     "numpy>=1.24.0",
+    "opencv-python-headless>=4.10.0.84",
 
     # CLI and utilities
     "click>=8.0.0",
