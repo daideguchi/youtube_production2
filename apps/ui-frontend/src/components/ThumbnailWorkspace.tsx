@@ -12,11 +12,13 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   assignThumbnailLibraryAsset,
+  buildThumbnailLayerSpecs,
   composeThumbnailVariant,
   createPlanningRow,
   createThumbnailVariant,
   describeThumbnailLibraryAsset,
   fetchPlanningChannelCsv,
+  fetchThumbnailEditorContext,
   fetchThumbnailImageModels,
   fetchThumbnailLibrary,
   fetchThumbnailQcNotes,
@@ -26,6 +28,7 @@ import {
   generateThumbnailVariants,
   importThumbnailLibraryAsset,
   resolveApiUrl,
+  updateThumbnailThumbSpec,
   updateThumbnailQcNote,
   updatePlanning,
   updateThumbnailProject,
@@ -40,8 +43,10 @@ import {
   ThumbnailChannelBlock,
   ThumbnailChannelVideo,
   ThumbnailChannelTemplates,
+  ThumbnailEditorContext,
   ThumbnailImageModelInfo,
   ThumbnailLibraryAsset,
+  ThumbnailLayerSpecsBuildOutputMode,
   ThumbnailQcNotes,
   ThumbnailOverview,
   ThumbnailProject,
@@ -137,6 +142,22 @@ type GalleryCopyEditState = {
   copyLower: string;
   saving: boolean;
   error?: string;
+};
+
+type LayerTuningDialogState = {
+  projectKey: string;
+  channel: string;
+  video: string;
+  projectTitle: string;
+  loading: boolean;
+  saving: boolean;
+  building: boolean;
+  allowGenerate: boolean;
+  regenBg: boolean;
+  outputMode: ThumbnailLayerSpecsBuildOutputMode;
+  error?: string;
+  context?: ThumbnailEditorContext;
+  overridesLeaf: Record<string, any>;
 };
 
 type PlanningEditableField = Exclude<
@@ -244,6 +265,45 @@ const normalizeVideoInput = (value?: string | null): string => {
   }
   return String(parseInt(trimmed, 10));
 };
+
+function leafOverridesToThumbSpecOverrides(overridesLeaf: Record<string, any>): Record<string, any> {
+  const out: Record<string, any> = {};
+  for (const [rawPath, value] of Object.entries(overridesLeaf ?? {})) {
+    if (value === null || value === undefined || value === "") {
+      continue;
+    }
+    const path = String(rawPath ?? "").trim();
+    if (!path.startsWith("overrides.")) {
+      continue;
+    }
+    const parts = path.split(".").filter(Boolean);
+    if (parts.length < 2) {
+      continue;
+    }
+    const keys = parts.slice(1);
+    if (!keys.length) {
+      continue;
+    }
+    if (keys.length === 1) {
+      out[keys[0]] = value;
+      continue;
+    }
+    let cursor: Record<string, any> = out;
+    for (let idx = 0; idx < keys.length - 1; idx += 1) {
+      const key = keys[idx];
+      const next = cursor[key];
+      if (next && typeof next === "object" && !Array.isArray(next)) {
+        cursor = next as Record<string, any>;
+        continue;
+      }
+      const created: Record<string, any> = {};
+      cursor[key] = created;
+      cursor = created;
+    }
+    cursor[keys[keys.length - 1]] = value;
+  }
+  return out;
+}
 
 const CHANNEL_ICON_MAP: Record<string, string> = {
   CH01: "🎯",
@@ -504,6 +564,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const [expandedProjectKey, setExpandedProjectKey] = useState<string | null>(null);
   const libraryRequestRef = useRef(0);
   const qcNotesRequestRef = useRef(0);
+  const layerTuningRequestRef = useRef(0);
   const [imageModels, setImageModels] = useState<ThumbnailImageModelInfo[]>([]);
   const [imageModelsError, setImageModelsError] = useState<string | null>(null);
   const [channelTemplates, setChannelTemplates] = useState<ThumbnailChannelTemplates | null>(null);
@@ -516,6 +577,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }>({ pending: false, error: null, success: null });
   const [generateDialog, setGenerateDialog] = useState<GenerateDialogState | null>(null);
   const [galleryCopyEdit, setGalleryCopyEdit] = useState<GalleryCopyEditState | null>(null);
+  const [layerTuningDialog, setLayerTuningDialog] = useState<LayerTuningDialogState | null>(null);
   const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
