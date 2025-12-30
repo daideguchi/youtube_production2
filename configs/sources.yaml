@@ -348,9 +348,9 @@ channels:
     planning_csv: workspaces/planning/channels/CH22.csv
     persona: workspaces/planning/personas/CH22_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH22-老後の友人関係ラボ/script_prompt.txt
-    web_search_policy: required
+    web_search_policy: disabled
     wikipedia:
-      policy: auto
+      policy: disabled
       lang: ja
       fallback_lang: en
     chapter_count: 5
@@ -364,9 +364,9 @@ channels:
     planning_csv: workspaces/planning/channels/CH23.csv
     persona: workspaces/planning/personas/CH23_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH23-熟年夫婦の現実ノート/script_prompt.txt
-    web_search_policy: required
+    web_search_policy: disabled
     wikipedia:
-      policy: auto
+      policy: disabled
       lang: ja
       fallback_lang: en
     chapter_count: 5
