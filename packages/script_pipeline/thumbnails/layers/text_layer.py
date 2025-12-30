@@ -9,6 +9,7 @@ from typing import Any, Dict, Optional
 from PIL import Image
 
 from script_pipeline.thumbnails.compiler.compose_text_layout import compose_text_layout
+from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic
 
 
 def compose_text_to_png(
@@ -17,8 +18,13 @@ def compose_text_to_png(
     text_layout_spec: Dict[str, Any],
     video_id: str,
     out_path: Path,
-    optimize: bool = True,
+    output_mode: PngOutputMode = "final",
+    optimize: Optional[bool] = None,
+    compress_level: Optional[int] = None,
     text_override: Optional[Dict[str, str]] = None,
+    template_id_override: Optional[str] = None,
+    effects_override: Optional[Dict[str, Any]] = None,
+    overlays_override: Optional[Dict[str, Any]] = None,
 ) -> Image.Image:
     """
     Compose text onto a base image and write PNG.
@@ -30,8 +36,16 @@ def compose_text_to_png(
         text_layout_spec=text_layout_spec,
         video_id=str(video_id),
         text_override=text_override,
+        template_id_override=template_id_override,
+        effects_override=effects_override,
+        overlays_override=overlays_override,
     )
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_img.save(out_path, format="PNG", optimize=bool(optimize))
+    save_png_atomic(
+        out_img,
+        out_path,
+        mode=output_mode,
+        optimize=optimize,
+        compress_level=compress_level,
+        verify=True,
+    )
     return out_img
-

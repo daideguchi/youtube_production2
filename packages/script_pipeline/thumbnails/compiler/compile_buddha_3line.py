@@ -18,6 +18,7 @@ import yaml
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from factory_common import paths as fpaths
+from script_pipeline.thumbnails.io_utils import save_png_atomic
 from script_pipeline.thumbnails.layers.image_layer import BgEnhanceParams, apply_bg_enhancements, apply_pan_zoom
 from script_pipeline.tools.optional_fields_registry import OPTIONAL_FIELDS
 
@@ -679,7 +680,7 @@ def main() -> int:
             video = _pick_video_number(row)
             out_dir = fpaths.thumbnail_assets_dir(ch, video) / "compiler" / build_id
             out_img_path = out_dir / "out_01.png"
-            out_meta_path = out_dir / "meta.json"
+            out_meta_path = out_dir / "build_meta.json"
 
             if args.dry_run:
                 print(f"[DRY] {ch} {str(video).zfill(3)} -> {out_img_path}")
@@ -694,7 +695,7 @@ def main() -> int:
                     impact=not args.no_impact,
                     belt_override=belt_override,
                 )
-                img.convert("RGB").save(out_img_path, format="PNG", optimize=True)
+                save_png_atomic(img.convert("RGB"), out_img_path, mode="final", verify=True)
 
                 sp_belt_cfg = stylepack.get("belt") or {}
                 belt_enabled = bool(sp_belt_cfg.get("enabled", False)) if belt_override is None else belt_override
@@ -703,6 +704,8 @@ def main() -> int:
                     "built_at": datetime.now(timezone.utc).isoformat(),
                     "channel": ch,
                     "video": str(video).zfill(3),
+                    "build_id": build_id,
+                    "output_mode": "final",
                     "stylepack_id": stylepack.get("id"),
                     "stylepack_path": stylepack.get("_stylepack_path"),
                     "base_image": str(base_path),
@@ -718,7 +721,9 @@ def main() -> int:
                         "image": str(out_img_path),
                     },
                 }
-                out_meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp_meta = out_meta_path.with_suffix(out_meta_path.suffix + ".tmp")
+                tmp_meta.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                tmp_meta.replace(out_meta_path)
                 wrote.append(out_img_path)
                 print(f"[OK] {ch} {str(video).zfill(3)} -> {out_img_path}")
 

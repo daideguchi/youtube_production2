@@ -51,6 +51,7 @@ from script_pipeline.thumbnails.tools.layer_specs_builder import (  # noqa: E402
     build_channel_thumbnails,
     iter_targets_from_layer_specs,
 )
+from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic  # noqa: E402
 
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
@@ -294,6 +295,7 @@ def build_contactsheet(
     out_path: Path,
     grid: QcGrid,
     source_name: str = "00_thumb.png",
+    output_mode: PngOutputMode = "final",
 ) -> Path:
     ch = _normalize_channel(channel)
     vids = [_normalize_video(v) for v in videos]
@@ -332,7 +334,7 @@ def build_contactsheet(
         draw.rectangle((lx - 6, ly - 4, lx + tw + 6, ly + th + 4), fill=(0, 0, 0))
         draw.text((lx, ly), label, fill=(255, 255, 255), font=font)
 
-    canvas.save(out_path, format="PNG", optimize=True)
+    save_png_atomic(canvas, out_path, mode=output_mode, verify=True)
     return out_path
 
 
@@ -376,6 +378,8 @@ def _cmd_build(args: argparse.Namespace) -> int:
             force=bool(args.force),
             skip_generate=bool(args.skip_generate),
             regen_bg=bool(getattr(args, "regen_bg", False)),
+            build_id=args.build_id,
+            output_mode=args.output_mode,
             continue_on_error=bool(args.continue_on_error),
             max_gen_attempts=int(args.max_gen_attempts),
             export_flat=bool(args.export_flat),
@@ -400,7 +404,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
         if args.qc:
             out = fpaths.thumbnails_root() / "assets" / channel / "_qc" / args.qc
             grid = QcGrid(tile_w=args.qc_tile_w, tile_h=args.qc_tile_h, cols=args.qc_cols, pad=args.qc_pad)
-            build_contactsheet(channel=channel, videos=built_videos, out_path=out, grid=grid)
+            build_contactsheet(channel=channel, videos=built_videos, out_path=out, grid=grid, output_mode=args.output_mode)
             print(f"[QC] wrote {out}")
             _publish_qc_to_library(channel=channel, qc_path=out)
         return 0
@@ -426,6 +430,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
             videos=videos,
             base_image_path=bases[0],
             build_id=build_id,
+            output_mode=args.output_mode,
             font_path=args.font_path,
             flip_base=not args.no_flip_base,
             impact=not args.no_impact,
@@ -441,17 +446,18 @@ def _cmd_build(args: argparse.Namespace) -> int:
                 raise SystemExit("--base-bucket-size is required when using --bases (e.g. 10)")
         groups = _group_videos_by_bucket_bases(videos=videos, bases=bases, bucket_size=bucket_size)
         for base, vids in groups.items():
-            build_buddha_3line(
-                channel=channel,
-                videos=vids,
-                base_image_path=base,
-                build_id=build_id,
-                font_path=args.font_path,
-                flip_base=not args.no_flip_base,
-                impact=not args.no_impact,
-                belt_override=True if args.belt else (False if args.no_belt else None),
-                select_variant=bool(args.select_variant),
-            )
+                build_buddha_3line(
+                    channel=channel,
+                    videos=vids,
+                    base_image_path=base,
+                    build_id=build_id,
+                    output_mode=args.output_mode,
+                    font_path=args.font_path,
+                    flip_base=not args.no_flip_base,
+                    impact=not args.no_impact,
+                    belt_override=True if args.belt else (False if args.no_belt else None),
+                    select_variant=bool(args.select_variant),
+                )
     if args.qc:
         # For buddha builds, contactsheet sources are under compiler/<build_id>/out_01.png
         out = fpaths.thumbnails_root() / "assets" / channel / "_qc" / args.qc
@@ -462,6 +468,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
             out_path=out,
             grid=grid,
             source_name=f"compiler/{build_id}/out_01.png",
+            output_mode=args.output_mode,
         )
         print(f"[QC] wrote {out}")
         _publish_qc_to_library(channel=channel, qc_path=out)
@@ -531,7 +538,7 @@ def _cmd_qc(args: argparse.Namespace) -> int:
 
     out = Path(args.out).expanduser() if args.out else (fpaths.thumbnails_root() / "assets" / channel / "_qc" / "contactsheet.png")
     grid = QcGrid(tile_w=args.tile_w, tile_h=args.tile_h, cols=args.cols, pad=args.pad)
-    build_contactsheet(channel=channel, videos=videos, out_path=out, grid=grid, source_name=args.source_name)
+    build_contactsheet(channel=channel, videos=videos, out_path=out, grid=grid, source_name=args.source_name, output_mode=args.output_mode)
     print(f"[QC] wrote {out}")
     if args.out is None:
         _publish_qc_to_library(channel=channel, qc_path=out)
@@ -553,6 +560,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     b.add_argument("--qc-tile-h", type=int, default=360)
     b.add_argument("--qc-cols", type=int, default=6)
     b.add_argument("--qc-pad", type=int, default=8)
+    b.add_argument("--output-mode", choices=["draft", "final"], default="draft", help="PNG output mode (draft is faster)")
 
     # layer_specs args (ignored by buddha engine)
     b.add_argument("--width", type=int, default=1920)
@@ -613,6 +621,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     r.add_argument("--qc-tile-h", type=int, default=360)
     r.add_argument("--qc-cols", type=int, default=6)
     r.add_argument("--qc-pad", type=int, default=8)
+    r.add_argument("--output-mode", choices=["draft", "final"], default="draft", help="PNG output mode (draft is faster)")
     r.add_argument("--width", type=int, default=1920)
     r.add_argument("--height", type=int, default=1080)
     r.add_argument("--skip-generate", action="store_true")
@@ -667,6 +676,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     q.add_argument("--tile-h", type=int, default=360)
     q.add_argument("--cols", type=int, default=6)
     q.add_argument("--pad", type=int, default=8)
+    q.add_argument("--output-mode", choices=["draft", "final"], default="draft", help="PNG output mode (draft is faster)")
 
     args = ap.parse_args(argv)
     if args.cmd == "build":

@@ -3,7 +3,7 @@
 
 This CLI inspects ``workspaces/planning/channels/CHxx.csv`` (SoT) and makes sure the
 ``workspaces/thumbnails/assets/{CH}/{video}/`` tree contains a directory for every active
-企画.  It can also write ``meta.json`` files with the videoタイトル、作成フラグ等を
+企画.  It can also write ``planning_meta.json`` files with the videoタイトル、作成フラグ等を
 記録し、孤立ディレクトリのレポートも出力します。
 
 Example usage::
@@ -54,7 +54,7 @@ from factory_common.paths import planning_root, thumbnails_root  # noqa: E402
 
 DEFAULT_PLANNING = planning_root() / "channels"
 ASSETS_ROOT = thumbnails_root() / "assets"
-META_FILENAME = "meta.json"
+META_FILENAME = "planning_meta.json"
 
 
 def _normalize_channel(value: str) -> str:
@@ -247,6 +247,7 @@ def ensure_directories(
                 print(f"Created {target}")
         if refresh_meta or not meta_path.exists():
             payload = {
+                "schema": "ytm.thumbnail.planning_meta.v1",
                 "channel": entry.channel,
                 "video": entry.video,
                 "title": entry.title,
@@ -260,7 +261,9 @@ def ensure_directories(
                 print(f"[DRY-RUN] Would write {meta_path}")
             else:
                 meta_path.parent.mkdir(parents=True, exist_ok=True)
-                meta_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp = meta_path.with_suffix(meta_path.suffix + ".tmp")
+                tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                tmp.replace(meta_path)
                 meta_written += 1
     return created, meta_written
 
@@ -309,7 +312,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     ensure_parser = subparsers.add_parser("ensure", parents=[common], help="Create missing asset directories")
     ensure_parser.add_argument("--dry-run", action="store_true", help="Report actions without writing files")
-    ensure_parser.add_argument("--refresh-meta", action="store_true", default=False, help="Overwrite existing meta.json files")
+    ensure_parser.add_argument("--refresh-meta", action="store_true", default=False, help="Overwrite existing planning_meta.json files")
 
     report_parser = subparsers.add_parser("report", parents=[common], help="List missing directories and orphans")
     report_parser.add_argument("--fail-on-issues", action="store_true", help="Exit with status 1 when missing/orphan entries exist")

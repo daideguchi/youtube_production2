@@ -9,6 +9,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 
 関連:
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`（遅い/詰まる課題の観測→DoD付き改善）
+- `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md`（サムネのSoT/生成物/運用をスケールさせる計画）
 
 ---
 
@@ -214,27 +215,33 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 
 ### 9.1 CH22: `bg_pan_zoom` が混在している（フレーミングが毎回変わる）
 
-- 観測: `workspaces/thumbnails/assets/CH22/*/meta.json:bg_pan_zoom` に以下の **3パターンが混在**（2025-12-29時点）
+- 観測（legacy / 2025-12-29時点）: `workspaces/thumbnails/assets/CH22/*/meta.json:bg_pan_zoom` に以下の **3パターンが混在**
   - `(zoom=1.0, pan_y=0.0)` → `001,003,004,007,008,009,010,013,015,016,017,018,021`
   - `(zoom=1.2, pan_y=-1.0)` → `002,005,006,011,014,019,020,022,023,024,025,026,027,028,029,030`
   - `(zoom=1.15, pan_y=-0.6)` → `012`
 - 影響: 「画像をもっと下に」「文字と顔が被ってる」系の修正が、動画ごとに効いたり効かなかったりして収束しない（レビューが地獄化）。
-- 原因（確定）:
+- 原因（legacy / 当時の確定）:
   - `scripts/thumbnails/build.py:_apply_compiler_defaults()` は `bg_enhance` は適用するが、`bg_pan_zoom` は適用しない。
   - `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py` は `bg_zoom/bg_pan_*` を **CLI引数からのみ**受け取り、チャンネル別SoTが無い。
+- 現行（対応済 / 2025-12-30）:
+  - チャンネル既定: `templates.json.channels[CHxx].compiler_defaults.bg_pan_zoom` を読み、未指定（既定値）の場合に適用する。
+  - 動画差分: `workspaces/thumbnails/assets/{CH}/{NNN}/thumb_spec.json: overrides.bg_pan_zoom.*` に寄せる。
+  - build履歴メタは `compiler/<build_id>/build_meta.json` に分離（legacy `meta.json` は上書きされない）。
 
 確認ワンライナー（混在チェック）:
-`python - <<'PY'\nimport json\nfrom pathlib import Path\ncombos={}\nfor p in sorted(Path('workspaces/thumbnails/assets/CH22').glob('*/meta.json')):\n  vid=p.parent.name\n  if not vid.isdigit():\n    continue\n  pan=json.loads(p.read_text(encoding='utf-8')).get('bg_pan_zoom',{})\n  k=(pan.get('zoom'),pan.get('pan_x'),pan.get('pan_y'))\n  combos.setdefault(k,[]).append(vid)\nfor k,vids in sorted(combos.items(), key=lambda kv: str(kv[0])):\n  print(k, len(vids), vids)\nPY`
+`python - <<'PY'\nimport json\nfrom pathlib import Path\nroot=Path('workspaces/thumbnails/assets/CH22')\ncombos={}\nfor vid_dir in sorted(root.iterdir()):\n  if not vid_dir.is_dir() or not vid_dir.name.isdigit():\n    continue\n  metas=sorted(vid_dir.glob('compiler/*/build_meta.json'), key=lambda p: p.stat().st_mtime)\n  if not metas:\n    continue\n  p=metas[-1]\n  pan=json.loads(p.read_text(encoding='utf-8')).get('bg_pan_zoom',{})\n  k=(pan.get('zoom'),pan.get('pan_x'),pan.get('pan_y'))\n  combos.setdefault(k,[]).append(vid_dir.name)\nfor k,vids in sorted(combos.items(), key=lambda kv: str(kv[0])):\n  print(k, len(vids), vids)\nPY`
 
 ### 9.2 CH22: Layer Specs がコピーを保持していない（Planning CSV 依存が強い）
 
 - 観測: `workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1.yaml` の `items[].text` が空で、build時に planning CSV の `サムネタイトル上/サムネタイトル/サムネタイトル下` を **空欄のみ注入**する設計（`packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()`）。
 - 影響: 「どのコピーがSoTか」が見えにくく、CSV側の未更新/空欄があると、thumbが空文字になって原因切り分けに時間が掛かる。
+- 現行（対応済 / 2025-12-30）: 動画差分のコピー例外は `thumb_spec.json: overrides.copy_override.{upper,title,lower}` で上書き可能（CSVの空欄事故を局所化する）。
 
 ### 9.3 build が Planning CSV を動画ごとに都度ロードしている（バッチが遅い）
 
-- 観測: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()` が `planning_store.get_rows(... force_refresh=True)` を **動画ごとに**呼ぶ。
+- 観測（legacy）: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()` が `planning_store.get_rows(... force_refresh=True)` を **動画ごとに**呼ぶ。
 - 影響: 30本などのバッチ合成で同じCSVを何度も読み、処理が遅くなる（I/O無駄）。
+- 現行（対応済 / 2025-12-30）: `planning_store` に mtime/size ベースのキャッシュを追加し、build実行単位で共有する。
 
 ### 9.4 “作業メモ/抽出物” の置き場が揺れて「消えた」に見える
 
@@ -243,8 +250,11 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 
 ### 9.5 チャンネル固有の “フレーミング調整” の SoT が無い
 
-- 観測: CH26は `workspaces/thumbnails/compiler/policies/ch26_portrait_overrides_v1.yaml` のように per-video override の入口があるが、CH22の `bg_pan_zoom` は同等のSoT入口が無い。
+- 観測（legacy）: CH26は `workspaces/thumbnails/compiler/policies/ch26_portrait_overrides_v1.yaml` のように per-video override の入口があるが、CH22の `bg_pan_zoom` は同等のSoT入口が無い。
 - 影響: 「画像を下に」等の指示が、毎回 CLI の手動パラメータに依存して混在し、結果がカオス化する。
+- 現行（対応済 / 2025-12-30）:
+  - チャンネル既定は `templates.json.channels[CHxx].compiler_defaults`（bg_pan_zoom/bg_enhance/bg_enhance_band）へ寄せる。
+  - 動画差分は `thumb_spec.json`（overrides.*）へ寄せる。
 
 ---
 
@@ -260,9 +270,8 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
   - `packages/script_pipeline/thumbnails/layers/image_layer.py: enhanced_bg_path`
   - `packages/script_pipeline/thumbnails/layers/text_layer.py: compose_text_to_png`
   - `scripts/thumbnails/build.py: build_contactsheet`
-- 対応案（P0）:
-  - 反復作業用に `optimize=False` / `compress_level=1` 等へ切替できるフラグ（env/CLI）を追加し、最終出力のみ最適化する
-  - QC も「作業中は軽量」「納品前に最適化」を分離する
+- 対応（P0 / 対応済）:
+  - `scripts/thumbnails/build.py` に `--output-mode {draft,final}` を追加（draft: optimize=False, compress_level=1 / final: optimize=True, compress_level=6）
 
 ### 9.2 非アトミック上書き → PNG破損（truncated）
 
@@ -270,10 +279,8 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 - 主因:
   - 画像保存が **直接destへ上書き**（中断/同時実行/長時間書き込みで部分ファイルが残る）
   - `optimize=True` が書き込み時間を伸ばし、破損リスクを増幅
-- 対応案（P0）:
-  - 画像保存を `tmp` に書いて `replace()` する atomic write helper を導入し、全保存箇所へ適用する
-  - build 前に破損検知（open+verify）を走らせ、必要なら自動復旧/スキップできる仕組みを用意する
-  - 同名 `src==dest` の上書きパスを避ける（常に別名tmp）
+- 対応（P0 / 対応済）:
+  - `save_png_atomic()`（tmp→replace + verify）を導入し、サムネ生成のPNG保存箇所へ適用する
 
 ### 9.3 無駄な再読込（Planning/Fonts）
 
@@ -281,7 +288,7 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 - 主因:
   - Planning CSV を動画ごとに `force_refresh=True` で読んでいる（`packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy`）
   - フォントロードが重い（`PIL.ImageFont.truetype`）
-- 対応案（P1）:
+- 対応（P1 / 対応済）:
   - Planning rows は build 実行単位で 1 回ロードして共有（キャッシュ）する
   - フォントロードは LRU でキャッシュする（対応済み: `packages/script_pipeline/thumbnails/compiler/compose_text_layout.py:_load_truetype`）
 

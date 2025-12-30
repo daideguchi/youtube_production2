@@ -2609,17 +2609,55 @@ def _load_audio_analysis(channel: str, video: str) -> AudioAnalysisResponse:
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)
     base_dir = video_base_dir(channel_code, video_no)
-    audio_prep = base_dir / "audio_prep"
     warnings: List[str] = []
 
-    b_path = audio_prep / "b_text_with_pauses.txt"
-    pause_map_path = audio_prep / "pause_map.json"
-    log_path = audio_prep / "log.json"
-    engine_metadata_path = audio_prep / "engine_metadata.json"
+    audio_prep = base_dir / "audio_prep"
+    final_dir = audio_final_dir(channel_code, video_no)
 
-    b_text = resolve_text_file(b_path) if b_path.exists() else None
+    # --- B text (TTS input snapshot) -----------------------------------------
+    # Preferred: final/a_text.txt (what was actually synthesized).
+    # Fallbacks are best-effort for in-progress / legacy episodes.
+    final_a_text_path = final_dir / "a_text.txt"
+    prep_sanitized_path = audio_prep / "script_sanitized.txt"
+    legacy_final_b_path = final_dir / "b_text_with_pauses.txt"
+    legacy_prep_b_path = audio_prep / "b_text_with_pauses.txt"
+
+    b_text_source: Optional[str] = None
+    b_text: Optional[str] = None
+    if final_a_text_path.exists():
+        b_text = resolve_text_file(final_a_text_path)
+        b_text_source = "final/a_text.txt"
+    elif prep_sanitized_path.exists():
+        b_text = resolve_text_file(prep_sanitized_path)
+        b_text_source = "audio_prep/script_sanitized.txt"
+        warnings.append("final/a_text.txt missing; using audio_prep/script_sanitized.txt")
+    elif legacy_final_b_path.exists():
+        b_text = resolve_text_file(legacy_final_b_path)
+        b_text_source = "final/b_text_with_pauses.txt (legacy)"
+        warnings.append("final/a_text.txt missing; using legacy final/b_text_with_pauses.txt")
+    elif legacy_prep_b_path.exists():
+        b_text = resolve_text_file(legacy_prep_b_path)
+        b_text_source = "audio_prep/b_text_with_pauses.txt (legacy)"
+        warnings.append("final/a_text.txt missing; using legacy audio_prep/b_text_with_pauses.txt")
+    else:
+        # Last resort: show A-text preview (not synthesized yet).
+        assembled_human_path = base_dir / "content" / "assembled_human.md"
+        assembled_path = base_dir / "content" / "assembled.md"
+        a_path = assembled_human_path if assembled_human_path.exists() else assembled_path
+        if a_path.exists():
+            b_text = resolve_text_file(a_path)
+            b_text_source = "A-text preview"
+            warnings.append("TTS input snapshot missing; showing A-text preview (not yet synthesized)")
+        else:
+            warnings.append("TTS input text missing (final/a_text.txt, audio_prep/script_sanitized.txt, assembled.md)")
+
+    if b_text_source and b_text_source != "final/a_text.txt":
+        warnings.append(f"b_text_source: {b_text_source}")
     if not b_text:
-        warnings.append("b_text_with_pauses.txt missing")
+        warnings.append("b_text is empty")
+
+    # --- pause_map (best-effort legacy/aux) ----------------------------------
+    pause_map_path = audio_prep / "pause_map.json"
 
     raw_pause_map: Any = None
     pause_map: Optional[List[Dict[str, Any]]] = None

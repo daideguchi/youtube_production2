@@ -32,6 +32,8 @@ from script_pipeline.thumbnails.layers.image_layer import (
     suppressed_center_region_path,
 )
 from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
+from script_pipeline.thumbnails.io_utils import PngOutputMode
+from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec
 from script_pipeline.tools import planning_store
 
 
@@ -66,7 +68,7 @@ def _load_planning_copy(channel: str, video: str) -> Dict[str, str]:
     ch = _normalize_channel(channel)
     v = _normalize_video(video)
     try:
-        rows = planning_store.get_rows(ch, force_refresh=True)
+        rows = planning_store.get_rows(ch, force_refresh=False)
     except Exception:
         return {}
     for row in rows:
@@ -246,6 +248,18 @@ def _resolve_model_key_from_templates(channel: str) -> Optional[str]:
     return None
 
 
+def _load_compiler_defaults_from_templates(channel: str) -> Dict[str, Any]:
+    templates_path = fpaths.thumbnails_root() / "templates.json"
+    try:
+        payload = json.loads(templates_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    channels = payload.get("channels") if isinstance(payload, dict) else None
+    channel_doc = channels.get(channel) if isinstance(channels, dict) else None
+    defaults = channel_doc.get("compiler_defaults") if isinstance(channel_doc, dict) else None
+    return defaults if isinstance(defaults, dict) else {}
+
+
 def _resolve_title_from_specs(
     *,
     channel: str,
@@ -393,10 +407,14 @@ def build_channel_thumbnails(
     bg_band_x1: float = 0.0,
     bg_band_power: float = 1.0,
     regen_bg: bool = False,
+    build_id: Optional[str] = None,
+    output_mode: PngOutputMode = "final",
 ) -> None:
     if bool(regen_bg) and bool(skip_generate):
         raise ValueError("regen_bg cannot be used with skip_generate")
     ch = _normalize_channel(channel)
+    build_id = str(build_id or "").strip() or datetime.now(timezone.utc).strftime("build_%Y%m%dT%H%M%SZ")
+    compiler_defaults = _load_compiler_defaults_from_templates(ch)
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
     if not img_id or not txt_id:
         raise RuntimeError(f"layer_specs not configured for channel: {ch}")
@@ -414,13 +432,38 @@ def build_channel_thumbnails(
     client = ImageClient()
     portrait_policy = _load_ch26_portrait_policy() if ch == "CH26" else {}
 
+    bg_defaults = compiler_defaults.get("bg_enhance") if isinstance(compiler_defaults.get("bg_enhance"), dict) else {}
+    pan_defaults = compiler_defaults.get("bg_pan_zoom") if isinstance(compiler_defaults.get("bg_pan_zoom"), dict) else {}
+    band_defaults = compiler_defaults.get("bg_enhance_band") if isinstance(compiler_defaults.get("bg_enhance_band"), dict) else {}
+
+    def _default_float(cur: float, defaults: Dict[str, Any], key: str, *, identity: float) -> float:
+        if abs(float(cur) - float(identity)) < 1e-9 and isinstance(defaults.get(key), (int, float)):
+            return float(defaults[key])
+        return float(cur)
+
+    base_bg_brightness = _default_float(float(bg_brightness), bg_defaults, "brightness", identity=1.0)
+    base_bg_contrast = _default_float(float(bg_contrast), bg_defaults, "contrast", identity=1.0)
+    base_bg_color = _default_float(float(bg_color), bg_defaults, "color", identity=1.0)
+    base_bg_gamma = _default_float(float(bg_gamma), bg_defaults, "gamma", identity=1.0)
+
+    base_bg_zoom = _default_float(float(bg_zoom), pan_defaults, "zoom", identity=1.0)
+    base_bg_pan_x = _default_float(float(bg_pan_x), pan_defaults, "pan_x", identity=0.0)
+    base_bg_pan_y = _default_float(float(bg_pan_y), pan_defaults, "pan_y", identity=0.0)
+
+    base_band_x0 = _default_float(float(bg_band_x0), band_defaults, "x0", identity=0.0)
+    base_band_x1 = _default_float(float(bg_band_x1), band_defaults, "x1", identity=0.0)
+    base_band_power = _default_float(float(bg_band_power), band_defaults, "power", identity=1.0)
+    base_band_brightness = _default_float(float(bg_band_brightness), band_defaults, "brightness", identity=1.0)
+    base_band_contrast = _default_float(float(bg_band_contrast), band_defaults, "contrast", identity=1.0)
+    base_band_color = _default_float(float(bg_band_color), band_defaults, "color", identity=1.0)
+    base_band_gamma = _default_float(float(bg_band_gamma), band_defaults, "gamma", identity=1.0)
+
     for idx, target in enumerate(targets, start=1):
         video_dir = assets_root / target.video
         video_dir.mkdir(parents=True, exist_ok=True)
 
         out_bg = video_dir / "10_bg.png"
-        out_thumb = video_dir / "00_thumb.png"
-        meta_path = video_dir / "meta.json"
+        stable_thumb = video_dir / "00_thumb.png"
         flat_out: Optional[Path] = None
         if export_flat:
             suffix = str(flat_name_suffix or "").strip()
@@ -428,13 +471,109 @@ def build_channel_thumbnails(
                 suffix = "_" + suffix
             flat_out = assets_root / f"{target.video}{suffix}.png"
 
-        if out_thumb.exists() and not force:
+        if stable_thumb.exists() and not force:
             if flat_out and not flat_out.exists():
-                flat_out.write_bytes(out_thumb.read_bytes())
+                flat_out.write_bytes(stable_thumb.read_bytes())
                 print(f"[{idx}/{len(targets)}] {target.video_id}: export-flat -> {flat_out.name}")
             else:
                 print(f"[{idx}/{len(targets)}] {target.video_id}: skip (already built)")
             continue
+
+        build_dir = video_dir / "compiler" / build_id
+        build_dir.mkdir(parents=True, exist_ok=True)
+        build_thumb = build_dir / "out_01.png"
+        build_meta_path = build_dir / "build_meta.json"
+
+        thumb_spec = load_thumb_spec(ch, target.video)
+        overrides_leaf = extract_normalized_override_leaf(thumb_spec.payload) if thumb_spec else {}
+
+        video_bg_brightness = float(overrides_leaf.get("overrides.bg_enhance.brightness", base_bg_brightness))
+        video_bg_contrast = float(overrides_leaf.get("overrides.bg_enhance.contrast", base_bg_contrast))
+        video_bg_color = float(overrides_leaf.get("overrides.bg_enhance.color", base_bg_color))
+        video_bg_gamma = float(overrides_leaf.get("overrides.bg_enhance.gamma", base_bg_gamma))
+
+        video_bg_zoom = float(overrides_leaf.get("overrides.bg_pan_zoom.zoom", base_bg_zoom))
+        video_bg_pan_x = float(overrides_leaf.get("overrides.bg_pan_zoom.pan_x", base_bg_pan_x))
+        video_bg_pan_y = float(overrides_leaf.get("overrides.bg_pan_zoom.pan_y", base_bg_pan_y))
+
+        video_band_x0 = float(overrides_leaf.get("overrides.bg_enhance_band.x0", base_band_x0))
+        video_band_x1 = float(overrides_leaf.get("overrides.bg_enhance_band.x1", base_band_x1))
+        video_band_power = float(overrides_leaf.get("overrides.bg_enhance_band.power", base_band_power))
+        video_band_brightness = float(overrides_leaf.get("overrides.bg_enhance_band.brightness", base_band_brightness))
+        video_band_contrast = float(overrides_leaf.get("overrides.bg_enhance_band.contrast", base_band_contrast))
+        video_band_color = float(overrides_leaf.get("overrides.bg_enhance_band.color", base_band_color))
+        video_band_gamma = float(overrides_leaf.get("overrides.bg_enhance_band.gamma", base_band_gamma))
+
+        template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
+
+        effects_override: Optional[Dict[str, Any]] = None
+        overlays_override: Optional[Dict[str, Any]] = None
+        if overrides_leaf:
+            stroke: Dict[str, Any] = {}
+            shadow: Dict[str, Any] = {}
+            glow: Dict[str, Any] = {}
+            if "overrides.text_effects.stroke.width_px" in overrides_leaf:
+                stroke["width_px"] = overrides_leaf["overrides.text_effects.stroke.width_px"]
+            if "overrides.text_effects.stroke.color" in overrides_leaf:
+                stroke["color"] = overrides_leaf["overrides.text_effects.stroke.color"]
+            if "overrides.text_effects.shadow.alpha" in overrides_leaf:
+                shadow["alpha"] = overrides_leaf["overrides.text_effects.shadow.alpha"]
+            if "overrides.text_effects.shadow.offset_px" in overrides_leaf:
+                off = overrides_leaf["overrides.text_effects.shadow.offset_px"]
+                if isinstance(off, tuple) and len(off) == 2:
+                    shadow["offset_px"] = [int(off[0]), int(off[1])]
+                else:
+                    shadow["offset_px"] = off
+            if "overrides.text_effects.shadow.blur_px" in overrides_leaf:
+                shadow["blur_px"] = overrides_leaf["overrides.text_effects.shadow.blur_px"]
+            if "overrides.text_effects.shadow.color" in overrides_leaf:
+                shadow["color"] = overrides_leaf["overrides.text_effects.shadow.color"]
+            if "overrides.text_effects.glow.alpha" in overrides_leaf:
+                glow["alpha"] = overrides_leaf["overrides.text_effects.glow.alpha"]
+            if "overrides.text_effects.glow.blur_px" in overrides_leaf:
+                glow["blur_px"] = overrides_leaf["overrides.text_effects.glow.blur_px"]
+            if "overrides.text_effects.glow.color" in overrides_leaf:
+                glow["color"] = overrides_leaf["overrides.text_effects.glow.color"]
+            eff = {}
+            if stroke:
+                eff["stroke"] = stroke
+            if shadow:
+                eff["shadow"] = shadow
+            if glow:
+                eff["glow"] = glow
+            if eff:
+                effects_override = eff
+
+            left_tsz: Dict[str, Any] = {}
+            top_band: Dict[str, Any] = {}
+            bottom_band: Dict[str, Any] = {}
+            for k in ("enabled", "color", "alpha_left", "alpha_right", "x0", "x1"):
+                p = f"overrides.overlays.left_tsz.{k}"
+                if p in overrides_leaf:
+                    left_tsz[k] = overrides_leaf[p]
+            for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+                p = f"overrides.overlays.top_band.{k}"
+                if p in overrides_leaf:
+                    top_band[k] = overrides_leaf[p]
+            for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+                p = f"overrides.overlays.bottom_band.{k}"
+                if p in overrides_leaf:
+                    bottom_band[k] = overrides_leaf[p]
+            ov = {}
+            if left_tsz:
+                ov["left_tsz"] = left_tsz
+            if top_band:
+                ov["top_band"] = top_band
+            if bottom_band:
+                ov["bottom_band"] = bottom_band
+            if ov:
+                overlays_override = ov
+
+        copy_override: Dict[str, str] = {}
+        for k in ("upper", "title", "lower"):
+            p = f"overrides.copy_override.{k}"
+            if p in overrides_leaf and isinstance(overrides_leaf.get(p), str):
+                copy_override[k] = str(overrides_leaf[p]).strip()
 
         bg_source = resolve_background_source(video_dir=video_dir, channel_root=assets_root, video=target.video)
         bg_src = None if bool(regen_bg) else bg_source.bg_src
@@ -472,23 +611,25 @@ def build_channel_thumbnails(
 
         if not bg_src:
             raise RuntimeError(f"background source resolution failed for {target.video_id}")
-        crop_resize_to_16x9(bg_src, out_bg, width=width, height=height)
+        crop_resize_to_16x9(bg_src, out_bg, width=width, height=height, output_mode=output_mode)
 
         print(f"[{idx}/{len(targets)}] {target.video_id}: composing text ...")
         bg_params = BgEnhanceParams(
-            brightness=float(bg_brightness),
-            contrast=float(bg_contrast),
-            color=float(bg_color),
-            gamma=float(bg_gamma),
+            brightness=float(video_bg_brightness),
+            contrast=float(video_bg_contrast),
+            color=float(video_bg_color),
+            gamma=float(video_bg_gamma),
         )
         band_params = BgEnhanceParams(
-            brightness=float(bg_band_brightness),
-            contrast=float(bg_band_contrast),
-            color=float(bg_band_color),
-            gamma=float(bg_band_gamma),
+            brightness=float(video_band_brightness),
+            contrast=float(video_band_contrast),
+            color=float(video_band_color),
+            gamma=float(video_band_gamma),
         )
         item = find_text_layout_item_for_video(text_spec, target.video_id) if isinstance(text_spec, dict) else None
         template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
+        if template_id_override:
+            template_id = str(template_id_override).strip() or template_id
         templates = text_spec.get("templates") if isinstance(text_spec, dict) else None
         slots = None
         if template_id and isinstance(templates, dict):
@@ -496,14 +637,18 @@ def build_channel_thumbnails(
             slots = tpl.get("slots") if isinstance(tpl, dict) else None
         text_payload = item.get("text") if isinstance(item, dict) else None
         planning_copy = _load_planning_copy(ch, target.video)
+        if copy_override:
+            for k, v in copy_override.items():
+                if v:
+                    planning_copy[k] = v
+        force_text_override = bool(copy_override)
         text_override: Dict[str, str] = {}
-        if planning_copy and isinstance(slots, dict):
+        if isinstance(slots, dict):
             for slot_name in slots.keys():
-                # Only override missing slot text (keeps existing CH10 specs intact)
                 cur = ""
                 if isinstance(text_payload, dict):
                     cur = str(text_payload.get(slot_name) or "").strip()
-                if cur:
+                if cur and not force_text_override:
                     continue
                 val = _planning_value_for_slot(slot_name, planning_copy)
                 if val:
@@ -512,13 +657,13 @@ def build_channel_thumbnails(
         with enhanced_bg_path(
             out_bg,
             params=bg_params,
-            zoom=float(bg_zoom),
-            pan_x=float(bg_pan_x),
-            pan_y=float(bg_pan_y),
+            zoom=float(video_bg_zoom),
+            pan_x=float(video_bg_pan_x),
+            pan_y=float(video_bg_pan_y),
             band_params=band_params,
-            band_x0=float(bg_band_x0),
-            band_x1=float(bg_band_x1),
-            band_power=float(bg_band_power),
+            band_x0=float(video_band_x0),
+            band_x1=float(video_band_x1),
+            band_power=float(video_band_power),
             temp_prefix=f"{target.video_id}_bg_",
         ) as base_for_text:
             portrait_path = find_existing_portrait(video_dir)
@@ -586,8 +731,12 @@ def build_channel_thumbnails(
                                 base_with_portrait,
                                 text_layout_spec=text_spec,
                                 video_id=target.video_id,
-                                out_path=out_thumb,
+                                out_path=build_thumb,
+                                output_mode=output_mode,
                                 text_override=text_override if text_override else None,
+                                template_id_override=template_id_override,
+                                effects_override=effects_override,
+                                overlays_override=overlays_override,
                             )
                 else:
                     with composited_portrait_path(
@@ -608,23 +757,43 @@ def build_channel_thumbnails(
                             base_with_portrait,
                             text_layout_spec=text_spec,
                             video_id=target.video_id,
-                            out_path=out_thumb,
+                            out_path=build_thumb,
+                            output_mode=output_mode,
                             text_override=text_override if text_override else None,
+                            template_id_override=template_id_override,
+                            effects_override=effects_override,
+                            overlays_override=overlays_override,
                         )
             else:
                 compose_text_to_png(
                     base_for_text,
                     text_layout_spec=text_spec,
                     video_id=target.video_id,
-                    out_path=out_thumb,
+                    out_path=build_thumb,
+                    output_mode=output_mode,
                     text_override=text_override if text_override else None,
+                    template_id_override=template_id_override,
+                    effects_override=effects_override,
+                    overlays_override=overlays_override,
                 )
+        # Update stable artifact (00_thumb.png) from this build output.
+        tmp_stable = stable_thumb.with_suffix(stable_thumb.suffix + ".tmp")
+        tmp_stable.write_bytes(build_thumb.read_bytes())
+        tmp_stable.replace(stable_thumb)
+
         if flat_out:
-            flat_out.write_bytes(out_thumb.read_bytes())
+            flat_out.write_bytes(stable_thumb.read_bytes())
 
         title = _resolve_title_from_specs(channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec_typed)
         rel_thumb = f"{ch}/{target.video}/00_thumb.png"
         upsert_fs_variant(channel=ch, video=target.video, title=title, image_rel_path=rel_thumb, label="thumb_00", status="review")
+
+        overrides_leaf_json: Dict[str, Any] = {}
+        for k, v in overrides_leaf.items():
+            if isinstance(v, tuple):
+                overrides_leaf_json[k] = list(v)
+            else:
+                overrides_leaf_json[k] = v
 
         meta: Dict[str, Any] = {
             "schema": "ytm.thumbnail.layer_specs.build.v1",
@@ -633,9 +802,25 @@ def build_channel_thumbnails(
             "video": target.video,
             "video_id": target.video_id,
             "model_key": model_key,
+            "build_id": build_id,
+            "output_mode": output_mode,
+            "layer_specs": {"image_prompts_id": img_id, "text_layout_id": txt_id},
+            "thumb_spec": {
+                "path": str(thumb_spec.path.relative_to(fpaths.repo_root())) if thumb_spec else None,
+                "overrides_leaf": overrides_leaf_json or None,
+            },
+            "text": {
+                "template_id": template_id,
+                "template_id_override": template_id_override,
+                "planning_copy": planning_copy,
+                "text_override": text_override if text_override else None,
+                "effects_override": effects_override,
+                "overlays_override": overlays_override,
+            },
             "output": {
                 "bg_path": str(out_bg.relative_to(fpaths.repo_root())),
-                "thumb_path": str(out_thumb.relative_to(fpaths.repo_root())),
+                "stable_thumb_path": str(stable_thumb.relative_to(fpaths.repo_root())),
+                "build_thumb_path": str(build_thumb.relative_to(fpaths.repo_root())),
                 "width": width,
                 "height": height,
             },
@@ -646,14 +831,14 @@ def build_channel_thumbnails(
                 "gamma": bg_params.gamma,
             },
             "bg_pan_zoom": {
-                "zoom": float(bg_zoom),
-                "pan_x": float(bg_pan_x),
-                "pan_y": float(bg_pan_y),
+                "zoom": float(video_bg_zoom),
+                "pan_x": float(video_bg_pan_x),
+                "pan_y": float(video_bg_pan_y),
             },
             "bg_enhance_band": {
-                "x0": float(bg_band_x0),
-                "x1": float(bg_band_x1),
-                "power": float(bg_band_power),
+                "x0": float(video_band_x0),
+                "x1": float(video_band_x1),
+                "power": float(video_band_power),
                 "brightness": band_params.brightness,
                 "contrast": band_params.contrast,
                 "color": band_params.color,
@@ -669,5 +854,7 @@ def build_channel_thumbnails(
             },
             "generated": generated,
         }
-        meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(f"[{idx}/{len(targets)}] {target.video_id}: OK -> {out_thumb}")
+        tmp_meta = build_meta_path.with_suffix(build_meta_path.suffix + ".tmp")
+        tmp_meta.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp_meta.replace(build_meta_path)
+        print(f"[{idx}/{len(targets)}] {target.video_id}: OK -> {stable_thumb}")

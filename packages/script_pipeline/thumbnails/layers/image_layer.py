@@ -14,6 +14,7 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 from factory_common.image_client import ImageClient, ImageGenerationError, ImageTaskOptions
+from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic
 
 
 SUPPORTED_EXTS: Set[str] = {".png", ".jpg", ".jpeg", ".webp"}
@@ -372,7 +373,14 @@ def generate_background_with_retries(
     return BackgroundGenerationResult(raw_path=out_raw_path, generated=generated)
 
 
-def crop_resize_to_16x9(src_path: Path, dest_path: Path, *, width: int, height: int) -> None:
+def crop_resize_to_16x9(
+    src_path: Path,
+    dest_path: Path,
+    *,
+    width: int,
+    height: int,
+    output_mode: PngOutputMode = "final",
+) -> None:
     """
     Center-crop to 16:9 then resize to (width,height), and save as PNG.
 
@@ -395,8 +403,7 @@ def crop_resize_to_16x9(src_path: Path, dest_path: Path, *, width: int, height: 
                 img = img.crop((0, top, src_w, top + new_h))
 
         img = img.resize((width, height), Image.LANCZOS)
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-        img.save(dest_path, format="PNG", optimize=True)
+        save_png_atomic(img, dest_path, mode=output_mode, verify=True)
 
 
 def _apply_gamma_rgb(img: Image.Image, gamma: float) -> Image.Image:

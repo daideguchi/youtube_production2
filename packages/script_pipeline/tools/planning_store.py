@@ -1,12 +1,17 @@
 from __future__ import annotations
+
 import csv
+import threading
 from pathlib import Path
-from typing import List, Dict, Iterable, Optional, Set
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 from dataclasses import dataclass
 
 from factory_common.paths import planning_root
 
 CHANNELS_DIR = planning_root() / "channels"
+
+_ROWS_CACHE: Dict[str, Tuple[int, int, List["PlanningRow"]]] = {}
+_CACHE_LOCK = threading.Lock()
 
 @dataclass
 class PlanningRow:
@@ -17,7 +22,10 @@ class PlanningRow:
 
 
 def refresh(force: bool = False) -> None:
-    # no-op refresh; CSVは都度読み込み
+    if not force:
+        return None
+    with _CACHE_LOCK:
+        _ROWS_CACHE.clear()
     return None
 
 
@@ -42,10 +50,32 @@ def _load_csv(path: Path, channel_code: str) -> List[PlanningRow]:
 
 
 def get_rows(channel_code: str, force_refresh: bool = False) -> List[PlanningRow]:
-    path = CHANNELS_DIR / f"{channel_code.upper()}.csv"
+    code = str(channel_code or "").strip().upper()
+    path = CHANNELS_DIR / f"{code}.csv"
     if not path.exists():
+        with _CACHE_LOCK:
+            _ROWS_CACHE.pop(code, None)
         return []
-    return _load_csv(path, channel_code.upper())
+
+    try:
+        st = path.stat()
+        mtime_ns = int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000)))
+        size = int(st.st_size)
+    except Exception:
+        mtime_ns = -1
+        size = -1
+
+    if not force_refresh and mtime_ns >= 0 and size >= 0:
+        with _CACHE_LOCK:
+            cached = _ROWS_CACHE.get(code)
+        if cached and cached[0] == mtime_ns and cached[1] == size:
+            return cached[2]
+
+    rows = _load_csv(path, code)
+    if mtime_ns >= 0 and size >= 0:
+        with _CACHE_LOCK:
+            _ROWS_CACHE[code] = (mtime_ns, size, rows)
+    return rows
 
 
 def get_fieldnames() -> List[str]:

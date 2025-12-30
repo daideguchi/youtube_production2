@@ -15,6 +15,7 @@ import yaml
 from PIL import Image
 
 from factory_common import paths as fpaths
+from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic
 from script_pipeline.thumbnails.compiler.compile_buddha_3line import (
     ThumbText,
     compose_buddha_3line,
@@ -198,6 +199,7 @@ def build_buddha_3line(
     videos: List[str],
     base_image_path: Path,
     build_id: str,
+    output_mode: PngOutputMode = "final",
     font_path: Optional[str] = None,
     flip_base: bool = True,
     impact: bool = True,
@@ -240,7 +242,7 @@ def build_buddha_3line(
 
         out_dir = fpaths.thumbnail_assets_dir(ch, vid) / "compiler" / build_id
         out_img_path = out_dir / "out_01.png"
-        out_meta_path = out_dir / "meta.json"
+        out_meta_path = out_dir / "build_meta.json"
         out_dir.mkdir(parents=True, exist_ok=True)
 
         img = compose_buddha_3line(
@@ -252,13 +254,15 @@ def build_buddha_3line(
             impact=impact,
             belt_override=belt_override,
         )
-        img.convert("RGB").save(out_img_path, format="PNG", optimize=True)
+        save_png_atomic(img.convert("RGB"), out_img_path, mode=output_mode, verify=True)
 
         meta = {
             "schema": "ytm.thumbnail.compiler.build.v1",
             "built_at": datetime.now(timezone.utc).isoformat(),
             "channel": ch,
             "video": vid,
+            "build_id": build_id,
+            "output_mode": output_mode,
             "stylepack_id": stylepack.get("id"),
             "stylepack_path": stylepack.get("_stylepack_path"),
             "base_image": str(base_path),
@@ -268,7 +272,9 @@ def build_buddha_3line(
             "text": {"upper": text.upper, "title": text.title, "lower": text.lower},
             "output": {"image": str(out_img_path)},
         }
-        out_meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp_meta = out_meta_path.with_suffix(out_meta_path.suffix + ".tmp")
+        tmp_meta.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp_meta.replace(out_meta_path)
         wrote.append(out_img_path)
 
         rel = f"{ch}/{vid}/compiler/{build_id}/out_01.png"

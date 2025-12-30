@@ -23,7 +23,7 @@
 ## 出力
 
 - 画像: `workspaces/thumbnails/assets/{CH}/{NNN}/compiler/<build_id>/out_01.png` など
-- メタ: `workspaces/thumbnails/assets/{CH}/{NNN}/compiler/<build_id>/meta.json`
+- メタ: `workspaces/thumbnails/assets/{CH}/{NNN}/compiler/<build_id>/build_meta.json`
   - 使用 stylepack hash / 入力テキスト / 選ばれた素材 / QC 結果
 
 ## 運用メモ

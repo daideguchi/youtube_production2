@@ -352,6 +352,13 @@ variants[*]（観測キー例）:
 - UI/Backend は `/thumbnails/assets/{image_path}` を配信する設計のため、物理ファイルは `workspaces/thumbnails/assets/{image_path}` に寄せる。
 - 旧来の `workspaces/thumbnails/CHxx_<チャンネル名>/...` は Legacy 資産として移行/アーカイブ対象。
 
+標準レイアウト（動画単位）:
+- `workspaces/thumbnails/assets/{CH}/{NNN}/`
+  - SoT（動画差分）: `thumb_spec.json`
+  - 派生（planning由来）: `planning_meta.json`
+  - 派生（安定出力）: `00_thumb.png`, `10_bg.png` など
+  - 派生（build履歴）: `compiler/<build_id>/out_*.png`, `compiler/<build_id>/build_meta.json`
+
 ### 5.4 Layer Specs（画像レイヤ/文字レイヤの仕様YAML）
 目的:
 - 「画像レイヤ（背景生成の指示）」と「文字レイヤ（テキスト配置/デザイン）」を、**チャンネル固有の if 分岐を増やさず**に運用できるようにする。

@@ -44,13 +44,13 @@ python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards
 # CH01 だけ dry-run で確認
 python3 apps/ui-backend/tools/assets_sync.py ensure --channels CH01 --dry-run
 
-# 全チャンネルの不足ディレクトリを作成し meta.json を書き出す
+# 全チャンネルの不足ディレクトリを作成し planning_meta.json を書き出す
 python3 apps/ui-backend/tools/assets_sync.py ensure --refresh-meta
 
 # 不整合のみレポート（CI で使用可）
 python3 apps/ui-backend/tools/assets_sync.py report --fail-on-issues
 ```
 
-- `ensure` : 企画ごとのフォルダを作成し、`meta.json` にタイトル/作成フラグ/進捗を記録。
+- `ensure` : 企画ごとのフォルダを作成し、`planning_meta.json` にタイトル/作成フラグ/進捗を記録。
 - `report` : planning.csv と実ディレクトリの差分（欠落・孤立）を表示。`--fail-on-issues` を付けると不整合で終了コード1。
 - `--channels`, `--videos`, `--include-flags`, `--exclude-flags` で対象を絞り込めます。

@@ -955,12 +955,26 @@ def _apply_vertical_overlay(
     overlay.putalpha(mask)
     return Image.alpha_composite(img, overlay)
 
+
+def _deep_merge_dict(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base)
+    for key, value in patch.items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _deep_merge_dict(out[key], value)
+        else:
+            out[key] = value
+    return out
+
+
 def compose_text_layout(
     base_image_path: Path,
     *,
     text_layout_spec: Dict[str, Any],
     video_id: str,
     text_override: Optional[Dict[str, str]] = None,
+    template_id_override: Optional[str] = None,
+    effects_override: Optional[Dict[str, Any]] = None,
+    overlays_override: Optional[Dict[str, Any]] = None,
 ) -> Image.Image:
     base = Image.open(base_image_path).convert("RGBA")
 
@@ -968,7 +982,7 @@ def compose_text_layout(
     if not isinstance(item, dict):
         raise KeyError(f"video_id not found in text_layout spec: {video_id}")
 
-    template_id = str(item.get("template_id") or "").strip()
+    template_id = str(template_id_override or "").strip() or str(item.get("template_id") or "").strip()
     if not template_id:
         raise ValueError(f"missing template_id for video_id={video_id}")
 
@@ -977,6 +991,8 @@ def compose_text_layout(
         raise ValueError("text_layout.global is missing")
 
     overlays_cfg = global_cfg.get("overlays") if isinstance(global_cfg.get("overlays"), dict) else {}
+    if isinstance(overlays_override, dict) and overlays_override:
+        overlays_cfg = _deep_merge_dict(overlays_cfg, overlays_override)
     left_overlay = overlays_cfg.get("left_tsz") if isinstance(overlays_cfg.get("left_tsz"), dict) else None
     if isinstance(left_overlay, dict) and bool(left_overlay.get("enabled", True)):
         safe = global_cfg.get("safe_zones") if isinstance(global_cfg.get("safe_zones"), dict) else {}
@@ -1029,6 +1045,8 @@ def compose_text_layout(
 
     fonts_cfg = global_cfg.get("fonts") if isinstance(global_cfg.get("fonts"), dict) else {}
     effects = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
+    if isinstance(effects_override, dict) and effects_override:
+        effects = _deep_merge_dict(effects, effects_override)
     stroke_cfg = effects.get("stroke") if isinstance(effects.get("stroke"), dict) else {}
     shadow_cfg = effects.get("shadow") if isinstance(effects.get("shadow"), dict) else {}
 

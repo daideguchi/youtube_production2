@@ -129,6 +129,12 @@ workspaces/thumbnails/README.md
 - サムネの追跡SoTは `workspaces/thumbnails/projects.json`。
 - サムネの「型（テンプレ）SoT」は `workspaces/thumbnails/templates.json`。
 - UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...` を正とする。
+- 標準レイアウト（動画単位）:
+  - `workspaces/thumbnails/assets/{CH}/{NNN}/`
+    - SoT（動画差分）: `thumb_spec.json`
+    - 派生（planning由来）: `planning_meta.json`
+    - 派生（安定出力）: `00_thumb.png`, `10_bg.png` など
+    - 派生（build履歴）: `compiler/<build_id>/out_*.png`, `compiler/<build_id>/build_meta.json`
 - `workspaces/thumbnails/CHxx_<チャンネル名>/...` は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
 - 画像レイヤ/文字レイヤの設計は「Layer Specs（YAML）」で管理できる（例: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`）。これはチャンネル固有の中身を持つが、**スキーマ/運用は汎用**で、UI/Compiler が参照する。
 

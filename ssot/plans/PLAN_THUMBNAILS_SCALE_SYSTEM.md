@@ -77,8 +77,8 @@
 - 管理SoT（`projects.json`）と生成物（assets配下）と、CSV/layer_specsが混在し、修正が収束しない。
 
 ### 4.2 メタファイル衝突（同名 `meta.json` の二重用途）
-- `apps/ui-backend/tools/assets_sync.py` が `workspaces/thumbnails/assets/{CH}/{NNN}/meta.json` に planning 由来メタを書く。
-- `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py` も同じパスに build メタ（`bg_pan_zoom` 等）を書いて上書きする。
+- 旧: `apps/ui-backend/tools/assets_sync.py` が `workspaces/thumbnails/assets/{CH}/{NNN}/meta.json` に planning 由来メタを書いていた（現行は `planning_meta.json` に分離）。
+- 旧: `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py` も同じパスに build メタ（`bg_pan_zoom` 等）を書いて上書きしていた（現行は `compiler/<build_id>/build_meta.json` に分離）。
 - 結果: “どのメタが正か” が壊れる + 並列実行で破損/差分不明になる。
 
 ### 4.3 反復が遅い / 止まりやすい
@@ -162,7 +162,7 @@ v1で許可する overrides（スケールのための“最小セット”）:
 
 - `planning_meta.json`（派生）: planning 由来（title/flag/progress 等）。`assets_sync` が書く。
 - `thumb_spec.json`（SoT）: 編集差分（overrides）。UI/CLIが書く。
-- `builds/<build_id>/build_meta.json`（派生）: 実行時の確定入力（既定値展開後）と生成物、所要時間、エラー、spec hash。
+- `compiler/<build_id>/build_meta.json`（派生）: 実行時の確定入力（既定値展開後）と生成物、所要時間、エラー、spec hash。
   - `00_thumb.png` を更新する場合も、必ずどの build_id から来たか追えるようにする。
 
 ### 5.5 Compiler API の単一化（UI/CLI統合）

@@ -22,6 +22,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-17）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
 - `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-17）: レガシー隔離/確実ゴミ判定の基準と段階実行。
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。
+- `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md`（最終更新 2025-12-29）: サムネ作成・編集を「高品質×高速×スケール」させる計画。
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`（最終更新 2025-12-29）: 処理が遅い/詰まる課題の集約（DoD付き）。
 
 ## Completed（完了/参照）
