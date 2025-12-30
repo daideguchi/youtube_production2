@@ -103,6 +103,20 @@ class LLMContextAnalyzer:
         final_sections = self._merge_sections(final_sections)
         final_sections = self._fill_gaps(final_sections, len(segments))
 
+        # Post-gap-fill guardrail:
+        # `_fill_gaps` may extend the tail section when the LLM misses the final indices.
+        # That can create an overlong section that bypasses `_refine_overlong_sections`.
+        max_duration = max(40.0, desired_avg * 1.5)
+        needs_refine = any(
+            self._calculate_duration(segments, br.start_segment, br.end_segment) > max_duration
+            for br in final_sections
+        )
+        if needs_refine:
+            final_sections = self._refine_overlong_sections(segments, final_sections, target_sections, desired_avg)
+            final_sections = self._merge_short_sections(segments, final_sections)
+            final_sections = self._merge_sections(final_sections)
+            final_sections = self._fill_gaps(final_sections, len(segments))
+
         logging.info("LLM文脈分割完了: %d セクション生成", len(final_sections))
         return final_sections
 
@@ -313,6 +327,7 @@ Script excerpts:
         extra_rapid = ""
         extra_ch02 = ""
         extra_ch12 = ""
+        extra_ch22_23 = ""
         section_seconds_hint = "10–15"
         force_split_seconds = 20
         # CH01: align pacing with channel preset base_period (SSOT).
@@ -343,6 +358,15 @@ Script excerpts:
                 "- **CRITICAL FOR CH12:** Use a calmer visual pace (aim ~25s per image). Prefer fewer, longer shots that sustain mood.\n"
                 "- Avoid rapid-fire micro cuts unless there is a clear scene change or a hard list.\n"
             )
+        elif (self.channel_id or "").upper() in ("CH22", "CH23"):
+            # CH22/CH23: user requirement is 20–30s per image for CapCut pacing.
+            section_seconds_hint = "20–30"
+            force_split_seconds = 40
+            extra_ch22_23 = (
+                "\n"
+                "- **CRITICAL FOR CH22/CH23:** Aim ~20–30s per image for CapCut draft pacing.\n"
+                "- Avoid micro-cuts unless there is a clear scene change, a sharp beat change, or a list.\n"
+            )
 
         return f"""
 You are preparing storyboards for a narrated YouTube video.
@@ -353,7 +377,7 @@ Each section must:
   • Run roughly {section_seconds_hint} seconds (never longer than {force_split_seconds} seconds).
   • Capture a single idea the viewer should picture (example, anecdote, list item, metaphor, scene change, or emotional beat).
   • Be easy to illustrate without text, describing concrete subjects, objects, settings whenever possible (people only when the script requires it).
-{extra_rapid}{extra_ch02}{extra_ch12}
+{extra_rapid}{extra_ch02}{extra_ch12}{extra_ch22_23}
 
 Use the [index@timestamp] markers to reference SRT segments.
 
@@ -541,6 +565,12 @@ Script excerpts:
             idx = int(value)
         except (ValueError, TypeError):
             return None
+
+        # Accept inclusive end index (e.g., 1-based SRT style) when it equals the exclusive upper bound.
+        # Example: segment_count=295, valid last index=294, but model may return 295.
+        upper_exclusive = start_offset + segment_count
+        if idx == upper_exclusive:
+            return upper_exclusive - 1
 
         if start_offset <= idx < start_offset + segment_count:
             return idx

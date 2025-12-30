@@ -204,6 +204,9 @@ class ImageTaskOptions:
     n: int = 1
     seed: int | None = None
     negative_prompt: str | None = None
+    # Optional reference images (local file paths). Used by providers/models that support
+    # multimodal chat inputs for image generation.
+    input_images: List[str] | None = None
     extra: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -619,6 +622,7 @@ class ImageClient:
             n=merged.get("n", 1),
             seed=merged.get("seed"),
             negative_prompt=merged.get("negative_prompt"),
+            input_images=options.input_images,
             extra=options.extra,
         )
 
@@ -847,6 +851,40 @@ class OpenRouterImageAdapter:
         self.api_key = api_key
         self.base_url = str(self.provider_conf.get("base_url") or "https://openrouter.ai/api/v1").rstrip("/")
 
+    @staticmethod
+    def _encode_input_image(path: str, *, max_dim: int = 512, quality: int = 80) -> Optional[str]:
+        """
+        Encode a local image file as a compact data URL for OpenRouter multimodal messages.
+        Prefer JPEG thumbnail to keep payloads small and stable.
+        """
+        p = Path(path)
+        if not p.exists() or not p.is_file():
+            return None
+        try:
+            from PIL import Image  # pillow is in repo deps
+
+            with Image.open(p) as img:
+                img = img.convert("RGB")
+                img.thumbnail((max_dim, max_dim), Image.LANCZOS)
+                buf = io.BytesIO()
+                img.save(buf, format="JPEG", quality=quality, optimize=True)
+                data = buf.getvalue()
+            return "data:image/jpeg;base64," + base64.b64encode(data).decode("ascii")
+        except Exception:
+            try:
+                raw = p.read_bytes()
+                suffix = p.suffix.lower()
+                mime = "image/png"
+                if suffix in (".jpg", ".jpeg"):
+                    mime = "image/jpeg"
+                elif suffix == ".webp":
+                    mime = "image/webp"
+                elif suffix == ".gif":
+                    mime = "image/gif"
+                return f"data:{mime};base64," + base64.b64encode(raw).decode("ascii")
+            except Exception:
+                return None
+
     def generate(self, model_conf: Dict[str, Any], options: ImageTaskOptions) -> ImageResult:
         model_name = model_conf.get("model_name")
         if not model_name:
@@ -858,9 +896,26 @@ class OpenRouterImageAdapter:
             if isinstance(raw_timeout, (int, float)) and raw_timeout > 0:
                 timeout_sec = int(raw_timeout)
 
+        content: Any = options.prompt
+        input_images = options.input_images or []
+        encoded_images_count = 0
+        if input_images:
+            encoded_parts: List[Dict[str, Any]] = []
+            for raw_path in input_images[:3]:
+                url = self._encode_input_image(str(raw_path))
+                if url:
+                    encoded_parts.append({"type": "image_url", "image_url": {"url": url}})
+            if encoded_parts:
+                hint = (
+                    "Use the attached reference image(s) as visual anchors for consistency. "
+                    "Keep the same character face/hair/clothing across shots and do NOT add extra people.\n\n"
+                )
+                content = [{"type": "text", "text": hint + options.prompt}, *encoded_parts]
+                encoded_images_count = len(encoded_parts)
+
         payload: Dict[str, Any] = {
             "model": model_name,
-            "messages": [{"role": "user", "content": options.prompt}],
+            "messages": [{"role": "user", "content": content}],
             "modalities": ["image", "text"],
         }
         if options.aspect_ratio:
@@ -888,6 +943,27 @@ class OpenRouterImageAdapter:
             data = resp.json()
         except ValueError:  # pragma: no cover - unexpected non-json
             data = None
+
+        # Some models/providers reject multimodal content for image generation.
+        # Fail-soft: retry once with text-only prompt before failing the request.
+        if resp.status_code >= 400 and encoded_images_count > 0 and resp.status_code not in (402, 429):
+            try:
+                payload_no_images = {**payload, "messages": [{"role": "user", "content": options.prompt}]}
+                resp2 = requests.post(url, headers=headers, json=payload_no_images, timeout=timeout_sec)
+                try:
+                    data2 = resp2.json()
+                except ValueError:
+                    data2 = None
+                if resp2.status_code < 400 and isinstance(data2, dict):
+                    logging.warning(
+                        "OpenRouter multimodal request rejected (status=%s); retried with text-only and succeeded.",
+                        resp.status_code,
+                    )
+                    resp = resp2
+                    data = data2
+                    encoded_images_count = 0
+            except requests.RequestException:
+                pass
 
         if resp.status_code >= 400:
             detail = None
@@ -932,6 +1008,7 @@ class OpenRouterImageAdapter:
                 "size": options.size,
                 "seed": options.seed,
                 "negative_prompt": options.negative_prompt,
+                "input_images": encoded_images_count,
             },
         )
 

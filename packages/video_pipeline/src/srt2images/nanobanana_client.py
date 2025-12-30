@@ -454,6 +454,7 @@ def _run_direct(
                     prompt=prompt,
                     aspect_ratio=aspect_ratio,
                     n=1,
+                    input_images=input_images,
                     extra={"timeout_sec": int(timeout_sec)} if timeout_sec else {},
                 )
                 result = image_client.generate(options)
@@ -662,11 +663,39 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
     # ★ここが「完全直列」のポイント★
     # ThreadPoolExecutor や asyncio.gather 等は一切使わず、
     # 1プロンプトずつ順番に叩いていく
+    previous_image_path: str | None = None
     for cue in cues:
+        # If persona/character consistency is required, feed the previous generated frame
+        # as an additional reference image (guide + prev). This reduces identity drift.
+        try:
+            if previous_image_path and cue.get("use_persona") is True:
+                cur_inputs = cue.get("input_images")
+                if not isinstance(cur_inputs, list):
+                    cur_inputs = []
+                # Preserve order (guide first), avoid duplicates.
+                merged_inputs: list[str] = []
+                for item in cur_inputs:
+                    s = str(item).strip()
+                    if s and s not in merged_inputs:
+                        merged_inputs.append(s)
+                if previous_image_path not in merged_inputs:
+                    merged_inputs.append(previous_image_path)
+                cue["input_images"] = merged_inputs
+        except Exception:
+            pass
+
         _rate_limited_gen_one(
             cue, mode, force, width, height, bin_path, timeout_sec, config_path,
             retry_until_success, max_retries, placeholder_text, max_per_minute
         )
+        try:
+            out_path = cue.get("image_path")
+            if isinstance(out_path, str) and out_path:
+                p = Path(out_path)
+                if p.exists() and p.is_file():
+                    previous_image_path = str(p)
+        except Exception:
+            pass
     
     # Log a summary of the image generation results
     if len(cues) > 0:
