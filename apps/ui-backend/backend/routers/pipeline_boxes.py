@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from factory_common.artifacts.llm_text_output import LlmTextOutputArtifactV1, load_llm_text_artifact
 from factory_common.artifacts.utils import atomic_write_json
+from factory_common.episode_progress import build_episode_progress_view
 from factory_common.paths import repo_root as ssot_repo_root
 from factory_common.paths import script_data_root
 from factory_common.timeline_manifest import sha1_file
@@ -91,6 +92,19 @@ def get_script_manifest(channel: str, video: str) -> Dict[str, Any]:
     base = _script_base_dir(ch, no)
     manifest_path = base / SCRIPT_MANIFEST_FILENAME
     return _read_json_limited(manifest_path)
+
+
+@router.get("/api/channels/{channel}/episode-progress")
+def get_episode_progress(channel: str, videos: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Derived, read-only progress view aggregated from multiple SoTs.
+
+    Query:
+      - videos: comma-separated list (e.g. "012,013") (optional)
+    """
+    ch = _normalize_channel(channel)
+    vids = [v.strip() for v in str(videos or "").split(",") if v.strip()] if videos else None
+    return build_episode_progress_view(ch, videos=vids)
 
 
 @router.post("/api/channels/{channel}/videos/{video}/script-manifest/refresh")

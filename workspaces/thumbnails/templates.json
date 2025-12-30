@@ -408,11 +408,11 @@
       "templates": [
         {
           "id": "ch22_manual_bg_v1",
-          "name": "CH22: 手動背景（生成は無効化）v1",
-          "image_model_key": "disabled_no_cost",
-          "prompt_template": "NOOP (CH22 uses manual background insertion; do not generate).",
-          "negative_prompt": "",
-          "notes": "CH22は workspaces/thumbnails/assets/CH22/<NNN>/10_bg.* を手動配置→ローカル合成。誤生成でコストが出ないよう image_model_key は無効値。",
+          "name": "CH22: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "openrouter_gemini_2_5_flash_image_preview",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH22は手動背景(10_bg.*)も許容するが、画像やり直し/再生成が多いため生成を有効化。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
           "created_at": "2025-12-28T00:00:00Z",
           "updated_at": "2025-12-28T00:00:00Z"
         }

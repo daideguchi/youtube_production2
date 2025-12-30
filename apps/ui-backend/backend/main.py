@@ -5885,6 +5885,62 @@ class ThumbnailImageModelInfoResponse(BaseModel):
     pricing_updated_at: Optional[str] = None
 
 
+class ThumbnailParamCatalogEntryResponse(BaseModel):
+    path: str
+    kind: str
+    engine: str
+    min_value: Optional[float] = None
+    max_value: Optional[float] = None
+
+
+class ThumbnailThumbSpecUpdateRequest(BaseModel):
+    overrides: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ThumbnailThumbSpecResponse(BaseModel):
+    exists: bool
+    path: Optional[str] = None
+    schema: Optional[str] = None
+    channel: str
+    video: str
+    overrides: Dict[str, Any] = Field(default_factory=dict)
+    updated_at: Optional[str] = None
+    normalized_overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ThumbnailLayerSpecsBuildRequest(BaseModel):
+    allow_generate: bool = False
+    regen_bg: bool = False
+    output_mode: Literal["draft", "final"] = "draft"
+
+
+class ThumbnailLayerSpecsBuildResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    build_id: str
+    thumb_url: str
+    thumb_path: str
+    build_meta_path: Optional[str] = None
+
+
+class ThumbnailTextTemplateOptionResponse(BaseModel):
+    id: str
+    description: Optional[str] = None
+
+
+class ThumbnailEditorContextResponse(BaseModel):
+    channel: str
+    video: str
+    video_id: str
+    portrait_available: bool = False
+    template_id_default: Optional[str] = None
+    template_options: List[ThumbnailTextTemplateOptionResponse] = Field(default_factory=list)
+    defaults_leaf: Dict[str, Any] = Field(default_factory=dict)
+    overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
+    effective_leaf: Dict[str, Any] = Field(default_factory=dict)
+
+
 class LLMConfig(BaseModel):
     caption_provider: str = "openai"
     openai_api_key: Optional[str] = None
@@ -8948,6 +9004,390 @@ def get_thumbnail_video_layer_specs(channel: str, video: str):
         image_prompt=image_prompt,
         text_layout=text_layout_payload,
         planning_suggestions=planning_suggestions,
+    )
+
+
+@app.get(
+    "/api/workspaces/thumbnails/param-catalog",
+    response_model=List[ThumbnailParamCatalogEntryResponse],
+)
+def get_thumbnail_param_catalog():
+    try:
+        from script_pipeline.thumbnails.param_catalog_v1 import PARAM_CATALOG_V1
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"param catalog module is not available: {exc}") from exc
+
+    items: List[ThumbnailParamCatalogEntryResponse] = []
+    for path, spec in sorted(PARAM_CATALOG_V1.items(), key=lambda kv: str(kv[0])):
+        items.append(
+            ThumbnailParamCatalogEntryResponse(
+                path=str(path),
+                kind=str(spec.kind),
+                engine=str(spec.engine),
+                min_value=(float(spec.min_value) if spec.min_value is not None else None),
+                max_value=(float(spec.max_value) if spec.max_value is not None else None),
+            )
+        )
+    return items
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/{video}/thumb-spec",
+    response_model=ThumbnailThumbSpecResponse,
+)
+def get_thumbnail_thumb_spec(channel: str, video: str):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    try:
+        from script_pipeline.thumbnails.thumb_spec import THUMB_SPEC_SCHEMA_V1, load_thumb_spec
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumb_spec module is not available: {exc}") from exc
+
+    loaded = load_thumb_spec(channel_code, video_number)
+    if loaded is None:
+        return ThumbnailThumbSpecResponse(
+            exists=False,
+            path=None,
+            schema=THUMB_SPEC_SCHEMA_V1,
+            channel=channel_code,
+            video=video_number,
+            overrides={},
+            updated_at=None,
+            normalized_overrides_leaf={},
+        )
+
+    payload = loaded.payload if isinstance(loaded.payload, dict) else {}
+    overrides = payload.get("overrides") if isinstance(payload.get("overrides"), dict) else {}
+    updated_at = payload.get("updated_at") if isinstance(payload.get("updated_at"), str) else None
+    normalized_leaf = (
+        payload.get("_normalized_overrides_leaf") if isinstance(payload.get("_normalized_overrides_leaf"), dict) else {}
+    )
+
+    return ThumbnailThumbSpecResponse(
+        exists=True,
+        path=(safe_relative_path(loaded.path) or str(loaded.path)),
+        schema=(str(payload.get("schema") or "") or None),
+        channel=channel_code,
+        video=video_number,
+        overrides=overrides,
+        updated_at=updated_at,
+        normalized_overrides_leaf=normalized_leaf,
+    )
+
+
+@app.put(
+    "/api/workspaces/thumbnails/{channel}/{video}/thumb-spec",
+    response_model=ThumbnailThumbSpecResponse,
+)
+def upsert_thumbnail_thumb_spec(channel: str, video: str, request: ThumbnailThumbSpecUpdateRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    try:
+        from script_pipeline.thumbnails.thumb_spec import save_thumb_spec
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumb_spec module is not available: {exc}") from exc
+
+    overrides = request.overrides if isinstance(request.overrides, dict) else {}
+    try:
+        save_thumb_spec(channel_code, video_number, overrides)
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to save thumb_spec: {exc}") from exc
+
+    return get_thumbnail_thumb_spec(channel_code, video_number)
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/{video}/editor-context",
+    response_model=ThumbnailEditorContextResponse,
+)
+def get_thumbnail_editor_context(channel: str, video: str):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    video_id = f"{channel_code}-{video_number}"
+
+    try:
+        from script_pipeline.thumbnails.compiler.layer_specs import (
+            find_text_layout_item_for_video,
+            load_layer_spec_yaml,
+            resolve_channel_layer_spec_ids,
+        )
+        from script_pipeline.thumbnails.layers.image_layer import find_existing_portrait
+        from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumbnail compiler modules are not available: {exc}") from exc
+
+    # Channel compiler defaults (templates.json)
+    compiler_defaults: Dict[str, Any] = {}
+    with THUMBNAIL_TEMPLATES_LOCK:
+        _, doc = _load_thumbnail_templates_document()
+        channels = doc.get("channels") if isinstance(doc, dict) else None
+        channel_doc = channels.get(channel_code) if isinstance(channels, dict) else None
+        if isinstance(channel_doc, dict) and isinstance(channel_doc.get("compiler_defaults"), dict):
+            compiler_defaults = channel_doc.get("compiler_defaults") or {}
+
+    # Layer specs context (text_layout v3)
+    _, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
+    text_layout_spec: Dict[str, Any] = {}
+    template_id_default: Optional[str] = None
+    template_options: List[ThumbnailTextTemplateOptionResponse] = []
+    if isinstance(text_layout_id, str) and text_layout_id.strip():
+        try:
+            text_layout_spec = load_layer_spec_yaml(text_layout_id.strip())
+        except Exception:
+            text_layout_spec = {}
+
+    if isinstance(text_layout_spec, dict):
+        item = find_text_layout_item_for_video(text_layout_spec, video_id)
+        if isinstance(item, dict):
+            template_id_default = str(item.get("template_id") or "").strip() or None
+        templates_payload = text_layout_spec.get("templates")
+        if isinstance(templates_payload, dict):
+            for tpl_id, tpl in sorted(templates_payload.items(), key=lambda kv: str(kv[0])):
+                if not isinstance(tpl_id, str) or not tpl_id.strip():
+                    continue
+                desc = None
+                if isinstance(tpl, dict) and isinstance(tpl.get("description"), str):
+                    desc = str(tpl.get("description") or "").strip() or None
+                template_options.append(ThumbnailTextTemplateOptionResponse(id=tpl_id.strip(), description=desc))
+
+    # Existing per-video thumb_spec overrides (normalized leaf paths)
+    loaded_spec = load_thumb_spec(channel_code, video_number)
+    overrides_leaf_raw = extract_normalized_override_leaf(loaded_spec.payload) if loaded_spec else {}
+
+    overrides_leaf: Dict[str, Any] = {}
+    for k, v in (overrides_leaf_raw or {}).items():
+        if isinstance(v, tuple):
+            overrides_leaf[str(k)] = list(v)
+        else:
+            overrides_leaf[str(k)] = v
+
+    # Defaults (as leaf paths from PARAM_CATALOG_V1)
+    defaults_leaf: Dict[str, Any] = {}
+
+    bg_defaults = compiler_defaults.get("bg_enhance") if isinstance(compiler_defaults.get("bg_enhance"), dict) else {}
+    pan_defaults = compiler_defaults.get("bg_pan_zoom") if isinstance(compiler_defaults.get("bg_pan_zoom"), dict) else {}
+    band_defaults = compiler_defaults.get("bg_enhance_band") if isinstance(compiler_defaults.get("bg_enhance_band"), dict) else {}
+
+    defaults_leaf["overrides.bg_enhance.brightness"] = float(bg_defaults.get("brightness", 1.0))
+    defaults_leaf["overrides.bg_enhance.contrast"] = float(bg_defaults.get("contrast", 1.0))
+    defaults_leaf["overrides.bg_enhance.color"] = float(bg_defaults.get("color", 1.0))
+    defaults_leaf["overrides.bg_enhance.gamma"] = float(bg_defaults.get("gamma", 1.0))
+
+    defaults_leaf["overrides.bg_pan_zoom.zoom"] = float(pan_defaults.get("zoom", 1.0))
+    defaults_leaf["overrides.bg_pan_zoom.pan_x"] = float(pan_defaults.get("pan_x", 0.0))
+    defaults_leaf["overrides.bg_pan_zoom.pan_y"] = float(pan_defaults.get("pan_y", 0.0))
+
+    defaults_leaf["overrides.bg_enhance_band.x0"] = float(band_defaults.get("x0", 0.0))
+    defaults_leaf["overrides.bg_enhance_band.x1"] = float(band_defaults.get("x1", 0.0))
+    defaults_leaf["overrides.bg_enhance_band.power"] = float(band_defaults.get("power", 1.0))
+    defaults_leaf["overrides.bg_enhance_band.brightness"] = float(band_defaults.get("brightness", 1.0))
+    defaults_leaf["overrides.bg_enhance_band.contrast"] = float(band_defaults.get("contrast", 1.0))
+    defaults_leaf["overrides.bg_enhance_band.color"] = float(band_defaults.get("color", 1.0))
+    defaults_leaf["overrides.bg_enhance_band.gamma"] = float(band_defaults.get("gamma", 1.0))
+
+    if template_id_default:
+        defaults_leaf["overrides.text_template_id"] = template_id_default
+    defaults_leaf["overrides.text_scale"] = 1.0
+
+    global_cfg = text_layout_spec.get("global") if isinstance(text_layout_spec, dict) else None
+    global_cfg = global_cfg if isinstance(global_cfg, dict) else {}
+    effects_defaults = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
+
+    stroke_cfg = effects_defaults.get("stroke") if isinstance(effects_defaults.get("stroke"), dict) else {}
+    shadow_cfg = effects_defaults.get("shadow") if isinstance(effects_defaults.get("shadow"), dict) else {}
+    glow_cfg = effects_defaults.get("glow") if isinstance(effects_defaults.get("glow"), dict) else {}
+
+    defaults_leaf["overrides.text_effects.stroke.width_px"] = int(stroke_cfg.get("width_px", 8))
+    defaults_leaf["overrides.text_effects.stroke.color"] = str(stroke_cfg.get("color") or "#000000")
+
+    defaults_leaf["overrides.text_effects.shadow.alpha"] = float(shadow_cfg.get("alpha", 0.65))
+    shadow_off = shadow_cfg.get("offset_px") or [6, 6]
+    try:
+        defaults_leaf["overrides.text_effects.shadow.offset_px"] = [int(shadow_off[0]), int(shadow_off[1])]
+    except Exception:
+        defaults_leaf["overrides.text_effects.shadow.offset_px"] = [6, 6]
+    defaults_leaf["overrides.text_effects.shadow.blur_px"] = int(shadow_cfg.get("blur_px", 10))
+    defaults_leaf["overrides.text_effects.shadow.color"] = str(shadow_cfg.get("color") or "#000000")
+
+    defaults_leaf["overrides.text_effects.glow.alpha"] = float(glow_cfg.get("alpha", 0.0))
+    defaults_leaf["overrides.text_effects.glow.blur_px"] = int(glow_cfg.get("blur_px", 0))
+    defaults_leaf["overrides.text_effects.glow.color"] = str(glow_cfg.get("color") or "#ffffff")
+
+    for fill_key in ("white_fill", "red_fill", "yellow_fill", "hot_red_fill", "purple_fill"):
+        fill_cfg = effects_defaults.get(fill_key) if isinstance(effects_defaults.get(fill_key), dict) else None
+        if not isinstance(fill_cfg, dict):
+            continue
+        if str(fill_cfg.get("mode") or "").strip().lower() != "solid":
+            continue
+        color = str(fill_cfg.get("color") or "").strip()
+        if color:
+            defaults_leaf[f"overrides.text_fills.{fill_key}.color"] = color
+
+    overlays_cfg = global_cfg.get("overlays") if isinstance(global_cfg.get("overlays"), dict) else {}
+    left_tsz = overlays_cfg.get("left_tsz") if isinstance(overlays_cfg.get("left_tsz"), dict) else None
+    if isinstance(left_tsz, dict):
+        defaults_leaf["overrides.overlays.left_tsz.enabled"] = bool(left_tsz.get("enabled", True))
+        defaults_leaf["overrides.overlays.left_tsz.color"] = str(left_tsz.get("color") or "#000000")
+        defaults_leaf["overrides.overlays.left_tsz.alpha_left"] = float(left_tsz.get("alpha_left", 0.65))
+        defaults_leaf["overrides.overlays.left_tsz.alpha_right"] = float(left_tsz.get("alpha_right", 0.0))
+        defaults_leaf["overrides.overlays.left_tsz.x0"] = float(left_tsz.get("x0", 0.0))
+        defaults_leaf["overrides.overlays.left_tsz.x1"] = float(left_tsz.get("x1", 0.52))
+
+    top_band = overlays_cfg.get("top_band") if isinstance(overlays_cfg.get("top_band"), dict) else None
+    if isinstance(top_band, dict):
+        defaults_leaf["overrides.overlays.top_band.enabled"] = bool(top_band.get("enabled", True))
+        defaults_leaf["overrides.overlays.top_band.color"] = str(top_band.get("color") or "#000000")
+        defaults_leaf["overrides.overlays.top_band.alpha_top"] = float(top_band.get("alpha_top", 0.70))
+        defaults_leaf["overrides.overlays.top_band.alpha_bottom"] = float(top_band.get("alpha_bottom", 0.0))
+        defaults_leaf["overrides.overlays.top_band.y0"] = float(top_band.get("y0", 0.0))
+        defaults_leaf["overrides.overlays.top_band.y1"] = float(top_band.get("y1", 0.25))
+
+    bottom_band = overlays_cfg.get("bottom_band") if isinstance(overlays_cfg.get("bottom_band"), dict) else None
+    if isinstance(bottom_band, dict):
+        defaults_leaf["overrides.overlays.bottom_band.enabled"] = bool(bottom_band.get("enabled", True))
+        defaults_leaf["overrides.overlays.bottom_band.color"] = str(bottom_band.get("color") or "#000000")
+        defaults_leaf["overrides.overlays.bottom_band.alpha_top"] = float(bottom_band.get("alpha_top", 0.0))
+        defaults_leaf["overrides.overlays.bottom_band.alpha_bottom"] = float(bottom_band.get("alpha_bottom", 0.80))
+        defaults_leaf["overrides.overlays.bottom_band.y0"] = float(bottom_band.get("y0", 0.70))
+        defaults_leaf["overrides.overlays.bottom_band.y1"] = float(bottom_band.get("y1", 1.0))
+
+    # Portrait defaults (CH26 policy + generic fallbacks)
+    video_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number
+    portrait_available = bool(find_existing_portrait(video_dir))
+    defaults_leaf["overrides.portrait.zoom"] = 1.0
+    defaults_leaf["overrides.portrait.offset_x"] = 0.0
+    defaults_leaf["overrides.portrait.offset_y"] = 0.0
+    defaults_leaf["overrides.portrait.trim_transparent"] = False
+    defaults_leaf["overrides.portrait.fg_brightness"] = 1.20
+    defaults_leaf["overrides.portrait.fg_contrast"] = 1.08
+    defaults_leaf["overrides.portrait.fg_color"] = 0.98
+
+    if channel_code == "CH26":
+        policy_path = ssot_thumbnails_root() / "compiler" / "policies" / "ch26_portrait_overrides_v1.yaml"
+        try:
+            policy_payload = yaml.safe_load(policy_path.read_text(encoding="utf-8")) if policy_path.exists() else {}
+        except Exception:
+            policy_payload = {}
+        defaults_payload = policy_payload.get("defaults") if isinstance(policy_payload, dict) else None
+        defaults_payload = defaults_payload if isinstance(defaults_payload, dict) else {}
+        ov_payload = policy_payload.get("overrides") if isinstance(policy_payload, dict) else None
+        ov_payload = ov_payload if isinstance(ov_payload, dict) else {}
+        video_ov = ov_payload.get(video_number) if isinstance(ov_payload.get(video_number), dict) else {}
+
+        defaults_leaf["overrides.portrait.zoom"] = float(video_ov.get("zoom", defaults_payload.get("zoom", 1.0)))
+        off = video_ov.get("offset", defaults_payload.get("offset", [0.0, 0.0]))
+        try:
+            defaults_leaf["overrides.portrait.offset_x"] = float(off[0])
+            defaults_leaf["overrides.portrait.offset_y"] = float(off[1])
+        except Exception:
+            defaults_leaf["overrides.portrait.offset_x"] = 0.0
+            defaults_leaf["overrides.portrait.offset_y"] = 0.0
+        defaults_leaf["overrides.portrait.trim_transparent"] = bool(
+            video_ov.get("trim_transparent", defaults_payload.get("trim_transparent", False))
+        )
+        fg_defaults = defaults_payload.get("fg") if isinstance(defaults_payload.get("fg"), dict) else {}
+        fg_ov = video_ov.get("fg") if isinstance(video_ov.get("fg"), dict) else {}
+        defaults_leaf["overrides.portrait.fg_brightness"] = float(fg_ov.get("brightness", fg_defaults.get("brightness", 1.20)))
+        defaults_leaf["overrides.portrait.fg_contrast"] = float(fg_ov.get("contrast", fg_defaults.get("contrast", 1.08)))
+        defaults_leaf["overrides.portrait.fg_color"] = float(fg_ov.get("color", fg_defaults.get("color", 0.98)))
+
+    effective_leaf = dict(defaults_leaf)
+    effective_leaf.update(overrides_leaf)
+
+    return ThumbnailEditorContextResponse(
+        channel=channel_code,
+        video=video_number,
+        video_id=video_id,
+        portrait_available=portrait_available,
+        template_id_default=template_id_default,
+        template_options=template_options,
+        defaults_leaf=defaults_leaf,
+        overrides_leaf=overrides_leaf,
+        effective_leaf=effective_leaf,
+    )
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/layer-specs/build",
+    response_model=ThumbnailLayerSpecsBuildResponse,
+)
+def build_thumbnail_layer_specs(channel: str, video: str, request: ThumbnailLayerSpecsBuildRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    if request.regen_bg and not request.allow_generate:
+        raise HTTPException(status_code=400, detail="regen_bg requires allow_generate=true")
+
+    try:
+        from script_pipeline.thumbnails.layers.image_layer import resolve_background_source
+        from script_pipeline.thumbnails.tools.layer_specs_builder import BuildTarget, build_channel_thumbnails
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"layer_specs builder is not available: {exc}") from exc
+
+    video_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number
+    assets_root = THUMBNAIL_ASSETS_DIR / channel_code
+    try:
+        bg_source = resolve_background_source(video_dir=video_dir, channel_root=assets_root, video=video_number)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to resolve background source: {exc}") from exc
+
+    if not request.allow_generate and bg_source.bg_src is None:
+        raise HTTPException(
+            status_code=400,
+            detail="background not found; add 10_bg.* / 90_bg_ai_raw.* or set allow_generate=true",
+        )
+
+    build_id = f"ui_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_{uuid.uuid4().hex[:8]}"
+    try:
+        build_channel_thumbnails(
+            channel=channel_code,
+            targets=[BuildTarget(channel=channel_code, video=video_number)],
+            width=1920,
+            height=1080,
+            force=True,
+            skip_generate=not bool(request.allow_generate),
+            continue_on_error=False,
+            max_gen_attempts=2,
+            export_flat=False,
+            flat_name_suffix="",
+            sleep_sec=0.2,
+            bg_brightness=1.0,
+            bg_contrast=1.0,
+            bg_color=1.0,
+            bg_gamma=1.0,
+            bg_zoom=1.0,
+            bg_pan_x=0.0,
+            bg_pan_y=0.0,
+            bg_band_brightness=1.0,
+            bg_band_contrast=1.0,
+            bg_band_color=1.0,
+            bg_band_gamma=1.0,
+            bg_band_x0=0.0,
+            bg_band_x1=0.0,
+            bg_band_power=1.0,
+            regen_bg=bool(request.regen_bg),
+            build_id=build_id,
+            output_mode=str(request.output_mode),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"layer_specs build failed: {exc}") from exc
+
+    thumb_path = f"{channel_code}/{video_number}/00_thumb.png"
+    thumb_url = f"/thumbnails/assets/{channel_code}/{video_number}/00_thumb.png"
+    meta_path = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "compiler" / build_id / "build_meta.json"
+    meta_rel = safe_relative_path(meta_path) if meta_path.exists() else None
+
+    return ThumbnailLayerSpecsBuildResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        build_id=build_id,
+        thumb_url=thumb_url,
+        thumb_path=thumb_path,
+        build_meta_path=meta_rel,
     )
 
 

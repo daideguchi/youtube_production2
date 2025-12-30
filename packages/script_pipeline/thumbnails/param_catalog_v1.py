@@ -86,6 +86,25 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     "overrides.overlays.bottom_band.y1": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
 
     "overrides.text_template_id": ParamSpec(kind="string", engine="layer_specs_v3"),
+
+    # overrides.text_* (text rendering tuning)
+    "overrides.text_scale": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
+
+    # overrides.text_fills.* (solid fill color overrides; keys must exist in authored specs)
+    "overrides.text_fills.white_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
+    "overrides.text_fills.red_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
+    "overrides.text_fills.yellow_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
+    "overrides.text_fills.hot_red_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
+    "overrides.text_fills.purple_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
+
+    # overrides.portrait.* (per-video portrait composite tuning, CH26 benchmark)
+    "overrides.portrait.zoom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
+    "overrides.portrait.offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
+    "overrides.portrait.offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
+    "overrides.portrait.trim_transparent": ParamSpec(kind="bool", engine="layer_specs_v3"),
+    "overrides.portrait.fg_brightness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),
+    "overrides.portrait.fg_contrast": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),
+    "overrides.portrait.fg_color": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),
 }
 
 
@@ -187,4 +206,3 @@ def validate_param_value_v1(path: str, value: Any) -> Any:
         return f
 
     raise ValueError(f"unsupported kind: {spec.kind}")
-

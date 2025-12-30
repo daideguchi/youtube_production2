@@ -280,20 +280,24 @@ def main() -> None:
     }
     
     input_text = args.input.read_text(encoding="utf-8")
-    # Always materialize a sanitized TTS input under audio_prep/ (required by SSOT).
-    # This strips meta citations/URLs that must never be spoken or shown in subtitles.
+    # Always materialize a TTS input under audio_prep/ (required by SSOT).
+    # Prefer sanitized text (strip meta citations/URLs), but if sanitize fails,
+    # write raw input so downstream/UI never silently falls back.
+    sanitized_path = artifact_root / "script_sanitized.txt"
     try:
         from factory_common.text_sanitizer import strip_meta_from_script
 
         sanitized = strip_meta_from_script(input_text)
         if sanitized.removed_counts:
             print(f"[SANITIZE] Removed meta tokens from input: {sanitized.removed_counts}")
-        sanitized_path = artifact_root / "script_sanitized.txt"
-        sanitized_path.write_text(sanitized.text, encoding="utf-8")
         input_text = sanitized.text
     except Exception as exc:
         print(f"[WARN] Failed to sanitize input text; continuing with raw input: {exc}")
-        sanitized_path = None
+
+    try:
+        sanitized_path.write_text(input_text, encoding="utf-8")
+    except Exception as exc:
+        raise SystemExit(f"[ERROR] Failed to write script_sanitized.txt: {exc}")
 
     # Import Lazy to avoid circular dependency if any
     from audio_tts.tts.strict_orchestrator import run_strict_pipeline
@@ -308,7 +312,7 @@ def main() -> None:
             output_log=log_path,
             engine=engine,
             voicepeak_config=voicepeak_overrides,
-            artifact_root=out_wav.parent,
+            artifact_root=artifact_root,
             target_indices=[int(i) for i in args.indices.split(",")] if args.indices else None,
             resume=args.resume,
             prepass=args.prepass,

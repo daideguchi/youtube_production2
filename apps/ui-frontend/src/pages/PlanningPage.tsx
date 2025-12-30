@@ -9,6 +9,7 @@ import {
   unmarkVideoPublishedLocked,
   updatePlanningChannelProgress,
 } from "../api/client";
+import { apiUrl } from "../api/baseUrl";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
 import { RedoBadge } from "../components/RedoBadge";
 import type { ShellOutletContext } from "../layouts/AppShell";
@@ -16,6 +17,20 @@ import { safeLocalStorage } from "../utils/safeStorage";
 import "./PlanningPage.css";
 
 type Row = Record<string, string>;
+
+type EpisodeProgressItem = {
+  video: string;
+  video_run_id?: string | null;
+  capcut_draft_status?: string | null;
+  capcut_draft_run_id?: string | null;
+  capcut_draft_target?: string | null;
+  capcut_draft_target_exists?: boolean | null;
+  issues?: string[];
+};
+
+type EpisodeProgressResponse = {
+  episodes?: EpisodeProgressItem[];
+};
 
 const CHANNEL_META: Record<string, { icon: string; color: string }> = {
   CH01: { icon: "🎯", color: "chip-cyan" },
@@ -77,7 +92,7 @@ const LONG_COLUMNS = new Set([
   "動画内挿絵AI向けプロンプト（10個）",
 ]);
 
-const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "整合", "投稿完了"]);
+const NARROW_COLUMNS = new Set(["動画番号", "動画ID", "進捗", "整合", "投稿完了", "動画run", "CapCutドラフト"]);
 const MEDIUM_COLUMNS = new Set(["タイトル", "音声生成", "音声品質", "納品"]);
 const THUMB_COLUMNS = new Set(["サムネ"]);
 
@@ -89,6 +104,8 @@ const COMPACT_PRIORITY = [
   "進捗",
   "整合",
   "投稿完了",
+  "動画run",
+  "CapCutドラフト",
   "更新日時",
   "台本パス",
   "企画意図",
@@ -165,6 +182,58 @@ const isAdoptedEpisodeRow = (row: Row): boolean => {
     progress.includes("公開済み") ||
     progress.trim().toLowerCase() === "published"
   );
+};
+
+const fetchEpisodeProgress = async (channelCode: string): Promise<EpisodeProgressResponse> => {
+  const ch = String(channelCode || "").trim().toUpperCase();
+  if (!ch) return { episodes: [] };
+  const response = await fetch(apiUrl(`/api/channels/${encodeURIComponent(ch)}/episode-progress`), {
+    method: "GET",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    let message = `${response.status} ${response.statusText}`;
+    try {
+      const data = await response.json();
+      if (data?.detail) {
+        message = String(data.detail);
+      }
+    } catch {
+      // no-op
+    }
+    throw new Error(message);
+  }
+  return (await response.json()) as EpisodeProgressResponse;
+};
+
+const buildEpisodeProgressMap = (response: EpisodeProgressResponse): Record<string, EpisodeProgressItem> => {
+  const map: Record<string, EpisodeProgressItem> = {};
+  (response.episodes ?? []).forEach((item) => {
+    const token = normalizeVideo(item.video);
+    if (!token) return;
+    map[token] = item;
+  });
+  return map;
+};
+
+const formatCapcutLabel = (statusRaw: string, isCandidate: boolean): string => {
+  const status = String(statusRaw || "").trim().toLowerCase();
+  const base = status === "ok" ? "OK" : status === "broken" ? "LINK切れ" : status === "missing" ? "未生成" : statusRaw || "";
+  if (!base) return "";
+  return isCandidate ? `${base}(候補)` : base;
+};
+
+const attachEpisodeProgressColumns = (rows: Row[], progressMap: Record<string, EpisodeProgressItem>): Row[] => {
+  return (rows ?? []).map((row) => {
+    const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+    const item = vid ? progressMap[vid] : undefined;
+    const selectedRun = item?.video_run_id ? String(item.video_run_id) : "";
+    const candidateRun = item?.capcut_draft_run_id ? String(item.capcut_draft_run_id) : "";
+    const runLabel = selectedRun || (candidateRun ? `候補:${candidateRun}` : "");
+    const isCandidate = !selectedRun && Boolean(candidateRun);
+    const capcutLabel = item ? formatCapcutLabel(String(item.capcut_draft_status || ""), isCandidate) : "";
+    return { ...row, 動画run: runLabel, CapCutドラフト: capcutLabel };
+  });
 };
 
 export function PlanningPage() {
@@ -252,6 +321,7 @@ export function PlanningPage() {
   const [progressEditing, setProgressEditing] = useState<{ key: string; value: string } | null>(null);
   const [progressSaving, setProgressSaving] = useState<Record<string, boolean>>({});
   const [progressErrors, setProgressErrors] = useState<Record<string, string>>({});
+  const [episodeProgressMap, setEpisodeProgressMap] = useState<Record<string, EpisodeProgressItem>>({});
   const thumbRequestedRef = useRef<Set<string>>(new Set());
   const deepLinkAppliedRef = useRef<string | null>(null);
   const copiedTitleTimerRef = useRef<number | null>(null);
@@ -500,7 +570,14 @@ export function PlanningPage() {
       try {
         await markVideoPublishedLocked(channelCode, videoToken, { force_complete: true });
         const res = await fetchPlanningChannelCsv(channelCode);
-        const nextRows = res.rows || [];
+        let progress: Record<string, EpisodeProgressItem> = {};
+        try {
+          progress = buildEpisodeProgressMap(await fetchEpisodeProgress(channelCode));
+        } catch {
+          progress = {};
+        }
+        setEpisodeProgressMap(progress);
+        const nextRows = attachEpisodeProgressColumns(res.rows || [], progress);
         setRows(nextRows);
         const summary = await fetchRedoSummary(channelCode);
         setRedoSummary(summary[0] ?? null);
@@ -531,7 +608,14 @@ export function PlanningPage() {
     try {
       await unmarkVideoPublishedLocked(channelCode, videoToken);
       const res = await fetchPlanningChannelCsv(channelCode);
-      const nextRows = res.rows || [];
+      let progress: Record<string, EpisodeProgressItem> = {};
+      try {
+        progress = buildEpisodeProgressMap(await fetchEpisodeProgress(channelCode));
+      } catch {
+        progress = {};
+      }
+      setEpisodeProgressMap(progress);
+      const nextRows = attachEpisodeProgressColumns(res.rows || [], progress);
       setRows(nextRows);
       const summary = await fetchRedoSummary(channelCode);
       setRedoSummary(summary[0] ?? null);
@@ -562,6 +646,7 @@ export function PlanningPage() {
       setDetailRow(null);
       setError(null);
       setLoading(false);
+      setEpisodeProgressMap({});
       return () => {
         cancelled = true;
       };
@@ -573,7 +658,15 @@ export function PlanningPage() {
       try {
         const res = await fetchPlanningChannelCsv(channel);
         if (cancelled) return;
-        setRows(res.rows || []);
+        let progress: Record<string, EpisodeProgressItem> = {};
+        try {
+          progress = buildEpisodeProgressMap(await fetchEpisodeProgress(channel));
+        } catch {
+          progress = {};
+        }
+        if (cancelled) return;
+        setEpisodeProgressMap(progress);
+        setRows(attachEpisodeProgressColumns(res.rows || [], progress));
         const summary = await fetchRedoSummary(channel);
         if (cancelled) return;
         setRedoSummary(summary[0] ?? null);
@@ -757,7 +850,14 @@ export function PlanningPage() {
             setError(null);
             try {
               const res = await fetchPlanningChannelCsv(channel);
-              setRows(res.rows || []);
+              let progress: Record<string, EpisodeProgressItem> = {};
+              try {
+                progress = buildEpisodeProgressMap(await fetchEpisodeProgress(channel));
+              } catch {
+                progress = {};
+              }
+              setEpisodeProgressMap(progress);
+              setRows(attachEpisodeProgressColumns(res.rows || [], progress));
               const summary = await fetchRedoSummary(channel);
               setRedoSummary(summary[0] ?? null);
             } catch (e: any) {
@@ -1073,6 +1173,52 @@ export function PlanningPage() {
                               )}
                               {errorMessage ? <span className="planning-page__progress-error">{errorMessage}</span> : null}
                             </div>
+                          );
+                        })()
+                      ) : col === "動画run" ? (
+                        (() => {
+                          const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+                          const item = vid ? episodeProgressMap[vid] : undefined;
+                          const selected = item?.video_run_id ? String(item.video_run_id) : "";
+                          const candidate = item?.capcut_draft_run_id ? String(item.capcut_draft_run_id) : "";
+                          const fallback = String(row[col] ?? "").trim();
+                          const label = selected || (candidate ? `候補:${candidate}` : fallback || "—");
+                          const issues = item?.issues ?? [];
+                          const unselected = !selected && Boolean(candidate) && issues.includes("video_run_unselected");
+                          return (
+                            <span className="planning-page__run-cell" title={label}>
+                              {unselected ? <span className="planning-page__badge planning-page__badge--run-warn">未選択</span> : null}
+                              <span className="planning-page__cell-text planning-page__cell-text--flex">{label}</span>
+                            </span>
+                          );
+                        })()
+                      ) : col === "CapCutドラフト" ? (
+                        (() => {
+                          const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+                          const item = vid ? episodeProgressMap[vid] : undefined;
+                          const selected = item?.video_run_id ? String(item.video_run_id) : "";
+                          const candidate = item?.capcut_draft_run_id ? String(item.capcut_draft_run_id) : "";
+                          const isCandidate = !selected && Boolean(candidate);
+                          const status = String(item?.capcut_draft_status || "").trim().toLowerCase();
+                          const fallback = String(row[col] ?? "").trim();
+                          const label = item ? formatCapcutLabel(status, isCandidate) || "—" : fallback || "—";
+                          const badgeCls =
+                            status === "ok"
+                              ? "planning-page__badge planning-page__badge--capcut-ok"
+                              : status === "broken"
+                                ? "planning-page__badge planning-page__badge--capcut-broken"
+                                : status === "missing"
+                                  ? "planning-page__badge planning-page__badge--capcut-missing"
+                                  : "planning-page__badge planning-page__badge--capcut-missing";
+                          const target = item?.capcut_draft_target ? String(item.capcut_draft_target) : "";
+                          const runId = selected || candidate;
+                          const titleParts = [`status=${status || "unknown"}`];
+                          if (runId) titleParts.push(`run=${runId}`);
+                          if (target) titleParts.push(`target=${target}`);
+                          return (
+                            <span className="planning-page__capcut-cell" title={titleParts.join(" / ")}>
+                              <span className={badgeCls}>{label}</span>
+                            </span>
                           );
                         })()
                       ) : col === "タイトル" ? (

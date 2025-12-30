@@ -75,7 +75,7 @@ def test_update_human_scripts_bootstraps_status_json(planning_test_env):
     script_audio_human_path = scripts_root / "CH01" / "001" / "content" / "script_audio_human.txt"
     assert script_audio_human_path.read_text(encoding="utf-8") == "Bテキスト\n"
     b_with_pauses_path = scripts_root / "CH01" / "001" / "audio_prep" / "b_text_with_pauses.txt"
-    assert b_with_pauses_path.read_text(encoding="utf-8") == "Bテキスト\n"
+    assert not b_with_pauses_path.exists()
 
     response2 = client.get("/api/channels/CH01/videos/001")
     assert response2.status_code == 200

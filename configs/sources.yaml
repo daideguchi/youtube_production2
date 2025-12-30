@@ -13,6 +13,10 @@ channels:
     persona: workspaces/planning/personas/CH01_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 6000
     target_chars_max: 8000
@@ -25,6 +29,10 @@ channels:
     persona: workspaces/planning/personas/CH02_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH02-静寂の哲学/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 8000
     target_chars_max: 10000
@@ -37,6 +45,10 @@ channels:
     persona: workspaces/planning/personas/CH03_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH03-【シニアの健康】朗読図書館/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 6
     target_chars_min: 7000
     target_chars_max: 9000
@@ -49,6 +61,10 @@ channels:
     persona: workspaces/planning/personas/CH04_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH04-隠れ書庫アカシック/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 8000
     target_chars_max: 10000
@@ -61,6 +77,10 @@ channels:
     persona: workspaces/planning/personas/CH05_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH05-シニア恋愛/script_prompt.txt
     web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 6000
     target_chars_max: 8000
@@ -73,6 +93,10 @@ channels:
     persona: workspaces/planning/personas/CH06_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 20000
     target_chars_max: 26000
@@ -85,6 +109,10 @@ channels:
     persona: workspaces/planning/personas/CH07_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH07-仏教の心【全てうまくいく】/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 6000
     target_chars_max: 6600
@@ -97,6 +125,10 @@ channels:
     persona: workspaces/planning/personas/CH08_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH08-隠れ書庫アカシック/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 6000
     target_chars_max: 7000
@@ -109,6 +141,10 @@ channels:
     persona: workspaces/planning/personas/CH09_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH09-不動の指針/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 1
     target_chars_min: 8000
     target_chars_max: 10000
@@ -121,6 +157,10 @@ channels:
     persona: workspaces/planning/personas/CH10_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH10-人生を変える偉人思考【今日から実装】/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 15000
     target_chars_max: 20000
@@ -133,6 +173,10 @@ channels:
     persona: workspaces/planning/personas/CH11_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH11-ブッダの法話/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 6000
     target_chars_max: 10000
@@ -145,6 +189,10 @@ channels:
     persona: workspaces/planning/personas/CH12_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH12-ブッダの黄昏夜話/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 4
     target_chars_min: 7000
     target_chars_max: 9000
@@ -157,6 +205,10 @@ channels:
     persona: workspaces/planning/personas/CH13_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH13-ブッダの禅処方箋/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 8
     target_chars_min: 6500
     target_chars_max: 8500
@@ -169,6 +221,10 @@ channels:
     persona: workspaces/planning/personas/CH14_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH14-ブッダの執着解除/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 8
     target_chars_min: 7000
     target_chars_max: 9000
@@ -181,6 +237,10 @@ channels:
     persona: workspaces/planning/personas/CH15_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH15-ブッダの心胆鍛錬/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 8
     target_chars_min: 7000
     target_chars_max: 9000
@@ -193,6 +253,10 @@ channels:
     persona: workspaces/planning/personas/CH16_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH16-ブッダの老後整え方/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 8
     target_chars_min: 7000
     target_chars_max: 9000
@@ -205,6 +269,10 @@ channels:
     persona: workspaces/planning/personas/CH17_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH17-安らぎ仏教夜話/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 36000
     target_chars_max: 44000
@@ -217,6 +285,10 @@ channels:
     persona: workspaces/planning/personas/CH18_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH18-ゆったり仏教伝説紀行/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 36000
     target_chars_max: 44000
@@ -229,6 +301,10 @@ channels:
     persona: workspaces/planning/personas/CH19_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH19-眠れる昔ばなし朗読館/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 36000
     target_chars_max: 44000
@@ -241,6 +317,10 @@ channels:
     persona: workspaces/planning/personas/CH20_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH20-ゆったり雑学ナイトラジオ/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 36000
     target_chars_max: 44000
@@ -253,6 +333,10 @@ channels:
     persona: workspaces/planning/personas/CH21_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH21-夢見るゆる旅案内/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 36000
     target_chars_max: 44000
@@ -265,6 +349,10 @@ channels:
     persona: workspaces/planning/personas/CH22_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH22-老後の友人関係ラボ/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 6000
     target_chars_max: 8000
@@ -277,6 +365,10 @@ channels:
     persona: workspaces/planning/personas/CH23_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH23-熟年夫婦の現実ノート/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 5
     target_chars_min: 8000
     target_chars_max: 9000
@@ -289,6 +381,10 @@ channels:
     persona: workspaces/planning/personas/CH24_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH24-叡智の扉/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 10000
     target_chars_max: 12000
@@ -302,6 +398,10 @@ channels:
     persona: workspaces/planning/personas/CH25_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH25-寝落ち偉人講話【眠りながら学ぶ】/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 20000
     target_chars_max: 26000
@@ -315,6 +415,10 @@ channels:
     persona: workspaces/planning/personas/CH26_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH26-拝啓、偉人より/script_prompt.txt
     web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
     chapter_count: 7
     target_chars_min: 15000
     target_chars_max: 20000

@@ -117,6 +117,23 @@ SoT（チャンネル別ポリシー）:
 - 検索結果は `topic_research` の **参考URL/論点抽出**に限定し、本文の主題はタイトルに従う。
 - `search_results.json` / `references.json` は本文（Aテキスト）へ混入させない（URL/脚注は禁止）。
 
+### 0.3.1 Wikipedia（補助）の扱い
+
+結論:
+- Wikipedia は **補助**。タイトル/企画の主題を変えるために使わない。
+- チャンネルによっては内容汚染の原因になるため、**チャンネルごとに実行可否を固定**する（SoT）。
+
+SoT（チャンネル別ポリシー）:
+- `configs/sources.yaml: channels.CHxx.wikipedia.policy`（default: `auto`）
+  - `disabled`: 実行しない（`wikipedia_summary.json` は `provider=disabled` を必ず書く）
+  - `auto`: 通常どおり参照を試す（見つからない/失敗してもパイプラインは止めない）
+  - `required`: 参照を必ず試す（失敗してもパイプラインは止めないが、`status.json` に decision/reason が残る）
+- 出力: `workspaces/scripts/{CH}/{NNN}/content/analysis/research/wikipedia_summary.json`
+
+内容汚染対策（設計）:
+- Wikipedia の URL/出典を **本文へ直接書かない**（Aテキスト禁則）。
+- Wikipedia は「用語/人物/概念の導入・同定」の足場として使い、本文の裏取りは必要なら Web検索（search_results.json）で補強する。
+
 ### 0.4 文字数ターゲット（長文でも崩さないためのSSOT）
 
 SoT（正本）:

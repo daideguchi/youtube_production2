@@ -180,6 +180,10 @@
 
 ### 3.6 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
+- 進捗の統一ビュー（派生 / read-only）:
+  - SSOT: `ssot/ops/OPS_EPISODE_PROGRESS_VIEW.md`
+  - CLI: `python3 scripts/ops/episode_progress.py --channel CHxx`
+  - API: `GET /api/channels/{ch}/episode-progress`（UI `/planning` が参照）
 
 ### 3.7 Alignment（Planning↔Script 整合スタンプ）
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）

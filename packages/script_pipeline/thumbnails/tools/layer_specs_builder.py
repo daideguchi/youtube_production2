@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -504,6 +505,8 @@ def build_channel_thumbnails(
         video_band_color = float(overrides_leaf.get("overrides.bg_enhance_band.color", base_band_color))
         video_band_gamma = float(overrides_leaf.get("overrides.bg_enhance_band.gamma", base_band_gamma))
 
+        video_text_scale = float(overrides_leaf.get("overrides.text_scale", 1.0))
+
         template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
 
         effects_override: Optional[Dict[str, Any]] = None
@@ -512,6 +515,7 @@ def build_channel_thumbnails(
             stroke: Dict[str, Any] = {}
             shadow: Dict[str, Any] = {}
             glow: Dict[str, Any] = {}
+            fills: Dict[str, Any] = {}
             if "overrides.text_effects.stroke.width_px" in overrides_leaf:
                 stroke["width_px"] = overrides_leaf["overrides.text_effects.stroke.width_px"]
             if "overrides.text_effects.stroke.color" in overrides_leaf:
@@ -534,6 +538,11 @@ def build_channel_thumbnails(
                 glow["blur_px"] = overrides_leaf["overrides.text_effects.glow.blur_px"]
             if "overrides.text_effects.glow.color" in overrides_leaf:
                 glow["color"] = overrides_leaf["overrides.text_effects.glow.color"]
+
+            for fill_key in ("white_fill", "red_fill", "yellow_fill", "hot_red_fill", "purple_fill"):
+                p = f"overrides.text_fills.{fill_key}.color"
+                if p in overrides_leaf:
+                    fills[fill_key] = {"color": overrides_leaf[p]}
             eff = {}
             if stroke:
                 eff["stroke"] = stroke
@@ -541,6 +550,8 @@ def build_channel_thumbnails(
                 eff["shadow"] = shadow
             if glow:
                 eff["glow"] = glow
+            if fills:
+                eff.update(fills)
             if eff:
                 effects_override = eff
 
@@ -654,6 +665,22 @@ def build_channel_thumbnails(
                 if val:
                     text_override[str(slot_name)] = val
 
+        text_spec_for_render = text_spec
+        if abs(float(video_text_scale) - 1.0) > 1e-6 and isinstance(text_spec, dict):
+            text_spec_for_render = copy.deepcopy(text_spec)
+            templates_out = text_spec_for_render.get("templates") if isinstance(text_spec_for_render, dict) else None
+            tpl_out = templates_out.get(template_id) if isinstance(templates_out, dict) and template_id else None
+            slots_out = tpl_out.get("slots") if isinstance(tpl_out, dict) else None
+            if isinstance(slots_out, dict):
+                for slot_cfg in slots_out.values():
+                    if not isinstance(slot_cfg, dict):
+                        continue
+                    base_size = slot_cfg.get("base_size_px")
+                    if not isinstance(base_size, (int, float)):
+                        continue
+                    scaled = int(round(float(base_size) * float(video_text_scale)))
+                    slot_cfg["base_size_px"] = max(1, scaled)
+
         with enhanced_bg_path(
             out_bg,
             params=bg_params,
@@ -675,6 +702,7 @@ def build_channel_thumbnails(
                 anchor = "bottom_center"
                 portrait_zoom = 1.0
                 portrait_offset_px = (0, 0)
+                off_norm = (0.0, 0.0)
                 trim_transparent = False
 
                 fg_brightness = 1.20
@@ -691,7 +719,6 @@ def build_channel_thumbnails(
                     anchor = str(ov.get("anchor") or cfg_defaults.get("anchor") or anchor).strip() or anchor
                     portrait_zoom = _as_float(ov.get("zoom") if "zoom" in ov else cfg_defaults.get("zoom"), 1.0)
                     off_norm = _as_norm_offset(ov.get("offset") if "offset" in ov else cfg_defaults.get("offset"), (0.0, 0.0))
-                    portrait_offset_px = (int(round(width * off_norm[0])), int(round(height * off_norm[1])))
                     trim_transparent = bool(ov.get("trim_transparent") if "trim_transparent" in ov else cfg_defaults.get("trim_transparent"))
 
                     fg_defaults = cfg_defaults.get("fg") if isinstance(cfg_defaults.get("fg"), dict) else {}
@@ -699,6 +726,26 @@ def build_channel_thumbnails(
                     fg_brightness = _as_float(fg_override.get("brightness") if "brightness" in fg_override else fg_defaults.get("brightness"), 1.26)
                     fg_contrast = _as_float(fg_override.get("contrast") if "contrast" in fg_override else fg_defaults.get("contrast"), 1.10)
                     fg_color = _as_float(fg_override.get("color") if "color" in fg_override else fg_defaults.get("color"), 1.00)
+
+                # Per-video thumb_spec overrides should win over channel policy.
+                # These are normalized offsets (relative to canvas width/height).
+                if "overrides.portrait.zoom" in overrides_leaf:
+                    portrait_zoom = float(overrides_leaf["overrides.portrait.zoom"])
+                off_x = float(off_norm[0]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
+                off_y = float(off_norm[1]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
+                if "overrides.portrait.offset_x" in overrides_leaf:
+                    off_x = float(overrides_leaf["overrides.portrait.offset_x"])
+                if "overrides.portrait.offset_y" in overrides_leaf:
+                    off_y = float(overrides_leaf["overrides.portrait.offset_y"])
+                portrait_offset_px = (int(round(width * off_x)), int(round(height * off_y)))
+                if "overrides.portrait.trim_transparent" in overrides_leaf:
+                    trim_transparent = bool(overrides_leaf["overrides.portrait.trim_transparent"])
+                if "overrides.portrait.fg_brightness" in overrides_leaf:
+                    fg_brightness = float(overrides_leaf["overrides.portrait.fg_brightness"])
+                if "overrides.portrait.fg_contrast" in overrides_leaf:
+                    fg_contrast = float(overrides_leaf["overrides.portrait.fg_contrast"])
+                if "overrides.portrait.fg_color" in overrides_leaf:
+                    fg_color = float(overrides_leaf["overrides.portrait.fg_color"])
 
                 dest_box_px = (
                     int(round(width * dest_box_norm[0])),
@@ -729,7 +776,7 @@ def build_channel_thumbnails(
                             portrait_used = True
                             compose_text_to_png(
                                 base_with_portrait,
-                                text_layout_spec=text_spec,
+                                text_layout_spec=text_spec_for_render,
                                 video_id=target.video_id,
                                 out_path=build_thumb,
                                 output_mode=output_mode,
@@ -755,7 +802,7 @@ def build_channel_thumbnails(
                         portrait_used = True
                         compose_text_to_png(
                             base_with_portrait,
-                            text_layout_spec=text_spec,
+                            text_layout_spec=text_spec_for_render,
                             video_id=target.video_id,
                             out_path=build_thumb,
                             output_mode=output_mode,
@@ -767,7 +814,7 @@ def build_channel_thumbnails(
             else:
                 compose_text_to_png(
                     base_for_text,
-                    text_layout_spec=text_spec,
+                    text_layout_spec=text_spec_for_render,
                     video_id=target.video_id,
                     out_path=build_thumb,
                     output_mode=output_mode,

@@ -35,8 +35,11 @@ def _is_allowed_override_root_key(key: str) -> bool:
         "bg_enhance_band",
         "text_effects",
         "text_template_id",
+        "text_scale",
+        "text_fills",
         "overlays",
         "copy_override",
+        "portrait",
     }
 
 
@@ -55,6 +58,25 @@ def _flatten_overrides(overrides: Dict[str, Any]) -> Dict[str, Any]:
             out["overrides.text_template_id"] = root_value
             continue
 
+        if root_key in {"text_scale"}:
+            out["overrides.text_scale"] = root_value
+            continue
+
+        if root_key == "text_fills":
+            if not isinstance(root_value, dict):
+                raise TypeError("text_fills must be an object")
+            for fill_key, fill_value in root_value.items():
+                if not isinstance(fill_key, str) or not fill_key.strip():
+                    continue
+                if not isinstance(fill_value, dict):
+                    raise TypeError(f"text_fills.{fill_key} must be an object")
+                for k, v in fill_value.items():
+                    if k == "color":
+                        out[f"overrides.text_fills.{fill_key}.color"] = v
+                        continue
+                    raise KeyError(f"unknown text_fills.{fill_key} key: {k}")
+            continue
+
         if root_key == "copy_override":
             if not isinstance(root_value, dict):
                 raise TypeError("copy_override must be an object")
@@ -64,6 +86,17 @@ def _flatten_overrides(overrides: Dict[str, Any]) -> Dict[str, Any]:
             for k in root_value.keys():
                 if k not in {"upper", "title", "lower"}:
                     raise KeyError(f"unknown copy_override key: {k}")
+            continue
+
+        if root_key == "portrait":
+            if not isinstance(root_value, dict):
+                raise TypeError("portrait must be an object")
+            allowed = {"zoom", "offset_x", "offset_y", "trim_transparent", "fg_brightness", "fg_contrast", "fg_color"}
+            for k, v in root_value.items():
+                out[f"overrides.portrait.{k}"] = v
+            for k in root_value.keys():
+                if k not in allowed:
+                    raise KeyError(f"unknown portrait key: {k}")
             continue
 
         if not isinstance(root_value, dict):
@@ -174,4 +207,3 @@ def extract_normalized_override_leaf(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     leaf = payload.get("_normalized_overrides_leaf")
     return leaf if isinstance(leaf, dict) else {}
-

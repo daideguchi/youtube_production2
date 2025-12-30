@@ -21,6 +21,9 @@ Always answer in Japanese. Keep bullet points concise.
 <<CHANNEL_STYLE_GUIDE>>
 - 現在扱うテーマ: <<TOPIC>>
 
+【Wikipedia要約（JSON）】
+<<WIKIPEDIA_SUMMARY>>
+
 【Web検索結果（JSON）】
 <<WEB_SEARCH_RESULTS>>
 
@@ -39,4 +42,5 @@ Always answer in Japanese. Keep bullet points concise.
 - 箇条書き中心で 500〜900 文字程度に収める
 - 明らかに裏付けが弱い情報には「※未検証」など注記を付ける
 - URL/出典は **作らない**（<<WEB_SEARCH_RESULTS>> に無いURLは出さない）
+- Wikipedia/ウィキペディアは背景理解の補助として使ってよいが、出典として明記しない（URLは <<WEB_SEARCH_RESULTS>> の hits からのみ）
 - 必ず自然な日本語で回答する

@@ -84,6 +84,16 @@
     - `snippet`: string|null（任意）
     - `source`: string|null（任意）
     - `age`: string|null（任意）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/research/wikipedia_summary.json`（Wikipedia 抜粋）
+  - `schema`: `"ytm.wikipedia_summary.v1"`
+  - `provider`: string（例: `wikipedia`, `disabled`）
+  - `query`: string（検索クエリ/推定タイトル）
+  - `lang`: string（例: `ja`, `en`）
+  - `retrieved_at`: string（UTC ISO, `Z`）
+  - `page_title`: string|null
+  - `page_id`: number|null
+  - `page_url`: string|null（http/https）
+  - `extract`: string|null（導入部の plaintext。空の場合あり）
 - `workspaces/scripts/{CH}/{NNN}/content/analysis/research/research_brief.md`（LLMが参照する要約/論点）
 - `workspaces/scripts/{CH}/{NNN}/content/analysis/research/references.json`（出典の機械参照用）
   - list of dict（観測キー例）:

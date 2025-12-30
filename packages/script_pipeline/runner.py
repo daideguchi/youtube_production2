@@ -4468,6 +4468,230 @@ def _normalize_web_search_policy(value: Any) -> str:
     return "auto"
 
 
+def _normalize_wikipedia_policy(value: Any) -> str:
+    """
+    Policy for Wikipedia context fetch in topic_research.
+
+    Supported values:
+      - disabled
+      - auto
+      - required
+    """
+    if isinstance(value, bool):
+        return "required" if value else "disabled"
+    raw = str(value or "").strip().lower().replace("-", "_")
+    if raw in {"", "auto"}:
+        return "auto"
+    if raw in {"disabled", "disable", "off", "false", "0", "none", "no"}:
+        return "disabled"
+    if raw in {"required", "require", "enabled", "enable", "on", "true", "1", "yes"}:
+        return "required"
+    return "auto"
+
+
+def _wikipedia_candidate_from_bracket(tag: str) -> str:
+    raw = str(tag or "").strip()
+    if not raw:
+        return ""
+    # Common title patterns: "岡潔流", "デミング式" -> strip style suffix for better page match.
+    for suffix in ("流", "式"):
+        if raw.endswith(suffix) and len(raw) > len(suffix):
+            raw = raw[: -len(suffix)].strip()
+            break
+    return raw
+
+
+def _build_wikipedia_query_candidates(topic: str | None) -> List[str]:
+    raw = str(topic or "").strip()
+    if not raw:
+        return []
+    tag = _extract_bracket_tag(raw)
+    candidates: List[str] = []
+    if tag:
+        cand = _wikipedia_candidate_from_bracket(tag)
+        candidates.append(cand or tag.strip())
+    cleaned = re.sub(r"【[^】]+】", "", raw).strip()
+    cleaned = cleaned.replace("「", "").replace("」", "")
+    cleaned = re.sub(r"[\s\u3000]+", " ", cleaned).strip()
+    if cleaned:
+        candidates.append(cleaned)
+    candidates.append(raw)
+    seen: set[str] = set()
+    out: List[str] = []
+    for c in candidates:
+        s = str(c or "").strip()
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+        if len(out) >= 3:
+            break
+    return out
+
+
+def _write_wikipedia_summary_disabled(file_path: Path, *, query: str, lang: str) -> None:
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema": "ytm.wikipedia_summary.v1",
+        "provider": "disabled",
+        "query": str(query or "").strip(),
+        "lang": str(lang or "ja").strip().lower() or "ja",
+        "retrieved_at": utc_now_iso(),
+        "page_title": None,
+        "page_id": None,
+        "page_url": None,
+        "extract": None,
+    }
+    file_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _ensure_wikipedia_summary(base: Path, st: Status) -> None:
+    """
+    Ensure `content/analysis/research/wikipedia_summary.json` exists before topic_research LLM runs.
+    Best-effort: failures must not break the pipeline.
+    """
+    out_path = base / "content/analysis/research/wikipedia_summary.json"
+    sources = _load_sources(st.channel)
+
+    wiki_conf = (sources or {}).get("wikipedia")
+    policy_raw: Any = None
+    wiki_lang: Any = None
+    wiki_fallback_lang: Any = None
+    if isinstance(wiki_conf, dict):
+        policy_raw = wiki_conf.get("policy")
+        wiki_lang = wiki_conf.get("lang")
+        wiki_fallback_lang = wiki_conf.get("fallback_lang")
+        if "enabled" in wiki_conf and policy_raw in (None, ""):
+            policy_raw = bool(wiki_conf.get("enabled"))
+    elif isinstance(wiki_conf, bool):
+        policy_raw = wiki_conf
+
+    # Backward-compatible: allow flat keys too.
+    if policy_raw in (None, ""):
+        policy_raw = (sources or {}).get("wikipedia_policy")
+    if wiki_lang in (None, ""):
+        wiki_lang = (sources or {}).get("wikipedia_lang")
+    if wiki_fallback_lang in (None, ""):
+        wiki_fallback_lang = (sources or {}).get("wikipedia_fallback_lang")
+
+    # Default: follow web_search policy unless explicitly set.
+    if policy_raw in (None, ""):
+        web_policy = _normalize_web_search_policy((sources or {}).get("web_search_policy"))
+        policy_raw = "disabled" if web_policy == "disabled" else "auto"
+    wiki_policy = _normalize_wikipedia_policy(policy_raw)
+
+    force = str(os.getenv("YTM_WIKIPEDIA_FORCE") or "0").strip().lower() in {"1", "true", "yes", "on"}
+    lang = str(os.getenv("YTM_WIKIPEDIA_LANG") or wiki_lang or "ja").strip().lower() or "ja"
+    fallback_lang = str(os.getenv("YTM_WIKIPEDIA_FALLBACK_LANG") or wiki_fallback_lang or "en").strip().lower() or None
+    try:
+        timeout_s = int(os.getenv("YTM_WIKIPEDIA_TIMEOUT_S") or 20)
+    except Exception:
+        timeout_s = 20
+
+    topic = st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id
+    candidates = _build_wikipedia_query_candidates(str(topic or ""))
+    query = candidates[0] if candidates else ""
+
+    if wiki_policy == "disabled":
+        _write_wikipedia_summary_disabled(out_path, query=query, lang=lang)
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["wikipedia"] = {
+                    "policy": wiki_policy,
+                    "decision": "skipped",
+                    "reason": "policy_disabled",
+                    "query": query,
+                    "lang": lang,
+                    "force": bool(force),
+                }
+        except Exception:
+            pass
+        return
+
+    if out_path.exists() and not force:
+        try:
+            existing = json.loads(out_path.read_text(encoding="utf-8"))
+            prov = str(existing.get("provider") or "") if isinstance(existing, dict) else ""
+            extract = str(existing.get("extract") or "") if isinstance(existing, dict) else ""
+            page_url = str(existing.get("page_url") or "") if isinstance(existing, dict) else ""
+            if prov and prov != "disabled" and (extract.strip() or page_url.strip()):
+                try:
+                    stage = st.stages.get("topic_research")
+                    if stage is not None:
+                        stage.details["wikipedia"] = {
+                            "policy": wiki_policy,
+                            "decision": "reused",
+                            "reason": "existing_summary",
+                            "query": str(existing.get("query") or query) if isinstance(existing, dict) else query,
+                            "lang": str(existing.get("lang") or lang) if isinstance(existing, dict) else lang,
+                            "force": False,
+                        }
+                except Exception:
+                    pass
+                return
+        except Exception:
+            pass
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        from factory_common.wikipedia import fetch_wikipedia_intro
+
+        best = None
+        for cand in candidates or [query]:
+            if not cand:
+                continue
+            res = fetch_wikipedia_intro(cand, lang=lang, fallback_lang=fallback_lang, timeout_s=timeout_s)
+            best = res
+            if res.page_title or (res.extract and res.extract.strip()) or (res.page_url and res.page_url.strip()):
+                break
+
+        if best is None:
+            _write_wikipedia_summary_disabled(out_path, query=query, lang=lang)
+            decision = "no_match"
+            page_url = None
+            extract_chars = 0
+        else:
+            out_path.write_text(json.dumps(best.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            decision = "executed"
+            page_url = best.page_url
+            extract_chars = len((best.extract or "").strip())
+
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["wikipedia"] = {
+                    "policy": wiki_policy,
+                    "decision": decision,
+                    "reason": "ok" if best is not None else "no_match",
+                    "query": query,
+                    "lang": lang,
+                    "fallback_lang": fallback_lang,
+                    "page_url": page_url,
+                    "extract_chars": extract_chars,
+                    "force": bool(force),
+                }
+        except Exception:
+            pass
+    except Exception as exc:
+        _write_wikipedia_summary_disabled(out_path, query=query, lang=lang)
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["wikipedia"] = {
+                    "policy": wiki_policy,
+                    "decision": "error",
+                    "reason": "exception",
+                    "query": query,
+                    "lang": lang,
+                    "fallback_lang": fallback_lang,
+                    "force": bool(force),
+                    "error": str(exc)[:200],
+                }
+        except Exception:
+            pass
+
+
 def _write_search_results_disabled(file_path: Path, *, query: str) -> None:
     file_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -11976,6 +12200,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         return st
     else:
         if stage_name == "topic_research":
+            try:
+                _ensure_wikipedia_summary(base, st)
+            except Exception:
+                pass
             try:
                 _ensure_web_search_results(base, st)
             except Exception:

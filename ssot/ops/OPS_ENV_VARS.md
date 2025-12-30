@@ -52,6 +52,26 @@
 - `YTM_WEB_SEARCH_TIMEOUT_S`（default: `20`）: 検索リクエストの timeout（秒）
 - `YTM_WEB_SEARCH_FORCE`（default: `0`）: `1` で既存の `search_results.json` があっても再検索
 
+## Script pipeline: Wikipedia（topic_research の補助ソース）
+`packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/wikipedia_summary.json` に保存される。
+
+### チャンネル別ポリシー（SoT）
+Wikipedia を「毎回使う/使わない」を固定すると、チャンネルによっては **内容汚染** の原因になる。  
+そのため、チャンネル別に `configs/sources.yaml` で実行可否を決める（未設定時は web_search_policy から既定を導出）。
+
+- `configs/sources.yaml: channels.CHxx.wikipedia.policy`（default: `auto`）
+  - `disabled`: Wikipedia を参照しない（`wikipedia_summary.json` は `provider=disabled` を必ず書く）
+  - `auto`: 通常どおり参照を試みる（見つからない/失敗してもパイプラインは止めない）
+  - `required`: 参照を必ず試みる（失敗してもパイプラインは止めないが、`status.json` に記録される）
+- `configs/sources.yaml: channels.CHxx.wikipedia.lang`（default: `ja`）: まず探すWikipedia言語
+- `configs/sources.yaml: channels.CHxx.wikipedia.fallback_lang`（default: `en`）: 見つからない場合のフォールバック言語（空なら無効）
+
+### 環境変数（任意）
+- `YTM_WIKIPEDIA_FORCE`（default: `0`）: `1` で既存の `wikipedia_summary.json` があっても再取得
+- `YTM_WIKIPEDIA_LANG`（default: `ja`）: 参照言語の上書き
+- `YTM_WIKIPEDIA_FALLBACK_LANG`（default: `en`）: フォールバック言語の上書き
+- `YTM_WIKIPEDIA_TIMEOUT_S`（default: `20`）: Wikipedia API の timeout（秒）
+
 ## Script pipeline: Master Plan（設計図 / 高コスト推論はここで1回だけ）
 `packages/script_pipeline/runner.py` の `script_master_plan` に適用される。
 

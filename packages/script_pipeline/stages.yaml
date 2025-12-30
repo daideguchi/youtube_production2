@@ -14,6 +14,8 @@ stages:
         required: true
       - path: content/analysis/research/search_results.json
         required: true
+      - path: content/analysis/research/wikipedia_summary.json
+        required: true
     llm:
       task: script_topic_research
       template: research
@@ -24,6 +26,7 @@ stages:
         AUDIENCE_PROFILE: from_persona
         CHANNEL_STYLE_GUIDE: from_style
         WEB_SEARCH_RESULTS: "@content/analysis/research/search_results.json"
+        WIKIPEDIA_SUMMARY: "@content/analysis/research/wikipedia_summary.json"
   - name: script_outline
     description: Draft outline
     outputs:

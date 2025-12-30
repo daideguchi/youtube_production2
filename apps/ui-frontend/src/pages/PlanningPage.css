@@ -380,6 +380,38 @@
   border: 1px solid rgba(220, 38, 38, 0.45);
 }
 
+.planning-page__badge--run-warn {
+  background: #fff8e6;
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.6);
+}
+
+.planning-page__badge--capcut-ok {
+  background: rgba(22, 163, 74, 0.08);
+  color: #166534;
+  border: 1px solid rgba(22, 163, 74, 0.45);
+}
+
+.planning-page__badge--capcut-broken {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border: 1px solid rgba(220, 38, 38, 0.45);
+}
+
+.planning-page__badge--capcut-missing {
+  background: rgba(148, 163, 184, 0.15);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.planning-page__run-cell,
+.planning-page__capcut-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
 .planning-page__dup-cell {
   display: inline-flex;
   align-items: center;
