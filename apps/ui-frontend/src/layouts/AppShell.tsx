@@ -415,7 +415,8 @@ const PLACEHOLDER_COPY: Record<
   },
   audioIntegrity: {
     title: "音声アセット整合性",
-    description: "audio_prep に必須ファイル (b_text_with_pauses.txt / WAV / SRT) が揃っているか、音声とSRTの長さが一致しているかを一覧で確認します。",
+    description:
+      "final に必須ファイル (audio / srt / a_text.txt / log.json) が揃っているか、音声とSRTの長さが一致しているかを一覧で確認します。",
   },
   reports: {
     title: "レポート",
