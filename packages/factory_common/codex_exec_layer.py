@@ -63,26 +63,19 @@ def _strip_code_fences(text: str) -> str:
     return s
 
 
-def _extract_json_object(text: str) -> Dict[str, Any] | None:
+def _extract_json_value(text: str) -> Any | None:
     s = _strip_code_fences(text)
     if not s:
         return None
-    if s.startswith("{") and s.endswith("}"):
+    decoder = json.JSONDecoder()
+    for match in re.finditer(r"[\\[{]", s):
         try:
-            obj = json.loads(s)
-            return obj if isinstance(obj, dict) else None
+            obj, _end = decoder.raw_decode(s[match.start() :])
         except Exception:
-            pass
-    start = s.find("{")
-    end = s.rfind("}")
-    if start < 0 or end < 0 or end <= start:
-        return None
-    chunk = s[start : end + 1]
-    try:
-        obj = json.loads(chunk)
-        return obj if isinstance(obj, dict) else None
-    except Exception:
-        return None
+            continue
+        if isinstance(obj, (dict, list)):
+            return obj
+    return None
 
 
 def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
@@ -215,7 +208,7 @@ def try_codex_exec(
     Returns (content_or_none, meta).
 
     On success, `content` is:
-    - JSON string when response_format == "json_object" (validated)
+    - JSON string when response_format == "json_object" (validated dict/list)
     - Otherwise plain text (trimmed)
     """
     cfg = cfg or load_codex_exec_config()
@@ -299,8 +292,8 @@ def try_codex_exec(
             text = ""
 
         if want_json:
-            obj = _extract_json_object(text)
-            if not isinstance(obj, dict):
+            obj = _extract_json_value(text)
+            if not isinstance(obj, (dict, list)):
                 return None, {
                     "attempted": True,
                     "provider": "codex_exec",
@@ -338,4 +331,3 @@ def try_codex_exec(
             "profile": profile or None,
             "model": model or None,
         }
-
