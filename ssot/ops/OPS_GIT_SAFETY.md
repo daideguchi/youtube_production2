@@ -62,6 +62,7 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 
 補足:
 - `status` が `locked (external)` の場合、環境側（sandbox/OS制約）で `.git/` が保護されている状態。Codexからの破壊的git操作は既に通りにくいが、execpolicy（後述）も併用して二重化する。
+- macOS: Codex環境では `chflags` コマンドがブロックされることがあるため、`git_write_lock.py` は `os.chflags`（Python）で immutable を操作して write-lock を成立させる。
 
 ---
 

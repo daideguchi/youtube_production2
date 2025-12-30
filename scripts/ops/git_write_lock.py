@@ -210,9 +210,16 @@ def cmd_lock(_args: argparse.Namespace) -> int:
 
     # Prefer locking the directory itself (avoid noisy recursive operations).
     if _is_darwin():
-        if _try_run(["chflags", "uchg", str(git_dir)]):
-            print("locked")
-            return 0
+        try:
+            imm = int(getattr(stat_mod, "UF_IMMUTABLE", 0) or 0)
+            if imm:
+                st = os.stat(git_dir)
+                os.chflags(git_dir, int(getattr(st, "st_flags", 0)) | imm)
+                print("locked")
+                return 0
+        except Exception:
+            # Fall through to chmod lock.
+            pass
 
     # chmod fallback: remove owner write bit on `.git/` directory.
     st = os.stat(git_dir)
@@ -249,7 +256,13 @@ def cmd_unlock(_args: argparse.Namespace) -> int:
         return 2
 
     if _is_darwin():
-        _try_run(["chflags", "nouchg", str(git_dir)])
+        try:
+            imm = int(getattr(stat_mod, "UF_IMMUTABLE", 0) or 0)
+            if imm:
+                st = os.stat(git_dir)
+                os.chflags(git_dir, int(getattr(st, "st_flags", 0)) & ~imm)
+        except Exception:
+            pass
 
     st = os.stat(git_dir)
     new_mode = st.st_mode | stat_mod.S_IWUSR
