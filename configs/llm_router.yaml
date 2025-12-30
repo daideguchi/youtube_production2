@@ -127,6 +127,16 @@ models:
       json_mode: true
       max_tokens: 4096
 
+  # Web search model (text-only; returns structured JSON via prompt instruction).
+  or_perplexity_sonar:
+    provider: openrouter
+    model_name: "perplexity/sonar"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: false
+      max_tokens: 4096
+
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
@@ -155,6 +165,10 @@ tiers:
   # Special purpose: Vision captioning (image + text)
   vision_caption:
     - or_qwen_2_5_vl_72b_instruct
+  
+  # Special purpose: Web search (OpenRouter)
+  web_search:
+    - or_perplexity_sonar
 
   # Dedicated tier for master plan refinement (single-model only; cost guard in runner).
   master_plan_opus:
@@ -192,6 +206,15 @@ tasks:
   script_quality_check:
     tier: heavy_reasoning
     timeout: 300
+
+  # --- Web Search (OpenRouter via LLMRouter) ---
+  # Used by `factory_common.web_search.openrouter_web_search`.
+  web_search_openrouter:
+    tier: web_search
+    timeout: 30
+    defaults:
+      temperature: 0.2
+      max_tokens: 1200
 
   # Master plan (blueprint) — optional Opus one-shot
   # Enable via env:

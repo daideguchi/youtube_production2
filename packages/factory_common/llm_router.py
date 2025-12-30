@@ -286,10 +286,25 @@ class LLMRouter:
             key = os.getenv(p.get("env_api_key"))
             base = p.get("base_url")
             if key and OpenAI:
-                self.clients["openrouter"] = OpenAI(
-                    api_key=key,
-                    base_url=base
-                )
+                headers: Dict[str, str] = {}
+                ref = (os.getenv("OPENROUTER_REFERRER") or "").strip()
+                title = (os.getenv("OPENROUTER_TITLE") or "").strip()
+                if ref:
+                    headers["HTTP-Referer"] = ref
+                if title:
+                    headers["X-Title"] = title
+
+                try:
+                    self.clients["openrouter"] = OpenAI(
+                        api_key=key,
+                        base_url=base,
+                        default_headers=headers or None,
+                    )
+                except TypeError:
+                    self.clients["openrouter"] = OpenAI(
+                        api_key=key,
+                        base_url=base,
+                    )
 
         # Gemini
         if "gemini" in providers:
@@ -299,7 +314,7 @@ class LLMRouter:
                 genai.configure(api_key=key)
                 self.clients["gemini"] = "configured" # Client is static
 
-    def get_models_for_task(self, task: str) -> List[str]:
+    def get_models_for_task(self, task: str, *, model_keys_override: Optional[List[str]] = None) -> List[str]:
         # Runtime overrides (CLI/UI):
         # - LLM_FORCE_MODELS="model_key1,model_key2"
         # - LLM_FORCE_TASK_MODELS_JSON='{"task_name":["model_key1","model_key2"]}'
@@ -377,6 +392,14 @@ class LLMRouter:
                     seen.add(mk)
             return out
 
+        if model_keys_override:
+            forced = _split_model_keys(model_keys_override)
+            forced_valid = _normalize_forced_models(forced)
+            if forced_valid:
+                return forced_valid
+            if forced:
+                logger.warning("model_keys_override: unknown model keys: %s", forced)
+
         forced_task_json = (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
         if forced_task_json:
             try:
@@ -433,6 +456,7 @@ class LLMRouter:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
+        model_keys: Optional[List[str]] = None,
         **kwargs,
     ) -> Any:
         result = self._call_internal(
@@ -443,6 +467,7 @@ class LLMRouter:
             max_tokens=max_tokens,
             response_format=response_format,
             return_raw=False,
+            model_keys=model_keys,
             **kwargs,
         )
         return result["content"]
@@ -455,6 +480,7 @@ class LLMRouter:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
+        model_keys: Optional[List[str]] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         """
@@ -469,6 +495,7 @@ class LLMRouter:
             max_tokens=max_tokens,
             response_format=response_format,
             return_raw=True,
+            model_keys=model_keys,
             **kwargs,
         )
 
@@ -481,9 +508,10 @@ class LLMRouter:
         max_tokens: Optional[int],
         response_format: Optional[str],
         return_raw: bool,
+        model_keys: Optional[List[str]],
         **kwargs,
     ) -> Dict[str, Any]:
-        models = self.get_models_for_task(task)
+        models = self.get_models_for_task(task, model_keys_override=model_keys)
         if not models:
             raise ValueError(f"No models available for task: {task}")
 

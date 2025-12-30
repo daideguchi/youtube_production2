@@ -46,6 +46,9 @@ def main(argv: list[str] | None = None) -> int:
         ssot_cmd.append("--write")
     rc = max(rc, _run(ssot_cmd))
 
+    # LLM hardcode guard (prevent direct provider calls outside LLMRouter/ImageClient).
+    rc = max(rc, _run([sys.executable, "scripts/ops/llm_hardcode_audit.py"]))
+
     # Optional: focused tests (avoid broad suite; keep it fast).
     if args.run_tests:
         if (REPO_ROOT / "tests").exists():
@@ -78,4 +81,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

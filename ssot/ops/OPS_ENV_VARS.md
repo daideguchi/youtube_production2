@@ -43,7 +43,11 @@
   - `openrouter`: OpenRouter 検索モデルを使用（default model は下記）
   - `disabled`: 検索を実行しない（`hits=[]` の JSON を書く）
 - `BRAVE_SEARCH_API_KEY`（任意）: Brave Search API（provider=brave/auto のとき使用）
-- `YTM_WEB_SEARCH_OPENROUTER_MODEL`（default: `perplexity/sonar`）: provider=openrouter/auto のとき使用
+- `YTM_WEB_SEARCH_OPENROUTER_TASK`（default: `web_search_openrouter`）: provider=openrouter/auto のときに使う LLMRouter task key（`configs/llm_router.yaml: tasks`）
+- `YTM_WEB_SEARCH_OPENROUTER_MODEL`（任意）: OpenRouter検索モデルの上書き（LLMRouter が `model_name` / `deployment` / `provider:model_id` 形式で解決できるもの）
+  - 例: `perplexity/sonar`
+  - 例: `openrouter:perplexity/sonar`
+  - 使うモデルは `configs/llm_router.yaml: models` に登録しておく（未登録の場合は既定タスク設定にフォールバック）
 - `YTM_WEB_SEARCH_COUNT`（default: `8`）: 検索結果の最大件数
 - `YTM_WEB_SEARCH_TIMEOUT_S`（default: `20`）: 検索リクエストの timeout（秒）
 - `YTM_WEB_SEARCH_FORCE`（default: `0`）: `1` で既存の `search_results.json` があっても再検索

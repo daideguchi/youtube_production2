@@ -69,7 +69,6 @@ class WebSearchResult:
 
 
 BRAVE_WEB_ENDPOINT = "https://api.search.brave.com/res/v1/web/search"
-OPENROUTER_CHAT_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
 
 def _normalize_provider(value: str | None) -> str:
