@@ -13,8 +13,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import time
 
-import google.genai as genai
-from google.genai import types as genai_types
+try:
+    import google.genai as genai
+    from google.genai import types as genai_types
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    genai = None
+    genai_types = None
 import requests
 import yaml
 
@@ -729,6 +733,11 @@ class ImageClient:
 
 class GeminiImageAdapter:
     def __init__(self, provider_conf: Dict[str, Any]):
+        if genai is None:
+            raise ImageGenerationError(
+                "Gemini image provider requires optional dependency 'google-genai'. "
+                "Install it (pip install google-genai) or disable gemini models."
+            )
         self.provider_conf = provider_conf.get("gemini", {})
         api_key_env = self.provider_conf.get("env_api_key", "")
         api_key = self._resolve_api_key(api_key_env)

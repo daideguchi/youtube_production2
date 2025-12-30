@@ -17,6 +17,9 @@
 ## 2.1 UI（可視化）
 - UIページ: `/agent-org`
 - Backend API: `/api/agent-org/*`
+- lock/unlock（Actionsタブ）は Orchestrator 不要で即時反映:
+  - `POST /api/agent-org/locks`
+  - `POST /api/agent-org/locks/unlock`
 - もし `/api/agent-org/*` が 404 なら、backend の再起動が必要（新規 router を reload が拾わないことがある）。
 
 ## 3. Orchestrator（任命・奪取不可）
@@ -99,6 +102,7 @@ python scripts/agent_org.py lock 'apps/ui-frontend/**' --mode no_touch --ttl-min
 python scripts/agent_org.py lock 'apps/ui-backend/**' --mode no_touch --ttl-min 60 --note 'dd working'
 python scripts/agent_org.py locks --path apps/ui-backend/backend/main.py
 ```
+UIから行う場合: `/agent-org` → Actions タブ（`from` は agent 名に合わせる）
 ※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。必要なら `--force`（要合意）。
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
 

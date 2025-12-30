@@ -2666,28 +2666,121 @@ def _orchestrator_process_requests(
                     scopes = [scopes]
                 if not isinstance(scopes, list) or not scopes:
                     raise ValueError("payload.scopes is required (list)")
+                lock_owner = str(payload.get("created_by") or from_agent or orch_name).strip() or orch_name
                 mode = str(payload.get("mode") or "no_write")
+                note = str(payload.get("note") or "") or None
+                force = bool(payload.get("force") or False)
+                announce = bool(payload.get("announce") if payload.get("announce") is not None else True)
+                announce_tags = str(payload.get("announce_tags") or "").strip() or None
+
+                ttl_int = None
                 ttl_min = payload.get("ttl_min")
-                ttl_int = int(ttl_min) if ttl_min is not None else None
-                out = _create_lock(
-                    q,
-                    agent=orch_name,
-                    scopes=[str(s) for s in scopes],
-                    mode=mode,
-                    ttl_min=ttl_int,
-                    note=str(payload.get("note") or "") or None,
-                )
-                result = {"lock_path": str(out)}
+                if ttl_min is not None:
+                    try:
+                        ttl_int = int(ttl_min)
+                    except Exception:
+                        ttl_int = None
+
+                scopes_norm = [_normalize_scope(str(s)) for s in scopes if str(s).strip()]
+                if not scopes_norm:
+                    raise ValueError("payload.scopes is required (list)")
+
+                if not force:
+                    existing = _find_locks(q, include_expired=False)
+                    conflicts: list[dict] = []
+                    for lk in existing:
+                        if str(lk.get("_status") or "") != "active":
+                            continue
+                        created_by = str(lk.get("created_by") or "").strip()
+                        if created_by and created_by == lock_owner:
+                            continue
+                        lk_scopes = lk.get("scopes") or []
+                        if not isinstance(lk_scopes, list):
+                            lk_scopes = [str(lk_scopes)]
+                        hit = False
+                        for new_sc in scopes_norm:
+                            for old_sc in lk_scopes:
+                                if _scopes_may_intersect(new_sc, str(old_sc)):
+                                    hit = True
+                                    break
+                            if hit:
+                                break
+                        if hit:
+                            conflicts.append(lk)
+
+                    if conflicts:
+                        lid = str(conflicts[0].get("id") or Path(str(conflicts[0].get("_path") or "")).stem)
+                        by = str(conflicts[0].get("created_by") or "-")
+                        raise ValueError(
+                            f"lock scope intersects existing active locks (n={len(conflicts)}). "
+                            f"example: {lid} created_by={by} (use force=true if you truly need overlap)"
+                        )
+
+                try:
+                    _ensure_board_agent_entry(q, lock_owner)
+                except Exception:
+                    pass
+
+                out = _create_lock(q, agent=lock_owner, scopes=scopes_norm, mode=mode, ttl_min=ttl_int, note=note)
+
+                note_id = None
+                if announce:
+                    try:
+                        lock_obj = _load_json_maybe(out)
+                        lock_id = str(lock_obj.get("id") or Path(str(out)).stem)
+                        expires_at = str(lock_obj.get("expires_at") or "-")
+                        tags = _parse_tags_csv(announce_tags) or ["lock", "coordination"]
+                        msg_lines = [
+                            "scope:",
+                            *[f"- {s}" for s in scopes_norm],
+                            "locks:",
+                            f"- {lock_id}",
+                            "mode:",
+                            f"- {mode}",
+                            "ttl_min:",
+                            f"- {ttl_int if ttl_int is not None else '-'}",
+                            "expires_at:",
+                            f"- {expires_at}",
+                            "note:",
+                            f"- {note if note else '-'}",
+                        ]
+                        _, note_id = _board_append_note(
+                            q,
+                            agent=lock_owner,
+                            topic=f"[FYI][lock] {lock_owner}",
+                            message="\n".join(msg_lines) + "\n",
+                            tags=tags,
+                        )
+                    except Exception:
+                        note_id = None
+
+                result = {"lock_path": str(out), "board_note_id": note_id}
             elif action == "unlock":
                 lock_id = str(payload.get("lock_id") or "")
                 if not lock_id:
                     raise ValueError("payload.lock_id is required")
+                lock_id = lock_id.replace("\\", "/").strip()
+                if "/" in lock_id:
+                    lock_id = lock_id.rsplit("/", 1)[-1]
+                if lock_id.endswith(".json"):
+                    lock_id = lock_id[: -len(".json")]
+
                 lock_path = _locks_dir(q) / f"{lock_id}.json"
-                if lock_path.exists():
+                existed = lock_path.exists()
+                if existed:
                     lock_path.unlink()
-                    result = {"unlocked": True, "lock_path": str(lock_path)}
-                else:
-                    result = {"unlocked": False, "lock_path": str(lock_path)}
+                _append_event(
+                    q,
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "kind": "event",
+                        "created_at": _now_iso_utc(),
+                        "actor": str(from_agent or orch_name),
+                        "action": "lock_removed" if existed else "lock_remove_missing",
+                        "lock_path": str(lock_path),
+                    },
+                )
+                result = {"unlocked": existed, "lock_path": str(lock_path)}
             elif action == "set_role":
                 agent_id = str(payload.get("agent_id") or "")
                 agent_name = str(payload.get("agent_name") or "")

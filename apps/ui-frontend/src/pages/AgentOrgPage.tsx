@@ -449,34 +449,56 @@ export function AgentOrgPage() {
   }, [assignAgentId, assignNote, assignTaskId, sendOrchestratorRequest]);
 
   const handleLock = useCallback(async () => {
+    setActionMessage(null);
+    setActionError(null);
+    setActionResponse(null);
     const scopes = lockScopes
       .split(/[\n,]+/g)
       .map((s) => s.trim())
       .filter(Boolean);
-    if (!scopes.length) {
-      setActionError("scopes is required");
-      return;
+    try {
+      if (!scopes.length) {
+        throw new Error("scopes is required");
+      }
+      const resp = await postJson<Record<string, unknown>>("/api/agent-org/locks", {
+        scopes,
+        mode: lockMode,
+        ttl_min: lockTtlMin.trim() ? Number(lockTtlMin.trim()) : undefined,
+        note: lockNote.trim() || undefined,
+        from: actorName.trim() || "dd",
+      });
+      setActionMessage("lock を作成しました");
+      setActionResponse(resp);
+      setLockNote("");
+      await loadAll();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
     }
-    await sendOrchestratorRequest("lock", {
-      scopes,
-      mode: lockMode,
-      ttl_min: lockTtlMin.trim() ? Number(lockTtlMin.trim()) : undefined,
-      note: lockNote.trim() || undefined,
-    });
-    setLockNote("");
-  }, [lockMode, lockNote, lockScopes, lockTtlMin, sendOrchestratorRequest]);
+  }, [actorName, loadAll, lockMode, lockNote, lockScopes, lockTtlMin]);
 
   const handleUnlock = useCallback(
     async (lockId?: string) => {
+      setActionMessage(null);
+      setActionError(null);
+      setActionResponse(null);
       const target = (lockId ?? unlockLockId).trim();
-      if (!target) {
-        setActionError("lock_id is required");
-        return;
+      try {
+        if (!target) {
+          throw new Error("lock_id is required");
+        }
+        const resp = await postJson<Record<string, unknown>>("/api/agent-org/locks/unlock", {
+          lock_id: target,
+          from: actorName.trim() || "dd",
+        });
+        setActionMessage("lock を解除しました");
+        setActionResponse(resp);
+        setUnlockLockId("");
+        await loadAll();
+      } catch (e) {
+        setActionError(e instanceof Error ? e.message : String(e));
       }
-      await sendOrchestratorRequest("unlock", { lock_id: target });
-      setUnlockLockId("");
     },
-    [sendOrchestratorRequest, unlockLockId]
+    [actorName, loadAll, unlockLockId]
   );
 
   const handleSelectMemo = useCallback(async (id: string) => {

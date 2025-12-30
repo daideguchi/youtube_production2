@@ -1,0 +1,70 @@
+# Codex exec layer (non-interactive) → API fallback
+#
+# Goal:
+# - Replace high-frequency "LLM API" calls with `codex exec` (subscription) when possible.
+# - If `codex exec` fails (logged out / rate-limited / unavailable / bad output), fall back to the
+#   existing LLMRouter (OpenRouter/Azure/etc) path without breaking the pipeline.
+#
+# Safety:
+# - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
+#
+# Enablement:
+# - In normal shells: disabled by default (enabled: false).
+# - In Codex-managed shells (CODEX_MANAGED_BY_NPM=1): auto-enable by default.
+# - During pytest: disabled unless explicitly allowed via env.
+#
+# Config precedence:
+# - `configs/codex_exec.local.yaml` (if present) overrides this file.
+# - Env vars override both (see `ssot/ops/OPS_ENV_VARS.md`).
+
+enabled: false
+auto_enable_when_codex_managed: true
+
+# Codex CLI profile from `~/.codex/config.toml` (ensures non-interactive runs don't require approvals).
+profile: claude-code
+
+# Always keep this read-only for pipeline runs.
+sandbox: read-only
+
+# Default timeout per `codex exec` call (seconds).
+timeout_s: 180
+
+# Optional: pass `-m <MODEL>` to `codex exec`.
+# Empty means "use Codex CLI defaults".
+model: ""
+
+selection:
+  # Try Codex first when task name matches these prefixes.
+  include_task_prefixes:
+    - tts_
+    - visual_
+
+  # And/or explicit tasks (useful for script pipeline non-body steps).
+  include_tasks:
+    - belt_generation
+    - title_generation
+    - thumbnail_comment_patch
+    - script_outline
+    - script_chapter_brief
+    - script_chapter_review
+    - script_quality_check
+    - script_semantic_alignment_check
+    - script_semantic_alignment_fix
+    - script_topic_research
+    - script_format
+
+  # Never try Codex first for these tasks (keeps script "本文" generation on the existing API path).
+  exclude_tasks:
+    - image_generation
+    - web_search_openrouter
+    - script_master_plan_opus
+    - script_chapter_draft
+    - script_a_text_seed
+    - script_a_text_quality_fix
+    - script_a_text_quality_extend
+    - script_a_text_quality_expand
+    - script_a_text_quality_shrink
+    - script_a_text_final_polish
+    - script_a_text_rebuild_plan
+    - script_a_text_rebuild_draft
+

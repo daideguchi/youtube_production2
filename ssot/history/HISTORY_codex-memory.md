@@ -250,4 +250,7 @@
   - 入口: `scripts/ops/fact_check_codex.py`
   - Runbook: `ssot/ops/OPS_FACT_CHECK_RUNBOOK.md`
   - 出力: `content/analysis/research/fact_check_report.json`
+- LLM: `codex exec`（非対話）を「APIの前段」に挿入できる汎用レイヤを復元（Codex優先 → 失敗時APIフォールバック）。
+  - 設定: `configs/codex_exec.yaml`（`configs/codex_exec.local.yaml` で上書き可）
+  - 実装: `packages/factory_common/codex_exec_layer.py`, `packages/factory_common/llm_router.py`
 - 検証: `python3 scripts/ops/pre_push_final_check.py --write-ssot-report --run-tests`

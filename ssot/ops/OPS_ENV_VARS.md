@@ -163,6 +163,22 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_FACT_CHECK_LLM_TIMEOUT_S`（default: `120`）: フォールバックのtimeout
 - `YTM_FACT_CHECK_LLM_MAX_TOKENS`（default: `2000`）: フォールバックのmax tokens
 
+## Codex exec layer（非対話）: Codex優先 → APIフォールバック
+`packages/factory_common/llm_router.py` が、選択された task に対して `codex exec --sandbox read-only` を先に試し、失敗時は既存の LLM API（OpenRouter/Azure 等）へフォールバックする。
+
+### 設定（SoT）
+- `configs/codex_exec.yaml`（tracked）
+- 任意のローカル上書き: `configs/codex_exec.local.yaml`
+
+### 環境変数（任意）
+- `YTM_CODEX_EXEC_ENABLED`（override）: `1` で強制ON / `0` で強制OFF（未設定なら `configs/codex_exec.yaml` と `CODEX_MANAGED_BY_NPM` に従う）
+- `YTM_CODEX_EXEC_DISABLE`（default: `0`）: `1` で強制OFF（緊急停止用）
+- `YTM_CODEX_EXEC_ENABLE_IN_PYTEST`（default: `0`）: `1` のときだけ pytest 中の Codex exec を許可（既定はテスト安定のためOFF）
+- `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`）: `codex exec --profile` に渡すプロファイル名
+- `YTM_CODEX_EXEC_MODEL`（任意）: `codex exec -m` に渡すモデル名
+- `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
+- `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
+
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。
 

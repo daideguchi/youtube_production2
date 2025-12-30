@@ -155,6 +155,80 @@ def _scope_matches_path(scope: str, rel_path: str) -> bool:
     return rel_path.startswith(scope_norm + "/")
 
 
+_SCOPE_GLOB_CHARS = {"*", "?", "[", "]"}
+
+
+def _scope_has_glob(scope: str) -> bool:
+    s = (scope or "").strip()
+    if not s:
+        return False
+    if "**" in s:
+        return True
+    return any(ch in s for ch in _SCOPE_GLOB_CHARS)
+
+
+def _scope_static_prefix(scope: str) -> str:
+    """
+    Best-effort non-glob prefix for overlap detection.
+    Examples:
+      - "apps/ui/**" -> "apps/ui/"
+      - "packages/**/tests/*" -> "packages/"
+    """
+    s = (scope or "").strip()
+    if not s:
+        return ""
+    for i, ch in enumerate(s):
+        if ch in _SCOPE_GLOB_CHARS:
+            return s[:i]
+    if "**" in s:
+        return s.split("**", 1)[0]
+    return s
+
+
+def _is_same_or_parent(parent: str, child: str) -> bool:
+    p = (parent or "").strip().rstrip("/")
+    c = (child or "").strip().rstrip("/")
+    if not p or not c:
+        return False
+    if p == c:
+        return True
+    return c.startswith(p + "/")
+
+
+def _scopes_may_intersect(scope_a: str, scope_b: str) -> bool:
+    """
+    Conservative (safe) overlap check between two scopes (paths or globs).
+
+    We intentionally bias toward "might overlap" to prevent two agents from
+    taking conflicting locks. If overlap is truly needed, allow it via "force".
+    """
+    a = (scope_a or "").strip().replace("\\", "/").strip("/")
+    b = (scope_b or "").strip().replace("\\", "/").strip("/")
+    if not a or not b:
+        return False
+
+    a_glob = _scope_has_glob(a)
+    b_glob = _scope_has_glob(b)
+
+    if not a_glob and not b_glob:
+        return _is_same_or_parent(a, b) or _is_same_or_parent(b, a)
+
+    a_prefix = _scope_static_prefix(a).replace("\\", "/").strip("/")
+    b_prefix = _scope_static_prefix(b).replace("\\", "/").strip("/")
+    if a_prefix and b_prefix and (_is_same_or_parent(a_prefix, b_prefix) or _is_same_or_parent(b_prefix, a_prefix)):
+        return True
+
+    a_probe = a_prefix if a_glob and a_prefix else a
+    b_probe = b_prefix if b_glob and b_prefix else b
+    try:
+        if fnmatch.fnmatchcase(a_probe, b) or fnmatch.fnmatchcase(b_probe, a):
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
 def _append_event(payload: dict) -> None:
     p = _coord_dir() / "events.jsonl"
     try:
@@ -179,6 +253,29 @@ def _repo_relative(path: str) -> str:
         return str(p.absolute().relative_to(REPO_ROOT)).replace(os.sep, "/")
     except Exception:
         return str(path).replace(os.sep, "/")
+
+
+def _normalize_scope(scope: str) -> str:
+    raw = (scope or "").strip()
+    if not raw:
+        return raw
+
+    has_wildcard = any(ch in raw for ch in "*?[]")
+    if has_wildcard:
+        root = str(REPO_ROOT)
+        if raw.startswith(root):
+            rel = raw[len(root) :].lstrip("/\\")
+            return rel.replace(os.sep, "/")
+        return raw.replace(os.sep, "/")
+
+    p = Path(raw).expanduser()
+    if p.is_absolute():
+        try:
+            rel = p.absolute().relative_to(REPO_ROOT)
+            return str(rel).replace(os.sep, "/")
+        except Exception:
+            return str(p.absolute()).replace(os.sep, "/")
+    return str(p).replace(os.sep, "/")
 
 
 def _board_path() -> Path:
@@ -234,6 +331,92 @@ def _parse_csv_list(raw: Optional[str]) -> List[str]:
     return uniq
 
 
+def _ensure_board_agent_entry(actor: str) -> None:
+    p = _board_path()
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {}, now_iso)
+        agents = cur.get("agents") if isinstance(cur.get("agents"), dict) else {}
+        if not isinstance(agents, dict):
+            agents = {}
+
+        st = agents.get(actor)
+        if not isinstance(st, dict):
+            st = {"doing": "-", "blocked": "-", "next": "-", "note": "(auto)"}
+            st["updated_at"] = now_iso
+            agents[actor] = st
+            cur["agents"] = agents
+            cur["updated_at"] = now_iso
+            return cur
+
+        st.setdefault("doing", "-")
+        st.setdefault("blocked", "-")
+        st.setdefault("next", "-")
+        st.setdefault("note", "-")
+        st.setdefault("updated_at", now_iso)
+        agents[actor] = st
+        cur["agents"] = agents
+        cur["updated_at"] = now_iso
+        return cur
+
+    _locked_update_json(p, _update)
+
+
+def _board_append_note(*, actor: str, topic: str, message: str, tags: List[str]) -> str:
+    p = _board_path()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    note_id = _new_id("note")
+    entry: Dict[str, Any] = {
+        "id": note_id,
+        "thread_id": note_id,
+        "ts": now_iso,
+        "agent": actor,
+        "topic": topic,
+        "message": message,
+        "tags": tags,
+    }
+
+    def _update(cur: dict) -> dict:
+        cur = _board_ensure_shape(cur if isinstance(cur, dict) else {}, now_iso)
+        agents = cur.get("agents") if isinstance(cur.get("agents"), dict) else {}
+        if not isinstance(agents, dict):
+            agents = {}
+        st = agents.get(actor)
+        if not isinstance(st, dict):
+            st = {}
+        st["last_note_at"] = now_iso
+        st.setdefault("updated_at", now_iso)
+        agents[actor] = st
+        cur["agents"] = agents
+
+        log = cur.get("log") if isinstance(cur.get("log"), list) else []
+        if not isinstance(log, list):
+            log = []
+        log.append(entry)
+        max_log = 1000
+        if len(log) > max_log:
+            log = log[-max_log:]
+        cur["log"] = log
+        cur["updated_at"] = now_iso
+        return cur
+
+    _locked_update_json(p, _update)
+    return note_id
+
+
+def _normalize_lock_id(raw: str) -> str:
+    s = (raw or "").strip()
+    if not s:
+        return s
+    s = s.replace("\\", "/")
+    if "/" in s:
+        s = s.rsplit("/", 1)[-1]
+    if s.endswith(".json"):
+        s = s[: -len(".json")]
+    return s.strip()
+
+
 class AgentNoteCreateRequest(BaseModel):
     to: str = Field(..., description="recipient agent name")
     subject: str = Field(..., description="note subject")
@@ -247,6 +430,22 @@ class OrchestratorRequestBody(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
     from_agent: str = Field("ui", alias="from")
     wait_sec: float = Field(0.0, ge=0.0, le=30.0)
+
+
+class LockCreateRequest(BaseModel):
+    from_agent: str = Field("ui", alias="from", description="actor name")
+    scopes: List[str] = Field(..., description="scopes (repo-relative globs/paths or absolute paths)")
+    mode: str = Field("no_touch", description="lock mode")
+    ttl_min: Optional[int] = Field(None, ge=1, le=60 * 24 * 7, description="optional TTL minutes")
+    note: Optional[str] = Field(default=None)
+    force: bool = Field(default=False, description="allow overlapping existing locks")
+    announce: bool = Field(default=True, description="post a shared-board note about this lock")
+    announce_tags: Optional[str] = Field(default=None, description="comma-separated tags (default: lock,coordination)")
+
+
+class LockUnlockRequest(BaseModel):
+    from_agent: str = Field("ui", alias="from", description="actor name")
+    lock_id: str = Field(..., description="lock id (e.g., lock__... )")
 
 
 class BoardStatusUpdateRequest(BaseModel):
@@ -755,6 +954,188 @@ def orchestrator_request(body: OrchestratorRequestBody) -> Dict[str, Any]:
             }
         time.sleep(0.2)
     raise HTTPException(status_code=504, detail=f"timeout waiting for orchestrator response: {resp_path}")
+
+
+@router.post("/locks")
+def create_lock(req: LockCreateRequest) -> Dict[str, Any]:
+    q = _queue_dir()
+    coord = _coord_dir()
+    d = coord / "locks"
+    d.mkdir(parents=True, exist_ok=True)
+
+    actor = (req.from_agent or "").strip() or "ui"
+    scopes = [_normalize_scope(s) for s in (req.scopes or []) if str(s).strip()]
+    if not scopes:
+        raise HTTPException(status_code=400, detail="scopes is required")
+
+    now = datetime.now(timezone.utc)
+
+    if not req.force:
+        conflicts: List[Dict[str, Any]] = []
+        for fp in sorted(d.glob("*.json")):
+            obj = _read_json(fp)
+            if not obj:
+                continue
+            exp_dt = _parse_iso(obj.get("expires_at"))
+            if exp_dt and exp_dt <= now:
+                continue
+
+            created_by = str(obj.get("created_by") or "").strip()
+            if created_by and created_by == actor:
+                continue
+
+            other_scopes = obj.get("scopes") or []
+            if not isinstance(other_scopes, list):
+                other_scopes = [str(other_scopes)]
+
+            hit = False
+            for new_sc in scopes:
+                for old_sc in other_scopes:
+                    if _scopes_may_intersect(new_sc, str(old_sc)):
+                        hit = True
+                        break
+                if hit:
+                    break
+            if hit:
+                conflicts.append(
+                    {
+                        "id": obj.get("id") or fp.stem,
+                        "created_by": obj.get("created_by"),
+                        "mode": obj.get("mode"),
+                        "created_at": obj.get("created_at"),
+                        "expires_at": obj.get("expires_at"),
+                        "scopes": other_scopes,
+                        "note": obj.get("note"),
+                    }
+                )
+
+        if conflicts:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "lock_scope_conflict",
+                    "message": "lock scope intersects existing active locks",
+                    "conflicts": conflicts[:20],
+                },
+            )
+
+    lock_id = _new_id("lock")
+    expires_at = None
+    if req.ttl_min is not None and req.ttl_min > 0:
+        expires_at = (now.replace(microsecond=0) + timedelta(minutes=int(req.ttl_min))).isoformat()
+
+    payload: Dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "lock",
+        "id": lock_id,
+        "created_at": now.isoformat(),
+        "created_by": actor,
+        "mode": str(req.mode or "no_touch"),
+        "scopes": scopes,
+    }
+    if req.note:
+        payload["note"] = str(req.note)
+    if expires_at:
+        payload["expires_at"] = expires_at
+
+    out = d / f"{lock_id}.json"
+    _atomic_write_json(out, payload)
+
+    try:
+        _ensure_board_agent_entry(actor)
+    except Exception:
+        pass
+
+    note_id = None
+    if req.announce:
+        try:
+            announce_tags = _parse_csv_list(req.announce_tags) or ["lock", "coordination"]
+            msg_lines = [
+                "scope:",
+                *[f"- {s}" for s in scopes],
+                "locks:",
+                f"- {lock_id}",
+                "mode:",
+                f"- {payload.get('mode')}",
+                "ttl_min:",
+                f"- {req.ttl_min if req.ttl_min is not None else '-'}",
+                "expires_at:",
+                f"- {expires_at or '-'}",
+                "note:",
+                f"- {str(req.note) if req.note else '-'}",
+            ]
+            note_id = _board_append_note(
+                actor=actor,
+                topic=f"[FYI][lock] {actor}",
+                message="\n".join(msg_lines) + "\n",
+                tags=announce_tags,
+            )
+        except Exception:
+            note_id = None
+
+    _append_event(
+        {
+            "schema_version": 1,
+            "kind": "event",
+            "created_at": now.isoformat(),
+            "actor": actor,
+            "action": "lock_created",
+            "lock_id": lock_id,
+            "lock_path": str(out),
+            "mode": payload.get("mode"),
+            "scopes": scopes,
+            "ttl_min": req.ttl_min,
+            "board_note_id": note_id,
+        }
+    )
+
+    return {
+        "ok": True,
+        "queue_dir": str(q),
+        "lock_id": lock_id,
+        "lock_path": str(out),
+        "board_note_id": note_id,
+        "lock": payload,
+    }
+
+
+@router.post("/locks/unlock")
+def unlock_lock(req: LockUnlockRequest) -> Dict[str, Any]:
+    q = _queue_dir()
+    d = _coord_dir() / "locks"
+    d.mkdir(parents=True, exist_ok=True)
+
+    actor = (req.from_agent or "").strip() or "ui"
+    lock_id = _normalize_lock_id(req.lock_id)
+    if not lock_id:
+        raise HTTPException(status_code=400, detail="lock_id is required")
+
+    lock_path = d / f"{lock_id}.json"
+    existed = lock_path.exists()
+    if existed:
+        lock_path.unlink()
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    _append_event(
+        {
+            "schema_version": 1,
+            "kind": "event",
+            "created_at": now_iso,
+            "actor": actor,
+            "action": "lock_removed" if existed else "lock_remove_missing",
+            "lock_id": lock_id,
+            "lock_path": str(lock_path),
+        }
+    )
+
+    return {
+        "ok": True,
+        "queue_dir": str(q),
+        "unlocked": existed,
+        "lock_id": lock_id,
+        "lock_path": str(lock_path),
+    }
+
 
 @router.get("/locks")
 def list_locks(

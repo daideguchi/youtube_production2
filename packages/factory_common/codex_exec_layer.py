@@ -1,0 +1,341 @@
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import tempfile
+import time
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import yaml
+
+from factory_common.paths import repo_root
+
+
+DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
+    "enabled": False,
+    "auto_enable_when_codex_managed": True,
+    "profile": "claude-code",
+    "sandbox": "read-only",
+    "timeout_s": 180,
+    "model": "",
+    "selection": {
+        "include_task_prefixes": ["tts_", "visual_"],
+        "include_tasks": [],
+        "exclude_task_prefixes": [],
+        "exclude_tasks": ["image_generation", "web_search_openrouter"],
+    },
+}
+
+
+def _truthy(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    s = str(value).strip().lower()
+    return s in {"1", "true", "yes", "y", "on"}
+
+
+def _env(name: str) -> str:
+    return str(os.getenv(name) or "").strip()
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = _env(name)
+    if not raw:
+        return int(default)
+    try:
+        return int(raw)
+    except Exception:
+        return int(default)
+
+
+def _strip_code_fences(text: str) -> str:
+    s = (text or "").strip()
+    if s.startswith("```"):
+        s = re.sub(r"^```[a-zA-Z0-9_-]*\\n?", "", s).strip()
+        if s.endswith("```"):
+            s = s[: -3].rstrip()
+    return s
+
+
+def _extract_json_object(text: str) -> Dict[str, Any] | None:
+    s = _strip_code_fences(text)
+    if not s:
+        return None
+    if s.startswith("{") and s.endswith("}"):
+        try:
+            obj = json.loads(s)
+            return obj if isinstance(obj, dict) else None
+        except Exception:
+            pass
+    start = s.find("{")
+    end = s.rfind("}")
+    if start < 0 or end < 0 or end <= start:
+        return None
+    chunk = s[start : end + 1]
+    try:
+        obj = json.loads(chunk)
+        return obj if isinstance(obj, dict) else None
+    except Exception:
+        return None
+
+
+def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base)
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
+
+
+@lru_cache(maxsize=1)
+def load_codex_exec_config() -> Dict[str, Any]:
+    repo = repo_root()
+    local_path = repo / "configs" / "codex_exec.local.yaml"
+    default_path = repo / "configs" / "codex_exec.yaml"
+    path = local_path if local_path.exists() else default_path
+    if not path.exists():
+        return dict(DEFAULT_CODEX_EXEC_CONFIG)
+    try:
+        loaded = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        loaded = {}
+    if not isinstance(loaded, dict):
+        loaded = {}
+    return _deep_merge(dict(DEFAULT_CODEX_EXEC_CONFIG), loaded)
+
+
+def _codex_exec_globally_enabled(cfg: Dict[str, Any]) -> bool:
+    if _truthy(_env("YTM_CODEX_EXEC_DISABLE")):
+        return False
+
+    # pytest safety: avoid spawning Codex during unit tests unless explicitly allowed.
+    if os.getenv("PYTEST_CURRENT_TEST") and not _truthy(_env("YTM_CODEX_EXEC_ENABLE_IN_PYTEST")):
+        return False
+
+    enabled_override = os.getenv("YTM_CODEX_EXEC_ENABLED")
+    if enabled_override is not None and str(enabled_override).strip() != "":
+        return _truthy(enabled_override)
+
+    if _truthy(cfg.get("enabled")):
+        return True
+
+    if _truthy(cfg.get("auto_enable_when_codex_managed")) and _truthy(_env("CODEX_MANAGED_BY_NPM")):
+        return True
+
+    return False
+
+
+def should_try_codex_exec(task: str, *, cfg: Dict[str, Any] | None = None) -> bool:
+    cfg = cfg or load_codex_exec_config()
+    if not _codex_exec_globally_enabled(cfg):
+        return False
+
+    selection = cfg.get("selection") or {}
+    include_tasks = set(selection.get("include_tasks") or [])
+    include_prefixes = list(selection.get("include_task_prefixes") or [])
+    exclude_tasks = set(selection.get("exclude_tasks") or [])
+    exclude_prefixes = list(selection.get("exclude_task_prefixes") or [])
+
+    t = str(task or "").strip()
+    if not t:
+        return False
+
+    if t in exclude_tasks:
+        return False
+    if any(t.startswith(p) for p in exclude_prefixes):
+        return False
+
+    if t in include_tasks:
+        return True
+    if any(t.startswith(p) for p in include_prefixes):
+        return True
+
+    return False
+
+
+def _extract_text_content(content: Any) -> str | None:
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        # OpenAI-style multimodal parts: [{"type":"text","text":"..."}, {"type":"image_url", ...}]
+        parts: List[str] = []
+        for part in content:
+            if isinstance(part, dict):
+                typ = str(part.get("type") or "")
+                if typ in {"text", "input_text"}:
+                    parts.append(str(part.get("text") or ""))
+                    continue
+                # Unknown part type -> treat as multimodal/unsupported for Codex exec.
+                return None
+            return None
+        return "\n".join([p for p in parts if p]).strip()
+    # Fallback: stringify
+    return str(content)
+
+
+def _build_codex_prompt(task: str, messages: List[Dict[str, Any]], *, response_format: str | None) -> str | None:
+    want_json = str(response_format or "").strip() == "json_object"
+    lines: List[str] = []
+    lines.append(f"task: {task}")
+    if want_json:
+        lines.append("Output JSON only. No markdown. No commentary.")
+    lines.append("")
+
+    for m in messages or []:
+        role = str(m.get("role") or "").strip().upper() or "UNKNOWN"
+        content = _extract_text_content(m.get("content"))
+        if content is None:
+            return None
+        content = content.strip()
+        lines.append(f"[{role}]")
+        lines.append(content)
+        lines.append("")
+
+    return "\n".join(lines).strip() + "\n"
+
+
+def try_codex_exec(
+    *,
+    task: str,
+    messages: List[Dict[str, Any]],
+    response_format: str | None,
+    cfg: Dict[str, Any] | None = None,
+) -> Tuple[str | None, Dict[str, Any]]:
+    """
+    Returns (content_or_none, meta).
+
+    On success, `content` is:
+    - JSON string when response_format == "json_object" (validated)
+    - Otherwise plain text (trimmed)
+    """
+    cfg = cfg or load_codex_exec_config()
+    if not should_try_codex_exec(task, cfg=cfg):
+        return None, {"attempted": False, "provider": "codex_exec", "task": task, "reason": "disabled_or_not_selected"}
+
+    prompt = _build_codex_prompt(task, messages, response_format=response_format)
+    if prompt is None:
+        return None, {"attempted": True, "provider": "codex_exec", "task": task, "error": "unsupported_multimodal"}
+
+    profile = _env("YTM_CODEX_EXEC_PROFILE") or str(cfg.get("profile") or "").strip()
+    sandbox = _env("YTM_CODEX_EXEC_SANDBOX") or str(cfg.get("sandbox") or "read-only").strip()
+    timeout_s = _env_int("YTM_CODEX_EXEC_TIMEOUT_S", int(cfg.get("timeout_s") or 180))
+    model = _env("YTM_CODEX_EXEC_MODEL") or str(cfg.get("model") or "").strip()
+
+    repo = repo_root()
+    want_json = str(response_format or "").strip() == "json_object"
+
+    with tempfile.TemporaryDirectory(prefix="ytm_codex_exec_") as td:
+        out_path = Path(td) / "last_message.txt"
+        cmd: List[str] = [
+            "codex",
+            "exec",
+            "--sandbox",
+            str(sandbox),
+            "-C",
+            str(repo),
+            "--output-last-message",
+            str(out_path),
+        ]
+        if profile:
+            cmd.extend(["--profile", str(profile)])
+        if model:
+            cmd.extend(["-m", str(model)])
+        cmd.append("-")
+
+        start = time.time()
+        try:
+            proc = subprocess.run(
+                cmd,
+                input=prompt,
+                text=True,
+                capture_output=True,
+                timeout=int(timeout_s),
+                check=False,
+            )
+        except FileNotFoundError as exc:
+            return None, {
+                "attempted": True,
+                "provider": "codex_exec",
+                "task": task,
+                "error": "codex_binary_not_found",
+                "exception": str(exc),
+            }
+        except Exception as exc:
+            return None, {
+                "attempted": True,
+                "provider": "codex_exec",
+                "task": task,
+                "error": "codex_exec_failed",
+                "exception": str(exc),
+            }
+        latency_ms = int((time.time() - start) * 1000)
+
+        if not out_path.exists():
+            return None, {
+                "attempted": True,
+                "provider": "codex_exec",
+                "task": task,
+                "error": "codex_no_output",
+                "returncode": proc.returncode,
+                "stderr_tail": (proc.stderr or "")[-2000:],
+                "latency_ms": latency_ms,
+                "profile": profile or None,
+                "model": model or None,
+            }
+
+        try:
+            text = out_path.read_text(encoding="utf-8")
+        except Exception:
+            text = ""
+
+        if want_json:
+            obj = _extract_json_object(text)
+            if not isinstance(obj, dict):
+                return None, {
+                    "attempted": True,
+                    "provider": "codex_exec",
+                    "task": task,
+                    "error": "codex_invalid_json",
+                    "returncode": proc.returncode,
+                    "stderr_tail": (proc.stderr or "")[-2000:],
+                    "latency_ms": latency_ms,
+                    "profile": profile or None,
+                    "model": model or None,
+                }
+            content = json.dumps(obj, ensure_ascii=False)
+        else:
+            content = str(text or "").strip()
+            if not content:
+                return None, {
+                    "attempted": True,
+                    "provider": "codex_exec",
+                    "task": task,
+                    "error": "codex_empty_output",
+                    "returncode": proc.returncode,
+                    "stderr_tail": (proc.stderr or "")[-2000:],
+                    "latency_ms": latency_ms,
+                    "profile": profile or None,
+                    "model": model or None,
+                }
+
+        return content, {
+            "attempted": True,
+            "provider": "codex_exec",
+            "task": task,
+            "ok": True,
+            "returncode": proc.returncode,
+            "latency_ms": latency_ms,
+            "profile": profile or None,
+            "model": model or None,
+        }
+

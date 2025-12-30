@@ -18,6 +18,7 @@ from factory_common.llm_api_cache import (
     read_cache as _api_cache_read,
     write_cache as _api_cache_write,
 )
+from factory_common.codex_exec_layer import try_codex_exec
 from factory_common.paths import logs_root, repo_root
 
 DEFAULT_FALLBACK_POLICY = {
@@ -672,10 +673,62 @@ class LLMRouter:
                         "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
                     }
 
+        # Optional: Codex exec (subscription) first layer with API fallback.
+        # - Runs `codex exec --sandbox read-only` to avoid writing to the repo/workspaces.
+        # - If Codex is unavailable or output is invalid, fall back to the existing API router path.
+        routing: Dict[str, Any] | None = None
+        codex_content, codex_meta = try_codex_exec(
+            task=task,
+            messages=messages,  # type: ignore[arg-type]
+            response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
+        )
+        if codex_meta.get("attempted") and codex_content is not None:
+            latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
+            task_id = None
+            try:
+                task_id = _api_cache_task_id(task, messages, base_options)
+            except Exception:
+                task_id = None
+            req_id = f"codex_exec:{task_id}" if task_id else "codex_exec"
+            model_label = str((codex_meta or {}).get("model") or "default")
+            chain = ["codex_exec"]
+            self._log_usage(
+                {
+                    "status": "success",
+                    "task": task,
+                    "task_id": str(task_id) if task_id else None,
+                    "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
+                    "model": f"codex:{model_label}",
+                    "provider": "codex_exec",
+                    "chain": chain,
+                    "latency_ms": latency_ms,
+                    "usage": {},
+                    "request_id": req_id,
+                    "finish_reason": "stop",
+                    "retry": None,
+                    "routing": {"codex_exec": codex_meta},
+                    "timestamp": time.time(),
+                }
+            )
+            return {
+                "content": codex_content,
+                "raw": {"provider": "codex_exec", "meta": codex_meta} if return_raw else None,
+                "usage": {},
+                "request_id": req_id,
+                "model": f"codex:{model_label}",
+                "provider": "codex_exec",
+                "chain": chain,
+                "latency_ms": latency_ms,
+                "finish_reason": "stop",
+                "retry": None,
+            }
+        if codex_meta.get("attempted") and codex_content is None:
+            routing = routing or {}
+            routing["codex_exec"] = codex_meta
+
         # Optional: split traffic between Azure and non-Azure providers (roughly).
         # - Enable via env: LLM_AZURE_SPLIT_RATIO=0.5
         # - Use a stable routing key when provided (env: LLM_ROUTING_KEY); otherwise fall back to task_id hash.
-        routing: Dict[str, Any] | None = None
         ratio = _parse_ratio_env("LLM_AZURE_SPLIT_RATIO")
         if ratio is not None:
             azure_models: List[str] = []
@@ -697,13 +750,16 @@ class LLMRouter:
                 bucket = _split_bucket(route_key)
                 prefer_azure = bucket < float(ratio)
                 models = (azure_models + other_models) if prefer_azure else (other_models + azure_models)
-                routing = {
-                    "policy": "azure_split_ratio",
-                    "ratio": float(ratio),
-                    "bucket": bucket,
-                    "preferred_provider": "azure" if prefer_azure else "non_azure",
-                    "routing_key": route_key,
-                }
+                routing = routing or {}
+                routing.update(
+                    {
+                        "policy": "azure_split_ratio",
+                        "ratio": float(ratio),
+                        "bucket": bucket,
+                        "preferred_provider": "azure" if prefer_azure else "non_azure",
+                        "routing_key": route_key,
+                    }
+                )
 
         tried = []
         total_wait = 0.0
