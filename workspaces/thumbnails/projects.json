@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-29T12:01:54.930780+00:00",
+  "updated_at": "2025-12-30T00:47:31.973697+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -2886,6 +2886,15 @@
       "video": "001",
       "variants": [
         {
+          "id": "fs::ch26_001_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/001/00_thumb.png",
+          "image_path": "CH26/001/00_thumb.png",
+          "created_at": "2025-12-30T00:43:34.033571+00:00",
+          "updated_at": "2025-12-30T00:43:34.033573+00:00"
+        },
+        {
           "id": "fs::ch26_001_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -2906,15 +2915,24 @@
       ],
       "title": "【ノイマン式】結論、成果は設計で決まる",
       "notes": "インパクト弱すぎ。もっとアップに",
-      "updated_at": "2025-12-29T08:07:16.713308+00:00",
+      "updated_at": "2025-12-30T00:43:34.033576+00:00",
       "selected_variant_id": "fs::ch26_001_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:16.713301+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:43:34.033547+00:00"
     },
     {
       "channel": "CH26",
       "video": "002",
       "variants": [
+        {
+          "id": "fs::ch26_002_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/002/00_thumb.png",
+          "image_path": "CH26/002/00_thumb.png",
+          "created_at": "2025-12-30T00:43:53.974580+00:00",
+          "updated_at": "2025-12-30T00:43:53.974582+00:00"
+        },
         {
           "id": "fs::ch26_002_00_thumb_1",
           "label": "顔B（実在）",
@@ -2936,15 +2954,24 @@
       ],
       "title": "【岡潔流】本当に賢い人は情報を減らす",
       "notes": "もっとアップに。",
-      "updated_at": "2025-12-29T08:07:23.115553+00:00",
+      "updated_at": "2025-12-30T00:43:53.974583+00:00",
       "selected_variant_id": "fs::ch26_002_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:23.115549+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:43:53.974562+00:00"
     },
     {
       "channel": "CH26",
       "video": "003",
       "variants": [
+        {
+          "id": "fs::ch26_003_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/003/00_thumb.png",
+          "image_path": "CH26/003/00_thumb.png",
+          "created_at": "2025-12-30T00:44:12.849101+00:00",
+          "updated_at": "2025-12-30T00:44:12.849103+00:00"
+        },
         {
           "id": "fs::ch26_003_00_thumb_1",
           "label": "顔B（実在）",
@@ -2966,15 +2993,24 @@
       ],
       "title": "【チューリング式】結論、手順を外に出すと進む",
       "notes": "偉人はもっと下に、アップに",
-      "updated_at": "2025-12-29T08:07:29.317090+00:00",
+      "updated_at": "2025-12-30T00:44:12.849105+00:00",
       "selected_variant_id": "fs::ch26_003_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:29.317081+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:44:12.849075+00:00"
     },
     {
       "channel": "CH26",
       "video": "004",
       "variants": [
+        {
+          "id": "fs::ch26_004_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/004/00_thumb.png",
+          "image_path": "CH26/004/00_thumb.png",
+          "created_at": "2025-12-30T00:44:31.360245+00:00",
+          "updated_at": "2025-12-30T00:44:31.360247+00:00"
+        },
         {
           "id": "fs::ch26_004_00_thumb_1",
           "label": "顔B（実在）",
@@ -2996,10 +3032,10 @@
       ],
       "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
       "notes": "偉人はもっとアップに",
-      "updated_at": "2025-12-29T08:07:35.435197+00:00",
+      "updated_at": "2025-12-30T00:44:31.360248+00:00",
       "selected_variant_id": "fs::ch26_004_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:35.435189+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:44:31.360226+00:00"
     },
     {
       "channel": "CH26",
@@ -3035,6 +3071,15 @@
       "video": "006",
       "variants": [
         {
+          "id": "fs::ch26_006_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/006/00_thumb.png",
+          "image_path": "CH26/006/00_thumb.png",
+          "created_at": "2025-12-30T00:44:49.636641+00:00",
+          "updated_at": "2025-12-30T00:44:49.636643+00:00"
+        },
+        {
           "id": "fs::ch26_006_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3055,10 +3100,10 @@
       ],
       "title": "【サイモン式】最適解を捨てると成果が増える",
       "notes": "偉人は中心に。（もっと右に配置）",
-      "updated_at": "2025-12-29T08:07:46.306829+00:00",
+      "updated_at": "2025-12-30T00:44:49.636645+00:00",
       "selected_variant_id": "fs::ch26_006_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:46.306825+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:44:49.636620+00:00"
     },
     {
       "channel": "CH26",
@@ -3094,6 +3139,15 @@
       "video": "008",
       "variants": [
         {
+          "id": "fs::ch26_008_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/008/00_thumb.png",
+          "image_path": "CH26/008/00_thumb.png",
+          "created_at": "2025-12-30T00:45:05.671769+00:00",
+          "updated_at": "2025-12-30T00:45:05.671771+00:00"
+        },
+        {
           "id": "fs::ch26_008_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3113,16 +3167,25 @@
         }
       ],
       "title": "【孫子の型】最悪を先に固定すると迷いが消える",
-      "updated_at": "2025-12-29T08:07:57.117141+00:00",
+      "updated_at": "2025-12-30T00:45:05.671772+00:00",
       "selected_variant_id": "fs::ch26_008_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:07:57.117131+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:45:05.671747+00:00",
       "notes": "もっと明るく"
     },
     {
       "channel": "CH26",
       "video": "009",
       "variants": [
+        {
+          "id": "fs::ch26_009_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/009/00_thumb.png",
+          "image_path": "CH26/009/00_thumb.png",
+          "created_at": "2025-12-30T00:45:28.719087+00:00",
+          "updated_at": "2025-12-30T00:45:28.719089+00:00"
+        },
         {
           "id": "fs::ch26_009_00_thumb_1",
           "label": "顔B（実在）",
@@ -3144,10 +3207,10 @@
       ],
       "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
       "notes": "もっと偉人の顔はアップ",
-      "updated_at": "2025-12-29T08:08:03.727421+00:00",
+      "updated_at": "2025-12-30T00:45:28.719091+00:00",
       "selected_variant_id": "fs::ch26_009_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:08:03.727412+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:45:28.719066+00:00"
     },
     {
       "channel": "CH26",
@@ -3299,6 +3362,15 @@
       "video": "015",
       "variants": [
         {
+          "id": "fs::ch26_015_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/015/00_thumb.png",
+          "image_path": "CH26/015/00_thumb.png",
+          "created_at": "2025-12-30T00:45:51.052980+00:00",
+          "updated_at": "2025-12-30T00:45:51.052981+00:00"
+        },
+        {
           "id": "fs::ch26_015_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3319,10 +3391,10 @@
       ],
       "title": "【スミス式】期待値で選べ：損を減らせ",
       "notes": "偉人はもっと右。中心に配置せよ",
-      "updated_at": "2025-12-29T08:08:40.119024+00:00",
+      "updated_at": "2025-12-30T00:45:51.052984+00:00",
       "selected_variant_id": "fs::ch26_015_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:08:40.119020+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:45:51.052951+00:00"
     },
     {
       "channel": "CH26",
@@ -3358,6 +3430,15 @@
       "video": "017",
       "variants": [
         {
+          "id": "fs::ch26_017_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/017/00_thumb.png",
+          "image_path": "CH26/017/00_thumb.png",
+          "created_at": "2025-12-30T00:46:06.939219+00:00",
+          "updated_at": "2025-12-30T00:46:06.939221+00:00"
+        },
+        {
           "id": "fs::ch26_017_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3378,15 +3459,24 @@
       ],
       "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
       "notes": "偉人をもっと大きく、少し下。",
-      "updated_at": "2025-12-29T08:08:50.486031+00:00",
+      "updated_at": "2025-12-30T00:46:06.939222+00:00",
       "selected_variant_id": "fs::ch26_017_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:08:50.486027+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:46:06.939203+00:00"
     },
     {
       "channel": "CH26",
       "video": "018",
       "variants": [
+        {
+          "id": "fs::ch26_018_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/018/00_thumb.png",
+          "image_path": "CH26/018/00_thumb.png",
+          "created_at": "2025-12-30T00:46:27.413477+00:00",
+          "updated_at": "2025-12-30T00:46:27.413478+00:00"
+        },
         {
           "id": "fs::ch26_018_00_thumb_1",
           "label": "顔B（実在）",
@@ -3408,10 +3498,10 @@
       ],
       "title": "【キュリー式】結論、測定が更新を速くする",
       "notes": "偉人はめちゃくちゃインパクト強くしたい。大きく明るく",
-      "updated_at": "2025-12-29T08:08:55.778668+00:00",
+      "updated_at": "2025-12-30T00:46:27.413480+00:00",
       "selected_variant_id": "fs::ch26_018_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:08:55.778653+00:00"
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:46:27.413451+00:00"
     },
     {
       "channel": "CH26",
@@ -3447,6 +3537,15 @@
       "video": "020",
       "variants": [
         {
+          "id": "fs::ch26_020_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/020/00_thumb.png",
+          "image_path": "CH26/020/00_thumb.png",
+          "created_at": "2025-12-30T00:46:51.778565+00:00",
+          "updated_at": "2025-12-30T00:46:51.778566+00:00"
+        },
+        {
           "id": "fs::ch26_020_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3466,10 +3565,10 @@
         }
       ],
       "title": "【ダーウィン式】結論、更新の反復が成果を作る",
-      "updated_at": "2025-12-29T08:09:14.577080+00:00",
+      "updated_at": "2025-12-30T00:46:51.778570+00:00",
       "selected_variant_id": "fs::ch26_020_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:09:14.577073+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:46:51.778539+00:00",
       "notes": "もっと偉人を明るく"
     },
     {
@@ -3564,6 +3663,15 @@
       "video": "024",
       "variants": [
         {
+          "id": "fs::ch26_024_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/024/00_thumb.png",
+          "image_path": "CH26/024/00_thumb.png",
+          "created_at": "2025-12-30T00:47:05.969197+00:00",
+          "updated_at": "2025-12-30T00:47:05.969198+00:00"
+        },
+        {
           "id": "fs::ch26_024_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3583,10 +3691,10 @@
         }
       ],
       "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
-      "updated_at": "2025-12-29T08:09:40.622031+00:00",
+      "updated_at": "2025-12-30T00:47:05.969200+00:00",
       "selected_variant_id": "fs::ch26_024_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:09:40.622027+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:47:05.969180+00:00",
       "notes": "偉人をもっと右に（つまり中央に）。そしてもっと明るく"
     },
     {
@@ -3623,6 +3731,15 @@
       "video": "026",
       "variants": [
         {
+          "id": "fs::ch26_026_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
+          "image_path": "CH26/026/00_thumb.png",
+          "created_at": "2025-12-30T00:47:31.973687+00:00",
+          "updated_at": "2025-12-30T00:47:31.973689+00:00"
+        },
+        {
           "id": "fs::ch26_026_00_thumb_1",
           "label": "顔B（実在）",
           "status": "in_progress",
@@ -3642,10 +3759,10 @@
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-29T08:09:54.864372+00:00",
+      "updated_at": "2025-12-30T00:47:31.973691+00:00",
       "selected_variant_id": "fs::ch26_026_00_thumb_1",
-      "status": "in_progress",
-      "status_updated_at": "2025-12-29T08:09:54.864364+00:00",
+      "status": "review",
+      "status_updated_at": "2025-12-30T00:47:31.973662+00:00",
       "notes": "もっと偉人を明るく"
     },
     {
@@ -4519,13 +4636,13 @@
           "image_url": "/thumbnails/assets/CH22/002/00_thumb.png",
           "image_path": "CH22/002/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:09:08.409489+00:00"
+          "updated_at": "2025-12-30T00:40:28.228077+00:00"
         }
       ],
       "title": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:09:08.409280+00:00",
-      "updated_at": "2025-12-29T10:09:08.409491+00:00",
+      "status_updated_at": "2025-12-30T00:40:28.228066+00:00",
+      "updated_at": "2025-12-30T00:40:28.228079+00:00",
       "notes": "もっと画像下にずらす",
       "selected_variant_id": "fs::ch22_002_00_thumb"
     },
@@ -4540,13 +4657,13 @@
           "image_url": "/thumbnails/assets/CH22/003/00_thumb.png",
           "image_path": "CH22/003/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T11:59:34.132968+00:00"
+          "updated_at": "2025-12-30T00:40:33.583233+00:00"
         }
       ],
       "title": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
       "status": "review",
-      "status_updated_at": "2025-12-29T11:59:34.132835+00:00",
-      "updated_at": "2025-12-29T11:59:34.132970+00:00",
+      "status_updated_at": "2025-12-30T00:40:33.583223+00:00",
+      "updated_at": "2025-12-30T00:40:33.583234+00:00",
       "notes": "画像をもっとインパクト強く。やり直し",
       "selected_variant_id": "fs::ch22_003_00_thumb"
     },
@@ -4582,13 +4699,13 @@
           "image_url": "/thumbnails/assets/CH22/005/00_thumb.png",
           "image_path": "CH22/005/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:09:42.799463+00:00"
+          "updated_at": "2025-12-30T00:40:42.690864+00:00"
         }
       ],
       "title": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:09:42.799435+00:00",
-      "updated_at": "2025-12-29T10:09:42.799465+00:00",
+      "status_updated_at": "2025-12-30T00:40:42.690856+00:00",
+      "updated_at": "2025-12-30T00:40:42.690865+00:00",
       "notes": "画像をもっと下にずらさないと文字と顔が被ってる",
       "selected_variant_id": "fs::ch22_005_00_thumb"
     },
@@ -4603,13 +4720,13 @@
           "image_url": "/thumbnails/assets/CH22/006/00_thumb.png",
           "image_path": "CH22/006/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:10:12.164699+00:00"
+          "updated_at": "2025-12-30T00:40:49.214441+00:00"
         }
       ],
       "title": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:10:12.164682+00:00",
-      "updated_at": "2025-12-29T10:10:12.164701+00:00",
+      "status_updated_at": "2025-12-30T00:40:49.214434+00:00",
+      "updated_at": "2025-12-30T00:40:49.214442+00:00",
       "notes": "画像をもっと下にずらさないと文字と顔が被ってる",
       "selected_variant_id": "fs::ch22_006_00_thumb"
     },
@@ -4624,13 +4741,13 @@
           "image_url": "/thumbnails/assets/CH22/007/00_thumb.png",
           "image_path": "CH22/007/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T11:59:48.811729+00:00"
+          "updated_at": "2025-12-30T00:40:51.927577+00:00"
         }
       ],
       "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
       "status": "review",
-      "status_updated_at": "2025-12-29T11:59:48.811704+00:00",
-      "updated_at": "2025-12-29T11:59:48.811730+00:00",
+      "status_updated_at": "2025-12-30T00:40:51.927558+00:00",
+      "updated_at": "2025-12-30T00:40:51.927578+00:00",
       "notes": "画像をやり直し",
       "selected_variant_id": "fs::ch22_007_00_thumb"
     },
@@ -4687,13 +4804,13 @@
           "image_url": "/thumbnails/assets/CH22/010/00_thumb.png",
           "image_path": "CH22/010/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:00:21.155863+00:00"
+          "updated_at": "2025-12-30T00:40:53.837765+00:00"
         }
       ],
       "title": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:00:21.155838+00:00",
-      "updated_at": "2025-12-29T12:00:21.155869+00:00",
+      "status_updated_at": "2025-12-30T00:40:53.837756+00:00",
+      "updated_at": "2025-12-30T00:40:53.837766+00:00",
       "notes": "画像間違ってる。やり直し",
       "selected_variant_id": "fs::ch22_010_00_thumb"
     },
@@ -4708,13 +4825,13 @@
           "image_url": "/thumbnails/assets/CH22/011/00_thumb.png",
           "image_path": "CH22/011/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:10:43.506683+00:00"
+          "updated_at": "2025-12-30T00:41:02.993573+00:00"
         }
       ],
       "title": "孫の話ばかりで息が詰まる｜比べる会の地獄",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:10:43.506661+00:00",
-      "updated_at": "2025-12-29T10:10:43.506685+00:00",
+      "status_updated_at": "2025-12-30T00:41:02.993565+00:00",
+      "updated_at": "2025-12-30T00:41:02.993574+00:00",
       "notes": "画像を少しだけに下にずらす",
       "selected_variant_id": "fs::ch22_011_00_thumb"
     },
@@ -4729,13 +4846,13 @@
           "image_url": "/thumbnails/assets/CH22/012/00_thumb.png",
           "image_path": "CH22/012/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:00:43.054974+00:00"
+          "updated_at": "2025-12-30T00:41:14.550806+00:00"
         }
       ],
       "title": "友人の夫から一本の電話｜噂が広がる夜",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:00:43.054953+00:00",
-      "updated_at": "2025-12-29T12:00:43.054977+00:00",
+      "status_updated_at": "2025-12-30T00:41:14.550784+00:00",
+      "updated_at": "2025-12-30T00:41:14.550807+00:00",
       "notes": "キャッチ弱い。",
       "selected_variant_id": "fs::ch22_012_00_thumb"
     },
@@ -4750,13 +4867,13 @@
           "image_url": "/thumbnails/assets/CH22/013/00_thumb.png",
           "image_path": "CH22/013/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:01:11.311671+00:00"
+          "updated_at": "2025-12-30T00:41:22.254833+00:00"
         }
       ],
       "title": "貸したお金が戻らない｜友情が終わる一線",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:01:11.311637+00:00",
-      "updated_at": "2025-12-29T12:01:11.311673+00:00",
+      "status_updated_at": "2025-12-30T00:41:22.254825+00:00",
+      "updated_at": "2025-12-30T00:41:22.254841+00:00",
       "notes": "キャッチと画像があってない　生成し直し",
       "selected_variant_id": "fs::ch22_013_00_thumb"
     },
@@ -4771,13 +4888,13 @@
           "image_url": "/thumbnails/assets/CH22/014/00_thumb.png",
           "image_path": "CH22/014/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:11:07.542132+00:00"
+          "updated_at": "2025-12-30T00:41:30.571808+00:00"
         }
       ],
       "title": "町内会の集金で突然敵に｜正しいのに孤立する現実",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:11:07.542116+00:00",
-      "updated_at": "2025-12-29T10:11:07.542138+00:00",
+      "status_updated_at": "2025-12-30T00:41:30.571799+00:00",
+      "updated_at": "2025-12-30T00:41:30.571809+00:00",
       "notes": "もっと画像下にずらす",
       "selected_variant_id": "fs::ch22_014_00_thumb"
     },
@@ -4855,13 +4972,13 @@
           "image_url": "/thumbnails/assets/CH22/018/00_thumb.png",
           "image_path": "CH22/018/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:01:30.709140+00:00"
+          "updated_at": "2025-12-30T00:41:35.861231+00:00"
         }
       ],
       "title": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:01:30.709118+00:00",
-      "updated_at": "2025-12-29T12:01:30.709143+00:00",
+      "status_updated_at": "2025-12-30T00:41:35.861220+00:00",
+      "updated_at": "2025-12-30T00:41:35.861237+00:00",
       "notes": "サムネ画像をもっとタイトルの感じに。再生成",
       "selected_variant_id": "fs::ch22_018_00_thumb"
     },
@@ -4876,13 +4993,13 @@
           "image_url": "/thumbnails/assets/CH22/019/00_thumb.png",
           "image_path": "CH22/019/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:11:26.180728+00:00"
+          "updated_at": "2025-12-30T00:41:40.726217+00:00"
         }
       ],
       "title": "旅行の部屋割りで立場が決まった｜余り者の現実",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:11:26.180706+00:00",
-      "updated_at": "2025-12-29T10:11:26.180729+00:00",
+      "status_updated_at": "2025-12-30T00:41:40.726208+00:00",
+      "updated_at": "2025-12-30T00:41:40.726218+00:00",
       "notes": "画像もう少しだけ下",
       "selected_variant_id": "fs::ch22_019_00_thumb"
     },
@@ -4897,13 +5014,13 @@
           "image_url": "/thumbnails/assets/CH22/020/00_thumb.png",
           "image_path": "CH22/020/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:11:47.888821+00:00"
+          "updated_at": "2025-12-30T00:41:48.419341+00:00"
         }
       ],
       "title": "優しさが怖い友人｜近づくほど奪われる関係",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:11:47.888809+00:00",
-      "updated_at": "2025-12-29T10:11:47.888822+00:00",
+      "status_updated_at": "2025-12-30T00:41:48.419332+00:00",
+      "updated_at": "2025-12-30T00:41:48.419343+00:00",
       "notes": "画像もう少しだけ下\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_020_00_thumb"
     },
@@ -4939,13 +5056,13 @@
           "image_url": "/thumbnails/assets/CH22/022/00_thumb.png",
           "image_path": "CH22/022/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:12:20.070419+00:00"
+          "updated_at": "2025-12-30T00:41:58.214895+00:00"
         }
       ],
       "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:12:20.070392+00:00",
-      "updated_at": "2025-12-29T10:12:20.070421+00:00",
+      "status_updated_at": "2025-12-30T00:41:58.214883+00:00",
+      "updated_at": "2025-12-30T00:41:58.214897+00:00",
       "notes": "もっと画像を下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_022_00_thumb"
     },
@@ -4960,13 +5077,13 @@
           "image_url": "/thumbnails/assets/CH22/023/00_thumb.png",
           "image_path": "CH22/023/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:12:46.189021+00:00"
+          "updated_at": "2025-12-30T00:42:04.380923+00:00"
         }
       ],
       "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:12:46.189002+00:00",
-      "updated_at": "2025-12-29T10:12:46.189023+00:00",
+      "status_updated_at": "2025-12-30T00:42:04.380914+00:00",
+      "updated_at": "2025-12-30T00:42:04.380924+00:00",
       "notes": "画像もう少しだけ下\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_023_00_thumb"
     },
@@ -4981,13 +5098,13 @@
           "image_url": "/thumbnails/assets/CH22/024/00_thumb.png",
           "image_path": "CH22/024/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:01:38.929387+00:00"
+          "updated_at": "2025-12-30T00:42:07.822078+00:00"
         }
       ],
       "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:01:38.929359+00:00",
-      "updated_at": "2025-12-29T12:01:38.929389+00:00",
+      "status_updated_at": "2025-12-30T00:42:07.822071+00:00",
+      "updated_at": "2025-12-30T00:42:07.822079+00:00",
       "notes": "画像とキャッチがズレてる\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_024_00_thumb"
     },
@@ -5002,13 +5119,13 @@
           "image_url": "/thumbnails/assets/CH22/025/00_thumb.png",
           "image_path": "CH22/025/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T12:01:54.930767+00:00"
+          "updated_at": "2025-12-30T00:42:14.499651+00:00"
         }
       ],
       "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
       "status": "review",
-      "status_updated_at": "2025-12-29T12:01:54.930740+00:00",
-      "updated_at": "2025-12-29T12:01:54.930770+00:00",
+      "status_updated_at": "2025-12-30T00:42:14.499636+00:00",
+      "updated_at": "2025-12-30T00:42:14.499652+00:00",
       "notes": "画像間違ってるから生成し直し\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_025_00_thumb"
     },
@@ -5023,13 +5140,13 @@
           "image_url": "/thumbnails/assets/CH22/026/00_thumb.png",
           "image_path": "CH22/026/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:13:16.671423+00:00"
+          "updated_at": "2025-12-30T00:42:22.619712+00:00"
         }
       ],
       "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:13:16.671400+00:00",
-      "updated_at": "2025-12-29T10:13:16.671425+00:00",
+      "status_updated_at": "2025-12-30T00:42:22.619702+00:00",
+      "updated_at": "2025-12-30T00:42:22.619714+00:00",
       "notes": "画像もっと下に",
       "selected_variant_id": "fs::ch22_026_00_thumb"
     },
@@ -5044,13 +5161,13 @@
           "image_url": "/thumbnails/assets/CH22/027/00_thumb.png",
           "image_path": "CH22/027/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:13:48.492002+00:00"
+          "updated_at": "2025-12-30T00:42:31.573008+00:00"
         }
       ],
       "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:13:48.491970+00:00",
-      "updated_at": "2025-12-29T10:13:48.492005+00:00",
+      "status_updated_at": "2025-12-30T00:42:31.573002+00:00",
+      "updated_at": "2025-12-30T00:42:31.573010+00:00",
       "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_027_00_thumb"
     },
@@ -5065,13 +5182,13 @@
           "image_url": "/thumbnails/assets/CH22/028/00_thumb.png",
           "image_path": "CH22/028/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:14:18.108843+00:00"
+          "updated_at": "2025-12-30T00:42:39.454290+00:00"
         }
       ],
       "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:14:18.108835+00:00",
-      "updated_at": "2025-12-29T10:14:18.108845+00:00",
+      "status_updated_at": "2025-12-30T00:42:39.454270+00:00",
+      "updated_at": "2025-12-30T00:42:39.454291+00:00",
       "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_028_00_thumb"
     },
@@ -5086,13 +5203,13 @@
           "image_url": "/thumbnails/assets/CH22/029/00_thumb.png",
           "image_path": "CH22/029/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:14:47.982384+00:00"
+          "updated_at": "2025-12-30T00:42:46.759421+00:00"
         }
       ],
       "title": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:14:47.982358+00:00",
-      "updated_at": "2025-12-29T10:14:47.982386+00:00",
+      "status_updated_at": "2025-12-30T00:42:46.759412+00:00",
+      "updated_at": "2025-12-30T00:42:46.759422+00:00",
       "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_029_00_thumb"
     },
@@ -5107,13 +5224,13 @@
           "image_url": "/thumbnails/assets/CH22/030/00_thumb.png",
           "image_path": "CH22/030/00_thumb.png",
           "created_at": "2025-12-29T04:28:17.518479+00:00",
-          "updated_at": "2025-12-29T10:15:13.326112+00:00"
+          "updated_at": "2025-12-30T00:42:53.229441+00:00"
         }
       ],
       "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
       "status": "review",
-      "status_updated_at": "2025-12-29T10:15:13.325830+00:00",
-      "updated_at": "2025-12-29T10:15:13.326119+00:00",
+      "status_updated_at": "2025-12-30T00:42:53.229435+00:00",
+      "updated_at": "2025-12-30T00:42:53.229443+00:00",
       "notes": "画像もっと下に\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) pan(z=1.12 px=0.00 py=0.25) / QC=contactsheet_retake_ch22_comments.png / 2025-12-29T08:44:19.216256+00:00",
       "selected_variant_id": "fs::ch22_030_00_thumb"
     },
