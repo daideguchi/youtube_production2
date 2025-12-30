@@ -239,3 +239,15 @@
 - Planning Patch: シリーズ/テンプレ等の“まとめ変更”を episode patch に分解して安全に運用するため、patch雛形の一括生成ツール `scripts/ops/planning_patch_gen.py` を追加。入口/運用SSOTも追従（`ssot/ops/OPS_PLANNING_PATCHES.md`, `workspaces/planning/patches/README.md`, `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`, `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`）。
 - SSOT: `scripts/ops/scripts_inventory.py --write` で `ssot/ops/OPS_SCRIPTS_INVENTORY.md` を更新。
 - 検証: `python3 -m py_compile scripts/ops/planning_patch_gen.py`, `pytest -q tests/test_planning_patch_gen.py`, `python3 scripts/ops/ssot_audit.py --write`（problems=0）
+
+## 2025-12-29
+- INCIDENT: Codex Gitロールバック事故の記録を追加（`ssot/history/HISTORY_incident_20251229_codex_git_rollback.md`）。
+
+## 2025-12-30
+- UI復元: 企画一覧/サムネ作業導線まわりを復元（commit: `fd0424b6`）。
+- Ops: episode progress 派生ビューの更新（commit: `c7ddecc0`）。
+- Script: 完成台本（Aテキスト）のファクトチェックを `script_validation` に追加（Codex非対話優先、証拠ベースの JSON レポート固定）（commit: `6043a695`）。
+  - 入口: `scripts/ops/fact_check_codex.py`
+  - Runbook: `ssot/ops/OPS_FACT_CHECK_RUNBOOK.md`
+  - 出力: `content/analysis/research/fact_check_report.json`
+- 検証: `python3 scripts/ops/pre_push_final_check.py --write-ssot-report --run-tests`
