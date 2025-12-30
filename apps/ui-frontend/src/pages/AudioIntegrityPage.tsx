@@ -156,7 +156,7 @@ export function AudioIntegrityPage() {
           <p className="page-subtitle">Audio</p>
           <h1>{headerTitle}</h1>
           <p className="page-lead">
-            audio_prep の必須ファイル（WAV/SRT/台本）と、音声チェックログ（log.json）を確認します。
+            final の必須ファイル（Audio/SRT/TTS入力）と、音声チェックログ（log.json）を確認します。
           </p>
         </div>
         <div className="capcut-edit-page__actions">
@@ -186,7 +186,7 @@ export function AudioIntegrityPage() {
       <section className="capcut-edit-page__section">
         <div className="shell-panel shell-panel--placeholder">
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "baseline" }}>
-            <h2>1) audio_prep 整合（一覧）</h2>
+            <h2>1) final 整合（一覧）</h2>
             <div className="main-status">
               <span className="status-chip">items: {integrityItems.length}</span>
               <span className="status-chip">
@@ -241,7 +241,7 @@ export function AudioIntegrityPage() {
                           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                             {item.audio_path ? (
                               <a href={item.audio_path} className="muted" target="_blank" rel="noreferrer">
-                                wav
+                                audio
                               </a>
                             ) : null}
                             {item.srt_path ? (
@@ -251,7 +251,7 @@ export function AudioIntegrityPage() {
                             ) : null}
                             {item.b_text_path ? (
                               <a href={item.b_text_path} className="muted" target="_blank" rel="noreferrer">
-                                b_text
+                                tts_input
                               </a>
                             ) : null}
                           </div>
@@ -380,7 +380,7 @@ export function AudioIntegrityPage() {
         <section className="capcut-edit-page__section">
           <div className="shell-panel shell-panel--placeholder">
             <h2>2) recent（log.json）</h2>
-            <p className="shell-panel__subtitle">直近で生成された音声チェックログ（workspaces/scripts/**/audio_prep/log.json）</p>
+            <p className="shell-panel__subtitle">直近で生成された音声チェックログ（workspaces/audio/final/**/log.json）</p>
             {recentLoading ? (
               <div className="main-alert">読込中…</div>
             ) : recentLogs.length === 0 ? (
@@ -420,4 +420,3 @@ export function AudioIntegrityPage() {
     </div>
   );
 }
-

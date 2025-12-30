@@ -1297,7 +1297,7 @@ useEffect(() => {
         onToggle={handleToggleTtsReading}
       >
         <p className="muted small-text">
-          最終音声生成で作られた <code>audio_prep</code> の成果物を表示します（未保存のBテキスト編集内容には追随しません）。
+          最終音声生成で作られた <code>final</code>（a_text.txt / log.json）の成果物を表示します（未保存のBテキスト編集内容には追随しません）。
         </p>
 
         <div className="tts-reading__actions">
@@ -1316,7 +1316,7 @@ useEffect(() => {
           <>
             <div className="tts-reading__section">
               <div className="tts-reading__section-header">
-                <h4>最終TTS入力（b_text_with_pauses.txt）</h4>
+                <h4>最終TTS入力（a_text.txt）</h4>
                 <div className="tts-reading__section-actions">
                   <button
                     type="button"
@@ -1340,8 +1340,8 @@ useEffect(() => {
                 value={audioAnalysis.b_text_with_pauses ?? ""}
                 readOnly
                 aria-readonly="true"
-                aria-label="最終TTS入力（b_text_with_pauses）"
-                placeholder="まだ生成されていません（audio_prep がありません）"
+                aria-label="最終TTS入力（a_text.txt）"
+                placeholder="まだ生成されていません（final/a_text.txt がありません）"
               />
             </div>
 
@@ -1424,7 +1424,7 @@ useEffect(() => {
           <p className="muted small-text">読み情報を取得中です…</p>
         ) : (
           <p className="muted small-text">
-            まだ読み情報がありません。音声生成（audio_prep）を作成すると表示できます。
+            まだ読み情報がありません。音声生成（TTS）を完了すると表示できます。
           </p>
         )}
       </CollapseCard>
