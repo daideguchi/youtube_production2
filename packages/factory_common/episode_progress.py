@@ -342,6 +342,7 @@ def build_episode_progress_view(
         planning_progress = str((row or {}).get("進捗") or "").strip()
 
         status_p = status_path(ch, vid)
+        script_dir_exists = status_p.parent.exists()
         status_exists = status_p.exists()
         status_payload = _safe_read_json(status_p) if status_exists else {}
         meta = status_payload.get("metadata") if isinstance(status_payload.get("metadata"), dict) else {}
@@ -381,14 +382,10 @@ def build_episode_progress_view(
         issues: list[str] = []
         if planning_dupes and vid in planning_dupes:
             issues.append("planning_duplicate_video_rows")
-        if row and not status_exists:
-            issues.append("status_json_missing")
         if status_exists and planning_progress and "pending" in planning_progress and script_status in {"completed", "processing", "in_progress"}:
             issues.append("planning_stale_vs_status")
-        if audio_ready and row is not None:
-            # Best-effort: only flag when columns exist but are empty.
-            if "音声生成" in row and not (row.get("音声生成") or "").strip():
-                issues.append("audio_final_exists_but_csv_empty")
+        if not status_exists and (script_dir_exists or audio_ready or bool(run_candidates)):
+            issues.append("status_json_missing")
         if status_exists and not selected_run_id and run_candidates:
             issues.append("video_run_unselected")
         if selected_run_id and selected_run_exists is False:
@@ -438,11 +435,26 @@ def build_episode_progress_view(
             }
         )
 
+    issues_summary: dict[str, int] = {}
+    episodes_with_issues = 0
+    for ep in episodes:
+        tokens = ep.get("issues") or []
+        if tokens:
+            episodes_with_issues += 1
+        for issue in tokens:
+            token = str(issue or "").strip()
+            if not token:
+                continue
+            issues_summary[token] = issues_summary.get(token, 0) + 1
+
     return {
         "schema": EPISODE_PROGRESS_VIEW_SCHEMA,
         "generated_at": _utc_now_iso(),
         "channel": ch,
         "planning_csv_path": str(channels_csv_path(ch)),
+        "planning_duplicate_videos": planning_dupes,
+        "episodes_total": len(episodes),
+        "episodes_with_issues": episodes_with_issues,
+        "issues_summary": dict(sorted(issues_summary.items(), key=lambda kv: (-kv[1], kv[0]))),
         "episodes": episodes,
     }
-

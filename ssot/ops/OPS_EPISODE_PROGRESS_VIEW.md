@@ -47,10 +47,17 @@ episode_progress は以下を参照して集計する（書き換えない）:
   - `broken`: `capcut_draft` は symlink だがターゲットが存在しない
   - `ok`: `capcut_draft` が dir または有効 symlink
 
+### 2.1.1 集計サマリ（一覧の上に出せる）
+- `episodes_total`: エピソード総数（view に含まれる件数）
+- `episodes_with_issues`: issues が1つ以上あるエピソード数
+- `issues_summary`: issues の出現回数サマリ
+- `planning_duplicate_videos`: Planning CSV 側で動画番号が重複しているもの（存在する場合）
+
 ### 2.2 付帯（調査・復旧のための情報）
 - `run_candidates`: episode に紐づく run_dir 候補（複数あると迷子になるため、一覧で見える化）
 - `issues`: “迷子ポイント” を短いコード/文で列挙
-  - 例: `planning_stale_vs_status`, `audio_final_exists_but_csv_empty`, `video_run_unselected`, `capcut_draft_broken`
+  - 例: `planning_stale_vs_status`, `video_run_unselected`, `video_run_missing`, `capcut_draft_broken`
+  - 方針: **人間が修復/判断すべき異常だけ**を issues に入れる（CSV のミラー遅れ等は issues にしない）
 
 ---
 
@@ -68,4 +75,3 @@ episode_progress は以下を参照して集計する（書き換えない）:
 ### 3.3 UI
 - `/planning` に read-only 列を追加して表示（例: `動画run`, `CapCutドラフト`）
 - “正本の更新” は既存導線（published lock / status.json / run 選択ツール等）に限定する
-
