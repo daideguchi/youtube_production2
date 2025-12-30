@@ -104,6 +104,22 @@
     - `year`: number|null（任意）
     - `note`: string（任意）
     - `confidence`: number（任意）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/research/fact_check_report.json`（完成台本ファクトチェック）
+  - `schema`: `"ytm.fact_check_report.v1"`
+  - `provider`: string（例: `codex`, `llm_router:...`, `disabled`）
+  - `policy`: string（`disabled|auto|required`）
+  - `verdict`: string（`pass|warn|fail|skipped`）
+  - `generated_at`: string（UTC ISO, `Z`）
+  - `input_fingerprint`: string（sha256; 同一入力の再実行抑止に使用）
+  - `claims`: list
+    - `id`: string（`c1` 等）
+    - `claim`: string（検証対象の断言文）
+    - `status`: string（`supported|unsupported|uncertain`）
+    - `rationale`: string|null（任意）
+    - `citations`: list（任意）
+      - `source_id`: string（`s1` 等）
+      - `url`: string
+      - `quote`: string（抜粋内の“完全一致”のみ許可）
 
 ### 2.3 script_manifest.json（契約 / 仕組み化の核）
 用途:

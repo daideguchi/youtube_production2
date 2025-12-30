@@ -138,6 +138,31 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS`（default: `1`）: auto-fix リトライ回数（最大2）。
 - `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS`（default: `30000`）: 判定に渡す最大文字数（超過時は先頭+末尾抜粋で判定し、auto-fix は安全のためスキップ）。
 
+## Script pipeline: Fact check（完成台本 / script_validation）
+`packages/script_pipeline/runner.py` の `script_validation` の終盤で実行され、`content/analysis/research/fact_check_report.json` に保存される。
+
+### チャンネル別ポリシー（SoT）
+- `configs/sources.yaml: channels.CHxx.fact_check_policy`（任意。未設定時は `web_search_policy` から既定を導出）
+  - `disabled`: 実行しない（reportは `verdict=skipped` を必ず書く）
+  - `auto`: `fail` のときのみ停止（`warn` は通すがreportは残る）
+  - `required`: `pass` 以外は停止（`warn/fail` で止める）
+
+### 環境変数（任意）
+- `YTM_FACT_CHECK_POLICY`（override）: `disabled|auto|required`
+- `YTM_FACT_CHECK_MAX_CLAIMS`（default: `12`）: 抽出するclaim上限
+- `YTM_FACT_CHECK_MAX_URLS`（default: `8`）: 参照URL上限
+- `YTM_FACT_CHECK_MAX_SOURCES_PER_CLAIM`（default: `2`）: claimごとに渡す抜粋の上限
+- `YTM_FACT_CHECK_EXCERPT_MAX_CHARS`（default: `1400`）: 抜粋の最大長
+- `YTM_FACT_CHECK_FETCH_TIMEOUT_S`（default: `20`）: URL本文取得timeout
+- `YTM_FACT_CHECK_FETCH_MAX_CHARS`（default: `20000`）: URL本文の最大文字数
+- `YTM_FACT_CHECK_CODEX_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout
+- `YTM_FACT_CHECK_CODEX_MODEL`（任意）: codex exec に渡すモデル名
+- `YTM_FACT_CHECK_FORCE`（default: `0`）: `1` で fingerprint 一致でも再実行
+- `YTM_FACT_CHECK_LLM_FALLBACK`（default: `1`）: Codex失敗時に API（LLMRouter）へフォールバック
+- `YTM_FACT_CHECK_LLM_TASK`（default: `script_a_text_quality_judge`）: フォールバックで使う LLMRouter task key
+- `YTM_FACT_CHECK_LLM_TIMEOUT_S`（default: `120`）: フォールバックのtimeout
+- `YTM_FACT_CHECK_LLM_MAX_TOKENS`（default: `2000`）: フォールバックのmax tokens
+
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。
 

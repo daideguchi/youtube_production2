@@ -66,6 +66,8 @@
 - `packages/script_pipeline/job_runner.py`
 - `packages/script_pipeline/tools/channel_prompt_sync.py`
 - `packages/script_pipeline/tools/channel_registry.py`（新チャンネル追加: handle→channel_id 解決 + sources.yaml/CSV/Persona 雛形生成）
+- 完成台本ファクトチェック（単発）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/fact_check_codex.py --channel CHxx --video NNN`
 - ベンチマーク/タグ/説明文の一括整備（channel_info 正規化 + カタログ再生成）:
   - `python3 scripts/ops/channel_info_normalize.py`（dry-run）
   - `python3 scripts/ops/channel_info_normalize.py --apply`

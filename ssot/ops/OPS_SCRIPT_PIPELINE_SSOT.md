@@ -173,7 +173,7 @@ chapter_brief
   v
 script_draft → script_enhancement → script_review → quality_check
   v
-script_validation（禁則=機械チェック + 内容=LLM + 意味整合=LLM）
+ script_validation（禁則=機械チェック + 内容=LLM + 意味整合=LLM + ファクトチェック）
   v
 audio_synthesis（必要時のみ）
 ```
@@ -192,7 +192,7 @@ flowchart LR
   DR --> EN["script_enhancement"]
   EN --> REV["script_review"]
   REV --> QC["quality_check"]
-  QC --> VAL["script_validation\n(機械チェック→LLM品質→意味整合)"]
+  QC --> VAL["script_validation\n(機械チェック→LLM品質→意味整合→ファクトチェック)"]
   VAL --> AUDIO["audio_synthesis（必要時のみ）"]
 ```
 
@@ -463,6 +463,28 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 - 注:
   - 「タイトル語句が本文に出るか」は必須要件ではない（意味として回収できているかだけを見る）。
   - ただし「Nつ」などの数の約束は、台本側の `一つ目〜Nつ目` を **機械でサニティチェック**し、LLMの誤判定で止まる事故を防ぐ。
+
+### 5.4 完成台本ファクトチェック（任意/チャンネル別）
+目的:
+- “それっぽい嘘” を含んだまま音声/字幕に進む事故を止める。
+- Aテキスト本文に URL/脚注を入れず、`topic_research` の中間生成物（検索/Wikipedia/refs）を “足場” にして検証する。
+
+運用Runbook:
+- `ssot/ops/OPS_FACT_CHECK_RUNBOOK.md`
+
+出力（固定）:
+- `content/analysis/research/fact_check_report.json`
+
+ポリシー（SoT）:
+- `configs/sources.yaml: channels.CHxx.fact_check_policy`（任意。未設定時は `web_search_policy` から既定を導出）
+  - `disabled`: 実行しない（reportは `verdict=skipped` を書く）
+  - `auto`: `fail` のときのみ停止（`warn` は通すがreportは残す）
+  - `required`: `pass` 以外は停止（`warn/fail` で止める）
+
+実装の約束:
+- 実行は `codex exec --sandbox read-only`（非対話）を優先し、**本文は一切編集しない**（レポート生成のみ）。
+- 検証は「与えた抜粋」だけで行い、URL/引用を捏造しない。引用は抜粋内一致を機械検証する（一致しない `supported` は無効化）。
+- CH05/CH22/CH23 のようにファクトチェック不要なチャンネルは `web_search_policy=disabled` とし、既定で `fact_check_policy=disabled`。
 
 ---
 

@@ -166,7 +166,9 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
    - Outputs:
      - `content/analysis/research/quality_review.md` (required)
 9. `script_validation`
-   - Outputs: なし（status.json の stage details に結果を記録）
+   - Outputs:
+     - `content/analysis/research/fact_check_report.json` (required)
+     - （他は status.json の stage details に結果を記録）
    - 役割: **Aテキスト品質ゲート**（SSOT: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`, `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`）
      - チェック対象: `content/assembled_human.md`（優先）→ `content/assembled.md`
      - ハード禁則（URL/脚注/箇条書き/番号リスト/見出し/区切り記号など）を検出したら **pending のまま停止**（事故防止のため自動修正しない）。修正後に再実行する。
@@ -191,6 +193,9 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - 手動修復（最小リライト）:
          - major のみ修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
          - minor も修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
+     - 追加ゲート（任意/チャンネル別）: **ファクトチェック（証拠ベース）**
+       - 出力: `content/analysis/research/fact_check_report.json`
+       - CH05/CH22/CH23 は不要（`web_search_policy=disabled` のため既定で無効）
      - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
 10. `audio_synthesis`（Audioフェーズ呼び出し口）
    - Outputs（参照先はAudio側で確定）:

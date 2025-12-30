@@ -41,6 +41,7 @@
 - `ops/OPS_SCRIPT_PIPELINE_SSOT.md`: 台本量産ロジックの単一SSOT（新規/やり直し/超長尺）。
 - `ops/OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
 - `ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`: 台本がカオス化したときの止血・復帰（複数エージェント競合）のSSOT。
+- `ops/OPS_FACT_CHECK_RUNBOOK.md`: 完成台本（Aテキスト）のファクトチェック運用（証拠ベース）。
 - `ops/OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。
 - `ops/OPS_A_TEXT_TECHNIQUE_PACKAGES.md`: Aテキストに効く“技法”をモジュール化して固定（script_prompt へ安全に差し込むためのパッケージ集）。
 - `ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`: 高品質Aテキスト大量生産の設計（パターン→生成→Judge→最小修正）。

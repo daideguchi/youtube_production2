@@ -4489,6 +4489,49 @@ def _normalize_wikipedia_policy(value: Any) -> str:
     return "auto"
 
 
+def _normalize_fact_check_policy(value: Any) -> str:
+    """
+    Policy for final A-text fact-check in script_validation.
+
+    Supported values:
+      - disabled
+      - auto
+      - required
+    """
+    if isinstance(value, bool):
+        return "required" if value else "disabled"
+    raw = str(value or "").strip().lower().replace("-", "_")
+    if raw in {"", "auto"}:
+        return "auto"
+    if raw in {"disabled", "disable", "off", "false", "0", "none", "no"}:
+        return "disabled"
+    if raw in {"required", "require", "enabled", "enable", "on", "true", "1", "yes"}:
+        return "required"
+    return "auto"
+
+
+def _effective_fact_check_policy(channel: str, sources: Dict[str, Any] | None = None) -> str:
+    # Dry-run must not spawn codex exec / external requests.
+    if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
+        return "disabled"
+
+    env_override = (os.getenv("YTM_FACT_CHECK_POLICY") or "").strip()
+    if env_override:
+        return _normalize_fact_check_policy(env_override)
+
+    src = sources if isinstance(sources, dict) else _load_sources(channel)
+    explicit = (src or {}).get("fact_check_policy")
+    if explicit is not None:
+        return _normalize_fact_check_policy(explicit)
+
+    web = _normalize_web_search_policy((src or {}).get("web_search_policy"))
+    if web == "disabled":
+        return "disabled"
+    if web == "required":
+        return "required"
+    return "auto"
+
+
 def _wikipedia_candidate_from_bracket(tag: str) -> str:
     raw = str(tag or "").strip()
     if not raw:
@@ -12184,6 +12227,97 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception:
                     pass
                 return st
+
+        # Fact check gate (evidence-based; optional per channel).
+        try:
+            policy = _effective_fact_check_policy(st.channel)
+            report_path = content_dir / "analysis" / "research" / "fact_check_report.json"
+
+            final_text: str
+            try:
+                final_text = canonical_path.read_text(encoding="utf-8")
+            except Exception:
+                final_text = a_text
+
+            from factory_common.fact_check import run_fact_check_with_codex
+
+            report = run_fact_check_with_codex(
+                channel=st.channel,
+                video=st.video,
+                a_text=final_text,
+                policy=policy,
+                search_results_path=content_dir / "analysis" / "research" / "search_results.json",
+                wikipedia_summary_path=content_dir / "analysis" / "research" / "wikipedia_summary.json",
+                references_path=content_dir / "analysis" / "research" / "references.json",
+                output_path=report_path,
+            )
+            stage_details["fact_check_report_json"] = str(report_path.relative_to(base))
+            stage_details["fact_check"] = {
+                "policy": policy,
+                "verdict": report.get("verdict"),
+                "provider": report.get("provider"),
+                "generated_at": report.get("generated_at"),
+            }
+
+            verdict = str(report.get("verdict") or "").strip().lower()
+            if policy == "required" and verdict != "pass":
+                stage_details["error"] = "fact_check_failed"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"fact_check_failed"}
+                )
+                st.metadata.setdefault("redo_script", True)
+                st.metadata.setdefault("redo_audio", True)
+                stage_details["fix_hints"] = [
+                    "ファクトチェック（証拠ベース）が合格しないため停止しました。",
+                    f"fact_check_report: {report_path.relative_to(base)}",
+                    "本文（assembled_human.md）を修正し、script_validation を再実行してください。",
+                ]
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
+            if policy == "auto" and verdict == "fail":
+                stage_details["error"] = "fact_check_failed"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"fact_check_failed"}
+                )
+                st.metadata.setdefault("redo_script", True)
+                st.metadata.setdefault("redo_audio", True)
+                stage_details["fix_hints"] = [
+                    "ファクトチェック（証拠ベース）が fail のため停止しました。",
+                    f"fact_check_report: {report_path.relative_to(base)}",
+                    "本文（assembled_human.md）を修正し、script_validation を再実行してください。",
+                ]
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
+        except Exception as exc:
+            stage_details["fact_check"] = {"error": "fact_check_gate_failed", "exception": str(exc)}
+            stage_details["error"] = "fact_check_gate_failed"
+            stage_details["error_codes"] = sorted(
+                set(stage_details.get("error_codes") or []) | {"fact_check_gate_failed"}
+            )
+            stage_details["fix_hints"] = [
+                "ファクトチェックゲートの実行に失敗したため停止しました。",
+                f"retry: python3 -m script_pipeline.cli run --channel {st.channel} --video {st.video} --stage script_validation",
+            ]
+            st.stages[stage_name].status = "pending"
+            st.status = "script_in_progress"
+            save_status(st)
+            try:
+                _write_script_manifest(base, st, stage_defs)
+            except Exception:
+                pass
+            return st
 
         # Success: clear stale failure markers and bump global status.
         stage_details.pop("error", None)

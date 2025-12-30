@@ -127,7 +127,9 @@ stages:
         CHANNEL_STYLE_GUIDE: from_style
   - name: script_validation
     description: Final validation (A-text quality gate; SoT=content/assembled_human.md preferred, else content/assembled.md)
-    outputs: []
+    outputs:
+      - path: content/analysis/research/fact_check_report.json
+        required: true
   - name: audio_synthesis
     description: Generate audio and subtitles
     outputs:
