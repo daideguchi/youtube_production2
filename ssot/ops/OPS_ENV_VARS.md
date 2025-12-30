@@ -166,6 +166,12 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ## Codex exec layer（非対話）: Codex優先 → APIフォールバック
 `packages/factory_common/llm_router.py` が、選択された task に対して `codex exec --sandbox read-only` を先に試し、失敗時は既存の LLM API（OpenRouter/Azure 等）へフォールバックする。
 
+重要（固定ルール）:
+- Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
+- **Aテキスト（台本本文）を生成/修正する task は Codex exec に回さない**。`configs/codex_exec.yaml: selection.exclude_tasks` に必ず入れ、LLMRouter API 側で処理する。
+  - 例: `script_chapter_draft`, `script_chapter_review`, `script_semantic_alignment_fix`, `script_a_text_*`
+  - 理由: Codexの文言が本文へ混入する事故を構造的に防ぐため（提案/検証はOKでも、本文の“書き込み”はNG）
+
 ### 設定（SoT）
 - `configs/codex_exec.yaml`（tracked）
 - 任意のローカル上書き: `configs/codex_exec.local.yaml`

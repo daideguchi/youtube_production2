@@ -7,6 +7,8 @@
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
+# - NEVER route tasks that generate/modify A-text (viewer-facing script body) through Codex exec.
+#   Keep those tasks on the existing LLMRouter API path.
 #
 # Enablement:
 # - In normal shells: disabled by default (enabled: false).
@@ -59,12 +61,13 @@ selection:
     - web_search_openrouter
     - script_master_plan_opus
     - script_chapter_draft
+    - script_chapter_review
     - script_a_text_seed
     - script_a_text_quality_fix
     - script_a_text_quality_extend
     - script_a_text_quality_expand
     - script_a_text_quality_shrink
     - script_a_text_final_polish
+    - script_semantic_alignment_fix
     - script_a_text_rebuild_plan
     - script_a_text_rebuild_draft
-

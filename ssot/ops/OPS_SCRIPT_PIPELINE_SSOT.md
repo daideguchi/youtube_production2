@@ -457,6 +457,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
+    - 注（固定ルール）: 自動修正（LLM task=`script_semantic_alignment_fix`）は **Aテキスト本文を書き換える**ため、Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。本文側は必ず LLMRouter API 側で処理する。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
   - minorも直す: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
