@@ -56,6 +56,112 @@ patterns:
           content_notes: "過剰な比喩で伸ばさない。短く。"
 
   # -------------------------
+  # Script katas（企画=Planning SoT で割当する3型）
+  # - Planning CSV の `台本型`（kata1/kata2/kata3）で運用する想定。
+  # - 通常のタイトルトリガーでは選ばれないよう、triggers は空（score=0）。
+  #   採用は runner 側の override（pattern_id 指定）で行う。
+  # - 6,000〜10,000字帯の運用を想定し、char_budget は後段で target_chars に合わせてスケールされる。
+  # -------------------------
+  - id: kata1_conclusion_reason_examples_v1
+    channels: ["*"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "構成は結論→理由→具体例→再結論。理由を増やして散らさず、理解が増える具体で厚みを作る。"
+      modern_example_policy:
+        max_examples: 3
+        example_1_hint: "内面→家庭→職場→友人→SNS→他人の順で題材だけローテ。人物作り込みは禁止。"
+      sections:
+        - name: 導入と前提（結論を固定）
+          char_budget: 1600
+          goal: 結論を1つに絞り、言葉の定義と誤解の釘刺しまで終える
+          content_notes: "40〜80秒ごとに要点1文で回収。一般論で引き延ばさない。"
+        - name: 理由①（短い例→要点）
+          char_budget: 1500
+          goal: 理由を1つだけ深掘りし、短い例で腹落ちさせる
+          content_notes: "対比を軽く入れて単調を避ける。"
+        - name: 理由②（逆方向の対比）
+          char_budget: 1500
+          goal: 逆方向の例（対比）で理解を固定し、要点を1文で回収する
+          content_notes: "言い換え水増し禁止。"
+        - name: 理由③（落とし穴の修正）
+          char_budget: 1400
+          goal: やりがちなミス（落とし穴）を1つだけ示し、修正の方向を短く渡す
+          content_notes: "説教ではなく手順に落とす。"
+        - name: 具体例連結→再結論（今日の一手）
+          char_budget: 2000
+          goal: 具体例を短長交互で回し、最後に再結論と今日の一手へ収束させる
+          content_notes: "6,000→10,000へ伸ばすときは理由を増やさず、例の本数/往復で増やす。"
+
+  - id: kata2_three_doors_v1
+    channels: ["*"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "構成はA=原理→B=見分け方→C=対処。淡々と進め、章末は短い橋で次章へ渡す。"
+      modern_example_policy:
+        max_examples: 2
+        example_1_hint: "視聴者の生活導線（家庭/職場/近所）の“あるある”を短く具体に。"
+      sections:
+        - name: 予告と状況の代弁（A/B/C）
+          char_budget: 1500
+          goal: 3章の予告と、視聴者の状況の代弁で「なぜ聴くか」を作る
+          content_notes: "煽らずに具体。最後にCが効く理由を一言で置く。"
+        - name: 扉A（原理）
+          char_budget: 1700
+          goal: なぜ起きるかを2〜3点に絞って説明し、ミニまとめ2行で締める
+          content_notes: "問いを1つ置く（煽らない）。"
+        - name: 扉B（見分け方）
+          char_budget: 1700
+          goal: 判断軸を3つに絞り、誤判定しやすい例外を1つ入れてミニまとめ2行で締める
+          content_notes: "チェック項目は箇条書きにせず地の文で。"
+        - name: 扉C（対処）
+          char_budget: 1900
+          goal: やることは3つ以内に絞り、言い方の例文を1〜2本だけ入れる
+          content_notes: "距離/言い方/習慣に収束。"
+        - name: 最終まとめ（A/B/C復習→一手）
+          char_budget: 1200
+          goal: A/B/Cを各1行で復習し、今日の一手を1つに絞って静かに閉じる
+          content_notes: "終盤で別話題を増やさない。"
+
+  - id: kata3_repeat_frame_examples_v1
+    channels: ["*"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "同じフレーム（状況→心→落とし穴→整え方）で例を回す。舞台ローテで飽きを抑える。"
+      modern_example_policy:
+        max_examples: 6
+        example_1_hint: "家庭→職場→友人→SNS→近所…の舞台ローテ。人物作り込みは禁止。"
+      sections:
+        - name: フレーム宣言→例1（短）
+          char_budget: 1500
+          goal: これからの見方（固定フレーム）を宣言し、短い例で回し方を見せる
+          content_notes: "例の最後は要点1文で締める。"
+        - name: 例2（長）→ミニまとめ
+          char_budget: 1700
+          goal: 長めの例で深掘りし、共通点を2行でミニまとめする
+          content_notes: "落とし穴は時々逆転（普通は〜だが実は〜）。"
+        - name: 例3（短）
+          char_budget: 1500
+          goal: 短い例でテンポを戻し、整え方を同じ語尾で固定して安心感を作る
+          content_notes: "語尾は「〜で十分です」「まずはそれだけでいい」をベースに。"
+        - name: 例4（長）→ミニまとめ
+          char_budget: 1700
+          goal: 長めの例で理解を積み、再度ミニまとめ2行で迷子を防ぐ
+          content_notes: "例は短長交互。水増しはしない。"
+        - name: 全体まとめ→今日の一手
+          char_budget: 1600
+          goal: 全体の共通点を回収し、今日の一手を1つに絞って終える
+          content_notes: "寝落ち系でも最後は完結。"
+
+  # -------------------------
   # CH22/CH23（シニア体験談・ストーリー）
   # -------------------------
   - id: ch22_senior_friendship_drama_v1

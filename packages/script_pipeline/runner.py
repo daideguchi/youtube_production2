@@ -1663,7 +1663,7 @@ def _core_episode_guide_for_prompt(st: "Status", *, max_chars: int = 650) -> str
     title_for_pattern = _preferred_title_for_pattern(st)
     try:
         patterns_doc = _load_a_text_patterns_doc()
-        pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_pattern) if patterns_doc else {}
+        pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_pattern) if patterns_doc else {}
     except Exception:
         pat = {}
     plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
@@ -2842,6 +2842,77 @@ def _pattern_triggers_match(triggers: Any, title: str) -> tuple[bool, int]:
     return True, score
 
 
+_SCRIPT_KATA_TO_PATTERN_ID: dict[str, str] = {
+    "kata1": "kata1_conclusion_reason_examples_v1",
+    "kata2": "kata2_three_doors_v1",
+    "kata3": "kata3_repeat_frame_examples_v1",
+}
+
+
+def _canonical_script_kata(raw: Any) -> str:
+    """
+    Canonicalize Planning `script_kata` values.
+
+    SoT: Planning CSV column `台本型` -> metadata.planning.script_kata
+    Accepted (examples):
+      - kata1/kata2/kata3
+      - 王道 / 3章 / 3つの扉 / 例回し
+    """
+    s_raw = unicodedata.normalize("NFKC", str(raw or "")).strip()
+    if not s_raw:
+        return ""
+    low = s_raw.lower().strip()
+    low_compact = re.sub(r"[\s\u3000]+", "", low)
+    if low_compact in {"kata1", "type1", "1"}:
+        return "kata1"
+    if low_compact in {"kata2", "type2", "2"}:
+        return "kata2"
+    if low_compact in {"kata3", "type3", "3"}:
+        return "kata3"
+
+    jp = re.sub(r"[\s\u3000]+", "", s_raw)
+    if "王道" in jp or ("結論" in jp and "理由" in jp):
+        return "kata1"
+    if "扉" in jp or "3章" in jp or "三章" in jp or "3つ" in jp or "三つ" in jp:
+        return "kata2"
+    if "例回" in jp or "例を回" in jp or "反復" in jp:
+        return "kata3"
+    return ""
+
+
+def _pattern_by_id(patterns_doc: Dict[str, Any], pattern_id: str) -> Dict[str, Any]:
+    pid = str(pattern_id or "").strip()
+    if not pid:
+        return {}
+    patterns = patterns_doc.get("patterns")
+    if not isinstance(patterns, list):
+        return {}
+    for pat in patterns:
+        if not isinstance(pat, dict):
+            continue
+        if str(pat.get("id") or "").strip() == pid:
+            return pat
+    return {}
+
+
+def _select_a_text_pattern_for_status(patterns_doc: Dict[str, Any], st: "Status", title: str) -> Dict[str, Any]:
+    """
+    Prefer Planning-assigned script kata over title triggers.
+    This keeps "which structure to use" in Planning SoT (reproducible, human-auditable).
+    """
+    meta = st.metadata if isinstance(st, Status) else {}
+    planning = meta.get("planning") if isinstance(meta, dict) else None
+    planning = planning if isinstance(planning, dict) else {}
+    raw_kata = planning.get("script_kata") if isinstance(planning, dict) else ""
+    kata = _canonical_script_kata(raw_kata)
+    override_id = _SCRIPT_KATA_TO_PATTERN_ID.get(kata, "")
+    if override_id:
+        forced = _pattern_by_id(patterns_doc, override_id)
+        if forced:
+            return forced
+    return _select_a_text_pattern(patterns_doc, st.channel, title)
+
+
 def _select_a_text_pattern(patterns_doc: Dict[str, Any], channel: str, title: str) -> Dict[str, Any]:
     patterns = patterns_doc.get("patterns")
     if not isinstance(patterns, list):
@@ -2969,7 +3040,7 @@ def _build_deterministic_rebuild_plan(st: "Status", title: str, last_judge: Dict
     The plan schema matches a_text_rebuild_* prompts.
     """
     patterns_doc = _load_a_text_patterns_doc()
-    pat = _select_a_text_pattern(patterns_doc, st.channel, title) if patterns_doc else {}
+    pat = _select_a_text_pattern_for_status(patterns_doc, st, title) if patterns_doc else {}
     plan_obj: Dict[str, Any] = {}
 
     plan_cfg = pat.get("plan") if isinstance(pat, dict) else None
@@ -6644,7 +6715,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             pause_min: int | None = None
             try:
                 patterns_doc = _load_a_text_patterns_doc()
-                pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_pattern) if patterns_doc else {}
+                pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_pattern) if patterns_doc else {}
                 plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
                 sec_count: int | None = None
                 if isinstance(plan_cfg, dict):
@@ -6847,9 +6918,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception:
                     patterns_doc = {}
                 try:
-                    pat = (
-                        _select_a_text_pattern(patterns_doc, st.channel, title_for_llm) if patterns_doc else {}
-                    )
+                    pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_llm) if patterns_doc else {}
                 except Exception:
                     pat = {}
 
@@ -7341,7 +7410,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             pause_min: int | None = None
             try:
                 patterns_doc = _load_a_text_patterns_doc()
-                pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_pattern) if patterns_doc else {}
+                pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_pattern) if patterns_doc else {}
                 plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
                 sec_count: int | None = None
                 if isinstance(plan_cfg, dict):
@@ -8572,17 +8641,21 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                             try:
                                                 patterns_doc = _load_a_text_patterns_doc()
                                                 pat = (
-                                                    _select_a_text_pattern(patterns_doc, st.channel, title_for_alignment)
+                                                    _select_a_text_pattern_for_status(patterns_doc, st, title_for_alignment)
                                                     if patterns_doc
                                                     else {}
                                                 )
                                                 if isinstance(pat, dict):
                                                     pattern_id = str(pat.get("id") or "").strip()
-                                                    plan_cfg = pat.get("plan") if isinstance(pat.get("plan"), dict) else {}
-                                                    mp = plan_cfg.get("modern_example_policy") if isinstance(plan_cfg, dict) else None
+                                                    plan_cfg = pat.get("plan")
+                                                    if not isinstance(plan_cfg, dict):
+                                                        plan_cfg = {}
+
+                                                    mp = plan_cfg.get("modern_example_policy")
                                                     if isinstance(mp, dict) and mp.get("max_examples") not in (None, ""):
                                                         modern_examples_max_target = str(max(0, int(mp.get("max_examples"))))
-                                                    sections = plan_cfg.get("sections") if isinstance(plan_cfg, dict) else None
+
+                                                    sections = plan_cfg.get("sections")
                                                     if isinstance(sections, list):
                                                         sec_count = len(
                                                             [
@@ -8593,10 +8666,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                                         )
                                                         if sec_count > 0:
                                                             pause_lines_target_min = str(max(0, sec_count - 1))
-                                                    cands = (
-                                                        plan_cfg.get("core_episode_candidates")
-                                                        or plan_cfg.get("buddhist_episode_candidates")
-                                                    ) if isinstance(plan_cfg, dict) else None
+
+                                                    cands = plan_cfg.get("core_episode_candidates") or plan_cfg.get(
+                                                        "buddhist_episode_candidates"
+                                                    )
                                                     if isinstance(cands, list) and cands:
                                                         core_episode_required = "1"
                                                         picked = _pick_core_episode(cands, title_for_alignment)
@@ -9045,7 +9118,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             except Exception:
                 patterns_doc = {}
             try:
-                pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_llm) if patterns_doc else {}
+                pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_llm) if patterns_doc else {}
             except Exception:
                 pat = {}
 
@@ -10008,7 +10081,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             except Exception:
                 patterns_doc = {}
             try:
-                pat = _select_a_text_pattern(patterns_doc, st.channel, title_for_llm) if patterns_doc else {}
+                pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_llm) if patterns_doc else {}
             except Exception:
                 pat = {}
             try:

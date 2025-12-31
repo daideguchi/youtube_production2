@@ -25,6 +25,7 @@ OPTIONAL_FIELDS = {
     "たとえ話イメージ": "analogy_image",
     "説明文_リード": "description_lead",
     "説明文_この動画でわかること": "description_takeaways",
+    "台本型": "script_kata",
 }
 
 # field key (snake_case) -> column (Japanese)
