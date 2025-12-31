@@ -5026,20 +5026,18 @@ def _ensure_references(base: Path, st: Status | None = None) -> None:
     refs_path.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _should_block_topic_research_due_to_required_web_search(base: Path, st: Status) -> bool:
+def _should_block_topic_research_due_to_missing_research_sources(base: Path, st: Status) -> bool:
     """
-    For channels that require web search, stop before running `topic_research` if search results
-    are unavailable (provider=disabled or file missing/invalid).
+    Optional hard-stop (default OFF): stop before running `topic_research` when there are no
+    evidence URLs available from search/wiki/references.
 
-    This avoids burning tokens on downstream stages that will inevitably fail fact-check due to
-    missing evidence sources, and provides a clear "manual injection" escape hatch.
+    Enable with:
+      - SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES=1
+
+    This avoids burning tokens on downstream stages that will produce weak/failing fact-check due
+    to missing evidence sources, and provides a clear "manual injection" escape hatch.
     """
-    try:
-        sources = _load_sources(st.channel)
-        policy = _normalize_web_search_policy((sources or {}).get("web_search_policy"))
-    except Exception:
-        policy = "auto"
-    if policy != "required":
+    if not _truthy_env("SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES", "0"):
         return False
 
     search_path = base / "content/analysis/research/search_results.json"
@@ -5060,11 +5058,12 @@ def _should_block_topic_research_due_to_required_web_search(base: Path, st: Stat
             stage = st.stages.get("topic_research")
             if stage is not None:
                 stage.details["error"] = True
-                stage.details["error_codes"] = ["web_search_required_unavailable"]
+                stage.details["error_codes"] = ["missing_research_sources_invalid_schema"]
                 stage.details["fix_hints"] = [
-                    "web_search_policy=required ですが search_results.json のschemaが不正/欠落しています。",
-                    "対処A: Brave検索を有効化（BRAVE_SEARCH_API_KEY を設定）して再実行。",
-                    "対処B: 対話モードAIで search_results.json を作成し投入（ssot/ops/OPS_RESEARCH_BUNDLE.md の手順）。",
+                    "search_results.json のschemaが不正/欠落しています（厳格モードで停止）。",
+                    "対処A: 厳格モードをOFF（SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES=0）にして続行する。",
+                    "対処B: Brave検索を有効化（BRAVE_SEARCH_API_KEY）して再実行。",
+                    "対処C: 対話モードAIで sources を集め、research bundle を投入（ssot/ops/OPS_RESEARCH_BUNDLE.md）。",
                     f"必要ファイル: {search_path}",
                 ]
         except Exception:
@@ -5110,11 +5109,12 @@ def _should_block_topic_research_due_to_required_web_search(base: Path, st: Stat
             stage = st.stages.get("topic_research")
             if stage is not None:
                 stage.details["error"] = True
-                stage.details["error_codes"] = ["web_search_required_no_sources"]
+                stage.details["error_codes"] = ["missing_research_sources_no_urls"]
                 stage.details["fix_hints"] = [
-                    "web_search_policy=required ですが、検証に使える URL（search_hits/references/wiki）が0件です。",
-                    "対処A: Brave検索を有効化（BRAVE_SEARCH_API_KEY）して search_results.json を埋める。",
-                    "対処B: 対話モードAIで sources を集め、research bundle を投入（ssot/ops/OPS_RESEARCH_BUNDLE.md）。",
+                    "検証に使える URL（search_hits/references/wiki）が0件です（厳格モードで停止）。",
+                    "対処A: 厳格モードをOFF（SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES=0）にして続行する。",
+                    "対処B: Brave検索を有効化（BRAVE_SEARCH_API_KEY）して search_results.json を埋める。",
+                    "対処C: 対話モードAIで sources を集め、research bundle を投入（ssot/ops/OPS_RESEARCH_BUNDLE.md）。",
                     f"対象: {search_path}, {refs_path}, {wiki_path}",
                 ]
         except Exception:
@@ -12567,7 +12567,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 _ensure_web_search_results(base, st)
             except Exception:
                 pass
-            if _should_block_topic_research_due_to_required_web_search(base, st):
+            if _should_block_topic_research_due_to_missing_research_sources(base, st):
                 st.stages[stage_name].status = "pending"
                 st.status = "script_in_progress"
                 save_status(st)

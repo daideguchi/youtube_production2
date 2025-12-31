@@ -140,3 +140,7 @@ python3 scripts/ops/research_bundle.py apply --bundle /tmp/research_bundle_CH01_
 - `research_brief.md` にURLを貼るのは可（referencesが空の時のフォールバック抽出もある）が、可能なら `references.json` を正にする。
 - `fact_check_report.json` は本文を書き換えない（検証と修正方針まで）。
 
+### 3.1 重要: Web検索は「必須」ではない
+- `web_search_policy` は **取得の試行方針**（disabled/auto/required）であり、既定では失敗してもパイプラインは止めない。
+- ただし strict 運用として、`SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES=1` のときは `topic_research` の前に
+  「検証に使えるURLが0件」なら停止する（手動投入へ誘導）。

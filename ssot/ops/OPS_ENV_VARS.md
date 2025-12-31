@@ -194,6 +194,12 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ## Script pipeline: エピソード重複（採用済み回と被せない）
 - `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION`（default: `0`）: 採用済み（Planning CSV の `進捗=投稿済み/公開済み` または `published_lock=true`（UI の `投稿完了`））の回と `キーコンセプト` が重複する場合、`topic_research/script_outline/script_draft` 等の高コスト工程の前で停止する（strict運用）。既定は停止せず、lint警告のみ。
 
+## Script pipeline: リサーチ足場（URLソース）不足で停止（任意 / strict）
+- `SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES`（default: `0`）: `topic_research` 実行前に **検証用URL（search_hits/references/wiki）が0件** の場合に停止する（strict運用）。
+  - 既定は停止しない（= Web検索/Wikipedia が空でもパイプラインは続行する）。
+  - 停止時は `status.json: stages.topic_research.details.fix_hints` に、Braveの有効化または手動投入（research bundle）の案内が出る。
+  - 手動投入の手順（SoT）: `ssot/ops/OPS_RESEARCH_BUNDLE.md`
+
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
 
