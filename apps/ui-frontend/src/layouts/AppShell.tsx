@@ -320,6 +320,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/agent-org", pathname)) {
     return "agentOrg";
   }
+  if (matchPath("/llm-usage/*", pathname) || matchPath("/llm-usage", pathname)) {
+    return "llmUsage";
+  }
   return "dashboard";
 }
 
@@ -1356,6 +1359,8 @@ export function AppShell() {
           { key: "agentOrg", label: "AI Org", icon: "🤖", path: "/agent-org" },
           { key: "agentBoard", label: "Shared Board", icon: "🧷", path: "/agent-board" },
           { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
+          { key: "llmUsageDashboard", label: "LLMコスト", icon: "🧮", path: "/llm-usage/dashboard" },
+          { key: "llmUsage", label: "LLMログ/Override", icon: "🧠", path: "/llm-usage" },
           { key: "channelSettings", label: "チャンネル設定", icon: "⚙️", path: "/channel-settings" },
           { key: "settings", label: "設定", icon: "🛠️", path: "/settings" },
           { key: "reports", label: "レポート", icon: "📈", path: "/reports" },

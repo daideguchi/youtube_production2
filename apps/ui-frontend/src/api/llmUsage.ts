@@ -33,3 +33,21 @@ export async function getLlmModels() {
   const data = await res.json();
   return data.models || [];
 }
+
+export async function getLlmUsageSummary(params: { range?: string; topN?: number; provider?: string }) {
+  const range = params.range ?? "today_jst";
+  const topN = params.topN ?? 12;
+  const provider = params.provider ?? "";
+  const qs = new URLSearchParams();
+  qs.set("range", range);
+  qs.set("top_n", String(topN));
+  if (provider) {
+    qs.set("provider", provider);
+  }
+  const res = await fetch(apiUrl(`/llm-usage/summary?${qs.toString()}`));
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Failed to fetch usage summary: ${res.status} ${text}`);
+  }
+  return res.json();
+}

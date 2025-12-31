@@ -26,6 +26,7 @@ import { ProductionPage } from "./pages/ProductionPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
 import LlmUsagePage from "./pages/LlmUsagePage";
+import LlmUsageDashboardPage from "./pages/LlmUsageDashboardPage";
 import { PlanningPage } from "./pages/PlanningPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
 import { EpisodeStudioPage } from "./pages/EpisodeStudioPage";
@@ -75,6 +76,7 @@ function App() {
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/llm-usage" element={<LlmUsagePage />} />
+        <Route path="/llm-usage/dashboard" element={<LlmUsageDashboardPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
