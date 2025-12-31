@@ -218,6 +218,7 @@ flowchart TD
 入口:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
   - 例外（同じ本文でも検証を回し直したい）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN --until script_validation --force-script-validation`
+  - バッチ（範囲）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CHxx --from NNN --to MMM --mode continue`
 
 何が起きる（重要）:
 - `configs/sources.yaml` の最新ターゲット（`target_chars_*`）を `status.json` に同期する（本文は書き換えない）。
@@ -283,6 +284,9 @@ flowchart TD
 
 大量検証で「再生成せず、今ある台本が通るかだけ見たい」場合:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CHxx --from NNN --to MMM --mode validate`
+
+中断/途中状態を「resetせず続きから」収束させたい場合（範囲）:
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CHxx --from NNN --to MMM --mode continue`
 
 注意:
 - これは “作り直し” ではなく “検査”。

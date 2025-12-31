@@ -105,6 +105,7 @@
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
   - 既存本文を通すだけ（安い）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+  - 途中から再開（バッチ/範囲・resetしない）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode continue`
 - Planning sanitize（機械チェック・混入クリーナ。dry-runがデフォルト）:
   - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時のみ `--apply`
 - Planning 列の再整列（機械チェック・タイトルを正としてテーマ補助列のみ修正）:

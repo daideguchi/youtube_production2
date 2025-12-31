@@ -915,6 +915,24 @@ def cmd_redo(args: argparse.Namespace) -> int:
                 run_stage(ch, no, "script_validation", title=None)
                 _stamp_script_validation_hash(ch, no)
                 note = "validated"
+            elif mode == "continue":
+                # Resume without reset: reconcile + run pending stages until `until`.
+                # If status.json doesn't exist yet, fall back to regenerate for that episode.
+                if status_path(ch, no).exists():
+                    st = load_status(ch, no)
+                    if _refresh_episode_targets_from_sources(st):
+                        save_status(st)
+                    reconcile_status(ch, no, allow_downgrade=False)
+                    if until in {"script_validation", "audio_synthesis"}:
+                        _maybe_force_revalidate_script_validation_on_input_change(ch, no)
+                    _run_until(ch, no, until_stage=until, max_iter=max_iter)
+                    _stamp_script_validation_hash(ch, no)
+                    note = "continued"
+                else:
+                    reset_video(ch, no, wipe_research=bool(args.wipe_research))
+                    _run_until(ch, no, until_stage=until, max_iter=max_iter)
+                    _stamp_script_validation_hash(ch, no)
+                    note = "reset+continued"
             elif mode == "regenerate":
                 reset_video(ch, no, wipe_research=bool(args.wipe_research))
                 _run_until(ch, no, until_stage=until, max_iter=max_iter)
@@ -1189,14 +1207,18 @@ def main() -> int:
     new_p.add_argument("--max-iter", type=int, default=30)
     new_p.set_defaults(func=cmd_new)
 
-    redo_p = sub.add_parser("redo", help="Redo existing scripts for a range (validate or regenerate).")
+    redo_p = sub.add_parser("redo", help="Redo existing scripts for a range (validate, continue, or regenerate).")
     redo_p.add_argument("--channel", required=True)
     redo_p.add_argument("--from", dest="from_video", required=True)
     redo_p.add_argument("--to", dest="to_video", required=True)
-    redo_p.add_argument("--mode", choices=["validate", "regenerate"], default="validate")
+    redo_p.add_argument("--mode", choices=["validate", "continue", "regenerate"], default="validate")
     redo_p.add_argument("--wipe-research", action="store_true", help="When regenerating, also wipe research outputs.")
-    redo_p.add_argument("--until", default="script_validation", help="(regenerate) stop when this stage is completed (default: script_validation).")
-    redo_p.add_argument("--max-iter", type=int, default=30, help="Max stage executions per video (regenerate mode).")
+    redo_p.add_argument(
+        "--until",
+        default="script_validation",
+        help="(continue/regenerate) stop when this stage is completed (default: script_validation).",
+    )
+    redo_p.add_argument("--max-iter", type=int, default=30, help="Max stage executions per video (continue/regenerate mode).")
     redo_p.set_defaults(func=cmd_redo)
 
     redo_full_p = sub.add_parser("redo-full", help="Reset + regenerate from scratch for a range (alias of redo --mode regenerate).")

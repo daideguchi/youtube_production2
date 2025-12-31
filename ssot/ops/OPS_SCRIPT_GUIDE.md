@@ -41,11 +41,15 @@
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030`
 - 途中から再開:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+- 途中から再開（バッチ/範囲・resetしない）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode continue`
 - リライト修正（ユーザー指示必須）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py rewrite --channel CH07 --video 019 --instruction \"言い回しをもっと理解しやすい表現に\"`
 
 補助（検査だけ。再生成しない）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+補助（続きから収束。再生成しない）:
+- `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode continue`
 
 注意:
 - `python -m script_pipeline.cli ...` は内部/詳細制御。入口を増やすと事故るので、通常は使わない（必要時のみ「付録A」を参照）。

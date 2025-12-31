@@ -24,12 +24,14 @@
 - **新規でゼロから執筆**: `script_runbook.py new`
 - **最初から完全にやり直す（既存を捨てて作り直し）**: `script_runbook.py redo-full`
 - **途中から再開 / 既存台本を調整して合格させる**（体裁/品質/整合を再検証）: `script_runbook.py resume`
+- **途中から再開（バッチ/範囲）**（resetせずに“続きから”収束させる）: `script_runbook.py redo --mode continue`
 - **リライト修正（ユーザー指示が必須）**: `script_runbook.py rewrite`
 - **長尺を安定させたい（短い本文Seed→追記で収束）**: `script_runbook.py seed-expand`
 
 判断の最小ルール:
 - 「本文を直した/ターゲット字数が変わった/タイトルが変わった」→ `resume --until script_validation`（再検証だけ回すのが最安）
 - 「プロンプト/QC/ルールを更新したので、同じ本文でも検証を回し直したい」→ `resume --until script_validation --force-script-validation`
+- 「バッチ実行が途中で止まった/中断した」→ `redo --mode continue --until script_validation`（resetせずに再開）
 - 「企画（CSV）が変わった/混線している」→ `redo-full`（旧生成物を引きずらないのが最安）
 - 「表現だけ変えたい（主題は変えない）」→ `rewrite`（ユーザー指示なしでは使わない）
 
@@ -388,6 +390,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 
 途中から再開（手動介入/中断後）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
+  - バッチ（範囲）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode continue`
   - 収束しない場合の最終手段（高コスト・1回だけ）: `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL=1` を付けて再実行（Rebuildで一貫した本文を再構築）
 
 リライト修正（ユーザー指示必須）:
