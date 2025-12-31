@@ -67,6 +67,8 @@ import {
   SourceStatus,
   VideoProjectGuard,
   VideoProjectSummary,
+  VideoProjectPlanningSummary,
+  VideoProjectImageProgress,
   VideoSummary,
   WorkflowPrecheckResponse,
   VideoProductionChannelPreset,
@@ -82,6 +84,8 @@ import {
   LlmSettings,
   LlmSettingsUpdate,
   LlmModelInfo,
+  CodexSettings,
+  CodexSettingsUpdate,
   HumanScriptResponse,
   HumanScriptUpdatePayload,
   RunTtsResponse,
@@ -1565,6 +1569,22 @@ type SourceStatusResponse = {
   audio_path?: string | null;
 };
 
+type VideoProjectPlanningSummaryResponse = {
+  channel?: string | null;
+  video_number?: string | null;
+  title?: string | null;
+};
+
+type VideoProjectImageProgressResponse = {
+  required_total: number;
+  generated_ready: number;
+  placeholders: number;
+  missing: number;
+  status?: string | null;
+  mode?: string | null;
+  placeholder_reason?: string | null;
+};
+
 type VideoProjectSummaryResponse = {
   id: string;
   title?: string | null;
@@ -1580,6 +1600,8 @@ type VideoProjectSummaryResponse = {
   channel_id?: string | null;
   channelId?: string | null;
   source_status?: SourceStatusResponse | null;
+  planning?: VideoProjectPlanningSummaryResponse | null;
+  image_progress?: VideoProjectImageProgressResponse | null;
 };
 type VideoProjectGuardResponse = {
   status: "ok" | "fail";
@@ -1679,6 +1701,34 @@ function normalizeProjectSummary(raw: VideoProjectSummaryResponse): VideoProject
     channel_id: raw.channel_id ?? raw.channelId ?? null,
     channelId: raw.channelId ?? raw.channel_id ?? null,
     sourceStatus: normalizeSourceStatus(raw.source_status),
+    planning: normalizeProjectPlanning(raw.planning),
+    imageProgress: normalizeImageProgress(raw.image_progress),
+  };
+}
+
+function normalizeProjectPlanning(raw?: VideoProjectPlanningSummaryResponse | null): VideoProjectPlanningSummary | null {
+  if (!raw) {
+    return null;
+  }
+  return {
+    channel: raw.channel ?? null,
+    videoNumber: raw.video_number ?? null,
+    title: raw.title ?? null,
+  };
+}
+
+function normalizeImageProgress(raw?: VideoProjectImageProgressResponse | null): VideoProjectImageProgress | null {
+  if (!raw) {
+    return null;
+  }
+  return {
+    requiredTotal: raw.required_total ?? 0,
+    generatedReady: raw.generated_ready ?? 0,
+    placeholders: raw.placeholders ?? 0,
+    missing: raw.missing ?? 0,
+    status: raw.status ?? null,
+    mode: raw.mode ?? null,
+    placeholderReason: raw.placeholder_reason ?? null,
   };
 }
 
@@ -2144,6 +2194,17 @@ export function updateLlmSettings(payload: LlmSettingsUpdate): Promise<LlmSettin
   });
 }
 
+export function fetchCodexSettings(): Promise<CodexSettings> {
+  return request<CodexSettings>("/api/settings/codex");
+}
+
+export function updateCodexSettings(payload: CodexSettingsUpdate): Promise<CodexSettings> {
+  return request<CodexSettings>("/api/settings/codex", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function fetchLlmModelScores(): Promise<LlmModelInfo[]> {
   return request<LlmModelInfo[]>("/api/llm/models");
 }
@@ -2266,6 +2327,16 @@ export function replaceProjectImage(projectId: string, imagePath: string, file: 
   formData.append("file", file);
   return requestForm<VideoProjectImageAsset>(
     `/api/video-production/projects/${encodeURIComponent(projectId)}/images/replace`,
+    formData
+  );
+}
+
+export function uploadProjectImage(projectId: string, imageIndex: number, file: File): Promise<VideoProjectImageAsset> {
+  const formData = new FormData();
+  formData.append("image_index", String(imageIndex));
+  formData.append("file", file);
+  return requestForm<VideoProjectImageAsset>(
+    `/api/video-production/projects/${encodeURIComponent(projectId)}/images/upload`,
     formData
   );
 }

@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchLlmSettings, fetchLlmModelScores, updateLlmSettings } from "../api/client";
+import { fetchCodexSettings, fetchLlmSettings, fetchLlmModelScores, updateCodexSettings, updateLlmSettings } from "../api/client";
 import { UiParamsPanel } from "../components/UiParamsPanel";
-import type { LlmModelInfo, LlmSettings, PhaseModel, PhaseDetail } from "../api/types";
+import type {
+  CodexReasoningEffort,
+  CodexSettings,
+  LlmModelInfo,
+  LlmSettings,
+  PhaseDetail,
+  PhaseModel,
+} from "../api/types";
 import llmModelsFallback from "../data/llm_models_fallback.json";
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<LlmSettings | null>(null);
+  const [codexSettings, setCodexSettings] = useState<CodexSettings | null>(null);
   const [provider, setProvider] = useState<"openai" | "openrouter">("openai");
   const [openaiModel, setOpenaiModel] = useState("");
   const [openrouterModel, setOpenrouterModel] = useState("");
@@ -24,6 +32,15 @@ export function SettingsPage() {
   const [openrouterOptions, setOpenrouterOptions] = useState<string[]>([]);
   const [modelScores, setModelScores] = useState<LlmModelInfo[]>([]);
   const [modelError, setModelError] = useState<string | null>(null);
+  const [codexProfile, setCodexProfile] = useState("");
+  const [codexModelOverride, setCodexModelOverride] = useState("");
+  const [codexCliProfile, setCodexCliProfile] = useState("");
+  const [codexCliModel, setCodexCliModel] = useState("");
+  const [codexReasoningEffort, setCodexReasoningEffort] = useState<CodexReasoningEffort>("xhigh");
+  const [codexLoading, setCodexLoading] = useState(true);
+  const [codexSaving, setCodexSaving] = useState(false);
+  const [codexStatusMessage, setCodexStatusMessage] = useState<string | null>(null);
+  const [codexErrorMessage, setCodexErrorMessage] = useState<string | null>(null);
 
   const applySettingsResponse = useCallback((data: LlmSettings) => {
     setSettings(data);
@@ -34,6 +51,20 @@ export function SettingsPage() {
     setOpenrouterOptions(data.llm.openrouter_models ?? []);
     setPhaseModels(data.llm.phase_models ?? {});
     setPhaseDetails(data.llm.phase_details ?? {});
+  }, []);
+
+  const applyCodexSettingsResponse = useCallback((data: CodexSettings) => {
+    setCodexSettings(data);
+    setCodexProfile(data.codex_exec.profile ?? "");
+    setCodexModelOverride(data.codex_exec.model ?? "");
+    setCodexCliProfile(data.active_profile?.name ?? data.codex_exec.profile ?? "");
+    setCodexCliModel(data.active_profile?.model ?? "");
+    const eff = (data.active_profile?.model_reasoning_effort ?? "").trim().toLowerCase();
+    if (eff === "low" || eff === "medium" || eff === "high" || eff === "xhigh") {
+      setCodexReasoningEffort(eff);
+    } else {
+      setCodexReasoningEffort("xhigh");
+    }
   }, []);
 
   const loadSettings = useCallback(async () => {
@@ -50,9 +81,27 @@ export function SettingsPage() {
     }
   }, [applySettingsResponse]);
 
+  const loadCodexSettings = useCallback(async () => {
+    setCodexLoading(true);
+    setCodexErrorMessage(null);
+    try {
+      const data = await fetchCodexSettings();
+      applyCodexSettingsResponse(data);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setCodexErrorMessage(message);
+    } finally {
+      setCodexLoading(false);
+    }
+  }, [applyCodexSettingsResponse]);
+
   useEffect(() => {
     void loadSettings();
   }, [loadSettings]);
+
+  useEffect(() => {
+    void loadCodexSettings();
+  }, [loadCodexSettings]);
 
   useEffect(() => {
     void (async () => {
@@ -77,6 +126,46 @@ export function SettingsPage() {
       setModelError("モデルスコアがありません。APIキー設定後に再取得してください。");
     })();
   }, []);
+
+  const handleApplyCodexRecommended = useCallback(() => {
+    const profile = (codexProfile || codexSettings?.codex_exec.profile || "claude-code").trim() || "claude-code";
+    setCodexProfile(profile);
+    setCodexCliProfile(profile);
+    setCodexCliModel("gpt-5.2");
+    setCodexReasoningEffort("xhigh");
+    setCodexStatusMessage("推奨設定を反映しました（未保存）");
+    setCodexErrorMessage(null);
+  }, [codexProfile, codexSettings]);
+
+  const handleSaveCodexSettings = useCallback(async () => {
+    setCodexSaving(true);
+    setCodexStatusMessage(null);
+    setCodexErrorMessage(null);
+    try {
+      const payload = {
+        profile: codexProfile.trim(),
+        model: codexModelOverride.trim(),
+        cli_profile: codexCliProfile.trim(),
+        cli_model: codexCliModel.trim() || undefined,
+        model_reasoning_effort: codexReasoningEffort,
+      };
+      const response = await updateCodexSettings(payload);
+      applyCodexSettingsResponse(response);
+      setCodexStatusMessage("Codex exec 設定を保存しました");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setCodexErrorMessage(message);
+    } finally {
+      setCodexSaving(false);
+    }
+  }, [
+    applyCodexSettingsResponse,
+    codexCliModel,
+    codexCliProfile,
+    codexModelOverride,
+    codexProfile,
+    codexReasoningEffort,
+  ]);
 
   const handleSaveModels = useCallback(async () => {
     setSaving(true);
@@ -274,6 +363,43 @@ export function SettingsPage() {
     });
   }, [phaseModels, phaseDetails]);
 
+  const codexCliProfiles = useMemo(() => {
+    return codexSettings?.codex_cli?.profiles ?? [];
+  }, [codexSettings]);
+
+  const codexProfileOptions = useMemo(() => {
+    const unique = new Set<string>();
+    const options: string[] = [];
+    for (const p of codexCliProfiles) {
+      const name = (p?.name ?? "").trim();
+      if (!name || unique.has(name)) continue;
+      unique.add(name);
+      options.push(name);
+    }
+    const effective = (codexSettings?.codex_exec?.profile ?? "").trim();
+    if (effective && !unique.has(effective)) {
+      options.push(effective);
+      unique.add(effective);
+    }
+    const draft = codexProfile.trim();
+    if (draft && !unique.has(draft)) {
+      options.push(draft);
+    }
+    return options;
+  }, [codexCliProfiles, codexProfile, codexSettings]);
+
+  const codexReasoningOptions = useMemo(() => {
+    const allowed = codexSettings?.allowed_reasoning_effort ?? ["low", "medium", "high", "xhigh"];
+    const normalized: CodexReasoningEffort[] = [];
+    for (const v of allowed) {
+      const s = String(v || "").trim().toLowerCase();
+      if (s === "low" || s === "medium" || s === "high" || s === "xhigh") {
+        normalized.push(s);
+      }
+    }
+    return normalized.length > 0 ? normalized : (["low", "medium", "high", "xhigh"] as CodexReasoningEffort[]);
+  }, [codexSettings]);
+
   return (
     <section className="settings-page">
       <header>
@@ -292,6 +418,116 @@ export function SettingsPage() {
       {statusMessage ? <p className="settings-page__status">{statusMessage}</p> : null}
       {!loading && settings ? (
         <div className="settings-page__grid">
+          <section className="settings-card settings-card--wide">
+            <h2>Codex exec（非対話）設定</h2>
+            <p className="settings-card__hint">
+              `codex exec`（サブスク）で実行する **モデル / 推論強度** を UI から切り替えます。推奨は `gpt-5.2` + `xhigh` です。
+            </p>
+            {codexLoading ? <p className="settings-card__hint">読み込み中…</p> : null}
+            {codexErrorMessage ? <p className="settings-card__alert">{codexErrorMessage}</p> : null}
+            {codexStatusMessage ? <p className="settings-card__status">{codexStatusMessage}</p> : null}
+            {!codexLoading && codexSettings ? (
+              <>
+                <div className="settings-card__inline-actions">
+                  <button
+                    type="button"
+                    className="settings-page__button settings-page__button--ghost"
+                    onClick={handleApplyCodexRecommended}
+                    disabled={codexSaving}
+                  >
+                    推奨を適用（gpt-5.2 / xhigh）
+                  </button>
+                  <button type="button" className="settings-page__button" onClick={handleSaveCodexSettings} disabled={codexSaving}>
+                    {codexSaving ? "保存中…" : "Codex設定を保存"}
+                  </button>
+                </div>
+                <div className="settings-card__table-wrapper">
+                  <table className="settings-card__table">
+                    <thead>
+                      <tr>
+                        <th>項目</th>
+                        <th>値</th>
+                        <th>出典</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>pipeline.profile</td>
+                        <td>{codexSettings.codex_exec.profile}</td>
+                        <td>{codexSettings.codex_exec.profile_source ?? "—"}</td>
+                      </tr>
+                      <tr>
+                        <td>pipeline.model override</td>
+                        <td>{codexSettings.codex_exec.model ?? "(未設定)"}</td>
+                        <td>{codexSettings.codex_exec.model_source ?? "—"}</td>
+                      </tr>
+                      <tr>
+                        <td>cli.model</td>
+                        <td>{codexSettings.active_profile.model ?? "(未設定)"}</td>
+                        <td>{codexSettings.codex_cli.exists ? codexSettings.codex_cli.config_path : "(未作成)"}</td>
+                      </tr>
+                      <tr>
+                        <td>cli.model_reasoning_effort</td>
+                        <td>{codexSettings.active_profile.model_reasoning_effort ?? "(未設定)"}</td>
+                        <td>{codexSettings.codex_cli.exists ? codexSettings.codex_cli.config_path : "(未作成)"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <label>
+                  <span>Codex exec profile（pipeline）</span>
+                  <input
+                    list="codex-profiles"
+                    value={codexProfile}
+                    onChange={(event) => setCodexProfile(event.target.value)}
+                    placeholder="例: claude-code"
+                  />
+                  <datalist id="codex-profiles">
+                    {codexProfileOptions.map((p) => (
+                      <option key={p} value={p} />
+                    ))}
+                  </datalist>
+                  <p className="settings-card__hint">
+                    Pipeline は `configs/codex_exec.local.yaml` に保存します（SSOTを汚さない）。環境変数 `YTM_CODEX_EXEC_PROFILE` がある場合はそれが最優先になります。
+                  </p>
+                </label>
+                <label>
+                  <span>Codex exec model override（任意）</span>
+                  <input
+                    value={codexModelOverride}
+                    onChange={(event) => setCodexModelOverride(event.target.value)}
+                    placeholder="空欄なら CLI profile 側の model を使う"
+                  />
+                  <p className="settings-card__hint">空欄にすると `-m` を付けずに実行します。</p>
+                </label>
+                <label>
+                  <span>Codex CLI profile（~/.codex/config.toml）</span>
+                  <input
+                    list="codex-profiles"
+                    value={codexCliProfile}
+                    onChange={(event) => setCodexCliProfile(event.target.value)}
+                    placeholder="例: claude-code"
+                  />
+                  <p className="settings-card__hint">通常は pipeline.profile と同じ名前を指定します。</p>
+                </label>
+                <label>
+                  <span>Codex CLI model（推奨: gpt-5.2）</span>
+                  <input value={codexCliModel} onChange={(event) => setCodexCliModel(event.target.value)} placeholder="例: gpt-5.2" />
+                </label>
+                <label>
+                  <span>推論強度（reasoning effort）</span>
+                  <select value={codexReasoningEffort} onChange={(event) => setCodexReasoningEffort(event.target.value as CodexReasoningEffort)}>
+                    {codexReasoningOptions.map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="settings-card__hint">非自明な処理は `xhigh` 推奨。ここは Codex CLI の profile 設定を書き換えます。</p>
+                </label>
+              </>
+            ) : null}
+          </section>
           {phaseSummaryRows.length > 0 ? (
             <section className="settings-card settings-card--wide">
               <h2>現在のフェーズ別適用モデル</h2>

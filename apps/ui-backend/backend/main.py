@@ -201,6 +201,7 @@ from factory_common.paths import (
     script_pkg_root,
     thumbnails_root as ssot_thumbnails_root,
     video_input_root as ssot_video_input_root,
+    video_runs_root as ssot_video_runs_root,
     video_pkg_root,
 )
 from factory_common.youtube_handle import (
@@ -261,6 +262,9 @@ OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {
 OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
 UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
 LLM_REGISTRY_PATH = PROJECT_ROOT / "configs" / "llm_registry.json"
+CODEX_CONFIG_TOML_PATH = Path.home() / ".codex" / "config.toml"
+CODEX_EXEC_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.yaml"
+CODEX_EXEC_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.local.yaml"
 PROMPT_TEMPLATES_ROOT = SCRIPT_PIPELINE_PROMPTS_ROOT / "templates"
 THUMBNAIL_PROJECT_STATUSES = {
     "draft",
@@ -306,6 +310,8 @@ UI_SETTINGS_DISK_STATE: Dict[str, Optional[float]] = {
     "ui_settings_mtime": None,
     "llm_registry_mtime": None,
 }
+
+CODEX_SETTINGS_LOCK = threading.Lock()
 
 
 def _safe_mtime(path: Path) -> Optional[float]:
@@ -1791,6 +1797,162 @@ def _deep_merge_dict(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str,
         else:
             out[key] = value
     return out
+
+
+_CODEX_PROFILE_HEADER_RE = re.compile(r"^\s*\[profiles\.(?P<name>[^\]]+)\]\s*$")
+_CODEX_PROFILE_KV_RE = re.compile(
+    r"^\s*(?P<key>model|model_reasoning_effort)\s*=\s*(?P<value>.+?)\s*(?P<comment>#.*)?$"
+)
+_ALLOWED_CODEX_REASONING_EFFORT = ["low", "medium", "high", "xhigh"]
+
+
+def _toml_escape_string(value: str) -> str:
+    return str(value).replace("\\\\", "\\\\\\\\").replace('"', '\\"')
+
+
+def _toml_unquote_string(raw: str) -> str:
+    s = str(raw or "").strip()
+    # Strip trailing comment, if any (caller may already do this).
+    if "#" in s:
+        s = s.split("#", 1)[0].rstrip()
+    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
+        inner = s[1:-1]
+        # Minimal unescape for common cases.
+        inner = inner.replace('\\"', '"').replace("\\\\", "\\")
+        return inner
+    return s
+
+
+def _parse_codex_profiles_from_toml(text: str) -> Dict[str, Dict[str, Optional[str]]]:
+    profiles: Dict[str, Dict[str, Optional[str]]] = {}
+    current: Optional[str] = None
+    for line in (text or "").splitlines():
+        m = _CODEX_PROFILE_HEADER_RE.match(line)
+        if m:
+            current = str(m.group("name") or "").strip()
+            if current:
+                profiles.setdefault(current, {})
+            continue
+        if not current:
+            continue
+        kv = _CODEX_PROFILE_KV_RE.match(line)
+        if not kv:
+            continue
+        key = str(kv.group("key") or "").strip()
+        value = _toml_unquote_string(kv.group("value") or "")
+        if key:
+            profiles.setdefault(current, {})[key] = value
+    # Normalize keys
+    out: Dict[str, Dict[str, Optional[str]]] = {}
+    for name, conf in profiles.items():
+        out[name] = {
+            "model": (conf.get("model") or None),
+            "model_reasoning_effort": (conf.get("model_reasoning_effort") or None),
+        }
+    return out
+
+
+def _upsert_codex_profile_kv(text: str, *, profile: str, kvs: Dict[str, str]) -> str:
+    """Surgical TOML update for `[profiles.<name>]` keeping unrelated content intact."""
+    profile = str(profile or "").strip()
+    if not profile:
+        return text
+    want = {k: str(v) for k, v in (kvs or {}).items() if str(v).strip()}
+    if not want:
+        return text
+
+    lines = (text or "").splitlines(keepends=True)
+    start = None
+    end = len(lines)
+    for i, line in enumerate(lines):
+        m = _CODEX_PROFILE_HEADER_RE.match(line.rstrip("\r\n"))
+        if not m:
+            continue
+        name = str(m.group("name") or "").strip()
+        if start is None and name == profile:
+            start = i
+            continue
+        if start is not None:
+            end = i
+            break
+
+    def _format_kv(key: str, value: str, *, indent: str = "", comment: str = "") -> str:
+        esc = _toml_escape_string(value)
+        tail = f" {comment.strip()}" if comment and comment.strip().startswith("#") else (comment or "")
+        return f'{indent}{key} = "{esc}"{tail}\n'
+
+    if start is None:
+        # Append a new profile section at the end.
+        out = list(lines)
+        if out and not out[-1].endswith("\n"):
+            out[-1] = out[-1] + "\n"
+        if out and out[-1].strip() != "":
+            out.append("\n")
+        out.append(f"[profiles.{profile}]\n")
+        for key, value in want.items():
+            out.append(_format_kv(key, value))
+        return "".join(out)
+
+    existing_keys: set[str] = set()
+    updated = []
+    body = []
+    for line in lines[start + 1 : end]:
+        m = _CODEX_PROFILE_KV_RE.match(line.rstrip("\r\n"))
+        if m:
+            key = str(m.group("key") or "").strip()
+            if key in want:
+                indent = re.match(r"^\s*", line).group(0) if line else ""
+                comment = m.group("comment") or ""
+                body.append(_format_kv(key, want[key], indent=indent, comment=comment))
+                existing_keys.add(key)
+                updated.append(key)
+                continue
+            existing_keys.add(key)
+        body.append(line)
+
+    # Append missing keys at the end of the profile block.
+    for key, value in want.items():
+        if key not in existing_keys:
+            body.append(_format_kv(key, value))
+
+    return "".join([*lines[: start + 1], *body, *lines[end:]])
+
+
+def _load_codex_exec_config_doc() -> Dict[str, Any]:
+    base_doc: Dict[str, Any] = {}
+    local_doc: Dict[str, Any] = {}
+    if CODEX_EXEC_CONFIG_PATH.exists():
+        try:
+            raw = yaml.safe_load(CODEX_EXEC_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if isinstance(raw, dict):
+                base_doc = raw
+        except Exception:
+            base_doc = {}
+    if CODEX_EXEC_LOCAL_CONFIG_PATH.exists():
+        try:
+            raw = yaml.safe_load(CODEX_EXEC_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if isinstance(raw, dict):
+                local_doc = raw
+        except Exception:
+            local_doc = {}
+    return _deep_merge_dict(base_doc, local_doc)
+
+
+def _write_codex_exec_local_config(patch: Dict[str, Any]) -> None:
+    CODEX_EXEC_LOCAL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    current: Dict[str, Any] = {}
+    if CODEX_EXEC_LOCAL_CONFIG_PATH.exists():
+        try:
+            raw = yaml.safe_load(CODEX_EXEC_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if isinstance(raw, dict):
+                current = raw
+        except Exception:
+            current = {}
+    merged = _deep_merge_dict(current, patch or {})
+    CODEX_EXEC_LOCAL_CONFIG_PATH.write_text(
+        yaml.safe_dump(merged, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
 
 
 def _load_sources_doc() -> Dict[str, Any]:
@@ -3843,7 +4005,8 @@ def _character_count_from_a_text(channel_code: str, video_number: str) -> Option
         return None
     try:
         text = path.read_text(encoding="utf-8")
-        return len(text)
+        # Match UI display semantics: count without line breaks.
+        return len(text.replace("\r", "").replace("\n", ""))
     except Exception:
         return None
 
@@ -4385,10 +4548,25 @@ def _ensure_youtube_metrics(channel_code: str, info: dict) -> dict:
 
 def refresh_channel_info(force: bool = False) -> Dict[str, dict]:
     global CHANNEL_INFO, CHANNEL_INFO_MTIME
+    mtime = 0.0
     try:
-        mtime = CHANNEL_INFO_PATH.stat().st_mtime
+        mtime = max(mtime, CHANNEL_INFO_PATH.stat().st_mtime)
     except FileNotFoundError:
-        mtime = 0.0
+        pass
+
+    # channels_info.json は“カタログ”。正本は各 CHxx-*/channel_info.json なので、
+    # 個別ファイルの更新もキャッシュ更新トリガに含める。
+    if CHANNELS_DIR.exists():
+        for child in CHANNELS_DIR.iterdir():
+            if not child.is_dir():
+                continue
+            info_path = child / "channel_info.json"
+            if not info_path.exists():
+                continue
+            try:
+                mtime = max(mtime, info_path.stat().st_mtime)
+            except OSError:
+                continue
     if force or not CHANNEL_INFO or mtime > CHANNEL_INFO_MTIME:
         CHANNEL_INFO = load_channel_info()
         CHANNEL_INFO_MTIME = mtime
@@ -5254,6 +5432,26 @@ class SRTVerifyResponse(BaseModel):
     issues: List[SRTIssue]
 
 
+class ThumbnailProgressResponse(BaseModel):
+    created: bool = False
+    created_at: Optional[str] = None
+    qc_cleared: bool = False
+    qc_cleared_at: Optional[str] = None
+    status: Optional[str] = None
+    variant_count: int = 0
+
+
+class VideoImagesProgressResponse(BaseModel):
+    run_id: Optional[str] = None
+    prompt_ready: bool = False
+    prompt_ready_at: Optional[str] = None
+    cue_count: Optional[int] = None
+    prompt_count: Optional[int] = None
+    images_count: int = 0
+    images_complete: bool = False
+    images_updated_at: Optional[str] = None
+
+
 class VideoSummaryResponse(BaseModel):
     video: str
     script_id: Optional[str]
@@ -5263,9 +5461,14 @@ class VideoSummaryResponse(BaseModel):
     published_lock: bool = False
     stages: Dict[str, str]
     updated_at: Optional[str] = None
-    character_count: Optional[int] = None
+    character_count: int = 0
+    a_text_exists: bool = False
+    a_text_character_count: int = 0
+    planning_character_count: Optional[int] = None
     planning: Optional[PlanningInfoResponse] = None
     youtube_description: Optional[str] = None
+    thumbnail_progress: Optional[ThumbnailProgressResponse] = None
+    video_images_progress: Optional[VideoImagesProgressResponse] = None
 
 
 class PlanningRequirementSummary(BaseModel):
@@ -5942,6 +6145,8 @@ class ThumbnailEditorContextResponse(BaseModel):
     video: str
     video_id: str
     portrait_available: bool = False
+    portrait_dest_box_norm: Optional[List[float]] = None
+    portrait_anchor: Optional[str] = None
     template_id_default: Optional[str] = None
     template_options: List[ThumbnailTextTemplateOptionResponse] = Field(default_factory=list)
     defaults_leaf: Dict[str, Any] = Field(default_factory=dict)
@@ -6007,6 +6212,47 @@ class LLMSettingsUpdate(BaseModel):
     openrouter_api_key: Optional[str] = None
     openrouter_caption_model: Optional[str] = None
     phase_models: Optional[Dict[str, Dict[str, object]]] = None
+
+
+class CodexExecConfig(BaseModel):
+    profile: str
+    model: Optional[str] = None
+    sandbox: Optional[str] = None
+    timeout_s: Optional[int] = None
+    profile_source: Optional[str] = None  # env|local|base|default
+    model_source: Optional[str] = None  # env|local|base|default
+    local_config_path: str
+    base_config_path: str
+
+
+class CodexCliProfile(BaseModel):
+    name: str
+    model: Optional[str] = None
+    model_reasoning_effort: Optional[str] = None
+
+
+class CodexCliConfig(BaseModel):
+    config_path: str
+    exists: bool
+    profiles: List[CodexCliProfile] = Field(default_factory=list)
+
+
+class CodexSettingsResponse(BaseModel):
+    codex_exec: CodexExecConfig
+    codex_cli: CodexCliConfig
+    active_profile: CodexCliProfile
+    allowed_reasoning_effort: List[str] = Field(default_factory=list)
+
+
+class CodexSettingsUpdate(BaseModel):
+    # `configs/codex_exec.local.yaml` (pipeline)
+    profile: Optional[str] = None
+    model: Optional[str] = None
+
+    # `~/.codex/config.toml` (Codex CLI profile)
+    cli_profile: Optional[str] = None
+    cli_model: Optional[str] = None
+    model_reasoning_effort: Optional[Literal["low", "medium", "high", "xhigh"]] = None
 
 
 class LlmMetric(BaseModel):
@@ -6839,6 +7085,73 @@ def update_llm_settings(payload: LLMSettingsUpdate):
     new_settings["llm"] = _normalize_llm_settings(updated)
     _write_ui_settings(new_settings)
     return _build_llm_settings_response()
+
+
+@app.get("/api/settings/codex", response_model=CodexSettingsResponse)
+def get_codex_settings():
+    return _build_codex_settings_response()
+
+
+@app.put("/api/settings/codex", response_model=CodexSettingsResponse)
+def update_codex_settings(payload: CodexSettingsUpdate):
+    with CODEX_SETTINGS_LOCK:
+        # Update pipeline config (configs/codex_exec.local.yaml)
+        exec_doc = _load_codex_exec_config_doc()
+        current_profile = (
+            (os.getenv("YTM_CODEX_EXEC_PROFILE") or "").strip()
+            or str(exec_doc.get("profile") or "").strip()
+            or "claude-code"
+        )
+        profile = payload.profile.strip() if isinstance(payload.profile, str) else current_profile
+        patch: Dict[str, Any] = {}
+        if payload.profile is not None:
+            if not profile:
+                raise HTTPException(status_code=400, detail="profile は必須です。")
+            patch["profile"] = profile
+        if payload.model is not None:
+            patch["model"] = (payload.model or "").strip()
+        if patch:
+            _write_codex_exec_local_config(patch)
+
+        # Update Codex CLI profile ( ~/.codex/config.toml )
+        cli_profile = (
+            (payload.cli_profile or "").strip()
+            or profile
+            or current_profile
+            or "claude-code"
+        )
+        kvs: Dict[str, str] = {}
+        if payload.model_reasoning_effort is not None:
+            eff = str(payload.model_reasoning_effort).strip().lower()
+            if eff not in _ALLOWED_CODEX_REASONING_EFFORT:
+                raise HTTPException(status_code=400, detail=f"model_reasoning_effort は {', '.join(_ALLOWED_CODEX_REASONING_EFFORT)} のいずれかです。")
+            kvs["model_reasoning_effort"] = eff
+        if payload.cli_model is not None:
+            model = str(payload.cli_model or "").strip()
+            if model:
+                kvs["model"] = model
+        if kvs:
+            if not CODEX_CONFIG_TOML_PATH.exists():
+                raise HTTPException(status_code=404, detail=f"Codex設定が見つかりません: {CODEX_CONFIG_TOML_PATH}")
+            try:
+                original = CODEX_CONFIG_TOML_PATH.read_text(encoding="utf-8")
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Codex設定の読み込みに失敗しました: {exc}") from exc
+
+            updated = _upsert_codex_profile_kv(original, profile=cli_profile, kvs=kvs)
+            if updated != original:
+                # Keep a single rolling backup (no SSOT noise; user-home only).
+                try:
+                    backup_path = CODEX_CONFIG_TOML_PATH.with_name(CODEX_CONFIG_TOML_PATH.name + ".bak")
+                    backup_path.write_text(original, encoding="utf-8")
+                except Exception:
+                    pass
+                try:
+                    CODEX_CONFIG_TOML_PATH.write_text(updated, encoding="utf-8")
+                except Exception as exc:
+                    raise HTTPException(status_code=500, detail=f"Codex設定の書き込みに失敗しました: {exc}") from exc
+
+    return _build_codex_settings_response()
 
 
 @app.get("/api/llm/models", response_model=List[LlmModelInfo])
@@ -8037,6 +8350,219 @@ def run_natural_command(channel: str, video: str, payload: NaturalCommandRequest
     return NaturalCommandResponse(actions=actions, message=message)
 
 
+VIDEO_RUN_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+
+
+def _utc_iso_from_mtime(mtime: Optional[float]) -> Optional[str]:
+    if mtime is None:
+        return None
+    try:
+        return datetime.fromtimestamp(float(mtime), timezone.utc).isoformat()
+    except Exception:
+        return None
+
+
+def _safe_mtime(path: Path) -> Optional[float]:
+    try:
+        return path.stat().st_mtime
+    except Exception:
+        return None
+
+
+def _min_iso_timestamp(values: Iterable[Optional[str]]) -> Optional[str]:
+    best_value: Optional[str] = None
+    best_dt: Optional[datetime] = None
+    for value in values:
+        dt = parse_iso_datetime(value)
+        if not dt:
+            continue
+        if best_dt is None or dt < best_dt:
+            best_dt = dt
+            best_value = value
+    return best_value
+
+
+def _video_run_recency_key(run_dir: Path) -> float:
+    candidates = (
+        run_dir,
+        run_dir / "auto_run_info.json",
+        run_dir / "image_cues.json",
+        run_dir / "visual_cues_plan.json",
+        run_dir / "images",
+    )
+    mtimes: List[float] = []
+    for path in candidates:
+        mtime = _safe_mtime(path)
+        if mtime is not None:
+            mtimes.append(float(mtime))
+    return max(mtimes) if mtimes else 0.0
+
+
+def _pick_latest_video_run_dirs(channel_code: str, video_numbers: set[str]) -> Dict[str, Path]:
+    root = ssot_video_runs_root()
+    if not root.exists() or not root.is_dir():
+        return {}
+
+    pattern = re.compile(rf"^{re.escape(channel_code)}-(\d{{3}})", re.IGNORECASE)
+    best: Dict[str, Tuple[float, Path]] = {}
+    try:
+        run_dirs = list(root.iterdir())
+    except Exception:
+        return {}
+
+    for run_dir in run_dirs:
+        if not run_dir.is_dir():
+            continue
+        match = pattern.match(run_dir.name)
+        if not match:
+            continue
+        video_number = match.group(1).zfill(3)
+        if video_number not in video_numbers:
+            continue
+        score = _video_run_recency_key(run_dir)
+        previous = best.get(video_number)
+        if previous is None or score > previous[0]:
+            best[video_number] = (score, run_dir)
+
+    return {video_number: run_dir for video_number, (_, run_dir) in best.items()}
+
+
+def _compute_video_images_progress(run_dir: Path) -> VideoImagesProgressResponse:
+    run_id = run_dir.name
+
+    cue_count: Optional[int] = None
+    prompt_count: Optional[int] = None
+    prompt_ready = False
+    prompt_ready_at: Optional[str] = None
+
+    cues_path = run_dir / "image_cues.json"
+    cues_mtime = _safe_mtime(cues_path)
+    if cues_mtime is not None:
+        prompt_ready_at = _utc_iso_from_mtime(cues_mtime)
+    if cues_path.exists() and cues_path.is_file():
+        try:
+            raw = json.loads(cues_path.read_text(encoding="utf-8"))
+        except Exception:
+            raw = None
+        cues = raw.get("cues") if isinstance(raw, dict) else None
+        if isinstance(cues, list):
+            cue_count = len(cues)
+            prompt_count = 0
+            for cue in cues:
+                if not isinstance(cue, dict):
+                    continue
+                prompt_value = (
+                    str(cue.get("refined_prompt") or cue.get("prompt") or cue.get("summary") or "").strip()
+                )
+                if prompt_value:
+                    prompt_count += 1
+            prompt_ready = bool(prompt_count)
+
+    images_count = 0
+    latest_image_mtime: Optional[float] = None
+    images_dir = run_dir / "images"
+    if images_dir.exists() and images_dir.is_dir():
+        try:
+            for child in images_dir.iterdir():
+                if not child.is_file():
+                    continue
+                if child.suffix.lower() not in VIDEO_RUN_IMAGE_EXTENSIONS:
+                    continue
+                images_count += 1
+                mtime = _safe_mtime(child)
+                if mtime is None:
+                    continue
+                latest_image_mtime = mtime if latest_image_mtime is None else max(latest_image_mtime, mtime)
+        except Exception:
+            images_count = 0
+            latest_image_mtime = None
+
+    images_complete = False
+    if cue_count is not None and cue_count > 0:
+        images_complete = images_count >= cue_count
+
+    return VideoImagesProgressResponse(
+        run_id=run_id,
+        prompt_ready=bool(prompt_ready),
+        prompt_ready_at=prompt_ready_at,
+        cue_count=cue_count,
+        prompt_count=prompt_count,
+        images_count=int(images_count),
+        images_complete=bool(images_complete),
+        images_updated_at=_utc_iso_from_mtime(latest_image_mtime),
+    )
+
+
+def _build_video_images_progress_map(channel_code: str, video_numbers: set[str]) -> Dict[str, VideoImagesProgressResponse]:
+    run_dirs = _pick_latest_video_run_dirs(channel_code, video_numbers)
+    out: Dict[str, VideoImagesProgressResponse] = {}
+    for video_number, run_dir in run_dirs.items():
+        out[video_number] = _compute_video_images_progress(run_dir)
+    return out
+
+
+def _build_thumbnail_progress_map(channel_code: str, video_numbers: set[str]) -> Dict[str, ThumbnailProgressResponse]:
+    project_map: Dict[str, dict] = {}
+    with THUMBNAIL_PROJECTS_LOCK:
+        _, document = _load_thumbnail_projects_document()
+    projects = document.get("projects") if isinstance(document, dict) else None
+    if isinstance(projects, list):
+        for project in projects:
+            if not isinstance(project, dict):
+                continue
+            proj_channel = str(project.get("channel") or "").strip().upper()
+            if proj_channel != channel_code:
+                continue
+            video_number = normalize_planning_video_number(project.get("video"))
+            if not video_number or video_number not in video_numbers:
+                continue
+            project_map[video_number] = project
+
+    # Disk fallback: allow detecting "created" even if projects.json is stale.
+    disk_variants_map = _collect_disk_thumbnail_variants(channel_code)
+
+    out: Dict[str, ThumbnailProgressResponse] = {}
+    for video_number in video_numbers:
+        project = project_map.get(video_number)
+        status = str(project.get("status") or "").strip().lower() if isinstance(project, dict) else ""
+        if status not in THUMBNAIL_PROJECT_STATUSES:
+            status = ""
+        status_updated_at = project.get("status_updated_at") if isinstance(project, dict) else None
+        qc_cleared = status in {"approved", "published"}
+        qc_cleared_at = status_updated_at if qc_cleared else None
+
+        variant_created_at: List[Optional[str]] = []
+        variant_count = 0
+        variants = project.get("variants") if isinstance(project, dict) else None
+        if isinstance(variants, list):
+            variant_count = len(variants)
+            for variant in variants:
+                if not isinstance(variant, dict):
+                    continue
+                variant_created_at.append(variant.get("created_at"))
+
+        disk_variants = disk_variants_map.get(video_number) or []
+        if disk_variants and variant_count <= 0:
+            variant_count = len(disk_variants)
+        for variant in disk_variants:
+            if not isinstance(variant, ThumbnailVariantResponse):
+                continue
+            variant_created_at.append(variant.created_at)
+
+        created_at = _min_iso_timestamp(variant_created_at)
+        created = bool(created_at)
+
+        out[video_number] = ThumbnailProgressResponse(
+            created=bool(created),
+            created_at=created_at,
+            qc_cleared=bool(qc_cleared),
+            qc_cleared_at=qc_cleared_at,
+            status=status or None,
+            variant_count=int(variant_count),
+        )
+    return out
+
+
 @app.get("/api/channels/{channel}/videos", response_model=List[VideoSummaryResponse])
 def list_videos(channel: str):
     channel_code = normalize_channel_code(channel)
@@ -8049,10 +8575,16 @@ def list_videos(channel: str):
     video_dirs = list_video_dirs(channel_code)
     video_numbers = set(p.name for p in video_dirs)
     video_numbers.update(planning_rows.keys())
+    thumbnail_progress_map = _build_thumbnail_progress_map(channel_code, video_numbers)
+    video_images_progress_map = _build_video_images_progress_map(channel_code, video_numbers)
     response: List[VideoSummaryResponse] = []
     for video_number in sorted(video_numbers):
         planning_row = planning_rows.get(video_number)
-        character_count: Optional[int] = _character_count_from_a_text(channel_code, video_number)
+        a_text_character_count_raw: Optional[int] = _character_count_from_a_text(channel_code, video_number)
+        a_text_exists = a_text_character_count_raw is not None
+        a_text_character_count = a_text_character_count_raw if a_text_character_count_raw is not None else 0
+        planning_character_count: Optional[int] = None
+        character_count = a_text_character_count
         try:
             status = load_status(channel_code, video_number)
         except HTTPException as exc:
@@ -8067,13 +8599,6 @@ def list_videos(channel: str):
         )
         stages = {key: value.get("status", "pending") for key, value in stages_dict.items()} if stages_dict else {}
         status_value = status.get("status", "unknown") if status else "pending"
-        # derive character count from status metadata first
-        if character_count is None:
-            for key in ("assembled_characters", "output_characters", "chapter_characters"):
-                value = metadata.get(key)
-                if isinstance(value, (int, float)):
-                    character_count = int(value)
-                    break
         if planning_row:
             row_raw = planning_row.raw
             # CSV を最新ソースとして統合する
@@ -8083,17 +8608,14 @@ def list_videos(channel: str):
                 metadata["sheet_flag"] = row_raw.get("作成フラグ")
             planning_section = get_planning_section(metadata)
             update_planning_from_row(planning_section, row_raw)
-            if character_count is None:
-                raw_chars = row_raw.get("文字数")
-                if isinstance(raw_chars, str) and raw_chars.strip():
-                    try:
-                        character_count = int(raw_chars.replace(",", ""))
-                    except ValueError:
-                        character_count = None
-        if character_count is None:
-            fallback_chars = _fallback_character_count_from_files(metadata, channel_code, video_number)
-            if fallback_chars is not None:
-                character_count = fallback_chars
+            raw_chars = row_raw.get("文字数")
+            if isinstance(raw_chars, (int, float)):
+                planning_character_count = int(raw_chars)
+            elif isinstance(raw_chars, str) and raw_chars.strip():
+                try:
+                    planning_character_count = int(raw_chars.replace(",", ""))
+                except ValueError:
+                    planning_character_count = None
         if audio_exists and srt_exists and status_value != "completed":
             status_value = "completed"
 
@@ -8140,8 +8662,13 @@ def list_videos(channel: str):
                 stages=stages,
                 updated_at=updated_at,
                 character_count=character_count,
+                a_text_exists=a_text_exists,
+                a_text_character_count=a_text_character_count,
+                planning_character_count=planning_character_count,
                 planning=planning_payload,
                 youtube_description=youtube_description,
+                thumbnail_progress=thumbnail_progress_map.get(video_number),
+                video_images_progress=video_images_progress_map.get(video_number),
             )
         )
     return response
@@ -9319,6 +9846,8 @@ def get_thumbnail_editor_context(channel: str, video: str):
         defaults_leaf["overrides.overlays.bottom_band.y1"] = float(bottom_band.get("y1", 1.0))
 
     # Portrait defaults (CH26 policy + generic fallbacks)
+    portrait_dest_box_norm: List[float] = [0.29, 0.06, 0.42, 0.76]
+    portrait_anchor: str = "bottom_center"
     video_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number
     portrait_available = bool(find_existing_portrait(video_dir))
     defaults_leaf["overrides.portrait.zoom"] = 1.0
@@ -9340,6 +9869,17 @@ def get_thumbnail_editor_context(channel: str, video: str):
         ov_payload = policy_payload.get("overrides") if isinstance(policy_payload, dict) else None
         ov_payload = ov_payload if isinstance(ov_payload, dict) else {}
         video_ov = ov_payload.get(video_number) if isinstance(ov_payload.get(video_number), dict) else {}
+
+        dest_box = video_ov.get("dest_box", defaults_payload.get("dest_box"))
+        if isinstance(dest_box, (list, tuple)) and len(dest_box) == 4:
+            try:
+                portrait_dest_box_norm = [float(dest_box[0]), float(dest_box[1]), float(dest_box[2]), float(dest_box[3])]
+            except Exception:
+                portrait_dest_box_norm = portrait_dest_box_norm
+
+        anchor = video_ov.get("anchor", defaults_payload.get("anchor"))
+        if isinstance(anchor, str) and anchor.strip():
+            portrait_anchor = anchor.strip()
 
         defaults_leaf["overrides.portrait.zoom"] = float(video_ov.get("zoom", defaults_payload.get("zoom", 1.0)))
         off = video_ov.get("offset", defaults_payload.get("offset", [0.0, 0.0]))
@@ -9366,6 +9906,8 @@ def get_thumbnail_editor_context(channel: str, video: str):
         video=video_number,
         video_id=video_id,
         portrait_available=portrait_available,
+        portrait_dest_box_norm=portrait_dest_box_norm,
+        portrait_anchor=portrait_anchor,
         template_id_default=template_id_default,
         template_options=template_options,
         defaults_leaf=defaults_leaf,
@@ -9382,90 +9924,6 @@ def _extract_thumbnail_human_comment(raw: str) -> str:
     if "修正済み:" in text:
         text = text.split("修正済み:", 1)[0]
     return text.strip()
-
-
-def _strip_json_fence(text: str) -> str:
-    cleaned = str(text or "").strip()
-    if not cleaned.startswith("```"):
-        return cleaned
-    lines = cleaned.splitlines()
-    if lines and lines[0].lstrip().startswith("```"):
-        lines = lines[1:]
-    if lines and lines[-1].strip() == "```":
-        lines = lines[:-1]
-    return "\n".join(lines).strip()
-
-
-def _parse_first_json_object(text: str) -> Optional[Dict[str, Any]]:
-    """
-    Best-effort parse for LLM outputs that may contain leading/trailing prose.
-
-    We try:
-      1) strict json.loads()
-      2) first "{...}" object found via JSONDecoder.raw_decode scanning
-    """
-    cleaned = _strip_json_fence(text)
-    if not cleaned:
-        return None
-    try:
-        loaded = json.loads(cleaned)
-    except Exception:
-        loaded = None
-    if isinstance(loaded, dict):
-        return loaded
-
-    decoder = json.JSONDecoder()
-    for idx, ch in enumerate(cleaned):
-        if ch != "{":
-            continue
-        try:
-            loaded, _ = decoder.raw_decode(cleaned[idx:])
-        except Exception:
-            continue
-        if isinstance(loaded, dict):
-            return loaded
-    return None
-
-
-def _flatten_overrides_to_leaf(prefix: str, payload: Any, out: Dict[str, Any]) -> None:
-    if not isinstance(payload, dict):
-        return
-    for raw_key, raw_value in payload.items():
-        if not isinstance(raw_key, str):
-            continue
-        key = raw_key.strip()
-        if not key:
-            continue
-        if key.startswith("overrides."):
-            if isinstance(raw_value, dict):
-                _flatten_overrides_to_leaf(key, raw_value, out)
-            else:
-                out[key] = raw_value
-            continue
-        if "." in key and prefix:
-            path = key if key.startswith(prefix + ".") else f"{prefix}.{key}"
-            if isinstance(raw_value, dict):
-                _flatten_overrides_to_leaf(path, raw_value, out)
-            else:
-                out[path] = raw_value
-            continue
-        path = f"{prefix}.{key}" if prefix else key
-        if isinstance(raw_value, dict):
-            _flatten_overrides_to_leaf(path, raw_value, out)
-        else:
-            out[path] = raw_value
-
-
-def _dedupe_questions(items: List[str]) -> List[str]:
-    out: List[str] = []
-    seen: set[str] = set()
-    for raw in items:
-        s = str(raw or "").strip()
-        if not s or s in seen:
-            continue
-        seen.add(s)
-        out.append(s)
-    return out
 
 
 @app.post(
@@ -9497,238 +9955,6 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
         ops=[],
         provider=None,
         model=None,
-    )
-
-    try:
-        from script_pipeline.thumbnails.param_catalog_v1 import PARAM_CATALOG_V1, validate_param_value_v1
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"param catalog module is not available: {exc}") from exc
-
-    context = get_thumbnail_editor_context(channel_code, video_number)
-
-    thumb_caption: Optional[str] = None
-    if bool(request.include_thumb_caption):
-        thumb_path = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "00_thumb.png"
-        if thumb_path.exists():
-            try:
-                thumb_caption, _, _ = _generate_thumbnail_caption(thumb_path)
-            except Exception:
-                thumb_caption = None
-
-    allowed_paths: set[str] = set()
-    allowed_params: List[Dict[str, Any]] = []
-    for path, spec in sorted(PARAM_CATALOG_V1.items(), key=lambda kv: str(kv[0])):
-        p = str(path)
-        if not p.startswith("overrides."):
-            continue
-        if str(spec.engine) not in {"all", "layer_specs_v3"}:
-            continue
-        allowed_paths.add(p)
-        allowed_params.append(
-            {
-                "path": p,
-                "kind": str(spec.kind),
-                "engine": str(spec.engine),
-                "min_value": (float(spec.min_value) if spec.min_value is not None else None),
-                "max_value": (float(spec.max_value) if spec.max_value is not None else None),
-            }
-        )
-
-    llm_input = {
-        "schema": "ytm.thumbnail.comment_patch_input.v1",
-        "target": {"channel": channel_code, "video": video_number},
-        "comment": comment,
-        "portrait_available": bool(getattr(context, "portrait_available", False)),
-        "thumb_caption": thumb_caption,
-        "defaults_leaf": getattr(context, "defaults_leaf", {}) or {},
-        "overrides_leaf": getattr(context, "overrides_leaf", {}) or {},
-        "effective_leaf": getattr(context, "effective_leaf", {}) or {},
-        "conventions": {
-            "bg_pan_zoom": {
-                "pan_y": "負の値で画像は下に移動（被写体が下がる）。正の値で上に移動。",
-                "pan_x": "負の値で画像は右に移動（被写体が右寄り）。正の値で左に移動。",
-                "zoom": "1.0以上。zoomを上げるとpanの効きが強くなる。",
-            },
-            "portrait": {
-                "offset_x": "正の値で肖像は右へ移動、負の値で左へ。",
-                "offset_y": "正の値で肖像は下へ移動、負の値で上へ。",
-                "zoom": "大きいほど肖像が大きくなる。",
-            },
-        },
-        "allowed_params": allowed_params,
-    }
-
-    system_prompt = (
-        "あなたはYouTubeサムネ編集アシスタント（翻訳機）です。\n"
-        "入力のコメントを、許可されたパラメータパスへの更新（ops）に変換してください。\n"
-        "\n"
-        "必ず JSON のみを返してください（前後の説明文・コードフェンス禁止）。\n"
-        "最初の文字は `{`、最後の文字は `}` にしてください。\n"
-        "出力スキーマは必ず `ytm.thumbnail.comment_patch.v1`。\n"
-        "\n"
-        "ルール:\n"
-        "- ops で使える path は入力の allowed_params に含まれるものだけ。\n"
-        "- 値は型/範囲を守る（min/max を超えない）。\n"
-        "- 既存の effective_leaf / overrides_leaf を見て、できるだけ小さな差分（微調整）にする。\n"
-        "  例: brightness/contrast/color は通常 0.05〜0.20 程度の変更で十分。極端な値（>1.6 など）は避ける。\n"
-        "- \"もっと下/上/左/右\" のような位置調整は、まず pan を動かす。\n"
-        "  ただし pan_y/pan_x が既に境界（-1/1）に張り付いている場合は、\n"
-        "  zoom を少し上げて（例: +0.05〜+0.20、最大 1.6）、同じpanでも見た目の移動量を増やす。\n"
-        "- 曖昧なら勝手に適用せず、clarifying_questions に質問を書き、confidence を下げる。\n"
-        "- 生成し直し（再生成/やり直し等）は build オプションでありパラメータではないため、ops では表現しない。必要なら質問として出す。\n"
-        "\n"
-        "出力 JSON 例:\n"
-        "{\n"
-        '  \"schema\": \"ytm.thumbnail.comment_patch.v1\",\n'
-        '  \"target\": {\"channel\": \"CH22\", \"video\": \"014\"},\n'
-        '  \"confidence\": 0.7,\n'
-        '  \"clarifying_questions\": [],\n'
-        '  \"ops\": [\n'
-        '    {\"op\": \"set\", \"path\": \"overrides.bg_pan_zoom.pan_y\", \"value\": -0.6, \"reason\": \"画像を下に\"}\n'
-        "  ]\n"
-        "}\n"
-    )
-
-    try:
-        from factory_common.llm_router import get_router
-    except Exception as exc:  # pragma: no cover - optional dependency mismatch
-        raise HTTPException(status_code=500, detail=f"LLMRouter is not available: {exc}") from exc
-
-    router = get_router()
-    try:
-        result = router.call_with_raw(
-            task="thumbnail_comment_patch",
-            messages=[{"role": "user", "content": json.dumps(llm_input, ensure_ascii=False)}],
-            system_prompt_override=system_prompt,
-            response_format="json_object",
-            model_keys=[
-                "azure_gpt5_mini",
-                "or_hunyuan_a13b_instruct",
-                "or_qwen_2_5_7b_instruct",
-                "or_deepseek_v3_2_exp",
-            ],
-        )
-    except SystemExit as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"thumbnail comment patch LLM failed: {exc}") from exc
-
-    provider = str(result.get("provider") or "").strip().lower() or None
-    model_key = str(result.get("model") or "").strip() or None
-    content = result.get("content")
-
-    if provider == "agent":
-        raise HTTPException(status_code=409, detail="THINK MODE の結果がまだありません。agent_runner で完了してください。")
-
-    payload: Optional[Dict[str, Any]] = None
-    if isinstance(content, dict):
-        payload = content
-    else:
-        if isinstance(content, list):
-            text = " ".join(part.get("text", "") for part in content if isinstance(part, dict)).strip()
-        else:
-            text = str(content or "").strip()
-        payload = _parse_first_json_object(text)
-
-    if not isinstance(payload, dict):
-        raise HTTPException(status_code=502, detail="thumbnail comment patch returned invalid JSON object")
-
-    confidence_raw = payload.get("confidence", 0.0)
-    try:
-        confidence = float(confidence_raw)
-    except Exception:
-        confidence = 0.0
-    confidence = max(0.0, min(1.0, confidence))
-
-    questions: List[str] = []
-    raw_questions = payload.get("clarifying_questions")
-    if isinstance(raw_questions, list):
-        for q in raw_questions:
-            if isinstance(q, str) and q.strip():
-                questions.append(q.strip())
-
-    schema = str(payload.get("schema") or "").strip()
-    ops_in = payload.get("ops")
-
-    if schema != THUMBNAIL_COMMENT_PATCH_SCHEMA_V1:
-        questions.append(f"LLMの出力 schema が想定外でした: {schema!r}（変換を試みます）")
-        confidence = min(confidence, 0.35)
-
-        if not isinstance(ops_in, list):
-            leaf: Dict[str, Any] = {}
-            if isinstance(payload.get("overrides_leaf"), dict):
-                for k, v in payload.get("overrides_leaf", {}).items():
-                    if isinstance(k, str) and k.strip():
-                        leaf[k.strip()] = v
-            if not leaf and isinstance(payload.get("overrides"), dict):
-                _flatten_overrides_to_leaf("overrides", payload.get("overrides"), leaf)
-            if leaf:
-                ops_in = []
-                for path, value in sorted(leaf.items(), key=lambda kv: str(kv[0])):
-                    if value is None:
-                        ops_in.append({"op": "unset", "path": path, "value": None, "reason": None})
-                    else:
-                        ops_in.append({"op": "set", "path": path, "value": value, "reason": None})
-            else:
-                ops_in = []
-
-    target = payload.get("target") if isinstance(payload.get("target"), dict) else {}
-    target_channel = str(target.get("channel") or "").strip().upper()
-    target_video = str(target.get("video") or "").strip()
-    target_video = target_video.zfill(3) if target_video else ""
-    target_mismatch = False
-    if target_channel and target_channel != channel_code:
-        questions.append(f"patch target.channel mismatch: {target_channel} != {channel_code}")
-        target_mismatch = True
-    if target_video and target_video != video_number:
-        questions.append(f"patch target.video mismatch: {target_video} != {video_number}")
-        target_mismatch = True
-    if target_mismatch:
-        confidence = 0.0
-        ops_in = []
-
-    ops_out: List[ThumbnailCommentPatchOpResponse] = []
-    if isinstance(ops_in, list):
-        for item in ops_in:
-            if not isinstance(item, dict):
-                continue
-            op = str(item.get("op") or "set").strip().lower()
-            path = str(item.get("path") or "").strip()
-            if not path:
-                continue
-            reason = str(item.get("reason") or "").strip() or None
-            if path not in allowed_paths:
-                questions.append(f"未対応のパラメータです: {path}")
-                continue
-            if op == "unset":
-                ops_out.append(ThumbnailCommentPatchOpResponse(op="unset", path=path, value=None, reason=reason))
-                continue
-            if op != "set":
-                questions.append(f"未対応のopです: {op} (path={path})")
-                continue
-            if "value" not in item:
-                questions.append(f"value が必要です: {path}")
-                continue
-            raw_value = item.get("value")
-            try:
-                normalized = validate_param_value_v1(path, raw_value)
-            except Exception as exc:
-                questions.append(f"値が不正です: {path} ({exc})")
-                continue
-            if isinstance(normalized, tuple):
-                normalized = list(normalized)
-            ops_out.append(ThumbnailCommentPatchOpResponse(op="set", path=path, value=normalized, reason=reason))
-
-    questions = _dedupe_questions(questions)
-
-    return ThumbnailCommentPatchResponse(
-        schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
-        target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
-        confidence=confidence,
-        clarifying_questions=questions,
-        ops=ops_out,
-        provider=provider,
-        model=model_key,
     )
 
 
@@ -10784,12 +11010,12 @@ def get_thumbnail_quick_history(
 @app.get("/api/workspaces/thumbnails/{channel}/download.zip")
 def download_thumbnail_zip(
     channel: str,
-    mode: str = Query("selected", description="selected | all"),
+    mode: str = Query("selected", description="selected | all | two_up"),
 ):
     channel_code = normalize_channel_code(channel)
     mode_norm = (mode or "selected").strip().lower()
-    if mode_norm not in {"selected", "all"}:
-        raise HTTPException(status_code=400, detail="mode must be 'selected' or 'all'")
+    if mode_norm not in {"selected", "all", "two_up"}:
+        raise HTTPException(status_code=400, detail="mode must be 'selected', 'all', or 'two_up'")
 
     projects_path = _resolve_thumbnail_projects_path()
     try:
@@ -10831,8 +11057,24 @@ def download_thumbnail_zip(
         if mode_norm == "selected":
             if selected_variant:
                 target_variants = [selected_variant]
-        else:
+        elif mode_norm == "all":
             target_variants = [v for v in variants_payload if isinstance(v, dict)]
+        else:
+            def _basename(value: str) -> str:
+                token = (value or "").split("?", 1)[0]
+                token = token.rstrip("/").strip()
+                if not token:
+                    return ""
+                return token.split("/")[-1]
+
+            wanted = {"00_thumb_1.png", "00_thumb_2.png"}
+            for v in variants_payload:
+                if not isinstance(v, dict):
+                    continue
+                image_path = str(v.get("image_path") or "").strip()
+                image_url = str(v.get("image_url") or "").strip()
+                if _basename(image_path) in wanted or _basename(image_url) in wanted:
+                    target_variants.append(v)
 
         for raw_variant in target_variants:
             image_path = str(raw_variant.get("image_path") or "").strip()
@@ -10852,8 +11094,11 @@ def download_thumbnail_zip(
             if not candidate.is_file():
                 continue
 
-            variant_id = str(raw_variant.get("id") or "").strip() or "variant"
-            safe_variant = re.sub(r"[^0-9A-Za-zぁ-んァ-ン一-龥ー_-]+", "_", variant_id).strip("_") or "variant"
+            if mode_norm == "two_up":
+                safe_variant = candidate.stem
+            else:
+                variant_id = str(raw_variant.get("id") or "").strip() or "variant"
+                safe_variant = re.sub(r"[^0-9A-Za-zぁ-んァ-ン一-龥ー_-]+", "_", variant_id).strip("_") or "variant"
             arcname = f"{video_number}/{safe_variant}{candidate.suffix.lower() or '.png'}"
             if arcname in used_names:
                 arcname = f"{video_number}/{safe_variant}_{uuid.uuid4().hex[:6]}{candidate.suffix.lower() or '.png'}"
@@ -10880,10 +11125,10 @@ def download_thumbnail_zip(
     response_model=ThumbnailDescriptionResponse,
 )
 def describe_thumbnail_library_asset(channel: str, asset_name: str):
-    channel_code = normalize_channel_code(channel)
-    _, source_path = _resolve_library_asset_path(channel_code, asset_name)
-    text, model_name, provider = _generate_thumbnail_caption(source_path)
-    return ThumbnailDescriptionResponse(description=text, model=model_name, source=provider)
+    raise HTTPException(
+        status_code=400,
+        detail="thumbnail library describe is disabled: LLM API is not used for thumbnails",
+    )
 
 
 @app.get("/thumbnails/assets/{channel}/{video}/{asset_path:path}")
@@ -13150,6 +13395,84 @@ def _generate_thumbnail_caption(image_path: Path) -> tuple[str, Optional[str], s
     else:
         source = "openrouter"
     return text, model_name, source
+
+
+def _build_codex_settings_response() -> CodexSettingsResponse:
+    base_doc: Dict[str, Any] = {}
+    local_doc: Dict[str, Any] = {}
+    if CODEX_EXEC_CONFIG_PATH.exists():
+        try:
+            raw = yaml.safe_load(CODEX_EXEC_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if isinstance(raw, dict):
+                base_doc = raw
+        except Exception:
+            base_doc = {}
+    if CODEX_EXEC_LOCAL_CONFIG_PATH.exists():
+        try:
+            raw = yaml.safe_load(CODEX_EXEC_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if isinstance(raw, dict):
+                local_doc = raw
+        except Exception:
+            local_doc = {}
+    exec_doc = _deep_merge_dict(base_doc, local_doc)
+
+    env_profile = (os.getenv("YTM_CODEX_EXEC_PROFILE") or "").strip()
+    env_model = (os.getenv("YTM_CODEX_EXEC_MODEL") or "").strip()
+    base_profile = str(base_doc.get("profile") or "").strip()
+    local_profile = str(local_doc.get("profile") or "").strip()
+    base_model = str(base_doc.get("model") or "").strip()
+    local_model = str(local_doc.get("model") or "").strip()
+
+    effective_profile = env_profile or local_profile or base_profile or "claude-code"
+    effective_model = env_model or local_model or base_model or ""
+    profile_source = "env" if env_profile else ("local" if local_profile else ("base" if base_profile else "default"))
+    model_source = "env" if env_model else ("local" if local_model else ("base" if base_model else "default"))
+
+    codex_exec = CodexExecConfig(
+        profile=effective_profile,
+        model=effective_model or None,
+        sandbox=str(exec_doc.get("sandbox") or "").strip() or None,
+        timeout_s=int(exec_doc.get("timeout_s") or 0) or None,
+        profile_source=profile_source,
+        model_source=model_source,
+        local_config_path=str(CODEX_EXEC_LOCAL_CONFIG_PATH),
+        base_config_path=str(CODEX_EXEC_CONFIG_PATH),
+    )
+
+    cli_exists = CODEX_CONFIG_TOML_PATH.exists()
+    profiles: Dict[str, Dict[str, Optional[str]]] = {}
+    if cli_exists:
+        try:
+            text = CODEX_CONFIG_TOML_PATH.read_text(encoding="utf-8")
+            profiles = _parse_codex_profiles_from_toml(text)
+        except Exception:
+            profiles = {}
+    cli_profiles = [
+        CodexCliProfile(
+            name=name,
+            model=(conf.get("model") if isinstance(conf, dict) else None),
+            model_reasoning_effort=(conf.get("model_reasoning_effort") if isinstance(conf, dict) else None),
+        )
+        for name, conf in sorted(profiles.items(), key=lambda kv: kv[0])
+    ]
+    cli = CodexCliConfig(
+        config_path=str(CODEX_CONFIG_TOML_PATH),
+        exists=cli_exists,
+        profiles=cli_profiles,
+    )
+
+    active_conf = profiles.get(effective_profile, {}) if isinstance(profiles, dict) else {}
+    active_profile = CodexCliProfile(
+        name=effective_profile,
+        model=(active_conf.get("model") if isinstance(active_conf, dict) else None),
+        model_reasoning_effort=(active_conf.get("model_reasoning_effort") if isinstance(active_conf, dict) else None),
+    )
+    return CodexSettingsResponse(
+        codex_exec=codex_exec,
+        codex_cli=cli,
+        active_profile=active_profile,
+        allowed_reasoning_effort=list(_ALLOWED_CODEX_REASONING_EFFORT),
+    )
 
 
 def _build_llm_settings_response() -> LLMSettingsResponse:

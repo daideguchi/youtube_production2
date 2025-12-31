@@ -170,8 +170,33 @@ export interface VideoSummary {
   stages: Record<string, string>;
   updated_at?: string | null;
   character_count?: number | null;
+  a_text_exists?: boolean;
+  a_text_character_count?: number | null;
+  planning_character_count?: number | null;
   planning?: PlanningInfo | null;
   youtube_description?: string | null;
+  thumbnail_progress?: ThumbnailProgress | null;
+  video_images_progress?: VideoImagesProgress | null;
+}
+
+export interface ThumbnailProgress {
+  created: boolean;
+  created_at?: string | null;
+  qc_cleared: boolean;
+  qc_cleared_at?: string | null;
+  status?: string | null;
+  variant_count?: number;
+}
+
+export interface VideoImagesProgress {
+  run_id?: string | null;
+  prompt_ready: boolean;
+  prompt_ready_at?: string | null;
+  cue_count?: number | null;
+  prompt_count?: number | null;
+  images_count: number;
+  images_complete: boolean;
+  images_updated_at?: string | null;
 }
 
 export interface PlanningField {
@@ -1132,6 +1157,46 @@ export interface LlmSettingsUpdate {
   phase_models?: Record<string, PhaseModel>;
 }
 
+export type CodexReasoningEffort = "low" | "medium" | "high" | "xhigh";
+
+export interface CodexExecConfig {
+  profile: string;
+  model?: string | null;
+  sandbox?: string | null;
+  timeout_s?: number | null;
+  profile_source?: string | null;
+  model_source?: string | null;
+  local_config_path: string;
+  base_config_path: string;
+}
+
+export interface CodexCliProfile {
+  name: string;
+  model?: string | null;
+  model_reasoning_effort?: string | null;
+}
+
+export interface CodexCliConfig {
+  config_path: string;
+  exists: boolean;
+  profiles: CodexCliProfile[];
+}
+
+export interface CodexSettings {
+  codex_exec: CodexExecConfig;
+  codex_cli: CodexCliConfig;
+  active_profile: CodexCliProfile;
+  allowed_reasoning_effort: CodexReasoningEffort[];
+}
+
+export interface CodexSettingsUpdate {
+  profile?: string;
+  model?: string;
+  cli_profile?: string;
+  cli_model?: string;
+  model_reasoning_effort?: CodexReasoningEffort;
+}
+
 export interface PhaseModel {
   label: string;
   provider: "openai" | "openrouter" | "gemini";
@@ -1192,6 +1257,22 @@ export interface BatchQueueEntry {
   issues?: Record<string, string> | null;
 }
 
+export interface VideoProjectPlanningSummary {
+  channel?: string | null;
+  videoNumber?: string | null;
+  title?: string | null;
+}
+
+export interface VideoProjectImageProgress {
+  requiredTotal: number;
+  generatedReady: number;
+  placeholders: number;
+  missing: number;
+  status?: string | null;
+  mode?: string | null;
+  placeholderReason?: string | null;
+}
+
 export interface VideoProjectSummary {
   id: string;
   title?: string | null;
@@ -1208,6 +1289,8 @@ export interface VideoProjectSummary {
   channelId?: string | null;
   source_status?: SourceStatus | null;
   sourceStatus?: SourceStatus | null;
+  planning?: VideoProjectPlanningSummary | null;
+  imageProgress?: VideoProjectImageProgress | null;
 }
 
 export interface VideoProjectImageAsset {
