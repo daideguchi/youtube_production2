@@ -16,7 +16,7 @@ OVERRIDE_PATH = repo_root() / "configs" / "llm_task_overrides.yaml"
 MODEL_REGISTRY_PATH = repo_root() / "configs" / "llm_model_registry.yaml"
 IMAGE_MODELS_PATH = repo_root() / "configs" / "image_models.yaml"
 
-router = APIRouter(prefix="/llm-usage", tags=["llm_usage"])
+router = APIRouter(prefix="/api/llm-usage", tags=["llm_usage"])
 
 
 def _load_records(limit: int) -> List[Dict[str, Any]]:

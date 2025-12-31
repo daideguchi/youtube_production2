@@ -45,7 +45,7 @@
 | `/api/swap` | `apps/ui-backend/backend/routers/swap.py` | 画像差し替え（Swap UI） |
 | `/api/params` | `apps/ui-backend/backend/routers/params.py` | UIパラメータ/設定 |
 | `/api/video-production` | `apps/ui-backend/backend/video_production.py` | run_dir/画像/CapCut関連 |
-| `/llm-usage` | `apps/ui-backend/backend/routers/llm_usage.py` | LLM使用量ログ/override |
+| `/api/llm-usage` | `apps/ui-backend/backend/routers/llm_usage.py` | LLM使用量ログ/override |
 
 注:
 - `apps/ui-backend/backend/main.py` には router 経由ではない endpoint も存在する（例: channels/planning/thumbnails 等）。
@@ -79,7 +79,7 @@
 | `/prompts` | `apps/ui-frontend/src/pages/PromptManagerPage.tsx` | `/api/prompts*` | `packages/**/prompts/**` |
 | `/agent-org` | `apps/ui-frontend/src/pages/AgentOrgPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**`（board/locks/memos） |
 | `/agent-board` | `apps/ui-frontend/src/pages/AgentBoardPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**` |
-| `/llm-usage` | `apps/ui-frontend/src/pages/LlmUsagePage.tsx` | `/llm-usage/*` | `workspaces/logs/**` |
+| `/llm-usage` | `apps/ui-frontend/src/pages/LlmUsagePage.tsx` | `/api/llm-usage/*` | `workspaces/logs/**` |
 
 補足:
 - fetch直叩きが残っている箇所は、原則 `apps/ui-frontend/src/api/client.ts` へ集約して“配線”を減らす（例外: streaming / blob 等）。
