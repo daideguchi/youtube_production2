@@ -2842,10 +2842,19 @@ def _pattern_triggers_match(triggers: Any, title: str) -> tuple[bool, int]:
     return True, score
 
 
-_SCRIPT_KATA_TO_PATTERN_ID: dict[str, str] = {
-    "kata1": "kata1_conclusion_reason_examples_v1",
-    "kata2": "kata2_three_doors_v1",
-    "kata3": "kata3_repeat_frame_examples_v1",
+_SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL: dict[str, dict[str, str]] = {
+    "*": {
+        "kata1": "kata1_conclusion_reason_examples_v1",
+        "kata2": "kata2_three_doors_v1",
+        "kata3": "kata3_repeat_frame_examples_v1",
+    },
+    # CH01（人生の道標）は「史実で証明→日常へ橋渡し→実践」で固定し、
+    # 架空の現代人物ストーリーに寄りやすい型を選ばない。
+    "CH01": {
+        "kata1": "ch01_historical_proof_bridge_v1",
+        "kata2": "ch01_historical_proof_bridge_v1",
+        "kata3": "ch01_historical_proof_bridge_v1",
+    },
 }
 
 
@@ -2905,7 +2914,9 @@ def _select_a_text_pattern_for_status(patterns_doc: Dict[str, Any], st: "Status"
     planning = planning if isinstance(planning, dict) else {}
     raw_kata = planning.get("script_kata") if isinstance(planning, dict) else ""
     kata = _canonical_script_kata(raw_kata)
-    override_id = _SCRIPT_KATA_TO_PATTERN_ID.get(kata, "")
+    chan = str(st.channel or "").strip().upper() if isinstance(st, Status) else ""
+    chan_map = _SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL.get(chan) or _SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL.get("*") or {}
+    override_id = chan_map.get(kata, "")
     if override_id:
         forced = _pattern_by_id(patterns_doc, override_id)
         if forced:
@@ -6728,6 +6739,35 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         human_path = content_dir / "assembled_human.md"
         assembled_path = content_dir / "assembled.md"
         canonical_path = human_path if human_path.exists() else assembled_path
+        # Draft provenance:
+        # - Used for quality gate defaults (Codex drafts tend to need stronger rewriting).
+        # - NOTE: This is provenance of the *drafting stage*, not who edited the final file in UI.
+        draft_source = "api"
+        try:
+            if canonical_path.resolve() == human_path.resolve():
+                draft_source = "human"
+            else:
+                used_codex = False
+                draft_state = st.stages.get("script_draft")
+                calls = (
+                    draft_state.details.get("llm_calls")
+                    if draft_state and isinstance(getattr(draft_state, "details", None), dict)
+                    else None
+                )
+                if isinstance(calls, list):
+                    for c in calls:
+                        if not isinstance(c, dict):
+                            continue
+                        if str(c.get("provider") or "").strip() != "codex_exec":
+                            continue
+                        # Draft provenance should track chapter drafting only (not research/outline/etc).
+                        if str(c.get("task") or "").strip() != "script_chapter_draft":
+                            continue
+                        used_codex = True
+                        break
+                draft_source = "codex_exec" if used_codex else "api"
+        except Exception:
+            draft_source = "api"
 
         # Reset stale failure markers so each run reflects current state.
         stage_details = st.stages[stage_name].details
@@ -9110,18 +9150,27 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK", "script_a_text_rebuild_draft"
             ).strip()
 
-            # Convergence: cap to 2 rounds by default (Judge -> Fix -> Judge).
+            # Convergence:
+            # - Codex-drafted scripts tend to be more verbose/repetitive; allow more rewrite rounds by default.
             try:
-                max_rounds_requested = int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", "3"))
+                default_rounds = "5" if str(draft_source) == "codex_exec" else "3"
+                max_rounds_requested = int(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS", default_rounds))
             except Exception:
-                max_rounds_requested = 3
-            max_rounds = min(max(1, max_rounds_requested), 3)
+                try:
+                    max_rounds_requested = int(default_rounds)
+                except Exception:
+                    max_rounds_requested = 3
+            # Default cap: keep costs bounded, but allow more convergence when the initial drafts were
+            # produced by Codex exec (they are often verbose/repetitive and need extra rewrite rounds).
+            hard_cap = 5 if str(draft_source) == "codex_exec" else 3
+            max_rounds = min(max(1, max_rounds_requested), hard_cap)
 
             llm_gate_details["mode"] = "v2"
             llm_gate_details["judge_task"] = judge_task
             llm_gate_details["fix_task"] = fix_task
             llm_gate_details["max_rounds"] = max_rounds
             llm_gate_details["max_rounds_requested"] = max_rounds_requested
+            llm_gate_details["max_rounds_hard_cap"] = hard_cap
             if max_rounds_requested != max_rounds:
                 llm_gate_details["max_rounds_capped"] = True
 
@@ -9171,7 +9220,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             for _i in range(1, 9):
                 llm_gate_details.pop(f"judge_round{_i}_report", None)
 
-            rebuild_on_fail = _truthy_env("SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL", "0")
+            rebuild_default = "1" if str(draft_source) == "codex_exec" else "0"
+            rebuild_on_fail = _truthy_env("SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL", rebuild_default)
             llm_gate_details["rebuild_on_fail"] = bool(rebuild_on_fail)
 
             quality_dir = content_dir / "analysis" / "quality_gate"
@@ -9224,6 +9274,33 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 pattern_id = str((pat or {}).get("id") or "").strip()
             except Exception:
                 pattern_id = ""
+
+            pattern_sections_guide = ""
+            try:
+                plan_cfg0 = (pat or {}).get("plan") if isinstance(pat, dict) else None
+                secs0 = (plan_cfg0.get("sections") if isinstance(plan_cfg0, dict) else None) or []
+                lines0: list[str] = []
+                if isinstance(secs0, list):
+                    for i, sec in enumerate(secs0):
+                        if not isinstance(sec, dict):
+                            continue
+                        name = str(sec.get("name") or "").strip()
+                        if not name:
+                            continue
+                        budget = sec.get("char_budget")
+                        goal = str(sec.get("goal") or "").strip()
+                        notes = str(sec.get("content_notes") or "").strip()
+                        parts: list[str] = [f"{i+1}. {name}"]
+                        if budget not in (None, ""):
+                            parts.append(f"~{budget}字")
+                        if goal:
+                            parts.append(goal)
+                        if notes:
+                            parts.append(f"注意: {notes}")
+                        lines0.append(" / ".join(parts))
+                pattern_sections_guide = "\n".join(lines0).strip()
+            except Exception:
+                pattern_sections_guide = ""
 
             try:
                 max_examples_val: int | None = None
@@ -9297,6 +9374,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "TITLE": title_for_llm,
                 "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
                 "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                "DRAFT_SOURCE": str(draft_source),
                 "PLANNING_HINT": _sanitize_quality_gate_context(_build_planning_hint(st.metadata or {}), max_chars=700),
                 "PERSONA": _sanitize_quality_gate_context(str(st.metadata.get("persona") or ""), max_chars=850),
                 "CHANNEL_PROMPT": _sanitize_quality_gate_context(
@@ -9305,6 +9383,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "BENCHMARK_EXCERPTS": _sanitize_quality_gate_context(str(st.metadata.get("a_text_benchmark_excerpts") or ""), max_chars=650),
                 "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(_a_text_rules_summary(st.metadata or {}), max_chars=650),
                 "A_TEXT_PATTERN_ID": pattern_id,
+                "A_TEXT_SECTION_PLAN": _sanitize_quality_gate_context(pattern_sections_guide, max_chars=950),
                 "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
                 "PAUSE_LINES_TARGET_MIN": pause_lines_target_min,
                 "CORE_EPISODE_REQUIRED": core_episode_required,
@@ -11610,9 +11689,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     )
                     if isinstance(calls, list):
                         for c in calls:
-                            if isinstance(c, dict) and str(c.get("provider") or "").strip() == "codex_exec":
-                                used_codex = True
-                                break
+                            if not isinstance(c, dict):
+                                continue
+                            if str(c.get("provider") or "").strip() != "codex_exec":
+                                continue
+                            # Draft provenance should track chapter drafting only (not research/outline/etc).
+                            if str(c.get("task") or "").strip() != "script_chapter_draft":
+                                continue
+                            used_codex = True
+                            break
                     draft_source = "codex_exec" if used_codex else "api"
             except Exception:
                 draft_source = "api"
@@ -11796,17 +11881,39 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         # Verify pause tokens were preserved (order + standalone lines + no extras).
                         if pause_tokens:
                             try:
-                                raw_lines = [ln.strip() for ln in polished.splitlines()]
-                                token_lines = [ln for ln in raw_lines if ln in pause_tokens]
-                                extra_tokens = [
-                                    ln
-                                    for ln in raw_lines
-                                    if re.fullmatch(r"<<<PAUSE_\d+>>>", ln or "") and ln not in pause_tokens
-                                ]
-                                if extra_tokens:
-                                    polish_error = "pause_token_extra"
-                                elif token_lines != pause_tokens:
+                                # Some models reproduce the marker with minor variations (e.g. `<<PAUSE_1>>>`).
+                                # Treat any `<{2,}PAUSE_n>{2,}` as a pause marker and normalize it back to the
+                                # canonical form before restoration.
+                                pause_token_re = re.compile(r"^\s*<{2,}PAUSE_(\d+)>{2,}\s*$")
+                                raw_lines = [ln.rstrip("\r") for ln in polished.splitlines()]
+                                expected_nums = list(range(1, len(pause_tokens) + 1))
+                                found_nums: List[int] = []
+                                for ln in raw_lines:
+                                    m = pause_token_re.fullmatch((ln or "").strip())
+                                    if not m:
+                                        continue
+                                    try:
+                                        found_nums.append(int(m.group(1)))
+                                    except Exception:
+                                        found_nums.append(-1)
+                                if found_nums != expected_nums:
                                     polish_error = "pause_token_mismatch"
+                                else:
+                                    normalized: List[str] = []
+                                    for ln in raw_lines:
+                                        m = pause_token_re.fullmatch((ln or "").strip())
+                                        if not m:
+                                            normalized.append(ln)
+                                            continue
+                                        try:
+                                            n = int(m.group(1))
+                                        except Exception:
+                                            n = -1
+                                        if 1 <= n <= len(pause_tokens):
+                                            normalized.append(f"<<<PAUSE_{n}>>>")
+                                        else:
+                                            normalized.append(ln)
+                                    polished = "\n".join(normalized)
                             except Exception:
                                 polish_error = "pause_token_check_failed"
 

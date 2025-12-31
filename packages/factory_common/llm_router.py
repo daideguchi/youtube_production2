@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 import time
 import json
@@ -132,7 +133,30 @@ _FIREWORKS_LOGICAL_MODEL_ID_TO_MODEL_ID = {
 _FIREWORKS_MODEL_ID_TO_LOGICAL_MODEL_ID = {v: k for k, v in _FIREWORKS_LOGICAL_MODEL_ID_TO_MODEL_ID.items()}
 
 _FIREWORKS_FINAL_MARKER = "<<<YTM_FINAL>>>"
+_FIREWORKS_FINAL_MARKER_RE = re.compile(r"<{2,}YTM_FINAL>{2,}")
 _FIREWORKS_REASONING_MIN_MAX_TOKENS = 4096
+
+
+def _extract_after_fireworks_marker(text: str) -> str:
+    """
+    Fireworks "final marker" extraction (tolerant).
+
+    Some models occasionally reproduce the marker with minor variations (e.g. `<<YTM_FINAL>>>`).
+    We treat any `<{2,}YTM_FINAL>{2,}` occurrence as a marker and return the text after the last one.
+    """
+    s = str(text or "")
+    if not s:
+        return ""
+    last = None
+    for m in _FIREWORKS_FINAL_MARKER_RE.finditer(s):
+        last = m
+    if last is None:
+        return s.strip()
+    after = s[last.end() :].strip()
+    if after:
+        return after
+    # Some models occasionally place the marker at the end; keep the content before it in that case.
+    return s[: last.start()].strip()
 
 
 def _fireworks_model_id_from_logical(model_id: str) -> str:
@@ -219,6 +243,27 @@ def _extract_json_object_chunk(text: str) -> Optional[str]:
         return chunk if isinstance(obj, dict) else None
     except Exception:
         return None
+
+
+def _is_parseable_json_value(text: str) -> bool:
+    """
+    Best-effort: return True if the string contains a parseable JSON dict/list.
+
+    Used to guard app-level cache hits for tasks that request JSON mode. If cached content is not
+    parseable, it's almost always a poisoned cache entry (bad provider output) and should be ignored.
+    """
+    s = _strip_code_fences(text)
+    if not s:
+        return False
+    decoder = json.JSONDecoder()
+    for m in re.finditer(r"[\\[{]", s):
+        try:
+            obj, _end = decoder.raw_decode(s[m.start() :])
+        except Exception:
+            continue
+        if isinstance(obj, (dict, list)):
+            return True
+    return False
 
 
 def _extract_after_marker(text: str, marker: str) -> str:
@@ -449,6 +494,26 @@ class LLMRouter:
         # These allow swapping models without editing router configs.
         models_conf = self.config.get("models", {}) or {}
 
+        def _filter_disallowed_models(task_name: str, candidates: List[str]) -> List[str]:
+            # Hard safety rule:
+            # - Never route script-writing tasks through Azure/OpenAI "GPT" models.
+            #   (User requirement: gpt-5-mini must not touch scripts.)
+            tn = str(task_name or "")
+            if not tn.startswith("script_"):
+                return candidates
+            out: List[str] = []
+            removed: List[str] = []
+            for mk in candidates:
+                conf = models_conf.get(mk) if isinstance(models_conf, dict) else None
+                provider = str((conf or {}).get("provider") or "").strip().lower()
+                if mk.startswith("azure_") or provider in {"azure", "openai"}:
+                    removed.append(mk)
+                    continue
+                out.append(mk)
+            if removed:
+                logger.info("Router: filtered disallowed models for %s: %s", tn, removed)
+            return out
+
         def _split_model_keys(raw: object) -> List[str]:
             if raw is None:
                 return []
@@ -529,7 +594,7 @@ class LLMRouter:
             forced = _split_model_keys(model_keys_override)
             forced_valid = _normalize_forced_models(forced)
             if forced_valid:
-                return forced_valid
+                return _filter_disallowed_models(task, forced_valid)
             if forced:
                 logger.warning("model_keys_override: unknown model keys: %s", forced)
 
@@ -541,7 +606,7 @@ class LLMRouter:
                     forced = _split_model_keys(mapping.get(task))
                     forced_valid = _normalize_forced_models(forced)
                     if forced_valid:
-                        return forced_valid
+                        return _filter_disallowed_models(task, forced_valid)
                     if forced:
                         logger.warning("LLM_FORCE_TASK_MODELS_JSON: unknown model keys for task=%s: %s", task, forced)
             except Exception as e:
@@ -552,7 +617,7 @@ class LLMRouter:
             forced = _split_model_keys(forced_all)
             forced_valid = _normalize_forced_models(forced)
             if forced_valid:
-                return forced_valid
+                return _filter_disallowed_models(task, forced_valid)
             if forced:
                 logger.warning("LLM_FORCE_MODELS: unknown model keys: %s", forced)
 
@@ -579,7 +644,7 @@ class LLMRouter:
                         tier_models = candidates[tier]
                 except Exception as e:
                     logger.warning(f"Failed to load tier candidates override: {e}")
-        return tier_models
+        return _filter_disallowed_models(task, list(tier_models or []))
 
     def call(
         self,
@@ -771,39 +836,52 @@ class LLMRouter:
                     # Do not return it as a "successful" response; fall through to a real API call.
                     logger.info(f"Router: cache hit but empty content for {task} (task_id={task_id}); ignoring cache")
                 else:
-                    logger.info(f"Router: cache hit for {task} (task_id={task_id})")
-                    routing_key = (os.getenv("LLM_ROUTING_KEY") or "").strip() or None
-                    self._log_usage(
-                        {
-                            "status": "success",
-                            "task": task,
-                            "task_id": str(task_id),
-                            "routing_key": routing_key,
+                    rf = base_options.get("response_format") or response_format
+                    wants_json = rf == "json_object" or (
+                        isinstance(rf, dict) and str(rf.get("type") or "").strip().lower() == "json_object"
+                    )
+                    if isinstance(content, str) and _FIREWORKS_FINAL_MARKER_RE.search(content):
+                        logger.info(
+                            f"Router: cache hit but contains final marker for {task} (task_id={task_id}); ignoring cache"
+                        )
+                    elif wants_json and not _is_parseable_json_value(str(content or "")):
+                        logger.info(
+                            f"Router: cache hit but invalid JSON for {task} (task_id={task_id}); ignoring cache"
+                        )
+                    else:
+                        logger.info(f"Router: cache hit for {task} (task_id={task_id})")
+                        routing_key = (os.getenv("LLM_ROUTING_KEY") or "").strip() or None
+                        self._log_usage(
+                            {
+                                "status": "success",
+                                "task": task,
+                                "task_id": str(task_id),
+                                "routing_key": routing_key,
+                                "model": model_key,
+                                "provider": provider_name,
+                                "chain": chain,
+                                "latency_ms": 0,
+                                "usage": usage,
+                                "request_id": req_id,
+                                "finish_reason": finish_reason,
+                                "retry": retry_meta,
+                                "cache": {"hit": True, "path": str(cache_file)},
+                                "timestamp": time.time(),
+                            }
+                        )
+                        return {
+                            "content": content,
+                            "raw": None,
+                            "usage": usage,
+                            "request_id": req_id,
                             "model": model_key,
                             "provider": provider_name,
                             "chain": chain,
                             "latency_ms": 0,
-                            "usage": usage,
-                            "request_id": req_id,
                             "finish_reason": finish_reason,
                             "retry": retry_meta,
-                            "cache": {"hit": True, "path": str(cache_file)},
-                            "timestamp": time.time(),
+                            "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
                         }
-                    )
-                    return {
-                        "content": content,
-                        "raw": None,
-                        "usage": usage,
-                        "request_id": req_id,
-                        "model": model_key,
-                        "provider": provider_name,
-                        "chain": chain,
-                        "latency_ms": 0,
-                        "finish_reason": finish_reason,
-                        "retry": retry_meta,
-                        "cache": {"hit": True, "path": str(cache_file), "task_id": str(task_id)},
-                    }
 
         # Optional: Codex exec (subscription) first layer with API fallback.
         # - Runs `codex exec --sandbox read-only` to avoid writing to the repo/workspaces.
@@ -910,8 +988,27 @@ class LLMRouter:
 
             try:
                 safe_options = sanitize_params(model_conf, base_options)
+                # Clamp completion budgets to the model capability caps.
+                # Some task overrides intentionally request very large max_tokens, but providers/models can
+                # impose hard caps. Keeping `safe_options` within caps avoids misleading "cannot increase"
+                # retry errors when finish_reason == "length".
+                caps = (model_conf.get("capabilities", {}) or {})
+                for k in ("max_tokens", "max_completion_tokens"):
+                    if k not in safe_options:
+                        continue
+                    cap_v = caps.get(k)
+                    if cap_v in (None, ""):
+                        continue
+                    try:
+                        cap_i = int(cap_v)
+                        cur_i = int(safe_options[k])
+                    except Exception:
+                        continue
+                    if cap_i > 0 and cur_i > cap_i:
+                        safe_options[k] = cap_i
                 logger.info(f"Router: Invoking {model_key} for {task}...")
                 start = time.time()
+                invoke_options = dict(safe_options)
                 raw_result = self._invoke_provider(
                     provider_name,
                     client,
@@ -1004,9 +1101,53 @@ class LLMRouter:
                             )
                         raw_result = raw_retry
                         finish_reason = finish_reason_retry
+                        invoke_options = retry_opts
 
                 content = self._extract_content(provider_name, model_conf, raw_result)
                 if isinstance(content, str) and not content.strip():
+                    # Fireworks occasionally returns an empty/marker-only completion (200 OK but no usable text).
+                    # Retry the same model a few times before falling back to the next provider (OpenRouter may be
+                    # unavailable/out-of-credits, and we want to avoid THINK-mode queue escalation).
+                    if provider_name == "fireworks":
+                        try:
+                            empty_retry = int((os.getenv("LLM_FIREWORKS_EMPTY_RETRY") or "2").strip())
+                        except Exception:
+                            empty_retry = 2
+                        empty_retry = max(0, min(empty_retry, 5))
+                        for attempt in range(empty_retry):
+                            logger.warning(
+                                "Router: %s returned empty content; retrying (fireworks) (%s/%s)",
+                                model_key,
+                                attempt + 1,
+                                empty_retry,
+                            )
+                            raw_retry2 = self._invoke_provider(
+                                provider_name,
+                                client,
+                                model_conf,
+                                messages,
+                                return_raw=True,
+                                **invoke_options,
+                            )
+                            finish_reason2 = _extract_finish_reason(raw_retry2)
+                            content2 = self._extract_content(provider_name, model_conf, raw_retry2)
+                            if isinstance(content2, str) and content2.strip():
+                                raw_result = raw_retry2
+                                finish_reason = finish_reason2
+                                content = content2
+                                if retry_meta is None:
+                                    retry_meta = {
+                                        "reason": "empty_content",
+                                        "attempts": attempt + 1,
+                                        "finish_reason": finish_reason2,
+                                    }
+                                else:
+                                    retry_meta = dict(retry_meta)
+                                    retry_meta["empty_content_retry"] = {
+                                        "attempts": attempt + 1,
+                                        "finish_reason": finish_reason2,
+                                    }
+                                break
                     raise RuntimeError("empty_content")
                 usage = self._extract_usage(raw_result)
                 req_id = _extract_request_id(raw_result)
@@ -1084,7 +1225,8 @@ class LLMRouter:
                 last_status = status
                 last_error_class = e.__class__.__name__
                 tried.append(model_key)
-                # Retry next candidate only for transient-ish statuses; otherwise fail fast
+                # Always try the next candidate model on failure.
+                # Apply backoff only for transient-ish statuses (429/5xx/etc).
                 transient_statuses = set(self.fallback_policy.get("transient_statuses", [])) or TRANSIENT_STATUSES
                 backoff_sec = float(self.fallback_policy.get("backoff_sec", 1.0))
                 retry_limit = int(self.fallback_policy.get("retry_limit", 0))
@@ -1099,7 +1241,7 @@ class LLMRouter:
                     break
 
                 if status not in transient_statuses | {None}:
-                    break
+                    continue
                 if status in transient_statuses:
                     if status is not None:
                         status_counts[status] = status_counts.get(status, 0) + 1
@@ -1152,9 +1294,36 @@ class LLMRouter:
         defaults = model_conf.get("defaults", {})
         params = {**defaults, **kwargs}
 
+        # Fireworks: requests with max_tokens > 4096 require streaming mode.
+        # In practice, OpenRouter-style reasoning controls can be unstable for stream-required calls, so we
+        # strip them early to keep the request robust.
+        fireworks_needs_stream = False
+        if provider == "fireworks":
+            for k in ("max_tokens", "max_completion_tokens"):
+                v = params.get(k)
+                if v is None:
+                    continue
+                try:
+                    if int(v) > 4096:
+                        fireworks_needs_stream = True
+                        break
+                except Exception:
+                    continue
+            if fireworks_needs_stream:
+                params.pop("reasoning_effort", None)
+                eb = params.get("extra_body")
+                if isinstance(eb, dict):
+                    eb2 = dict(eb)
+                    eb2.pop("reasoning", None)
+                    eb2.pop("reasoning_effort", None)
+                    if eb2:
+                        params["extra_body"] = eb2
+                    else:
+                        params.pop("extra_body", None)
+
         # Fireworks parity with OpenRouter:
         # - DeepSeek V3.2 exp must run with thinking enabled by default (callers can still override explicitly).
-        if provider == "fireworks":
+        if provider == "fireworks" and not fireworks_needs_stream:
             try:
                 mn = str(model_conf.get("model_name") or "").strip().lower()
             except Exception:
@@ -1263,7 +1432,12 @@ class LLMRouter:
                 eb.pop("reasoning", None)
                 params["extra_body"] = eb
 
-            if fireworks_reasoning_enabled and fireworks_reasoning_exclude and not fireworks_json_mode:
+            if (
+                fireworks_reasoning_enabled
+                and fireworks_reasoning_exclude
+                and not fireworks_json_mode
+                and not fireworks_needs_stream
+            ):
                 marker = _FIREWORKS_FINAL_MARKER
                 marker_msg = (
                     "最終出力は必ず次のマーカー行の後ろに書いてください。\n"
@@ -1325,17 +1499,81 @@ class LLMRouter:
         
         # Common OpenAI/Azure Interface
         if provider in ["azure", "openrouter", "fireworks"]:
-            response = client.chat.completions.create(model=model_name, messages=messages, **api_args)
+            # Fireworks: requests with max_tokens > 4096 require streaming mode.
+            if provider == "fireworks":
+                try:
+                    for k in ("max_tokens", "max_completion_tokens"):
+                        v = api_args.get(k)
+                        if v is None:
+                            continue
+                        if int(v) > 4096:
+                            api_args.setdefault("stream", True)
+                            break
+                except Exception:
+                    pass
+
+            if provider == "fireworks" and api_args.get("stream") is True:
+                from types import SimpleNamespace
+
+                stream = client.chat.completions.create(model=model_name, messages=messages, **api_args)
+                parts: List[str] = []
+                finish_reason = None
+                last_id = None
+                last_model = None
+                usage_obj = None
+                for chunk in stream:
+                    last_id = getattr(chunk, "id", last_id)
+                    last_model = getattr(chunk, "model", last_model)
+                    try:
+                        choices = getattr(chunk, "choices", None)
+                        if choices:
+                            c0 = choices[0]
+                            delta = getattr(c0, "delta", None)
+                            if delta is not None:
+                                piece = getattr(delta, "content", None)
+                                if piece:
+                                    parts.append(str(piece))
+                            fr = getattr(c0, "finish_reason", None)
+                            if fr:
+                                finish_reason = fr
+                    except Exception:
+                        pass
+                    u = getattr(chunk, "usage", None)
+                    if u is not None:
+                        usage_obj = u
+                content_text = "".join(parts)
+                try:
+                    usage = (
+                        SimpleNamespace(
+                            prompt_tokens=getattr(usage_obj, "prompt_tokens", None),
+                            completion_tokens=getattr(usage_obj, "completion_tokens", None),
+                            total_tokens=getattr(usage_obj, "total_tokens", None),
+                        )
+                        if usage_obj is not None
+                        else None
+                    )
+                except Exception:
+                    usage = None
+                msg = SimpleNamespace(content=content_text)
+                choice = SimpleNamespace(message=msg, finish_reason=finish_reason)
+                response = SimpleNamespace(id=last_id, model=last_model, choices=[choice], usage=usage)
+            else:
+                response = client.chat.completions.create(model=model_name, messages=messages, **api_args)
             if return_raw:
                 return response
             content = response.choices[0].message.content
-            if provider == "fireworks" and fireworks_reasoning_enabled and fireworks_reasoning_exclude:
+            if (
+                provider == "fireworks"
+                and fireworks_reasoning_enabled
+                and fireworks_reasoning_exclude
+                and not fireworks_needs_stream
+            ):
                 if fireworks_json_mode:
                     chunk = _extract_json_object_chunk(content or "")
                     if chunk is not None:
                         return chunk
                 else:
-                    return _extract_after_marker(content or "", _FIREWORKS_FINAL_MARKER)
+                    return _extract_after_fireworks_marker(content or "")
             return content
 
         # Gemini Chat (Not implemented fully in config yet for Text, but ready)
@@ -1353,8 +1591,8 @@ class LLMRouter:
         if provider in ["azure", "openrouter", "fireworks"]:
             try:
                 content = raw_result.choices[0].message.content  # type: ignore[attr-defined]
-                if provider == "fireworks" and isinstance(content, str) and _FIREWORKS_FINAL_MARKER in content:
-                    return _extract_after_marker(content, _FIREWORKS_FINAL_MARKER)
+                if provider == "fireworks" and isinstance(content, str) and "YTM_FINAL" in content:
+                    return _extract_after_fireworks_marker(content)
                 return content
             except Exception:
                 pass
