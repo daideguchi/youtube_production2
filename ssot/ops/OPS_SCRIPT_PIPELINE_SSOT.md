@@ -69,9 +69,10 @@ SoT（正本）:
 - Planning SoT（企画/進捗）: `workspaces/planning/channels/CHxx.csv`
 - Script SoT（台本ステージ状態）: `workspaces/scripts/{CH}/{NNN}/status.json`
 - 台本本文（Aテキスト）:
-  - 正本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合）
-  - 代替（ミラー）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
-  - 注意: `assembled.md` は mirror 扱い（最終的に `assembled_human.md` と一致させる）
+  - 通常の出力（下流互換）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
+  - 人手編集（UI）用の上書き: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+    - `assembled_human.md` が存在する場合はそれが正本（優先）で、`assembled.md` は mirror として同期する
+    - split-brain（差分）がある場合は **STOP** して明示解決する
 
 証跡/ログ（参照はできるが正本ではない）:
 - ステージごとの入出力: `workspaces/scripts/{CH}/{NNN}/logs/{stage}_prompt.txt`, `.../{stage}_response.json`
