@@ -5026,6 +5026,104 @@ def _ensure_references(base: Path, st: Status | None = None) -> None:
     refs_path.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def _should_block_topic_research_due_to_required_web_search(base: Path, st: Status) -> bool:
+    """
+    For channels that require web search, stop before running `topic_research` if search results
+    are unavailable (provider=disabled or file missing/invalid).
+
+    This avoids burning tokens on downstream stages that will inevitably fail fact-check due to
+    missing evidence sources, and provides a clear "manual injection" escape hatch.
+    """
+    try:
+        sources = _load_sources(st.channel)
+        policy = _normalize_web_search_policy((sources or {}).get("web_search_policy"))
+    except Exception:
+        policy = "auto"
+    if policy != "required":
+        return False
+
+    search_path = base / "content/analysis/research/search_results.json"
+    wiki_path = base / "content/analysis/research/wikipedia_summary.json"
+    refs_path = base / "content/analysis/research/references.json"
+
+    search_obj: Any = None
+    if search_path.exists():
+        try:
+            search_obj = json.loads(search_path.read_text(encoding="utf-8"))
+        except Exception:
+            search_obj = None
+
+    search_schema = str(search_obj.get("schema") or "").strip() if isinstance(search_obj, dict) else ""
+    if not search_path.exists() or search_schema != "ytm.web_search_results.v1":
+        # schema mismatch means the pipeline cannot reliably consume it.
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["error"] = True
+                stage.details["error_codes"] = ["web_search_required_unavailable"]
+                stage.details["fix_hints"] = [
+                    "web_search_policy=required ですが search_results.json のschemaが不正/欠落しています。",
+                    "対処A: Brave検索を有効化（BRAVE_SEARCH_API_KEY を設定）して再実行。",
+                    "対処B: 対話モードAIで search_results.json を作成し投入（ssot/ops/OPS_RESEARCH_BUNDLE.md の手順）。",
+                    f"必要ファイル: {search_path}",
+                ]
+        except Exception:
+            pass
+        return True
+
+    # Required: ensure at least one evidence URL is available (hits / references / wikipedia page_url).
+    source_urls: set[str] = set()
+    hits = search_obj.get("hits") if isinstance(search_obj, dict) else None
+    if isinstance(hits, list):
+        for h in hits:
+            if not isinstance(h, dict):
+                continue
+            url = str(h.get("url") or "").strip()
+            if url.startswith("http://") or url.startswith("https://"):
+                source_urls.add(url)
+
+    if refs_path.exists():
+        try:
+            refs = json.loads(refs_path.read_text(encoding="utf-8"))
+        except Exception:
+            refs = None
+        if isinstance(refs, list):
+            for r in refs:
+                if not isinstance(r, dict):
+                    continue
+                url = str(r.get("url") or "").strip()
+                if url.startswith("http://") or url.startswith("https://"):
+                    source_urls.add(url)
+
+    if wiki_path.exists():
+        try:
+            wiki = json.loads(wiki_path.read_text(encoding="utf-8"))
+        except Exception:
+            wiki = None
+        if isinstance(wiki, dict) and str(wiki.get("schema") or "").strip() == "ytm.wikipedia_summary.v1":
+            url = str(wiki.get("page_url") or "").strip()
+            if url.startswith("http://") or url.startswith("https://"):
+                source_urls.add(url)
+
+    if not source_urls:
+        try:
+            stage = st.stages.get("topic_research")
+            if stage is not None:
+                stage.details["error"] = True
+                stage.details["error_codes"] = ["web_search_required_no_sources"]
+                stage.details["fix_hints"] = [
+                    "web_search_policy=required ですが、検証に使える URL（search_hits/references/wiki）が0件です。",
+                    "対処A: Brave検索を有効化（BRAVE_SEARCH_API_KEY）して search_results.json を埋める。",
+                    "対処B: 対話モードAIで sources を集め、research bundle を投入（ssot/ops/OPS_RESEARCH_BUNDLE.md）。",
+                    f"対象: {search_path}, {refs_path}, {wiki_path}",
+                ]
+        except Exception:
+            pass
+        return True
+
+    return False
+
+
 def _normalize_llm_output(out_path: Path, stage: str) -> None:
     """
     Clean up LLM outputs per stage:
@@ -12469,6 +12567,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 _ensure_web_search_results(base, st)
             except Exception:
                 pass
+            if _should_block_topic_research_due_to_required_web_search(base, st):
+                st.stages[stage_name].status = "pending"
+                st.status = "script_in_progress"
+                save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
+                return st
         ran_llm = _run_llm(stage_name, base, st, sd, templates)
         if not ran_llm:
             _generate_stage_outputs(stage_name, base, st, outputs)
