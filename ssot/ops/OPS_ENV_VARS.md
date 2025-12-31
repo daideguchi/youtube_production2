@@ -126,6 +126,19 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - task key の実体（tier/model/options）は `configs/llm_router.yaml` と `configs/llm_task_overrides.yaml` を正とする。
 - `SCRIPT_PIPELINE_DRY=1` のときは品質ゲートを走らせない（dry-run）。
 
+## Script pipeline: 最終ポリッシュ（全文の自然化 / script_validation）
+`packages/script_pipeline/runner.py` の `script_validation` の終盤に適用される。
+
+- `SCRIPT_VALIDATION_FINAL_POLISH`（default: `auto`）: `auto|0|1`
+  - `auto`: 長尺（min chars以上）または品質ゲートが介入した場合のみ、最大1回の全文ポリッシュを行う
+  - `0`: 実行しない
+  - `1`: 常に実行する（最大1回）
+- `SCRIPT_VALIDATION_FINAL_POLISH_TASK`（default: `script_a_text_final_polish`）: LLMルーターの task key
+- `SCRIPT_VALIDATION_FINAL_POLISH_MIN_CHARS`（default: `12000`）: `auto` のときの最小文字数（min chars判定）
+- `SCRIPT_VALIDATION_FORCE_FINAL_POLISH_FOR_CODEX_DRAFT`（default: `1`）:
+  - `1`: `script_chapter_draft` が Codex exec で生成された回は、最終本文にCodexの言い回しが残らないよう **強制で全文ポリッシュ** を実行する
+  - `0`: 強制しない（`SCRIPT_VALIDATION_FINAL_POLISH` の判定に従う）
+
 ## Script pipeline: 意味整合（Semantic alignment gate）
 `packages/script_pipeline/runner.py` の `script_outline`（事前）と `script_validation`（最終）に適用される。
 
@@ -171,13 +184,16 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 
 重要（固定ルール）:
 - Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
-- **Codex exec に回さない task（固定）**: Aテキスト本文を生成/上書きする task（章/本文）。
-  - 対象: `script_chapter_draft`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
-  - 理由: Codexの文言が本文へ混入する事故を構造的に防ぐため
+- **デフォルト（推奨）**: `script_chapter_draft` は Codex exec を優先し、**最終本文は Fireworks（API）で自然な日本語に仕上げる**（コスト最適化）。
+  - 重要: Codexの言い回しが最終本文に残らないよう、`script_validation` の最終ポリッシュで “全文を書き直し” を必ずかける（詳細は `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`）。
+- **Codex exec に回さない task（固定）**: 最終本文を上書きする task（品質ゲート/修正/最終ポリッシュ/意味整合Fix）。
+  - 対象: `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
+  - 理由: Codexの文言が最終本文へ混入する事故を構造的に防ぐため（草稿はOK、最終はAPIで統一）
   - 設定: `configs/codex_exec.yaml: selection.exclude_tasks`
 - それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
   - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 運用上「このtaskは本文品質のためAPIに寄せたい」などがあれば、`configs/codex_exec.yaml: selection.exclude_tasks` に追加して局所的に外す。
+  - 即API復帰（重要）: `YTM_CODEX_EXEC_EXCLUDE_TASKS=script_chapter_draft` を設定すると、章草稿も API で書ける状態へ即時に戻せる（repoの設定ファイルを書き換えない）。
 
 ### 設定（SoT）
 - `configs/codex_exec.yaml`（tracked）
@@ -191,6 +207,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_CODEX_EXEC_MODEL`（任意）: `codex exec -m` に渡すモデル名
 - `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
 - `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
+- `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `script_chapter_draft,script_outline`）
 
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。

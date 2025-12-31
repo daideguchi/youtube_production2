@@ -11595,6 +11595,28 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         # Goal: enforce tone consistency + reduce repetition without inventing new facts.
         # Safety: apply ONLY if structural invariants stay intact (esp. `---` count).
         if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            # Draft provenance (used to force naturalization when Codex wrote the chapter drafts).
+            draft_source = "api"
+            try:
+                if canonical_path.resolve() == human_path.resolve():
+                    draft_source = "human"
+                else:
+                    used_codex = False
+                    draft_state = st.stages.get("script_draft")
+                    calls = (
+                        draft_state.details.get("llm_calls")
+                        if draft_state and isinstance(getattr(draft_state, "details", None), dict)
+                        else None
+                    )
+                    if isinstance(calls, list):
+                        for c in calls:
+                            if isinstance(c, dict) and str(c.get("provider") or "").strip() == "codex_exec":
+                                used_codex = True
+                                break
+                    draft_source = "codex_exec" if used_codex else "api"
+            except Exception:
+                draft_source = "api"
+
             try:
                 final_polish_mode = os.getenv("SCRIPT_VALIDATION_FINAL_POLISH", "auto").strip().lower()
             except Exception:
@@ -11609,6 +11631,16 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 final_polish_min_chars = int(os.getenv("SCRIPT_VALIDATION_FINAL_POLISH_MIN_CHARS", "12000").strip())
             except Exception:
                 final_polish_min_chars = 12000
+
+            # Default (cost-optimized): if chapter drafts were produced by Codex exec, always run a final whole-script
+            # rewrite via the API path to ensure natural Japanese and avoid Codex phrasing in the final A-text.
+            force_polish_for_codex = (
+                draft_source == "codex_exec"
+                and _truthy_env("SCRIPT_VALIDATION_FORCE_FINAL_POLISH_FOR_CODEX_DRAFT", "1")
+            )
+            if force_polish_for_codex and final_polish_mode not in {"0", "false", "no", "off"}:
+                final_polish_mode = "1"
+                final_polish_min_chars = 0
 
             def _count_pause_lines(text: str) -> int:
                 return sum(1 for ln in (text or "").splitlines() if ln.strip() == "---")
@@ -11672,6 +11704,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     "task": final_polish_task,
                     "min_chars": final_polish_min_chars,
                     "input_fingerprint": polish_fp,
+                    "draft_source": draft_source,
                 }
 
             if should_final_polish:
@@ -11711,6 +11744,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             "TITLE": str(st.metadata.get("sheet_title") or st.metadata.get("title") or "").strip(),
                             "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
                             "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                            "DRAFT_SOURCE": str(draft_source),
                             "PERSONA": _sanitize_quality_gate_context(str(st.metadata.get("persona") or ""), max_chars=850),
                             "CHANNEL_PROMPT": _sanitize_quality_gate_context(
                                 str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""),

@@ -141,6 +141,15 @@ def should_try_codex_exec(task: str, *, cfg: Dict[str, Any] | None = None) -> bo
     if not t:
         return False
 
+    # Operator override (fast rollback of a single task without editing repo config).
+    # Example: YTM_CODEX_EXEC_EXCLUDE_TASKS=script_chapter_draft
+    raw_exclude = _env("YTM_CODEX_EXEC_EXCLUDE_TASKS")
+    if raw_exclude:
+        for part in raw_exclude.split(","):
+            p = part.strip()
+            if p:
+                exclude_tasks.add(p)
+
     if t in exclude_tasks:
         return False
     if any(t.startswith(p) for p in exclude_prefixes):

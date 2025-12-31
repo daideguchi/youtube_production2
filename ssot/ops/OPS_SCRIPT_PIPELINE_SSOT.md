@@ -429,7 +429,9 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
     - 例外: SSOT/プロンプト更新で fingerprint が変わった場合は、古い fix を起点にしない（ルールが変わったため）。
   - それでもNGなら pending で止め、人間が `assembled_human.md` を直す
   - コストを優先して短く止めたい場合は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる
-  - 最終磨き込み（任意）: Judge/Fix で合格した本文に対し、必要な場合だけ **最大1回** “全体ポリッシュ” を実行してトーン統一・反復抑制を行う（`SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`）。
+  - 最終磨き込み（重要）: Judge/Fix で合格した本文に対し、**最大1回** “全体ポリッシュ（全文の自然化）” を実行してトーン統一・反復抑制を行う（`SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`）。
+    - 既定: `script_chapter_draft` を Codex exec で生成した回は、最終本文にCodexの言い回しが残らないよう **強制で実行**する（`SCRIPT_VALIDATION_FORCE_FINAL_POLISH_FOR_CODEX_DRAFT=1`）。
+      - 即API復帰（章草稿もAPIで書く）にした場合は、通常どおり `auto` 判定に戻る。
     - 安全条件（実装）:
       - 出力の `---` 行数が入力と一致する場合のみ採用（不一致なら捨てる）。
       - `validate_a_text` のハードエラーが無い場合のみ採用（不一致なら捨てる）。
@@ -461,8 +463,10 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
-    - 注（固定ルール）: Codex exec layer は **Aテキスト本文（章/本文）を生成/上書きする task** を実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
-      - 対象: `script_chapter_draft`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
+    - 注（固定ルール）: コスト最適化のため **章草稿（`script_chapter_draft`）は Codex exec 優先**で生成してよい。
+      - ただし Codex の言い回しが最終本文へ残らないよう、`script_validation` の最終ポリッシュ（`script_a_text_final_polish`）で **全文の自然化（書き直し）** を必ず実行する（自動適用）。
+      - 最終本文を上書きする task（品質ゲート/修正/最終ポリッシュ/意味整合Fix）は Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
+        - 対象: `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
       - それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
