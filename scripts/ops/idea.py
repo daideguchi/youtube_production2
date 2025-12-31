@@ -160,6 +160,26 @@ def _read_planning_csv(channel: str) -> tuple[Path, list[str], list[dict[str, st
     return csv_path, headers, rows
 
 
+_INTISH_RE = re.compile(r"^\s*(\d+)(?:\.0+)?\s*$")
+
+
+def _parse_intish(value: str) -> int | None:
+    s = str(value or "").strip()
+    if not s:
+        return None
+    try:
+        return int(s)
+    except Exception:
+        pass
+    m = _INTISH_RE.fullmatch(s)
+    if m:
+        try:
+            return int(m.group(1))
+        except Exception:
+            return None
+    return None
+
+
 def _max_planning_video_number(rows: list[dict[str, str]]) -> int:
     max_no = 0
     for row in rows:
@@ -171,15 +191,95 @@ def _max_planning_video_number(rows: list[dict[str, str]]) -> int:
                 break
         if not raw:
             continue
-        try:
-            max_no = max(max_no, int(raw))
-        except Exception:
+        n = _parse_intish(raw)
+        if n is None:
             continue
+        max_no = max(max_no, n)
     return max_no
 
 
 def _planning_column(field_key: str) -> str | None:
     return FIELD_KEYS.get(field_key)
+
+
+_IDEA_ID_IN_PLANNING_RE = re.compile(r"\bidea_id=([A-Za-z0-9][A-Za-z0-9_-]*)\b")
+_SCRIPT_ID_IN_PLANNING_RE = re.compile(r"\bCH\d{2}-(\d{3})\b")
+
+
+def _extract_idea_ids_from_planning_row(row: dict[str, str]) -> set[str]:
+    found: set[str] = set()
+    for v in (row or {}).values():
+        s = str(v or "")
+        if "idea_id=" not in s:
+            continue
+        for m in _IDEA_ID_IN_PLANNING_RE.finditer(s):
+            found.add(m.group(1))
+    return found
+
+
+def _planning_video_token_from_row(row: dict[str, str]) -> str | None:
+    # Prefer script_id-like columns when available.
+    for key in ("動画ID", "台本番号", "ScriptID", "script_id"):
+        v = str((row.get(key) or "")).strip()
+        if not v:
+            continue
+        m = re.search(r"\bCH\d{2}-(\d{3})\b", v)
+        if m:
+            return m.group(1)
+
+    for key in ("動画番号", "VideoNumber", "video_number", "video"):
+        v = str((row.get(key) or "")).strip()
+        n = _parse_intish(v)
+        if n is not None:
+            return f"{n:03d}"
+
+    # "No." may be unrelated; keep as a last-resort fallback.
+    n = _parse_intish(str((row.get("No.") or "")).strip())
+    if n is not None:
+        return f"{n:03d}"
+    return None
+
+
+def _planning_script_id_from_row(row: dict[str, str]) -> str | None:
+    for key in ("動画ID", "台本番号", "ScriptID", "script_id"):
+        v = str((row.get(key) or "")).strip()
+        if re.fullmatch(r"CH\d{2}-\d{3}", v):
+            return v
+    return None
+
+
+def _index_planning_rows_for_resume(
+    *,
+    channel: str,
+    rows: list[dict[str, str]],
+) -> tuple[set[int], dict[str, dict[str, Any]]]:
+    existing_videos: set[int] = set()
+    by_idea_id: dict[str, dict[str, Any]] = {}
+
+    for idx, row in enumerate(rows):
+        token = _planning_video_token_from_row(row)
+        if token:
+            n = _parse_intish(token)
+            if n is not None:
+                existing_videos.add(n)
+
+        idea_ids = _extract_idea_ids_from_planning_row(row)
+        if not idea_ids:
+            continue
+
+        sid = _planning_script_id_from_row(row)
+        if sid is None and token:
+            sid = f"{channel}-{token}"
+
+        for idea_id in idea_ids:
+            by_idea_id[idea_id] = {
+                "row_index": idx + 1,
+                "video": token,
+                "script_id": sid,
+                "title": str(row.get("タイトル") or ""),
+            }
+
+    return existing_videos, by_idea_id
 
 
 def _build_add_row_values(
@@ -189,6 +289,7 @@ def _build_add_row_values(
     headers: list[str],
     card: dict[str, Any],
     allow_new_columns: bool,
+    creation_flag: str | None,
 ) -> dict[str, str]:
     if "タイトル" not in headers and not allow_new_columns:
         _die("Planning CSV missing required column: タイトル")
@@ -221,6 +322,8 @@ def _build_add_row_values(
     _put("台本番号", script_id)
     _put("タイトル", working_title)
     _put("進捗", "topic_research: pending")
+    if creation_flag is not None:
+        _put("作成フラグ", str(creation_flag))
     _put("品質チェック結果", "未完了")
     _put("更新日時", _current_timestamp())
 
@@ -326,7 +429,12 @@ def cmd_slot(args: argparse.Namespace) -> None:
     store_path, cards = load_cards(channel)
 
     planning_csv_path, headers, rows = _read_planning_csv(channel)
-    next_video = args.start_video if args.start_video is not None else (_max_planning_video_number(rows) + 1)
+    existing_videos, planning_by_idea_id = _index_planning_rows_for_resume(channel=channel, rows=rows)
+    video_cursor = args.start_video if args.start_video is not None else (_max_planning_video_number(rows) + 1)
+    reserved_videos: set[int] = set(existing_videos)
+
+    resume = bool(getattr(args, "resume", True))
+    creation_flag = None if getattr(args, "creation_flag", None) is None else str(args.creation_flag)
 
     picked_cards: list[dict[str, Any]] = []
     if args.idea_ids:
@@ -346,9 +454,6 @@ def cmd_slot(args: argparse.Namespace) -> None:
     if not picked_cards:
         _die("No ideas to slot.")
 
-    _ensure_mutation(store_path, ignore_locks=args.ignore_locks)
-    _ensure_mutation(planning_csv_path, ignore_locks=args.ignore_locks)
-
     patches_dir = planning_patches_root()
     patches_dir.mkdir(parents=True, exist_ok=True)
 
@@ -356,13 +461,36 @@ def cmd_slot(args: argparse.Namespace) -> None:
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     planned: list[dict[str, Any]] = []
+    already_in_planning: list[dict[str, Any]] = []
     patch_paths: list[Path] = []
 
-    for idx, card in enumerate(picked_cards):
-        video_no = next_video + idx
+    def _take_next_video_no() -> int:
+        nonlocal video_cursor
+        while int(video_cursor) in reserved_videos:
+            video_cursor += 1
+        n = int(video_cursor)
+        reserved_videos.add(n)
+        video_cursor += 1
+        return n
+
+    for card in picked_cards:
+        idea_id = str(card.get("idea_id") or "").strip()
+        if resume and idea_id in planning_by_idea_id:
+            info = planning_by_idea_id.get(idea_id) or {}
+            already_in_planning.append(
+                {
+                    "idea_id": idea_id,
+                    "video_number": str(info.get("video") or ""),
+                    "script_id": str(info.get("script_id") or ""),
+                    "row_index": int(info.get("row_index") or 0),
+                    "title": str(info.get("title") or ""),
+                }
+            )
+            continue
+
+        video_no = _take_next_video_no()
         video_token = f"{video_no:03d}"
 
-        idea_id = str(card.get("idea_id") or "").strip()
         idea_suffix = idea_id.replace(f"{channel}-", "") if idea_id.startswith(f"{channel}-") else idea_id
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
         filename = f"{channel}-{video_token}__add_from_idea_{idea_suffix}_{stamp}.yaml".replace("/", "_")
@@ -370,45 +498,56 @@ def cmd_slot(args: argparse.Namespace) -> None:
         tmp_patch_path = tmp_dir / filename
 
         if patch_path.exists():
-            _die(f"Patch already exists: {patch_path} (refuse to overwrite)")
+            if not resume:
+                _die(f"Patch already exists: {patch_path} (refuse to overwrite)")
+            dry_code = _run_planning_apply_patch(
+                patch_path,
+                apply=False,
+                allow_new_columns=bool(args.allow_new_columns),
+                ignore_locks=bool(args.ignore_locks),
+            )
+            if dry_code != 0:
+                _die(f"planning_apply_patch dry-run failed for existing {patch_path} (exit={dry_code})", code=dry_code)
+        else:
+            _ensure_mutation(patch_path, ignore_locks=args.ignore_locks)
+            _ensure_mutation(tmp_patch_path, ignore_locks=True)
 
-        _ensure_mutation(patch_path, ignore_locks=args.ignore_locks)
-        _ensure_mutation(tmp_patch_path, ignore_locks=True)
+            add_row = _build_add_row_values(
+                channel=channel,
+                video_number=video_no,
+                headers=headers,
+                card=card,
+                allow_new_columns=bool(args.allow_new_columns),
+                creation_flag=creation_flag,
+            )
 
-        add_row = _build_add_row_values(
-            channel=channel,
-            video_number=video_no,
-            headers=headers,
-            card=card,
-            allow_new_columns=bool(args.allow_new_columns),
-        )
+            patch = {
+                "schema": "ytm.planning_patch.v1",
+                "patch_id": f"{channel}-{video_token}__add_from_idea_{idea_id}_{stamp}",
+                "target": {"channel": channel, "video": video_token},
+                "apply": {"add_row": add_row},
+                "notes": (args.notes or "").strip() or f"Added from idea card {idea_id}",
+            }
 
-        patch = {
-            "schema": "ytm.planning_patch.v1",
-            "patch_id": f"{channel}-{video_token}__add_from_idea_{idea_id}_{stamp}",
-            "target": {"channel": channel, "video": video_token},
-            "apply": {"add_row": add_row},
-            "notes": (args.notes or "").strip() or f"Added from idea card {idea_id}",
-        }
+            import yaml  # local import (ops-only)
 
-        import yaml  # local import (ops-only)
+            tmp_patch_path.write_text(yaml.safe_dump(patch, allow_unicode=True, sort_keys=False), encoding="utf-8")
 
-        tmp_patch_path.write_text(yaml.safe_dump(patch, allow_unicode=True, sort_keys=False), encoding="utf-8")
+            dry_code = _run_planning_apply_patch(
+                tmp_patch_path,
+                apply=False,
+                allow_new_columns=bool(args.allow_new_columns),
+                ignore_locks=bool(args.ignore_locks),
+            )
+            if dry_code != 0:
+                _die(f"planning_apply_patch dry-run failed for {tmp_patch_path} (exit={dry_code})", code=dry_code)
 
-        dry_code = _run_planning_apply_patch(
-            tmp_patch_path,
-            apply=False,
-            allow_new_columns=bool(args.allow_new_columns),
-            ignore_locks=bool(args.ignore_locks),
-        )
-        if dry_code != 0:
-            _die(f"planning_apply_patch dry-run failed for {tmp_patch_path} (exit={dry_code})", code=dry_code)
+            patch_path.write_text(tmp_patch_path.read_text(encoding="utf-8"), encoding="utf-8")
+            try:
+                tmp_patch_path.unlink()
+            except Exception:
+                pass
 
-        patch_path.write_text(tmp_patch_path.read_text(encoding="utf-8"), encoding="utf-8")
-        try:
-            tmp_patch_path.unlink()
-        except Exception:
-            pass
         patch_paths.append(patch_path)
 
         planned.append(
@@ -428,24 +567,65 @@ def cmd_slot(args: argparse.Namespace) -> None:
         "from_status": args.from_status if args.idea_ids is None else "(explicit_ids)",
         "count": len(planned),
         "planned": planned,
+        "already_in_planning": already_in_planning,
         "apply": bool(args.apply),
         "allow_new_columns": bool(args.allow_new_columns),
+        "resume": bool(resume),
+        "creation_flag": creation_flag,
     }
     report_path = _write_regression_json("slot", f"{channel}_{len(planned)}", report)
     print(f"wrote_report\t{report_path}")
     for it in planned:
         print(f"patch\t{it['patch_path']}\t{it['script_id']}")
+    for it in already_in_planning:
+        if it.get("script_id"):
+            print(f"already_in_planning\t{it['idea_id']}\t{it['script_id']}")
+        else:
+            print(f"already_in_planning\t{it['idea_id']}")
 
     if not args.apply:
-        print(
-            "next_apply_command\tpython3 scripts/ops/planning_apply_patch.py "
-            + " ".join(f"--patch {_safe_rel(p)}" for p in patch_paths)
-            + " --apply"
-        )
+        if patch_paths:
+            print(
+                "next_apply_command\tpython3 scripts/ops/planning_apply_patch.py "
+                + " ".join(f"--patch {_safe_rel(p)}" for p in patch_paths)
+                + " --apply"
+            )
+        else:
+            print("next_apply_command\t(no_patches_to_apply)")
         return
 
     from factory_common.idea_store import update_card_fields
 
+    _ensure_mutation(store_path, ignore_locks=args.ignore_locks)
+    _ensure_mutation(planning_csv_path, ignore_locks=args.ignore_locks)
+
+    reconciled = 0
+    if resume and already_in_planning:
+        for it in already_in_planning:
+            idea_id = str(it["idea_id"])
+            video = str(it.get("video_number") or "")
+            script_id = str(it.get("script_id") or (f"{channel}-{video}" if video else ""))
+            patch = {
+                "status": "PRODUCING",
+                "planning_ref": {
+                    "channel": channel,
+                    "video": video,
+                    "script_id": script_id,
+                    "reconciled_at": _current_timestamp(),
+                    "source": "planning_csv",
+                },
+            }
+            update_card_fields(
+                cards,
+                idea_id,
+                patch=patch,
+                action="SLOT_RECONCILE",
+                reason=f"planning_row_exists row={it.get('row_index')}",
+            )
+            save_cards(store_path, cards)
+            reconciled += 1
+
+    applied = 0
     for it, patch_path in zip(planned, patch_paths):
         code = _run_planning_apply_patch(
             patch_path,
@@ -474,9 +654,10 @@ def cmd_slot(args: argparse.Namespace) -> None:
             action="SLOT_TO_PLANNING",
             reason=f"planning_add_row script_id={it['script_id']}",
         )
+        save_cards(store_path, cards)
+        applied += 1
 
-    save_cards(store_path, cards)
-    print(f"ideas_marked_PRODUCING\t{len(planned)}")
+    print(f"ideas_marked_PRODUCING\t{applied + reconciled}")
 
 
 def cmd_add(args: argparse.Namespace) -> None:
@@ -922,10 +1103,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--from-status", default="READY", choices=sorted(ALLOWED_STATUSES), dest="from_status")
     p.add_argument("--idea-id", action="append", default=None, dest="idea_ids", help="Explicit idea_id (repeatable)")
     p.add_argument("--start-video", type=int, default=None, dest="start_video", help="Override starting video number")
+    p.add_argument("--creation-flag", default="3", dest="creation_flag", help="Value for 作成フラグ (when column exists)")
     p.add_argument("--apply", action="store_true", help="Apply the generated planning patches (writes CSV)")
     p.add_argument("--allow-new-columns", action="store_true", help="Allow patch to append new CSV columns (DANGEROUS)")
     p.add_argument("--notes", default="", help="Patch notes (optional)")
-    p.set_defaults(func=cmd_slot)
+    p.add_argument("--no-resume", action="store_false", dest="resume", help="Disable resume/idempotency checks (DANGEROUS)")
+    p.set_defaults(func=cmd_slot, resume=True)
 
     p = sub.add_parser("archive", help="Archive KILL cards older than N days (apply moves them out of store)")
     _add_channel(p)

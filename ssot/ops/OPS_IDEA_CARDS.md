@@ -150,6 +150,10 @@ python3 scripts/ops/idea.py archive --channel CH01 --older-than-days 30 --apply
 - `workspaces/planning/patches/` に `add_row` patch を生成する（差分ログは `planning_apply_patch` 側に残る）
 - `--apply` で Planning CSV（`workspaces/planning/channels/CHxx.csv`）へ反映する
 - 反映後、対象カードは `status=PRODUCING` に移動し、`planning_ref` に `script_id/patch_path` を記録する
+- 本番の安全策（再実行耐性）:
+  - `--apply` 実行中は **1件反映ごとにカードSoTへ保存**する（途中停止しても、既に反映済みの状態が残る）
+  - Planning CSV に `idea_id=...` が既に存在する場合は **二重追加せず**、カード側だけ `PRODUCING` へ整合させる（`--no-resume` で無効化可）
+  - 追加行の `作成フラグ` 列が存在する場合は、UI と揃えて既定 `3` を入れる（上書きしたい場合は `--creation-flag`）
 
 ログ:
 - `workspaces/logs/regression/idea_manager/<op>/...` に report を出す（SoTは `workspaces/planning/ideas/**`）。

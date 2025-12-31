@@ -55,10 +55,16 @@ UI の `POST /api/planning` で作成される行は、概ね以下を自動で�
 - `動画ID` と `台本番号` = `CHxx-NNN`（存在する列のみ）
 - `タイトル` = payload.title
 - `進捗` = 省略時 `topic_research: pending`
+- `作成フラグ` = 省略時 `3`（存在する列のみ）
 - `品質チェック結果` = 未設定時 `未完了`
 - `更新日時` = 現在時刻
 
 チャンネルによって「必須列」が異なる場合がある（UI は `planning_requirements` に基づいてガードする）。
+
+補助導線（pre-planning の企画カード在庫から投入したい場合）:
+- `python3 scripts/ops/idea.py slot --channel CHxx --n 10`（patch生成→lint）
+- `python3 scripts/ops/idea.py slot --channel CHxx --n 10 --apply`（Planning CSVへ反映）
+- 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md`
 
 ---
 
