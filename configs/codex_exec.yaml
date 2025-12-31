@@ -7,8 +7,13 @@
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
-# - Exclude only `script_chapter_draft` (A-text body writing) from Codex exec. Everything else can
-#   attempt Codex first and fall back to the existing LLMRouter API path.
+# - NEVER route any task that generates/modifies **A-text** (viewer-facing script body) through Codex exec.
+#   Concretely, tasks that write/overwrite:
+#     - `workspaces/scripts/{CH}/{NNN}/content/chapters/*.md`
+#     - `workspaces/scripts/{CH}/{NNN}/content/assembled*.md`
+#   must stay on the LLMRouter API path (Fireworks fallback etc).
+# - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
+#   to the existing LLMRouter API path.
 #
 # Enablement:
 # - In normal shells: disabled by default (enabled: false).
@@ -52,4 +57,15 @@ selection:
   exclude_tasks:
     - image_generation
     - web_search_openrouter
+    # A-text body writing (chapters / assembled*.md)
     - script_chapter_draft
+    - script_chapter_review
+    - script_a_text_seed
+    - script_a_text_quality_fix
+    - script_a_text_quality_extend
+    - script_a_text_quality_expand
+    - script_a_text_quality_shrink
+    - script_a_text_final_polish
+    - script_a_text_rebuild_plan
+    - script_a_text_rebuild_draft
+    - script_semantic_alignment_fix

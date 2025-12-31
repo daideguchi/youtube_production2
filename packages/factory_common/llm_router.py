@@ -121,6 +121,114 @@ _OPENROUTER_REASONING_MODEL_ALLOWLIST_SUBSTR = {
     "kimi-k2-thinking",
 }
 
+# Fireworks uses OpenAI-compatible model ids like:
+#   accounts/fireworks/models/deepseek-v3p2
+# This repo historically uses the OpenRouter id as the "logical" name:
+#   deepseek/deepseek-v3.2-exp
+# Keep configs stable by translating at the router boundary.
+_FIREWORKS_LOGICAL_MODEL_ID_TO_MODEL_ID = {
+    "deepseek/deepseek-v3.2-exp": "accounts/fireworks/models/deepseek-v3p2",
+}
+_FIREWORKS_MODEL_ID_TO_LOGICAL_MODEL_ID = {v: k for k, v in _FIREWORKS_LOGICAL_MODEL_ID_TO_MODEL_ID.items()}
+
+_FIREWORKS_FINAL_MARKER = "<<<YTM_FINAL>>>"
+_FIREWORKS_REASONING_MIN_MAX_TOKENS = 4096
+
+
+def _fireworks_model_id_from_logical(model_id: str) -> str:
+    mid = str(model_id or "").strip()
+    return _FIREWORKS_LOGICAL_MODEL_ID_TO_MODEL_ID.get(mid, mid)
+
+
+def _logical_model_id_from_fireworks(model_id: str) -> str:
+    mid = str(model_id or "").strip()
+    return _FIREWORKS_MODEL_ID_TO_LOGICAL_MODEL_ID.get(mid, mid)
+
+
+def _strip_code_fences(text: str) -> str:
+    s = (text or "").strip()
+    if s.startswith("```"):
+        import re
+
+        s = re.sub(r"^```[a-zA-Z0-9_-]*\\n?", "", s).strip()
+        if s.endswith("```"):
+            s = s[: -3].rstrip()
+    return s
+
+
+def _extract_json_object_chunk(text: str) -> Optional[str]:
+    """
+    Best-effort extraction of a JSON object substring from a possibly noisy model output.
+    Returns the *last* parseable JSON object (dict) found at top-level.
+    """
+    s = _strip_code_fences(text)
+    if not s:
+        return None
+
+    candidates: list[str] = []
+    depth = 0
+    start: int | None = None
+    in_string = False
+    escape = False
+
+    for i, ch in enumerate(s):
+        if in_string:
+            if escape:
+                escape = False
+                continue
+            if ch == "\\":
+                escape = True
+                continue
+            if ch == '"':
+                in_string = False
+            continue
+
+        if ch == '"':
+            in_string = True
+            continue
+
+        if ch == "{":
+            if depth == 0:
+                start = i
+            depth += 1
+            continue
+
+        if ch == "}" and depth > 0:
+            depth -= 1
+            if depth == 0 and start is not None:
+                chunk = s[start : i + 1].strip()
+                try:
+                    obj = json.loads(chunk)
+                    if isinstance(obj, dict):
+                        candidates.append(chunk)
+                except Exception:
+                    pass
+                start = None
+
+    if candidates:
+        return candidates[-1]
+
+    # Fallback: naive first..last braces (may still work when output is clean JSON).
+    start_idx = s.find("{")
+    end_idx = s.rfind("}")
+    if start_idx < 0 or end_idx < 0 or end_idx <= start_idx:
+        return None
+    chunk = s[start_idx : end_idx + 1].strip()
+    try:
+        obj = json.loads(chunk)
+        return chunk if isinstance(obj, dict) else None
+    except Exception:
+        return None
+
+
+def _extract_after_marker(text: str, marker: str) -> str:
+    s = str(text or "")
+    if not s:
+        return ""
+    if marker not in s:
+        return s.strip()
+    return s.split(marker)[-1].strip()
+
 
 def _openrouter_model_allows_reasoning(model_name: str) -> bool:
     mn = str(model_name or "").strip().lower()
@@ -307,6 +415,25 @@ class LLMRouter:
                         base_url=base,
                     )
 
+        # Fireworks (OpenAI-compatible)
+        if "fireworks" in providers:
+            p = providers["fireworks"]
+            key_name = p.get("env_api_key")
+            key = os.getenv(key_name)
+            # Backward-compat env aliases (operator convenience):
+            # - Prefer: FIREWORKS_SCRIPT
+            # - Legacy: FIREWORKS_SCRIPT_API_KEY
+            if not key and key_name == "FIREWORKS_SCRIPT":
+                key = os.getenv("FIREWORKS_SCRIPT_API_KEY")
+            if not key and key_name == "FIREWORKS_SCRIPT_API_KEY":
+                key = os.getenv("FIREWORKS_SCRIPT")
+            base = p.get("base_url")
+            if key and base and OpenAI:
+                try:
+                    self.clients["fireworks"] = OpenAI(api_key=key, base_url=base)
+                except TypeError:
+                    self.clients["fireworks"] = OpenAI(api_key=key, base_url=str(base))
+
         # Gemini
         if "gemini" in providers:
             p = providers["gemini"]
@@ -360,6 +487,11 @@ class LLMRouter:
                 if left and right:
                     provider = left
                     model_id = right
+
+            # Allow Fireworks model ids to resolve to the logical id stored in configs.
+            # Example:
+            #   accounts/fireworks/models/deepseek-v3p2 -> deepseek/deepseek-v3.2-exp
+            model_id = _logical_model_id_from_fireworks(model_id)
 
             matches: List[str] = []
             for model_key, conf in models_conf.items():
@@ -1020,6 +1152,51 @@ class LLMRouter:
         defaults = model_conf.get("defaults", {})
         params = {**defaults, **kwargs}
 
+        # Fireworks parity with OpenRouter:
+        # - DeepSeek V3.2 exp must run with thinking enabled by default (callers can still override explicitly).
+        if provider == "fireworks":
+            try:
+                mn = str(model_conf.get("model_name") or "").strip().lower()
+            except Exception:
+                mn = ""
+            if "deepseek-v3.2-exp" in mn:
+                eb = params.get("extra_body")
+                if not isinstance(eb, dict):
+                    eb = {}
+                reasoning = eb.get("reasoning")
+                if not isinstance(reasoning, dict):
+                    eb["reasoning"] = {"enabled": True, "exclude": True}
+                else:
+                    # Thinking is mandatory: never allow callers to silently disable it for this model.
+                    reasoning["enabled"] = True
+                    if "exclude" not in reasoning:
+                        reasoning["exclude"] = True
+                    eb["reasoning"] = reasoning
+                params["extra_body"] = eb
+
+        fireworks_reasoning_enabled = False
+        fireworks_reasoning_exclude = False
+        fireworks_json_mode = False
+        if provider == "fireworks":
+            eb0 = params.get("extra_body")
+            if isinstance(eb0, dict):
+                reasoning0 = eb0.get("reasoning")
+                if isinstance(reasoning0, dict):
+                    fireworks_reasoning_enabled = reasoning0.get("enabled") is True
+                    fireworks_reasoning_exclude = reasoning0.get("exclude") is True
+            rf0 = params.get("response_format")
+            fireworks_json_mode = rf0 == "json_object" or (
+                isinstance(rf0, dict) and str(rf0.get("type") or "").strip().lower() == "json_object"
+            )
+            if fireworks_reasoning_enabled and fireworks_reasoning_exclude:
+                # Ensure enough completion budget so the model can think and still output the final answer.
+                for k in ("max_tokens", "max_completion_tokens"):
+                    if k in params:
+                        try:
+                            params[k] = max(int(params[k]), _FIREWORKS_REASONING_MIN_MAX_TOKENS)
+                        except Exception:
+                            pass
+
         # OpenRouter quirk/guard:
         # - `moonshotai/kimi-k2-thinking` can return empty content unless `extra_body.reasoning.enabled=true` is set.
         # - For script-writing we also require thinking for `deepseek/deepseek-v3.2-exp`.
@@ -1038,12 +1215,62 @@ class LLMRouter:
                 if not isinstance(reasoning, dict):
                     eb["reasoning"] = {"enabled": True, "exclude": True}
                 else:
-                    if "enabled" not in reasoning:
-                        reasoning["enabled"] = True
+                    # Thinking is mandatory: never allow callers to silently disable it for these models.
+                    reasoning["enabled"] = True
                     if "exclude" not in reasoning:
                         reasoning["exclude"] = True
                     eb["reasoning"] = reasoning
                 params["extra_body"] = eb
+
+        # Fireworks quirks/compat:
+        # - Fireworks is OpenAI-compatible, but supports extra params via request JSON (sent as extra_body via SDK).
+        # - Existing task overrides in this repo may use OpenRouter-style `extra_body.reasoning.enabled`.
+        #   When provider=fireworks, translate that into Fireworks' `reasoning_effort` and drop `reasoning`.
+        if provider == "fireworks":
+            fireworks_extra_keys = {
+                "reasoning_effort",
+                "prompt_cache_isolation_key",
+                "context_length_exceeded_behavior",
+                "ignore_eos",
+                "perf_metrics_in_response",
+                "top_k",
+                "mirostat_target",
+                "mirostat_lr",
+            }
+            fw_extra: Dict[str, Any] = {}
+            for key in fireworks_extra_keys:
+                if key in params:
+                    fw_extra[key] = params.pop(key)
+            if fw_extra:
+                eb = params.get("extra_body")
+                if not isinstance(eb, dict):
+                    eb = {}
+                eb = {**eb, **{k: v for k, v in fw_extra.items() if v is not None}}
+                params["extra_body"] = eb
+
+            eb = params.get("extra_body")
+            if isinstance(eb, dict) and "reasoning" in eb:
+                reasoning = eb.get("reasoning")
+                enabled = None
+                exclude = False
+                if isinstance(reasoning, dict):
+                    enabled = reasoning.get("enabled")
+                    exclude = reasoning.get("exclude") is True
+                eb = dict(eb)
+                # NOTE: `exclude: true` means "hide reasoning from output" (OpenRouter style), not "disable thinking".
+                if (enabled is True or (exclude and enabled is not False)) and "reasoning_effort" not in eb:
+                    eb["reasoning_effort"] = "high"
+                eb.pop("reasoning", None)
+                params["extra_body"] = eb
+
+            if fireworks_reasoning_enabled and fireworks_reasoning_exclude and not fireworks_json_mode:
+                marker = _FIREWORKS_FINAL_MARKER
+                marker_msg = (
+                    "最終出力は必ず次のマーカー行の後ろに書いてください。\n"
+                    f"{marker}\n"
+                    "マーカー行より前は無視します。マーカー行より後ろは最終出力だけを書き、余計な文章を書かないでください。"
+                )
+                messages = [*list(messages), {"role": "system", "content": marker_msg}]
         
         # Params are already sanitized in call(); just forward with minimal mapping
         api_args = {}
@@ -1053,15 +1280,24 @@ class LLMRouter:
             if k == "extra_body":
                 # OpenRouter supports provider-specific extensions (e.g. reasoning.enabled).
                 # Other providers (Azure, etc.) should never receive extra_body.
-                if provider != "openrouter":
+                if provider not in {"openrouter", "fireworks"}:
                     continue
                 if not isinstance(v, dict):
                     continue
                 extra_body = dict(v)
-                reasoning = extra_body.get("reasoning")
-                if reasoning is not None and not _openrouter_model_allows_reasoning(model_conf.get("model_name")):
-                    # Only allow reasoning payload for explicitly allowlisted OpenRouter models.
-                    extra_body.pop("reasoning", None)
+                if provider == "openrouter":
+                    reasoning = extra_body.get("reasoning")
+                    if reasoning is not None and not _openrouter_model_allows_reasoning(model_conf.get("model_name")):
+                        # Only allow reasoning payload for explicitly allowlisted OpenRouter models.
+                        extra_body.pop("reasoning", None)
+                if provider == "fireworks":
+                    reasoning = extra_body.pop("reasoning", None)
+                    if (
+                        isinstance(reasoning, dict)
+                        and (reasoning.get("enabled") is True or (reasoning.get("exclude") is True and reasoning.get("enabled") is not False))
+                        and "reasoning_effort" not in extra_body
+                    ):
+                        extra_body["reasoning_effort"] = "high"
                 if extra_body:
                     api_args["extra_body"] = extra_body
                 continue
@@ -1080,19 +1316,27 @@ class LLMRouter:
 
         # TEXT/CHAT
         model_name = model_conf.get("deployment") if provider == "azure" else model_conf.get("model_name")
+        if provider == "fireworks":
+            model_name = _fireworks_model_id_from_logical(str(model_name or ""))
         
         if provider == "azure":
              # Azure specific
              pass
         
         # Common OpenAI/Azure Interface
-        if provider in ["azure", "openrouter"]:
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                **api_args
-            )
-            return response if return_raw else response.choices[0].message.content
+        if provider in ["azure", "openrouter", "fireworks"]:
+            response = client.chat.completions.create(model=model_name, messages=messages, **api_args)
+            if return_raw:
+                return response
+            content = response.choices[0].message.content
+            if provider == "fireworks" and fireworks_reasoning_enabled and fireworks_reasoning_exclude:
+                if fireworks_json_mode:
+                    chunk = _extract_json_object_chunk(content or "")
+                    if chunk is not None:
+                        return chunk
+                else:
+                    return _extract_after_marker(content or "", _FIREWORKS_FINAL_MARKER)
+            return content
 
         # Gemini Chat (Not implemented fully in config yet for Text, but ready)
         if provider == "gemini":
@@ -1106,9 +1350,12 @@ class LLMRouter:
         mode = cap.get("mode", "chat")
         if mode == "image_generation":
             return raw_result
-        if provider in ["azure", "openrouter"]:
+        if provider in ["azure", "openrouter", "fireworks"]:
             try:
-                return raw_result.choices[0].message.content  # type: ignore[attr-defined]
+                content = raw_result.choices[0].message.content  # type: ignore[attr-defined]
+                if provider == "fireworks" and isinstance(content, str) and _FIREWORKS_FINAL_MARKER in content:
+                    return _extract_after_marker(content, _FIREWORKS_FINAL_MARKER)
+                return content
             except Exception:
                 pass
         return raw_result

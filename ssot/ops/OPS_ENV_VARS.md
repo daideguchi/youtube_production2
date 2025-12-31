@@ -7,8 +7,8 @@
 
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
-- Fireworks（画像）: `FIREWORKS_API_KEY`（画像生成 / 既存）
-- Fireworks（台本/本文）: `FIREWORKS_SCRIPT_API_KEY`（文章執筆 / LLMRouter provider=fireworks 用）
+- Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / 推奨。互換: `FIREWORKS_API_KEY`）
+- Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
 - OpenRouter: `OPENROUTER_API_KEY`（LLMRouter provider=openrouter 用）
 - OpenAI（任意）: `OPENAI_API_KEY`（openai provider を使う場合のみ）
 - Azure（任意）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）
@@ -171,7 +171,11 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 
 重要（固定ルール）:
 - Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
-- **Codex exec に回さない task は `script_chapter_draft` のみ**（Aテキスト本文の章草稿/本文執筆）。それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
+- **Codex exec に回さない task（固定）**: Aテキスト本文を生成/上書きする task（章/本文）。
+  - 対象: `script_chapter_draft`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
+  - 理由: Codexの文言が本文へ混入する事故を構造的に防ぐため
+  - 設定: `configs/codex_exec.yaml: selection.exclude_tasks`
+- それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
   - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 運用上「このtaskは本文品質のためAPIに寄せたい」などがあれば、`configs/codex_exec.yaml: selection.exclude_tasks` に追加して局所的に外す。
 

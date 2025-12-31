@@ -31,10 +31,14 @@ tasks:
   # A-text quality gate (script_validation): reasoning Judge + Fixer
   #
   # NOTE (cost/quality):
-  # - DeepSeek V3.2 exp supports OpenRouter "reasoning.enabled" via `extra_body`.
-  # - We enforce thinking for script-writing tasks by attaching:
+  # - DeepSeek V3.2 exp is routed via Fireworks (OpenAI-compatible). The config keeps the OpenRouter model id
+  #   (`deepseek/deepseek-v3.2-exp`) as the logical name, and `packages/factory_common/llm_router.py` maps it to
+  #   Fireworks model id (`accounts/fireworks/models/deepseek-v3p2`) at runtime.
+  # - We enforce thinking for script-writing tasks by attaching the legacy OpenRouter-style flag:
   #     extra_body: { reasoning: { enabled: true, exclude: true } }
-  #   (The router will only forward this to OpenRouter + allowlisted models: V3.2 exp / Kimi K2 Thinking.)
+  #   When provider=fireworks, the router translates `reasoning.enabled` -> Fireworks `reasoning_effort` (thinking ON),
+  #   and emulates `exclude: true` by extracting the final output after a marker (so chain-of-thought won't pollute output).
+  #   When provider=openrouter, the router forwards it only for allowlisted models (V3.2 exp / Kimi K2 Thinking).
   # - If V3.2 is unavailable, we fall back to Kimi K2 Thinking (intrinsic reasoning) to keep "thinking required".
 
   # Planning steps: prefer V3.2(exp)+thinking; fall back to Kimi K2 Thinking.
@@ -44,6 +48,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       max_tokens: 2600
       extra_body:
         reasoning:
@@ -70,6 +75,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       max_tokens: 2600
       extra_body:
         reasoning:
@@ -83,6 +89,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       max_tokens: 4200
       extra_body:
         reasoning:
@@ -95,6 +102,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.25
       max_tokens: 11000
       extra_body:
         reasoning:
@@ -107,6 +115,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       max_tokens: 12000
       extra_body:
         reasoning:
@@ -119,6 +128,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       max_tokens: 1200
       extra_body:
         reasoning:
@@ -132,6 +142,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.25
       max_tokens: 4096
       extra_body:
         reasoning:
@@ -145,10 +156,9 @@ tasks:
       - or_deepseek_v3_2_exp
     options:
       # NOTE: This task must return strict JSON.
-      # With OpenRouter reasoning enabled, some providers can burn the completion budget on internal reasoning
-      # and end up with finish_reason=length (empty / broken JSON). Keep this task "non-reasoning-param" for stability.
-      # Also: Kimi K2 Thinking can return empty content if called without `extra_body.reasoning.enabled`,
-      # so we intentionally avoid falling back to Kimi for this non-reasoning-param task.
+      # Thinking is mandatory; we keep DeepSeek fixed and use JSON mode to avoid reasoning leakage.
+      response_format: json_object
+      temperature: 0.0
       max_tokens: 1600
 
   script_semantic_alignment_fix:
@@ -157,6 +167,7 @@ tasks:
       - or_deepseek_v3_2_exp
       - or_kimi_k2_thinking
     options:
+      temperature: 0.2
       extra_body:
         reasoning:
           enabled: true

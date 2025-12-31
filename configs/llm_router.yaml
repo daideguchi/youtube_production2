@@ -18,6 +18,11 @@ providers:
     env_api_key: OPENROUTER_API_KEY
     base_url: "https://openrouter.ai/api/v1"
 
+  fireworks:
+    # Fireworks is OpenAI-compatible; used primarily for script writing to avoid OpenRouter quota.
+    env_api_key: FIREWORKS_SCRIPT
+    base_url: "https://api.fireworks.ai/inference/v1"
+
 models:
   # --- Azure Models ---
   azure_gpt5_mini:
@@ -39,16 +44,19 @@ models:
       vision: false
       json_mode: false
 
-  # --- OpenRouter Models ---
-  # Low-cost / high-quality general model (preferred for script writing)
+  # --- Script Writing (DeepSeek) ---
+  # DeepSeek v3.2 exp: keep the OpenRouter model id as the "logical" name for compatibility.
+  # LLMRouter maps it to Fireworks' OpenAI-compatible model id at runtime.
   or_deepseek_v3_2_exp:
-    provider: openrouter
+    provider: fireworks
     model_name: "deepseek/deepseek-v3.2-exp"
     capabilities:
       mode: chat
       reasoning: false
       json_mode: true
       max_tokens: 16384
+
+  # --- OpenRouter Models ---
 
   # Open reasoning (thinking) model — preferred fallback for script-writing when V3.2 is unavailable.
   or_kimi_k2_thinking:

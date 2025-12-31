@@ -21,7 +21,7 @@
 
 ### 1.1 Primary SoT
 - `configs/llm_router.yaml`（および `configs/llm_router.local.yaml`）
-  - `providers`: azure/openrouter/gemini の接続情報（env var名）
+  - `providers`: azure/openrouter/fireworks/gemini の接続情報（env var名）
   - `models`: モデルキー→provider+deployment/model+capabilities
   - `tiers`: tier名→モデルキー候補の優先順
   - `tasks`: タスク名→tier+defaults
@@ -42,7 +42,7 @@
 
 ### 2.1 テキストLLM（台本/読み/補助）
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、モデルチェーンを **2つに固定**する（原則）。
-  - primary: `or_deepseek_v3_2_exp`（OpenRouter / DeepSeek V3.2 Exp）
+  - primary: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek V3.2）
   - fallback: `or_kimi_k2_thinking`（OpenRouter / MoonshotAI: Kimi K2 Thinking）
 
 #### 2.1.1 Decision（2025-12-28）: 台本系モデルは「2つ」に固定（DeepSeek v3.2 exp / Kimi K2 Thinking）
@@ -57,14 +57,14 @@
 
 理由（品質×コスト）:
 - 執筆は thinking 必須（指示）。モデルチェーンを増やすと「文体ぶれ/契約ぶれ/収束不安定」を増やし、結果的にコストが上がる。
-- Kimi K2 Thinking は `extra_body.reasoning.enabled` が無いと空文字になり得るため、`packages/factory_common/llm_router.py` が自動付与でガードしている（呼び出し側の付け忘れ耐性）。
+- Kimi K2 Thinking（OpenRouter）は `extra_body.reasoning.enabled` が無いと空文字になり得るため、`packages/factory_common/llm_router.py` が自動付与でガードしている（呼び出し側の付け忘れ耐性）。
+- DeepSeek v3.2（Fireworks）は `reasoning_effort` で思考ONできるが、思考文が `content` に混ざりやすい。repo 既定の `exclude: true` 指定は「思考を無効化」ではなく「出力から除外」を意味し、`packages/factory_common/llm_router.py` が Fireworks では最終出力だけを抽出して返す（非JSON: マーカー `<<<YTM_FINAL>>>` 以降を採用 / JSON: `{...}` だけを抽出）。
 
 運用ルール（重要: 憶測でパラメータを決めない）:
 - モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら `https://openrouter.ai/api/v1/models` を参照し、ローカルでは `packages/script_pipeline/config/openrouter_models.json` を更新してから調整する。
-- thinking必須の実装（主に“執筆”タスク）:
+- thinking必須の実装（主に“執筆/審査”タスク）:
   - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
-  - 例外: `script_semantic_alignment_check` は **出力が厳格JSON** のため、OpenRouterの `reasoning` を付けると finish_reason=length で空/破損しやすい。ここは reasoning を付けない（モデル自体の推論は使うが、拡張パラメータは送らない）。
-    - さらに、このタスクは **DeepSeek固定**（Kimiへフォールバックしない）。
+  - `script_semantic_alignment_check` は **出力が厳格JSON** のため、`response_format: json_object` を使って「思考ありでもJSONが壊れにくい」側に寄せる（DeepSeek固定 / Kimiへフォールバックしない）。
 
 ### 2.2 画像生成（SRT→画像）
 - `image_gen` / `image`

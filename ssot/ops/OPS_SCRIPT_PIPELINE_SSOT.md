@@ -461,7 +461,9 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
-    - 注（固定ルール）: `script_chapter_draft`（Aテキスト本文の章草稿/本文執筆）は Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。それ以外の `script_*`（例: `script_semantic_alignment_fix`）は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
+    - 注（固定ルール）: Codex exec layer は **Aテキスト本文（章/本文）を生成/上書きする task** を実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
+      - 対象: `script_chapter_draft`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
+      - それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
   - minorも直す: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`

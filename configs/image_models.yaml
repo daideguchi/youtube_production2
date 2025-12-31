@@ -8,8 +8,9 @@ providers:
     env_api_key: OPENROUTER_API_KEY
     base_url: "https://openrouter.ai/api/v1"
   fireworks:
-    env_api_key: FIREWORKS_API_KEY
-    env_api_key_fallback: FIREWORKS_API_KEY_FALLBACK
+    # Prefer the dedicated image key; keep FIREWORKS_API_KEY as backward-compatible fallback.
+    env_api_key: FIREWORKS_IMAGE
+    env_api_key_fallback: FIREWORKS_API_KEY
     env_account: FIREWORKS_ACCOUNT
     base_url: "https://api.fireworks.ai/inference/v1"
 
