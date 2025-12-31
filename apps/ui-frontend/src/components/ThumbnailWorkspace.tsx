@@ -60,6 +60,12 @@ type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "a
 
 type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "qc" | "templates" | "library" | "channel";
 
+type ThumbnailGalleryItem = {
+  project: ThumbnailProject;
+  variant: ThumbnailVariant | null;
+  kind: "selected" | "ch26_thumb_1" | "ch26_thumb_2";
+};
+
 type VariantFormState = {
   projectKey: string;
   label: string;
@@ -519,6 +525,34 @@ function getProjectKey(project: ThumbnailProject): string {
   return `${project.channel}/${project.video}`;
 }
 
+function resolveSelectedVariant(project: ThumbnailProject): ThumbnailVariant | null {
+  const selected =
+    project.variants.find((variant) => variant.is_selected) ??
+    (project.selected_variant_id
+      ? project.variants.find((variant) => variant.id === project.selected_variant_id)
+      : undefined) ??
+    project.variants[0];
+  return selected ?? null;
+}
+
+function hasThumbFileSuffix(value: string | null | undefined, fileName: string): boolean {
+  if (!value) {
+    return false;
+  }
+  return value === fileName || value.endsWith(`/${fileName}`);
+}
+
+function findCh26VariantByThumbFile(
+  project: ThumbnailProject,
+  fileName: "00_thumb_1.png" | "00_thumb_2.png"
+): ThumbnailVariant | null {
+  return (
+    project.variants.find(
+      (variant) => hasThumbFileSuffix(variant.image_path, fileName) || hasThumbFileSuffix(variant.image_url, fileName)
+    ) ?? null
+  );
+}
+
 function isSupportedThumbnailFile(file: File): boolean {
   if (file.type && file.type.startsWith("image/")) {
     return true;
@@ -590,6 +624,13 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const dropzoneFileInputs = useRef(new Map<string, HTMLInputElement>());
   const [activeDropProject, setActiveDropProject] = useState<string | null>(null);
   const [expandedProjectKey, setExpandedProjectKey] = useState<string | null>(null);
+  const [ch26TwoUpVariants, setCh26TwoUpVariants] = useState<boolean>(() => {
+    const stored = (safeLocalStorage.getItem("ui.thumbnails.ch26_two_up") ?? "").trim().toLowerCase();
+    if (!stored) {
+      return true;
+    }
+    return stored === "true";
+  });
   const libraryRequestRef = useRef(0);
   const qcNotesRequestRef = useRef(0);
   const layerTuningRequestRef = useRef(0);
@@ -732,6 +773,37 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     });
   }, [activeChannel, searchTerm]);
 
+  const isCh26TwoUpMode = activeChannel?.channel === "CH26" && ch26TwoUpVariants;
+
+  const galleryItems: ThumbnailGalleryItem[] = useMemo(() => {
+    if (!activeChannel) {
+      return [];
+    }
+
+    if (!isCh26TwoUpMode) {
+      return galleryProjects.map((project) => ({
+        project,
+        variant: resolveSelectedVariant(project),
+        kind: "selected",
+      }));
+    }
+
+    const items: ThumbnailGalleryItem[] = [];
+    for (const project of galleryProjects) {
+      items.push({
+        project,
+        variant: findCh26VariantByThumbFile(project, "00_thumb_1.png"),
+        kind: "ch26_thumb_1",
+      });
+      items.push({
+        project,
+        variant: findCh26VariantByThumbFile(project, "00_thumb_2.png"),
+        kind: "ch26_thumb_2",
+      });
+    }
+    return items;
+  }, [activeChannel, galleryProjects, isCh26TwoUpMode]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const channelParam = (params.get("channel") ?? "").trim().toUpperCase();
@@ -755,6 +827,17 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     // Persist last-used channel without forcing URL rewrites (avoids navigation loops).
     safeLocalStorage.setItem("ui.channel.selected", normalized);
   }, [selectedChannel]);
+
+  useEffect(() => {
+    safeLocalStorage.setItem("ui.thumbnails.ch26_two_up", ch26TwoUpVariants ? "true" : "false");
+  }, [ch26TwoUpVariants]);
+
+  useEffect(() => {
+    if (activeChannel?.channel !== "CH26" || !ch26TwoUpVariants) {
+      return;
+    }
+    setGalleryLimit((prev) => (prev >= 60 ? prev : 60));
+  }, [activeChannel?.channel, ch26TwoUpVariants]);
 
   useEffect(() => {
     setGalleryProjectSaving({});
@@ -1379,11 +1462,25 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const galleryPanel = activeChannel ? (
     <section className="thumbnail-gallery-panel">
       <div className="thumbnail-gallery-panel__header">
-        <div>
-          <h3>ギャラリー</h3>
-          <p>選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。</p>
-        </div>
+	        <div>
+	          <h3>ギャラリー</h3>
+	          <p>
+	            {isCh26TwoUpMode
+	              ? "CH26は thumb_1/2 を2案表示（60枚）。ZIP（全部）で全バリアントを取得できます。"
+	              : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}
+	          </p>
+	        </div>
         <div className="thumbnail-gallery-panel__actions">
+          {activeChannel.channel === "CH26" ? (
+            <label className="muted small-text" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input
+                type="checkbox"
+                checked={ch26TwoUpVariants}
+                onChange={(event) => setCh26TwoUpVariants(event.target.checked)}
+              />
+              <span>2案（thumb_1/2）を60枚で表示</span>
+            </label>
+          ) : null}
           <input
             type="search"
             className="thumbnail-gallery-panel__search"
@@ -1416,23 +1513,27 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         </div>
       </div>
       <div className="thumbnail-gallery-grid">
-        {galleryProjects.slice(0, galleryLimit).map((project) => {
+        {galleryItems.slice(0, galleryLimit).map((item) => {
+          const project = item.project;
           const projectKey = getProjectKey(project);
-          const selectedVariant =
-            project.variants.find((variant) => variant.is_selected) ??
-            (project.selected_variant_id
-              ? project.variants.find((variant) => variant.id === project.selected_variant_id)
-              : undefined) ??
-            project.variants[0];
+          const itemKey = `${projectKey}#${item.kind}`;
+          const selectedVariant = item.variant;
+          const missingSlotLabel =
+            item.kind === "ch26_thumb_1" ? "00_thumb_1" : item.kind === "ch26_thumb_2" ? "00_thumb_2" : "選択中";
           if (!selectedVariant) {
             return (
-              <article key={projectKey} className="thumbnail-gallery-card thumbnail-gallery-card--empty">
+              <article key={itemKey} className="thumbnail-gallery-card thumbnail-gallery-card--empty">
                 <div className="thumbnail-gallery-card__meta">
                   <div className="thumbnail-gallery-card__code">{project.channel}-{project.video}</div>
                   <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
                     {project.title ?? "（タイトル未設定）"}
                   </div>
-                  <div className="thumbnail-gallery-card__note">サムネ未登録</div>
+                  {isCh26TwoUpMode ? (
+                    <div className="thumbnail-gallery-card__variant">{missingSlotLabel}</div>
+                  ) : null}
+                  <div className="thumbnail-gallery-card__note">
+                    {isCh26TwoUpMode ? `${missingSlotLabel} 未生成` : "サムネ未登録"}
+                  </div>
                 </div>
               </article>
             );
@@ -1453,9 +1554,17 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           const busy = galleryProjectSaving[projectKey] ?? false;
           const notesValue = galleryNotesDraft[projectKey] ?? project.notes ?? "";
           const notesDirty = notesValue !== (project.notes ?? "");
+          const downloadName = (() => {
+            if (isCh26TwoUpMode) {
+              const raw = selectedVariant.image_path ?? selectedVariant.image_url ?? "";
+              const fileName = raw.split("/").filter(Boolean).slice(-1)[0] ?? "";
+              return fileName ? `${project.channel}-${project.video}-${fileName}` : `${project.channel}-${project.video}.png`;
+            }
+            return `${project.channel}-${project.video}.png`;
+          })();
           return (
             <article
-              key={projectKey}
+              key={itemKey}
               className={[
                 "thumbnail-gallery-card",
                 `thumbnail-gallery-card--${project.status}`,
@@ -1549,7 +1658,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
                       開く
                     </a>
-                    <a className="btn" href={imageUrl} download={`${project.channel}-${project.video}.png`}>
+                    <a className="btn" href={imageUrl} download={downloadName}>
                       DL
                     </a>
                   </div>
@@ -1566,7 +1675,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           );
         })}
       </div>
-      {galleryProjects.length > galleryLimit ? (
+      {galleryItems.length > galleryLimit ? (
         <div className="thumbnail-gallery-panel__more">
           <button
             type="button"
@@ -1576,7 +1685,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             さらに表示
           </button>
           <span className="muted small-text">
-            {Math.min(galleryLimit, galleryProjects.length)} / {galleryProjects.length}
+            {Math.min(galleryLimit, galleryItems.length)} / {galleryItems.length}
           </span>
         </div>
       ) : null}
