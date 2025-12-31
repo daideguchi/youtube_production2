@@ -9411,6 +9411,20 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception:
                     pass
                 out = out.strip()
+                # Ensure ending completeness (avoid failing on `incomplete_ending` after LLM edits).
+                # Keep this extremely small/safe: only add a closing punctuation if missing.
+                if out:
+                    try:
+                        if not re.search(r"[。！？!?][」』）)]*\\Z", out):
+                            m = re.search(r"([」』）)]*)\\Z", out)
+                            closing = m.group(1) if m else ""
+                            core = out[: -len(closing)] if closing else out
+                            core = core.rstrip()
+                            if core and core[-1] not in "。！？!?":
+                                core = core + "。"
+                            out = (core + closing).strip()
+                    except Exception:
+                        pass
                 return out + "\n" if out else ""
 
             def _non_warning_errors(text: str) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -9671,7 +9685,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     excess = char_count - target_max
                     if excess <= 0:
                         return None
-                    target_cut = max(excess + 120, 280)
+                    target_cut = max(excess + 120, 280) + (depth * 220)
+                    # Avoid asking for an impossible cut that would force an underflow below min.
+                    try:
+                        if isinstance(target_min, int) and target_min > 0:
+                            safe_max = max(0, (char_count - target_min) - 40)
+                            if safe_max > 0:
+                                target_cut = min(target_cut, safe_max)
+                    except Exception:
+                        pass
 
                     shrink_prompt = _render_template(
                         A_TEXT_QUALITY_SHRINK_PROMPT_PATH,
@@ -9736,17 +9758,38 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         except Exception:
                             trial_min = None
 
-                        # Only loop when we're reasonably close to the boundary, to avoid cost blow-ups.
                         overshoot = (trial_cc - trial_max) if (trial_codes == {"length_too_long"} and isinstance(trial_cc, int) and isinstance(trial_max, int)) else None
                         shortage = (trial_min - trial_cc) if (trial_codes == {"length_too_short"} and isinstance(trial_cc, int) and isinstance(trial_min, int)) else None
                         # Two different bounds:
-                        # - Too long: allow a couple of extra shrink passes.
+                        # - Too long: allow a few extra shrink passes (depth-limited) with increasing cut targets.
                         # - Too short (after shrink): allow one additional length rescue even if depth is higher.
                         allow = False
-                        if isinstance(overshoot, int) and 0 < overshoot <= 260 and depth < 2:
+                        if isinstance(overshoot, int) and overshoot > 0 and depth < 3:
                             allow = True
                         if isinstance(shortage, int) and 0 < shortage <= 2200 and depth < 4:
                             allow = True
+
+                        # Emergency fallback (OFF by default): deterministic trim when LLM shrink under-delivers.
+                        if (
+                            not allow
+                            and trial_codes == {"length_too_long"}
+                            and isinstance(trial_max, int)
+                            and trial_max > 0
+                            and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0")
+                        ):
+                            try:
+                                trimmed = _budget_trim_a_text_to_target(shrunk, target_chars=trial_max)
+                                if trimmed.strip():
+                                    t_errors, t_stats = _non_warning_errors(trimmed)
+                                    if not t_errors:
+                                        llm_gate_details["length_rescue_deterministic_trim"] = {
+                                            "target_chars": trial_max,
+                                            "before_char_count": trial_stats.get("char_count"),
+                                            "after_char_count": t_stats.get("char_count"),
+                                        }
+                                        return trimmed
+                            except Exception:
+                                pass
 
                         if allow:
                             topup = _rescue_length(shrunk, errors_list=trial_errors, stats2=trial_stats, depth=depth + 1)

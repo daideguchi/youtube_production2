@@ -150,6 +150,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ### 環境変数（任意）
 - `YTM_FACT_CHECK_POLICY`（override）: `disabled|auto|required`
 - `YTM_FACT_CHECK_MAX_CLAIMS`（default: `12`）: 抽出するclaim上限
+- `YTM_FACT_CHECK_MIN_CLAIM_SCORE`（default: `4`）: claim抽出の最小スコア（客観要素が弱い文を除外）
 - `YTM_FACT_CHECK_MAX_URLS`（default: `8`）: 参照URL上限
 - `YTM_FACT_CHECK_MAX_SOURCES_PER_CLAIM`（default: `2`）: claimごとに渡す抜粋の上限
 - `YTM_FACT_CHECK_EXCERPT_MAX_CHARS`（default: `1400`）: 抜粋の最大長

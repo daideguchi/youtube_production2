@@ -386,6 +386,8 @@ def build_channel_thumbnails(
     targets: List[BuildTarget],
     width: int,
     height: int,
+    stable_thumb_name: str = "00_thumb.png",
+    variant_label: Optional[str] = None,
     force: bool,
     skip_generate: bool,
     continue_on_error: bool,
@@ -413,8 +415,16 @@ def build_channel_thumbnails(
 ) -> None:
     if bool(regen_bg) and bool(skip_generate):
         raise ValueError("regen_bg cannot be used with skip_generate")
+    stable_thumb_name = str(stable_thumb_name or "").strip() or "00_thumb.png"
+    if Path(stable_thumb_name).name != stable_thumb_name:
+        raise ValueError("stable_thumb_name must be a filename (no directories)")
+    if Path(stable_thumb_name).suffix.lower() != ".png":
+        raise ValueError("stable_thumb_name must end with .png")
     ch = _normalize_channel(channel)
     build_id = str(build_id or "").strip() or datetime.now(timezone.utc).strftime("build_%Y%m%dT%H%M%SZ")
+    resolved_variant_label = str(variant_label or "").strip()
+    if not resolved_variant_label:
+        resolved_variant_label = "thumb_00" if stable_thumb_name == "00_thumb.png" else Path(stable_thumb_name).stem
     compiler_defaults = _load_compiler_defaults_from_templates(ch)
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
     if not img_id or not txt_id:
@@ -464,7 +474,7 @@ def build_channel_thumbnails(
         video_dir.mkdir(parents=True, exist_ok=True)
 
         out_bg = video_dir / "10_bg.png"
-        stable_thumb = video_dir / "00_thumb.png"
+        stable_thumb = video_dir / stable_thumb_name
         flat_out: Optional[Path] = None
         if export_flat:
             suffix = str(flat_name_suffix or "").strip()
@@ -832,8 +842,15 @@ def build_channel_thumbnails(
             flat_out.write_bytes(stable_thumb.read_bytes())
 
         title = _resolve_title_from_specs(channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec_typed)
-        rel_thumb = f"{ch}/{target.video}/00_thumb.png"
-        upsert_fs_variant(channel=ch, video=target.video, title=title, image_rel_path=rel_thumb, label="thumb_00", status="review")
+        rel_thumb = f"{ch}/{target.video}/{stable_thumb_name}"
+        upsert_fs_variant(
+            channel=ch,
+            video=target.video,
+            title=title,
+            image_rel_path=rel_thumb,
+            label=resolved_variant_label,
+            status="review",
+        )
 
         overrides_leaf_json: Dict[str, Any] = {}
         for k, v in overrides_leaf.items():

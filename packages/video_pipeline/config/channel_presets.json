@@ -574,7 +574,7 @@
     "CH22": {
       "name": "老後の友人関係ラボ",
       "image_generation": {
-        "base_period": 25.0,
+        "base_period": 35.0,
         "model_key": "openrouter_gemini_2_5_flash_image"
       },
       "prompt_template": "templates/senior_story_friendly_psychology.txt",
@@ -603,7 +603,7 @@
       "belt_labels": "",
       "persona_required": false,
       "image_min_bytes": 60000,
-      "notes": "画像は20〜30秒/枚を目安に分割。友人/近所/コミュニティの摩耗を“心理描写”で見せる。人物一貫性を最優先。",
+      "notes": "画像は30〜40秒/枚を目安に分割。友人/近所/コミュニティの摩耗を“心理描写”で見せる。人物一貫性を最優先。",
       "status": "draft"
     },
     "CH23": {

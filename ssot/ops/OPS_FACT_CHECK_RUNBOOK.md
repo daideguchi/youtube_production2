@@ -22,6 +22,11 @@
 3. 意味整合（semantic alignment）
 4. **ファクトチェック（本Runbook）**
 
+ファクトチェックの前提:
+- Aテキスト全体を丸ごと検証するのではなく、**検証可能な claim（客観要素のある文）**だけを抽出してチェックする。
+  - 例: 数字/年/割合、研究/統計/出典の言及、仏陀/経典/引用（「」）など
+- 検証可能な claim が 0 件の場合は `note: no_checkable_claims` として **pass 扱い**（= 止めない）。
+
 ---
 
 ## 2) チャンネル別ポリシー（SoT）
@@ -73,6 +78,7 @@ SoT: `configs/sources.yaml`
 
 - `YTM_FACT_CHECK_POLICY`（override）: `disabled|auto|required`
 - `YTM_FACT_CHECK_MAX_CLAIMS`（default: 12）: 抽出するclaim上限
+- `YTM_FACT_CHECK_MIN_CLAIM_SCORE`（default: 4）: claim抽出の最小スコア（客観要素が弱い文を除外する）
 - `YTM_FACT_CHECK_MAX_URLS`（default: 8）: 参照URL上限
 - `YTM_FACT_CHECK_MAX_SOURCES_PER_CLAIM`（default: 2）: claimごとに渡す抜粋の上限
 - `YTM_FACT_CHECK_EXCERPT_MAX_CHARS`（default: 1400）: 抜粋の最大長
@@ -91,4 +97,3 @@ SoT: `configs/sources.yaml`
 - `codex exec` は `--sandbox read-only` で実行し、repo/workspaces を書き換えない（レポート作成はPython側で書く）。
 - モデルの出力は必ずJSONパースし、引用（quote）が抜粋内に存在するか機械検証する。
   - 引用が一致しない場合、そのclaimは `supported` にできない（自動で `uncertain` に降格）。
-

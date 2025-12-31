@@ -165,7 +165,7 @@ export type ChannelSnapshot = {
 };
 
 const READY_FILTER_VALUES: ReadyFilter[] = ["all", "ready", "not_ready"];
-const DETAIL_TAB_VALUES: DetailTab[] = ["overview", "script", "audio", "video", "history"];
+const DETAIL_TAB_VALUES: DetailTab[] = ["overview", "note", "script", "audio", "video", "history"];
 const COMPLETED_STATUSES = new Set(["completed", "skipped"]);
 const SCRIPT_STAGE_KEYS = [
   "script_polish_ai",
@@ -1341,6 +1341,7 @@ export function AppShell() {
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
           { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
+          { key: "capcutVrew", label: "Vrew用プロンプト", icon: "🧾", path: "/capcut-edit/vrew" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
         ],

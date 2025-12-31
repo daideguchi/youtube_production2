@@ -55,6 +55,10 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - `00_thumb.png`（“ファイル直参照”運用。CH10など）
 - `compiler/<build_id>/out_01.png`（“build単位”運用。CH07など）
 
+補足（A/Bなど複数案）:
+- `assets/{CH}/{NNN}/00_thumb_1.png`, `00_thumb_2.png` のように、複数の“安定出力”を置いてよい（命名は運用で統一する）。
+- 追跡は `projects.json: projects[].variants` に登録し、UI（`/thumbnails`）のギャラリーで `2案（00_thumb_1/2）` または `全バリアント` 表示で確認する。
+
 ---
 
 ## 3. Compiler Engine（汎用化の核）
@@ -192,6 +196,10 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 - `qc`: 指定動画のサムネからコンタクトシートを生成
 
 ※ 本CLIは “全チャンネルで同じ操作感” を最優先にする（チャンネル固有の例外は config に寄せる）。
+
+A/B（2案）で安定出力名を分けたい場合:
+- `build` に `--thumb-name`（例: `00_thumb_1.png`, `00_thumb_2.png`）を指定して `assets/{CH}/{NNN}/` 配下へ出力する。
+- `--variant-label` を指定すると `projects.json` の variant label を上書きできる（未指定時は自動で決まる）。
 
 ---
 

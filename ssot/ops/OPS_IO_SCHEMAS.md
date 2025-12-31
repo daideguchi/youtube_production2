@@ -371,7 +371,7 @@ projects[*]（観測キー例）:
 
 variants[*]（観測キー例）:
 - `id`: string
-- `image_path`: string（例: `CH01/002/002_calm.png`）
+- `image_path`: string（例: `CH26/001/00_thumb_1.png`, `CH01/002/002_calm.png`）
 - `image_url`: string（外部URLを使う場合）
 
 ### 5.3 物理配置（重要）
@@ -382,7 +382,7 @@ variants[*]（観測キー例）:
 - `workspaces/thumbnails/assets/{CH}/{NNN}/`
   - SoT（動画差分）: `thumb_spec.json`
   - 派生（planning由来）: `planning_meta.json`
-  - 派生（安定出力）: `00_thumb.png`, `10_bg.png` など
+  - 派生（安定出力）: `00_thumb.png`, `00_thumb_1.png`, `00_thumb_2.png`, `10_bg.png` など
   - 派生（build履歴）: `compiler/<build_id>/out_*.png`, `compiler/<build_id>/build_meta.json`
 
 ### 5.4 Layer Specs（画像レイヤ/文字レイヤの仕様YAML）

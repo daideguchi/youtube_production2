@@ -6,6 +6,7 @@
 - 通常のエージェントは git の破壊的操作（ロールバック/履歴改変）を実行しない。
 - Orchestrator は **commit/push のみ** 実施してよい（ただしロールバック系は絶対に実行しない）。
 - 変更を細かく共有したい場合は `bash scripts/ops/save_patch.sh` でパッチ保存し、Orchestrator が apply→commit→push する。
+  - 並列運用では **必ずスコープ限定**（`--path ...` または「自分の active lock scopes に自動スコープ」）。全体パッチは `--all` 明示時のみ。
 - ブランチ運用（どこにマージするか）: `ssot/ops/OPS_GIT_BRANCH_POLICY.md`
 
 ---
@@ -30,6 +31,23 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 補足:
 - `python -c 'subprocess.run([\"git\", ...])'` のような “python 経由のバイパス” も PATH を経由する限り遮断できる。
 - 人間がやむを得ず実行する場合は **Codex外**で `/usr/bin/git ...` を使う（ただし運用上は原則禁止）。
+
+---
+
+## 1.5) 仕組み（補助）: Scoped Inspect Guard（`status`/`diff` の視界制限）
+
+目的: 同一作業ツリーで複数エージェントが並列する際、`git status`/`git diff` で他人の差分が視界に入り、
+「何これ？」→善意の整合化/cleanup で他人の実装を消す事故を減らす。
+
+挙動（Codex 環境の `~/.codex/bin/git` ラッパーのみ）:
+- `git status`（パス指定なし）を **自分の active lock scopes に自動スコープ**する（`created_by == LLM_AGENT_NAME`）
+- `git diff`（パス指定なし / 引数がオプションのみ）を **自分の active lock scopes に自動スコープ**する（`created_by == LLM_AGENT_NAME`）
+- `LLM_AGENT_NAME` が無い / active lock が無い場合は **失敗**させる（＝先に lock を取る）
+- 明示スコープ（pathspec）が指定されている場合はそのまま通す（例: `git status -- packages/**` / `git diff -- packages/**`）
+
+運用:
+- worker は「lock → その範囲だけを見る」を標準にする（lock 外の差分を見て直そうとしない）
+- 全体を見たい場合は人間/Orchestrator が `/usr/bin/git status` / `/usr/bin/git diff` を使う（Codex 外推奨）
 
 ---
 

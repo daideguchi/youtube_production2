@@ -110,20 +110,81 @@ def _make_cues_with_llm_context(
         # 🚨 CRITICAL: 連続性保証処理
         # 各セクション間に隙間がないように調整（重複なし・連続配置）
         # 注: CapCut APIは同一トラック上でのセグメント重複を禁止
+        ch_upper = (channel_id or "").upper()
+        if ch_upper == "CH22" and cues:
+            # CH22: strict 30–40s pacing per image.
+            # IMPORTANT: do NOT mechanically split into equal intervals.
+            # Instead, we only re-allocate SILENT GAPS between subtitle segments
+            # (where no narration occurs) to keep cue durations within range.
+            min_sec = 30.0
+            max_sec = 40.0
 
-        for i in range(len(cues)):
-            if i < len(cues) - 1:
-                # 次のセクションの開始点
-                next_start = cues[i+1]['start_sec']
+            # Preserve narration bounds (before gap allocation) for audit/debugging.
+            for c in cues:
+                c.setdefault("narration_start_sec", c.get("start_sec"))
+                c.setdefault("narration_end_sec", c.get("end_sec"))
 
-                # 現在のセクションの終点を次の開始点に合わせる（隙間なし、重複なし）
-                cues[i]['end_sec'] = next_start
-                cues[i]['duration_sec'] = cues[i]['end_sec'] - cues[i]['start_sec']
+            # Allocate the silence gap between cue i (narration_end) and cue i+1 (narration_start).
+            # Default boundary is cue i+1 narration start (gap fully assigned to cue i).
+            # If that would exceed max_sec, shift the boundary earlier into the gap
+            # (i.e., show the next image earlier during silence).
+            for i in range(len(cues) - 1):
+                cur = cues[i]
+                nxt = cues[i + 1]
 
-            # フレーム数を再計算
-            cues[i]['start_frame'] = int(round(cues[i]['start_sec'] * fps))
-            cues[i]['end_frame'] = int(round(cues[i]['end_sec'] * fps))
-            cues[i]['duration_frames'] = cues[i]['end_frame'] - cues[i]['start_frame']
+                gap_start = float(cur.get("narration_end_sec") or cur.get("end_sec") or 0.0)
+                gap_end = float(nxt.get("narration_start_sec") or nxt.get("start_sec") or 0.0)
+                if gap_end < gap_start:
+                    gap_end = gap_start
+
+                boundary = gap_end
+                cur_start = float(cur.get("start_sec") or 0.0)
+                cur_dur = boundary - cur_start
+
+                if cur_dur > max_sec and boundary > gap_start:
+                    needed = cur_dur - max_sec
+                    boundary = max(gap_start, boundary - needed)
+
+                cur["end_sec"] = round(boundary, 3)
+                cur["duration_sec"] = round(float(cur["end_sec"]) - float(cur.get("start_sec") or 0.0), 3)
+                nxt["start_sec"] = round(boundary, 3)
+
+            # Keep last cue end at narration end.
+            last = cues[-1]
+            last_end = float(last.get("narration_end_sec") or last.get("end_sec") or 0.0)
+            last["end_sec"] = round(last_end, 3)
+            last["duration_sec"] = round(float(last["end_sec"]) - float(last.get("start_sec") or 0.0), 3)
+
+            # Validate strict range.
+            out_of_range = [
+                (c.get("index"), float(c.get("duration_sec") or 0.0))
+                for c in cues
+                if float(c.get("duration_sec") or 0.0) < min_sec or float(c.get("duration_sec") or 0.0) > max_sec
+            ]
+            if out_of_range:
+                raise RuntimeError(
+                    "CH22 cue duration out of 30–40s range after gap allocation: "
+                    + ", ".join([f"#{i}:{d:.3f}s" for i, d in out_of_range[:10]])
+                )
+
+            for c in cues:
+                c["start_frame"] = int(round(float(c.get("start_sec") or 0.0) * fps))
+                c["end_frame"] = int(round(float(c.get("end_sec") or 0.0) * fps))
+                c["duration_frames"] = max(1, c["end_frame"] - c["start_frame"])
+        else:
+            for i in range(len(cues)):
+                if i < len(cues) - 1:
+                    # 次のセクションの開始点
+                    next_start = cues[i + 1]["start_sec"]
+
+                    # 現在のセクションの終点を次の開始点に合わせる（隙間なし、重複なし）
+                    cues[i]["end_sec"] = next_start
+                    cues[i]["duration_sec"] = cues[i]["end_sec"] - cues[i]["start_sec"]
+
+                # フレーム数を再計算
+                cues[i]["start_frame"] = int(round(cues[i]["start_sec"] * fps))
+                cues[i]["end_frame"] = int(round(cues[i]["end_sec"] * fps))
+                cues[i]["duration_frames"] = cues[i]["end_frame"] - cues[i]["start_frame"]
 
         logging.info("✅ LLM文脈分割完了: %d セクション生成（連続性保証・隙間ゼロ）", len(cues))
         return cues

@@ -93,6 +93,19 @@ python3 scripts/ops/git_write_lock.py unlock-for-push
 
 push後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
 
+補足（視界制限 / 事故防止）:
+- Codex 環境では `git status`/`git diff`（パス指定なし）は、**自分の lock scopes に自動スコープ**される（他人の差分を見て誤って消す事故を減らす）
+- ロックが無い場合は失敗するので、先に lock を取るか、明示スコープで実行する: `git status -- <PATH...>`
+
+### 2.2.5.1 Dirty（未コミット）運用（強制）
+目的: `git status` に大量の差分が出る状態でも、別エージェントの実装を「何これ？」で消さない。
+
+- worker が作る未コミット差分は **自分の lock scopes 内だけ**許可（同一ツリーでも “担当外” を汚さない）
+- lock 外に差分が見えても **整合化/cleanup をしない**（board/memo で担当へ連絡）
+- 切り替え/引き継ぎ前に `save_patch.sh` で差分をパッチ化する（スコープ限定）
+  - Codex 環境では `--path` 未指定時、**自分の active lock scopes に自動スコープ**される
+  - 全体パッチは `--all` 明示時のみ（Orchestrator/人間の判断）
+
 ### 2.2.6 kill/pkill/killall 遮断（強制）
 並列運用では、Codex からの `kill/pkill/killall` によるプロセス破壊（UI/バッチ/生成の途中停止）事故が起きやすい。  
 したがって Codex 環境では **kill系を仕組みで封じる**（人間が明示OKした時だけ例外解除）。
@@ -245,7 +258,14 @@ bash scripts/ops/cleanup_caches.sh
 その場合はパッチを保存し、Orchestrator/人間が apply→commit する。
 
 ```bash
+# 推奨: スコープを明示してパッチを切る（事故率が低い）
+bash scripts/ops/save_patch.sh --label stage2_paths --path 'packages/<area>/**'
+
+# Codex 並列運用: lock を取っているなら、未指定でも自分の lock scopes に自動スコープされる
 bash scripts/ops/save_patch.sh --label stage2_paths
+
+# 全体スナップショット（明示）: Orchestrator/人間のみ
+bash scripts/ops/save_patch.sh --label snapshot --all
 ```
 
 出力: `backups/patches/YYYYMMDD_HHMMSS_<label>.patch`

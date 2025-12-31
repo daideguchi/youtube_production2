@@ -197,6 +197,7 @@ def generate_vrew_prompts(
         "line_count": len(prompts),
         "prompts": prompts,
         "prompts_text": "\n".join(prompts) + ("\n" if prompts else ""),
+        "prompts_text_kuten": "".join(prompts),
     }
 
 

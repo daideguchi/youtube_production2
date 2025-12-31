@@ -84,6 +84,28 @@ class LLMContextAnalyzer:
         total_duration = segments[-1]["end"] - segments[0]["start"]
         desired_avg = total_duration / max(1, target_sections)
 
+        ch = (self.channel_id or "").upper()
+        # CH22 requires strict 30–40s pacing per image. LLM boundary selection can drift and
+        # trigger expensive multi-pass splitting. Prefer a deterministic, semantic partition
+        # (punctuation/topic-shift/silence-gap based) and let per-cue prompt refinement handle
+        # chunk-accurate visuals.
+        if ch == "CH22":
+            force_llm = (os.getenv("SRT2IMAGES_CH22_USE_LLM_SECTION_BOUNDARIES") or "").strip().lower() in (
+                "1",
+                "true",
+                "yes",
+                "on",
+            )
+            if not force_llm:
+                out = self._semantic_partition_ch22(
+                    segments,
+                    min_sec=30.0,
+                    max_sec=40.0,
+                    desired_avg=desired_avg,
+                )
+                logging.info("CH22 semantic sectioning complete: %d sections", len(out))
+                return out
+
         initial_sections = self._generate_initial_sections(segments, target_sections)
 
         # IMPORTANT: Mechanical fallback segmentation is forbidden.
@@ -106,7 +128,7 @@ class LLMContextAnalyzer:
         # Post-gap-fill guardrail:
         # `_fill_gaps` may extend the tail section when the LLM misses the final indices.
         # That can create an overlong section that bypasses `_refine_overlong_sections`.
-        max_duration = max(40.0, desired_avg * 1.5)
+        max_duration = self._max_section_seconds(desired_avg)
         needs_refine = any(
             self._calculate_duration(segments, br.start_segment, br.end_segment) > max_duration
             for br in final_sections
@@ -116,6 +138,8 @@ class LLMContextAnalyzer:
             final_sections = self._merge_short_sections(segments, final_sections)
             final_sections = self._merge_sections(final_sections)
             final_sections = self._fill_gaps(final_sections, len(segments))
+
+        final_sections = self._enforce_duration_bounds(segments, final_sections, target_sections, desired_avg)
 
         logging.info("LLM文脈分割完了: %d セクション生成", len(final_sections))
         return final_sections
@@ -358,13 +382,23 @@ Script excerpts:
                 "- **CRITICAL FOR CH12:** Use a calmer visual pace (aim ~25s per image). Prefer fewer, longer shots that sustain mood.\n"
                 "- Avoid rapid-fire micro cuts unless there is a clear scene change or a hard list.\n"
             )
-        elif (self.channel_id or "").upper() in ("CH22", "CH23"):
-            # CH22/CH23: user requirement is 20–30s per image for CapCut pacing.
+        elif (self.channel_id or "").upper() == "CH22":
+            # CH22: user requirement is 30–40s per image for CapCut pacing.
+            section_seconds_hint = "30–40"
+            force_split_seconds = 40
+            extra_ch22_23 = (
+                "\n"
+                "- **CRITICAL FOR CH22:** Each section duration MUST be within ~30–40s per image.\n"
+                "- Avoid micro-cuts. If a beat change would create a <30s section, fold it into an adjacent section by changing camera angle/focus.\n"
+                "- Only create shorter sections when there is an unavoidable hard scene change.\n"
+            )
+        elif (self.channel_id or "").upper() == "CH23":
+            # CH23: user requirement is 20–30s per image for CapCut pacing.
             section_seconds_hint = "20–30"
             force_split_seconds = 40
             extra_ch22_23 = (
                 "\n"
-                "- **CRITICAL FOR CH22/CH23:** Aim ~20–30s per image for CapCut draft pacing.\n"
+                "- **CRITICAL FOR CH23:** Aim ~20–30s per image for CapCut draft pacing.\n"
                 "- Avoid micro-cuts unless there is a clear scene change, a sharp beat change, or a list.\n"
             )
 
@@ -398,6 +432,8 @@ Rules:
 - Use the original SRT indices shown in the text.
 - **FORCE SPLIT:** If a section would exceed {force_split_seconds} seconds, YOU MUST SPLIT IT even if the topic continues. Change the visual angle or focus.
 - The JSON must contain at least {min_sections} entries and no more than {max_sections} entries.
+- Each section entry MUST be an array of exactly 8 elements as in the schema (do NOT add extra fields).
+- Keep all strings single-line and extremely short (no paragraphs, no newlines).
 - Do not include any explanation outside the JSON.
 
 Script excerpts:
@@ -722,7 +758,7 @@ Script excerpts:
         target_sections: int,
         desired_avg: float
     ) -> List[SectionBreak]:
-        max_duration = max(40.0, desired_avg * 1.5)
+        max_duration = self._max_section_seconds(desired_avg)
         refined: List[SectionBreak] = []
 
         for br in sections:
@@ -775,14 +811,221 @@ Script excerpts:
 
     # ---- ヘルパー ----
 
+    def _max_section_seconds(self, desired_avg: float) -> float:
+        ch = (self.channel_id or "").upper()
+        if ch == "CH22":
+            return 40.0
+        return max(40.0, float(desired_avg) * 1.5)
+
+    def _min_section_seconds_for_merge(self) -> float:
+        ch = (self.channel_id or "").upper()
+        if ch == "CH22":
+            return 30.0
+        return float(self.MIN_SECTION_SECONDS)
+
+    def _enforce_duration_bounds(
+        self,
+        segments: List[Dict],
+        sections: List[SectionBreak],
+        target_sections: int,
+        desired_avg: float,
+    ) -> List[SectionBreak]:
+        """
+        Enforce per-channel section duration bounds without any mechanical equal-interval fallback.
+        For CH22: each section must be 30–40s.
+        """
+        ch = (self.channel_id or "").upper()
+        if ch != "CH22":
+            return sections
+
+        min_sec = 30.0
+        max_sec = 40.0
+
+        out = self._merge_sections(sections)
+        out = self._fill_gaps(out, len(segments))
+
+        for _ in range(4):
+            out = self._refine_overlong_sections(segments, out, target_sections, desired_avg)
+            out = self._merge_short_sections(segments, out)
+            out = self._merge_sections(out)
+            out = self._fill_gaps(out, len(segments))
+
+            bad: list[tuple[int, int, float]] = []
+            for br in out:
+                d = self._calculate_duration(segments, br.start_segment, br.end_segment)
+                if d < min_sec or d > max_sec:
+                    bad.append((br.start_segment, br.end_segment, d))
+            if not bad:
+                return out
+
+        preview = ", ".join([f"[{a}-{b}] {d:.1f}s" for a, b, d in bad[:10]])
+        logging.warning(
+            "CH22 section duration out of 30–40s bounds after LLM refinement (%s). "
+            "Falling back to semantic boundary scoring partition (non-mechanical).",
+            preview,
+        )
+
+        fallback = self._semantic_partition_ch22(segments, min_sec=min_sec, max_sec=max_sec, desired_avg=desired_avg)
+        bad_fb: list[tuple[int, int, float]] = []
+        for br in fallback:
+            d = self._calculate_duration(segments, br.start_segment, br.end_segment)
+            if d < min_sec or d > max_sec:
+                bad_fb.append((br.start_segment, br.end_segment, d))
+        if bad_fb:
+            fb_preview = ", ".join([f"[{a}-{b}] {d:.1f}s" for a, b, d in bad_fb[:10]])
+            raise RuntimeError(
+                "CH22 semantic partition failed to satisfy 30–40s bounds (this likely means the SRT has an "
+                f"unavoidable long span). Offenders: {fb_preview}"
+            )
+        return fallback
+
+    def _semantic_partition_ch22(
+        self,
+        segments: List[Dict],
+        *,
+        min_sec: float,
+        max_sec: float,
+        desired_avg: float,
+    ) -> List[SectionBreak]:
+        """
+        CH22 fallback: build a strict 30–40s partition using only semantic cues (punctuation, topic shifts, silence gaps).
+        This is NOT mechanical equal-interval splitting.
+        """
+        n = len(segments)
+        if n == 0:
+            return []
+
+        # Boundary score for cutting AFTER segment j.
+        boundary_scores: list[float] = [0.0] * n
+        for j in range(n - 1):
+            prev_text = (segments[j].get("text") or "").strip()
+            next_text = (segments[j + 1].get("text") or "").strip()
+            gap = float(segments[j + 1]["start"]) - float(segments[j]["end"])
+            boundary_scores[j] = self._semantic_boundary_score(prev_text, next_text, gap)
+        boundary_scores[n - 1] = 0.0
+
+        def _len_bonus(duration: float) -> float:
+            if desired_avg <= 0:
+                return 0.0
+            # Light preference toward the configured average (e.g. 35s) without enforcing uniformity.
+            return -abs(float(duration) - float(desired_avg)) * 0.04
+
+        neg_inf = float("-inf")
+        dp: list[float] = [neg_inf] * (n + 1)  # dp[pos] = best score up to pos (pos is next start index)
+        prev_pos: list[int] = [-1] * (n + 1)
+        prev_end: list[int] = [-1] * (n + 1)
+        dp[0] = 0.0
+
+        # Pre-cast times for speed/robustness.
+        starts = [float(s["start"]) for s in segments]
+        ends = [float(s["end"]) for s in segments]
+
+        for i in range(n):
+            if dp[i] == neg_inf:
+                continue
+            start_t = starts[i]
+            for j in range(i, n):
+                dur = ends[j] - start_t
+                if dur > max_sec:
+                    break
+                if dur < min_sec:
+                    continue
+                next_pos = j + 1
+                score = dp[i] + boundary_scores[j] + _len_bonus(dur)
+                if score > dp[next_pos]:
+                    dp[next_pos] = score
+                    prev_pos[next_pos] = i
+                    prev_end[next_pos] = j
+
+        if dp[n] == neg_inf:
+            raise RuntimeError(
+                "CH22 semantic partition found no valid 30–40s segmentation. "
+                "Try increasing SRT granularity (more subtitle splits) or review unusually long gaps."
+            )
+
+        pairs: list[tuple[int, int]] = []
+        pos = n
+        while pos > 0:
+            i = prev_pos[pos]
+            j = prev_end[pos]
+            if i < 0 or j < 0:
+                raise RuntimeError("CH22 semantic partition reconstruction failed (internal DP state).")
+            pairs.append((i, j))
+            pos = i
+        pairs.reverse()
+
+        out: list[SectionBreak] = []
+        for a, b in pairs:
+            summary = self._truncate_summary_from_segments(segments, a, b, limit=160)
+            out.append(
+                SectionBreak(
+                    start_segment=a,
+                    end_segment=b,
+                    reason="semantic_partition",
+                    emotional_tone="",
+                    summary=summary,
+                    visual_focus="",
+                    # CH22 requires character consistency; treat as story unless explicitly overridden upstream.
+                    section_type="story",
+                    persona_needed=True,
+                    role_tag="story",
+                )
+            )
+
+        out = self._merge_sections(out)
+        out = self._fill_gaps(out, len(segments))
+        return out
+
+    def _semantic_boundary_score(self, prev_text: str, next_text: str, gap_sec: float) -> float:
+        score = 0.0
+
+        # 1) Silence gap is a strong natural boundary.
+        if gap_sec > 0:
+            score += min(float(gap_sec), 2.0) * 0.8
+
+        # 2) Sentence-ending punctuation.
+        t = (prev_text or "").strip()
+        if t.endswith(("。", "！", "？", "!", "?")):
+            score += 1.4
+        elif t.endswith(("…", "‥", "」", "』", "）", ")")):
+            score += 0.9
+        elif t.endswith(("、", ",")):
+            score -= 0.4
+
+        # 3) Topic shift openers (bonus) vs conjunction continuations (small penalty).
+        nt = (next_text or "").strip()
+        topic_shift = ("一方", "その頃", "さて", "ここで", "ところが", "ちなみに")
+        continuation = ("そして", "でも", "だから", "それで", "しかし", "けれど", "ただ")
+        if any(nt.startswith(x) for x in topic_shift):
+            score += 0.6
+        if any(nt.startswith(x) for x in continuation):
+            score -= 0.2
+
+        return score
+
+    def _truncate_summary_from_segments(self, segments: List[Dict], start_idx: int, end_idx: int, limit: int = 160) -> str:
+        parts: list[str] = []
+        for i in range(start_idx, end_idx + 1):
+            t = (segments[i].get("text") or "").strip()
+            if t:
+                parts.append(t)
+        combined = " ".join(parts)
+        combined = " ".join(combined.split())
+        if not combined:
+            return ""
+        if len(combined) <= limit:
+            return combined
+        return combined[: limit - 1].rstrip() + "…"
+
     def _merge_short_sections(self, segments: List[Dict], sections: List[SectionBreak]) -> List[SectionBreak]:
         sections = self._merge_sections(sections)
         changed = True
+        min_sec = self._min_section_seconds_for_merge()
         while changed:
             changed = False
             for idx, br in enumerate(list(sections)):
                 duration = self._calculate_duration(segments, br.start_segment, br.end_segment)
-                if duration >= self.MIN_SECTION_SECONDS or len(sections) <= 1:
+                if duration >= min_sec or len(sections) <= 1:
                     continue
 
                 if idx == 0:

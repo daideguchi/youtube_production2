@@ -1530,6 +1530,7 @@ export interface AutoDraftVrewPromptsResponse {
   lineCount: number;
   prompts: string[];
   promptsText: string;
+  promptsTextKuten: string;
 }
 
 export interface PromptTemplateItem {

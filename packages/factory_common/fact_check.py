@@ -17,6 +17,8 @@ from factory_common.paths import repo_root
 
 
 FACT_CHECK_REPORT_SCHEMA = "ytm.fact_check_report.v1"
+# Bump this when extraction / verdict logic changes, so cached reports are recomputed.
+FACT_CHECK_LOGIC_VERSION = "v2"
 
 
 def _utc_now_iso() -> str:
@@ -241,35 +243,52 @@ def _html_to_text(html: str) -> str:
 
 def _split_sentences(text: str) -> List[str]:
     raw = str(text or "")
-    raw = raw.replace("\\r\\n", "\\n")
-    # Split on Japanese punctuation + newlines.
-    parts = re.split(r"(?<=[。！？!\\?])\\s+|\\n+", raw)
-    return [p.strip() for p in parts if p and p.strip()]
+    raw = raw.replace("\\r\\n", "\\n").replace("\\r", "\\n")
+    # Split on sentence-ending punctuation (Japanese often has no spaces) and newlines.
+    # Avoid zero-length split patterns (can be brittle with re.split).
+    chunks = [c.strip() for c in re.split(r"\\n+", raw) if c and c.strip()]
+    parts: List[str] = []
+    for chunk in chunks:
+        for sent in re.split(r"(?<=[。！？!?])", chunk):
+            s = sent.strip()
+            if s:
+                parts.append(s)
+    return parts
 
 
 def _claim_score(sentence: str) -> int:
     s = str(sentence or "")
     score = 0
+    if re.search(r"[12][0-9]{3}年", s):
+        score += 6
+    if re.search(r"[%％]|パーセント", s):
+        score += 6
     if re.search(r"[0-9０-９]", s):
         score += 4
-    if re.search(r"[12][0-9]{3}年", s):
+    if re.search(r"(統計|研究|論文|調査|報告|データ|出典|引用|ソース|根拠)", s):
         score += 3
-    if re.search(r"(世界|日本|初めて|最初|唯一|必ず|絶対|確実|統計|研究|論文)", s):
+    if re.search(
+        r"(ブッダ|仏陀|釈迦|如来|経典|スッタ|ダンマパダ|阿含|般若心経|法華経|浄土|涅槃|八正道|四諦|縁起)",
+        s,
+    ):
+        score += 3
+    if "「" in s or "『" in s:
+        score += 1
+    if re.search(r"(とされる|といわれる|と言われる|によると|に基づく)", s):
         score += 2
-    if re.search(r"(とされる|といわれる|と言われる)", s):
-        score += 1
-    if len(s) >= 60:
-        score += 1
     return score
 
 
-def extract_candidate_claims(a_text: str, *, max_claims: int) -> List[Dict[str, str]]:
+def extract_candidate_claims(a_text: str, *, max_claims: int, min_score: int = 4) -> List[Dict[str, str]]:
     sentences = _split_sentences(a_text)
     scored: List[Tuple[int, int, str]] = []
     for idx, sent in enumerate(sentences):
         if len(sent) < 12:
             continue
-        scored.append((_claim_score(sent), idx, sent))
+        score = _claim_score(sent)
+        if score < int(min_score):
+            continue
+        scored.append((score, idx, sent))
     scored.sort(key=lambda t: (t[0], -t[1]), reverse=True)
     picked = scored[: max(0, int(max_claims))]
     out: List[Dict[str, str]] = []
@@ -514,6 +533,10 @@ def run_fact_check_with_codex(
     max_claims = int(os.getenv("YTM_FACT_CHECK_MAX_CLAIMS") or 12)
     max_urls = int(os.getenv("YTM_FACT_CHECK_MAX_URLS") or 8)
     max_sources_per_claim = int(os.getenv("YTM_FACT_CHECK_MAX_SOURCES_PER_CLAIM") or 2)
+    try:
+        min_claim_score = int(os.getenv("YTM_FACT_CHECK_MIN_CLAIM_SCORE") or 4)
+    except Exception:
+        min_claim_score = 4
     fetch_timeout_s = int(os.getenv("YTM_FACT_CHECK_FETCH_TIMEOUT_S") or 20)
     fetch_max_chars = int(os.getenv("YTM_FACT_CHECK_FETCH_MAX_CHARS") or 20000)
     excerpt_max_chars = int(os.getenv("YTM_FACT_CHECK_EXCERPT_MAX_CHARS") or 1400)
@@ -531,6 +554,7 @@ def run_fact_check_with_codex(
         not force
         and isinstance(existing, dict)
         and existing.get("schema") == FACT_CHECK_REPORT_SCHEMA
+        and str(existing.get("logic_version") or "") == FACT_CHECK_LOGIC_VERSION
         and str(existing.get("input_fingerprint") or "") == fingerprint
         and str(existing.get("policy") or "") == policy_norm
     ):
@@ -539,6 +563,7 @@ def run_fact_check_with_codex(
     if policy_norm == "disabled" or os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
         report = {
             "schema": FACT_CHECK_REPORT_SCHEMA,
+            "logic_version": FACT_CHECK_LOGIC_VERSION,
             "generated_at": _utc_now_iso(),
             "provider": "disabled",
             "policy": "disabled",
@@ -546,6 +571,24 @@ def run_fact_check_with_codex(
             "channel": str(channel),
             "video": str(video),
             "input_fingerprint": fingerprint,
+            "claims": [],
+        }
+        _write_json(output_path, report)
+        return report
+
+    claims = extract_candidate_claims(a_text, max_claims=max_claims, min_score=min_claim_score)
+    if not claims:
+        report = {
+            "schema": FACT_CHECK_REPORT_SCHEMA,
+            "logic_version": FACT_CHECK_LOGIC_VERSION,
+            "generated_at": _utc_now_iso(),
+            "provider": "no_checkable_claims",
+            "policy": policy_norm,
+            "verdict": "pass",
+            "channel": str(channel),
+            "video": str(video),
+            "input_fingerprint": fingerprint,
+            "note": "no_checkable_claims",
             "claims": [],
         }
         _write_json(output_path, report)
@@ -564,7 +607,6 @@ def run_fact_check_with_codex(
         fetch_max_chars=fetch_max_chars,
     )
 
-    claims = extract_candidate_claims(a_text, max_claims=max_claims)
     evidence_by_claim: Dict[str, List[Dict[str, str]]] = {}
     excerpt_lookup: Dict[Tuple[str, str], str] = {}
     for c in claims:
@@ -652,6 +694,7 @@ def run_fact_check_with_codex(
     verdict = _deterministic_verdict(statuses)
     report: Dict[str, Any] = {
         "schema": FACT_CHECK_REPORT_SCHEMA,
+        "logic_version": FACT_CHECK_LOGIC_VERSION,
         "generated_at": _utc_now_iso(),
         "provider": (meta or {}).get("provider") or "codex",
         "policy": policy_norm,
@@ -667,4 +710,3 @@ def run_fact_check_with_codex(
         report["exception"] = (meta or {}).get("exception") or None
     _write_json(output_path, report)
     return report
-

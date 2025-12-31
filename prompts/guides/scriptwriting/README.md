@@ -8,4 +8,4 @@
 - 一覧: `prompts/SCRIPT_WRITING_GUIDES_INDEX.md`
 - 全チャンネル共通: `prompts/guides/scriptwriting/SCRIPT_WRITING_GUIDE_COMMON.md`
 - チャンネル別: `prompts/guides/scriptwriting/channels/CHxx.md`
-
+- Claude に「執筆だけ」させる作業指示書: `prompts/guides/scriptwriting/CLAUDE_SCRIPTWRITING_WORK_ORDER.md`

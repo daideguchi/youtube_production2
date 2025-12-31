@@ -729,7 +729,13 @@ def main():
             pipeline_cmd += ["--prompt-template", prompt_template_override]
         # Run pipeline; on dry-run, disable generation to avoid API calls
         if args.dry_run:
-            pipeline_cmd = [x for x in pipeline_cmd if x not in ("--nanobanana", args.nanobanana)]
+            # Remove only the --nanobanana <mode> pair (do NOT remove arbitrary values like "none",
+            # which is also used by other flags such as --engine none).
+            try:
+                i = pipeline_cmd.index("--nanobanana")
+                del pipeline_cmd[i : i + 2]
+            except ValueError:
+                pass
             pipeline_cmd += ["--nanobanana", "none"]
             pipeline_cmd = [x for x in pipeline_cmd if x != "--force"]
         pipeline_res = run(

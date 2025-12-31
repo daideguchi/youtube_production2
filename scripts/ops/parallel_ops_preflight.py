@@ -130,6 +130,16 @@ def _git_guard_path() -> str | None:
         return None
 
 
+def _git_guard_has_scoped_inspect(git_path: str | None) -> bool:
+    if not git_path:
+        return False
+    try:
+        text = Path(str(git_path)).read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return False
+    return "CODEX_GIT_GUARD_SCOPED_INSPECT_V1" in text
+
+
 def _ensure_git_write_lock(errors: List[str]) -> None:
     rc, out, err = _run([sys.executable, "scripts/ops/git_write_lock.py", "lock"])
     if rc != 0:
@@ -230,12 +240,13 @@ def main(argv: List[str] | None = None) -> int:
 
     # Git rollback guard (Codex Git Guard wrapper) — best-effort check.
     git_path = _git_guard_path()
-    if os.getenv("CODEX_MANAGED_BY_NPM"):
-        expected = str(Path.home() / ".codex" / "bin" / "git")
-        if git_path and git_path != expected:
-            warnings.append(f"git guard not first in PATH: got={git_path} expected={expected}")
-        if not git_path:
-            warnings.append("git guard probe failed: cannot resolve git in PATH")
+    expected = str(Path.home() / ".codex" / "bin" / "git")
+    if git_path and git_path != expected:
+        warnings.append(f"git guard not first in PATH: got={git_path} expected={expected}")
+    if not git_path:
+        warnings.append("git guard probe failed: cannot resolve git in PATH")
+    if git_path == expected and not _git_guard_has_scoped_inspect(git_path):
+        warnings.append("git guard missing scoped-inspect marker (update ~/.codex/bin/git)")
 
     # Coordination locks hygiene (no-expiry locks older than 6h are suspicious).
     no_expiry_old: List[Dict[str, Any]] = []

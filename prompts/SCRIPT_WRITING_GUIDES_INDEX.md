@@ -4,6 +4,7 @@
 プロンプト本文の正本は `packages/**` 側にあるため、ここでは **参照パス**のみを案内します。
 
 - 共通ガイド: `prompts/guides/scriptwriting/SCRIPT_WRITING_GUIDE_COMMON.md`
+- Claude に「執筆だけ」させる作業指示書（調査はOrchestrator）: `prompts/guides/scriptwriting/CLAUDE_SCRIPTWRITING_WORK_ORDER.md`
 - チャンネル別ガイド: `prompts/guides/scriptwriting/channels/CHxx.md`
 
 ---
@@ -38,4 +39,3 @@
 | CH24 | 叡智の扉 | 10000〜12000 | `prompts/guides/scriptwriting/channels/CH24.md` |
 | CH25 | 寝落ち偉人講話【眠りながら学ぶ】 | 20000〜26000 | `prompts/guides/scriptwriting/channels/CH25.md` |
 | CH26 | 拝啓、偉人より | 15000〜20000 | `prompts/guides/scriptwriting/channels/CH26.md` |
-

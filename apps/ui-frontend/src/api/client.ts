@@ -1958,6 +1958,8 @@ type AutoDraftVrewPromptsResponseRaw = {
   prompts?: string[];
   prompts_text?: string;
   promptsText?: string;
+  prompts_text_kuten?: string;
+  promptsTextKuten?: string;
 };
 
 type ProjectSrtContentRaw = AutoDraftSrtContentRaw;
@@ -2067,12 +2069,19 @@ export async function fetchAutoDraftVrewPrompts(srtPath: string): Promise<AutoDr
     method: "POST",
     body: JSON.stringify({ srt_path: srtPath }),
   });
+  const prompts = data.prompts ?? [];
+  const promptsText = data.prompts_text ?? data.promptsText ?? "";
+  const promptsTextKuten =
+    data.prompts_text_kuten ??
+    data.promptsTextKuten ??
+    (prompts.length > 0 ? prompts.join("") : promptsText.replace(/\n/g, ""));
   return {
     ok: Boolean(data.ok),
     srtPath: data.srt_path ?? data.srtPath ?? srtPath,
     lineCount: data.line_count ?? data.lineCount ?? 0,
-    prompts: data.prompts ?? [],
-    promptsText: data.prompts_text ?? data.promptsText ?? "",
+    prompts,
+    promptsText,
+    promptsTextKuten,
   };
 }
 

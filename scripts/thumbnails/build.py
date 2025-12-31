@@ -375,6 +375,8 @@ def _cmd_build(args: argparse.Namespace) -> int:
             targets=targets,
             width=int(args.width),
             height=int(args.height),
+            stable_thumb_name=str(getattr(args, "thumb_name", "00_thumb.png") or "00_thumb.png"),
+            variant_label=str(getattr(args, "variant_label", "") or "").strip() or None,
             force=bool(args.force),
             skip_generate=bool(args.skip_generate),
             regen_bg=bool(getattr(args, "regen_bg", False)),
@@ -404,7 +406,14 @@ def _cmd_build(args: argparse.Namespace) -> int:
         if args.qc:
             out = fpaths.thumbnails_root() / "assets" / channel / "_qc" / args.qc
             grid = QcGrid(tile_w=args.qc_tile_w, tile_h=args.qc_tile_h, cols=args.qc_cols, pad=args.qc_pad)
-            build_contactsheet(channel=channel, videos=built_videos, out_path=out, grid=grid, output_mode=args.output_mode)
+            build_contactsheet(
+                channel=channel,
+                videos=built_videos,
+                out_path=out,
+                grid=grid,
+                source_name=str(getattr(args, "thumb_name", "00_thumb.png") or "00_thumb.png"),
+                output_mode=args.output_mode,
+            )
             print(f"[QC] wrote {out}")
             _publish_qc_to_library(channel=channel, qc_path=out)
         return 0
@@ -565,6 +574,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     # layer_specs args (ignored by buddha engine)
     b.add_argument("--width", type=int, default=1920)
     b.add_argument("--height", type=int, default=1080)
+    b.add_argument(
+        "--thumb-name",
+        default="00_thumb.png",
+        help="Output filename under assets/{CH}/{NNN}/ (default: 00_thumb.png; for A/B use 00_thumb_1.png, 00_thumb_2.png)",
+    )
+    b.add_argument(
+        "--variant-label",
+        default="",
+        help="projects.json label override (default: auto; 00_thumb.png => thumb_00, otherwise stem of --thumb-name)",
+    )
     b.add_argument("--force", action="store_true")
     b.add_argument("--skip-generate", action="store_true")
     b.add_argument("--regen-bg", action="store_true", help="Regenerate background even if assets already exist (overwrites 90_bg_ai_raw/10_bg)")

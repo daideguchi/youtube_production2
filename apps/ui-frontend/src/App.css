@@ -7180,6 +7180,104 @@ button:hover:not(:disabled) {
   align-items: stretch;
 }
 
+.note-tab__layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.note-tab__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.note-tab__hint {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.note-tab__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.note-tab__paper {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.note-paper {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.note-paper:focus-within {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12), 0 16px 32px rgba(15, 23, 42, 0.06);
+}
+
+.note-editor {
+  display: flex;
+  align-items: stretch;
+  --note-font-size: 15px;
+  --note-line-height: 1.85;
+}
+
+.note-editor__gutter {
+  flex: 0 0 auto;
+  padding: 28px 10px;
+  background: #f8fafc;
+  border-right: 1px solid rgba(148, 163, 184, 0.25);
+  color: #64748b;
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--note-font-size);
+  line-height: var(--note-line-height);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  user-select: none;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.note-editor__gutter::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.note-editor__gutter-content {
+  margin: 0;
+  white-space: pre;
+}
+
+.note-editor__textarea {
+  width: 100%;
+  min-height: 65vh;
+  background: #ffffff;
+  padding: 28px 30px;
+  font-size: var(--note-font-size);
+  line-height: var(--note-line-height);
+  font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
+  border: none;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow: auto;
+}
+
+.note-editor__textarea:focus {
+  outline: none;
+}
+
 .script-editor-card {
   min-width: 320px;
   background: #ffffff;
@@ -7616,6 +7714,15 @@ button:hover:not(:disabled) {
 
   .script-editor__textarea {
     min-height: 280px;
+  }
+
+  .note-editor__textarea {
+    min-height: 55vh;
+    padding: 18px 18px;
+  }
+
+  .note-editor__gutter {
+    padding: 18px 8px;
   }
 
   .script-editor__actions {

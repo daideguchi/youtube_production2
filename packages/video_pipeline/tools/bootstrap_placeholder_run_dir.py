@@ -279,7 +279,7 @@ def main() -> None:
 
     if not args.srt.exists():
         raise SystemExit(f"SRT not found: {args.srt}")
-    m = re.match(r"^(?P<w>\\d+)x(?P<h>\\d+)$", str(args.size).strip())
+    m = re.match(r"^(?P<w>\d+)x(?P<h>\d+)$", str(args.size).strip())
     if not m:
         raise SystemExit(f"Invalid --size: {args.size} (expected 1920x1080)")
     width, height = int(m.group("w")), int(m.group("h"))

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent, ReactNode } from "react";
+import type { ChangeEvent, ReactNode, SyntheticEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   AudioAnalysis,
@@ -21,7 +21,6 @@ import {
   listLlmArtifacts,
   updateLlmArtifact,
   updateHumanScripts,
-  fetchAText,
   fetchAudioAnalysis,
   updateVideoRedo,
 } from "../api/client";
@@ -45,7 +44,7 @@ function pickFirstNonEmptyText(...candidates: Array<string | null | undefined>):
   return "";
 }
 
-export type DetailTab = "overview" | "script" | "audio" | "video" | "history";
+export type DetailTab = "overview" | "note" | "script" | "audio" | "video" | "history";
 type DetailMode = "diff";
 
 type DetailTabTone = "info" | "warning" | "danger" | "success" | undefined;
@@ -208,11 +207,6 @@ export function VideoDetailPanel({
   const [ttsAiContent, setTtsAiContent] = useState(initialTtsAi);
   const [ttsDraft, setTtsDraft] = useState(initialTts);
   const [ttsBase, setTtsBase] = useState(initialTts);
-
-  const [aTextModalOpen, setATextModalOpen] = useState(false);
-  const [aTextModalContent, setATextModalContent] = useState<string>("");
-  const [aTextModalLoading, setATextModalLoading] = useState(false);
-  const [aTextModalError, setATextModalError] = useState<string | null>(null);
   const [llmBoxesOpen, setLlmBoxesOpen] = useState(false);
   const [llmArtifacts, setLlmArtifacts] = useState<LlmArtifactListItem[]>([]);
   const [llmArtifactsLoading, setLlmArtifactsLoading] = useState(false);
@@ -260,9 +254,6 @@ export function VideoDetailPanel({
   const [copyAssembledNoSepStatus, setCopyAssembledNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
   const [copyAssembledNoSepInfo, setCopyAssembledNoSepInfo] = useState<string | null>(null);
   const [copyAssembledChunkIndex, setCopyAssembledChunkIndex] = useState(0);
-  const [copyATextNoSepStatus, setCopyATextNoSepStatus] = useState<"idle" | "copied" | "error">("idle");
-  const [copyATextNoSepInfo, setCopyATextNoSepInfo] = useState<string | null>(null);
-  const [copyATextChunkIndex, setCopyATextChunkIndex] = useState(0);
   const [aiInstruction, setAiInstruction] = useState(DEFAULT_AI_CHECK_INSTRUCTION);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiResult, setAiResult] = useState<string | null>(null);
@@ -270,6 +261,7 @@ export function VideoDetailPanel({
   const [aiCopyStatus, setAiCopyStatus] = useState<"idle" | "copied" | "error" | "unsupported">("idle");
   const [validationStatus, setValidationStatus] = useState<ValidationStatus>("idle");
   const [activeTabInternal, setActiveTabInternal] = useState<DetailTab>(activeTabProp ?? "script");
+  const activeTab = activeTabProp ?? activeTabInternal;
   const [showAudioHistory, setShowAudioHistory] = useState(false);
   const [humanLoading, setHumanLoading] = useState(false);
   const [humanError, setHumanError] = useState<string | null>(null);
@@ -292,23 +284,6 @@ export function VideoDetailPanel({
     setRedoNote(detail.redo_note ?? "");
   }, [detail.redo_script, detail.redo_audio, detail.redo_note]);
   const SHOW_AI_SECTION = false; // AI生成版は非表示
-  const openATextModal = useCallback(async () => {
-    setATextModalOpen(true);
-    setATextModalContent("");
-    setATextModalError(null);
-    setATextModalLoading(true);
-    setCopyATextNoSepStatus("idle");
-    setCopyATextNoSepInfo(null);
-    setCopyATextChunkIndex(0);
-    try {
-      const text = await fetchAText(detail.channel, detail.video);
-      setATextModalContent(text);
-    } catch (err) {
-      setATextModalError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setATextModalLoading(false);
-    }
-  }, [detail.channel, detail.video]);
 
   const copySotValue = useCallback(async (value: string | null | undefined) => {
     if (!value) {
@@ -401,8 +376,13 @@ useEffect(() => {
 }, [activeTabProp, activeTabInternal, refreshLlmArtifacts]);
 
   const ttsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const noteTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const noteGutterRef = useRef<HTMLDivElement | null>(null);
+  const noteSyncingScrollRef = useRef(false);
   const youtubeDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
   const detailKeyRef = useRef<string | null>(null);
+
+  const [noteCursor, setNoteCursor] = useState<{ line: number; column: number }>({ line: 1, column: 1 });
 
   const assembledDirty = useMemo(() => assembledDraft !== assembledBase, [assembledDraft, assembledBase]);
   const audioDirty = useMemo(
@@ -418,6 +398,80 @@ useEffect(() => {
     redoScript !== (detail.redo_script ?? true) ||
     redoAudio !== (detail.redo_audio ?? true) ||
     redoNote !== (detail.redo_note ?? "");
+
+  const noteLineCount = useMemo(() => {
+    const normalized = assembledDraft.replace(/\r/g, "");
+    return Math.max(1, normalized.split("\n").length);
+  }, [assembledDraft]);
+  const noteLineNumbers = useMemo(
+    () => Array.from({ length: noteLineCount }, (_, index) => String(index + 1)).join("\n"),
+    [noteLineCount]
+  );
+  const noteGutterWidthCh = useMemo(() => Math.max(4, String(noteLineCount).length + 2), [noteLineCount]);
+
+  const computeCursorFromValue = useCallback((value: string, selectionStart: number) => {
+    const safeSelectionStart = Math.max(0, selectionStart ?? 0);
+    const normalized = (value ?? "").replace(/\r/g, "");
+    const before = normalized.slice(0, Math.min(safeSelectionStart, normalized.length));
+    const lines = before.split("\n");
+    return {
+      line: Math.max(1, lines.length),
+      column: (lines[lines.length - 1]?.length ?? 0) + 1,
+    };
+  }, []);
+
+  const syncNoteScrollFromTextarea = useCallback(() => {
+    const textarea = noteTextareaRef.current;
+    const gutter = noteGutterRef.current;
+    if (!textarea || !gutter) {
+      return;
+    }
+    if (noteSyncingScrollRef.current) {
+      return;
+    }
+    noteSyncingScrollRef.current = true;
+    gutter.scrollTop = textarea.scrollTop;
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        noteSyncingScrollRef.current = false;
+      });
+    } else {
+      noteSyncingScrollRef.current = false;
+    }
+  }, []);
+
+  const syncNoteScrollFromGutter = useCallback(() => {
+    const textarea = noteTextareaRef.current;
+    const gutter = noteGutterRef.current;
+    if (!textarea || !gutter) {
+      return;
+    }
+    if (noteSyncingScrollRef.current) {
+      return;
+    }
+    noteSyncingScrollRef.current = true;
+    textarea.scrollTop = gutter.scrollTop;
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        noteSyncingScrollRef.current = false;
+      });
+    } else {
+      noteSyncingScrollRef.current = false;
+    }
+  }, []);
+
+  const handleNoteCursorUpdate = useCallback((event: SyntheticEvent<HTMLTextAreaElement>) => {
+    const target = event.currentTarget;
+    const cursor = computeCursorFromValue(target.value, target.selectionStart ?? 0);
+    setNoteCursor(cursor);
+  }, [computeCursorFromValue]);
+
+  const handleNoteChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
+    const nextValue = event.target.value;
+    setAssembledDraft(nextValue);
+    const cursor = computeCursorFromValue(nextValue, event.target.selectionStart ?? nextValue.length);
+    setNoteCursor(cursor);
+  }, [computeCursorFromValue]);
 
   const refreshAudioScript = useCallback(async () => {
     setAudioScriptLoading(true);
@@ -463,20 +517,6 @@ useEffect(() => {
     setCopyAssembledNoSepInfo(null);
     setCopyAssembledChunkIndex(0);
   }, [assembledDraft]);
-
-  useEffect(() => {
-    setCopyATextNoSepStatus("idle");
-    setCopyATextNoSepInfo(null);
-    setCopyATextChunkIndex(0);
-  }, [aTextModalContent]);
-
-  useEffect(() => {
-    if (copyATextNoSepStatus === "idle") {
-      return;
-    }
-    const timer = window.setTimeout(() => setCopyATextNoSepStatus("idle"), 2000);
-    return () => window.clearTimeout(timer);
-  }, [copyATextNoSepStatus]);
 
   useEffect(() => {
     if (aiCopyStatus === "idle") {
@@ -563,9 +603,6 @@ useEffect(() => {
     setCopyAssembledNoSepStatus("idle");
     setCopyAssembledNoSepInfo(null);
     setCopyAssembledChunkIndex(0);
-    setCopyATextNoSepStatus("idle");
-    setCopyATextNoSepInfo(null);
-    setCopyATextChunkIndex(0);
     setAiCopyStatus("idle");
     setAudioScriptUpdatedAt(detail.audio_updated_at ?? null);
     setAudioScriptError(null);
@@ -598,6 +635,18 @@ useEffect(() => {
   useEffect(() => {
     onDirtyChange?.(ttsDirty);
   }, [onDirtyChange, ttsDirty]);
+
+  useEffect(() => {
+    if (activeTab !== "note") {
+      return;
+    }
+    const textarea = noteTextareaRef.current;
+    if (!textarea) {
+      return;
+    }
+    setNoteCursor(computeCursorFromValue(textarea.value, textarea.selectionStart ?? 0));
+    syncNoteScrollFromTextarea();
+  }, [activeTab, assembledDraft, computeCursorFromValue, syncNoteScrollFromTextarea]);
 
   useEffect(() => {
     if (!ttsDirty) {
@@ -743,41 +792,6 @@ useEffect(() => {
       setCopyAudioKanaCorrectedStatus("error");
     }
   }, [audioAnalysis?.voicevox_kana_corrected]);
-
-  const handleCopyATextModalWithoutSeparators = useCallback(async () => {
-    const cleaned = stripPauseSeparators(aTextModalContent);
-    const plan = planChunkCopy(cleaned, copyATextChunkIndex);
-    if (!plan?.chunk) {
-      setCopyATextNoSepStatus("error");
-      return;
-    }
-    try {
-      await copyTextToClipboard(plan.chunk);
-      setCopyATextNoSepStatus("copied");
-      setCopyATextNoSepInfo(`${plan.currentChunk}/${plan.totalChunks} (${plan.start + 1}-${plan.end})`);
-      setCopyATextChunkIndex(plan.nextIndex);
-    } catch (copyError) {
-      console.error("Failed to copy modal A text", copyError);
-      setCopyATextNoSepStatus("error");
-    }
-  }, [aTextModalContent, copyATextChunkIndex]);
-
-  const handleCopyATextModalWithoutSeparatorsAll = useCallback(async () => {
-    const cleaned = stripPauseSeparators(aTextModalContent);
-    if (!cleaned.trim()) {
-      setCopyATextNoSepStatus("error");
-      return;
-    }
-    try {
-      await copyTextToClipboard(cleaned);
-      setCopyATextNoSepStatus("copied");
-      setCopyATextNoSepInfo(`全体（${cleaned.length.toLocaleString("ja-JP")}文字）`);
-      setCopyATextChunkIndex(0);
-    } catch (copyError) {
-      console.error("Failed to copy modal A text (all)", copyError);
-      setCopyATextNoSepStatus("error");
-    }
-  }, [aTextModalContent]);
 
   const handleCopyAiResult = useCallback(async () => {
     if (!aiResult) {
@@ -976,8 +990,6 @@ useEffect(() => {
     (ready: boolean) => wrapAction("音声準備フラグ", () => onUpdateReady(ready)),
     [onUpdateReady, wrapAction]
   );
-
-  const activeTab = activeTabProp ?? activeTabInternal;
 
   const handleSelectTab = useCallback(
     (tab: DetailTab) => {
@@ -1202,6 +1214,7 @@ useEffect(() => {
 
   const tabItems = useMemo<DetailTabItem[]>(() => {
     const scriptBadge = ttsDirty ? "未保存" : null;
+    const noteBadge = assembledDirty ? "未保存" : null;
     const audioBadge =
       audioStageStatus === "blocked"
         ? "要対応"
@@ -1212,29 +1225,75 @@ useEffect(() => {
             : null;
     return [
       { key: "overview", label: "概要" },
+      { key: "note", label: "Aノート", badge: noteBadge, tone: noteBadge ? "warning" : undefined },
       { key: "script", label: "台本・音声字幕", badge: scriptBadge, tone: ttsDirty ? "warning" : undefined },
       { key: "audio", label: "音声レビュー", badge: audioBadge, tone: audioBadge ? "warning" : undefined },
       { key: "video", label: "動画" },
       { key: "history", label: "履歴" },
     ];
-  }, [audioStageStatus, ttsDirty]);
+  }, [assembledDirty, audioStageStatus, ttsDirty]);
 
   const primarySaveHandler = useMemo<(() => void) | null>(
-    () =>
-      activeTab === "script"
-        ? () => {
-            void handleSaveBothScripts();
-          }
-        : null,
-    [activeTab, handleSaveBothScripts]
+    () => {
+      if (activeTab === "script") {
+        return () => {
+          void handleSaveBothScripts();
+        };
+      }
+      if (activeTab === "note") {
+        return () => {
+          void handleSaveAssembledDraft();
+        };
+      }
+      return null;
+    },
+    [activeTab, handleSaveAssembledDraft, handleSaveBothScripts]
   );
 
-  const primarySaveLabel = useMemo(
-    () => (activeTab === "script" ? "A・Bテキストを保存" : "保存"),
-    [activeTab]
-  );
+  const primarySaveLabel = useMemo(() => {
+    if (activeTab === "script") {
+      return "A・Bテキストを保存";
+    }
+    if (activeTab === "note") {
+      return "Aテキストを保存";
+    }
+    return "保存";
+  }, [activeTab]);
 
-  const primarySaveDisabled = primarySaveHandler === null || busyAction !== null || (!assembledDirty && !audioDirty && audioReviewed === audioReviewedBase);
+  const primarySaveDisabled = useMemo(() => {
+    if (primarySaveHandler === null || busyAction !== null) {
+      return true;
+    }
+    if (activeTab === "note") {
+      return !assembledDirty;
+    }
+    if (activeTab === "script") {
+      return !assembledDirty && !audioDirty && audioReviewed === audioReviewedBase;
+    }
+    return false;
+  }, [activeTab, assembledDirty, audioDirty, audioReviewed, audioReviewedBase, busyAction, primarySaveHandler]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (!primarySaveHandler) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isSave = (event.ctrlKey || event.metaKey) && (event.key === "s" || event.key === "S");
+      if (!isSave) {
+        return;
+      }
+      if (primarySaveDisabled) {
+        return;
+      }
+      event.preventDefault();
+      primarySaveHandler();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [primarySaveDisabled, primarySaveHandler]);
 
   const audioWorkspaceHandlers = useMemo(
     () => ({
@@ -1679,10 +1738,10 @@ useEffect(() => {
                     type="button"
                     className="workspace-button workspace-button--ghost"
                     onClick={() => {
-                      void openATextModal();
+                      handleSelectTab("note");
                     }}
                   >
-                    Aテキストを見る
+                    Aテキスト（ノート）
                   </button>
                   <button
                     type="button"
@@ -1763,6 +1822,137 @@ useEffect(() => {
               </div>
             </section>
           </div>
+        )}
+
+        {activeTab === "note" && (
+          <section className="detail-tab-panel detail-tab-panel--note note-tab" role="tabpanel">
+            <div className="note-tab__layout">
+              <header className="note-tab__header">
+                <div>
+                  <h3>Aテキスト（ノート）</h3>
+                  <p className="note-tab__hint">Aテキストを1カラムで確認・編集します（Bテキストは別タブ）。</p>
+                  <p className="muted small-text">
+                    SoT:{" "}
+                    <code>{detail.assembled_human_path ?? detail.assembled_path ?? "—"}</code>
+                  </p>
+                </div>
+                <div className="note-tab__meta" aria-live="polite">
+                  <span className="script-editor__counter">
+                    文字数: {assembledDraft.replace(/\\r/g, "").replace(/\\n/g, "").length.toLocaleString("ja-JP")}
+                  </span>
+                  <span className={`status-chip${assembledDirty ? " status-chip--warning" : ""}`}>
+                    {assembledDirty ? "未保存" : "保存済み"}
+                  </span>
+                  <span className="muted small-text">
+                    行 {noteCursor.line.toLocaleString("ja-JP")} / {noteLineCount.toLocaleString("ja-JP")} ・ 列{" "}
+                    {noteCursor.column.toLocaleString("ja-JP")}
+                  </span>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => {
+                      handleSelectTab("script");
+                    }}
+                    disabled={busyAction !== null}
+                  >
+                    A/B編集へ
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => {
+                      const url = apiUrl(
+                        `/api/channels/${encodeURIComponent(detail.channel)}/videos/${encodeURIComponent(detail.video)}/a-text`
+                      );
+                      window.open(url, "_blank", "noreferrer");
+                    }}
+                  >
+                    プレーン表示
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => void handleCopyAssembledWithoutSeparatorsAll()}
+                    disabled={busyAction !== null || !assembledDraft.trim()}
+                    title="区切り線（---）を除去して全体をコピー（失敗する場合は「8,000字コピー」を使用）"
+                  >
+                    ---なしで全体コピー
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    onClick={() => void handleCopyAssembledWithoutSeparators()}
+                    disabled={busyAction !== null || !assembledDraft.trim()}
+                    title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
+                  >
+                    ---なしで{COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}字コピー
+                  </button>
+                  <span className="muted small-text">
+                    {copyAssembledNoSepStatus === "copied"
+                      ? copyAssembledNoSepInfo
+                        ? `コピーしました (${copyAssembledNoSepInfo})`
+                        : "コピーしました"
+                      : copyAssembledNoSepStatus === "error"
+                        ? "コピーに失敗しました"
+                        : ""}
+                  </span>
+                </div>
+              </header>
+
+              <div className="note-tab__paper">
+                <div className="note-paper">
+                  <div className="note-editor">
+                    <div
+                      className="note-editor__gutter"
+                      ref={noteGutterRef}
+                      onScroll={syncNoteScrollFromGutter}
+                      style={{ width: `${noteGutterWidthCh}ch` }}
+                      aria-hidden="true"
+                    >
+                      <pre className="note-editor__gutter-content">{noteLineNumbers}</pre>
+                    </div>
+                    <textarea
+                      ref={noteTextareaRef}
+                      className="note-editor__textarea"
+                      value={assembledDraft}
+                      onChange={handleNoteChange}
+                      onScroll={syncNoteScrollFromTextarea}
+                      onClick={handleNoteCursorUpdate}
+                      onKeyUp={handleNoteCursorUpdate}
+                      onSelect={handleNoteCursorUpdate}
+                      aria-label="Aテキスト（ノート）"
+                      placeholder="Aテキスト（assembled.md / assembled_human.md）を入力してください"
+                      spellCheck={false}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="script-save-area note-tab__save">
+                <div className="script-editor__messages" aria-live="polite">
+                  {humanLoading && <p className="muted">台本を読み込み中です…</p>}
+                  {humanError && <p className="error">{humanError}</p>}
+                  {message && <p className="success">{message}</p>}
+                  {error && <p className="error">{error}</p>}
+                </div>
+
+                <div className="script-editor__actions script-editor__actions--horizontal">
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--primary"
+                    onClick={() => void handleSaveAssembledDraft()}
+                    disabled={busyAction !== null || !assembledDirty}
+                  >
+                    {assembledDirty ? "Aテキストを保存" : "保存済み"}
+                  </button>
+                </div>
+
+                <p className="muted small-text">
+                  Bテキスト（音声用）の編集は「台本・音声字幕」タブで行ってください。
+                </p>
+              </div>
+            </div>
+          </section>
         )}
 
         {activeTab === "script" && (
@@ -2302,50 +2492,6 @@ useEffect(() => {
                   />
                 </div>
               ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
-      {aTextModalOpen ? (
-        <div className="modal-backdrop" onClick={() => setATextModalOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <header className="modal__header">
-              <h3>Aテキスト</h3>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <button
-	                  className="workspace-button workspace-button--ghost"
-	                  onClick={() => void handleCopyATextModalWithoutSeparatorsAll()}
-	                  disabled={!aTextModalContent.trim()}
-	                  title="区切り線（---）を除去して全体をコピー（失敗する場合は「8,000字コピー」を使用）"
-	                >
-	                  ---なしで全体コピー
-	                </button>
-                <button
-	                  className="workspace-button workspace-button--ghost"
-	                  onClick={() => void handleCopyATextModalWithoutSeparators()}
-	                  disabled={!aTextModalContent.trim()}
-	                  title={`区切り線（---）を除去して${COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}文字ずつコピー`}
-	                >
-	                  ---なしで{COPY_NO_SEP_CHUNK_SIZE.toLocaleString("ja-JP")}字コピー
-	                </button>
-                <span className="muted small-text">
-                  {copyATextNoSepStatus === "copied"
-                    ? copyATextNoSepInfo
-                      ? `コピーしました (${copyATextNoSepInfo})`
-                      : "コピーしました"
-                    : copyATextNoSepStatus === "error"
-                      ? "失敗"
-                      : ""}
-                </span>
-                <button className="workspace-button workspace-button--ghost" onClick={() => setATextModalOpen(false)}>
-                  閉じる
-                </button>
-              </div>
-            </header>
-            <div className="modal__body" style={{ maxHeight: "60vh", overflow: "auto" }}>
-              {aTextModalLoading ? <p>読み込み中…</p> : null}
-              {aTextModalError ? <p className="error">{aTextModalError}</p> : null}
-              {aTextModalContent ? <pre className="code-block" style={{ whiteSpace: "pre-wrap" }}>{aTextModalContent}</pre> : null}
             </div>
           </div>
         </div>

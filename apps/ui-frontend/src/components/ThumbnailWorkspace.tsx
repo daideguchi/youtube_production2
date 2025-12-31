@@ -60,10 +60,13 @@ type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "a
 
 type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "qc" | "templates" | "library" | "channel";
 
+type GalleryVariantMode = "selected" | "all" | "two_up";
+
 type ThumbnailGalleryItem = {
+  key: string;
   project: ThumbnailProject;
   variant: ThumbnailVariant | null;
-  kind: "selected" | "ch26_thumb_1" | "ch26_thumb_2";
+  slotLabel?: string;
 };
 
 type VariantFormState = {
@@ -525,6 +528,14 @@ function getProjectKey(project: ThumbnailProject): string {
   return `${project.channel}/${project.video}`;
 }
 
+function parseGalleryVariantMode(value: string | null | undefined): GalleryVariantMode | null {
+  const v = (value ?? "").trim();
+  if (v === "selected" || v === "all" || v === "two_up") {
+    return v;
+  }
+  return null;
+}
+
 function resolveSelectedVariant(project: ThumbnailProject): ThumbnailVariant | null {
   const selected =
     project.variants.find((variant) => variant.is_selected) ??
@@ -542,10 +553,7 @@ function hasThumbFileSuffix(value: string | null | undefined, fileName: string):
   return value === fileName || value.endsWith(`/${fileName}`);
 }
 
-function findCh26VariantByThumbFile(
-  project: ThumbnailProject,
-  fileName: "00_thumb_1.png" | "00_thumb_2.png"
-): ThumbnailVariant | null {
+function findVariantByThumbFile(project: ThumbnailProject, fileName: string): ThumbnailVariant | null {
   return (
     project.variants.find(
       (variant) => hasThumbFileSuffix(variant.image_path, fileName) || hasThumbFileSuffix(variant.image_url, fileName)
@@ -624,13 +632,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const dropzoneFileInputs = useRef(new Map<string, HTMLInputElement>());
   const [activeDropProject, setActiveDropProject] = useState<string | null>(null);
   const [expandedProjectKey, setExpandedProjectKey] = useState<string | null>(null);
-  const [ch26TwoUpVariants, setCh26TwoUpVariants] = useState<boolean>(() => {
-    const stored = (safeLocalStorage.getItem("ui.thumbnails.ch26_two_up") ?? "").trim().toLowerCase();
-    if (!stored) {
-      return true;
-    }
-    return stored === "true";
-  });
+  const [galleryVariantMode, setGalleryVariantMode] = useState<GalleryVariantMode>("selected");
   const libraryRequestRef = useRef(0);
   const qcNotesRequestRef = useRef(0);
   const layerTuningRequestRef = useRef(0);
@@ -773,36 +775,93 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     });
   }, [activeChannel, searchTerm]);
 
-  const isCh26TwoUpMode = activeChannel?.channel === "CH26" && ch26TwoUpVariants;
+  useEffect(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+
+    const storageKey = `ui.thumbnails.gallery_variant_mode.${channelCode}`;
+    const stored = parseGalleryVariantMode(safeLocalStorage.getItem(storageKey));
+    if (stored) {
+      setGalleryVariantMode((current) => (current === stored ? current : stored));
+      return;
+    }
+
+    const hasTwoUpVariants = activeChannel.projects.some((project) =>
+      (project.variants ?? []).some((variant) => {
+        return (
+          hasThumbFileSuffix(variant.image_path, "00_thumb_1.png") ||
+          hasThumbFileSuffix(variant.image_url, "00_thumb_1.png") ||
+          hasThumbFileSuffix(variant.image_path, "00_thumb_2.png") ||
+          hasThumbFileSuffix(variant.image_url, "00_thumb_2.png")
+        );
+      })
+    );
+    setGalleryVariantMode(hasTwoUpVariants ? "two_up" : "selected");
+  }, [activeChannel?.channel, activeChannel?.projects]);
+
+  useEffect(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+    const storageKey = `ui.thumbnails.gallery_variant_mode.${channelCode}`;
+    safeLocalStorage.setItem(storageKey, galleryVariantMode);
+  }, [activeChannel?.channel, galleryVariantMode]);
+
+  useEffect(() => {
+    if (galleryVariantMode !== "two_up") {
+      return;
+    }
+    const projectCount = activeChannel?.projects.length ?? 0;
+    if (!projectCount) {
+      return;
+    }
+    const target = Math.max(DEFAULT_GALLERY_LIMIT, projectCount * 2);
+    setGalleryLimit((prev) => (prev >= target ? prev : target));
+  }, [activeChannel?.channel, activeChannel?.projects.length, galleryVariantMode]);
+
+  const isTwoUpMode = galleryVariantMode === "two_up";
 
   const galleryItems: ThumbnailGalleryItem[] = useMemo(() => {
     if (!activeChannel) {
       return [];
     }
 
-    if (!isCh26TwoUpMode) {
-      return galleryProjects.map((project) => ({
-        project,
-        variant: resolveSelectedVariant(project),
-        kind: "selected",
-      }));
-    }
-
     const items: ThumbnailGalleryItem[] = [];
     for (const project of galleryProjects) {
-      items.push({
-        project,
-        variant: findCh26VariantByThumbFile(project, "00_thumb_1.png"),
-        kind: "ch26_thumb_1",
-      });
-      items.push({
-        project,
-        variant: findCh26VariantByThumbFile(project, "00_thumb_2.png"),
-        kind: "ch26_thumb_2",
-      });
+      const projectKey = getProjectKey(project);
+      if (galleryVariantMode === "all") {
+        const variants = Array.isArray(project.variants) ? project.variants : [];
+        if (variants.length === 0) {
+          items.push({ key: `${projectKey}#empty`, project, variant: null });
+          continue;
+        }
+        for (const variant of variants) {
+          items.push({ key: `${projectKey}#${variant.id}`, project, variant });
+        }
+        continue;
+      }
+      if (galleryVariantMode === "two_up") {
+        items.push({
+          key: `${projectKey}#thumb_1`,
+          project,
+          variant: findVariantByThumbFile(project, "00_thumb_1.png"),
+          slotLabel: "00_thumb_1",
+        });
+        items.push({
+          key: `${projectKey}#thumb_2`,
+          project,
+          variant: findVariantByThumbFile(project, "00_thumb_2.png"),
+          slotLabel: "00_thumb_2",
+        });
+        continue;
+      }
+      items.push({ key: `${projectKey}#selected`, project, variant: resolveSelectedVariant(project) });
     }
     return items;
-  }, [activeChannel, galleryProjects, isCh26TwoUpMode]);
+  }, [activeChannel, galleryProjects, galleryVariantMode]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -827,17 +886,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     // Persist last-used channel without forcing URL rewrites (avoids navigation loops).
     safeLocalStorage.setItem("ui.channel.selected", normalized);
   }, [selectedChannel]);
-
-  useEffect(() => {
-    safeLocalStorage.setItem("ui.thumbnails.ch26_two_up", ch26TwoUpVariants ? "true" : "false");
-  }, [ch26TwoUpVariants]);
-
-  useEffect(() => {
-    if (activeChannel?.channel !== "CH26" || !ch26TwoUpVariants) {
-      return;
-    }
-    setGalleryLimit((prev) => (prev >= 60 ? prev : 60));
-  }, [activeChannel?.channel, ch26TwoUpVariants]);
 
   useEffect(() => {
     setGalleryProjectSaving({});
@@ -1462,25 +1510,28 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const galleryPanel = activeChannel ? (
     <section className="thumbnail-gallery-panel">
       <div className="thumbnail-gallery-panel__header">
-	        <div>
-	          <h3>ギャラリー</h3>
-	          <p>
-	            {isCh26TwoUpMode
-	              ? "CH26は thumb_1/2 を2案表示（60枚）。ZIP（全部）で全バリアントを取得できます。"
-	              : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}
-	          </p>
-	        </div>
+        <div>
+          <h3>ギャラリー</h3>
+          <p>
+            {galleryVariantMode === "two_up"
+              ? "00_thumb_1/00_thumb_2（2案）を一覧表示します。"
+              : galleryVariantMode === "all"
+                ? "全バリアントを一覧表示し、ZIPでまとめてダウンロードできます。"
+                : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}
+          </p>
+        </div>
         <div className="thumbnail-gallery-panel__actions">
-          {activeChannel.channel === "CH26" ? (
-            <label className="muted small-text" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <input
-                type="checkbox"
-                checked={ch26TwoUpVariants}
-                onChange={(event) => setCh26TwoUpVariants(event.target.checked)}
-              />
-              <span>2案（thumb_1/2）を60枚で表示</span>
-            </label>
-          ) : null}
+          <label className="muted small-text" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span>表示</span>
+            <select
+              value={galleryVariantMode}
+              onChange={(event) => setGalleryVariantMode(parseGalleryVariantMode(event.target.value) ?? "selected")}
+            >
+              <option value="selected">選択中のみ</option>
+              <option value="all">全バリアント</option>
+              <option value="two_up">2案（00_thumb_1/2）</option>
+            </select>
+          </label>
           <input
             type="search"
             className="thumbnail-gallery-panel__search"
@@ -1516,10 +1567,20 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         {galleryItems.slice(0, galleryLimit).map((item) => {
           const project = item.project;
           const projectKey = getProjectKey(project);
-          const itemKey = `${projectKey}#${item.kind}`;
+          const itemKey = item.key;
           const selectedVariant = item.variant;
-          const missingSlotLabel =
-            item.kind === "ch26_thumb_1" ? "00_thumb_1" : item.kind === "ch26_thumb_2" ? "00_thumb_2" : "選択中";
+          const slotLabel = (item.slotLabel ?? "").trim();
+          const displayVariantLabel = (() => {
+            const base = selectedVariant ? (selectedVariant.label ?? selectedVariant.id) : "";
+            if (!base) {
+              return slotLabel;
+            }
+            if (isTwoUpMode && slotLabel) {
+              return `${slotLabel} / ${base}`;
+            }
+            return base;
+          })();
+
           if (!selectedVariant) {
             return (
               <article key={itemKey} className="thumbnail-gallery-card thumbnail-gallery-card--empty">
@@ -1528,16 +1589,15 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
                     {project.title ?? "（タイトル未設定）"}
                   </div>
-                  {isCh26TwoUpMode ? (
-                    <div className="thumbnail-gallery-card__variant">{missingSlotLabel}</div>
-                  ) : null}
+                  {isTwoUpMode && slotLabel ? <div className="thumbnail-gallery-card__variant">{slotLabel}</div> : null}
                   <div className="thumbnail-gallery-card__note">
-                    {isCh26TwoUpMode ? `${missingSlotLabel} 未生成` : "サムネ未登録"}
+                    {isTwoUpMode && slotLabel ? `${slotLabel} 未生成` : "サムネ未登録"}
                   </div>
                 </div>
               </article>
             );
           }
+
           const cacheBustToken =
             selectedVariant.updated_at ?? project.updated_at ?? project.status_updated_at ?? null;
           const imageUrlBase =
@@ -1555,13 +1615,18 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           const notesValue = galleryNotesDraft[projectKey] ?? project.notes ?? "";
           const notesDirty = notesValue !== (project.notes ?? "");
           const downloadName = (() => {
-            if (isCh26TwoUpMode) {
+            if (galleryVariantMode !== "selected") {
               const raw = selectedVariant.image_path ?? selectedVariant.image_url ?? "";
-              const fileName = raw.split("/").filter(Boolean).slice(-1)[0] ?? "";
-              return fileName ? `${project.channel}-${project.video}-${fileName}` : `${project.channel}-${project.video}.png`;
+              const clean = raw.split("?")[0];
+              const fileName = clean.split("/").filter(Boolean).slice(-1)[0] ?? "";
+              if (fileName) {
+                return `${project.channel}-${project.video}-${fileName}`;
+              }
+              return `${project.channel}-${project.video}-${selectedVariant.id}.png`;
             }
             return `${project.channel}-${project.video}.png`;
           })();
+
           return (
             <article
               key={itemKey}
@@ -1587,7 +1652,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                 <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
                   {project.title ?? "（タイトル未設定）"}
                 </div>
-                <div className="thumbnail-gallery-card__variant">{selectedVariant.label ?? selectedVariant.id}</div>
+                <div className="thumbnail-gallery-card__variant">{displayVariantLabel}</div>
                 <div className="thumbnail-gallery-card__review-row">
                   <span className={`thumbnail-card__status-badge thumbnail-card__status-badge--${project.status}`}>
                     {statusLabel}

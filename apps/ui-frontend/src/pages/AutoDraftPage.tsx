@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   createAutoDraft,
   fetchAutoDraftSrts,
@@ -34,6 +34,8 @@ type RunState = {
   error: string | null;
   result: AutoDraftCreateResponse | null;
 };
+
+type VrewPromptsTextMode = "kuten" | "lines";
 
 const initialForm: FormState = {
   srtPath: "",
@@ -100,13 +102,15 @@ export function AutoDraftPage() {
   const [showFullSrt, setShowFullSrt] = useState(false);
   const [srtEdit, setSrtEdit] = useState("");
   const [savingSrt, setSavingSrt] = useState(false);
+  const [vrewPromptsTextMode, setVrewPromptsTextMode] = useState<VrewPromptsTextMode>("kuten");
   const [vrewPrompts, setVrewPrompts] = useState<{
     status: "idle" | "loading" | "ready" | "error";
-    text: string;
+    textLines: string;
+    textKuten: string;
     lineCount: number;
     srtPath: string;
     error?: string;
-  }>({ status: "idle", text: "", lineCount: 0, srtPath: "", error: undefined });
+  }>({ status: "idle", textLines: "", textKuten: "", lineCount: 0, srtPath: "", error: undefined });
   const [showCapcutManual, setShowCapcutManual] = useState(false);
   const [showPromptManual, setShowPromptManual] = useState(false);
   const appliedInitialSelectionRef = useRef(false);
@@ -249,7 +253,7 @@ export function AutoDraftPage() {
     const defaults = deriveDefaults(item);
     setForm((prev) => ({ ...prev, ...defaults }));
     setPromptPreview({ status: "idle", content: "", path: "", error: undefined });
-    setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: item.path, error: undefined });
+    setVrewPrompts({ status: "idle", textLines: "", textKuten: "", lineCount: 0, srtPath: item.path, error: undefined });
   };
 
   const currentPromptPath = useMemo(() => {
@@ -289,12 +293,12 @@ export function AutoDraftPage() {
       setSrtPreview({ status: "idle", content: "", path: "", error: undefined, meta: "" });
       setSrtFilter("");
       setSrtEdit("");
-      setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: "", error: undefined });
+      setVrewPrompts({ status: "idle", textLines: "", textKuten: "", lineCount: 0, srtPath: "", error: undefined });
       return;
     }
     let cancelled = false;
     setSrtPreview({ status: "loading", content: "", path: target, error: undefined, meta: "" });
-    setVrewPrompts({ status: "idle", text: "", lineCount: 0, srtPath: target, error: undefined });
+    setVrewPrompts({ status: "idle", textLines: "", textKuten: "", lineCount: 0, srtPath: target, error: undefined });
     fetchAutoDraftSrtContent(target)
       .then((res: AutoDraftSrtContent) => {
         if (cancelled) return;
@@ -391,12 +395,13 @@ export function AutoDraftPage() {
       setToast("SRTが未選択です");
       return;
     }
-    setVrewPrompts({ status: "loading", text: "", lineCount: 0, srtPath: form.srtPath, error: undefined });
+    setVrewPrompts({ status: "loading", textLines: "", textKuten: "", lineCount: 0, srtPath: form.srtPath, error: undefined });
     try {
       const res = await fetchAutoDraftVrewPrompts(form.srtPath);
       setVrewPrompts({
         status: "ready",
-        text: res.promptsText,
+        textLines: res.promptsText,
+        textKuten: res.promptsTextKuten,
         lineCount: res.lineCount,
         srtPath: res.srtPath,
         error: undefined,
@@ -405,7 +410,8 @@ export function AutoDraftPage() {
     } catch (err: any) {
       setVrewPrompts({
         status: "error",
-        text: "",
+        textLines: "",
+        textKuten: "",
         lineCount: 0,
         srtPath: form.srtPath,
         error: err?.message || "Vrewプロンプト生成に失敗しました",
@@ -415,10 +421,12 @@ export function AutoDraftPage() {
   };
 
   const handleCopyVrewPrompts = async () => {
-    if (vrewPrompts.status !== "ready" || !vrewPrompts.text) return;
+    if (vrewPrompts.status !== "ready") return;
+    const text = vrewPromptsTextMode === "kuten" ? vrewPrompts.textKuten : vrewPrompts.textLines;
+    if (!text) return;
     try {
-      await navigator.clipboard.writeText(vrewPrompts.text);
-      setToast("Vrewプロンプトをコピーしました");
+      await navigator.clipboard.writeText(text);
+      setToast(vrewPromptsTextMode === "kuten" ? "Vrewプロンプト（句点区切り）をコピーしました" : "Vrewプロンプト（改行区切り）をコピーしました");
     } catch (err: any) {
       setToast(err?.message || "コピーに失敗しました");
     }
@@ -785,12 +793,42 @@ export function AutoDraftPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <div>
               <strong>Vrewインポート用プロンプト</strong>
-              <div style={{ fontSize: 12, color: "#64748b" }}>コピペしてVrewへ（1行=1枚 / 末尾は「。」）</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>コピペしてVrewへ（Vrewは「。」でセクション分割）</div>
               {vrewPrompts.status === "ready" && (
                 <div style={{ fontSize: 11, color: "#94a3b8" }}>{vrewPrompts.lineCount} 行</div>
               )}
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <Link
+                to="/capcut-edit/vrew"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  background: "#fff",
+                  color: "#0f172a",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  fontSize: 12,
+                }}
+              >
+                Vrew専用ページへ
+              </Link>
+              <select
+                value={vrewPromptsTextMode}
+                onChange={(e) => setVrewPromptsTextMode(e.target.value as VrewPromptsTextMode)}
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  background: "#fff",
+                  color: "#0f172a",
+                  fontSize: 12,
+                }}
+              >
+                <option value="kuten">句点区切り（貼り付け用）</option>
+                <option value="lines">改行区切り（確認用）</option>
+              </select>
               <button
                 type="button"
                 onClick={handleGenerateVrewPrompts}
@@ -832,7 +870,9 @@ export function AutoDraftPage() {
             readOnly
             value={
               vrewPrompts.status === "ready"
-                ? vrewPrompts.text
+                ? vrewPromptsTextMode === "kuten"
+                  ? vrewPrompts.textKuten
+                  : vrewPrompts.textLines
                 : vrewPrompts.status === "loading"
                   ? "生成中..."
                   : "SRTを選択して「生成」を押すと、Vrewに貼り付ける本文が出ます。"
@@ -846,7 +886,7 @@ export function AutoDraftPage() {
               fontFamily: "SFMono-Regular, Menlo, Consolas, monospace",
               fontSize: 12,
               background: "#fff",
-              whiteSpace: "pre",
+              whiteSpace: vrewPromptsTextMode === "kuten" ? "pre-wrap" : "pre",
             }}
           />
         </div>

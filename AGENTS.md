@@ -26,3 +26,5 @@
 ## 3) コミット/パッチ（環境差異に備える）
 - 原則: 小さく刻んでコミット。
 - もし git が使えない/不安定なら、`bash scripts/ops/save_patch.sh` でパッチを保存し、Orchestrator/人間が apply→commit する。
+  - 並列運用では **必ずスコープ限定**（`--path ...` または「自分の active lock scopes に自動スコープ」）。全体パッチは `--all` 明示時のみ。
+  - 未コミット差分が lock 外に広がっている場合は **直さない/消さない**（board/memo で担当へ連絡）。

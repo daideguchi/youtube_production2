@@ -36,6 +36,12 @@ CAPCUT_ROOT = (
 OUTPUT_ROOT = video_runs_root()
 IMAGE_CUES_NAME = "image_cues.json"
 PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"
+VREW_PROMPTS_NAME = "vrew_import_prompts.txt"
+VREW_PROMPTS_REL_CANDIDATES = [
+    Path("vrew") / VREW_PROMPTS_NAME,
+    Path("vrew_route") / VREW_PROMPTS_NAME,
+    Path(VREW_PROMPTS_NAME),
+]
 
 _EPISODE_TOKEN_RE = re.compile(r"(CH\d{2})[-_](\d{3})", re.IGNORECASE)
 
@@ -49,6 +55,19 @@ def _ensure_paths() -> None:
     WHITELIST_PATH.parent.mkdir(parents=True, exist_ok=True)
     CAPCUT_ROOT.mkdir(parents=True, exist_ok=True)
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+
+def _resolve_run_dir_under_output_root(path: str) -> Path:
+    _ensure_paths()
+    target = Path(path).expanduser().resolve()
+    try:
+        target.relative_to(OUTPUT_ROOT)
+    except Exception:
+        raise HTTPException(status_code=400, detail=f"run_dir must be under {OUTPUT_ROOT}")
+    if not target.exists():
+        raise HTTPException(status_code=404, detail=f"run_dir not found: {target}")
+    if not target.is_dir():
+        raise HTTPException(status_code=400, detail="run_dir is not a directory")
+    return target
 
 
 def _write_log(content: str) -> str:
@@ -249,6 +268,48 @@ def list_run_dirs(limit: int = Query(default=200, ge=1, le=500)) -> Dict[str, An
         for d in dirs[:limit]
     ]
     return {"items": items}
+
+@router.get("/vrew-prompts")
+def get_vrew_prompts(run_dir: str) -> Dict[str, Any]:
+    """
+    Return Vrew import prompts text from a run_dir.
+
+    Expected locations (first match wins):
+      - <run_dir>/vrew/vrew_import_prompts.txt
+      - <run_dir>/vrew_route/vrew_import_prompts.txt
+      - <run_dir>/vrew_import_prompts.txt
+    """
+    run = _resolve_run_dir_under_output_root(run_dir)
+    prompts_path: Optional[Path] = None
+    for rel in VREW_PROMPTS_REL_CANDIDATES:
+        cand = run / rel
+        if cand.exists():
+            prompts_path = cand
+            break
+    if prompts_path is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "vrew_import_prompts.txt not found under run_dir. Expected one of:\n"
+                "- vrew/vrew_import_prompts.txt\n"
+                "- vrew_route/vrew_import_prompts.txt\n"
+                "- vrew_import_prompts.txt"
+            ),
+        )
+    try:
+        raw = prompts_path.read_text(encoding="utf-8", errors="ignore")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"failed to read vrew prompts: {e}")
+    prompts = [line.strip() for line in raw.splitlines() if line.strip()]
+    return {
+        "ok": True,
+        "run_dir": str(run),
+        "prompts_path": str(prompts_path),
+        "line_count": len(prompts),
+        "prompts": prompts,
+        "prompts_text": "\n".join(prompts) + ("\n" if prompts else ""),
+        "prompts_text_kuten": "".join(prompts),
+    }
 
 
 @router.get("/auto-run-dir")
