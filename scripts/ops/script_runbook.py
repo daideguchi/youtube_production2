@@ -79,6 +79,57 @@ def _truthy(value: Any) -> bool:
     return s in {"1", "true", "yes", "on"}
 
 
+def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
+    """
+    Apply optional LLM router overrides for this process (ops ergonomics).
+
+    Mirrors `packages/script_pipeline/cli.py` so operators can switch models with one flag:
+    - --llm-model MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_MODELS
+    - --llm-task-model TASK=MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_TASK_MODELS_JSON
+    """
+    if getattr(args, "llm_model", None):
+        flattened: list[str] = []
+        for raw in args.llm_model or []:
+            for part in str(raw).split(","):
+                part = part.strip()
+                if part:
+                    flattened.append(part)
+        if flattened:
+            os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
+
+    if getattr(args, "llm_task_model", None):
+        mapping: dict[str, list[str]] = {}
+        for raw in args.llm_task_model or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-model must be TASK=MODELKEY[,MODELKEY...]; got: {spec}")
+            task, models = spec.split("=", 1)
+            task = task.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-model task is empty: {spec}")
+            model_keys = [m.strip() for m in models.split(",") if m.strip()]
+            if not model_keys:
+                raise SystemExit(f"--llm-task-model models are empty: {spec}")
+            mapping[task] = model_keys
+        if mapping:
+            os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
+
+
+def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--llm-model",
+        action="append",
+        help="Force LLM router model key(s) for this run (comma-separated). Can be repeated.",
+    )
+    p.add_argument(
+        "--llm-task-model",
+        action="append",
+        help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
+    )
+
+
 def _norm_channel(value: str) -> str:
     return str(value or "").strip().upper()
 
@@ -1201,6 +1252,7 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     new_p = sub.add_parser("new", help="Create a new script by running pending stages until stable.")
+    _add_llm_override_flags(new_p)
     new_p.add_argument("--channel", required=True)
     new_p.add_argument("--video", required=True)
     new_p.add_argument("--until", default="script_validation", help="Stop when this stage is completed (default: script_validation).")
@@ -1208,6 +1260,7 @@ def main() -> int:
     new_p.set_defaults(func=cmd_new)
 
     redo_p = sub.add_parser("redo", help="Redo existing scripts for a range (validate, continue, or regenerate).")
+    _add_llm_override_flags(redo_p)
     redo_p.add_argument("--channel", required=True)
     redo_p.add_argument("--from", dest="from_video", required=True)
     redo_p.add_argument("--to", dest="to_video", required=True)
@@ -1222,6 +1275,7 @@ def main() -> int:
     redo_p.set_defaults(func=cmd_redo)
 
     redo_full_p = sub.add_parser("redo-full", help="Reset + regenerate from scratch for a range (alias of redo --mode regenerate).")
+    _add_llm_override_flags(redo_full_p)
     redo_full_p.add_argument("--channel", required=True)
     redo_full_p.add_argument("--from", dest="from_video", required=True)
     redo_full_p.add_argument("--to", dest="to_video", required=True)
@@ -1234,6 +1288,7 @@ def main() -> int:
         "resume",
         help="Adjust/resume a single episode (sync targets + reconcile + re-run validation when needed).",
     )
+    _add_llm_override_flags(resume_p)
     resume_p.add_argument("--channel", required=True)
     resume_p.add_argument("--video", required=True)
     resume_p.add_argument("--until", default="script_validation", help="Stop when this stage is completed (default: script_validation).")
@@ -1255,6 +1310,7 @@ def main() -> int:
     resume_p.set_defaults(func=cmd_resume)
 
     rewrite_p = sub.add_parser("rewrite", help="Rewrite script (instruction required) then re-run validation.")
+    _add_llm_override_flags(rewrite_p)
     rewrite_p.add_argument("--channel", required=True)
     rewrite_p.add_argument("--video", required=True)
     rewrite_p.add_argument("--instruction", default="", help="User instruction for rewrite (required unless --instruction-file).")
@@ -1264,12 +1320,14 @@ def main() -> int:
     rewrite_p.set_defaults(func=cmd_rewrite)
 
     seed_p = sub.add_parser("seed-expand", help="Seed one-shot then converge via script_validation (extend/expand).")
+    _add_llm_override_flags(seed_p)
     seed_p.add_argument("--channel", required=True)
     seed_p.add_argument("--video", required=True)
     seed_p.add_argument("--force-seed", action="store_true", help="Overwrite existing seed A-text by regenerating it (extra LLM call).")
     seed_p.set_defaults(func=cmd_seed_expand)
 
     args = ap.parse_args()
+    _apply_llm_overrides_from_args(args)
     return int(args.func(args))
 
 

@@ -41,9 +41,10 @@
 ## 2. 現行のモデル（正本: configs/llm_router.yaml の要約）
 
 ### 2.1 テキストLLM（台本/読み/補助）
-- `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、モデルチェーンを **2つに固定**する（原則）。
-  - primary: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek V3.2）
-  - fallback: `or_kimi_k2_thinking`（OpenRouter / MoonshotAI: Kimi K2 Thinking）
+- `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
+  - primary: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek V3.2 exp）
+  - optional fallback: `or_kimi_k2_thinking`（OpenRouter / Kimi K2 Thinking。OpenRouterが死んでいる場合は実質無効）
+  - 比較用（既定では使わない）: `fw_glm_4p7`, `fw_mixtral_8x22b_instruct`（Fireworks。`LLM_FORCE_MODELS`/`--llm-model` で明示したときだけ）
 
 #### 2.1.1 Decision（2025-12-28）: 台本系モデルは「2つ」に固定（DeepSeek v3.2 exp / Kimi K2 Thinking）
 対象（正本）:
@@ -54,6 +55,7 @@
 - `script_pipeline`（台本）の **“本文執筆/品質審査/字数救済/最終磨き込み”** は原則この2つだけを使う。
   - primary: `or_deepseek_v3_2_exp`
   - fallback: `or_kimi_k2_thinking`
+  - 例外（比較/検証）: `fw_glm_4p7`, `fw_mixtral_8x22b_instruct` 等は **runtime override 時のみ**（既定のチェーンは増やさない）
 
 理由（品質×コスト）:
 - 執筆は thinking 必須（指示）。モデルチェーンを増やすと「文体ぶれ/契約ぶれ/収束不安定」を増やし、結果的にコストが上がる。
@@ -61,7 +63,9 @@
 - DeepSeek v3.2（Fireworks）は `reasoning_effort` で思考ONできるが、思考文が `content` に混ざりやすい。repo 既定の `exclude: true` 指定は「思考を無効化」ではなく「出力から除外」を意味し、`packages/factory_common/llm_router.py` が Fireworks では最終出力だけを抽出して返す（非JSON: マーカー `<<<YTM_FINAL>>>` 以降を採用 / JSON: `{...}` だけを抽出）。
 
 運用ルール（重要: 憶測でパラメータを決めない）:
-- モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら `https://openrouter.ai/api/v1/models` を参照し、ローカルでは `packages/script_pipeline/config/openrouter_models.json` を更新してから調整する。
+- モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら以下で **実在と仕様**を確認してから調整する。
+  - OpenRouter: `https://openrouter.ai/api/v1/models`（ローカル更新: `packages/script_pipeline/config/openrouter_models.json`）
+  - Fireworks: `https://api.fireworks.ai/inference/v1/models`（Bearer: `$FIREWORKS_SCRIPT`）
 - thinking必須の実装（主に“執筆/審査”タスク）:
   - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
   - `script_semantic_alignment_check` は **出力が厳格JSON** のため、`response_format: json_object` を使って「思考ありでもJSONが壊れにくい」側に寄せる（DeepSeek固定 / Kimiへフォールバックしない）。
@@ -148,6 +152,7 @@
   - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["or_deepseek_v3_2_exp","or_kimi_k2_thinking"],"tts_annotate":["or_deepseek_v3_2_exp"]}'`
 - CLI対応（入口側が上記 env を自動セット）:
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --llm-model or_deepseek_v3_2_exp`
+  - `python3 scripts/ops/script_runbook.py resume --channel CH06 --video 033 --llm-model fw_glm_4p7`
   - `PYTHONPATH=".:packages" python -m audio_tts.scripts.run_tts --channel CH06 --video 033 --input ... --llm-model or_deepseek_v3_2_exp`
 
 ### 4.2 Azure/非Azure 50/50 ルーティング（運用レバー）

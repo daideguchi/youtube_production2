@@ -54,7 +54,39 @@ models:
       mode: chat
       reasoning: false
       json_mode: true
-      max_tokens: 16384
+      # Fireworks allows long outputs with streaming; keep this comfortably high to avoid
+      # finish_reason=length loops on whole-script rewrites.
+      max_tokens: 65535
+
+  # --- Script Writing (Fireworks alternatives; opt-in via LLM_FORCE_MODELS / --llm-model) ---
+  # NOTE: These are NOT used by default tiers/tasks to avoid style/quality drift.
+  fw_glm_4p7:
+    provider: fireworks
+    model_name: "accounts/fireworks/models/glm-4p7"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 65535
+
+  fw_kimi_k2_thinking:
+    provider: fireworks
+    model_name: "accounts/fireworks/models/kimi-k2-thinking"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 65535
+
+  # Mistral-family (Mixtral) baseline — not a reasoning model; use for comparison only.
+  fw_mixtral_8x22b_instruct:
+    provider: fireworks
+    model_name: "accounts/fireworks/models/mixtral-8x22b-instruct"
+    capabilities:
+      mode: chat
+      reasoning: false
+      json_mode: true
+      max_tokens: 65535
 
   # --- OpenRouter Models ---
 

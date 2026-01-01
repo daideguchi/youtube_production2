@@ -7,10 +7,8 @@
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
-# - Default (cost-optimized): allow Codex to draft chapters (`script_chapter_draft`), then ALWAYS naturalize the
-#   final A-text via the API path (Fireworks) during `script_validation` final polish.
-# - Never route any task that overwrites the **final A-text** through Codex exec.
-#   Concretely, tasks that write/overwrite final script quality/fixes must stay on the LLMRouter API path.
+# - Never route any task that writes/overwrites the **A-text body** (chapters / assembled*.md) through Codex exec.
+#   A-text is always produced via the LLM API path (Fireworks) to avoid Codex phrasing in spoken Japanese.
 # - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
 #   to the existing LLMRouter API path.
 #
@@ -35,8 +33,6 @@ sandbox: read-only
 # Default timeout per `codex exec` call (seconds).
 timeout_s: 180
 timeout_s_by_task:
-  # gpt-5.2 + xhigh can exceed 180s for chapter drafting; increase timeout to avoid always falling back to API.
-  script_chapter_draft: 600
   # Other heavy script steps can also exceed the default 180s under xhigh.
   script_topic_research: 420
   script_outline: 300
@@ -64,6 +60,9 @@ selection:
   exclude_tasks:
     - image_generation
     - web_search_openrouter
+    # A-text body writing (chapters / assembled*.md)
+    - script_chapter_draft
+    - script_cta
     # Final A-text overwrites (quality gate / fixes / final polish)
     - script_chapter_review
     - script_a_text_seed

@@ -7,6 +7,8 @@
 前提:
 - 台本は全て AIナレーション用の Aテキスト。
 - ポーズ記号は `---` のみ（1行単独）。それ以外の区切りは使わない。
+- **Aテキスト本文（`content/chapters/*.md` / `content/assembled*.md`）の生成・修正は常に LLM API（原則 Fireworks）で行う**。
+  - Codex exec は本文を書かない（読み取り/判定/提案はOK。ただし本文へ混入させない）。
 - ルール正本: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（本書はアーキテクチャ詳細）
 
@@ -106,6 +108,71 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - NGのときだけ、Fixerが最小の加除修正で通す。
 - リトライ回数を増やさない。設計と入力の質で勝つ。
 
+### 2.4 LLM実行ルーティング（Codex exec / LLM API）— SSOT
+
+狙い:
+- **本文品質（自然な日本語）を守る**: Aテキスト本文は LLM API で統一し、Codex の言い回し混入を構造でゼロにする。
+- **コスト最適化**: Codex（`xhigh`）を「非本文タスク」に最大限活用し、使えないときは即 API に落ちる。
+- **恒久依存を避ける**: Codex を完全にOFFにしても完走できる（API-only ルートを常時確保）。
+
+定義:
+- **Aテキスト本文**: 視聴者に読み上げる本文（`assembled.md` / `chapters/*.md`）。
+- **非本文（Aテキスト以外）**: 企画分析、調査メモ、アウトライン、品質判定レポート、JSON、字幕/画像/サムネ生成プロンプトなど。
+
+固定ルール（壊さないための境界）:
+1) **本文を書く/直すのは LLM API だけ**
+   - 対象: 本文生成・本文リライト・本文短縮/追記・最終整形・意味整合Fix など、本文ファイルを書き換える可能性がある task。
+   - Codex exec に渡してはいけない（本文に Codex の言い回しが混入しうるため）。
+2) **Codex exec は「非本文」タスクのみ（codex-first）**
+   - 目的: `xhigh` 推論での分析/構造化/判定/抽出を、追加のAPIコストを増やさずに回す。
+   - 失敗/無効化/タイムアウト時は LLM API にフォールバックして続行する（パイプライン停止を避ける）。
+   - 本文に影響する入力（outline/brief等）を作る場合は、出力を **構造化（JSON/箇条書き/短文）** に寄せ、長い散文を生成しない（スタイル汚染を避ける）。
+3) **API-only ルートを常に成立させる（Codexはオプション）**
+   - 事故/レート制限/契約変更に備え、Codexを完全にOFFにしても量産が止まらないことを要件とする。
+
+運用スイッチ（迷わないための最小セット）:
+- Codex exec の緊急停止: `YTM_CODEX_EXEC_DISABLE=1`
+- Codex exec の強制ON/OFF: `YTM_CODEX_EXEC_ENABLED=1|0`
+- Codex exec の推論強度: `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（任意）
+
+### 2.5 本文モデルの「1スイッチ切替」設計（DeepSeek ⇄ Mistral ⇄ GLM-4.7）
+
+要件:
+- 既定は **DeepSeek v3.2 exp（thinking ON）**（コストと品質のバランス）。
+- Mistral / GLM-4.7 などに **スイッチ1つ**で切替できる（検証しやすく、混乱しない）。
+- モデル名をコード/プロンプトに直書きしない（設定に集約し、差分が追える）。
+
+SSOT配置（正本）:
+- タスク別のモデル指定: `configs/llm_task_overrides.yaml`（`script_*` の override）
+- モデルID/プロバイダ登録: `configs/llm.yml` / `configs/llm_router.yaml`（logical model key → provider実体）
+
+設計方針（“1スイッチ”を崩さない）:
+- **Aテキスト本文に関わる task は、同一の「本文モデルプロファイル」を参照する**（タスクごとにモデルを散らさない）。
+  - 対象例: `script_chapter_draft`, `script_chapter_review`, `script_a_text_quality_fix`,
+    `script_a_text_quality_shrink`, `script_a_text_quality_extend`, `script_a_text_final_polish`,
+    `script_semantic_alignment_fix` など（本文を書き換える可能性があるもの）。
+- **切替レバーは1つに統一**し、複数の方式を併用しない（運用の混乱防止）。
+  - 推奨（迷わない/壊さない）: `LLM_FORCE_MODELS`（または入口CLIの `--llm-model`）で **この実行だけ**切替する。
+    - repoのYAMLを触らずに比較できる（ロールバック事故を避ける）。
+    - 入口（例）:
+      - `python3 scripts/ops/script_runbook.py … --llm-model fw_glm_4p7`
+      - `python -m script_pipeline.cli … --llm-model fw_mixtral_8x22b_instruct`
+    - 実体: `LLM_FORCE_MODELS="fw_glm_4p7"`（カンマ区切りでチェーンも指定可）
+  - 既定の更新（恒久切替）が必要な場合のみ、`configs/llm_task_overrides.yaml` の `script_*` の `models:` を **1箇所の参照（anchor）**に集約して差し替える。
+
+モデルプロファイルの契約（Aテキスト本文用）:
+- **thinking 必須**（内容生成/修正は推論品質が支配的）。
+- chain-of-thought を本文に混ぜない（“最終出力のみ”を抽出できる設定を前提にする）。
+- 最大出力が大きいこと（長文でも `finish_reason=length` でループしない）。
+
+モデルキー（例: Fireworks / 比較用。正本は `configs/llm_router.yaml:models`）:
+- 既定（本文）: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek v3.2 exp, thinking ON）
+- 比較候補: `fw_glm_4p7`（Fireworks / GLM-4.7）, `fw_mixtral_8x22b_instruct`（Fireworks / Mistral系Mixtral）
+
+観測（比較で迷わない）:
+- 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。
+- トークン/回数は `workspaces/logs/llm_usage.jsonl`（`routing_key=CHxx-NNN`）で集計する（人間が読める証跡）。
+
 ---
 
 ## 3) 運用フロー（最短で安定）
@@ -140,6 +207,7 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - 複数の概念や逸話を並べて“広く”見せる（芯が薄くなり、視聴者の理解が増えない）
 - 研究/統計/機関名を捏造して説得力を作る
 - `---` を機械的に等間隔で入れる（文脈ベースのみ）
+- 本文内容と無関係な“言い回しの好み”だけでパイプラインを停止させる（必要なら「校正」で直す）
 
 ---
 
