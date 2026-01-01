@@ -9915,6 +9915,37 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     except Exception:
                         trial_errors, trial_stats = [], {}
                     trial_codes = _codes(trial_errors)
+                    if trial_codes == {"length_too_long"}:
+                        # Emergency deterministic clamp: sometimes the model under-delivers the requested cut.
+                        # If we're still over max after shrink, enforce the cap proportionally across pause
+                        # segments to ensure we can continue the quality gate without manual intervention.
+                        try:
+                            trial_max = (
+                                int(trial_stats.get("target_chars_max"))
+                                if trial_stats.get("target_chars_max") is not None
+                                else None
+                            )
+                        except Exception:
+                            trial_max = None
+                        if isinstance(trial_max, int) and trial_max > 0:
+                            target = max(0, trial_max - 120)
+                            try:
+                                trimmed = _budget_trim_a_text_to_target(shrunk, target_chars=target)
+                                trimmed = _sanitize_candidate(trimmed)
+                                trim_errors, _trim_stats = _non_warning_errors(trimmed)
+                                if not trim_errors and trimmed.strip():
+                                    try:
+                                        shrink_latest_path.write_text(trimmed, encoding="utf-8")
+                                        llm_gate_details["shrink_fallback"] = {
+                                            "type": "budget_trim",
+                                            "target_chars": target,
+                                            "buffer": 120,
+                                        }
+                                    except Exception:
+                                        pass
+                                    return trimmed
+                            except Exception:
+                                pass
                     if trial_codes in ({"length_too_long"}, {"length_too_short"}):
                         try:
                             trial_cc = (

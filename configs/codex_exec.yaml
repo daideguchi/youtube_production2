@@ -34,6 +34,14 @@ sandbox: read-only
 
 # Default timeout per `codex exec` call (seconds).
 timeout_s: 180
+timeout_s_by_task:
+  # gpt-5.2 + xhigh can exceed 180s for chapter drafting; increase timeout to avoid always falling back to API.
+  script_chapter_draft: 600
+  # Other heavy script steps can also exceed the default 180s under xhigh.
+  script_topic_research: 420
+  script_outline: 300
+  script_master_plan: 420
+  script_chapter_brief: 420
 
 # Optional: pass `-m <MODEL>` to `codex exec`.
 # Empty means "use Codex CLI defaults".

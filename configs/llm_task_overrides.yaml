@@ -3,13 +3,8 @@
 # 未設定の場合は llm_router.yaml の定義を使用する。
 tasks:
   # NOTE:
-  # Azure is optional. In this repo, AZURE_OPENAI_API_KEY may be intentionally disabled
-  # (e.g. set to a non-ASCII placeholder), which makes Azure calls fail at the HTTP layer.
-  # Prefer the default tier routing (OpenRouter) unless you explicitly want to force Azure.
-  #
-  # If you want to force Azure for a task, add:
-  #   models: [azure_gpt5_mini]
-  # BUT only when AZURE_OPENAI_API_KEY is a valid ASCII key.
+  # - Script pipeline (台本) 系の task は Azure/GPT 系へ流さない（固定ルール）。
+  # - ここでの override は、原則 Fireworks/OpenRouter のロジック名を指定する（例: or_deepseek_v3_2_exp）。
   visual_bible:
     tier: heavy_reasoning
     options:
@@ -21,8 +16,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
-      - azure_gpt5_mini
     options:
       temperature: 0.3
       response_format: json_object
@@ -39,14 +32,14 @@ tasks:
   #   When provider=fireworks, the router translates `reasoning.enabled` -> Fireworks `reasoning_effort` (thinking ON),
   #   and emulates `exclude: true` by extracting the final output after a marker (so chain-of-thought won't pollute output).
   #   When provider=openrouter, the router forwards it only for allowlisted models (V3.2 exp / Kimi K2 Thinking).
-  # - If V3.2 is unavailable, we fall back to Kimi K2 Thinking (intrinsic reasoning) to keep "thinking required".
+  # - NOTE: OpenRouter fallback is intentionally disabled by default in this repo (quota/credits 402 対策).
+  #   Fireworks 側が失敗した場合は、THINK MODE キューへフォールバックする（runbook に従う）。
 
   # Planning steps: prefer V3.2(exp)+thinking; fall back to Kimi K2 Thinking.
   script_outline:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 2600
@@ -59,7 +52,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       response_format: json_object
       temperature: 0.2
@@ -73,7 +65,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 2600
@@ -87,7 +78,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 4200
@@ -100,7 +90,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.25
       max_tokens: 11000
@@ -113,7 +102,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 12000
@@ -126,7 +114,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 1200
@@ -140,7 +127,6 @@ tasks:
     tier: standard
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.25
       max_tokens: 4096
@@ -165,7 +151,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       extra_body:
@@ -177,7 +162,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.0
       response_format: json_object
@@ -193,7 +177,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.25
       # IMPORTANT: Keep below typical OpenRouter credit-limit ceilings to avoid 402 loops.
@@ -210,7 +193,6 @@ tasks:
   script_a_text_final_polish:
     tier: heavy_reasoning
     models:
-      - or_kimi_k2_thinking
       - or_deepseek_v3_2_exp
     options:
       temperature: 0.2
@@ -226,7 +208,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
@@ -243,7 +224,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
@@ -259,7 +239,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       max_tokens: 11000
@@ -273,7 +252,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.2
       response_format: json_object
@@ -287,7 +265,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - or_deepseek_v3_2_exp
-      - or_kimi_k2_thinking
     options:
       temperature: 0.25
       max_tokens: 11000
@@ -296,9 +273,9 @@ tasks:
           enabled: true
           exclude: true
 
-  # 例: ここでは gpt-5-mini のみ利用する前提で models を固定
+  # 例: 特定taskの models を固定する
   # script_outline:
-  #   models: [gpt-5-mini]
+  #   models: [or_deepseek_v3_2_exp]
   #   system_prompt_override: "You are a careful editor."
   #   options:
   #     temperature: 0.2
