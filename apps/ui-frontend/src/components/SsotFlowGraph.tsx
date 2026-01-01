@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import type { SsotCatalogFlowStep } from "../api/types";
 
 export type SsotFlowEdge = { from: string; to: string };
@@ -148,6 +148,7 @@ export function SsotFlowGraph({
   onSelect,
   orientation,
   highlightedNodeIds,
+  onSize,
 }: {
   steps: SsotCatalogFlowStep[];
   edges: SsotFlowEdge[];
@@ -155,6 +156,7 @@ export function SsotFlowGraph({
   onSelect: (nodeId: string) => void;
   orientation: Orientation;
   highlightedNodeIds?: string[];
+  onSize?: (size: { width: number; height: number }) => void;
 }) {
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
@@ -168,6 +170,63 @@ export function SsotFlowGraph({
     return Math.max(...nodes.map((n) => n.y + n.height)) + 24;
   }, [nodes]);
 
+  useEffect(() => {
+    onSize?.({ width, height });
+  }, [height, onSize, width]);
+
+  const selectedPath = useMemo(() => {
+    const selected = (selectedNodeId || "").trim();
+    if (!selected) return { upstream: new Set<string>(), downstream: new Set<string>() };
+
+    const nodeIds = new Set(steps.map((s) => s.node_id));
+    if (!nodeIds.has(selected)) return { upstream: new Set<string>(), downstream: new Set<string>() };
+
+    const fwd = new Map<string, string[]>();
+    const rev = new Map<string, string[]>();
+    for (const id of Array.from(nodeIds)) {
+      fwd.set(id, []);
+      rev.set(id, []);
+    }
+    for (const e of edges) {
+      if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) continue;
+      fwd.get(e.from)!.push(e.to);
+      rev.get(e.to)!.push(e.from);
+    }
+
+    const bfs = (start: string, adj: Map<string, string[]>) => {
+      const seen = new Set<string>();
+      const q: string[] = [start];
+      while (q.length > 0) {
+        const cur = q.shift()!;
+        for (const nxt of adj.get(cur) || []) {
+          if (seen.has(nxt) || nxt === start) continue;
+          seen.add(nxt);
+          q.push(nxt);
+        }
+      }
+      return seen;
+    };
+
+    return { upstream: bfs(selected, rev), downstream: bfs(selected, fwd) };
+  }, [edges, selectedNodeId, steps]);
+
+  const edgeStyle = useCallback(
+    (fromId: string, toId: string) => {
+      const selected = (selectedNodeId || "").trim();
+      if (!selected) return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.9 };
+
+      const upstream = selectedPath.upstream;
+      const downstream = selectedPath.downstream;
+      const isUpEdge = upstream.has(fromId) && (toId === selected || upstream.has(toId));
+      const isDownEdge = (fromId === selected || downstream.has(fromId)) && downstream.has(toId);
+
+      if (isDownEdge) return { stroke: "rgba(67, 160, 71, 0.9)", strokeWidth: 3, opacity: 1 };
+      if (isUpEdge) return { stroke: "rgba(156, 39, 176, 0.85)", strokeWidth: 3, opacity: 1 };
+      return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.5 };
+    },
+    [selectedNodeId, selectedPath.downstream, selectedPath.upstream],
+  );
+
   return (
     <div style={{ position: "relative", width, height, minHeight: 220 }}>
       <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
@@ -175,17 +234,34 @@ export function SsotFlowGraph({
           <marker id="ssotArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
             <path d="M0,0 L12,6 L0,12 Z" fill="var(--color-border)" />
           </marker>
+          <marker id="ssotArrowDown" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(67, 160, 71, 0.95)" />
+          </marker>
+          <marker id="ssotArrowUp" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(156, 39, 176, 0.9)" />
+          </marker>
         </defs>
         {paths.map((p, idx) => (
-          <path
-            key={idx}
-            d={p.d}
-            fill="none"
-            stroke="var(--color-border)"
-            strokeWidth={2}
-            markerEnd="url(#ssotArrow)"
-            opacity={0.9}
-          />
+          (() => {
+            const st = edgeStyle(p.from.id, p.to.id);
+            const marker =
+              st.stroke.indexOf("67, 160, 71") >= 0
+                ? "url(#ssotArrowDown)"
+                : st.stroke.indexOf("156, 39, 176") >= 0
+                  ? "url(#ssotArrowUp)"
+                  : "url(#ssotArrow)";
+            return (
+              <path
+                key={idx}
+                d={p.d}
+                fill="none"
+                stroke={st.stroke}
+                strokeWidth={st.strokeWidth}
+                markerEnd={marker}
+                opacity={st.opacity}
+              />
+            );
+          })()
         ))}
       </svg>
 
@@ -194,6 +270,24 @@ export function SsotFlowGraph({
         const task = nodeTask(n.step);
         const isSelected = selectedNodeId === n.id;
         const isHighlighted = highlighted.has(n.id);
+        const isUp = selectedPath.upstream.has(n.id);
+        const isDown = selectedPath.downstream.has(n.id);
+        const border = isSelected
+          ? "var(--color-primary)"
+          : isDown
+            ? "rgba(67, 160, 71, 0.85)"
+            : isUp
+              ? "rgba(156, 39, 176, 0.85)"
+              : "var(--color-border-muted)";
+        const background = isSelected
+          ? "rgba(25, 118, 210, 0.12)"
+          : isDown
+            ? "rgba(67, 160, 71, 0.08)"
+            : isUp
+              ? "rgba(156, 39, 176, 0.08)"
+              : isHighlighted
+                ? "rgba(255, 200, 0, 0.10)"
+                : "var(--color-surface)";
         return (
           <button
             key={n.id}
@@ -208,12 +302,8 @@ export function SsotFlowGraph({
               height: n.height,
               padding: 10,
               borderRadius: 14,
-              border: `2px solid ${isSelected ? "var(--color-primary)" : "var(--color-border-muted)"}`,
-              background: isSelected
-                ? "rgba(25, 118, 210, 0.12)"
-                : isHighlighted
-                  ? "rgba(255, 200, 0, 0.10)"
-                  : "var(--color-surface)",
+              border: `2px solid ${border}`,
+              background,
               display: "grid",
               gridTemplateRows: "auto auto",
               gap: 6,

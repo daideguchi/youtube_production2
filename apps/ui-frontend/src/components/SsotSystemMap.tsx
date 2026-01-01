@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchSsotCatalog } from "../api/client";
 import type { SsotCatalog, SsotCatalogFlowStep } from "../api/types";
 import { SsotFilePreview } from "./SsotFilePreview";
@@ -28,9 +28,12 @@ export function SsotSystemMap() {
   const [flow, setFlow] = useState<FlowKey>("mainline");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
+  const [graphScale, setGraphScale] = useState(1);
+  const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const graphViewportRef = useRef<HTMLDivElement | null>(null);
 
   const loadCatalog = useCallback(async (refresh = false) => {
     setLoading(true);
@@ -77,6 +80,28 @@ export function SsotSystemMap() {
   useEffect(() => {
     setOrientation(flow === "mainline" ? "horizontal" : "vertical");
   }, [flow]);
+
+  const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+  const zoomIn = () => setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), 0.3, 2.5));
+  const zoomOut = () => setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), 0.3, 2.5));
+  const zoomReset = () => setGraphScale(1);
+  const zoomFit = () => {
+    const el = graphViewportRef.current;
+    if (!el) return;
+    const w = el.clientWidth - 40;
+    const h = el.clientHeight - 40;
+    if (w <= 0 || h <= 0) return;
+    const scale = Math.min(w / graphSize.width, h / graphSize.height);
+    setGraphScale(clamp(Number(scale.toFixed(2)), 0.3, 2.5));
+  };
+
+  const handleGraphSize = useCallback((size: { width: number; height: number }) => {
+    if (!size.width || !size.height) return;
+    setGraphSize((prev) => {
+      if (prev.width === size.width && prev.height === size.height) return prev;
+      return size;
+    });
+  }, []);
 
   const filteredNodes = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -282,29 +307,63 @@ export function SsotSystemMap() {
                   >
                     縦
                   </button>
+                  <button type="button" className="research-chip" onClick={zoomOut}>
+                    −
+                  </button>
+                  <button type="button" className="research-chip" onClick={zoomReset}>
+                    {graphScale.toFixed(2)}x
+                  </button>
+                  <button type="button" className="research-chip" onClick={zoomIn}>
+                    +
+                  </button>
+                  <button type="button" className="research-chip" onClick={zoomFit}>
+                    Fit
+                  </button>
                 </div>
               </div>
               <div
+                ref={graphViewportRef}
                 style={{
                   marginTop: 10,
                   border: "1px solid var(--color-border-muted)",
                   borderRadius: 14,
                   background: "var(--color-surface-subtle)",
                   overflow: "auto",
-                  maxHeight: 360,
+                  maxHeight: "55vh",
                 }}
               >
-                <SsotFlowGraph
-                  steps={nodes}
-                  edges={edges}
-                  selectedNodeId={selectedNodeId}
-                  onSelect={(id) => setSelectedNodeId(id)}
-                  orientation={orientation}
-                  highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
-                />
+                <div
+                  style={{
+                    position: "relative",
+                    width: graphSize.width * graphScale,
+                    height: graphSize.height * graphScale,
+                    minWidth: 640,
+                    minHeight: 240,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      transform: `scale(${graphScale})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <SsotFlowGraph
+                      steps={nodes}
+                      edges={edges}
+                      selectedNodeId={selectedNodeId}
+                      onSelect={(id) => setSelectedNodeId(id)}
+                      orientation={orientation}
+                      highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
+                      onSize={handleGraphSize}
+                    />
+                  </div>
+                </div>
               </div>
               <div className="muted small-text" style={{ marginTop: 8 }}>
-                ノードをクリックすると詳細へジャンプします（検索語は黄色ハイライト）。
+                ノードをクリックすると詳細へジャンプします（黄色=検索一致、緑=下流、紫=上流）。
               </div>
             </section>
 
