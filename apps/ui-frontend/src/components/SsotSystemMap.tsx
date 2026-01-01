@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchResearchFileChunk, fetchSsotCatalog } from "../api/client";
-import type { SsotCatalog, SsotCatalogFlowStep } from "../api/types";
+import { fetchResearchFileChunk, fetchResearchList, fetchSsotCatalog } from "../api/client";
+import type { ResearchFileEntry, SsotCatalog, SsotCatalogFlowStep } from "../api/types";
 import { SsotFilePreview } from "./SsotFilePreview";
 import { SsotFlowGraph } from "./SsotFlowGraph";
 
@@ -31,6 +31,10 @@ function parseIsoMs(raw: unknown): number | null {
   const s = String(raw);
   const t = Date.parse(s);
   return Number.isFinite(t) ? t : null;
+}
+
+function stripJsonl(name: string): string {
+  return name.endsWith(".jsonl") ? name.slice(0, -".jsonl".length) : name;
 }
 
 function parseJsonlEvents(content: string, kind: "llm" | "image"): TraceEvent[] {
@@ -75,6 +79,8 @@ export function SsotSystemMap() {
   const [traceTaskSummary, setTraceTaskSummary] = useState<Record<string, { firstIndex: number; count: number }>>({});
   const [traceEventCount, setTraceEventCount] = useState(0);
   const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
+  const [traceKeySuggestions, setTraceKeySuggestions] = useState<Array<{ key: string; modified_ms: number }>>([]);
+  const [traceListLoading, setTraceListLoading] = useState(false);
 
   const loadCatalog = useCallback(async (refresh = false) => {
     setLoading(true);
@@ -232,6 +238,40 @@ export function SsotSystemMap() {
       if (prev.width === size.width && prev.height === size.height) return prev;
       return size;
     });
+  }, []);
+
+  const loadTraceKeyList = useCallback(async () => {
+    setTraceListLoading(true);
+    try {
+      const [llmList, imageList] = await Promise.all([
+        fetchResearchList("logs", "traces/llm").catch(() => null),
+        fetchResearchList("logs", "traces/image").catch(() => null),
+      ]);
+
+      const merged = new Map<string, number>();
+      const add = (entries: ResearchFileEntry[] | undefined) => {
+        for (const e of entries || []) {
+          if (e.is_dir) continue;
+          if (!e.name.endsWith(".jsonl")) continue;
+          const key = stripJsonl(e.name);
+          const ms = parseIsoMs(e.modified) || 0;
+          merged.set(key, Math.max(merged.get(key) || 0, ms));
+        }
+      };
+
+      add(llmList?.entries);
+      add(imageList?.entries);
+
+      const list = Array.from(merged.entries())
+        .map(([key, modified_ms]) => ({ key, modified_ms }))
+        .sort((a, b) => (b.modified_ms - a.modified_ms ? b.modified_ms - a.modified_ms : a.key.localeCompare(b.key)))
+        .slice(0, 200);
+      setTraceKeySuggestions(list);
+    } catch {
+      setTraceKeySuggestions([]);
+    } finally {
+      setTraceListLoading(false);
+    }
   }, []);
 
   const loadTrace = useCallback(async () => {
@@ -522,6 +562,7 @@ export function SsotSystemMap() {
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
                 <label className="muted small-text">Trace key</label>
                 <input
+                  list="ssot-trace-keys"
                   value={traceKey}
                   onChange={(e) => setTraceKey(e.target.value)}
                   placeholder="例: CH01-251"
@@ -534,6 +575,14 @@ export function SsotSystemMap() {
                     background: "#f6f8fa",
                   }}
                 />
+                <datalist id="ssot-trace-keys">
+                  {traceKeySuggestions.map((k) => (
+                    <option key={k.key} value={k.key} />
+                  ))}
+                </datalist>
+                <button type="button" className="research-chip" onClick={() => void loadTraceKeyList()} disabled={traceListLoading}>
+                  {traceListLoading ? "候補取得…" : traceKeySuggestions.length > 0 ? `候補(${traceKeySuggestions.length})` : "候補"}
+                </button>
                 <button type="button" className="research-chip" onClick={() => void loadTrace()} disabled={traceLoading || !traceKey.trim()}>
                   {traceLoading ? "読み込み中…" : "Load"}
                 </button>
