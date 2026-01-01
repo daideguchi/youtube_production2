@@ -54,6 +54,37 @@ function parseJsonlEvents(content: string, kind: "llm" | "image"): TraceEvent[] 
   return out;
 }
 
+type OutputDecl = { path: string; required: boolean | null; raw: unknown };
+
+function parseOutputDecls(raw: unknown): OutputDecl[] {
+  if (!raw) return [];
+  const arr = Array.isArray(raw) ? raw : [];
+  const out: OutputDecl[] = [];
+  for (const item of arr) {
+    if (typeof item === "string") {
+      out.push({ path: item, required: null, raw: item });
+      continue;
+    }
+    if (item && typeof item === "object") {
+      const obj = item as any;
+      const path = obj?.path ? String(obj.path) : JSON.stringify(item);
+      const required = typeof obj?.required === "boolean" ? Boolean(obj.required) : null;
+      out.push({ path, required, raw: item });
+      continue;
+    }
+    out.push({ path: String(item), required: null, raw: item });
+  }
+  return out.filter((o) => Boolean((o.path || "").trim()));
+}
+
+function parsePlaceholderPairs(raw: unknown): Array<{ key: string; value: string }> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
+  const obj = raw as Record<string, unknown>;
+  return Object.keys(obj)
+    .sort((a, b) => a.localeCompare(b))
+    .map((k) => ({ key: k, value: typeof obj[k] === "string" ? String(obj[k]) : JSON.stringify(obj[k]) }));
+}
+
 function domIdForNode(nodeId: string): string {
   const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
   return `ssot-node-${safe || "unknown"}`;
@@ -133,6 +164,38 @@ export function SsotSystemMap() {
     }
     return set;
   }, [nodes]);
+
+  const flowTaskList = useMemo(() => Array.from(flowTasks).sort((a, b) => a.localeCompare(b)), [flowTasks]);
+
+  const flowMeta = useMemo(() => {
+    if (!catalog) return null;
+    if (flow === "mainline") return catalog.mainline as any;
+    if (flow === "planning") return catalog.flows.planning as any;
+    if (flow === "script_pipeline") return catalog.flows.script_pipeline as any;
+    if (flow === "audio_tts") return catalog.flows.audio_tts as any;
+    if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run as any;
+    if (flow === "thumbnails") return catalog.flows.thumbnails as any;
+    if (flow === "publish") return catalog.flows.publish as any;
+    return null;
+  }, [catalog, flow]);
+
+  const flowCodePaths = useMemo(() => {
+    const out: string[] = [];
+    const m = flowMeta as any;
+    const candidates = [
+      m?.runner_path,
+      m?.stages_path,
+      m?.templates_path,
+      m?.run_tts_path,
+      m?.llm_adapter_path,
+      m?.auto_capcut_run_path,
+      m?.path,
+    ];
+    for (const p of candidates) {
+      if (typeof p === "string" && p.trim()) out.push(p.trim());
+    }
+    return Array.from(new Set(out));
+  }, [flowMeta]);
 
   const executedByNodeId = useMemo(() => {
     if (!traceLoadedKey) return {};
@@ -390,6 +453,28 @@ export function SsotSystemMap() {
     const llm = selectedNode.llm as any;
     return llm?.task ? String(llm.task) : null;
   }, [selectedNode]);
+
+  const selectedOutputDecls = useMemo(() => (selectedNode ? parseOutputDecls(selectedNode.outputs) : []), [selectedNode]);
+
+  const selectedPlaceholderPairs = useMemo(() => {
+    if (!selectedNode) return [];
+    const llm = selectedNode.llm as any;
+    return parsePlaceholderPairs(llm?.placeholders);
+  }, [selectedNode]);
+
+  const selectedLlmCallsites = useMemo(() => {
+    const task = (stageLlmTask || "").trim();
+    if (!catalog || !task) return [];
+    const list = (catalog.llm?.callsites || []).filter((c) => String((c as any).task || "") === task);
+    return list.slice(0, 50);
+  }, [catalog, stageLlmTask]);
+
+  const selectedLlmTaskDef = useMemo(() => {
+    const task = (stageLlmTask || "").trim();
+    if (!catalog || !task) return null;
+    const defs = (catalog.llm as any)?.task_defs as any;
+    return defs && typeof defs === "object" ? defs[task] || null : null;
+  }, [catalog, stageLlmTask]);
 
   const missingTasks = useMemo(() => catalog?.llm?.missing_task_defs || [], [catalog]);
 
@@ -704,6 +789,162 @@ export function SsotSystemMap() {
                   実行済み（Trace）
                 </span>
               </div>
+
+              <details style={{ marginTop: 12 }}>
+                <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Overview（このフェーズが何をするか）</summary>
+                <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                  <div className="mono muted small-text">
+                    flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
+                  </div>
+                  {flowCodePaths.length > 0 ? (
+                    <div className="muted small-text">
+                      code: <span className="mono">{flowCodePaths.join(", ")}</span>
+                    </div>
+                  ) : null}
+                  {catalog?.llm?.router_config?.path ? (
+                    <div className="muted small-text">
+                      llm_router: <span className="mono">{String(catalog.llm.router_config.path)}</span>
+                      {catalog?.llm?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.llm.task_overrides.path)}</span> : null}
+                    </div>
+                  ) : null}
+                  {flowTaskList.length > 0 ? (
+                    <details>
+                      <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                        llm_tasks（このFlowで使うタスク）
+                      </summary>
+                      <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
+                        {flowTaskList.map((t) => {
+                          const def = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                          const tier = def?.tier ? String(def.tier) : "";
+                          const modelKeys = Array.isArray(def?.model_keys) ? (def.model_keys as string[]) : [];
+                          const modelsShort = modelKeys.length > 0 ? modelKeys.slice(0, 5).join(", ") : "";
+                          return (
+                            <div key={t} className="mono muted small-text">
+                              {t}
+                              {tier ? `  tier=${tier}` : ""}
+                              {modelsShort ? `  models=${modelsShort}${modelKeys.length > 5 ? ", …" : ""}` : ""}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  ) : null}
+                </div>
+              </details>
+
+              <details style={{ marginTop: 10 }}>
+                <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
+                <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                  {nodes.map((s) => {
+                    const llm = s.llm as any;
+                    const task = llm?.task ? String(llm.task) : "";
+                    const taskDef = task ? (((catalog as any)?.llm?.task_defs || {})[task] as any) : null;
+                    const tier = taskDef?.tier ? String(taskDef.tier) : "";
+                    const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as any[]).map((x) => String(x)) : [];
+                    const tpl = s.template as any;
+                    const tplName = tpl?.name ? String(tpl.name) : llm?.template ? String(llm.template) : "";
+                    const tplPath = tpl?.path ? String(tpl.path) : "";
+                    const placeholders = parsePlaceholderPairs(llm?.placeholders);
+                    const outputs = parseOutputDecls(s.outputs);
+                    const sotPath = (s as any)?.sot?.path ? String((s as any).sot.path) : "";
+                    const implRefs = Array.isArray((s as any).impl_refs) ? ((s as any).impl_refs as any[]) : [];
+                    return (
+                      <details
+                        key={s.node_id}
+                        style={{
+                          border: "1px solid var(--color-border-muted)",
+                          borderRadius: 12,
+                          background: "var(--color-surface)",
+                          padding: "10px 12px",
+                        }}
+                      >
+                        <summary style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
+                          <span style={{ fontWeight: 900 }}>{nodeTitle(s)}</span>
+                          <span className="mono muted small-text" style={{ whiteSpace: "nowrap" }}>
+                            {task ? `task=${task}` : "no-llm"}
+                          </span>
+                        </summary>
+                        <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                          {s.description ? <div className="muted">{s.description}</div> : null}
+                          {task ? (
+                            <div className="mono muted small-text">
+                              LLM: task={task}
+                              {tplName ? ` / template=${tplName}` : ""}
+                              {tplPath ? ` / template_path=${tplPath}` : ""}
+                            </div>
+                          ) : null}
+                          {task && (tier || modelKeys.length > 0) ? (
+                            <div className="mono muted small-text">
+                              routing: {tier ? `tier=${tier}` : "tier=—"}
+                              {modelKeys.length > 0 ? ` / models=${modelKeys.slice(0, 6).join(", ")}${modelKeys.length > 6 ? ", …" : ""}` : ""}
+                            </div>
+                          ) : null}
+                          {placeholders.length > 0 ? (
+                            <div>
+                              <div className="muted small-text" style={{ marginBottom: 4 }}>
+                                placeholders（プロンプトへ差し込まれる入力）
+                              </div>
+                              <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                                {placeholders.map((p) => `${p.key}: ${p.value}`).join("\n")}
+                              </pre>
+                            </div>
+                          ) : null}
+                          {outputs.length > 0 ? (
+                            <div>
+                              <div className="muted small-text" style={{ marginBottom: 4 }}>
+                                outputs（生成/更新されるファイル）
+                              </div>
+                              <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                {outputs.map((o, i) => (
+                                  <li key={`${s.node_id}-out-${i}`}>
+                                    <span className="mono">{o.path}</span>
+                                    {o.required === true ? <span className="muted small-text"> (required)</span> : null}
+                                    {o.required === false ? <span className="muted small-text"> (optional)</span> : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+                          {sotPath ? (
+                            <div className="muted small-text">
+                              SoT: <span className="mono">{sotPath}</span>
+                            </div>
+                          ) : null}
+                          {implRefs.length > 0 ? (
+                            <div className="muted small-text">
+                              impl:{" "}
+                              <span className="mono">
+                                {implRefs
+                                  .slice(0, 4)
+                                  .map((r) => `${r.path}:${r.line}${r.symbol ? `(${r.symbol})` : ""}`)
+                                  .join(", ")}
+                              </span>
+                              {implRefs.length > 4 ? <span className="muted small-text"> …</span> : null}
+                            </div>
+                          ) : null}
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              className="research-chip"
+                              onClick={() => {
+                                setSelectedNodeId(s.node_id);
+                                centerOnNode(s.node_id);
+                              }}
+                            >
+                              Select
+                            </button>
+                            {tplPath ? (
+                              <button type="button" className="research-chip" onClick={() => setSelectedNodeId(s.node_id)}>
+                                Prompt
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      </details>
+                    );
+                  })}
+                </div>
+              </details>
             </section>
 
             {!selectedNode ? <div className="main-alert">Flow Graph のノードをクリックするか、左から選択してください。</div> : null}
@@ -716,35 +957,124 @@ export function SsotSystemMap() {
                   {selectedNode.description ? <p style={{ marginBottom: 0 }}>{selectedNode.description}</p> : null}
                 </section>
 
-              {selectedNode.outputs ? (
+              {selectedOutputDecls.length > 0 ? (
                 <section className="shell-panel shell-panel--placeholder">
                   <h3 style={{ marginTop: 0 }}>Outputs（宣言）</h3>
-                  <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                    {JSON.stringify(selectedNode.outputs, null, 2)}
-                  </pre>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {selectedOutputDecls.map((o, i) => (
+                      <li key={`${selectedNode.node_id}-out-${i}`}>
+                        <span className="mono">{o.path}</span>
+                        {o.required === true ? <span className="muted small-text"> (required)</span> : null}
+                        {o.required === false ? <span className="muted small-text"> (optional)</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                  <details style={{ marginTop: 10 }}>
+                    <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                      raw JSON
+                    </summary>
+                    <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                      {JSON.stringify(selectedNode.outputs, null, 2)}
+                    </pre>
+                  </details>
                 </section>
               ) : null}
 
               {(selectedNode as any).sot ? (
                 <section className="shell-panel shell-panel--placeholder">
                   <h3 style={{ marginTop: 0 }}>SoT（正本）</h3>
-                  <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                    {JSON.stringify((selectedNode as any).sot, null, 2)}
-                  </pre>
+                  {(selectedNode as any)?.sot?.path ? (
+                    <div className="mono muted small-text">path={String((selectedNode as any).sot.path)}</div>
+                  ) : null}
+                  <details style={{ marginTop: 10 }}>
+                    <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                      raw JSON
+                    </summary>
+                    <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                      {JSON.stringify((selectedNode as any).sot, null, 2)}
+                    </pre>
+                  </details>
                 </section>
               ) : null}
 
               {selectedNode.llm ? (
                 <section className="shell-panel shell-panel--placeholder">
                   <h3 style={{ marginTop: 0 }}>LLM</h3>
-                  {stageLlmTask ? (
-                    <p style={{ marginTop: 0 }}>
-                      task: <span className="mono">{stageLlmTask}</span>
-                    </p>
+                  {stageLlmTask ? <div className="mono muted small-text">task={stageLlmTask}</div> : null}
+                  {(selectedNode.llm as any)?.template ? <div className="mono muted small-text">template={String((selectedNode.llm as any).template)}</div> : null}
+                  {(selectedNode.llm as any)?.max_tokens ? (
+                    <div className="mono muted small-text">max_tokens={String((selectedNode.llm as any).max_tokens)}</div>
                   ) : null}
-                  <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                    {JSON.stringify(selectedNode.llm, null, 2)}
-                  </pre>
+                  {selectedLlmTaskDef ? (
+                    <details style={{ marginTop: 10 }}>
+                      <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                        routing（llm_routerから解決）
+                      </summary>
+                      <div className="mono muted small-text">tier={String((selectedLlmTaskDef as any)?.tier || "—")}</div>
+                      {Array.isArray((selectedLlmTaskDef as any)?.model_keys) && (selectedLlmTaskDef as any).model_keys.length > 0 ? (
+                        <div className="mono muted small-text">model_keys={String((selectedLlmTaskDef as any).model_keys.join(", "))}</div>
+                      ) : null}
+                      {Array.isArray((selectedLlmTaskDef as any)?.resolved_models) && (selectedLlmTaskDef as any).resolved_models.length > 0 ? (
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                          {(selectedLlmTaskDef as any).resolved_models.map((m: any) => (
+                            <li key={String(m?.key || "")}>
+                              <span className="mono">{String(m?.key || "")}</span>
+                              <span className="muted small-text">
+                                {m?.provider ? ` provider=${String(m.provider)}` : ""}
+                                {m?.model_name ? ` model=${String(m.model_name)}` : ""}
+                                {m?.deployment ? ` deployment=${String(m.deployment)}` : ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {(selectedLlmTaskDef as any)?.override_task ? (
+                        <details style={{ marginTop: 8 }}>
+                          <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                            override_task（llm_task_overrides）
+                          </summary>
+                          <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                            {JSON.stringify((selectedLlmTaskDef as any).override_task, null, 2)}
+                          </pre>
+                        </details>
+                      ) : null}
+                    </details>
+                  ) : null}
+                  {selectedPlaceholderPairs.length > 0 ? (
+                    <div style={{ marginTop: 10 }}>
+                      <div className="muted small-text" style={{ marginBottom: 4 }}>
+                        placeholders（プロンプトへ差し込まれる入力）
+                      </div>
+                      <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                        {selectedPlaceholderPairs.map((p) => `${p.key}: ${p.value}`).join("\n")}
+                      </pre>
+                    </div>
+                  ) : null}
+                  {selectedLlmCallsites.length > 0 ? (
+                    <div style={{ marginTop: 10 }}>
+                      <div className="muted small-text" style={{ marginBottom: 4 }}>
+                        callsites（コード上の呼び出し箇所・先頭のみ）
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {selectedLlmCallsites.map((c, i) => (
+                          <li key={`${stageLlmTask || "llm"}-callsite-${i}`}>
+                            <span className="mono">
+                              {String((c as any)?.source?.path || "")}:{String((c as any)?.source?.line || "")}
+                            </span>
+                            <span className="muted small-text"> {String((c as any)?.call || "")}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  <details style={{ marginTop: 10 }}>
+                    <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                      raw JSON
+                    </summary>
+                    <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                      {JSON.stringify(selectedNode.llm, null, 2)}
+                    </pre>
+                  </details>
                 </section>
               ) : null}
 

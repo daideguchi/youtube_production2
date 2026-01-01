@@ -799,7 +799,10 @@ def _load_llm_task_overrides(repo: Path) -> Dict[str, Any]:
     cfg = _load_yaml(path)
     if not isinstance(cfg, dict):
         cfg = {}
-    return {"path": _repo_rel(path, root=repo), "overrides": cfg}
+    tasks = cfg.get("tasks", {})
+    if not isinstance(tasks, dict):
+        tasks = {}
+    return {"path": _repo_rel(path, root=repo), "config": cfg, "tasks": tasks}
 
 
 def build_ssot_catalog() -> Dict[str, Any]:
@@ -824,7 +827,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
     cfg_tasks = llm_router_conf.get("config", {}).get("tasks", {})
     if isinstance(cfg_tasks, dict):
         declared_tasks |= {str(k) for k in cfg_tasks.keys()}
-    override_tasks = llm_task_overrides.get("overrides", {})
+    override_tasks = llm_task_overrides.get("tasks", {})
     if isinstance(override_tasks, dict):
         declared_tasks |= {str(k) for k in override_tasks.keys()}
 
@@ -836,6 +839,56 @@ def build_ssot_catalog() -> Dict[str, Any]:
             used_tasks.add(str(llm["task"]))
 
     missing_task_defs = sorted(t for t in used_tasks if t and t not in declared_tasks)
+
+    tiers = llm_router_conf.get("config", {}).get("tiers", {})
+    models = llm_router_conf.get("config", {}).get("models", {})
+    if not isinstance(tiers, dict):
+        tiers = {}
+    if not isinstance(models, dict):
+        models = {}
+
+    task_defs: Dict[str, Any] = {}
+    for task in sorted(t for t in used_tasks if t):
+        base = cfg_tasks.get(task, {}) if isinstance(cfg_tasks, dict) else {}
+        if not isinstance(base, dict):
+            base = {}
+        override = override_tasks.get(task, {}) if isinstance(override_tasks, dict) else {}
+        if not isinstance(override, dict):
+            override = {}
+
+        tier = str(override.get("tier") or base.get("tier") or "").strip()
+
+        model_keys: List[str] = []
+        explicit_models = override.get("models") if "models" in override else base.get("models")
+        if explicit_models:
+            if isinstance(explicit_models, list):
+                model_keys = [str(x) for x in explicit_models if str(x).strip()]
+            elif isinstance(explicit_models, str):
+                model_keys = [explicit_models.strip()]
+        elif tier and isinstance(tiers.get(tier), list):
+            model_keys = [str(x) for x in tiers.get(tier) if str(x).strip()]
+
+        resolved_models: List[Dict[str, Any]] = []
+        for mk in model_keys:
+            mc = models.get(mk, {})
+            if not isinstance(mc, dict):
+                mc = {}
+            resolved_models.append(
+                {
+                    "key": mk,
+                    "provider": mc.get("provider"),
+                    "model_name": mc.get("model_name"),
+                    "deployment": mc.get("deployment"),
+                }
+            )
+
+        task_defs[task] = {
+            "tier": tier or None,
+            "model_keys": model_keys,
+            "resolved_models": resolved_models,
+            "router_task": base,
+            "override_task": override or None,
+        }
 
     return {
         "schema": CATALOG_SCHEMA_V1,
@@ -879,5 +932,6 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "callsites": llm_calls,
             "used_tasks": sorted(t for t in used_tasks if t),
             "missing_task_defs": missing_task_defs,
+            "task_defs": task_defs,
         },
     }

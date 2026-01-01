@@ -27,23 +27,26 @@ function phaseKey(phase: string): string {
   return s.slice(0, 1).toUpperCase();
 }
 
-function colorsForPhase(phase: string): { fill: string; stroke: string; text: string } {
-  switch (phaseKey(phase)) {
-    case "A":
-      return { fill: "rgba(245, 158, 11, 0.07)", stroke: "rgba(245, 158, 11, 0.25)", text: "rgba(180, 83, 9, 0.95)" };
-    case "B":
-      return { fill: "rgba(99, 102, 241, 0.07)", stroke: "rgba(99, 102, 241, 0.25)", text: "rgba(67, 56, 202, 0.95)" };
-    case "C":
-      return { fill: "rgba(14, 165, 233, 0.06)", stroke: "rgba(14, 165, 233, 0.22)", text: "rgba(2, 132, 199, 0.95)" };
-    case "D":
-      return { fill: "rgba(34, 197, 94, 0.06)", stroke: "rgba(34, 197, 94, 0.22)", text: "rgba(21, 128, 61, 0.95)" };
-    case "F":
-      return { fill: "rgba(236, 72, 153, 0.06)", stroke: "rgba(236, 72, 153, 0.22)", text: "rgba(190, 24, 93, 0.95)" };
-    case "G":
-      return { fill: "rgba(107, 114, 128, 0.06)", stroke: "rgba(107, 114, 128, 0.22)", text: "rgba(55, 65, 81, 0.92)" };
-    default:
-      return { fill: "rgba(148, 163, 184, 0.05)", stroke: "rgba(148, 163, 184, 0.22)", text: "rgba(71, 85, 105, 0.92)" };
-  }
+function colorsForPhase(phase: string): { fill: string; stroke: string } {
+  const key = phaseKey(phase);
+  const rgb =
+    key === "A"
+      ? "245, 158, 11"
+      : key === "B"
+        ? "99, 102, 241"
+        : key === "C"
+          ? "14, 165, 233"
+          : key === "D"
+            ? "34, 197, 94"
+            : key === "F"
+              ? "236, 72, 153"
+              : key === "G"
+                ? "107, 114, 128"
+                : "148, 163, 184";
+  return {
+    fill: `rgba(${rgb}, 0.11)`,
+    stroke: `rgba(${rgb}, 0.55)`,
+  };
 }
 
 function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
@@ -198,7 +201,7 @@ export function SsotFlowGraph({
   const phaseGroups = useMemo(() => {
     const groups = new Map<
       string,
-      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string; text: string } }
+      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string } }
     >();
     for (const n of nodes) {
       const phase = (n.step.phase || "").trim();
@@ -322,21 +325,17 @@ export function SsotFlowGraph({
           </marker>
         </defs>
         {phaseGroups.map((g) => (
-          <g key={g.phase}>
-            <rect
-              x={g.x}
-              y={g.y}
-              width={g.width}
-              height={g.height}
-              rx={18}
-              fill={g.colors.fill}
-              stroke={g.colors.stroke}
-              strokeWidth={2}
-            />
-            <text x={g.x + 12} y={g.y + 8} fill={g.colors.text} fontSize={12} fontWeight={800} dominantBaseline="hanging">
-              Phase {g.phase}
-            </text>
-          </g>
+          <rect
+            key={g.phase}
+            x={g.x}
+            y={g.y}
+            width={g.width}
+            height={g.height}
+            rx={18}
+            fill={g.colors.fill}
+            stroke={g.colors.stroke}
+            strokeWidth={2.5}
+          />
         ))}
         {paths.map((p, idx) => (
           (() => {
@@ -364,6 +363,29 @@ export function SsotFlowGraph({
             );
           })()
         ))}
+        {phaseGroups.map((g) => {
+          const label = `Phase ${g.phase}`;
+          const labelWidth = 18 + label.length * 7;
+          const lx = g.x + 14;
+          const ly = g.y + 14;
+          return (
+            <g key={`${g.phase}-label`}>
+              <rect
+                x={lx}
+                y={ly}
+                width={labelWidth}
+                height={22}
+                rx={12}
+                fill="var(--color-surface)"
+                stroke={g.colors.stroke}
+                strokeWidth={1.5}
+              />
+              <text x={lx + 10} y={ly + 11} fill="var(--color-text)" fontSize={12} fontWeight={900} dominantBaseline="middle">
+                {label}
+              </text>
+            </g>
+          );
+        })}
       </svg>
 
       {nodes.map((n) => {

@@ -1929,6 +1929,16 @@ export interface SsotCatalog {
     callsites: Array<{ task: string; call: string; source: { path: string; line: number } }>;
     router_config?: { path?: string; tasks_count?: number };
     task_overrides?: { path?: string; tasks_count?: number };
+    task_defs?: Record<
+      string,
+      {
+        tier?: string | null;
+        model_keys?: string[];
+        resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
+        router_task?: Record<string, unknown>;
+        override_task?: Record<string, unknown> | null;
+      }
+    >;
   };
 }
 
