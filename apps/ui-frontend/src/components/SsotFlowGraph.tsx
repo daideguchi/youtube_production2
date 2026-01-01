@@ -471,7 +471,7 @@ export function SsotFlowGraph({
                 {n.step.name || n.step.node_id}
               </div>
             </div>
-            <div className="muted small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0 }}>
+            <div className="small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0, color: "var(--color-text)", opacity: 0.72 }}>
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {task ? `${n.id} · TASK:${task}` : n.id}
               </span>
