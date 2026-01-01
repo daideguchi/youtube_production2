@@ -807,9 +807,121 @@ def _sanitize_a_text_forbidden_statistics(text: str) -> str:
     Best-effort: remove percent/percentage expressions that are forbidden by A-text rules.
     This is a safety/credibility repair to avoid accidental fake-statistics vibes.
     """
-    # Deterministic rewriting of statistics changes meaning and is forbidden.
-    # Leave as-is and let validate_a_text() fail with `forbidden_statistics`.
-    return text or ""
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized:
+        return text or ""
+    if "%" not in normalized and "％" not in normalized and "パーセント" not in normalized:
+        return text or ""
+
+    fullwidth_to_ascii = str.maketrans("０１２３４５６７８９", "0123456789")
+
+    def _to_int(raw: str) -> int | None:
+        s = (raw or "").translate(fullwidth_to_ascii).strip()
+        if not s:
+            return None
+        try:
+            return int(s)
+        except Exception:
+            return None
+
+    changed = False
+
+    def repl_people(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        suffix = str(m.group(2) or "人")
+        if n is None:
+            changed = True
+            return f"一部の{suffix}"
+        if n >= 70:
+            prefix = "多くの"
+        elif n >= 40:
+            prefix = "少なくない"
+        elif n >= 10:
+            prefix = "一部の"
+        else:
+            prefix = "ごく一部の"
+        changed = True
+        return f"{prefix}{suffix}"
+
+    def repl_probability(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        kind = str(m.group(2) or "可能性")
+        if n is None:
+            changed = True
+            return f"一定の{kind}"
+        if n >= 90:
+            prefix = "非常に高い"
+        elif n >= 70:
+            prefix = "高い"
+        elif n >= 40:
+            prefix = "それなりの"
+        elif n >= 10:
+            prefix = "低い"
+        else:
+            prefix = "ごく低い"
+        changed = True
+        return f"{prefix}{kind}"
+
+    def repl_general(m: re.Match[str]) -> str:
+        nonlocal changed
+        n = _to_int(m.group(1))
+        if n is None:
+            changed = True
+            return "ある程度"
+        # If followed by "の", prefer noun-like expressions (e.g., ほとんどの人).
+        after = normalized[m.end() :]
+        i = 0
+        while i < len(after) and after[i] in (" ", "\t", "\u3000"):
+            i += 1
+        follows_no = after[i : i + 1] == "の"
+        if follows_no:
+            if n >= 100:
+                out = "すべて"
+            elif n >= 90:
+                out = "ほとんど"
+            elif n >= 70:
+                out = "多く"
+            elif n >= 40:
+                out = "半分ほど"
+            elif n >= 10:
+                out = "一部"
+            else:
+                out = "ごく一部"
+        else:
+            if n >= 100:
+                out = "完全に"
+            elif n >= 90:
+                out = "ほぼ"
+            elif n >= 70:
+                out = "たいてい"
+            elif n >= 40:
+                out = "半分ほど"
+            elif n >= 10:
+                out = "ときどき"
+            else:
+                out = "まれに"
+        changed = True
+        return out
+
+    out = normalized
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(人(?:々|たち)?)", repl_people, out)
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(確率|可能性)", repl_probability, out)
+    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)", repl_general, out)
+
+    if "%" in out or "％" in out or "パーセント" in out:
+        changed = True
+        out = out.replace("%", "").replace("％", "").replace("パーセント", "")
+
+    if not changed:
+        return text or ""
+    # Preserve trailing newline if the original had it.
+    if normalized.endswith("\n") and not out.endswith("\n"):
+        out += "\n"
+    return out
+
+
 def _sanitize_inline_pause_markers(text: str) -> str:
     """
     Best-effort: normalize inline '---' sequences into standalone pause lines.
@@ -844,6 +956,135 @@ def _sanitize_inline_pause_markers(text: str) -> str:
     if not changed:
         return text or ""
     return "\n".join(out_lines).rstrip() + "\n"
+
+
+_RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
+_RE_A_TEXT_DUP_PARA_WS = re.compile(r"[\s\u3000]+")
+
+
+def _repair_a_text_incomplete_ending(a_text: str) -> tuple[str, Dict[str, Any]]:
+    """
+    Best-effort: repair "abrupt/truncated" endings deterministically by trimming the trailing
+    incomplete tail to the last sentence boundary.
+
+    Notes:
+    - Trailing pause-only lines (`---`) are preserved and ignored for the end-of-text check.
+    - This does not add new content; it only removes an obviously incomplete tail.
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized.strip():
+        return a_text or "", {}
+
+    lines = normalized.split("\n")
+    # Identify the "core" region (exclude trailing blanks and trailing pause-only lines),
+    # but preserve them so we don't change pause counts.
+    end = len(lines)
+    while end > 0 and not lines[end - 1].strip():
+        end -= 1
+    core_end = end
+    while core_end > 0:
+        s = lines[core_end - 1].strip()
+        if not s:
+            core_end -= 1
+            continue
+        if s == "---":
+            core_end -= 1
+            continue
+        break
+
+    core_lines = lines[:core_end]
+    tail_lines = lines[core_end:]
+    core_text = "\n".join(core_lines).rstrip()
+    if not core_text.strip():
+        return normalized.rstrip() + "\n", {}
+
+    if _RE_A_TEXT_COMPLETE_ENDING.search(core_text.strip()):
+        return normalized.rstrip() + "\n", {}
+
+    last_boundary = None
+    for m in re.finditer(r"[。！？!?][」』）)]*", core_text):
+        last_boundary = m
+    if last_boundary is None:
+        return normalized.rstrip() + "\n", {}
+
+    new_core = core_text[: last_boundary.end()].rstrip()
+    new_text = new_core
+    tail_block = "\n".join(tail_lines).rstrip()
+    if tail_block:
+        new_text = new_text.rstrip() + "\n" + tail_block
+    new_text = new_text.rstrip() + "\n"
+
+    details: Dict[str, Any] = {
+        "trimmed": True,
+        "before_tail": core_text.strip().replace("\n", "\\n")[-60:],
+        "after_tail": new_core.strip().replace("\n", "\\n")[-60:],
+    }
+    return new_text, details
+
+
+def _repair_a_text_duplicate_paragraphs(a_text: str, *, min_core_chars: int = 120) -> tuple[str, Dict[str, Any]]:
+    """
+    Best-effort: remove verbatim duplicate paragraphs deterministically.
+
+    Why:
+    - Some generations accidentally repeat the same paragraph (copy/loop) which degrades quality.
+    - This repair is cheaper than re-generating and safe because it only removes exact duplicates.
+
+    Rules:
+    - A "paragraph" is a consecutive block of non-empty, non-`---` lines.
+    - Duplicate detection ignores whitespace (including full-width spaces) only.
+    - Only paragraphs with core length >= min_core_chars are considered.
+    - Keep the first occurrence; drop later duplicates.
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not normalized.strip():
+        return a_text or "", {}
+
+    lines = normalized.split("\n")
+    out_lines: List[str] = []
+    buf: List[str] = []
+    seen: Dict[str, int] = {}
+    dropped: List[Dict[str, Any]] = []
+
+    def _flush_paragraph(*, at_line: int) -> None:
+        nonlocal buf, out_lines, seen, dropped
+        if not buf:
+            return
+        para_text = "\n".join(buf).strip()
+        core = _RE_A_TEXT_DUP_PARA_WS.sub("", para_text).strip()
+        if len(core) < int(min_core_chars):
+            out_lines.extend(buf)
+            buf = []
+            return
+        if core in seen:
+            dropped.append({"kept_para": seen[core], "dropped_para_line": at_line})
+            buf = []
+            return
+        seen[core] = at_line
+        out_lines.extend(buf)
+        buf = []
+
+    for idx, ln in enumerate(lines, start=1):
+        stripped = ln.strip()
+        if stripped == "---":
+            _flush_paragraph(at_line=max(1, idx - len(buf)))
+            out_lines.append("---")
+            continue
+        if not stripped:
+            _flush_paragraph(at_line=max(1, idx - len(buf)))
+            # Keep at most one blank line in output to avoid ballooning.
+            if out_lines and out_lines[-1].strip() == "":
+                continue
+            out_lines.append("")
+            continue
+        buf.append(ln)
+
+    _flush_paragraph(at_line=max(1, (len(lines) + 1) - len(buf)))
+    new_text = "\n".join(out_lines).rstrip() + "\n"
+    if not dropped or new_text.strip() == normalized.strip():
+        return normalized.rstrip() + "\n", {}
+    details: Dict[str, Any] = {"removed": len(dropped), "dropped": dropped[:10]}
+    return new_text, details
 
 
 def _trim_compact_text_to_chars(text: str, *, max_chars: int, min_chars: int | None = None) -> str:
@@ -886,6 +1127,275 @@ def _trim_compact_text_to_chars(text: str, *, max_chars: int, min_chars: int | N
     if best >= boundary_min:
         return compact[: best + 1].strip()
     return compact
+
+
+def _count_a_text_spoken_chars(text: str) -> int:
+    """
+    Count "spoken" characters, matching validate_a_text() intent:
+    - exclude pause-only lines (`---`)
+    - exclude whitespace/newlines
+    """
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines: List[str] = []
+    for line in normalized.split("\n"):
+        if line.strip() == "---":
+            continue
+        lines.append(line)
+    compact = "".join(lines)
+    compact = compact.replace(" ", "").replace("\t", "").replace("\u3000", "")
+    return len(compact.strip())
+
+
+def _trim_a_text_to_spoken_char_limit(text: str, *, max_chars: int, min_chars: int | None = None) -> str:
+    """
+    Deterministically trim A-text to <= max_chars (spoken char count),
+    while preserving formatting as much as possible.
+    """
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.strip():
+        return ""
+    try:
+        max_i = int(max_chars)
+    except Exception:
+        return raw.strip() + "\n"
+    if max_i <= 0:
+        return ""
+
+    # If already within the limit, keep as-is (normalized).
+    if _count_a_text_spoken_chars(raw) <= max_i:
+        return raw.strip() + "\n"
+
+    boundary_min = int(max_i * 0.6)
+    if isinstance(min_chars, int) and min_chars > 0:
+        boundary_min = min(max_i, max(boundary_min, min_chars))
+
+    out: list[str] = []
+    spoken = 0
+    last_boundary_out_len: int | None = None
+    last_boundary_spoken: int | None = None
+
+    def _mark_boundary() -> None:
+        nonlocal last_boundary_out_len, last_boundary_spoken
+        last_boundary_out_len = len(out)
+        last_boundary_spoken = spoken
+
+    stop = False
+    for ln in raw.split("\n"):
+        if ln.strip() == "---":
+            out.append("---")
+            out.append("\n")
+            _mark_boundary()
+            continue
+
+        line_complete = True
+        for ch in ln:
+            if ch in (" ", "\t", "\u3000"):
+                out.append(ch)
+                continue
+            if spoken >= max_i:
+                stop = True
+                line_complete = False
+                break
+            spoken += 1
+            out.append(ch)
+            if ch in ("。", "！", "？", "!", "?"):
+                _mark_boundary()
+
+        out.append("\n")
+        if line_complete:
+            _mark_boundary()
+        if stop:
+            break
+
+    if stop and last_boundary_out_len is not None and (last_boundary_spoken or 0) >= boundary_min:
+        out = out[:last_boundary_out_len]
+
+    trimmed = "".join(out).strip()
+    if not trimmed:
+        return ""
+    return trimmed + "\n"
+
+
+def _budget_trim_a_text_to_target(text: str, *, target_chars: int, min_segment_chars: int = 120) -> str:
+    """
+    Deterministically shrink A-text by trimming each pause-delimited segment to a proportional budget.
+    Keeps the number/positions of pause markers (`---`) stable.
+    """
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.strip():
+        return ""
+    try:
+        target_total = int(target_chars)
+    except Exception:
+        return raw.strip() + "\n"
+    if target_total <= 0:
+        return ""
+
+    # Split by pause lines.
+    segments: list[str] = []
+    cur: list[str] = []
+    for ln in raw.split("\n"):
+        if ln.strip() == "---":
+            segments.append("\n".join(cur).strip())
+            cur = []
+            continue
+        cur.append(ln)
+    segments.append("\n".join(cur).strip())
+
+    counts = [_count_a_text_spoken_chars(seg) for seg in segments]
+    total = sum(counts)
+    if total <= target_total:
+        return raw.strip() + "\n"
+
+    seg_n = len(segments)
+    min_seg = max(0, int(min_segment_chars))
+    if seg_n > 0 and min_seg * seg_n > target_total:
+        min_seg = max(0, target_total // seg_n)
+
+    # Proportional allocation (bounded by per-segment minimum).
+    budgets: list[int] = []
+    for c in counts:
+        if total > 0:
+            b = int(round((c * target_total) / total))
+        else:
+            b = 0
+        budgets.append(max(min_seg, b))
+
+    # Ensure we don't exceed the target_total due to rounding/minimums.
+    while sum(budgets) > target_total and seg_n > 0:
+        # Reduce the largest budget that is above min_seg.
+        idx = max(range(seg_n), key=lambda i: budgets[i])
+        if budgets[idx] <= min_seg:
+            break
+        budgets[idx] -= 1
+
+    trimmed_segments: list[str] = []
+    for seg, b in zip(segments, budgets):
+        if not seg.strip():
+            trimmed_segments.append("")
+            continue
+        trimmed_segments.append(_trim_a_text_to_spoken_char_limit(seg, max_chars=b).strip())
+
+    parts: list[str] = []
+    for i, seg in enumerate(trimmed_segments):
+        if seg.strip():
+            parts.append(seg.strip())
+        if i < len(trimmed_segments) - 1:
+            parts.append("---")
+    return "\n\n".join(parts).strip() + "\n"
+
+
+def _insert_addition_after_pause(
+    a_text: str,
+    after_pause_index: Any,
+    addition: str,
+    *,
+    max_addition_chars: int | None = None,
+    min_addition_chars: int | None = None,
+) -> str:
+    """
+    Insert `addition` as a single paragraph right after the Nth pause marker (`---`).
+    If no pause markers exist, insert after the first paragraph break (fallback).
+    """
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    add_norm = (addition or "").replace("\r\n", "\n").replace("\r", "\n")
+    add_lines = [ln.strip() for ln in add_norm.split("\n") if ln.strip()]
+    add_para = "".join(add_lines).strip()
+    if isinstance(max_addition_chars, int) and max_addition_chars > 0:
+        add_para = _trim_compact_text_to_chars(
+            add_para, max_chars=max_addition_chars, min_chars=min_addition_chars
+        )
+    if not add_para:
+        return normalized.rstrip() + "\n"
+
+    try:
+        idx_int = int(after_pause_index)
+    except Exception:
+        idx_int = 0
+
+    lines = normalized.split("\n")
+    pause_idxs = [i for i, ln in enumerate(lines) if ln.strip() == "---"]
+    if pause_idxs:
+        idx_int = max(0, min(idx_int, len(pause_idxs) - 1))
+        insert_at = pause_idxs[idx_int] + 1
+        while insert_at < len(lines) and not lines[insert_at].strip():
+            insert_at += 1
+        lines[insert_at:insert_at] = [add_para, ""]
+        return "\n".join(lines).rstrip() + "\n"
+
+    # Fallback: insert after first paragraph (first blank line after non-empty).
+    insert_at = 0
+    seen_text = False
+    for i, ln in enumerate(lines):
+        if ln.strip():
+            seen_text = True
+            continue
+        if seen_text and not ln.strip():
+            insert_at = i + 1
+            break
+    if insert_at <= 0:
+        insert_at = len(lines)
+    lines[insert_at:insert_at] = [add_para, ""]
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _ensure_min_pause_lines(a_text: str, min_pause_lines: int) -> str:
+    """Insert standalone `---` pause lines at paragraph boundaries until reaching min_pause_lines."""
+    try:
+        target = int(min_pause_lines)
+    except Exception:
+        return a_text or ""
+    if target <= 0:
+        return a_text or ""
+
+    normalized = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    cur = sum(1 for ln in lines if ln.strip() == "---")
+    if cur >= target:
+        return normalized.rstrip() + "\n"
+
+    # Candidate insertion points: before a paragraph start that follows a blank line,
+    # excluding places already adjacent to an existing pause line.
+    candidates: list[int] = []
+    for i in range(len(lines) - 1):
+        if not lines[i].strip():
+            continue
+        # find next non-empty line after a blank run
+        j = i + 1
+        if j >= len(lines) or lines[j].strip():
+            continue
+        while j < len(lines) and not lines[j].strip():
+            j += 1
+        if j >= len(lines):
+            break
+        if lines[i].strip() == "---":
+            continue
+        if lines[j].strip() == "---":
+            continue
+        candidates.append(j)
+
+    # Fallback: if we couldn't find paragraph boundaries, append pauses at the end.
+    if not candidates:
+        while cur < target:
+            lines.extend(["", "---"])
+            cur += 1
+        return "\n".join(lines).rstrip() + "\n"
+
+    # Insert pauses from early to late so indices remain stable (we insert before `j`).
+    inserted = 0
+    for j in candidates:
+        if cur + inserted >= target:
+            break
+        pos = j + inserted
+        lines[pos:pos] = ["---", ""]
+        inserted += 2
+
+    # If still short, append remaining pauses at the end.
+    cur2 = sum(1 for ln in lines if ln.strip() == "---")
+    while cur2 < target:
+        lines.extend(["", "---"])
+        cur2 += 1
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _reduce_quote_marks(a_text: str, max_marks: int) -> str:
@@ -6292,8 +6802,205 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         issues, stats = validate_a_text(a_text, st.metadata or {})
         planning_row: Dict[str, Any] | None = None
 
-        # NOTE: Deterministic "pre-clean" that rewrites A-text is forbidden (no mechanical script edits).
-        # If validate_a_text() fails, treat it as 要対応 and retry after rewriting.
+        # Pre-clean before any LLM gate: fix pause lines + bracket marks deterministically.
+        # (SSOT: OPS_A_TEXT_GLOBAL_RULES.md / OPS_A_TEXT_LLM_QUALITY_GATE.md)
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            cleanup_details: Dict[str, Any] = {}
+
+            try:
+                quote_max = int(stats.get("quote_marks_max")) if stats.get("quote_marks_max") is not None else None
+            except Exception:
+                quote_max = None
+            if quote_max is None:
+                try:
+                    quote_max = int((st.metadata or {}).get("a_text_quote_marks_max"))
+                except Exception:
+                    quote_max = None
+            if quote_max is None:
+                quote_max = 20
+
+            try:
+                paren_max = int(stats.get("paren_marks_max")) if stats.get("paren_marks_max") is not None else None
+            except Exception:
+                paren_max = None
+            if paren_max is None:
+                try:
+                    paren_max = int((st.metadata or {}).get("a_text_paren_marks_max"))
+                except Exception:
+                    paren_max = None
+            if paren_max is None:
+                paren_max = 10
+
+            # Prefer planning title for pattern selection (consistent with Judge/Fixer context).
+            planning_title = ""
+            try:
+                planning_title = str(st.metadata.get("sheet_title") or "").strip()
+            except Exception:
+                planning_title = ""
+            if not planning_title:
+                try:
+                    align = st.metadata.get("alignment") if isinstance(st.metadata, dict) else None
+                    if isinstance(align, dict):
+                        planning = align.get("planning")
+                        if isinstance(planning, dict):
+                            planning_title = str(planning.get("title") or "").strip()
+                except Exception:
+                    planning_title = ""
+            title_for_pattern = planning_title or str(
+                st.metadata.get("expected_title") or st.metadata.get("title") or st.script_id
+            )
+
+            pause_min: int | None = None
+            try:
+                patterns_doc = _load_a_text_patterns_doc()
+                pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_pattern) if patterns_doc else {}
+                plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
+                sec_count: int | None = None
+                if isinstance(plan_cfg, dict):
+                    sections = plan_cfg.get("sections")
+                    if isinstance(sections, list):
+                        sec_count = len([s for s in sections if isinstance(s, dict) and str(s.get("name") or "").strip()])
+                if isinstance(sec_count, int) and sec_count > 0:
+                    pause_min = max(0, sec_count - 1)
+                elif isinstance(patterns_doc, dict):
+                    defaults = patterns_doc.get("defaults")
+                    if isinstance(defaults, dict) and defaults.get("sections_min") not in (None, ""):
+                        pause_min = max(0, int(defaults.get("sections_min")) - 1)
+            except Exception:
+                pause_min = None
+
+            try:
+                current_pause = int(stats.get("pause_lines") or 0)
+            except Exception:
+                current_pause = 0
+            try:
+                current_quotes = int(stats.get("quote_marks") or 0)
+            except Exception:
+                current_quotes = 0
+            try:
+                current_parens = int(stats.get("paren_marks") or 0)
+            except Exception:
+                current_parens = 0
+            try:
+                current_parens = int(stats.get("paren_marks") or 0)
+            except Exception:
+                current_parens = 0
+            try:
+                current_parens = int(stats.get("paren_marks") or 0)
+            except Exception:
+                current_parens = 0
+
+            cleaned = a_text
+            # Remove meta/citation/URL leakage deterministically (must never reach TTS/subtitles).
+            try:
+                from factory_common.text_sanitizer import strip_meta_from_script
+
+                sanitized = strip_meta_from_script(cleaned)
+                if sanitized.removed_counts and sanitized.text.strip() and sanitized.text.strip() != (cleaned or "").strip():
+                    cleaned = sanitized.text
+                    cleanup_details["meta_sanitized"] = sanitized.removed_counts
+            except Exception:
+                pass
+
+            # Format-only repairs (safe): A-text forbids markdown headings and list markers,
+            # but some seed/legacy inputs may contain them. Preserve line content while
+            # removing formatting so the pipeline can converge via the quality gate.
+            cleaned2 = _sanitize_a_text_markdown_headings(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["markdown_headings_stripped"] = True
+            cleaned2 = _sanitize_a_text_bullet_prefixes(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["bullet_prefixes_stripped"] = True
+
+            cleaned2 = _sanitize_a_text_forbidden_statistics(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["forbidden_statistics_removed"] = True
+            if "厊" in cleaned:
+                cleaned2 = cleaned.replace("厊", "厳")
+                if cleaned2 != cleaned:
+                    cleaned = cleaned2
+                    cleanup_details.setdefault("suspicious_glyph_replacements", []).append("厊->厳")
+            # NOTE: Do NOT insert pause lines deterministically.
+            # Pause markers affect pacing; inserting them mechanically can create weird breaks.
+            # If pause density is important, handle it in LLM drafting/fixing instead.
+            if isinstance(quote_max, int) and current_quotes > quote_max:
+                cleaned2 = _reduce_quote_marks(cleaned, quote_max)
+                if cleaned2 != cleaned:
+                    cleaned = cleaned2
+                    cleanup_details["quote_marks_max"] = quote_max
+            if isinstance(paren_max, int) and current_parens > paren_max:
+                cleaned2 = _reduce_paren_marks(cleaned, paren_max)
+                if cleaned2 != cleaned:
+                    cleaned = cleaned2
+                    cleanup_details["paren_marks_max"] = paren_max
+
+            repaired, dup_details = _repair_a_text_duplicate_paragraphs(cleaned)
+            if dup_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
+                cleaned = repaired
+                cleanup_details["duplicate_paragraph_repair"] = dup_details
+
+            repaired, ending_details = _repair_a_text_incomplete_ending(cleaned)
+            if ending_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
+                cleaned = repaired
+                cleanup_details["incomplete_ending_repair"] = ending_details
+
+            if cleanup_details and cleaned.strip() and cleaned.strip() != (a_text or "").strip():
+                # Backup original before rewriting.
+                try:
+                    analysis_dir = content_dir / "analysis" / "quality_gate"
+                    analysis_dir.mkdir(parents=True, exist_ok=True)
+                    backup_path = analysis_dir / f"backup_{_utc_now_compact()}_{canonical_path.name}"
+                    if (a_text or "").strip():
+                        backup_path.write_text((a_text or "").strip() + "\n", encoding="utf-8")
+                    cleanup_details["backup_path"] = str(backup_path.relative_to(base))
+                except Exception:
+                    pass
+
+                candidate_text = cleaned.strip() + "\n"
+                canonical_path.write_text(candidate_text, encoding="utf-8")
+                if canonical_path.resolve() != assembled_path.resolve():
+                    assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                    assembled_path.write_text(candidate_text, encoding="utf-8")
+                legacy_final = content_dir / "final" / "assembled.md"
+                if legacy_final.exists():
+                    legacy_final.write_text(candidate_text, encoding="utf-8")
+
+                # Re-stamp alignment so downstream guards remain consistent.
+                if isinstance(st.metadata.get("alignment"), dict):
+                    try:
+                        csv_row = planning_row or _load_csv_row(
+                            _resolve_repo_path(str(channels_csv_path(st.channel))), st.video
+                        )
+                        if csv_row:
+                            planning_row = csv_row
+                            stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                            st.metadata["alignment"] = stamp.as_dict()
+                            pt = stamp.planning.get("title")
+                            if isinstance(pt, str) and pt.strip():
+                                st.metadata["sheet_title"] = pt.strip()
+                            stage_details["alignment_restamped"] = True
+                    except Exception:
+                        # If restamp fails, keep pending to avoid accidental downstream work.
+                        stage_details["error"] = "alignment_restamp_failed"
+                        st.stages[stage_name].status = "pending"
+                        st.status = "script_in_progress"
+                        save_status(st)
+                        try:
+                            _write_script_manifest(base, st, stage_defs)
+                        except Exception:
+                            pass
+                        return st
+
+                a_text = candidate_text
+                issues, stats = validate_a_text(a_text, st.metadata or {})
+                stage_details["stats"] = stats
+                stage_details["deterministic_cleanup"] = cleanup_details
+
+        # Auto-fix: length-only failures are safe to expand/shrink.
+        # This must run BEFORE alignment checks because we will update the A-text on disk.
         try:
             non_warning_errors = [
                 it
@@ -6305,8 +7012,494 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             non_warning_errors = []
             error_codes = set()
 
-        # NOTE: Deterministic post-cleanups (dedup/incomplete ending repairs) are forbidden.
-        # If A-text fails validation, treat it as 要対応 and retry via rewrite/regeneration.
+        if error_codes == {"length_too_short"} and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            try:
+                target_min = int(stats.get("target_chars_min")) if stats.get("target_chars_min") is not None else None
+                target_max = int(stats.get("target_chars_max")) if stats.get("target_chars_max") is not None else None
+                char_count = int(stats.get("char_count")) if stats.get("char_count") is not None else None
+            except Exception:
+                target_min = None
+                target_max = None
+                char_count = None
+
+            shortage: int | None = None
+            if isinstance(target_min, int) and isinstance(char_count, int) and char_count < target_min:
+                shortage = target_min - char_count
+
+            if isinstance(shortage, int) and shortage > 0:
+                stage_details = st.stages[stage_name].details
+                stage_details["auto_length_fix_attempts"] = int(stage_details.get("auto_length_fix_attempts") or 0) + 1
+
+                room: int | None = None
+                if isinstance(target_max, int) and isinstance(char_count, int) and target_max > char_count:
+                    room = target_max - char_count
+
+                # Prefer Planning title for LLM context.
+                title_for_llm = str(st.metadata.get("expected_title") or st.metadata.get("title") or st.script_id)
+                try:
+                    csv_row = _load_csv_row(_resolve_repo_path(str(channels_csv_path(st.channel))), st.video)
+                except Exception:
+                    csv_row = None
+                if csv_row:
+                    t = str(csv_row.get("タイトル") or "").strip()
+                    if t:
+                        title_for_llm = t
+
+                # Quality targets derived from SSOT script patterns (optional, used for length-rescue clarity).
+                pattern_id = ""
+                modern_examples_max_target = "1"
+                pause_lines_target_min = ""
+                core_episode_required = "0"
+                core_episode_guide = ""
+                try:
+                    patterns_doc = _load_a_text_patterns_doc()
+                except Exception:
+                    patterns_doc = {}
+                try:
+                    pat = _select_a_text_pattern_for_status(patterns_doc, st, title_for_llm) if patterns_doc else {}
+                except Exception:
+                    pat = {}
+
+                try:
+                    pattern_id = str((pat or {}).get("id") or "").strip()
+                except Exception:
+                    pattern_id = ""
+
+                try:
+                    max_examples_val: int | None = None
+                    plan_cfg = (pat or {}).get("plan") if isinstance(pat, dict) else None
+                    if isinstance(plan_cfg, dict):
+                        mp = plan_cfg.get("modern_example_policy")
+                        if isinstance(mp, dict) and mp.get("max_examples") not in (None, ""):
+                            max_examples_val = int(mp.get("max_examples"))
+                        sections = plan_cfg.get("sections")
+                        if isinstance(sections, list):
+                            sec_count = len(
+                                [s for s in sections if isinstance(s, dict) and str(s.get("name") or "").strip()]
+                            )
+                            if sec_count > 0:
+                                pause_lines_target_min = str(max(0, sec_count - 1))
+                    if max_examples_val is None and isinstance(patterns_doc, dict):
+                        defaults = patterns_doc.get("defaults")
+                        if isinstance(defaults, dict) and defaults.get("modern_examples_max") not in (None, ""):
+                            max_examples_val = int(defaults.get("modern_examples_max"))
+                    modern_examples_max_target = str(
+                        max(0, int(max_examples_val if max_examples_val is not None else 1))
+                    )
+                except Exception:
+                    modern_examples_max_target = "1"
+                    pause_lines_target_min = ""
+
+                try:
+                    plan_cfg2 = (pat or {}).get("plan") if isinstance(pat, dict) else None
+                    cands = (
+                        (plan_cfg2.get("core_episode_candidates") or plan_cfg2.get("buddhist_episode_candidates"))
+                        if isinstance(plan_cfg2, dict)
+                        else None
+                    )
+                    if isinstance(cands, list) and cands:
+                        core_episode_required = "1"
+                        picked = _pick_core_episode(cands, title_for_llm)
+                        if not isinstance(picked, dict) and isinstance(cands[0], dict):
+                            picked = cands[0]
+                        if isinstance(picked, dict):
+                            topic = str(picked.get("topic") or picked.get("id") or "").strip()
+                            must = picked.get("must_include")
+                            must_txt = ""
+                            if isinstance(must, list):
+                                must_txt = " / ".join([str(x).strip() for x in must if str(x).strip()][:4]).strip()
+                            avoid = picked.get("avoid_claims")
+                            avoid_txt = ""
+                            if isinstance(avoid, list):
+                                avoid_txt = " / ".join([str(x).strip() for x in avoid if str(x).strip()][:3]).strip()
+                            safe_retelling = str(picked.get("safe_retelling") or "").strip()
+                            if safe_retelling:
+                                safe_retelling = re.sub(r"\s+", " ", safe_retelling).strip()
+                                if len(safe_retelling) > 620:
+                                    safe_retelling = safe_retelling[:620].rstrip() + "…"
+
+                            lines: list[str] = []
+                            if topic:
+                                lines.append(f"- {topic}")
+                            if must_txt:
+                                lines.append(f"  must_include: {must_txt}")
+                            if avoid_txt:
+                                lines.append(f"  avoid_claims: {avoid_txt}")
+                            if safe_retelling:
+                                lines.append(f"  safe_retelling: {safe_retelling}")
+                            core_episode_guide = "\n".join(lines).strip()
+                except Exception:
+                    core_episode_required = "0"
+                    core_episode_guide = ""
+
+                placeholders_base = {
+                    "CHANNEL_CODE": str(st.channel),
+                    "VIDEO_ID": f"{st.channel}-{st.video}",
+                    "TITLE": title_for_llm,
+                    "TARGET_CHARS_MIN": str(st.metadata.get("target_chars_min") or ""),
+                    "TARGET_CHARS_MAX": str(st.metadata.get("target_chars_max") or ""),
+                    "PLANNING_HINT": _sanitize_quality_gate_context(
+                        _build_planning_hint(st.metadata or {}), max_chars=700
+                    ),
+                    "PERSONA": _sanitize_quality_gate_context(
+                        str(st.metadata.get("persona") or ""), max_chars=850
+                    ),
+                    "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                        str(st.metadata.get("a_text_channel_prompt") or st.metadata.get("script_prompt") or ""), max_chars=850
+                    ),
+                    "A_TEXT_RULES_SUMMARY": _sanitize_quality_gate_context(
+                        _a_text_rules_summary(st.metadata or {}), max_chars=650
+                    ),
+                    "A_TEXT_PATTERN_ID": pattern_id,
+                    "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
+                    "PAUSE_LINES_TARGET_MIN": pause_lines_target_min,
+                    "CORE_EPISODE_REQUIRED": core_episode_required,
+                    "CORE_EPISODE_GUIDE": _sanitize_quality_gate_context(core_episode_guide, max_chars=650),
+                }
+
+                rescued = (a_text or "").strip()
+                try:
+                    try:
+                        quote_max2 = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
+                    except Exception:
+                        quote_max2 = 20
+                    try:
+                        paren_max2 = int((st.metadata or {}).get("a_text_paren_marks_max") or 10)
+                    except Exception:
+                        paren_max2 = 10
+
+                    passes: list[dict[str, Any]] = []
+                    for pass_no in range(1, 4):
+                        rescued = _sanitize_inline_pause_markers(rescued)
+                        rescued = _sanitize_a_text_forbidden_statistics(rescued)
+
+                        cur_issues, cur_stats = validate_a_text(rescued, st.metadata or {})
+                        cur_errors = [
+                            it
+                            for it in cur_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        cur_codes = {
+                            str(it.get("code"))
+                            for it in cur_errors
+                            if isinstance(it, dict) and it.get("code")
+                        }
+                        allowed_codes = {
+                            "length_too_short",
+                            "too_many_quotes",
+                            "too_many_parentheses",
+                            "forbidden_statistics",
+                            # Expand can accidentally introduce these; repair deterministically and keep rescuing.
+                            "duplicate_paragraph",
+                            "incomplete_ending",
+                        }
+                        if not (cur_codes and "length_too_short" in cur_codes and cur_codes.issubset(allowed_codes)):
+                            break
+
+                        # Keep the length-rescue loop focused: clear fixable non-length codes deterministically.
+                        if "forbidden_statistics" in cur_codes:
+                            rescued2 = _sanitize_a_text_forbidden_statistics(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "duplicate_paragraph" in cur_codes:
+                            rescued2, _dup_details = _repair_a_text_duplicate_paragraphs(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "incomplete_ending" in cur_codes:
+                            rescued2, _ending_details = _repair_a_text_incomplete_ending(rescued)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "too_many_quotes" in cur_codes and isinstance(quote_max2, int) and quote_max2 > 0:
+                            rescued2 = _reduce_quote_marks(rescued, quote_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if "too_many_parentheses" in cur_codes and isinstance(paren_max2, int) and paren_max2 > 0:
+                            rescued2 = _reduce_paren_marks(rescued, paren_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+
+                        cur_issues, cur_stats = validate_a_text(rescued, st.metadata or {})
+                        cur_errors = [
+                            it
+                            for it in cur_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        cur_codes = {
+                            str(it.get("code"))
+                            for it in cur_errors
+                            if isinstance(it, dict) and it.get("code")
+                        }
+                        if cur_codes != {"length_too_short"}:
+                            break
+
+                        try:
+                            cur_min = (
+                                int(cur_stats.get("target_chars_min"))
+                                if cur_stats.get("target_chars_min") is not None
+                                else None
+                            )
+                            cur_max = (
+                                int(cur_stats.get("target_chars_max"))
+                                if cur_stats.get("target_chars_max") is not None
+                                else None
+                            )
+                            cur_char = (
+                                int(cur_stats.get("char_count"))
+                                if cur_stats.get("char_count") is not None
+                                else None
+                            )
+                        except Exception:
+                            break
+
+                        if not (isinstance(cur_min, int) and isinstance(cur_char, int) and cur_char < cur_min):
+                            break
+                        cur_shortage = cur_min - cur_char
+                        if cur_shortage <= 0:
+                            break
+                        # NOTE:
+                        # This rescue loop is already capped (range(1, 4)), so we should not
+                        # prematurely bail out on borderline shortages (e.g. ~1.2k left after
+                        # an expand pass). Keep it bounded via target_max "room" and the fixed
+                        # max pass count, not by an early stop here.
+                        cur_room: int | None = None
+                        if isinstance(cur_max, int) and isinstance(cur_char, int) and cur_max > cur_char:
+                            cur_room = cur_max - cur_char
+
+                        if cur_shortage <= 1500:
+                            extend_task = os.getenv(
+                                "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                            ).strip()
+                            add_min = max(cur_shortage + 200, 550)
+                            add_max = max(add_min, cur_shortage + 350)
+                            if isinstance(cur_room, int) and cur_room > 0:
+                                add_max = min(add_max, cur_room)
+                                add_min = min(add_min, add_max)
+
+                            extend_prompt = _render_template(
+                                A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                                {
+                                    **placeholders_base,
+                                    "A_TEXT": rescued,
+                                    "LENGTH_FEEDBACK": _a_text_length_feedback(rescued, st.metadata or {}),
+                                    "SHORTAGE_CHARS": str(cur_shortage),
+                                    "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                    "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                                },
+                            )
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                extend_result = router_client.call_with_raw(
+                                    task=extend_task,
+                                    messages=[{"role": "user", "content": extend_prompt}],
+                                )
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+                            extend_raw = _extract_llm_text_content(extend_result)
+                            extend_obj = _parse_json_lenient(extend_raw)
+                            rescued = _insert_addition_after_pause(
+                                rescued,
+                                (extend_obj or {}).get("after_pause_index", 0),
+                                str((extend_obj or {}).get("addition") or ""),
+                                max_addition_chars=add_max,
+                                min_addition_chars=add_min,
+                            )
+                            passes.append(
+                                {
+                                    "pass": pass_no,
+                                    "mode": "extend",
+                                    "task": extend_task,
+                                    "shortage_chars": cur_shortage,
+                                }
+                            )
+                        else:
+                            expand_task = os.getenv(
+                                "SCRIPT_VALIDATION_QUALITY_EXPAND_TASK", "script_a_text_quality_expand"
+                            ).strip()
+
+                            total_min = cur_shortage + 250
+                            total_max = cur_shortage + 450
+                            if isinstance(cur_room, int) and cur_room > 0:
+                                total_max = min(total_max, cur_room)
+                                total_min = min(total_min, total_max)
+
+                            # Avoid output truncation / THINK-mode failover on very large shortages:
+                            # cap each expand pass so we can converge over multiple passes.
+                            try:
+                                max_total_addition = int(
+                                    os.getenv("SCRIPT_VALIDATION_QUALITY_EXPAND_MAX_TOTAL_CHARS", "3200")
+                                )
+                            except Exception:
+                                max_total_addition = 3200
+                            max_total_addition = max(1200, max_total_addition)
+                            if total_min > max_total_addition:
+                                total_min = max_total_addition
+                            if total_max > max_total_addition + 200:
+                                total_max = max_total_addition + 200
+                            if total_max < total_min:
+                                total_max = total_min
+
+                            # Prefer fewer, thicker insertions (easier to hit char budgets and reduces thin repetition).
+                            n_insert = max(3, (total_min + 999) // 1000)
+                            n_insert = min(6, n_insert)
+                            each_min = max(250, total_min // max(1, n_insert))
+                            each_max = max(each_min, (total_max + max(1, n_insert) - 1) // max(1, n_insert))
+
+                            expand_prompt = _render_template(
+                                A_TEXT_QUALITY_EXPAND_PROMPT_PATH,
+                                {
+                                    **placeholders_base,
+                                    "A_TEXT": rescued,
+                                    "LENGTH_FEEDBACK": _a_text_length_feedback(rescued, st.metadata or {}),
+                                    "SHORTAGE_CHARS": str(cur_shortage),
+                                    "TARGET_TOTAL_ADDITION_MIN_CHARS": str(total_min),
+                                    "TARGET_TOTAL_ADDITION_MAX_CHARS": str(total_max),
+                                    "TARGET_INSERTIONS_TARGET": str(n_insert),
+                                    "TARGET_EACH_ADDITION_MIN_CHARS": str(each_min),
+                                    "TARGET_EACH_ADDITION_MAX_CHARS": str(each_max),
+                                },
+                            )
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                expand_result = router_client.call_with_raw(
+                                    task=expand_task,
+                                    messages=[{"role": "user", "content": expand_prompt}],
+                                )
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+                            expand_raw = _extract_llm_text_content(expand_result)
+                            expand_obj = _parse_json_lenient(expand_raw)
+                            insertions = (
+                                (expand_obj or {}).get("insertions") if isinstance(expand_obj, dict) else None
+                            )
+                            if not isinstance(insertions, list):
+                                insertions = []
+                            for ins in insertions:
+                                if not isinstance(ins, dict):
+                                    continue
+                                rescued = _insert_addition_after_pause(
+                                    rescued,
+                                    ins.get("after_pause_index", 0),
+                                    str(ins.get("addition") or ""),
+                                    max_addition_chars=each_max,
+                                    min_addition_chars=each_min,
+                                )
+                            passes.append(
+                                {
+                                    "pass": pass_no,
+                                    "mode": "expand",
+                                    "task": expand_task,
+                                    "shortage_chars": cur_shortage,
+                                    "insertions": len(insertions),
+                                }
+                            )
+
+                        rescued = _sanitize_inline_pause_markers(rescued)
+                        rescued = _sanitize_a_text_forbidden_statistics(rescued)
+                        if isinstance(quote_max2, int) and quote_max2 > 0:
+                            rescued2 = _reduce_quote_marks(rescued, quote_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+                        if isinstance(paren_max2, int) and paren_max2 > 0:
+                            rescued2 = _reduce_paren_marks(rescued, paren_max2)
+                            if rescued2 != rescued:
+                                rescued = rescued2
+
+                    if passes:
+                        stage_details["auto_length_fix"] = {"passes": passes}
+
+                    # Write back to disk (keep assembled.md mirror in sync).
+                    canonical_path.write_text(rescued, encoding="utf-8")
+                    if canonical_path != assembled_path:
+                        assembled_path.write_text(rescued, encoding="utf-8")
+
+                    # Re-stamp alignment because the script hash changed.
+                    if csv_row:
+                        stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                        st.metadata["alignment"] = stamp.as_dict()
+                        planning_title = stamp.planning.get("title")
+                        if isinstance(planning_title, str) and planning_title.strip():
+                            st.metadata["sheet_title"] = planning_title.strip()
+
+                    # Re-validate with updated text.
+                    a_text = rescued
+                    issues, stats = validate_a_text(a_text, st.metadata or {})
+                except Exception as exc:
+                    stage_details = st.stages[stage_name].details
+                    stage_details["auto_length_fix_error"] = str(exc)
+
+        # Post length-fix deterministic repairs:
+        # LLM expansions can introduce hard-rule defects (e.g., verbatim duplicate paragraphs, truncation).
+        # Repairing these deterministically is cheaper and safer than another regeneration loop.
+        if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            try:
+                post_cleanup: Dict[str, Any] = {}
+                candidate = a_text
+
+                repaired, dup_details = _repair_a_text_duplicate_paragraphs(candidate)
+                if dup_details and repaired.strip() and repaired.strip() != (candidate or "").strip():
+                    candidate = repaired
+                    post_cleanup["duplicate_paragraph_repair"] = dup_details
+
+                repaired, ending_details = _repair_a_text_incomplete_ending(candidate)
+                if ending_details and repaired.strip() and repaired.strip() != (candidate or "").strip():
+                    candidate = repaired
+                    post_cleanup["incomplete_ending_repair"] = ending_details
+
+                if post_cleanup and candidate.strip() and candidate.strip() != (a_text or "").strip():
+                    stage_details = st.stages[stage_name].details
+                    try:
+                        analysis_dir = content_dir / "analysis" / "quality_gate"
+                        analysis_dir.mkdir(parents=True, exist_ok=True)
+                        backup_path = analysis_dir / f"backup_post_length_fix_{_utc_now_compact()}_{canonical_path.name}"
+                        if (a_text or "").strip():
+                            backup_path.write_text((a_text or "").strip() + "\n", encoding="utf-8")
+                        post_cleanup["backup_path"] = str(backup_path.relative_to(base))
+                    except Exception:
+                        pass
+
+                    candidate_text = candidate.strip() + "\n"
+                    canonical_path.write_text(candidate_text, encoding="utf-8")
+                    if canonical_path.resolve() != assembled_path.resolve():
+                        assembled_path.parent.mkdir(parents=True, exist_ok=True)
+                        assembled_path.write_text(candidate_text, encoding="utf-8")
+                    legacy_final = content_dir / "final" / "assembled.md"
+                    if legacy_final.exists():
+                        legacy_final.write_text(candidate_text, encoding="utf-8")
+
+                    # Re-stamp alignment so downstream guards remain consistent.
+                    if isinstance(st.metadata.get("alignment"), dict):
+                        try:
+                            csv_row = planning_row or _load_csv_row(
+                                _resolve_repo_path(str(channels_csv_path(st.channel))), st.video
+                            )
+                            if csv_row:
+                                planning_row = csv_row
+                                stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
+                                st.metadata["alignment"] = stamp.as_dict()
+                                planning_title = stamp.planning.get("title")
+                                if isinstance(planning_title, str) and planning_title.strip():
+                                    st.metadata["sheet_title"] = planning_title.strip()
+                                stage_details["alignment_restamped"] = True
+                        except Exception:
+                            post_cleanup["alignment_restamp_failed"] = True
+
+                    a_text = candidate_text
+                    issues, stats = validate_a_text(a_text, st.metadata or {})
+                    stage_details["post_length_fix_cleanup"] = post_cleanup
+            except Exception:
+                # Never fail validation due to best-effort repairs; the original issues will still block.
+                pass
+
+        # Pre-clean before alignment/LLM judge: fix pause lines + quote marks deterministically.
+        # The Judge treats these as major because they directly affect TTS rhythm/hazards.
         if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
             stage_details = st.stages[stage_name].details
             try:
@@ -6845,7 +8038,88 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             for it in re_issues
                             if str((it or {}).get("severity") or "error").lower() != "warning"
                         ]
-                        # NOTE: Deterministic/mechanical length trimming is forbidden.
+                        # Fallback: deterministic budget trim when LLM shrink under-delivers on length.
+                        # Disabled by default because it edits content and can degrade quality.
+                        # Enable only for emergency recovery:
+                        #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
+                        if re_errors and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
+                            re_codes = {
+                                str(it.get("code"))
+                                for it in re_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            if re_codes == {"length_too_long"}:
+                                try:
+                                    tmin = int(re_stats.get("target_chars_min")) if re_stats.get("target_chars_min") is not None else None
+                                except Exception:
+                                    tmin = None
+                                try:
+                                    tmax = int(re_stats.get("target_chars_max")) if re_stats.get("target_chars_max") is not None else None
+                                except Exception:
+                                    tmax = None
+                                aim = None
+                                if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin and tmax > 0:
+                                    aim = int(round((tmin + tmax) / 2))
+                                    aim = min(tmax, max(tmin, aim))
+                                elif isinstance(tmax, int) and tmax > 0:
+                                    aim = tmax
+                                if isinstance(aim, int) and aim > 0:
+                                    trimmed = _budget_trim_a_text_to_target(candidate_text, target_chars=aim)
+                                    if trimmed.strip():
+                                        t_issues, t_stats = validate_a_text(trimmed, st.metadata or {})
+                                        t_errors = [
+                                            it
+                                            for it in t_issues
+                                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                                        ]
+                                        if not t_errors:
+                                            stage_details["auto_length_fix_fallback"] = {
+                                                "type": "deterministic_budget_trim",
+                                                "target_chars": aim,
+                                                "before_char_count": re_stats.get("char_count"),
+                                                "after_char_count": t_stats.get("char_count"),
+                                            }
+                                            candidate_text = trimmed.strip() + "\n"
+                                            re_issues, re_stats = t_issues, t_stats
+                                            re_errors = []
+                            elif re_codes == {"length_too_short"} and last_length_only_too_long_text:
+                                # Shrink overshot below min → revert to last known "too long only" text,
+                                # then deterministically trim to a safe target within range.
+                                try:
+                                    tmin = int(re_stats.get("target_chars_min")) if re_stats.get("target_chars_min") is not None else None
+                                except Exception:
+                                    tmin = None
+                                try:
+                                    tmax = int(re_stats.get("target_chars_max")) if re_stats.get("target_chars_max") is not None else None
+                                except Exception:
+                                    tmax = None
+                                aim = None
+                                if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin and tmax > 0:
+                                    aim = int(round((tmin + tmax) / 2))
+                                    aim = min(tmax, max(tmin, aim))
+                                elif isinstance(tmax, int) and tmax > 0:
+                                    aim = tmax
+                                if isinstance(aim, int) and aim > 0:
+                                    trimmed = _budget_trim_a_text_to_target(
+                                        last_length_only_too_long_text, target_chars=aim
+                                    )
+                                    if trimmed.strip():
+                                        t_issues, t_stats = validate_a_text(trimmed, st.metadata or {})
+                                        t_errors = [
+                                            it
+                                            for it in t_issues
+                                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                                        ]
+                                        if not t_errors:
+                                            stage_details["auto_length_fix_fallback"] = {
+                                                "type": "deterministic_budget_trim_from_too_long",
+                                                "target_chars": aim,
+                                                "before_char_count": re_stats.get("char_count"),
+                                                "after_char_count": t_stats.get("char_count"),
+                                            }
+                                            candidate_text = trimmed.strip() + "\n"
+                                            re_issues, re_stats = t_issues, t_stats
+                                            re_errors = []
                         if re_errors:
                             stage_details["auto_length_fix_failed"] = {
                                 "codes": sorted(
@@ -6864,9 +8138,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 analysis_dir.mkdir(parents=True, exist_ok=True)
                                 failed_path = analysis_dir / "shrink_failed_latest.md"
                                 failed_path.write_text(candidate_text, encoding="utf-8")
-                                stage_details["auto_length_fix_failed"]["output_path"] = str(
-                                    failed_path.relative_to(base)
-                                )
+                                stage_details["auto_length_fix_failed"]["output_path"] = str(failed_path.relative_to(base))
                             except Exception:
                                 pass
                         if not re_errors:
@@ -7465,8 +8737,201 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 except Exception:
                                     pass
                             # If the only remaining failure is length underflow, reuse the existing extend prompt.
-                            # Mechanical/script-like "postprocess extension" (insert paragraphs) is forbidden.
-                            # If we still fail on length, stop and treat as retry-needed instead.
+                            if codes2 == {"length_too_short"}:
+                                try:
+                                    target_min = (
+                                        int(stats2.get("target_chars_min"))
+                                        if stats2.get("target_chars_min") is not None
+                                        else None
+                                    )
+                                    target_max = (
+                                        int(stats2.get("target_chars_max"))
+                                        if stats2.get("target_chars_max") is not None
+                                        else None
+                                    )
+                                    char_count = (
+                                        int(stats2.get("char_count")) if stats2.get("char_count") is not None else None
+                                    )
+                                    if (
+                                        isinstance(target_min, int)
+                                        and target_min > 0
+                                        and isinstance(target_max, int)
+                                        and target_max >= target_min
+                                        and isinstance(char_count, int)
+                                        and char_count < target_min
+                                    ):
+                                        shortage = target_min - char_count
+                                        room = target_max - char_count
+                                        if shortage > 0 and room > 0 and shortage <= 8000:
+                                            extend_task = os.getenv(
+                                                "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                                            ).strip()
+                                            # Target a modest buffer to avoid bouncing on the min boundary.
+                                            add_min = shortage + 120
+                                            add_max = shortage + 360
+                                            add_max = min(add_max, room)
+                                            add_min = min(add_min, add_max)
+                                            add_min = max(220, add_min)
+                                            add_max = max(add_min, add_max)
+
+                                            # Best-effort pattern/targets (optional; keep safe defaults if unknown).
+                                            pattern_id = ""
+                                            pause_lines_target_min = ""
+                                            modern_examples_max_target = "1"
+                                            core_episode_required = "0"
+                                            core_episode_guide = ""
+                                            try:
+                                                patterns_doc = _load_a_text_patterns_doc()
+                                                pat = (
+                                                    _select_a_text_pattern_for_status(patterns_doc, st, title_for_alignment)
+                                                    if patterns_doc
+                                                    else {}
+                                                )
+                                                if isinstance(pat, dict):
+                                                    pattern_id = str(pat.get("id") or "").strip()
+                                                    plan_cfg = pat.get("plan")
+                                                    if not isinstance(plan_cfg, dict):
+                                                        plan_cfg = {}
+
+                                                    mp = plan_cfg.get("modern_example_policy")
+                                                    if isinstance(mp, dict) and mp.get("max_examples") not in (None, ""):
+                                                        modern_examples_max_target = str(max(0, int(mp.get("max_examples"))))
+
+                                                    sections = plan_cfg.get("sections")
+                                                    if isinstance(sections, list):
+                                                        sec_count = len(
+                                                            [
+                                                                s
+                                                                for s in sections
+                                                                if isinstance(s, dict) and str(s.get("name") or "").strip()
+                                                            ]
+                                                        )
+                                                        if sec_count > 0:
+                                                            pause_lines_target_min = str(max(0, sec_count - 1))
+
+                                                    cands = plan_cfg.get("core_episode_candidates") or plan_cfg.get(
+                                                        "buddhist_episode_candidates"
+                                                    )
+                                                    if isinstance(cands, list) and cands:
+                                                        core_episode_required = "1"
+                                                        picked = _pick_core_episode(cands, title_for_alignment)
+                                                        if not isinstance(picked, dict) and isinstance(cands[0], dict):
+                                                            picked = cands[0]
+                                                        if isinstance(picked, dict):
+                                                            topic = str(picked.get("topic") or picked.get("id") or "").strip()
+                                                            safe_retelling = str(picked.get("safe_retelling") or "").strip()
+                                                            if safe_retelling:
+                                                                safe_retelling = re.sub(r"\s+", " ", safe_retelling).strip()
+                                                                if len(safe_retelling) > 620:
+                                                                    safe_retelling = safe_retelling[:620].rstrip() + "…"
+                                                            lines: list[str] = []
+                                                            if topic:
+                                                                lines.append(f"- {topic}")
+                                                            if safe_retelling:
+                                                                lines.append(f"  safe_retelling: {safe_retelling}")
+                                                            core_episode_guide = "\n".join(lines).strip()
+                                            except Exception:
+                                                pass
+
+                                            extend_prompt = _render_template(
+                                                A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                                                {
+                                                    "CHANNEL_CODE": str(st.channel),
+                                                    "VIDEO_ID": str(st.video),
+                                                    "TITLE": title_for_alignment,
+                                                    "TARGET_CHARS_MIN": str(target_min or ""),
+                                                    "TARGET_CHARS_MAX": str(target_max or ""),
+                                                    "A_TEXT_PATTERN_ID": pattern_id,
+                                                    "MODERN_EXAMPLES_MAX_TARGET": modern_examples_max_target,
+                                                    "PAUSE_LINES_TARGET_MIN": pause_lines_target_min,
+                                                    "CORE_EPISODE_REQUIRED": core_episode_required,
+                                                    "CORE_EPISODE_GUIDE": _sanitize_quality_gate_context(
+                                                        core_episode_guide, max_chars=650
+                                                    ),
+                                                    "LENGTH_FEEDBACK": _a_text_length_feedback(draft, st.metadata or {}),
+                                                    "SHORTAGE_CHARS": str(shortage),
+                                                    "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                                    "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                                                    "PLANNING_HINT": _sanitize_quality_gate_context(
+                                                        _build_planning_hint(st.metadata or {}), max_chars=700
+                                                    ),
+                                                    "PERSONA": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("persona") or ""), max_chars=1500
+                                                    ),
+                                                    "CHANNEL_PROMPT": _sanitize_quality_gate_context(
+                                                        str((st.metadata or {}).get("a_text_channel_prompt") or ""),
+                                                        max_chars=1500,
+                                                    ),
+                                                    "A_TEXT_RULES_SUMMARY": _a_text_rules_summary(st.metadata or {}),
+                                                    "A_TEXT": (draft or "").strip(),
+                                                },
+                                            )
+                                            extend_result = router_client.call_with_raw(
+                                                task=extend_task,
+                                                messages=[{"role": "user", "content": extend_prompt}],
+                                            )
+                                            extend_raw = _extract_llm_text_content(extend_result)
+                                            extend_obj = _parse_json_lenient(extend_raw)
+                                            after_pause_index = (
+                                                (extend_obj or {}).get("after_pause_index", 0)
+                                                if isinstance(extend_obj, dict)
+                                                else 0
+                                            )
+                                            addition = (
+                                                str((extend_obj or {}).get("addition") or "")
+                                                if isinstance(extend_obj, dict)
+                                                else ""
+                                            )
+                                            extended = _insert_addition_after_pause(
+                                                draft,
+                                                after_pause_index,
+                                                addition,
+                                                max_addition_chars=add_max,
+                                                min_addition_chars=add_min,
+                                            )
+                                            # Re-apply deterministic repairs + validate again.
+                                            extended2 = _sanitize_inline_pause_markers(extended)
+                                            extended2 = _sanitize_a_text_forbidden_statistics(extended2)
+                                            extended2 = _sanitize_a_text_markdown_headings(extended2)
+                                            extended2 = _sanitize_a_text_bullet_prefixes(extended2)
+                                            if isinstance(quote_max_i, int) and quote_max_i >= 0:
+                                                extended2 = _reduce_quote_marks(extended2, quote_max_i)
+                                            if isinstance(paren_max_i, int) and paren_max_i >= 0:
+                                                extended2 = _reduce_paren_marks(extended2, paren_max_i)
+
+                                            issues3, stats3 = validate_a_text(extended2, st.metadata or {})
+                                            errors3 = [
+                                                it
+                                                for it in issues3
+                                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                                            ]
+                                            if not errors3:
+                                                draft = extended2
+                                                fix_meta = {
+                                                    "provider": fix_result.get("provider"),
+                                                    "model": fix_result.get("model"),
+                                                    "request_id": fix_result.get("request_id"),
+                                                    "chain": fix_result.get("chain"),
+                                                    "latency_ms": fix_result.get("latency_ms"),
+                                                    "usage": fix_result.get("usage") or {},
+                                                    "attempts": attempt,
+                                                    "stats": stats2,
+                                                    "postprocess_length_extend": {
+                                                        "task": extend_task,
+                                                        "provider": extend_result.get("provider"),
+                                                        "model": extend_result.get("model"),
+                                                        "request_id": extend_result.get("request_id"),
+                                                        "chain": extend_result.get("chain"),
+                                                        "latency_ms": extend_result.get("latency_ms"),
+                                                        "usage": extend_result.get("usage") or {},
+                                                        "after_pause_index": after_pause_index,
+                                                        "stats": stats3,
+                                                    },
+                                                }
+                                                last_fix_errors = None
+                                                break
+                                except Exception:
+                                    pass
                             if not errors2:
                                 fix_meta = {
                                     "provider": fix_result.get("provider"),
@@ -8079,6 +9544,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             def _sanitize_candidate(text: str) -> str:
                 out = _sanitize_a_text_markdown_headings(text or "")
                 out = _sanitize_a_text_bullet_prefixes(out)
+                out = _sanitize_a_text_forbidden_statistics(out)
                 out = _sanitize_inline_pause_markers(out)
                 # Remove meta/URL/citation leakage that must never reach spoken scripts.
                 try:
@@ -8088,7 +9554,22 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     out = sanitized.text
                 except Exception:
                     pass
-                # NOTE: No deterministic/mechanical content repairs (trim/add/delete) are allowed here.
+                # Deterministic content edits are OFF by default (bug magnet / can change meaning).
+                # If you *really* need them for emergency recovery, explicitly enable:
+                #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
+                if _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
+                    try:
+                        repaired, dup_details = _repair_a_text_duplicate_paragraphs(out)
+                        if dup_details and repaired.strip() and repaired.strip() != out.strip():
+                            out = repaired
+                    except Exception:
+                        pass
+                    try:
+                        repaired, ending_details = _repair_a_text_incomplete_ending(out)
+                        if ending_details and repaired.strip() and repaired.strip() != out.strip():
+                            out = repaired
+                    except Exception:
+                        pass
                 # Keep candidate within deterministic symbol budgets (TTS safety).
                 try:
                     quote_max = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
@@ -8111,6 +9592,20 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception:
                     pass
                 out = out.strip()
+                # Ensure ending completeness (avoid failing on `incomplete_ending` after LLM edits).
+                # Keep this extremely small/safe: only add a closing punctuation if missing.
+                if out:
+                    try:
+                        if not re.search(r"[。！？!?][」』）)]*\\Z", out):
+                            m = re.search(r"([」』）)]*)\\Z", out)
+                            closing = m.group(1) if m else ""
+                            core = out[: -len(closing)] if closing else out
+                            core = core.rstrip()
+                            if core and core[-1] not in "。！？!?":
+                                core = core + "。"
+                            out = (core + closing).strip()
+                    except Exception:
+                        pass
                 return out + "\n" if out else ""
 
             def _non_warning_errors(text: str) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -8132,9 +9627,358 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             def _rescue_length(
                 text: str, *, errors_list: List[Dict[str, Any]], stats2: Dict[str, Any], depth: int = 0
             ) -> str | None:
-                # Mechanical/script-like length rescue (inserting or trimming paragraphs) is forbidden.
-                # If we can't meet length via normal drafting/fixing, treat as retry-needed.
+                codes = _codes(errors_list)
+                try:
+                    char_count = int(stats2.get("char_count")) if stats2.get("char_count") is not None else None
+                except Exception:
+                    char_count = None
+                try:
+                    target_min = int(stats2.get("target_chars_min")) if stats2.get("target_chars_min") is not None else None
+                except Exception:
+                    target_min = None
+                try:
+                    target_max = int(stats2.get("target_chars_max")) if stats2.get("target_chars_max") is not None else None
+                except Exception:
+                    target_max = None
+
+                if codes == {"length_too_short"} and isinstance(char_count, int) and isinstance(target_min, int) and char_count < target_min:
+                    shortage = target_min - char_count
+                    if shortage <= 0:
+                        return None
+
+                    room: int | None = None
+                    if isinstance(target_max, int) and target_max > char_count:
+                        room = target_max - char_count
+
+                    if shortage <= 1200:
+                        # For very small shortages, avoid forcing a large paragraph.
+                        if shortage <= 120:
+                            add_min = max(shortage + 40, 90)
+                            add_max = max(add_min, shortage + 140)
+                        elif shortage <= 350:
+                            add_min = max(shortage + 120, 220)
+                            add_max = max(add_min, shortage + 260)
+                        else:
+                            add_min = max(shortage + 220, 550)
+                            add_max = max(add_min, shortage + 380)
+                        if isinstance(room, int) and room > 0:
+                            add_max = min(add_max, room)
+                            add_min = min(add_min, add_max)
+
+                        extend_prompt = _render_template(
+                            A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                            {
+                                **placeholders_base,
+                                "A_TEXT": (text or "").strip(),
+                                "LENGTH_FEEDBACK": _a_text_length_feedback(text or "", st.metadata or {}),
+                                "SHORTAGE_CHARS": str(shortage),
+                                "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                            },
+                        )
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            extend_result = router_client.call_with_raw(
+                                task=extend_task,
+                                messages=[{"role": "user", "content": extend_prompt}],
+                                response_format="json_object",
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        extend_raw = _extract_llm_text_content(extend_result)
+                        extend_obj = _parse_json_lenient(extend_raw)
+                        rescued = _insert_addition_after_pause(
+                            text or "",
+                            (extend_obj or {}).get("after_pause_index", 0),
+                            str((extend_obj or {}).get("addition") or ""),
+                            max_addition_chars=add_max,
+                            min_addition_chars=add_min,
+                        )
+                        rescued = _sanitize_candidate(rescued)
+                        try:
+                            atomic_write_json(
+                                length_rescue_latest_path,
+                                {
+                                    "schema": "ytm.a_text_length_rescue.v1",
+                                    "generated_at": utc_now_iso(),
+                                    "mode": "extend",
+                                    "shortage_chars": shortage,
+                                    "llm_meta": _llm_meta(extend_result),
+                                    "raw": extend_raw,
+                                },
+                            )
+                            llm_gate_details["length_rescue_report"] = str(length_rescue_latest_path.relative_to(base))
+                        except Exception:
+                            pass
+                        # Top-up: extend sometimes under-delivers; allow one bounded extra pass.
+                        final_errors, final_stats = _non_warning_errors(rescued)
+                        if depth <= 1 and _codes(final_errors) == {"length_too_short"}:
+                            try:
+                                final_cc = (
+                                    int(final_stats.get("char_count"))
+                                    if final_stats.get("char_count") is not None
+                                    else None
+                                )
+                            except Exception:
+                                final_cc = None
+                            try:
+                                final_min = (
+                                    int(final_stats.get("target_chars_min"))
+                                    if final_stats.get("target_chars_min") is not None
+                                    else None
+                                )
+                            except Exception:
+                                final_min = None
+                            if (
+                                isinstance(final_cc, int)
+                                and isinstance(final_min, int)
+                                and final_cc < final_min
+                            ):
+                                remain = final_min - final_cc
+                            else:
+                                remain = None
+                            if isinstance(remain, int) and 0 < remain <= 1200:
+                                topup = _rescue_length(
+                                    rescued, errors_list=final_errors, stats2=final_stats, depth=depth + 1
+                                )
+                                if topup:
+                                    return topup
+                        return rescued
+
+                    total_min = shortage + 300
+                    total_max = shortage + 520
+                    if isinstance(room, int) and room > 0:
+                        total_max = min(total_max, room)
+                        total_min = min(total_min, total_max)
+                    n_insert = max(3, (total_min + 699) // 700)
+                    n_insert = min(6, n_insert)
+                    each_min = max(250, total_min // max(1, n_insert))
+                    each_max = max(each_min, (total_max + max(1, n_insert) - 1) // max(1, n_insert))
+
+                    expand_prompt = _render_template(
+                        A_TEXT_QUALITY_EXPAND_PROMPT_PATH,
+                        {
+                            **placeholders_base,
+                            "A_TEXT": (text or "").strip(),
+                            "LENGTH_FEEDBACK": _a_text_length_feedback(text or "", st.metadata or {}),
+                            "SHORTAGE_CHARS": str(shortage),
+                            "TARGET_TOTAL_ADDITION_MIN_CHARS": str(total_min),
+                            "TARGET_TOTAL_ADDITION_MAX_CHARS": str(total_max),
+                            "TARGET_INSERTIONS_TARGET": str(n_insert),
+                            "TARGET_EACH_ADDITION_MIN_CHARS": str(each_min),
+                            "TARGET_EACH_ADDITION_MAX_CHARS": str(each_max),
+                        },
+                    )
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        expand_result = router_client.call_with_raw(
+                            task=expand_task,
+                            messages=[{"role": "user", "content": expand_prompt}],
+                            response_format="json_object",
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    expand_raw = _extract_llm_text_content(expand_result)
+                    expand_obj = _parse_json_lenient(expand_raw)
+                    insertions = (expand_obj or {}).get("insertions")
+                    if not isinstance(insertions, list) or not insertions:
+                        return None
+                    rescued = text or ""
+                    for ins in insertions[:6]:
+                        if not isinstance(ins, dict):
+                            continue
+                        trial = _insert_addition_after_pause(
+                            rescued,
+                            ins.get("after_pause_index", 0),
+                            str(ins.get("addition") or ""),
+                            max_addition_chars=each_max,
+                            min_addition_chars=each_min,
+                        )
+                        trial = _sanitize_candidate(trial)
+                        if not trial:
+                            continue
+                        trial_errors, trial_stats = _non_warning_errors(trial)
+                        rescued = trial
+                        if not trial_errors:
+                            break
+                        # Stop early if we overshoot.
+                        if _codes(trial_errors) == {"length_too_long"}:
+                            break
+                    try:
+                        atomic_write_json(
+                            length_rescue_latest_path,
+                            {
+                                "schema": "ytm.a_text_length_rescue.v1",
+                                "generated_at": utc_now_iso(),
+                                "mode": "expand",
+                                "shortage_chars": shortage,
+                                "llm_meta": _llm_meta(expand_result),
+                                "raw": expand_raw,
+                            },
+                        )
+                        llm_gate_details["length_rescue_report"] = str(length_rescue_latest_path.relative_to(base))
+                    except Exception:
+                        pass
+                    # Top-up: if the model under-delivered, run at most one additional
+                    # bounded rescue pass (to avoid meta-loop/cost blow-up).
+                    final_errors, final_stats = _non_warning_errors(rescued)
+                    if _codes(final_errors) == {"length_too_short"}:
+                        try:
+                            final_cc = int(final_stats.get("char_count")) if final_stats.get("char_count") is not None else None
+                        except Exception:
+                            final_cc = None
+                        try:
+                            final_min = int(final_stats.get("target_chars_min")) if final_stats.get("target_chars_min") is not None else None
+                        except Exception:
+                            final_min = None
+                        if isinstance(final_cc, int) and isinstance(final_min, int) and final_cc < final_min:
+                            remain = final_min - final_cc
+                        else:
+                            remain = None
+                        # Top-up is bounded: at most 3 passes total, with tighter limits as depth grows.
+                        topup_limit = 2200
+                        if depth == 0:
+                            # First expand sometimes under-delivers badly; allow one more pass even if
+                            # the remaining shortage is still large, but keep it bounded.
+                            topup_limit = 5500
+                        elif depth >= 2:
+                            topup_limit = 260
+                        allow_topup = depth <= 2
+                        if allow_topup and isinstance(remain, int) and 0 < remain <= topup_limit:
+                            topup = _rescue_length(
+                                rescued, errors_list=final_errors, stats2=final_stats, depth=depth + 1
+                            )
+                            if topup:
+                                return topup
+                    return rescued
+
+                if codes == {"length_too_long"} and isinstance(char_count, int) and isinstance(target_max, int) and char_count > target_max:
+                    excess = char_count - target_max
+                    if excess <= 0:
+                        return None
+                    target_cut = max(excess + 120, 280) + (depth * 220)
+                    # Avoid asking for an impossible cut that would force an underflow below min.
+                    try:
+                        if isinstance(target_min, int) and target_min > 0:
+                            safe_max = max(0, (char_count - target_min) - 40)
+                            if safe_max > 0:
+                                target_cut = min(target_cut, safe_max)
+                    except Exception:
+                        pass
+
+                    shrink_prompt = _render_template(
+                        A_TEXT_QUALITY_SHRINK_PROMPT_PATH,
+                        {
+                            **placeholders_base,
+                            "A_TEXT": (text or "").strip(),
+                            "LENGTH_FEEDBACK": _a_text_length_feedback(text or "", st.metadata or {}),
+                            "EXCESS_CHARS": str(excess),
+                            "TARGET_CUT_CHARS": str(target_cut),
+                        },
+                    )
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        shrink_result = router_client.call_with_raw(
+                            task=shrink_task,
+                            messages=[{"role": "user", "content": shrink_prompt}],
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    shrunk = _sanitize_candidate(_extract_llm_text_content(shrink_result) or "")
+                    if not shrunk:
+                        return None
+                    try:
+                        shrink_latest_path.write_text(shrunk, encoding="utf-8")
+                        llm_gate_details["shrink_output"] = str(shrink_latest_path.relative_to(base))
+                        llm_gate_details["shrink_llm_meta"] = _llm_meta(shrink_result)
+                    except Exception:
+                        pass
+                    # Bounded extra pass(es): if we are still too long, try again with updated excess.
+                    # This avoids getting stuck on a single cached shrink output that under-delivers.
+                    try:
+                        trial_errors, trial_stats = _non_warning_errors(shrunk)
+                    except Exception:
+                        trial_errors, trial_stats = [], {}
+                    trial_codes = _codes(trial_errors)
+                    if trial_codes in ({"length_too_long"}, {"length_too_short"}):
+                        try:
+                            trial_cc = (
+                                int(trial_stats.get("char_count")) if trial_stats.get("char_count") is not None else None
+                            )
+                        except Exception:
+                            trial_cc = None
+                        try:
+                            trial_max = (
+                                int(trial_stats.get("target_chars_max"))
+                                if trial_stats.get("target_chars_max") is not None
+                                else None
+                            )
+                        except Exception:
+                            trial_max = None
+                        try:
+                            trial_min = (
+                                int(trial_stats.get("target_chars_min"))
+                                if trial_stats.get("target_chars_min") is not None
+                                else None
+                            )
+                        except Exception:
+                            trial_min = None
+
+                        overshoot = (trial_cc - trial_max) if (trial_codes == {"length_too_long"} and isinstance(trial_cc, int) and isinstance(trial_max, int)) else None
+                        shortage = (trial_min - trial_cc) if (trial_codes == {"length_too_short"} and isinstance(trial_cc, int) and isinstance(trial_min, int)) else None
+                        # Two different bounds:
+                        # - Too long: allow a few extra shrink passes (depth-limited) with increasing cut targets.
+                        # - Too short (after shrink): allow one additional length rescue even if depth is higher.
+                        allow = False
+                        if isinstance(overshoot, int) and overshoot > 0 and depth < 3:
+                            allow = True
+                        if isinstance(shortage, int) and 0 < shortage <= 2200 and depth < 4:
+                            allow = True
+
+                        # Emergency fallback (OFF by default): deterministic trim when LLM shrink under-delivers.
+                        if (
+                            not allow
+                            and trial_codes == {"length_too_long"}
+                            and isinstance(trial_max, int)
+                            and trial_max > 0
+                            and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0")
+                        ):
+                            try:
+                                trimmed = _budget_trim_a_text_to_target(shrunk, target_chars=trial_max)
+                                if trimmed.strip():
+                                    t_errors, t_stats = _non_warning_errors(trimmed)
+                                    if not t_errors:
+                                        llm_gate_details["length_rescue_deterministic_trim"] = {
+                                            "target_chars": trial_max,
+                                            "before_char_count": trial_stats.get("char_count"),
+                                            "after_char_count": t_stats.get("char_count"),
+                                        }
+                                        return trimmed
+                            except Exception:
+                                pass
+
+                        if allow:
+                            topup = _rescue_length(shrunk, errors_list=trial_errors, stats2=trial_stats, depth=depth + 1)
+                            if topup:
+                                return topup
+                    return shrunk
                 return None
+
             def _try_rebuild_draft(seed_judge: Dict[str, Any]) -> str | None:
                 """
                 Last-resort (still bounded): rebuild a coherent long script from SSOT patterns.
@@ -8798,8 +10642,181 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 rb_excess = rb_char - rb_max
 
                     # Expand/extend only when the draft is otherwise valid.
-                    # Mechanical/script-like "rebuild then insert paragraphs" is forbidden.
-                    # If rebuild can't satisfy length, stop and treat as retry-needed.
+                    if rb_codes == {"length_too_short"} and isinstance(rb_shortage, int) and rb_shortage > 0 and rb_shortage <= 9000:
+                        rescued = candidate_text
+                        if rb_shortage <= 500:
+                            extend_task = os.getenv(
+                                "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                            ).strip()
+                            rb_room: int | None = None
+                            if isinstance(rb_max, int) and isinstance(rb_char, int) and rb_max > rb_char:
+                                rb_room = rb_max - rb_char
+                            add_min = rb_shortage + 180
+                            add_max = rb_shortage + 320
+                            if isinstance(rb_room, int) and rb_room > 0:
+                                add_max = min(add_max, rb_room)
+                                add_min = min(add_min, add_max)
+                            extend_prompt = _render_template(
+                                A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                                {
+                                    **placeholders_base,
+                                    "A_TEXT": rescued.strip(),
+                                    "LENGTH_FEEDBACK": _a_text_length_feedback(rescued, st.metadata or {}),
+                                    "SHORTAGE_CHARS": str(rb_shortage),
+                                    "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                    "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                                },
+                            )
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                extend_result = router_client.call_with_raw(
+                                    task=extend_task,
+                                    messages=[{"role": "user", "content": extend_prompt}],
+                                    max_tokens=600,
+                                    temperature=0.2,
+                                    response_format="json_object",
+                                )
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                            extend_raw = _extract_llm_text_content(extend_result)
+                            try:
+                                extend_obj = _parse_json_lenient(extend_raw)
+                            except Exception:
+                                extend_obj = {}
+                            rescued = _insert_addition_after_pause(
+                                rescued,
+                                (extend_obj or {}).get("after_pause_index", 0),
+                                str((extend_obj or {}).get("addition") or ""),
+                                max_addition_chars=add_max,
+                                min_addition_chars=add_min,
+                            )
+                        else:
+                            expand_task = os.getenv(
+                                "SCRIPT_VALIDATION_QUALITY_EXPAND_TASK", "script_a_text_quality_expand"
+                            ).strip()
+                            # If the shortage is still large, allow a second expand pass (best-effort).
+                            for _attempt in range(2):
+                                try:
+                                    _x_issues, _x_stats = validate_a_text(rescued, st.metadata or {})
+                                    x_char = _x_stats.get("char_count")
+                                    x_min = _x_stats.get("target_chars_min")
+                                    x_max = _x_stats.get("target_chars_max")
+                                except Exception:
+                                    x_char = None
+                                    x_min = None
+                                    x_max = None
+
+                                x_shortage: int | None = None
+                                if isinstance(x_min, int) and isinstance(x_char, int) and x_char < x_min:
+                                    x_shortage = x_min - x_char
+                                if not isinstance(x_shortage, int) or x_shortage <= 0:
+                                    break
+
+                                x_room: int | None = None
+                                if isinstance(x_max, int) and isinstance(x_char, int) and x_max > x_char:
+                                    x_room = x_max - x_char
+
+                                total_min = x_shortage + 250
+                                total_max = x_shortage + 450
+                                if isinstance(x_room, int) and x_room > 0:
+                                    total_max = min(total_max, x_room)
+                                    total_min = min(total_min, total_max)
+
+                                n_insert = max(3, (total_min + 699) // 700)
+                                n_insert = min(6, n_insert)
+                                each_min = max(250, total_min // max(1, n_insert))
+                                each_max = max(each_min, (total_max + max(1, n_insert) - 1) // max(1, n_insert))
+
+                                expand_prompt = _render_template(
+                                    A_TEXT_QUALITY_EXPAND_PROMPT_PATH,
+                                    {
+                                        **placeholders_base,
+                                        "A_TEXT": rescued.strip(),
+                                        "LENGTH_FEEDBACK": _a_text_length_feedback(rescued, st.metadata or {}),
+                                        "SHORTAGE_CHARS": str(x_shortage),
+                                        "TARGET_TOTAL_ADDITION_MIN_CHARS": str(total_min),
+                                        "TARGET_TOTAL_ADDITION_MAX_CHARS": str(total_max),
+                                        "TARGET_INSERTIONS_TARGET": str(n_insert),
+                                        "TARGET_EACH_ADDITION_MIN_CHARS": str(each_min),
+                                        "TARGET_EACH_ADDITION_MAX_CHARS": str(each_max),
+                                    },
+                                )
+                                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                                try:
+                                    expand_result = router_client.call_with_raw(
+                                        task=expand_task,
+                                        messages=[{"role": "user", "content": expand_prompt}],
+                                    )
+                                finally:
+                                    if prev_routing_key is None:
+                                        os.environ.pop("LLM_ROUTING_KEY", None)
+                                    else:
+                                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                                expand_raw = _extract_llm_text_content(expand_result)
+                                try:
+                                    expand_obj = _parse_json_lenient(expand_raw)
+                                except Exception:
+                                    expand_obj = {}
+                                insertions = (expand_obj or {}).get("insertions")
+                                if isinstance(insertions, list) and insertions:
+                                    for ins in insertions[:6]:
+                                        if not isinstance(ins, dict):
+                                            continue
+                                        rescued = _insert_addition_after_pause(
+                                            rescued,
+                                            ins.get("after_pause_index", 0),
+                                            str(ins.get("addition") or ""),
+                                            max_addition_chars=each_max,
+                                            min_addition_chars=each_min,
+                                        )
+                                        exp_issues, _exp_stats = validate_a_text(rescued, st.metadata or {})
+                                        exp_errors = [
+                                            it
+                                            for it in exp_issues
+                                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                                        ]
+                                        if not exp_errors:
+                                            break
+                                        if any(
+                                            isinstance(it, dict) and str(it.get("code")) == "length_too_long"
+                                            for it in exp_errors
+                                        ):
+                                            break
+
+                                rb_try_issues, _rb_try_stats = validate_a_text(rescued, st.metadata or {})
+                                rb_try_errors = [
+                                    it
+                                    for it in rb_try_issues
+                                    if str((it or {}).get("severity") or "error").lower() != "warning"
+                                ]
+                                if not rb_try_errors:
+                                    break
+                                if any(
+                                    isinstance(it, dict) and str(it.get("code")) == "length_too_long"
+                                    for it in rb_try_errors
+                                ):
+                                    break
+
+                        rb2_issues, _rb2_stats = validate_a_text(rescued, st.metadata or {})
+                        rb2_errors = [
+                            it
+                            for it in rb2_issues
+                            if str((it or {}).get("severity") or "error").lower() != "warning"
+                        ]
+                        if not rb2_errors:
+                            candidate_text = rescued.strip() + "\n"
+                            try:
+                                rebuild_draft_latest_path.write_text(candidate_text, encoding="utf-8")
+                            except Exception:
+                                pass
+
                     if rb_codes == {"length_too_long"} and isinstance(rb_excess, int) and 0 < rb_excess <= 300:
                         shrink_task = os.getenv(
                             "SCRIPT_VALIDATION_QUALITY_SHRINK_TASK", "script_a_text_quality_shrink"
@@ -9302,7 +11319,252 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             # Re-validate after tightening (next loop iteration).
                             continue
 
-                    # Mechanical/script-like length rescue (paragraph insertion) is forbidden.
+                    # Expand-only rescue: if the ONLY hard error is larger length shortage, insert paragraphs without rewriting.
+                    if only_length_short and isinstance(shortage, int) and 500 < shortage <= 9000:
+                        expand_task = os.getenv(
+                            "SCRIPT_VALIDATION_QUALITY_EXPAND_TASK", "script_a_text_quality_expand"
+                        ).strip()
+                        hard_room: int | None = None
+                        if isinstance(hard_max, int) and isinstance(hard_char, int) and hard_max > hard_char:
+                            hard_room = hard_max - hard_char
+                        total_min = shortage + 250
+                        total_max = shortage + 450
+                        if isinstance(hard_room, int) and hard_room > 0:
+                            total_max = min(total_max, hard_room)
+                            total_min = min(total_min, total_max)
+                        n_insert = max(3, (total_min + 699) // 700)
+                        n_insert = min(6, n_insert)
+                        each_min = max(250, total_min // max(1, n_insert))
+                        each_max = max(each_min, (total_max + max(1, n_insert) - 1) // max(1, n_insert))
+                        expand_prompt = _render_template(
+                            A_TEXT_QUALITY_EXPAND_PROMPT_PATH,
+                            {
+                                **placeholders_base,
+                                "A_TEXT": base_text.strip(),
+                                "LENGTH_FEEDBACK": _a_text_length_feedback(base_text, st.metadata or {}),
+                                "SHORTAGE_CHARS": str(shortage),
+                                "TARGET_TOTAL_ADDITION_MIN_CHARS": str(total_min),
+                                "TARGET_TOTAL_ADDITION_MAX_CHARS": str(total_max),
+                                "TARGET_INSERTIONS_TARGET": str(n_insert),
+                                "TARGET_EACH_ADDITION_MIN_CHARS": str(each_min),
+                                "TARGET_EACH_ADDITION_MAX_CHARS": str(each_max),
+                            },
+                        )
+
+                        expand_result: Dict[str, Any] | None = None
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            try:
+                                expand_result = router_client.call_with_raw(
+                                    task=expand_task,
+                                    messages=[{"role": "user", "content": expand_prompt}],
+                                )
+                            except Exception:
+                                expand_result = None
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        expand_raw = _extract_llm_text_content(expand_result) if expand_result else ""
+                        try:
+                            expand_obj = _parse_json_lenient(expand_raw)
+                        except Exception:
+                            expand_obj = {}
+
+                        insertions = (expand_obj or {}).get("insertions")
+                        if expand_result and isinstance(insertions, list) and insertions:
+                            expanded = base_text
+                            for ins in insertions[:6]:
+                                if not isinstance(ins, dict):
+                                    continue
+                                expanded = _insert_addition_after_pause(
+                                    expanded,
+                                    ins.get("after_pause_index", 0),
+                                    str(ins.get("addition") or ""),
+                                    max_addition_chars=each_max,
+                                    min_addition_chars=each_min,
+                                )
+                                exp_issues, _exp_stats = validate_a_text(expanded, st.metadata or {})
+                                exp_errors = [
+                                    it
+                                    for it in exp_issues
+                                    if str((it or {}).get("severity") or "error").lower() != "warning"
+                                ]
+                                if not exp_errors:
+                                    break
+                                if any(
+                                    isinstance(it, dict) and str(it.get("code")) == "length_too_long"
+                                    for it in exp_errors
+                                ):
+                                    break
+                            candidate = expanded.strip() + "\n"
+                            try:
+                                fix_latest_path.write_text(candidate, encoding="utf-8")
+                            except Exception:
+                                pass
+                            try:
+                                expand_latest_path.write_text(
+                                    json.dumps(expand_obj or {}, ensure_ascii=False, indent=2) + "\n",
+                                    encoding="utf-8",
+                                )
+                                llm_gate_details["expand_report"] = str(expand_latest_path.relative_to(base))
+                                llm_gate_details["expand_llm_meta"] = {
+                                    "provider": expand_result.get("provider"),
+                                    "model": expand_result.get("model"),
+                                    "request_id": expand_result.get("request_id"),
+                                    "chain": expand_result.get("chain"),
+                                    "latency_ms": expand_result.get("latency_ms"),
+                                    "usage": expand_result.get("usage") or {},
+                                    "finish_reason": expand_result.get("finish_reason"),
+                                    "routing": expand_result.get("routing"),
+                                    "cache": expand_result.get("cache"),
+                                }
+                            except Exception:
+                                pass
+
+                            # Re-validate after insertion (next loop iteration).
+                            continue
+                    # Keep extend-only small: large additions are more likely to become "abstract filler" and may overflow JSON output.
+                    if only_length_short and isinstance(shortage, int) and shortage <= 500:
+                        extend_task = os.getenv(
+                            "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", "script_a_text_quality_extend"
+                        ).strip()
+                        best_candidate: str | None = None
+                        best_extend_obj: Dict[str, Any] | None = None
+                        best_extend_meta: Dict[str, Any] | None = None
+
+                        tmp_text = base_text
+                        for _attempt in range(2):
+                            _tmp_issues, _tmp_stats = validate_a_text(tmp_text, st.metadata or {})
+                            tmp_char = _tmp_stats.get("char_count")
+                            tmp_min = _tmp_stats.get("target_chars_min")
+                            tmp_max = _tmp_stats.get("target_chars_max")
+                            tmp_shortage: int | None = None
+                            if isinstance(tmp_min, int) and isinstance(tmp_char, int) and tmp_char < tmp_min:
+                                tmp_shortage = tmp_min - tmp_char
+                            if not isinstance(tmp_shortage, int) or tmp_shortage <= 0:
+                                break
+
+                            tmp_room: int | None = None
+                            if isinstance(tmp_max, int) and isinstance(tmp_char, int) and tmp_max > tmp_char:
+                                tmp_room = tmp_max - tmp_char
+
+                            add_min = tmp_shortage + 180
+                            add_max = tmp_shortage + 320
+                            if isinstance(tmp_room, int) and tmp_room > 0:
+                                add_max = min(add_max, tmp_room)
+                                add_min = min(add_min, add_max)
+
+                            extend_prompt = _render_template(
+                                A_TEXT_QUALITY_EXTEND_PROMPT_PATH,
+                                {
+                                    **placeholders_base,
+                                    "A_TEXT": tmp_text.strip(),
+                                    "LENGTH_FEEDBACK": _a_text_length_feedback(tmp_text, st.metadata or {}),
+                                    "SHORTAGE_CHARS": str(tmp_shortage),
+                                    "TARGET_ADDITION_MIN_CHARS": str(add_min),
+                                    "TARGET_ADDITION_MAX_CHARS": str(add_max),
+                                },
+                            )
+
+                            extend_result: Dict[str, Any] | None = None
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                try:
+                                    extend_result = router_client.call_with_raw(
+                                        task=extend_task,
+                                        messages=[{"role": "user", "content": extend_prompt}],
+                                        max_tokens=600,
+                                        temperature=0.2,
+                                        response_format="json_object",
+                                    )
+                                except Exception:
+                                    extend_result = None
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                            extend_raw = _extract_llm_text_content(extend_result) if extend_result else ""
+                            try:
+                                extend_obj = _parse_json_lenient(extend_raw)
+                            except Exception:
+                                extend_obj = {}
+
+                            if not extend_result:
+                                continue
+
+                            after_pause_index = (extend_obj or {}).get("after_pause_index", 0)
+                            addition = str((extend_obj or {}).get("addition") or "").strip()
+                            if not addition:
+                                continue
+
+                            tmp_candidate = (
+                                _insert_addition_after_pause(
+                                    tmp_text,
+                                    after_pause_index,
+                                    addition,
+                                    max_addition_chars=add_max,
+                                    min_addition_chars=add_min,
+                                ).strip()
+                                + "\n"
+                            )
+                            best_candidate = tmp_candidate
+                            best_extend_obj = extend_obj if isinstance(extend_obj, dict) else {}
+                            best_extend_meta = {
+                                "provider": extend_result.get("provider"),
+                                "model": extend_result.get("model"),
+                                "request_id": extend_result.get("request_id"),
+                                "chain": extend_result.get("chain"),
+                                "latency_ms": extend_result.get("latency_ms"),
+                                "usage": extend_result.get("usage") or {},
+                                "finish_reason": extend_result.get("finish_reason"),
+                                "routing": extend_result.get("routing"),
+                                "cache": extend_result.get("cache"),
+                            }
+
+                            tmp_try_issues, _tmp_try_stats = validate_a_text(tmp_candidate, st.metadata or {})
+                            tmp_try_errors = [
+                                it
+                                for it in tmp_try_issues
+                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                            ]
+                            if not tmp_try_errors:
+                                break
+                            tmp_try_codes = {
+                                str(it.get("code"))
+                                for it in tmp_try_errors
+                                if isinstance(it, dict) and it.get("code")
+                            }
+                            if tmp_try_codes == {"length_too_short"}:
+                                tmp_text = tmp_candidate
+                                continue
+                            break
+
+                        if best_candidate:
+                            candidate = best_candidate
+                            try:
+                                fix_latest_path.write_text(candidate, encoding="utf-8")
+                            except Exception:
+                                pass
+                            try:
+                                extend_latest_path.write_text(
+                                    json.dumps(best_extend_obj or {}, ensure_ascii=False, indent=2) + "\n",
+                                    encoding="utf-8",
+                                )
+                                llm_gate_details["extend_report"] = str(extend_latest_path.relative_to(base))
+                                llm_gate_details["extend_llm_meta"] = best_extend_meta or {}
+                            except Exception:
+                                pass
+
+                            # Re-validate after insertion (next loop iteration).
+                            continue
+
                     has_length_short = any(
                         isinstance(it, dict) and str(it.get("code")) == "length_too_short" for it in hard_errors
                     )
