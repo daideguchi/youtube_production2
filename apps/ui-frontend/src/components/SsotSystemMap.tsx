@@ -74,6 +74,7 @@ export function SsotSystemMap() {
   const [traceLoadedKey, setTraceLoadedKey] = useState<string | null>(null);
   const [traceTaskSummary, setTraceTaskSummary] = useState<Record<string, { firstIndex: number; count: number }>>({});
   const [traceEventCount, setTraceEventCount] = useState(0);
+  const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
 
   const loadCatalog = useCallback(async (refresh = false) => {
     setLoading(true);
@@ -139,6 +140,45 @@ export function SsotSystemMap() {
     }
     return out;
   }, [nodes, traceLoadedKey, traceTaskSummary]);
+
+  const executedEdges = useMemo(() => {
+    if (!traceLoadedKey) return {};
+    if (!traceEvents || traceEvents.length === 0) return {};
+
+    const taskToNodeId: Record<string, string> = {};
+    for (const n of nodes) {
+      const llm = (n as any).llm as any;
+      const t = llm?.task ? String(llm.task) : "";
+      if (!t) continue;
+      if (!taskToNodeId[t]) taskToNodeId[t] = n.node_id;
+    }
+
+    const edgeKeys = new Set<string>();
+    for (const e of edges as any[]) {
+      const fromId = e?.from ? String(e.from) : "";
+      const toId = e?.to ? String(e.to) : "";
+      if (fromId && toId) edgeKeys.add(`${fromId} -> ${toId}`);
+    }
+
+    const out: Record<string, { firstIndex: number; count: number }> = {};
+    let prevNodeId: string | null = null;
+    for (let idx = 0; idx < traceEvents.length; idx++) {
+      const nodeId = taskToNodeId[traceEvents[idx].task] || null;
+      if (!nodeId) continue;
+      if (!prevNodeId) {
+        prevNodeId = nodeId;
+        continue;
+      }
+      if (prevNodeId === nodeId) continue;
+      const key = `${prevNodeId} -> ${nodeId}`;
+      prevNodeId = nodeId;
+      if (!edgeKeys.has(key)) continue;
+      const cur = out[key];
+      if (!cur) out[key] = { firstIndex: idx, count: 1 };
+      else out[key] = { firstIndex: cur.firstIndex, count: cur.count + 1 };
+    }
+    return out;
+  }, [edges, nodes, traceEvents, traceLoadedKey]);
 
   const traceUnmatchedTasks = useMemo(() => {
     if (!traceLoadedKey) return [];
@@ -228,6 +268,7 @@ export function SsotSystemMap() {
       setTraceLoadedKey(key);
       setTraceTaskSummary(summary);
       setTraceEventCount(all.length);
+      setTraceEvents(all);
 
       if (all.length === 0) {
         setTraceError("trace が見つかりません（logs/traces/ に JSONL がありません）");
@@ -236,6 +277,7 @@ export function SsotSystemMap() {
       setTraceLoadedKey(null);
       setTraceTaskSummary({});
       setTraceEventCount(0);
+      setTraceEvents([]);
       setTraceError(err instanceof Error ? err.message : String(err));
     } finally {
       setTraceLoading(false);
@@ -246,6 +288,7 @@ export function SsotSystemMap() {
     setTraceLoadedKey(null);
     setTraceTaskSummary({});
     setTraceEventCount(0);
+    setTraceEvents([]);
     setTraceError(null);
   };
 
@@ -504,7 +547,8 @@ export function SsotSystemMap() {
                 ) : null}
                 {traceLoadedKey ? (
                   <span className="mono muted small-text">
-                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length}
+                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} / executed_edges=
+                    {Object.keys(executedEdges).length}
                   </span>
                 ) : null}
                 <span className="crumb-sep" style={{ opacity: 0.4 }}>
@@ -581,6 +625,7 @@ export function SsotSystemMap() {
                       highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
                       onSize={handleGraphSize}
                       executed={traceLoadedKey ? executedByNodeId : undefined}
+                      executedEdges={traceLoadedKey ? executedEdges : undefined}
                     />
                   </div>
                 </div>
