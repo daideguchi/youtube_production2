@@ -1887,6 +1887,7 @@ export interface SsotCatalog {
       runner_path?: string;
       stages_path?: string;
       templates_path?: string;
+      sot?: Array<Record<string, unknown>>;
     };
     video_auto_capcut_run?: {
       flow_id: string;
@@ -1894,6 +1895,7 @@ export interface SsotCatalog {
       steps: SsotCatalogFlowStep[];
       edges: Array<{ from: string; to: string }>;
       auto_capcut_run_path?: string;
+      sot?: Array<Record<string, unknown>>;
     };
     audio_tts?: {
       flow_id: string;
@@ -1902,12 +1904,14 @@ export interface SsotCatalog {
       edges: Array<{ from: string; to: string }>;
       run_tts_path?: string;
       llm_adapter_path?: string;
+      sot?: Array<Record<string, unknown>>;
     };
     thumbnails?: {
       flow_id: string;
       phase: string;
       steps: SsotCatalogFlowStep[];
       edges: Array<{ from: string; to: string }>;
+      sot?: Array<Record<string, unknown>>;
     };
     publish?: {
       flow_id: string;
@@ -1915,12 +1919,14 @@ export interface SsotCatalog {
       steps: SsotCatalogFlowStep[];
       edges: Array<{ from: string; to: string }>;
       path?: string;
+      sot?: Array<Record<string, unknown>>;
     };
     planning?: {
       flow_id: string;
       phase: string;
       steps: SsotCatalogFlowStep[];
       edges: Array<{ from: string; to: string }>;
+      sot?: Array<Record<string, unknown>>;
     };
   };
   llm: {

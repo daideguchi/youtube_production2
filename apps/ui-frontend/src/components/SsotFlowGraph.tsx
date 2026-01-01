@@ -435,6 +435,7 @@ export function SsotFlowGraph({
               borderRadius: 14,
               border: `2px solid ${border}`,
               background,
+              color: "var(--color-text)",
               display: "grid",
               gridTemplateRows: "auto auto",
               gap: 6,

@@ -85,6 +85,30 @@ function parsePlaceholderPairs(raw: unknown): Array<{ key: string; value: string
     .map((k) => ({ key: k, value: typeof obj[k] === "string" ? String(obj[k]) : JSON.stringify(obj[k]) }));
 }
 
+type SotDecl = { path: string; kind: string | null; notes: string | null; raw: unknown };
+
+function parseSotDecls(raw: unknown): SotDecl[] {
+  if (!raw) return [];
+  const arr = Array.isArray(raw) ? raw : [];
+  const out: SotDecl[] = [];
+  for (const item of arr) {
+    if (typeof item === "string") {
+      out.push({ path: item, kind: null, notes: null, raw: item });
+      continue;
+    }
+    if (item && typeof item === "object") {
+      const obj = item as any;
+      const path = obj?.path ? String(obj.path) : JSON.stringify(item);
+      const kind = obj?.kind ? String(obj.kind) : null;
+      const notes = obj?.notes ? String(obj.notes) : null;
+      out.push({ path, kind, notes, raw: item });
+      continue;
+    }
+    out.push({ path: String(item), kind: null, notes: null, raw: item });
+  }
+  return out.filter((o) => Boolean((o.path || "").trim()));
+}
+
 function domIdForNode(nodeId: string): string {
   const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
   return `ssot-node-${safe || "unknown"}`;
@@ -179,6 +203,8 @@ export function SsotSystemMap() {
     return null;
   }, [catalog, flow]);
 
+  const flowSotDecls = useMemo(() => parseSotDecls((flowMeta as any)?.sot), [flowMeta]);
+
   const flowCodePaths = useMemo(() => {
     const out: string[] = [];
     const m = flowMeta as any;
@@ -196,6 +222,62 @@ export function SsotSystemMap() {
     }
     return Array.from(new Set(out));
   }, [flowMeta]);
+
+  const selectedMainlineFlow = useMemo<FlowKey | null>(() => {
+    if (flow !== "mainline") return null;
+    const id = (selectedNodeId || "").trim();
+    if (!id) return null;
+    if (id === "A/planning") return "planning";
+    if (id === "B/script_pipeline") return "script_pipeline";
+    if (id === "C/audio_tts") return "audio_tts";
+    if (id === "D/video") return "video_auto_capcut_run";
+    if (id === "F/thumbnails") return "thumbnails";
+    if (id === "G/publish") return "publish";
+    return null;
+  }, [flow, selectedNodeId]);
+
+  const selectedMainlineFlowMeta = useMemo(() => {
+    if (!catalog || !selectedMainlineFlow) return null;
+    if (selectedMainlineFlow === "planning") return catalog.flows.planning as any;
+    if (selectedMainlineFlow === "script_pipeline") return catalog.flows.script_pipeline as any;
+    if (selectedMainlineFlow === "audio_tts") return catalog.flows.audio_tts as any;
+    if (selectedMainlineFlow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run as any;
+    if (selectedMainlineFlow === "thumbnails") return catalog.flows.thumbnails as any;
+    if (selectedMainlineFlow === "publish") return catalog.flows.publish as any;
+    return null;
+  }, [catalog, selectedMainlineFlow]);
+
+  const selectedMainlineSotDecls = useMemo(() => parseSotDecls((selectedMainlineFlowMeta as any)?.sot), [selectedMainlineFlowMeta]);
+
+  const selectedMainlineTasks = useMemo(() => {
+    const steps = (selectedMainlineFlowMeta as any)?.steps;
+    const out = new Set<string>();
+    if (Array.isArray(steps)) {
+      for (const s of steps) {
+        const task = s?.llm?.task ? String(s.llm.task) : "";
+        if (task) out.add(task);
+      }
+    }
+    return Array.from(out).sort((a, b) => a.localeCompare(b));
+  }, [selectedMainlineFlowMeta]);
+
+  const selectedMainlineCodePaths = useMemo(() => {
+    const out: string[] = [];
+    const m = selectedMainlineFlowMeta as any;
+    const candidates = [
+      m?.runner_path,
+      m?.stages_path,
+      m?.templates_path,
+      m?.run_tts_path,
+      m?.llm_adapter_path,
+      m?.auto_capcut_run_path,
+      m?.path,
+    ];
+    for (const p of candidates) {
+      if (typeof p === "string" && p.trim()) out.push(p.trim());
+    }
+    return Array.from(new Set(out));
+  }, [selectedMainlineFlowMeta]);
 
   const executedByNodeId = useMemo(() => {
     if (!traceLoadedKey) return {};
@@ -807,6 +889,21 @@ export function SsotSystemMap() {
                       {catalog?.llm?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.llm.task_overrides.path)}</span> : null}
                     </div>
                   ) : null}
+                  {flowSotDecls.length > 0 ? (
+                    <div>
+                      <div className="muted small-text" style={{ marginBottom: 4 }}>
+                        SoT（このFlowの正本パス）
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {flowSotDecls.map((s, i) => (
+                          <li key={`${flowMeta?.flow_id || flow}-sot-${i}`}>
+                            <span className="mono">{s.path}</span>
+                            {s.notes ? <span className="muted small-text"> — {s.notes}</span> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   {flowTaskList.length > 0 ? (
                     <details>
                       <summary className="muted small-text" style={{ cursor: "pointer" }}>
@@ -956,6 +1053,72 @@ export function SsotSystemMap() {
                   <div className="mono muted">node_id: {selectedNode.node_id}</div>
                   {selectedNode.description ? <p style={{ marginBottom: 0 }}>{selectedNode.description}</p> : null}
                 </section>
+
+                {flow === "mainline" && selectedMainlineFlowMeta ? (
+                  <section className="shell-panel shell-panel--placeholder">
+                    <h3 style={{ marginTop: 0 }}>Phase Details（実装から合成）</h3>
+                    <div className="mono muted small-text">
+                      flow_id={(selectedMainlineFlowMeta as any)?.flow_id || "—"} / phase={(selectedMainlineFlowMeta as any)?.phase || "—"} / steps=
+                      {Array.isArray((selectedMainlineFlowMeta as any)?.steps) ? (selectedMainlineFlowMeta as any).steps.length : 0}
+                    </div>
+                    {selectedMainlineCodePaths.length > 0 ? (
+                      <div className="muted small-text" style={{ marginTop: 8 }}>
+                        code: <span className="mono">{selectedMainlineCodePaths.join(", ")}</span>
+                      </div>
+                    ) : null}
+                    {selectedMainlineSotDecls.length > 0 ? (
+                      <div style={{ marginTop: 10 }}>
+                        <div className="muted small-text" style={{ marginBottom: 4 }}>
+                          SoT（正本）
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                          {selectedMainlineSotDecls.map((s, i) => (
+                            <li key={`mainline-sot-${i}`}>
+                              <span className="mono">{s.path}</span>
+                              {s.notes ? <span className="muted small-text"> — {s.notes}</span> : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {selectedMainlineTasks.length > 0 ? (
+                      <details style={{ marginTop: 10 }}>
+                        <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                          LLM tasks（このPhaseで使うタスク）: {selectedMainlineTasks.length}
+                        </summary>
+                        <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
+                          {selectedMainlineTasks.map((t) => {
+                            const def = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                            const tier = def?.tier ? String(def.tier) : "";
+                            const modelKeys = Array.isArray(def?.model_keys) ? (def.model_keys as string[]) : [];
+                            const modelsShort = modelKeys.length > 0 ? modelKeys.slice(0, 6).join(", ") : "";
+                            return (
+                              <div key={`mainline-task-${t}`} className="mono muted small-text">
+                                {t}
+                                {tier ? `  tier=${tier}` : ""}
+                                {modelsShort ? `  models=${modelsShort}${modelKeys.length > 6 ? ", …" : ""}` : ""}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </details>
+                    ) : null}
+                    {selectedMainlineFlow ? (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                        <button
+                          type="button"
+                          className="research-chip"
+                          onClick={() => {
+                            setFlow(selectedMainlineFlow);
+                            setSelectedNodeId(null);
+                          }}
+                        >
+                          Open Flow
+                        </button>
+                      </div>
+                    ) : null}
+                  </section>
+                ) : null}
 
               {selectedOutputDecls.length > 0 ? (
                 <section className="shell-panel shell-panel--placeholder">

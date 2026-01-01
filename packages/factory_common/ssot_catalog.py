@@ -339,6 +339,14 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
         "stages_path": _repo_rel(stages_path, root=repo),
         "templates_path": _repo_rel(templates_path, root=repo),
         "runner_path": _repo_rel(runner_path, root=repo),
+        "sot": [
+            {"path": "workspaces/scripts/{CH}/{NNN}/status.json", "kind": "status", "notes": "pipeline state (redo/alignment/etc)"},
+            {"path": "workspaces/scripts/{CH}/{NNN}/content/assembled_human.md", "kind": "a_text", "notes": "preferred if human-edited"},
+            {"path": "workspaces/scripts/{CH}/{NNN}/content/assembled.md", "kind": "a_text_mirror", "notes": "mirror/fallback"},
+            {"path": "workspaces/scripts/{CH}/{NNN}/script_manifest.json", "kind": "manifest", "notes": "UI contract (best-effort)"},
+            {"path": "workspaces/scripts/{CH}/{NNN}/artifacts/llm/*.json", "kind": "llm_artifacts", "notes": "manual fill / reuse contract"},
+            {"path": "workspaces/scripts/{CH}/{NNN}/content/analysis/**", "kind": "analysis", "notes": "reports (alignment/quality_gate/etc)"},
+        ],
         "steps": stage_items,
         "edges": [
             {"from": f"B/{stage_items[i]['name']}", "to": f"B/{stage_items[i + 1]['name']}"}
@@ -393,6 +401,14 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
         "flow_id": "video_auto_capcut_run",
         "phase": "D",
         "auto_capcut_run_path": _repo_rel(auto_path, root=repo),
+        "sot": [
+            {"path": "workspaces/video/runs/{run_id}/", "kind": "run_dir", "notes": "run-level SoT (pipeline outputs)"},
+            {"path": "workspaces/video/runs/{run_id}/image_cues.json", "kind": "image_cues", "notes": "schema=ytm.image_cues.v1"},
+            {"path": "workspaces/video/runs/{run_id}/images/*.png", "kind": "images", "notes": "one image per cue (when generated)"},
+            {"path": "workspaces/video/runs/{run_id}/capcut_draft_info.json", "kind": "capcut_meta", "notes": "draft metadata (run_dir side)"},
+            {"path": "workspaces/video/runs/{run_id}/auto_run_info.json", "kind": "progress", "notes": "schema=ytm.auto_run_info.v2"},
+            {"path": "workspaces/video/runs/{run_id}/timeline_manifest.json", "kind": "timeline_manifest", "notes": "audio_tts final alignment diagnostic"},
+        ],
         "steps": steps,
         "edges": [
             {"from": f"D/{ordered_keys[i]}", "to": f"D/{ordered_keys[i + 1]}"}
@@ -562,6 +578,13 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
         "phase": "C",
         "run_tts_path": _repo_rel(run_tts_path, root=repo),
         "llm_adapter_path": _repo_rel(llm_adapter_path, root=repo),
+        "sot": [
+            {"path": "workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav", "kind": "wav", "notes": "final audio SoT"},
+            {"path": "workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.srt", "kind": "srt", "notes": "final subtitles SoT"},
+            {"path": "workspaces/audio/final/{CH}/{NNN}/log.json", "kind": "log", "notes": "tts run log"},
+            {"path": "workspaces/audio/final/{CH}/{NNN}/a_text.txt", "kind": "a_text_snapshot", "notes": "input snapshot actually spoken"},
+            {"path": "workspaces/audio/final/{CH}/{NNN}/audio_manifest.json", "kind": "manifest", "notes": "schema=ytm.audio_manifest.v1"},
+        ],
         "steps": steps,
         "edges": [
             {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
@@ -646,6 +669,11 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "thumbnails",
         "phase": "F",
+        "sot": [
+            {"path": "workspaces/thumbnails/projects.json", "kind": "projects", "notes": "variants/selected etc"},
+            {"path": "workspaces/thumbnails/templates.json", "kind": "templates", "notes": "channel templates/layer_specs"},
+            {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/**", "kind": "assets", "notes": "generated/compiled images"},
+        ],
         "steps": steps,
         "edges": [
             {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
@@ -682,6 +710,10 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
         "flow_id": "publish",
         "phase": "G",
         "path": _repo_rel(publish_path, root=repo),
+        "sot": [
+            {"path": "YT_PUBLISH_SHEET_ID / YT_PUBLISH_SHEET_NAME", "kind": "external", "notes": "Google Sheet (external SoT)"},
+            {"path": "YT_OAUTH_TOKEN_PATH / YT_OAUTH_CLIENT_PATH", "kind": "auth", "notes": "OAuth token/client (local)"},
+        ],
         "steps": steps,
         "edges": [
             {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
@@ -736,6 +768,11 @@ def _planning_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "planning",
         "phase": "A",
+        "sot": [
+            {"path": "workspaces/planning/channels/{CH}.csv", "kind": "planning_csv", "notes": "planning SoT (titles/tags/etc)"},
+            {"path": "workspaces/planning/personas/CHxx_PERSONA.md", "kind": "persona", "notes": "persona SoT"},
+            {"path": "workspaces/planning/ideas/CHxx.jsonl", "kind": "ideas", "notes": "idea generation log"},
+        ],
         "steps": steps,
         "edges": [
             {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
