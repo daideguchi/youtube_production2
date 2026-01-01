@@ -65,7 +65,7 @@
 【合否ルール（重要）】
 - `must_fix` が1件でもある場合、`verdict` は必ず `fail`。
 - 終わり方が未完結（問いで投げっぱなし/途中で切れている/結びが無い）なら、必ず `must_fix` に入れて `fail` にする（type: flow_break）。
-  - 特に、末尾が質問の形で終わる場合は必ず不合格（例: `？` / `?` / `でしょうか。` / `ですか。` / `〜でしょう。` で終わる等）。
+  - 特に、末尾が質問の形で終わる場合は必ず不合格（例: `？` / `?` / `でしょうか。` / `ですか。` で終わる等）。
 - `modern_examples_count` が最大<<MODERN_EXAMPLES_MAX_TARGET>>件を超えたら必ず `fail`（type: channel_requirement）。
 - `<<PAUSE_LINES_TARGET_MIN>>` が空でなく、`---` が不足していたら必ず `fail`（type: channel_requirement）。
 - `<<CORE_EPISODE_REQUIRED>>` が 1 で、中心エピソードが弱い/不在なら必ず `fail`（type: channel_requirement）。
