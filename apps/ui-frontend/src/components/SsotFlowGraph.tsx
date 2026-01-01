@@ -39,6 +39,11 @@ type LayoutNode = {
   height: number;
 };
 
+function domIdForNode(nodeId: string): string {
+  const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
+  return `ssot-node-${safe || "unknown"}`;
+}
+
 function computeLayout(
   steps: SsotCatalogFlowStep[],
   edges: SsotFlowEdge[],
@@ -149,6 +154,7 @@ export function SsotFlowGraph({
   orientation,
   highlightedNodeIds,
   onSize,
+  executed,
 }: {
   steps: SsotCatalogFlowStep[];
   edges: SsotFlowEdge[];
@@ -157,6 +163,7 @@ export function SsotFlowGraph({
   orientation: Orientation;
   highlightedNodeIds?: string[];
   onSize?: (size: { width: number; height: number }) => void;
+  executed?: Record<string, { firstIndex: number; count: number }>;
 }) {
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
@@ -272,12 +279,16 @@ export function SsotFlowGraph({
         const isHighlighted = highlighted.has(n.id);
         const isUp = selectedPath.upstream.has(n.id);
         const isDown = selectedPath.downstream.has(n.id);
+        const exec = executed ? executed[n.id] : undefined;
+        const isExec = Boolean(exec);
         const border = isSelected
           ? "var(--color-primary)"
           : isDown
             ? "rgba(67, 160, 71, 0.85)"
             : isUp
               ? "rgba(156, 39, 176, 0.85)"
+              : isExec
+                ? "rgba(14, 165, 233, 0.85)"
               : "var(--color-border-muted)";
         const background = isSelected
           ? "rgba(25, 118, 210, 0.12)"
@@ -285,12 +296,16 @@ export function SsotFlowGraph({
             ? "rgba(67, 160, 71, 0.08)"
             : isUp
               ? "rgba(156, 39, 176, 0.08)"
+              : isExec
+                ? "rgba(14, 165, 233, 0.08)"
               : isHighlighted
                 ? "rgba(255, 200, 0, 0.10)"
                 : "var(--color-surface)";
         return (
           <button
             key={n.id}
+            id={domIdForNode(n.id)}
+            data-ssot-node-id={n.id}
             type="button"
             onClick={() => onSelect(n.id)}
             title={`${n.id}${n.step.description ? `\n${n.step.description}` : ""}`}
@@ -309,8 +324,27 @@ export function SsotFlowGraph({
               gap: 6,
               textAlign: "left",
               overflow: "hidden",
+              cursor: "pointer",
             }}
           >
+            {isExec ? (
+              <span
+                className="mono"
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  top: 8,
+                  fontSize: 11,
+                  padding: "2px 6px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(14, 165, 233, 0.35)",
+                  background: "rgba(14, 165, 233, 0.10)",
+                  color: "rgba(2, 132, 199, 0.95)",
+                }}
+              >
+                run#{(exec?.firstIndex ?? 0) + 1}×{exec?.count ?? 1}
+              </span>
+            ) : null}
             <div style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0 }}>
               {badge ? (
                 <span className="badge dir" style={{ flex: "none" }}>
@@ -323,7 +357,7 @@ export function SsotFlowGraph({
             </div>
             <div className="muted small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0 }}>
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {task ? `LLM:${task}` : n.id}
+                {task ? `TASK:${task}` : n.id}
               </span>
             </div>
           </button>

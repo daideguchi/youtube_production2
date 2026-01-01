@@ -95,20 +95,20 @@ export function SsotEntrypointsPage() {
             <Link className="research-chip" to="/ssot/map">
               System Map
             </Link>
-            <button type="button" className={`research-chip ${tab === "api_routes" ? "active" : ""}`} onClick={() => setTab("api_routes")}>
+            <button type="button" className={`research-chip ${tab === "api_routes" ? "is-active" : ""}`} onClick={() => setTab("api_routes")}>
               API Routes
             </button>
             <button
               type="button"
-              className={`research-chip ${tab === "python_entrypoints" ? "active" : ""}`}
+              className={`research-chip ${tab === "python_entrypoints" ? "is-active" : ""}`}
               onClick={() => setTab("python_entrypoints")}
             >
               Python CLI
             </button>
-            <button type="button" className={`research-chip ${tab === "shell_entrypoints" ? "active" : ""}`} onClick={() => setTab("shell_entrypoints")}>
+            <button type="button" className={`research-chip ${tab === "shell_entrypoints" ? "is-active" : ""}`} onClick={() => setTab("shell_entrypoints")}>
               Shell
             </button>
-            <button type="button" className={`research-chip ${tab === "llm_callsites" ? "active" : ""}`} onClick={() => setTab("llm_callsites")}>
+            <button type="button" className={`research-chip ${tab === "llm_callsites" ? "is-active" : ""}`} onClick={() => setTab("llm_callsites")}>
               LLM Callsites
             </button>
           </div>
@@ -214,4 +214,3 @@ export function SsotEntrypointsPage() {
     </section>
   );
 }
-

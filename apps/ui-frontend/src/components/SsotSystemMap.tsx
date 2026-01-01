@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchSsotCatalog } from "../api/client";
+import { Link } from "react-router-dom";
+import { fetchResearchFileChunk, fetchSsotCatalog } from "../api/client";
 import type { SsotCatalog, SsotCatalogFlowStep } from "../api/types";
 import { SsotFilePreview } from "./SsotFilePreview";
 import { SsotFlowGraph } from "./SsotFlowGraph";
@@ -23,6 +24,37 @@ function nodeTitle(step: SsotCatalogFlowStep): string {
   return base;
 }
 
+type TraceEvent = { kind: "llm" | "image"; task: string; at_ms: number | null };
+
+function parseIsoMs(raw: unknown): number | null {
+  if (!raw) return null;
+  const s = String(raw);
+  const t = Date.parse(s);
+  return Number.isFinite(t) ? t : null;
+}
+
+function parseJsonlEvents(content: string, kind: "llm" | "image"): TraceEvent[] {
+  const out: TraceEvent[] = [];
+  for (const line of (content || "").split("\n")) {
+    const s = line.trim();
+    if (!s) continue;
+    try {
+      const obj = JSON.parse(s) as any;
+      const task = obj?.task ? String(obj.task) : "";
+      if (!task) continue;
+      out.push({ kind, task, at_ms: parseIsoMs(obj?.generated_at) });
+    } catch {
+      // ignore
+    }
+  }
+  return out;
+}
+
+function domIdForNode(nodeId: string): string {
+  const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
+  return `ssot-node-${safe || "unknown"}`;
+}
+
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
@@ -30,10 +62,18 @@ export function SsotSystemMap() {
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [graphScale, setGraphScale] = useState(1);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
+  const [focusMode, setFocusMode] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
+
+  const [traceKey, setTraceKey] = useState("");
+  const [traceLoading, setTraceLoading] = useState(false);
+  const [traceError, setTraceError] = useState<string | null>(null);
+  const [traceLoadedKey, setTraceLoadedKey] = useState<string | null>(null);
+  const [traceTaskSummary, setTraceTaskSummary] = useState<Record<string, { firstIndex: number; count: number }>>({});
+  const [traceEventCount, setTraceEventCount] = useState(0);
 
   const loadCatalog = useCallback(async (refresh = false) => {
     setLoading(true);
@@ -77,6 +117,44 @@ export function SsotSystemMap() {
     return [];
   }, [catalog, flow]);
 
+  const flowTasks = useMemo(() => {
+    const set = new Set<string>();
+    for (const n of nodes) {
+      const llm = (n as any).llm as any;
+      const t = llm?.task ? String(llm.task) : "";
+      if (t) set.add(t);
+    }
+    return set;
+  }, [nodes]);
+
+  const executedByNodeId = useMemo(() => {
+    if (!traceLoadedKey) return {};
+    const out: Record<string, { firstIndex: number; count: number }> = {};
+    for (const n of nodes) {
+      const llm = (n as any).llm as any;
+      const t = llm?.task ? String(llm.task) : "";
+      if (!t) continue;
+      const info = traceTaskSummary[t];
+      if (info) out[n.node_id] = info;
+    }
+    return out;
+  }, [nodes, traceLoadedKey, traceTaskSummary]);
+
+  const traceUnmatchedTasks = useMemo(() => {
+    if (!traceLoadedKey) return [];
+    const tasks = Object.keys(traceTaskSummary || {});
+    return tasks.filter((t) => !flowTasks.has(t)).slice(0, 50);
+  }, [flowTasks, traceLoadedKey, traceTaskSummary]);
+
+  const traceMatchedTaskCount = useMemo(() => {
+    if (!traceLoadedKey) return 0;
+    let c = 0;
+    for (const t of Object.keys(traceTaskSummary || {})) {
+      if (flowTasks.has(t)) c += 1;
+    }
+    return c;
+  }, [flowTasks, traceLoadedKey, traceTaskSummary]);
+
   useEffect(() => {
     setOrientation(flow === "mainline" ? "horizontal" : "vertical");
   }, [flow]);
@@ -95,6 +173,19 @@ export function SsotSystemMap() {
     setGraphScale(clamp(Number(scale.toFixed(2)), 0.3, 2.5));
   };
 
+  const centerOnNode = useCallback((nodeId: string) => {
+    const container = graphViewportRef.current;
+    if (!container) return;
+    const el = container.querySelector(`#${domIdForNode(nodeId)}`) as HTMLElement | null;
+    if (!el) return;
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const dx = eRect.left + eRect.width / 2 - (cRect.left + cRect.width / 2);
+    const dy = eRect.top + eRect.height / 2 - (cRect.top + cRect.height / 2);
+    container.scrollLeft += dx;
+    container.scrollTop += dy;
+  }, []);
+
   const handleGraphSize = useCallback((size: { width: number; height: number }) => {
     if (!size.width || !size.height) return;
     setGraphSize((prev) => {
@@ -102,6 +193,61 @@ export function SsotSystemMap() {
       return size;
     });
   }, []);
+
+  const loadTrace = useCallback(async () => {
+    const key = traceKey.trim();
+    if (!key) return;
+    setTraceLoading(true);
+    setTraceError(null);
+    try {
+      const llmPath = `traces/llm/${key}.jsonl`;
+      const imagePath = `traces/image/${key}.jsonl`;
+
+      const [llm, image] = await Promise.all([
+        fetchResearchFileChunk("logs", llmPath, { offset: 0, length: 5000 }).catch(() => null),
+        fetchResearchFileChunk("logs", imagePath, { offset: 0, length: 5000 }).catch(() => null),
+      ]);
+
+      const llmEvents = llm?.content ? parseJsonlEvents(llm.content, "llm") : [];
+      const imageEvents = image?.content ? parseJsonlEvents(image.content, "image") : [];
+      const all = [...llmEvents, ...imageEvents].sort((a, b) => {
+        const atA = a.at_ms ?? Number.POSITIVE_INFINITY;
+        const atB = b.at_ms ?? Number.POSITIVE_INFINITY;
+        if (atA !== atB) return atA - atB;
+        return a.kind.localeCompare(b.kind);
+      });
+
+      const summary: Record<string, { firstIndex: number; count: number }> = {};
+      for (let idx = 0; idx < all.length; idx++) {
+        const t = all[idx].task;
+        const cur = summary[t];
+        if (!cur) summary[t] = { firstIndex: idx, count: 1 };
+        else summary[t] = { firstIndex: cur.firstIndex, count: cur.count + 1 };
+      }
+
+      setTraceLoadedKey(key);
+      setTraceTaskSummary(summary);
+      setTraceEventCount(all.length);
+
+      if (all.length === 0) {
+        setTraceError("trace が見つかりません（logs/traces/ に JSONL がありません）");
+      }
+    } catch (err) {
+      setTraceLoadedKey(null);
+      setTraceTaskSummary({});
+      setTraceEventCount(0);
+      setTraceError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setTraceLoading(false);
+    }
+  }, [traceKey]);
+
+  const clearTrace = () => {
+    setTraceLoadedKey(null);
+    setTraceTaskSummary({});
+    setTraceEventCount(0);
+    setTraceError(null);
+  };
 
   const filteredNodes = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -174,12 +320,12 @@ export function SsotSystemMap() {
             SSOTと実装の“ズレ”をなくすために、コードから自動生成したカタログを閲覧します（read-only）。
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
-            <button type="button" className={`research-chip ${flow === "mainline" ? "active" : ""}`} onClick={() => setFlow("mainline")}>
+            <button type="button" className={`research-chip ${flow === "mainline" ? "is-active" : ""}`} onClick={() => setFlow("mainline")}>
               Mainline
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "planning" ? "active" : ""}`}
+              className={`research-chip ${flow === "planning" ? "is-active" : ""}`}
               onClick={() => setFlow("planning")}
               disabled={!catalog?.flows?.planning}
             >
@@ -187,7 +333,7 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "script_pipeline" ? "active" : ""}`}
+              className={`research-chip ${flow === "script_pipeline" ? "is-active" : ""}`}
               onClick={() => setFlow("script_pipeline")}
               disabled={!catalog?.flows?.script_pipeline}
             >
@@ -195,7 +341,7 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "audio_tts" ? "active" : ""}`}
+              className={`research-chip ${flow === "audio_tts" ? "is-active" : ""}`}
               onClick={() => setFlow("audio_tts")}
               disabled={!catalog?.flows?.audio_tts}
             >
@@ -203,7 +349,7 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "video_auto_capcut_run" ? "active" : ""}`}
+              className={`research-chip ${flow === "video_auto_capcut_run" ? "is-active" : ""}`}
               onClick={() => setFlow("video_auto_capcut_run")}
               disabled={!catalog?.flows?.video_auto_capcut_run}
             >
@@ -211,7 +357,7 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "thumbnails" ? "active" : ""}`}
+              className={`research-chip ${flow === "thumbnails" ? "is-active" : ""}`}
               onClick={() => setFlow("thumbnails")}
               disabled={!catalog?.flows?.thumbnails}
             >
@@ -219,7 +365,7 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
-              className={`research-chip ${flow === "publish" ? "active" : ""}`}
+              className={`research-chip ${flow === "publish" ? "is-active" : ""}`}
               onClick={() => setFlow("publish")}
               disabled={!catalog?.flows?.publish}
             >
@@ -228,12 +374,15 @@ export function SsotSystemMap() {
             <button type="button" className="research-chip" onClick={() => void loadCatalog(true)} disabled={loading}>
               {loading ? "更新中…" : "再生成"}
             </button>
+            <button type="button" className={`research-chip ${focusMode ? "is-active" : ""}`} onClick={() => setFocusMode((v) => !v)}>
+              {focusMode ? "List表示" : "Graph Focus"}
+            </button>
           </div>
         </div>
       </header>
 
-      <div className="research-body">
-        <div className="research-list">
+      <div className="research-body" style={focusMode ? { gridTemplateColumns: "1fr" } : undefined}>
+        {!focusMode ? <div className="research-list">
           <div className="research-list__header">
             <div>
               <p className="muted">カタログ</p>
@@ -265,7 +414,10 @@ export function SsotSystemMap() {
               <li key={n.node_id}>
                 <button
                   className="research-entry"
-                  onClick={() => setSelectedNodeId(n.node_id)}
+                  onClick={() => {
+                    setSelectedNodeId(n.node_id);
+                    centerOnNode(n.node_id);
+                  }}
                   style={{ borderColor: selectedNodeId === n.node_id ? "var(--color-primary)" : undefined }}
                 >
                   <span className="badge dir">{n.phase}</span>
@@ -277,7 +429,7 @@ export function SsotSystemMap() {
               </li>
             ))}
           </ul>
-        </div>
+        </div> : null}
 
         <div className="research-viewer">
           <div className="research-viewer__header">
@@ -295,14 +447,14 @@ export function SsotSystemMap() {
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button
                     type="button"
-                    className={`research-chip ${orientation === "horizontal" ? "active" : ""}`}
+                    className={`research-chip ${orientation === "horizontal" ? "is-active" : ""}`}
                     onClick={() => setOrientation("horizontal")}
                   >
                     横
                   </button>
                   <button
                     type="button"
-                    className={`research-chip ${orientation === "vertical" ? "active" : ""}`}
+                    className={`research-chip ${orientation === "vertical" ? "is-active" : ""}`}
                     onClick={() => setOrientation("vertical")}
                   >
                     縦
@@ -319,8 +471,75 @@ export function SsotSystemMap() {
                   <button type="button" className="research-chip" onClick={zoomFit}>
                     Fit
                   </button>
+                  <button type="button" className="research-chip" onClick={() => selectedNodeId && centerOnNode(selectedNodeId)} disabled={!selectedNodeId}>
+                    Center
+                  </button>
                 </div>
               </div>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+                <label className="muted small-text">Trace key</label>
+                <input
+                  value={traceKey}
+                  onChange={(e) => setTraceKey(e.target.value)}
+                  placeholder="例: CH01-251"
+                  style={{
+                    width: 220,
+                    borderRadius: 10,
+                    border: "1px solid #d0d7de",
+                    padding: "8px 10px",
+                    fontSize: 13,
+                    background: "#f6f8fa",
+                  }}
+                />
+                <button type="button" className="research-chip" onClick={() => void loadTrace()} disabled={traceLoading || !traceKey.trim()}>
+                  {traceLoading ? "読み込み中…" : "Load"}
+                </button>
+                <button type="button" className="research-chip" onClick={clearTrace} disabled={!traceLoadedKey && !traceError}>
+                  Clear
+                </button>
+                {traceLoadedKey ? (
+                  <Link className="research-chip" to={`/ssot/trace/${encodeURIComponent(traceLoadedKey)}`}>
+                    Open Trace
+                  </Link>
+                ) : null}
+                {traceLoadedKey ? (
+                  <span className="mono muted small-text">
+                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length}
+                  </span>
+                ) : null}
+                <span className="crumb-sep" style={{ opacity: 0.4 }}>
+                  /
+                </span>
+                <label className="muted small-text">Filter</label>
+                <input
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="node_id / 名前 / 説明"
+                  style={{
+                    width: 260,
+                    borderRadius: 10,
+                    border: "1px solid #d0d7de",
+                    padding: "8px 10px",
+                    fontSize: 13,
+                    background: "#f6f8fa",
+                  }}
+                />
+                <button type="button" className="research-chip" onClick={() => setKeyword("")} disabled={!keyword.trim()}>
+                  Filter Clear
+                </button>
+              </div>
+              {focusMode && error ? <div className="main-alert main-alert--error">エラー: {error}</div> : null}
+              {focusMode && missingTasks.length > 0 ? (
+                <div className="main-alert main-alert--warning">
+                  LLMタスク定義が見つからないものがあります: <span className="mono">{missingTasks.join(", ")}</span>
+                </div>
+              ) : null}
+              {traceError ? <div className="main-alert main-alert--warning">Trace: {traceError}</div> : null}
+              {traceLoadedKey && traceUnmatchedTasks.length > 0 ? (
+                <div className="muted small-text" style={{ marginTop: 6 }}>
+                  このFlowに未マップの task（先頭のみ）: <span className="mono">{traceUnmatchedTasks.join(", ")}</span>
+                </div>
+              ) : null}
               <div
                 ref={graphViewportRef}
                 style={{
@@ -354,16 +573,20 @@ export function SsotSystemMap() {
                       steps={nodes}
                       edges={edges}
                       selectedNodeId={selectedNodeId}
-                      onSelect={(id) => setSelectedNodeId(id)}
+                      onSelect={(id) => {
+                        setSelectedNodeId(id);
+                        centerOnNode(id);
+                      }}
                       orientation={orientation}
                       highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
                       onSize={handleGraphSize}
+                      executed={traceLoadedKey ? executedByNodeId : undefined}
                     />
                   </div>
                 </div>
               </div>
               <div className="muted small-text" style={{ marginTop: 8 }}>
-                ノードをクリックすると詳細へジャンプします（黄色=検索一致、緑=下流、紫=上流）。
+                ノードをクリックすると詳細へジャンプします（黄色=検索一致、緑=下流、紫=上流、青=実行済み）。
               </div>
             </section>
 

@@ -119,10 +119,10 @@ export function SsotTracePage() {
             <Link className="research-chip" to="/ssot/entrypoints">
               Entrypoints
             </Link>
-            <button type="button" className={`research-chip ${kind === "llm" ? "active" : ""}`} onClick={() => setKind("llm")}>
+            <button type="button" className={`research-chip ${kind === "llm" ? "is-active" : ""}`} onClick={() => setKind("llm")}>
               LLM
             </button>
-            <button type="button" className={`research-chip ${kind === "image" ? "active" : ""}`} onClick={() => setKind("image")}>
+            <button type="button" className={`research-chip ${kind === "image" ? "is-active" : ""}`} onClick={() => setKind("image")}>
               Image
             </button>
             <button type="button" className="research-chip" onClick={() => void loadList()} disabled={loadingList}>
@@ -234,4 +234,3 @@ export function SsotTracePage() {
     </section>
   );
 }
-
