@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchSsotCatalog } from "../api/client";
 import type { SsotCatalog, SsotCatalogFlowStep } from "../api/types";
 import { SsotFilePreview } from "./SsotFilePreview";
+import { SsotFlowGraph } from "./SsotFlowGraph";
 
 type FlowKey =
   | "mainline"
@@ -26,6 +27,7 @@ export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,22 @@ export function SsotSystemMap() {
     if (flow === "publish") return catalog.flows.publish?.steps || [];
     return [];
   }, [catalog, flow]);
+
+  const edges = useMemo(() => {
+    if (!catalog) return [];
+    if (flow === "mainline") return catalog.mainline.edges || [];
+    if (flow === "planning") return catalog.flows.planning?.edges || [];
+    if (flow === "script_pipeline") return catalog.flows.script_pipeline?.edges || [];
+    if (flow === "audio_tts") return catalog.flows.audio_tts?.edges || [];
+    if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.edges || [];
+    if (flow === "thumbnails") return catalog.flows.thumbnails?.edges || [];
+    if (flow === "publish") return catalog.flows.publish?.edges || [];
+    return [];
+  }, [catalog, flow]);
+
+  useEffect(() => {
+    setOrientation(flow === "mainline" ? "horizontal" : "vertical");
+  }, [flow]);
 
   const filteredNodes = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -245,15 +263,60 @@ export function SsotSystemMap() {
             {selectedNode ? <span className="badge subtle">read-only</span> : null}
           </div>
 
-          {!selectedNode ? <div className="main-alert">左からノードを選択してください。</div> : null}
+          <div style={{ display: "grid", gap: 14 }}>
+            <section className="shell-panel shell-panel--placeholder">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                <h3 style={{ marginTop: 0 }}>Flow Graph</h3>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className={`research-chip ${orientation === "horizontal" ? "active" : ""}`}
+                    onClick={() => setOrientation("horizontal")}
+                  >
+                    横
+                  </button>
+                  <button
+                    type="button"
+                    className={`research-chip ${orientation === "vertical" ? "active" : ""}`}
+                    onClick={() => setOrientation("vertical")}
+                  >
+                    縦
+                  </button>
+                </div>
+              </div>
+              <div
+                style={{
+                  marginTop: 10,
+                  border: "1px solid var(--color-border-muted)",
+                  borderRadius: 14,
+                  background: "var(--color-surface-subtle)",
+                  overflow: "auto",
+                  maxHeight: 360,
+                }}
+              >
+                <SsotFlowGraph
+                  steps={nodes}
+                  edges={edges}
+                  selectedNodeId={selectedNodeId}
+                  onSelect={(id) => setSelectedNodeId(id)}
+                  orientation={orientation}
+                  highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
+                />
+              </div>
+              <div className="muted small-text" style={{ marginTop: 8 }}>
+                ノードをクリックすると詳細へジャンプします（検索語は黄色ハイライト）。
+              </div>
+            </section>
 
-          {selectedNode ? (
-            <div style={{ display: "grid", gap: 14 }}>
-              <section className="shell-panel shell-panel--placeholder">
-                <h3 style={{ marginTop: 0 }}>概要</h3>
-                <div className="mono muted">node_id: {selectedNode.node_id}</div>
-                {selectedNode.description ? <p style={{ marginBottom: 0 }}>{selectedNode.description}</p> : null}
-              </section>
+            {!selectedNode ? <div className="main-alert">Flow Graph のノードをクリックするか、左から選択してください。</div> : null}
+
+            {selectedNode ? (
+              <>
+                <section className="shell-panel shell-panel--placeholder">
+                  <h3 style={{ marginTop: 0 }}>概要</h3>
+                  <div className="mono muted">node_id: {selectedNode.node_id}</div>
+                  {selectedNode.description ? <p style={{ marginBottom: 0 }}>{selectedNode.description}</p> : null}
+                </section>
 
               {selectedNode.outputs ? (
                 <section className="shell-panel shell-panel--placeholder">
@@ -297,22 +360,23 @@ export function SsotSystemMap() {
                 />
               ))}
 
-              <section className="shell-panel shell-panel--placeholder">
-                <h3 style={{ marginTop: 0 }}>Catalog Summary</h3>
-                <div style={{ display: "grid", gap: 6 }}>
-                  <div>
-                    API routes: <span className="mono">{catalog?.entrypoints?.api_routes?.length ?? 0}</span>
+                <section className="shell-panel shell-panel--placeholder">
+                  <h3 style={{ marginTop: 0 }}>Catalog Summary</h3>
+                  <div style={{ display: "grid", gap: 6 }}>
+                    <div>
+                      API routes: <span className="mono">{catalog?.entrypoints?.api_routes?.length ?? 0}</span>
+                    </div>
+                    <div>
+                      CLI entrypoints (python): <span className="mono">{catalog?.entrypoints?.python?.length ?? 0}</span>
+                    </div>
+                    <div>
+                      LLM tasks used: <span className="mono">{catalog?.llm?.used_tasks?.length ?? 0}</span>
+                    </div>
                   </div>
-                  <div>
-                    CLI entrypoints (python): <span className="mono">{catalog?.entrypoints?.python?.length ?? 0}</span>
-                  </div>
-                  <div>
-                    LLM tasks used: <span className="mono">{catalog?.llm?.used_tasks?.length ?? 0}</span>
-                  </div>
-                </div>
-              </section>
-            </div>
-          ) : null}
+                </section>
+              </>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>
