@@ -155,6 +155,7 @@ export function SsotFlowGraph({
   highlightedNodeIds,
   onSize,
   executed,
+  executedEdges,
 }: {
   steps: SsotCatalogFlowStep[];
   edges: SsotFlowEdge[];
@@ -164,6 +165,7 @@ export function SsotFlowGraph({
   highlightedNodeIds?: string[];
   onSize?: (size: { width: number; height: number }) => void;
   executed?: Record<string, { firstIndex: number; count: number }>;
+  executedEdges?: Record<string, { firstIndex: number; count: number }>;
 }) {
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
@@ -220,18 +222,25 @@ export function SsotFlowGraph({
   const edgeStyle = useCallback(
     (fromId: string, toId: string) => {
       const selected = (selectedNodeId || "").trim();
-      if (!selected) return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.9 };
+      const execKey = `${fromId} -> ${toId}`;
+      const exec = executedEdges ? executedEdges[execKey] : undefined;
+      const hasExec = Boolean(exec);
+      if (!selected) {
+        if (hasExec) return { stroke: "rgba(14, 165, 233, 0.9)", strokeWidth: 3, opacity: 1, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
+        return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.9, marker: "normal", title: "" };
+      }
 
       const upstream = selectedPath.upstream;
       const downstream = selectedPath.downstream;
       const isUpEdge = upstream.has(fromId) && (toId === selected || upstream.has(toId));
       const isDownEdge = (fromId === selected || downstream.has(fromId)) && downstream.has(toId);
 
-      if (isDownEdge) return { stroke: "rgba(67, 160, 71, 0.9)", strokeWidth: 3, opacity: 1 };
-      if (isUpEdge) return { stroke: "rgba(156, 39, 176, 0.85)", strokeWidth: 3, opacity: 1 };
-      return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.5 };
+      if (isDownEdge) return { stroke: "rgba(67, 160, 71, 0.9)", strokeWidth: 3, opacity: 1, marker: "down", title: "" };
+      if (isUpEdge) return { stroke: "rgba(156, 39, 176, 0.85)", strokeWidth: 3, opacity: 1, marker: "up", title: "" };
+      if (hasExec) return { stroke: "rgba(14, 165, 233, 0.85)", strokeWidth: 3, opacity: 0.85, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
+      return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.45, marker: "normal", title: "" };
     },
-    [selectedNodeId, selectedPath.downstream, selectedPath.upstream],
+    [executedEdges, selectedNodeId, selectedPath.downstream, selectedPath.upstream],
   );
 
   return (
@@ -247,16 +256,21 @@ export function SsotFlowGraph({
           <marker id="ssotArrowUp" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
             <path d="M0,0 L12,6 L0,12 Z" fill="rgba(156, 39, 176, 0.9)" />
           </marker>
+          <marker id="ssotArrowExec" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(14, 165, 233, 0.95)" />
+          </marker>
         </defs>
         {paths.map((p, idx) => (
           (() => {
             const st = edgeStyle(p.from.id, p.to.id);
             const marker =
-              st.stroke.indexOf("67, 160, 71") >= 0
+              st.marker === "down"
                 ? "url(#ssotArrowDown)"
-                : st.stroke.indexOf("156, 39, 176") >= 0
+                : st.marker === "up"
                   ? "url(#ssotArrowUp)"
-                  : "url(#ssotArrow)";
+                  : st.marker === "exec"
+                    ? "url(#ssotArrowExec)"
+                    : "url(#ssotArrow)";
             return (
               <path
                 key={idx}
@@ -266,7 +280,9 @@ export function SsotFlowGraph({
                 strokeWidth={st.strokeWidth}
                 markerEnd={marker}
                 opacity={st.opacity}
-              />
+              >
+                {st.title ? <title>{st.title}</title> : null}
+              </path>
             );
           })()
         ))}
