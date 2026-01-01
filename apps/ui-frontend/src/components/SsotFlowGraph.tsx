@@ -21,6 +21,31 @@ function nodeTask(step: SsotCatalogFlowStep): string | null {
   return t || null;
 }
 
+function phaseKey(phase: string): string {
+  const s = (phase || "").trim();
+  if (!s) return "";
+  return s.slice(0, 1).toUpperCase();
+}
+
+function colorsForPhase(phase: string): { fill: string; stroke: string; text: string } {
+  switch (phaseKey(phase)) {
+    case "A":
+      return { fill: "rgba(245, 158, 11, 0.07)", stroke: "rgba(245, 158, 11, 0.25)", text: "rgba(180, 83, 9, 0.95)" };
+    case "B":
+      return { fill: "rgba(99, 102, 241, 0.07)", stroke: "rgba(99, 102, 241, 0.25)", text: "rgba(67, 56, 202, 0.95)" };
+    case "C":
+      return { fill: "rgba(14, 165, 233, 0.06)", stroke: "rgba(14, 165, 233, 0.22)", text: "rgba(2, 132, 199, 0.95)" };
+    case "D":
+      return { fill: "rgba(34, 197, 94, 0.06)", stroke: "rgba(34, 197, 94, 0.22)", text: "rgba(21, 128, 61, 0.95)" };
+    case "F":
+      return { fill: "rgba(236, 72, 153, 0.06)", stroke: "rgba(236, 72, 153, 0.22)", text: "rgba(190, 24, 93, 0.95)" };
+    case "G":
+      return { fill: "rgba(107, 114, 128, 0.06)", stroke: "rgba(107, 114, 128, 0.22)", text: "rgba(55, 65, 81, 0.92)" };
+    default:
+      return { fill: "rgba(148, 163, 184, 0.05)", stroke: "rgba(148, 163, 184, 0.22)", text: "rgba(71, 85, 105, 0.92)" };
+  }
+}
+
 function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
   const ao = typeof a.order === "number" ? a.order : 0;
   const bo = typeof b.order === "number" ? b.order : 0;
@@ -170,6 +195,42 @@ export function SsotFlowGraph({
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
 
+  const phaseGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string; text: string } }
+    >();
+    for (const n of nodes) {
+      const phase = (n.step.phase || "").trim();
+      if (!phase) continue;
+      const colors = colorsForPhase(phase);
+      const cur = groups.get(phase);
+      const x1 = n.x;
+      const y1 = n.y;
+      const x2 = n.x + n.width;
+      const y2 = n.y + n.height;
+      if (!cur) {
+        groups.set(phase, { minX: x1, minY: y1, maxX: x2, maxY: y2, colors });
+      } else {
+        cur.minX = Math.min(cur.minX, x1);
+        cur.minY = Math.min(cur.minY, y1);
+        cur.maxX = Math.max(cur.maxX, x2);
+        cur.maxY = Math.max(cur.maxY, y2);
+      }
+    }
+
+    if (groups.size <= 1) return [];
+    const pad = 18;
+    return Array.from(groups.entries()).map(([phase, box]) => ({
+      phase,
+      x: box.minX - pad,
+      y: box.minY - pad,
+      width: box.maxX - box.minX + pad * 2,
+      height: box.maxY - box.minY + pad * 2,
+      colors: box.colors,
+    }));
+  }, [nodes]);
+
   const width = useMemo(() => {
     if (nodes.length === 0) return 640;
     return Math.max(...nodes.map((n) => n.x + n.width)) + 24;
@@ -260,6 +321,23 @@ export function SsotFlowGraph({
             <path d="M0,0 L12,6 L0,12 Z" fill="rgba(14, 165, 233, 0.95)" />
           </marker>
         </defs>
+        {phaseGroups.map((g) => (
+          <g key={g.phase}>
+            <rect
+              x={g.x}
+              y={g.y}
+              width={g.width}
+              height={g.height}
+              rx={18}
+              fill={g.colors.fill}
+              stroke={g.colors.stroke}
+              strokeWidth={2}
+            />
+            <text x={g.x + 12} y={g.y + 8} fill={g.colors.text} fontSize={12} fontWeight={800} dominantBaseline="hanging">
+              Phase {g.phase}
+            </text>
+          </g>
+        ))}
         {paths.map((p, idx) => (
           (() => {
             const st = edgeStyle(p.from.id, p.to.id);
@@ -373,7 +451,7 @@ export function SsotFlowGraph({
             </div>
             <div className="muted small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0 }}>
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {task ? `TASK:${task}` : n.id}
+                {task ? `${n.id} · TASK:${task}` : n.id}
               </span>
             </div>
           </button>

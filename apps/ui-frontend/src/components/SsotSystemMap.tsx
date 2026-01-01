@@ -547,8 +547,7 @@ export function SsotSystemMap() {
                 ) : null}
                 {traceLoadedKey ? (
                   <span className="mono muted small-text">
-                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} / executed_edges=
-                    {Object.keys(executedEdges).length}
+                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} / executed_edges={Object.keys(executedEdges).length}
                   </span>
                 ) : null}
                 <span className="crumb-sep" style={{ opacity: 0.4 }}>
@@ -630,8 +629,31 @@ export function SsotSystemMap() {
                   </div>
                 </div>
               </div>
-              <div className="muted small-text" style={{ marginTop: 8 }}>
-                ノードをクリックすると詳細へジャンプします（黄色=検索一致、緑=下流、紫=上流、青=実行済み）。
+              <div
+                className="muted small-text"
+                style={{ marginTop: 8, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}
+              >
+                <span>クリックで詳細 / 凡例:</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(148, 163, 184, 0.14)", border: "1px solid rgba(148, 163, 184, 0.55)" }} />
+                  Phase枠（背景）
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(255, 200, 0, 0.20)", border: "1px solid rgba(255, 200, 0, 0.55)" }} />
+                  検索一致
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(67, 160, 71, 0.25)", border: "1px solid rgba(67, 160, 71, 0.80)" }} />
+                  下流
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(156, 39, 176, 0.20)", border: "1px solid rgba(156, 39, 176, 0.75)" }} />
+                  上流
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(14, 165, 233, 0.20)", border: "1px solid rgba(14, 165, 233, 0.75)" }} />
+                  実行済み（Trace）
+                </span>
               </div>
             </section>
 
