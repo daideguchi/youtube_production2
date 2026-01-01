@@ -5,6 +5,8 @@ import time
 import json
 import hashlib
 import logging
+import inspect
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
 from dotenv import load_dotenv
@@ -114,6 +116,127 @@ FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
 DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
+
+LLM_TRACE_SCHEMA_V1 = "ytm.llm_trace.v1"
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _trace_disabled() -> bool:
+    val = (os.getenv("YTM_TRACE_LLM") or "").strip().lower()
+    return val in ("0", "false", "no", "off")
+
+
+def _trace_key() -> str:
+    return (os.getenv("LLM_ROUTING_KEY") or os.getenv("YTM_TRACE_KEY") or "").strip()
+
+
+def _safe_trace_key(key: str) -> str:
+    k = (key or "").strip()
+    if not k:
+        return ""
+    return re.sub(r"[^A-Za-z0-9_.\\-]+", "_", k)[:180]
+
+
+def _repo_relpath_str(path: str) -> str:
+    try:
+        p = Path(path).expanduser().resolve()
+        return str(p.relative_to(PROJECT_ROOT))
+    except Exception:
+        return str(path or "")
+
+
+def _resolve_callsite() -> Dict[str, Any] | None:
+    try:
+        fr = inspect.currentframe()
+        if fr is None:
+            return None
+        # Walk back until we exit this module.
+        cur = fr
+        for _ in range(0, 64):
+            cur = cur.f_back  # type: ignore[assignment]
+            if cur is None:
+                return None
+            filename = cur.f_code.co_filename
+            if not filename.endswith("llm_router.py"):
+                return {
+                    "path": _repo_relpath_str(filename),
+                    "line": int(cur.f_lineno),
+                    "function": str(cur.f_code.co_name),
+                }
+    except Exception:
+        return None
+    return None
+
+
+def _json_safe(value: Any) -> Any:
+    if value is None:
+        return None
+    if isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, list):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, dict):
+        out: Dict[str, Any] = {}
+        for k, v in value.items():
+            out[str(k)] = _json_safe(v)
+        return out
+    return str(value)
+
+
+def _append_llm_trace_event(event: Dict[str, Any]) -> None:
+    if _trace_disabled():
+        return
+    key = _trace_key()
+    always = (os.getenv("YTM_TRACE_LLM_ALWAYS") or "").strip().lower() in ("1", "true", "yes", "on")
+    if not key and not always:
+        return
+
+    safe_key = _safe_trace_key(key) if key else "_global"
+    try:
+        out_dir = logs_root() / "traces" / "llm"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{safe_key}.jsonl"
+        with out_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    except Exception:
+        # Best-effort only; tracing must never break production.
+        pass
+
+
+def _trace_llm_call(
+    *,
+    task: str,
+    messages: List[Dict[str, str]],
+    result: Dict[str, Any],
+    request_options: Dict[str, Any],
+) -> None:
+    try:
+        event: Dict[str, Any] = {
+            "schema": LLM_TRACE_SCHEMA_V1,
+            "generated_at": _utc_now_iso(),
+            "trace_key": _trace_key() or None,
+            "task": str(task),
+            "provider": result.get("provider"),
+            "model": result.get("model"),
+            "request_id": result.get("request_id"),
+            "chain": result.get("chain"),
+            "latency_ms": result.get("latency_ms"),
+            "finish_reason": result.get("finish_reason"),
+            "routing": _json_safe(result.get("routing")),
+            "cache": _json_safe(result.get("cache")),
+            "usage": _json_safe(result.get("usage") or {}),
+            "callsite": _resolve_callsite(),
+            "request": _json_safe(request_options),
+            "messages": _json_safe(messages),
+        }
+        _append_llm_trace_event(event)
+    except Exception:
+        pass
 
 _OPENROUTER_REASONING_MODEL_ALLOWLIST_SUBSTR = {
     # OpenRouter "reasoning.enabled" is only forwarded for allowlisted models.
@@ -668,6 +791,19 @@ class LLMRouter:
             model_keys=model_keys,
             **kwargs,
         )
+        _trace_llm_call(
+            task=task,
+            messages=messages,
+            result=result,
+            request_options={
+                "system_prompt_override": system_prompt_override,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "response_format": response_format,
+                "model_keys": model_keys,
+                **kwargs,
+            },
+        )
         return result["content"]
 
     def call_with_raw(
@@ -685,7 +821,7 @@ class LLMRouter:
         Like call(), but returns a dict with content, raw response, usage, request_id,
         model/provider, fallback chain, and latency_ms.
         """
-        return self._call_internal(
+        result = self._call_internal(
             task=task,
             messages=messages,
             system_prompt_override=system_prompt_override,
@@ -696,6 +832,20 @@ class LLMRouter:
             model_keys=model_keys,
             **kwargs,
         )
+        _trace_llm_call(
+            task=task,
+            messages=messages,
+            result=result,
+            request_options={
+                "system_prompt_override": system_prompt_override,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "response_format": response_format,
+                "model_keys": model_keys,
+                **kwargs,
+            },
+        )
+        return result
 
     def _call_internal(
         self,

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { fetchResearchFile, fetchResearchList } from "../api/client";
 import type { ResearchFileEntry } from "../api/types";
 
@@ -128,6 +129,15 @@ export function SsotWorkspace() {
           <button type="button" className="research-chip" onClick={() => void loadList("")} disabled={loading}>
             ルート
           </button>
+          <Link className="research-chip" to="/ssot/map">
+            System Map
+          </Link>
+          <Link className="research-chip" to="/ssot/entrypoints">
+            Entrypoints
+          </Link>
+          <Link className="research-chip" to="/ssot/trace">
+            Trace
+          </Link>
           <button type="button" className="research-chip" onClick={() => void loadFile("DOCS_INDEX.md")} disabled={loading}>
             DOCS_INDEX
           </button>
@@ -228,4 +238,3 @@ export function SsotWorkspace() {
     </section>
   );
 }
-

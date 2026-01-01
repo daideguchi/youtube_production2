@@ -1830,6 +1830,106 @@ export interface ResearchFileResponse {
   size?: number;
   modified?: string;
   content: string;
+  is_partial?: boolean;
+  offset?: number | null;
+  length?: number | null;
+}
+
+export interface SsotCatalogRoute {
+  method: string;
+  path: string;
+  handler: string;
+  summary?: string;
+  source: { path: string; line: number };
+}
+
+export interface SsotCatalogEntrypoint {
+  kind: string;
+  path: string;
+  module?: string | null;
+  summary?: string;
+  has_argparse?: boolean;
+}
+
+export interface SsotCatalogFlowStep {
+  phase: string;
+  node_id: string;
+  order?: number;
+  name: string;
+  description?: string;
+  outputs?: unknown[];
+  llm?: Record<string, unknown>;
+  template?: { name?: string; path?: string } | null;
+  impl?: Record<string, unknown>;
+  impl_refs?: Array<{ path: string; line: number; symbol?: string | null }>;
+  sot?: Record<string, unknown>;
+}
+
+export interface SsotCatalog {
+  schema: string;
+  generated_at: string;
+  mainline: {
+    flow_id: string;
+    nodes: SsotCatalogFlowStep[];
+    edges: Array<{ from: string; to: string }>;
+  };
+  entrypoints: {
+    python: SsotCatalogEntrypoint[];
+    shell: Array<{ kind: string; path: string; summary?: string }>;
+    api_routes: SsotCatalogRoute[];
+  };
+  flows: {
+    script_pipeline?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+      runner_path?: string;
+      stages_path?: string;
+      templates_path?: string;
+    };
+    video_auto_capcut_run?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+      auto_capcut_run_path?: string;
+    };
+    audio_tts?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+      run_tts_path?: string;
+      llm_adapter_path?: string;
+    };
+    thumbnails?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+    };
+    publish?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+      path?: string;
+    };
+    planning?: {
+      flow_id: string;
+      phase: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+    };
+  };
+  llm: {
+    used_tasks: string[];
+    missing_task_defs: string[];
+    callsites: Array<{ task: string; call: string; source: { path: string; line: number } }>;
+    router_config?: { path?: string; tasks_count?: number };
+    task_overrides?: { path?: string; tasks_count?: number };
+  };
 }
 
 // UI params (image/belt defaults)

@@ -52,6 +52,8 @@ def _parse_router_response(content: Any) -> Dict[str, Any]:
 
 def run_batch(channel: str, video: str, sections: List[Dict[str, Any]]) -> Dict[str, Any]:
     router = get_router()
+    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+    os.environ["LLM_ROUTING_KEY"] = f"{str(channel).upper()}-{str(video).zfill(3)}"
     payload = {
         "channel": channel,
         "video": video,
@@ -68,30 +70,42 @@ def run_batch(channel: str, video: str, sections: List[Dict[str, Any]]) -> Dict[
     user_prompt = json.dumps(payload, ensure_ascii=False)
     call_with_raw = getattr(router, "call_with_raw", None)
     if callable(call_with_raw):
-        resp = call_with_raw(
-            task="tts_reading",
-            messages=[
-                {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_tokens=6000,
-            timeout=120,
-            response_format=None,  # raw text
-        )
+        try:
+            resp = call_with_raw(
+                task="tts_reading",
+                messages=[
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                max_tokens=6000,
+                timeout=120,
+                response_format=None,  # raw text
+            )
+        finally:
+            if prev_routing_key is None:
+                os.environ.pop("LLM_ROUTING_KEY", None)
+            else:
+                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
         content = resp.get("content")
         meta = {k: resp.get(k) for k in ("request_id", "model", "provider", "latency_ms", "usage")}
         return {"decisions": _parse_router_response(content).get("decisions", []), "llm_meta": meta}
     else:
-        content = router.call(
-            task="tts_reading",
-            messages=[
-                {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_tokens=6000,
-            timeout=120,
-            response_format=None,  # raw text
-        )
+        try:
+            content = router.call(
+                task="tts_reading",
+                messages=[
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                max_tokens=6000,
+                timeout=120,
+                response_format=None,  # raw text
+            )
+        finally:
+            if prev_routing_key is None:
+                os.environ.pop("LLM_ROUTING_KEY", None)
+            else:
+                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
         return {"decisions": _parse_router_response(content).get("decisions", [])}
 
 

@@ -30,6 +30,7 @@
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
 - `ops/OPS_GIT_BRANCH_POLICY.md`: ブランチ運用ルール（main/feature/snapshot を固定して迷子を防ぐ）。
 - `ops/OPS_UI_WIRING.md`: UI(React) ↔ Backend(FastAPI) の配線SSOT（route/API/SoT対応）。
+- `ops/OPS_SSOT_SYSTEM_MAP.md`: UIで“全処理”を漏れなく可視化する（SSOT=UI(view) / フロー図 / Trace）。
 - `ops/OPS_UI_VREW_PROMPTS.md`: UIから Vrew 用プロンプトを生成する配線/仕様（決定論）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。

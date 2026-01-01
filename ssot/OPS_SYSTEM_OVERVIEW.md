@@ -12,6 +12,7 @@
 - 入口: `START_HERE.md`
 - 確定フロー/I-O/SoT: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口（CLI/UI）: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- SSOT=UI(view)（全処理可視化の設計）: `ssot/ops/OPS_SSOT_SYSTEM_MAP.md`
 - ディレクトリ正本: `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md`
 - ログ正本: `ssot/ops/OPS_LOGGING_MAP.md`
 - 生成物の保持/削除: `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`

@@ -125,6 +125,12 @@ def run_pipeline(args):
     try:
         episode = parse_episode_id(str(srt_path))
         episode_id = episode.episode if episode else None
+        # LLM trace key (enables prompt-level tracing in factory_common.llm_router).
+        # Prefer episode id (CHxx-NNN); fallback to channel-only.
+        if episode_id:
+            os.environ["LLM_ROUTING_KEY"] = episode_id
+        elif channel_upper and not (os.getenv("LLM_ROUTING_KEY") or "").strip():
+            os.environ["LLM_ROUTING_KEY"] = channel_upper
         seg_art = build_srt_segments_artifact(srt_path=srt_path, segments=segments, episode=episode_id)
         write_srt_segments_artifact(out_dir / "srt_segments.json", seg_art)
         logging.info("Wrote %s", out_dir / "srt_segments.json")

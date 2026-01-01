@@ -5,6 +5,7 @@ import io
 import json
 import logging
 import os
+import inspect
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -23,6 +24,116 @@ import requests
 import yaml
 
 from factory_common import paths as repo_paths
+
+IMAGE_TRACE_SCHEMA_V1 = "ytm.image_trace.v1"
+
+
+def _trace_image_disabled() -> bool:
+    val = (os.getenv("YTM_TRACE_IMAGE") or "").strip().lower()
+    if val in ("0", "false", "no", "off"):
+        return True
+    # Allow global switch via YTM_TRACE_LLM=0 (single knob).
+    val2 = (os.getenv("YTM_TRACE_LLM") or "").strip().lower()
+    return val2 in ("0", "false", "no", "off")
+
+
+def _trace_key() -> str:
+    return (os.getenv("LLM_ROUTING_KEY") or os.getenv("YTM_TRACE_KEY") or "").strip()
+
+
+def _safe_trace_key(key: str) -> str:
+    import re
+
+    k = (key or "").strip()
+    if not k:
+        return ""
+    return re.sub(r"[^A-Za-z0-9_.\\-]+", "_", k)[:180]
+
+
+def _repo_relpath_str(path: str) -> str:
+    try:
+        p = Path(path).expanduser().resolve()
+        return str(p.relative_to(repo_paths.repo_root()))
+    except Exception:
+        return str(path or "")
+
+
+def _resolve_callsite() -> Dict[str, Any] | None:
+    try:
+        fr = inspect.currentframe()
+        if fr is None:
+            return None
+        cur = fr
+        for _ in range(0, 64):
+            cur = cur.f_back  # type: ignore[assignment]
+            if cur is None:
+                return None
+            filename = cur.f_code.co_filename
+            if not filename.endswith("image_client.py"):
+                return {
+                    "path": _repo_relpath_str(filename),
+                    "line": int(cur.f_lineno),
+                    "function": str(cur.f_code.co_name),
+                }
+    except Exception:
+        return None
+    return None
+
+
+def _append_image_trace_event(event: Dict[str, Any]) -> None:
+    if _trace_image_disabled():
+        return
+    key = _trace_key()
+    always = (os.getenv("YTM_TRACE_IMAGE_ALWAYS") or "").strip().lower() in ("1", "true", "yes", "on")
+    if not key and not always:
+        return
+
+    safe_key = _safe_trace_key(key) if key else "_global"
+    try:
+        out_dir = repo_paths.logs_root() / "traces" / "image"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{safe_key}.jsonl"
+        with out_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
+def _trace_image_call(
+    *,
+    task: str,
+    tier: str,
+    model_key: str,
+    provider: str | None,
+    request_id: str | None,
+    duration_ms: int | None,
+    options: "ImageTaskOptions",
+) -> None:
+    try:
+        event: Dict[str, Any] = {
+            "schema": IMAGE_TRACE_SCHEMA_V1,
+            "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "trace_key": _trace_key() or None,
+            "task": str(task or ""),
+            "tier": str(tier or ""),
+            "model_key": str(model_key or ""),
+            "provider": provider,
+            "request_id": request_id,
+            "duration_ms": int(duration_ms) if duration_ms is not None else None,
+            "callsite": _resolve_callsite(),
+            "input": {
+                "prompt": options.prompt,
+                "negative_prompt": getattr(options, "negative_prompt", None),
+                "seed": getattr(options, "seed", None),
+                "n": getattr(options, "n", None),
+                "size": getattr(options, "size", None),
+                "aspect_ratio": getattr(options, "aspect_ratio", None),
+                "input_images": getattr(options, "input_images", None),
+            },
+        }
+        _append_image_trace_event(event)
+    except Exception:
+        pass
 
 
 class ImageGenerationError(Exception):
@@ -451,6 +562,15 @@ class ImageClient:
                             prompt_hash=self._hash_prompt(options.prompt),
                             attempt=attempt_idx + 1,
                         )
+                        _trace_image_call(
+                            task=options.task,
+                            tier=tier_name,
+                            model_key=model_key,
+                            provider=str(model_conf.get("provider") or "") or None,
+                            request_id=result.request_id,
+                            duration_ms=duration_ms,
+                            options=resolved,
+                        )
                         return result
                     except Exception as exc:  # noqa: BLE001
                         errors.append((model_key, exc))
@@ -529,6 +649,15 @@ class ImageClient:
                         duration_ms=duration_ms,
                         prompt_hash=self._hash_prompt(options.prompt),
                         attempt=attempt_idx + 1,
+                    )
+                    _trace_image_call(
+                        task=options.task,
+                        tier=tier_name,
+                        model_key=model_key,
+                        provider=str(model_conf.get("provider") or "") or None,
+                        request_id=result.request_id,
+                        duration_ms=duration_ms,
+                        options=resolved,
                     )
                     return result
                 except Exception as exc:  # noqa: BLE001

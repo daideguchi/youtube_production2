@@ -12,6 +12,9 @@ import { ChannelSettingsPage } from "./pages/ChannelSettingsPage";
 import { BenchmarksPage } from "./pages/BenchmarksPage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { SsotPortalPage } from "./pages/SsotPortalPage";
+import { SsotMapPage } from "./pages/SsotMapPage";
+import { SsotEntrypointsPage } from "./pages/SsotEntrypointsPage";
+import { SsotTracePage } from "./pages/SsotTracePage";
 import { ThumbnailsPage } from "./pages/ThumbnailsPage";
 import { AudioReviewRoute } from "./pages/AudioReviewRoute";
 import { ReportsPage } from "./pages/ReportsPage";
@@ -58,6 +61,10 @@ function App() {
         <Route path="/benchmarks" element={<BenchmarksPage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/ssot" element={<SsotPortalPage />} />
+        <Route path="/ssot/map" element={<SsotMapPage />} />
+        <Route path="/ssot/entrypoints" element={<SsotEntrypointsPage />} />
+        <Route path="/ssot/trace" element={<SsotTracePage />} />
+        <Route path="/ssot/trace/:key" element={<SsotTracePage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/image-management" element={<ImageManagementPage />} />
         <Route path="/image-timeline" element={<ImageManagementPage />} />

@@ -6816,6 +6816,13 @@ except Exception as e:
     logger.error("Failed to load research_files router: %s", e)
 
 try:
+    from backend.routers import ssot_catalog
+
+    app.include_router(ssot_catalog.router)
+except Exception as e:
+    logger.error("Failed to load ssot_catalog router: %s", e)
+
+try:
     from backend.routers import agent_org
 
     app.include_router(agent_org.router)

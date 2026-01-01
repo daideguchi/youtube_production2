@@ -101,6 +101,7 @@ import {
   ResearchFileEntry,
   ResearchListResponse,
   ResearchFileResponse,
+  SsotCatalog,
   UiParams,
   UiParamsResponse,
   MetaResponse,
@@ -1516,6 +1517,24 @@ export async function fetchResearchFile(base: string, path: string): Promise<Res
     }
     throw error;
   }
+}
+
+export async function fetchResearchFileChunk(
+  base: string,
+  path: string,
+  opts?: { offset?: number; length?: number }
+): Promise<ResearchFileResponse> {
+  const search = new URLSearchParams({ base, path });
+  if (opts?.offset !== undefined) search.set("offset", String(opts.offset));
+  if (opts?.length !== undefined) search.set("length", String(opts.length));
+  // GitHub Pages fallback does not support offset/length (backend-only feature).
+  return request<ResearchFileResponse>(`/api/research/file?${search.toString()}`);
+}
+
+export async function fetchSsotCatalog(refresh = false): Promise<SsotCatalog> {
+  const search = new URLSearchParams();
+  if (refresh) search.set("refresh", "1");
+  return request<SsotCatalog>(`/api/ssot/catalog${search.toString() ? `?${search.toString()}` : ""}`);
 }
 
 export function fetchUiParams(): Promise<UiParamsResponse> {
