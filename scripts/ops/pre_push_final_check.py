@@ -28,6 +28,20 @@ def _run(cmd: list[str]) -> int:
     p = subprocess.run(cmd, cwd=str(REPO_ROOT))
     return int(p.returncode)
 
+def _read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+
+
+def _assert_not_contains(path: Path, needle: str) -> int:
+    text = _read_text(path)
+    if needle in text:
+        print(f"[FAIL] SSOT invariant violated: {path} contains forbidden text: {needle!r}")
+        return 1
+    return 0
+
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Final SSOT/logic checks before commit/push.")
@@ -46,8 +60,28 @@ def main(argv: list[str] | None = None) -> int:
         ssot_cmd.append("--write")
     rc = max(rc, _run(ssot_cmd))
 
+    # SSOT invariants (keep the declared SoT consistent with the running implementation).
+    flow_doc = REPO_ROOT / "ssot" / "ops" / "OPS_CONFIRMED_PIPELINE_FLOW.md"
+    rc = max(rc, _assert_not_contains(flow_doc, "redoフラグは Planning CSV"))
+
     # LLM hardcode guard (prevent direct provider calls outside LLMRouter/ImageClient).
     rc = max(rc, _run([sys.executable, "scripts/ops/llm_hardcode_audit.py"]))
+
+    # Python syntax guard (catches broken scripts not covered by pytest imports).
+    rc = max(
+        rc,
+        _run(
+            [
+                sys.executable,
+                "-m",
+                "compileall",
+                "-q",
+                "packages",
+                "scripts",
+                "apps/ui-backend/backend",
+            ]
+        ),
+    )
 
     # Optional: focused tests (avoid broad suite; keep it fast).
     if args.run_tests:

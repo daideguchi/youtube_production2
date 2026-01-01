@@ -8,6 +8,7 @@
 - I/Oスキーマ: `ssot/ops/OPS_IO_SCHEMAS.md`
 - 整合チェック: `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md`
 - 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
+- 台本の型（kata1〜3 / `台本型` カラム）: `ssot/ops/OPS_SCRIPT_KATAS.md`
 
 ---
 
@@ -131,6 +132,7 @@ Planning CSV は「内容汚染」が起きやすい（例: 別動画の `内容
 - `進捗`（UI 表示の補助。表記揺れはあるが、空より良い）
 - `台本` または `台本パス`（台本の所在を明示。最終的には paths SSOT で正規化する）
 - `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）`
+- `史実エピソード候補`（CH01）: 使う史実/逸話を短くメモ（断定/会話捏造は禁止。曖昧な点は「伝えられています」「諸説あります」で安全化）
 
 ヘッダ例は `ssot/ops/OPS_IO_SCHEMAS.md` を参照。
 
@@ -194,3 +196,80 @@ Planning の汚染/矛盾は **生成前**に検知して直すのが最安・�
   - 進捗を特定値へ戻す場合: `--restore-progress "script: drafted"`
 - API:
   - `DELETE /api/channels/{CH}/videos/{NNN}/published`
+
+---
+
+## 7. 対話AI監査（参考）— UI表示用（ゲートではない）
+
+目的:
+- 台本が大量にあると全件目視が困難なため、対話AIが行った「読み合わせ監査」を **UIに表示**して、人間が判断/指示しやすくする。
+- これは **厳格な品質ゲートではなく参考情報**（最終判断は人間）。
+
+SoT（保存先）:
+- Script SoT: `workspaces/scripts/{CH}/{NNN}/status.json`
+  - `metadata.dialog_ai_audit`（監査時刻 `audited_at` を含む）
+- 監査ツール SSOT: `ssot/ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`
+
+UI表示（現行）:
+- Planning 画面: 列 `監査(参考)`
+  - `pass` → `OK`
+  - `fail` → `NG`
+  - `grey` → `要確認`
+  - 未設定 → `未`
+  - `stale` → `要再査定`（監査後に台本が変更された可能性が高い）
+- 台本詳細（/studio）: `要点 / 判定` に `監査(参考)` チップを表示
+- 監査時刻: `audited_at`（UTC, `...Z`）をツールチップ等で参照する
+
+`stale`（要再査定）の判定:
+- `metadata.dialog_ai_audit.script_hash_sha1` と、現在の
+  `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（あれば優先）/ `assembled.md` の sha1 が不一致なら `stale` とみなす。
+- `stale` の場合は「監査が古い」可能性があるため、対話AIで再監査して `audited_at` を更新する（機械的に文章を足して帳尻合わせ、はしない）。
+
+更新方法（LLM API 禁止）:
+- `python3 scripts/ops/dialog_ai_script_audit.py mark --channel CHxx --video NNN --verdict pass|fail|grey --reasons "..." --note "..." --audited-by "$LLM_AGENT_NAME"`
+
+---
+
+## 8. 台本リセット（UI）— 途中修正より作り直しが早いケース
+
+目的:
+- 中途半端な台本を「機械的に継ぎ足して通す」のではなく、**一度まっさらに戻して作り直す**導線を用意する。
+- これは品質のための運用であり、文字数合わせのための自動追記とは別物。
+
+UI:
+- 台本詳細（/studio）: `台本リセット` / `台本+リサーチもリセット`
+  - `台本リセット`: 台本/音声/生成物を削除して初期化。リサーチは保持。
+  - `台本+リサーチもリセット`: 研究メモ含めて削除（復元不可）。
+
+API（UI内部利用）:
+- `POST /api/meta/script_reset/{CH}/{NNN}`
+  - payload: `{ "wipe_research": true|false }`
+
+安全柵:
+- `published_lock=true`（投稿済み）はリセット禁止（誤操作防止）。
+- 作業ロック（`scripts/agent_org.py lock ...`）が当たっている場合は 409 で停止（並列衝突防止）。
+
+リセット後:
+- `workspaces/scripts/{CH}/{NNN}/status.json` が `pending` へ戻り、工程を最初から再実行できる。
+
+---
+
+## 9. 壊れ台本の削除（ops）— prune_broken_scripts（LLM API禁止）
+
+目的:
+- 文章が空/壊れている台本を放置すると、UIや後工程で「あるように見えて中身がない」事故が起きるため、**安全に初期化（reset）**する。
+
+ツール:
+- dry-run:
+  - `python3 scripts/ops/prune_broken_scripts.py --channel CHxx`
+- apply（破壊的）:
+  - `export LLM_AGENT_NAME=...` を設定した上で実行（自分の lock は許可、他人の lock はブロック）
+  - `python3 scripts/ops/prune_broken_scripts.py --channel CHxx --apply`
+  - 既定は「空/欠損のみ」を対象（短いだけの台本は触らない）。
+  - どうしても短い台本もリセットしたい場合だけ `--include-too-short` を付ける（慎重に）。
+
+投稿済み除外:
+- `published_lock=true` だけでなく、Planning CSV の `進捗=投稿済み/公開済み` や `YouTubeID` の存在も published とみなして除外する（安全側）。
+
+ログ:
+- `workspaces/logs/ops/prune_broken_scripts/` に JSON/Markdown で出力する。

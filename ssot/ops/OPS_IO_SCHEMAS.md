@@ -266,23 +266,44 @@ belts[*]（観測）:
 - `end`: number
 
 ### 4.4 auto_run_info.json（観測スキーマ）
-用途: 実行パラメータ/再現性（run の“証跡”）
+用途: 実行パラメータ/再現性（run の“証跡”）。**途中停止/画像スキップ等の進捗も残す**（後段の progress 集計/UI のため）。
+
+トップレベル（観測）:
+- `schema`: string（例: `"ytm.auto_run_info.v2"`）※任意/後方互換
 - `timestamp`: string（ISO）
-- `channel`: string
-- `run_dir`: string
-- `srt`: string
-- `template`: string
+- `channel`: string（`CHxx`）
+- `video` / `episode_id`: string（例: `"015"`, `"CH22-015"`）※解決できる場合
+- `run_dir`: string（absolute）
+- `srt_requested`: string（入力）
+- `srt_effective`: string（SoT解決後の入力）
+- `audio_wav_effective`: string（任意）
+- `title`: string（ドラフト/帯の最終タイトル）
+- `title_source`: string（`cli|planning_csv|llm|fallback`）※任意
+- `template`: string（CapCut template）
+- `draft_root`: string（CapCut projects root）※任意
+- `draft` / `draft_name`: string（draft 生成をスキップした場合は空/欠損可）
 - `belt_mode`: string
 - `opening_offset`: number
-- `duration_sec`: number
 - `timeout_ms`: number
 - `resume`: bool
 - `force`: bool
 - `fallback_if_missing_cues`: bool
-- `draft`/`draft_name`: string
-- `images`: dict/list（生成/配置のメタ）
-- `nanobanana`: dict（画像生成側のメタ）
+- `nanobanana`: string（`direct|none`）
+- `images`: number（= cue_count）※従来互換
+- `duration_sec`: number（= cues_end_sec）
 - `timings`: dict（工程時間）
+- `progress`: dict（工程別ステータス。任意）
+- `replacements`: list（差し替え履歴。任意）
+- `errors` / `warnings`: list（任意）
+
+progress（観測例）:
+- `pipeline`: `{status, elapsed_sec?, error?}`
+- `image_generation`: `{status, mode, expected, present, placeholders?}`
+- `draft`: `{status, path?, error?}`
+- `title_injection`: `{status, error?}`
+- `timeline_manifest`: `{status, path?, validate?, error?}`
+- `broll`: `{status, injected?, target?}`
+- `belt`: `{status, mode, error?}`
 
 ### 4.5 capcut_draft_info.json（観測スキーマ）
 用途: CapCut 側ドラフト生成の証跡

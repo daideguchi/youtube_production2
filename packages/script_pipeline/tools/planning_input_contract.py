@@ -26,6 +26,7 @@ _BRACKET_TAG_RE = re.compile(r"【([^】]+)】")
 #   Those are often curated and still useful for staying on-topic, while "tagged summaries/tags" are
 #   the most common contamination source.
 _DROP_ON_THEME_MISALIGN: tuple[str, ...] = (
+    "historical_episodes",
     "content_summary",
     "content_notes",
     "primary_pain_tag",

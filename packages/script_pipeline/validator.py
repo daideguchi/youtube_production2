@@ -31,6 +31,9 @@ _RE_META_BLOCK_HEADER = re.compile(r"^\s*(?:設定|CSVデータ|詳細構成|構
 _RE_CHAPTER_HEADING_LINE = re.compile(r"^\s*(?:では、)?第[0-9一二三四五六七八九十]+章(?:を始めましょう)?[。！？!?]?\s*$")
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
 _RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
+_RE_CH01_FICTIONAL_PERSON_AGE_LINE = re.compile(
+    r"^\s*[一-龯々〆ヶヵ]{2,12}[、，]\s*[0-9０-９〇零一二三四五六七八九十百千]{1,6}\s*(?:歳|才)\s*[。！？!?]?\s*$"
+)
 
 # TTS/reader risk: known confusable glyphs that frequently appear as LLM typos.
 # Keep this minimal and only include cases that are clearly accidental in our domain.
@@ -57,6 +60,26 @@ def _canonical_a_text_path(base: Path) -> Path:
 
 def _legacy_final_assembled_path(base: Path) -> Path:
     return base / "content" / "final" / "assembled.md"
+
+
+def _infer_channel_from_metadata(metadata: Dict[str, Any]) -> str:
+    """
+    Best-effort channel inference for validators.
+    We keep validate_a_text() signature stable (metadata-only) and infer from known paths.
+    """
+    md = metadata if isinstance(metadata, dict) else {}
+    for key in ("assembled_path", "script_prompt_path", "a_text_rules_path"):
+        raw = md.get(key)
+        if not isinstance(raw, str) or not raw.strip():
+            continue
+        s = raw.replace("\\", "/")
+        m = re.search(r"(?:^|/)workspaces/scripts/(CH\d{2})/", s, flags=re.IGNORECASE)
+        if m:
+            return str(m.group(1)).upper()
+        m2 = re.search(r"(?:^|/)CH(\d{2})(?:/|\b)", s, flags=re.IGNORECASE)
+        if m2:
+            return f"CH{m2.group(1)}".upper()
+    return ""
 
 
 def _parse_int(value: Any) -> int | None:
@@ -112,6 +135,7 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
     """
     normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
     lines = normalized.split("\n")
+    channel = _infer_channel_from_metadata(metadata)
 
     issues: List[Dict[str, Any]] = []
     stats: Dict[str, Any] = {
@@ -290,6 +314,23 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 {
                     "code": "forbidden_bullet",
                     "message": "Bullet/list lines are not allowed in A-text",
+                    "line": idx,
+                    "severity": "error",
+                }
+            )
+
+        # CH01 policy: forbid the one-line "Name, Age." intro pattern that tends to imply
+        # fictional modern protagonists (e.g., "田村幸子、六十七歳。").
+        # NOTE: This is a full-line match, so normal sentences like "ブッダが29歳のとき..." are OK.
+        if channel == "CH01" and _RE_CH01_FICTIONAL_PERSON_AGE_LINE.match(stripped):
+            issues.append(
+                {
+                    "code": "ch01_fictional_person_intro",
+                    "message": (
+                        "CH01 forbids the one-line `姓名、年齢(歳/才)。` introduction pattern "
+                        "(e.g., '田村幸子、六十七歳。'). If you need to mention age, write it as a normal sentence "
+                        "(e.g., 'ブッダが29歳のとき…')."
+                    ),
                     "line": idx,
                     "severity": "error",
                 }

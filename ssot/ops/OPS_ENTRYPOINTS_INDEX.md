@@ -113,6 +113,10 @@
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
 - Aテキスト lint（機械チェック・反復/禁則混入検知）:
   - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+- 台本監査（対話AI・LLM API禁止 / 企画整合+流れを目視で確定）:
+  - SSOT: `ssot/ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`
+  - 対象スキャン: `python3 scripts/ops/dialog_ai_script_audit.py scan`
+  - 判定反映（1本）: `python3 scripts/ops/dialog_ai_script_audit.py mark --channel CHxx --video NNN --verdict fail --reasons planning_misalignment,flow_break --note "導入が別テーマ/締めが不自然"`
 - 長尺Aテキスト（セクション分割→合成）:
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN`（dry-run）
   - `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
@@ -141,6 +145,7 @@
 ### 3.3 Video/CapCut（video_pipeline）
 - `packages/video_pipeline/tools/auto_capcut_run.py`
 - `packages/video_pipeline/tools/run_pipeline.py`
+  - 注意: `run_pipeline --engine capcut` は stub draft 生成（README.txt/draft_*.json）で、実運用の CapCut ドラフトではない。CapCut 主線は `auto_capcut_run.py` / `capcut_bulk_insert.py`。
 - `packages/video_pipeline/tools/bootstrap_placeholder_run_dir.py`（run_dir を cues+images でブートストラップ。THINK MODE では `visual_image_cues_plan` が pending 化）
 - `packages/video_pipeline/tools/validate_prompt_template_registry.py`（`channel_presets.json:prompt_template` が `template_registry.json` に登録されているか検査）
 - `packages/video_pipeline/tools/build_ch02_drafts_range.py`（CH02の一括ドラフト生成ラッパー）
@@ -195,6 +200,7 @@
 ### 3.7 Alignment（Planning↔Script 整合スタンプ）
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
   - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
+  - 注意: これは **整合スタンプ専用**。`redo_script` / `redo_note`（要対応の編集判断）は対話AI監査の管轄で、ここでは変更しない。
 - `scripts/audit_alignment_semantic.py`（read-only。タイトル/サムネcatch ↔ 台本文脈の語彙整合を監査。`--out` でJSON保存可）
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`

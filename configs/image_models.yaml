@@ -119,6 +119,50 @@ models:
       supports_seed: true
       max_batch_n: 4
 
+  fireworks_flux_1_dev_fp8:
+    provider: fireworks
+    model_name: flux-1-dev-fp8
+    defaults:
+      # Keep parity with schnell defaults unless overridden per-call.
+      num_inference_steps: 4
+      guidance_scale: 3.5
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 4
+
+  fireworks_flux_kontext_pro:
+    provider: fireworks
+    model_name: flux-kontext-pro
+    defaults:
+      max_prompt_chars: 8000
+      prompt_upsampling: false
+      safety_tolerance: 2
+      output_format: png
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  fireworks_flux_kontext_max:
+    provider: fireworks
+    model_name: flux-kontext-max
+    defaults:
+      max_prompt_chars: 8000
+      prompt_upsampling: false
+      safety_tolerance: 2
+      output_format: png
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
 # Tier-to-model resolution. The first entry is treated as the primary candidate.
 tiers:
   image_gen:
@@ -132,10 +176,12 @@ tiers:
     - fireworks_flux_1_schnell_fp8
     # NOTE: No automatic fallback here (cost control). Switch via profile/override when needed.
   thumbnail_image_gen:
-    - openrouter_gemini_2_5_flash_image_preview
-    - openrouter_gemini_2_5_flash_image
-    - openrouter_riverflow_v2_fast_preview
-    - openrouter_riverflow_v2_standard_preview
+    - fireworks_flux_kontext_max
+    # Fallback candidates (manual switch; keep commented to avoid silent rotation):
+    # - openrouter_gemini_2_5_flash_image
+    # - openrouter_gemini_2_5_flash_image_preview
+    # - openrouter_riverflow_v2_fast_preview
+    # - openrouter_riverflow_v2_standard_preview
 
 # Task-level defaults. Options provided at call time override these values.
 tasks:
@@ -156,4 +202,5 @@ tasks:
     retries_per_model: 0
     defaults:
       aspect_ratio: "16:9"
+      size: "1920x1080"
       n: 1

@@ -42,17 +42,30 @@ function formatPercent(part: number, total: number): string {
   return `${Math.round((part / total) * 100)}%`;
 }
 
+function clampToTotal(value: number, total: number): number {
+  return Math.max(0, Math.min(total, value));
+}
+
 function computeScriptStarted(total: number, matrix: StageMatrix | undefined, code: string): number {
   if (!matrix) {
     return total;
   }
-  const stageCounts = matrix[code]?.script_outline;
-  if (!stageCounts) {
+  const stageMatrix = matrix[code];
+  if (!stageMatrix) {
     return total;
   }
-  const pending = stageCounts.pending ?? 0;
-  const started = total - pending;
-  return Math.max(0, Math.min(total, started));
+
+  const candidateStages = ["script_outline", "script_draft", "script_review", "script_validation", "script_polish_ai"];
+  let best: number | null = null;
+  for (const stageName of candidateStages) {
+    const stageCounts = stageMatrix[stageName];
+    if (!stageCounts) continue;
+    const pending = stageCounts.pending ?? 0;
+    const started = clampToTotal(total - pending, total);
+    best = best == null ? started : Math.max(best, started);
+  }
+
+  return best ?? total;
 }
 
 function renderCount(value: number, total: number) {
@@ -146,12 +159,19 @@ export function DashboardOverviewPanel({
       const avatarUrl = summary?.branding?.avatar_url ?? null;
       const themeColor = summary?.branding?.theme_color ?? null;
       const total = channel.total;
-      const scriptStarted = computeScriptStarted(total, overview.stage_matrix, channel.code);
-      const scriptCompleted = channel.script_completed;
-      const ttsReady = channel.ready_for_audio;
-      const audioCompleted = channel.audio_completed;
-      const subtitleCompleted = channel.srt_completed ?? 0;
-      const audioSubtitleCompleted = Math.min(audioCompleted, subtitleCompleted);
+      const audioCompleted = clampToTotal(channel.audio_completed, total);
+      const subtitleCompleted = clampToTotal(channel.srt_completed ?? 0, total);
+      const audioSubtitleCompleted = clampToTotal(Math.min(audioCompleted, subtitleCompleted), total);
+
+      const ttsReadyRaw = clampToTotal(channel.ready_for_audio, total);
+      const ttsReady = clampToTotal(Math.max(ttsReadyRaw, audioSubtitleCompleted), total);
+
+      const scriptCompletedRaw = clampToTotal(channel.script_completed, total);
+      const scriptCompleted = clampToTotal(Math.max(scriptCompletedRaw, ttsReady), total);
+
+      const scriptStartedRaw = computeScriptStarted(total, overview.stage_matrix, channel.code);
+      const scriptStarted = clampToTotal(Math.max(scriptStartedRaw, scriptCompleted), total);
+
       const audioSubtitleBacklog = Math.max(total - audioSubtitleCompleted, 0);
       return {
         code: channel.code,
@@ -301,6 +321,39 @@ export function DashboardOverviewPanel({
         </div>
         <span className="dashboard-overview__timestamp">最終更新 {new Date(overview.generated_at).toLocaleString("ja-JP")}</span>
       </header>
+
+      {channelRows.length ? (
+        <section className="dashboard-overview__channel-chips" aria-label="チャンネル選択">
+          {channelRows.map((row) => {
+            const active = selectedChannel === row.code;
+            const avatarStyle =
+              row.avatarUrl != null
+                ? { backgroundImage: `url(${row.avatarUrl})` }
+                : row.themeColor
+                  ? { backgroundColor: row.themeColor }
+                  : undefined;
+            const avatarLabel = (row.displayName ?? row.code).slice(0, 2).toUpperCase();
+            return (
+              <button
+                key={row.code}
+                type="button"
+                className={`dashboard-channel-chip${active ? " dashboard-channel-chip--active" : ""}`}
+                onClick={() => handleRowSelect(row.code)}
+                title={`${row.code}${row.displayName ? ` / ${row.displayName}` : ""}`}
+              >
+                <span
+                  className={`dashboard-channel-chip__avatar${row.avatarUrl ? " dashboard-channel-chip__avatar--image" : ""}`}
+                  style={avatarStyle}
+                  aria-hidden
+                >
+                  {!row.avatarUrl ? avatarLabel : null}
+                </span>
+                <span className="dashboard-channel-chip__code">{row.code}</span>
+              </button>
+            );
+          })}
+        </section>
+      ) : null}
 
       <section className="dashboard-overview__kpis" aria-label="主要指標">
         {kpiItems.map((item) => (

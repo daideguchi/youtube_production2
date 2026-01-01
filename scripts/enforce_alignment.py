@@ -183,16 +183,9 @@ def main() -> None:
                         "suspect": True,
                         "suspect_reason": check.reason,
                     }
-                    # Also annotate redo_note for visibility.
-                    note = str(meta.get("redo_note") or "").strip()
-                    prefix = "整合NG"
-                    msg = f"{prefix}: {check.reason}"
-                    if not note:
-                        meta["redo_note"] = msg
-                    elif msg not in note:
-                        meta["redo_note"] = f"{note} / {msg}"
-                    meta.setdefault("redo_script", True)
-                    meta.setdefault("redo_audio", True)
+                    # NOTE:
+                    # Alignment stamps are a downstream safety gate (freshness / correct pairing),
+                    # not an editorial verdict. Do not auto-write redo_* here.
                     payload["updated_at"] = utc_now_iso()
                     _save_status_payload(st_path, payload)
 

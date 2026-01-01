@@ -20,7 +20,8 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 0.2 ルートの実体（現行）
 - **Planning SoT**: `workspaces/planning/channels/CHxx.csv`
-  - 企画/タイトル/タグ/リテイクフラグ等の正本。  
+  - 企画/タイトル/タグ/進捗（投稿済み含む）などの正本。  
+  - ※ redo（リテイク）の正本は `workspaces/scripts/{CH}/{NNN}/status.json: metadata.redo_*`（CSVには置かない）
   - `packages/script_pipeline/tools/planning_store.py` が常にこれを都度読み込み。
 - **Idea Cards SoT（pre-planning）**: `workspaces/planning/ideas/CHxx.jsonl`
   - 企画カード在庫（INBOX→選別→READY）。Planning CSVへ投入する前の “整理/評価/配置” を固定する。
@@ -89,7 +90,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - `configs/sources.yaml`（CSV/Persona/Promptの解決表。local override: `packages/script_pipeline/config/sources.yaml`）
 
 **Outputs**
-- 企画行の更新（タイトル/動画番号/タグ/リテイク/ステータス列 等）
+- 企画行の更新（タイトル/動画番号/タグ/進捗/メモ列 等）
 - Scriptフェーズで使用する「最新企画コンテキスト」。
 
 **Downstream dependencies**
@@ -187,6 +188,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
      - 企画↔台本の整合も検証する（alignment freshness gate）
        - `status.json: metadata.alignment` が missing/suspect/不一致（Planning行 or Aテキストが変更された）なら **pending のまま停止**
        - 修復: `./scripts/with_ytm_env.sh python3 scripts/enforce_alignment.py --channels CHxx --apply`（または `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
+       - 注: ここは下流事故防止の「停止ゲート」。`redo_script` / `redo_note`（要対応の編集判断）は **対話AI監査**で付与し、整合スタンプ側で機械的に書き換えない。
      - タイトル/サムネ↔台本の意味整合も検証する（semantic alignment gate）
        - レポート: `content/analysis/alignment/semantic_alignment.json`
        - 既定では `verdict: major` のみ停止（ok/minor は合格）
@@ -287,8 +289,9 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - presetには capcut_template / layout / opening_offset / prompt_template / position / belt が定義。
 - CapCutテンプレ:
   - `$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/<template_dir>`
-- 画像生成LLM/モデル:
-  - `packages/video_pipeline/src/srt2images/orchestration/pipeline.py` が `SRT2IMAGES_IMAGE_MODEL` を channelで決定。
+- 画像生成モデル（SoT）:
+  - 正本: `configs/image_models.yaml`（ImageClient: task=`visual_image_gen`）
+  - `packages/video_pipeline/src/srt2images/orchestration/pipeline.py` は実行時に、channel preset（`packages/video_pipeline/config/channel_presets.json`）や env override を元に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` をセットして model_key を固定する（ログに source を残す）。
 
 **内部順序（確定, auto_capcut_run）**
 1. `run_pipeline` 実行（cue生成＋画像生成）
@@ -438,12 +441,11 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - Status == `ready` かつ YouTube Video ID 空の行が対象。
 - Drive(final) URL（シート列 `Drive (final)`）  
 - OAuth:
-  - `configs/drive_oauth_client.json`
-  - `credentials/drive_oauth_token.json`
-  - `credentials/youtube_publisher_token.json`
+  - token（必須）: `YT_OAUTH_TOKEN_PATH`（既定: `credentials/youtube_publisher_token.json`）
+  - client（トークン作成時に必要）: `YT_OAUTH_CLIENT_PATH`（既定: `configs/drive_oauth_client.json`）
 
 **Outputs**
-- 一時DL: ローカル `tmp/yt_upload_*.bin`
+- 一時DL: system temp（`tempfile.mkstemp(prefix="yt_upload_", suffix=".bin")`）
 - YouTubeアップロード（--run時のみ）
 - Sheet書き戻し:
   - Status=`uploaded`
@@ -469,10 +471,12 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ## 3. リテイク（redo）確定運用
 
-- redoフラグは Planning CSV（正本）で管理し、Script/Audioの再実行対象を決める。
+- redoフラグの正本は `workspaces/scripts/{CH}/{NNN}/status.json: metadata.redo_*`（episode単位）。
+  - Planning CSV は “母集団（企画一覧）” の正本だが、redo は保持しない（編集禁止 / deprecated）。
 - デフォルト運用:
-  - `redo_script=true`, `redo_audio=true`（未処理扱い）
+  - `status.json` または `metadata.redo_*` が無い場合は `true` とみなす（未処理扱い）
   - 再生成完了後に false へ落とす。
+  - `published_lock=true` の回は `redo_* = false` を強制し、UI/CLI からの変更を禁止（事故防止）
 - API/UI/CLI は `ssot/reference/【消さないで！人間用】確定ロジック.md` の規約に従う。
 
 ---

@@ -9,7 +9,11 @@ from typing import Any, Dict, List, Optional
 _DEFAULT_STYLE_PREFIX = (
     "和紙テクスチャ背景のデジタル水彩で薄い茶からグレーの線画と淡いゴールドの光とブルーグレーの影と金粉粒子を入れた"
 )
-_DEFAULT_CONSTRAINTS = "16対9の構図で文字入れなしで透かしなしで破綻しない構図にする"
+# schnell向け: 構図を安定させるため「主役位置」「余白」「背景の情報量」を明示する
+_DEFAULT_CONSTRAINTS = (
+    "16対9の構図で中景から引きの画角で三分割構図で主役は右寄りで左に余白を作り背景は情報量少なめで"
+    "画面内に文字や看板やラベルを描かず手や指を強調せず余計な人物を増やさず破綻しない構図にする"
+)
 _DEFAULT_BANNED_TERMS = ["ロゴ", "透かし", "文字入り", "ウォーターマーク"]
 _DEFAULT_DURATION_MS = 5000
 _DEFAULT_IMAGE_SPEC: Dict[str, Any] = {"width": 1920, "height": 1080, "format": "png"}
@@ -67,4 +71,3 @@ class StylePreset:
             default_duration_ms=max(0, default_duration_ms),
             image_spec=image_spec,
         )
-

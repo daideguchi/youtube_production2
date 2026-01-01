@@ -45,6 +45,63 @@
   color: var(--dash-muted);
 }
 
+.dashboard-clean .dashboard-overview__channel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.dashboard-clean .dashboard-channel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--dash-border);
+  background: var(--dash-surface);
+  color: var(--dash-strong);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-clean .dashboard-channel-chip:hover {
+  background: var(--dash-surface-muted);
+}
+
+.dashboard-clean .dashboard-channel-chip--active {
+  border-color: rgba(29, 78, 216, 0.45);
+  background: rgba(29, 78, 216, 0.12);
+}
+
+.dashboard-clean .dashboard-channel-chip__avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--dash-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dash-strong);
+  overflow: hidden;
+}
+
+.dashboard-clean .dashboard-channel-chip__avatar--image {
+  background-size: cover;
+  background-position: center;
+  color: transparent;
+}
+
+.dashboard-clean .dashboard-channel-chip__code {
+  line-height: 1;
+}
+
 .dashboard-clean .dashboard-overview__kpis {
   gap: var(--dash-gap);
 }

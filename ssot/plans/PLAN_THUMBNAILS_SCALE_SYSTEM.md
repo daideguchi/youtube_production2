@@ -142,6 +142,12 @@ v1で許可する overrides（スケールのための“最小セット”）:
   - 備考: `pan_y` は **負** 方向で “被写体を下へ寄せる” 方向になりやすい（`apply_pan_zoom` の定義に従う）。
 - `bg_enhance`: `{brightness,contrast,color,gamma}`（各float。既定=1.0）
 - `bg_enhance_band`: `{x0,x1,power,brightness,contrast,color,gamma}`（横方向の部分補正。x0/x1=0..1）
+- `text_template_id`（例外のみ）: `string`（空文字は許可しない＝事故るため）
+- `text_scale`: `float[0.5..2.0]`（文字全体のスケール。slot `base_size_px` に乗算）
+- `text_offset_x/y`: `float[-0.25..0.25]`（文字全体の移動。slot `box[x,y]` に加算）
+- `text_fills`（必要時のみ）:
+  - `{white_fill|yellow_fill|red_fill|hot_red_fill|purple_fill: {color:'#RRGGBB'}}`
+  - 備考: key は authored spec に存在するもののみ（未知keyはエラー）
 - `text_effects`（必要時のみ）:
   - `stroke`: `{color:string, width_px:int}`
   - `shadow`: `{color:string, alpha:float[0..1], offset_px:[int,int], blur_px:int}`
@@ -150,6 +156,9 @@ v1で許可する overrides（スケールのための“最小セット”）:
   - `left_tsz`: `{enabled:bool, color:string, alpha_left:float[0..1], alpha_right:float[0..1], x0:float, x1:float}`
   - `top_band`: `{enabled:bool, color:string, alpha_top:float[0..1], alpha_bottom:float[0..1], y0:float, y1:float}`
   - `bottom_band`: `{enabled:bool, color:string, alpha_top:float[0..1], alpha_bottom:float[0..1], y0:float, y1:float}`
+- `portrait`（必要時のみ）:
+  - `{zoom:float[0.5..2.0], offset_x/y:float[-0.25..0.25], trim_transparent:bool}`
+  - `fg_*`: `{fg_brightness,fg_contrast,fg_color}`（各float。既定≈1.0）
 - `copy_override`（例外のみ）: `{upper,title,lower}`（string。空文字は許可しない＝事故るため）
 
 ガードレール（強制）:
@@ -202,52 +211,38 @@ UI/CLI は “同じ関数” を呼ぶ。
 - 画像ファイルの破損検知（`10_bg.*`, `00_thumb.png`, portrait）
 - thumb_spec.json のスキーマ検証
 
-### 5.9 LLMで「コメント → パラメータ更新」を安全に回す（推論はするが、勝手に壊さない）
-結論: **LLMに推論させて良い**。ただしスケールさせるには「LLMは翻訳機」「正はパラメータ契約」を固定する必要がある。  
-（自由作文で“やってしまう”LLMは、チャンネル増で必ず再カオス化する）
+### 5.9 コメント → パラメータ更新（翻訳）を安全に回す（サムネ編集はLLM APIを使わない）
+結論: **ベンチマーク分析/調整の推論はこのチャットで行い、結果は thumb_spec の overrides に保存する**。  
+サムネ編集（コメント解釈・要約・自動変換）に LLM API を使う導線は持たない（=オプトインも含めて既定は無効）。
 
-方針:
-- LLMの役割は **コメント（自然言語）→ 構造化パッチ** の変換まで（=翻訳）。
-- 適用できるのは **許可されたパス（allowlist）** だけ。値は型/範囲で検証し、外れたら不適用（=ガードレール）。
-- 既定値（チャンネルの型）を勝手に書き換えない。v1は **動画単位（thumb_spec）だけ** を対象にする。
-- 適用前後に **draft再合成→プレビュー** して、人間が確認できること（“迅速”と“正確”を両立）。
-- LLMが曖昧な場合は「質問」を返し、勝手に適用しない（=誤爆防止）。
+方針（現行運用）:
+- 自然言語コメントの解釈は、オペレーター（このチャット）で確定する
+- 反映先は **動画単位**の `thumb_spec.json`（`overrides`）のみ
+- 更新できるのは **PARAM_CATALOG の allowlist** に含まれる `overrides.*` パスだけ
+- unknown key はエラー（silent accept しない）
+- 数値は型/範囲を検証し、外れたら **適用せず止める**（勝手に丸めない）
+- 適用前後に **draft再合成→プレビュー** して、人間が確認できる状態にする
 
-入力（LLMに渡す文脈）:
-- `comment`: 人間の指示（例:「顔を少し下に。文字の影を強く。」）
-- `target`: `{channel, video}` + 対象ファイル（`00_thumb.png` 等）
-- `current_effective_params`（要約）:
-  - channel defaults（templates.json の compiler_defaults / engine）
-  - planning copy（CSVのサムネ上/中/下/プロンプト）
-  - thumb_spec overrides（差分）
-  - 直近 build_meta の要点（pan/zoom/明るさ/効果）
-- 任意: 現在のサムネ画像（data URL）  
-  - UI backend には既に画像→キャプション生成の仕組みがあるため、同様に視覚文脈を渡せる（`visual_thumbnail_caption`）。
+保存形式（推奨）:
+- チャットで確定した変更を `ytm.thumbnail.comment_patch.v1`（下記）で残す
+- その `ops` を UI で `thumb_spec.json` に保存して再合成する（同じ修正を再現可能にする）
 
-出力（LLMの“契約”＝必ずこの形で返す）: `ytm.thumbnail.comment_patch.v1`
+`ytm.thumbnail.comment_patch.v1`（人間が書く・貼るための契約）
 ```json
 {
   "schema": "ytm.thumbnail.comment_patch.v1",
   "target": { "channel": "CH22", "video": "014" },
-  "confidence": 0.0,
+  "confidence": 1.0,
   "clarifying_questions": [],
   "ops": [
-    { "op": "set", "path": "overrides.bg_pan_zoom.pan_y", "value": -0.6, "reason": "顔を下に" },
-    { "op": "set", "path": "overrides.text_effects.shadow.alpha", "value": 0.78, "reason": "文字の影を強く" }
+    { "op": "set", "path": "overrides.bg_pan_zoom.pan_y", "value": -0.6, "reason": "顔を少し下" },
+    { "op": "set", "path": "overrides.text_scale", "value": 1.08, "reason": "文字を少し大きく" }
   ]
 }
 ```
 
-検証（適用前の必須チェック）:
-- `schema` が一致する
-- `target` が妥当（CH/NNN）
-- `ops[*].path` が allowlist に含まれる
-- `value` が型/範囲に収まる（例: `pan_y ∈ [-1..1]`, `zoom ≥ 1.0`）
-- `confidence` が閾値未満なら **適用せず質問**（運用で閾値を固定）
-
-失敗/非同期（THINK MODE）:
-- LLMRouter が provider=`agent` を返した場合は「結果未完了」として扱い、**適用を保留**し、agent_runner の完了後に同じ契約で再取得して適用する。
-- これにより「LLMが落ちても作業が止まらない」運用と整合する（既存のサムネキャプション生成と同じ思想）。
+補足（実装）:
+- UI backend の `/api/workspaces/thumbnails/{channel}/{video}/comment-patch` は、誤適用を避けるため **常に no-op を返す**（チャットで処理する前提）。
 
 ### 5.10 エフェクト/効果を“パラメータとプリセット”でスケール管理する
 前提: 既にエフェクトはデータ駆動で存在する。
@@ -299,7 +294,7 @@ thumb_spec に入れるエフェクト（v1の推奨範囲）:
 | 1 (P1) | `bg_pan_zoom` を templates.json 既定 + per-video override に収束 | TBD | TBD | Draft |
 | 2 (P1) | `thumb_spec.json`（最小差分）導入 + UIから編集できる導線 | TBD | TBD | Draft |
 | 2 (P1) | UI/CLI を Compiler API 統合（重複ロジック削減） | TBD | TBD | Draft |
-| 2 (P1) | LLM「コメント→thumb_specパッチ」導線（契約+検証+dry-runプレビュー） | TBD | TBD | Draft |
+| 2 (P1) | コメント→thumb_specパッチ（チャット運用の契約+検証+プレビュー） | TBD | TBD | Draft |
 | 3 (P2) | バルク操作（pan/zoom/明るさの一括適用 + 例外管理） | TBD | TBD | Draft |
 | 3 (P2) | QC: 2バリアントを1コマンド/1画面で生成・公開 | TBD | TBD | Draft |
 | 4 (P2) | lint/validate コマンド整備（新チャンネル追加を事故らせない） | TBD | TBD | Draft |
@@ -312,7 +307,7 @@ thumb_spec に入れるエフェクト（v1の推奨範囲）:
 - [ ] `TODO-THUMB-003` コピーSoT（CSV vs layer_specs）を迷わない1択に固定（UIに“参照元”表示）
 - [ ] `TODO-THUMB-PERF-001` optimize切替・再利用で再合成を高速化
 - [ ] `TODO-THUMB-QC-001` 2バリアントQCを1コマンド化
-- [ ] `TODO-THUMB-LLM-001` コメント→パラメータ更新（thumb_specパッチ）の契約/検証/プレビューを固定
+- [ ] `TODO-THUMB-COMMENT-001` コメント→パラメータ更新（thumb_specパッチ）の契約/検証/プレビューを固定（チャット運用）
 - [ ] `TODO-THUMB-EFFECT-001` エフェクト（stroke/shadow/glow/overlay 等）の“プリセット優先 + 差分override”運用を固定
 - [ ] 破損検知（verify）を build/retake/qc 前に入れる（スキップ/自動復旧方針も固定）
 - [ ] projects/templates JSON の atomic write（FastAPI側も含めて）で破損リスクを下げる

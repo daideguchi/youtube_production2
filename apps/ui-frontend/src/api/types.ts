@@ -1001,6 +1001,16 @@ export interface ThumbnailThumbSpec {
 export interface ThumbnailTextTemplateOption {
   id: string;
   description?: string | null;
+  slots?: Record<
+    string,
+    {
+      box?: number[] | null;
+      fill?: string | null;
+      base_size_px?: number | null;
+      align?: string | null;
+      valign?: string | null;
+    }
+  >;
 }
 
 export interface ThumbnailEditorContext {
@@ -1010,6 +1020,7 @@ export interface ThumbnailEditorContext {
   portrait_available: boolean;
   template_id_default?: string | null;
   template_options: ThumbnailTextTemplateOption[];
+  text_slots?: Record<string, string>;
   defaults_leaf: Record<string, any>;
   overrides_leaf: Record<string, any>;
   effective_leaf: Record<string, any>;
@@ -1031,6 +1042,14 @@ export interface ThumbnailLayerSpecsBuildResult {
   thumb_url: string;
   thumb_path: string;
   build_meta_path?: string | null;
+}
+
+export interface ThumbnailPreviewTextLayerResult {
+  status: string;
+  channel: string;
+  video: string;
+  image_url: string;
+  image_path: string;
 }
 
 export interface ThumbnailCommentPatchTarget {

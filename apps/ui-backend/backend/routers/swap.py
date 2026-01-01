@@ -70,6 +70,14 @@ def _resolve_run_dir_under_output_root(path: str) -> Path:
     return target
 
 
+def _find_vrew_prompts_path(run_dir: Path) -> Optional[Path]:
+    for rel in VREW_PROMPTS_REL_CANDIDATES:
+        cand = run_dir / rel
+        if cand.exists():
+            return cand
+    return None
+
+
 def _write_log(content: str) -> str:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
@@ -253,20 +261,25 @@ def list_drafts(limit: int = Query(default=200, ge=1, le=500)) -> Dict[str, Any]
 
 
 @router.get("/run-dirs")
-def list_run_dirs(limit: int = Query(default=200, ge=1, le=500)) -> Dict[str, Any]:
+def list_run_dirs(limit: int = Query(default=200, ge=1, le=5000)) -> Dict[str, Any]:
     """List output run directories under the video runs root."""
     _ensure_paths()
     if not OUTPUT_ROOT.exists():
         return {"items": []}
     dirs = sorted([p for p in OUTPUT_ROOT.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
-    items = [
-        {
-            "name": d.name,
-            "path": str(d),
-            "mtime": d.stat().st_mtime,
-        }
-        for d in dirs[:limit]
-    ]
+    items: List[Dict[str, Any]] = []
+    for d in dirs[:limit]:
+        vrew_path = _find_vrew_prompts_path(d)
+        items.append(
+            {
+                "name": d.name,
+                "path": str(d),
+                "mtime": d.stat().st_mtime,
+                "episode_token": _extract_episode_token(d.name),
+                "vrew_prompts_exists": vrew_path is not None,
+                "vrew_prompts_path": str(vrew_path) if vrew_path is not None else None,
+            }
+        )
     return {"items": items}
 
 @router.get("/vrew-prompts")
@@ -280,12 +293,7 @@ def get_vrew_prompts(run_dir: str) -> Dict[str, Any]:
       - <run_dir>/vrew_import_prompts.txt
     """
     run = _resolve_run_dir_under_output_root(run_dir)
-    prompts_path: Optional[Path] = None
-    for rel in VREW_PROMPTS_REL_CANDIDATES:
-        cand = run / rel
-        if cand.exists():
-            prompts_path = cand
-            break
+    prompts_path = _find_vrew_prompts_path(run)
     if prompts_path is None:
         raise HTTPException(
             status_code=404,

@@ -13,10 +13,10 @@ import {
   unmarkVideoPublishedLocked,
   updatePlanningChannelProgress,
 } from "../api/client";
-import type {
-  BenchmarkScriptSampleSpec,
-  ChannelProfileResponse,
-  ChannelSummary,
+	import type {
+	  BenchmarkScriptSampleSpec,
+	  ChannelProfileResponse,
+	  ChannelSummary,
   LlmSettings,
   PlanningCsvRow,
   PlanningTemplateResponse,
@@ -24,14 +24,15 @@ import type {
   PromptTemplateContentResponse,
   VideoProductionChannelPreset,
   VideoSummary,
-} from "../api/types";
-import { ChannelOverviewPanel } from "../components/ChannelOverviewPanel";
-import { pickCurrentStage, resolveStageStatus } from "../components/StageProgress";
-import type { ShellOutletContext } from "../layouts/AppShell";
-import { translateStage, translateStatus } from "../utils/i18n";
-import { safeLocalStorage } from "../utils/safeStorage";
-import { resolveAudioSubtitleState } from "../utils/video";
-import "./ChannelPortalPage.css";
+	} from "../api/types";
+	import { ChannelOverviewPanel } from "../components/ChannelOverviewPanel";
+	import { StageCompactIndicator } from "../components/StageCompactIndicator";
+	import { pickCurrentStage, resolveStageStatus } from "../components/StageProgress";
+	import type { ShellOutletContext } from "../layouts/AppShell";
+	import { translateStage, translateStatus } from "../utils/i18n";
+	import { normalizeStageStatusKey } from "../utils/stage";
+	import { safeLocalStorage } from "../utils/safeStorage";
+	import "./ChannelPortalPage.css";
 
 function formatDate(value?: string | null): string {
   if (!value) {
@@ -1264,7 +1265,12 @@ export function ChannelPortalPage() {
                   <th scope="col">タイトル</th>
                   <th scope="col">進捗</th>
                   <th scope="col">投稿</th>
-                  <th scope="col">音声</th>
+	                  <th
+	                    scope="col"
+	                    title="音声=音声合成 / 字幕=字幕生成 / TL=タイムライン反映 / 画P=画像プロンプト / 画像=画像生成 / サム=サムネ作成 / 承認=サムネQC（色: 灰=未着手, 青=進行中, 緑=完了, 黄=レビュー, 赤=要対応）"
+	                  >
+	                    音声
+	                  </th>
                   <th scope="col">更新</th>
                   <th scope="col" className="channel-projects__actions-column">
                     操作
@@ -1285,20 +1291,120 @@ export function ChannelPortalPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredPlanningRows.map((row) => {
-                    const rowTitle = pickRowTitle(row) || "タイトル未設定";
-                    const summary = videosByNumber.get(row.video_number) ?? null;
-                    const stageKey = summary ? pickCurrentStage(summary.stages ?? {}) : null;
-                    const stageStatus = summary && stageKey ? resolveStageStatus(stageKey, summary.stages ?? {}) : null;
-                    const audioState = summary ? resolveAudioSubtitleState(summary) : null;
-                    const audioLabel =
-                      audioState === "completed"
-                        ? "完了"
-                        : audioState === "ready"
-                          ? "準備済"
-                          : audioState
-                            ? "未準備"
-                            : "—";
+	                  filteredPlanningRows.map((row) => {
+	                    const rowTitle = pickRowTitle(row) || "タイトル未設定";
+	                    const summary = videosByNumber.get(row.video_number) ?? null;
+	                    const stageKey = summary ? pickCurrentStage(summary.stages ?? {}) : null;
+	                    const stageStatus = summary && stageKey ? resolveStageStatus(stageKey, summary.stages ?? {}) : null;
+	                    const stageStatusKey = stageStatus ? normalizeStageStatusKey(stageStatus) : null;
+	                    const stageStatusLabel = stageStatusKey
+	                      ? stageStatusKey === "unknown"
+	                        ? translateStatus(stageStatus)
+	                        : translateStatus(stageStatusKey)
+	                      : null;
+	                    const audioStageStatus = summary ? resolveStageStatus("audio_synthesis", summary.stages ?? {}) : null;
+	                    const subtitleStageStatus = summary ? resolveStageStatus("srt_generation", summary.stages ?? {}) : null;
+	                    const timelineStageStatus = summary ? resolveStageStatus("timeline_copy", summary.stages ?? {}) : null;
+	                    const audioCell = summary ? (() => {
+                      const thumbProgress = summary.thumbnail_progress ?? null;
+                      const imageProgress = summary.video_images_progress ?? null;
+
+                      const cueCount =
+                        typeof imageProgress?.cue_count === "number" && Number.isFinite(imageProgress.cue_count)
+                          ? imageProgress.cue_count
+                          : null;
+                      const promptCount =
+                        typeof imageProgress?.prompt_count === "number" && Number.isFinite(imageProgress.prompt_count)
+                          ? imageProgress.prompt_count
+                          : null;
+                      const imagesCount =
+                        typeof imageProgress?.images_count === "number" && Number.isFinite(imageProgress.images_count)
+                          ? imageProgress.images_count
+                          : 0;
+                      const promptReadyAt = imageProgress?.prompt_ready_at ?? null;
+                      const imagesUpdatedAt = imageProgress?.images_updated_at ?? null;
+
+                      const imagePromptStatus = imageProgress?.prompt_ready
+                        ? "completed"
+                        : promptReadyAt && (cueCount ?? 0) > 0
+                          ? "in_progress"
+                          : "pending";
+                      const imagesStatus =
+                        imagesCount > 0 ? ((cueCount ?? 0) > 0 && imagesCount >= (cueCount ?? 0) ? "completed" : "in_progress") : "pending";
+                      const thumbnailCreatedStatus = thumbProgress?.created ? "completed" : "pending";
+                      const thumbnailQcStatus = thumbProgress?.qc_cleared
+                        ? "completed"
+                        : thumbProgress?.created
+                          ? "review"
+                          : "pending";
+
+                      const imagePromptTitleParts = [
+                        promptCount !== null && cueCount !== null ? `${promptCount}/${cueCount}` : null,
+                        promptReadyAt,
+                        imageProgress?.run_id ? `run=${imageProgress.run_id}` : null,
+                      ].filter(Boolean);
+                      const imagesTitleParts = [
+                        cueCount !== null ? `${imagesCount}/${cueCount}` : `${imagesCount}枚`,
+                        imagesUpdatedAt,
+                        imageProgress?.run_id ? `run=${imageProgress.run_id}` : null,
+                      ].filter(Boolean);
+                      const thumbTitleParts = [
+                        thumbProgress?.variant_count ? `${thumbProgress.variant_count}枚` : null,
+                        thumbProgress?.created_at ?? null,
+                      ].filter(Boolean);
+                      const thumbQcTitleParts = [
+                        thumbProgress?.status ? `status=${thumbProgress.status}` : null,
+                        thumbProgress?.qc_cleared_at ?? null,
+                      ].filter(Boolean);
+
+                      return (
+                        <StageCompactIndicator
+                          items={[
+                            { key: "audio", label: "音声合成", short: "音声", status: audioStageStatus },
+                            { key: "subtitle", label: "字幕生成", short: "字幕", status: subtitleStageStatus },
+                            { key: "timeline", label: "タイムライン反映", short: "TL", status: timelineStageStatus },
+                            {
+                              key: "imagePrompt",
+                              label: "画像プロンプト",
+                              short: "画P",
+                              status: imagePromptStatus,
+                              title: `画像プロンプト: ${translateStatus(imagePromptStatus)}${
+                                imagePromptTitleParts.length ? ` / ${imagePromptTitleParts.join(" / ")}` : ""
+                              }`,
+                            },
+                            {
+                              key: "images",
+                              label: "画像生成",
+                              short: "画像",
+                              status: imagesStatus,
+                              title: `画像生成: ${translateStatus(imagesStatus)}${
+                                imagesTitleParts.length ? ` / ${imagesTitleParts.join(" / ")}` : ""
+                              }`,
+                            },
+                            {
+                              key: "thumb",
+                              label: "サムネ作成",
+                              short: "サム",
+                              status: thumbnailCreatedStatus,
+                              title: `サムネ作成: ${translateStatus(thumbnailCreatedStatus)}${
+                                thumbTitleParts.length ? ` / ${thumbTitleParts.join(" / ")}` : ""
+                              }`,
+                            },
+                            {
+                              key: "thumbQc",
+                              label: "サムネQC",
+                              short: "承認",
+                              status: thumbnailQcStatus,
+                              title: `サムネQC: ${translateStatus(thumbnailQcStatus)}${
+                                thumbQcTitleParts.length ? ` / ${thumbQcTitleParts.join(" / ")}` : ""
+                              }`,
+                            },
+                          ]}
+                        />
+                      );
+                    })() : (
+                      "—"
+                    );
                     const metaParts = [
                       row.script_id ?? "",
                       pickPlanningValue(row, "悩みタグ_メイン") ?? "",
@@ -1306,11 +1412,13 @@ export function ChannelPortalPage() {
                       pickPlanningValue(row, "ライフシーン") ?? "",
                     ].filter((item) => item && item.trim().length > 0);
                     const progressValue = progressDraft[row.video_number] ?? row.progress ?? "";
-                    const progressChanged = progressValue.trim() !== (row.progress ?? "").trim();
-                    const progressBusy = Boolean(progressSaving[row.video_number]);
-                    const progressErr = progressError[row.video_number] ?? null;
-                    const publishedLocked =
-                      String(row.progress ?? "").includes("投稿済み") || String(row.progress ?? "").includes("公開済み");
+	                    const progressChanged = progressValue.trim() !== (row.progress ?? "").trim();
+	                    const progressBusy = Boolean(progressSaving[row.video_number]);
+	                    const progressErr = progressError[row.video_number] ?? null;
+	                    const publishedLocked =
+	                      Boolean(summary?.published_lock) ||
+	                      String(row.progress ?? "").includes("投稿済み") ||
+	                      String(row.progress ?? "").includes("公開済み");
                     const publishKey = `${selectedChannel}-${row.video_number}`;
                     const isPublishing = publishingKey === publishKey;
                     const isUnpublishing = unpublishingKey === publishKey;
@@ -1352,16 +1460,21 @@ export function ChannelPortalPage() {
                             >
                               {copiedVideo === row.video_number ? "コピー済み" : "タイトルをコピー"}
                             </button>
-                            {summary?.status ? (
-                              <span className={`status-badge status-badge--${summary.status ?? "pending"}`}>
-                                {translateStatus(summary.status)}
-                              </span>
-                            ) : null}
-                            {stageKey ? (
-                              <span className={`status-badge status-badge--${stageStatus ?? "pending"}`}>
-                                {translateStage(stageKey)}
-                              </span>
-                            ) : summary ? (
+	                            {publishedLocked ? (
+	                              <span className="status-badge status-badge--published">投稿済み</span>
+	                            ) : summary?.status ? (
+	                              <span className={`status-badge status-badge--${summary.status ?? "pending"}`}>
+	                                {translateStatus(summary.status)}
+	                              </span>
+	                            ) : null}
+	                            {stageKey ? (
+	                              <span
+	                                className={`status-badge status-badge--${stageStatusKey ?? "pending"}`}
+	                                title={stageStatusLabel ?? undefined}
+	                              >
+	                                {translateStage(stageKey)}
+	                              </span>
+	                            ) : summary ? (
                               <span className="status-badge status-badge--completed">全工程完了</span>
                             ) : null}
                           </div>
@@ -1438,7 +1551,7 @@ export function ChannelPortalPage() {
                           </label>
                           {publishErr ? <div className="portal-publish-error">{publishErr}</div> : null}
                         </td>
-                        <td>{audioLabel}</td>
+                        <td>{audioCell}</td>
                         <td>{formatDate(row.updated_at)}</td>
                         <td className="channel-projects__actions-cell">
                           <button

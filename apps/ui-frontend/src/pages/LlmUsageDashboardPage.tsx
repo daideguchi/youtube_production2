@@ -76,9 +76,10 @@ const RANGE_OPTIONS: Array<{ value: RangeKey; label: string }> = [
 
 const PROVIDER_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "", label: "すべて" },
+  { value: "fireworks", label: "Fireworks" },
+  { value: "codex_exec", label: "Codex exec" },
   { value: "openrouter", label: "OpenRouter" },
   { value: "azure", label: "Azure" },
-  { value: "codex_exec", label: "Codex exec" },
   { value: "gemini", label: "Gemini" },
 ];
 
@@ -175,7 +176,7 @@ export function LlmUsageDashboardPage() {
     const stored = localStorage.getItem("llmUsage.dashboard.range") as RangeKey | null;
     return stored ?? "today_jst";
   });
-  const [provider, setProvider] = useState<string>(() => localStorage.getItem("llmUsage.dashboard.provider") ?? "openrouter");
+  const [provider, setProvider] = useState<string>(() => localStorage.getItem("llmUsage.dashboard.provider") ?? "");
   const [topN, setTopN] = useState<number>(() => {
     const stored = localStorage.getItem("llmUsage.dashboard.topN");
     return stored ? Number(stored) : 12;
@@ -485,4 +486,3 @@ export function LlmUsageDashboardPage() {
 }
 
 export default LlmUsageDashboardPage;
-

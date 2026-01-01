@@ -250,6 +250,9 @@ def _create_context_cue(
     # CH02 is personless by default; do not auto-enable persona for "story/dialogue".
     if (channel_id or "").upper() == "CH02":
         use_persona = bool(persona_needed)
+    # Channels that require strict visual continuity (characters/settings) across frames.
+    if (channel_id or "").upper() in {"CH01", "CH05", "CH22", "CH23"}:
+        use_persona = True
     cue["use_persona"] = use_persona
 
     return cue

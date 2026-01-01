@@ -1,18 +1,5 @@
 {
   "engine_default": "voicevox",
-  "channel_override": {
-    "CH01": "voicepeak",
-    "CH02": "voicevox",
-    "CH03": "voicepeak",
-    "CH04": "voicevox",
-    "CH05": "voicevox",
-    "CH06": "voicevox",
-    "CH07": "voicevox",
-    "CH08": "voicevox",
-    "CH09": "voicevox",
-    "CH10": "voicevox",
-    "CH11": "voicepeak"
-  },
   "script_override": {
     "CH06-033": "voicevox"
   },
@@ -34,11 +21,7 @@
     "default_pitch": 0,
     "default_emotion": "",
     "reading_source": "mecab",
-    "channel_narrator": {
-      "CH01": "男性3",
-      "CH03": "女性2",
-      "CH11": "女性1"
-    }
+    "channel_narrator": {}
   },
   "elevenlabs": {
     "api_key_env": "ELEVENLABS_API_KEY",

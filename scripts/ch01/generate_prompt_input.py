@@ -79,9 +79,8 @@ def build_input_template(
     *,
     reference: str,
     teaching: str,
-    protagonist: str,
-    antagonist: str,
-    turning_line: str,
+    historical_episodes: str,
+    avoid_topics: str,
     constraints: str,
 ) -> str:
     no = row.get("No.", "")
@@ -98,12 +97,11 @@ def build_input_template(
         企画No / 動画ID: {no} / {video_id}
         企画タイトル（CSV）: {title}
         企画意図・ターゲット（CSV「企画意図」「ターゲット層」列）: {intent} / {target}
-        構成案メモ（CSV「具体的な内容」列）: {outline}
+        構成案メモ（CSV「具体的な内容（話の構成案）」列）: {outline}
         参考にしたい既存動画/ベンチマーク: {reference}
-        取り入れたい仏教の教え・経典: {teaching}
-        主人公の属性案（年齢・職歴・現在地）: {protagonist}
-        敵役/対立人物の属性案: {antagonist}
-        付けたい逆転の一言案: {turning_line}
+        取り上げたい仏教の教え・キーワード: {teaching}
+        史実エピソード候補（1〜2件）: {historical_episodes}
+        避けたい話題/表現（あれば）: {avoid_topics}
         その他制約（文字数・納期等）: {constraints}
         <<INPUT TEMPLATE END>>
         """
@@ -128,10 +126,9 @@ def main() -> None:
     parser.add_argument("--video-id", help="抽出したい動画ID (例: CH01-216)")
     parser.add_argument("--number", type=int, help="動画番号（例: 216）")
     parser.add_argument("--reference", default="TODO", help="参照したい既存動画")
-    parser.add_argument("--teaching", default="TODO", help="取り入れたい仏教の教え")
-    parser.add_argument("--protagonist", default="TODO", help="主人公の属性案")
-    parser.add_argument("--antagonist", default="TODO", help="敵役の属性案")
-    parser.add_argument("--turning-line", default="TODO", help="逆転の一言案")
+    parser.add_argument("--teaching", default="TODO", help="取り上げたい仏教の教え・キーワード")
+    parser.add_argument("--historical-episodes", default="TODO", help="史実エピソード候補（1〜2件）")
+    parser.add_argument("--avoid-topics", default="TODO", help="避けたい話題/表現（あれば）")
     parser.add_argument("--constraints", default="TODO", help="文字数や納期などの制約")
     parser.add_argument("--data-only", action="store_true", help="企画データのみを出力（マスタープロンプトを含めない）")
     args = parser.parse_args()
@@ -142,9 +139,8 @@ def main() -> None:
         row,
         reference=args.reference,
         teaching=args.teaching,
-        protagonist=args.protagonist,
-        antagonist=args.antagonist,
-        turning_line=args.turning_line,
+        historical_episodes=args.historical_episodes,
+        avoid_topics=args.avoid_topics,
         constraints=args.constraints,
     )
 

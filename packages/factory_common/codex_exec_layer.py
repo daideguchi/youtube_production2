@@ -21,6 +21,10 @@ DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
     "profile": "claude-code",
     "sandbox": "read-only",
     "timeout_s": 180,
+    # Optional per-task timeout overrides (seconds). Example:
+    #   timeout_s_by_task:
+    #     script_chapter_draft: 600
+    "timeout_s_by_task": {},
     "model": "",
     "selection": {
         "include_task_prefixes": ["tts_", "visual_"],
@@ -230,7 +234,19 @@ def try_codex_exec(
 
     profile = _env("YTM_CODEX_EXEC_PROFILE") or str(cfg.get("profile") or "").strip()
     sandbox = _env("YTM_CODEX_EXEC_SANDBOX") or str(cfg.get("sandbox") or "read-only").strip()
-    timeout_s = _env_int("YTM_CODEX_EXEC_TIMEOUT_S", int(cfg.get("timeout_s") or 180))
+    timeout_s_override = _env("YTM_CODEX_EXEC_TIMEOUT_S")
+    if timeout_s_override:
+        timeout_s = _env_int("YTM_CODEX_EXEC_TIMEOUT_S", int(cfg.get("timeout_s") or 180))
+    else:
+        timeout_s = int(cfg.get("timeout_s") or 180)
+        try:
+            by_task = cfg.get("timeout_s_by_task") or {}
+            if isinstance(by_task, dict):
+                v = by_task.get(str(task or "").strip())
+                if v is not None and str(v).strip() != "":
+                    timeout_s = int(v)
+        except Exception:
+            timeout_s = int(cfg.get("timeout_s") or 180)
     model = _env("YTM_CODEX_EXEC_MODEL") or str(cfg.get("model") or "").strip()
 
     repo = repo_root()

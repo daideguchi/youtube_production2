@@ -804,6 +804,25 @@ class LLMRouter:
         except Exception:
             pass
 
+        # Task guardrails: keep "length-only shrink" responses bounded.
+        #
+        # Background:
+        # - script_validation can optionally attempt an emergency shrink when the only hard failure is
+        #   length_too_long (opt-in via SCRIPT_VALIDATION_AUTO_LENGTH_FIX=1).
+        # - The caller may request very large max_tokens budgets, but for shrink we want strict brevity to
+        #   actually land under target_chars_max (and avoid expensive retries / cache poisoning).
+        if task == "script_a_text_quality_shrink":
+            try:
+                # Default: keep enough headroom to avoid finish_reason=length truncation while still
+                # preventing runaway budgets on long scripts.
+                cap = int(os.getenv("SCRIPT_VALIDATION_SHRINK_MAX_TOKENS", "12000"))
+                if cap > 0:
+                    mt = base_options.get("max_tokens")
+                    if mt is None or int(mt) > cap:
+                        base_options["max_tokens"] = cap
+            except Exception:
+                pass
+
         agent_result = maybe_handle_agent_mode(
             task=task,
             messages=messages,
@@ -1295,8 +1314,6 @@ class LLMRouter:
         params = {**defaults, **kwargs}
 
         # Fireworks: requests with max_tokens > 4096 require streaming mode.
-        # In practice, OpenRouter-style reasoning controls can be unstable for stream-required calls, so we
-        # strip them early to keep the request robust.
         fireworks_needs_stream = False
         if provider == "fireworks":
             for k in ("max_tokens", "max_completion_tokens"):
@@ -1309,21 +1326,10 @@ class LLMRouter:
                         break
                 except Exception:
                     continue
-            if fireworks_needs_stream:
-                params.pop("reasoning_effort", None)
-                eb = params.get("extra_body")
-                if isinstance(eb, dict):
-                    eb2 = dict(eb)
-                    eb2.pop("reasoning", None)
-                    eb2.pop("reasoning_effort", None)
-                    if eb2:
-                        params["extra_body"] = eb2
-                    else:
-                        params.pop("extra_body", None)
 
         # Fireworks parity with OpenRouter:
         # - DeepSeek V3.2 exp must run with thinking enabled by default (callers can still override explicitly).
-        if provider == "fireworks" and not fireworks_needs_stream:
+        if provider == "fireworks":
             try:
                 mn = str(model_conf.get("model_name") or "").strip().lower()
             except Exception:
@@ -1436,7 +1442,6 @@ class LLMRouter:
                 fireworks_reasoning_enabled
                 and fireworks_reasoning_exclude
                 and not fireworks_json_mode
-                and not fireworks_needs_stream
             ):
                 marker = _FIREWORKS_FINAL_MARKER
                 marker_msg = (
@@ -1521,33 +1526,74 @@ class LLMRouter:
                 last_id = None
                 last_model = None
                 usage_obj = None
+                final_message_content = None
                 for chunk in stream:
-                    last_id = getattr(chunk, "id", last_id)
-                    last_model = getattr(chunk, "model", last_model)
-                    try:
+                    if isinstance(chunk, dict):
+                        last_id = chunk.get("id", last_id)
+                        last_model = chunk.get("model", last_model)
+                        choices = chunk.get("choices")
+                        u = chunk.get("usage")
+                    else:
+                        last_id = getattr(chunk, "id", last_id)
+                        last_model = getattr(chunk, "model", last_model)
                         choices = getattr(chunk, "choices", None)
-                        if choices:
-                            c0 = choices[0]
+                        u = getattr(chunk, "usage", None)
+
+                    if choices:
+                        c0 = choices[0]
+                        if isinstance(c0, dict):
+                            delta = c0.get("delta")
+                            fr = c0.get("finish_reason")
+                        else:
                             delta = getattr(c0, "delta", None)
-                            if delta is not None:
-                                piece = getattr(delta, "content", None)
-                                if piece:
-                                    parts.append(str(piece))
                             fr = getattr(c0, "finish_reason", None)
-                            if fr:
-                                finish_reason = fr
-                    except Exception:
-                        pass
-                    u = getattr(chunk, "usage", None)
+
+                        piece = None
+                        if isinstance(delta, dict):
+                            piece = delta.get("content")
+                        elif delta is not None:
+                            piece = getattr(delta, "content", None)
+                        if piece:
+                            parts.append(str(piece))
+                        else:
+                            # Some providers include full content in `message` on the final chunk instead of `delta`.
+                            if isinstance(c0, dict):
+                                msg = c0.get("message")
+                                if isinstance(msg, dict) and msg.get("content"):
+                                    final_message_content = msg.get("content")
+                                elif c0.get("text"):
+                                    final_message_content = c0.get("text")
+                            else:
+                                msg = getattr(c0, "message", None)
+                                if msg is not None:
+                                    mc = getattr(msg, "content", None)
+                                    if mc:
+                                        final_message_content = mc
+                                else:
+                                    tc = getattr(c0, "text", None)
+                                    if tc:
+                                        final_message_content = tc
+                        if fr:
+                            finish_reason = fr
+
                     if u is not None:
                         usage_obj = u
                 content_text = "".join(parts)
+                if (not content_text) and final_message_content:
+                    content_text = str(final_message_content)
                 try:
+                    def _usage_get(obj, key: str):
+                        if obj is None:
+                            return None
+                        if isinstance(obj, dict):
+                            return obj.get(key)
+                        return getattr(obj, key, None)
+
                     usage = (
                         SimpleNamespace(
-                            prompt_tokens=getattr(usage_obj, "prompt_tokens", None),
-                            completion_tokens=getattr(usage_obj, "completion_tokens", None),
-                            total_tokens=getattr(usage_obj, "total_tokens", None),
+                            prompt_tokens=_usage_get(usage_obj, "prompt_tokens"),
+                            completion_tokens=_usage_get(usage_obj, "completion_tokens"),
+                            total_tokens=_usage_get(usage_obj, "total_tokens"),
                         )
                         if usage_obj is not None
                         else None
@@ -1566,7 +1612,6 @@ class LLMRouter:
                 provider == "fireworks"
                 and fireworks_reasoning_enabled
                 and fireworks_reasoning_exclude
-                and not fireworks_needs_stream
             ):
                 if fireworks_json_mode:
                     chunk = _extract_json_object_chunk(content or "")

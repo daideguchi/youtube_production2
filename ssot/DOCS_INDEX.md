@@ -30,6 +30,7 @@
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
 - `ops/OPS_GIT_BRANCH_POLICY.md`: ブランチ運用ルール（main/feature/snapshot を固定して迷子を防ぐ）。
 - `ops/OPS_UI_WIRING.md`: UI(React) ↔ Backend(FastAPI) の配線SSOT（route/API/SoT対応）。
+- `ops/OPS_UI_VREW_PROMPTS.md`: UIから Vrew 用プロンプトを生成する配線/仕様（決定論）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
 - `ops/OPS_PRODUCTION_PACK.md`: 量産投入前の「Production Pack」定義（スナップショット + QA gate + 差分ログ）。
@@ -43,12 +44,15 @@
 - `ops/OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
 - `ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`: 台本がカオス化したときの止血・復帰（複数エージェント競合）のSSOT。
 - `ops/OPS_FACT_CHECK_RUNBOOK.md`: 完成台本（Aテキスト）のファクトチェック運用（証拠ベース）。
+- `ops/OPS_RESEARCH_BUNDLE.md`: リサーチ/ファクトチェック用の中間生成物の“型”と投入手順（検索経路差を吸収）。
 - `ops/OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。
 - `ops/OPS_A_TEXT_TECHNIQUE_PACKAGES.md`: Aテキストに効く“技法”をモジュール化して固定（script_prompt へ安全に差し込むためのパッケージ集）。
 - `ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`: 高品質Aテキスト大量生産の設計（パターン→生成→Judge→最小修正）。
 - `ops/OPS_LONGFORM_SCRIPT_SCALING.md`: 2〜3時間級の超長尺でも破綻しない台本生成設計（Marathonモード）。
 - `ops/OPS_SCRIPT_PATTERNS.yaml`: Aテキスト構成パターン集（骨格/字数配分のSSOT）。
+- `ops/OPS_SCRIPT_KATAS.md`: 台本の「型」（kata1〜3）を Planning SoT に固定し、生成を自動で型に沿わせる。
 - `ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
+- `ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`: 対話AIによる台本監査（LLM API禁止 / 企画整合+流れを目視で確定し redo_script を運用）。
 - `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。
 - `ops/OPS_SRT_LINEBREAK_FORMAT.md`: SRT字幕の改行整形（意味/語彙は不変、改行のみで視認性を上げる）。
 - `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md` (Reference): 音声final（SRT/WAV）と video_pipeline 入力同期の契約メモ。
@@ -69,6 +73,7 @@
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
+- `ops/OPS_VREW_IMAGE_ROUTE.md`: Vrewで量産した画像をCapCutドラフトへ安全に差し込む別ルート（image_manifest SoT）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。
 - `packages/video_pipeline/config/channel_config_spec.md` (Reference): `packages/video_pipeline/config/channel_presets.json` / `capcut_settings` の仕様メモ（実装参照）。
 - `ops/IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。

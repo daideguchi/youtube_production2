@@ -4,9 +4,9 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
-from factory_common.paths import audio_pkg_root
+from factory_common.paths import audio_pkg_root, script_pkg_root
 
 CONFIG_PATH = audio_pkg_root() / "configs" / "routing.json"
 
@@ -67,6 +67,32 @@ def load_routing_config(path: Path = CONFIG_PATH) -> RoutingConfig:
     )
 
 
+def load_default_voice_config(channel: str) -> Optional[Dict[str, Any]]:
+    """
+    Load script_pipeline's per-channel `voice_config.json` and return the default voice entry.
+
+    This is the SSOT for:
+      - which engine the channel uses by default (voicevox/voicepeak/...)
+      - engine-specific options (narrator/pitch/speed/etc.)
+    """
+    config_path = script_pkg_root() / "audio" / "channels" / channel / "voice_config.json"
+    if not config_path.exists():
+        return None
+    try:
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+    if not isinstance(data, dict):
+        return None
+    key = data.get("default_voice_key")
+    voices = data.get("voices")
+    if not (isinstance(key, str) and isinstance(voices, dict)):
+        return None
+    entry = voices.get(key)
+    return entry if isinstance(entry, dict) else None
+
+
 def decide_engine(channel: str, video_no: str, cfg: Optional[RoutingConfig] = None) -> str:
     cfg = cfg or load_routing_config()
     env_override = os.getenv("ENGINE_DEFAULT_OVERRIDE")
@@ -74,10 +100,15 @@ def decide_engine(channel: str, video_no: str, cfg: Optional[RoutingConfig] = No
         return env_override.strip().lower()
     key = f"{channel}-{video_no}"
     if key in cfg.script_override:
-        return cfg.script_override[key]
+        return str(cfg.script_override[key]).strip().lower()
+
+    voice_cfg = load_default_voice_config(channel)
+    if isinstance(voice_cfg, dict) and voice_cfg.get("engine"):
+        return str(voice_cfg["engine"]).strip().lower()
+
     if channel in cfg.channel_override:
-        return cfg.channel_override[channel]
-    return cfg.engine_default
+        return str(cfg.channel_override[channel]).strip().lower()
+    return str(cfg.engine_default).strip().lower()
 
 
 def resolve_voicevox_speaker_id(channel: Optional[str] = None, cfg: Optional[RoutingConfig] = None) -> int:

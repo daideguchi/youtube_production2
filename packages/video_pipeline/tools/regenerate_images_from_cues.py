@@ -126,6 +126,81 @@ def _truncate(text: str, limit: int = 120) -> str:
     return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
 
 
+def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
+    """
+    Avoid accidentally prompting the model to render in-image text.
+
+    This tool is LLM-free and may be used after a run has already been created, so we keep the
+    sanitization small but practical (paper-like props often cause text hallucination).
+    """
+    s = str(visual_focus or "").strip()
+    if not s:
+        return ""
+    lower = s.lower()
+
+    # Anything that tends to make the model draw letters/numbers.
+    risky_words = (
+        "text",
+        "subtitle",
+        "caption",
+        "sign",
+        "signage",
+        "logo",
+        "watermark",
+        "letter",
+        "letters",
+        "number",
+        "numbers",
+        "handwriting",
+        "write",
+        "writing",
+        "calligraphy",
+        # Paper-like props:
+        "paper",
+        "page",
+        "notebook",
+        "journal",
+        "document",
+        "newspaper",
+        "brochure",
+        "receipt",
+        "bill",
+        "form",
+        "schedule",
+        "calendar",
+        "mail",
+    )
+    if any(w in lower for w in risky_words):
+        # Keep the action but enforce "no readable text". Ensure idempotency.
+        if "no readable text" in lower:
+            # Collapse duplicates (some earlier runs may have appended the clause repeatedly).
+            clause = "(NO readable text; blank/blurred pages; no letters/numbers)"
+            parts = [p.strip() for p in s.split(clause) if p.strip()]
+            return f"{parts[0]} {clause}" if parts else clause
+        return f"{s} (NO readable text; blank/blurred pages; no letters/numbers)"
+    return s
+
+
+def _resolve_anchor_path(run_dir: Path, mode: str) -> Optional[str]:
+    m = str(mode or "auto").strip().lower()
+    guides_dir = run_dir / "guides"
+    candidates: List[Path] = []
+
+    # Prefer character-only anchor to avoid locking the background/composition.
+    if m in {"auto", "characters"}:
+        candidates.append(guides_dir / "style_anchor_characters.png")
+    if m in {"auto", "scene"}:
+        candidates.append(guides_dir / "style_anchor.png")
+
+    for p in candidates:
+        try:
+            if p.exists() and p.is_file():
+                return str(p)
+        except Exception:
+            continue
+    return None
+
+
 def _load_template_text(path: Optional[str]) -> str:
     if not path:
         return (
@@ -165,7 +240,7 @@ def _build_prompt(
     if refined:
         parts.append(refined)
     else:
-        vf = (cue.get("visual_focus") or "").strip()
+        vf = _sanitize_visual_focus_for_no_text((cue.get("visual_focus") or "").strip())
         if vf:
             parts.append(f"Visual Focus: {vf}")
         summary = (cue.get("summary") or "").strip()
@@ -195,7 +270,8 @@ def _build_prompt(
     summary_for_prompt = " \\n".join([p for p in parts if p.strip()])
     return build_prompt_from_template(
         template_text,
-        prepend_summary=False,
+        # Subject-first improves prompt adherence and reduces style overrides.
+        prepend_summary=True,
         summary=summary_for_prompt,
         visual_focus=visual_focus,
         main_character=main_character,
@@ -252,9 +328,25 @@ def main() -> None:
     ap.add_argument("--channel", help="Override channel id (e.g., CH02). If omitted, inferred from run_dir name.")
     ap.add_argument("--force", action="store_true", help="Delete existing images/*.png before regeneration")
     ap.add_argument("--max", type=int, default=0, help="Limit number of cues/images to generate (0 = all)")
+    ap.add_argument(
+        "--only-missing",
+        action="store_true",
+        help="Generate only missing images (resume-friendly; avoids rate-limit sleeps for existing files).",
+    )
     ap.add_argument("--prompt-template", help="Override prompt template path")
     ap.add_argument("--style", help="Override style string")
     ap.add_argument("--negative", default="", help="Optional negative prompt string")
+    ap.add_argument(
+        "--include-script-excerpt",
+        action="store_true",
+        help="Include a short script excerpt in prompts (may cause in-image text).",
+    )
+    ap.add_argument(
+        "--anchor",
+        default="auto",
+        choices=["auto", "characters", "scene", "none"],
+        help="Attach a reference image from run_dir/guides (auto prefers characters-only anchor).",
+    )
     ap.add_argument("--timeout-sec", type=int, default=300, help="Per-image timeout seconds")
     ap.add_argument("--retry-until-success", action="store_true", help="Do not write placeholders when generation fails")
     ap.add_argument("--max-retries", type=int, default=6, help="Max retries per image (used by generator)")
@@ -293,6 +385,16 @@ def main() -> None:
     size_str = f"{width}x{height}"
     template_text = _load_template_text(tpl_path)
 
+    # In-image text tends to appear when raw script excerpts are included in prompts (esp. JP).
+    # Default: DO NOT include script excerpt unless explicitly enabled.
+    include_script_excerpt = bool(args.include_script_excerpt)
+    if not include_script_excerpt:
+        env = (os.getenv("SRT2IMAGES_INCLUDE_SCRIPT_EXCERPT") or "").strip().lower()
+        include_script_excerpt = env in {"1", "true", "yes", "on"}
+
+    anchor_mode = str(args.anchor or "auto").strip().lower()
+    anchor_path = None if anchor_mode == "none" else _resolve_anchor_path(run_dir, anchor_mode)
+
     if _is_ch02(channel):
         _write_persona_mode_off(run_dir)
         if not (args.negative or "").strip():
@@ -320,15 +422,19 @@ def main() -> None:
         if not isinstance(cue, dict):
             continue
 
-        include_script_excerpt = True
+        # Channels that require strict visual continuity (characters/settings) across frames.
+        if channel in {"CH01", "CH05", "CH22", "CH23"}:
+            cue["use_persona"] = True
+
         visual_focus = (cue.get("visual_focus") or "").strip()
         main_character = ""
         if _is_ch02(channel):
-            include_script_excerpt = False
             visual_focus = _derive_ch02_visual_focus(cue)
             main_character = _derive_ch02_main_character(cue)
             cue["use_persona"] = False
             cue["visual_focus"] = visual_focus
+        elif visual_focus:
+            cue["visual_focus"] = _sanitize_visual_focus_for_no_text(visual_focus)
 
         prompt = _build_prompt(
             cue,
@@ -343,7 +449,53 @@ def main() -> None:
         )
         cue["prompt"] = prompt
         cue["image_path"] = str(images_dir / f"{i:04d}.png")
+        if anchor_path:
+            cue["input_images"] = [anchor_path]
         gen_cues.append(cue)
+
+    if args.only_missing:
+        missing: List[Dict[str, Any]] = []
+        for cue in gen_cues:
+            try:
+                out_path = Path(str(cue.get("image_path") or "")).resolve()
+                if not out_path.exists() or out_path.stat().st_size <= 0:
+                    missing.append(cue)
+            except Exception:
+                missing.append(cue)
+
+        if not missing:
+            print(f"[SKIP] only-missing: no missing images (total={len(gen_cues)}) dir={images_dir}")
+            return
+
+        # Bridge continuity: attach previous existing frame to the first missing cue.
+        try:
+            first_idx = int(missing[0].get("index") or 0)
+        except Exception:
+            first_idx = 0
+        if first_idx > 1:
+            prev_path = images_dir / f"{first_idx - 1:04d}.png"
+            try:
+                if prev_path.exists() and prev_path.is_file():
+                    cur_inputs = missing[0].get("input_images")
+                    if not isinstance(cur_inputs, list):
+                        cur_inputs = []
+                    merged: List[str] = []
+                    for x in cur_inputs:
+                        s = str(x).strip()
+                        if s and s not in merged:
+                            merged.append(s)
+                    p = str(prev_path)
+                    if p not in merged:
+                        merged.append(p)
+                    missing[0]["input_images"] = merged
+            except Exception:
+                pass
+
+        print(
+            f"[RESUME] only-missing: missing_images={len(missing)} total={len(gen_cues)} "
+            f"first_missing_index={missing[0].get('index')}"
+        )
+        gen_cues = missing
 
     # Persist prompts back to image_cues.json (so future tools can reuse them).
     _write_json(cues_path, payload)
@@ -354,7 +506,7 @@ def main() -> None:
         gen_cues,
         mode="direct",
         concurrency=1,
-        force=True,
+        force=bool(args.force),
         width=width,
         height=height,
         timeout_sec=int(args.timeout_sec),

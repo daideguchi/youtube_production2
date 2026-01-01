@@ -993,7 +993,8 @@
 
 .workspace--thumbnail-clean .thumbnail-card__selected-media img {
   width: 100%;
-  height: 140px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
   display: block;
@@ -1003,7 +1004,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 140px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   border-radius: 10px;
   border: 1px dashed var(--color-border-muted);
   background: var(--color-surface-subtle);
@@ -1075,7 +1077,8 @@
 
 .workspace--thumbnail-clean .thumbnail-variant-tile__media img {
   width: 100%;
-  height: 120px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
   display: block;
@@ -1085,7 +1088,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 120px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   border-radius: 10px;
   border: 1px dashed var(--color-border-muted);
   background: var(--color-surface-subtle);
@@ -1219,13 +1223,15 @@
 
 .workspace--thumbnail-clean .thumbnail-gallery-card__media img {
   width: 100%;
-  height: 150px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   display: block;
 }
 
 .workspace--thumbnail-clean .thumbnail-gallery-card__placeholder {
-  height: 150px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;

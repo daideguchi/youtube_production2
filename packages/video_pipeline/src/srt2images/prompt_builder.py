@@ -3,7 +3,10 @@ from __future__ import annotations
 import re
 
 GLOBAL_IMAGE_GUARDRAILS = (
-    "Keep characters consistent if present; do NOT add people unless needed. "
+    "Consistency: keep recurring characters identical across shots (face, hairstyle, age, body type, clothing). "
+    "Keep recurring locations consistent (layout, key props, lighting) unless the scene explicitly changes. "
+    "If a reference image is provided, treat it as the strict style/character anchor and change only what the prompt describes. "
+    "Do NOT add people unless needed. "
     "NO text in image (subtitles, captions, signage, UI, logos, watermarks, handwriting, letters, numbers)."
 )
 

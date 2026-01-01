@@ -10,30 +10,10 @@ from .strict_synthesizer import strict_synthesis, generate_srt
 from .voicevox_api import VoicevoxClient
 from .mecab_tokenizer import tokenize_with_mecab
 from .reading_structs import RubyToken, align_moras_with_tokens
-import json
-from .routing import load_routing_config, resolve_voicevox_speaker_id
+from .routing import load_default_voice_config, load_routing_config, resolve_voicevox_speaker_id
 
 from factory_common.paths import audio_pkg_root, script_pkg_root, video_root
 from factory_common.text_sanitizer import strip_meta_from_script
-
-# Need to load voice_config.json manually because routing.py doesn't handle it fully
-def load_channel_voice_config(channel: str) -> Optional[Dict[str, Any]]:
-    config_path = script_pkg_root() / "audio" / "channels" / channel / "voice_config.json"
-    
-    if not config_path.exists():
-        print(f"[WARN] voice_config.json not found at {config_path}")
-        return None
-        
-    try:
-        data = json.loads(config_path.read_text(encoding="utf-8"))
-        # Extract default voice config
-        key = data.get("default_voice_key")
-        if key and "voices" in data and key in data["voices"]:
-            return data["voices"][key]
-        return None
-    except Exception as e:
-        print(f"[ERROR] Failed to load voice_config.json: {e}")
-        return None
 
 def run_strict_pipeline(
     channel: str,
@@ -56,7 +36,7 @@ def run_strict_pipeline(
     cfg = load_routing_config()
     
     # Load detailed voice config (speed, pitch, etc.)
-    voice_config = load_channel_voice_config(channel)
+    voice_config = load_default_voice_config(channel)
     if voice_config:
         print(f"[CONFIG] Loaded voice config: {json.dumps(voice_config, ensure_ascii=False)}")
     else:

@@ -66,10 +66,27 @@
   - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
   - `script_semantic_alignment_check` は **出力が厳格JSON** のため、`response_format: json_object` を使って「思考ありでもJSONが壊れにくい」側に寄せる（DeepSeek固定 / Kimiへフォールバックしない）。
 
-### 2.2 画像生成（SRT→画像）
-- `image_gen` / `image`
-  - primary: `gemini_2_5_flash_image`（Gemini / `gemini-2.5-flash-image`）
-  - **運用固定**: CapCutドラフト用の画像生成は原則このモデルに固定し、`gemini_3_*` 等へ勝手に切替しない。クォータ/障害時も「黙って別モデルに逃がさず」原因（キー/課金/クォータ）を先に解決する。
+### 2.2 画像生成（サムネ / 動画内画像）
+
+正本（重要）:
+- `configs/image_models.yaml`（ImageClient: task→tier→model）
+- サムネ: `workspaces/thumbnails/templates.json: channels[].templates[].image_model_key`
+- 動画内画像（SRT→画像）: `packages/video_pipeline/config/channel_presets.json: channels.<CH>.image_generation.model_key`
+  - 実行時は `packages/video_pipeline/src/srt2images/orchestration/pipeline.py` が `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` を自動セットする。
+
+現行の既定（2025-12-31）:
+- サムネ（背景生成）: `fireworks_flux_kontext_max`（FLUX.1 Kontext Max）
+- 動画内画像（CapCutドラフト用）:
+  - CH01: `fireworks_flux_kontext_max`
+  - CH02 / CH05 / CH22 / CH23: `fireworks_flux_kontext_pro`
+  - その他: tier既定 `fireworks_flux_1_schnell_fp8`（FLUX.1 schnell）
+
+運用ルール（重要）:
+- 無断で tier 候補を増やしたり順序変更しない（ImageClientのround-robinで“既定”がズレるため）。
+- 「一貫性」: 画像プロンプトのガードレール +（Kontextは）参照画像（input_image）で人物/場面のブレを抑える。
+- 一時切替（ファイル編集なし / その実行だけ）:
+  - 動画内画像: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=openrouter_gemini_2_5_flash_image`
+  - サムネ: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=openrouter_gemini_2_5_flash_image`
 
 ---
 
@@ -98,7 +115,7 @@
 - `visual_section_plan`: セクション設計
 - `visual_persona`: キャラ/一貫性（重い推論）
 - `visual_prompt_refine`: プロンプト強化（重い推論）
-- `visual_image_gen`: 画像生成（Gemini image）
+- `visual_image_gen`: 画像生成（ImageClient。正本: `configs/image_models.yaml` / CH別固定: `packages/video_pipeline/config/channel_presets.json`）
 
 ### 3.4 Belt/Title（補助）
 - `belt_generation`: ベルト文言生成（json_object）
@@ -108,7 +125,7 @@
 
 ## 4. 実行時の重要な補足（壊さないための知識）
 
-- `video_pipeline` は実行時に `SRT2IMAGES_IMAGE_MODEL` を上書きして画像モデルを固定する場合がある。
+- `video_pipeline` は実行時に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` をセットして画像モデルを固定する（チャンネルpreset由来）。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
 
 ### 4.0 モデル仕様の鮮度確認（OpenRouter）

@@ -1530,6 +1530,7 @@ def _build_planning_hint(meta: Dict[str, Any]) -> str:
     drop_l2_theme_hints = bool(integrity.get("drop_theme_hints")) or coherence in {"tag_mismatch", "no_title_tag"}
     fields = [
         ("concept_intent", "" if drop_l2_theme_hints else (planning.get("concept_intent") or meta.get("concept_intent"))),
+        ("historical_episodes", "" if drop_l2_theme_hints else planning.get("historical_episodes")),
         ("target_audience", planning.get("target_audience") or meta.get("target_audience")),
         ("life_scene", "" if drop_l2_theme_hints else (planning.get("life_scene") or meta.get("life_scene"))),
         ("main_tag", "" if drop_l2_theme_hints else (planning.get("primary_pain_tag") or meta.get("main_tag"))),
@@ -6702,15 +6703,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         "suspect": True,
                         "suspect_reason": suspect_reason,
                     }
-                    # Also annotate redo flags for visibility in UI/ops.
-                    note = str(st.metadata.get("redo_note") or "").strip()
-                    msg = f"整合NG: {suspect_reason}"
-                    if not note:
-                        st.metadata["redo_note"] = msg
-                    elif msg not in note:
-                        st.metadata["redo_note"] = f"{note} / {msg}"
-                    st.metadata.setdefault("redo_script", True)
-                    st.metadata.setdefault("redo_audio", True)
                     st.stages[stage_name].details["alignment_suspect"] = suspect_reason
                 else:
                     stamp = build_alignment_stamp(planning_row=csv_row, script_path=assembled_path)
@@ -6937,16 +6929,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     cleaned = cleaned2
                     cleanup_details["paren_marks_max"] = paren_max
 
-            repaired, dup_details = _repair_a_text_duplicate_paragraphs(cleaned)
-            if dup_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
-                cleaned = repaired
-                cleanup_details["duplicate_paragraph_repair"] = dup_details
-
-            repaired, ending_details = _repair_a_text_incomplete_ending(cleaned)
-            if ending_details and repaired.strip() and repaired.strip() != (cleaned or "").strip():
-                cleaned = repaired
-                cleanup_details["incomplete_ending_repair"] = ending_details
-
             if cleanup_details and cleaned.strip() and cleaned.strip() != (a_text or "").strip():
                 # Backup original before rewriting.
                 try:
@@ -6999,8 +6981,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 stage_details["stats"] = stats
                 stage_details["deterministic_cleanup"] = cleanup_details
 
-        # Auto-fix: length-only failures are safe to expand/shrink.
-        # This must run BEFORE alignment checks because we will update the A-text on disk.
+        # Auto-fix (default OFF): length-only failures are NOT safe to "just expand/shrink".
+        # This directly rewrites the A-text on disk and can create low-quality filler or awkward endings.
+        # Opt-in only when you explicitly accept that risk:
+        #   SCRIPT_VALIDATION_AUTO_LENGTH_FIX=1
+        # This must run BEFORE alignment checks because it updates the A-text on disk.
         try:
             non_warning_errors = [
                 it
@@ -7012,7 +6997,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             non_warning_errors = []
             error_codes = set()
 
-        if error_codes == {"length_too_short"} and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+        if (
+            error_codes == {"length_too_short"}
+            and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1"
+            and False  # deprecated/ignored (SSOT forbids auto length rescue)
+        ):
             try:
                 target_min = int(stats.get("target_chars_min")) if stats.get("target_chars_min") is not None else None
                 target_max = int(stats.get("target_chars_max")) if stats.get("target_chars_max") is not None else None
@@ -7189,9 +7178,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             "too_many_quotes",
                             "too_many_parentheses",
                             "forbidden_statistics",
-                            # Expand can accidentally introduce these; repair deterministically and keep rescuing.
-                            "duplicate_paragraph",
-                            "incomplete_ending",
                         }
                         if not (cur_codes and "length_too_short" in cur_codes and cur_codes.issubset(allowed_codes)):
                             break
@@ -7199,14 +7185,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         # Keep the length-rescue loop focused: clear fixable non-length codes deterministically.
                         if "forbidden_statistics" in cur_codes:
                             rescued2 = _sanitize_a_text_forbidden_statistics(rescued)
-                            if rescued2 != rescued:
-                                rescued = rescued2
-                        if "duplicate_paragraph" in cur_codes:
-                            rescued2, _dup_details = _repair_a_text_duplicate_paragraphs(rescued)
-                            if rescued2 != rescued:
-                                rescued = rescued2
-                        if "incomplete_ending" in cur_codes:
-                            rescued2, _ending_details = _repair_a_text_incomplete_ending(rescued)
                             if rescued2 != rescued:
                                 rescued = rescued2
                         if "too_many_quotes" in cur_codes and isinstance(quote_max2, int) and quote_max2 > 0:
@@ -7434,69 +7412,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception as exc:
                     stage_details = st.stages[stage_name].details
                     stage_details["auto_length_fix_error"] = str(exc)
-
-        # Post length-fix deterministic repairs:
-        # LLM expansions can introduce hard-rule defects (e.g., verbatim duplicate paragraphs, truncation).
-        # Repairing these deterministically is cheaper and safer than another regeneration loop.
-        if os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
-            try:
-                post_cleanup: Dict[str, Any] = {}
-                candidate = a_text
-
-                repaired, dup_details = _repair_a_text_duplicate_paragraphs(candidate)
-                if dup_details and repaired.strip() and repaired.strip() != (candidate or "").strip():
-                    candidate = repaired
-                    post_cleanup["duplicate_paragraph_repair"] = dup_details
-
-                repaired, ending_details = _repair_a_text_incomplete_ending(candidate)
-                if ending_details and repaired.strip() and repaired.strip() != (candidate or "").strip():
-                    candidate = repaired
-                    post_cleanup["incomplete_ending_repair"] = ending_details
-
-                if post_cleanup and candidate.strip() and candidate.strip() != (a_text or "").strip():
-                    stage_details = st.stages[stage_name].details
-                    try:
-                        analysis_dir = content_dir / "analysis" / "quality_gate"
-                        analysis_dir.mkdir(parents=True, exist_ok=True)
-                        backup_path = analysis_dir / f"backup_post_length_fix_{_utc_now_compact()}_{canonical_path.name}"
-                        if (a_text or "").strip():
-                            backup_path.write_text((a_text or "").strip() + "\n", encoding="utf-8")
-                        post_cleanup["backup_path"] = str(backup_path.relative_to(base))
-                    except Exception:
-                        pass
-
-                    candidate_text = candidate.strip() + "\n"
-                    canonical_path.write_text(candidate_text, encoding="utf-8")
-                    if canonical_path.resolve() != assembled_path.resolve():
-                        assembled_path.parent.mkdir(parents=True, exist_ok=True)
-                        assembled_path.write_text(candidate_text, encoding="utf-8")
-                    legacy_final = content_dir / "final" / "assembled.md"
-                    if legacy_final.exists():
-                        legacy_final.write_text(candidate_text, encoding="utf-8")
-
-                    # Re-stamp alignment so downstream guards remain consistent.
-                    if isinstance(st.metadata.get("alignment"), dict):
-                        try:
-                            csv_row = planning_row or _load_csv_row(
-                                _resolve_repo_path(str(channels_csv_path(st.channel))), st.video
-                            )
-                            if csv_row:
-                                planning_row = csv_row
-                                stamp = build_alignment_stamp(planning_row=csv_row, script_path=canonical_path)
-                                st.metadata["alignment"] = stamp.as_dict()
-                                planning_title = stamp.planning.get("title")
-                                if isinstance(planning_title, str) and planning_title.strip():
-                                    st.metadata["sheet_title"] = planning_title.strip()
-                                stage_details["alignment_restamped"] = True
-                        except Exception:
-                            post_cleanup["alignment_restamp_failed"] = True
-
-                    a_text = candidate_text
-                    issues, stats = validate_a_text(a_text, st.metadata or {})
-                    stage_details["post_length_fix_cleanup"] = post_cleanup
-            except Exception:
-                # Never fail validation due to best-effort repairs; the original issues will still block.
-                pass
 
         # Pre-clean before alignment/LLM judge: fix pause lines + quote marks deterministically.
         # The Judge treats these as major because they directly affect TTS rhythm/hazards.
@@ -7777,11 +7692,16 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             stage_details.pop("warning_issues", None)
 
         if errors:
-            # Auto-fix for "length only" failures:
-            # - Length issues are safe to tighten/expand via dedicated prompts.
+            # Auto-fix for "length only" failures (default OFF):
+            # - Length issues are NOT "safe" to tighten/expand automatically; quality can degrade.
+            # - Keep this opt-in for emergency rescue only.
             # - Hard forbidden patterns (URLs/footnotes/lists/headings/etc) must still stop here.
             error_codes = {str(it.get("code")) for it in errors if isinstance(it, dict) and it.get("code")}
-            if error_codes == {"length_too_long"} and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1":
+            if (
+                error_codes == {"length_too_long"}
+                and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1"
+                and _truthy_env("SCRIPT_VALIDATION_AUTO_LENGTH_FIX", "0")
+            ):
                 shrink_task = os.getenv(
                     "SCRIPT_VALIDATION_QUALITY_SHRINK_TASK", "script_a_text_quality_shrink"
                 ).strip()
@@ -8038,88 +7958,46 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             for it in re_issues
                             if str((it or {}).get("severity") or "error").lower() != "warning"
                         ]
-                        # Fallback: deterministic budget trim when LLM shrink under-delivers on length.
-                        # Disabled by default because it edits content and can degrade quality.
-                        # Enable only for emergency recovery:
-                        #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
-                        if re_errors and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
+                        if re_errors:
                             re_codes = {
                                 str(it.get("code"))
                                 for it in re_errors
                                 if isinstance(it, dict) and it.get("code")
                             }
+                            # If shrink doesn't land under target_max, enforce the limit deterministically.
+                            # This is an *emergency* rescue path and only runs when:
+                            # - The only hard error is length_too_long
+                            # - SCRIPT_VALIDATION_AUTO_LENGTH_FIX=1 is explicitly enabled
+                            # It preserves `---` markers and trims each pause-delimited segment proportionally.
                             if re_codes == {"length_too_long"}:
                                 try:
-                                    tmin = int(re_stats.get("target_chars_min")) if re_stats.get("target_chars_min") is not None else None
+                                    tmax = re_stats.get("target_chars_max")
+                                    tmax_i = int(tmax) if tmax is not None else None
                                 except Exception:
-                                    tmin = None
-                                try:
-                                    tmax = int(re_stats.get("target_chars_max")) if re_stats.get("target_chars_max") is not None else None
-                                except Exception:
-                                    tmax = None
-                                aim = None
-                                if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin and tmax > 0:
-                                    aim = int(round((tmin + tmax) / 2))
-                                    aim = min(tmax, max(tmin, aim))
-                                elif isinstance(tmax, int) and tmax > 0:
-                                    aim = tmax
-                                if isinstance(aim, int) and aim > 0:
-                                    trimmed = _budget_trim_a_text_to_target(candidate_text, target_chars=aim)
-                                    if trimmed.strip():
-                                        t_issues, t_stats = validate_a_text(trimmed, st.metadata or {})
-                                        t_errors = [
-                                            it
-                                            for it in t_issues
-                                            if str((it or {}).get("severity") or "error").lower() != "warning"
-                                        ]
-                                        if not t_errors:
-                                            stage_details["auto_length_fix_fallback"] = {
-                                                "type": "deterministic_budget_trim",
-                                                "target_chars": aim,
-                                                "before_char_count": re_stats.get("char_count"),
-                                                "after_char_count": t_stats.get("char_count"),
-                                            }
-                                            candidate_text = trimmed.strip() + "\n"
-                                            re_issues, re_stats = t_issues, t_stats
-                                            re_errors = []
-                            elif re_codes == {"length_too_short"} and last_length_only_too_long_text:
-                                # Shrink overshot below min → revert to last known "too long only" text,
-                                # then deterministically trim to a safe target within range.
-                                try:
-                                    tmin = int(re_stats.get("target_chars_min")) if re_stats.get("target_chars_min") is not None else None
-                                except Exception:
-                                    tmin = None
-                                try:
-                                    tmax = int(re_stats.get("target_chars_max")) if re_stats.get("target_chars_max") is not None else None
-                                except Exception:
-                                    tmax = None
-                                aim = None
-                                if isinstance(tmin, int) and isinstance(tmax, int) and tmax >= tmin and tmax > 0:
-                                    aim = int(round((tmin + tmax) / 2))
-                                    aim = min(tmax, max(tmin, aim))
-                                elif isinstance(tmax, int) and tmax > 0:
-                                    aim = tmax
-                                if isinstance(aim, int) and aim > 0:
-                                    trimmed = _budget_trim_a_text_to_target(
-                                        last_length_only_too_long_text, target_chars=aim
-                                    )
-                                    if trimmed.strip():
-                                        t_issues, t_stats = validate_a_text(trimmed, st.metadata or {})
-                                        t_errors = [
-                                            it
-                                            for it in t_issues
-                                            if str((it or {}).get("severity") or "error").lower() != "warning"
-                                        ]
-                                        if not t_errors:
-                                            stage_details["auto_length_fix_fallback"] = {
-                                                "type": "deterministic_budget_trim_from_too_long",
-                                                "target_chars": aim,
-                                                "before_char_count": re_stats.get("char_count"),
-                                                "after_char_count": t_stats.get("char_count"),
-                                            }
-                                            candidate_text = trimmed.strip() + "\n"
-                                            re_issues, re_stats = t_issues, t_stats
-                                            re_errors = []
+                                    tmax_i = None
+                                if isinstance(tmax_i, int) and tmax_i > 0:
+                                    # Keep a small buffer to avoid bouncing on the exact limit.
+                                    target = max(0, tmax_i - 120)
+                                    try:
+                                        trimmed = _budget_trim_a_text_to_target(candidate_text, target_chars=target)
+                                        trimmed = _sanitize_shrink_candidate(trimmed)
+                                        if trimmed.strip():
+                                            tri_issues, tri_stats = validate_a_text(trimmed, st.metadata or {})
+                                            tri_errors = [
+                                                it
+                                                for it in tri_issues
+                                                if str((it or {}).get("severity") or "error").lower() != "warning"
+                                            ]
+                                            if not tri_errors:
+                                                candidate_text = trimmed.strip() + "\n"
+                                                re_issues, re_stats, re_errors = tri_issues, tri_stats, tri_errors
+                                                stage_details["auto_length_fix_fallback"] = {
+                                                    "type": "budget_trim",
+                                                    "target_chars": target,
+                                                    "buffer": 120,
+                                                }
+                                    except Exception:
+                                        pass
                         if re_errors:
                             stage_details["auto_length_fix_failed"] = {
                                 "codes": sorted(
@@ -8254,19 +8132,17 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         # - require_ok=0: ok/minor pass; major blocks (default; prevents obvious title/intent drift)
         # - require_ok=1: only ok passes (strict; use when you want to force full alignment)
         semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
-        semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
-        # With require_ok=1, minor blocks; enable one auto-fix attempt by default to keep throughput.
-        semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
-        semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
+        # SSOT: Do NOT auto-overwrite A-text to "fix" semantic alignment inside script_validation.
+        # If alignment is not OK, stop and require a human/explicit CLI apply.
+        semantic_auto_fix = False
+        semantic_auto_fix_minor = False
+        semantic_auto_fix_major = False
         try:
             semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
         except Exception:
             semantic_max_chars = 30000
-        try:
-            semantic_max_fix_attempts = int(os.getenv("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS", "1"))
-        except Exception:
-            semantic_max_fix_attempts = 1
-        semantic_max_fix_attempts = min(max(0, semantic_max_fix_attempts), 2)
+        # deprecated/ignored (auto-fix disabled)
+        semantic_max_fix_attempts = 0
 
         if semantic_gate_enabled:
             try:
@@ -9554,22 +9430,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     out = sanitized.text
                 except Exception:
                     pass
-                # Deterministic content edits are OFF by default (bug magnet / can change meaning).
-                # If you *really* need them for emergency recovery, explicitly enable:
-                #   SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1
-                if _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0"):
-                    try:
-                        repaired, dup_details = _repair_a_text_duplicate_paragraphs(out)
-                        if dup_details and repaired.strip() and repaired.strip() != out.strip():
-                            out = repaired
-                    except Exception:
-                        pass
-                    try:
-                        repaired, ending_details = _repair_a_text_incomplete_ending(out)
-                        if ending_details and repaired.strip() and repaired.strip() != out.strip():
-                            out = repaired
-                    except Exception:
-                        pass
                 # Keep candidate within deterministic symbol budgets (TTS safety).
                 try:
                     quote_max = int((st.metadata or {}).get("a_text_quote_marks_max") or 20)
@@ -9592,20 +9452,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 except Exception:
                     pass
                 out = out.strip()
-                # Ensure ending completeness (avoid failing on `incomplete_ending` after LLM edits).
-                # Keep this extremely small/safe: only add a closing punctuation if missing.
-                if out:
-                    try:
-                        if not re.search(r"[。！？!?][」』）)]*\\Z", out):
-                            m = re.search(r"([」』）)]*)\\Z", out)
-                            closing = m.group(1) if m else ""
-                            core = out[: -len(closing)] if closing else out
-                            core = core.rstrip()
-                            if core and core[-1] not in "。！？!?":
-                                core = core + "。"
-                            out = (core + closing).strip()
-                    except Exception:
-                        pass
                 return out + "\n" if out else ""
 
             def _non_warning_errors(text: str) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -9980,28 +9826,6 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             allow = True
                         if isinstance(shortage, int) and 0 < shortage <= 2200 and depth < 4:
                             allow = True
-
-                        # Emergency fallback (OFF by default): deterministic trim when LLM shrink under-delivers.
-                        if (
-                            not allow
-                            and trial_codes == {"length_too_long"}
-                            and isinstance(trial_max, int)
-                            and trial_max > 0
-                            and _truthy_env("SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS", "0")
-                        ):
-                            try:
-                                trimmed = _budget_trim_a_text_to_target(shrunk, target_chars=trial_max)
-                                if trimmed.strip():
-                                    t_errors, t_stats = _non_warning_errors(trimmed)
-                                    if not t_errors:
-                                        llm_gate_details["length_rescue_deterministic_trim"] = {
-                                            "target_chars": trial_max,
-                                            "before_char_count": trial_stats.get("char_count"),
-                                            "after_char_count": t_stats.get("char_count"),
-                                        }
-                                        return trimmed
-                            except Exception:
-                                pass
 
                         if allow:
                             topup = _rescue_length(shrunk, errors_list=trial_errors, stats2=trial_stats, depth=depth + 1)
@@ -12072,36 +11896,42 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             except Exception:
                 pass
 
-            # Safety: avoid auto-overwriting human-authored SoT (assembled_human.md) by default.
-            default_auto_apply = "0" if canonical_path.resolve() == human_path.resolve() else "1"
-            auto_apply = _truthy_env("SCRIPT_VALIDATION_LLM_AUTO_APPLY", default_auto_apply)
-            llm_gate_details["auto_apply"] = bool(auto_apply)
-            llm_gate_details["auto_apply_default"] = default_auto_apply
+            # Auto-apply policy (operator-controlled).
+            #
+            # Default: auto-apply the LLM gate output to the canonical A-text, because this pipeline is
+            # intended to run unattended (human does not hand-edit scripts).
+            # If you need a "proposal only" workflow, disable via:
+            #   SCRIPT_VALIDATION_LLM_GATE_AUTO_APPLY=0
+            auto_apply = _truthy_env("SCRIPT_VALIDATION_LLM_GATE_AUTO_APPLY", "1")
+            llm_gate_details["auto_apply"] = auto_apply
+            llm_gate_details["auto_apply_default"] = "1"
 
-            if not auto_apply:
-                proposed_path = analysis_dir / f"proposed_{_utc_now_compact()}_{canonical_path.name}"
+            proposed_path = analysis_dir / f"proposed_{_utc_now_compact()}_{canonical_path.name}"
+            try:
+                proposed_path.write_text(final_text.strip() + "\n", encoding="utf-8")
+                llm_gate_details["proposed_path"] = str(proposed_path.relative_to(base))
+            except Exception:
+                proposed_path = analysis_dir / "proposed_llm_gate.md"
                 try:
                     proposed_path.write_text(final_text.strip() + "\n", encoding="utf-8")
                     llm_gate_details["proposed_path"] = str(proposed_path.relative_to(base))
                 except Exception:
-                    proposed_path = analysis_dir / "proposed_llm_gate.md"
-                    try:
-                        proposed_path.write_text(final_text.strip() + "\n", encoding="utf-8")
-                        llm_gate_details["proposed_path"] = str(proposed_path.relative_to(base))
-                    except Exception:
-                        pass
+                    pass
 
+            if not auto_apply:
                 stage_details["error"] = "llm_gate_proposed_not_applied"
                 stage_details["error_codes"] = sorted(
                     set(stage_details.get("error_codes") or []) | {"llm_gate_proposed_not_applied"}
                 )
                 proposed_rel = str(llm_gate_details.get("proposed_path") or "").strip()
                 fix_hints = [
-                    "LLM品質ゲートの修正版は自動適用しません（安全のため）。必要なら提案ファイルを確認して手動で反映してください。",
+                    "LLM品質ゲートの修正案は自動適用しません。提案ファイルを確認し、書き手が手動で反映してください。",
                     f"proposed: {proposed_rel}",
                 ]
                 if proposed_rel:
-                    fix_hints.append(f"apply: cp \"{(base / proposed_rel).resolve()}\" \"{canonical_path.resolve()}\"")
+                    fix_hints.append(
+                        f"apply: cp \"{(base / proposed_rel).resolve()}\" \"{canonical_path.resolve()}\""
+                    )
                 stage_details["fix_hints"] = fix_hints
                 st.stages[stage_name].status = "pending"
                 st.status = "script_in_progress"
@@ -12112,34 +11942,32 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     pass
                 return st
 
+            # Apply to canonical and keep mirrors consistent to avoid split-brain.
             try:
-                canonical_path.parent.mkdir(parents=True, exist_ok=True)
-                canonical_path.write_text(final_text.strip() + "\n", encoding="utf-8")
-                # Keep mirror `assembled.md` in sync when canonical is `assembled_human.md`.
+                candidate_text = final_text.strip() + "\n"
+                canonical_path.write_text(candidate_text, encoding="utf-8")
                 if canonical_path.resolve() != assembled_path.resolve():
                     assembled_path.parent.mkdir(parents=True, exist_ok=True)
-                    assembled_path.write_text(final_text.strip() + "\n", encoding="utf-8")
-                # Legacy mirror guard: keep it consistent if it still exists.
+                    assembled_path.write_text(candidate_text, encoding="utf-8")
                 if legacy_final.exists():
-                    legacy_final.write_text(final_text.strip() + "\n", encoding="utf-8")
-
-                stage_details["rewritten_by_llm_gate"] = True
-                try:
-                    note = str(st.metadata.get("redo_note") or "").strip()
-                    msg = "LLM品質ゲートでAテキストが自動修正されました"
-                    if not note:
-                        st.metadata["redo_note"] = msg
-                    elif msg not in note:
-                        st.metadata["redo_note"] = f"{note} / {msg}"
-                    st.metadata["redo_audio"] = True
-                except Exception:
-                    pass
+                    legacy_final.write_text(candidate_text, encoding="utf-8")
+                llm_gate_details["applied_path"] = str(canonical_path.relative_to(base))
             except Exception as exc:
-                stage_details["error"] = "cannot_write_a_text"
-                stage_details["exception"] = str(exc)
+                stage_details["error"] = "llm_gate_apply_failed"
+                stage_details["error_codes"] = sorted(
+                    set(stage_details.get("error_codes") or []) | {"llm_gate_apply_failed"}
+                )
+                stage_details["fix_hints"] = [
+                    f"failed to apply llm_gate output: {exc}",
+                    f"proposed: {str(llm_gate_details.get('proposed_path') or '').strip()}",
+                ]
                 st.stages[stage_name].status = "pending"
                 st.status = "script_in_progress"
                 save_status(st)
+                try:
+                    _write_script_manifest(base, st, stage_defs)
+                except Exception:
+                    pass
                 return st
 
             # Re-stamp alignment on success (keeps run_tts guard consistent) when possible.
@@ -12209,18 +12037,16 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     benefit = str(planning.get("benefit_blurb") or (st.metadata or {}).get("benefit") or "").strip()
 
                 semantic_require_ok = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK", "0")
-                semantic_auto_fix = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX", "1")
-                semantic_auto_fix_minor = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR", "0")
-                semantic_auto_fix_major = _truthy_env("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR", "1")
+                # SSOT: Do NOT auto-overwrite A-text to "fix" semantic alignment inside script_validation.
+                semantic_auto_fix = False
+                semantic_auto_fix_minor = False
+                semantic_auto_fix_major = False
                 try:
                     semantic_max_chars = int(os.getenv("SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS", "30000"))
                 except Exception:
                     semantic_max_chars = 30000
-                try:
-                    semantic_max_fix_attempts = int(os.getenv("SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS", "1"))
-                except Exception:
-                    semantic_max_fix_attempts = 1
-                semantic_max_fix_attempts = min(max(0, semantic_max_fix_attempts), 2)
+                # deprecated/ignored (auto-fix disabled)
+                semantic_max_fix_attempts = 0
 
                 try:
                     current_chars = int(((stage_details.get("stats") or {}).get("char_count")) or 0)

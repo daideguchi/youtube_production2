@@ -1,6 +1,7 @@
 """Video production API routes (video_pipeline integration)."""
 from __future__ import annotations
 
+import csv
 import json
 import os
 import sys
@@ -25,6 +26,7 @@ from factory_common.paths import (
     audio_artifacts_root,
     audio_final_dir,
     logs_root,
+    planning_channels_dir,
     repo_root as ssot_repo_root,
     script_data_root,
     video_pkg_root,
@@ -208,7 +210,23 @@ else:
         enriched: List[Dict[str, Any]] = []
         for summary in summaries:
             data = jsonable_encoder(summary)
-            data["source_status"] = _compute_source_status(data.get("id"))
+            source_status = _compute_source_status(data.get("id"))
+            data["source_status"] = source_status
+            data["planning"] = _planning_summary(source_status.get("channel"), source_status.get("video_number"))
+            project_id = str(data.get("id") or "").strip()
+            if project_id:
+                project_dir = (OUTPUT_ROOT / project_id).resolve()
+                data["image_progress"] = _compute_image_progress(project_dir, channel_code=source_status.get("channel"))
+            else:
+                data["image_progress"] = {
+                    "required_total": 0,
+                    "generated_ready": 0,
+                    "placeholders": 0,
+                    "missing": 0,
+                    "status": None,
+                    "mode": None,
+                    "placeholder_reason": None,
+                }
             enriched.append(data)
         return enriched
 
@@ -234,9 +252,15 @@ else:
             asset.url = f"/api/video-production/assets/{asset.path}"
 
         payload = jsonable_encoder(detail)
+        source_status = _compute_source_status(project_id)
+        planning = _planning_summary(source_status.get("channel"), source_status.get("video_number"))
+        image_progress = _compute_image_progress(project_dir, channel_code=source_status.get("channel") or channel_code)
+        if isinstance(payload.get("summary"), dict):
+            payload["summary"]["planning"] = planning
+            payload["summary"]["image_progress"] = image_progress
         payload["guard"] = guard
         payload["capcut"] = _load_capcut_settings(project_dir)
-        payload["source_status"] = _compute_source_status(project_id)
+        payload["source_status"] = source_status
         payload["generation_options"] = _load_generation_options(project_id)
         payload["artifacts"] = _summarize_project_artifacts(project_dir)
         return payload
@@ -508,13 +532,82 @@ else:
 
         temp_path = target_path.with_suffix(target_path.suffix + ".tmp")
         try:
-            with open(temp_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+            file.file.seek(0)
+            from PIL import Image  # type: ignore
+
+            img = Image.open(file.file)
+            img.load()
+            suffix = target_path.suffix.lower()
+            if suffix == ".png":
+                img.save(temp_path, format="PNG")
+            elif suffix in {".jpg", ".jpeg"}:
+                img = img.convert("RGB")
+                img.save(temp_path, format="JPEG", quality=95)
+            elif suffix == ".webp":
+                img.save(temp_path, format="WEBP", quality=95)
+            else:  # pragma: no cover - guarded by suffix check above
+                raise ValueError(f"unsupported image suffix: {suffix}")
             os.replace(temp_path, target_path)
         except Exception as exc:  # pragma: no cover - I/O failure
             if temp_path.exists():
                 temp_path.unlink()
             raise HTTPException(status_code=500, detail=f"failed to replace image: {exc}") from exc
+
+        stat = target_path.stat()
+        rel = target_path.relative_to(OUTPUT_ROOT)
+        return {
+            "path": str(rel),
+            "url": f"/api/video-production/assets/{rel}",
+            "size_bytes": stat.st_size,
+            "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        }
+
+    @video_router.post("/projects/{project_id}/images/upload")
+    async def upload_project_image(
+        project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)],
+        image_index: int = Form(...),
+        file: UploadFile = FastAPIFile(...),
+    ):
+        if image_index <= 0:
+            raise HTTPException(status_code=400, detail="image_index must be >= 1")
+        if not file.content_type or not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="uploaded file must be an image")
+
+        project_dir = _resolve_project_dir(project_id)
+        images_dir = project_dir / "images"
+        images_dir.mkdir(parents=True, exist_ok=True)
+
+        stem = f"{image_index:04d}"
+        candidate = None
+        for ext in (".png", ".jpg", ".jpeg", ".webp"):
+            path = images_dir / f"{stem}{ext}"
+            if path.exists() and path.is_file():
+                candidate = path
+                break
+        target_path = candidate or (images_dir / f"{stem}.png")
+
+        temp_path = target_path.with_suffix(target_path.suffix + ".tmp")
+        try:
+            file.file.seek(0)
+            from PIL import Image  # type: ignore
+
+            img = Image.open(file.file)
+            img.load()
+            suffix = target_path.suffix.lower()
+            if suffix == ".png":
+                img.save(temp_path, format="PNG")
+            elif suffix in {".jpg", ".jpeg"}:
+                img = img.convert("RGB")
+                img.save(temp_path, format="JPEG", quality=95)
+            elif suffix == ".webp":
+                img.save(temp_path, format="WEBP", quality=95)
+            else:  # pragma: no cover - guarded by suffix check above
+                raise ValueError(f"unsupported image suffix: {suffix}")
+            os.replace(temp_path, target_path)
+        except Exception as exc:  # pragma: no cover - I/O failure
+            if temp_path.exists():
+                temp_path.unlink()
+            raise HTTPException(status_code=500, detail=f"failed to write image: {exc}") from exc
 
         stat = target_path.stat()
         rel = target_path.relative_to(OUTPUT_ROOT)
@@ -982,6 +1075,156 @@ else:
             return {}
 
     _IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+
+    _PLANNING_CACHE: Dict[str, Any] = {"mtime": {}, "titles": {}}
+
+    def _normalize_planning_video_number(value: Any) -> str:
+        raw = str(value or "").strip()
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if not digits:
+            return ""
+        return digits.zfill(3)
+
+    def _load_planning_titles(channel_code: str) -> Dict[str, str]:
+        code = channel_code.upper()
+        csv_path = planning_channels_dir() / f"{code}.csv"
+        if not csv_path.exists():
+            _PLANNING_CACHE["mtime"].pop(code, None)
+            _PLANNING_CACHE["titles"].pop(code, None)
+            return {}
+
+        try:
+            mtime = csv_path.stat().st_mtime
+        except OSError:
+            return {}
+
+        cached_mtime = _PLANNING_CACHE["mtime"].get(code)
+        cached_titles = _PLANNING_CACHE["titles"].get(code)
+        if cached_titles is not None and cached_mtime == mtime:
+            return cached_titles
+
+        titles: Dict[str, str] = {}
+        try:
+            with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+                reader = csv.DictReader(handle)
+                for row in reader:
+                    if not isinstance(row, dict):
+                        continue
+                    video_number = _normalize_planning_video_number(row.get("動画番号") or row.get("VideoNumber") or "")
+                    if not video_number:
+                        continue
+                    title = str(row.get("タイトル") or row.get("Title") or "").strip()
+                    if title:
+                        titles[video_number] = title
+        except Exception:
+            titles = {}
+
+        _PLANNING_CACHE["mtime"][code] = mtime
+        _PLANNING_CACHE["titles"][code] = titles
+        return titles
+
+    def _planning_summary(channel_code: Optional[str], video_number: Optional[str]) -> Dict[str, Any]:
+        if not channel_code or not video_number:
+            return {"channel": None, "video_number": None, "title": None}
+        channel_code = channel_code.upper()
+        video_number = str(video_number).zfill(3)
+        title = _load_planning_titles(channel_code).get(video_number)
+        return {"channel": channel_code, "video_number": video_number, "title": title}
+
+    def _count_image_cues(project_dir: Path) -> int:
+        cues_path = project_dir / "image_cues.json"
+        if not cues_path.exists():
+            return 0
+        obj = _safe_read_json_limited(cues_path)
+        cues = obj.get("cues") if isinstance(obj, dict) else None
+        if not isinstance(cues, list):
+            return 0
+        return sum(1 for cue in cues if isinstance(cue, dict))
+
+    def _list_images(project_dir: Path) -> List[Path]:
+        images_dir = project_dir / "images"
+        if not images_dir.exists() or not images_dir.is_dir():
+            return []
+        try:
+            files = [p for p in images_dir.iterdir() if p.is_file() and p.suffix.lower() in _IMAGE_EXTENSIONS]
+        except Exception:
+            return []
+        return sorted(files)
+
+    def _compute_image_progress(project_dir: Path, *, channel_code: Optional[str] = None) -> Dict[str, Any]:
+        required_total = _count_image_cues(project_dir)
+        image_files = _list_images(project_dir)
+        total_images = len(image_files)
+
+        auto = _safe_read_json(project_dir / "auto_run_info.json")
+        progress = auto.get("progress") if isinstance(auto, dict) else None
+        img_step = progress.get("image_generation") if isinstance(progress, dict) else None
+
+        mode = img_step.get("mode") if isinstance(img_step, dict) else None
+        status = img_step.get("status") if isinstance(img_step, dict) else None
+
+        placeholders_info = img_step.get("placeholders") if isinstance(img_step, dict) else None
+        placeholder_reason = placeholders_info.get("reason") if isinstance(placeholders_info, dict) else None
+
+        placeholder_expected: Optional[int] = None
+        placeholder_created: Optional[int] = None
+        if isinstance(placeholders_info, dict):
+            try:
+                placeholder_expected = int(placeholders_info.get("expected")) if placeholders_info.get("expected") is not None else None
+            except Exception:
+                placeholder_expected = None
+            try:
+                placeholder_created = int(placeholders_info.get("created")) if placeholders_info.get("created") is not None else None
+            except Exception:
+                placeholder_created = None
+
+        if required_total <= 0:
+            for candidate in (placeholder_expected, placeholder_created, total_images):
+                if isinstance(candidate, int) and candidate > 0:
+                    required_total = candidate
+                    break
+
+        generated_ready = 0
+        placeholders_present = 0
+
+        preset = _get_channel_preset(channel_code)
+        min_bytes = preset.get("image_min_bytes") if isinstance(preset, dict) else None
+        if isinstance(min_bytes, int) and min_bytes > 0:
+            tiny_count = 0
+            for path in image_files:
+                try:
+                    if path.stat().st_size < min_bytes:
+                        tiny_count += 1
+                except Exception:
+                    continue
+            placeholders_present = tiny_count
+            generated_ready = max(0, total_images - tiny_count)
+        else:
+            # Fallback: use auto_run_info placeholder counts when size-based classification is unavailable.
+            fallback_placeholders = 0
+            if isinstance(placeholder_created, int) and placeholder_created > 0:
+                fallback_placeholders = placeholder_created
+            elif isinstance(placeholder_expected, int) and placeholder_expected > 0:
+                fallback_placeholders = placeholder_expected
+            fallback_placeholders = max(0, min(int(fallback_placeholders), total_images))
+            placeholders_present = fallback_placeholders
+            generated_ready = max(0, total_images - fallback_placeholders)
+
+        if required_total > 0:
+            generated_ready = min(generated_ready, required_total)
+            placeholders_present = min(placeholders_present, required_total)
+
+        missing = max(0, required_total - generated_ready)
+
+        return {
+            "required_total": int(required_total),
+            "generated_ready": int(generated_ready),
+            "placeholders": int(placeholders_present),
+            "missing": int(missing),
+            "status": status,
+            "mode": mode,
+            "placeholder_reason": placeholder_reason,
+        }
 
     def _summarize_project_artifacts(project_dir: Path) -> Dict[str, Any]:
         def _file_entry(

@@ -39,6 +39,7 @@ tool_bootstrap(load_env=False)
 
 from factory_common.paths import (  # noqa: E402
     audio_artifacts_root,
+    audio_final_dir,
     channels_csv_path,
     repo_root,
     video_capcut_local_drafts_root,
@@ -58,6 +59,43 @@ from factory_common.timeline_manifest import (
 )
 
 from video_pipeline.src.core.config import config
+
+def _warn_if_audio_final_missing_metadata(*, episode: EpisodeId, wav_path: Path, srt_path: Path) -> None:
+    """
+    Audio/SRT desync is CODE RED.
+
+    We strongly prefer STRICT audio_tts artifacts which include metadata files (a_text/audio_manifest/log)
+    to guard against stale/mismatched audio/SRT.
+    """
+    try:
+        final_dir = audio_final_dir(episode.channel, episode.video)
+    except Exception:
+        final_dir = wav_path.parent
+
+    expected = {
+        "a_text.txt": final_dir / "a_text.txt",
+        "audio_manifest.json": final_dir / "audio_manifest.json",
+        "log.json": final_dir / "log.json",
+    }
+    missing = [name for name, p in expected.items() if not p.exists()]
+    if not missing:
+        return
+
+    print(
+        "\n".join(
+            [
+                "⚠️ [CODE RED] audio_tts final metadata missing (stale/desync risk).",
+                f"- episode: {episode.episode}",
+                f"- wav: {wav_path}",
+                f"- srt: {srt_path}",
+                f"- missing: {', '.join(missing)}",
+                "",
+                "Fix (recommended):",
+                f"  ./scripts/with_ytm_env.sh python3 -m audio_tts.scripts.run_tts --channel {episode.channel} --video {episode.video} --input workspaces/scripts/{episode.channel}/{episode.video}/content/assembled.md",
+                "",
+            ]
+        )
+    )
 
 def _load_sources_doc() -> Dict[str, Any]:
     """
@@ -197,22 +235,147 @@ def run(cmd, env, cwd, exit_on_error=True, timeout=None, abort_patterns=None):
                 print(f"❌ Abort pattern detected: {line}")
                 proc.terminate()
                 proc.wait(timeout=5)
-                return subprocess.CompletedProcess(cmd, 1)
+                res = subprocess.CompletedProcess(cmd, 1)
+                res.elapsed = time.time() - start  # attach elapsed seconds
+                return res
         proc.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
         proc.terminate()
-        return subprocess.CompletedProcess(cmd, 124)
+        res = subprocess.CompletedProcess(cmd, 124)
+        res.elapsed = time.time() - start  # attach elapsed seconds
+        return res
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
         proc.terminate()
-        return subprocess.CompletedProcess(cmd, 1)
+        res = subprocess.CompletedProcess(cmd, 1)
+        res.elapsed = time.time() - start  # attach elapsed seconds
+        return res
 
     elapsed = time.time() - start
     res = subprocess.CompletedProcess(cmd, proc.returncode)
     res.elapsed = elapsed  # attach elapsed seconds
-    if res.returncode != 0 and exit_on_error:
-        sys.exit(res.returncode)
     return res
+
+
+def _env_truthy(name: str) -> bool:
+    return (os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def _parse_size_str(size: str) -> tuple[int, int] | None:
+    m = re.match(r"^(\\d+)x(\\d+)$", str(size or "").strip())
+    if not m:
+        return None
+    w = int(m.group(1))
+    h = int(m.group(2))
+    if w <= 0 or h <= 0:
+        return None
+    return w, h
+
+
+def _write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _ensure_placeholder_images_for_cues(
+    *,
+    run_dir: Path,
+    size: tuple[int, int] | None,
+    reason: str,
+) -> dict:
+    """
+    Ensure `images/0001.png ... images/<N>.png` exist for every cue in image_cues.json.
+    This is required to build CapCut drafts even when external image generation is paused.
+    """
+    cues_path = run_dir / "image_cues.json"
+    if not cues_path.exists():
+        return {"status": "skipped", "reason": "image_cues_missing", "expected": 0, "created": 0}
+
+    try:
+        cues_obj = json.loads(cues_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"status": "failed", "reason": f"invalid_image_cues_json: {e}", "expected": 0, "created": 0}
+
+    cues_list = cues_obj.get("cues", []) if isinstance(cues_obj, dict) else []
+    expected = len(cues_list) if isinstance(cues_list, list) else 0
+    if expected <= 0:
+        return {"status": "skipped", "reason": "no_cues", "expected": 0, "created": 0}
+
+    images_dir = run_dir / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    if not size:
+        # Best-effort fallback to cues size
+        try:
+            sz = cues_obj.get("size") if isinstance(cues_obj, dict) else None
+            if isinstance(sz, dict):
+                w = int(sz.get("width") or 0)
+                h = int(sz.get("height") or 0)
+                if w > 0 and h > 0:
+                    size = (w, h)
+        except Exception:
+            size = None
+
+    width, height = size or (1920, 1080)
+
+    try:
+        from PIL import Image, ImageDraw, ImageFont  # type: ignore
+    except Exception as e:  # pragma: no cover
+        return {"status": "failed", "reason": f"pillow_missing: {e}", "expected": expected, "created": 0}
+
+    font = None
+    try:
+        font = ImageFont.load_default()
+    except Exception:
+        font = None
+
+    def wrap_jp(text: str, *, cols: int, max_lines: int) -> list[str]:
+        t = " ".join(str(text or "").split())
+        if not t:
+            return []
+        out: list[str] = []
+        cur = ""
+        for ch in t:
+            cur += ch
+            if len(cur) >= cols:
+                out.append(cur)
+                cur = ""
+                if len(out) >= max_lines:
+                    return out
+        if cur and len(out) < max_lines:
+            out.append(cur)
+        return out
+
+    created = 0
+    created_indices: list[int] = []
+    for i in range(1, expected + 1):
+        out_path = images_dir / f"{i:04d}.png"
+        if out_path.exists():
+            continue
+        cue = cues_list[i - 1] if (isinstance(cues_list, list) and (i - 1) < len(cues_list)) else {}
+        summary = ""
+        if isinstance(cue, dict):
+            summary = str(cue.get("summary") or cue.get("text") or "").strip()
+
+        img = Image.new("RGB", (width, height), (245, 245, 245))
+        draw = ImageDraw.Draw(img)
+        lines = [f"PLACEHOLDER {i:04d}/{expected}", f"Reason: {reason}"]
+        if summary:
+            lines.append("")
+            lines.extend(wrap_jp(summary, cols=34, max_lines=14))
+        draw.multiline_text((48, 48), "\n".join(lines), fill=(30, 30, 30), font=font, spacing=6)
+        img.save(out_path, format="PNG")
+        created += 1
+        created_indices.append(i)
+
+    return {
+        "status": "ok",
+        "expected": expected,
+        "created": created,
+        "created_indices": created_indices[:50],  # cap to keep JSON small
+        "reason": reason,
+        "size": {"width": width, "height": height},
+    }
 
 
 def make_equal_split_belt(run_dir: Path, labels: str, opening_offset: float = 0.0):
@@ -562,6 +725,7 @@ def main():
     if args.prefer_tts_final and episode and episode.channel.upper() == args.channel.upper():
         try:
             effective_wav_path, effective_srt_path = resolve_final_audio_srt(episode)
+            _warn_if_audio_final_missing_metadata(episode=episode, wav_path=effective_wav_path, srt_path=effective_srt_path)
             if effective_srt_path.resolve() != requested_srt_path.resolve():
                 print(f"[SoT] Using final SRT: {effective_srt_path} (requested: {requested_srt_path})")
         except FileNotFoundError:
@@ -689,6 +853,50 @@ def main():
             srt_copy.write_bytes(src_bytes)
             print(f"[SYNC] run_dir SRT copied (resume): {srt_copy.name}")
 
+    # --- progress log (auto_run_info.json) -----------------------------------
+    log_path = run_dir / "auto_run_info.json"
+    try:
+        existing = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {}
+    except Exception:
+        existing = {}
+    log: dict = existing if isinstance(existing, dict) else {}
+    log.setdefault("schema", "ytm.auto_run_info.v2")
+    log.update(
+        {
+            "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+            "channel": args.channel,
+            "video": episode.video if episode else "",
+            "episode_id": episode.episode if episode else "",
+            "run_dir": str(run_dir),
+            "run_name": run_name,
+            "srt": str(effective_srt_path.resolve()),  # back-compat
+            "srt_requested": str(requested_srt_path),
+            "srt_effective": str(effective_srt_path.resolve()),
+            "audio_wav_effective": str(effective_wav_path.resolve()) if effective_wav_path else "",
+            "template": template_override,
+            "draft_root": str(Path(args.draft_root).resolve()),
+            "nanobanana": args.nanobanana,
+            "force": bool(args.force),
+            "resume": bool(args.resume),
+            "fallback_if_missing_cues": bool(args.fallback_if_missing_cues),
+            "timeout_ms": int(args.timeout_ms or 0),
+            "status": "running",
+            "env_flags": {
+                "SRT2IMAGES_DISABLE_TEXT_LLM": _env_truthy("SRT2IMAGES_DISABLE_TEXT_LLM"),
+            },
+        }
+    )
+    progress = log.setdefault("progress", {})
+    if isinstance(progress, dict):
+        progress.setdefault("pipeline", {"status": "pending"})
+        progress.setdefault("image_generation", {"status": "pending"})
+        progress.setdefault("belt", {"status": "pending"})
+        progress.setdefault("broll", {"status": "pending"})
+        progress.setdefault("draft", {"status": "pending"})
+        progress.setdefault("title_injection", {"status": "pending"})
+        progress.setdefault("timeline_manifest", {"status": "pending"})
+    _write_json(log_path, log)
+
     if need_pipeline:
         # Resolve run_pipeline.py relative to this script to avoid hardcoding CWD assumptions
         tools_dir = Path(__file__).resolve().parent
@@ -738,6 +946,18 @@ def main():
                 pass
             pipeline_cmd += ["--nanobanana", "none"]
             pipeline_cmd = [x for x in pipeline_cmd if x != "--force"]
+        # Progress: pipeline start
+        try:
+            prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+            if isinstance(prog, dict):
+                prog["pipeline"] = {
+                    "status": "running",
+                    "cmd": " ".join(pipeline_cmd),
+                }
+            _write_json(log_path, log)
+        except Exception:
+            pass
+
         pipeline_res = run(
             pipeline_cmd,
             env,
@@ -746,9 +966,34 @@ def main():
             timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
             abort_patterns=args.abort_on_log,
         )
+        # Progress: pipeline end
+        try:
+            prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+            if isinstance(prog, dict):
+                prog["pipeline"] = {
+                    "status": "ok" if pipeline_res.returncode == 0 else "failed",
+                    "cmd": " ".join(pipeline_cmd),
+                    "returncode": int(pipeline_res.returncode),
+                    "elapsed_sec": round(float(getattr(pipeline_res, "elapsed", 0.0) or 0.0), 2),
+                }
+            _write_json(log_path, log)
+        except Exception:
+            pass
+
+        if pipeline_res.returncode != 0 and args.exit_on_error:
+            log["status"] = "failed"
+            _write_json(log_path, log)
+            sys.exit(pipeline_res.returncode)
     else:
         pipeline_res = None
         print("ℹ️ resume mode: skipping pipeline (reuse existing cues/images)")
+        try:
+            prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+            if isinstance(prog, dict):
+                prog["pipeline"] = {"status": "skipped", "reason": "resume"}
+            _write_json(log_path, log)
+        except Exception:
+            pass
 
     # Optional: inject stock B-roll videos (~20%) into image_cues.json (muted in CapCut insertion).
     broll_summary = None
@@ -768,6 +1013,25 @@ def main():
         except Exception as e:
             print(f"⚠️ B-roll injection failed: {e}")
             broll_summary = None
+
+    # Progress: b-roll
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            if args.broll_provider and args.broll_provider != "none":
+                prog["broll"] = {
+                    "status": "ok" if broll_summary is not None else "failed",
+                    "provider": args.broll_provider,
+                    "ratio": float(args.broll_ratio or 0.0),
+                    "injected": int(getattr(broll_summary, "injected_count", 0) or 0),
+                    "target": int(getattr(broll_summary, "target_count", 0) or 0),
+                    "manifest": str(getattr(broll_summary, "manifest_path", "") or ""),
+                }
+            else:
+                prog["broll"] = {"status": "skipped", "provider": "none"}
+        _write_json(log_path, log)
+    except Exception:
+        pass
 
     # 2) belt_config generation (optional)
     labels = args.labels or preset.get("belt_labels") or ""
@@ -831,7 +1095,18 @@ def main():
                 "--labels",
                 labels,
             ]
-        run(belt_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
+        belt_res = run(
+            belt_cmd,
+            env,
+            PROJECT_ROOT,
+            exit_on_error=args.exit_on_error,
+            timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
+            abort_patterns=args.abort_on_log,
+        )
+        if belt_res.returncode != 0 and args.exit_on_error:
+            log["status"] = "failed"
+            _write_json(log_path, log)
+            sys.exit(belt_res.returncode)
     elif resolved_belt_mode == "llm":
         if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
             raise SystemExit(
@@ -843,12 +1118,44 @@ def main():
         print(f"❌ Unknown belt_mode: {args.belt_mode}")
         sys.exit(1)
 
+    # Progress: belt_config
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            bp = run_dir / "belt_config.json"
+            if bp.exists():
+                prog["belt"] = {"status": "ok", "mode": str(resolved_belt_mode), "path": str(bp)}
+            else:
+                prog["belt"] = {"status": "skipped", "mode": str(resolved_belt_mode), "path": ""}
+        _write_json(log_path, log)
+    except Exception:
+        pass
+
     if args.dry_run:
         print("✅ Dry-run: Skipped draft build")
         return
 
     if args.sleep_after_generation > 0:
         time.sleep(args.sleep_after_generation)
+
+    # Ensure placeholder images exist when external image generation is paused (or when some files are missing).
+    placeholder_reason = "external_image_generation_paused" if args.nanobanana == "none" else "missing_images_filled"
+    ph_meta = _ensure_placeholder_images_for_cues(
+        run_dir=run_dir,
+        size=_parse_size_str(args.size),
+        reason=placeholder_reason,
+    )
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            prog["image_generation"] = {
+                "status": "skipped" if args.nanobanana == "none" else "ok",
+                "mode": args.nanobanana,
+                "placeholders": ph_meta,
+            }
+        _write_json(log_path, log)
+    except Exception:
+        pass
 
     # 3) CapCut draft build
     # Title sources (no LLM unless unavoidable):
@@ -868,6 +1175,13 @@ def main():
             print(f"❌ Title generation failed: {e}")
             sys.exit(1)
     effective_belt_title = args.title or planning_belt_text or generated_title or Path(args.srt).stem
+    title_source = "fallback"
+    if args.title:
+        title_source = "cli"
+    elif planning_belt_text:
+        title_source = "planning_csv"
+    elif generated_title:
+        title_source = "llm"
 
     def _sanitize_capcut_name(value: str, *, max_len: int = 220) -> str:
         safe = re.sub(r"[\\/:*?\"<>|]", "_", str(value))
@@ -888,6 +1202,18 @@ def main():
             safe = _sanitize_capcut_name(str(effective_belt_title), max_len=120)
             if safe:
                 draft_name = f"{draft_base}__{safe}"
+
+    # Progress: resolved title + draft name
+    try:
+        log["title"] = str(effective_belt_title)
+        log["title_source"] = str(title_source)
+        log["draft_name_policy"] = str(args.draft_name_policy)
+        log["draft_name_with_title"] = bool(args.draft_name_with_title)
+        log["draft_name"] = str(draft_name)
+        log["draft"] = str((Path(args.draft_root) / draft_name).resolve())
+        _write_json(log_path, log)
+    except Exception:
+        pass
 
     # Ensure belt_config (if exists) carries the effective title as main belt
     belt_path = run_dir / "belt_config.json"
@@ -945,7 +1271,42 @@ def main():
         "--rank-from-top",
         "4",
     ]
-    draft_res = run(draft_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
+    # Progress: draft build start
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            prog["draft"] = {"status": "running", "cmd": " ".join(draft_cmd), "path": str(Path(args.draft_root) / draft_name)}
+        _write_json(log_path, log)
+    except Exception:
+        pass
+
+    draft_res = run(
+        draft_cmd,
+        env,
+        PROJECT_ROOT,
+        exit_on_error=args.exit_on_error,
+        timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
+        abort_patterns=args.abort_on_log,
+    )
+    # Progress: draft build end
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            prog["draft"] = {
+                "status": "ok" if draft_res.returncode == 0 else "failed",
+                "cmd": " ".join(draft_cmd),
+                "path": str(Path(args.draft_root) / draft_name),
+                "returncode": int(draft_res.returncode),
+                "elapsed_sec": round(float(getattr(draft_res, "elapsed", 0.0) or 0.0), 2),
+            }
+        _write_json(log_path, log)
+    except Exception:
+        pass
+
+    if draft_res.returncode != 0 and args.exit_on_error:
+        log["status"] = "failed"
+        _write_json(log_path, log)
+        sys.exit(draft_res.returncode)
 
     # 4) Inject title via JSON (robust)
     inject_cmd = [
@@ -958,7 +1319,41 @@ def main():
         "--duration",
         "30",
     ]
-    inject_res = run(inject_cmd, env, PROJECT_ROOT, exit_on_error=args.exit_on_error, timeout=args.timeout_ms / 1000 if args.timeout_ms else None, abort_patterns=args.abort_on_log)
+    # Progress: title injection start
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            prog["title_injection"] = {"status": "running", "cmd": " ".join(inject_cmd)}
+        _write_json(log_path, log)
+    except Exception:
+        pass
+
+    inject_res = run(
+        inject_cmd,
+        env,
+        PROJECT_ROOT,
+        exit_on_error=args.exit_on_error,
+        timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
+        abort_patterns=args.abort_on_log,
+    )
+    # Progress: title injection end
+    try:
+        prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+        if isinstance(prog, dict):
+            prog["title_injection"] = {
+                "status": "ok" if inject_res.returncode == 0 else "failed",
+                "cmd": " ".join(inject_cmd),
+                "returncode": int(inject_res.returncode),
+                "elapsed_sec": round(float(getattr(inject_res, "elapsed", 0.0) or 0.0), 2),
+            }
+        _write_json(log_path, log)
+    except Exception:
+        pass
+
+    if inject_res.returncode != 0 and args.exit_on_error:
+        log["status"] = "failed"
+        _write_json(log_path, log)
+        sys.exit(inject_res.returncode)
 
     # Create/refresh run_dir symlink to the draft for quick navigation
     if not args.dry_run:
@@ -980,6 +1375,7 @@ def main():
         existing = {}
 
     log = existing if isinstance(existing, dict) else {}
+    log.setdefault("schema", "ytm.auto_run_info.v2")
     log.update({
         "channel": args.channel,
         # Back-compat: keep the old key name as the effective SoT input
@@ -1011,9 +1407,18 @@ def main():
     try:
         cues = json.loads((run_dir / "image_cues.json").read_text(encoding="utf-8"))
         cue_count = len(cues.get("cues", []))
+        cue_durations = [
+            float(c.get("end_sec", 0.0)) - float(c.get("start_sec", 0.0))
+            for c in (cues.get("cues", []) or [])
+            if isinstance(c, dict)
+        ]
         total_duration = max((c.get("end_sec", 0) for c in cues.get("cues", [])), default=0.0)
         log["images"] = cue_count
         log["duration_sec"] = total_duration
+        if cue_durations:
+            log["cue_duration_min_sec"] = round(min(cue_durations), 3)
+            log["cue_duration_max_sec"] = round(max(cue_durations), 3)
+            log["cue_duration_within_30_40"] = bool(all(30.0 <= d <= 40.0 for d in cue_durations))
     except Exception:
         cue_count = 0
         total_duration = 0.0
@@ -1047,6 +1452,12 @@ def main():
                 notes="auto_capcut_run (SoT=audio_tts final)",
                 validate=True,
             )
+            try:
+                prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+                if isinstance(prog, dict):
+                    prog["timeline_manifest"] = {"status": "ok", "validate": True}
+            except Exception:
+                pass
         except Exception as e:
             log["timeline_manifest_error"] = str(e)
             manifest = build_timeline_manifest(
@@ -1060,10 +1471,23 @@ def main():
                 notes=f"auto_capcut_run (manifest validation failed: {e})",
                 validate=False,
             )
+            try:
+                prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+                if isinstance(prog, dict):
+                    prog["timeline_manifest"] = {"status": "ok", "validate": False, "error": str(e)}
+            except Exception:
+                pass
         mf_path = write_timeline_manifest(run_dir, manifest)
         log["timeline_manifest"] = str(mf_path)
+        try:
+            prog = log.get("progress") if isinstance(log.get("progress"), dict) else None
+            if isinstance(prog, dict):
+                prog["timeline_manifest"] = {**(prog.get("timeline_manifest") or {}), "path": str(mf_path)}
+        except Exception:
+            pass
 
-    log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+    log["status"] = "completed"
+    _write_json(log_path, log)
 
     print("✅ Complete. Draft at:", log["draft"])
     print(f"   Images: {cue_count} | Duration: {total_duration/60:.1f} min | Labels: {labels}")

@@ -41,7 +41,7 @@
 | `/api/jobs` | `apps/ui-backend/backend/routers/jobs.py` | ジョブ一覧/削除 |
 | `/api/tts-progress` | `apps/ui-backend/backend/routers/tts_progress.py` | TTS進捗 |
 | `/api/auto-draft` | `apps/ui-backend/backend/routers/auto_draft.py` | AutoDraft |
-| `/api/research` | `apps/ui-backend/backend/routers/research_files.py` | research ファイル操作 |
+| `/api/research` | `apps/ui-backend/backend/routers/research_files.py` | ファイル閲覧（workspaces/research / workspaces/scripts / ssot, read-only） |
 | `/api/swap` | `apps/ui-backend/backend/routers/swap.py` | 画像差し替え（Swap UI） |
 | `/api/params` | `apps/ui-backend/backend/routers/params.py` | UIパラメータ/設定 |
 | `/api/video-production` | `apps/ui-backend/backend/video_production.py` | run_dir/画像/CapCut関連 |
@@ -80,6 +80,7 @@
 | `/agent-org` | `apps/ui-frontend/src/pages/AgentOrgPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**`（board/locks/memos） |
 | `/agent-board` | `apps/ui-frontend/src/pages/AgentBoardPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**` |
 | `/llm-usage` | `apps/ui-frontend/src/pages/LlmUsagePage.tsx` | `/api/llm-usage/*` | `workspaces/logs/**` |
+| `/ssot` | `apps/ui-frontend/src/pages/SsotPortalPage.tsx` | `/api/research`（base=`ssot`） | `ssot/**` |
 
 補足:
 - fetch直叩きが残っている箇所は、原則 `apps/ui-frontend/src/api/client.ts` へ集約して“配線”を減らす（例外: streaming / blob 等）。
@@ -97,6 +98,8 @@
     (`workspaces/planning/channels/CHxx.csv` の動画番号行。CHxx の scripts が無くても表示する)
   - `script_completed` / `ready_for_audio` / `audio_completed` / `srt_completed` は **status.json / 成果物** を参照  
     status.json が無い企画は `pending` 扱いとして `stage_matrix` も埋める（UIが 100%着手 と誤判定しないため）
+  - **表示の整合性（運用ガード）**: legacy/手動運用で `stage_matrix.script_outline=pending` のまま下流（台本/音声）が揃うケースがあるため、UIは表示値を正規化して矛盾を出さない  
+    例: `台本着手済み ≥ 台本完成 ≥ 音声用テキスト完成 ≥ 音声・字幕完了`（各値は `0..total` に clamp）
 
 ### 4-2) リテイク件数（Redo Summary）
 

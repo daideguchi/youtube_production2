@@ -2,16 +2,26 @@
 
 import { apiUrl } from "./baseUrl";
 
+async function readJsonOrThrow(res: Response, context: string) {
+  const text = await res.text().catch(() => "");
+  try {
+    return JSON.parse(text);
+  } catch {
+    const head = (text || "").slice(0, 200);
+    throw new Error(`${context}: Invalid JSON response. head=${JSON.stringify(head)}`);
+  }
+}
+
 export async function getLlmUsageLogs(limit: number) {
   const res = await fetch(apiUrl(`/api/llm-usage?limit=${limit}`));
   if (!res.ok) throw new Error(`Failed to fetch usage logs: ${res.status}`);
-  return res.json();
+  return readJsonOrThrow(res, `Failed to parse usage logs (${res.status})`);
 }
 
 export async function getLlmOverrides() {
   const res = await fetch(apiUrl(`/api/llm-usage/overrides`));
   if (!res.ok) throw new Error(`Failed to fetch overrides: ${res.status}`);
-  return res.json();
+  return readJsonOrThrow(res, `Failed to parse overrides (${res.status})`);
 }
 
 export async function saveLlmOverrides(body: any) {
@@ -24,13 +34,13 @@ export async function saveLlmOverrides(body: any) {
     const text = await res.text();
     throw new Error(`Failed to save overrides: ${res.status} ${text}`);
   }
-  return res.json();
+  return readJsonOrThrow(res, `Failed to parse save overrides response (${res.status})`);
 }
 
 export async function getLlmModels() {
   const res = await fetch(apiUrl(`/api/llm-usage/models`));
   if (!res.ok) throw new Error(`Failed to fetch models: ${res.status}`);
-  const data = await res.json();
+  const data = await readJsonOrThrow(res, `Failed to parse models (${res.status})`);
   return data.models || [];
 }
 
@@ -49,5 +59,5 @@ export async function getLlmUsageSummary(params: { range?: string; topN?: number
     const text = await res.text().catch(() => "");
     throw new Error(`Failed to fetch usage summary: ${res.status} ${text}`);
   }
-  return res.json();
+  return readJsonOrThrow(res, `Failed to parse usage summary (${res.status})`);
 }

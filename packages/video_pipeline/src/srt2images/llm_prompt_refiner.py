@@ -12,6 +12,14 @@ from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
+def _truncate_text(text: str, limit: int) -> str:
+    t = " ".join((text or "").split())
+    if limit <= 0:
+        return ""
+    if len(t) <= limit:
+        return t
+    return t[: limit - 1].rstrip() + "…"
+
 
 def _env_flag(name: str, default: bool = True) -> bool:
     val = os.getenv(name)
@@ -104,6 +112,25 @@ class PromptRefiner:
         elif (channel_id or "").upper() == "CH01":
             window = max(window, 2)
 
+        # Keep per-cue prompts compact to avoid provider truncation / slowdowns.
+        # NOTE: Final image prompts still include full style/persona; this refiner only needs
+        # enough context to craft a concrete scene description.
+        try:
+            style_max = int(os.getenv("SRT2IMAGES_REFINE_STYLE_MAX_CHARS", "600"))
+        except ValueError:
+            style_max = 600
+        try:
+            persona_max = int(os.getenv("SRT2IMAGES_REFINE_PERSONA_MAX_CHARS", "900"))
+        except ValueError:
+            persona_max = 900
+        try:
+            ctx_line_max = int(os.getenv("SRT2IMAGES_REFINE_CTX_LINE_MAX_CHARS", "420"))
+        except ValueError:
+            ctx_line_max = 420
+
+        common_style = _truncate_text(common_style, style_max)
+        persona = _truncate_text(persona, persona_max)
+
         refined_any = False
         for idx, cue in enumerate(cues):
             ctx_chunks = []
@@ -113,12 +140,14 @@ class PromptRefiner:
                     continue
                 c = cues[j]
                 prefix = "current" if offset == 0 else ("prev" if offset < 0 else "next")
+                ctx_payload = c.get("text", "") or c.get("summary", "")
+                ctx_payload = _truncate_text(str(ctx_payload), ctx_line_max)
                 ctx_chunks.append(
                     (
                         f"[{prefix} #{c.get('index')} {c.get('start_sec')}–{c.get('end_sec')}s "
                         f"role={c.get('role_tag') or '-'} type={c.get('section_type') or '-'} "
                         f"tone={c.get('emotional_tone') or '-'}] "
-                        f"text: {c.get('text','') or c.get('summary','')}"
+                        f"text: {ctx_payload}"
                     )
                 )
             ctx_text = "\n".join(ctx_chunks)

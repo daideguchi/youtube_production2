@@ -39,6 +39,10 @@ from factory_common.timeline_manifest import parse_episode_id, sha1_file
 from factory_common.paths import video_pkg_root
 
 def run_pipeline(args):
+    def _env_truthy(name: str) -> bool:
+        return (os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "on", "y"}
+
+    disable_text_llm = _env_truthy("SRT2IMAGES_DISABLE_TEXT_LLM")
     resolver = ChannelPresetResolver()
     # NOTE: argparse defaults are not preserved after config merging, so detect explicit CLI overrides via argv.
     cli_overrides_prompt_template = "--prompt-template" in sys.argv
@@ -62,14 +66,22 @@ def run_pipeline(args):
         args.channel = detected_channel
 
     channel_upper = (args.channel or detected_channel or "").upper() if (args.channel or detected_channel) else ""
-    forced_model_key = None
+    env_model_override = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN") or "").strip()
+    forced_model_key_from_preset = None
     try:
         if channel_preset and channel_preset.config_model and getattr(channel_preset.config_model, "image_generation", None):
             mk = getattr(channel_preset.config_model.image_generation, "model_key", None)
             if isinstance(mk, str) and mk.strip():
-                forced_model_key = mk.strip()
+                forced_model_key_from_preset = mk.strip()
     except Exception:
-        forced_model_key = None
+        forced_model_key_from_preset = None
+
+    forced_model_key = env_model_override or forced_model_key_from_preset
+    forced_model_source = (
+        "env_override"
+        if env_model_override
+        else ("channel_preset" if forced_model_key_from_preset else "tier_default")
+    )
 
     if forced_model_key:
         os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = forced_model_key
@@ -77,9 +89,10 @@ def run_pipeline(args):
         os.environ.pop("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", None)
 
     logging.info(
-        "[image_gen] channel=%s task=visual_image_gen model_key=%s",
+        "[image_gen] channel=%s task=visual_image_gen model_key=%s source=%s",
         channel_upper or "unknown",
         forced_model_key or "(tier default)",
+        forced_model_source,
     )
 
     out_dir = Path(args.out).resolve()
@@ -143,36 +156,39 @@ def run_pipeline(args):
             pass
 
     if args.cue_mode != "per_segment" and not use_cues_plan and channel_upper != "CH02":
-        logging.info("Generating/Loading Visual Bible...")
-        try:
-            bible_gen = VisualBibleGenerator()
-            bible_data = bible_gen.generate(segments, out_dir=out_dir)
-            visual_bible_data = bible_data
-            
-            # Convert to persona text for legacy prompt refiner compatibility
-            chars = bible_data.get("characters", [])
-            persona_lines = []
-            for c in chars:
-                line = f"{c.get('name')}: {c.get('description')} (Rule: {c.get('consistency_rules','')})"
-                persona_lines.append(line)
-            
-            persona_text = "\n".join(persona_lines)
-            if persona_text:
-                (out_dir / "persona.txt").write_text(persona_text, encoding="utf-8")
-                logging.info(f"Visual Bible loaded and persona.txt generated ({len(chars)} chars).")
-            else:
-                logging.info("Visual Bible empty/no-characters.")
+        if disable_text_llm:
+            logging.info("Skipping Visual Bible (SRT2IMAGES_DISABLE_TEXT_LLM=1)")
+        else:
+            logging.info("Generating/Loading Visual Bible...")
+            try:
+                bible_gen = VisualBibleGenerator()
+                bible_data = bible_gen.generate(segments, out_dir=out_dir)
+                visual_bible_data = bible_data
                 
-        except SystemExit as e:
-            # LLM failover-to-think may raise SystemExit to stop the process for queued tasks.
-            # Visual Bible is optional; do not abort the whole pipeline.
-            logging.warning("Visual Bible generation halted (SystemExit=%s); continuing without it.", e)
-            persona_text = ""
-            visual_bible_data = None
-        except Exception as e:
-            logging.warning(f"Visual Bible generation failed: {e}")
-            persona_text = ""
-            visual_bible_data = None
+                # Convert to persona text for legacy prompt refiner compatibility
+                chars = bible_data.get("characters", [])
+                persona_lines = []
+                for c in chars:
+                    line = f"{c.get('name')}: {c.get('description')} (Rule: {c.get('consistency_rules','')})"
+                    persona_lines.append(line)
+                
+                persona_text = "\n".join(persona_lines)
+                if persona_text:
+                    (out_dir / "persona.txt").write_text(persona_text, encoding="utf-8")
+                    logging.info(f"Visual Bible loaded and persona.txt generated ({len(chars)} chars).")
+                else:
+                    logging.info("Visual Bible empty/no-characters.")
+                    
+            except SystemExit as e:
+                # LLM failover-to-think may raise SystemExit to stop the process for queued tasks.
+                # Visual Bible is optional; do not abort the whole pipeline.
+                logging.warning("Visual Bible generation halted (SystemExit=%s); continuing without it.", e)
+                persona_text = ""
+                visual_bible_data = None
+            except Exception as e:
+                logging.warning(f"Visual Bible generation failed: {e}")
+                persona_text = ""
+                visual_bible_data = None
 
     # 2) Build cues
     if args.cue_mode == "per_segment":
@@ -363,17 +379,20 @@ def run_pipeline(args):
     common_style_str = "\n".join(common_style_parts)
 
     if not use_cues_plan:
-        try:
-            refiner = PromptRefiner()
-            cues = refiner.refine(
-                cues,
-                channel_id=args.channel,
-                window=1,
-                common_style=common_style_str,
-                persona=persona_text,  # Pass the persona text derived from Visual Bible
-            )
-        except Exception as e:
-            logging.warning("Prompt refinement skipped due to error: %s", e)
+        if disable_text_llm:
+            logging.info("Skipping PromptRefiner (SRT2IMAGES_DISABLE_TEXT_LLM=1)")
+        else:
+            try:
+                refiner = PromptRefiner()
+                cues = refiner.refine(
+                    cues,
+                    channel_id=args.channel,
+                    window=1,
+                    common_style=common_style_str,
+                    persona=persona_text,  # Pass the persona text derived from Visual Bible
+                )
+            except Exception as e:
+                logging.warning("Prompt refinement skipped due to error: %s", e)
     else:
         logging.info("Skipping PromptRefiner (cues_plan mode)")
 

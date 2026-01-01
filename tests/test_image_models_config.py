@@ -25,8 +25,7 @@ def test_image_models_use_image_gen_tier():
 
     thumb_tier = tiers.get("thumbnail_image_gen")
     assert isinstance(thumb_tier, list) and thumb_tier, "thumbnail_image_gen tier must be a non-empty list"
-    assert thumb_tier[0] == "openrouter_gemini_2_5_flash_image_preview"
-    assert "openrouter_gemini_2_5_flash_image" in thumb_tier
+    assert thumb_tier == ["fireworks_flux_kontext_max"]
 
     # tasks point to video_image_gen (bulk video images)
     for task in ("image_generation", "visual_image_gen"):

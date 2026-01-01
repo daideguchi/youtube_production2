@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent, ReactNode, SyntheticEvent } from "react";
+import type { ChangeEvent, ReactNode, SyntheticEvent, UIEvent, WheelEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   AudioAnalysis,
@@ -68,6 +68,21 @@ type AudioHistoryEntry = {
   final_srt?: string | null;
   log_json?: string | null;
   log_text?: string | null;
+};
+
+type DialogAiAuditItem = {
+  verdict?: string | null;
+  audited_at?: string | null;
+  audited_by?: string | null;
+  reasons?: string[];
+  notes?: string | null;
+  script_hash_sha1?: string | null;
+  stale?: boolean | null;
+};
+
+type DialogAiAuditVideoResponse = {
+  found?: boolean;
+  item?: DialogAiAuditItem | null;
 };
 
 export type AdjacentVideo = { video: string; title?: string | null };
@@ -244,6 +259,7 @@ export function VideoDetailPanel({
   const [redoAudio, setRedoAudio] = useState(detail.redo_audio ?? true);
   const [redoNote, setRedoNote] = useState(detail.redo_note ?? "");
   const [redoSaving, setRedoSaving] = useState(false);
+  const [dialogAudit, setDialogAudit] = useState<DialogAiAuditItem | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -283,6 +299,41 @@ export function VideoDetailPanel({
     setRedoAudio(detail.redo_audio ?? true);
     setRedoNote(detail.redo_note ?? "");
   }, [detail.redo_script, detail.redo_audio, detail.redo_note]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const ch = String(detail.channel || "").trim().toUpperCase();
+    const vid = String(detail.video || "").trim();
+    if (!ch || !vid) {
+      setDialogAudit(null);
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const response = await fetch(
+          apiUrl(`/api/meta/dialog_ai_audit/${encodeURIComponent(ch)}/${encodeURIComponent(vid)}`),
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+        if (!response.ok) {
+          if (!cancelled) setDialogAudit(null);
+          return;
+        }
+        const data = (await response.json()) as DialogAiAuditVideoResponse;
+        if (!cancelled) setDialogAudit(data?.item ?? null);
+      } catch {
+        if (!cancelled) setDialogAudit(null);
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [detail.channel, detail.video]);
   const SHOW_AI_SECTION = false; // AI生成版は非表示
 
   const copySotValue = useCallback(async (value: string | null | undefined) => {
@@ -378,7 +429,6 @@ useEffect(() => {
   const ttsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const noteTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const noteGutterRef = useRef<HTMLDivElement | null>(null);
-  const noteSyncingScrollRef = useRef(false);
   const youtubeDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
   const detailKeyRef = useRef<string | null>(null);
 
@@ -420,46 +470,6 @@ useEffect(() => {
     };
   }, []);
 
-  const syncNoteScrollFromTextarea = useCallback(() => {
-    const textarea = noteTextareaRef.current;
-    const gutter = noteGutterRef.current;
-    if (!textarea || !gutter) {
-      return;
-    }
-    if (noteSyncingScrollRef.current) {
-      return;
-    }
-    noteSyncingScrollRef.current = true;
-    gutter.scrollTop = textarea.scrollTop;
-    if (typeof window !== "undefined") {
-      window.requestAnimationFrame(() => {
-        noteSyncingScrollRef.current = false;
-      });
-    } else {
-      noteSyncingScrollRef.current = false;
-    }
-  }, []);
-
-  const syncNoteScrollFromGutter = useCallback(() => {
-    const textarea = noteTextareaRef.current;
-    const gutter = noteGutterRef.current;
-    if (!textarea || !gutter) {
-      return;
-    }
-    if (noteSyncingScrollRef.current) {
-      return;
-    }
-    noteSyncingScrollRef.current = true;
-    textarea.scrollTop = gutter.scrollTop;
-    if (typeof window !== "undefined") {
-      window.requestAnimationFrame(() => {
-        noteSyncingScrollRef.current = false;
-      });
-    } else {
-      noteSyncingScrollRef.current = false;
-    }
-  }, []);
-
   const handleNoteCursorUpdate = useCallback((event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
     const cursor = computeCursorFromValue(target.value, target.selectionStart ?? 0);
@@ -472,6 +482,47 @@ useEffect(() => {
     const cursor = computeCursorFromValue(nextValue, event.target.selectionStart ?? nextValue.length);
     setNoteCursor(cursor);
   }, [computeCursorFromValue]);
+
+  const handleNoteScroll = useCallback((event: UIEvent<HTMLTextAreaElement>) => {
+    const gutter = noteGutterRef.current;
+    if (!gutter) {
+      return;
+    }
+    gutter.scrollTop = event.currentTarget.scrollTop;
+  }, []);
+
+  const handleNoteWheel = useCallback((event: WheelEvent<HTMLDivElement>) => {
+    const textarea = noteTextareaRef.current;
+    if (!textarea) {
+      return;
+    }
+    if (event.target === textarea) {
+      return;
+    }
+    if (event.deltaY) {
+      textarea.scrollTop += event.deltaY;
+    }
+    if (event.deltaX) {
+      textarea.scrollLeft += event.deltaX;
+    }
+    const gutter = noteGutterRef.current;
+    if (gutter) {
+      gutter.scrollTop = textarea.scrollTop;
+    }
+    event.preventDefault();
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== "note") {
+      return;
+    }
+    const textarea = noteTextareaRef.current;
+    const gutter = noteGutterRef.current;
+    if (!textarea || !gutter) {
+      return;
+    }
+    gutter.scrollTop = textarea.scrollTop;
+  }, [activeTab]);
 
   const refreshAudioScript = useCallback(async () => {
     setAudioScriptLoading(true);
@@ -645,8 +696,7 @@ useEffect(() => {
       return;
     }
     setNoteCursor(computeCursorFromValue(textarea.value, textarea.selectionStart ?? 0));
-    syncNoteScrollFromTextarea();
-  }, [activeTab, assembledDraft, computeCursorFromValue, syncNoteScrollFromTextarea]);
+  }, [activeTab, assembledDraft, computeCursorFromValue]);
 
   useEffect(() => {
     if (!ttsDirty) {
@@ -900,6 +950,62 @@ useEffect(() => {
       }
     },
     []
+  );
+
+  const handleScriptReset = useCallback(
+    async (wipeResearch: boolean) => {
+      const ch = String(detail.channel || "")
+        .trim()
+        .toUpperCase();
+      const vid = String(detail.video || "").trim();
+      if (!ch || !vid) {
+        return;
+      }
+
+      const confirmMessage = wipeResearch
+        ? "台本＋リサーチもリセットします（復元不可）。実行しますか？"
+        : "台本をリセットします（台本/音声/生成物を削除して初期化。リサーチは保持）。実行しますか？";
+      if (typeof window !== "undefined" && !window.confirm(confirmMessage)) {
+        return;
+      }
+
+      setBusyAction(wipeResearch ? "台本+リサーチリセット" : "台本リセット");
+      setMessage(null);
+      setError(null);
+      try {
+        const response = await fetch(
+          apiUrl(`/api/meta/script_reset/${encodeURIComponent(ch)}/${encodeURIComponent(vid)}`),
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wipe_research: wipeResearch }),
+          }
+        );
+        if (!response.ok) {
+          let reason = `HTTP ${response.status}`;
+          try {
+            const data = (await response.json()) as any;
+            if (typeof data?.detail === "string") reason = data.detail;
+            else if (data?.detail) reason = JSON.stringify(data.detail);
+            else reason = JSON.stringify(data);
+          } catch {
+            /* best effort */
+          }
+          setError(`台本リセットに失敗しました: ${reason}`);
+          return;
+        }
+        setMessage("台本をリセットしました。再読み込みします…");
+        if (typeof window !== "undefined") {
+          window.location.reload();
+        }
+      } catch (resetError) {
+        const reason = resetError instanceof Error ? resetError.message : String(resetError ?? "不明なエラー");
+        setError(`台本リセットに失敗しました: ${reason}`);
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [detail.channel, detail.video]
   );
 
   const handleSaveAssembledDraft = useCallback(async () => {
@@ -1675,6 +1781,42 @@ useEffect(() => {
                   <span className={`status-chip${detail.alignment_status === "NG" ? " status-chip--danger" : ""}`}>
                     整合: {detail.alignment_status ?? "—"}
                   </span>
+                  {(() => {
+                    const verdict = String(dialogAudit?.verdict || "")
+                      .trim()
+                      .toLowerCase();
+                    const stale = Boolean(dialogAudit?.stale);
+                    const label = !dialogAudit
+                      ? "未"
+                      : stale
+                        ? "要再査定"
+                        : verdict === "pass"
+                          ? "OK"
+                          : verdict === "fail"
+                            ? "NG"
+                            : verdict === "grey"
+                              ? "要確認"
+                              : verdict || "—";
+                    const extraClass =
+                      stale || verdict === "grey" ? " status-chip--warning" : verdict === "fail" ? " status-chip--danger" : "";
+                    const parts: string[] = [];
+                    if (dialogAudit?.audited_at) parts.push(`audited_at=${dialogAudit.audited_at}`);
+                    if (dialogAudit?.audited_by) parts.push(`audited_by=${dialogAudit.audited_by}`);
+                    const reasons = (dialogAudit?.reasons ?? [])
+                      .map((r) => String(r || "").trim())
+                      .filter(Boolean)
+                      .join(", ");
+                    if (reasons) parts.push(`reasons=${reasons}`);
+                    const notes = String(dialogAudit?.notes || "").trim();
+                    if (notes) parts.push(`notes=${notes}`);
+                    if (stale) parts.push("stale=true");
+                    const title = parts.length ? parts.join(" / ") : "未監査（参考）";
+                    return (
+                      <span className={`status-chip${extraClass}`} title={title}>
+                        監査(参考): {label}
+                      </span>
+                    );
+                  })()}
                   <span className="status-chip">音声品質: {audioQualityLabel}</span>
                   {redoScript || redoAudio ? (
                     <span className="status-chip status-chip--warning">
@@ -1690,6 +1832,38 @@ useEffect(() => {
                   <p className="muted small-text">整合理由: {detail.alignment_reason}</p>
                 ) : null}
                 {redoNote ? <p className="muted small-text">redo note: {redoNote}</p> : null}
+                <div className="actions actions--compact" style={{ marginTop: 10, gap: 10 }}>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost"
+                    style={{
+                      background: "var(--color-danger-soft)",
+                      color: "var(--color-danger)",
+                      borderColor: "var(--color-danger-soft)",
+                    }}
+                    onClick={() => void handleScriptReset(false)}
+                    disabled={busyAction !== null || refreshing}
+                  >
+                    台本リセット
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost"
+                    style={{
+                      background: "var(--color-danger-soft)",
+                      color: "var(--color-danger)",
+                      borderColor: "var(--color-danger)",
+                    }}
+                    onClick={() => void handleScriptReset(true)}
+                    disabled={busyAction !== null || refreshing}
+                    title="リサーチも含めて削除します（復元不可）"
+                  >
+                    台本+リサーチもリセット
+                  </button>
+                </div>
+                <p className="muted small-text" style={{ marginTop: 6 }}>
+                  投稿済み（published_lock）はリセット不可。研究削除は復元不可。
+                </p>
                 {warningMessages.length > 0 ? (
                   <details className="overview-meta__details">
                     <summary>警告 {warningMessages.length} 件</summary>
@@ -1901,12 +2075,17 @@ useEffect(() => {
 
               <div className="note-tab__paper">
                 <div className="note-paper">
-                  <div className="note-editor">
+                  <div
+                    className="note-editor"
+                    style={{ overflow: "hidden", alignItems: "stretch" }}
+                    onWheel={handleNoteWheel}
+                  >
                     <div
                       className="note-editor__gutter"
+                      style={{ width: `${noteGutterWidthCh}ch`, overflow: "hidden", height: "100%", pointerEvents: "none" }}
                       ref={noteGutterRef}
-                      onScroll={syncNoteScrollFromGutter}
-                      style={{ width: `${noteGutterWidthCh}ch` }}
+                      role="presentation"
+                      tabIndex={-1}
                       aria-hidden="true"
                     >
                       <pre className="note-editor__gutter-content">{noteLineNumbers}</pre>
@@ -1914,12 +2093,13 @@ useEffect(() => {
                     <textarea
                       ref={noteTextareaRef}
                       className="note-editor__textarea"
+                      style={{ overflow: "auto", overscrollBehavior: "contain", height: "100%" }}
                       value={assembledDraft}
                       onChange={handleNoteChange}
-                      onScroll={syncNoteScrollFromTextarea}
                       onClick={handleNoteCursorUpdate}
                       onKeyUp={handleNoteCursorUpdate}
                       onSelect={handleNoteCursorUpdate}
+                      onScroll={handleNoteScroll}
                       aria-label="Aテキスト（ノート）"
                       placeholder="Aテキスト（assembled.md / assembled_human.md）を入力してください"
                       spellCheck={false}
@@ -2407,7 +2587,7 @@ useEffect(() => {
 
       <footer className="detail-footer">
         {refreshing && <span className="muted">最新情報を取得中…</span>}
-        {busyAction && <span className="muted">{busyAction} を保存しています…</span>}
+        {busyAction && <span className="muted">{busyAction} を処理中…</span>}
         {message && <span className="success">{message}</span>}
         {error && <span className="error">{error}</span>}
       </footer>

@@ -33,6 +33,22 @@ type EpisodeProgressResponse = {
   episodes?: EpisodeProgressItem[];
 };
 
+type DialogAiAuditItem = {
+  video: string;
+  script_id?: string | null;
+  verdict?: string | null;
+  audited_at?: string | null;
+  audited_by?: string | null;
+  reasons?: string[];
+  notes?: string | null;
+  script_hash_sha1?: string | null;
+  stale?: boolean | null;
+};
+
+type DialogAiAuditChannelResponse = {
+  items?: DialogAiAuditItem[];
+};
+
 const CHANNEL_META: Record<string, { icon: string; color: string }> = {
   CH01: { icon: "🎯", color: "chip-cyan" },
   CH02: { icon: "📚", color: "chip-blue" },
@@ -78,6 +94,8 @@ function normalizeChannelCode(value: string | null): string {
   return (value ?? "").trim().toUpperCase();
 }
 
+const AUDIT_COLUMN = "監査(参考)";
+
 const LONG_COLUMNS = new Set([
   "企画意図",
   "具体的な内容（話の構成案）",
@@ -100,6 +118,7 @@ const NARROW_COLUMNS = new Set([
   "台本(自動)",
   "音声(自動)",
   "整合",
+  AUDIT_COLUMN,
   "投稿完了",
   "動画run",
   "CapCutドラフト",
@@ -116,6 +135,7 @@ const COMPACT_PRIORITY = [
   "台本(自動)",
   "音声(自動)",
   "整合",
+  AUDIT_COLUMN,
   "投稿完了",
   "動画run",
   "CapCutドラフト",
@@ -153,6 +173,51 @@ const normalizeVideo = (value: any): string => {
   const digits = String(value ?? "").replace(/[^0-9]/g, "");
   if (!digits) return "";
   return digits.padStart(3, "0");
+};
+
+const formatDialogAuditBadge = (
+  item: DialogAiAuditItem | null | undefined
+): { label: string; cls: string; title: string } => {
+  const verdict = String(item?.verdict || "")
+    .trim()
+    .toLowerCase();
+  const stale = Boolean(item?.stale);
+
+  let label = "未";
+  let cls = "planning-page__align planning-page__align--unknown";
+  if (item) {
+    if (stale) {
+      label = "要再査定";
+      cls = "planning-page__align planning-page__align--warn";
+    } else if (verdict === "pass") {
+      label = "OK";
+      cls = "planning-page__align planning-page__align--ok";
+    } else if (verdict === "fail") {
+      label = "NG";
+      cls = "planning-page__align planning-page__align--ng";
+    } else if (verdict === "grey") {
+      label = "要確認";
+      cls = "planning-page__align planning-page__align--warn";
+    } else if (verdict) {
+      label = verdict;
+    }
+  }
+
+  const parts: string[] = [];
+  if (!item) {
+    parts.push("未監査（参考）");
+  } else {
+    parts.push(`verdict=${verdict || "unknown"}`);
+    if (item.audited_at) parts.push(`audited_at=${item.audited_at}`);
+    if (item.audited_by) parts.push(`audited_by=${item.audited_by}`);
+    if (stale) parts.push("stale=true（台本が更新されている可能性）");
+    const reasons = (item.reasons ?? []).map((r) => String(r || "").trim()).filter(Boolean).join(", ");
+    if (reasons) parts.push(`reasons=${reasons}`);
+    const notes = String(item.notes || "").trim();
+    if (notes) parts.push(`notes=${notes}`);
+  }
+  const title = parts.join(" / ").trim() || label;
+  return { label, cls, title };
 };
 
 const normalizeKeyConcept = (value: any): string => {
@@ -225,6 +290,26 @@ const buildEpisodeProgressMap = (response: EpisodeProgressResponse): Record<stri
     const token = normalizeVideo(item.video);
     if (!token) return;
     map[token] = item;
+  });
+  return map;
+};
+
+const fetchDialogAuditChannel = async (channelCode: string): Promise<Record<string, DialogAiAuditItem>> => {
+  const ch = String(channelCode || "").trim().toUpperCase();
+  if (!ch) return {};
+  const response = await fetch(apiUrl(`/api/meta/dialog_ai_audit/${encodeURIComponent(ch)}`), {
+    method: "GET",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    return {};
+  }
+  const data = (await response.json()) as DialogAiAuditChannelResponse;
+  const map: Record<string, DialogAiAuditItem> = {};
+  (data.items ?? []).forEach((item) => {
+    const vid = normalizeVideo(item.video);
+    if (!vid) return;
+    map[vid] = { ...item, video: vid };
   });
   return map;
 };
@@ -347,6 +432,7 @@ export function PlanningPage() {
   const [unpublishingKey, setUnpublishingKey] = useState<string | null>(null);
   const [copiedTitleKey, setCopiedTitleKey] = useState<string | null>(null);
   const [episodeProgressMap, setEpisodeProgressMap] = useState<Record<string, EpisodeProgressItem>>({});
+  const [dialogAuditMap, setDialogAuditMap] = useState<Record<string, DialogAiAuditItem>>({});
   const thumbRequestedRef = useRef<Set<string>>(new Set());
   const deepLinkAppliedRef = useRef<string | null>(null);
   const copiedTitleTimerRef = useRef<number | null>(null);
@@ -378,6 +464,15 @@ export function PlanningPage() {
       const token = normalizeVideo(videoRaw);
       if (!ch || !token) return;
       navigate(`/channels/${encodeURIComponent(ch)}/videos/${encodeURIComponent(token)}`);
+    },
+    [navigate]
+  );
+  const goToVrewPage = useCallback(
+    (channelCode: string, videoRaw: string) => {
+      const ch = String(channelCode || "").toUpperCase();
+      const token = normalizeVideo(videoRaw);
+      if (!ch || !token) return;
+      navigate(`/capcut-edit/vrew?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(token)}`);
     },
     [navigate]
   );
@@ -507,7 +602,7 @@ export function PlanningPage() {
       if (!channelCode || !videoToken) return;
       const key = `${channelCode}-${videoToken}`;
       setPublishingKey(key);
-      setError(null);
+        setError(null);
       try {
         await markVideoPublishedLocked(channelCode, videoToken, { force_complete: true });
         const res = await fetchPlanningChannelCsv(channelCode);
@@ -517,7 +612,14 @@ export function PlanningPage() {
         } catch {
           progress = {};
         }
+        let dialogAudit: Record<string, DialogAiAuditItem> = {};
+        try {
+          dialogAudit = await fetchDialogAuditChannel(channelCode);
+        } catch {
+          dialogAudit = {};
+        }
         setEpisodeProgressMap(progress);
+        setDialogAuditMap(dialogAudit);
         const nextRows = attachEpisodeProgressColumns(res.rows || [], progress);
         setRows(nextRows);
         const summary = await fetchRedoSummary(channelCode);
@@ -555,7 +657,14 @@ export function PlanningPage() {
       } catch {
         progress = {};
       }
+      let dialogAudit: Record<string, DialogAiAuditItem> = {};
+      try {
+        dialogAudit = await fetchDialogAuditChannel(channelCode);
+      } catch {
+        dialogAudit = {};
+      }
       setEpisodeProgressMap(progress);
+      setDialogAuditMap(dialogAudit);
       const nextRows = attachEpisodeProgressColumns(res.rows || [], progress);
       setRows(nextRows);
       const summary = await fetchRedoSummary(channelCode);
@@ -588,6 +697,7 @@ export function PlanningPage() {
       setError(null);
       setLoading(false);
       setEpisodeProgressMap({});
+      setDialogAuditMap({});
       return () => {
         cancelled = true;
       };
@@ -605,8 +715,15 @@ export function PlanningPage() {
         } catch {
           progress = {};
         }
+        let dialogAudit: Record<string, DialogAiAuditItem> = {};
+        try {
+          dialogAudit = await fetchDialogAuditChannel(channel);
+        } catch {
+          dialogAudit = {};
+        }
         if (cancelled) return;
         setEpisodeProgressMap(progress);
+        setDialogAuditMap(dialogAudit);
         setRows(attachEpisodeProgressColumns(res.rows || [], progress));
         const summary = await fetchRedoSummary(channel);
         if (cancelled) return;
@@ -689,7 +806,8 @@ export function PlanningPage() {
 
   const columns = useMemo(() => {
     const first = rows[0];
-    if (!first) return ["動画番号", "タイトル", "進捗", "台本(自動)", "音声(自動)", "投稿完了", "動画run", "CapCutドラフト", "更新日時", "台本パス"];
+    if (!first)
+      return ["動画番号", "タイトル", "進捗", "台本(自動)", "音声(自動)", "整合", AUDIT_COLUMN, "投稿完了", "動画run", "CapCutドラフト", "更新日時", "台本パス"];
     const all = Object.keys(first);
     const priority = COMPACT_PRIORITY.filter((c) => all.includes(c));
     const rest = all.filter((c) => !priority.includes(c));
@@ -708,6 +826,14 @@ export function PlanningPage() {
         ordered.splice(progressIndex + 1, 0, "投稿完了");
       } else {
         ordered.unshift("投稿完了");
+      }
+    }
+    if (!ordered.includes(AUDIT_COLUMN)) {
+      const alignIndex = ordered.indexOf("整合");
+      if (alignIndex >= 0) {
+        ordered.splice(alignIndex + 1, 0, AUDIT_COLUMN);
+      } else {
+        ordered.splice(0, 0, AUDIT_COLUMN);
       }
     }
     if (showAll) return ordered;
@@ -797,7 +923,14 @@ export function PlanningPage() {
               } catch {
                 progress = {};
               }
+              let dialogAudit: Record<string, DialogAiAuditItem> = {};
+              try {
+                dialogAudit = await fetchDialogAuditChannel(channel);
+              } catch {
+                dialogAudit = {};
+              }
               setEpisodeProgressMap(progress);
+              setDialogAuditMap(dialogAudit);
               setRows(attachEpisodeProgressColumns(res.rows || [], progress));
               const summary = await fetchRedoSummary(channel);
               setRedoSummary(summary[0] ?? null);
@@ -982,6 +1115,17 @@ export function PlanningPage() {
                             </span>
                           );
                         })()
+                      ) : col === AUDIT_COLUMN ? (
+                        (() => {
+                          const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
+                          const item = vid ? dialogAuditMap[vid] : null;
+                          const badge = formatDialogAuditBadge(item);
+                          return (
+                            <span className={badge.cls} title={badge.title}>
+                              {badge.label}
+                            </span>
+                          );
+                        })()
                       ) : col === "動画ID" ? (
                         (() => {
                           const ch = row["チャンネル"] || channel;
@@ -992,18 +1136,32 @@ export function PlanningPage() {
                             <span className="planning-page__video-cell">
                               <span className="planning-page__cell-text planning-page__cell-text--flex">{row[col] ?? ""}</span>
                               {hasLink ? (
-                                <button
-                                  type="button"
-                                  className="planning-page__open"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    goToVideoPage(ch, vid);
-                                  }}
-                                  title="台本ページへ"
-                                  aria-label="台本ページへ"
-                                >
-                                  📝
-                                </button>
+                                <>
+                                  <button
+                                    type="button"
+                                    className="planning-page__open"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      goToVideoPage(ch, vid);
+                                    }}
+                                    title="台本ページへ"
+                                    aria-label="台本ページへ"
+                                  >
+                                    📝
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="planning-page__open"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      goToVrewPage(ch, vid);
+                                    }}
+                                    title="Vrew用プロンプトへ"
+                                    aria-label="Vrew用プロンプトへ"
+                                  >
+                                    🧾
+                                  </button>
+                                </>
                               ) : null}
                             </span>
                           );
@@ -1245,6 +1403,8 @@ export function PlanningPage() {
                 const chNorm = String(ch || "").trim().toUpperCase();
                 const rowKey = chNorm && token ? `${chNorm}-${token}` : "";
                 const dup = rowKey ? keyConceptDupes.dupByRow[rowKey] : null;
+                const dialogAudit = token ? dialogAuditMap[token] : null;
+                const dialogBadge = formatDialogAuditBadge(dialogAudit);
                 const isPublishing = publishingKey === key;
                 const isUnpublishing = unpublishingKey === key;
                 const isBusy = isPublishing || isUnpublishing;
@@ -1275,6 +1435,15 @@ export function PlanningPage() {
                         </div>
                       </div>
                     ) : null}
+                    <div className="planning-page__detail-row">
+                      <div className="planning-page__detail-key">監査(参考)</div>
+                      <div className="planning-page__detail-value">
+                        <span className={dialogBadge.cls} title={dialogBadge.title}>
+                          {dialogBadge.label}
+                        </span>
+                        {dialogAudit?.audited_at ? <span className="muted"> {dialogAudit.audited_at}</span> : null}
+                      </div>
+                    </div>
                     <div className="planning-page__detail-row">
                       <div className="planning-page__detail-key">投稿完了</div>
                       <div className="planning-page__detail-value">

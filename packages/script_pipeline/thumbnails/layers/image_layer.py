@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 import time
@@ -333,10 +334,12 @@ def generate_background_with_retries(
 ) -> BackgroundGenerationResult:
     result = None
     last_exc: Optional[Exception] = None
+    override = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN") or "").strip()
+    effective_model_key = override or model_key
     attempts = max(1, int(max_attempts))
     for attempt in range(1, attempts + 1):
         try:
-            print(f"{video_id}: generating bg via {model_key} (attempt {attempt}/{attempts}) ...")
+            print(f"{video_id}: generating bg via {effective_model_key} (attempt {attempt}/{attempts}) ...")
             result = client.generate(
                 ImageTaskOptions(
                     task="thumbnail_image_gen",
@@ -345,7 +348,7 @@ def generate_background_with_retries(
                     size="1920x1080",
                     n=1,
                     negative_prompt=str(negative_prompt).strip() if negative_prompt else None,
-                    extra={"model_key": model_key, "allow_fallback": False},
+                    extra={"model_key": effective_model_key, "allow_fallback": False},
                 )
             )
             if result.images:
@@ -365,7 +368,7 @@ def generate_background_with_retries(
     generated = {
         "provider": result.provider,
         "model": result.model,
-        "model_key": model_key,
+        "model_key": effective_model_key,
         "request_id": result.request_id,
         "metadata": result.metadata,
     }

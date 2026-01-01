@@ -1346,12 +1346,14 @@ export function AppShell() {
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
           { key: "capcutVrew", label: "Vrew用プロンプト", icon: "🧾", path: "/capcut-edit/vrew" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
+          { key: "imageTimeline", label: "画像タイムライン", icon: "🕒", path: "/image-timeline" },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
         ],
       },
       {
         title: "運用/設定",
         items: [
+          { key: "ssot", label: "SSOT", icon: "📌", path: "/ssot" },
           { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
           { key: "benchmarks", label: "ベンチマーク", icon: "📚", path: "/benchmarks" },
           { key: "remotion", label: "Remotion（実験）", icon: "🎞️", path: "/video-remotion" },

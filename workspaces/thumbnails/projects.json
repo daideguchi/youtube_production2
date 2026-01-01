@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2025-12-30T07:04:20.375854+00:00",
+  "updated_at": "2026-01-01T02:26:38.893264+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -3867,10 +3867,10 @@
         }
       ],
       "title": "【コヴィー流】重要な2つだけ残せ",
-      "updated_at": "2025-12-29T08:10:14.621586+00:00",
+      "updated_at": "2025-12-31T03:15:05.038864+00:00",
       "selected_variant_id": "fs::ch26_029_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:10:14.621576+00:00"
+      "status": "in_progress",
+      "status_updated_at": "2025-12-31T03:15:05.038864+00:00"
     },
     {
       "channel": "CH26",
@@ -8160,6 +8160,180 @@
       "status_updated_at": "2025-12-29T08:45:18.904379+00:00",
       "updated_at": "2025-12-29T08:45:18.904379+00:00",
       "selected_variant_id": "compiler::build_ch16_buddha_v1"
+    },
+    {
+      "channel": "CH01",
+      "video": "251",
+      "variants": [
+        {
+          "id": "fs::ch01_251_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/251/00_thumb_ch24text.png",
+          "image_path": "CH01/251/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:31:24.918098+00:00",
+          "updated_at": "2025-12-31T06:31:24.918100+00:00"
+        },
+        {
+          "id": "fs::ch01_251_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/251/00_thumb.png",
+          "image_path": "CH01/251/00_thumb.png",
+          "created_at": "2025-12-31T03:33:13.406075+00:00",
+          "updated_at": "2025-12-31T14:55:37.639630+00:00"
+        }
+      ],
+      "title": "【言葉は刃】人間関係が壊れる「禁句」7つ。言った瞬間に信用が死にます｜ブッダの教え",
+      "status": "review",
+      "status_updated_at": "2025-12-31T14:55:37.639618+00:00",
+      "updated_at": "2025-12-31T14:55:37.639631+00:00",
+      "selected_variant_id": "fs::ch01_251_00_thumb"
+    },
+    {
+      "channel": "CH01",
+      "video": "252",
+      "variants": [
+        {
+          "id": "fs::ch01_252_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/252/00_thumb_ch24text.png",
+          "image_path": "CH01/252/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:31:48.098597+00:00",
+          "updated_at": "2025-12-31T06:31:48.098603+00:00"
+        },
+        {
+          "id": "fs::ch01_252_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/252/00_thumb.png",
+          "image_path": "CH01/252/00_thumb.png",
+          "created_at": "2025-12-31T03:33:29.008845+00:00",
+          "updated_at": "2025-12-31T14:55:39.070213+00:00"
+        }
+      ],
+      "title": "【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）",
+      "status": "review",
+      "status_updated_at": "2025-12-31T14:55:39.070205+00:00",
+      "updated_at": "2025-12-31T14:55:39.070214+00:00",
+      "selected_variant_id": "fs::ch01_252_00_thumb"
+    },
+    {
+      "channel": "CH01",
+      "video": "253",
+      "variants": [
+        {
+          "id": "fs::ch01_253_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/253/00_thumb_ch24text.png",
+          "image_path": "CH01/253/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:31:55.454883+00:00",
+          "updated_at": "2025-12-31T06:31:55.454884+00:00"
+        },
+        {
+          "id": "fs::ch01_253_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/253/00_thumb.png",
+          "image_path": "CH01/253/00_thumb.png",
+          "created_at": "2025-12-31T03:48:08.812602+00:00",
+          "updated_at": "2025-12-31T14:55:40.145554+00:00"
+        }
+      ],
+      "title": "友達がいなくても幸せな人の特徴。まともな人ほど「孤独」が強くなる理由",
+      "status": "review",
+      "status_updated_at": "2025-12-31T14:55:40.145545+00:00",
+      "updated_at": "2025-12-31T14:55:40.145555+00:00",
+      "selected_variant_id": "fs::ch01_253_00_thumb"
+    },
+    {
+      "channel": "CH01",
+      "video": "254",
+      "variants": [
+        {
+          "id": "fs::ch01_254_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/254/00_thumb_ch24text.png",
+          "image_path": "CH01/254/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:32:21.718194+00:00",
+          "updated_at": "2025-12-31T06:32:21.718197+00:00"
+        },
+        {
+          "id": "fs::ch01_254_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/254/00_thumb.png",
+          "image_path": "CH01/254/00_thumb.png",
+          "created_at": "2025-12-31T03:48:42.278751+00:00",
+          "updated_at": "2025-12-31T14:55:41.492949+00:00"
+        }
+      ],
+      "title": "【心を守る】陰口を叩かれても平気になる方法。ブッダが教える「受け流し3呼吸」",
+      "status": "review",
+      "status_updated_at": "2025-12-31T14:55:41.492940+00:00",
+      "updated_at": "2025-12-31T14:55:41.492950+00:00",
+      "selected_variant_id": "fs::ch01_254_00_thumb"
+    },
+    {
+      "channel": "CH01",
+      "video": "255",
+      "variants": [
+        {
+          "id": "fs::ch01_255_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/255/00_thumb_ch24text.png",
+          "image_path": "CH01/255/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:32:31.518500+00:00",
+          "updated_at": "2025-12-31T06:32:31.518502+00:00"
+        },
+        {
+          "id": "fs::ch01_255_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/255/00_thumb.png",
+          "image_path": "CH01/255/00_thumb.png",
+          "created_at": "2025-12-31T03:49:02.103067+00:00",
+          "updated_at": "2025-12-31T14:55:42.499321+00:00"
+        }
+      ],
+      "title": "正直者がバカを見ない生き方。尽くすほど雑に扱われる「優しすぎる人」への最終通告",
+      "status": "review",
+      "status_updated_at": "2025-12-31T14:55:42.499313+00:00",
+      "updated_at": "2025-12-31T14:55:42.499322+00:00",
+      "selected_variant_id": "fs::ch01_255_00_thumb"
+    },
+    {
+      "channel": "CH01",
+      "video": "256",
+      "variants": [
+        {
+          "id": "fs::ch01_256_00_thumb_ch24text",
+          "label": "00_thumb_ch24text",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/256/00_thumb_ch24text.png",
+          "image_path": "CH01/256/00_thumb_ch24text.png",
+          "created_at": "2025-12-31T06:32:41.032600+00:00",
+          "updated_at": "2025-12-31T06:32:41.032601+00:00"
+        },
+        {
+          "id": "fs::ch01_256_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH01/256/00_thumb.png",
+          "image_path": "CH01/256/00_thumb.png",
+          "created_at": "2025-12-31T03:49:19.092285+00:00",
+          "updated_at": "2025-12-31T14:55:43.308018+00:00"
+        }
+      ],
+      "title": "【ブッダの教え】老後は友達を減らしなさい。それが最強の選択です",
+      "status": "in_progress",
+      "status_updated_at": "2026-01-01T02:26:38.871523+00:00",
+      "updated_at": "2026-01-01T02:26:38.871523+00:00",
+      "selected_variant_id": "fs::ch01_256_00_thumb"
     }
   ]
 }

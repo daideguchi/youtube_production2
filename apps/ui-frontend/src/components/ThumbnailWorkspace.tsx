@@ -16,7 +16,6 @@ import {
   composeThumbnailVariant,
   createPlanningRow,
   createThumbnailVariant,
-  describeThumbnailLibraryAsset,
   fetchPlanningChannelCsv,
   fetchThumbnailEditorContext,
   fetchThumbnailImageModels,
@@ -27,6 +26,7 @@ import {
   fetchThumbnailTemplates,
   generateThumbnailVariants,
   importThumbnailLibraryAsset,
+  previewThumbnailTextLayer,
   resolveApiUrl,
   updateThumbnailThumbSpec,
   updateThumbnailQcNote,
@@ -169,6 +169,39 @@ type LayerTuningDialogState = {
   context?: ThumbnailEditorContext;
   overridesLeaf: Record<string, any>;
 };
+
+type LayerTuningPreviewDragState =
+  | {
+      kind: "bg";
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startPanX: number;
+      startPanY: number;
+      zoom: number;
+      width: number;
+      height: number;
+    }
+  | {
+      kind: "portrait";
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startOffX: number;
+      startOffY: number;
+      width: number;
+      height: number;
+    }
+  | {
+      kind: "text";
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startOffX: number;
+      startOffY: number;
+      width: number;
+      height: number;
+    };
 
 type PlanningEditableField = Exclude<
   keyof PlanningDialogState,
@@ -340,6 +373,26 @@ function resolveLayerTuningLeafValue(dialog: LayerTuningDialogState, path: strin
 function isLayerTuningLeafOverridden(dialog: LayerTuningDialogState, path: string): boolean {
   const overrides = dialog.overridesLeaf ?? {};
   return Object.prototype.hasOwnProperty.call(overrides, path);
+}
+
+function pickThumbnailTextPreviewOverrides(overridesLeaf: Record<string, any>): Record<string, any> {
+  const picked: Record<string, any> = {};
+  for (const [rawKey, value] of Object.entries(overridesLeaf ?? {})) {
+    const key = String(rawKey ?? "");
+    if (!key) {
+      continue;
+    }
+    if (
+      key === "overrides.text_template_id" ||
+      key === "overrides.text_scale" ||
+      key.startsWith("overrides.text_effects.") ||
+      key.startsWith("overrides.text_fills.") ||
+      key.startsWith("overrides.copy_override.")
+    ) {
+      picked[key] = value;
+    }
+  }
+  return picked;
 }
 
 const CHANNEL_ICON_MAP: Record<string, string> = {
@@ -524,6 +577,32 @@ function formatBytes(value?: number | null): string {
   return `${display} ${units[unitIndex]}`;
 }
 
+function clampNumber(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const cleaned = (hex ?? "").trim();
+  const match = /^#?([0-9a-fA-F]{6})$/.exec(cleaned);
+  if (!match) {
+    return `rgba(0,0,0,${clampNumber(alpha, 0, 1)})`;
+  }
+  const num = Number.parseInt(match[1], 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r},${g},${b},${clampNumber(alpha, 0, 1)})`;
+}
+
 function getProjectKey(project: ThumbnailProject): string {
   return `${project.channel}/${project.video}`;
 }
@@ -625,9 +704,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     error: string | null;
     success: string | null;
   }>({ pending: false, error: null, success: null });
-  const [libraryDescribeState, setLibraryDescribeState] = useState<
-    Record<string, { pending: boolean; text?: string; error?: string | null }>
-  >({});
   const feedbackTimers = useRef<Map<string, number>>(new Map());
   const dropzoneFileInputs = useRef(new Map<string, HTMLInputElement>());
   const [activeDropProject, setActiveDropProject] = useState<string | null>(null);
@@ -649,6 +725,25 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const [generateDialog, setGenerateDialog] = useState<GenerateDialogState | null>(null);
   const [galleryCopyEdit, setGalleryCopyEdit] = useState<GalleryCopyEditState | null>(null);
   const [layerTuningDialog, setLayerTuningDialog] = useState<LayerTuningDialogState | null>(null);
+  const layerTuningPreviewRef = useRef<HTMLDivElement | null>(null);
+  const layerTuningPreviewDragRef = useRef<LayerTuningPreviewDragState | null>(null);
+  const layerTuningPreviewRafRef = useRef<number | null>(null);
+  const layerTuningPreviewPendingPatchRef = useRef<Record<string, unknown> | null>(null);
+  const [layerTuningSelectedAsset, setLayerTuningSelectedAsset] = useState<"bg" | "portrait" | "text">("bg");
+  const layerTuningDialogRef = useRef<LayerTuningDialogState | null>(null);
+  const layerTuningSelectedAssetRef = useRef<"bg" | "portrait" | "text">("bg");
+  const [layerTuningPreviewSize, setLayerTuningPreviewSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
+  const [layerTuningBgPreviewSrc, setLayerTuningBgPreviewSrc] = useState<string | null>(null);
+  const [layerTuningPortraitPreviewSrc, setLayerTuningPortraitPreviewSrc] = useState<string | null>(null);
+  const [layerTuningTextPreviewSrc, setLayerTuningTextPreviewSrc] = useState<string | null>(null);
+  const [layerTuningTextPreviewStatus, setLayerTuningTextPreviewStatus] = useState<{
+    loading: boolean;
+    error: string | null;
+  }>({ loading: false, error: null });
+  const layerTuningTextPreviewRequestRef = useRef(0);
   const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
@@ -775,20 +870,11 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     });
   }, [activeChannel, searchTerm]);
 
-  useEffect(() => {
-    const channelCode = activeChannel?.channel;
-    if (!channelCode) {
-      return;
+  const channelHasTwoUpVariants = useMemo(() => {
+    if (!activeChannel) {
+      return false;
     }
-
-    const storageKey = `ui.thumbnails.gallery_variant_mode.${channelCode}`;
-    const stored = parseGalleryVariantMode(safeLocalStorage.getItem(storageKey));
-    if (stored) {
-      setGalleryVariantMode((current) => (current === stored ? current : stored));
-      return;
-    }
-
-    const hasTwoUpVariants = activeChannel.projects.some((project) =>
+    return activeChannel.projects.some((project) =>
       (project.variants ?? []).some((variant) => {
         return (
           hasThumbFileSuffix(variant.image_path, "00_thumb_1.png") ||
@@ -798,8 +884,25 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         );
       })
     );
-    setGalleryVariantMode(hasTwoUpVariants ? "two_up" : "selected");
-  }, [activeChannel?.channel, activeChannel?.projects]);
+  }, [activeChannel]);
+
+  useEffect(() => {
+    const channelCode = activeChannel?.channel;
+    if (!channelCode) {
+      return;
+    }
+
+    const storageKey = `ui.thumbnails.gallery_variant_mode.${channelCode}`;
+    const stored = parseGalleryVariantMode(safeLocalStorage.getItem(storageKey));
+    if (stored) {
+      // Prefer "two_up" for channels that are known to ship 2 fixed renders
+      // (00_thumb_1 / 00_thumb_2). This matches the expected CH26 flow (30*2=60).
+      const resolved = stored === "selected" && channelHasTwoUpVariants ? "two_up" : stored;
+      setGalleryVariantMode((current) => (current === resolved ? current : resolved));
+      return;
+    }
+    setGalleryVariantMode(channelHasTwoUpVariants ? "two_up" : "selected");
+  }, [activeChannel?.channel, channelHasTwoUpVariants]);
 
   useEffect(() => {
     const channelCode = activeChannel?.channel;
@@ -1242,13 +1345,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           });
           return next;
         });
-        setLibraryDescribeState((current) => {
-          const next: Record<string, { pending: boolean; text?: string; error?: string | null }> = {};
-          assets.forEach((asset) => {
-            next[asset.id] = current[asset.id] ?? { pending: false };
-          });
-          return next;
-        });
         return assets;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -1517,8 +1613,19 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               ? "00_thumb_1/00_thumb_2（2案）を一覧表示します。"
               : galleryVariantMode === "all"
                 ? "全バリアントを一覧表示し、ZIPでまとめてダウンロードできます。"
-                : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}
+                : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}{" "}
+            <span className="muted small-text">
+              （{Math.min(galleryItems.length, galleryLimit)} / {galleryItems.length}枚）
+            </span>
           </p>
+          {channelHasTwoUpVariants && galleryVariantMode !== "two_up" ? (
+            <p className="muted small-text" style={{ marginTop: 6 }}>
+              このチャンネルは <strong>2案（00_thumb_1/00_thumb_2）</strong> を持っています。{" "}
+              <button type="button" className="link-button" onClick={() => setGalleryVariantMode("two_up")}>
+                2案を表示
+              </button>
+            </p>
+          ) : null}
         </div>
         <div className="thumbnail-gallery-panel__actions">
           <label className="muted small-text" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1550,6 +1657,19 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           >
             ZIP（選択中）
           </a>
+          {channelHasTwoUpVariants ? (
+            <a
+              className="btn btn--ghost"
+              href={resolveApiUrl(
+                `/api/workspaces/thumbnails/${encodeURIComponent(activeChannel.channel)}/download.zip?mode=two_up`
+              )}
+              target="_blank"
+              rel="noreferrer"
+              title="00_thumb_1 / 00_thumb_2（2案）だけをZIPでまとめてダウンロード"
+            >
+              ZIP（2案）
+            </a>
+          ) : null}
           <a
             className="btn btn--primary"
             href={resolveApiUrl(
@@ -1717,7 +1837,15 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                 </div>
                 {imageUrl ? (
                   <div className="thumbnail-gallery-card__buttons">
-                    <button type="button" className="btn" onClick={() => handleOpenGalleryCopyEdit(project)}>
+                    <button
+                      type="button"
+                      className="btn btn--primary"
+                      onClick={() => handleOpenLayerTuningDialog(project)}
+                      title="Canvaみたいにドラッグで位置調整できます"
+                    >
+                      調整（ドラッグ）
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={() => handleOpenGalleryCopyEdit(project)}>
                       文字を編集
                     </button>
                     <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
@@ -1847,33 +1975,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       }
     },
     [activeChannel, libraryImportName, libraryImportUrl, loadLibrary]
-  );
-
-  const handleLibraryDescribe = useCallback(
-    async (asset: ThumbnailLibraryAsset) => {
-      const channelCode = activeChannel?.channel;
-      if (!channelCode) {
-        return;
-      }
-      setLibraryDescribeState((current) => ({
-        ...current,
-        [asset.id]: { pending: true, text: current[asset.id]?.text },
-      }));
-      try {
-        const description = await describeThumbnailLibraryAsset(channelCode, asset.relative_path);
-        setLibraryDescribeState((current) => ({
-          ...current,
-          [asset.id]: { pending: false, text: description.description, error: null },
-        }));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        setLibraryDescribeState((current) => ({
-          ...current,
-          [asset.id]: { pending: false, text: current[asset.id]?.text, error: message },
-        }));
-      }
-    },
-    [activeChannel]
   );
 
   const handleLibraryAssignSubmit = useCallback(
@@ -2551,6 +2652,143 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const layerTuningChannel = layerTuningDialog?.channel ?? null;
   const layerTuningVideo = layerTuningDialog?.video ?? null;
 
+  const layerTuningTextPreviewSignature = useMemo(() => {
+    const overrides = pickThumbnailTextPreviewOverrides(layerTuningDialog?.overridesLeaf ?? {});
+    const entries = Object.entries(overrides).sort(([a], [b]) => a.localeCompare(b));
+    return JSON.stringify(entries);
+  }, [layerTuningDialog?.overridesLeaf]);
+
+  const layerTuningTextPreviewOverrides = useMemo(() => {
+    try {
+      const parsed = JSON.parse(layerTuningTextPreviewSignature) as Array<[string, any]>;
+      if (!Array.isArray(parsed)) {
+        return {};
+      }
+      return Object.fromEntries(parsed);
+    } catch {
+      return {};
+    }
+  }, [layerTuningTextPreviewSignature]);
+
+  useEffect(() => {
+    layerTuningDialogRef.current = layerTuningDialog;
+  }, [layerTuningDialog]);
+
+  useEffect(() => {
+    layerTuningSelectedAssetRef.current = layerTuningSelectedAsset;
+  }, [layerTuningSelectedAsset]);
+
+  useEffect(() => {
+    if (!layerTuningChannel || !layerTuningVideo) {
+      setLayerTuningBgPreviewSrc(null);
+      setLayerTuningPortraitPreviewSrc(null);
+      setLayerTuningTextPreviewSrc(null);
+      setLayerTuningTextPreviewStatus({ loading: false, error: null });
+      layerTuningTextPreviewRequestRef.current += 1;
+      layerTuningPreviewDragRef.current = null;
+      if (layerTuningPreviewRafRef.current !== null) {
+        window.cancelAnimationFrame(layerTuningPreviewRafRef.current);
+        layerTuningPreviewRafRef.current = null;
+      }
+      layerTuningPreviewPendingPatchRef.current = null;
+      setLayerTuningSelectedAsset("bg");
+      return;
+    }
+    setLayerTuningBgPreviewSrc(resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.png`));
+    setLayerTuningPortraitPreviewSrc(
+      resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.png`)
+    );
+    setLayerTuningTextPreviewSrc(null);
+    setLayerTuningTextPreviewStatus({ loading: false, error: null });
+    layerTuningTextPreviewRequestRef.current += 1;
+    layerTuningPreviewDragRef.current = null;
+    if (layerTuningPreviewRafRef.current !== null) {
+      window.cancelAnimationFrame(layerTuningPreviewRafRef.current);
+      layerTuningPreviewRafRef.current = null;
+    }
+    layerTuningPreviewPendingPatchRef.current = null;
+    setLayerTuningSelectedAsset("bg");
+  }, [layerTuningChannel, layerTuningVideo]);
+
+  useEffect(() => {
+    if (!layerTuningProjectKey) {
+      return;
+    }
+    if (layerTuningDialog?.loading) {
+      return;
+    }
+    const el = layerTuningPreviewRef.current;
+    if (!el) {
+      return;
+    }
+
+    const setLeaf = (path: string, value: unknown) => {
+      const key = (path ?? "").trim();
+      if (!key) {
+        return;
+      }
+      setLayerTuningDialog((current) => {
+        if (!current) {
+          return current;
+        }
+        const next = { ...(current.overridesLeaf ?? {}) };
+        if (value === null || value === undefined || value === "") {
+          delete next[key];
+        } else {
+          next[key] = value;
+        }
+        return { ...current, overridesLeaf: next, error: undefined };
+      });
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.deltaY) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+
+      const dialog = layerTuningDialogRef.current;
+      if (!dialog) {
+        return;
+      }
+      const selected = layerTuningSelectedAssetRef.current;
+      const factor = Math.exp(-event.deltaY * 0.001);
+      if (selected === "portrait") {
+        const currentZoom = Number(resolveLayerTuningLeafValue(dialog, "overrides.portrait.zoom", 1.0));
+        const nextZoom = clampNumber(currentZoom * factor, 0.5, 2.0);
+        setLeaf("overrides.portrait.zoom", Number(nextZoom.toFixed(3)));
+        return;
+      }
+      if (selected === "text") {
+        const currentScale = Number(resolveLayerTuningLeafValue(dialog, "overrides.text_scale", 1.0));
+        const nextScale = clampNumber(currentScale * factor, 0.5, 2.0);
+        setLeaf("overrides.text_scale", Number(nextScale.toFixed(3)));
+        return;
+      }
+      const currentZoom = Number(resolveLayerTuningLeafValue(dialog, "overrides.bg_pan_zoom.zoom", 1.0));
+      const nextZoom = clampNumber(currentZoom * factor, 1.0, 1.6);
+      setLeaf("overrides.bg_pan_zoom.zoom", Number(nextZoom.toFixed(3)));
+    };
+    el.addEventListener("wheel", handleWheel, { passive: false, capture: true });
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setLayerTuningPreviewSize({
+        width: Math.max(0, rect.width),
+        height: Math.max(0, rect.height),
+      });
+    };
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("wheel", handleWheel, { capture: true } as any);
+      ro.disconnect();
+    };
+  }, [layerTuningDialog?.loading, layerTuningProjectKey]);
+
   useEffect(() => {
     if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
       return;
@@ -2595,6 +2833,47 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       });
   }, [layerTuningChannel, layerTuningProjectKey, layerTuningVideo]);
 
+  useEffect(() => {
+    if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
+      return;
+    }
+    if (layerTuningDialog?.loading) {
+      return;
+    }
+
+    const requestId = (layerTuningTextPreviewRequestRef.current += 1);
+    setLayerTuningTextPreviewStatus((current) => ({ ...current, loading: true, error: null }));
+
+    const timer = window.setTimeout(() => {
+      previewThumbnailTextLayer(layerTuningChannel, layerTuningVideo, layerTuningTextPreviewOverrides)
+        .then((result) => {
+          if (layerTuningTextPreviewRequestRef.current !== requestId) {
+            return;
+          }
+          const url = resolveApiUrl(`${result.image_url}?v=${requestId}`);
+          setLayerTuningTextPreviewSrc(url);
+          setLayerTuningTextPreviewStatus({ loading: false, error: null });
+        })
+        .catch((error) => {
+          if (layerTuningTextPreviewRequestRef.current !== requestId) {
+            return;
+          }
+          const message = error instanceof Error ? error.message : String(error);
+          setLayerTuningTextPreviewStatus({ loading: false, error: message });
+        });
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [
+    layerTuningChannel,
+    layerTuningDialog?.loading,
+    layerTuningProjectKey,
+    layerTuningTextPreviewOverrides,
+    layerTuningVideo,
+  ]);
+
   const setLayerTuningOverrideLeaf = useCallback((path: string, value: unknown | null) => {
     setLayerTuningDialog((current) => {
       if (!current) {
@@ -2635,6 +2914,253 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     });
   }, []);
 
+  const flushLayerTuningPreviewPatch = useCallback(() => {
+    if (layerTuningPreviewRafRef.current !== null) {
+      window.cancelAnimationFrame(layerTuningPreviewRafRef.current);
+      layerTuningPreviewRafRef.current = null;
+    }
+    const pending = layerTuningPreviewPendingPatchRef.current;
+    layerTuningPreviewPendingPatchRef.current = null;
+    if (pending) {
+      mergeLayerTuningOverridesLeaf(pending);
+    }
+  }, [mergeLayerTuningOverridesLeaf]);
+
+  const scheduleLayerTuningPreviewPatch = useCallback(
+    (patch: Record<string, unknown>) => {
+      layerTuningPreviewPendingPatchRef.current = patch;
+      if (layerTuningPreviewRafRef.current !== null) {
+        return;
+      }
+      layerTuningPreviewRafRef.current = window.requestAnimationFrame(() => {
+        layerTuningPreviewRafRef.current = null;
+        const pending = layerTuningPreviewPendingPatchRef.current;
+        layerTuningPreviewPendingPatchRef.current = null;
+        if (pending) {
+          mergeLayerTuningOverridesLeaf(pending);
+        }
+      });
+    },
+    [mergeLayerTuningOverridesLeaf]
+  );
+
+  const beginLayerTuningPreviewBgDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (event.button !== 0) {
+        return;
+      }
+      setLayerTuningSelectedAsset("bg");
+
+      const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
+      const width = rect?.width ?? layerTuningPreviewSize.width;
+      const height = rect?.height ?? layerTuningPreviewSize.height;
+      if (!width || !height) {
+        return;
+      }
+
+      const rawZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.zoom", 1.0));
+      const zoom = rawZoom > 1.0001 ? rawZoom : 1.05;
+      if (zoom !== rawZoom) {
+        setLayerTuningOverrideLeaf("overrides.bg_pan_zoom.zoom", Number(zoom.toFixed(3)));
+      }
+      const panX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_x", 0.0));
+      const panY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_y", 0.0));
+      layerTuningPreviewDragRef.current = {
+        kind: "bg",
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startPanX: panX,
+        startPanY: panY,
+        zoom,
+        width,
+        height,
+      };
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+      event.preventDefault();
+    },
+    [layerTuningDialog, layerTuningPreviewSize.height, layerTuningPreviewSize.width, setLayerTuningOverrideLeaf]
+  );
+
+  const beginLayerTuningPreviewPortraitDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (event.button !== 0) {
+        return;
+      }
+      setLayerTuningSelectedAsset("portrait");
+
+      const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
+      const width = rect?.width ?? layerTuningPreviewSize.width;
+      const height = rect?.height ?? layerTuningPreviewSize.height;
+      if (!width || !height) {
+        return;
+      }
+
+      const offX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_x", 0.0));
+      const offY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_y", 0.0));
+      layerTuningPreviewDragRef.current = {
+        kind: "portrait",
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startOffX: offX,
+        startOffY: offY,
+        width,
+        height,
+      };
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+      event.preventDefault();
+    },
+    [layerTuningDialog, layerTuningPreviewSize.height, layerTuningPreviewSize.width]
+  );
+
+  const beginLayerTuningPreviewTextDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (event.button !== 0) {
+        return;
+      }
+      setLayerTuningSelectedAsset("text");
+
+      const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
+      const width = rect?.width ?? layerTuningPreviewSize.width;
+      const height = rect?.height ?? layerTuningPreviewSize.height;
+      if (!width || !height) {
+        return;
+      }
+
+      const offX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0));
+      const offY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0));
+      layerTuningPreviewDragRef.current = {
+        kind: "text",
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startOffX: offX,
+        startOffY: offY,
+        width,
+        height,
+      };
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+      event.preventDefault();
+    },
+    [layerTuningDialog, layerTuningPreviewSize.height, layerTuningPreviewSize.width]
+  );
+
+  const handleLayerTuningPreviewDragMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const drag = layerTuningPreviewDragRef.current;
+      if (!drag || drag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const dx = event.clientX - drag.startClientX;
+      const dy = event.clientY - drag.startClientY;
+
+      if (drag.kind === "bg") {
+        const zoom = Number(drag.zoom);
+        const maxDx = (drag.width * (zoom - 1)) / 2;
+        const maxDy = (drag.height * (zoom - 1)) / 2;
+        if (!Number.isFinite(maxDx) || !Number.isFinite(maxDy) || maxDx <= 0 || maxDy <= 0) {
+          return;
+        }
+        const nextPanX = clampNumber(drag.startPanX - dx / maxDx, -1, 1);
+        const nextPanY = clampNumber(drag.startPanY - dy / maxDy, -1, 1);
+        scheduleLayerTuningPreviewPatch({
+          "overrides.bg_pan_zoom.pan_x": nextPanX,
+          "overrides.bg_pan_zoom.pan_y": nextPanY,
+        });
+        return;
+      }
+
+      const nextOffX = clampNumber(drag.startOffX + dx / drag.width, -0.25, 0.25);
+      const nextOffY = clampNumber(drag.startOffY + dy / drag.height, -0.25, 0.25);
+      if (drag.kind === "text") {
+        scheduleLayerTuningPreviewPatch({
+          "overrides.text_offset_x": nextOffX,
+          "overrides.text_offset_y": nextOffY,
+        });
+        return;
+      }
+      scheduleLayerTuningPreviewPatch({
+        "overrides.portrait.offset_x": nextOffX,
+        "overrides.portrait.offset_y": nextOffY,
+      });
+    },
+    [scheduleLayerTuningPreviewPatch]
+  );
+
+  const handleLayerTuningPreviewDragEnd = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = layerTuningPreviewDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+    flushLayerTuningPreviewPatch();
+    layerTuningPreviewDragRef.current = null;
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+  }, [flushLayerTuningPreviewPatch]);
+
+  const handleLayerTuningPreviewBgWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (!event.deltaY) {
+        return;
+      }
+      event.preventDefault();
+      const currentZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.zoom", 1.0));
+      const factor = Math.exp(-event.deltaY * 0.001);
+      const nextZoom = clampNumber(currentZoom * factor, 1.0, 1.6);
+      setLayerTuningOverrideLeaf("overrides.bg_pan_zoom.zoom", Number(nextZoom.toFixed(3)));
+    },
+    [layerTuningDialog, setLayerTuningOverrideLeaf]
+  );
+
+  const handleLayerTuningPreviewPortraitWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (!event.deltaY) {
+        return;
+      }
+      event.preventDefault();
+      const currentZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.zoom", 1.0));
+      const factor = Math.exp(-event.deltaY * 0.001);
+      const nextZoom = clampNumber(currentZoom * factor, 0.5, 2.0);
+      setLayerTuningOverrideLeaf("overrides.portrait.zoom", Number(nextZoom.toFixed(3)));
+    },
+    [layerTuningDialog, setLayerTuningOverrideLeaf]
+  );
+
   const handleLayerTuningCommentChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
     const value = event.target.value;
     setLayerTuningDialog((current) => (current ? { ...current, commentDraft: value } : current));
@@ -2660,14 +3186,9 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       bg_zoom_in: { label: "背景: 少しズーム", leaf: { "overrides.bg_pan_zoom.zoom": 1.12 } },
       text_big: { label: "文字: 大きめ", leaf: { "overrides.text_scale": 1.12 } },
       text_small: { label: "文字: 小さめ", leaf: { "overrides.text_scale": 0.92 } },
-      ch26_portrait_zoom: {
-        label: "CH26: 肖像アップ",
-        channel: "CH26",
-        leaf: { "overrides.portrait.zoom": 1.25 },
-      },
-      ch26_portrait_bright: {
-        label: "CH26: 肖像を明るく",
-        channel: "CH26",
+      portrait_zoom: { label: "肖像: アップ", leaf: { "overrides.portrait.zoom": 1.25 } },
+      portrait_bright: {
+        label: "肖像: 明るく",
         leaf: { "overrides.portrait.fg_brightness": 1.32, "overrides.portrait.fg_contrast": 1.12 },
       },
     };
@@ -3415,7 +3936,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           {visibleLibraryAssets.map((asset) => {
             const previewUrl = resolveApiUrl(asset.public_url);
             const formState = libraryForms[asset.id] ?? { video: "", pending: false };
-            const describeState = libraryDescribeState[asset.id];
             return (
               <article key={asset.id} className="thumbnail-library-card">
                 <div className="thumbnail-library-card__preview">
@@ -3452,23 +3972,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                       <p className="thumbnail-library__message thumbnail-library__message--success">{formState.success}</p>
                     ) : null}
                   </form>
-                  <div className="thumbnail-library-card__describe">
-                    <button
-                      type="button"
-                      onClick={() => handleLibraryDescribe(asset)}
-                      disabled={describeState?.pending}
-                    >
-                      {describeState?.pending ? "要約中…" : "AIで要約"}
-                    </button>
-                    {describeState?.text ? (
-                      <p className="thumbnail-library-card__describe-text">{describeState.text}</p>
-                    ) : null}
-                    {describeState?.error ? (
-                      <p className="thumbnail-library__message thumbnail-library__message--error">
-                        {describeState.error}
-                      </p>
-                    ) : null}
-                  </div>
                 </div>
               </article>
             );
@@ -3971,6 +4474,21 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                 ))}
               </div>
             </div>
+            {activeChannel && channelHasTwoUpVariants ? (
+              <div className="thumbnail-alert" style={{ marginTop: 12 }}>
+                このチャンネルは <strong>2案（00_thumb_1 / 00_thumb_2）</strong> を想定しています。{" "}
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={() => {
+                    setGalleryVariantMode("two_up");
+                    setActiveTab("gallery");
+                  }}
+                >
+                  ギャラリーで{activeChannel.projects.length * 2}枚を見る
+                </button>
+              </div>
+            ) : null}
             {errorMessage ? <div className="thumbnail-alert thumbnail-alert--error">{errorMessage}</div> : null}
             {loading ? <div className="thumbnail-loading">読み込み中…</div> : null}
             {!loading && filteredProjects.length === 0 ? (
@@ -4100,11 +4618,12 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         </button>
                         <button
                           type="button"
-                          className="btn"
+                          className="btn btn--primary"
                           onClick={() => handleOpenLayerTuningDialog(project)}
                           disabled={disableVariantActions}
+                          title="Canvaみたいにドラッグで位置調整できます"
                         >
-                          調整
+                          調整（ドラッグ）
                         </button>
                         <button
                           type="button"
@@ -4919,10 +5438,10 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   <p className="thumbnail-library__placeholder" style={{ marginTop: -8, marginBottom: 12 }}>
                     コメントの解釈（パラメータ反映）はこのチャットで行います（UI/API での自動反映はしません）。
                   </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("reset_all")}>
-                      リセット
-                    </button>
+	                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+	                    <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("reset_all")}>
+	                      リセット
+	                    </button>
                     <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("bg_bright")}>
                       背景: 明るめ
                     </button>
@@ -4941,24 +5460,660 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     <button type="button" className="btn btn--ghost" onClick={() => applyLayerTuningPreset("text_small")}>
                       文字: 小さめ
                     </button>
-                    {layerTuningDialog.channel === "CH26" ? (
+                    {layerTuningDialog.context?.portrait_available ? (
                       <>
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          onClick={() => applyLayerTuningPreset("ch26_portrait_zoom")}
+                          onClick={() => applyLayerTuningPreset("portrait_zoom")}
                         >
-                          CH26: 肖像アップ
+                          肖像: アップ
                         </button>
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          onClick={() => applyLayerTuningPreset("ch26_portrait_bright")}
+                          onClick={() => applyLayerTuningPreset("portrait_bright")}
                         >
-                          CH26: 肖像を明るく
+                          肖像: 明るく
                         </button>
                       </>
-                    ) : null}
+	                    ) : null}
+	                  </div>
+
+	                  <h3 style={{ marginTop: 18, marginBottom: 8 }}>文字（上/中/下）</h3>
+	                  <div className="thumbnail-planning-form__grid" style={{ marginBottom: 12 }}>
+	                    {(() => {
+	                      const videoKey = normalizeVideoInput(layerTuningDialog.video) || layerTuningDialog.video;
+	                      const planningRow = planningRowsByVideo[videoKey] ?? {};
+	                      const planningUpper = String(planningRow["サムネタイトル上"] ?? "").trim();
+	                      const planningTitle = String(planningRow["サムネタイトル"] ?? "").trim();
+	                      const planningLower = String(planningRow["サムネタイトル下"] ?? "").trim();
+	                      const slots = layerTuningDialog.context?.text_slots ?? {};
+	                      const defaultUpper = String(slots["line1"] ?? slots["upper"] ?? slots["top"] ?? planningUpper ?? "").trim();
+	                      const defaultTitle = String(slots["line2"] ?? slots["title"] ?? slots["main"] ?? planningTitle ?? "").trim();
+	                      const defaultLower = String(slots["line3"] ?? slots["lower"] ?? slots["accent"] ?? planningLower ?? "").trim();
+
+	                      const upperOverridden = isLayerTuningLeafOverridden(layerTuningDialog, "overrides.copy_override.upper");
+	                      const titleOverridden = isLayerTuningLeafOverridden(layerTuningDialog, "overrides.copy_override.title");
+	                      const lowerOverridden = isLayerTuningLeafOverridden(layerTuningDialog, "overrides.copy_override.lower");
+
+	                      const upperValue = upperOverridden
+	                        ? String(layerTuningDialog.overridesLeaf["overrides.copy_override.upper"] ?? "")
+	                        : defaultUpper;
+	                      const titleValue = titleOverridden
+	                        ? String(layerTuningDialog.overridesLeaf["overrides.copy_override.title"] ?? "")
+	                        : defaultTitle;
+	                      const lowerValue = lowerOverridden
+	                        ? String(layerTuningDialog.overridesLeaf["overrides.copy_override.lower"] ?? "")
+	                        : defaultLower;
+
+	                      return (
+	                        <>
+		                    <label className="thumbnail-planning-form__field--wide">
+		                      <span>上段（copy_override.upper / line1）</span>
+		                      <input
+		                        type="text"
+		                        value={upperValue}
+	                        onChange={(event) => {
+	                          const raw = event.target.value;
+	                          setLayerTuningOverrideLeaf("overrides.copy_override.upper", raw.trim() ? raw : null);
+	                        }}
+		                        style={upperOverridden ? { background: "rgba(59, 130, 246, 0.06)" } : undefined}
+		                      />
+		                    </label>
+		                    <label className="thumbnail-planning-form__field--wide">
+		                      <span>中段（copy_override.title / line2）</span>
+		                      <input
+		                        type="text"
+		                        value={titleValue}
+	                        onChange={(event) => {
+	                          const raw = event.target.value;
+	                          setLayerTuningOverrideLeaf("overrides.copy_override.title", raw.trim() ? raw : null);
+	                        }}
+		                        style={titleOverridden ? { background: "rgba(59, 130, 246, 0.06)" } : undefined}
+		                      />
+		                    </label>
+		                    <label className="thumbnail-planning-form__field--wide">
+		                      <span>下段（copy_override.lower / line3）</span>
+		                      <input
+		                        type="text"
+		                        value={lowerValue}
+	                        onChange={(event) => {
+	                          const raw = event.target.value;
+	                          setLayerTuningOverrideLeaf("overrides.copy_override.lower", raw.trim() ? raw : null);
+	                        }}
+		                        style={lowerOverridden ? { background: "rgba(59, 130, 246, 0.06)" } : undefined}
+		                      />
+		                    </label>
+	                        </>
+		                      );
+		                    })()}
+	                  </div>
+
+	                  <h3 style={{ marginTop: 18, marginBottom: 8 }}>プレビュー（ドラッグで位置調整）</h3>
+	                  <div style={{ display: "grid", gap: 12 }}>
+	                    <div
+                      ref={layerTuningPreviewRef}
+                      style={{
+                        width: "min(820px, 100%)",
+                        aspectRatio: "16 / 9",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        border: "1px solid rgba(15, 23, 42, 0.25)",
+                        background: "#0b0b0f",
+                        position: "relative",
+                        userSelect: "none",
+                        touchAction: "none",
+                      }}
+                    >
+                      {(() => {
+                        const width = layerTuningPreviewSize.width;
+                        const height = layerTuningPreviewSize.height;
+
+                        const bgZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.zoom", 1.0));
+                        const bgPanX = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_x", 0.0)),
+                          -1,
+                          1
+                        );
+                        const bgPanY = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.pan_y", 0.0)),
+                          -1,
+                          1
+                        );
+                        const bgBrightness = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.brightness", 1.0)
+                        );
+                        const bgContrast = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.contrast", 1.0));
+                        const bgColor = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance.color", 1.0));
+                        const bgFilter = `brightness(${bgBrightness}) contrast(${bgContrast}) saturate(${bgColor})`;
+
+                        const shiftX =
+                          width && bgZoom > 1
+                            ? -((bgZoom - 1) * width * 0.5 * (1 + bgPanX))
+                            : 0;
+                        const shiftY =
+                          height && bgZoom > 1
+                            ? -((bgZoom - 1) * height * 0.5 * (1 + bgPanY))
+                            : 0;
+
+                        const overlaysEnabled = Boolean(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.enabled", true)
+                        );
+                        const overlaysLeftColor = String(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.color", "#000000")
+                        );
+                        const overlaysLeftAlphaLeft = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.alpha_left", 0.65)
+                        );
+                        const overlaysLeftAlphaRight = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.alpha_right", 0.0)
+                        );
+                        const overlaysLeftX0 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.x0", 0.0)),
+                          0,
+                          1
+                        );
+                        const overlaysLeftX1 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.x1", 0.52)),
+                          0,
+                          1
+                        );
+                        const textOffX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0));
+                        const textOffY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0));
+                        const textTranslateX = width ? textOffX * width : 0;
+                        const textTranslateY = height ? textOffY * height : 0;
+                        const textTranslate = `translate3d(${textTranslateX}px, ${textTranslateY}px, 0)`;
+
+                        const topBandEnabled = Boolean(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.enabled", true)
+                        );
+                        const topBandColor = String(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.color", "#000000")
+                        );
+                        const topBandAlphaTop = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.alpha_top", 0.7)
+                        );
+                        const topBandAlphaBottom = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.alpha_bottom", 0.0)
+                        );
+                        const topBandY0 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.y0", 0.0)),
+                          0,
+                          1
+                        );
+                        const topBandY1 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.y1", 0.25)),
+                          0,
+                          1
+                        );
+
+                        const bottomBandEnabled = Boolean(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.enabled", true)
+                        );
+                        const bottomBandColor = String(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.color", "#000000")
+                        );
+                        const bottomBandAlphaTop = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.alpha_top", 0.0)
+                        );
+                        const bottomBandAlphaBottom = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.alpha_bottom", 0.8)
+                        );
+                        const bottomBandY0 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.y0", 0.7)),
+                          0,
+                          1
+                        );
+                        const bottomBandY1 = clampNumber(
+                          Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.y1", 1.0)),
+                          0,
+                          1
+                        );
+
+                        const portraitEnabled = Boolean(layerTuningDialog.context?.portrait_available);
+                        const portraitZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.zoom", 1.0));
+                        const portraitOffX = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_x", 0.0)
+                        );
+                        const portraitOffY = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_y", 0.0)
+                        );
+                        const portraitBrightness = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_brightness", 1.2)
+                        );
+                        const portraitContrast = Number(
+                          resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_contrast", 1.08)
+                        );
+                        const portraitColor = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.fg_color", 0.98));
+                        const portraitFilter = `brightness(${portraitBrightness}) contrast(${portraitContrast}) saturate(${portraitColor})`;
+
+                        const rawPortraitBox = (layerTuningDialog.context as any)?.portrait_dest_box_norm;
+                        const portraitBox = Array.isArray(rawPortraitBox) && rawPortraitBox.length === 4
+                          ? rawPortraitBox.map((v: any) => Number(v))
+                          : [0.29, 0.06, 0.42, 0.76];
+                        const portraitAnchor = String((layerTuningDialog.context as any)?.portrait_anchor ?? "bottom_center");
+                        const anchorIsCenter = portraitAnchor.toLowerCase() === "center";
+                        const objectPos = anchorIsCenter ? "50% 50%" : "50% 100%";
+                        const origin = anchorIsCenter ? "50% 50%" : "50% 100%";
+
+                        const boxLeft = width ? Math.round(width * portraitBox[0]) : 0;
+                        const boxTop = height ? Math.round(height * portraitBox[1]) : 0;
+                        const boxW = width ? Math.round(width * portraitBox[2]) : 0;
+                        const boxH = height ? Math.round(height * portraitBox[3]) : 0;
+                        const offPxX = width ? portraitOffX * width : 0;
+                        const offPxY = height ? portraitOffY * height : 0;
+
+                        const leftTszGradient = `linear-gradient(90deg, ${hexToRgba(
+                          overlaysLeftColor,
+                          overlaysLeftAlphaLeft
+                        )} 0%, ${hexToRgba(overlaysLeftColor, overlaysLeftAlphaLeft)} ${(overlaysLeftX0 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(overlaysLeftColor, overlaysLeftAlphaRight)} ${(overlaysLeftX1 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(overlaysLeftColor, overlaysLeftAlphaRight)} 100%)`;
+                        const topBandGradient = `linear-gradient(180deg, ${hexToRgba(
+                          topBandColor,
+                          topBandAlphaTop
+                        )} 0%, ${hexToRgba(topBandColor, topBandAlphaTop)} ${(topBandY0 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(topBandColor, topBandAlphaBottom)} ${(topBandY1 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(topBandColor, topBandAlphaBottom)} 100%)`;
+                        const bottomBandGradient = `linear-gradient(180deg, ${hexToRgba(
+                          bottomBandColor,
+                          bottomBandAlphaTop
+                        )} 0%, ${hexToRgba(bottomBandColor, bottomBandAlphaTop)} ${(bottomBandY0 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(bottomBandColor, bottomBandAlphaBottom)} ${(bottomBandY1 * 100).toFixed(
+                          2
+                        )}%, ${hexToRgba(bottomBandColor, bottomBandAlphaBottom)} 100%)`;
+
+                        return (
+                          <>
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                cursor: "grab",
+                              }}
+                              onPointerDown={beginLayerTuningPreviewBgDrag}
+                              onPointerMove={handleLayerTuningPreviewDragMove}
+                              onPointerUp={handleLayerTuningPreviewDragEnd}
+                              onPointerCancel={handleLayerTuningPreviewDragEnd}
+                              onWheel={handleLayerTuningPreviewBgWheel}
+                            >
+                              {layerTuningBgPreviewSrc ? (
+                                <div style={{ position: "absolute", inset: 0 }}>
+                                  <div style={{ position: "absolute", left: shiftX, top: shiftY, width: "100%", height: "100%" }}>
+                                    <div style={{ width: "100%", height: "100%", transform: `scale(${bgZoom})`, transformOrigin: "top left" }}>
+                                      <img
+                                        src={layerTuningBgPreviewSrc}
+                                        alt="bg"
+                                        draggable={false}
+                                        style={{
+                                          width: "100%",
+                                          height: "100%",
+                                          objectFit: "cover",
+                                          filter: bgFilter,
+                                          pointerEvents: "none",
+                                        }}
+                                        onError={() => {
+                                          if (!layerTuningChannel || !layerTuningVideo) {
+                                            setLayerTuningBgPreviewSrc(null);
+                                            return;
+                                          }
+                                          const candidates = [
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.png`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.jpg`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.jpeg`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.webp`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/90_bg_ai_raw.png`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/90_bg_ai_raw.jpg`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/90_bg_ai_raw.jpeg`),
+                                            resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/90_bg_ai_raw.webp`),
+                                          ];
+                                          setLayerTuningBgPreviewSrc((current) => {
+                                            const idx = candidates.findIndex((c) => c === current);
+                                            if (idx >= 0 && idx < candidates.length - 1) {
+                                              return candidates[idx + 1];
+                                            }
+                                            return null;
+                                          });
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "rgba(255,255,255,0.7)",
+                                    fontSize: 13,
+                                  }}
+                                >
+                                  背景画像が見つかりません（10_bg.* / 90_bg_ai_raw.*）
+                                </div>
+                              )}
+                            </div>
+
+                            {overlaysEnabled ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  inset: 0,
+                                  backgroundImage: leftTszGradient,
+                                  pointerEvents: "none",
+                                  zIndex: 20,
+                                }}
+                              />
+                            ) : null}
+                            {topBandEnabled ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  inset: 0,
+                                  backgroundImage: topBandGradient,
+                                  pointerEvents: "none",
+                                  zIndex: 20,
+                                }}
+                              />
+                            ) : null}
+                            {bottomBandEnabled ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  inset: 0,
+                                  backgroundImage: bottomBandGradient,
+                                  pointerEvents: "none",
+                                  zIndex: 20,
+                                }}
+                              />
+                            ) : null}
+
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                transform: textTranslate,
+                                pointerEvents: "none",
+                                zIndex: 30,
+                              }}
+                            >
+                              {layerTuningTextPreviewSrc ? (
+                                <img
+                                  src={layerTuningTextPreviewSrc}
+                                  alt="text"
+                                  draggable={false}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    pointerEvents: "none",
+                                  }}
+                                  onError={() => {
+                                    setLayerTuningTextPreviewSrc(null);
+                                    setLayerTuningTextPreviewStatus((current) => ({
+                                      loading: false,
+                                      error: current.error ?? "文字レイヤの読み込みに失敗しました",
+                                    }));
+                                  }}
+                                />
+                              ) : layerTuningTextPreviewStatus.loading ? (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: 12,
+                                    bottom: 12,
+                                    padding: "6px 10px",
+                                    borderRadius: 10,
+                                    background: "rgba(0,0,0,0.55)",
+                                    color: "rgba(255,255,255,0.9)",
+                                    fontSize: 12,
+                                    letterSpacing: 0.2,
+                                  }}
+                                >
+                                  文字レイヤ生成中…
+                                </div>
+                              ) : layerTuningTextPreviewStatus.error ? (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: 12,
+                                    bottom: 12,
+                                    padding: "6px 10px",
+                                    borderRadius: 10,
+                                    background: "rgba(127, 29, 29, 0.7)",
+                                    color: "rgba(255,255,255,0.95)",
+                                    fontSize: 12,
+                                    letterSpacing: 0.2,
+                                  }}
+                                >
+                                  文字レイヤ: {layerTuningTextPreviewStatus.error}
+                                </div>
+                              ) : null}
+                            </div>
+
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: `${(overlaysLeftX0 * 100).toFixed(2)}%`,
+                                top: 0,
+                                width: `${(Math.max(0, overlaysLeftX1 - overlaysLeftX0) * 100).toFixed(2)}%`,
+                                height: "100%",
+                                transform: textTranslate,
+                                cursor: "grab",
+                                touchAction: "none",
+                                borderRadius: 8,
+                                boxSizing: "border-box",
+                                border:
+                                  layerTuningSelectedAsset === "text"
+                                    ? "2px solid rgba(59, 130, 246, 0.95)"
+                                    : "1px dashed rgba(255,255,255,0.18)",
+                                background: layerTuningSelectedAsset === "text" ? "rgba(59, 130, 246, 0.08)" : "transparent",
+                                zIndex: 40,
+                              }}
+                              onPointerDown={beginLayerTuningPreviewTextDrag}
+                              onPointerMove={handleLayerTuningPreviewDragMove}
+                              onPointerUp={handleLayerTuningPreviewDragEnd}
+                              onPointerCancel={handleLayerTuningPreviewDragEnd}
+                            >
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  left: 8,
+                                  bottom: 8,
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: "rgba(0,0,0,0.35)",
+                                  color: "rgba(255,255,255,0.85)",
+                                  fontSize: 11,
+                                  letterSpacing: 0.3,
+                                  pointerEvents: "none",
+                                }}
+                              >
+                                TEXT
+                              </div>
+                            </div>
+
+                            {portraitEnabled ? (
+                              <>
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: boxLeft,
+                                    top: boxTop,
+                                    width: boxW,
+                                    height: boxH,
+                                    border: "1px dashed rgba(255,255,255,0.35)",
+                                    pointerEvents: "none",
+                                    borderRadius: 6,
+                                  }}
+                                />
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: boxLeft,
+                                    top: boxTop,
+                                    width: boxW,
+                                    height: boxH,
+                                    transform: `translate(${offPxX}px, ${offPxY}px)`,
+                                    cursor: "grab",
+                                    touchAction: "none",
+                                    borderRadius: 6,
+                                    outline:
+                                      layerTuningSelectedAsset === "portrait"
+                                        ? "2px solid rgba(59, 130, 246, 0.95)"
+                                        : "none",
+                                    outlineOffset: 2,
+                                  }}
+                                  onPointerDown={beginLayerTuningPreviewPortraitDrag}
+                                  onPointerMove={handleLayerTuningPreviewDragMove}
+                                  onPointerUp={handleLayerTuningPreviewDragEnd}
+                                  onPointerCancel={handleLayerTuningPreviewDragEnd}
+                                  onWheel={handleLayerTuningPreviewPortraitWheel}
+                                >
+                                  {layerTuningPortraitPreviewSrc ? (
+                                    <img
+                                      src={layerTuningPortraitPreviewSrc}
+                                      alt="portrait"
+                                      draggable={false}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "contain",
+                                        objectPosition: objectPos,
+                                        transform: `scale(${portraitZoom})`,
+                                        transformOrigin: origin,
+                                        filter: portraitFilter,
+                                        pointerEvents: "none",
+                                      }}
+                                      onError={() => {
+                                        if (!layerTuningChannel || !layerTuningVideo) {
+                                          setLayerTuningPortraitPreviewSrc(null);
+                                          return;
+                                        }
+                                        const candidates = [
+                                          resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.png`),
+                                          resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.jpg`),
+                                          resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.jpeg`),
+                                          resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.webp`),
+                                        ];
+                                        setLayerTuningPortraitPreviewSrc((current) => {
+                                          const idx = candidates.findIndex((c) => c === current);
+                                          if (idx >= 0 && idx < candidates.length - 1) {
+                                            return candidates[idx + 1];
+                                          }
+                                          return null;
+                                        });
+                                      }}
+                                    />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "rgba(255,255,255,0.7)",
+                                        fontSize: 13,
+                                      }}
+                                    >
+                                      肖像画像が見つかりません（20_portrait.*）
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            ) : null}
+
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: 10,
+                                top: 10,
+                                padding: "4px 10px",
+                                borderRadius: 999,
+                                background: "rgba(0, 0, 0, 0.55)",
+                                color: "rgba(255,255,255,0.9)",
+                                fontSize: 12,
+                                letterSpacing: 0.2,
+                                pointerEvents: "none",
+                              }}
+                            >
+                              選択:{" "}
+                              {layerTuningSelectedAsset === "portrait"
+                                ? "肖像"
+                                : layerTuningSelectedAsset === "text"
+                                  ? "文字"
+                                  : "背景"}
+                              （クリックして切替）
+                            </div>
+
+                            {layerTuningSelectedAsset === "bg" ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  inset: 0,
+                                  boxShadow: "inset 0 0 0 2px rgba(59, 130, 246, 0.65)",
+                                  pointerEvents: "none",
+                                }}
+                              />
+                            ) : null}
+                          </>
+                        );
+                      })()}
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() =>
+                          mergeLayerTuningOverridesLeaf({
+                            "overrides.bg_pan_zoom.pan_x": null,
+                            "overrides.bg_pan_zoom.pan_y": null,
+                            "overrides.bg_pan_zoom.zoom": null,
+                          })
+                        }
+                      >
+                        背景: リセット
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() =>
+                          mergeLayerTuningOverridesLeaf({
+                            "overrides.text_offset_x": null,
+                            "overrides.text_offset_y": null,
+                          })
+                        }
+                      >
+                        文字: リセット
+                      </button>
+                      {layerTuningDialog.context?.portrait_available ? (
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() =>
+                            mergeLayerTuningOverridesLeaf({
+                              "overrides.portrait.offset_x": null,
+                              "overrides.portrait.offset_y": null,
+                              "overrides.portrait.zoom": null,
+                            })
+                          }
+                        >
+                          肖像: リセット
+                        </button>
+                      ) : null}
+                    </div>
+                    <p className="thumbnail-library__placeholder" style={{ marginTop: -4 }}>
+                      背景/文字/肖像: クリックして選択 → ドラッグで移動。ホイール: 選択中の素材をズーム（文字はサイズ調整）。
+                    </p>
                   </div>
 
                   <div className="thumbnail-planning-form__grid">
@@ -5029,16 +6184,42 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           </option>
                         ))}
                       </select>
-                    </label>
-                    <label className="thumbnail-planning-form__field--wide">
-                      <span>文字サイズ（scale）</span>
-                      <input
-                        type="range"
+	                    </label>
+	                    <label className="thumbnail-planning-form__field--wide">
+	                      <span>文字サイズ（scale）</span>
+	                      <input
+	                        type="range"
                         min={0.5}
                         max={2}
                         step={0.01}
                         value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_scale", 1.0))}
                         onChange={(event) => setLayerTuningOverrideLeaf("overrides.text_scale", Number(event.target.value))}
+                      />
+                    </label>
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>文字位置X（offset_x）</span>
+                      <input
+                        type="range"
+                        min={-0.25}
+                        max={0.25}
+                        step={0.001}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_offset_x", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>文字位置Y（offset_y）</span>
+                      <input
+                        type="range"
+                        min={-0.25}
+                        max={0.25}
+                        step={0.001}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_offset_y", Number(event.target.value))
+                        }
                       />
                     </label>
                     <label>
@@ -5091,6 +6272,44 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                       />
                     </label>
                     <label>
+                      <span>強調赤（hot_red_fill）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_fills.hot_red_fill.color",
+                              "#ff0000"
+                            )
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#ff0000";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_fills.hot_red_fill.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>紫（purple_fill）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_fills.purple_fill.color",
+                              "#a020f0"
+                            )
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#a020f0";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_fills.purple_fill.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
                       <span>影（alpha）</span>
                       <input
                         type="range"
@@ -5113,6 +6332,145 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.stroke.width_px", 8))}
                         onChange={(event) =>
                           setLayerTuningOverrideLeaf("overrides.text_effects.stroke.width_px", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>フチ色（stroke color）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.stroke.color", "#000000")
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.stroke.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>影（blur px）</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={128}
+                        step={1}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.shadow.blur_px", 10))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.shadow.blur_px", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>影（offset px）</span>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <input
+                          type="number"
+                          step={1}
+                          value={(() => {
+                            const fallback = [6, 6];
+                            const v = resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_effects.shadow.offset_px",
+                              fallback
+                            );
+                            const pair = Array.isArray(v) ? v : fallback;
+                            return Number(pair[0] ?? fallback[0]);
+                          })()}
+                          onChange={(event) => {
+                            const fallback = [6, 6];
+                            const v = resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_effects.shadow.offset_px",
+                              fallback
+                            );
+                            const pair = Array.isArray(v) ? v : fallback;
+                            const y = Number(pair[1] ?? fallback[1]);
+                            setLayerTuningOverrideLeaf("overrides.text_effects.shadow.offset_px", [Number(event.target.value), y]);
+                          }}
+                        />
+                        <input
+                          type="number"
+                          step={1}
+                          value={(() => {
+                            const fallback = [6, 6];
+                            const v = resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_effects.shadow.offset_px",
+                              fallback
+                            );
+                            const pair = Array.isArray(v) ? v : fallback;
+                            return Number(pair[1] ?? fallback[1]);
+                          })()}
+                          onChange={(event) => {
+                            const fallback = [6, 6];
+                            const v = resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.text_effects.shadow.offset_px",
+                              fallback
+                            );
+                            const pair = Array.isArray(v) ? v : fallback;
+                            const x = Number(pair[0] ?? fallback[0]);
+                            setLayerTuningOverrideLeaf("overrides.text_effects.shadow.offset_px", [x, Number(event.target.value)]);
+                          }}
+                        />
+                      </div>
+                    </label>
+                    <label>
+                      <span>影色（shadow color）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.shadow.color", "#000000")
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.shadow.color", event.target.value)
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>グロー（alpha）</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.glow.alpha", 0.0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.glow.alpha", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>グロー（blur px）</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={128}
+                        step={1}
+                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.glow.blur_px", 0))}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.glow.blur_px", Number(event.target.value))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>グロー色（glow color）</span>
+                      <input
+                        type="color"
+                        value={(() => {
+                          const v = String(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_effects.glow.color", "#ffffff")
+                          );
+                          return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#ffffff";
+                        })()}
+                        onChange={(event) =>
+                          setLayerTuningOverrideLeaf("overrides.text_effects.glow.color", event.target.value)
                         }
                       />
                     </label>
@@ -5213,10 +6571,377 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         }
                       />
                     </label>
-                  </div>
+                    </div>
 
-                  {layerTuningDialog.context?.portrait_available ? (
-                    <>
+                  <details style={{ marginTop: 12 }}>
+                    <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                      背景（詳細: 部分補正/帯）
+                    </summary>
+
+                    <h4 style={{ marginTop: 12, marginBottom: 8 }}>部分補正（band）</h4>
+                    <div className="thumbnail-planning-form__grid">
+                      <label>
+                        <span>x0</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.x0", 0.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.x0", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>x1</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.x1", 0.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.x1", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>強さ（power）</span>
+                        <input
+                          type="range"
+                          min={0.1}
+                          max={3}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.power", 1.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.power", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>明るさ</span>
+                        <input
+                          type="range"
+                          min={0.5}
+                          max={2}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.brightness", 1.0)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.brightness", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>コントラスト</span>
+                        <input
+                          type="range"
+                          min={0.5}
+                          max={2}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.contrast", 1.0)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.contrast", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>彩度</span>
+                        <input
+                          type="range"
+                          min={0.5}
+                          max={2}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.color", 1.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.color", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>ガンマ</span>
+                        <input
+                          type="range"
+                          min={0.5}
+                          max={2}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_enhance_band.gamma", 1.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.bg_enhance_band.gamma", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <h4 style={{ marginTop: 18, marginBottom: 8 }}>帯（overlays）</h4>
+
+                    <h4 style={{ marginTop: 0, marginBottom: 8 }}>左TSZ（文字スペース）</h4>
+                    <div className="thumbnail-planning-form__grid">
+                      <label>
+                        <span>有効</span>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.enabled", true)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.enabled", event.target.checked)
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>色</span>
+                        <input
+                          type="color"
+                          value={(() => {
+                            const v = String(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.color", "#000000")
+                            );
+                            return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+                          })()}
+                          onChange={(event) => setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.color", event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（左）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.alpha_left", 0.65)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.alpha_left", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（右）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.alpha_right", 0.0)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.alpha_right", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>x0</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.x0", 0.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.x0", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>x1</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.left_tsz.x1", 0.52))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.left_tsz.x1", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <h4 style={{ marginTop: 18, marginBottom: 8 }}>上帯</h4>
+                    <div className="thumbnail-planning-form__grid">
+                      <label>
+                        <span>有効</span>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.enabled", true)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.top_band.enabled", event.target.checked)
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>色</span>
+                        <input
+                          type="color"
+                          value={(() => {
+                            const v = String(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.color", "#000000")
+                            );
+                            return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+                          })()}
+                          onChange={(event) => setLayerTuningOverrideLeaf("overrides.overlays.top_band.color", event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（上）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.alpha_top", 0.7)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.top_band.alpha_top", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（下）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.alpha_bottom", 0.0)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.top_band.alpha_bottom", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>y0</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.y0", 0.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.top_band.y0", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>y1</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.y1", 0.25))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.top_band.y1", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <h4 style={{ marginTop: 18, marginBottom: 8 }}>下帯</h4>
+                    <div className="thumbnail-planning-form__grid">
+                      <label>
+                        <span>有効</span>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.enabled", true)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.bottom_band.enabled", event.target.checked)
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>色</span>
+                        <input
+                          type="color"
+                          value={(() => {
+                            const v = String(
+                              resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.color", "#000000")
+                            );
+                            return /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+                          })()}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.bottom_band.color", event.target.value)
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（上）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.alpha_top", 0.0)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.bottom_band.alpha_top", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>濃さ（下）</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.alpha_bottom", 0.8)
+                          )}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf(
+                              "overrides.overlays.bottom_band.alpha_bottom",
+                              Number(event.target.value)
+                            )
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>y0</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.y0", 0.7))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.bottom_band.y0", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>y1</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.bottom_band.y1", 1.0))}
+                          onChange={(event) =>
+                            setLayerTuningOverrideLeaf("overrides.overlays.bottom_band.y1", Number(event.target.value))
+                          }
+                        />
+                      </label>
+                    </div>
+                  </details>
+
+                    {layerTuningDialog.context?.portrait_available ? (
+                      <>
                       <h3 style={{ marginTop: 18, marginBottom: 8 }}>肖像</h3>
                       <div className="thumbnail-planning-form__grid">
                         <label>

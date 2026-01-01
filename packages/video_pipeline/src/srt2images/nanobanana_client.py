@@ -2,6 +2,7 @@ from __future__ import annotations
 import math
 import logging
 import os
+import re
 import shutil
 import subprocess
 import time
@@ -97,8 +98,19 @@ def _truncate_log(text: str, limit: int = 400) -> str:
 def _looks_like_429_quota(exc: Exception) -> bool:
     msg = str(exc)
     upper = msg.upper()
-    lower = msg.lower()
-    return ("429" in msg) and ("RESOURCE_EXHAUSTED" in upper or "quota" in lower)
+    # Be conservative: many providers emit 429 for transient rate limits.
+    # Treat only explicit Google-style quota exhaustion as quota (prevents false aborts when
+    # ImageClient mixes provider cooldown + a different provider's 429 in one error message).
+    return ("429" in msg) and ("RESOURCE_EXHAUSTED" in upper)
+
+def _extract_provider_cooldown_seconds(exc: Exception) -> int | None:
+    try:
+        m = re.search(r"cooldown for ~(\d+)s", str(exc))
+        if not m:
+            return None
+        return int(m.group(1))
+    except Exception:
+        return None
 
 def _looks_like_daily_quota(exc: Exception) -> bool:
     lower = str(exc).lower()
@@ -446,16 +458,32 @@ def _run_direct(
     aspect_ratio = _normalize_openrouter_aspect_ratio(width, height)
 
     max_retries = max(1, int(max_retries))
-    for attempt in range(max_retries):
+    # Cooldown-aware retries: provider cooldown may be minutes; do not burn retry budget immediately.
+    try:
+        cooldown_max_total = int(os.getenv("SRT2IMAGES_IMAGE_COOLDOWN_MAX_TOTAL_SEC", "1800"))
+    except ValueError:
+        cooldown_max_total = 1800
+    try:
+        cooldown_sleep_cap = int(os.getenv("SRT2IMAGES_IMAGE_COOLDOWN_SLEEP_CAP_SEC", "60"))
+    except ValueError:
+        cooldown_sleep_cap = 60
+    cooldown_slept = 0
+
+    attempt = 0
+    while attempt < max_retries:
         try:
             if image_client is not None:
+                extra: dict = {"timeout_sec": int(timeout_sec)} if timeout_sec else {}
+                raw_af = os.getenv("SRT2IMAGES_IMAGE_ALLOW_FALLBACK")
+                if raw_af is not None and raw_af.strip() != "":
+                    extra["allow_fallback"] = raw_af.strip().lower() not in ("0", "false", "no", "off")
                 options = ImageTaskOptions(
                     task="visual_image_gen",
                     prompt=prompt,
                     aspect_ratio=aspect_ratio,
                     n=1,
                     input_images=input_images,
-                    extra={"timeout_sec": int(timeout_sec)} if timeout_sec else {},
+                    extra=extra,
                 )
                 result = image_client.generate(options)
                 image_data = result.images[0] if result.images else None
@@ -475,6 +503,20 @@ def _run_direct(
                 return True
 
         except ImageGenerationError as exc:
+            cooldown_sec = _extract_provider_cooldown_seconds(exc)
+            if cooldown_sec is not None and cooldown_sec > 0 and cooldown_slept < cooldown_max_total:
+                sleep_for = min(cooldown_sec, cooldown_sleep_cap, max(1, cooldown_max_total - cooldown_slept))
+                logging.warning(
+                    "ImageClient provider cooldown detected; sleeping %ds (slept %d/%ds total)",
+                    sleep_for,
+                    cooldown_slept,
+                    cooldown_max_total,
+                )
+                time.sleep(float(sleep_for))
+                cooldown_slept += int(sleep_for)
+                # Do not count cooldown waits against retry budget.
+                continue
+
             if _looks_like_429_quota(exc):
                 # If it's clearly a per-day quota, stop immediately (waiting won't help).
                 if _looks_like_daily_quota(exc):
@@ -495,9 +537,10 @@ def _run_direct(
         except Exception as exc:
             logging.error("Unexpected error from ImageClient: %s", exc)
 
-        # Backoff before retrying
-        if attempt + 1 < max_retries:
-            time.sleep(min(10.0, 0.5 * (2 ** attempt)))
+        # Backoff before retrying (counts toward retry budget)
+        attempt += 1
+        if attempt < max_retries:
+            time.sleep(min(10.0, 0.5 * (2 ** (attempt - 1))))
 
     return False
 

@@ -20,6 +20,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - 各チャンネル/各動画のサムネ案（variants）と `status/notes` を追跡。
 - **Templates SoT**: `workspaces/thumbnails/templates.json`
   - AI生成テンプレ（prompt/model）と、チャンネル別の設定（layer_specs 等）を管理。
+  - `templates[].image_model_key` は背景生成に使う ImageClient の model key（正本: `configs/image_models.yaml: models.*`）。運用既定は `fireworks_flux_kontext_max`。
 
 ### 1.2 ローカル合成（Compiler）SoT
 - Stylepack（組版スタイル）: `workspaces/thumbnails/compiler/stylepacks/*.yaml`

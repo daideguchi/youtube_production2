@@ -11,6 +11,25 @@ class VoicepeakCLIError(RuntimeError):
     pass
 
 
+def _normalize_narrator_name(name: str) -> str:
+    """
+    Voicepeak CLI on macOS is unstable when narrator contains non-ASCII (e.g. '女性2').
+    Keep configs human-friendly, but map known JP aliases to CLI-safe names.
+    """
+    value = (name or "").strip()
+    if not value:
+        return value
+    alias = {
+        "男性1": "Japanese Male 1",
+        "男性2": "Japanese Male 2",
+        "男性3": "Japanese Male 3",
+        "女性1": "Japanese Female 1",
+        "女性2": "Japanese Female 2",
+        "女性3": "Japanese Female 3",
+    }
+    return alias.get(value, value)
+
+
 def synthesize_chunk(
     *,
     text: str,
@@ -36,15 +55,17 @@ def synthesize_chunk(
     if not lines:
         lines = [text]
 
+    narrator_safe = _normalize_narrator_name(narrator)
+
     try:
         if len(lines) == 1:
-            _run_voicepeak_line(lines[0], out_wav, bin_path, narrator, speed, pitch, emotion)
+            _run_voicepeak_line(lines[0], out_wav, bin_path, narrator_safe, speed, pitch, emotion)
             return
         tmp_parts: List[Path] = []
         base = out_wav.with_suffix("")
         for i, line in enumerate(lines):
             part = base.parent / f"{base.name}_part_{i:03}.wav"
-            _run_voicepeak_line(line, part, bin_path, narrator, speed, pitch, emotion)
+            _run_voicepeak_line(line, part, bin_path, narrator_safe, speed, pitch, emotion)
             tmp_parts.append(part)
         _concat_wavs(tmp_parts, out_wav)
     except VoicepeakCLIError:
@@ -70,7 +91,7 @@ def synthesize_chunk(
         for i, sent in enumerate(sentences):
             part = base.parent / f"{base.name}_fallback_{i:03}.wav"
             try:
-                _run_voicepeak_line(sent, part, bin_path, narrator, speed, pitch, emotion)
+                _run_voicepeak_line(sent, part, bin_path, narrator_safe, speed, pitch, emotion)
             except VoicepeakCLIError:
                 # それでも失敗する箇所は無音で代替してパイプラインを止めない
                 _write_silence(part, duration_sec=0.35, sample_rate=24000)

@@ -89,6 +89,8 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
 
     # overrides.text_* (text rendering tuning)
     "overrides.text_scale": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
+    "overrides.text_offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
+    "overrides.text_offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
 
     # overrides.text_fills.* (solid fill color overrides; keys must exist in authored specs)
     "overrides.text_fills.white_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),

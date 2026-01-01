@@ -5,16 +5,16 @@
   "persona_path": "workspaces/planning/personas/CH25_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH25-寝落ち偉人講話【眠りながら学ぶ】/script_prompt.txt",
   "branding": {
-    "avatar_url": "https://yt3.googleusercontent.com/t-AsUYDqDXgzIhL5ykyEKox5QhCtfWrVQs6N-aivNcQ15WR3xJsYmOZAUelLxi-ZwgJoH63N=s900-c-k-c0x00ffffff-no-rj",
+    "avatar_url": "https://yt3.ggpht.com/t-AsUYDqDXgzIhL5ykyEKox5QhCtfWrVQs6N-aivNcQ15WR3xJsYmOZAUelLxi-ZwgJoH63N=s88-c-k-c0x00ffffff-no-rj",
     "banner_url": "",
     "title": "寝落ち偉人講話【眠りながら学ぶ】",
-    "subscriber_count": 0,
+    "subscriber_count": 3,
     "view_count": 0,
     "video_count": 0,
     "custom_url": "@neochi_ijin",
     "handle": "@neochi_ijin",
     "url": "https://www.youtube.com/channel/UCuRkH_4faoZJZo4nLd3TVJA",
-    "updated_at": "2025-12-24T12:39:27.832157Z"
+    "updated_at": "2024-11-05T05:45:53.568845Z"
   },
   "youtube": {
     "channel_id": "UCuRkH_4faoZJZo4nLd3TVJA",
@@ -24,9 +24,9 @@
     "url": "https://www.youtube.com/channel/UCuRkH_4faoZJZo4nLd3TVJA",
     "source": "UCuRkH_4faoZJZo4nLd3TVJA",
     "view_count": 0,
-    "subscriber_count": 0,
+    "subscriber_count": 3,
     "video_count": 0,
-    "synced_at": "2025-12-24T12:39:27.832213+00:00"
+    "synced_at": "2025-12-31T12:50:41.404564+00:00"
   },
   "script_prompt": "# CH25 台本プロンプト（寝落ち偉人講話【眠りながら学ぶ】）\n\n役割: あなたはYouTube「寝落ち偉人講話【眠りながら学ぶ】」の専属脚本家です。視聴者が安心して寝落ちできるテンポで、偉人の人生と考え方を静かに染み込む形で届ける長尺Aテキストを書いてください。\n\nゴール: 本文 20,000〜26,000字（20,000字未満は禁止）。後半も密度を落とさず、同趣旨の言い換えで水増ししない。\n\n口調（必須）: 二人称は「君」で統一。敬語ではなく、落ち着いた断定口調。煽りや恐怖演出は禁止。\n\n必須: 視聴者の今の状態を肯定し、「眠ってしまっても大丈夫」を明言する（最後まで聴けなくてもOK）。\n\n史実（必須）: 史実ベース。根拠が薄い逸話や創作は混ぜない。年号/固有名詞は確度が高いものだけ。曖昧なら「諸説があります」「記録は多くありません」と柔らかく言う。会話文の捏造は禁止。\n\nシリーズ骨格（必須）: 導入は「問題→原因の再定義→約束→7つの教え予告」の順で進め、罪悪感ではなく手順の話として安心を作る。\n\n必須: 7つの教えは毎回同じ順序で書く。命題→誤解の否定→用語化→道具の比喩→原理→日常例→試してほしいこと→回収。\n\n必須: 「試してほしいこと」は必ず手順化し、数制限を守る。1分で書く／2つだけ選ぶ・外す／7割3割／3回平均／改善は1つだけ。\n\n必須: 最後は「翌日からの行動3つ（朝・昼・夜）」を渡し、テンポをさらに落として静かに閉じる。\n\nTTS事故防止（必須）: 日本語文中に半角スペースを入れない。鉤括弧や丸括弧は必要最小限。\n\n禁止: 視聴者を責める表現、過度に不安を煽る表現。医療/投資/法律の断定的助言。政治的な扇動、特定集団への攻撃。露骨な宣伝、契約文言、コメント/登録/高評価などの誘導。\n\n出力: 台本本文のみ。\n",
   "default_tags": [

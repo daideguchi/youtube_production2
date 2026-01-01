@@ -537,9 +537,27 @@ def _font_advance_px(font: ImageFont.FreeTypeFont, text: str, *, tracking: int =
     return max(0, int(bbox[2] - bbox[0]))
 
 
-def _split_font_ref(font_ref: str) -> Tuple[str, int]:
+def _resolve_font_file_path(path: str) -> str:
+    raw = str(path or "").strip()
+    if not raw:
+        return raw
+    p = Path(raw).expanduser()
+    if p.is_absolute():
+        return str(p)
+    # Allow repo-relative font refs in layer specs (tracked under workspaces/thumbnails/assets/_fonts).
+    candidate = (fpaths.repo_root() / p).resolve()
+    if candidate.exists():
+        return str(candidate)
+    return str(p)
+
+
+def _split_font_ref(font_ref: str) -> Tuple[str, int, Optional[str]]:
     """
-    Support TTC face selection using a compact "path#index" encoding.
+    Support TTC face selection + variable font selection using a compact encoding:
+
+    - TTC index: "path#index"
+    - Variable name: "path@Black"
+    - Combined: "path#index@Black"
 
     Pillow's FreeType loader supports an explicit face `index`, but our layer specs
     historically only carried a font *path*. Returning "path#index" from discovery
@@ -547,19 +565,64 @@ def _split_font_ref(font_ref: str) -> Tuple[str, int]:
     """
     s = str(font_ref or "").strip()
     if not s:
-        return ("", 0)
+        return ("", 0, None)
+
+    variation: Optional[str] = None
+    if "@" in s:
+        base, raw_var = s.rsplit("@", 1)
+        base = base.strip()
+        raw_var = raw_var.strip()
+        if base and raw_var:
+            s = base
+            variation = raw_var
+
     if "#" not in s:
-        return (s, 0)
+        return (s, 0, variation)
     path, idx = s.rsplit("#", 1)
     if idx.isdigit():
-        return (path, int(idx))
-    return (s, 0)
+        return (path, int(idx), variation)
+    return (s, 0, variation)
+
+
+def _try_resolve_font_ref_as_path(font_ref: str) -> Optional[str]:
+    path, index, variation = _split_font_ref(font_ref)
+    if not path:
+        return None
+    resolved_path = _resolve_font_file_path(path)
+    p = Path(resolved_path)
+    if not p.exists():
+        return None
+    out = resolved_path
+    if index:
+        out = f"{out}#{index}"
+    if variation:
+        out = f"{out}@{variation}"
+    return out
+
+
+def _apply_font_variation(font: ImageFont.FreeTypeFont, variation: Optional[str]) -> None:
+    if not variation:
+        return
+    v = str(variation).strip()
+    if not v:
+        return
+    if not hasattr(font, "set_variation_by_name"):
+        return
+    try:
+        # Variable fonts like NotoSansJP_wght.ttf expose names (Thin..Black).
+        font.set_variation_by_name(v)
+        return
+    except Exception:
+        pass
 
 
 @lru_cache(maxsize=512)
 def _load_truetype(font_ref: str, size: int) -> ImageFont.FreeTypeFont:
-    path, index = _split_font_ref(font_ref)
-    return ImageFont.truetype(path, int(size), index=int(index))
+    path, index, variation = _split_font_ref(font_ref)
+    resolved = _resolve_font_file_path(path)
+    font = ImageFont.truetype(resolved, int(size), index=int(index))
+    _apply_font_variation(font, variation)
+    return font
 
 
 def _fc_list_lines() -> List[str]:
@@ -649,6 +712,9 @@ def _discover_font_ref_by_family(prefer: Sequence[str]) -> Optional[str]:
         return None
 
     for fam in prefer_clean:
+        direct = _try_resolve_font_ref_as_path(fam)
+        if direct:
+            return direct
         ref = _fc_match_font_ref(fam)
         if ref:
             return ref
@@ -677,6 +743,13 @@ def _fallback_font_path() -> str:
 
 def _resolve_font_path_from_spec(fonts: Dict[str, Any], font_key: str) -> str:
     families = fonts.get(font_key)
+    if isinstance(families, str) and families.strip():
+        direct = _try_resolve_font_ref_as_path(families)
+        if direct:
+            return direct
+        found = _discover_font_ref_by_family([families])
+        if found:
+            return found
     if isinstance(families, list):
         found = _discover_font_ref_by_family([str(x) for x in families])
         if found:

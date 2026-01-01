@@ -315,6 +315,10 @@ export function ReportsPage() {
                     const audio = stageStatus(video, "audio_synthesis");
                     const srt = stageStatus(video, "srt_generation");
                     const status = video.status;
+                    const charNumber =
+                      typeof video.character_count === "number" && Number.isFinite(video.character_count)
+                        ? video.character_count
+                        : 0;
                     const portalLink = `/channels/${encodeURIComponent(video.channel)}/portal`;
                     const detailLink = `/channels/${encodeURIComponent(video.channel)}/videos/${encodeURIComponent(video.video)}`;
                     return (
@@ -336,7 +340,7 @@ export function ReportsPage() {
                         <td>{scriptOk ? "ok" : "—"}</td>
                         <td>{audio}</td>
                         <td>{srt}</td>
-                        <td>{video.character_count ? video.character_count.toLocaleString("ja-JP") : "—"}</td>
+                        <td>{charNumber.toLocaleString("ja-JP")}</td>
                         <td>{video.updated_at ?? "—"}</td>
                       </tr>
                     );

@@ -37,6 +37,7 @@ import {
   ThumbnailImageModelInfo,
   ThumbnailLayerSpecsBuildPayload,
   ThumbnailLayerSpecsBuildResult,
+  ThumbnailPreviewTextLayerResult,
   ThumbnailChannelTemplates,
   ThumbnailChannelTemplatesUpdate,
   ThumbnailParamCatalogEntry,
@@ -1389,6 +1390,20 @@ export function updateThumbnailThumbSpec(
 export function fetchThumbnailEditorContext(channel: string, video: string): Promise<ThumbnailEditorContext> {
   return request<ThumbnailEditorContext>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/editor-context`
+  );
+}
+
+export function previewThumbnailTextLayer(
+  channel: string,
+  video: string,
+  overrides: Record<string, any>
+): Promise<ThumbnailPreviewTextLayerResult> {
+  return request<ThumbnailPreviewTextLayerResult>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/preview/text-layer`,
+    {
+      method: "POST",
+      body: JSON.stringify({ overrides: overrides ?? {} }),
+    }
   );
 }
 

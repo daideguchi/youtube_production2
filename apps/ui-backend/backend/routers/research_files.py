@@ -6,13 +6,14 @@ from typing import Dict, Tuple
 
 from fastapi import APIRouter, HTTPException, Query
 
-from factory_common.paths import research_root, script_data_root
+from factory_common.paths import repo_root, research_root, script_data_root
 
 router = APIRouter(prefix="/api/research", tags=["research"])
 
 BASE_DIRS: Dict[str, Path] = {
     "research": research_root(),
     "scripts": script_data_root(),
+    "ssot": repo_root() / "ssot",
 }
 
 
@@ -31,7 +32,7 @@ def _resolve_path(base: str, rel: str) -> Tuple[Path, Path]:
 
 @router.get("/list")
 def list_research_files(
-    base: str = Query("research", description="research | scripts"),
+    base: str = Query("research", description="research | scripts | ssot"),
     path: str = Query("", description="relative path from base"),
 ):
     base_dir, target = _resolve_path(base, path)
@@ -63,7 +64,7 @@ def list_research_files(
 
 @router.get("/file")
 def read_research_file(
-    base: str = Query("research", description="research | scripts"),
+    base: str = Query("research", description="research | scripts | ssot"),
     path: str = Query(..., description="relative file path from base"),
 ):
     base_dir, target = _resolve_path(base, path)

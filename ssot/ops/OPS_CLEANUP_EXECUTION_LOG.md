@@ -2135,3 +2135,28 @@ projects.json 整理:
 
 削除（tracked）:
 - `git rm -r pages`
+
+---
+
+## 2026-01-01
+
+### 1) 明らかに短い/壊れている台本をリセット（再生成前提 / 投稿済み除外）
+
+意図:
+- 「# Waiting for Rewrite」等の placeholder や、極端に短い Aテキストは下流工程の事故源になるため、**途中修正ではなく reset で初期化**して再生成できる状態に戻す。
+- `published_lock=true`（投稿済み）は対象外。
+
+判定（今回の運用）:
+- `assembled*.md` が存在し、文字数（空白除外）が `< 2000` のもの
+  - または placeholder（例: `# Waiting for Rewrite`）
+
+対象:
+- CH23: `002`〜`030`（placeholder）
+- CH01: `274`, `275`（短すぎ）
+
+実行:
+- `PYTHONPATH=".:packages" python3 -c "from script_pipeline.runner import reset_video; ..."`（`wipe_research=false`）
+
+結果:
+- `workspaces/scripts/{CH}/{NNN}/content/assembled*.md` を削除し、`status.json` を初期化（再生成待ちに戻した）
+- 研究（`content/analysis/research/*`）は保持（存在する場合のみ）

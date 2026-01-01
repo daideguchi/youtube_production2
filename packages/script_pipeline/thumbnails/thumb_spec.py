@@ -36,6 +36,8 @@ def _is_allowed_override_root_key(key: str) -> bool:
         "text_effects",
         "text_template_id",
         "text_scale",
+        "text_offset_x",
+        "text_offset_y",
         "text_fills",
         "overlays",
         "copy_override",
@@ -60,6 +62,10 @@ def _flatten_overrides(overrides: Dict[str, Any]) -> Dict[str, Any]:
 
         if root_key in {"text_scale"}:
             out["overrides.text_scale"] = root_value
+            continue
+
+        if root_key in {"text_offset_x", "text_offset_y"}:
+            out[f"overrides.{root_key}"] = root_value
             continue
 
         if root_key == "text_fills":

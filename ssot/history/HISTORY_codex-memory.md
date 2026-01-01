@@ -218,6 +218,14 @@
 - planning_lint 精度改善: `contains_bullet_like_opener` を「`-` 単独」では検知しない（`-J77...` のような YouTubeID 先頭 `-` の誤検知を防止）。加えて「デザイン指示」列と `YouTubeID` 列は汚染シグナル対象から除外し、warn の実用性を上げた（`scripts/ops/planning_lint.py`）。
 - planning_sanitize 適用: CH08/CH09 の L3 相当列（`台本本文（冒頭サンプル）` 等）から「深夜の偉人ラジオへようこそ」混入を決定論で除去し、planning_lint/preproduction_audit を pass へ収束（`scripts/ops/planning_sanitize.py`, `workspaces/planning/channels/CH08.csv`, `workspaces/planning/channels/CH09.csv`）。
 - 検証: `python3 scripts/ops/planning_lint.py --channel CH01|CH03|CH08|CH09 --write-latest`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`（gate=pass）
+
+## 2025-12-31
+- 事故: CH01の251-290作業中に、私（Codex）が `scripts/ops/script_runbook.py` を実行して外部LLM（Azure）に台本文字数拡張を投げてしまい、意図しないコストと本文差分が発生。
+- 復旧: `backups/script_backup_CH01_251_290_before_expand_20251231_032500.tgz` を正として、影響があった `workspaces/scripts/CH01/274/content/assembled.md` と `workspaces/scripts/CH01/281-290/content/assembled.md` をバックアップ版へ差し戻し（現状はバックアップと一致）。
+- 再発防止（運用ルール）: ユーザーが明示的に「外部LLMを回してよい」と指示しない限り、`script_runbook.py`/`script_pipeline` のLLM呼び出しを伴うコマンドは実行しない。以後は「企画↔台本の実態チェック→Claudeに渡す執筆指示書を作り込む」に限定。
+- Claude向け運用物を更新/追加（本文生成はClaude側へ寄せる）:
+  - `prompts/guides/scriptwriting/channels/CH01_WORK_ORDER_251_290.md`（実態数値と企画ズレの指示を更新）
+  - `prompts/guides/scriptwriting/channels/CH01_CLAUDE_POLISH_251_290.md`（体裁・言い回しの最終仕上げ用）
 - Production Pack: capcut チャンネルの投入前ゲートを強化し、`prompt_template`（ファイル/registry）と `voice_config.json`（存在/JSON妥当性）を fail 条件として追加。SSOTを追従し、ログ配置マップに planning_lint/planning_sanitize の回帰ログを追記（`scripts/ops/production_pack.py`, `ssot/ops/OPS_PRODUCTION_PACK.md`, `ssot/ops/OPS_LOGGING_MAP.md`）。
 - 検証: `python3 -m py_compile scripts/ops/production_pack.py`, `pytest -q tests/test_production_pack_diff.py`, `python3 scripts/ops/preproduction_audit.py --all --write-latest`
 - 入口〜投入前の“整理”を強化:

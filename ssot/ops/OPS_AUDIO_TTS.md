@@ -27,6 +27,10 @@
   - `log.json`
   - `a_text.txt`（**実際に合成したTTS入力（=Bテキスト）のスナップショット**）
   - `audio_manifest.json`（契約）
+- Voicepeak user dict（GUIの辞書を repo と揃える用途）:
+  - SoT: `packages/audio_tts/data/voicepeak/dic.json`
+  - Sync: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]`
+  - Destination: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/dic.json`
 
 ---
 

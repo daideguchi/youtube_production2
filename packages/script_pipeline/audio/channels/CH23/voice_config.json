@@ -1,12 +1,21 @@
 {
   "channel_code": "CH23",
   "channel_name": "熟年夫婦の現実ノート",
-  "default_voice_key": "voicevox_namioto",
+  "default_voice_key": "voicepeak_female2_pitch50",
   "output": {
     "final_root": "data/CH23/_audio_workspace/final",
     "temp_root": "data/CH23/_audio_workspace/temp"
   },
   "voices": {
+    "voicepeak_female2_pitch50": {
+      "engine": "voicepeak",
+      "character": "女性2",
+      "engine_options": {
+        "narrator": "女性2",
+        "speed": 100,
+        "pitch": 50
+      }
+    },
     "voicevox_namioto": {
       "engine": "voicevox",
       "character": "波音リツ",

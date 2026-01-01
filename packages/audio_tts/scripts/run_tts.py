@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import sys
+import time
 import urllib.request
 from pathlib import Path
 from typing import Literal
@@ -250,7 +251,11 @@ def parse_args() -> argparse.Namespace:
     # Optional overrides
     p.add_argument("--out-wav", type=Path, help="Output WAV path override")
     p.add_argument("--log", type=Path, help="Output Log path override")
-    p.add_argument("--engine-override", choices=["voicevox", "voicepeak", "elevenlabs"], help="Force specific engine")
+    p.add_argument(
+        "--engine-override",
+        choices=["voicevox", "voicepeak", "elevenlabs"],
+        help="Force specific engine",
+    )
     p.add_argument(
         "--reading-source",
         choices=["mecab", "voicevox"],
@@ -272,6 +277,20 @@ def parse_args() -> argparse.Namespace:
         help="Allow TTS even when script_validation is not completed (not recommended).",
     )
 
+    p.add_argument(
+        "--finalize-existing",
+        action="store_true",
+        help=(
+            "Do not synthesize. Instead, validate existing final wav/srt "
+            "and write/update a_text.txt, log.json, audio_manifest.json."
+        ),
+    )
+    p.add_argument(
+        "--force-overwrite-final",
+        action="store_true",
+        help="Allow overwriting existing manually-finalized audio in workspaces/audio/final (danger).",
+    )
+
     # Voicepeak specific (Optional, maybe move to config later)
     p.add_argument("--voicepeak-narrator")
     p.add_argument("--voicepeak-speed", type=int, help="Voicepeak speed (50-200)")
@@ -285,6 +304,175 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--prepass", action="store_true", help="Reading-only pass (no wav synthesis). Generates log.json with readings.")
 
     return p.parse_args()
+
+
+def _write_contract_audio_manifest(
+    *,
+    channel: str,
+    video: str,
+    final_dir: Path,
+    final_wav: Path,
+    final_srt: Path,
+    final_log: Path,
+    notes: str = "",
+) -> None:
+    """
+    Write `workspaces/audio/final/<CH>/<NNN>/audio_manifest.json` (schema: ytm.audio_manifest.v1).
+    This must never change the synthesis result; it only records pointers/checksums.
+    """
+    from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
+    from factory_common.paths import repo_root as ssot_repo_root
+    from factory_common.timeline_manifest import (
+        sha1_file,
+        wav_duration_seconds,
+        srt_end_seconds,
+        srt_entry_count,
+    )
+
+    repo_root_path = ssot_repo_root()
+
+    def _safe_relpath(path: Path) -> str:
+        try:
+            return str(path.resolve().relative_to(repo_root_path.resolve()))
+        except Exception:
+            return str(path)
+
+    a_text_path = final_dir / "a_text.txt"
+    manifest: dict[str, object] = {
+        "schema": "ytm.audio_manifest.v1",
+        "generated_at": utc_now_iso(),
+        "repo_root": str(repo_root_path),
+        "episode": {
+            "id": f"{channel}-{video}",
+            "channel": channel,
+            "video": video,
+        },
+        "final_dir": _safe_relpath(final_dir),
+        "source": {
+            "a_text": {
+                "path": _safe_relpath(a_text_path),
+                "sha1": sha1_file(a_text_path) if a_text_path.exists() else None,
+            },
+        },
+        "artifacts": {
+            "wav": {
+                "path": _safe_relpath(final_wav),
+                "sha1": sha1_file(final_wav) if final_wav.exists() else None,
+                "duration_sec": wav_duration_seconds(final_wav) if final_wav.exists() else None,
+            },
+            "srt": {
+                "path": _safe_relpath(final_srt),
+                "sha1": sha1_file(final_srt) if final_srt.exists() else None,
+                "end_sec": srt_end_seconds(final_srt) if final_srt.exists() else None,
+                "entries": srt_entry_count(final_srt) if final_srt.exists() else None,
+            },
+            "log": {
+                "path": _safe_relpath(final_log),
+                "sha1": sha1_file(final_log) if final_log.exists() else None,
+            },
+        },
+        "notes": str(notes or ""),
+    }
+
+    try:
+        if final_log.exists():
+            log_obj = json.loads(final_log.read_text(encoding="utf-8"))
+            if isinstance(log_obj, dict):
+                manifest["log_summary"] = {
+                    "engine": log_obj.get("engine") or (log_obj.get("audio") or {}).get("engine"),
+                    "timestamp": log_obj.get("timestamp"),
+                }
+    except Exception:
+        pass
+
+    atomic_write_json(final_dir / "audio_manifest.json", manifest)
+
+
+def _mark_audio_synthesis_completed(
+    *,
+    channel: str,
+    video: str,
+    engine: str,
+    mode: str,
+    final_dir: Path,
+    wav_path: Path,
+    srt_path: Path,
+) -> None:
+    """
+    Update `workspaces/scripts/{CH}/{VID}/status.json` stage:
+      stages.audio_synthesis.status = completed
+
+    This is required for manual workflows where the user places wav/srt under workspaces/video/input
+    and we only ingest + validate (no synthesis).
+    """
+    from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
+    from factory_common.paths import status_path as _status_path, repo_root as _repo_root
+
+    st_path = _status_path(channel, video)
+    if not st_path.exists():
+        return
+    try:
+        payload = json.loads(st_path.read_text(encoding="utf-8"))
+    except Exception:
+        return
+    if not isinstance(payload, dict):
+        return
+    stages = payload.get("stages")
+    if not isinstance(stages, dict):
+        return
+
+    stage = stages.get("audio_synthesis")
+    if not isinstance(stage, dict):
+        stage = {"status": "pending", "details": {}}
+    details = stage.get("details")
+    if not isinstance(details, dict):
+        details = {}
+
+    repo_root_path = _repo_root()
+
+    def _rel(p: Path) -> str:
+        try:
+            return str(p.resolve().relative_to(repo_root_path.resolve()))
+        except Exception:
+            return str(p)
+
+    details.update(
+        {
+            "completed_at": utc_now_iso(),
+            "engine": str(engine),
+            "mode": str(mode),
+            "final_dir": _rel(final_dir),
+            "wav": _rel(wav_path),
+            "srt": _rel(srt_path),
+        }
+    )
+    stage["status"] = "completed"
+    stage["details"] = details
+    stages["audio_synthesis"] = stage
+    payload["stages"] = stages
+
+    atomic_write_json(st_path, payload)
+
+
+def _find_video_input_file(channel: str, filename: str) -> Path | None:
+    """
+    Find `<filename>` under `workspaces/video/input/<CH>_*` and return the newest match.
+    """
+    from factory_common.paths import video_input_root
+
+    root = video_input_root()
+    prefix = f"{channel}_"
+    candidates: list[Path] = []
+    for d in sorted(root.glob(f"{prefix}*")):
+        if not d.is_dir():
+            continue
+        p = d / filename
+        if p.exists():
+            candidates.append(p)
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: p.stat().st_mtime)
+
 
 def main() -> None:
     skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
@@ -320,12 +508,30 @@ def main() -> None:
         raise SystemExit(f"Video number must be 3 digits (e.g., 001); got '{args.video}'")
 
     cfg = load_routing_config()
+
+    # Manual workflow (user-provided audio):
+    # If the user has already placed `<CH>-<VID>.wav` and `<CH>-<VID>.srt` under workspaces/video/input,
+    # we must NEVER synthesize audio. Instead we ingest/validate and mark audio_synthesis as completed.
+    manual_wav_src = _find_video_input_file(args.channel, f"{args.channel}-{args.video}.wav")
+    manual_srt_src = _find_video_input_file(args.channel, f"{args.channel}-{args.video}.srt")
+    if (
+        manual_wav_src is not None
+        and manual_srt_src is not None
+        and not args.finalize_existing
+        and not args.prepass
+        and not args.force_overwrite_final
+    ):
+        print("[AUTO] Detected manual wav+srt under workspaces/video/input; switching to finalize_existing (no synthesis).")
+        args.finalize_existing = True
     
     # Determine Engine
     engine = args.engine_override or decide_engine(args.channel, args.video, cfg)
     print(f"[RUN] Channel={args.channel} Video={args.video} Engine={engine} StrictMode=ON")
 
-    if engine == "voicevox":
+    if engine not in ("voicevox", "voicepeak", "elevenlabs"):
+        raise SystemExit(f"[ERROR] Unsupported engine: {engine}")
+
+    if engine == "voicevox" and not args.finalize_existing:
         vv_url = cfg.voicevox_url
         try:
             if requests is not None:
@@ -345,6 +551,33 @@ def main() -> None:
     repo_root_path = repo_root()
     video_dir = video_root(args.channel, args.video)
     final_dir = audio_final_dir(args.channel, args.video)
+
+    # Guard: do not overwrite manual-finalized audio unless explicitly forced.
+    if not args.prepass and not args.finalize_existing and not args.force_overwrite_final:
+        manifest_path = final_dir / "audio_manifest.json"
+        if manifest_path.exists():
+            try:
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+                notes = str(payload.get("notes") or "") if isinstance(payload, dict) else ""
+                if notes.startswith("finalize_existing:"):
+                    raise SystemExit(
+                        "\n".join(
+                            [
+                                "[GUARD] Final audio was finalized manually (STOP).",
+                                f"- episode: {args.channel}-{args.video}",
+                                f"- manifest: {manifest_path}",
+                                f"- notes: {notes}",
+                                "",
+                                "If you really intend to regenerate and overwrite final artifacts, rerun with:",
+                                "  --force-overwrite-final",
+                            ]
+                        )
+                    )
+            except SystemExit:
+                raise
+            except Exception:
+                # If manifest is unreadable, don't guess; let the run continue.
+                pass
 
     input_mode, input_path = _resolve_input_mode_and_path(
         repo_root_path=repo_root_path,
@@ -366,7 +599,7 @@ def main() -> None:
                     f"[ALIGN] alignment stamp missing. Run `python scripts/enforce_alignment.py --channels {args.channel} --apply` "
                     f"or `python -m script_pipeline.cli reconcile --channel {args.channel} --video {args.video}`."
                 )
-            if not args.allow_unvalidated:
+            if not args.allow_unvalidated and not args.finalize_existing:
                 stages = payload.get("stages") if isinstance(payload, dict) else None
                 sv = stages.get("script_validation") if isinstance(stages, dict) else None
                 sv_status = sv.get("status") if isinstance(sv, dict) else None
@@ -516,6 +749,126 @@ def main() -> None:
     except Exception as exc:
         raise SystemExit(f"[ERROR] Failed to write script_sanitized.txt: {exc}")
 
+    if args.finalize_existing:
+        from factory_common.artifacts.utils import atomic_write_json
+        from factory_common.timeline_manifest import wav_duration_seconds, srt_end_seconds
+
+        final_dir.mkdir(parents=True, exist_ok=True)
+        final_wav = final_dir / f"{args.channel}-{args.video}.wav"
+        final_srt = final_dir / f"{args.channel}-{args.video}.srt"
+        final_log = final_dir / "log.json"
+
+        # Manual workflow: prefer artifacts under workspaces/video/input/<CH>_*
+        # (user may overwrite them; treat them as authoritative when present).
+        for name, target in [(final_wav.name, final_wav), (final_srt.name, final_srt)]:
+            src = _find_video_input_file(args.channel, name)
+            if src is None:
+                continue
+            try:
+                should_copy = (not target.exists()) or (src.stat().st_size != target.stat().st_size) or (
+                    src.stat().st_mtime > target.stat().st_mtime
+                )
+            except Exception:
+                should_copy = True
+            if should_copy:
+                shutil.copy2(src, target)
+
+        if not final_wav.exists() or not final_srt.exists():
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[FINALIZE] Missing final artifacts (STOP).",
+                        f"- wav: {final_wav} ({'OK' if final_wav.exists() else 'MISSING'})",
+                        f"- srt: {final_srt} ({'OK' if final_srt.exists() else 'MISSING'})",
+                        "",
+                        "Fix:",
+                        "- Export wav+srt from your TTS (Voicepeak) into workspaces/video/input or workspaces/audio/final, then retry.",
+                    ]
+                )
+            )
+
+        wav_dur = wav_duration_seconds(final_wav)
+        srt_end = srt_end_seconds(final_srt)
+        if wav_dur is not None and srt_end is not None:
+            drift = abs(float(wav_dur) - float(srt_end))
+            if drift > 1.0:
+                raise SystemExit(
+                    "\n".join(
+                        [
+                            "[FINALIZE] Audio/SRT duration mismatch (CODE RED).",
+                            f"- wav duration: {wav_dur:.3f}s",
+                            f"- srt end:      {srt_end:.3f}s",
+                            f"- |diff|:       {drift:.3f}s",
+                            "",
+                            "This usually means you overwrote only wav OR only srt.",
+                            "Re-export wav+srt as a pair (same session/settings) and retry.",
+                        ]
+                    )
+                )
+
+        # Prefer manual export text (video/input/<CH>_*/<CH>-<NNN>.txt) when present.
+        manual_txt = _find_video_input_file(args.channel, f"{args.channel}-{args.video}.txt")
+        a_text_src = manual_txt or sanitized_path
+        shutil.copy2(a_text_src, final_dir / "a_text.txt")
+
+        # Record that this episode was finalized from existing artifacts.
+        notes = f"finalize_existing:engine={engine}"
+        log_engine = str(engine)
+        vp_defaults: dict[str, object] = {}
+        if engine == "voicepeak":
+            try:
+                from audio_tts.tts.routing import load_default_voice_config
+
+                vc = load_default_voice_config(args.channel)
+                engine_opts = (vc or {}).get("engine_options") if isinstance(vc, dict) else {}
+                if isinstance(engine_opts, dict):
+                    vp_defaults = {
+                        "narrator": engine_opts.get("narrator"),
+                        "speed": engine_opts.get("speed"),
+                        "pitch": engine_opts.get("pitch"),
+                        "emotion": engine_opts.get("emotion"),
+                    }
+            except Exception:
+                pass
+        voicepeak_meta = {
+            "narrator": args.voicepeak_narrator or vp_defaults.get("narrator"),
+            "speed": args.voicepeak_speed if args.voicepeak_speed is not None else vp_defaults.get("speed"),
+            "pitch": args.voicepeak_pitch if args.voicepeak_pitch is not None else vp_defaults.get("pitch"),
+            "emotion": args.voicepeak_emotion if args.voicepeak_emotion is not None else vp_defaults.get("emotion"),
+        }
+        log_obj = {
+            "timestamp": time.time(),
+            "engine": log_engine,
+            "mode": "finalize_existing",
+            "notes": notes,
+            "voicepeak": {k: v for k, v in voicepeak_meta.items() if v not in (None, "")},
+        }
+        atomic_write_json(final_log, log_obj)
+        _write_contract_audio_manifest(
+            channel=args.channel,
+            video=args.video,
+            final_dir=final_dir,
+            final_wav=final_wav,
+            final_srt=final_srt,
+            final_log=final_log,
+            notes=notes,
+        )
+        try:
+            _mark_audio_synthesis_completed(
+                channel=args.channel,
+                video=args.video,
+                engine=str(engine),
+                mode="finalize_existing",
+                final_dir=final_dir,
+                wav_path=final_wav,
+                srt_path=final_srt,
+            )
+        except Exception:
+            pass
+
+        print(f"[SUCCESS] Finalized existing wav/srt into {final_dir}")
+        return
+
     # Import Lazy to avoid circular dependency if any
     from audio_tts.tts.strict_orchestrator import run_strict_pipeline
 
@@ -582,78 +935,29 @@ def main() -> None:
                     shutil.copy2(input_path, final_dir / "a_text.txt")
             except Exception:
                 pass
-            # --- Contract manifest (final_dir SoT summary) -------------------------
-            # This must never change the synthesis result; it only records pointers
-            # + checksums so downstream can run mechanically with consistent inputs.
             try:
-                from factory_common.artifacts.utils import atomic_write_json, utc_now_iso
-                from factory_common.paths import repo_root as ssot_repo_root
-                from factory_common.timeline_manifest import (
-                    sha1_file,
-                    wav_duration_seconds,
-                    srt_end_seconds,
-                    srt_entry_count,
+                _write_contract_audio_manifest(
+                    channel=args.channel,
+                    video=args.video,
+                    final_dir=final_dir,
+                    final_wav=final_wav,
+                    final_srt=final_srt,
+                    final_log=final_log,
                 )
-
-                repo_root_path = ssot_repo_root()
-
-                def _safe_relpath(path: Path) -> str:
-                    try:
-                        return str(path.resolve().relative_to(repo_root_path.resolve()))
-                    except Exception:
-                        return str(path)
-
-                a_text_path = final_dir / "a_text.txt"
-                manifest = {
-                    "schema": "ytm.audio_manifest.v1",
-                    "generated_at": utc_now_iso(),
-                    "repo_root": str(repo_root_path),
-                    "episode": {
-                        "id": f"{args.channel}-{args.video}",
-                        "channel": args.channel,
-                        "video": args.video,
-                    },
-                    "final_dir": _safe_relpath(final_dir),
-                    "source": {
-                        "a_text": {
-                            "path": _safe_relpath(a_text_path),
-                            "sha1": sha1_file(a_text_path) if a_text_path.exists() else None,
-                        },
-                    },
-                    "artifacts": {
-                        "wav": {
-                            "path": _safe_relpath(final_wav),
-                            "sha1": sha1_file(final_wav) if final_wav.exists() else None,
-                            "duration_sec": wav_duration_seconds(final_wav) if final_wav.exists() else None,
-                        },
-                        "srt": {
-                            "path": _safe_relpath(final_srt),
-                            "sha1": sha1_file(final_srt) if final_srt.exists() else None,
-                            "end_sec": srt_end_seconds(final_srt) if final_srt.exists() else None,
-                            "entries": srt_entry_count(final_srt) if final_srt.exists() else None,
-                        },
-                        "log": {
-                            "path": _safe_relpath(final_log),
-                            "sha1": sha1_file(final_log) if final_log.exists() else None,
-                        },
-                    },
-                    "notes": "",
-                }
-
-                try:
-                    if final_log.exists():
-                        log_obj = json.loads(final_log.read_text(encoding="utf-8"))
-                        if isinstance(log_obj, dict):
-                            manifest["log_summary"] = {
-                                "engine": log_obj.get("engine") or (log_obj.get("audio") or {}).get("engine"),
-                                "timestamp": log_obj.get("timestamp"),
-                            }
-                except Exception:
-                    pass
-
-                atomic_write_json(final_dir / "audio_manifest.json", manifest)
             except Exception as e:
                 print(f"[WARN] Failed to write audio_manifest.json: {e}", file=sys.stderr)
+            try:
+                _mark_audio_synthesis_completed(
+                    channel=args.channel,
+                    video=args.video,
+                    engine=str(engine),
+                    mode="synthesized",
+                    final_dir=final_dir,
+                    wav_path=final_wav,
+                    srt_path=final_srt,
+                )
+            except Exception:
+                pass
 
         # Metadata
         from datetime import datetime

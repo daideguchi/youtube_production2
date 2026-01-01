@@ -1404,6 +1404,15 @@ function DraftWorkspace({
     });
 
   const visualPlanSegmentCount = visualPlan?.segment_count ?? srtSegments?.segments?.length ?? null;
+  const planningTitle = summary?.planning?.title ?? null;
+  const imageProgress = summary?.imageProgress ?? null;
+  const requiredImages = imageProgress?.requiredTotal ?? (project?.cues?.length ?? 0);
+  const generatedImages = imageProgress?.generatedReady ?? 0;
+  const placeholderImages = imageProgress?.placeholders ?? 0;
+  const remainingImages =
+    imageProgress?.missing ?? Math.max(0, (Number.isFinite(requiredImages) ? requiredImages : 0) - generatedImages);
+  const imageProgressPct =
+    requiredImages > 0 ? Math.max(0, Math.min(100, Math.round((generatedImages / requiredImages) * 100))) : 0;
 
   const updatePlanSection = (index: number, patch: Partial<VisualCuesPlanSection>) => {
     setVisualPlanDraft((current) =>
@@ -1445,6 +1454,10 @@ function DraftWorkspace({
               <strong>{summary?.title ?? summary?.id ?? "—"}</strong>
             </div>
             <div>
+              <span>企画（Planning）</span>
+              <strong>{planningTitle ?? "—"}</strong>
+            </div>
+            <div>
               <span>チャンネル</span>
               <strong>{channelId ?? "—"}</strong>
             </div>
@@ -1455,6 +1468,34 @@ function DraftWorkspace({
             <div>
               <span>音声</span>
               <strong>{status?.audioReady ? "READY" : "未"}</strong>
+            </div>
+            <div>
+              <span>画像（生成/必要）</span>
+              <strong>{requiredImages > 0 ? `${generatedImages}/${requiredImages}` : "—"}</strong>
+              {requiredImages > 0 ? (
+                <div
+                  style={{
+                    marginTop: 6,
+                    height: 6,
+                    borderRadius: 999,
+                    background: "#e2e8f0",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${imageProgressPct}%`,
+                      height: "100%",
+                      background: imageProgressPct >= 100 ? "#10b981" : "#0ea5e9",
+                    }}
+                  />
+                </div>
+              ) : null}
+              <div style={{ marginTop: 6, fontSize: 11, color: "#64748b" }}>
+                {requiredImages > 0 ? `残り ${remainingImages}` : "cues 未検出"}
+                {placeholderImages > 0 ? ` / placeholder ${placeholderImages}` : ""}
+                {imageProgress?.mode === "none" ? " / 生成停止中" : ""}
+              </div>
             </div>
             <div>
               <span>CapCutテンプレ</span>
@@ -1930,11 +1971,20 @@ function CapcutDraftBoard({
           <span>READYエピソード</span>
           <select value={selectedProjectId ?? ""} onChange={(event) => onProjectChange(event.target.value || null)}>
             <option value="">未選択</option>
-            {readyProjects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {((project as { summary?: { title?: string } }).summary?.title ?? project.title ?? project.id)}
-              </option>
-            ))}
+            {readyProjects.map((project) => {
+              const title =
+                project.planning?.title ??
+                ((project as { summary?: { title?: string } }).summary?.title ?? project.title ?? project.id);
+              const progress = project.imageProgress;
+              const progressLabel =
+                progress && progress.requiredTotal > 0 ? ` (img ${progress.generatedReady}/${progress.requiredTotal})` : "";
+              return (
+                <option key={project.id} value={project.id}>
+                  {title}
+                  {progressLabel}
+                </option>
+              );
+            })}
           </select>
         </label>
         <label>
@@ -2508,21 +2558,25 @@ function ImageDetailDrawer({
   const [promptValue, setPromptValue] = useState("");
   const [regenerating, setRegenerating] = useState(false);
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (index === null || !detail) {
       setPromptValue("");
       setRegenerateError(null);
+      setCopyStatus(null);
       return;
     }
     if (!detail.cues || index < 0 || index >= detail.cues.length) {
       setPromptValue("");
       setRegenerateError(null);
+      setCopyStatus(null);
       return;
     }
     const cue = detail.cues[index];
     setPromptValue(cue?.prompt ?? "");
     setRegenerateError(null);
+    setCopyStatus(null);
   }, [detail, index]);
 
   if (index === null || !detail) {
@@ -2539,6 +2593,16 @@ function ImageDetailDrawer({
     asset.path,
     "modified_at" in asset ? (asset as VideoProjectImageAsset).modified_at : undefined
   );
+  const minImageBytes = detail.guard?.minImageBytes ?? null;
+  const assetSizeBytes =
+    "size_bytes" in asset && typeof (asset as VideoProjectImageAsset).size_bytes === "number"
+      ? (asset as VideoProjectImageAsset).size_bytes
+      : null;
+  const isPlaceholder =
+    typeof minImageBytes === "number" &&
+    minImageBytes > 0 &&
+    typeof assetSizeBytes === "number" &&
+    assetSizeBytes < minImageBytes;
   const roleAssetUrl =
     cue?.role_asset?.path && cue.role_asset.path.startsWith("http")
       ? cue.role_asset.path
@@ -2549,12 +2613,27 @@ function ImageDetailDrawer({
   const handleRegenerate = async () => {
     setRegenerating(true);
     setRegenerateError(null);
+    setCopyStatus(null);
     try {
       await onRegenerate(index, promptValue);
     } catch (error) {
       setRegenerateError(error instanceof Error ? error.message : String(error));
     } finally {
       setRegenerating(false);
+    }
+  };
+
+  const handleCopyPrompt = async () => {
+    const text = (promptValue ?? "").trim();
+    if (!text) {
+      setCopyStatus("prompt が空です。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus("prompt をコピーしました。");
+    } catch {
+      setCopyStatus("コピーに失敗しました（ブラウザ権限の可能性）。");
     }
   };
 
@@ -2575,6 +2654,12 @@ function ImageDetailDrawer({
             <dl>
               <dt>ファイル名</dt>
               <dd>{asset.path.split("/").pop()}</dd>
+              <dt>状態</dt>
+              <dd>
+                <span className={`status-chip${isPlaceholder ? " status-chip--warning" : ""}`}>
+                  {isPlaceholder ? "placeholder" : "OK"}
+                </span>
+              </dd>
               <dt>開始〜終了</dt>
               <dd>
                 {draftImage
@@ -2614,6 +2699,9 @@ function ImageDetailDrawer({
               <a className="vp-button" href={downloadUrl} download>
                 ダウンロード
               </a>
+              <button type="button" className="vp-button vp-button--ghost" onClick={() => void handleCopyPrompt()}>
+                prompt copy
+              </button>
               <label className="vp-button vp-button--ghost">
                 差し替え
                 <input
@@ -2639,6 +2727,7 @@ function ImageDetailDrawer({
                 />
               </label>
               <div className="vp-image-drawer__regen">
+                {copyStatus ? <span className="vp-image-drawer__regen-error">{copyStatus}</span> : null}
                 {regenerateError ? <span className="vp-image-drawer__regen-error">{regenerateError}</span> : null}
                 <button type="button" onClick={handleRegenerate} disabled={regenerating}>
                   {regenerating ? "再生成中…" : "このプロンプトで再生成"}

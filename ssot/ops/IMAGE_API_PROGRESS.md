@@ -1,12 +1,16 @@
 # 画像APIリファクタ進捗メモ
 
 ## 成果
-- `ImageClient` を追加し、タスク名→tier→モデルの解決と capability ベースのオプション正規化を行うルートを用意した。Gemini 画像 API へのアダプタを実装し、`ImageTaskOptions` で aspect_ratio/n/seed などを安全に扱う。生成結果は provider/model/request_id 付きで bytes を返す。 
-- `configs/image_models.yaml` を導入し、provider 設定（Gemini API キー環境変数）、モデル定義、tier 候補、タスクのデフォルト値を一元管理した。タスク `visual_image_gen` / `image_generation` を 16:9 既定で `image_gen` tier（gemini_2_5_flash_image）に紐づけている。設定整合は `tests/test_image_models_config.py` と `tests/test_visual_tasks_routing.py` で担保。
-- `nanobanana_client` は direct=ImageClient（Gemini 2.5 flash image）専用にクランプし、`cli/mcp` 指定は強制的に direct に落とす。`none` のみスキップ用途として許容。生成成功時は request_id/engine をログ出力し、16:9 リサイズやプレースホルダー生成も従来通り行う。
+- `ImageClient` を追加し、タスク名→tier→モデルの解決と capability ベースのオプション正規化を行うルートを用意した。tier は round-robin の開始点を持ち、成功したモデルの次から呼び出す（“固定1モデル”になりにくい）。
+- アダプタを整備:
+  - Fireworks: `flux-1-schnell-fp8`（同期T2I）/ `flux-kontext-(pro|max)`（非同期→get_resultポーリング、input_image対応）
+  - OpenRouter: Gemini系の画像生成（必要時のみマルチモーダル参照画像を添付）
+  - Gemini: 直接API（互換/予備）
+- `configs/image_models.yaml` を導入し、provider 設定（env var名）、モデル定義、tier 候補、タスクのデフォルト値を一元管理した。設定整合は `tests/test_image_models_config.py` で担保。
+- `nanobanana_client` は direct=ImageClient の1本道に寄せ、provider cooldown（429/402等）を検出して待機→再試行する。`input_images` を透過し、`use_persona=true` のキューでは前フレーム参照で人物/場面のドリフトを抑える（Kontextで特に効く）。
 - UI/auto 実行系も direct/none の 1本道に統一済み（legacy cli/mcp は強制 direct）。CLI は `python3 -m video_pipeline.tools.auto_capcut_run ...` を正本にする。
 
 ## 課題
-- ImageClient は tier 候補の先頭モデルを固定で採用しており、候補の優先度ローテーションやフェイルオーバーは未実装。usage/コストなどのメタデータ収集も無い。
-- Gemini 以外のプロバイダアダプタが未整備で、`extra` や provider 固有パラメータの扱いも限定的。capability で除外するだけでオプションを警告したり補完する仕組みがない。
-- `nanobanana_client` 以外の画像生成経路には未適用で、リトライや rate limit ハンドリングも旧ルータ依存のまま。E2E テストや生成枚数・プロバイダ切替の検証も実施していない。
+- Kontext（非同期）は `get_result` が一時的に `Task not found` を返すことがあるため、ポーリング間隔/タイムアウトのチューニングと観測（ログ）が必要。
+- usage/コスト集計（ImageClientのログ集約）を “運用で見える形” にまだ落とし切れていない。
+- 画像生成のE2E（枚数/差し替え/ドラフト反映）をCIで完全に自動化するのは難しく、最小のスモーク（設定整合＋import）中心になりがち。

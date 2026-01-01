@@ -88,7 +88,8 @@ SoT（正本）:
 - 形式/禁則: URL、脚注、箇条書き、区切り記号の混入を止める
 - 破損検知: 末尾ぶつ切り（未完）、同一段落の丸ごと重複などを検出して止める（内容を“勝手に直して合格扱い”にしない）
 - 安全な機械修復（OK）: **内容に触れない形式レベル**の正規化だけ（例: 行内 `---` を1行単独へ、制作メタ混入の除去）
-  - 重要: 末尾トリム/重複段落削除/機械トリムなど **内容に触れる決定論修正**はデフォルト無効（`SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=0`）。
+  - 重要: 末尾トリム/重複段落削除/機械トリムなど **内容に触れる決定論修正（機械台本テコ入れ）**は事故りやすいため **実装しない（禁止）**。  
+    字数や流れの問題は、書き手（人/適切な生成モデル）で直し、無理なら **要対応としてリトライ対象**にする。
 
 LLMがやること（柔軟性が必要な領域）:
 - アウトライン設計（`script_outline`）と章執筆（`script_draft`）
@@ -221,6 +222,15 @@ flowchart LR
 - 構成パターン（骨格・字数配分）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 - 全チャンネル共通の禁則/書式: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - Planning CSV の補助情報（例: `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）` など）
+
+#### CH01（人生の道標）固有の追加制約（SSOT）
+- **架空の現代人物ストーリーは禁止**（例: `田村幸子、六十七歳。` のような人物紹介から始めない）。
+- 現代例は「匿名の生活導線」だけ（名前/年齢/職業/台詞の作り込み禁止）。
+- 史実・逸話を1〜2件に絞って深掘りし、視聴者の日常へ橋渡しして「今夜からの一歩」へ落とす。
+- パターンは `ssot/ops/OPS_SCRIPT_PATTERNS.yaml` の `ch01_historical_proof_bridge_v1` を使用し、Planning の `台本型`（kata1/2/3）に依存させない（runner 側で固定）。
+- 自動検出: `packages/script_pipeline/validator.py` は **行全体が** `姓名、年齢(歳/才)。` の形（例: `田村幸子、六十七歳。`）を `ch01_fictional_person_intro` としてエラー扱いにする。  
+  - `ブッダが29歳のとき…` のような **文中の年齢言及**は対象外（通常の日本語の文として書く）。
+- 台本本文生成（`script_*`）は Codex exec を使わない（`configs/codex_exec.yaml` で除外し、品質ドリフトを防ぐ）。
 
 ルール:
 - 補助がタイトルと食い違っている/内容汚染が疑われる場合は、**タイトルを正として補助を無視**する（ズレ事故を安く止める）。
@@ -417,7 +427,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 - 入口/運用: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - 機械チェックの役割は「質を編集する」ではなく **事故を確実に止める**こと。
   - 形式レベルの安全修復（例: 行内 `---` の正規化、メタ混入の除去）は許容（TTS事故防止）。
-  - **内容に触れる決定論修正**（末尾トリム/重複段落削除/機械トリムなど）はバグの温床になりやすいためデフォルト無効（`SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=0`）。
+  - **内容に触れる決定論修正**（末尾トリム/重複段落削除/機械トリムなど）はバグの温床になりやすいため **実装しない（禁止）**。
   - 使った場合は証跡を `status.json: stages.script_validation.details` に残す（いつ/なぜ有効化したかが追える状態にする）。
 
 ### 5.2 LLM品質ゲート（推論; 収束上限あり）
@@ -430,8 +440,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
   - それでもNGなら pending で止め、人間が `assembled_human.md` を直す
   - コストを優先して短く止めたい場合は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる
   - 最終磨き込み（重要）: Judge/Fix で合格した本文に対し、**最大1回** “全体ポリッシュ（全文の自然化）” を実行してトーン統一・反復抑制を行う（`SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`）。
-    - 既定: `script_chapter_draft` を Codex exec で生成した回は、最終本文にCodexの言い回しが残らないよう **強制で実行**する（`SCRIPT_VALIDATION_FORCE_FINAL_POLISH_FOR_CODEX_DRAFT=1`）。
-      - 即API復帰（章草稿もAPIで書く）にした場合は、通常どおり `auto` 判定に戻る。
+    - 既定: 台本本文を生成する `script_*` は Codex exec では実行しない（品質安定のため）。最終磨き込みは通常どおり `auto` 判定で実行する。
     - 安全条件（実装）:
       - 出力の `---` 行数が入力と一致する場合のみ採用（不一致なら捨てる）。
       - `validate_a_text` のハードエラーが無い場合のみ採用（不一致なら捨てる）。
@@ -449,7 +458,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 - 字数超過:
   - Shrink（削除/圧縮）を実行する。
   - Shrinkが削り不足でレンジ内に収束しない場合は **pendingで停止**する（内容を機械的に削って合格扱いにしない）。
-  - 例外（非推奨・緊急時のみ）: `SCRIPT_VALIDATION_DETERMINISTIC_CONTENT_REPAIRS=1` のときだけ、`---` 区切り単位の **機械トリム**を許可できる（証跡は `status.json` に残る）。
+  - 例外は設けない。`length_too_long` が残る場合は **停止**し、要対応（書き手で短縮→再実行）とする。
 
 ### 5.3 意味整合（必須: 企画↔台本のズレを止める）
 - 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
@@ -463,11 +472,10 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
-    - 注（固定ルール）: コスト最適化のため **章草稿（`script_chapter_draft`）は Codex exec 優先**で生成してよい。
-      - ただし Codex の言い回しが最終本文へ残らないよう、`script_validation` の最終ポリッシュ（`script_a_text_final_polish`）で **全文の自然化（書き直し）** を必ず実行する（自動適用）。
+    - 注（固定ルール）: `script_*` の本文生成は Codex exec を使わない（章草稿も含む）。必要な場合は LLMRouter（API）側のモデルで収束させる。
       - 最終本文を上書きする task（品質ゲート/修正/最終ポリッシュ/意味整合Fix）は Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
         - 対象: `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
-      - それ以外の `script_*` は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
+      - それ以外の **非本文タスク**（例: `tts_*` / `visual_*` / レポート生成）は Codex exec を試してよい（失敗時は LLMRouter API へフォールバック）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
   - minorも直す: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`

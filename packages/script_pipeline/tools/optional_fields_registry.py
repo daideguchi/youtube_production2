@@ -11,6 +11,7 @@ OPTIONAL_FIELDS = {
     "サムネタイトル下": "thumbnail_lower",
     "サムネ画像プロンプト（URL・テキスト指示込み）": "thumbnail_prompt",
     "企画意図": "concept_intent",
+    "史実エピソード候補": "historical_episodes",
     "内容": "content_notes",
     "内容（企画要約）": "content_summary",
     "ターゲット層": "target_audience",

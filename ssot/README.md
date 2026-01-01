@@ -8,6 +8,7 @@
 - **変更履歴（運用ログ）の正本**: `history/HISTORY_codex-memory.md`
 - 引き継ぎパッケージ: `handoffs/README.md`
 - 完了した計画書: `completed/README.md`
+- UI（SSOTポータル / 閲覧専用）: `/ssot`（`ssot/` 配下を read-only で表示）
 
 ## 計画書の命名規則と作成手順
 
@@ -21,6 +22,7 @@
 - 新規ドキュメントを追加/改名/移動したら `DOCS_INDEX.md` を必ず更新する（READMEに一覧は持たない）。
 - Closed（完了）になった計画書は `ssot/completed/` に移動する。
 - 索引整合は `python3 scripts/ops/ssot_audit.py` で確認する。
+- push前の最終整合チェックは `python3 scripts/ops/pre_push_final_check.py` を通す（SSOT↔実装の逸脱を防ぐ）。
 
 ## 環境変数の原則
 - 秘密鍵（例: `GEMINI_API_KEY`）はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。

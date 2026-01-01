@@ -118,6 +118,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `SCRIPT_VALIDATION_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_FIX_TASK`（default: `script_a_text_quality_fix`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_EXTEND_TASK`（default: `script_a_text_quality_extend`）: 字数不足のみを「追記専用」で救済する task key。
+- `SCRIPT_VALIDATION_AUTO_LENGTH_FIX`（deprecated/ignored）: 字数だけNGを「自動で増補/圧縮して通す」運用は禁止のため、このフラグは **無視**（本文は自動書き換えしない。レンジ外は停止→要リライト）。
 - `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL`（default: `0`）: Fixerで収束しない場合に、最終手段として「設計→再執筆（Rebuild）」を試す。無効化は `0`（既定OFF）。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK`（default: `script_a_text_rebuild_plan`）: Rebuildの「設計図（JSON）生成」task key。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK`（default: `script_a_text_rebuild_draft`）: Rebuildの「本文生成」task key。
@@ -147,10 +148,10 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK`（default: `0`）: 合格条件を制御。
   - `0`: `verdict: major` のみ停止（ok/minor は合格; 量産デフォルト）
   - `1`: `verdict: ok` 以外は停止（minor/major は停止; より厳密にブロック）
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX`（default: `1`）: `script_validation` 内で最小リライト（auto-fix）を試す。
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR`（default: `0`）: minor の auto-fix を許可（`minor -> ok` を狙って1回だけシャープにする用途）。必要なときだけ `1`。
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR`（default: `1`）: major の auto-fix を許可。
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS`（default: `1`）: auto-fix リトライ回数（最大2）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX`（deprecated/ignored）: `script_validation` 内で本文を自動書き換えない（事故防止）。修正は `python3 -m script_pipeline.cli semantic-align --apply` を **手動**で実行する。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR`（deprecated/ignored）: 同上（自動書き換えはしない）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MAJOR`（deprecated/ignored）: 同上（自動書き換えはしない）。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS`（deprecated/ignored）: 同上（自動書き換えはしない）。
 - `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS`（default: `30000`）: 判定に渡す最大文字数（超過時は先頭+末尾抜粋で判定し、auto-fix は安全のためスキップ）。
 
 ## Script pipeline: Fact check（完成台本 / script_validation）

@@ -4,7 +4,7 @@
       "name": "人生の道標",
       "image_generation": {
         "base_period": 20.0,
-        "model_key": "openrouter_gemini_2_5_flash_image"
+        "model_key": "fireworks_flux_kontext_max"
       },
       "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt",
       "prompt_suffix": "人物が出る場合は台本の人物（語り手含む）を全カットで一貫させる。日本人/アジア人の顔立ち。不要な人物は入れない。文字・看板なし。色は暖かい金色の光×冷たい青グレー石のコントラスト、僧衣や衣服はシーンに合わせる（僧衣ならくすんだテラコッタ）。ほんの少しノスタルジックなフィルム感と淡い粒状感を足す。",
@@ -38,6 +38,9 @@
     },
     "CH02": {
       "name": "哲学系",
+      "image_generation": {
+        "model_key": "fireworks_flux_kontext_pro"
+      },
       "prompt_template": "templates/watercolor_gold_blue_ch02.txt",
       "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、静かな油絵寄り（薄い下塗り＋油彩グレーズ、キャンバス目、柔らかな筆致）。余白と象徴モチーフで哲学的な余韻を作る。文字/看板/ロゴは禁止。",
       "tone_profile": "トーン: 静寂・内省・哲学的・象徴的。油絵（薄塗り＋グレーズ）のブラシ質感、低〜中彩度、柔らかいゴールド光と薄い霧。影はブルーグレーで静かに深く。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
@@ -133,6 +136,9 @@
     },
     "CH05": {
       "name": "シニア恋愛物語",
+      "image_generation": {
+        "model_key": "fireworks_flux_kontext_pro"
+      },
       "prompt_template": "templates/senior_romance_sensual.txt",
       "prompt_suffix": "キャラ一貫: 主人公カップル=60代日本人男女。写実寄りの顔立ちと柔らかな表情。視線・仕草で親密さを描き、テキスト/看板は入れない。",
       "tone_profile": "トーン: 写実寄りの温かい恋愛イラスト。水彩と油彩の中間、光を強めに入れてシネマティックに。アニメ誇張なし。",
@@ -575,7 +581,7 @@
       "name": "老後の友人関係ラボ",
       "image_generation": {
         "base_period": 35.0,
-        "model_key": "openrouter_gemini_2_5_flash_image"
+        "model_key": "fireworks_flux_kontext_pro"
       },
       "prompt_template": "templates/senior_story_friendly_psychology.txt",
       "prompt_suffix": "親しみやすいセミリアル寄りの日本イラストで統一。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
@@ -610,14 +616,14 @@
       "name": "熟年夫婦の現実ノート",
       "image_generation": {
         "base_period": 25.0,
-        "model_key": "openrouter_gemini_2_5_flash_image"
+        "model_key": "fireworks_flux_kontext_pro"
       },
       "prompt_template": "templates/senior_story_friendly_psychology.txt",
       "prompt_suffix": "親しみやすいセミリアル寄りの日本イラストで統一。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
       "tone_profile": "トーン: 夫婦/家庭の生活感。室内の柔らかい光や静けさ、重さを扱いながらも、画風は親しみやすく保つ。背景は状況が分かる程度に描き、主役よりコントラストを落として背景ボケ。",
       "character_note": "人物ポリシー: 基本は妻側主人公＋夫。必要なら家族1名まで。顔/服/年齢感/雰囲気を固定し、毎カットでブレさせない。台本に人物が不要な場面は無人構図も可。",
       "style": "Japanese 2D digital illustration, semi-real anime (seinen), smooth gradient shading, subtle thin lineart, soft key light + gentle rim light, slight bloom, natural aging details (60s+), friendly and realistic expressions, no photorealism, no text",
-      "capcut_template": "CH23-テンプレ",
+      "capcut_template": "CH22-テンプレ",
       "position": {
         "tx": 0.0,
         "ty": 0.0,

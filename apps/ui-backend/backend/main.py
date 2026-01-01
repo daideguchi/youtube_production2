@@ -6135,9 +6135,26 @@ class ThumbnailLayerSpecsBuildResponse(BaseModel):
     build_meta_path: Optional[str] = None
 
 
+class ThumbnailPreviewTextLayerResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    image_url: str
+    image_path: str
+
+
+class ThumbnailTextSlotMetaResponse(BaseModel):
+    box: Optional[List[float]] = None
+    fill: Optional[str] = None
+    base_size_px: Optional[int] = None
+    align: Optional[str] = None
+    valign: Optional[str] = None
+
+
 class ThumbnailTextTemplateOptionResponse(BaseModel):
     id: str
     description: Optional[str] = None
+    slots: Dict[str, ThumbnailTextSlotMetaResponse] = Field(default_factory=dict)
 
 
 class ThumbnailEditorContextResponse(BaseModel):
@@ -6149,6 +6166,7 @@ class ThumbnailEditorContextResponse(BaseModel):
     portrait_anchor: Optional[str] = None
     template_id_default: Optional[str] = None
     template_options: List[ThumbnailTextTemplateOptionResponse] = Field(default_factory=list)
+    text_slots: Dict[str, str] = Field(default_factory=dict)
     defaults_leaf: Dict[str, Any] = Field(default_factory=dict)
     overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
     effective_leaf: Dict[str, Any] = Field(default_factory=dict)
@@ -9724,6 +9742,7 @@ def get_thumbnail_editor_context(channel: str, video: str):
     text_layout_spec: Dict[str, Any] = {}
     template_id_default: Optional[str] = None
     template_options: List[ThumbnailTextTemplateOptionResponse] = []
+    text_slots: Dict[str, str] = {}
     if isinstance(text_layout_id, str) and text_layout_id.strip():
         try:
             text_layout_spec = load_layer_spec_yaml(text_layout_id.strip())
@@ -9734,6 +9753,13 @@ def get_thumbnail_editor_context(channel: str, video: str):
         item = find_text_layout_item_for_video(text_layout_spec, video_id)
         if isinstance(item, dict):
             template_id_default = str(item.get("template_id") or "").strip() or None
+            payload = item.get("text") if isinstance(item.get("text"), dict) else {}
+            for raw_key, raw_value in (payload or {}).items():
+                if not isinstance(raw_key, str) or not raw_key.strip():
+                    continue
+                if raw_value is None:
+                    continue
+                text_slots[raw_key.strip()] = str(raw_value)
         templates_payload = text_layout_spec.get("templates")
         if isinstance(templates_payload, dict):
             for tpl_id, tpl in sorted(templates_payload.items(), key=lambda kv: str(kv[0])):
@@ -9742,7 +9768,47 @@ def get_thumbnail_editor_context(channel: str, video: str):
                 desc = None
                 if isinstance(tpl, dict) and isinstance(tpl.get("description"), str):
                     desc = str(tpl.get("description") or "").strip() or None
-                template_options.append(ThumbnailTextTemplateOptionResponse(id=tpl_id.strip(), description=desc))
+                slots_meta: Dict[str, ThumbnailTextSlotMetaResponse] = {}
+                slots_payload = tpl.get("slots") if isinstance(tpl, dict) else None
+                if isinstance(slots_payload, dict):
+                    for slot_id, slot_cfg in slots_payload.items():
+                        if not isinstance(slot_id, str) or not slot_id.strip():
+                            continue
+                        if not isinstance(slot_cfg, dict):
+                            continue
+                        box_payload = slot_cfg.get("box")
+                        box: Optional[List[float]] = None
+                        if isinstance(box_payload, (list, tuple)) and len(box_payload) == 4:
+                            try:
+                                box = [
+                                    float(box_payload[0]),
+                                    float(box_payload[1]),
+                                    float(box_payload[2]),
+                                    float(box_payload[3]),
+                                ]
+                            except Exception:
+                                box = None
+                        fill = str(slot_cfg.get("fill") or "").strip() or None
+                        base_size_px: Optional[int] = None
+                        base_size_payload = slot_cfg.get("base_size_px")
+                        if isinstance(base_size_payload, (int, float)) and float(base_size_payload) > 0:
+                            base_size_px = int(base_size_payload)
+                        align = str(slot_cfg.get("align") or "").strip() or None
+                        valign = str(slot_cfg.get("valign") or "").strip() or None
+                        slots_meta[slot_id.strip()] = ThumbnailTextSlotMetaResponse(
+                            box=box,
+                            fill=fill,
+                            base_size_px=base_size_px,
+                            align=align,
+                            valign=valign,
+                        )
+                template_options.append(
+                    ThumbnailTextTemplateOptionResponse(
+                        id=tpl_id.strip(),
+                        description=desc,
+                        slots=slots_meta,
+                    )
+                )
 
     # Existing per-video thumb_spec overrides (normalized leaf paths)
     loaded_spec = load_thumb_spec(channel_code, video_number)
@@ -9910,9 +9976,224 @@ def get_thumbnail_editor_context(channel: str, video: str):
         portrait_anchor=portrait_anchor,
         template_id_default=template_id_default,
         template_options=template_options,
+        text_slots=text_slots,
         defaults_leaf=defaults_leaf,
         overrides_leaf=overrides_leaf,
         effective_leaf=effective_leaf,
+    )
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/preview/text-layer",
+    response_model=ThumbnailPreviewTextLayerResponse,
+)
+def preview_thumbnail_text_layer(channel: str, video: str, request: ThumbnailThumbSpecUpdateRequest):
+    """
+    Render a transparent text layer PNG using the same compositor as the real build.
+
+    Notes:
+    - No LLM is used.
+    - Overlays (left_tsz/top/bottom bands) are disabled here so the UI can render them as a separate fixed layer.
+    - `overrides.text_offset_*` is intentionally ignored and applied as a client-side translate for smooth dragging.
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    video_id = f"{channel_code}-{video_number}"
+
+    overrides_leaf = request.overrides if isinstance(request.overrides, dict) else {}
+    overrides_leaf = {str(k): v for k, v in overrides_leaf.items() if isinstance(k, str)}
+
+    try:
+        import copy
+        from PIL import Image
+
+        from script_pipeline.thumbnails.compiler.layer_specs import (
+            find_text_layout_item_for_video,
+            load_layer_spec_yaml,
+            resolve_channel_layer_spec_ids,
+        )
+        from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
+        from script_pipeline.thumbnails.tools.layer_specs_builder import _load_planning_copy, _planning_value_for_slot
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumbnail text preview dependencies are not available: {exc}") from exc
+
+    try:
+        _, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to resolve text_layout spec id: {exc}") from exc
+
+    try:
+        text_layout_spec = load_layer_spec_yaml(str(text_layout_id).strip())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to load text_layout spec: {exc}") from exc
+
+    try:
+        item = find_text_layout_item_for_video(text_layout_spec, video_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to resolve video item in text_layout spec: {exc}") from exc
+
+    if not isinstance(item, dict):
+        raise HTTPException(status_code=404, detail="video item not found in text_layout spec")
+
+    templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+    if not isinstance(templates_payload, dict):
+        raise HTTPException(status_code=500, detail="text_layout.templates is missing")
+
+    template_id = str(item.get("template_id") or "").strip()
+    template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
+    effective_template_id = str(template_id_override or template_id).strip()
+    tpl_payload = templates_payload.get(effective_template_id)
+    if not isinstance(tpl_payload, dict):
+        raise HTTPException(status_code=500, detail=f"template_id not found: {effective_template_id}")
+    slots_payload = tpl_payload.get("slots")
+    if not isinstance(slots_payload, dict):
+        raise HTTPException(status_code=500, detail=f"template slots missing for {effective_template_id}")
+
+    # Apply text_scale by mutating base_size_px in a deep-copied spec (matches build pipeline behavior).
+    text_scale_raw = overrides_leaf.get("overrides.text_scale", 1.0)
+    try:
+        text_scale = float(text_scale_raw)
+    except Exception:
+        text_scale = 1.0
+    if abs(float(text_scale) - 1.0) > 1e-6:
+        text_layout_spec = copy.deepcopy(text_layout_spec)
+        templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+        tpl_payload = templates_payload.get(effective_template_id) if isinstance(templates_payload, dict) else None
+        slots_payload = tpl_payload.get("slots") if isinstance(tpl_payload, dict) else None
+        if isinstance(slots_payload, dict):
+            for slot_cfg in slots_payload.values():
+                if not isinstance(slot_cfg, dict):
+                    continue
+                base_size = slot_cfg.get("base_size_px")
+                if isinstance(base_size, (int, float)) and float(base_size) > 0:
+                    scaled = int(round(float(base_size) * float(text_scale)))
+                    slot_cfg["base_size_px"] = max(1, scaled)
+
+    # Build text_override: slot-specific manual overrides win, then fall back to authored text, then planning copy.
+    text_payload = item.get("text") if isinstance(item.get("text"), dict) else {}
+    planning_copy = _load_planning_copy(channel_code, video_number)
+
+    copy_upper = str(overrides_leaf.get("overrides.copy_override.upper") or "").strip()
+    copy_title = str(overrides_leaf.get("overrides.copy_override.title") or "").strip()
+    copy_lower = str(overrides_leaf.get("overrides.copy_override.lower") or "").strip()
+
+    def _override_for_slot(slot_name: str) -> str:
+        key = str(slot_name or "").strip().lower()
+        if key in {"line1", "upper", "top"}:
+            return copy_upper
+        if key in {"line2", "title", "main"}:
+            return copy_title
+        if key in {"line3", "lower", "accent"}:
+            return copy_lower
+        return ""
+
+    text_override: Dict[str, str] = {}
+    for slot_name in slots_payload.keys():
+        slot_key = str(slot_name or "").strip()
+        if not slot_key:
+            continue
+
+        forced = _override_for_slot(slot_key)
+        if forced:
+            text_override[slot_key] = forced
+            continue
+
+        authored = str(text_payload.get(slot_key) or "").strip()
+        if authored:
+            continue
+
+        planned = _planning_value_for_slot(slot_key, planning_copy)
+        if planned:
+            text_override[slot_key] = planned
+
+    # Build effects_override (allowlist) from leaf overrides.
+    effects_override: Dict[str, Any] = {}
+    stroke: Dict[str, Any] = {}
+    shadow: Dict[str, Any] = {}
+    glow: Dict[str, Any] = {}
+    fills: Dict[str, Any] = {}
+
+    if "overrides.text_effects.stroke.width_px" in overrides_leaf:
+        stroke["width_px"] = overrides_leaf["overrides.text_effects.stroke.width_px"]
+    if "overrides.text_effects.stroke.color" in overrides_leaf:
+        stroke["color"] = overrides_leaf["overrides.text_effects.stroke.color"]
+    if "overrides.text_effects.shadow.alpha" in overrides_leaf:
+        shadow["alpha"] = overrides_leaf["overrides.text_effects.shadow.alpha"]
+    if "overrides.text_effects.shadow.offset_px" in overrides_leaf:
+        shadow["offset_px"] = overrides_leaf["overrides.text_effects.shadow.offset_px"]
+    if "overrides.text_effects.shadow.blur_px" in overrides_leaf:
+        shadow["blur_px"] = overrides_leaf["overrides.text_effects.shadow.blur_px"]
+    if "overrides.text_effects.shadow.color" in overrides_leaf:
+        shadow["color"] = overrides_leaf["overrides.text_effects.shadow.color"]
+    if "overrides.text_effects.glow.alpha" in overrides_leaf:
+        glow["alpha"] = overrides_leaf["overrides.text_effects.glow.alpha"]
+    if "overrides.text_effects.glow.blur_px" in overrides_leaf:
+        glow["blur_px"] = overrides_leaf["overrides.text_effects.glow.blur_px"]
+    if "overrides.text_effects.glow.color" in overrides_leaf:
+        glow["color"] = overrides_leaf["overrides.text_effects.glow.color"]
+
+    for fill_key in ("white_fill", "red_fill", "yellow_fill", "hot_red_fill", "purple_fill"):
+        path = f"overrides.text_fills.{fill_key}.color"
+        if path in overrides_leaf:
+            fills[fill_key] = {"color": overrides_leaf[path]}
+
+    if stroke:
+        effects_override["stroke"] = stroke
+    if shadow:
+        effects_override["shadow"] = shadow
+    if glow:
+        effects_override["glow"] = glow
+    if fills:
+        effects_override.update(fills)
+
+    # Overlays are rendered separately in the UI, so disable them in this "text-only" render.
+    overlays_override = {
+        "left_tsz": {"enabled": False},
+        "top_band": {"enabled": False},
+        "bottom_band": {"enabled": False},
+    }
+
+    # Prepare output paths under the canonical workspace assets tree.
+    preview_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "compiler" / "ui_preview"
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    base_path = preview_dir / "base_transparent.png"
+    out_path = preview_dir / "text_layer.png"
+
+    # Ensure we have a transparent base image at the correct resolution.
+    canvas = text_layout_spec.get("canvas") if isinstance(text_layout_spec, dict) else None
+    try:
+        w = int(canvas.get("w", 1920)) if isinstance(canvas, dict) else 1920
+        h = int(canvas.get("h", 1080)) if isinstance(canvas, dict) else 1080
+    except Exception:
+        w, h = (1920, 1080)
+    w = max(1, w)
+    h = max(1, h)
+    if not base_path.exists():
+        Image.new("RGBA", (w, h), (0, 0, 0, 0)).save(base_path, format="PNG")
+
+    try:
+        compose_text_to_png(
+            base_path,
+            text_layout_spec=text_layout_spec,
+            video_id=video_id,
+            out_path=out_path,
+            output_mode="draft",
+            text_override=text_override if text_override else None,
+            template_id_override=template_id_override,
+            effects_override=effects_override if effects_override else None,
+            overlays_override=overlays_override,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to render text layer: {exc}") from exc
+
+    rel = safe_relative_path(out_path) or str(out_path)
+    url = f"/thumbnails/assets/{channel_code}/{video_number}/compiler/ui_preview/text_layer.png"
+    return ThumbnailPreviewTextLayerResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        image_url=url,
+        image_path=rel,
     )
 
 

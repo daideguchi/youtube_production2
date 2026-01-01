@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Iterable, List
 
 
@@ -8,6 +9,9 @@ _RE_URL = re.compile(r"https?://\S+")
 _RE_BRACKETS = re.compile(r"(\([^)]*\)|\[[^\]]*\]|（[^）]*）|【[^】]*】)")
 _RE_WS = re.compile(r"\s+")
 _RE_SENT_SPLIT = re.compile(r"(?<=[。！？!?])")
+_RE_ASCII_WORD = re.compile(r"[A-Za-z]+")
+_RE_JP_ALLOWED = re.compile(r"[^0-9０-９ぁ-ゔゞァ-ヴー々〆〤一-龥、。 ]+")
+_RE_MULTI_COMMA = re.compile(r"、{2,}")
 
 
 def normalize_whitespace(text: str) -> str:
@@ -40,9 +44,28 @@ def make_scene_text(source_text: str, *, max_chars: int = 70) -> str:
     t = _RE_BRACKETS.sub("", t)
     t = normalize_whitespace(t)
     t = t.strip("「」『』\"' ")
+
+    # Pre-sanitize so we don't truncate in the middle of ASCII fragments like "/ Husband ..."
+    t = _sanitize_plain_japanese(t)
+
+    # Drop sentence-ending punctuation (Vrewは最終段で句点制御する)
     t = re.sub(r"[。！？!?]+\s*$", "", t).strip()
+
     if max_chars > 0 and len(t) > max_chars:
-        t = t[: max(0, max_chars - 1)].rstrip() + "…"
+        suffix = "など"
+        budget = max(0, max_chars - len(suffix))
+        if budget <= 0:
+            return suffix
+
+        cut = budget
+        # Prefer cutting on natural boundaries.
+        for sep in ("、", " "):
+            pos = t.rfind(sep, 0, budget + 1)
+            if pos >= int(budget * 0.5):
+                cut = pos
+                break
+        t = t[:cut].rstrip(" 、") + suffix
+
     return t
 
 
@@ -62,6 +85,54 @@ def join_japanese_phrases(parts: Iterable[str]) -> str:
     return out
 
 
+def _sanitize_plain_japanese(text: str) -> str:
+    """
+    Vrew向け: 日本語プレーンテキストを優先し、英字・装飾記号を除去/置換する。
+    - 句点分割の都合で「。」は最終段で制御する（ここでは触りすぎない）
+    """
+    t = str(text or "")
+    try:
+        t = unicodedata.normalize("NFKC", t)
+    except Exception:
+        pass
+
+    # Aspect ratios (common): 16:9 -> 16対9 (avoid ":" which we strip later)
+    for a, b in (("16", "9"), ("9", "16"), ("1", "1"), ("4", "3"), ("3", "4"), ("21", "9")):
+        t = re.sub(rf"(?<!\d){a}\s*[:：]\s*{b}(?!\d)", f"{a}対{b}", t)
+
+    # Common English tokens -> Japanese
+    # NOTE: \b is Unicode-word-boundary, so CJK text can break expected matches (e.g. "2Dデジタル").
+    t = re.sub(r"(?i)(?<![A-Za-z0-9])AI(?![A-Za-z0-9])", "人工知能", t)
+    t = re.sub(r"(?i)(?<![A-Za-z0-9])2D(?![A-Za-z0-9])", "二次元", t)
+    t = re.sub(r"(?i)(?<![A-Za-z0-9])3D(?![A-Za-z0-9])", "三次元", t)
+    t = re.sub(r"(?i)(?<![A-Za-z0-9])seinen(?![A-Za-z0-9])", "青年向け", t)
+
+    # Punctuation normalization (avoid weird symbols)
+    t = t.replace("，", "、").replace(",", "、")
+    t = t.replace("．", "。").replace(".", "。")
+    t = t.replace("！", "。").replace("!", "。").replace("？", "。").replace("?", "。")
+    t = t.replace("・", "、")
+
+    # Drop brackets/quotes/symbols; keep content where possible
+    t = re.sub(r"[「」『』【】\[\]\(\)（）{}<>\"'`]", " ", t)
+    # Keep phrase boundaries visible (vrew_source.srt often uses "/" separators)
+    t = re.sub(r"[|/\\\\]", "、", t)
+    t = re.sub(r"[:;：；]", " ", t)
+
+    # Remove remaining ASCII words (after targeted replacements)
+    t = _RE_ASCII_WORD.sub(" ", t)
+
+    # Keep only JP-ish chars + punctuation/spaces
+    t = _RE_JP_ALLOWED.sub(" ", t)
+
+    t = normalize_whitespace(t)
+    # Remove unnatural spaces inside Japanese words (e.g., "キッチ ン", "く れた")
+    t = re.sub(r"([0-9０-９ぁ-ゔゞァ-ヴー々〆〤一-龥])\s+([0-9０-９ぁ-ゔゞァ-ヴー々〆〤一-龥])", r"\1\2", t)
+    t = _RE_MULTI_COMMA.sub("、", t)
+    t = t.strip(" 、")
+    return t
+
+
 def sanitize_prompt_for_vrew(prompt: str) -> str:
     """
     Vrew本文要件:
@@ -69,7 +140,11 @@ def sanitize_prompt_for_vrew(prompt: str) -> str:
       - 末尾は必ず「。」
       - 行中に「。」を含めない（末尾以外は「、」へ）
     """
-    t = normalize_whitespace(prompt)
+    t = _sanitize_plain_japanese(prompt)
+    # If sanitization removes all meaningful tokens (e.g. ASCII-only inputs),
+    # fall back to the original prompt so we can still normalize punctuation.
+    if (not t) or (not t.strip(" 、。")):
+        t = normalize_whitespace(prompt)
 
     # Normalize end punctuation to "。"
     t = re.sub(r"[。！？!?]+\s*$", "。", t).strip()
@@ -79,8 +154,9 @@ def sanitize_prompt_for_vrew(prompt: str) -> str:
     # Replace any internal "。" with "、" (keep last "。")
     inner = t[:-1].replace("。", "、")
     inner = re.sub(r"[！？!?]+", "、", inner)
-    inner = re.sub(r"、{2,}", "、", inner)
+    # Normalize comma spacing first, then collapse duplicates (spaces can hide duplicate commas).
     inner = re.sub(r"\s*、\s*", "、", inner).strip()
+    inner = re.sub(r"、{2,}", "、", inner)
 
     t = inner + "。"
 

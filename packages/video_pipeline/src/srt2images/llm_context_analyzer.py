@@ -97,12 +97,33 @@ class LLMContextAnalyzer:
                 "on",
             )
             if not force_llm:
-                out = self._semantic_partition_ch22(
-                    segments,
-                    min_sec=30.0,
-                    max_sec=40.0,
-                    desired_avg=desired_avg,
-                )
+                try:
+                    out = self._semantic_partition_ch22(
+                        segments,
+                        min_sec=30.0,
+                        max_sec=40.0,
+                        desired_avg=desired_avg,
+                    )
+                except RuntimeError as e:
+                    msg = str(e)
+                    if "semantic partition found no valid" not in msg:
+                        raise
+                    # Some SRTs have coarse subtitle spans that skip over the 30–40s window
+                    # (e.g., 28s then 43s). In that case, split long segments at punctuation
+                    # and re-run the semantic partition. This is still context-based (not equal-interval).
+                    changed = False
+                    for max_piece in (10.0, 8.0, 6.0):
+                        if self._split_long_segments_in_place_for_ch22(segments, max_piece_duration=max_piece):
+                            changed = True
+                            out = self._semantic_partition_ch22(
+                                segments,
+                                min_sec=30.0,
+                                max_sec=40.0,
+                                desired_avg=desired_avg,
+                            )
+                            break
+                    if not changed:
+                        raise
                 logging.info("CH22 semantic sectioning complete: %d sections", len(out))
                 return out
 
@@ -975,6 +996,91 @@ Script excerpts:
         out = self._merge_sections(out)
         out = self._fill_gaps(out, len(segments))
         return out
+
+    def _split_long_segments_in_place_for_ch22(self, segments: List[Dict], *, max_piece_duration: float) -> bool:
+        """
+        Expand the given segments list IN PLACE by splitting longer subtitle spans at punctuation.
+        This increases boundary granularity so strict 30–40s partitioning can succeed.
+        Returns True if any segment was split.
+        """
+        if max_piece_duration <= 0:
+            return False
+
+        punct = {"。", "！", "？", "!", "?", "、"}
+        changed = False
+        out: list[Dict] = []
+
+        for seg in segments:
+            try:
+                start = float(seg["start"])
+                end = float(seg["end"])
+            except Exception:
+                out.append(seg)
+                continue
+
+            text = str(seg.get("text", "") or "").strip()
+            dur = end - start
+
+            if dur <= max_piece_duration or len(text) < 20:
+                out.append(seg)
+                continue
+
+            # Candidate cut positions at punctuation (keep punctuation with the left chunk).
+            cut_positions = [i for i, ch in enumerate(text) if ch in punct]
+            if not cut_positions:
+                out.append(seg)
+                continue
+
+            # How many pieces do we want?
+            target_pieces = max(2, math.ceil(dur / max_piece_duration))
+
+            remaining = text
+            parts: list[str] = []
+            for piece_i in range(target_pieces - 1):
+                cand = [i for i, ch in enumerate(remaining) if ch in punct]
+                if not cand:
+                    break
+                # Aim for roughly even character length, but cut only at punctuation.
+                target_len = max(1, int(len(remaining) * (1.0 / max(1, (target_pieces - piece_i)))))
+                cut = min(cand, key=lambda i: abs((i + 1) - target_len))
+                left = remaining[: cut + 1].strip()
+                right = remaining[cut + 1 :].strip()
+                if not left or not right:
+                    break
+                parts.append(left)
+                remaining = right
+            if remaining:
+                parts.append(remaining.strip())
+
+            if len(parts) <= 1:
+                out.append(seg)
+                continue
+
+            # Time allocation by character ratio (best-effort; preserves original start/end).
+            total_chars = sum(max(1, len(p)) for p in parts)
+            cur_start = start
+            cum_chars = 0
+            for idx, part in enumerate(parts):
+                if idx == len(parts) - 1:
+                    part_end = end
+                else:
+                    cum_chars += max(1, len(part))
+                    part_end = start + dur * (cum_chars / total_chars)
+                    if part_end <= cur_start:
+                        part_end = min(end, cur_start + 0.001)
+
+                new_seg = dict(seg)
+                new_seg["start"] = cur_start
+                new_seg["end"] = part_end
+                new_seg["text"] = part
+                out.append(new_seg)
+                cur_start = part_end
+
+            changed = True
+
+        if changed:
+            segments[:] = out
+        return changed
 
     def _semantic_boundary_score(self, prev_text: str, next_text: str, gap_sec: float) -> float:
         score = 0.0

@@ -516,6 +516,8 @@ def build_channel_thumbnails(
         video_band_gamma = float(overrides_leaf.get("overrides.bg_enhance_band.gamma", base_band_gamma))
 
         video_text_scale = float(overrides_leaf.get("overrides.text_scale", 1.0))
+        video_text_offset_x = float(overrides_leaf.get("overrides.text_offset_x", 0.0))
+        video_text_offset_y = float(overrides_leaf.get("overrides.text_offset_y", 0.0))
 
         template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
 
@@ -662,21 +664,39 @@ def build_channel_thumbnails(
             for k, v in copy_override.items():
                 if v:
                     planning_copy[k] = v
-        force_text_override = bool(copy_override)
+
+        def _override_for_slot(slot_name: str) -> str:
+            name = str(slot_name or "").strip().lower()
+            if name in {"line1", "upper", "top"}:
+                return str(copy_override.get("upper") or "").strip()
+            if name in {"line2", "title", "main"}:
+                return str(copy_override.get("title") or "").strip()
+            if name in {"line3", "lower", "accent"}:
+                return str(copy_override.get("lower") or "").strip()
+            return ""
+
         text_override: Dict[str, str] = {}
         if isinstance(slots, dict):
             for slot_name in slots.keys():
-                cur = ""
-                if isinstance(text_payload, dict):
-                    cur = str(text_payload.get(slot_name) or "").strip()
-                if cur and not force_text_override:
+                slot_key = str(slot_name or "").strip()
+                if not slot_key:
                     continue
-                val = _planning_value_for_slot(slot_name, planning_copy)
+                forced = _override_for_slot(slot_key)
+                if forced:
+                    text_override[slot_key] = forced
+                    continue
+                authored = str(text_payload.get(slot_key) or "").strip() if isinstance(text_payload, dict) else ""
+                if authored:
+                    continue
+                val = _planning_value_for_slot(slot_key, planning_copy)
                 if val:
-                    text_override[str(slot_name)] = val
+                    text_override[slot_key] = val
 
         text_spec_for_render = text_spec
-        if abs(float(video_text_scale) - 1.0) > 1e-6 and isinstance(text_spec, dict):
+        needs_text_mutation = abs(float(video_text_scale) - 1.0) > 1e-6 or (
+            abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9
+        )
+        if needs_text_mutation and isinstance(text_spec, dict):
             text_spec_for_render = copy.deepcopy(text_spec)
             templates_out = text_spec_for_render.get("templates") if isinstance(text_spec_for_render, dict) else None
             tpl_out = templates_out.get(template_id) if isinstance(templates_out, dict) and template_id else None
@@ -685,11 +705,22 @@ def build_channel_thumbnails(
                 for slot_cfg in slots_out.values():
                     if not isinstance(slot_cfg, dict):
                         continue
-                    base_size = slot_cfg.get("base_size_px")
-                    if not isinstance(base_size, (int, float)):
-                        continue
-                    scaled = int(round(float(base_size) * float(video_text_scale)))
-                    slot_cfg["base_size_px"] = max(1, scaled)
+                    if abs(float(video_text_scale) - 1.0) > 1e-6:
+                        base_size = slot_cfg.get("base_size_px")
+                        if isinstance(base_size, (int, float)):
+                            scaled = int(round(float(base_size) * float(video_text_scale)))
+                            slot_cfg["base_size_px"] = max(1, scaled)
+                    if abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9:
+                        box = slot_cfg.get("box")
+                        if isinstance(box, (list, tuple)) and len(box) == 4 and all(
+                            isinstance(v, (int, float)) for v in box
+                        ):
+                            slot_cfg["box"] = [
+                                float(box[0]) + float(video_text_offset_x),
+                                float(box[1]) + float(video_text_offset_y),
+                                float(box[2]),
+                                float(box[3]),
+                            ]
 
         with enhanced_bg_path(
             out_bg,

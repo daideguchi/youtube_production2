@@ -11,6 +11,7 @@ import { ChannelWorkspacePage } from "./pages/ChannelWorkspacePage";
 import { ChannelSettingsPage } from "./pages/ChannelSettingsPage";
 import { BenchmarksPage } from "./pages/BenchmarksPage";
 import { ResearchPage } from "./pages/ResearchPage";
+import { SsotPortalPage } from "./pages/SsotPortalPage";
 import { ThumbnailsPage } from "./pages/ThumbnailsPage";
 import { AudioReviewRoute } from "./pages/AudioReviewRoute";
 import { ReportsPage } from "./pages/ReportsPage";
@@ -56,8 +57,10 @@ function App() {
         <Route path="/channels/:channelCode/videos/:video" element={<ChannelDetailPage />} />
         <Route path="/benchmarks" element={<BenchmarksPage />} />
         <Route path="/research" element={<ResearchPage />} />
+        <Route path="/ssot" element={<SsotPortalPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/image-management" element={<ImageManagementPage />} />
+        <Route path="/image-timeline" element={<ImageManagementPage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/agent-org" element={<AgentOrgPage />} />
         <Route path="/agent-board" element={<AgentBoardPage />} />

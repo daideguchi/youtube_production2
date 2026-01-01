@@ -32,10 +32,10 @@
 ## 2) 使い方（CLI）
 
 注: 既定ではパイプラインが `script_outline` と `script_validation` で意味整合ゲートを実行します。  
-`script_validation` は **`verdict: major`（明らかなズレ）のみ停止**し、可能なら **最小リライトを自動適用**してから先へ進みます。  
+`script_validation` は **`verdict: major`（明らかなズレ）のみ停止**します。本文の自動書き換え（auto-fix）は行いません（事故防止）。  
 `minor`（軽微）は「芯は回収しているが微妙にぼやける/解釈ゆれ」の扱いで、既定では停止しません（記録は残る）。  
 運用者は基本 **`major` だけ**気にすればOKです（`minor` はログ）。
-CLI は「レポート閲覧」と「最小リライト適用」に使います。
+修正が必要な場合、CLI を「レポート閲覧」と「最小リライト適用（手動）」に使います。
 
 判定の目安（人間向け）:
 - `ok`: タイトル/サムネが約束する主題とベネフィットを、本文が最後まで回収している（芯がブレない）。
@@ -69,12 +69,12 @@ CLI は「レポート閲覧」と「最小リライト適用」に使います�
 - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK`（既定 `0`）で意味整合ゲートの合格条件を制御（`script_outline` と `script_validation` の両方に影響）:
   - `0`: `verdict: major` のみ停止（ok/minor は合格; 量産のデフォルト）
   - `1`: `verdict: ok` 以外は停止（minor/major は停止; ズレをより厳密にブロック）
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX=0` で `script_validation` の自動修正を無効化（停止→手動修正に切り替え）
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=1` / `..._MAJOR=0` で minor/major の自動修正を個別にON/OFF
-- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_MAX_FIX_ATTEMPTS` で自動修正リトライ回数（既定 1、最大 2）
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX` は deprecated/ignored（`script_validation` 内で本文は自動書き換えしない）。修正は `--apply` を手動で実行する。
+- `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR` / `_MAJOR` / `_MAX_FIX_ATTEMPTS` も deprecated/ignored（自動書き換えはしない）。
 - `SCRIPT_SEMANTIC_ALIGNMENT_MAX_A_TEXT_CHARS` は「判定に渡す最大文字数」。超える場合は **先頭+末尾の抜粋で判定**し、auto-fix は安全のためスキップされます（必要なら上げる/Marathon運用）。
 
 ### 2.6 auto-fix の安全設計（重要）
+※ 現運用では `script_validation` の auto-fix は無効化（本文の自動書き換えをしない）。この節は “手動 `--apply` 実行時の安全設計” として読む。
 - `script_validation` の auto-fix は **Aテキストの機械ルール（LLMなし）に合格した場合のみ適用**します（不合格の草稿は書き込みません）。
   - 例: `length_too_short` / `too_many_quotes` / `too_many_parentheses` などが残る場合は停止。
 - ただし例外（自動で収束させる）:
