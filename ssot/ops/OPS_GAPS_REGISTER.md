@@ -9,26 +9,16 @@
 
 ---
 
-## GAP-001（P0 ✅）redoフラグの正本がSSOT内で矛盾（実装は status.json）
+## GAP-001（P0 ✅）redoフラグの正本は status.json（SSOT/実装一致・クローズ）
 
-### SSOT主張（矛盾あり）
-- `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`「3. リテイク（redo）確定運用」:
-  - 「redoフラグは Planning CSV（正本）で管理」
-- 一方で `ssot/ops/OPS_UI_WIRING.md`「4-2) リテイク件数」:
-  - 「Planning CSV を母集団とし、`status.json metadata.redo_*` で上書き（status無はdefault true、投稿済みはfalse）」
+### 現状（SSOT/実装/運用）
+- SSOT（確定）: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` にて **redo正本は `workspaces/scripts/{CH}/{NNN}/status.json: metadata.redo_*`** と明記済み（CSVには置かない）。
+- UI（集計）: `ssot/ops/OPS_UI_WIRING.md` の通り、Planning CSV を母集団にして `status.json metadata.redo_*` を上書き表示する（status無は default true、投稿済みは false）。
+- 実装（保存先）: `PATCH /api/channels/{CH}/videos/{NNN}/redo` が `status.json metadata.redo_*` を更新する（`apps/ui-backend/backend/main.py`）。
 
-### 実装の現実（入口/保存先）
-- redo の保存先は **Planning CSVではなく** `workspaces/scripts/{CH}/{NNN}/status.json: metadata.redo_script/redo_audio/redo_note`
-  - UI更新: `PATCH /api/channels/{CH}/videos/{NNN}/redo`（`apps/ui-backend/backend/main.py`）
-  - 参照: `GET /api/planning/channels/{CH}` が status.json をマージし、missing→true を採用（`apps/ui-backend/backend/main.py`）
-  - CLIも status.json を正として読む: `scripts/list_redo.py`
-
-### 影響
-- 「Planning CSV を直したのに redo が変わらない」「誰が何を直すべきかの運用が崩れる」事故が起きる。
-
-### 決定（運用SSOT）
-- **redo の正本は `status.json metadata.redo_*` に固定**する（Planning CSV は母集団/識別子であり redo の正本ではない）。
-- 次アクション: SSOT文書側の矛盾を解消し、Planning CSV へ redo を書く運用を禁止（または移行ルールを明記）。
+### 判断
+- ここは乖離ではなく、**SSOT/実装は一致**しているためクローズ。
+- 運用ルール: Planning CSV に redo を書く運用は行わない（母集団/識別子の正本に限定）。
 
 ---
 
