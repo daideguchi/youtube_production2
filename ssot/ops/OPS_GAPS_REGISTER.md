@@ -49,15 +49,12 @@
 
 ---
 
-## GAP-004（P2 🟡）video_pipeline の `run_pipeline --engine capcut` が stub で、主線は capcut_bulk_insert
+## GAP-004（P2 ✅）`run_pipeline --engine capcut` は stub（SSOT/実装一致・クローズ）
 
-### 観測
-- `packages/video_pipeline/src/srt2images/engines/capcut_engine.py` は「stub draft」生成（README.txt + draft_meta.json + draft_content.json）。
-- 実運用の CapCut draft は `video_pipeline.tools.capcut_bulk_insert.py`（テンプレ複製 + 画像/字幕/帯注入 + style正規化）が担う。
-- SSOT上の正規入口は `auto_capcut_run.py` + `capcut_bulk_insert.py` なので、設計としては問題ないが、`run_pipeline --engine capcut` が残っていると誤用が起きる余地がある。
+### 現状（SSOT/実装）
+- SSOT: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` にて **`run_pipeline --engine capcut` は stub（非本番）** と明記済み。主線は `auto_capcut_run` + `capcut_bulk_insert`。
+- 実装: CapCut draft の本番生成は `packages/video_pipeline/tools/capcut_bulk_insert.py`（テンプレ複製 + 画像/字幕/帯注入 + validation）。
 
-### 影響
-- 新規エージェントが `--engine capcut` を使って「draftができた」と誤認するリスク。
-
-### 判断ポイント（要意思決定）
-- SSOTに「run_pipelineのcapcutはstub/非推奨」を明記するか、CLI側でガード/廃止するか。
+### 判断
+- SSOT/実装は一致しているためクローズ。
+- 残課題（乖離ではなく事故防止）: stub を誤用しにくくする（CLIガード/明示的な “experimental” フラグ化/廃止）。これは `ssot/ops/OPS_OPEN_QUESTIONS.md` 側で扱う。
