@@ -30,6 +30,19 @@
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.research-workspace--wide {
+  max-width: 1600px;
+}
+
+.ssot-map .research-workspace__header {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.ssot-map .research-body {
+  grid-template-columns: 320px 1fr;
+}
+
 .research-workspace__header {
   display: flex;
   justify-content: space-between;

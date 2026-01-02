@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { fetchResearchFileChunk, fetchResearchList, fetchSsotCatalog } from "../api/client";
 import type { ResearchFileEntry, SsotCatalog, SsotCatalogFlowStep } from "../api/types";
@@ -11,6 +11,7 @@ type FlowKey =
   | "script_pipeline"
   | "audio_tts"
   | "video_auto_capcut_run"
+  | "video_srt2images"
   | "thumbnails"
   | "publish";
 
@@ -118,6 +119,9 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
+const MIN_GRAPH_SCALE = 0.12;
+const MAX_GRAPH_SCALE = 3.0;
+
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
@@ -131,6 +135,8 @@ export function SsotSystemMap() {
   const [error, setError] = useState<string | null>(null);
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
   const autoFitPendingRef = useRef(true);
+  const [isPanning, setIsPanning] = useState(false);
+  const panStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
   const [traceKey, setTraceKey] = useState("");
   const [traceLoading, setTraceLoading] = useState(false);
@@ -167,6 +173,7 @@ export function SsotSystemMap() {
     if (flow === "script_pipeline") return catalog.flows.script_pipeline?.steps || [];
     if (flow === "audio_tts") return catalog.flows.audio_tts?.steps || [];
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.steps || [];
+    if (flow === "video_srt2images") return catalog.flows.video_srt2images?.steps || [];
     if (flow === "thumbnails") return catalog.flows.thumbnails?.steps || [];
     if (flow === "publish") return catalog.flows.publish?.steps || [];
     return [];
@@ -179,6 +186,7 @@ export function SsotSystemMap() {
     if (flow === "script_pipeline") return catalog.flows.script_pipeline?.edges || [];
     if (flow === "audio_tts") return catalog.flows.audio_tts?.edges || [];
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.edges || [];
+    if (flow === "video_srt2images") return catalog.flows.video_srt2images?.edges || [];
     if (flow === "thumbnails") return catalog.flows.thumbnails?.edges || [];
     if (flow === "publish") return catalog.flows.publish?.edges || [];
     return [];
@@ -203,6 +211,7 @@ export function SsotSystemMap() {
     if (flow === "script_pipeline") return catalog.flows.script_pipeline as any;
     if (flow === "audio_tts") return catalog.flows.audio_tts as any;
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run as any;
+    if (flow === "video_srt2images") return catalog.flows.video_srt2images as any;
     if (flow === "thumbnails") return catalog.flows.thumbnails as any;
     if (flow === "publish") return catalog.flows.publish as any;
     return null;
@@ -217,6 +226,10 @@ export function SsotSystemMap() {
       m?.runner_path,
       m?.stages_path,
       m?.templates_path,
+      m?.tool_path,
+      m?.pipeline_path,
+      m?.config_path,
+      m?.templates_root,
       m?.run_tts_path,
       m?.llm_adapter_path,
       m?.auto_capcut_run_path,
@@ -273,6 +286,10 @@ export function SsotSystemMap() {
       m?.runner_path,
       m?.stages_path,
       m?.templates_path,
+      m?.tool_path,
+      m?.pipeline_path,
+      m?.config_path,
+      m?.templates_root,
       m?.run_tts_path,
       m?.llm_adapter_path,
       m?.auto_capcut_run_path,
@@ -363,7 +380,7 @@ export function SsotSystemMap() {
       const h = el.clientHeight - 40;
       if (w <= 0 || h <= 0) return;
       const scale = Math.min(w / size.width, h / size.height);
-      const next = clamp(Number(scale.toFixed(2)), 0.3, 2.5);
+      const next = clamp(Number(scale.toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE);
       setGraphScale((prev) => (Math.abs(prev - next) < 0.01 ? prev : next));
     },
     [],
@@ -371,11 +388,11 @@ export function SsotSystemMap() {
 
   const zoomIn = () => {
     autoFitPendingRef.current = false;
-    setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), 0.3, 2.5));
+    setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomOut = () => {
     autoFitPendingRef.current = false;
-    setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), 0.3, 2.5));
+    setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomReset = () => {
     autoFitPendingRef.current = false;
@@ -407,6 +424,30 @@ export function SsotSystemMap() {
     const dy = eRect.top + eRect.height / 2 - (cRect.top + cRect.height / 2);
     container.scrollLeft += dx;
     container.scrollTop += dy;
+  }, []);
+
+  const beginPan = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
+    const container = graphViewportRef.current;
+    if (!container) return;
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest("[data-ssot-node-id]")) return;
+    panStartRef.current = { x: e.clientX, y: e.clientY, left: container.scrollLeft, top: container.scrollTop };
+    setIsPanning(true);
+    e.preventDefault();
+  }, []);
+
+  const movePan = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
+    const container = graphViewportRef.current;
+    const start = panStartRef.current;
+    if (!container || !start) return;
+    container.scrollLeft = start.left - (e.clientX - start.x);
+    container.scrollTop = start.top - (e.clientY - start.y);
+  }, []);
+
+  const endPan = useCallback(() => {
+    panStartRef.current = null;
+    setIsPanning(false);
   }, []);
 
   const handleGraphSize = useCallback((size: { width: number; height: number }) => {
@@ -571,6 +612,13 @@ export function SsotSystemMap() {
     return llm?.task ? String(llm.task) : null;
   }, [selectedNode]);
 
+  const stageTaskKind = useMemo(() => {
+    if (!selectedNode) return null;
+    const llm = selectedNode.llm as any;
+    const kind = llm?.kind ? String(llm.kind) : "";
+    return kind || null;
+  }, [selectedNode]);
+
   const selectedOutputDecls = useMemo(() => (selectedNode ? parseOutputDecls(selectedNode.outputs) : []), [selectedNode]);
 
   const selectedPlaceholderPairs = useMemo(() => {
@@ -579,24 +627,26 @@ export function SsotSystemMap() {
     return parsePlaceholderPairs(llm?.placeholders);
   }, [selectedNode]);
 
-  const selectedLlmCallsites = useMemo(() => {
+  const selectedTaskCallsites = useMemo(() => {
     const task = (stageLlmTask || "").trim();
     if (!catalog || !task) return [];
-    const list = (catalog.llm?.callsites || []).filter((c) => String((c as any).task || "") === task);
+    const pool = stageTaskKind === "image_client" ? catalog.image?.callsites || [] : catalog.llm?.callsites || [];
+    const list = pool.filter((c) => String((c as any).task || "") === task);
     return list.slice(0, 50);
-  }, [catalog, stageLlmTask]);
+  }, [catalog, stageLlmTask, stageTaskKind]);
 
-  const selectedLlmTaskDef = useMemo(() => {
+  const selectedTaskDef = useMemo(() => {
     const task = (stageLlmTask || "").trim();
     if (!catalog || !task) return null;
-    const defs = (catalog.llm as any)?.task_defs as any;
+    const defs = stageTaskKind === "image_client" ? ((catalog.image as any)?.task_defs as any) : ((catalog.llm as any)?.task_defs as any);
     return defs && typeof defs === "object" ? defs[task] || null : null;
-  }, [catalog, stageLlmTask]);
+  }, [catalog, stageLlmTask, stageTaskKind]);
 
   const missingTasks = useMemo(() => catalog?.llm?.missing_task_defs || [], [catalog]);
+  const missingImageTasks = useMemo(() => catalog?.image?.missing_task_defs || [], [catalog]);
 
   return (
-    <section className="research-workspace">
+    <section className="research-workspace research-workspace--wide ssot-map">
       <header className="research-workspace__header">
         <div>
           <p className="eyebrow">/ssot/map</p>
@@ -639,6 +689,14 @@ export function SsotSystemMap() {
               disabled={!catalog?.flows?.video_auto_capcut_run}
             >
               Video auto_capcut_run
+            </button>
+            <button
+              type="button"
+              className={`research-chip ${flow === "video_srt2images" ? "is-active" : ""}`}
+              onClick={() => setFlow("video_srt2images")}
+              disabled={!catalog?.flows?.video_srt2images}
+            >
+              Video srt2images
             </button>
             <button
               type="button"
@@ -692,6 +750,11 @@ export function SsotSystemMap() {
           {missingTasks.length > 0 ? (
             <div className="main-alert main-alert--warning">
               LLMタスク定義が見つからないものがあります: <span className="mono">{missingTasks.join(", ")}</span>
+            </div>
+          ) : null}
+          {missingImageTasks.length > 0 ? (
+            <div className="main-alert main-alert--warning">
+              Image task定義が見つからないものがあります: <span className="mono">{missingImageTasks.join(", ")}</span>
             </div>
           ) : null}
           <ul className="research-list__items">
@@ -801,31 +864,40 @@ export function SsotSystemMap() {
                     events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} / executed_edges={Object.keys(executedEdges).length}
                   </span>
                 ) : null}
-                <span className="crumb-sep" style={{ opacity: 0.4 }}>
-                  /
-                </span>
-                <label className="muted small-text">Filter</label>
-                <input
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="node_id / 名前 / 説明"
-                  style={{
-                    width: 260,
-                    borderRadius: 10,
-                    border: "1px solid #d0d7de",
-                    padding: "8px 10px",
-                    fontSize: 13,
-                    background: "#f6f8fa",
-                  }}
-                />
-                <button type="button" className="research-chip" onClick={() => setKeyword("")} disabled={!keyword.trim()}>
-                  Filter Clear
-                </button>
+                {focusMode ? (
+                  <>
+                    <span className="crumb-sep" style={{ opacity: 0.4 }}>
+                      /
+                    </span>
+                    <label className="muted small-text">Filter</label>
+                    <input
+                      value={keyword}
+                      onChange={(e) => setKeyword(e.target.value)}
+                      placeholder="node_id / 名前 / 説明"
+                      style={{
+                        width: 260,
+                        borderRadius: 10,
+                        border: "1px solid #d0d7de",
+                        padding: "8px 10px",
+                        fontSize: 13,
+                        background: "#f6f8fa",
+                      }}
+                    />
+                    <button type="button" className="research-chip" onClick={() => setKeyword("")} disabled={!keyword.trim()}>
+                      Filter Clear
+                    </button>
+                  </>
+                ) : null}
               </div>
               {focusMode && error ? <div className="main-alert main-alert--error">エラー: {error}</div> : null}
               {focusMode && missingTasks.length > 0 ? (
                 <div className="main-alert main-alert--warning">
                   LLMタスク定義が見つからないものがあります: <span className="mono">{missingTasks.join(", ")}</span>
+                </div>
+              ) : null}
+              {focusMode && missingImageTasks.length > 0 ? (
+                <div className="main-alert main-alert--warning">
+                  Image task定義が見つからないものがあります: <span className="mono">{missingImageTasks.join(", ")}</span>
                 </div>
               ) : null}
               {traceError ? <div className="main-alert main-alert--warning">Trace: {traceError}</div> : null}
@@ -836,13 +908,19 @@ export function SsotSystemMap() {
               ) : null}
               <div
                 ref={graphViewportRef}
+                onMouseDown={beginPan}
+                onMouseMove={movePan}
+                onMouseUp={endPan}
+                onMouseLeave={endPan}
                 style={{
                   marginTop: 10,
                   border: "1px solid var(--color-border-muted)",
                   borderRadius: 14,
                   background: "var(--color-surface-subtle)",
                   overflow: "auto",
-                  maxHeight: "55vh",
+                  maxHeight: "60vh",
+                  cursor: isPanning ? "grabbing" : "grab",
+                  userSelect: "none",
                 }}
               >
                 <div
@@ -903,6 +981,7 @@ export function SsotSystemMap() {
                   <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(14, 165, 233, 0.20)", border: "1px solid rgba(14, 165, 233, 0.75)" }} />
                   実行済み（Trace）
                 </span>
+                <span>背景ドラッグ: pan</span>
               </div>
 
               <details style={{ marginTop: 12 }}>
@@ -921,6 +1000,13 @@ export function SsotSystemMap() {
                     <div className="muted small-text">
                       llm_router: <span className="mono">{String(catalog.llm.router_config.path)}</span>
                       {catalog?.llm?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.llm.task_overrides.path)}</span> : null}
+                    </div>
+                  ) : null}
+                  {catalog?.image?.router_config?.path ? (
+                    <div className="muted small-text">
+                      image_models: <span className="mono">{String(catalog.image.router_config.path)}</span>
+                      {catalog?.image?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.image.task_overrides.path)}</span> : null}
+                      {catalog?.image?.task_overrides?.profile ? <span className="mono"> / profile: {String(catalog.image.task_overrides.profile)}</span> : null}
                     </div>
                   ) : null}
                   {flowSotDecls.length > 0 ? (
@@ -945,13 +1031,16 @@ export function SsotSystemMap() {
                       </summary>
                       <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
                         {flowTaskList.map((t) => {
-                          const def = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                          const imageDef = ((catalog as any)?.image?.task_defs || {})[t] as any;
+                          const llmDef = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                          const def = imageDef || llmDef;
+                          const kind = imageDef ? "image" : "llm";
                           const tier = def?.tier ? String(def.tier) : "";
                           const modelKeys = Array.isArray(def?.model_keys) ? (def.model_keys as string[]) : [];
                           const modelsShort = modelKeys.length > 0 ? modelKeys.slice(0, 5).join(", ") : "";
                           return (
                             <div key={t} className="mono muted small-text">
-                              {t}
+                              {t} {kind === "image" ? "(image)" : ""}
                               {tier ? `  tier=${tier}` : ""}
                               {modelsShort ? `  models=${modelsShort}${modelKeys.length > 5 ? ", …" : ""}` : ""}
                             </div>
@@ -969,7 +1058,9 @@ export function SsotSystemMap() {
                   {nodes.map((s) => {
                     const llm = s.llm as any;
                     const task = llm?.task ? String(llm.task) : "";
-                    const taskDef = task ? (((catalog as any)?.llm?.task_defs || {})[task] as any) : null;
+                    const kind = llm?.kind ? String(llm.kind) : "";
+                    const taskDefs = kind === "image_client" ? (catalog as any)?.image?.task_defs || {} : (catalog as any)?.llm?.task_defs || {};
+                    const taskDef = task ? (taskDefs[task] as any) : null;
                     const tier = taskDef?.tier ? String(taskDef.tier) : "";
                     const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as any[]).map((x) => String(x)) : [];
                     const tpl = s.template as any;
@@ -992,14 +1083,14 @@ export function SsotSystemMap() {
                         <summary style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
                           <span style={{ fontWeight: 900 }}>{nodeTitle(s)}</span>
                           <span className="mono muted small-text" style={{ whiteSpace: "nowrap" }}>
-                            {task ? `task=${task}` : "no-llm"}
+                            {task ? `${kind === "image_client" ? "image" : "llm"} task=${task}` : "no-task"}
                           </span>
                         </summary>
                         <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                           {s.description ? <div className="muted">{s.description}</div> : null}
                           {task ? (
                             <div className="mono muted small-text">
-                              LLM: task={task}
+                              {kind === "image_client" ? "IMAGE" : "LLM"}: task={task}
                               {tplName ? ` / template=${tplName}` : ""}
                               {tplPath ? ` / template_path=${tplPath}` : ""}
                             </div>
@@ -1123,13 +1214,16 @@ export function SsotSystemMap() {
                         </summary>
                         <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
                           {selectedMainlineTasks.map((t) => {
-                            const def = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                            const imageDef = ((catalog as any)?.image?.task_defs || {})[t] as any;
+                            const llmDef = ((catalog as any)?.llm?.task_defs || {})[t] as any;
+                            const def = imageDef || llmDef;
+                            const kind = imageDef ? "image" : "llm";
                             const tier = def?.tier ? String(def.tier) : "";
                             const modelKeys = Array.isArray(def?.model_keys) ? (def.model_keys as string[]) : [];
                             const modelsShort = modelKeys.length > 0 ? modelKeys.slice(0, 6).join(", ") : "";
                             return (
                               <div key={`mainline-task-${t}`} className="mono muted small-text">
-                                {t}
+                                {t} {kind === "image" ? "(image)" : ""}
                                 {tier ? `  tier=${tier}` : ""}
                                 {modelsShort ? `  models=${modelsShort}${modelKeys.length > 6 ? ", …" : ""}` : ""}
                               </div>
@@ -1197,24 +1291,31 @@ export function SsotSystemMap() {
 
               {selectedNode.llm ? (
                 <section className="shell-panel shell-panel--placeholder">
-                  <h3 style={{ marginTop: 0 }}>LLM</h3>
+                  <h3 style={{ marginTop: 0 }}>Task Routing</h3>
                   {stageLlmTask ? <div className="mono muted small-text">task={stageLlmTask}</div> : null}
+                  {stageTaskKind ? <div className="mono muted small-text">kind={stageTaskKind}</div> : null}
                   {(selectedNode.llm as any)?.template ? <div className="mono muted small-text">template={String((selectedNode.llm as any).template)}</div> : null}
                   {(selectedNode.llm as any)?.max_tokens ? (
                     <div className="mono muted small-text">max_tokens={String((selectedNode.llm as any).max_tokens)}</div>
                   ) : null}
-                  {selectedLlmTaskDef ? (
+                  {selectedTaskDef ? (
                     <details style={{ marginTop: 10 }}>
                       <summary className="muted small-text" style={{ cursor: "pointer" }}>
-                        routing（llm_routerから解決）
+                        {stageTaskKind === "image_client" ? "routing（image_modelsから解決）" : "routing（llm_routerから解決）"}
                       </summary>
-                      <div className="mono muted small-text">tier={String((selectedLlmTaskDef as any)?.tier || "—")}</div>
-                      {Array.isArray((selectedLlmTaskDef as any)?.model_keys) && (selectedLlmTaskDef as any).model_keys.length > 0 ? (
-                        <div className="mono muted small-text">model_keys={String((selectedLlmTaskDef as any).model_keys.join(", "))}</div>
+                      <div className="mono muted small-text">tier={String((selectedTaskDef as any)?.tier || "—")}</div>
+                      {stageTaskKind === "image_client" && (selectedTaskDef as any)?.override_profile ? (
+                        <div className="mono muted small-text">override_profile={String((selectedTaskDef as any).override_profile)}</div>
                       ) : null}
-                      {Array.isArray((selectedLlmTaskDef as any)?.resolved_models) && (selectedLlmTaskDef as any).resolved_models.length > 0 ? (
+                      {stageTaskKind === "image_client" && typeof (selectedTaskDef as any)?.allow_fallback === "boolean" ? (
+                        <div className="mono muted small-text">allow_fallback={String((selectedTaskDef as any).allow_fallback)}</div>
+                      ) : null}
+                      {Array.isArray((selectedTaskDef as any)?.model_keys) && (selectedTaskDef as any).model_keys.length > 0 ? (
+                        <div className="mono muted small-text">model_keys={String((selectedTaskDef as any).model_keys.join(", "))}</div>
+                      ) : null}
+                      {Array.isArray((selectedTaskDef as any)?.resolved_models) && (selectedTaskDef as any).resolved_models.length > 0 ? (
                         <ul style={{ margin: 0, paddingLeft: 18 }}>
-                          {(selectedLlmTaskDef as any).resolved_models.map((m: any) => (
+                          {(selectedTaskDef as any).resolved_models.map((m: any) => (
                             <li key={String(m?.key || "")}>
                               <span className="mono">{String(m?.key || "")}</span>
                               <span className="muted small-text">
@@ -1226,23 +1327,23 @@ export function SsotSystemMap() {
                           ))}
                         </ul>
                       ) : null}
-                      {(selectedLlmTaskDef as any)?.router_task ? (
+                      {(selectedTaskDef as any)?.router_task ? (
                         <details style={{ marginTop: 8 }}>
                           <summary className="muted small-text" style={{ cursor: "pointer" }}>
-                            router_task（configs/llm_router.yaml）
+                            {stageTaskKind === "image_client" ? "router_task（configs/image_models.yaml）" : "router_task（configs/llm_router.yaml）"}
                           </summary>
                           <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                            {JSON.stringify((selectedLlmTaskDef as any).router_task, null, 2)}
+                            {JSON.stringify((selectedTaskDef as any).router_task, null, 2)}
                           </pre>
                         </details>
                       ) : null}
-                      {(selectedLlmTaskDef as any)?.override_task ? (
+                      {(selectedTaskDef as any)?.override_task ? (
                         <details style={{ marginTop: 8 }}>
                           <summary className="muted small-text" style={{ cursor: "pointer" }}>
-                            override_task（llm_task_overrides）
+                            {stageTaskKind === "image_client" ? "override_task（image_task_overrides）" : "override_task（llm_task_overrides）"}
                           </summary>
                           <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                            {JSON.stringify((selectedLlmTaskDef as any).override_task, null, 2)}
+                            {JSON.stringify((selectedTaskDef as any).override_task, null, 2)}
                           </pre>
                         </details>
                       ) : null}
@@ -1258,13 +1359,13 @@ export function SsotSystemMap() {
                       </pre>
                     </div>
                   ) : null}
-                  {selectedLlmCallsites.length > 0 ? (
+                  {selectedTaskCallsites.length > 0 ? (
                     <div style={{ marginTop: 10 }}>
                       <div className="muted small-text" style={{ marginBottom: 4 }}>
                         callsites（コード上の呼び出し箇所・先頭のみ）
                       </div>
                       <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {selectedLlmCallsites.map((c, i) => (
+                        {selectedTaskCallsites.map((c, i) => (
                           <li key={`${stageLlmTask || "llm"}-callsite-${i}`}>
                             <span className="mono">
                               {String((c as any)?.source?.path || "")}:{String((c as any)?.source?.line || "")}
@@ -1286,15 +1387,31 @@ export function SsotSystemMap() {
                 </section>
               ) : null}
 
-              {selectedTemplatePath ? <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" /> : null}
-              {selectedImplRefs.map((ref, idx) => (
-                <SsotFilePreview
-                  key={`${ref.path}:${ref.line ?? 0}:${idx}`}
-                  repoPath={ref.path}
-                  highlightLine={ref.line}
-                  title={ref.symbol ? `Implementation (${ref.symbol})` : "Implementation (source)"}
-                />
-              ))}
+              {selectedTemplatePath ? (
+                <details style={{ marginTop: 12 }}>
+                  <summary style={{ cursor: "pointer", fontWeight: 900 }}>Prompt Template（内容プレビュー）</summary>
+                  <div style={{ marginTop: 10 }}>
+                    <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" />
+                  </div>
+                </details>
+              ) : null}
+              {selectedImplRefs.length > 0 ? (
+                <details style={{ marginTop: 12 }}>
+                  <summary style={{ cursor: "pointer", fontWeight: 900 }}>
+                    Implementation Sources（{selectedImplRefs.length}）
+                  </summary>
+                  <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                    {selectedImplRefs.map((ref, idx) => (
+                      <SsotFilePreview
+                        key={`${ref.path}:${ref.line ?? 0}:${idx}`}
+                        repoPath={ref.path}
+                        highlightLine={ref.line}
+                        title={ref.symbol ? `Implementation (${ref.symbol})` : "Implementation (source)"}
+                      />
+                    ))}
+                  </div>
+                </details>
+              ) : null}
 
                 <section className="shell-panel shell-panel--placeholder">
                   <h3 style={{ marginTop: 0 }}>Catalog Summary</h3>
@@ -1307,6 +1424,9 @@ export function SsotSystemMap() {
                     </div>
                     <div>
                       LLM tasks used: <span className="mono">{catalog?.llm?.used_tasks?.length ?? 0}</span>
+                    </div>
+                    <div>
+                      Image tasks used: <span className="mono">{catalog?.image?.used_tasks?.length ?? 0}</span>
                     </div>
                   </div>
                 </section>

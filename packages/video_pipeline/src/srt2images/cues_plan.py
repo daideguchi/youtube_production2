@@ -118,8 +118,12 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
 
     raw = obj.get("sections")
     if raw is None:
-        # Accept alternative key
+        # Accept common alternative keys (LLMs often vary singular/plural).
+        raw = obj.get("section")
+    if raw is None:
         raw = obj.get("cues")
+    if raw is None:
+        raw = obj.get("cue")
     if not isinstance(raw, list) or not raw:
         raise ValueError("plan JSON missing non-empty 'sections' array")
 

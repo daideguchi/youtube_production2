@@ -1899,6 +1899,18 @@ export interface SsotCatalog {
       auto_capcut_run_path?: string;
       sot?: Array<Record<string, unknown>>;
     };
+    video_srt2images?: {
+      flow_id: string;
+      phase: string;
+      summary?: string;
+      steps: SsotCatalogFlowStep[];
+      edges: Array<{ from: string; to: string }>;
+      tool_path?: string;
+      pipeline_path?: string;
+      config_path?: string;
+      templates_root?: string;
+      sot?: Array<Record<string, unknown>>;
+    };
     audio_tts?: {
       flow_id: string;
       phase: string;
@@ -1949,6 +1961,25 @@ export interface SsotCatalog {
         resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
         router_task?: Record<string, unknown>;
         override_task?: Record<string, unknown> | null;
+      }
+    >;
+  };
+  image?: {
+    used_tasks: string[];
+    missing_task_defs: string[];
+    callsites: Array<{ task: string; call: string; source: { path: string; line: number } }>;
+    router_config?: { path?: string; tasks_count?: number };
+    task_overrides?: { path?: string; profile?: string; tasks_count?: number };
+    task_defs?: Record<
+      string,
+      {
+        tier?: string | null;
+        model_keys?: string[];
+        resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
+        router_task?: Record<string, unknown>;
+        override_task?: Record<string, unknown> | null;
+        override_profile?: string | null;
+        allow_fallback?: boolean | null;
       }
     >;
   };

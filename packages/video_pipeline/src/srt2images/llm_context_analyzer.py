@@ -160,6 +160,24 @@ class LLMContextAnalyzer:
             final_sections = self._merge_sections(final_sections)
             final_sections = self._fill_gaps(final_sections, len(segments))
 
+        # Guardrail: cap section count when the LLM over-splits.
+        # This is context-based (semantic boundary scoring), not equal-interval mechanical splitting.
+        ch = (self.channel_id or "").upper()
+        max_allowed = target_sections + 1
+        if ch == "CH01":
+            # CH01 intentionally uses a faster pace than its base_period-derived target.
+            max_allowed = int(round(max_allowed * 1.5))
+        if ch != "CH22" and len(final_sections) > max_allowed:
+            logging.info(
+                "Capping section count: %d -> %d (channel=%s)",
+                len(final_sections),
+                max_allowed,
+                ch or "unknown",
+            )
+            final_sections = self._cap_to_max_sections(segments, final_sections, max_allowed)
+            final_sections = self._merge_sections(final_sections)
+            final_sections = self._fill_gaps(final_sections, len(segments))
+
         final_sections = self._enforce_duration_bounds(segments, final_sections, target_sections, desired_avg)
 
         logging.info("LLM文脈分割完了: %d セクション生成", len(final_sections))
@@ -296,10 +314,17 @@ Script excerpts:
         """LLM分析を実行 (via Router)"""
 
         story = self._combine_segments(segments, start_offset=start_offset)
+        desired_avg_sec: float | None = None
+        try:
+            chunk_duration = float(segments[-1]["end"]) - float(segments[0]["start"])
+            desired_avg_sec = chunk_duration / max(1, int(target_sections or 0) or 1)
+        except Exception:
+            desired_avg_sec = None
         prompt = self._create_analysis_prompt(
             story=story,
             min_sections=min_sections,
-            max_sections=max_sections
+            max_sections=max_sections,
+            desired_avg_sec=desired_avg_sec,
         )
 
         # プロンプト長のデバッグ
@@ -367,18 +392,36 @@ Script excerpts:
             cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip()
         return cleaned
     
-    def _create_analysis_prompt(self, story: str, min_sections: int, max_sections: int) -> str:
+    def _create_analysis_prompt(
+        self,
+        story: str,
+        min_sections: int,
+        max_sections: int,
+        *,
+        desired_avg_sec: float | None = None,
+    ) -> str:
         """LLM分析用のプロンプトを作成"""
         extra_rapid = ""
         extra_ch02 = ""
         extra_ch12 = ""
         extra_ch22_23 = ""
+        # Default pacing: tie to desired average seconds (derived from target_sections/base_period).
         section_seconds_hint = "10–15"
         force_split_seconds = 20
+        if desired_avg_sec and desired_avg_sec > 0:
+            lo = max(6.0, float(desired_avg_sec) - 5.0)
+            hi = max(lo + 2.0, float(desired_avg_sec) + 5.0)
+            # Keep the hint compact and stable for the prompt.
+            section_seconds_hint = f"{lo:.0f}–{hi:.0f}"
+            # Guardrail: allow some variance, but force-split very long sections.
+            force_split_seconds = int(max(20.0, min(120.0, float(desired_avg_sec) * 1.6)))
+
         # CH01: align pacing with channel preset base_period (SSOT).
         if (self.channel_id or "").upper() == "CH01":
             min_sections = int(min_sections * 1.5)
             max_sections = int(max_sections * 1.5)
+            section_seconds_hint = "15–25"
+            force_split_seconds = 30
             extra_rapid = (
                 "\n"
                 "- **CRITICAL FOR CH01:** Maintain a steady visual pace (aim ~15–25s per image around the target average).\n"
@@ -480,43 +523,50 @@ Script excerpts:
             try:
                 parsed_data = json.loads(json_str)
             except json.JSONDecodeError:
-                # Sometimes the LLM returns a JSON array but with extra text
-                # Let's try to extract the first properly formed JSON array/object
-                logging.warning("⚠️  Initial JSON parsing failed, trying to extract structured data...")
+                # LLMs sometimes produce minor JSON glitches (e.g., trailing commas).
+                # NOTE: Python `re` does NOT support recursive patterns like (?R); avoid that.
+                logging.warning("⚠️  Initial JSON parsing failed; attempting minor repairs...")
 
-                # Try to find the first valid JSON structure
-                obj_match = re.search(r'\{(?:[^{}]|(?R))*\}', json_str)
-                arr_match = re.search(r'\[(?:[^\[\]]|(?R))*\]', json_str)
+                def _repair_trailing_commas(s: str) -> str:
+                    # Remove ",}" and ",]" patterns.
+                    return re.sub(r",\\s*([}\\]])", r"\\1", s)
 
-                if arr_match:
-                    # Found an array structure
-                    json_str = arr_match.group()
-                    parsed_data = json.loads(json_str)
-                elif obj_match:
-                    # Found an object structure
-                    json_str = obj_match.group()
-                    parsed_obj = json.loads(json_str)
-                    # If it has a 'sections' property, use that
-                    if isinstance(parsed_obj, dict) and 'sections' in parsed_obj:
-                        parsed_data = parsed_obj['sections']
+                cleaned = _repair_trailing_commas(json_str).strip()
+                try:
+                    parsed_data = json.loads(cleaned)
+                    json_str = cleaned
+                except json.JSONDecodeError:
+                    extracted = self._extract_json_content(cleaned)
+                    if extracted:
+                        extracted = _repair_trailing_commas(extracted).strip()
+                        try:
+                            parsed_data = json.loads(extracted)
+                            json_str = extracted
+                        except json.JSONDecodeError:
+                            logging.error(
+                                "🚨 JSON DECODE ERROR: Could not parse repaired JSON from response.\n"
+                                "JSON string (first 500 chars):\n%s",
+                                extracted[:500],
+                            )
+                            return []
                     else:
-                        # If it's a single section object, wrap it in an array
-                        parsed_data = [parsed_obj]
-                else:
-                    logging.error(
-                        "🚨 JSON DECODE ERROR: Could not parse any valid JSON from response.\n"
-                        "JSON string (first 500 chars):\n%s",
-                        json_str[:500]
-                    )
-                    return []
+                        logging.error(
+                            "🚨 JSON DECODE ERROR: Could not extract any valid JSON from response.\n"
+                            "JSON string (first 500 chars):\n%s",
+                            cleaned[:500],
+                        )
+                        return []
 
             # Handle both array and object formats
             if isinstance(parsed_data, dict):
-                # If the response is an object with a 'sections' property, use that
-                if 'sections' in parsed_data:
-                    breaks_data = parsed_data['sections']
+                # If the response is an object with a sections property, use that.
+                # LLMs sometimes vary singular/plural key names; accept common alternatives.
+                for key in ("sections", "section", "cues", "cue"):
+                    if key in parsed_data:
+                        breaks_data = parsed_data[key]
+                        break
                 else:
-                    # If it's a single section object, wrap it in a list
+                    # If it's a single section object, wrap it in a list.
                     breaks_data = [parsed_data]
             elif isinstance(parsed_data, list):
                 # It's already a list of sections
@@ -1122,6 +1172,91 @@ Script excerpts:
         if len(combined) <= limit:
             return combined
         return combined[: limit - 1].rstrip() + "…"
+
+    def _cap_to_max_sections(
+        self,
+        segments: List[Dict],
+        sections: List[SectionBreak],
+        max_sections: int,
+    ) -> List[SectionBreak]:
+        """
+        Reduce section count by merging adjacent sections at the weakest semantic boundaries.
+
+        This is NOT mechanical equal-interval splitting; it prefers merges where the boundary signal is weak
+        (continuation words, no punctuation, minimal silence gap).
+        """
+        out = self._merge_sections(sections)
+        out = self._fill_gaps(out, len(segments))
+        if len(out) <= max_sections:
+            return out
+
+        starts = [float(s.get("start") or 0.0) for s in segments]
+        ends = [float(s.get("end") or 0.0) for s in segments]
+        texts = [str(s.get("text") or "").strip() for s in segments]
+
+        def _dur(br: SectionBreak) -> float:
+            if not (0 <= br.start_segment < len(starts) and 0 <= br.end_segment < len(ends)):
+                return 0.0
+            return float(ends[br.end_segment]) - float(starts[br.start_segment])
+
+        def _join_short(a: str, b: str, limit: int) -> str:
+            a = (a or "").strip()
+            b = (b or "").strip()
+            if not a:
+                return b
+            if not b or a == b:
+                return a
+            joined = f"{a}／{b}"
+            if len(joined) <= limit:
+                return joined
+            return joined[: max(0, limit - 1)].rstrip() + "…"
+
+        def _merge_two(a: SectionBreak, b: SectionBreak) -> SectionBreak:
+            return SectionBreak(
+                start_segment=min(a.start_segment, b.start_segment),
+                end_segment=max(a.end_segment, b.end_segment),
+                reason="cap_merge",
+                emotional_tone=a.emotional_tone or b.emotional_tone,
+                summary=_join_short(a.summary, b.summary, 30),
+                visual_focus=a.visual_focus or b.visual_focus,
+                section_type=a.section_type or b.section_type,
+                persona_needed=bool(a.persona_needed or b.persona_needed),
+                role_tag=a.role_tag or b.role_tag,
+            )
+
+        # Greedy merge: remove the weakest boundary each iteration.
+        # With <= ~200 sections, O(n^2) is fine and keeps behavior deterministic.
+        while len(out) > max_sections and len(out) >= 2:
+            best_i = 0
+            best_score = float("inf")
+            for i in range(len(out) - 1):
+                a = out[i]
+                b = out[i + 1]
+                boundary_end = a.end_segment
+                boundary_start = b.start_segment
+
+                # Prefer merging when the boundary signal is weak.
+                score = 0.0
+                if 0 <= boundary_end < len(texts) and 0 <= boundary_start < len(texts):
+                    gap = 0.0
+                    if 0 <= boundary_end < len(ends) and 0 <= boundary_start < len(starts):
+                        gap = float(starts[boundary_start]) - float(ends[boundary_end])
+                    score = self._semantic_boundary_score(texts[boundary_end], texts[boundary_start], gap)
+                else:
+                    score = 0.0
+
+                # Light preference to merge very short neighbors first (reduces micro-cuts).
+                score += min(_dur(a), _dur(b)) * 0.002
+
+                if score < best_score:
+                    best_score = score
+                    best_i = i
+
+            merged = _merge_two(out[best_i], out[best_i + 1])
+            out = out[:best_i] + [merged] + out[best_i + 2 :]
+            out = self._merge_sections(out)
+
+        return out
 
     def _merge_short_sections(self, segments: List[Dict], sections: List[SectionBreak]) -> List[SectionBreak]:
         sections = self._merge_sections(sections)

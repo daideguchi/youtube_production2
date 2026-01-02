@@ -18,7 +18,10 @@ function nodeBadge(step: SsotCatalogFlowStep): string {
 function nodeTask(step: SsotCatalogFlowStep): string | null {
   const llm = step.llm as any;
   const t = llm?.task ? String(llm.task) : "";
-  return t || null;
+  if (!t) return null;
+  const kind = llm?.kind ? String(llm.kind) : "";
+  if (kind === "image_client") return `IMG:${t}`;
+  return `LLM:${t}`;
 }
 
 function phaseKey(phase: string): string {
@@ -77,10 +80,10 @@ function computeLayout(
   edges: SsotFlowEdge[],
   orientation: Orientation,
 ): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string }> } {
-  const nodeWidth = 230;
-  const nodeHeight = 66;
-  const gapMain = 90;
-  const gapCross = 80;
+  const nodeWidth = 210;
+  const nodeHeight = 72;
+  const gapMain = 72;
+  const gapCross = 70;
   const margin = 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
@@ -199,6 +202,9 @@ export function SsotFlowGraph({
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
 
   const phaseGroups = useMemo(() => {
+    const phases = new Set(nodes.map((n) => (n.step.phase || "").trim()).filter(Boolean));
+    if (phases.size <= 1) return [];
+
     const groups = new Map<
       string,
       { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string }; count: number }
@@ -326,18 +332,23 @@ export function SsotFlowGraph({
             <path d="M0,0 L12,6 L0,12 Z" fill="rgba(14, 165, 233, 0.95)" />
           </marker>
         </defs>
-        {phaseGroups.map((g) => (
-          <rect
-            key={g.phase}
-            x={g.x}
-            y={g.y}
-            width={g.width}
-            height={g.height}
-            rx={18}
-            fill={g.colors.fill}
-            stroke={g.colors.stroke}
-            strokeWidth={2.5}
-          />
+      {phaseGroups.map((g) => (
+          <g key={g.phase}>
+            <rect
+              x={g.x}
+              y={g.y}
+              width={g.width}
+              height={g.height}
+              rx={18}
+              fill={g.colors.fill}
+              stroke={g.colors.stroke}
+              strokeWidth={2}
+              strokeDasharray="6 6"
+            />
+            <text x={g.x + 14} y={g.y + 18} fontSize="12" fontWeight="800" fill="rgba(15, 23, 42, 0.72)">
+              Phase {g.phase}
+            </text>
+          </g>
         ))}
         {paths.map((p, idx) => (
           (() => {
@@ -444,7 +455,19 @@ export function SsotFlowGraph({
             ) : null}
             <div style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0 }}>
               {badge ? (
-                <span className="badge dir" style={{ flex: "none" }}>
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(15, 23, 42, 0.14)",
+                    background: "rgba(15, 23, 42, 0.06)",
+                    color: "rgba(15, 23, 42, 0.92)",
+                  }}
+                >
                   {badge}
                 </span>
               ) : null}
@@ -452,9 +475,18 @@ export function SsotFlowGraph({
                 {n.step.name || n.step.node_id}
               </div>
             </div>
-            <div className="small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0, color: "var(--color-text-muted)" }}>
+            <div
+              className="small-text"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                minWidth: 0,
+                color: "var(--color-text-muted)",
+              }}
+            >
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {task ? `TASK:${task}` : n.id}
+                {task ? task : n.id}
               </span>
             </div>
           </button>

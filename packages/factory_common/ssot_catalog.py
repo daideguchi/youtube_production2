@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import json
+import os
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -445,6 +446,269 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
     }
 
 
+def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
+    tool_path = video_pkg_root() / "tools" / "run_pipeline.py"
+    pipeline_path = video_pkg_root() / "src" / "srt2images" / "orchestration" / "pipeline.py"
+    config_path = video_pkg_root() / "src" / "srt2images" / "orchestration" / "config.py"
+    cue_maker_path = video_pkg_root() / "src" / "srt2images" / "cue_maker.py"
+    cues_plan_path = video_pkg_root() / "src" / "srt2images" / "cues_plan.py"
+    context_path = video_pkg_root() / "src" / "srt2images" / "llm_context_analyzer.py"
+    refiner_path = video_pkg_root() / "src" / "srt2images" / "llm_prompt_refiner.py"
+    prompt_builder_path = video_pkg_root() / "src" / "srt2images" / "prompt_builder.py"
+    visual_bible_path = video_pkg_root() / "src" / "srt2images" / "visual_bible.py"
+    nanobanana_path = video_pkg_root() / "src" / "srt2images" / "nanobanana_client.py"
+    role_asset_path = video_pkg_root() / "src" / "srt2images" / "role_asset_router.py"
+    default_template_path = video_pkg_root() / "templates" / "default.txt"
+
+    tool_lines = _safe_read_text(tool_path).splitlines()
+    pipeline_lines = _safe_read_text(pipeline_path).splitlines()
+    cue_maker_lines = _safe_read_text(cue_maker_path).splitlines()
+    cues_plan_lines = _safe_read_text(cues_plan_path).splitlines()
+    context_lines = _safe_read_text(context_path).splitlines()
+    refiner_lines = _safe_read_text(refiner_path).splitlines()
+    prompt_builder_lines = _safe_read_text(prompt_builder_path).splitlines()
+    visual_bible_lines = _safe_read_text(visual_bible_path).splitlines()
+    nanobanana_lines = _safe_read_text(nanobanana_path).splitlines()
+    role_asset_lines = _safe_read_text(role_asset_path).splitlines()
+
+    def _pl(needle: str) -> int | None:
+        return _find_first_line_containing(pipeline_lines, needle)
+
+    def _mk(path: Path, line: int | None, symbol: str | None = None) -> Dict[str, Any] | None:
+        return _make_code_ref(repo, path, line, symbol=symbol)
+
+    steps: List[Dict[str, Any]] = []
+
+    items: List[Tuple[str, str, str, List[Dict[str, Any] | None], Dict[str, Any] | None]] = [
+        (
+            "D/srt_parse",
+            "srt_parse",
+            "入力SRTを解析し、run_dir に `srt_segments.json`（schema=ytm.srt_segments.v1）を保存する。",
+            [
+                _mk(tool_path, _find_def_line(tool_lines, "main"), symbol="tool:main"),
+                _mk(pipeline_path, _pl("# 1) Parse SRT"), symbol="pipeline:parse_srt"),
+                _mk(pipeline_path, _pl("write_srt_segments_artifact("), symbol="write_srt_segments_artifact"),
+            ],
+            {
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/srt_segments.json", "required": True},
+                    {"path": "workspaces/video/runs/{run_id}/channel_preset.json", "required": False},
+                ],
+            },
+        ),
+        (
+            "D/cues_per_segment",
+            "cues_per_segment",
+            "cue_mode=per_segment: セグメント単位で image cue を作る（LLMなし）。",
+            [_mk(pipeline_path, _pl('if args.cue_mode == "per_segment"'), symbol="cue_mode:per_segment")],
+            None,
+        ),
+        (
+            "D/visual_bible",
+            "visual_bible",
+            "任意: Visual Bible を生成し、登場人物/設定の一貫ルール（visual_bible.json）を作る（task=visual_bible）。",
+            [
+                _mk(pipeline_path, _pl("VisualBibleGenerator()"), symbol="VisualBibleGenerator"),
+                _mk(visual_bible_path, _find_first_line_containing(visual_bible_lines, 'task="visual_bible"'), symbol="task:visual_bible"),
+            ],
+            {
+                "llm": {
+                    "task": "visual_bible",
+                    "kind": "llm_router",
+                    "placeholders": {
+                        "script_text": "SRT segments を連結（約30k chars cap）",
+                        "output": "JSON object (characters/settings)",
+                    },
+                },
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/visual_bible.json", "required": False},
+                    {"path": "workspaces/video/runs/{run_id}/persona.txt", "required": False},
+                ],
+            },
+        ),
+        (
+            "D/cues_plan",
+            "cues_plan",
+            "cues_plan mode: 1回のLLM呼び出しで sections を計画し、`visual_cues_plan.json` を生成して cue を作る（task=visual_image_cues_plan / THINK MODE friendly）。",
+            [
+                _mk(pipeline_path, _pl("use_cues_plan"), symbol="use_cues_plan"),
+                _mk(cues_plan_path, _find_first_line_containing(cues_plan_lines, 'task="visual_image_cues_plan"'), symbol="task:visual_image_cues_plan"),
+            ],
+            {
+                "llm": {
+                    "task": "visual_image_cues_plan",
+                    "kind": "llm_router",
+                    "placeholders": {
+                        "segments": "SRT segments を [idx@start-end] 形式に整形して入力",
+                        "style_hint": "channel preset style/tone/prompt_suffix を追記",
+                        "constraints": "文脈ベース（等間隔分割禁止）/ no text in scene / no extra characters",
+                    },
+                },
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/visual_cues_plan.json", "required": False},
+                ],
+            },
+        ),
+        (
+            "D/context_section_plan",
+            "context_section_plan",
+            "通常mode: LLMContextAnalyzerで文脈ベースのセクション分割を行い cue を作る（task=visual_section_plan）。",
+            [
+                _mk(cue_maker_path, _find_first_line_containing(cue_maker_lines, "LLMContextAnalyzer("), symbol="LLMContextAnalyzer"),
+                _mk(context_path, _find_first_line_containing(context_lines, 'task="visual_section_plan"'), symbol="task:visual_section_plan"),
+                _mk(pipeline_path, _pl("make_cues("), symbol="make_cues"),
+            ],
+            {
+                "llm": {
+                    "task": "visual_section_plan",
+                    "kind": "llm_router",
+                    "placeholders": {
+                        "story": "SRT segments を連結（[idx@timestamp] markers）",
+                        "visual_bible": "（任意）system message に Visual Bible を注入",
+                        "output": "JSON object: sections/boundaries + visual_focus 等",
+                    },
+                },
+            },
+        ),
+        (
+            "D/prompt_refine",
+            "prompt_refine",
+            "任意: cue ごとに scene-ready の短い視覚ブリーフへ整形（task=visual_prompt_refine）。デフォルトOFF（SRT2IMAGES_REFINE_PROMPTS=1 でON）。",
+            [
+                _mk(pipeline_path, _pl("refiner.refine("), symbol="PromptRefiner.refine"),
+                _mk(refiner_path, _find_first_line_containing(refiner_lines, 'task="visual_prompt_refine"'), symbol="task:visual_prompt_refine"),
+            ],
+            {
+                "llm": {
+                    "task": "visual_prompt_refine",
+                    "kind": "llm_router",
+                    "placeholders": {
+                        "ctx_window": "前後window分の cue（role/type/tone/text）",
+                        "common_style": "channel preset style/tone/guidelines",
+                        "persona": "Visual Bible 由来 persona.txt",
+                    },
+                },
+            },
+        ),
+        (
+            "D/role_assets",
+            "role_assets",
+            "ロール/チャンネル別の素材を cue に付与（LLMなし）。",
+            [
+                _mk(pipeline_path, _pl("RoleAssetRouter("), symbol="RoleAssetRouter"),
+                _mk(role_asset_path, _find_def_line(role_asset_lines, "apply"), symbol="RoleAssetRouter.apply"),
+            ],
+            None,
+        ),
+        (
+            "D/build_prompts",
+            "build_prompts",
+            "cue から最終プロンプト文字列を構築する（template + guardrails; in-image text 防止）。",
+            [
+                _mk(pipeline_path, _pl("prompt_tpl_path = Path(args.prompt_template)"), symbol="prompt_template"),
+                _mk(pipeline_path, _pl("build_prompt_from_template("), symbol="build_prompt_from_template"),
+                _mk(prompt_builder_path, _find_def_line(prompt_builder_lines, "build_prompt_from_template"), symbol="build_prompt_from_template"),
+            ],
+            {
+                "template": {"name": "video_pipeline/templates/default.txt", "path": _repo_rel(default_template_path, root=repo)},
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/guides/guide_1920x1080.png", "required": False},
+                ],
+            },
+        ),
+        (
+            "D/write_image_cues",
+            "write_image_cues",
+            "image_cues.json（schema=ytm.image_cues.v1）を書き出す（SoT: run_dir）。",
+            [_mk(pipeline_path, _pl("# 4) Write image_cues.json"), symbol="write_image_cues")],
+            {
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/image_cues.json", "required": True},
+                ],
+            },
+        ),
+        (
+            "D/image_generation",
+            "image_generation",
+            "任意: images/*.png を生成（task=visual_image_gen; ImageClient）。model_key は env/チャンネルpresetで強制され得る。",
+            [
+                _mk(pipeline_path, _pl("[image_gen] channel="), symbol="image_gen_log"),
+                _mk(pipeline_path, _pl("image_generator.generate_batch("), symbol="generate_batch"),
+                _mk(nanobanana_path, _find_first_line_containing(nanobanana_lines, 'task="visual_image_gen"'), symbol="task:visual_image_gen"),
+            ],
+            {
+                "llm": {
+                    "task": "visual_image_gen",
+                    "kind": "image_client",
+                    "placeholders": {
+                        "prompt": "cue.prompt（template+guardrails）",
+                        "aspect_ratio": "16:9 default（size/ratio override可）",
+                        "input_images": "（任意）guide_1920x1080.png など",
+                    },
+                },
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/images/*.png", "required": False},
+                    {"path": "workspaces/video/runs/{run_id}/RUN_FAILED_QUOTA.txt", "required": False},
+                ],
+            },
+        ),
+        (
+            "D/engine_branch",
+            "engine_branch",
+            "engine分岐: none/capcut(remotion). ※ run_pipeline の capcut は stub draft。主線は auto_capcut_run + capcut_bulk_insert。",
+            [_mk(pipeline_path, _pl("# 6) Engine branching"), symbol="engine_branch")],
+            None,
+        ),
+    ]
+
+    for idx, (node_id, name, desc, refs, extra) in enumerate(items, start=1):
+        step: Dict[str, Any] = {
+            "phase": "D",
+            "node_id": node_id,
+            "order": idx,
+            "name": name,
+            "description": desc,
+            "impl_refs": [r for r in refs if r],
+        }
+        if extra:
+            step.update(extra)
+        steps.append(step)
+
+    edges: List[Dict[str, Any]] = [
+        {"from": "D/srt_parse", "to": "D/cues_per_segment"},
+        {"from": "D/srt_parse", "to": "D/cues_plan"},
+        {"from": "D/srt_parse", "to": "D/visual_bible"},
+        {"from": "D/visual_bible", "to": "D/context_section_plan"},
+        {"from": "D/context_section_plan", "to": "D/prompt_refine"},
+        {"from": "D/prompt_refine", "to": "D/role_assets"},
+        {"from": "D/cues_per_segment", "to": "D/role_assets"},
+        {"from": "D/cues_plan", "to": "D/role_assets"},
+        {"from": "D/role_assets", "to": "D/build_prompts"},
+        {"from": "D/build_prompts", "to": "D/write_image_cues"},
+        {"from": "D/write_image_cues", "to": "D/image_generation"},
+        {"from": "D/image_generation", "to": "D/engine_branch"},
+    ]
+
+    return {
+        "flow_id": "video_srt2images",
+        "phase": "D",
+        "summary": "SRTを解析し、文脈ベースで image_cues を作って画像生成まで行う（run_dir=SoT）。CapCut draft は主線では別工程。",
+        "tool_path": _repo_rel(tool_path, root=repo),
+        "pipeline_path": _repo_rel(pipeline_path, root=repo),
+        "config_path": _repo_rel(config_path, root=repo),
+        "templates_root": _repo_rel(video_pkg_root() / "templates", root=repo),
+        "sot": [
+            {"path": "workspaces/video/runs/{run_id}/", "kind": "run_dir", "notes": "run-level SoT"},
+            {"path": "workspaces/video/runs/{run_id}/srt_segments.json", "kind": "srt_segments", "notes": "schema=ytm.srt_segments.v1"},
+            {"path": "workspaces/video/runs/{run_id}/image_cues.json", "kind": "image_cues", "notes": "schema=ytm.image_cues.v1"},
+            {"path": "workspaces/video/runs/{run_id}/images/*.png", "kind": "images", "notes": "one image per cue (when generated)"},
+            {"path": "workspaces/video/runs/{run_id}/visual_cues_plan.json", "kind": "cues_plan", "notes": "plan-mode artifact (think/agent friendly)"},
+        ],
+        "steps": steps,
+        "edges": edges,
+    }
+
+
 def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
     run_tts_path = repo / "packages" / "audio_tts" / "scripts" / "run_tts.py"
     backend_main_path = repo / "apps" / "ui-backend" / "backend" / "main.py"
@@ -860,6 +1124,45 @@ def _extract_llm_tasks_from_code(repo: Path) -> List[Dict[str, Any]]:
     return tasks
 
 
+def _extract_image_tasks_from_code(repo: Path) -> List[Dict[str, Any]]:
+    roots = [repo / "packages", repo / "scripts", repo / "apps"]
+    tasks: List[Dict[str, Any]] = []
+    for fp in _iter_python_files(roots):
+        rel = _repo_rel(fp, root=repo)
+        if "/node_modules/" in rel:
+            continue
+        raw = _safe_read_text(fp)
+        if "ImageTaskOptions" not in raw:
+            continue
+        try:
+            tree = ast.parse(raw)
+        except Exception:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn = node.func
+            if not isinstance(fn, ast.Name) or fn.id != "ImageTaskOptions":
+                continue
+            task_name: str | None = None
+            for kw in node.keywords:
+                if kw.arg == "task" and isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
+                    task_name = kw.value.value.strip()
+                    break
+            if not task_name:
+                continue
+            tasks.append(
+                {
+                    "task": task_name,
+                    "call": "ImageTaskOptions",
+                    "source": {"path": rel, "line": int(getattr(node, "lineno", 1) or 1)},
+                }
+            )
+
+    tasks.sort(key=lambda t: (t.get("task") or "", t.get("source", {}).get("path") or "", t.get("source", {}).get("line") or 0))
+    return tasks
+
+
 def _load_llm_router_config(repo: Path) -> Dict[str, Any]:
     default_path = repo / "configs" / "llm_router.yaml"
     local_path = repo / "configs" / "llm_router.local.yaml"
@@ -881,6 +1184,43 @@ def _load_llm_task_overrides(repo: Path) -> Dict[str, Any]:
     return {"path": _repo_rel(path, root=repo), "config": cfg, "tasks": tasks}
 
 
+def _load_image_models_config(repo: Path) -> Dict[str, Any]:
+    default_path = repo / "configs" / "image_models.yaml"
+    local_path = repo / "configs" / "image_models.local.yaml"
+    cfg_path = local_path if local_path.exists() else default_path
+    cfg = _load_yaml(cfg_path)
+    if not isinstance(cfg, dict):
+        cfg = {}
+    return {"path": _repo_rel(cfg_path, root=repo), "config": cfg}
+
+
+def _load_image_task_overrides(repo: Path) -> Dict[str, Any]:
+    default_path = repo / "configs" / "image_task_overrides.yaml"
+    local_path = repo / "configs" / "image_task_overrides.local.yaml"
+    cfg_path = local_path if local_path.exists() else default_path
+    cfg = _load_yaml(cfg_path)
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    profile = (os.getenv("IMAGE_CLIENT_PROFILE") or "").strip() or "default"
+    override_tasks: Dict[str, Any] = {}
+    profiles = cfg.get("profiles")
+    if isinstance(profiles, dict):
+        profile_conf = profiles.get(profile)
+        if profile_conf is None and profile != "default":
+            profile_conf = profiles.get("default")
+        if isinstance(profile_conf, dict):
+            raw_tasks = profile_conf.get("tasks", {})
+            if isinstance(raw_tasks, dict):
+                override_tasks = raw_tasks
+    else:
+        raw_tasks = cfg.get("tasks", {})
+        if isinstance(raw_tasks, dict):
+            override_tasks = raw_tasks
+
+    return {"path": _repo_rel(cfg_path, root=repo), "config": cfg, "profile": profile, "tasks": override_tasks}
+
+
 def build_ssot_catalog() -> Dict[str, Any]:
     repo = repo_root()
 
@@ -892,8 +1232,13 @@ def build_ssot_catalog() -> Dict[str, Any]:
     llm_router_conf = _load_llm_router_config(repo)
     llm_task_overrides = _load_llm_task_overrides(repo)
 
+    image_calls = _extract_image_tasks_from_code(repo)
+    image_models_conf = _load_image_models_config(repo)
+    image_task_overrides = _load_image_task_overrides(repo)
+
     script_flow = _script_pipeline_catalog(repo)
     video_flow = _video_auto_capcut_catalog(repo)
+    video_srt2images_flow = _video_srt2images_catalog(repo)
     audio_flow = _audio_tts_catalog(repo)
     thumbnails_flow = _thumbnails_catalog(repo)
     publish_flow = _publish_catalog(repo)
@@ -908,11 +1253,20 @@ def build_ssot_catalog() -> Dict[str, Any]:
         declared_tasks |= {str(k) for k in override_tasks.keys()}
 
     used_tasks: set[str] = {str(c.get("task") or "") for c in llm_calls if c.get("task")}
-    # Include tasks declared by the script pipeline stage defs (the primary SSOT for stage→task mapping).
-    for st in script_flow.get("steps") or []:
-        llm = st.get("llm") if isinstance(st, dict) else None
-        if isinstance(llm, dict) and llm.get("task"):
-            used_tasks.add(str(llm["task"]))
+    # Include tasks referenced by SSOT flow steps (stage defs + other flows).
+    for flow in (
+        script_flow,
+        video_flow,
+        video_srt2images_flow,
+        audio_flow,
+        thumbnails_flow,
+        publish_flow,
+        planning_flow,
+    ):
+        for st in flow.get("steps") or []:
+            llm = st.get("llm") if isinstance(st, dict) else None
+            if isinstance(llm, dict) and llm.get("task"):
+                used_tasks.add(str(llm["task"]))
 
     missing_task_defs = sorted(t for t in used_tasks if t and t not in declared_tasks)
 
@@ -966,6 +1320,80 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "override_task": override or None,
         }
 
+    declared_image_tasks: set[str] = set()
+    image_cfg_tasks = image_models_conf.get("config", {}).get("tasks", {})
+    if isinstance(image_cfg_tasks, dict):
+        declared_image_tasks |= {str(k) for k in image_cfg_tasks.keys()}
+
+    used_image_tasks: set[str] = {str(c.get("task") or "") for c in image_calls if c.get("task")}
+    # Also include image tasks referenced by flow steps (kind=image_client).
+    for flow in (video_srt2images_flow, thumbnails_flow):
+        for st in flow.get("steps") or []:
+            llm = st.get("llm") if isinstance(st, dict) else None
+            if not isinstance(llm, dict):
+                continue
+            if str(llm.get("kind") or "") != "image_client":
+                continue
+            if llm.get("task"):
+                used_image_tasks.add(str(llm["task"]))
+
+    missing_image_task_defs = sorted(t for t in used_image_tasks if t and t not in declared_image_tasks)
+
+    image_tiers = image_models_conf.get("config", {}).get("tiers", {})
+    image_models = image_models_conf.get("config", {}).get("models", {})
+    if not isinstance(image_tiers, dict):
+        image_tiers = {}
+    if not isinstance(image_models, dict):
+        image_models = {}
+
+    image_override_tasks = image_task_overrides.get("tasks", {})
+    if not isinstance(image_override_tasks, dict):
+        image_override_tasks = {}
+
+    image_task_defs: Dict[str, Any] = {}
+    for task in sorted(t for t in used_image_tasks if t):
+        base = image_cfg_tasks.get(task, {}) if isinstance(image_cfg_tasks, dict) else {}
+        if not isinstance(base, dict):
+            base = {}
+        override = image_override_tasks.get(task, {}) if isinstance(image_override_tasks, dict) else {}
+        if not isinstance(override, dict):
+            override = {}
+
+        tier = str(base.get("tier") or "").strip()
+
+        forced_model_key = str(override.get("model_key") or "").strip()
+        allow_fallback = override.get("allow_fallback") if "allow_fallback" in override else None
+
+        model_keys: List[str] = []
+        if forced_model_key:
+            model_keys = [forced_model_key]
+        elif tier and isinstance(image_tiers.get(tier), list):
+            model_keys = [str(x) for x in image_tiers.get(tier) if str(x).strip()]
+
+        resolved_models: List[Dict[str, Any]] = []
+        for mk in model_keys:
+            mc = image_models.get(mk, {})
+            if not isinstance(mc, dict):
+                mc = {}
+            resolved_models.append(
+                {
+                    "key": mk,
+                    "provider": mc.get("provider"),
+                    "model_name": mc.get("model_name"),
+                    "deployment": mc.get("deployment"),
+                }
+            )
+
+        image_task_defs[task] = {
+            "tier": tier or None,
+            "model_keys": model_keys,
+            "resolved_models": resolved_models,
+            "router_task": base,
+            "override_task": override or None,
+            "override_profile": image_task_overrides.get("profile"),
+            "allow_fallback": allow_fallback,
+        }
+
     return {
         "schema": CATALOG_SCHEMA_V1,
         "generated_at": _utc_now_iso(),
@@ -997,6 +1425,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
         "flows": {
             "script_pipeline": script_flow,
             "video_auto_capcut_run": video_flow,
+            "video_srt2images": video_srt2images_flow,
             "audio_tts": audio_flow,
             "thumbnails": thumbnails_flow,
             "publish": publish_flow,
@@ -1009,5 +1438,20 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "used_tasks": sorted(t for t in used_tasks if t),
             "missing_task_defs": missing_task_defs,
             "task_defs": task_defs,
+        },
+        "image": {
+            "router_config": {
+                "path": image_models_conf.get("path"),
+                "tasks_count": len(image_cfg_tasks) if isinstance(image_cfg_tasks, dict) else 0,
+            },
+            "task_overrides": {
+                "path": image_task_overrides.get("path"),
+                "profile": image_task_overrides.get("profile"),
+                "tasks_count": len(image_override_tasks) if isinstance(image_override_tasks, dict) else 0,
+            },
+            "callsites": image_calls,
+            "used_tasks": sorted(t for t in used_image_tasks if t),
+            "missing_task_defs": missing_image_task_defs,
+            "task_defs": image_task_defs,
         },
     }
