@@ -31,6 +31,13 @@ function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
   return `${a.name || ""}${a.node_id}`.localeCompare(`${b.name || ""}${b.node_id}`);
 }
 
+function shortenLabel(label: string, maxChars: number) {
+  const s = String(label || "").trim();
+  if (!s) return "";
+  if (s.length <= maxChars) return s;
+  return `${s.slice(0, Math.max(0, maxChars - 1))}…`;
+}
+
 type LayoutNode = {
   id: string;
   step: SsotCatalogFlowStep;
@@ -298,7 +305,7 @@ export function SsotFlowGraph({
                 {p.label && steps.length <= 10 ? (
                   <text
                     x={p.labelX}
-                    y={p.labelY - 6}
+                    y={p.labelY - 10}
                     textAnchor="middle"
                     fontSize={11}
                     fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace"
@@ -310,7 +317,8 @@ export function SsotFlowGraph({
                       strokeLinejoin: "round",
                     }}
                   >
-                    {p.label}
+                    <title>{p.label}</title>
+                    {shortenLabel(p.label, 34)}
                   </text>
                 ) : null}
               </g>

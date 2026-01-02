@@ -120,7 +120,7 @@ function clamp(v: number, min: number, max: number) {
 }
 
 // Allow zooming out enough to always fit large traces (readability is handled via Fit + manual zoom).
-const MIN_GRAPH_SCALE = 0.05;
+const MIN_GRAPH_SCALE = 0.02;
 const MAX_GRAPH_SCALE = 3.0;
 const GRAPH_ZOOM_STEP = 0.05;
 
@@ -452,8 +452,8 @@ export function SsotSystemMap() {
       const h = el.clientHeight - 40;
       if (w <= 0 || h <= 0) return;
       const scale = Math.min(w / size.width, h / size.height);
-      const next = clamp(Number(scale.toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE);
-      setGraphScale((prev) => (Math.abs(prev - next) < 0.01 ? prev : next));
+      const next = clamp(Number(scale.toFixed(3)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE);
+      setGraphScale((prev) => (Math.abs(prev - next) < 0.001 ? prev : next));
     },
     [],
   );
@@ -521,6 +521,18 @@ export function SsotSystemMap() {
     container.scrollLeft += dx;
     container.scrollTop += dy;
   }, []);
+
+  useEffect(() => {
+    if (!traceLoadedKey) return;
+    const entries = Object.entries(executedByNodeId || {});
+    if (entries.length === 0) return;
+    const best = entries.reduce(
+      (acc, [id, info]) => ((info?.firstIndex ?? 0) < (acc.info?.firstIndex ?? 0) ? { id, info } : acc),
+      { id: entries[0][0], info: entries[0][1] },
+    );
+    if (!best.id) return;
+    requestAnimationFrame(() => centerOnNode(best.id));
+  }, [centerOnNode, executedByNodeId, traceLoadedKey]);
 
   const beginPan = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
     const container = graphViewportRef.current;
@@ -662,6 +674,22 @@ export function SsotSystemMap() {
     return nodes.find((n) => n.node_id === selectedNodeId) ?? null;
   }, [nodes, selectedNodeId]);
 
+  const selectedRelatedFlow = useMemo<FlowKey | null>(() => {
+    if (!selectedNode) return null;
+    const raw = (selectedNode as any)?.related_flow;
+    const v = typeof raw === "string" ? raw.trim() : "";
+    if (!v) return null;
+    if (v === "mainline") return "mainline";
+    if (v === "planning") return "planning";
+    if (v === "script_pipeline") return "script_pipeline";
+    if (v === "audio_tts") return "audio_tts";
+    if (v === "video_auto_capcut_run") return "video_auto_capcut_run";
+    if (v === "video_srt2images") return "video_srt2images";
+    if (v === "thumbnails") return "thumbnails";
+    if (v === "publish") return "publish";
+    return null;
+  }, [selectedNode]);
+
   useEffect(() => {
     if (!selectedNodeId && nodes.length > 0) {
       setSelectedNodeId(nodes[0].node_id);
@@ -701,7 +729,9 @@ export function SsotSystemMap() {
     if (!selectedNode) return null;
     const tpl = selectedNode.template as any;
     const p = tpl?.path ? String(tpl.path) : "";
-    return p || null;
+    const lineRaw = tpl?.line;
+    const line = lineRaw ? Number(lineRaw) : null;
+    return p ? { path: p, line: Number.isFinite(line || NaN) ? line : null } : null;
   }, [selectedNode]);
 
   const stageLlmTask = useMemo(() => {
@@ -1297,7 +1327,11 @@ export function SsotSystemMap() {
                     <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                       <div>
                         <div style={{ fontWeight: 900 }}>{nodeTitle(selectedNode)}</div>
-                        {selectedNode.description ? <div className="muted" style={{ marginTop: 6, lineHeight: 1.6 }}>{selectedNode.description}</div> : null}
+                        {selectedNode.description ? (
+                          <div className="muted" style={{ marginTop: 6, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                            {selectedNode.description}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
@@ -1334,13 +1368,13 @@ export function SsotSystemMap() {
                           </div>
                         ) : null}
 
-                        {selectedTemplatePath ? (
-                          <details open>
-                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
-                              Prompt Template（プレビュー）
+                      {selectedTemplatePath ? (
+                        <details open>
+                          <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                            Prompt Template（プレビュー）
                           </summary>
                           <div style={{ marginTop: 8 }}>
-                            <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" />
+                            <SsotFilePreview repoPath={selectedTemplatePath.path} highlightLine={selectedTemplatePath.line} title="Prompt Template" />
                           </div>
                         </details>
                       ) : null}
@@ -1393,9 +1427,24 @@ export function SsotSystemMap() {
                             SoT: {String((selectedNode as any).sot.path)}
                           </div>
                         ) : null}
+
+                        {selectedRelatedFlow ? (
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              className="research-chip"
+                              onClick={() => {
+                                setFlow(selectedRelatedFlow);
+                                setSelectedNodeId(null);
+                              }}
+                            >
+                              Open Related Flow
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                     )}
-                  </aside>
+                    </aside>
                 ) : null}
               </div>
               <div
@@ -1470,7 +1519,7 @@ export function SsotSystemMap() {
                           </span>
                         </summary>
                         <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                          {s.description ? <div className="muted">{s.description}</div> : null}
+                          {s.description ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{s.description}</div> : null}
                           {task ? (
                             <div className="mono muted small-text">
                               {kind === "image_client" ? "IMAGE" : "LLM"}: task={task}
@@ -1578,7 +1627,7 @@ export function SsotSystemMap() {
                 <section className="shell-panel shell-panel--placeholder">
                   <h3 style={{ marginTop: 0 }}>概要</h3>
                   <div className="mono muted">node_id: {selectedNode.node_id}</div>
-                  {selectedNode.description ? <p style={{ marginBottom: 0 }}>{selectedNode.description}</p> : null}
+                  {selectedNode.description ? <p style={{ marginBottom: 0, whiteSpace: "pre-wrap" }}>{selectedNode.description}</p> : null}
                 </section>
 
                 {flow === "mainline" && selectedMainlineFlowMeta ? (
@@ -1811,7 +1860,7 @@ export function SsotSystemMap() {
                 <details style={{ marginTop: 12 }} open>
                   <summary style={{ cursor: "pointer", fontWeight: 900 }}>Prompt Template（内容プレビュー）</summary>
                   <div style={{ marginTop: 10 }}>
-                    <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" />
+                    <SsotFilePreview repoPath={selectedTemplatePath.path} highlightLine={selectedTemplatePath.line} title="Prompt Template" />
                   </div>
                 </details>
               ) : null}

@@ -1861,7 +1861,7 @@ export interface SsotCatalogFlowStep {
   description?: string;
   outputs?: unknown[];
   llm?: Record<string, unknown>;
-  template?: { name?: string; path?: string } | null;
+  template?: { name?: string; path?: string; line?: number } | null;
   impl?: Record<string, unknown>;
   impl_refs?: Array<{ path: string; line: number; symbol?: string | null }>;
   sot?: Record<string, unknown>;

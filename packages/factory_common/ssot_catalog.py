@@ -476,27 +476,98 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
 def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
     auto_path = video_pkg_root() / "tools" / "auto_capcut_run.py"
     raw = _safe_read_text(auto_path)
+    auto_lines = raw.splitlines()
     keys: List[Tuple[str, int]] = []
-    for i, line in enumerate(raw.splitlines(), start=1):
+    for i, line in enumerate(auto_lines, start=1):
         m = re.search(r'progress\.setdefault\(\s*[\'"]([a-zA-Z0-9_]+)[\'"]', line)
         if m:
             keys.append((m.group(1), i))
-    # Keep a stable order preference (fallback to file order).
-    preferred = ["pipeline", "image_generation", "belt", "broll", "draft", "title_injection", "timeline_manifest"]
+    # Execution order preference (fallback to file order).
+    # Keep this aligned with `auto_capcut_run.py`'s actual control flow.
+    preferred = ["pipeline", "broll", "belt", "image_generation", "draft", "title_injection", "timeline_manifest"]
     key_to_line = {k: ln for k, ln in keys}
     ordered_keys = [k for k in preferred if k in key_to_line]
     for k, _ln in keys:
         if k not in ordered_keys:
             ordered_keys.append(k)
 
+    def _al(needle: str) -> int | None:
+        return _find_first_line_containing(auto_lines, needle)
+
+    belt_generator_path = video_pkg_root() / "src" / "srt2images" / "belt_generator.py"
+    belt_lines = _safe_read_text(belt_generator_path).splitlines()
+    belt_prompt_line = _find_def_line(belt_lines, "_create_belt_generation_prompt") or _find_first_line_containing(belt_lines, 'task="belt_generation"')
+
+    stock_broll_path = video_pkg_root() / "src" / "stock_broll" / "injector.py"
+    stock_broll_lines = _safe_read_text(stock_broll_path).splitlines()
+
+    capcut_bulk_insert_path = video_pkg_root() / "tools" / "capcut_bulk_insert.py"
+    capcut_bulk_insert_lines = _safe_read_text(capcut_bulk_insert_path).splitlines()
+
+    run_pipeline_path = video_pkg_root() / "tools" / "run_pipeline.py"
+    run_pipeline_lines = _safe_read_text(run_pipeline_path).splitlines()
+
+    inject_title_path = video_pkg_root() / "tools" / "inject_title_json.py"
+    inject_title_lines = _safe_read_text(inject_title_path).splitlines()
+
+    timeline_manifest_path = repo / "packages" / "factory_common" / "timeline_manifest.py"
+    timeline_manifest_lines = _safe_read_text(timeline_manifest_path).splitlines()
+
+    title_prompt_line = (
+        _find_first_line_containing(auto_lines, "You are a Japanese copywriter")
+        or _find_first_line_containing(auto_lines, "Scene summaries:")
+        or _find_first_line_containing(auto_lines, "prompt = (")
+    )
+    title_task_line = _find_first_line_containing(auto_lines, 'task="title_generation"')
+
     desc_by_key = {
-        "pipeline": "SRT→cues→images の基礎パイプ（run_pipeline）を実行",
-        "image_generation": "image_cues.json を元に images/*.png を生成（なければ停止）",
-        "belt": "belt_config.json を生成/更新（preset/equal/grouped/LLM 等）",
-        "broll": "ストックB-rollを注入（任意）",
-        "draft": "CapCut draft を生成（capcut_bulk_insert）し run_dir に参照メタを保存",
-        "title_injection": "CapCut draft にタイトルJSONを注入",
-        "timeline_manifest": "audio_tts final SRT 基準で timeline_manifest.json を生成（診断契約）",
+        "pipeline": "\n".join(
+            [
+                "run_pipeline（--engine none）で srt2images の基礎処理を実行し、run_dir の `image_cues.json` を作る。",
+                "- cue_mode=grouped（文脈ベース。等間隔分割は禁止）",
+                "- prompt_template は preset/CLI で上書き可能",
+                "- 詳細は Flow「Video srt2images」を参照（LLM: visual_section_plan / visual_prompt_refinement 等）",
+            ]
+        ),
+        "broll": "\n".join(
+            [
+                "任意: ストックB-rollを `image_cues.json` に注入する（約 ratio=0.2）。",
+                "- 文脈スコアリングで選定（等間隔ではない）",
+                "- run_dir/broll_manifest.json を書く + run_dir/broll/** にDL",
+            ]
+        ),
+        "belt": "\n".join(
+            [
+                "帯（belt_config.json）を生成/更新する。",
+                "- mode=existing: 既存 belt_config.json を尊重",
+                "- mode=equal: 4分割（labels必須）",
+                "- mode=grouped: chapters.json + episode_info.json が必須（fallback禁止）",
+                "- mode=llm: task=belt_generation を使って自動生成（SRT2IMAGES_DISABLE_TEXT_LLM=1 の場合は停止）",
+            ]
+        ),
+        "image_generation": "\n".join(
+            [
+                "images/*.png を用意する（不足分は placeholder を作る）。",
+                "- nanobanana=none の場合: 外部画像生成は止め、placeholder のみ生成（draft生成を止めない）",
+                "- nanobanana!=none の場合: 既存画像の不足を placeholder で埋める",
+            ]
+        ),
+        "title_generation": "\n".join(
+            [
+                "任意: タイトル未指定かつ planning 由来の帯文言が無い場合、cues から task=title_generation でタイトルを生成する。",
+                "- heuristic fallback 禁止（SRT2IMAGES_DISABLE_TEXT_LLM=1 の場合は停止）",
+                "- 出力は 1行（18-28文字）",
+            ]
+        ),
+        "draft": "\n".join(
+            [
+                "capcut_bulk_insert で CapCut draft を生成し、run_dir に参照メタを保存する。",
+                "- CapCut root が書けない場合は workspaces/video/_capcut_drafts/ にフォールバック",
+                "- template placeholder 漏れは hard-fail",
+            ]
+        ),
+        "title_injection": "CapCut draft にタイトルJSONを注入する（inject_title_json.py）。",
+        "timeline_manifest": "audio_tts final SRT 基準で timeline_manifest.json を生成する（診断契約; validate=True/False）。",
     }
 
     outputs_by_key = {
@@ -504,8 +575,14 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
             "workspaces/video/runs/{run_id}/srt_segments.json",
             "workspaces/video/runs/{run_id}/image_cues.json",
         ],
+        "broll": [
+            "workspaces/video/runs/{run_id}/image_cues.json",
+            "workspaces/video/runs/{run_id}/broll_manifest.json",
+            "workspaces/video/runs/{run_id}/broll/**",
+        ],
         "image_generation": ["workspaces/video/runs/{run_id}/images/*.png"],
         "belt": ["workspaces/video/runs/{run_id}/belt_config.json"],
+        "title_generation": ["workspaces/video/runs/{run_id}/auto_run_info.json"],
         "draft": [
             "workspaces/video/runs/{run_id}/capcut_draft_info.json",
             "workspaces/video/runs/{run_id}/capcut_draft",
@@ -514,32 +591,133 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
         "title_injection": ["workspaces/video/runs/{run_id}/capcut_draft_info.json"],
     }
 
+    refs_by_key: Dict[str, List[Dict[str, Any] | None]] = {
+        "pipeline": [
+            _make_code_ref(repo, auto_path, _al("pipeline_cmd = ["), symbol="pipeline_cmd"),
+            _make_code_ref(repo, auto_path, _al("pipeline_res = run("), symbol="run_pipeline"),
+            _make_code_ref(repo, auto_path, _al('"--engine",'), symbol="pipeline:engine"),
+            _make_code_ref(repo, run_pipeline_path, _find_def_line(run_pipeline_lines, "main"), symbol="run_pipeline:main"),
+        ],
+        "broll": [
+            _make_code_ref(repo, auto_path, _al("inject_broll_into_run("), symbol="inject_broll_into_run"),
+            _make_code_ref(repo, stock_broll_path, _find_def_line(stock_broll_lines, "inject_broll_into_run"), symbol="stock_broll:inject_broll_into_run"),
+        ],
+        "belt": [
+            _make_code_ref(repo, auto_path, _al('elif resolved_belt_mode == "llm"'), symbol="belt_mode:llm"),
+            _make_code_ref(repo, auto_path, _al("make_llm_belt_from_cues("), symbol="belt:llm"),
+            _make_code_ref(repo, belt_generator_path, belt_prompt_line, symbol="prompt:belt_generation"),
+            _make_code_ref(repo, belt_generator_path, _find_first_line_containing(belt_lines, 'task="belt_generation"'), symbol="task:belt_generation"),
+        ],
+        "image_generation": [
+            _make_code_ref(repo, auto_path, _al("_ensure_placeholder_images_for_cues("), symbol="placeholder_images"),
+        ],
+        "draft": [
+            _make_code_ref(repo, auto_path, _al('"tools/capcut_bulk_insert.py",'), symbol="capcut_bulk_insert"),
+            _make_code_ref(repo, capcut_bulk_insert_path, _find_def_line(capcut_bulk_insert_lines, "main"), symbol="capcut_bulk_insert:main"),
+        ],
+        "title_injection": [
+            _make_code_ref(repo, auto_path, _al('"tools/inject_title_json.py",'), symbol="inject_title_json"),
+            _make_code_ref(repo, inject_title_path, _find_def_line(inject_title_lines, "main"), symbol="inject_title_json:main"),
+        ],
+        "timeline_manifest": [
+            _make_code_ref(repo, auto_path, _al("manifest = build_timeline_manifest("), symbol="build_timeline_manifest"),
+            _make_code_ref(repo, auto_path, _al("mf_path = write_timeline_manifest("), symbol="write_timeline_manifest"),
+            _make_code_ref(repo, timeline_manifest_path, _find_def_line(timeline_manifest_lines, "build_timeline_manifest"), symbol="timeline_manifest:build"),
+        ],
+    }
+
+    ordered_nodes: List[str] = []
+    for k in ordered_keys:
+        ordered_nodes.append(k)
+        if k == "image_generation":
+            ordered_nodes.append("title_generation")
+
     steps: List[Dict[str, Any]] = []
-    for idx, k in enumerate(ordered_keys, start=1):
-        line_no = int(key_to_line.get(k) or 1)
-        steps.append(
-            {
-                "phase": "D",
-                "node_id": f"D/{k}",
-                "order": idx,
-                "name": k,
-                "description": desc_by_key.get(k, ""),
-                "outputs": outputs_by_key.get(k, []),
-                "impl": {
-                    "auto_capcut_run": {
+    for idx, k in enumerate(ordered_nodes, start=1):
+        if k == "title_generation":
+            line_no = int(title_task_line or title_prompt_line or 1)
+            steps.append(
+                {
+                    "phase": "D",
+                    "node_id": "D/title_generation",
+                    "order": idx,
+                    "name": "title_generation",
+                    "description": desc_by_key.get("title_generation", ""),
+                    "outputs": outputs_by_key.get("title_generation", []),
+                    "llm": {
+                        "task": "title_generation",
+                        "kind": "llm_router",
+                        "placeholders": {
+                            "scene_summaries": "image_cues.json cues[].summary/visual_focus を連結（最大30）",
+                            "constraints": "18-28文字 / 1行のみ / 括弧・引用符なし / calm+warm",
+                        },
+                    },
+                    "template": {
+                        "name": "auto_capcut_run.py (inline prompt)",
                         "path": _repo_rel(auto_path, root=repo),
-                        "line": line_no,
-                    }
-                },
-                "impl_refs": [
-                    r
-                    for r in [
-                        _make_code_ref(repo, auto_path, line_no, symbol=f"progress:{k}"),
-                    ]
-                    if r
-                ],
-            }
-        )
+                        "line": int(title_prompt_line or line_no),
+                    },
+                    "impl": {"auto_capcut_run": {"path": _repo_rel(auto_path, root=repo), "line": line_no}},
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, auto_path, title_prompt_line, symbol="prompt:title_generation"),
+                            _make_code_ref(repo, auto_path, title_task_line, symbol="task:title_generation"),
+                        ]
+                        if r
+                    ],
+                }
+            )
+            continue
+
+        line_no = int(key_to_line.get(k) or 1)
+        step: Dict[str, Any] = {
+            "phase": "D",
+            "node_id": f"D/{k}",
+            "order": idx,
+            "name": k,
+            "description": desc_by_key.get(k, ""),
+            "outputs": outputs_by_key.get(k, []),
+            "impl": {
+                "auto_capcut_run": {
+                    "path": _repo_rel(auto_path, root=repo),
+                    "line": line_no,
+                }
+            },
+            "impl_refs": [
+                r
+                for r in [
+                    _make_code_ref(repo, auto_path, line_no, symbol=f"progress:{k}"),
+                    *refs_by_key.get(k, []),
+                ]
+                if r
+            ],
+        }
+
+        if k == "pipeline":
+            step["related_flow"] = "video_srt2images"
+
+        if k == "belt":
+            step.update(
+                {
+                    "llm": {
+                        "task": "belt_generation",
+                        "kind": "llm_router",
+                        "placeholders": {
+                            "summaries": "image_cues.json cues[].summary を短縮して入力",
+                            "total_duration": "cues[].end から推定（秒）",
+                            "target_sections": "default=4（preset/CLI）",
+                        },
+                    },
+                    "template": {
+                        "name": "belt_generator.py",
+                        "path": _repo_rel(belt_generator_path, root=repo),
+                        "line": int(belt_prompt_line or 1),
+                    },
+                }
+            )
+
+        steps.append(step)
 
     return {
         "flow_id": "video_auto_capcut_run",
@@ -549,6 +727,8 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
                 "audio_tts final SRT を起点に run_dir を作り、image_cues/images を準備して CapCut draft を自動生成する（自動/再開あり）。",
                 "- 入口: python3 -m video_pipeline.tools.auto_capcut_run / UI Hub（/api/video-production/*）",
                 "- run_dir SoT: workspaces/video/runs/{run_id}/（image_cues.json / images/ / capcut_draft_info.json / auto_run_info.json）",
+                "- optional LLM: belt_generation（belt_mode=llm） / title_generation（planning未解決かつ未指定時）",
+                "- pipeline（srt2images）の詳細: Flow「Video srt2images」を参照",
                 "- 重要: CapCut draft は capcut_bulk_insert が正（run_pipeline --engine capcut は stub）",
             ]
         ),
@@ -569,8 +749,7 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
         ],
         "steps": steps,
         "edges": [
-            {"from": f"D/{ordered_keys[i]}", "to": f"D/{ordered_keys[i + 1]}"}
-            for i in range(0, max(0, len(ordered_keys) - 1))
+            {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]} for i in range(0, max(0, len(steps) - 1))
         ],
     }
 
@@ -650,7 +829,11 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "output": "JSON object (characters/settings)",
                     },
                 },
-                "template": {"name": "visual_bible.py", "path": _repo_rel(visual_bible_path, root=repo)},
+                "template": {
+                    "name": "visual_bible.py",
+                    "path": _repo_rel(visual_bible_path, root=repo),
+                    "line": _find_first_line_containing(visual_bible_lines, "BIBLE_GEN_PROMPT"),
+                },
                 "outputs": [
                     {"path": "workspaces/video/runs/{run_id}/visual_bible.json", "required": False},
                     {"path": "workspaces/video/runs/{run_id}/persona.txt", "required": False},
@@ -676,7 +859,11 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "constraints": "文脈ベース（等間隔分割禁止）/ no text in scene / no extra characters",
                     },
                 },
-                "template": {"name": "cues_plan.py", "path": _repo_rel(cues_plan_path, root=repo)},
+                "template": {
+                    "name": "cues_plan.py",
+                    "path": _repo_rel(cues_plan_path, root=repo),
+                    "line": _find_first_line_containing(cues_plan_lines, "You are preparing storyboard image cues"),
+                },
                 "outputs": [
                     {"path": "workspaces/video/runs/{run_id}/visual_cues_plan.json", "required": False},
                 ],
@@ -702,7 +889,11 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "output": "JSON object: sections/boundaries + visual_focus 等",
                     },
                 },
-                "template": {"name": "llm_context_analyzer.py", "path": _repo_rel(context_path, root=repo)},
+                "template": {
+                    "name": "llm_context_analyzer.py",
+                    "path": _repo_rel(context_path, root=repo),
+                    "line": _find_def_line(context_lines, "_create_analysis_prompt"),
+                },
             },
         ),
         (
@@ -724,7 +915,11 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "persona": "Visual Bible 由来 persona.txt",
                     },
                 },
-                "template": {"name": "llm_prompt_refiner.py", "path": _repo_rel(refiner_path, root=repo)},
+                "template": {
+                    "name": "llm_prompt_refiner.py",
+                    "path": _repo_rel(refiner_path, root=repo),
+                    "line": _find_first_line_containing(refiner_lines, "You are crafting a concise visual brief"),
+                },
             },
         ),
         (
@@ -969,35 +1164,45 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
             "llm:tts_annotate",
             "LLM task: tts_annotate",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_annotate"), symbol='task="tts_annotate"')],
-            {"llm": {"task": "tts_annotate"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
+            {
+                "llm": {"task": "tts_annotate"},
+                "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo), "line": _task_line("tts_annotate")},
+            },
         ),
         (
             "C/llm_tts_text_prepare",
             "llm:tts_text_prepare",
             "LLM task: tts_text_prepare",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_text_prepare"), symbol='task="tts_text_prepare"')],
-            {"llm": {"task": "tts_text_prepare"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
+            {
+                "llm": {"task": "tts_text_prepare"},
+                "template": {
+                    "name": "llm_adapter.py",
+                    "path": _repo_rel(llm_adapter_path, root=repo),
+                    "line": _task_line("tts_text_prepare"),
+                },
+            },
         ),
         (
             "C/llm_tts_segment",
             "llm:tts_segment",
             "LLM task: tts_segment",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_segment"), symbol='task="tts_segment"')],
-            {"llm": {"task": "tts_segment"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
+            {"llm": {"task": "tts_segment"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo), "line": _task_line("tts_segment")}},
         ),
         (
             "C/llm_tts_pause",
             "llm:tts_pause",
             "LLM task: tts_pause",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_pause"), symbol='task="tts_pause"')],
-            {"llm": {"task": "tts_pause"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
+            {"llm": {"task": "tts_pause"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo), "line": _task_line("tts_pause")}},
         ),
         (
             "C/llm_tts_reading",
             "llm:tts_reading",
             "LLM task: tts_reading",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_reading"), symbol='task="tts_reading"')],
-            {"llm": {"task": "tts_reading"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
+            {"llm": {"task": "tts_reading"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo), "line": _task_line("tts_reading")}},
         ),
     ]
 
@@ -1092,7 +1297,26 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
             [
                 _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "generate_thumbnail_variant_images"), symbol="POST /variants/generate"),
             ],
-            None,
+            {
+                "llm": {
+                    "task": "thumbnail_image_gen",
+                    "kind": "image_client",
+                    "placeholders": {
+                        "prompt": "payload.prompt or templates.json prompt_template rendered with planning context",
+                        "model_key": "payload.image_model_key or templates.json image_model_key",
+                        "aspect_ratio": "16:9",
+                        "size": "1920x1080 (task default in configs/image_models.yaml)",
+                    },
+                },
+                "template": {
+                    "name": "workspaces/thumbnails/templates.json (prompt_template)",
+                    "path": "workspaces/thumbnails/templates.json",
+                },
+                "outputs": [
+                    {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/ai_*.png", "required": True},
+                    {"path": "workspaces/thumbnails/projects.json", "required": True},
+                ],
+            },
         ),
         (
             "F/api_variants_compose",
@@ -1101,7 +1325,12 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
             [
                 _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "compose_thumbnail_variant"), symbol="POST /variants/compose"),
             ],
-            None,
+            {
+                "outputs": [
+                    {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/compiler/<build_id>/out_01.png", "required": True},
+                    {"path": "workspaces/thumbnails/projects.json", "required": True},
+                ],
+            },
         ),
         (
             "F/cli_build",
@@ -1481,8 +1710,12 @@ def build_ssot_catalog() -> Dict[str, Any]:
     ):
         for st in flow.get("steps") or []:
             llm = st.get("llm") if isinstance(st, dict) else None
-            if isinstance(llm, dict) and llm.get("task"):
-                used_tasks.add(str(llm["task"]))
+            if not isinstance(llm, dict) or not llm.get("task"):
+                continue
+            kind = str(llm.get("kind") or "").strip()
+            if kind == "image_client":
+                continue
+            used_tasks.add(str(llm["task"]))
 
     missing_task_defs = sorted(t for t in used_tasks if t and t not in declared_tasks)
 
@@ -1641,10 +1874,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
                 {"phase": "F", "order": 6, "node_id": "F/thumbnails", "name": "Thumbnails", "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。"},
             ],
             "edges": [
-                {"from": "A/planning", "to": "B/script_pipeline", "label": "title/persona/targets → status.json"},
-                {"from": "B/script_pipeline", "to": "C/audio_tts", "label": "A-text → wav+srt"},
-                {"from": "C/audio_tts", "to": "D/video", "label": "final wav+srt → run_dir"},
-                {"from": "D/video", "to": "G/publish", "label": "final mp4 → Sheet/YouTube"},
+                {"from": "A/planning", "to": "B/script_pipeline", "label": "planning → status"},
+                {"from": "B/script_pipeline", "to": "C/audio_tts", "label": "A-text → wav/srt"},
+                {"from": "C/audio_tts", "to": "D/video", "label": "wav/srt → run_dir"},
+                {"from": "D/video", "to": "G/publish", "label": "mp4 → upload"},
                 {"from": "A/planning", "to": "F/thumbnails", "label": "thumb text → projects"},
             ],
         },
