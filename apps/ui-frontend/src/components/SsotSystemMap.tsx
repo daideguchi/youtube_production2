@@ -1613,11 +1613,6 @@ export function SsotSystemMap() {
                             })()
                           : "";
 
-                        const tpl = (s as any)?.template as any;
-                        const tplPath = tpl?.path ? String(tpl.path) : "";
-                        const tplLine = typeof tpl?.line === "number" ? Number(tpl.line) : null;
-                        const sotPath = (s as any)?.sot?.path ? String((s as any).sot.path) : "";
-
                         const outputsAll = parseOutputDecls(s.outputs);
                         const outCount = outputsAll.length;
                         const outFirst = outCount > 0 ? String(outputsAll[0]?.path || "") : "";
@@ -1685,21 +1680,6 @@ export function SsotSystemMap() {
                                     <span>{resolvedLabel}</span>
                                   </span>
                                 ) : null}
-                                {sotPath ? (
-                                  <span className="ssot-timeline-tag mono" title={sotPath}>
-                                    <span className="ssot-timeline-tag__label">SoT</span>
-                                    <span>{shortUiPath(sotPath, 4)}</span>
-                                  </span>
-                                ) : null}
-                                {tplPath ? (
-                                  <span className="ssot-timeline-tag mono" title={`${tplPath}${tplLine ? `:${tplLine}` : ""}`}>
-                                    <span className="ssot-timeline-tag__label">prompt</span>
-                                    <span>
-                                      {shortUiPath(tplPath, 4)}
-                                      {tplLine ? `:${tplLine}` : ""}
-                                    </span>
-                                  </span>
-                                ) : null}
                                 {outCount > 0 ? (
                                   <span className="ssot-timeline-tag mono" title={outTitle ? `out:\n${outTitle}` : undefined}>
                                     <span className="ssot-timeline-tag__label">out</span>
@@ -1719,7 +1699,21 @@ export function SsotSystemMap() {
                                   </span>
                                 ) : null}
                               </div>
-                              {s.description ? <div className="ssot-timeline-desc">{s.description}</div> : null}
+                              {s.description ? (
+                                <div
+                                  className="ssot-timeline-desc"
+                                  style={{
+                                    lineHeight: 1.6,
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                    whiteSpace: "pre-wrap",
+                                  }}
+                                >
+                                  {s.description}
+                                </div>
+                              ) : null}
                             </button>
                           </div>
                         );
