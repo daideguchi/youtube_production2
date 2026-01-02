@@ -355,6 +355,13 @@ def _build_codex_prompt(
     lines.append("- Use ONLY the EVIDENCE EXCERPTS provided for each claim below.")
     lines.append("- Do NOT use outside knowledge. Do NOT browse the web. Do NOT invent sources.")
     lines.append("- Do NOT invent quotes. Every quote MUST be an exact substring of the provided excerpt.")
+    lines.append(
+        "- If evidence is missing or does not mention the claim, status MUST be 'uncertain' (not 'unsupported')."
+    )
+    lines.append("- Use 'unsupported' ONLY when evidence explicitly contradicts the claim.")
+    lines.append(
+        "- For 'supported'/'unsupported', include at least 1 citation; otherwise use 'uncertain' (no guessing)."
+    )
     lines.append("- Output STRICT JSON ONLY. No markdown, no commentary.")
     lines.append("")
     lines.append(f"channel: {channel}")
@@ -680,6 +687,11 @@ def run_fact_check_with_codex(
             status = "uncertain"
             if not rationale:
                 rationale = "supported_without_citations"
+        if not citations_out and status == "unsupported":
+            # Unsupported without valid citations is also not acceptable.
+            status = "uncertain"
+            if not rationale:
+                rationale = "unsupported_without_citations"
         statuses.append(status)
         out_claims.append(
             {

@@ -22,6 +22,11 @@ export PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages"
 set -a
 source "$ENV_FILE"
 set +a
+
+# Default: disable LLM-backed web search (cost control). Override per-run if needed:
+#   YTM_WEB_SEARCH_PROVIDER=brave ./scripts/with_ytm_env.sh ...
+: "${YTM_WEB_SEARCH_PROVIDER:=disabled}"
+export YTM_WEB_SEARCH_PROVIDER
 if [[ $# -eq 0 ]]; then
   echo "✅ Environment loaded. Run commands like: ./scripts/with_ytm_env.sh python3 ..." >&2
   exit 0

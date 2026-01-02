@@ -4878,7 +4878,10 @@ def _ensure_web_search_results(base: Path, st: Status) -> None:
             existing = json.loads(out_path.read_text(encoding="utf-8"))
             hits = existing.get("hits") if isinstance(existing, dict) else None
             prov = str(existing.get("provider") or "") if isinstance(existing, dict) else ""
-            if isinstance(hits, list) and hits and prov and prov != "disabled":
+            # Reuse existing results to keep inputs stable across resumes.
+            # Even when provider is "disabled" (empty hits), rewriting would churn timestamps and can
+            # trigger "sources changed" safety stops for cached LLM artifacts.
+            if isinstance(hits, list) and prov and (prov == "disabled" or len(hits) > 0):
                 try:
                     stage = st.stages.get("topic_research")
                     if stage is not None:
@@ -6617,6 +6620,35 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 )
                 gen_paths.append(str(out_path.relative_to(base)))
         st.stages[stage_name].details["generated"] = gen_paths
+        # Invalidate downstream assembly/QC when chapter drafts are (re)generated.
+        #
+        # Rationale:
+        # - Operators may keep a seed A-text (content/assembled.md) while upstream stages are pending.
+        # - `reconcile_status()` can treat `script_review` as completed as long as an A-text exists.
+        # - If we later generate chapters, we must re-run `script_review` to rebuild assembled.md;
+        #   otherwise downstream validation keeps checking the stale seed and gets stuck (e.g. length_too_short).
+        try:
+            human_a_text = base / "content" / "assembled_human.md"
+            should_invalidate = not human_a_text.exists()
+        except Exception:
+            should_invalidate = True
+        if should_invalidate and gen_paths:
+            for downstream in ("script_review", "quality_check", "script_validation"):
+                ds = st.stages.get(downstream)
+                if ds is None:
+                    continue
+                if getattr(ds, "status", "") == "completed":
+                    ds.status = "pending"
+                details = getattr(ds, "details", None)
+                if isinstance(details, dict):
+                    marks = details.get("invalidated_by")
+                    if not isinstance(marks, list):
+                        marks = []
+                        details["invalidated_by"] = marks
+                    if stage_name not in marks:
+                        marks.append(stage_name)
+            if st.status in {"script_completed", "script_validated"}:
+                st.status = "script_in_progress"
     elif stage_name == "audio_synthesis":
         # Do not auto-generate placeholder .wav/.srt. Use the dedicated audio entrypoint instead.
         st.stages[stage_name].status = "pending"
@@ -7000,7 +7032,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         if (
             error_codes == {"length_too_short"}
             and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1"
-            and False  # deprecated/ignored (SSOT forbids auto length rescue)
+            and _truthy_env("SCRIPT_VALIDATION_AUTO_LENGTH_FIX", "0")
         ):
             try:
                 target_min = int(stats.get("target_chars_min")) if stats.get("target_chars_min") is not None else None
@@ -9042,7 +9074,15 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     max_rounds_requested = 3
             # Default cap: keep costs bounded, but allow more convergence when the initial drafts were
             # produced by Codex exec (they are often verbose/repetitive and need extra rewrite rounds).
-            hard_cap = 5 if str(draft_source) == "codex_exec" else 3
+            hard_cap_default = 5 if str(draft_source) == "codex_exec" else 3
+            hard_cap = hard_cap_default
+            try:
+                hard_cap_env = str(os.getenv("SCRIPT_VALIDATION_LLM_MAX_ROUNDS_HARD_CAP") or "").strip()
+                if hard_cap_env:
+                    hard_cap = int(hard_cap_env)
+            except Exception:
+                hard_cap = hard_cap_default
+            hard_cap = max(1, min(10, int(hard_cap)))
             max_rounds = min(max(1, max_rounds_requested), hard_cap)
 
             llm_gate_details["mode"] = "v2"
@@ -10104,6 +10144,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     except Exception:
                         pass
                     return st
+
+                # Fix candidate is valid → feed it into the next Judge round.
+                # Without this, we would keep judging the original draft and never converge.
+                current_text = candidate
 
                 current_text = candidate
         elif llm_gate_enabled and not skip_llm_gate:

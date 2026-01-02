@@ -51,7 +51,10 @@
   - `auto`: 通常どおり検索を試みる（provider は下記 `YTM_WEB_SEARCH_PROVIDER` に従う）
   - `required`: 検索を必ず試みる（provider は下記に従う。失敗してもパイプライン自体は止めないが、`status.json` に記録される）
 
-- `YTM_WEB_SEARCH_PROVIDER`（default: `auto`）:
+- `YTM_WEB_SEARCH_PROVIDER`（default: `auto`）
+  - 運用既定: `./scripts/with_ytm_env.sh` は **未設定なら `disabled` を自動セット**（LLMベース検索のコスト/汚染を避けるため）
+  - 必要なときだけ上書き: `YTM_WEB_SEARCH_PROVIDER=brave ./scripts/with_ytm_env.sh ...`
+  - 値:
   - `auto`: `BRAVE_SEARCH_API_KEY` があれば Brave、無ければ `OPENROUTER_API_KEY` で OpenRouter 検索モデル
   - `brave`: Brave Search API を使用
   - `openrouter`: OpenRouter 検索モデルを使用（default model は下記）
@@ -65,6 +68,7 @@
 - `YTM_WEB_SEARCH_COUNT`（default: `8`）: 検索結果の最大件数
 - `YTM_WEB_SEARCH_TIMEOUT_S`（default: `20`）: 検索リクエストの timeout（秒）
 - `YTM_WEB_SEARCH_FORCE`（default: `0`）: `1` で既存の `search_results.json` があっても再検索
+  - 注: `provider=disabled` の既存ファイルも、`force=0` なら再生成しない（入力の安定化 / artifact差分停止の回避）
 
 ## Script pipeline: Wikipedia（topic_research の補助ソース）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/wikipedia_summary.json` に保存される。

@@ -96,4 +96,4 @@ SoT: `configs/sources.yaml`
 
 - `codex exec` は `--sandbox read-only` で実行し、repo/workspaces を書き換えない（レポート作成はPython側で書く）。
 - モデルの出力は必ずJSONパースし、引用（quote）が抜粋内に存在するか機械検証する。
-  - 引用が一致しない場合、そのclaimは `supported` にできない（自動で `uncertain` に降格）。
+  - 引用が一致しない場合、そのclaimは `supported/unsupported` にできない（自動で `uncertain` に降格）。

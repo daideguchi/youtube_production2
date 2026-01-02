@@ -157,6 +157,7 @@ channels:
     persona: workspaces/planning/personas/CH10_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH10-人生を変える偉人思考【今日から実装】/script_prompt.txt
     web_search_policy: required
+    fact_check_policy: auto
     wikipedia:
       policy: auto
       lang: ja
