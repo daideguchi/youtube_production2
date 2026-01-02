@@ -2956,7 +2956,14 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 1,
                     "node_id": "A/planning",
                     "name": "Planning",
-                    "description": "企画/タイトル/タグ/進捗などを Planning CSV に集約し、CH-NNN を確定する。",
+                    "description": "\n".join(
+                        [
+                            "企画/タイトル/タグ/進捗などを Planning CSV に集約し、CH-NNN を確定する。",
+                            "- SoT: workspaces/planning/channels/{CH}.csv",
+                            "- 主な入力: title/intent/tags/persona/サムネ文言/進捗",
+                            "- 主な出力: 下流で使う CH+NNN（episode key）",
+                        ]
+                    ),
                     "related_flow": "planning",
                     "sot": {"path": "workspaces/planning/channels/{CH}.csv"},
                 },
@@ -2965,7 +2972,14 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 2,
                     "node_id": "B/script_pipeline",
                     "name": "Script Pipeline",
-                    "description": "LLM+ルールで台本（Aテキスト）を生成/検証し、status.json と assembled*.md を正本として保存する。",
+                    "description": "\n".join(
+                        [
+                            "LLM+ルールで台本（Aテキスト）を生成/検証し、status.json と assembled*.md を正本として保存する。",
+                            "- SoT: workspaces/scripts/{CH}/{NNN}/status.json",
+                            "- A-text: content/assembled_human.md（優先）→ content/assembled.md（mirror）",
+                            "- 主要ガード: planning整合/意味整合/LLM品質ゲート（script_validation）",
+                        ]
+                    ),
                     "related_flow": "script_pipeline",
                     "sot": {"path": "workspaces/scripts/{CH}/{NNN}/status.json"},
                 },
@@ -2974,7 +2988,14 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 3,
                     "node_id": "C/audio_tts",
                     "name": "Audio/TTS",
-                    "description": "AテキストからTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する（alignment/split-brain ガード）。",
+                    "description": "\n".join(
+                        [
+                            "AテキストからTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する（alignment/split-brain ガード）。",
+                            "- SoT: workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav + .srt",
+                            "- ガード: assembled_human vs assembled の split-brain / alignment stamp 必須 / finalize-existing の drift 検知",
+                            "- 主要出力: wav+srt+log.json+a_text.txt+audio_manifest.json",
+                        ]
+                    ),
                     "related_flow": "audio_tts",
                     "sot": {"path": "workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav"},
                 },
@@ -2983,7 +3004,14 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 4,
                     "node_id": "D/video",
                     "name": "Video (CapCut)",
-                    "description": "SRT→image_cues→images→CapCut draft を自動生成し、run_dir に成果物を保存する。",
+                    "description": "\n".join(
+                        [
+                            "SRT→image_cues→images→CapCut draft を自動生成し、run_dir に成果物を保存する。",
+                            "- SoT: workspaces/video/runs/{run_id}/",
+                            "- 主な入力: audio_tts final SRT（+ wav 任意）",
+                            "- 主要出力: image_cues.json / images/ / capcut_draft_info.json / timeline_manifest.json",
+                        ]
+                    ),
                     "related_flow": "video_auto_capcut_run",
                     "sot": {"path": "workspaces/video/runs/{run_id}/"},
                 },
@@ -2992,7 +3020,13 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 5,
                     "node_id": "G/publish",
                     "name": "Publish",
-                    "description": "Google Sheet/Drive を外部SoTとして、動画をYouTubeへアップロードしSheetを更新する。",
+                    "description": "\n".join(
+                        [
+                            "Google Sheet/Drive を外部SoTとして、動画をYouTubeへアップロードしSheetを更新する。",
+                            "- 外部SoT: YT_PUBLISH_SHEET（Status==ready → uploaded へ更新）",
+                            "- ローカル: 「投稿済みロック」で誤編集を防ぐ（別系統・自動連動は未実装）",
+                        ]
+                    ),
                     "related_flow": "publish",
                     "sot": {"path": "YT_PUBLISH_SHEET (external)"},
                 },
@@ -3001,17 +3035,24 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "order": 6,
                     "node_id": "F/thumbnails",
                     "name": "Thumbnails",
-                    "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。",
+                    "description": "\n".join(
+                        [
+                            "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。",
+                            "- SoT: workspaces/thumbnails/projects.json + templates.json + assets/**",
+                            "- 生成: IMAGE task（例: thumbnail_image_gen）/ 合成: compiler（no AI）",
+                            "- ポリシー: 指定モデルの黙示fallback禁止（品質担保）",
+                        ]
+                    ),
                     "related_flow": "thumbnails",
                     "sot": {"path": "workspaces/thumbnails/projects.json"},
                 },
             ],
             "edges": [
-                {"from": "A/planning", "to": "B/script_pipeline", "label": "planning → status"},
-                {"from": "B/script_pipeline", "to": "C/audio_tts", "label": "A-text → wav/srt"},
-                {"from": "C/audio_tts", "to": "D/video", "label": "wav/srt → run_dir"},
-                {"from": "D/video", "to": "G/publish", "label": "mp4 → upload"},
-                {"from": "A/planning", "to": "F/thumbnails", "label": "thumb text → projects"},
+                {"from": "A/planning", "to": "B/script_pipeline", "label": "title/persona/targets → status.json"},
+                {"from": "B/script_pipeline", "to": "C/audio_tts", "label": "assembled*.md → wav+srt (alignment required)"},
+                {"from": "C/audio_tts", "to": "D/video", "label": "final wav+srt → run_dir (image_cues/images/draft)"},
+                {"from": "D/video", "to": "G/publish", "label": "final mp4 → Sheet/YouTube upload"},
+                {"from": "A/planning", "to": "F/thumbnails", "label": "thumb fields → projects.json"},
             ],
         },
         "entrypoints": {
