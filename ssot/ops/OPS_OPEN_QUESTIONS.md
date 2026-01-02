@@ -87,3 +87,16 @@
 決めたいこと:
 - UIから編集→commit/push までやるか（権限/監査/競合解決/レビューの設計が必要）。
 
+---
+
+## P2（運用の衛生 / ゴミ増殖の防止）
+
+### Q7) Publish の一時DL（yt_upload_*.bin）をどう扱う？
+
+現状:
+- `publish_from_sheet.py` は OS temp に `yt_upload_*.bin` を作成し、終了後も自動削除しない。
+- SSOT/README 側は「repo/tmp」前提の記述が混在する。
+
+決めたいこと:
+- 「upload 成功後は削除」を標準にするか？
+- 監査/再送のために保持するなら、置き場を `workspaces/tmp/publish/` 等へ寄せて、ログ（Sheet or log.json）に残すか？

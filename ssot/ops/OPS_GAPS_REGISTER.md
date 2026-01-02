@@ -62,14 +62,18 @@
 ### 実装の現実
 - `scripts/youtube_publisher/publish_from_sheet.py`:
   - 一時DLは `tempfile.mkstemp(prefix="yt_upload_", suffix=".bin")`（=OSの temp dir。repo の `tmp/` ではない）
+- `YT_OAUTH_CLIENT_PATH` は **publish_from_sheet.py では使用していない**（tokenのみ）。クライアントsecretは `scripts/youtube_publisher/oauth_setup.py` が使用する。
 - トークン/クライアントの“代表パス”は README/SSOT/環境変数で表記揺れがある（`YT_OAUTH_TOKEN_PATH` などに収束させる設計だが、文書側が統一されていない）。
+- publish_from_sheet は一時DLした `yt_upload_*.bin` を **自動削除しない**（実行回数に応じてOS tempが肥大化し得る）。
 
 ### 影響
 - cleanup/監査の前提がズレる（「repo/tmp を消す」が意味を持たない）。
 - 初回セットアップで迷子になりやすい。
+- OS temp の肥大化・容量逼迫（長期運用で効く）。
 
 ### 判断ポイント（要意思決定）
 - SSOTを「system temp」に直すか、実装を `workspaces/tmp/` 等へ寄せるか。
+- 一時DLファイルを「アップロード後に削除」するか、「保持して監査/再送に使う」か（保持するなら置き場とログを決める）。
 
 ---
 
@@ -85,4 +89,3 @@
 
 ### 判断ポイント（要意思決定）
 - SSOTに「run_pipelineのcapcutはstub/非推奨」を明記するか、CLI側でガード/廃止するか。
-

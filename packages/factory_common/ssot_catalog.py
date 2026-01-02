@@ -408,8 +408,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
             if ref:
                 impl_refs.append(ref)
 
-        stage_items.append(
-            {
+        step: Dict[str, Any] = {
                 "phase": "B",
                 "node_id": f"B/{name}",
                 "order": idx,
@@ -420,6 +419,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 "template": {
                     "name": tpl_name,
                     "path": tpl_path,
+                    "line": 1,
                 }
                 if tpl_name or tpl_path
                 else None,
@@ -431,7 +431,9 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 },
                 "impl_refs": impl_refs,
             }
-        )
+        if name == "audio_synthesis":
+            step["related_flow"] = "audio_tts"
+        stage_items.append(step)
 
     return {
         "flow_id": "script_pipeline",
@@ -1388,32 +1390,163 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
     publish_path = repo / "scripts" / "youtube_publisher" / "publish_from_sheet.py"
     lines = _safe_read_text(publish_path).splitlines()
 
-    fn_names = [
-        "fetch_rows",
-        "download_drive_file",
-        "upload_youtube",
-        "update_sheet_row",
-        "main",
-    ]
-    desc_by_fn = {
-        "fetch_rows": "Google Sheet から対象行（ready & video_id空）を取得",
-        "download_drive_file": "Drive URL→fileId を解決しローカルへ一時DL",
-        "upload_youtube": "YouTube APIで動画をアップロード",
-        "update_sheet_row": "Sheetへ Status/Video ID/UpdatedAt を書き戻し",
-        "main": "dry-run / --run 実行のオーケストレーション",
-    }
-    steps: List[Dict[str, Any]] = []
-    for idx, fn in enumerate(fn_names, start=1):
-        steps.append(
+    def _mk(line: int | None, symbol: str | None = None) -> Dict[str, Any] | None:
+        return _make_code_ref(repo, publish_path, line, symbol=symbol)
+
+    items: List[Tuple[str, str, str, List[Dict[str, Any] | None], Dict[str, Any] | None]] = [
+        (
+            "G/config_env",
+            "config_env",
+            "\n".join(
+                [
+                    "環境変数/引数から外部SoTを解決する（defaultはdry-run）。",
+                    "- YT_PUBLISH_SHEET_ID / YT_PUBLISH_SHEET_NAME",
+                    "- YT_OAUTH_TOKEN_PATH（OAuth token）",
+                    "- YT_READY_STATUS（既定: ready） / YT_DEFAULT_CATEGORY_ID（既定: 24）",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "parse_args"), symbol="parse_args"),
+                _mk(_find_first_line_containing(lines, "YT_PUBLISH_SHEET_ID"), symbol="env:YT_PUBLISH_SHEET_ID"),
+                _mk(_find_first_line_containing(lines, "YT_OAUTH_TOKEN_PATH"), symbol="env:YT_OAUTH_TOKEN_PATH"),
+            ],
+            None,
+        ),
+        (
+            "G/credentials_and_services",
+            "credentials_and_services",
+            "\n".join(
+                [
+                    "Google OAuth credentials をロードし、Drive/Sheets/YouTube の service を作る。",
+                    "- scopes: drive.readonly + sheets + youtube.upload + youtube",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "load_credentials"), symbol="load_credentials"),
+                _mk(_find_def_line(lines, "build_services"), symbol="build_services"),
+                _mk(_find_first_line_containing(lines, "scopes = ["), symbol="scopes"),
+            ],
+            None,
+        ),
+        (
+            "G/fetch_rows",
+            "fetch_rows",
+            "\n".join(
+                [
+                    "Google Sheet から行を読む（range: A1:X / EXPECTED_COLUMNS を dict 化）。",
+                    "- 以降は Status == target & YouTube Video ID 空の行のみ対象",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "fetch_rows"), symbol="fetch_rows"),
+                _mk(_find_first_line_containing(lines, "EXPECTED_COLUMNS"), symbol="EXPECTED_COLUMNS"),
+            ],
             {
-                "phase": "G",
-                "node_id": f"G/{fn}",
-                "order": idx,
-                "name": fn,
-                "description": desc_by_fn.get(fn, ""),
-                "impl_refs": [r for r in [_make_code_ref(repo, publish_path, _find_def_line(lines, fn), symbol=fn)] if r],
-            }
-        )
+                "outputs": [
+                    {"path": "Google Sheet rows (in-memory)", "required": True},
+                ],
+            },
+        ),
+        (
+            "G/filter_targets",
+            "filter_targets",
+            "\n".join(
+                [
+                    "対象行のフィルタ（Status == ready / video_id空 / Drive(final) URLあり）。",
+                    "- Drive(final) URL → fileId 抽出（/d/<id>）",
+                ]
+            ),
+            [
+                _mk(_find_first_line_containing(lines, "target_status"), symbol="target_status"),
+                _mk(_find_def_line(lines, "extract_drive_file_id"), symbol="extract_drive_file_id"),
+                _mk(_find_first_line_containing(lines, "Drive (final)"), symbol="Drive(final)"),
+            ],
+            None,
+        ),
+        (
+            "G/download_drive_file",
+            "download_drive_file",
+            "\n".join(
+                [
+                    "Drive(final) をローカルへ一時DLする。",
+                    "- tempfile.mkstemp(prefix=yt_upload_, suffix=.bin) を使用（OS temp dir）",
+                    "- 現状: 成功/失敗に関わらず自動削除しない（cleanup方針は要決定）",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "download_drive_file"), symbol="download_drive_file"),
+                _mk(_find_first_line_containing(lines, "tempfile.mkstemp"), symbol="tempfile.mkstemp"),
+            ],
+            {
+                "outputs": [
+                    {"path": "OS temp dir/yt_upload_*.bin", "required": True},
+                ],
+            },
+        ),
+        (
+            "G/upload_youtube",
+            "upload_youtube",
+            "\n".join(
+                [
+                    "YouTube Data API でアップロードする（--run の時のみ）。",
+                    "- Visibility/schedule/ageRestriction/license/tags/category を行から解決",
+                    "- scheduled の場合: privacyStatus=private + publishAt",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "upload_youtube"), symbol="upload_youtube"),
+                _mk(_find_first_line_containing(lines, "MediaFileUpload"), symbol="MediaFileUpload"),
+                _mk(_find_first_line_containing(lines, "videos().insert"), symbol="videos.insert"),
+            ],
+            None,
+        ),
+        (
+            "G/update_sheet_row",
+            "update_sheet_row",
+            "\n".join(
+                [
+                    "アップロード結果を Sheet に書き戻す。",
+                    "- Status(E列)=uploaded / YouTube Video ID(H列) / UpdatedAt(V列)",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "update_sheet_row"), symbol="update_sheet_row"),
+                _mk(_find_first_line_containing(lines, "E{row_number}"), symbol="sheet:E(Status)"),
+                _mk(_find_first_line_containing(lines, "H{row_number}"), symbol="sheet:H(Video ID)"),
+                _mk(_find_first_line_containing(lines, "V{row_number}"), symbol="sheet:V(UpdatedAt)"),
+            ],
+            None,
+        ),
+        (
+            "G/main",
+            "main",
+            "\n".join(
+                [
+                    "dry-run / --run を分岐し、対象行を順に処理する。",
+                    "- max_rows で上限を掛けられる",
+                ]
+            ),
+            [
+                _mk(_find_def_line(lines, "main"), symbol="main"),
+                _mk(_find_first_line_containing(lines, "if args.run"), symbol="flag:--run"),
+            ],
+            None,
+        ),
+    ]
+
+    steps: List[Dict[str, Any]] = []
+    for idx, (node_id, name, desc, refs, extra) in enumerate(items, start=1):
+        step: Dict[str, Any] = {
+            "phase": "G",
+            "node_id": node_id,
+            "order": idx,
+            "name": name,
+            "description": desc,
+            "impl_refs": [r for r in refs if r],
+        }
+        if extra:
+            step.update(extra)
+        steps.append(step)
 
     return {
         "flow_id": "publish",
@@ -1422,7 +1555,8 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
             [
                 "Google Sheet/Drive を外部SoTとして、ローカルDL→YouTube upload→Sheet更新までを行う（default dry-run）。",
                 "- 入口: python3 scripts/youtube_publisher/publish_from_sheet.py [--run]",
-                "- 注意: 一時DLは OS temp dir（tempfile）/ ローカル側の「投稿済みロック」は別系統（要連動検討）",
+                "- 注意: 一時DLは OS temp dir（tempfile）で、現状は自動cleanupしない",
+                "- 注意: ローカル側の「投稿済みロック」は別系統（要連動検討）",
             ]
         ),
         "entrypoints": [
@@ -1431,12 +1565,12 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
         "path": _repo_rel(publish_path, root=repo),
         "sot": [
             {"path": "YT_PUBLISH_SHEET_ID / YT_PUBLISH_SHEET_NAME", "kind": "external", "notes": "Google Sheet (external SoT)"},
-            {"path": "YT_OAUTH_TOKEN_PATH / YT_OAUTH_CLIENT_PATH", "kind": "auth", "notes": "OAuth token/client (local)"},
+            {"path": "YT_OAUTH_TOKEN_PATH", "kind": "auth", "notes": "OAuth token (local)"},
+            {"path": "OS temp dir/yt_upload_*.bin", "kind": "tmp", "notes": "downloaded MP4/bytes (not auto-cleaned)"},
         ],
         "steps": steps,
         "edges": [
-            {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
-            for i in range(0, max(0, len(steps) - 1))
+            {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]} for i in range(0, max(0, len(steps) - 1))
         ],
     }
 
@@ -1444,31 +1578,170 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
 def _planning_catalog(repo: Path) -> Dict[str, Any]:
     lint_path = repo / "scripts" / "ops" / "planning_lint.py"
     idea_path = repo / "scripts" / "ops" / "idea.py"
+    backend_main_path = repo / "apps" / "ui-backend" / "backend" / "main.py"
+    paths_path = repo / "packages" / "factory_common" / "paths.py"
     lint_lines = _safe_read_text(lint_path).splitlines()
     idea_lines = _safe_read_text(idea_path).splitlines()
+    backend_lines = _safe_read_text(backend_main_path).splitlines()
+    paths_lines = _safe_read_text(paths_path).splitlines()
+
+    def _mk(path: Path, line: int | None, symbol: str | None = None) -> Dict[str, Any] | None:
+        return _make_code_ref(repo, path, line, symbol=symbol)
+
+    def _idea_subcmd_line(name: str) -> int | None:
+        pat = re.compile(rf"sub\.add_parser\(\s*['\"]{re.escape(name)}['\"]")
+        return _find_first_line_matching(idea_lines, pat)
 
     steps: List[Dict[str, Any]] = []
     items: List[Tuple[str, str, str, List[Dict[str, Any] | None], Dict[str, Any] | None]] = [
         (
             "A/planning_csv",
             "planning_csv",
-            "Planning SoT: workspaces/planning/channels/*.csv",
-            [],
+            "\n".join(
+                [
+                    "Planning SoT: workspaces/planning/channels/{CH}.csv",
+                    "- 企画/タイトル/タグ/進捗などの正本",
+                    "- 下流: Script Pipeline / Thumbnails / Video(タイトル/帯) / Publish(運用ロック)",
+                ]
+            ),
+            [
+                _mk(paths_path, _find_def_line(paths_lines, "channels_csv_path"), symbol="paths:channels_csv_path"),
+                _mk(paths_path, _find_def_line(paths_lines, "planning_channels_dir"), symbol="paths:planning_channels_dir"),
+            ],
             {"sot": {"path": "workspaces/planning/channels/{CH}.csv"}},
+        ),
+        (
+            "A/persona_doc",
+            "persona_doc",
+            "\n".join(
+                [
+                    "Persona SoT: workspaces/planning/personas/{CH}_PERSONA.md",
+                    "- planning→script pipeline の persona入力の正本",
+                    "- UIからGET/PUT可能（/api/ssot/persona/{channel}）",
+                ]
+            ),
+            [
+                _mk(paths_path, _find_def_line(paths_lines, "persona_path"), symbol="paths:persona_path"),
+                _mk(backend_main_path, _find_def_line(backend_lines, "get_persona_document"), symbol="GET /api/ssot/persona/{channel}"),
+                _mk(backend_main_path, _find_def_line(backend_lines, "update_persona_document"), symbol="PUT /api/ssot/persona/{channel}"),
+            ],
+            {"sot": {"path": "workspaces/planning/personas/{CH}_PERSONA.md"}},
+        ),
+        (
+            "A/planning_template",
+            "planning_template",
+            "\n".join(
+                [
+                    "Planning template SoT: workspaces/planning/templates/{CH}_planning_template.csv",
+                    "- UIの planning create が参照するテンプレ（列/サンプル）",
+                    "- 必須列不足は 400 で停止（事故防止）",
+                ]
+            ),
+            [
+                _mk(backend_main_path, _find_def_line(backend_lines, "get_planning_template"), symbol="GET /api/ssot/templates/{channel}"),
+                _mk(backend_main_path, _find_def_line(backend_lines, "update_planning_template"), symbol="PUT /api/ssot/templates/{channel}"),
+                _mk(backend_main_path, _find_def_line(backend_lines, "_planning_template_path"), symbol="_planning_template_path"),
+            ],
+            {"sot": {"path": "workspaces/planning/templates/{CH}_planning_template.csv"}},
+        ),
+        (
+            "A/api_planning_list",
+            "api:planning_list",
+            "\n".join(
+                [
+                    "UIの planning 一覧/スプレッドシート表示（read）",
+                    "- CSVを読み、planning payload を整形して返す（status.json merge等は別フェーズ）",
+                ]
+            ),
+            [
+                _mk(backend_main_path, _find_def_line(backend_lines, "list_planning_rows"), symbol="GET /api/planning"),
+                _mk(backend_main_path, _find_def_line(backend_lines, "get_planning_spreadsheet"), symbol="GET /api/planning/spreadsheet"),
+            ],
+            None,
+        ),
+        (
+            "A/api_planning_create",
+            "api:planning_create",
+            "\n".join(
+                [
+                    "planning 行を新規作成（write）",
+                    "- required field keys を channel+video から解決して不足を防ぐ",
+                    "- persona/description defaults/template を参照して初期値を埋める",
+                ]
+            ),
+            [
+                _mk(backend_main_path, _find_def_line(backend_lines, "create_planning_entry"), symbol="POST /api/planning"),
+            ],
+            None,
+        ),
+        (
+            "A/api_planning_progress",
+            "api:planning_progress",
+            "進捗（progress）を更新し、CSV行へ反映する（write）。",
+            [
+                _mk(
+                    backend_main_path,
+                    _find_def_line(backend_lines, "update_planning_channel_progress"),
+                    symbol="POST /api/planning/channels/{channel}/{video}/progress",
+                ),
+            ],
+            None,
+        ),
+        (
+            "A/idea_manager",
+            "idea_manager",
+            "\n".join(
+                [
+                    "Idea card manager（pre-planning inventory）。SoT=ideas jsonl を正本に、選定→slot→CSV反映まで行う。",
+                    "- subcommands: add/list/show/normalize/brushup/move/triage/kill/score/dedup/select/slot/archive",
+                    "- slot: planning patches を生成し（任意で apply）、planning CSV を更新する",
+                ]
+            ),
+            [
+                _mk(paths_path, _find_def_line(paths_lines, "ideas_store_path"), symbol="paths:ideas_store_path"),
+                _mk(paths_path, _find_def_line(paths_lines, "planning_patches_root"), symbol="paths:planning_patches_root"),
+                _mk(idea_path, _find_def_line(idea_lines, "build_parser"), symbol="idea:build_parser"),
+                _mk(idea_path, _idea_subcmd_line("slot"), symbol="idea:subcmd_slot"),
+                _mk(idea_path, _find_def_line(idea_lines, "cmd_slot"), symbol="idea:cmd_slot"),
+                _mk(idea_path, _find_def_line(idea_lines, "cmd_select"), symbol="idea:cmd_select"),
+                _mk(idea_path, _find_def_line(idea_lines, "cmd_dedup"), symbol="idea:cmd_dedup"),
+                _mk(idea_path, _find_def_line(idea_lines, "cmd_score"), symbol="idea:cmd_score"),
+                _mk(idea_path, _find_def_line(idea_lines, "cmd_archive"), symbol="idea:cmd_archive"),
+                _mk(idea_path, _find_def_line(idea_lines, "main"), symbol="idea:main"),
+            ],
+            {
+                "sot": {
+                    "path": "workspaces/planning/ideas/{CH}.jsonl",
+                    "outputs": [
+                        "workspaces/planning/patches/**",
+                        "workspaces/logs/regression/idea_manager/**",
+                    ],
+                },
+                "outputs": [
+                    {"path": "workspaces/planning/ideas/{CH}.jsonl", "required": True},
+                    {"path": "workspaces/planning/patches/**", "required": False},
+                    {"path": "workspaces/logs/regression/idea_manager/**", "required": False},
+                ],
+            },
         ),
         (
             "A/planning_lint",
             "planning_lint",
-            "Planning CSV lint（必須カラム/改行等）",
-            [_make_code_ref(repo, lint_path, _find_def_line(lint_lines, "main"), symbol="main")],
-            None,
-        ),
-        (
-            "A/idea_generate",
-            "idea_generate",
-            "Idea生成（jsonl→planning slot）",
-            [_make_code_ref(repo, idea_path, _find_def_line(idea_lines, "main"), symbol="main")],
-            None,
+            "\n".join(
+                [
+                    "Planning CSV lint（必須カラム/改行/タグ整合など）",
+                    "- 出力: workspaces/logs/regression/planning_lint/planning_lint_<label>__*.{json,md}",
+                ]
+            ),
+            [
+                _mk(lint_path, _find_def_line(lint_lines, "main"), symbol="planning_lint:main"),
+                _mk(lint_path, _find_first_line_containing(lint_lines, 'out_dir = logs_root() / "regression" / "planning_lint"'), symbol="planning_lint:out_dir"),
+            ],
+            {
+                "outputs": [
+                    {"path": "workspaces/logs/regression/planning_lint/**", "required": False},
+                ],
+            },
         ),
     ]
     for idx, (node_id, name, desc, refs, extra) in enumerate(items, start=1):
@@ -1497,18 +1770,30 @@ def _planning_catalog(repo: Path) -> Dict[str, Any]:
         ),
         "entrypoints": [
             "UI: /planning",
-            "CLI: python3 scripts/ops/planning_lint.py",
-            "CLI: python3 scripts/ops/idea.py",
+            "API: GET /api/planning / GET /api/planning/spreadsheet / POST /api/planning",
+            "API: POST /api/planning/channels/{channel}/{video}/progress",
+            "API: GET/PUT /api/ssot/persona/{channel}",
+            "API: GET/PUT /api/ssot/templates/{channel}",
+            "CLI: python3 scripts/ops/idea.py <subcommand>",
+            "CLI: python3 scripts/ops/planning_lint.py --channel CHxx|--all",
         ],
         "sot": [
             {"path": "workspaces/planning/channels/{CH}.csv", "kind": "planning_csv", "notes": "planning SoT (titles/tags/etc)"},
-            {"path": "workspaces/planning/personas/CHxx_PERSONA.md", "kind": "persona", "notes": "persona SoT"},
-            {"path": "workspaces/planning/ideas/CHxx.jsonl", "kind": "ideas", "notes": "idea generation log"},
+            {"path": "workspaces/planning/personas/{CH}_PERSONA.md", "kind": "persona", "notes": "persona SoT"},
+            {"path": "workspaces/planning/templates/{CH}_planning_template.csv", "kind": "template", "notes": "planning template CSV"},
+            {"path": "workspaces/planning/ideas/{CH}.jsonl", "kind": "ideas", "notes": "idea cards store (pre-planning SoT)"},
+            {"path": "workspaces/planning/patches/**", "kind": "patches", "notes": "generated planning patches (idea slot)"},
+            {"path": "workspaces/logs/regression/planning_lint/**", "kind": "lint_reports", "notes": "planning lint reports"},
         ],
         "steps": steps,
         "edges": [
-            {"from": steps[i]["node_id"], "to": steps[i + 1]["node_id"]}
-            for i in range(0, max(0, len(steps) - 1))
+            {"from": "A/persona_doc", "to": "A/api_planning_create", "label": "persona→required fields"},
+            {"from": "A/planning_template", "to": "A/api_planning_create", "label": "template→headers"},
+            {"from": "A/api_planning_create", "to": "A/planning_csv", "label": "append row"},
+            {"from": "A/api_planning_progress", "to": "A/planning_csv", "label": "update progress"},
+            {"from": "A/idea_manager", "to": "A/planning_csv", "label": "slot patches"},
+            {"from": "A/planning_csv", "to": "A/api_planning_list", "label": "read"},
+            {"from": "A/planning_csv", "to": "A/planning_lint", "label": "lint"},
         ],
     }
 
