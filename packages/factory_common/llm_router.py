@@ -22,7 +22,7 @@ from factory_common.llm_api_cache import (
     write_cache as _api_cache_write,
 )
 from factory_common.codex_exec_layer import try_codex_exec
-from factory_common.paths import logs_root, repo_root, workspace_root
+from factory_common.paths import logs_root, repo_root, secrets_root
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -88,8 +88,9 @@ def _read_fireworks_keys_file(path: Path) -> List[str]:
 
 
 def _fireworks_keys_file_default() -> Path:
-    # Operator memo convention (untracked): workspaces/_scratch/fireworks_apiメモ
-    return workspace_root() / "_scratch" / "fireworks_apiメモ"
+    # Default secrets file (operator-local, untracked; NOT inside the repo).
+    # Override with FIREWORKS_SCRIPT_KEYS_FILE if needed.
+    return secrets_root() / "fireworks_script_keys.txt"
 
 
 def _fireworks_key_candidates(primary_key: Optional[str]) -> List[str]:
@@ -683,7 +684,7 @@ class LLMRouter:
                 # - Optionally load additional keys from:
                 #   - FIREWORKS_SCRIPT_KEYS (comma-separated)
                 #   - FIREWORKS_SCRIPT_KEYS_FILE (one key per line)
-                #   - workspaces/_scratch/fireworks_apiメモ (default if present)
+                #   - ~/.ytm/secrets/fireworks_script_keys.txt (default)
                 self._fireworks_keys = _fireworks_key_candidates(key)
                 self._fireworks_key_index = 0
                 self._fireworks_dead_keys = set()

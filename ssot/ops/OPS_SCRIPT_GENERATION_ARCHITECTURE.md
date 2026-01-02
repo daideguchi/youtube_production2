@@ -171,6 +171,8 @@ SSOT配置（正本）:
 - Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
   - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
   - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
+    - 既定キーファイル: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
+    - 追加/整形: `python3 scripts/ops/fireworks_keyring.py add --key ...`（キーは表示しない）
   - それでも全滅した場合は `LLM_API_FAILOVER_TO_THINK=1`（既定）により pending が生成され、runbookに従って手動で完了できる。
 
 観測（比較で迷わない）:

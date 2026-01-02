@@ -2,7 +2,8 @@
 
 ## 原則
 - 秘密鍵はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
-- `.env.example` をベースに必要キーを埋める。既にシェルで export 済みの値があればそちらが優先される。
+- `.env.example` をベースに必要キーを埋める。
+  - 注: LLMRouter は `.env` を `override=True` で読み込むため、**シェルで export 済みでも `.env` が優先**される。
 - グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
 
 ## 主な必須キー（抜粋）
@@ -11,7 +12,8 @@
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（任意・推奨）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
-      - 既定探索: `workspaces/_scratch/fireworks_apiメモ` が存在する場合は自動で読み込む（untracked 推奨）。
+      - 既定探索: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
+      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py add --key ...`（キーは表示しない）
     - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
       - それでも全滅した場合は停止（`LLM_API_FAILOVER_TO_THINK` の挙動に従い pending を作る）。

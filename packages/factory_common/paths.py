@@ -250,3 +250,26 @@ def assets_root() -> Path:
 
 def logs_root() -> Path:
     return workspace_root() / "logs"
+
+
+# ---------------------------------------------------------------------------
+# Secrets (operator local, untracked)
+# ---------------------------------------------------------------------------
+
+
+@lru_cache(maxsize=1)
+def secrets_root() -> Path:
+    """
+    Root for operator-local secrets/config that must NOT be stored in the repo.
+
+    Env override:
+      - YTM_SECRETS_ROOT
+      - FACTORY_SECRETS_ROOT (compat)
+
+    Default:
+      - ~/.ytm/secrets
+    """
+    override = os.getenv("YTM_SECRETS_ROOT") or os.getenv("FACTORY_SECRETS_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    return Path.home() / ".ytm" / "secrets"
