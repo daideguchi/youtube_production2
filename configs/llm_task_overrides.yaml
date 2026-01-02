@@ -1,6 +1,7 @@
 # Optional task overrides for LLMRouter
 # ここで task ごとに tier/models/options/system_prompt を上書きできる。
 # 未設定の場合は llm_router.yaml の定義を使用する。
+
 tasks:
   # NOTE:
   # - Script pipeline (台本) 系の task は Azure/GPT 系へ流さない（固定ルール）。
@@ -32,8 +33,8 @@ tasks:
   #   When provider=fireworks, the router translates `reasoning.enabled` -> Fireworks `reasoning_effort` (thinking ON),
   #   and emulates `exclude: true` by extracting the final output after a marker (so chain-of-thought won't pollute output).
   #   When provider=openrouter, the router forwards it only for allowlisted models (V3.2 exp / Kimi K2 Thinking).
-  # - NOTE: OpenRouter fallback is intentionally disabled by default in this repo (quota/credits 402 対策).
-  #   Fireworks 側が失敗した場合は、THINK MODE キューへフォールバックする（runbook に従う）。
+  # - NOTE: OpenRouter fallback is intentionally disabled for script-writing in this repo.
+  #   Fireworks 側が失敗した場合は、その時点で停止（THINK MODE キューに pending を作る / runbook に従う）。
 
   # Planning steps: prefer V3.2(exp)+thinking; fall back to Kimi K2 Thinking.
   script_outline:
@@ -121,6 +122,15 @@ tasks:
         reasoning:
           enabled: true
           exclude: true
+
+  # Formatting pass (keep Fireworks-only; do not fall back to other providers).
+  script_format:
+    tier: heavy_reasoning
+    models:
+      - or_deepseek_v3_2_exp
+    options:
+      temperature: 0.0
+      max_tokens: 2000
 
   # Seed→Expand seed generation (one-shot short A-text).
   script_a_text_seed:

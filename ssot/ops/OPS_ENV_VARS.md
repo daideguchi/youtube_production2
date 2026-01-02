@@ -9,6 +9,12 @@
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
 - Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / 推奨。互換: `FIREWORKS_API_KEY`）
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
+  - キーローテ（任意・推奨）:
+    - `FIREWORKS_SCRIPT_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
+      - 既定探索: `workspaces/_scratch/fireworks_apiメモ` が存在する場合は自動で読み込む（untracked 推奨）。
+    - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
+    - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
+      - それでも全滅した場合は停止（`LLM_API_FAILOVER_TO_THINK` の挙動に従い pending を作る）。
 - OpenRouter: `OPENROUTER_API_KEY`（LLMRouter provider=openrouter 用）
 - OpenAI（任意）: `OPENAI_API_KEY`（openai provider を使う場合のみ）
 - Azure（任意）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）
@@ -118,7 +124,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `SCRIPT_VALIDATION_QUALITY_JUDGE_TASK`（default: `script_a_text_quality_judge`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_FIX_TASK`（default: `script_a_text_quality_fix`）: LLMルーターの task key。
 - `SCRIPT_VALIDATION_QUALITY_EXTEND_TASK`（default: `script_a_text_quality_extend`）: 字数不足のみを「追記専用」で救済する task key。
-- `SCRIPT_VALIDATION_AUTO_LENGTH_FIX`（deprecated/ignored）: 字数だけNGを「自動で増補/圧縮して通す」運用は禁止のため、このフラグは **無視**（本文は自動書き換えしない。レンジ外は停止→要リライト）。
+- `SCRIPT_VALIDATION_AUTO_LENGTH_FIX`（default: `0`）: ハードNGが **`length_too_long` のみ**のとき、緊急縮小（shrink）で救済する（危険なので既定OFF）。
 - `SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL`（default: `0`）: Fixerで収束しない場合に、最終手段として「設計→再執筆（Rebuild）」を試す。無効化は `0`（既定OFF）。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK`（default: `script_a_text_rebuild_plan`）: Rebuildの「設計図（JSON）生成」task key。
 - `SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK`（default: `script_a_text_rebuild_draft`）: Rebuildの「本文生成」task key。

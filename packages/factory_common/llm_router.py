@@ -22,7 +22,7 @@ from factory_common.llm_api_cache import (
     write_cache as _api_cache_write,
 )
 from factory_common.codex_exec_layer import try_codex_exec
-from factory_common.paths import logs_root, repo_root
+from factory_common.paths import logs_root, repo_root, workspace_root
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -34,6 +34,87 @@ DEFAULT_FALLBACK_POLICY = {
     "max_total_wait_sec": 0,
 }
 TRANSIENT_STATUSES = set(DEFAULT_FALLBACK_POLICY["transient_statuses"])
+
+# ---------------------------------------------------------------------------
+# Fireworks key rotation (same provider, multi-key)
+# ---------------------------------------------------------------------------
+
+
+def _dedupe_keep_order(items: List[str]) -> List[str]:
+    out: List[str] = []
+    seen = set()
+    for it in items:
+        s = str(it or "").strip()
+        if not s or s in seen:
+            continue
+        out.append(s)
+        seen.add(s)
+    return out
+
+
+def _read_fireworks_keys_file(path: Path) -> List[str]:
+    """
+    Read a Fireworks API key list file.
+
+    Supported formats:
+    - One key per line (recommended)
+    - ENV-like: FIREWORKS_SCRIPT=... (value extracted)
+    - Comments via leading '#'
+
+    IMPORTANT: This function must never print keys.
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return []
+
+    keys: List[str] = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" in line:
+            _left, right = line.split("=", 1)
+            line = right.strip()
+        # Stored as ASCII tokens (no spaces).
+        if " " in line or "\t" in line:
+            continue
+        if not all(ord(ch) < 128 for ch in line):
+            continue
+        if len(line) < 16:
+            continue
+        keys.append(line)
+    return _dedupe_keep_order(keys)
+
+
+def _fireworks_keys_file_default() -> Path:
+    # Operator memo convention (untracked): workspaces/_scratch/fireworks_apiメモ
+    return workspace_root() / "_scratch" / "fireworks_apiメモ"
+
+
+def _fireworks_key_candidates(primary_key: Optional[str]) -> List[str]:
+    keys: List[str] = []
+    if primary_key:
+        keys.append(primary_key)
+
+    # Optional comma-separated keys (no whitespace).
+    raw_list = (os.getenv("FIREWORKS_SCRIPT_KEYS") or "").strip()
+    if raw_list:
+        for part in raw_list.split(","):
+            tok = part.strip()
+            if tok:
+                keys.append(tok)
+
+    raw_file = (os.getenv("FIREWORKS_SCRIPT_KEYS_FILE") or "").strip()
+    if raw_file:
+        p = Path(raw_file).expanduser().resolve()
+        keys.extend(_read_fireworks_keys_file(p))
+    else:
+        p = _fireworks_keys_file_default()
+        if p.exists():
+            keys.extend(_read_fireworks_keys_file(p))
+
+    return _dedupe_keep_order(keys)
 
 # HTTPステータスを例外から推測するための簡易ヘルパ
 def _extract_status(exc: Exception) -> Optional[int]:
@@ -596,11 +677,22 @@ class LLMRouter:
             if not key and key_name == "FIREWORKS_SCRIPT_API_KEY":
                 key = os.getenv("FIREWORKS_SCRIPT")
             base = p.get("base_url")
-            if key and base and OpenAI:
-                try:
-                    self.clients["fireworks"] = OpenAI(api_key=key, base_url=base)
-                except TypeError:
-                    self.clients["fireworks"] = OpenAI(api_key=key, base_url=str(base))
+            if base and OpenAI:
+                # Fireworks key rotation (same provider only):
+                # - Use the explicitly set key first (FIREWORKS_SCRIPT / FIREWORKS_SCRIPT_API_KEY).
+                # - Optionally load additional keys from:
+                #   - FIREWORKS_SCRIPT_KEYS (comma-separated)
+                #   - FIREWORKS_SCRIPT_KEYS_FILE (one key per line)
+                #   - workspaces/_scratch/fireworks_apiメモ (default if present)
+                self._fireworks_keys = _fireworks_key_candidates(key)
+                self._fireworks_key_index = 0
+                self._fireworks_dead_keys = set()
+                chosen = (self._fireworks_keys[0] if self._fireworks_keys else key)
+                if chosen:
+                    try:
+                        self.clients["fireworks"] = OpenAI(api_key=chosen, base_url=base)
+                    except TypeError:
+                        self.clients["fireworks"] = OpenAI(api_key=chosen, base_url=str(base))
 
         # Gemini
         if "gemini" in providers:
@@ -609,6 +701,45 @@ class LLMRouter:
             if key and genai:
                 genai.configure(api_key=key)
                 self.clients["gemini"] = "configured" # Client is static
+
+    def _fireworks_mark_current_key_dead(self) -> None:
+        keys = getattr(self, "_fireworks_keys", None)
+        dead = getattr(self, "_fireworks_dead_keys", None)
+        idx = getattr(self, "_fireworks_key_index", None)
+        if not isinstance(keys, list) or not isinstance(dead, set) or not isinstance(idx, int):
+            return
+        if 0 <= idx < len(keys):
+            dead.add(keys[idx])
+
+    def _fireworks_rotate_client(self) -> Optional[Any]:
+        """
+        Rotate to the next available Fireworks API key (same provider).
+        Returns the new OpenAI client, or None if no key is available.
+        """
+        keys = getattr(self, "_fireworks_keys", None)
+        dead = getattr(self, "_fireworks_dead_keys", None)
+        idx = getattr(self, "_fireworks_key_index", None)
+        if not (OpenAI and isinstance(keys, list) and keys and isinstance(dead, set) and isinstance(idx, int)):
+            return None
+
+        fw_conf = (self.config.get("providers", {}) or {}).get("fireworks", {}) if isinstance(self.config, dict) else {}
+        base_url = fw_conf.get("base_url")
+        if not base_url:
+            return None
+
+        for step in range(1, len(keys) + 1):
+            ni = (idx + step) % len(keys)
+            k = keys[ni]
+            if not k or k in dead:
+                continue
+            try:
+                new_client = OpenAI(api_key=k, base_url=base_url)
+            except TypeError:
+                new_client = OpenAI(api_key=k, base_url=str(base_url))
+            self._fireworks_key_index = ni
+            self.clients["fireworks"] = new_client
+            return new_client
+        return None
 
     def get_models_for_task(self, task: str, *, model_keys_override: Optional[List[str]] = None) -> List[str]:
         # Runtime overrides (CLI/UI):
@@ -1670,7 +1801,28 @@ class LLMRouter:
             if provider == "fireworks" and api_args.get("stream") is True:
                 from types import SimpleNamespace
 
-                stream = client.chat.completions.create(model=model_name, messages=messages, **api_args)
+                fw_client = client
+                last_exc: Optional[Exception] = None
+                attempts = max(1, int(len(getattr(self, "_fireworks_keys", []) or [])))
+                for _ in range(attempts):
+                    try:
+                        stream = fw_client.chat.completions.create(model=model_name, messages=messages, **api_args)
+                        client = fw_client
+                        break
+                    except Exception as exc:
+                        last_exc = exc
+                        status = _extract_status(exc)
+                        if provider == "fireworks" and status in {401, 402, 403, 404, 412}:
+                            self._fireworks_mark_current_key_dead()
+                            nxt = self._fireworks_rotate_client()
+                            if nxt is not None:
+                                fw_client = nxt
+                                continue
+                        raise
+                else:
+                    if last_exc is not None:
+                        raise last_exc
+                    raise RuntimeError("Fireworks streaming request failed")
                 parts: List[str] = []
                 finish_reason = None
                 last_id = None
@@ -1754,7 +1906,33 @@ class LLMRouter:
                 choice = SimpleNamespace(message=msg, finish_reason=finish_reason)
                 response = SimpleNamespace(id=last_id, model=last_model, choices=[choice], usage=usage)
             else:
-                response = client.chat.completions.create(model=model_name, messages=messages, **api_args)
+                if provider == "fireworks":
+                    fw_client = client
+                    last_exc: Optional[Exception] = None
+                    attempts = max(1, int(len(getattr(self, "_fireworks_keys", []) or [])))
+                    for _ in range(attempts):
+                        try:
+                            response = fw_client.chat.completions.create(
+                                model=model_name, messages=messages, **api_args
+                            )
+                            client = fw_client
+                            break
+                        except Exception as exc:
+                            last_exc = exc
+                            status = _extract_status(exc)
+                            if status in {401, 402, 403, 404, 412}:
+                                self._fireworks_mark_current_key_dead()
+                                nxt = self._fireworks_rotate_client()
+                                if nxt is not None:
+                                    fw_client = nxt
+                                    continue
+                            raise
+                    else:
+                        if last_exc is not None:
+                            raise last_exc
+                        raise RuntimeError("Fireworks request failed")
+                else:
+                    response = client.chat.completions.create(model=model_name, messages=messages, **api_args)
             if return_raw:
                 return response
             content = response.choices[0].message.content

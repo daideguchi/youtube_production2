@@ -168,6 +168,10 @@ SSOT配置（正本）:
 モデルキー（例: Fireworks / 比較用。正本は `configs/llm_router.yaml:models`）:
 - 既定（本文）: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek v3.2 exp, thinking ON）
 - 比較候補: `fw_glm_4p7`（Fireworks / GLM-4.7）, `fw_mixtral_8x22b_instruct`（Fireworks / Mistral系Mixtral）
+- Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
+  - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
+  - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
+  - それでも全滅した場合は `LLM_API_FAILOVER_TO_THINK=1`（既定）により pending が生成され、runbookに従って手動で完了できる。
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。
@@ -181,6 +185,8 @@ SSOT配置（正本）:
 2. パターン選択（`OPS_SCRIPT_PATTERNS.yaml`）
 3. パターンプランに沿ってAテキスト生成（1回）
 4. ハード禁則検査（URL/箇条書き/区切り/字数など）
+   - 既定では「字数だけNG」を自動で水増し/圧縮して通す運用はしない（止める）。
+   - 緊急時のみ `SCRIPT_VALIDATION_AUTO_LENGTH_FIX=1` で `length_too_long` を shrink で救済できる（危険・既定OFF）。
 5. LLM Judgeで「内容」合否（流れ・水増し・作り話感・整合）
 6. failならFixerで最小修正→再Judge（ここで止める）
 7. OK台本のみ音声（VOICEVOX等）へ進む
