@@ -1859,6 +1859,7 @@ export interface SsotCatalogFlowStep {
   order?: number;
   name: string;
   description?: string;
+  related_flow?: string;
   outputs?: unknown[];
   llm?: Record<string, unknown>;
   template?: { name?: string; path?: string; line?: number } | null;

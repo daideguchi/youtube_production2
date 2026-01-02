@@ -48,6 +48,214 @@
   word-break: break-word;
 }
 
+.ssot-map .ssot-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.ssot-map .ssot-timeline-step {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.ssot-map .ssot-timeline-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.ssot-map .ssot-timeline-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  margin-top: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-muted);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.ssot-map .ssot-timeline-dottext {
+  line-height: 1;
+  transform: translateY(0.5px);
+}
+
+.ssot-map .ssot-timeline-dot.is-selected {
+  background: rgba(29, 78, 216, 0.16);
+  border-color: rgba(29, 78, 216, 0.85);
+}
+
+.ssot-map .ssot-timeline-dot.is-exec {
+  background: rgba(14, 165, 233, 0.18);
+  border-color: rgba(14, 165, 233, 0.85);
+}
+
+.ssot-map .ssot-timeline-dot.is-match {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.90);
+}
+
+.ssot-map .ssot-timeline-line {
+  flex: 1;
+  width: 2px;
+  margin-top: 8px;
+  background: var(--color-border-muted);
+  border-radius: 999px;
+}
+
+.ssot-map .ssot-timeline-card {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 14px;
+  padding: 12px 12px;
+  background: var(--color-surface);
+  color: #0f172a;
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.ssot-map .ssot-timeline-card:hover {
+  border-color: rgba(29, 78, 216, 0.35);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+}
+
+.ssot-map .ssot-timeline-card.is-selected {
+  border-color: rgba(29, 78, 216, 0.85);
+  background: #eff6ff;
+  box-shadow: 0 12px 28px rgba(29, 78, 216, 0.14);
+}
+
+.ssot-map .ssot-timeline-card.is-exec {
+  border-color: rgba(14, 165, 233, 0.55);
+  background: #ecfeff;
+}
+
+.ssot-map .ssot-timeline-card.is-match {
+  border-color: rgba(245, 158, 11, 0.60);
+  background: #fffbeb;
+}
+
+.ssot-map .ssot-timeline-header {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.ssot-map .ssot-timeline-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+.ssot-map .ssot-timeline-title {
+  flex: 1 1 0;
+  font-weight: 900;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssot-map .ssot-timeline-exec {
+  flex: none;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  background: rgba(14, 165, 233, 0.10);
+  color: rgba(2, 132, 199, 0.95);
+}
+
+.ssot-map .ssot-timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.ssot-map .ssot-timeline-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.04);
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ssot-map .ssot-timeline-tag__label {
+  opacity: 0.7;
+  font-weight: 900;
+}
+
+.ssot-map .ssot-timeline-tag > span {
+  min-width: 0;
+}
+
+.ssot-map .ssot-timeline-tag--code {
+  border-color: rgba(100, 116, 139, 0.30);
+  background: rgba(100, 116, 139, 0.10);
+  color: #0f172a;
+}
+
+.ssot-map .ssot-timeline-tag--llm {
+  border-color: rgba(29, 78, 216, 0.30);
+  background: rgba(29, 78, 216, 0.10);
+  color: #1e3a8a;
+}
+
+.ssot-map .ssot-timeline-tag--image {
+  border-color: rgba(16, 185, 129, 0.30);
+  background: rgba(16, 185, 129, 0.10);
+  color: #064e3b;
+}
+
+.ssot-map .ssot-timeline-desc {
+  color: #334155;
+  line-height: 1.65;
+  font-size: 13px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ssot-map .ssot-timeline-foot {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+}
+
 .ssot-map .ssot-graph-split {
   display: grid;
   grid-template-columns: 1fr;

@@ -115,6 +115,20 @@ function domIdForNode(nodeId: string): string {
   return `ssot-node-${safe || "unknown"}`;
 }
 
+function domIdForTimelineNode(nodeId: string): string {
+  const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
+  return `ssot-timeline-${safe || "unknown"}`;
+}
+
+function shortUiPath(path: string, keepParts = 3): string {
+  const raw = String(path || "").trim();
+  if (!raw) return "";
+  const normalized = raw.replace(/\\/g, "/");
+  const parts = normalized.split("/").filter(Boolean);
+  if (parts.length <= keepParts) return normalized;
+  return parts.slice(-keepParts).join("/");
+}
+
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
@@ -127,6 +141,7 @@ const GRAPH_ZOOM_STEP = 0.05;
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
+  const [flowView, setFlowView] = useState<"timeline" | "graph">("timeline");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [graphScale, setGraphScale] = useState(1);
@@ -137,6 +152,8 @@ export function SsotSystemMap() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
+  const timelineViewportRef = useRef<HTMLDivElement | null>(null);
+  const pendingFocusNodeIdRef = useRef<string | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
@@ -193,6 +210,54 @@ export function SsotSystemMap() {
     if (flow === "publish") return catalog.flows.publish?.edges || [];
     return [];
   }, [catalog, flow]);
+
+  const nodesForFlowKey = useCallback((k: FlowKey): SsotCatalogFlowStep[] => {
+    if (!catalog) return [];
+    if (k === "mainline") return catalog.mainline.nodes || [];
+    if (k === "planning") return catalog.flows.planning?.steps || [];
+    if (k === "script_pipeline") return catalog.flows.script_pipeline?.steps || [];
+    if (k === "audio_tts") return catalog.flows.audio_tts?.steps || [];
+    if (k === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.steps || [];
+    if (k === "video_srt2images") return catalog.flows.video_srt2images?.steps || [];
+    if (k === "thumbnails") return catalog.flows.thumbnails?.steps || [];
+    if (k === "publish") return catalog.flows.publish?.steps || [];
+    return [];
+  }, [catalog]);
+
+  const firstNodeIdForFlowKey = useCallback((k: FlowKey): string | null => {
+    const list = nodesForFlowKey(k)
+      .slice()
+      .sort((a, b) => {
+        const ao = typeof a.order === "number" ? a.order : 0;
+        const bo = typeof b.order === "number" ? b.order : 0;
+        if (ao !== bo) return ao - bo;
+        return (a.node_id || "").localeCompare(b.node_id || "");
+      });
+    return list[0]?.node_id || null;
+  }, [nodesForFlowKey]);
+
+  const openFlow = useCallback((k: FlowKey) => {
+    const first = firstNodeIdForFlowKey(k);
+    setFlow(k);
+    if (first) {
+      setSelectedNodeId(first);
+      pendingFocusNodeIdRef.current = first;
+    } else {
+      setSelectedNodeId(null);
+      pendingFocusNodeIdRef.current = null;
+    }
+  }, [firstNodeIdForFlowKey]);
+
+  const orderedNodes = useMemo(() => {
+    return nodes
+      .slice()
+      .sort((a, b) => {
+        const ao = typeof a.order === "number" ? a.order : 0;
+        const bo = typeof b.order === "number" ? b.order : 0;
+        if (ao !== bo) return ao - bo;
+        return (a.node_id || "").localeCompare(b.node_id || "");
+      });
+  }, [nodes]);
 
   const mainlineTaskSets = useMemo(() => {
     if (!catalog) return {} as Record<string, Set<string>>;
@@ -522,6 +587,29 @@ export function SsotSystemMap() {
     container.scrollTop += dy;
   }, []);
 
+  const scrollTimelineToNode = useCallback((nodeId: string) => {
+    const container = timelineViewportRef.current;
+    if (!container) return;
+    const el = container.querySelector(`#${domIdForTimelineNode(nodeId)}`) as HTMLElement | null;
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, []);
+
+  const focusOnNode = useCallback(
+    (nodeId: string) => {
+      if (flowView === "graph") centerOnNode(nodeId);
+      else scrollTimelineToNode(nodeId);
+    },
+    [centerOnNode, flowView, scrollTimelineToNode],
+  );
+
+  useEffect(() => {
+    const id = pendingFocusNodeIdRef.current;
+    if (!id) return;
+    pendingFocusNodeIdRef.current = null;
+    requestAnimationFrame(() => focusOnNode(id));
+  }, [flow, flowView, focusOnNode]);
+
   const traceStartNodeId = useMemo(() => {
     if (!traceLoadedKey) return null;
     const entries = Object.entries(executedByNodeId || {});
@@ -684,6 +772,11 @@ export function SsotSystemMap() {
     return nodes.filter((n) => `${n.node_id} ${n.name} ${n.description || ""}`.toLowerCase().includes(q));
   }, [keyword, nodes]);
 
+  const matchedNodeIds = useMemo(() => {
+    if (!keyword.trim()) return new Set<string>();
+    return new Set(filteredNodes.map((n) => n.node_id));
+  }, [filteredNodes, keyword]);
+
   const selectedNode = useMemo(() => {
     if (!selectedNodeId) return null;
     return nodes.find((n) => n.node_id === selectedNodeId) ?? null;
@@ -691,7 +784,7 @@ export function SsotSystemMap() {
 
   const selectedRelatedFlow = useMemo<FlowKey | null>(() => {
     if (!selectedNode) return null;
-    const raw = (selectedNode as any)?.related_flow;
+    const raw = selectedNode.related_flow;
     const v = typeof raw === "string" ? raw.trim() : "";
     if (!v) return null;
     if (v === "mainline") return "mainline";
@@ -916,7 +1009,7 @@ export function SsotSystemMap() {
                   className="research-entry"
                   onClick={() => {
                     setSelectedNodeId(n.node_id);
-                    centerOnNode(n.node_id);
+                    focusOnNode(n.node_id);
                   }}
                   style={{ borderColor: selectedNodeId === n.node_id ? "var(--color-primary)" : undefined }}
                 >
@@ -943,52 +1036,66 @@ export function SsotSystemMap() {
           <div style={{ display: "grid", gap: 14 }}>
             <section className="shell-panel shell-panel--placeholder">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                <h3 style={{ marginTop: 0 }}>Flow Graph</h3>
+                <h3 style={{ marginTop: 0 }}>Flow</h3>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    className={`research-chip ${orientation === "horizontal" ? "is-active" : ""}`}
-                    onClick={() => setOrientation("horizontal")}
-                  >
-                    横
+                  <button type="button" className={`research-chip ${flowView === "timeline" ? "is-active" : ""}`} onClick={() => setFlowView("timeline")}>
+                    Timeline
                   </button>
-                  <button
-                    type="button"
-                    className={`research-chip ${orientation === "vertical" ? "is-active" : ""}`}
-                    onClick={() => setOrientation("vertical")}
-                  >
-                    縦
+                  <button type="button" className={`research-chip ${flowView === "graph" ? "is-active" : ""}`} onClick={() => setFlowView("graph")}>
+                    Graph
                   </button>
-                  <button
-                    type="button"
-                    className={`research-chip ${autoFit ? "is-active" : ""}`}
-                    onClick={() => setAutoFit((v) => !v)}
-                    title="ONの間は表示領域に合わせて自動で拡大縮小します"
-                  >
-                    AutoFit
-                  </button>
-                  <button type="button" className="research-chip" onClick={zoomOut}>
-                    −
-                  </button>
-                  <button type="button" className="research-chip" onClick={zoomReset}>
-                    {graphScale.toFixed(2)}x
-                  </button>
-                  <button type="button" className="research-chip" onClick={zoomIn}>
-                    +
-                  </button>
-                  <button type="button" className="research-chip" onClick={zoomFit}>
-                    Fit
-                  </button>
-                  <button type="button" className="research-chip" onClick={() => selectedNodeId && centerOnNode(selectedNodeId)} disabled={!selectedNodeId}>
-                    Center
-                  </button>
+                  {flowView === "graph" ? (
+                    <>
+                      <button
+                        type="button"
+                        className={`research-chip ${orientation === "horizontal" ? "is-active" : ""}`}
+                        onClick={() => setOrientation("horizontal")}
+                      >
+                        横
+                      </button>
+                      <button
+                        type="button"
+                        className={`research-chip ${orientation === "vertical" ? "is-active" : ""}`}
+                        onClick={() => setOrientation("vertical")}
+                      >
+                        縦
+                      </button>
+                      <button
+                        type="button"
+                        className={`research-chip ${autoFit ? "is-active" : ""}`}
+                        onClick={() => setAutoFit((v) => !v)}
+                        title="ONの間は表示領域に合わせて自動で拡大縮小します"
+                      >
+                        AutoFit
+                      </button>
+                      <button type="button" className="research-chip" onClick={zoomOut}>
+                        −
+                      </button>
+                      <button type="button" className="research-chip" onClick={zoomReset}>
+                        {graphScale.toFixed(2)}x
+                      </button>
+                      <button type="button" className="research-chip" onClick={zoomIn}>
+                        +
+                      </button>
+                      <button type="button" className="research-chip" onClick={zoomFit}>
+                        Fit
+                      </button>
+                      <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
+                        Center
+                      </button>
+                    </>
+                  ) : (
+                    <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
+                      Scroll
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="research-chip"
                     onClick={() => {
                       if (!traceStartNodeId) return;
                       setSelectedNodeId(traceStartNodeId);
-                      centerOnNode(traceStartNodeId);
+                      focusOnNode(traceStartNodeId);
                     }}
                     disabled={!traceStartNodeId}
                     title="Traceの最初に実行されたノードへ移動します"
@@ -1139,7 +1246,7 @@ export function SsotSystemMap() {
                                 type="button"
                                 onClick={() => {
                                   setSelectedNodeId(s.node_id);
-                                  centerOnNode(s.node_id);
+                                  focusOnNode(s.node_id);
                                 }}
                                 style={{
                                   border: `1px solid ${selectedNodeId === s.node_id ? "rgba(29, 78, 216, 0.55)" : "var(--color-border-muted)"}`,
@@ -1282,58 +1389,215 @@ export function SsotSystemMap() {
                 </div>
               </details>
               <div className={`ssot-graph-split${focusMode ? "" : " ssot-graph-split--single"}`} style={{ marginTop: 10 }}>
-                <div
-                  ref={graphViewportRef}
-                  onMouseDown={beginPan}
-                  onMouseMove={movePan}
-                  onMouseUp={endPan}
-                  onMouseLeave={endPan}
-                  style={{
-                    border: "1px solid var(--color-border-muted)",
-                    borderRadius: 14,
-                    background: "var(--color-surface-subtle)",
-                    overflow: "auto",
-                    height: "65vh",
-                    minHeight: 360,
-                    maxHeight: 860,
-                    cursor: isPanning ? "grabbing" : "grab",
-                    userSelect: "none",
-                    minWidth: 0,
-                  }}
-                >
+                {flowView === "graph" ? (
                   <div
+                    ref={graphViewportRef}
+                    onMouseDown={beginPan}
+                    onMouseMove={movePan}
+                    onMouseUp={endPan}
+                    onMouseLeave={endPan}
                     style={{
-                      position: "relative",
-                      width: graphSize.width * graphScale,
-                      height: graphSize.height * graphScale,
+                      border: "1px solid var(--color-border-muted)",
+                      borderRadius: 14,
+                      background: "var(--color-surface-subtle)",
+                      overflow: "auto",
+                      height: "65vh",
+                      minHeight: 360,
+                      maxHeight: 860,
+                      cursor: isPanning ? "grabbing" : "grab",
+                      userSelect: "none",
+                      minWidth: 0,
                     }}
                   >
                     <div
                       style={{
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        transform: `scale(${graphScale})`,
-                        transformOrigin: "top left",
+                        position: "relative",
+                        width: graphSize.width * graphScale,
+                        height: graphSize.height * graphScale,
                       }}
                     >
-                      <SsotFlowGraph
-                        steps={nodes}
-                        edges={edges}
-                        selectedNodeId={selectedNodeId}
-                        onSelect={(id) => {
-                          setSelectedNodeId(id);
-                          centerOnNode(id);
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          transform: `scale(${graphScale})`,
+                          transformOrigin: "top left",
                         }}
-                        orientation={orientation}
-                        highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
-                        onSize={handleGraphSize}
-                        executed={traceLoadedKey ? executedByNodeId : undefined}
-                        executedEdges={traceLoadedKey ? executedEdges : undefined}
-                      />
+                      >
+                        <SsotFlowGraph
+                          steps={nodes}
+                          edges={edges}
+                          selectedNodeId={selectedNodeId}
+                          onSelect={(id) => {
+                            setSelectedNodeId(id);
+                            focusOnNode(id);
+                          }}
+                          orientation={orientation}
+                          highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
+                          onSize={handleGraphSize}
+                          executed={traceLoadedKey ? executedByNodeId : undefined}
+                          executedEdges={traceLoadedKey ? executedEdges : undefined}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div
+                    ref={timelineViewportRef}
+                    style={{
+                      border: "1px solid var(--color-border-muted)",
+                      borderRadius: 14,
+                      background: "var(--color-surface-subtle)",
+                      overflow: "auto",
+                      height: "65vh",
+                      minHeight: 360,
+                      maxHeight: 860,
+                      padding: 12,
+                      minWidth: 0,
+                    }}
+                  >
+                    <div className="ssot-timeline">
+                      {orderedNodes.map((s, idx) => {
+                        const isSelected = selectedNodeId === s.node_id;
+                        const isMatch = matchedNodeIds.has(s.node_id);
+                        const exec = traceLoadedKey ? executedByNodeId[s.node_id] : undefined;
+                        const isExec = Boolean(exec);
+
+                        const order = typeof s.order === "number" ? String(s.order).padStart(2, "0") : "";
+                        const badge = s.phase && order ? `${s.phase}-${order}` : s.phase || "";
+
+                        const llm = s.llm as any;
+                        const task = llm?.task ? String(llm.task) : "";
+                        const kind = llm?.kind ? String(llm.kind) : "";
+                        const mode = task ? (kind === "image_client" ? "IMAGE" : "LLM") : "CODE";
+                        const taskDefs = kind === "image_client" ? ((catalog as any)?.image?.task_defs || {}) : ((catalog as any)?.llm?.task_defs || {});
+                        const taskDef = task ? (taskDefs[task] as any) : null;
+                        const resolved = Array.isArray(taskDef?.resolved_models) ? (taskDef.resolved_models[0] as any) : null;
+                        const resolvedLabel = resolved
+                          ? (() => {
+                              const provider = resolved?.provider ? String(resolved.provider) : "";
+                              const model = resolved?.model_name ? String(resolved.model_name) : resolved?.key ? String(resolved.key) : "";
+                              const dep = resolved?.deployment ? String(resolved.deployment) : "";
+                              const base = provider && model ? `${provider}:${model}` : model || provider;
+                              return base ? `${base}${dep ? `(${dep})` : ""}` : "";
+                            })()
+                          : "";
+
+                        const tpl = (s as any)?.template as any;
+                        const tplPath = tpl?.path ? String(tpl.path) : "";
+                        const tplLine = typeof tpl?.line === "number" ? Number(tpl.line) : null;
+                        const sotPath = (s as any)?.sot?.path ? String((s as any).sot.path) : "";
+
+                        const outputsAll = parseOutputDecls(s.outputs);
+                        const outCount = outputsAll.length;
+                        const outFirst = outCount > 0 ? String(outputsAll[0]?.path || "") : "";
+                        const outLabel = outCount > 0 ? `${shortUiPath(outFirst, 3)}${outCount > 1 ? ` +${outCount - 1}` : ""}` : "";
+                        const outTitle = outCount > 0 ? outputsAll.slice(0, 10).map((o) => o.path).join("\n") + (outCount > 10 ? "\n…" : "") : "";
+
+                        const substeps = Array.isArray((s as any).substeps) ? (((s as any).substeps as any[]) || []) : [];
+                        const related = typeof s.related_flow === "string" ? String(s.related_flow) : "";
+                        const dotLabel = order ? order : String(idx + 1).padStart(2, "0");
+                        const substepsTitle = substeps.length > 0
+                          ? substeps
+                              .slice(0, 8)
+                              .map((x: any) => String(x?.name || x?.id || ""))
+                              .filter(Boolean)
+                              .join("\n") + (substeps.length > 8 ? "\n…" : "")
+                          : "";
+
+                        const classes = ["ssot-timeline-card"];
+                        if (isSelected) classes.push("is-selected");
+                        else if (isExec) classes.push("is-exec");
+                        else if (isMatch) classes.push("is-match");
+
+                        return (
+                          <div key={s.node_id} className="ssot-timeline-step">
+                            <div className="ssot-timeline-rail" aria-hidden="true">
+                              <div className={`ssot-timeline-dot${isSelected ? " is-selected" : isExec ? " is-exec" : isMatch ? " is-match" : ""}`}>
+                                <span className="ssot-timeline-dottext">{dotLabel}</span>
+                              </div>
+                              {idx < orderedNodes.length - 1 ? <div className="ssot-timeline-line" /> : null}
+                            </div>
+                            <button
+                              id={domIdForTimelineNode(s.node_id)}
+                              type="button"
+                              className={classes.join(" ")}
+                              onClick={() => {
+                                setSelectedNodeId(s.node_id);
+                                focusOnNode(s.node_id);
+                              }}
+                              title={`${s.node_id}${s.description ? `\n${s.description}` : ""}`}
+                            >
+                              <div className="ssot-timeline-header">
+                                {badge ? <span className="mono ssot-timeline-badge">{badge}</span> : null}
+                                <div className="ssot-timeline-title">{s.name || s.node_id}</div>
+                                {isExec ? (
+                                  <span className="mono ssot-timeline-exec">
+                                    run#{(exec?.firstIndex ?? 0) + 1}×{exec?.count ?? 1}
+                                  </span>
+                                ) : null}
+                              </div>
+                              <div className="ssot-timeline-meta">
+                                <span className="ssot-timeline-tag mono" title={s.node_id}>
+                                  <span className="ssot-timeline-tag__label">id</span>
+                                  <span>{s.node_id}</span>
+                                </span>
+                                <span className={`ssot-timeline-tag mono ssot-timeline-tag--${mode.toLowerCase()}`}>{mode}</span>
+                                {task ? (
+                                  <span className="ssot-timeline-tag mono" title={task}>
+                                    <span className="ssot-timeline-tag__label">task</span>
+                                    <span>{task}</span>
+                                  </span>
+                                ) : null}
+                                {resolvedLabel ? (
+                                  <span className="ssot-timeline-tag mono" title={resolvedLabel}>
+                                    <span className="ssot-timeline-tag__label">model</span>
+                                    <span>{resolvedLabel}</span>
+                                  </span>
+                                ) : null}
+                                {sotPath ? (
+                                  <span className="ssot-timeline-tag mono" title={sotPath}>
+                                    <span className="ssot-timeline-tag__label">SoT</span>
+                                    <span>{shortUiPath(sotPath, 4)}</span>
+                                  </span>
+                                ) : null}
+                                {tplPath ? (
+                                  <span className="ssot-timeline-tag mono" title={`${tplPath}${tplLine ? `:${tplLine}` : ""}`}>
+                                    <span className="ssot-timeline-tag__label">prompt</span>
+                                    <span>
+                                      {shortUiPath(tplPath, 4)}
+                                      {tplLine ? `:${tplLine}` : ""}
+                                    </span>
+                                  </span>
+                                ) : null}
+                                {outCount > 0 ? (
+                                  <span className="ssot-timeline-tag mono" title={outTitle ? `out:\n${outTitle}` : undefined}>
+                                    <span className="ssot-timeline-tag__label">out</span>
+                                    <span>{outLabel || String(outCount)}</span>
+                                  </span>
+                                ) : null}
+                                {substeps.length > 0 ? (
+                                  <span className="ssot-timeline-tag mono" title={substepsTitle || undefined}>
+                                    <span className="ssot-timeline-tag__label">substeps</span>
+                                    <span>{substeps.length}</span>
+                                  </span>
+                                ) : null}
+                                {related ? (
+                                  <span className="ssot-timeline-tag mono">
+                                    <span className="ssot-timeline-tag__label">open</span>
+                                    <span>{related}</span>
+                                  </span>
+                                ) : null}
+                              </div>
+                              {s.description ? <div className="ssot-timeline-desc">{s.description}</div> : null}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {focusMode ? (
                   <aside
@@ -1373,6 +1637,20 @@ export function SsotSystemMap() {
                         {typeof selectedNode.order === "number" ? ` / order=${selectedNode.order}` : ""}
                         {selectedNode.phase ? ` / phase=${selectedNode.phase}` : ""}
                       </div>
+
+                      {selectedRelatedFlow ? (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="research-chip"
+                            onClick={() => openFlow(selectedRelatedFlow)}
+                            disabled={flow === selectedRelatedFlow}
+                            title="このノードの中身（関連フロー）へ移動します"
+                          >
+                            Open flow: {selectedRelatedFlow}
+                          </button>
+                        </div>
+                      ) : null}
 
                         {stageLlmTask ? (
                           <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
@@ -1537,21 +1815,27 @@ export function SsotSystemMap() {
                   検索一致
                 </span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(67, 160, 71, 0.25)", border: "1px solid rgba(67, 160, 71, 0.80)" }} />
-                  下流
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(156, 39, 176, 0.20)", border: "1px solid rgba(156, 39, 176, 0.75)" }} />
-                  上流
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(14, 165, 233, 0.20)", border: "1px solid rgba(14, 165, 233, 0.75)" }} />
                   実行済み（Trace）
                 </span>
-                <span>背景ドラッグ: pan</span>
+                {flowView === "graph" ? (
+                  <>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(67, 160, 71, 0.25)", border: "1px solid rgba(67, 160, 71, 0.80)" }} />
+                      下流
+                    </span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(156, 39, 176, 0.20)", border: "1px solid rgba(156, 39, 176, 0.75)" }} />
+                      上流
+                    </span>
+                    <span>背景ドラッグ: pan</span>
+                  </>
+                ) : (
+                  <span>上から順に流れます（Timeline）</span>
+                )}
               </div>
 
-              <details style={{ marginTop: 10 }} open>
+              <details style={{ marginTop: 10 }} open={flowView === "graph"}>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
                 <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                   {nodes.map((s) => {
@@ -1813,7 +2097,7 @@ export function SsotSystemMap() {
                               className="research-chip"
                               onClick={() => {
                                 setSelectedNodeId(s.node_id);
-                                centerOnNode(s.node_id);
+                                focusOnNode(s.node_id);
                               }}
                             >
                               Select
