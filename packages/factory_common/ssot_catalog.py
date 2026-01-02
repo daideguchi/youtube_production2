@@ -1541,13 +1541,24 @@ def build_ssot_catalog() -> Dict[str, Any]:
         "logs_root": str(logs_root()),
         "mainline": {
             "flow_id": "mainline",
+            "summary": "\n".join(
+                [
+                    "主線: A(Planning) → B(Script) → C(Audio/TTS) → D(Video) → G(Publish)。サムネ(F)は A から独立分岐。",
+                    "- A Planning SoT: workspaces/planning/channels/{CH}.csv（企画/タイトル/タグ/進捗）",
+                    "- B Script SoT: workspaces/scripts/{CH}/{NNN}/status.json + content/assembled_human.md（優先）",
+                    "- C Audio SoT: workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav + .srt",
+                    "- D Video SoT: workspaces/video/runs/{run_id}/（image_cues.json / images/ / capcut_draft_info.json）",
+                    "- F Thumbnails SoT: workspaces/thumbnails/projects.json",
+                    "- G Publish SoT: Google Sheet（外部）+ ローカル側は「投稿済みロック」で誤編集を止める（運用）",
+                ]
+            ),
             "nodes": [
-                {"phase": "A", "node_id": "A/planning", "name": "Planning", "description": "企画/タイトル/タグ/進捗などを Planning CSV に集約し、CH-NNN を確定する。"},
-                {"phase": "B", "node_id": "B/script_pipeline", "name": "Script Pipeline", "description": "LLM+ルールで台本（Aテキスト）を生成/検証し、status.json と assembled*.md を正本として保存する。"},
-                {"phase": "C", "node_id": "C/audio_tts", "name": "Audio/TTS", "description": "AテキストからTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する（alignment/split-brain ガード）。"},
-                {"phase": "D", "node_id": "D/video", "name": "Video (CapCut)", "description": "SRT→image_cues→images→CapCut draft を自動生成し、run_dir に成果物を保存する。"},
-                {"phase": "F", "node_id": "F/thumbnails", "name": "Thumbnails", "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。"},
-                {"phase": "G", "node_id": "G/publish", "name": "Publish", "description": "Google Sheet/Drive を外部SoTとして、動画をYouTubeへアップロードしSheetを更新する。"},
+                {"phase": "A", "order": 1, "node_id": "A/planning", "name": "Planning", "description": "企画/タイトル/タグ/進捗などを Planning CSV に集約し、CH-NNN を確定する。"},
+                {"phase": "B", "order": 2, "node_id": "B/script_pipeline", "name": "Script Pipeline", "description": "LLM+ルールで台本（Aテキスト）を生成/検証し、status.json と assembled*.md を正本として保存する。"},
+                {"phase": "C", "order": 3, "node_id": "C/audio_tts", "name": "Audio/TTS", "description": "AテキストからTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する（alignment/split-brain ガード）。"},
+                {"phase": "D", "order": 4, "node_id": "D/video", "name": "Video (CapCut)", "description": "SRT→image_cues→images→CapCut draft を自動生成し、run_dir に成果物を保存する。"},
+                {"phase": "G", "order": 5, "node_id": "G/publish", "name": "Publish", "description": "Google Sheet/Drive を外部SoTとして、動画をYouTubeへアップロードしSheetを更新する。"},
+                {"phase": "F", "order": 6, "node_id": "F/thumbnails", "name": "Thumbnails", "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。"},
             ],
             "edges": [
                 {"from": "A/planning", "to": "B/script_pipeline"},

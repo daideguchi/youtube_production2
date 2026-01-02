@@ -192,15 +192,49 @@ export function SsotSystemMap() {
     return [];
   }, [catalog, flow]);
 
+  const mainlineTaskSets = useMemo(() => {
+    if (!catalog) return {} as Record<string, Set<string>>;
+
+    const collect = (m: any): Set<string> => {
+      const out = new Set<string>();
+      const steps = m?.steps;
+      if (Array.isArray(steps)) {
+        for (const s of steps) {
+          const t = s?.llm?.task ? String(s.llm.task) : "";
+          if (t) out.add(t);
+        }
+      }
+      return out;
+    };
+
+    const out: Record<string, Set<string>> = {};
+    out["A/planning"] = collect((catalog as any)?.flows?.planning);
+    out["B/script_pipeline"] = collect((catalog as any)?.flows?.script_pipeline);
+    out["C/audio_tts"] = collect((catalog as any)?.flows?.audio_tts);
+    const d = new Set<string>();
+    collect((catalog as any)?.flows?.video_srt2images).forEach((t) => d.add(t));
+    collect((catalog as any)?.flows?.video_auto_capcut_run).forEach((t) => d.add(t));
+    out["D/video"] = d;
+    out["F/thumbnails"] = collect((catalog as any)?.flows?.thumbnails);
+    out["G/publish"] = collect((catalog as any)?.flows?.publish);
+    return out;
+  }, [catalog]);
+
   const flowTasks = useMemo(() => {
     const set = new Set<string>();
+    if (flow === "mainline") {
+      for (const taskSet of Object.values(mainlineTaskSets)) {
+        taskSet.forEach((t) => set.add(t));
+      }
+      return set;
+    }
     for (const n of nodes) {
       const llm = (n as any).llm as any;
       const t = llm?.task ? String(llm.task) : "";
       if (t) set.add(t);
     }
     return set;
-  }, [nodes]);
+  }, [flow, mainlineTaskSets, nodes]);
 
   const flowTaskList = useMemo(() => Array.from(flowTasks).sort((a, b) => a.localeCompare(b)), [flowTasks]);
 
@@ -316,6 +350,22 @@ export function SsotSystemMap() {
   const executedByNodeId = useMemo(() => {
     if (!traceLoadedKey) return {};
     const out: Record<string, { firstIndex: number; count: number }> = {};
+    if (flow === "mainline") {
+      for (const n of nodes) {
+        const taskSet = mainlineTaskSets[n.node_id];
+        if (!taskSet || taskSet.size === 0) continue;
+        let firstIndex = Number.POSITIVE_INFINITY;
+        let count = 0;
+        taskSet.forEach((t) => {
+          const info = traceTaskSummary[t];
+          if (!info) return;
+          firstIndex = Math.min(firstIndex, info.firstIndex);
+          count += info.count;
+        });
+        if (Number.isFinite(firstIndex) && count > 0) out[n.node_id] = { firstIndex, count };
+      }
+      return out;
+    }
     for (const n of nodes) {
       const llm = (n as any).llm as any;
       const t = llm?.task ? String(llm.task) : "";
@@ -324,18 +374,26 @@ export function SsotSystemMap() {
       if (info) out[n.node_id] = info;
     }
     return out;
-  }, [nodes, traceLoadedKey, traceTaskSummary]);
+  }, [flow, mainlineTaskSets, nodes, traceLoadedKey, traceTaskSummary]);
 
   const executedEdges = useMemo(() => {
     if (!traceLoadedKey) return {};
     if (!traceEvents || traceEvents.length === 0) return {};
 
     const taskToNodeId: Record<string, string> = {};
-    for (const n of nodes) {
-      const llm = (n as any).llm as any;
-      const t = llm?.task ? String(llm.task) : "";
-      if (!t) continue;
-      if (!taskToNodeId[t]) taskToNodeId[t] = n.node_id;
+    if (flow === "mainline") {
+      for (const [nodeId, taskSet] of Object.entries(mainlineTaskSets)) {
+        taskSet.forEach((t) => {
+          if (t && !taskToNodeId[t]) taskToNodeId[t] = nodeId;
+        });
+      }
+    } else {
+      for (const n of nodes) {
+        const llm = (n as any).llm as any;
+        const t = llm?.task ? String(llm.task) : "";
+        if (!t) continue;
+        if (!taskToNodeId[t]) taskToNodeId[t] = n.node_id;
+      }
     }
 
     const edgeKeys = new Set<string>();
@@ -363,7 +421,7 @@ export function SsotSystemMap() {
       else out[key] = { firstIndex: cur.firstIndex, count: cur.count + 1 };
     }
     return out;
-  }, [edges, nodes, traceEvents, traceLoadedKey]);
+  }, [edges, flow, mainlineTaskSets, nodes, traceEvents, traceLoadedKey]);
 
   const traceUnmatchedTasks = useMemo(() => {
     if (!traceLoadedKey) return [];
@@ -845,6 +903,8 @@ export function SsotSystemMap() {
                     placeholder="node_id / 名前 / 説明"
                     style={{
                       width: 280,
+                      maxWidth: "100%",
+                      flex: "1 1 280px",
                       borderRadius: 10,
                       border: "1px solid #d0d7de",
                       padding: "8px 10px",
@@ -858,7 +918,7 @@ export function SsotSystemMap() {
                 </div>
               ) : null}
 
-              <details style={{ marginTop: 10 }} open={Boolean(traceLoadedKey || traceError)}>
+              <details style={{ marginTop: 10 }}>
                 <summary
                   style={{
                     cursor: "pointer",
@@ -889,6 +949,8 @@ export function SsotSystemMap() {
                     placeholder="例: CH01-251"
                     style={{
                       width: 220,
+                      maxWidth: "100%",
+                      flex: "1 1 220px",
                       borderRadius: 10,
                       border: "1px solid #d0d7de",
                       padding: "8px 10px",
@@ -934,87 +996,7 @@ export function SsotSystemMap() {
                   Image task定義が見つからないものがあります: <span className="mono">{missingImageTasks.join(", ")}</span>
                 </div>
               ) : null}
-              <div
-                ref={graphViewportRef}
-                onMouseDown={beginPan}
-                onMouseMove={movePan}
-                onMouseUp={endPan}
-                onMouseLeave={endPan}
-                style={{
-                  marginTop: 10,
-                  border: "1px solid var(--color-border-muted)",
-                  borderRadius: 14,
-                  background: "var(--color-surface-subtle)",
-                  overflow: "auto",
-                  height: "65vh",
-                  minHeight: 360,
-                  maxHeight: 860,
-                  cursor: isPanning ? "grabbing" : "grab",
-                  userSelect: "none",
-                }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    width: graphSize.width * graphScale,
-                    height: graphSize.height * graphScale,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      top: 0,
-                      transform: `scale(${graphScale})`,
-                      transformOrigin: "top left",
-                    }}
-                  >
-                    <SsotFlowGraph
-                      steps={nodes}
-                      edges={edges}
-                      selectedNodeId={selectedNodeId}
-                      onSelect={(id) => {
-                        setSelectedNodeId(id);
-                        centerOnNode(id);
-                      }}
-                      orientation={orientation}
-                      highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
-                      onSize={handleGraphSize}
-                      executed={traceLoadedKey ? executedByNodeId : undefined}
-                      executedEdges={traceLoadedKey ? executedEdges : undefined}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                className="muted small-text"
-                style={{ marginTop: 8, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}
-              >
-                <span>クリックで詳細 / 凡例:</span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(148, 163, 184, 0.14)", border: "1px solid rgba(148, 163, 184, 0.55)" }} />
-                  Phase枠（複数ノード時）
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(255, 200, 0, 0.20)", border: "1px solid rgba(255, 200, 0, 0.55)" }} />
-                  検索一致
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(67, 160, 71, 0.25)", border: "1px solid rgba(67, 160, 71, 0.80)" }} />
-                  下流
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(156, 39, 176, 0.20)", border: "1px solid rgba(156, 39, 176, 0.75)" }} />
-                  上流
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(14, 165, 233, 0.20)", border: "1px solid rgba(14, 165, 233, 0.75)" }} />
-                  実行済み（Trace）
-                </span>
-                <span>背景ドラッグ: pan</span>
-              </div>
-
-              <details style={{ marginTop: 12 }}>
+              <details style={{ marginTop: 12 }} open>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Overview（このフェーズが何をするか）</summary>
                 <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                   <div className="mono muted small-text">
@@ -1095,6 +1077,85 @@ export function SsotSystemMap() {
                   ) : null}
                 </div>
               </details>
+              <div
+                ref={graphViewportRef}
+                onMouseDown={beginPan}
+                onMouseMove={movePan}
+                onMouseUp={endPan}
+                onMouseLeave={endPan}
+                style={{
+                  marginTop: 10,
+                  border: "1px solid var(--color-border-muted)",
+                  borderRadius: 14,
+                  background: "var(--color-surface-subtle)",
+                  overflow: "auto",
+                  height: "65vh",
+                  minHeight: 360,
+                  maxHeight: 860,
+                  cursor: isPanning ? "grabbing" : "grab",
+                  userSelect: "none",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    width: graphSize.width * graphScale,
+                    height: graphSize.height * graphScale,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      transform: `scale(${graphScale})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <SsotFlowGraph
+                      steps={nodes}
+                      edges={edges}
+                      selectedNodeId={selectedNodeId}
+                      onSelect={(id) => {
+                        setSelectedNodeId(id);
+                        centerOnNode(id);
+                      }}
+                      orientation={orientation}
+                      highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
+                      onSize={handleGraphSize}
+                      executed={traceLoadedKey ? executedByNodeId : undefined}
+                      executedEdges={traceLoadedKey ? executedEdges : undefined}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                className="muted small-text"
+                style={{ marginTop: 8, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}
+              >
+                <span>クリックで詳細 / 凡例:</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(148, 163, 184, 0.14)", border: "1px solid rgba(148, 163, 184, 0.55)" }} />
+                  Phase枠（複数ノード時）
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(255, 200, 0, 0.20)", border: "1px solid rgba(255, 200, 0, 0.55)" }} />
+                  検索一致
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(67, 160, 71, 0.25)", border: "1px solid rgba(67, 160, 71, 0.80)" }} />
+                  下流
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(156, 39, 176, 0.20)", border: "1px solid rgba(156, 39, 176, 0.75)" }} />
+                  上流
+                </span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(14, 165, 233, 0.20)", border: "1px solid rgba(14, 165, 233, 0.75)" }} />
+                  実行済み（Trace）
+                </span>
+                <span>背景ドラッグ: pan</span>
+              </div>
 
               <details style={{ marginTop: 10 }}>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
