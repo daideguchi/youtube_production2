@@ -1886,9 +1886,17 @@ export interface SsotCatalogEdge {
   label?: string;
 }
 
+export interface SsotCatalogPolicy {
+  id: string;
+  title?: string;
+  description?: string;
+  impl_refs?: Array<{ path: string; line: number; symbol?: string | null }>;
+}
+
 export interface SsotCatalog {
   schema: string;
   generated_at: string;
+  policies?: SsotCatalogPolicy[];
   mainline: {
     flow_id: string;
     nodes: SsotCatalogFlowStep[];

@@ -886,6 +886,7 @@ export function SsotSystemMap() {
 
   const missingTasks = useMemo(() => catalog?.llm?.missing_task_defs || [], [catalog]);
   const missingImageTasks = useMemo(() => catalog?.image?.missing_task_defs || [], [catalog]);
+  const policies = useMemo(() => catalog?.policies || [], [catalog]);
 
   return (
     <section className="research-workspace research-workspace--wide ssot-map">
@@ -1213,6 +1214,45 @@ export function SsotSystemMap() {
                     flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
                   </div>
                   {(flowMeta as any)?.summary ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{String((flowMeta as any).summary)}</div> : null}
+                  {policies.length > 0 ? (
+                    <details open>
+                      <summary style={{ cursor: "pointer", fontWeight: 900 }}>Policies（絶対ルール）</summary>
+                      <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                        {policies.map((p) => {
+                          const refs = Array.isArray(p.impl_refs) ? p.impl_refs : [];
+                          return (
+                            <div
+                              key={String(p.id || "policy")}
+                              className="research-quick"
+                              style={{ display: "grid", gap: 8 }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                                <div style={{ fontWeight: 900, minWidth: 0 }}>
+                                  {String(p.title || p.id || "policy")}
+                                </div>
+                                <span className="badge subtle">{String(p.id || "")}</span>
+                              </div>
+                              {p.description ? (
+                                <div className="muted" style={{ whiteSpace: "pre-wrap", lineHeight: 1.65 }}>
+                                  {String(p.description)}
+                                </div>
+                              ) : null}
+                              {refs.length > 0 ? (
+                                <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                                  impl:{" "}
+                                  {refs
+                                    .slice(0, 4)
+                                    .map((r) => `${String(r.path)}:${Number(r.line) || 1}${r.symbol ? `(${String(r.symbol)})` : ""}`)
+                                    .join(", ")}
+                                  {refs.length > 4 ? ", …" : ""}
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  ) : null}
                   {nodes.length > 0 ? (
                     <div>
                       <div className="muted small-text" style={{ marginBottom: 6 }}>

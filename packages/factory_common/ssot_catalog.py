@@ -2899,11 +2899,44 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "allow_fallback": allow_fallback,
         }
 
+    image_client_path = repo / "packages" / "factory_common" / "image_client.py"
+    image_client_lines = _safe_read_text(image_client_path).splitlines()
+    strict_model_line = _find_first_line_containing(
+        image_client_lines,
+        "Fallback is disabled by default for explicit model_key",
+    )
+    policies: List[Dict[str, Any]] = [
+        {
+            "id": "POLICY-IMG-001",
+            "title": "No silent image model downgrade",
+            "description": "\n".join(
+                [
+                    "画像生成で model_key を明示した場合（call/env/profile）、他モデルへの“サイレント降格”を禁止する。",
+                    "- 既定: allow_fallback=false（失敗時は停止して判断を要求）",
+                    "- 例外: allow_fallback=true を明示した場合のみ代替モデルを許可（=意思決定が必要）",
+                ]
+            ),
+            "impl_refs": [
+                r
+                for r in [
+                    _make_code_ref(
+                        repo,
+                        image_client_path,
+                        strict_model_line,
+                        symbol="policy:explicit_model_no_fallback",
+                    )
+                ]
+                if r
+            ],
+        }
+    ]
+
     return {
         "schema": CATALOG_SCHEMA_V1,
         "generated_at": _utc_now_iso(),
         "repo_root": str(repo),
         "logs_root": str(logs_root()),
+        "policies": policies,
         "mainline": {
             "flow_id": "mainline",
             "summary": "\n".join(

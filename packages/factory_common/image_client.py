@@ -477,7 +477,9 @@ class ImageClient:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
         forced_model_key: Optional[str] = None
-        allow_fallback = True
+        # Policy: when a model_key is explicitly selected (call/env/profile), do not silently
+        # degrade to other tier candidates. Allowing fallback must be an explicit choice.
+        allow_fallback = False
         allow_fallback_explicit = False
         if isinstance(options.extra, dict):
             raw_forced = options.extra.get("model_key")
@@ -605,7 +607,9 @@ class ImageClient:
                 attempt=1,
             )
             raise ImageGenerationError(
-                f"Image generation failed for task '{options.task}' (requested model: '{forced_model_key}'): "
+                f"Image generation failed for task '{options.task}' (requested model: '{forced_model_key}'). "
+                "Fallback is disabled by default for explicit model_key; set allow_fallback=true only if you accept "
+                "an alternative model. Details: "
                 + "; ".join([f"{k}: {e}" for k, e in errors])
             )
 

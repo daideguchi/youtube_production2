@@ -171,7 +171,7 @@ class TestImageClient(unittest.TestCase):
             with self.assertRaises(ImageGenerationError):
                 client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
 
-    def test_forced_model_fallback_enabled_by_default(self):
+    def test_forced_model_fallback_disabled_by_default(self):
         with tempfile.TemporaryDirectory() as tmp:
             cfg = {
                 "providers": {},
@@ -189,9 +189,30 @@ class TestImageClient(unittest.TestCase):
                 config_data=cfg,
                 adapter_overrides={"m1": a1, "m2": a2},
             )
-            res = client.generate(
-                ImageTaskOptions(task="visual_image_gen", prompt="test", extra={"model_key": "m1"})
+            with self.assertRaises(ImageGenerationError):
+                client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test", extra={"model_key": "m1"}))
+            self.assertGreaterEqual(a1.calls, 1)
+            self.assertEqual(a2.calls, 0)
+
+    def test_forced_model_fallback_can_be_enabled_explicitly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = {
+                "providers": {},
+                "models": {
+                    "m1": {"provider": "dummy", "model_name": "m1"},
+                    "m2": {"provider": "dummy", "model_name": "m2"},
+                },
+                "tiers": {"image_forced": ["m1", "m2"]},
+                "tasks": {"visual_image_gen": {"tier": "image_forced", "defaults": {}}},
+            }
+            a1 = DummyAdapter(fail=True, label="a1")
+            a2 = DummyAdapter(fail=False, label="a2")
+            client = ImageClient(
+                config_path=Path(tmp) / "image_models.yaml",
+                config_data=cfg,
+                adapter_overrides={"m1": a1, "m2": a2},
             )
+            res = client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test", extra={"model_key": "m1", "allow_fallback": True}))
             self.assertEqual(res.images[0], b"img")
             self.assertGreaterEqual(a1.calls, 1)
             self.assertGreaterEqual(a2.calls, 1)
