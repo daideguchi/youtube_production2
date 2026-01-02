@@ -19,6 +19,62 @@ CATALOG_SCHEMA_V1 = "ytm.ssot_catalog.v1"
 _FASTAPI_METHODS = {"get", "post", "put", "patch", "delete"}
 _MAIN_SENTINEL_RE = re.compile(r"if\s+__name__\s*==\s*['\"]__main__['\"]\s*:")
 
+_PHASE_ORDER = ["A", "B", "C", "D", "F", "G"]
+
+
+def _classify_phases(*parts: str) -> List[str]:
+    hay = " ".join(str(p or "") for p in parts).lower()
+    phases: List[str] = []
+
+    def has(*needles: str) -> bool:
+        return any(n in hay for n in needles if n)
+
+    # Phase A: Planning
+    if has("workspaces/planning", "/planning", "planning_lint", "scripts/ops/idea", "planning/"):
+        phases.append("A")
+
+    # Phase B: Script pipeline
+    if has(
+        "script_pipeline",
+        "script_runbook",
+        "script-manifest",
+        "script-pipeline",
+        "llm-artifacts",
+        "script_reset",
+        "semantic-align",
+        "script_validation",
+        "redo",
+    ):
+        phases.append("B")
+
+    # Phase C: Audio / TTS
+    if has("audio_tts", "/audio-tts", "/audio", "/videos/{video}/srt", "tts", "voicepeak", "voicevox", "elevenlabs"):
+        phases.append("C")
+
+    # Phase D: Video
+    if has("video_pipeline", "/video-production", "capcut", "srt2images", "run_srt2images", "video/"):
+        phases.append("D")
+
+    # Phase F: Thumbnails
+    if has("thumbnails", "thumbnail"):
+        phases.append("F")
+
+    # Phase G: Publish
+    if has("youtube_publisher", "publish_from_sheet", "yt_publish", "youtube", "upload"):
+        phases.append("G")
+
+    if not phases:
+        return ["Other"]
+    # Preserve stable order and unique.
+    out: List[str] = []
+    for p in _PHASE_ORDER:
+        if p in phases and p not in out:
+            out.append(p)
+    for p in phases:
+        if p not in out:
+            out.append(p)
+    return out
+
 
 @dataclass(frozen=True)
 class CodeRef:
@@ -594,6 +650,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "output": "JSON object (characters/settings)",
                     },
                 },
+                "template": {"name": "visual_bible.py", "path": _repo_rel(visual_bible_path, root=repo)},
                 "outputs": [
                     {"path": "workspaces/video/runs/{run_id}/visual_bible.json", "required": False},
                     {"path": "workspaces/video/runs/{run_id}/persona.txt", "required": False},
@@ -619,6 +676,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "constraints": "文脈ベース（等間隔分割禁止）/ no text in scene / no extra characters",
                     },
                 },
+                "template": {"name": "cues_plan.py", "path": _repo_rel(cues_plan_path, root=repo)},
                 "outputs": [
                     {"path": "workspaces/video/runs/{run_id}/visual_cues_plan.json", "required": False},
                 ],
@@ -644,6 +702,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "output": "JSON object: sections/boundaries + visual_focus 等",
                     },
                 },
+                "template": {"name": "llm_context_analyzer.py", "path": _repo_rel(context_path, root=repo)},
             },
         ),
         (
@@ -665,6 +724,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
                         "persona": "Visual Bible 由来 persona.txt",
                     },
                 },
+                "template": {"name": "llm_prompt_refiner.py", "path": _repo_rel(refiner_path, root=repo)},
             },
         ),
         (
@@ -909,35 +969,35 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
             "llm:tts_annotate",
             "LLM task: tts_annotate",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_annotate"), symbol='task="tts_annotate"')],
-            {"llm": {"task": "tts_annotate"}},
+            {"llm": {"task": "tts_annotate"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
         ),
         (
             "C/llm_tts_text_prepare",
             "llm:tts_text_prepare",
             "LLM task: tts_text_prepare",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_text_prepare"), symbol='task="tts_text_prepare"')],
-            {"llm": {"task": "tts_text_prepare"}},
+            {"llm": {"task": "tts_text_prepare"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
         ),
         (
             "C/llm_tts_segment",
             "llm:tts_segment",
             "LLM task: tts_segment",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_segment"), symbol='task="tts_segment"')],
-            {"llm": {"task": "tts_segment"}},
+            {"llm": {"task": "tts_segment"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
         ),
         (
             "C/llm_tts_pause",
             "llm:tts_pause",
             "LLM task: tts_pause",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_pause"), symbol='task="tts_pause"')],
-            {"llm": {"task": "tts_pause"}},
+            {"llm": {"task": "tts_pause"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
         ),
         (
             "C/llm_tts_reading",
             "llm:tts_reading",
             "LLM task: tts_reading",
             [_make_code_ref(repo, llm_adapter_path, _task_line("tts_reading"), symbol='task="tts_reading"')],
-            {"llm": {"task": "tts_reading"}},
+            {"llm": {"task": "tts_reading"}, "template": {"name": "llm_adapter.py", "path": _repo_rel(llm_adapter_path, root=repo)}},
         ),
     ]
 
@@ -1368,6 +1428,18 @@ def build_ssot_catalog() -> Dict[str, Any]:
     python_entrypoints = _extract_python_entrypoints(repo)
     shell_entrypoints = _extract_shell_entrypoints(repo)
 
+    # Phase tags (best-effort): helps humans find the right entrypoints per pipeline phase.
+    for r in fastapi_routes:
+        if isinstance(r, dict):
+            src = r.get("source") if isinstance(r.get("source"), dict) else {}
+            r["phases"] = _classify_phases(str(r.get("path") or ""), str(src.get("path") or ""))
+    for e in python_entrypoints:
+        if isinstance(e, dict):
+            e["phases"] = _classify_phases(str(e.get("path") or ""), str(e.get("module") or ""))
+    for e in shell_entrypoints:
+        if isinstance(e, dict):
+            e["phases"] = _classify_phases(str(e.get("path") or ""))
+
     llm_calls = _extract_llm_tasks_from_code(repo)
     llm_router_conf = _load_llm_router_config(repo)
     llm_task_overrides = _load_llm_task_overrides(repo)
@@ -1393,6 +1465,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
         declared_tasks |= {str(k) for k in override_tasks.keys()}
 
     used_tasks: set[str] = {str(c.get("task") or "") for c in llm_calls if c.get("task")}
+    for c in llm_calls:
+        if isinstance(c, dict) and isinstance(c.get("source"), dict):
+            src = c.get("source") or {}
+            c["phases"] = _classify_phases(str(src.get("path") or ""))
     # Include tasks referenced by SSOT flow steps (stage defs + other flows).
     for flow in (
         script_flow,
@@ -1466,6 +1542,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
         declared_image_tasks |= {str(k) for k in image_cfg_tasks.keys()}
 
     used_image_tasks: set[str] = {str(c.get("task") or "") for c in image_calls if c.get("task")}
+    for c in image_calls:
+        if isinstance(c, dict) and isinstance(c.get("source"), dict):
+            src = c.get("source") or {}
+            c["phases"] = _classify_phases(str(src.get("path") or ""))
     # Also include image tasks referenced by flow steps (kind=image_client).
     for flow in (video_srt2images_flow, thumbnails_flow):
         for st in flow.get("steps") or []:

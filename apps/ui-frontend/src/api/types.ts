@@ -1841,6 +1841,7 @@ export interface SsotCatalogRoute {
   handler: string;
   summary?: string;
   source: { path: string; line: number };
+  phases?: string[];
 }
 
 export interface SsotCatalogEntrypoint {
@@ -1849,6 +1850,7 @@ export interface SsotCatalogEntrypoint {
   module?: string | null;
   summary?: string;
   has_argparse?: boolean;
+  phases?: string[];
 }
 
 export interface SsotCatalogFlowStep {

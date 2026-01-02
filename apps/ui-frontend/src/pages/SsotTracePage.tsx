@@ -9,6 +9,14 @@ function stripJsonl(name: string): string {
   return name.endsWith(".jsonl") ? name.slice(0, -".jsonl".length) : name;
 }
 
+function formatJson(val: unknown) {
+  try {
+    return JSON.stringify(val, null, 2);
+  } catch {
+    return String(val);
+  }
+}
+
 function parseJsonl(content: string): Array<Record<string, unknown>> {
   const out: Array<Record<string, unknown>> = [];
   for (const line of (content || "").split("\n")) {
@@ -22,6 +30,13 @@ function parseJsonl(content: string): Array<Record<string, unknown>> {
     }
   }
   return out;
+}
+
+function normalizeContent(raw: unknown): string {
+  if (raw == null) return "";
+  if (typeof raw === "string") return raw;
+  if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
+  return formatJson(raw);
 }
 
 export function SsotTracePage() {
@@ -199,6 +214,9 @@ export function SsotTracePage() {
                 <div className="mono">
                   kind={kind} / events={events.length}
                 </div>
+                <p className="muted small-text" style={{ margin: "8px 0 0 0" }}>
+                  NOTE: trace は「呼び出し内容（request/messages/input）」中心で、provider により response/output が含まれない場合があります。
+                </p>
               </section>
 
               {events.length === 0 ? (
@@ -213,6 +231,16 @@ export function SsotTracePage() {
                 const model = String((ev as any).model || (ev as any).model_key || "");
                 const callsite = (ev as any).callsite as any;
                 const callsiteLabel = callsite?.path ? `${callsite.path}:${callsite.line}` : "";
+                const request = (ev as any).request as any;
+                const tier = String((ev as any).tier || "");
+                const durationMs = Number((ev as any).latency_ms ?? (ev as any).duration_ms ?? 0) || 0;
+                const requestId = String((ev as any).request_id || "");
+                const traceKeyValue = String((ev as any).trace_key || "");
+
+                const messagesRaw = (ev as any).messages;
+                const messages = Array.isArray(messagesRaw) ? (messagesRaw as any[]) : [];
+                const imageInput = (ev as any).input as any;
+
                 return (
                   <details key={idx} style={{ border: "1px solid var(--color-border-muted)", borderRadius: 14, padding: 12 }}>
                     <summary style={{ cursor: "pointer" }}>
@@ -221,9 +249,99 @@ export function SsotTracePage() {
                         {callsiteLabel ? `· ${callsiteLabel}` : ""} {schema ? `· ${schema}` : ""}
                       </span>
                     </summary>
-                    <pre className="mono" style={{ whiteSpace: "pre-wrap", marginTop: 10 }}>
-                      {JSON.stringify(ev, null, 2)}
-                    </pre>
+                    <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                      <div className="mono muted small-text" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                        {traceKeyValue ? <span>trace_key={traceKeyValue}</span> : null}
+                        {requestId ? <span>request_id={requestId}</span> : null}
+                        {tier ? <span>tier={tier}</span> : null}
+                        {durationMs ? <span>duration_ms={durationMs}</span> : null}
+                      </div>
+
+                      {request ? (
+                        <details>
+                          <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                            request（max_tokens/temperature/format など）
+                          </summary>
+                          <pre className="mono" style={{ whiteSpace: "pre-wrap", margin: "10px 0 0 0", maxHeight: 260, overflow: "auto" }}>
+                            {formatJson(request)}
+                          </pre>
+                        </details>
+                      ) : null}
+
+                      {kind === "llm" && messages.length > 0 ? (
+                        <div>
+                          <div className="muted small-text" style={{ marginBottom: 6 }}>
+                            messages（実際に投げたプロンプト）
+                          </div>
+                          <div style={{ display: "grid", gap: 10 }}>
+                            {messages.map((m, mi) => {
+                              const role = m?.role ? String(m.role) : "unknown";
+                              const content = normalizeContent(m?.content);
+                              return (
+                                <section
+                                  key={`${idx}-msg-${mi}`}
+                                  style={{
+                                    border: "1px solid var(--color-border-muted)",
+                                    borderRadius: 12,
+                                    background: "var(--color-surface)",
+                                    padding: 10,
+                                  }}
+                                >
+                                  <div className="mono muted small-text">[{mi + 1}] role={role}</div>
+                                  <pre
+                                    className="mono"
+                                    style={{
+                                      whiteSpace: "pre-wrap",
+                                      margin: "8px 0 0 0",
+                                      maxHeight: 360,
+                                      overflow: "auto",
+                                      background: "var(--color-surface-subtle)",
+                                      border: "1px solid var(--color-border-muted)",
+                                      borderRadius: 10,
+                                      padding: 10,
+                                    }}
+                                  >
+                                    {content || "(empty)"}
+                                  </pre>
+                                </section>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {kind === "image" && imageInput ? (
+                        <div>
+                          <div className="muted small-text" style={{ marginBottom: 6 }}>
+                            input（image generation）
+                          </div>
+                          <pre
+                            className="mono"
+                            style={{
+                              whiteSpace: "pre-wrap",
+                              margin: 0,
+                              maxHeight: 420,
+                              overflow: "auto",
+                              background: "var(--color-surface-subtle)",
+                              border: "1px solid var(--color-border-muted)",
+                              borderRadius: 10,
+                              padding: 10,
+                            }}
+                          >
+                            {formatJson(imageInput)}
+                          </pre>
+                        </div>
+                      ) : null}
+
+                      <details>
+                        <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                          raw JSON
+                        </summary>
+                        <pre className="mono" style={{ whiteSpace: "pre-wrap", marginTop: 10 }}>
+                          {formatJson(ev)}
+                        </pre>
+                      </details>
+                    </div>
                   </details>
                 );
               })}

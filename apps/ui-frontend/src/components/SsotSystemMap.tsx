@@ -129,12 +129,12 @@ export function SsotSystemMap() {
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [graphScale, setGraphScale] = useState(1);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
+  const [autoFit, setAutoFit] = useState(true);
   const [focusMode, setFocusMode] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
-  const autoFitPendingRef = useRef(true);
   const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
@@ -456,32 +456,56 @@ export function SsotSystemMap() {
     [],
   );
 
+  const centerGraph = useCallback(() => {
+    const el = graphViewportRef.current;
+    if (!el) return;
+    const dx = Math.max(0, (el.scrollWidth - el.clientWidth) / 2);
+    const dy = Math.max(0, (el.scrollHeight - el.clientHeight) / 2);
+    el.scrollLeft = dx;
+    el.scrollTop = dy;
+  }, []);
+
   const zoomIn = () => {
-    autoFitPendingRef.current = false;
+    setAutoFit(false);
     setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomOut = () => {
-    autoFitPendingRef.current = false;
+    setAutoFit(false);
     setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomReset = () => {
-    autoFitPendingRef.current = false;
+    setAutoFit(false);
     setGraphScale(1);
   };
   const zoomFit = () => {
-    autoFitPendingRef.current = false;
     applyFitToSize(graphSize);
+    requestAnimationFrame(() => centerGraph());
   };
 
   useEffect(() => {
-    autoFitPendingRef.current = true;
-  }, [flow, focusMode, orientation]);
+    setAutoFit(true);
+  }, [flow, orientation]);
 
   useEffect(() => {
-    if (!autoFitPendingRef.current) return;
-    requestAnimationFrame(() => applyFitToSize(graphSize));
-    autoFitPendingRef.current = false;
-  }, [applyFitToSize, focusMode, graphSize]);
+    if (!autoFit) return;
+    requestAnimationFrame(() => {
+      applyFitToSize(graphSize);
+      requestAnimationFrame(() => centerGraph());
+    });
+  }, [applyFitToSize, autoFit, centerGraph, graphSize]);
+
+  useEffect(() => {
+    if (!autoFit) return;
+    if (typeof ResizeObserver === "undefined") return;
+    const el = graphViewportRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      applyFitToSize(graphSize);
+      requestAnimationFrame(() => centerGraph());
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [applyFitToSize, autoFit, centerGraph, graphSize]);
 
   const centerOnNode = useCallback((nodeId: string) => {
     const container = graphViewportRef.current;
@@ -526,10 +550,12 @@ export function SsotSystemMap() {
       if (prev.width === size.width && prev.height === size.height) return prev;
       return size;
     });
-    if (!autoFitPendingRef.current) return;
-    autoFitPendingRef.current = false;
-    requestAnimationFrame(() => applyFitToSize(size));
-  }, [applyFitToSize]);
+    if (!autoFit) return;
+    requestAnimationFrame(() => {
+      applyFitToSize(size);
+      requestAnimationFrame(() => centerGraph());
+    });
+  }, [applyFitToSize, autoFit, centerGraph]);
 
   const loadTraceKeyList = useCallback(async () => {
     setTraceListLoading(true);
@@ -787,8 +813,11 @@ export function SsotSystemMap() {
             <button type="button" className="research-chip" onClick={() => void loadCatalog(true)} disabled={loading}>
               {loading ? "更新中…" : "再生成"}
             </button>
-            <button type="button" className={`research-chip ${focusMode ? "is-active" : ""}`} onClick={() => setFocusMode((v) => !v)}>
-              {focusMode ? "List表示" : "Graph Focus"}
+            <button type="button" className={`research-chip ${focusMode ? "is-active" : ""}`} onClick={() => setFocusMode(true)}>
+              Graph Focus
+            </button>
+            <button type="button" className={`research-chip ${!focusMode ? "is-active" : ""}`} onClick={() => setFocusMode(false)}>
+              List
             </button>
           </div>
         </div>
@@ -876,6 +905,14 @@ export function SsotSystemMap() {
                     onClick={() => setOrientation("vertical")}
                   >
                     縦
+                  </button>
+                  <button
+                    type="button"
+                    className={`research-chip ${autoFit ? "is-active" : ""}`}
+                    onClick={() => setAutoFit((v) => !v)}
+                    title="ONの間は表示領域に合わせて自動で拡大縮小します"
+                  >
+                    AutoFit
                   </button>
                   <button type="button" className="research-chip" onClick={zoomOut}>
                     −
@@ -1003,6 +1040,92 @@ export function SsotSystemMap() {
                     flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
                   </div>
                   {(flowMeta as any)?.summary ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{String((flowMeta as any).summary)}</div> : null}
+                  {nodes.length > 0 ? (
+                    <div>
+                      <div className="muted small-text" style={{ marginBottom: 6 }}>
+                        Steps（クリックでノード選択）
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+                        {nodes
+                          .slice()
+                          .sort((a, b) => {
+                            const ao = typeof a.order === "number" ? a.order : 0;
+                            const bo = typeof b.order === "number" ? b.order : 0;
+                            if (ao !== bo) return ao - bo;
+                            return (a.node_id || "").localeCompare(b.node_id || "");
+                          })
+                          .map((s) => {
+                            const order = s.order ? String(s.order).padStart(2, "0") : "";
+                            const prefix = s.phase && order ? `${s.phase}-${order}` : s.phase || "";
+                            const llm = s.llm as any;
+                            const task = llm?.task ? String(llm.task) : "";
+                            const kind = llm?.kind ? String(llm.kind) : "";
+                            const mode = task ? (kind === "image_client" ? "IMAGE" : "LLM") : "CODE";
+                            const outs = parseOutputDecls(s.outputs).slice(0, 2);
+                            return (
+                              <button
+                                key={`flow-step-${s.node_id}`}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedNodeId(s.node_id);
+                                  centerOnNode(s.node_id);
+                                }}
+                                style={{
+                                  border: `1px solid ${selectedNodeId === s.node_id ? "rgba(29, 78, 216, 0.55)" : "var(--color-border-muted)"}`,
+                                  background: "var(--color-surface)",
+                                  borderRadius: 12,
+                                  padding: 10,
+                                  textAlign: "left",
+                                  color: "var(--color-text-strong)",
+                                  display: "grid",
+                                  gap: 6,
+                                  minWidth: 0,
+                                  transform: "none",
+                                  transition: "none",
+                                }}
+                              >
+                                <div style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0 }}>
+                                  {prefix ? (
+                                    <span
+                                      className="mono"
+                                      style={{
+                                        flex: "none",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        padding: "2px 8px",
+                                        borderRadius: 999,
+                                        border: "1px solid rgba(15, 23, 42, 0.14)",
+                                        background: "rgba(15, 23, 42, 0.06)",
+                                        color: "rgba(15, 23, 42, 0.92)",
+                                      }}
+                                    >
+                                      {prefix}
+                                    </span>
+                                  ) : null}
+                                  <div style={{ fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {s.name || s.node_id}
+                                  </div>
+                                </div>
+                                <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {mode}
+                                  {task ? ` task=${task}` : ""}
+                                </div>
+                                {s.description ? (
+                                  <div className="muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {s.description}
+                                  </div>
+                                ) : null}
+                                {outs.length > 0 ? (
+                                  <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    out: {outs.map((o) => o.path).join(", ")}
+                                  </div>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  ) : null}
                   {flowCodePaths.length > 0 ? (
                     <div className="muted small-text">
                       code: <span className="mono">{flowCodePaths.join(", ")}</span>
@@ -1135,10 +1258,6 @@ export function SsotSystemMap() {
               >
                 <span>クリックで詳細 / 凡例:</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(148, 163, 184, 0.14)", border: "1px solid rgba(148, 163, 184, 0.55)" }} />
-                  Phase枠（複数ノード時）
-                </span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(255, 200, 0, 0.20)", border: "1px solid rgba(255, 200, 0, 0.55)" }} />
                   検索一致
                 </span>
@@ -1168,6 +1287,9 @@ export function SsotSystemMap() {
                     const taskDef = task ? (taskDefs[task] as any) : null;
                     const tier = taskDef?.tier ? String(taskDef.tier) : "";
                     const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as any[]).map((x) => String(x)) : [];
+                    const resolvedModels = Array.isArray(taskDef?.resolved_models) ? ((taskDef.resolved_models as any[]) || []) : [];
+                    const overrideProfile = taskDef?.override_profile ? String(taskDef.override_profile) : "";
+                    const allowFallback = typeof taskDef?.allow_fallback === "boolean" ? Boolean(taskDef.allow_fallback) : null;
                     const tpl = s.template as any;
                     const tplName = tpl?.name ? String(tpl.name) : llm?.template ? String(llm.template) : "";
                     const tplPath = tpl?.path ? String(tpl.path) : "";
@@ -1213,7 +1335,26 @@ export function SsotSystemMap() {
                           {task && (tier || modelKeys.length > 0) ? (
                             <div className="mono muted small-text">
                               routing: {tier ? `tier=${tier}` : "tier=—"}
+                              {overrideProfile ? ` / profile=${overrideProfile}` : ""}
+                              {allowFallback === true ? " / allow_fallback=true" : allowFallback === false ? " / allow_fallback=false" : ""}
                               {modelKeys.length > 0 ? ` / models=${modelKeys.slice(0, 6).join(", ")}${modelKeys.length > 6 ? ", …" : ""}` : ""}
+                            </div>
+                          ) : null}
+                          {task && resolvedModels.length > 0 ? (
+                            <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              resolved:{" "}
+                              {resolvedModels
+                                .slice(0, 3)
+                                .map((m: any) => {
+                                  const provider = m?.provider ? String(m.provider) : "";
+                                  const model = m?.model_name ? String(m.model_name) : m?.key ? String(m.key) : "";
+                                  const dep = m?.deployment ? String(m.deployment) : "";
+                                  const base = provider && model ? `${provider}:${model}` : model || provider || "";
+                                  return dep ? `${base}(${dep})` : base;
+                                })
+                                .filter((s: string) => Boolean(s.trim()))
+                                .join(" | ")}
+                              {resolvedModels.length > 3 ? " | …" : ""}
                             </div>
                           ) : null}
                           {placeholders.length > 0 ? (
@@ -1521,7 +1662,7 @@ export function SsotSystemMap() {
               ) : null}
 
               {selectedTemplatePath ? (
-                <details style={{ marginTop: 12 }}>
+                <details style={{ marginTop: 12 }} open>
                   <summary style={{ cursor: "pointer", fontWeight: 900 }}>Prompt Template（内容プレビュー）</summary>
                   <div style={{ marginTop: 10 }}>
                     <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" />

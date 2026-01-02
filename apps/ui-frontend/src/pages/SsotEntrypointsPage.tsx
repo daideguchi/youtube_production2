@@ -21,6 +21,7 @@ export function SsotEntrypointsPage() {
   const [tab, setTab] = useState<TabKey>("api_routes");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
+  const [phaseFilter, setPhaseFilter] = useState<string>("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,36 +51,58 @@ export function SsotEntrypointsPage() {
 
   const items = useMemo(() => {
     const q = keyword.trim().toLowerCase();
+    const wantPhase = phaseFilter.trim();
+    const phaseOk = (phasesRaw: unknown) => {
+      if (wantPhase === "all") return true;
+      const phases = Array.isArray(phasesRaw) ? phasesRaw.map((p) => String(p)) : [];
+      return phases.includes(wantPhase);
+    };
     if (tab === "api_routes") {
-      const list = apiRoutes.map((r) => ({ id: routeLabel(r), label: routeLabel(r), meta: r.summary || "" }));
+      const list = apiRoutes
+        .map((r) => ({ id: routeLabel(r), label: routeLabel(r), meta: r.summary || "", phases: (r as any).phases }))
+        .filter((i) => phaseOk(i.phases));
       return q ? list.filter((i) => `${i.id} ${i.meta}`.toLowerCase().includes(q)) : list;
     }
     if (tab === "python_entrypoints") {
-      const list = pyEntrypoints.map((e) => ({ id: e.path, label: pythonEntrypointLabel(e), meta: e.summary || "" }));
+      const list = pyEntrypoints
+        .map((e) => ({ id: e.path, label: pythonEntrypointLabel(e), meta: e.summary || "", phases: (e as any).phases }))
+        .filter((i) => phaseOk(i.phases));
       return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
     }
     if (tab === "shell_entrypoints") {
-      const list = shEntrypoints.map((e) => ({ id: e.path, label: `sh ${e.path}`, meta: e.summary || "" }));
+      const list = shEntrypoints
+        .map((e) => ({ id: e.path, label: `sh ${e.path}`, meta: e.summary || "", phases: (e as any).phases }))
+        .filter((i) => phaseOk(i.phases));
       return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
     }
     if (tab === "image_callsites") {
-      const list = imageCallsites.map((c) => ({
+      const list = imageCallsites
+        .map((c) => ({
+          id: `${c.task} @ ${c.source.path}:${c.source.line}`,
+          label: c.task,
+          meta: `${c.call} · ${c.source.path}:${c.source.line}`,
+          phases: (c as any).phases,
+        }))
+        .filter((i) => phaseOk(i.phases));
+      return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
+    }
+    const list = llmCallsites
+      .map((c) => ({
         id: `${c.task} @ ${c.source.path}:${c.source.line}`,
         label: c.task,
         meta: `${c.call} · ${c.source.path}:${c.source.line}`,
-      }));
-      return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
-    }
-    const list = llmCallsites.map((c) => ({
-      id: `${c.task} @ ${c.source.path}:${c.source.line}`,
-      label: c.task,
-      meta: `${c.call} · ${c.source.path}:${c.source.line}`,
-    }));
+        phases: (c as any).phases,
+      }))
+      .filter((i) => phaseOk(i.phases));
     return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
-  }, [apiRoutes, imageCallsites, keyword, llmCallsites, pyEntrypoints, shEntrypoints, tab]);
+  }, [apiRoutes, imageCallsites, keyword, llmCallsites, phaseFilter, pyEntrypoints, shEntrypoints, tab]);
 
   useEffect(() => {
-    if (!selectedId && items.length > 0) setSelectedId(items[0].id);
+    if (items.length === 0) {
+      if (selectedId) setSelectedId(null);
+      return;
+    }
+    if (!selectedId || !items.some((i) => i.id === selectedId)) setSelectedId(items[0].id);
   }, [items, selectedId]);
 
   const selected = useMemo(() => {
@@ -125,6 +148,19 @@ export function SsotEntrypointsPage() {
               Image Callsites
             </button>
           </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+            <span className="muted small-text">Phase:</span>
+            {["all", "A", "B", "C", "D", "F", "G", "Other"].map((p) => (
+              <button
+                key={`phase-${p}`}
+                type="button"
+                className={`research-chip ${phaseFilter === p ? "is-active" : ""}`}
+                onClick={() => setPhaseFilter(p)}
+              >
+                {p === "all" ? "All" : p}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -157,7 +193,12 @@ export function SsotEntrypointsPage() {
                   <span className="badge dir">{tab === "api_routes" ? "API" : tab === "llm_callsites" ? "LLM" : tab === "image_callsites" ? "IMG" : "CLI"}</span>
                   <div className="research-entry__meta">
                     <span className="name">{i.label}</span>
-                    <span className="meta">{i.meta || "—"}</span>
+                    <span className="meta">
+                      {i.meta || "—"}
+                      {Array.isArray((i as any).phases) && (i as any).phases.length > 0 ? (
+                        <span className="mono muted small-text"> · phases={(i as any).phases.join(",")}</span>
+                      ) : null}
+                    </span>
                   </div>
                 </button>
               </li>

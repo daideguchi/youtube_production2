@@ -24,34 +24,6 @@ function nodeTask(step: SsotCatalogFlowStep): string | null {
   return `LLM:${t}`;
 }
 
-function phaseKey(phase: string): string {
-  const s = (phase || "").trim();
-  if (!s) return "";
-  return s.slice(0, 1).toUpperCase();
-}
-
-function colorsForPhase(phase: string): { fill: string; stroke: string } {
-  const key = phaseKey(phase);
-  const rgb =
-    key === "A"
-      ? "245, 158, 11"
-      : key === "B"
-        ? "99, 102, 241"
-        : key === "C"
-          ? "14, 165, 233"
-          : key === "D"
-            ? "34, 197, 94"
-            : key === "F"
-              ? "236, 72, 153"
-              : key === "G"
-                ? "107, 114, 128"
-                : "148, 163, 184";
-  return {
-    fill: `rgba(${rgb}, 0.11)`,
-    stroke: `rgba(${rgb}, 0.55)`,
-  };
-}
-
 function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
   const ao = typeof a.order === "number" ? a.order : 0;
   const bo = typeof b.order === "number" ? b.order : 0;
@@ -82,11 +54,12 @@ function computeLayout(
 ): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string }> } {
   const ultraDense = steps.length >= 40;
   const dense = steps.length >= 18;
-  const nodeWidth = ultraDense ? 170 : dense ? 190 : 210;
+  const compact = orientation === "horizontal" && steps.length <= 10;
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : compact ? 180 : 210;
   const nodeHeight = ultraDense ? 64 : dense ? 68 : 72;
-  const gapMain = ultraDense ? 50 : dense ? 60 : 72;
-  const gapCross = ultraDense ? 46 : dense ? 54 : 70;
-  const margin = ultraDense ? 18 : 24;
+  const gapMain = ultraDense ? 50 : dense ? 60 : compact ? 44 : 72;
+  const gapCross = ultraDense ? 46 : dense ? 54 : compact ? 56 : 70;
+  const margin = ultraDense ? 18 : compact ? 20 : 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
   for (const s of steps) idToStep.set(s.node_id, s);
@@ -203,47 +176,6 @@ export function SsotFlowGraph({
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
 
-  const phaseGroups = useMemo(() => {
-    const phases = new Set(nodes.map((n) => (n.step.phase || "").trim()).filter(Boolean));
-    if (phases.size <= 1) return [];
-
-    const groups = new Map<
-      string,
-      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string }; count: number }
-    >();
-    for (const n of nodes) {
-      const phase = (n.step.phase || "").trim();
-      if (!phase) continue;
-      const colors = colorsForPhase(phase);
-      const cur = groups.get(phase);
-      const x1 = n.x;
-      const y1 = n.y;
-      const x2 = n.x + n.width;
-      const y2 = n.y + n.height;
-      if (!cur) {
-        groups.set(phase, { minX: x1, minY: y1, maxX: x2, maxY: y2, colors, count: 1 });
-      } else {
-        cur.minX = Math.min(cur.minX, x1);
-        cur.minY = Math.min(cur.minY, y1);
-        cur.maxX = Math.max(cur.maxX, x2);
-        cur.maxY = Math.max(cur.maxY, y2);
-        cur.count += 1;
-      }
-    }
-
-    const entries = Array.from(groups.entries()).filter(([, box]) => box.count >= 2);
-    if (entries.length === 0) return [];
-    const pad = 18;
-    return entries.map(([phase, box]) => ({
-      phase,
-      x: box.minX - pad,
-      y: box.minY - pad,
-      width: box.maxX - box.minX + pad * 2,
-      height: box.maxY - box.minY + pad * 2,
-      colors: box.colors,
-    }));
-  }, [nodes]);
-
   const width = useMemo(() => {
     if (nodes.length === 0) return 640;
     return Math.max(...nodes.map((n) => n.x + n.width)) + 24;
@@ -336,35 +268,6 @@ export function SsotFlowGraph({
             <path d="M0,0 L12,6 L0,12 Z" fill="rgba(14, 165, 233, 0.95)" />
           </marker>
         </defs>
-      {phaseGroups.map((g) => (
-          <g key={g.phase}>
-            <rect
-              x={g.x}
-              y={g.y}
-              width={g.width}
-              height={g.height}
-              rx={18}
-              fill={g.colors.fill}
-              stroke={g.colors.stroke}
-              strokeWidth={2}
-              strokeDasharray="6 6"
-            />
-            <text
-              x={g.x + 12}
-              y={g.y + 4}
-              fontSize="12"
-              fontWeight="900"
-              dominantBaseline="hanging"
-              fill="rgba(15, 23, 42, 0.88)"
-              stroke="rgba(255, 255, 255, 0.95)"
-              strokeWidth="4"
-              paintOrder="stroke"
-              pointerEvents="none"
-            >
-              Phase {g.phase}
-            </text>
-          </g>
-        ))}
         {paths.map((p, idx) => (
           (() => {
             const st = edgeStyle(p.from.id, p.to.id);
@@ -442,7 +345,9 @@ export function SsotFlowGraph({
               border: `2px solid ${border}`,
               background,
               color: "var(--color-text-strong)",
-              boxShadow: isSelected ? "0 10px 24px rgba(29, 78, 216, 0.18)" : undefined,
+              boxShadow: isSelected ? "0 10px 24px rgba(29, 78, 216, 0.18)" : "none",
+              transform: "none",
+              transition: "none",
               display: "grid",
               gridTemplateRows: "auto auto",
               gap: 6,
