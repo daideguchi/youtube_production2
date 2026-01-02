@@ -281,6 +281,17 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
 
     runner_path = script_pkg_root() / "runner.py"
     runner_lines = _safe_read_text(runner_path).splitlines()
+    validator_path = script_pkg_root() / "validator.py"
+    validator_lines = _safe_read_text(validator_path).splitlines()
+
+    def _find_near(start_line: int | None, needle: str, *, max_scan: int = 1400) -> int | None:
+        if start_line:
+            start_idx = max(0, int(start_line) - 1)
+            end_idx = min(len(runner_lines), start_idx + max_scan)
+            for i in range(start_idx, end_idx):
+                if needle in runner_lines[i]:
+                    return i + 1
+        return _find_first_line_containing(runner_lines, needle)
 
     stage_items: List[Dict[str, Any]] = []
     for idx, st in enumerate(stages or [], start=1):
@@ -303,6 +314,44 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 dispatch_line = ln
                 break
 
+        impl_refs: List[Dict[str, Any]] = []
+        dispatch_ref = _make_code_ref(repo, runner_path, dispatch_line, symbol=f"stage_dispatch:{name}")
+        if dispatch_ref:
+            impl_refs.append(dispatch_ref)
+
+        extra_needles: List[Tuple[str, str, int]] = {
+            "script_outline": [
+                ("SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE", "env:SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE", 1800),
+                ("outline_semantic_alignment.json", "report:outline_semantic_alignment.json", 2200),
+            ],
+            "script_review": [
+                ("strip_meta_from_script", "strip_meta_from_script", 2000),
+                ("build_alignment_stamp", "build_alignment_stamp", 2400),
+            ],
+            "script_validation": [
+                ("validate_a_text(", "validate_a_text", 2600),
+                ("semantic_auto_fix = False", "semantic_auto_fix_disabled", 2600),
+                ("semantic_alignment.json", "report:semantic_alignment.json", 2600),
+                ("SCRIPT_VALIDATION_LLM_QUALITY_GATE", "env:SCRIPT_VALIDATION_LLM_QUALITY_GATE", 3200),
+                ('default_rounds = "5" if str(draft_source) == "codex_exec" else "3"', "llm_gate:default_rounds", 3800),
+                ('hard_cap = 5 if str(draft_source) == "codex_exec" else 3', "llm_gate:hard_cap", 3800),
+            ],
+            "audio_synthesis": [
+                ("Do not auto-generate placeholder .wav/.srt", "manual_audio_entrypoint", 800),
+            ],
+        }.get(name, [])
+
+        for needle, symbol, max_scan in extra_needles:
+            ln = _find_near(dispatch_line, needle, max_scan=max_scan)
+            ref = _make_code_ref(repo, runner_path, ln, symbol=symbol)
+            if ref:
+                impl_refs.append(ref)
+
+        if name == "script_validation":
+            ref = _make_code_ref(repo, validator_path, _find_def_line(validator_lines, "validate_a_text"), symbol="validator:validate_a_text")
+            if ref:
+                impl_refs.append(ref)
+
         stage_items.append(
             {
                 "phase": "B",
@@ -324,20 +373,31 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                         "dispatch_line": dispatch_line,
                     }
                 },
-                "impl_refs": [
-                    r
-                    for r in [
-                        _make_code_ref(repo, runner_path, dispatch_line, symbol=f"stage_dispatch:{name}"),
-                    ]
-                    if r
-                ],
+                "impl_refs": impl_refs,
             }
         )
 
     return {
         "flow_id": "script_pipeline",
         "phase": "B",
-        "summary": "LLM+ルールで台本（Aテキスト）を生成し、status.json/assembled*.md を正本として管理するステージパイプライン。",
+        "summary": "\n".join(
+            [
+                "LLM+ルールで台本（Aテキスト）を生成し、status.json と assembled*.md を正本として管理する。",
+                "- Stage定義: packages/script_pipeline/stages.yaml（順序=実行順）",
+                "- Prompt: packages/script_pipeline/templates.yaml（LLMテンプレ）",
+                "- 入口: scripts/ops/script_runbook.py / python3 -m script_pipeline.cli / UI Studio",
+                "- ガード: planning整合スタンプ / duplication / semantic alignment / LLM quality gate",
+                "- 成果物: status.json / content/assembled_human.md（優先） / content/assembled.md / artifacts/llm / content/analysis/**",
+            ]
+        ),
+        "entrypoints": [
+            "CLI(runbook): python3 scripts/ops/script_runbook.py <MODE>",
+            "CLI(internal): python3 -m script_pipeline.cli <init|run|next|run-all|status|validate|reconcile|reset|audio|semantic-align>",
+            "API: GET/POST /api/channels/{ch}/videos/{video}/script-manifest",
+            "API: POST /api/channels/{ch}/videos/{video}/script-pipeline/reconcile",
+            "API: POST /api/channels/{ch}/videos/{video}/script-pipeline/run/script_validation",
+            "API(destructive): POST /script_reset/{ch}/{video}",
+        ],
         "stages_path": _repo_rel(stages_path, root=repo),
         "templates_path": _repo_rel(templates_path, root=repo),
         "runner_path": _repo_rel(runner_path, root=repo),
@@ -428,7 +488,20 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "video_auto_capcut_run",
         "phase": "D",
-        "summary": "音声SRTを起点に run_dir を作り、image_cues/images を準備して CapCut draft を自動生成する（自動/再開あり）。",
+        "summary": "\n".join(
+            [
+                "audio_tts final SRT を起点に run_dir を作り、image_cues/images を準備して CapCut draft を自動生成する（自動/再開あり）。",
+                "- 入口: python3 -m video_pipeline.tools.auto_capcut_run / UI Hub（/api/video-production/*）",
+                "- run_dir SoT: workspaces/video/runs/{run_id}/（image_cues.json / images/ / capcut_draft_info.json / auto_run_info.json）",
+                "- 重要: CapCut draft は capcut_bulk_insert が正（run_pipeline --engine capcut は stub）",
+            ]
+        ),
+        "entrypoints": [
+            "CLI: python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --video NNN [--resume]",
+            "UI Hub: /api/video-production/*（jobs）",
+            "CLI: python3 -m video_pipeline.tools.capcut_bulk_insert --run <run_dir> ...",
+            "CLI: python3 -m video_pipeline.tools.align_run_dir_to_tts_final --run <run_dir>",
+        ],
         "auto_capcut_run_path": _repo_rel(auto_path, root=repo),
         "sot": [
             {"path": "workspaces/video/runs/{run_id}/", "kind": "run_dir", "notes": "run-level SoT (pipeline outputs)"},
@@ -509,6 +582,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
             "任意: Visual Bible を生成し、登場人物/設定の一貫ルール（visual_bible.json）を作る（task=visual_bible）。",
             [
                 _mk(pipeline_path, _pl("VisualBibleGenerator()"), symbol="VisualBibleGenerator"),
+                _mk(visual_bible_path, _find_first_line_containing(visual_bible_lines, "BIBLE_GEN_PROMPT"), symbol="prompt:BIBLE_GEN_PROMPT"),
                 _mk(visual_bible_path, _find_first_line_containing(visual_bible_lines, 'task="visual_bible"'), symbol="task:visual_bible"),
             ],
             {
@@ -532,6 +606,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
             "cues_plan mode: 1回のLLM呼び出しで sections を計画し、`visual_cues_plan.json` を生成して cue を作る（task=visual_image_cues_plan / THINK MODE friendly）。",
             [
                 _mk(pipeline_path, _pl("use_cues_plan"), symbol="use_cues_plan"),
+                _mk(cues_plan_path, _find_first_line_containing(cues_plan_lines, "You are preparing storyboard image cues"), symbol="prompt:visual_image_cues_plan"),
                 _mk(cues_plan_path, _find_first_line_containing(cues_plan_lines, 'task="visual_image_cues_plan"'), symbol="task:visual_image_cues_plan"),
             ],
             {
@@ -555,6 +630,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
             "通常mode: LLMContextAnalyzerで文脈ベースのセクション分割を行い cue を作る（task=visual_section_plan）。",
             [
                 _mk(cue_maker_path, _find_first_line_containing(cue_maker_lines, "LLMContextAnalyzer("), symbol="LLMContextAnalyzer"),
+                _mk(context_path, _find_def_line(context_lines, "_create_analysis_prompt"), symbol="_create_analysis_prompt"),
                 _mk(context_path, _find_first_line_containing(context_lines, 'task="visual_section_plan"'), symbol="task:visual_section_plan"),
                 _mk(pipeline_path, _pl("make_cues("), symbol="make_cues"),
             ],
@@ -576,6 +652,7 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
             "任意: cue ごとに scene-ready の短い視覚ブリーフへ整形（task=visual_prompt_refine）。デフォルトOFF（SRT2IMAGES_REFINE_PROMPTS=1 でON）。",
             [
                 _mk(pipeline_path, _pl("refiner.refine("), symbol="PromptRefiner.refine"),
+                _mk(refiner_path, _find_first_line_containing(refiner_lines, "You are crafting a concise visual brief"), symbol="prompt:visual_prompt_refine"),
                 _mk(refiner_path, _find_first_line_containing(refiner_lines, 'task="visual_prompt_refine"'), symbol="task:visual_prompt_refine"),
             ],
             {
@@ -692,7 +769,19 @@ def _video_srt2images_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "video_srt2images",
         "phase": "D",
-        "summary": "SRTを解析し、文脈ベースで image_cues を作って画像生成まで行う（run_dir=SoT）。CapCut draft は主線では別工程。",
+        "summary": "\n".join(
+            [
+                "SRTを解析し、文脈ベースで image_cues を作って（任意で画像生成まで）行う。CapCut draft は別工程（auto_capcut_run / capcut_bulk_insert）。",
+                "- 入口: scripts/run_srt2images.sh / python3 -m video_pipeline.tools.run_pipeline",
+                "- LLM tasks: visual_bible / visual_image_cues_plan / visual_section_plan / visual_prompt_refine",
+                "- Image task: visual_image_gen（ImageClient; configs/image_models.yaml + overrides）",
+                "- 成果物: srt_segments.json / visual_cues_plan.json（plan-mode） / image_cues.json / images/*.png",
+            ]
+        ),
+        "entrypoints": [
+            "CLI(wrapper): sh scripts/run_srt2images.sh ...",
+            "CLI: python3 -m video_pipeline.tools.run_pipeline ...",
+        ],
         "tool_path": _repo_rel(tool_path, root=repo),
         "pipeline_path": _repo_rel(pipeline_path, root=repo),
         "config_path": _repo_rel(config_path, root=repo),
@@ -868,7 +957,21 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "audio_tts",
         "phase": "C",
-        "summary": "Aテキスト（assembled_human.md優先）からTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する。",
+        "summary": "\n".join(
+            [
+                "Aテキスト（assembled_human.md優先）からTTS音声（wav）と字幕（srt）を生成し、workspaces/audio/final を唯一の下流SoTとして同期する。",
+                "- 入口: POST /api/audio-tts/run-from-script / python3 -m script_pipeline.cli audio / python3 -m audio_tts.scripts.run_tts",
+                "- ガード: split-brain（assembled_human.md vs assembled.md）/ alignment stamp 必須 / script_validation 完了",
+                "- 成果物(SoT): {CH}-{NNN}.wav / {CH}-{NNN}.srt / log.json / a_text.txt / audio_manifest.json",
+            ]
+        ),
+        "entrypoints": [
+            "API: POST /api/audio-tts/run-from-script",
+            "API: POST /api/audio-tts/run /run-batch（input_path must match final A-text）",
+            "CLI(wrapper): python3 -m script_pipeline.cli audio --channel CHxx --video NNN",
+            "CLI(direct): python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input <PATH>",
+            "CLI(dict sync): python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]",
+        ],
         "run_tts_path": _repo_rel(run_tts_path, root=repo),
         "llm_adapter_path": _repo_rel(llm_adapter_path, root=repo),
         "sot": [
@@ -877,6 +980,11 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
             {"path": "workspaces/audio/final/{CH}/{NNN}/log.json", "kind": "log", "notes": "tts run log"},
             {"path": "workspaces/audio/final/{CH}/{NNN}/a_text.txt", "kind": "a_text_snapshot", "notes": "input snapshot actually spoken"},
             {"path": "workspaces/audio/final/{CH}/{NNN}/audio_manifest.json", "kind": "manifest", "notes": "schema=ytm.audio_manifest.v1"},
+            {
+                "path": "packages/audio_tts/data/voicepeak/dic.json",
+                "kind": "voicepeak_dict",
+                "notes": "repo-tracked Voicepeak user dict (sync to local app settings)",
+            },
         ],
         "steps": steps,
         "edges": [
@@ -962,7 +1070,18 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "thumbnails",
         "phase": "F",
-        "summary": "projects/templates/assets を正本として、サムネの生成/合成/差し替えを管理する。",
+        "summary": "\n".join(
+            [
+                "projects/templates/assets を正本として、サムネ variants を生成/合成/差し替えして管理する。",
+                "- SoT: workspaces/thumbnails/projects.json / templates.json / assets/{CH}/{NNN}/",
+                "- 入口: UI /thumbnails / python3 scripts/thumbnails/build.py",
+                "- 画像生成は provider/model/cost を variants に記録（再現性のため）",
+            ]
+        ),
+        "entrypoints": [
+            "UI: /thumbnails",
+            "CLI: python3 scripts/thumbnails/build.py ...",
+        ],
         "sot": [
             {"path": "workspaces/thumbnails/projects.json", "kind": "projects", "notes": "variants/selected etc"},
             {"path": "workspaces/thumbnails/templates.json", "kind": "templates", "notes": "channel templates/layer_specs"},
@@ -1010,7 +1129,16 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "publish",
         "phase": "G",
-        "summary": "Google Sheet/Drive を外部SoTとして、ローカルDL→YouTube upload→Sheet更新までを行う（default dry-run）。",
+        "summary": "\n".join(
+            [
+                "Google Sheet/Drive を外部SoTとして、ローカルDL→YouTube upload→Sheet更新までを行う（default dry-run）。",
+                "- 入口: python3 scripts/youtube_publisher/publish_from_sheet.py [--run]",
+                "- 注意: 一時DLは OS temp dir（tempfile）/ ローカル側の「投稿済みロック」は別系統（要連動検討）",
+            ]
+        ),
+        "entrypoints": [
+            "CLI: python3 scripts/youtube_publisher/publish_from_sheet.py [--run]",
+        ],
         "path": _repo_rel(publish_path, root=repo),
         "sot": [
             {"path": "YT_PUBLISH_SHEET_ID / YT_PUBLISH_SHEET_NAME", "kind": "external", "notes": "Google Sheet (external SoT)"},
@@ -1070,7 +1198,19 @@ def _planning_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "planning",
         "phase": "A",
-        "summary": "Planning CSV（CH別）を正本に、persona/ideas を用意して下流の Script/Thumb へ渡す。",
+        "summary": "\n".join(
+            [
+                "Planning CSV（CH別）を正本に、CH-NNN の企画情報を確定して下流へ渡す。",
+                "- SoT: workspaces/planning/channels/{CH}.csv（title/intent/tags/進捗など）",
+                "- 入口: UI /planning / scripts/ops/planning_lint.py / scripts/ops/idea.py",
+                "- 下流: Script Pipeline（status.json の ensure/backfill）/ Thumbnails（サムネ文言の入力）",
+            ]
+        ),
+        "entrypoints": [
+            "UI: /planning",
+            "CLI: python3 scripts/ops/planning_lint.py",
+            "CLI: python3 scripts/ops/idea.py",
+        ],
         "sot": [
             {"path": "workspaces/planning/channels/{CH}.csv", "kind": "planning_csv", "notes": "planning SoT (titles/tags/etc)"},
             {"path": "workspaces/planning/personas/CHxx_PERSONA.md", "kind": "persona", "notes": "persona SoT"},

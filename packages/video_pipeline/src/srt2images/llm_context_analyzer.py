@@ -177,6 +177,21 @@ class LLMContextAnalyzer:
             final_sections = self._cap_to_max_sections(segments, final_sections, max_allowed)
             final_sections = self._merge_sections(final_sections)
             final_sections = self._fill_gaps(final_sections, len(segments))
+            # Capping can create overlong sections; re-split if needed, then cap again.
+            max_duration = self._max_section_seconds(desired_avg)
+            needs_refine_after_cap = any(
+                self._calculate_duration(segments, br.start_segment, br.end_segment) > max_duration
+                for br in final_sections
+            )
+            if needs_refine_after_cap:
+                final_sections = self._refine_overlong_sections(segments, final_sections, target_sections, desired_avg)
+                final_sections = self._merge_short_sections(segments, final_sections)
+                final_sections = self._merge_sections(final_sections)
+                final_sections = self._fill_gaps(final_sections, len(segments))
+                if len(final_sections) > max_allowed:
+                    final_sections = self._cap_to_max_sections(segments, final_sections, max_allowed)
+                    final_sections = self._merge_sections(final_sections)
+                    final_sections = self._fill_gaps(final_sections, len(segments))
 
         final_sections = self._enforce_duration_bounds(segments, final_sections, target_sections, desired_avg)
 
@@ -560,10 +575,12 @@ Script excerpts:
             # Handle both array and object formats
             if isinstance(parsed_data, dict):
                 # If the response is an object with a sections property, use that.
-                # LLMs sometimes vary singular/plural key names; accept common alternatives.
+                # LLMs sometimes vary singular/plural key names and may accidentally add whitespace.
+                norm_keys = {str(k).strip().lower(): k for k in parsed_data.keys()}
                 for key in ("sections", "section", "cues", "cue"):
-                    if key in parsed_data:
-                        breaks_data = parsed_data[key]
+                    original = norm_keys.get(key)
+                    if original is not None:
+                        breaks_data = parsed_data.get(original)
                         break
                 else:
                     # If it's a single section object, wrap it in a list.

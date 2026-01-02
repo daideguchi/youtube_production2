@@ -43,6 +43,11 @@
   grid-template-columns: 320px 1fr;
 }
 
+.ssot-map .mono {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .research-workspace__header {
   display: flex;
   justify-content: space-between;
@@ -118,6 +123,7 @@
   display: grid;
   grid-template-columns: 360px 1fr;
   gap: 14px;
+  min-width: 0;
 }
 
 .research-list,
@@ -127,6 +133,7 @@
   background: var(--color-surface);
   padding: 12px;
   min-height: 320px;
+  min-width: 0;
 }
 
 .research-list__header {

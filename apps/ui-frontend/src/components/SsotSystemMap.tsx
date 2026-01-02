@@ -129,7 +129,7 @@ export function SsotSystemMap() {
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
   const [graphScale, setGraphScale] = useState(1);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
-  const [focusMode, setFocusMode] = useState(false);
+  const [focusMode, setFocusMode] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -241,6 +241,12 @@ export function SsotSystemMap() {
     return Array.from(new Set(out));
   }, [flowMeta]);
 
+  const flowEntrypoints = useMemo(() => {
+    const raw = (flowMeta as any)?.entrypoints;
+    if (!Array.isArray(raw)) return [];
+    return raw.map((x) => String(x)).filter((s) => Boolean(s.trim()));
+  }, [flowMeta]);
+
   const selectedMainlineFlow = useMemo<FlowKey | null>(() => {
     if (flow !== "mainline") return null;
     const id = (selectedNodeId || "").trim();
@@ -299,6 +305,12 @@ export function SsotSystemMap() {
       if (typeof p === "string" && p.trim()) out.push(p.trim());
     }
     return Array.from(new Set(out));
+  }, [selectedMainlineFlowMeta]);
+
+  const selectedMainlineEntrypoints = useMemo(() => {
+    const raw = (selectedMainlineFlowMeta as any)?.entrypoints;
+    if (!Array.isArray(raw)) return [];
+    return raw.map((x) => String(x)).filter((s) => Boolean(s.trim()));
   }, [selectedMainlineFlowMeta]);
 
   const executedByNodeId = useMemo(() => {
@@ -824,71 +836,93 @@ export function SsotSystemMap() {
                   </button>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
-                <label className="muted small-text">Trace key</label>
-                <input
-                  list="ssot-trace-keys"
-                  value={traceKey}
-                  onChange={(e) => setTraceKey(e.target.value)}
-                  placeholder="例: CH01-251"
+              {focusMode ? (
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+                  <label className="muted small-text">Filter</label>
+                  <input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder="node_id / 名前 / 説明"
+                    style={{
+                      width: 280,
+                      borderRadius: 10,
+                      border: "1px solid #d0d7de",
+                      padding: "8px 10px",
+                      fontSize: 13,
+                      background: "#f6f8fa",
+                    }}
+                  />
+                  <button type="button" className="research-chip" onClick={() => setKeyword("")} disabled={!keyword.trim()}>
+                    Filter Clear
+                  </button>
+                </div>
+              ) : null}
+
+              <details style={{ marginTop: 10 }} open={Boolean(traceLoadedKey || traceError)}>
+                <summary
                   style={{
-                    width: 220,
-                    borderRadius: 10,
-                    border: "1px solid #d0d7de",
-                    padding: "8px 10px",
-                    fontSize: 13,
-                    background: "#f6f8fa",
+                    cursor: "pointer",
+                    fontWeight: 900,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    gap: 10,
+                    flexWrap: "wrap",
                   }}
-                />
-                <datalist id="ssot-trace-keys">
-                  {traceKeySuggestions.map((k) => (
-                    <option key={k.key} value={k.key} />
-                  ))}
-                </datalist>
-                <button type="button" className="research-chip" onClick={() => void loadTraceKeyList()} disabled={traceListLoading}>
-                  {traceListLoading ? "候補取得…" : traceKeySuggestions.length > 0 ? `候補(${traceKeySuggestions.length})` : "候補"}
-                </button>
-                <button type="button" className="research-chip" onClick={() => void loadTrace()} disabled={traceLoading || !traceKey.trim()}>
-                  {traceLoading ? "読み込み中…" : "Load"}
-                </button>
-                <button type="button" className="research-chip" onClick={clearTrace} disabled={!traceLoadedKey && !traceError}>
-                  Clear
-                </button>
-                {traceLoadedKey ? (
-                  <Link className="research-chip" to={`/ssot/trace/${encodeURIComponent(traceLoadedKey)}`}>
-                    Open Trace
-                  </Link>
-                ) : null}
-                {traceLoadedKey ? (
-                  <span className="mono muted small-text">
-                    events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} / executed_edges={Object.keys(executedEdges).length}
-                  </span>
-                ) : null}
-                {focusMode ? (
-                  <>
-                    <span className="crumb-sep" style={{ opacity: 0.4 }}>
-                      /
+                >
+                  <span>Trace（実行ログでハイライト）</span>
+                  {traceLoadedKey ? (
+                    <span className="mono muted small-text">
+                      loaded: {traceLoadedKey} / events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} /
+                      executed_edges={Object.keys(executedEdges).length}
                     </span>
-                    <label className="muted small-text">Filter</label>
-                    <input
-                      value={keyword}
-                      onChange={(e) => setKeyword(e.target.value)}
-                      placeholder="node_id / 名前 / 説明"
-                      style={{
-                        width: 260,
-                        borderRadius: 10,
-                        border: "1px solid #d0d7de",
-                        padding: "8px 10px",
-                        fontSize: 13,
-                        background: "#f6f8fa",
-                      }}
-                    />
-                    <button type="button" className="research-chip" onClick={() => setKeyword("")} disabled={!keyword.trim()}>
-                      Filter Clear
-                    </button>
-                  </>
+                  ) : (
+                    <span className="muted small-text">任意: logs/traces/ の JSONL から実行済みを表示</span>
+                  )}
+                </summary>
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+                  <label className="muted small-text">Trace key</label>
+                  <input
+                    list="ssot-trace-keys"
+                    value={traceKey}
+                    onChange={(e) => setTraceKey(e.target.value)}
+                    placeholder="例: CH01-251"
+                    style={{
+                      width: 220,
+                      borderRadius: 10,
+                      border: "1px solid #d0d7de",
+                      padding: "8px 10px",
+                      fontSize: 13,
+                      background: "#f6f8fa",
+                    }}
+                  />
+                  <datalist id="ssot-trace-keys">
+                    {traceKeySuggestions.map((k) => (
+                      <option key={k.key} value={k.key} />
+                    ))}
+                  </datalist>
+                  <button type="button" className="research-chip" onClick={() => void loadTraceKeyList()} disabled={traceListLoading}>
+                    {traceListLoading ? "候補取得…" : traceKeySuggestions.length > 0 ? `候補(${traceKeySuggestions.length})` : "候補"}
+                  </button>
+                  <button type="button" className="research-chip" onClick={() => void loadTrace()} disabled={traceLoading || !traceKey.trim()}>
+                    {traceLoading ? "読み込み中…" : "Load"}
+                  </button>
+                  <button type="button" className="research-chip" onClick={clearTrace} disabled={!traceLoadedKey && !traceError}>
+                    Clear
+                  </button>
+                  {traceLoadedKey ? (
+                    <Link className="research-chip" to={`/ssot/trace/${encodeURIComponent(traceLoadedKey)}`}>
+                      Open Trace
+                    </Link>
+                  ) : null}
+                </div>
+                {traceError ? <div className="main-alert main-alert--warning">Trace: {traceError}</div> : null}
+                {traceLoadedKey && traceUnmatchedTasks.length > 0 ? (
+                  <div className="muted small-text" style={{ marginTop: 6 }}>
+                    このFlowに未マップの task（先頭のみ）: <span className="mono">{traceUnmatchedTasks.join(", ")}</span>
+                  </div>
                 ) : null}
-              </div>
+              </details>
               {focusMode && error ? <div className="main-alert main-alert--error">エラー: {error}</div> : null}
               {focusMode && missingTasks.length > 0 ? (
                 <div className="main-alert main-alert--warning">
@@ -898,12 +932,6 @@ export function SsotSystemMap() {
               {focusMode && missingImageTasks.length > 0 ? (
                 <div className="main-alert main-alert--warning">
                   Image task定義が見つからないものがあります: <span className="mono">{missingImageTasks.join(", ")}</span>
-                </div>
-              ) : null}
-              {traceError ? <div className="main-alert main-alert--warning">Trace: {traceError}</div> : null}
-              {traceLoadedKey && traceUnmatchedTasks.length > 0 ? (
-                <div className="muted small-text" style={{ marginTop: 6 }}>
-                  このFlowに未マップの task（先頭のみ）: <span className="mono">{traceUnmatchedTasks.join(", ")}</span>
                 </div>
               ) : null}
               <div
@@ -918,7 +946,9 @@ export function SsotSystemMap() {
                   borderRadius: 14,
                   background: "var(--color-surface-subtle)",
                   overflow: "auto",
-                  maxHeight: "60vh",
+                  height: "65vh",
+                  minHeight: 360,
+                  maxHeight: 860,
                   cursor: isPanning ? "grabbing" : "grab",
                   userSelect: "none",
                 }}
@@ -990,10 +1020,24 @@ export function SsotSystemMap() {
                   <div className="mono muted small-text">
                     flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
                   </div>
-                  {(flowMeta as any)?.summary ? <div className="muted">{String((flowMeta as any).summary)}</div> : null}
+                  {(flowMeta as any)?.summary ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{String((flowMeta as any).summary)}</div> : null}
                   {flowCodePaths.length > 0 ? (
                     <div className="muted small-text">
                       code: <span className="mono">{flowCodePaths.join(", ")}</span>
+                    </div>
+                  ) : null}
+                  {flowEntrypoints.length > 0 ? (
+                    <div>
+                      <div className="muted small-text" style={{ marginBottom: 4 }}>
+                        Entrypoints（入口）
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {flowEntrypoints.map((e) => (
+                          <li key={`flow-entry-${e}`} className="mono muted small-text">
+                            {e}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   ) : null}
                   {catalog?.llm?.router_config?.path ? (
@@ -1081,8 +1125,18 @@ export function SsotSystemMap() {
                         }}
                       >
                         <summary style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
-                          <span style={{ fontWeight: 900 }}>{nodeTitle(s)}</span>
-                          <span className="mono muted small-text" style={{ whiteSpace: "nowrap" }}>
+                          <span
+                            style={{
+                              fontWeight: 900,
+                              minWidth: 0,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {nodeTitle(s)}
+                          </span>
+                          <span className="mono muted small-text" style={{ flex: "none", maxWidth: 420, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {task ? `${kind === "image_client" ? "image" : "llm"} task=${task}` : "no-task"}
                           </span>
                         </summary>
@@ -1186,10 +1240,28 @@ export function SsotSystemMap() {
                       flow_id={(selectedMainlineFlowMeta as any)?.flow_id || "—"} / phase={(selectedMainlineFlowMeta as any)?.phase || "—"} / steps=
                       {Array.isArray((selectedMainlineFlowMeta as any)?.steps) ? (selectedMainlineFlowMeta as any).steps.length : 0}
                     </div>
-                    {(selectedMainlineFlowMeta as any)?.summary ? <div className="muted" style={{ marginTop: 8 }}>{String((selectedMainlineFlowMeta as any).summary)}</div> : null}
+                    {(selectedMainlineFlowMeta as any)?.summary ? (
+                      <div className="muted" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>
+                        {String((selectedMainlineFlowMeta as any).summary)}
+                      </div>
+                    ) : null}
                     {selectedMainlineCodePaths.length > 0 ? (
                       <div className="muted small-text" style={{ marginTop: 8 }}>
                         code: <span className="mono">{selectedMainlineCodePaths.join(", ")}</span>
+                      </div>
+                    ) : null}
+                    {selectedMainlineEntrypoints.length > 0 ? (
+                      <div style={{ marginTop: 10 }}>
+                        <div className="muted small-text" style={{ marginBottom: 4 }}>
+                          Entrypoints（入口）
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                          {selectedMainlineEntrypoints.map((e) => (
+                            <li key={`mainline-entry-${e}`} className="mono muted small-text">
+                              {e}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     ) : null}
                     {selectedMainlineSotDecls.length > 0 ? (

@@ -80,11 +80,13 @@ function computeLayout(
   edges: SsotFlowEdge[],
   orientation: Orientation,
 ): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string }> } {
-  const nodeWidth = 210;
-  const nodeHeight = 72;
-  const gapMain = 72;
-  const gapCross = 70;
-  const margin = 24;
+  const ultraDense = steps.length >= 40;
+  const dense = steps.length >= 18;
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : 210;
+  const nodeHeight = ultraDense ? 64 : dense ? 68 : 72;
+  const gapMain = ultraDense ? 50 : dense ? 60 : 72;
+  const gapCross = ultraDense ? 46 : dense ? 54 : 70;
+  const margin = ultraDense ? 18 : 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
   for (const s of steps) idToStep.set(s.node_id, s);
@@ -250,10 +252,12 @@ export function SsotFlowGraph({
     if (nodes.length === 0) return 240;
     return Math.max(...nodes.map((n) => n.y + n.height)) + 24;
   }, [nodes]);
+  const renderWidth = useMemo(() => Math.max(width, 640), [width]);
+  const renderHeight = useMemo(() => Math.max(height, 220), [height]);
 
   useEffect(() => {
-    onSize?.({ width, height });
-  }, [height, onSize, width]);
+    onSize?.({ width: renderWidth, height: renderHeight });
+  }, [onSize, renderHeight, renderWidth]);
 
   const selectedPath = useMemo(() => {
     const selected = (selectedNodeId || "").trim();
@@ -316,8 +320,8 @@ export function SsotFlowGraph({
   );
 
   return (
-    <div style={{ position: "relative", width, height, minHeight: 220 }}>
-      <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
+    <div style={{ position: "relative", width: renderWidth, height: renderHeight }}>
+      <svg width={renderWidth} height={renderHeight} style={{ position: "absolute", inset: 0 }}>
         <defs>
           <marker id="ssotArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
             <path d="M0,0 L12,6 L0,12 Z" fill="var(--color-border)" />
@@ -345,7 +349,18 @@ export function SsotFlowGraph({
               strokeWidth={2}
               strokeDasharray="6 6"
             />
-            <text x={g.x + 14} y={g.y + 18} fontSize="12" fontWeight="800" fill="rgba(15, 23, 42, 0.72)">
+            <text
+              x={g.x + 12}
+              y={g.y + 4}
+              fontSize="12"
+              fontWeight="900"
+              dominantBaseline="hanging"
+              fill="rgba(15, 23, 42, 0.88)"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="4"
+              paintOrder="stroke"
+              pointerEvents="none"
+            >
               Phase {g.phase}
             </text>
           </g>
@@ -407,6 +422,7 @@ export function SsotFlowGraph({
               : isHighlighted
                 ? "#fffbeb"
                 : "var(--color-surface)";
+        const secondary = task ? task : (n.step.description || n.id);
         return (
           <button
             key={n.id}
@@ -486,7 +502,7 @@ export function SsotFlowGraph({
               }}
             >
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {task ? task : n.id}
+                {secondary}
               </span>
             </div>
           </button>

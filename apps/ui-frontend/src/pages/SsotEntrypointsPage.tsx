@@ -4,7 +4,7 @@ import { fetchSsotCatalog } from "../api/client";
 import type { SsotCatalog, SsotCatalogEntrypoint, SsotCatalogRoute } from "../api/types";
 import { SsotFilePreview } from "../components/SsotFilePreview";
 
-type TabKey = "api_routes" | "python_entrypoints" | "shell_entrypoints" | "llm_callsites";
+type TabKey = "api_routes" | "python_entrypoints" | "shell_entrypoints" | "llm_callsites" | "image_callsites";
 
 function routeLabel(r: SsotCatalogRoute): string {
   const method = (r.method || "").toUpperCase();
@@ -46,6 +46,7 @@ export function SsotEntrypointsPage() {
   const pyEntrypoints = useMemo(() => (catalog?.entrypoints?.python || []).filter((e) => e.kind === "python"), [catalog]);
   const shEntrypoints = useMemo(() => catalog?.entrypoints?.shell || [], [catalog]);
   const llmCallsites = useMemo(() => catalog?.llm?.callsites || [], [catalog]);
+  const imageCallsites = useMemo(() => catalog?.image?.callsites || [], [catalog]);
 
   const items = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -61,13 +62,21 @@ export function SsotEntrypointsPage() {
       const list = shEntrypoints.map((e) => ({ id: e.path, label: `sh ${e.path}`, meta: e.summary || "" }));
       return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
     }
+    if (tab === "image_callsites") {
+      const list = imageCallsites.map((c) => ({
+        id: `${c.task} @ ${c.source.path}:${c.source.line}`,
+        label: c.task,
+        meta: `${c.call} · ${c.source.path}:${c.source.line}`,
+      }));
+      return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
+    }
     const list = llmCallsites.map((c) => ({
       id: `${c.task} @ ${c.source.path}:${c.source.line}`,
       label: c.task,
       meta: `${c.call} · ${c.source.path}:${c.source.line}`,
     }));
     return q ? list.filter((i) => `${i.id} ${i.label} ${i.meta}`.toLowerCase().includes(q)) : list;
-  }, [apiRoutes, keyword, llmCallsites, pyEntrypoints, shEntrypoints, tab]);
+  }, [apiRoutes, imageCallsites, keyword, llmCallsites, pyEntrypoints, shEntrypoints, tab]);
 
   useEffect(() => {
     if (!selectedId && items.length > 0) setSelectedId(items[0].id);
@@ -78,8 +87,9 @@ export function SsotEntrypointsPage() {
     if (tab === "api_routes") return apiRoutes.find((r) => routeLabel(r) === selectedId) || null;
     if (tab === "python_entrypoints") return pyEntrypoints.find((e) => e.path === selectedId) || null;
     if (tab === "shell_entrypoints") return shEntrypoints.find((e) => e.path === selectedId) || null;
+    if (tab === "image_callsites") return imageCallsites.find((c) => `${c.task} @ ${c.source.path}:${c.source.line}` === selectedId) || null;
     return llmCallsites.find((c) => `${c.task} @ ${c.source.path}:${c.source.line}` === selectedId) || null;
-  }, [apiRoutes, catalog, llmCallsites, pyEntrypoints, selectedId, shEntrypoints, tab]);
+  }, [apiRoutes, catalog, imageCallsites, llmCallsites, pyEntrypoints, selectedId, shEntrypoints, tab]);
 
   return (
     <section className="research-workspace">
@@ -111,6 +121,9 @@ export function SsotEntrypointsPage() {
             <button type="button" className={`research-chip ${tab === "llm_callsites" ? "is-active" : ""}`} onClick={() => setTab("llm_callsites")}>
               LLM Callsites
             </button>
+            <button type="button" className={`research-chip ${tab === "image_callsites" ? "is-active" : ""}`} onClick={() => setTab("image_callsites")}>
+              Image Callsites
+            </button>
           </div>
         </div>
       </header>
@@ -141,7 +154,7 @@ export function SsotEntrypointsPage() {
                   onClick={() => setSelectedId(i.id)}
                   style={{ borderColor: selectedId === i.id ? "var(--color-primary)" : undefined }}
                 >
-                  <span className="badge dir">{tab === "api_routes" ? "API" : tab === "llm_callsites" ? "LLM" : "CLI"}</span>
+                  <span className="badge dir">{tab === "api_routes" ? "API" : tab === "llm_callsites" ? "LLM" : tab === "image_callsites" ? "IMG" : "CLI"}</span>
                   <div className="research-entry__meta">
                     <span className="name">{i.label}</span>
                     <span className="meta">{i.meta || "—"}</span>
@@ -202,6 +215,18 @@ export function SsotEntrypointsPage() {
             <div style={{ display: "grid", gap: 14 }}>
               <section className="shell-panel shell-panel--placeholder">
                 <h3 style={{ marginTop: 0 }}>LLM Callsite</h3>
+                <div className="mono">
+                  task={(selected as any).task} / call={(selected as any).call}
+                </div>
+              </section>
+              <SsotFilePreview repoPath={(selected as any).source.path} highlightLine={(selected as any).source.line} title="Implementation" />
+            </div>
+          ) : null}
+
+          {selected && tab === "image_callsites" ? (
+            <div style={{ display: "grid", gap: 14 }}>
+              <section className="shell-panel shell-panel--placeholder">
+                <h3 style={{ marginTop: 0 }}>Image Callsite</h3>
                 <div className="mono">
                   task={(selected as any).task} / call={(selected as any).call}
                 </div>
