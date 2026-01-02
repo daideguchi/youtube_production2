@@ -132,6 +132,9 @@ export function SsotWorkspace() {
           <Link className="research-chip" to="/ssot/map">
             System Map
           </Link>
+          <Link className="research-chip" to="/ssot/gaps">
+            Gaps
+          </Link>
           <Link className="research-chip" to="/ssot/entrypoints">
             Entrypoints
           </Link>
@@ -151,6 +154,12 @@ export function SsotWorkspace() {
             disabled={loading}
           >
             PIPELINE
+          </button>
+          <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_GAPS_REGISTER.md")} disabled={loading}>
+            GAPS
+          </button>
+          <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_OPEN_QUESTIONS.md")} disabled={loading}>
+            QUESTIONS
           </button>
           <button type="button" className="research-chip" onClick={() => void loadList(currentPath)} disabled={loading}>
             {loading ? "読み込み中…" : "再読み込み"}

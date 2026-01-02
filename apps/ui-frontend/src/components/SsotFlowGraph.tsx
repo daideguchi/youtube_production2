@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import type { SsotCatalogFlowStep } from "../api/types";
 
-export type SsotFlowEdge = { from: string; to: string };
+export type SsotFlowEdge = { from: string; to: string; label?: string };
 
 type Orientation = "horizontal" | "vertical";
 
@@ -20,8 +20,8 @@ function nodeTask(step: SsotCatalogFlowStep): string | null {
   const t = llm?.task ? String(llm.task) : "";
   if (!t) return null;
   const kind = llm?.kind ? String(llm.kind) : "";
-  if (kind === "image_client") return `IMG:${t}`;
-  return `LLM:${t}`;
+  if (kind === "image_client") return `IMG ${t}`;
+  return `LLM ${t}`;
 }
 
 function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
@@ -51,15 +51,19 @@ function computeLayout(
   steps: SsotCatalogFlowStep[],
   edges: SsotFlowEdge[],
   orientation: Orientation,
-): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string }> } {
+): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string; label?: string; labelX: number; labelY: number }> } {
+  // Layout tuned for readability-first in small graphs (mainline, per-phase views) while
+  // remaining compact enough for large pipelines.
   const ultraDense = steps.length >= 40;
   const dense = steps.length >= 18;
-  const compact = orientation === "horizontal" && steps.length <= 10;
-  const nodeWidth = ultraDense ? 170 : dense ? 190 : compact ? 180 : 210;
-  const nodeHeight = ultraDense ? 64 : dense ? 68 : 72;
-  const gapMain = ultraDense ? 50 : dense ? 60 : compact ? 44 : 72;
-  const gapCross = ultraDense ? 46 : dense ? 54 : compact ? 56 : 70;
-  const margin = ultraDense ? 18 : compact ? 20 : 24;
+  const small = steps.length <= 12;
+
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? 210 : 205;
+  const nodeHeight = ultraDense ? 64 : dense ? 72 : small ? 104 : 90;
+
+  const gapMain = ultraDense ? 50 : dense ? 58 : small ? 54 : 68;
+  const gapCross = ultraDense ? 46 : dense ? 56 : small ? 68 : 74;
+  const margin = ultraDense ? 18 : small ? 20 : 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
   for (const s of steps) idToStep.set(s.node_id, s);
@@ -124,7 +128,7 @@ function computeLayout(
 
   const idToNode = new Map<string, LayoutNode>(laidOut.map((n) => [n.id, n]));
 
-  const paths: Array<{ from: LayoutNode; to: LayoutNode; d: string }> = [];
+  const paths: Array<{ from: LayoutNode; to: LayoutNode; d: string; label?: string; labelX: number; labelY: number }> = [];
   for (const e of usableEdges) {
     const from = idToNode.get(e.from);
     const to = idToNode.get(e.to);
@@ -137,7 +141,7 @@ function computeLayout(
       const ey = to.y + to.height / 2;
       const dx = Math.max(40, Math.min(140, Math.abs(ex - sx) / 2));
       const d = `M ${sx} ${sy} C ${sx + dx} ${sy}, ${ex - dx} ${ey}, ${ex} ${ey}`;
-      paths.push({ from, to, d });
+      paths.push({ from, to, d, label: e.label, labelX: (sx + ex) / 2, labelY: (sy + ey) / 2 });
     } else {
       const sx = from.x + from.width / 2;
       const sy = from.y + from.height;
@@ -145,7 +149,7 @@ function computeLayout(
       const ey = to.y;
       const dy = Math.max(40, Math.min(140, Math.abs(ey - sy) / 2));
       const d = `M ${sx} ${sy} C ${sx} ${sy + dy}, ${ex} ${ey - dy}, ${ex} ${ey}`;
-      paths.push({ from, to, d });
+      paths.push({ from, to, d, label: e.label, labelX: (sx + ex) / 2, labelY: (sy + ey) / 2 });
     }
   }
 
@@ -280,17 +284,36 @@ export function SsotFlowGraph({
                     ? "url(#ssotArrowExec)"
                     : "url(#ssotArrow)";
             return (
-              <path
-                key={idx}
-                d={p.d}
-                fill="none"
-                stroke={st.stroke}
-                strokeWidth={st.strokeWidth}
-                markerEnd={marker}
-                opacity={st.opacity}
-              >
-                {st.title ? <title>{st.title}</title> : null}
-              </path>
+              <g key={idx}>
+                <path
+                  d={p.d}
+                  fill="none"
+                  stroke={st.stroke}
+                  strokeWidth={st.strokeWidth}
+                  markerEnd={marker}
+                  opacity={st.opacity}
+                >
+                  {st.title ? <title>{st.title}</title> : null}
+                </path>
+                {p.label && steps.length <= 10 ? (
+                  <text
+                    x={p.labelX}
+                    y={p.labelY - 6}
+                    textAnchor="middle"
+                    fontSize={11}
+                    fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace"
+                    fill="#0f172a"
+                    style={{
+                      paintOrder: "stroke",
+                      stroke: "rgba(255,255,255,0.9)",
+                      strokeWidth: 6,
+                      strokeLinejoin: "round",
+                    }}
+                  >
+                    {p.label}
+                  </text>
+                ) : null}
+              </g>
             );
           })()
         ))}
@@ -325,7 +348,7 @@ export function SsotFlowGraph({
               : isHighlighted
                 ? "#fffbeb"
                 : "var(--color-surface)";
-        const secondary = task ? task : (n.step.description || n.id);
+        const description = String(n.step.description || "").trim();
         return (
           <button
             key={n.id}
@@ -344,12 +367,12 @@ export function SsotFlowGraph({
               borderRadius: 14,
               border: `2px solid ${border}`,
               background,
-              color: "var(--color-text-strong)",
+              color: "#0f172a",
               boxShadow: isSelected ? "0 10px 24px rgba(29, 78, 216, 0.18)" : "none",
               transform: "none",
               transition: "none",
               display: "grid",
-              gridTemplateRows: "auto auto",
+              gridTemplateRows: "auto auto auto",
               gap: 6,
               textAlign: "left",
               overflow: "hidden",
@@ -386,15 +409,28 @@ export function SsotFlowGraph({
                     borderRadius: 999,
                     border: "1px solid rgba(15, 23, 42, 0.14)",
                     background: "rgba(15, 23, 42, 0.06)",
-                    color: "rgba(15, 23, 42, 0.92)",
+                    color: "#0f172a",
                   }}
                 >
                   {badge}
                 </span>
               ) : null}
-              <div style={{ fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {n.step.name || n.step.node_id}
               </div>
+            </div>
+            <div
+              className="small-text"
+              style={{
+                color: "#334155",
+                lineHeight: 1.35,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {description || n.id}
             </div>
             <div
               className="small-text"
@@ -403,12 +439,27 @@ export function SsotFlowGraph({
                 justifyContent: "space-between",
                 gap: 10,
                 minWidth: 0,
-                color: "var(--color-text-muted)",
+                color: "#475569",
               }}
             >
-              <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {secondary}
+              <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: "1 1 0" }}>
+                {n.id}
               </span>
+              {task ? (
+                <span
+                  className="mono"
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    minWidth: 0,
+                    flex: "1 1 0",
+                    textAlign: "right",
+                  }}
+                >
+                  {task}
+                </span>
+              ) : null}
             </div>
           </button>
         );

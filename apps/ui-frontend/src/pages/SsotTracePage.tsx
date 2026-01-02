@@ -131,6 +131,9 @@ export function SsotTracePage() {
             <Link className="research-chip" to="/ssot/map">
               System Map
             </Link>
+            <Link className="research-chip" to="/ssot/gaps">
+              Gaps
+            </Link>
             <Link className="research-chip" to="/ssot/entrypoints">
               Entrypoints
             </Link>

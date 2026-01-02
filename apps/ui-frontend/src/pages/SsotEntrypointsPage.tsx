@@ -128,6 +128,12 @@ export function SsotEntrypointsPage() {
             <Link className="research-chip" to="/ssot/map">
               System Map
             </Link>
+            <Link className="research-chip" to="/ssot/gaps">
+              Gaps
+            </Link>
+            <Link className="research-chip" to="/ssot/trace">
+              Trace
+            </Link>
             <button type="button" className={`research-chip ${tab === "api_routes" ? "is-active" : ""}`} onClick={() => setTab("api_routes")}>
               API Routes
             </button>

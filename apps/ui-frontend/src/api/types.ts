@@ -1867,13 +1867,19 @@ export interface SsotCatalogFlowStep {
   sot?: Record<string, unknown>;
 }
 
+export interface SsotCatalogEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
 export interface SsotCatalog {
   schema: string;
   generated_at: string;
   mainline: {
     flow_id: string;
     nodes: SsotCatalogFlowStep[];
-    edges: Array<{ from: string; to: string }>;
+    edges: SsotCatalogEdge[];
   };
   entrypoints: {
     python: SsotCatalogEntrypoint[];
@@ -1886,7 +1892,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       runner_path?: string;
       stages_path?: string;
       templates_path?: string;
@@ -1897,7 +1903,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       auto_capcut_run_path?: string;
       sot?: Array<Record<string, unknown>>;
     };
@@ -1906,7 +1912,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       tool_path?: string;
       pipeline_path?: string;
       config_path?: string;
@@ -1918,7 +1924,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       run_tts_path?: string;
       llm_adapter_path?: string;
       sot?: Array<Record<string, unknown>>;
@@ -1928,7 +1934,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       sot?: Array<Record<string, unknown>>;
     };
     publish?: {
@@ -1936,7 +1942,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       path?: string;
       sot?: Array<Record<string, unknown>>;
     };
@@ -1945,7 +1951,7 @@ export interface SsotCatalog {
       phase: string;
       summary?: string;
       steps: SsotCatalogFlowStep[];
-      edges: Array<{ from: string; to: string }>;
+      edges: SsotCatalogEdge[];
       sot?: Array<Record<string, unknown>>;
     };
   };

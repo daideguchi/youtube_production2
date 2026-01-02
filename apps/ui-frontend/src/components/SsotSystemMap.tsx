@@ -119,8 +119,10 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
-const MIN_GRAPH_SCALE = 0.12;
+// Allow zooming out enough to always fit large traces (readability is handled via Fit + manual zoom).
+const MIN_GRAPH_SCALE = 0.05;
 const MAX_GRAPH_SCALE = 3.0;
+const GRAPH_ZOOM_STEP = 0.05;
 
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
@@ -467,11 +469,11 @@ export function SsotSystemMap() {
 
   const zoomIn = () => {
     setAutoFit(false);
-    setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
+    setGraphScale((s) => clamp(Number((s + GRAPH_ZOOM_STEP).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomOut = () => {
     setAutoFit(false);
-    setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
+    setGraphScale((s) => clamp(Number((s - GRAPH_ZOOM_STEP).toFixed(2)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE));
   };
   const zoomReset = () => {
     setAutoFit(false);
@@ -1061,6 +1063,11 @@ export function SsotSystemMap() {
                             const task = llm?.task ? String(llm.task) : "";
                             const kind = llm?.kind ? String(llm.kind) : "";
                             const mode = task ? (kind === "image_client" ? "IMAGE" : "LLM") : "CODE";
+                            const taskDefs = kind === "image_client" ? ((catalog as any)?.image?.task_defs || {}) : ((catalog as any)?.llm?.task_defs || {});
+                            const taskDef = task ? (taskDefs[task] as any) : null;
+                            const tier = taskDef?.tier ? String(taskDef.tier) : "";
+                            const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as string[]) : [];
+                            const modelHint = tier ? `tier=${tier}` : modelKeys.length > 0 ? `models=${modelKeys.slice(0, 2).join(", ")}${modelKeys.length > 2 ? ", …" : ""}` : "";
                             const outs = parseOutputDecls(s.outputs).slice(0, 2);
                             return (
                               <button
@@ -1106,17 +1113,27 @@ export function SsotSystemMap() {
                                     {s.name || s.node_id}
                                   </div>
                                 </div>
-                                <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                <div className="mono muted small-text" style={{ lineHeight: 1.35, overflowWrap: "anywhere" }}>
                                   {mode}
                                   {task ? ` task=${task}` : ""}
+                                  {modelHint ? ` / ${modelHint}` : ""}
                                 </div>
                                 {s.description ? (
-                                  <div className="muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  <div
+                                    className="muted small-text"
+                                    style={{
+                                      lineHeight: 1.45,
+                                      display: "-webkit-box",
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: "vertical",
+                                      overflow: "hidden",
+                                    }}
+                                  >
                                     {s.description}
                                   </div>
                                 ) : null}
                                 {outs.length > 0 ? (
-                                  <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  <div className="mono muted small-text" style={{ lineHeight: 1.35, overflowWrap: "anywhere" }}>
                                     out: {outs.map((o) => o.path).join(", ")}
                                   </div>
                                 ) : null}
@@ -1200,57 +1217,186 @@ export function SsotSystemMap() {
                   ) : null}
                 </div>
               </details>
-              <div
-                ref={graphViewportRef}
-                onMouseDown={beginPan}
-                onMouseMove={movePan}
-                onMouseUp={endPan}
-                onMouseLeave={endPan}
-                style={{
-                  marginTop: 10,
-                  border: "1px solid var(--color-border-muted)",
-                  borderRadius: 14,
-                  background: "var(--color-surface-subtle)",
-                  overflow: "auto",
-                  height: "65vh",
-                  minHeight: 360,
-                  maxHeight: 860,
-                  cursor: isPanning ? "grabbing" : "grab",
-                  userSelect: "none",
-                }}
-              >
+              <div className={`ssot-graph-split${focusMode ? "" : " ssot-graph-split--single"}`} style={{ marginTop: 10 }}>
                 <div
+                  ref={graphViewportRef}
+                  onMouseDown={beginPan}
+                  onMouseMove={movePan}
+                  onMouseUp={endPan}
+                  onMouseLeave={endPan}
                   style={{
-                    position: "relative",
-                    width: graphSize.width * graphScale,
-                    height: graphSize.height * graphScale,
+                    border: "1px solid var(--color-border-muted)",
+                    borderRadius: 14,
+                    background: "var(--color-surface-subtle)",
+                    overflow: "auto",
+                    height: "65vh",
+                    minHeight: 360,
+                    maxHeight: 860,
+                    cursor: isPanning ? "grabbing" : "grab",
+                    userSelect: "none",
+                    minWidth: 0,
                   }}
                 >
                   <div
                     style={{
-                      position: "absolute",
-                      left: 0,
-                      top: 0,
-                      transform: `scale(${graphScale})`,
-                      transformOrigin: "top left",
+                      position: "relative",
+                      width: graphSize.width * graphScale,
+                      height: graphSize.height * graphScale,
                     }}
                   >
-                    <SsotFlowGraph
-                      steps={nodes}
-                      edges={edges}
-                      selectedNodeId={selectedNodeId}
-                      onSelect={(id) => {
-                        setSelectedNodeId(id);
-                        centerOnNode(id);
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        transform: `scale(${graphScale})`,
+                        transformOrigin: "top left",
                       }}
-                      orientation={orientation}
-                      highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
-                      onSize={handleGraphSize}
-                      executed={traceLoadedKey ? executedByNodeId : undefined}
-                      executedEdges={traceLoadedKey ? executedEdges : undefined}
-                    />
+                    >
+                      <SsotFlowGraph
+                        steps={nodes}
+                        edges={edges}
+                        selectedNodeId={selectedNodeId}
+                        onSelect={(id) => {
+                          setSelectedNodeId(id);
+                          centerOnNode(id);
+                        }}
+                        orientation={orientation}
+                        highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
+                        onSize={handleGraphSize}
+                        executed={traceLoadedKey ? executedByNodeId : undefined}
+                        executedEdges={traceLoadedKey ? executedEdges : undefined}
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {focusMode ? (
+                  <aside
+                    style={{
+                      border: "1px solid var(--color-border-muted)",
+                      borderRadius: 14,
+                      background: "var(--color-surface)",
+                      padding: 12,
+                      height: "65vh",
+                      minHeight: 360,
+                      maxHeight: 860,
+                      overflow: "auto",
+                      minWidth: 0,
+                    }}
+                  >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <h4 style={{ margin: 0 }}>Selected（クイックビュー）</h4>
+                    {selectedNode ? <span className="badge subtle">node</span> : <span className="badge subtle">help</span>}
+                  </div>
+                  {!selectedNode ? (
+                    <div className="muted small-text" style={{ marginTop: 10, lineHeight: 1.6 }}>
+                      1) Flow Graph のノードをクリック → 2) 右側に要点（目的/LLM/Prompt/Outputs）を表示 → 3) 下にスクロールすると詳細（Implementation Sources など）を確認できます。
+                    </div>
+                  ) : (
+                    <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                      <div>
+                        <div style={{ fontWeight: 900 }}>{nodeTitle(selectedNode)}</div>
+                        {selectedNode.description ? <div className="muted" style={{ marginTop: 6, lineHeight: 1.6 }}>{selectedNode.description}</div> : null}
+                      </div>
+
+                      <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                        node_id={selectedNode.node_id}
+                        {typeof selectedNode.order === "number" ? ` / order=${selectedNode.order}` : ""}
+                        {selectedNode.phase ? ` / phase=${selectedNode.phase}` : ""}
+                      </div>
+
+                        {stageLlmTask ? (
+                          <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                            {stageTaskKind === "image_client" ? "IMAGE" : "LLM"} task={stageLlmTask}
+                            {selectedTaskDef?.tier ? ` / tier=${String(selectedTaskDef.tier)}` : ""}
+                            {Array.isArray((selectedTaskDef as any)?.model_keys) && (selectedTaskDef as any).model_keys.length > 0
+                              ? ` / models=${String((selectedTaskDef as any).model_keys.slice(0, 3).join(", "))}${(selectedTaskDef as any).model_keys.length > 3 ? ", …" : ""}`
+                              : ""}
+                            {Array.isArray((selectedTaskDef as any)?.resolved_models) && (selectedTaskDef as any).resolved_models.length > 0
+                              ? (() => {
+                                  const m = (selectedTaskDef as any).resolved_models[0] || {};
+                                  const provider = m?.provider ? String(m.provider) : "";
+                                  const model = m?.model_name ? String(m.model_name) : m?.key ? String(m.key) : "";
+                                  const dep = m?.deployment ? String(m.deployment) : "";
+                                  const base = provider && model ? `${provider}:${model}` : model || provider;
+                                  return base ? ` / resolved=${dep ? `${base}(${dep})` : base}` : "";
+                                })()
+                              : ""}
+                          </div>
+                        ) : (
+                          <div className="mono muted small-text">CODE step（LLMなし）</div>
+                        )}
+
+                        {traceLoadedKey && selectedNode.node_id && executedByNodeId[selectedNode.node_id] ? (
+                          <div className="mono muted small-text">
+                            trace: run#{(executedByNodeId[selectedNode.node_id]?.firstIndex ?? 0) + 1} ×{executedByNodeId[selectedNode.node_id]?.count ?? 1}
+                          </div>
+                        ) : null}
+
+                        {selectedTemplatePath ? (
+                          <details open>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              Prompt Template（プレビュー）
+                          </summary>
+                          <div style={{ marginTop: 8 }}>
+                            <SsotFilePreview repoPath={selectedTemplatePath} title="Prompt Template" />
+                          </div>
+                        </details>
+                      ) : null}
+
+                        {selectedOutputDecls.length > 0 ? (
+                          <details open>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              Outputs（宣言）: {selectedOutputDecls.length}
+                            </summary>
+                          <ul style={{ margin: "8px 0 0 0", paddingLeft: 18 }}>
+                            {selectedOutputDecls.slice(0, 6).map((o, i) => (
+                              <li key={`quick-out-${i}`}>
+                                <span className="mono">{o.path}</span>
+                                {o.required === true ? <span className="muted small-text"> (required)</span> : null}
+                              </li>
+                            ))}
+                          </ul>
+                          {selectedOutputDecls.length > 6 ? <div className="muted small-text" style={{ marginTop: 6 }}>…</div> : null}
+                          </details>
+                        ) : null}
+
+                        {selectedImplRefs.length > 0 ? (
+                          <details>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              Implementation（参照）: {selectedImplRefs.length}
+                            </summary>
+                            <div className="mono muted small-text" style={{ marginTop: 8, overflowWrap: "anywhere" }}>
+                              {selectedImplRefs
+                                .slice(0, 4)
+                                .map((r) => `${r.path}:${r.line}${r.symbol ? `(${r.symbol})` : ""}`)
+                                .join(", ")}
+                              {selectedImplRefs.length > 4 ? ", …" : ""}
+                            </div>
+                          </details>
+                        ) : null}
+
+                        {selectedPlaceholderPairs.length > 0 ? (
+                          <details>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              placeholders（差し込み）: {selectedPlaceholderPairs.length}
+                            </summary>
+                            <pre className="mono" style={{ margin: "8px 0 0 0", whiteSpace: "pre-wrap" }}>
+                              {selectedPlaceholderPairs.map((p) => `${p.key}: ${p.value}`).join("\n")}
+                            </pre>
+                          </details>
+                        ) : null}
+
+                        {(selectedNode as any)?.sot?.path ? (
+                          <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                            SoT: {String((selectedNode as any).sot.path)}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </aside>
+                ) : null}
               </div>
               <div
                 className="muted small-text"

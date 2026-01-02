@@ -1641,11 +1641,11 @@ def build_ssot_catalog() -> Dict[str, Any]:
                 {"phase": "F", "order": 6, "node_id": "F/thumbnails", "name": "Thumbnails", "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。"},
             ],
             "edges": [
-                {"from": "A/planning", "to": "B/script_pipeline"},
-                {"from": "B/script_pipeline", "to": "C/audio_tts"},
-                {"from": "C/audio_tts", "to": "D/video"},
-                {"from": "D/video", "to": "G/publish"},
-                {"from": "A/planning", "to": "F/thumbnails"},
+                {"from": "A/planning", "to": "B/script_pipeline", "label": "title/persona/targets → status.json"},
+                {"from": "B/script_pipeline", "to": "C/audio_tts", "label": "A-text → wav+srt"},
+                {"from": "C/audio_tts", "to": "D/video", "label": "final wav+srt → run_dir"},
+                {"from": "D/video", "to": "G/publish", "label": "final mp4 → Sheet/YouTube"},
+                {"from": "A/planning", "to": "F/thumbnails", "label": "thumb text → projects"},
             ],
         },
         "entrypoints": {

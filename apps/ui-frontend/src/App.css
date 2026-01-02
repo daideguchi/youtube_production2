@@ -48,6 +48,28 @@
   word-break: break-word;
 }
 
+.ssot-map .ssot-graph-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ssot-map .ssot-graph-split.ssot-graph-split--single {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1200px) {
+  .ssot-map .ssot-graph-split {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    align-items: start;
+  }
+
+  .ssot-map .ssot-graph-split.ssot-graph-split--single {
+    grid-template-columns: 1fr;
+  }
+}
+
 .research-workspace__header {
   display: flex;
   justify-content: space-between;
