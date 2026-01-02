@@ -25,7 +25,20 @@ function nodeTitle(step: SsotCatalogFlowStep): string {
   return base;
 }
 
-type TraceEvent = { kind: "llm" | "image"; task: string; at_ms: number | null };
+type TraceMessage = { role: string; content: string };
+
+type TraceEvent = {
+  kind: "llm" | "image";
+  task: string;
+  at_ms: number | null;
+  provider?: string | null;
+  model?: string | null;
+  request_id?: string | null;
+  messages?: TraceMessage[];
+  prompt?: string | null;
+};
+
+type TraceEntry = TraceEvent & { index: number };
 
 function parseIsoMs(raw: unknown): number | null {
   if (!raw) return null;
@@ -47,12 +60,52 @@ function parseJsonlEvents(content: string, kind: "llm" | "image"): TraceEvent[] 
       const obj = JSON.parse(s) as any;
       const task = obj?.task ? String(obj.task) : "";
       if (!task) continue;
-      out.push({ kind, task, at_ms: parseIsoMs(obj?.generated_at) });
+      const base: TraceEvent = {
+        kind,
+        task,
+        at_ms: parseIsoMs(obj?.generated_at),
+        provider: obj?.provider ? String(obj.provider) : null,
+        model: obj?.model ? String(obj.model) : obj?.model_key ? String(obj.model_key) : null,
+        request_id: obj?.request_id ? String(obj.request_id) : null,
+        messages: undefined,
+        prompt: null,
+      };
+
+      if (kind === "llm") {
+        const msgs = Array.isArray(obj?.messages) ? (obj.messages as any[]) : [];
+        const parsed = msgs
+          .slice(0, 20)
+          .map((m) => {
+            const role = m?.role ? String(m.role) : "";
+            const content = m?.content ? String(m.content) : "";
+            if (!role || !content) return null;
+            return { role, content };
+          })
+          .filter(Boolean) as TraceMessage[];
+        base.messages = parsed.length > 0 ? parsed : undefined;
+      } else {
+        const p = obj?.input?.prompt ? String(obj.input.prompt) : "";
+        base.prompt = p ? p : null;
+      }
+
+      out.push(base);
     } catch {
       // ignore
     }
   }
   return out;
+}
+
+function truncateText(text: string, maxChars: number): string {
+  const s = String(text || "");
+  if (maxChars <= 0) return "";
+  if (s.length <= maxChars) return s;
+  return `${s.slice(0, Math.max(0, maxChars - 1))}…`;
+}
+
+function formatTraceMessages(messages: TraceMessage[] | undefined, maxChars: number): string {
+  const lines = (messages || []).map((m) => `${m.role}:\n${m.content}`);
+  return truncateText(lines.join("\n\n"), maxChars);
 }
 
 type OutputDecl = { path: string; required: boolean | null; raw: unknown };
@@ -164,6 +217,7 @@ export function SsotSystemMap() {
   const [traceTaskSummary, setTraceTaskSummary] = useState<Record<string, { firstIndex: number; count: number }>>({});
   const [traceEventCount, setTraceEventCount] = useState(0);
   const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
+  const [traceIsPartial, setTraceIsPartial] = useState(false);
   const [traceKeySuggestions, setTraceKeySuggestions] = useState<Array<{ key: string; modified_ms: number }>>([]);
   const [traceListLoading, setTraceListLoading] = useState(false);
 
@@ -743,6 +797,7 @@ export function SsotSystemMap() {
       setTraceTaskSummary(summary);
       setTraceEventCount(all.length);
       setTraceEvents(all);
+      setTraceIsPartial(Boolean(llm?.is_partial || image?.is_partial));
 
       if (all.length === 0) {
         setTraceError("trace が見つかりません（logs/traces/ に JSONL がありません）");
@@ -752,6 +807,7 @@ export function SsotSystemMap() {
       setTraceTaskSummary({});
       setTraceEventCount(0);
       setTraceEvents([]);
+      setTraceIsPartial(false);
       setTraceError(err instanceof Error ? err.message : String(err));
     } finally {
       setTraceLoading(false);
@@ -763,6 +819,7 @@ export function SsotSystemMap() {
     setTraceTaskSummary({});
     setTraceEventCount(0);
     setTraceEvents([]);
+    setTraceIsPartial(false);
     setTraceError(null);
   };
 
@@ -887,6 +944,37 @@ export function SsotSystemMap() {
   const missingTasks = useMemo(() => catalog?.llm?.missing_task_defs || [], [catalog]);
   const missingImageTasks = useMemo(() => catalog?.image?.missing_task_defs || [], [catalog]);
   const policies = useMemo(() => catalog?.policies || [], [catalog]);
+
+  const selectedTraceTasks = useMemo(() => {
+    if (!selectedNode) return [];
+    const tasks = new Set<string>();
+    if (flow === "mainline") {
+      const set = mainlineTaskSets[selectedNode.node_id];
+      if (set) set.forEach((t) => (t ? tasks.add(String(t)) : null));
+    } else {
+      const llm = selectedNode.llm as any;
+      const t = llm?.task ? String(llm.task) : "";
+      if (t) tasks.add(t);
+      for (const ss of selectedSubsteps) {
+        const llm2 = (ss as any)?.llm as any;
+        const t2 = llm2?.task ? String(llm2.task) : "";
+        if (t2) tasks.add(t2);
+      }
+    }
+    return Array.from(tasks)
+      .map((t) => String(t).trim())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  }, [flow, mainlineTaskSets, selectedNode, selectedSubsteps]);
+
+  const selectedTraceEntries = useMemo<TraceEntry[]>(() => {
+    if (!traceLoadedKey) return [];
+    if (!selectedNode) return [];
+    if (!traceEvents || traceEvents.length === 0) return [];
+    if (selectedTraceTasks.length === 0) return [];
+    const taskSet = new Set(selectedTraceTasks);
+    return traceEvents.map((e, index) => ({ ...e, index })).filter((e) => taskSet.has(e.task));
+  }, [selectedNode, selectedTraceTasks, traceEvents, traceLoadedKey]);
 
   return (
     <section className="research-workspace research-workspace--wide ssot-map">
@@ -1144,8 +1232,9 @@ export function SsotSystemMap() {
                   <span>Trace（実行ログでハイライト）</span>
                   {traceLoadedKey ? (
                     <span className="mono muted small-text">
-                      loaded: {traceLoadedKey} / events={traceEventCount} / matched_tasks={traceMatchedTaskCount} / executed_nodes={Object.keys(executedByNodeId).length} /
-                      executed_edges={Object.keys(executedEdges).length}
+                      loaded: {traceLoadedKey}
+                      {traceIsPartial ? " (partial)" : ""} / events={traceEventCount} / matched_tasks={traceMatchedTaskCount} /
+                      executed_nodes={Object.keys(executedByNodeId).length} / executed_edges={Object.keys(executedEdges).length}
                     </span>
                   ) : (
                     <span className="muted small-text">任意: logs/traces/ の JSONL から実行済みを表示</span>
@@ -1718,6 +1807,59 @@ export function SsotSystemMap() {
                           <div className="mono muted small-text">
                             trace: run#{(executedByNodeId[selectedNode.node_id]?.firstIndex ?? 0) + 1} ×{executedByNodeId[selectedNode.node_id]?.count ?? 1}
                           </div>
+                        ) : null}
+
+                        {traceLoadedKey ? (
+                          <details open={selectedTraceEntries.length > 0 && selectedTraceEntries.length <= 1}>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              Trace Prompts（実行ログ）: {selectedTraceEntries.length || 0}
+                            </summary>
+                            <div className="mono muted small-text" style={{ marginTop: 8, overflowWrap: "anywhere" }}>
+                              loaded={traceLoadedKey}
+                              {traceIsPartial ? " (partial)" : ""}
+                              {selectedTraceTasks.length > 0
+                                ? ` / tasks=${selectedTraceTasks.slice(0, 6).join(", ")}${selectedTraceTasks.length > 6 ? ", …" : ""}`
+                                : ""}
+                            </div>
+                            {selectedTraceEntries.length > 0 ? (
+                              <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+                                {selectedTraceEntries.slice(0, 2).map((ev) => {
+                                  const modelLabel =
+                                    ev.provider && ev.model ? `${ev.provider}:${ev.model}` : ev.model || ev.provider || "";
+                                  const header = `#${ev.index + 1} ${ev.kind === "image" ? "IMAGE" : "LLM"} task=${ev.task}${
+                                    modelLabel ? ` / ${modelLabel}` : ""
+                                  }${ev.request_id ? ` / rid=${ev.request_id}` : ""}`;
+                                  const body =
+                                    ev.kind === "image"
+                                      ? truncateText(ev.prompt || "", 1200)
+                                      : formatTraceMessages(ev.messages, 1200);
+                                  return (
+                                    <details
+                                      key={`quick-trace-${ev.index}-${ev.task}-${ev.kind}`}
+                                      style={{
+                                        border: "1px solid rgba(15, 23, 42, 0.10)",
+                                        borderRadius: 10,
+                                        padding: "8px 10px",
+                                        background: "var(--color-surface-subtle)",
+                                      }}
+                                    >
+                                      <summary className="mono muted small-text" style={{ cursor: "pointer", overflowWrap: "anywhere" }}>
+                                        {header}
+                                      </summary>
+                                      <pre className="mono" style={{ margin: "8px 0 0 0", whiteSpace: "pre-wrap" }}>
+                                        {body || "—"}
+                                      </pre>
+                                    </details>
+                                  );
+                                })}
+                                {selectedTraceEntries.length > 2 ? <div className="muted small-text">…</div> : null}
+                              </div>
+                            ) : (
+                              <div className="muted small-text" style={{ marginTop: 10, lineHeight: 1.6 }}>
+                                このノードに紐づく task が trace から見つかりません（taskマッピング不足 or trace範囲外の可能性）。必要なら Open Trace で全文を確認してください。
+                              </div>
+                            )}
+                          </details>
                         ) : null}
 
                       {selectedTemplatePath ? (
@@ -2389,6 +2531,69 @@ export function SsotSystemMap() {
                       {JSON.stringify(selectedNode.llm, null, 2)}
                     </pre>
                   </details>
+                </section>
+              ) : null}
+
+              {traceLoadedKey ? (
+                <section className="shell-panel shell-panel--placeholder">
+                  <h3 style={{ marginTop: 0 }}>Trace Prompts（実行ログ）</h3>
+                  <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                    loaded={traceLoadedKey}
+                    {traceIsPartial ? " (partial)" : ""} / tasks={selectedTraceTasks.length} / events={selectedTraceEntries.length}
+                  </div>
+                  {selectedTraceTasks.length > 0 ? (
+                    <div className="muted small-text" style={{ marginTop: 8 }}>
+                      tasks: <span className="mono">{selectedTraceTasks.slice(0, 12).join(", ")}</span>
+                      {selectedTraceTasks.length > 12 ? <span className="muted small-text"> …</span> : null}
+                    </div>
+                  ) : (
+                    <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
+                      このノードは task（LLM/Image）を宣言していません（= CODE step の可能性）。サブステップや mainline の task マッピングを増やすと trace と紐づきます。
+                    </div>
+                  )}
+                  {selectedTraceEntries.length > 0 ? (
+                    <details style={{ marginTop: 10 }} open={selectedTraceEntries.length <= 2}>
+                      <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                        Matched Events（先頭のみ / プレビューは各 8k 文字で切り詰め）: {selectedTraceEntries.length}
+                      </summary>
+                      <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                        {selectedTraceEntries.slice(0, 6).map((ev) => {
+                          const modelLabel = ev.provider && ev.model ? `${ev.provider}:${ev.model}` : ev.model || ev.provider || "";
+                          const at = typeof ev.at_ms === "number" ? new Date(ev.at_ms).toISOString() : "";
+                          const header = `#${ev.index + 1} ${ev.kind === "image" ? "IMAGE" : "LLM"} task=${ev.task}${
+                            modelLabel ? ` / ${modelLabel}` : ""
+                          }${ev.request_id ? ` / rid=${ev.request_id}` : ""}${at ? ` / at=${at}` : ""}`;
+                          const body =
+                            ev.kind === "image"
+                              ? truncateText(ev.prompt || "", 8000)
+                              : formatTraceMessages(ev.messages, 8000);
+                          return (
+                            <details
+                              key={`trace-${ev.index}-${ev.task}-${ev.kind}`}
+                              style={{
+                                border: "1px solid rgba(15, 23, 42, 0.10)",
+                                borderRadius: 12,
+                                padding: "10px 12px",
+                                background: "var(--color-surface-subtle)",
+                              }}
+                            >
+                              <summary className="mono muted small-text" style={{ cursor: "pointer", overflowWrap: "anywhere" }}>
+                                {header}
+                              </summary>
+                              <pre className="mono" style={{ margin: "10px 0 0 0", whiteSpace: "pre-wrap" }}>
+                                {body || "—"}
+                              </pre>
+                            </details>
+                          );
+                        })}
+                        {selectedTraceEntries.length > 6 ? <div className="muted small-text">…</div> : null}
+                      </div>
+                    </details>
+                  ) : (
+                    <div className="muted small-text" style={{ marginTop: 10, lineHeight: 1.6 }}>
+                      このノードに紐づく task が trace から見つかりません。task マッピング不足 or trace の読み込み範囲（先頭 5000 行）外の可能性があります。
+                    </div>
+                  )}
                 </section>
               ) : null}
 
