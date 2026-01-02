@@ -39,6 +39,92 @@ TRANSIENT_STATUSES = set(DEFAULT_FALLBACK_POLICY["transient_statuses"])
 # Fireworks key rotation (same provider, multi-key)
 # ---------------------------------------------------------------------------
 
+_FIREWORKS_API_KEY_RE = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
+
+def _env_truthy(name: str, default: str = "0") -> bool:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        raw = str(default or "").strip()
+    raw = raw.lower()
+    return raw not in {"", "0", "false", "no", "off"}
+
+
+def _sha256_hex(value: str) -> str:
+    return hashlib.sha256((value or "").encode("utf-8")).hexdigest()
+
+
+def _fireworks_keys_state_file_default() -> Path:
+    return secrets_root() / "fireworks_script_keys_state.json"
+
+
+def _fireworks_keys_state_file_path() -> Path:
+    raw = (os.getenv("FIREWORKS_SCRIPT_KEYS_STATE_FILE") or "").strip()
+    if raw:
+        return Path(raw).expanduser().resolve()
+    return _fireworks_keys_state_file_default()
+
+
+def _load_fireworks_key_state() -> Dict[str, Dict[str, Any]]:
+    """
+    Load per-key state (no raw keys stored).
+
+    Format:
+      {
+        "version": 1,
+        "updated_at": "...",
+        "keys": {
+          "<sha256>": {"status":"ok|invalid|exhausted|unknown", "last_http_status": 200, ...}
+        }
+      }
+    """
+    path = _fireworks_keys_state_file_path()
+    if not path.exists():
+        return {}
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return {}
+    keys_obj = obj.get("keys") if isinstance(obj, dict) else None
+    return keys_obj if isinstance(keys_obj, dict) else {}
+
+
+def _update_fireworks_key_state(key: str, *, status: str, http_status: Optional[int], note: str = "") -> None:
+    """
+    Persist per-key status without storing raw keys (sha256 only).
+    """
+    k = str(key or "").strip()
+    if not k:
+        return
+    fp = _sha256_hex(k)
+    path = _fireworks_keys_state_file_path()
+    state: Dict[str, Any] = {"version": 1, "updated_at": datetime.now(timezone.utc).isoformat(), "keys": {}}
+    if path.exists():
+        try:
+            prev = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+            if isinstance(prev, dict):
+                state["version"] = int(prev.get("version") or 1)
+                state["keys"] = prev.get("keys") if isinstance(prev.get("keys"), dict) else {}
+        except Exception:
+            pass
+    keys_obj: Dict[str, Any] = state.get("keys") if isinstance(state.get("keys"), dict) else {}
+    keys_obj[fp] = {
+        "status": str(status or "unknown"),
+        "last_checked_at": datetime.now(timezone.utc).isoformat(),
+        "last_http_status": int(http_status) if isinstance(http_status, int) else None,
+        "note": str(note or ""),
+    }
+    state["keys"] = keys_obj
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        try:
+            os.chmod(path, 0o600)
+        except Exception:
+            pass
+    except Exception:
+        # Never fail the pipeline due to state persistence.
+        return
+
 
 def _dedupe_keep_order(items: List[str]) -> List[str]:
     out: List[str] = []
@@ -76,12 +162,16 @@ def _read_fireworks_keys_file(path: Path) -> List[str]:
         if "=" in line:
             _left, right = line.split("=", 1)
             line = right.strip()
+        # Allow inline comments: fw_xxx... # note
+        if "#" in line:
+            line = line.split("#", 1)[0].strip()
+        line = line.strip().strip("'\"")
         # Stored as ASCII tokens (no spaces).
         if " " in line or "\t" in line:
             continue
         if not all(ord(ch) < 128 for ch in line):
             continue
-        if len(line) < 16:
+        if not _FIREWORKS_API_KEY_RE.match(line):
             continue
         keys.append(line)
     return _dedupe_keep_order(keys)
@@ -95,15 +185,15 @@ def _fireworks_keys_file_default() -> Path:
 
 def _fireworks_key_candidates(primary_key: Optional[str]) -> List[str]:
     keys: List[str] = []
-    if primary_key:
-        keys.append(primary_key)
+    if primary_key and _FIREWORKS_API_KEY_RE.match(str(primary_key).strip()):
+        keys.append(str(primary_key).strip())
 
     # Optional comma-separated keys (no whitespace).
     raw_list = (os.getenv("FIREWORKS_SCRIPT_KEYS") or "").strip()
     if raw_list:
         for part in raw_list.split(","):
             tok = part.strip()
-            if tok:
+            if tok and _FIREWORKS_API_KEY_RE.match(tok):
                 keys.append(tok)
 
     raw_file = (os.getenv("FIREWORKS_SCRIPT_KEYS_FILE") or "").strip()
@@ -115,7 +205,23 @@ def _fireworks_key_candidates(primary_key: Optional[str]) -> List[str]:
         if p.exists():
             keys.extend(_read_fireworks_keys_file(p))
 
-    return _dedupe_keep_order(keys)
+    keys = _dedupe_keep_order(keys)
+
+    # Default: skip keys already known to be exhausted/invalid (unless explicitly disabled).
+    if _env_truthy("FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED", default="1"):
+        st = _load_fireworks_key_state()
+        if isinstance(st, dict) and st:
+            filtered: List[str] = []
+            for k in keys:
+                fp = _sha256_hex(k)
+                ent = st.get(fp) if isinstance(st.get(fp), dict) else {}
+                s = str((ent or {}).get("status") or "").strip().lower()
+                if s in {"exhausted", "invalid"}:
+                    continue
+                filtered.append(k)
+            keys = filtered
+
+    return keys
 
 # HTTPステータスを例外から推測するための簡易ヘルパ
 def _extract_status(exc: Exception) -> Optional[int]:
@@ -703,14 +809,20 @@ class LLMRouter:
                 genai.configure(api_key=key)
                 self.clients["gemini"] = "configured" # Client is static
 
-    def _fireworks_mark_current_key_dead(self) -> None:
+    def _fireworks_mark_current_key_dead(self, *, http_status: Optional[int] = None) -> None:
         keys = getattr(self, "_fireworks_keys", None)
         dead = getattr(self, "_fireworks_dead_keys", None)
         idx = getattr(self, "_fireworks_key_index", None)
         if not isinstance(keys, list) or not isinstance(dead, set) or not isinstance(idx, int):
             return
         if 0 <= idx < len(keys):
-            dead.add(keys[idx])
+            k = keys[idx]
+            dead.add(k)
+            # Persist only the statuses that reliably mean "this key won't work now".
+            if http_status == 401:
+                _update_fireworks_key_state(k, status="invalid", http_status=http_status, note="401 unauthorized")
+            elif http_status == 402:
+                _update_fireworks_key_state(k, status="exhausted", http_status=http_status, note="402 payment required")
 
     def _fireworks_rotate_client(self) -> Optional[Any]:
         """
@@ -1814,7 +1926,7 @@ class LLMRouter:
                         last_exc = exc
                         status = _extract_status(exc)
                         if provider == "fireworks" and status in {401, 402, 403, 404, 412}:
-                            self._fireworks_mark_current_key_dead()
+                            self._fireworks_mark_current_key_dead(http_status=status)
                             nxt = self._fireworks_rotate_client()
                             if nxt is not None:
                                 fw_client = nxt
@@ -1922,7 +2034,7 @@ class LLMRouter:
                             last_exc = exc
                             status = _extract_status(exc)
                             if status in {401, 402, 403, 404, 412}:
-                                self._fireworks_mark_current_key_dead()
+                                self._fireworks_mark_current_key_dead(http_status=status)
                                 nxt = self._fireworks_rotate_client()
                                 if nxt is not None:
                                     fw_client = nxt

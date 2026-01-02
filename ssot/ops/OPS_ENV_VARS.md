@@ -15,6 +15,10 @@
       - 既定探索: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py add --key ...`（キーは表示しない）
     - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
+    - `FIREWORKS_SCRIPT_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
+      - 既定: `~/.ytm/secrets/fireworks_script_keys_state.json`
+      - 更新: `python3 scripts/ops/fireworks_keyring.py check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
+    - `FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED`（default: `1`）: stateで `exhausted/invalid` のキーをローテ候補から除外する。
     - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
       - それでも全滅した場合は停止（`LLM_API_FAILOVER_TO_THINK` の挙動に従い pending を作る）。
 - OpenRouter: `OPENROUTER_API_KEY`（LLMRouter provider=openrouter 用）

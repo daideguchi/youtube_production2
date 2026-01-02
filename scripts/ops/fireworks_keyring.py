@@ -22,7 +22,11 @@ fireworks_keyring.py — Fireworks（台本/本文）APIキーのキーローテ
 """
 
 import argparse
+import hashlib
+import json
 import os
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -42,6 +46,7 @@ def _dedupe_keep_order(items: List[str]) -> List[str]:
 
 
 def _parse_keys(text: str) -> List[str]:
+    key_re = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
     keys: List[str] = []
     for raw in str(text or "").splitlines():
         line = raw.strip()
@@ -50,15 +55,27 @@ def _parse_keys(text: str) -> List[str]:
         if "=" in line:
             _left, right = line.split("=", 1)
             line = right.strip()
+        # Allow inline comments: fw_xxx... # note
+        if "#" in line:
+            line = line.split("#", 1)[0].strip()
+        line = line.strip().strip("'\"")
         # Stored as ASCII tokens (no spaces).
         if " " in line or "\t" in line:
             continue
         if not all(ord(ch) < 128 for ch in line):
             continue
-        if len(line) < 16:
+        if not key_re.match(line):
             continue
         keys.append(line)
     return _dedupe_keep_order(keys)
+
+
+def _extract_fw_keys_anywhere(text: str) -> List[str]:
+    """
+    Best-effort extractor for legacy memos (keys may be embedded in messy text).
+    """
+    tokens = re.findall(r"fw_[A-Za-z0-9_-]{10,}", str(text or ""))
+    return _dedupe_keep_order(tokens)
 
 
 def _read_keys(path: Path) -> List[str]:
@@ -93,6 +110,71 @@ def _mask(key: str) -> str:
         return "*" * len(k)
     return f"{k[:4]}…{k[-4:]}"
 
+def _sha256_hex(value: str) -> str:
+    return hashlib.sha256((value or "").encode("utf-8")).hexdigest()
+
+
+def _state_path_default() -> Path:
+    return secrets_root() / "fireworks_script_keys_state.json"
+
+
+def _state_path_from_env() -> Path:
+    raw = (os.getenv("FIREWORKS_SCRIPT_KEYS_STATE_FILE") or "").strip()
+    if raw:
+        return Path(raw).expanduser().resolve()
+    return _state_path_default()
+
+
+def _load_state(path: Path) -> dict:
+    if not path.exists():
+        return {"version": 1, "updated_at": None, "keys": {}}
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return {"version": 1, "updated_at": None, "keys": {}}
+    if not isinstance(obj, dict):
+        return {"version": 1, "updated_at": None, "keys": {}}
+    if not isinstance(obj.get("keys"), dict):
+        obj["keys"] = {}
+    obj.setdefault("version", 1)
+    obj.setdefault("updated_at", None)
+    return obj
+
+
+def _write_state(path: Path, obj: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    obj["updated_at"] = datetime.now(timezone.utc).isoformat()
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    try:
+        os.chmod(path, 0o600)
+    except Exception:
+        pass
+
+
+def _update_state_for_key(state: dict, key: str, *, status: str, http_status: int | None, ratelimit: dict | None) -> None:
+    keys_obj = state.get("keys")
+    if not isinstance(keys_obj, dict):
+        keys_obj = {}
+        state["keys"] = keys_obj
+    fp = _sha256_hex(key)
+    keys_obj[fp] = {
+        "status": str(status or "unknown"),
+        "last_checked_at": datetime.now(timezone.utc).isoformat(),
+        "last_http_status": int(http_status) if isinstance(http_status, int) else None,
+        "ratelimit": ratelimit if isinstance(ratelimit, dict) and ratelimit else None,
+    }
+
+
+def _primary_key_from_env() -> str:
+    return (os.getenv("FIREWORKS_SCRIPT") or os.getenv("FIREWORKS_SCRIPT_API_KEY") or "").strip()
+
+
+def _iter_keys_for_ops(keyring_path: Path) -> List[str]:
+    primary = _primary_key_from_env()
+    keys = [primary] if primary else []
+    keys.extend(_read_keys(keyring_path))
+    return _dedupe_keep_order([k for k in keys if k])
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -113,6 +195,10 @@ def main() -> None:
 
     p_list = sub.add_parser("list", help="list key count (optionally masked)")
     p_list.add_argument("--show-masked", action="store_true", help="print masked keys (prefix…suffix)")
+
+    p_check = sub.add_parser("check", help="probe keys (no token spend) and update state")
+    p_check.add_argument("--limit", type=int, default=0, help="check only first N keys (0=all)")
+    p_check.add_argument("--show-masked", action="store_true", help="print masked keys and status")
 
     p_mig = sub.add_parser("migrate-from-scratch", help="one-time import from legacy memo into keyring")
     p_mig.add_argument("--src", type=str, default="", help="legacy source path (default: workspaces/_scratch/fireworks_apiメモ)")
@@ -151,10 +237,80 @@ def main() -> None:
 
     if args.cmd == "list":
         keys = _read_keys(path)
-        print(f"count={len(keys)} path={path}")
+        state_path = _state_path_from_env()
+        state = _load_state(state_path)
+        states = state.get("keys") if isinstance(state.get("keys"), dict) else {}
+        counts: dict[str, int] = {}
+        for k in keys:
+            ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+            st = str((ent or {}).get("status") or "unknown")
+            counts[st] = counts.get(st, 0) + 1
+
+        counts_txt = " ".join([f"{k}={v}" for k, v in sorted(counts.items())])
+        print(f"count={len(keys)} path={path} state={state_path} {counts_txt}".strip())
         if getattr(args, "show_masked", False):
             for k in keys:
-                print(_mask(k))
+                ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+                st = str((ent or {}).get("status") or "unknown")
+                hs = (ent or {}).get("last_http_status")
+                tail = f" http={hs}" if hs is not None else ""
+                print(f"{_mask(k)}\t{st}{tail}")
+        return
+
+    if args.cmd == "check":
+        try:
+            import requests  # type: ignore
+        except Exception as exc:
+            raise SystemExit(f"requests is required for check: {exc}") from exc
+
+        keys = _iter_keys_for_ops(path)
+        if not keys:
+            raise SystemExit("no keys found (set FIREWORKS_SCRIPT or add to keyring file)")
+        limit = int(getattr(args, "limit", 0) or 0)
+        if limit > 0:
+            keys = keys[:limit]
+
+        state_path = _state_path_from_env()
+        state = _load_state(state_path)
+
+        endpoint = "https://api.fireworks.ai/inference/v1/models"
+        summary = {"ok": 0, "invalid": 0, "exhausted": 0, "error": 0}
+        rows: List[str] = []
+        for k in keys:
+            status = "unknown"
+            http_status = None
+            ratelimit = None
+            try:
+                r = requests.get(endpoint, headers={"Authorization": f"Bearer {k}"}, timeout=20)
+                http_status = int(r.status_code)
+                if r.status_code == 200:
+                    status = "ok"
+                    ratelimit = {
+                        "limit_requests": r.headers.get("x-ratelimit-limit-requests"),
+                        "remaining_requests": r.headers.get("x-ratelimit-remaining-requests"),
+                        "limit_tokens_prompt": r.headers.get("x-ratelimit-limit-tokens-prompt"),
+                        "remaining_tokens_prompt": r.headers.get("x-ratelimit-remaining-tokens-prompt"),
+                        "limit_tokens_generated": r.headers.get("x-ratelimit-limit-tokens-generated"),
+                        "remaining_tokens_generated": r.headers.get("x-ratelimit-remaining-tokens-generated"),
+                        "over_limit": r.headers.get("x-ratelimit-over-limit"),
+                    }
+                elif r.status_code == 401:
+                    status = "invalid"
+                elif r.status_code == 402:
+                    status = "exhausted"
+                else:
+                    status = "error"
+            except Exception:
+                status = "error"
+            summary[status] = summary.get(status, 0) + 1
+            _update_state_for_key(state, k, status=status, http_status=http_status, ratelimit=ratelimit)
+            if getattr(args, "show_masked", False):
+                rows.append(f"{_mask(k)}\t{status}\thttp={http_status}")
+
+        _write_state(state_path, state)
+        print(f"ok={summary.get('ok',0)} exhausted={summary.get('exhausted',0)} invalid={summary.get('invalid',0)} error={summary.get('error',0)} total={len(keys)} state={state_path}")
+        for line in rows:
+            print(line)
         return
 
     if args.cmd == "migrate-from-scratch":
@@ -165,7 +321,11 @@ def main() -> None:
         )
         if not src.exists():
             raise SystemExit(f"legacy memo not found: {src}")
-        src_keys = _read_keys(src)
+        try:
+            memo_text = src.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            memo_text = ""
+        src_keys = _extract_fw_keys_anywhere(memo_text)
         dst_keys = _read_keys(path)
         merged = _dedupe_keep_order([*dst_keys, *src_keys])
         if merged != dst_keys:
@@ -178,4 +338,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
