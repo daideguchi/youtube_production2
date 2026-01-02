@@ -63,6 +63,7 @@ selection:
     # A-text body writing (chapters / assembled*.md)
     - script_chapter_draft
     - script_cta
+    - script_format
     # Final A-text overwrites (quality gate / fixes / final polish)
     - script_chapter_review
     - script_a_text_seed

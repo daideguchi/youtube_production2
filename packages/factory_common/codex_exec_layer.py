@@ -34,6 +34,25 @@ DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
     },
 }
 
+_A_TEXT_BODY_FORBIDDEN_TASKS = {
+    # A-text body writing (chapters / assembled*.md)
+    "script_chapter_draft",
+    "script_cta",
+    "script_format",
+    # Final A-text overwrites (review/quality gate/fixes/final polish)
+    "script_chapter_review",
+    "script_semantic_alignment_fix",
+}
+
+
+def _is_a_text_body_task(task: str) -> bool:
+    t = str(task or "").strip()
+    if not t:
+        return False
+    if t.startswith("script_a_text_"):
+        return True
+    return t in _A_TEXT_BODY_FORBIDDEN_TASKS
+
 
 def _truthy(value: Any) -> bool:
     if value is None:
@@ -143,6 +162,12 @@ def should_try_codex_exec(task: str, *, cfg: Dict[str, Any] | None = None) -> bo
 
     t = str(task or "").strip()
     if not t:
+        return False
+
+    # Hard safety rule (fixed):
+    # - NEVER route any task that writes/overwrites the A-text body through Codex exec.
+    #   This is structural (independent of repo config) to prevent accidental drift.
+    if _is_a_text_body_task(t):
         return False
 
     # Operator override (fast rollback of a single task without editing repo config).

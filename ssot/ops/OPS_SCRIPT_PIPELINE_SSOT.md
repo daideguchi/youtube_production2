@@ -474,7 +474,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
     - 注（固定ルール）: `script_*` の本文生成は Codex exec を使わない（章草稿も含む）。必要な場合は LLMRouter（API）側のモデルで収束させる。
       - 最終本文を上書きする task（品質ゲート/修正/最終ポリッシュ/意味整合Fix）は Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
-        - 対象: `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
+        - 対象: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
       - それ以外の **非本文タスク**（例: `tts_*` / `visual_*` / レポート生成）は Codex exec を試してよい（失敗時は LLMRouter API へフォールバック）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`

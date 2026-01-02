@@ -297,9 +297,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("LLMRouter")
 
 PROJECT_ROOT = repo_root()
-_DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
+_BASE_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
 _LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.local.yaml"
-CONFIG_PATH = _LOCAL_CONFIG_PATH if _LOCAL_CONFIG_PATH.exists() else _DEFAULT_CONFIG_PATH
 FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
 DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
@@ -374,6 +373,20 @@ def _json_safe(value: Any) -> Any:
             out[str(k)] = _json_safe(v)
         return out
     return str(value)
+
+def _deep_merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Deep-merge dicts (override wins), keeping base keys when override is partial.
+
+    This avoids config drift when `configs/llm_router.local.yaml` exists but omits newer sections.
+    """
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge_dict(out.get(k) or {}, v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
 
 
 def _append_llm_trace_event(event: Dict[str, Any]) -> None:
@@ -648,10 +661,19 @@ class LLMRouter:
         self._initialized = True
 
     def _load_config(self) -> Dict[str, Any]:
-        if not CONFIG_PATH.exists():
-            raise FileNotFoundError(f"Router config not found at {CONFIG_PATH}")
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+        if not _BASE_CONFIG_PATH.exists():
+            raise FileNotFoundError(f"Router config not found at {_BASE_CONFIG_PATH}")
+        base = yaml.safe_load(_BASE_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+        if not isinstance(base, dict):
+            base = {}
+        if _LOCAL_CONFIG_PATH.exists():
+            try:
+                local = yaml.safe_load(_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            except Exception:
+                local = {}
+            if isinstance(local, dict) and local:
+                return _deep_merge_dict(base, local)
+        return base
 
     def _log_usage(self, payload: Dict[str, Any]) -> None:
         if os.getenv("LLM_ROUTER_LOG_DISABLE") == "1":
@@ -861,6 +883,9 @@ class LLMRouter:
         # These allow swapping models without editing router configs.
         models_conf = self.config.get("models", {}) or {}
 
+        def _truthy_env(name: str) -> bool:
+            return (os.getenv(name) or "").strip().lower() in ("1", "true", "yes", "y", "on")
+
         def _filter_disallowed_models(task_name: str, candidates: List[str]) -> List[str]:
             # Hard safety rule:
             # - Never route script-writing tasks through Azure/OpenAI "GPT" models.
@@ -874,6 +899,13 @@ class LLMRouter:
                 conf = models_conf.get(mk) if isinstance(models_conf, dict) else None
                 provider = str((conf or {}).get("provider") or "").strip().lower()
                 if mk.startswith("azure_") or provider in {"azure", "openai"}:
+                    removed.append(mk)
+                    continue
+                # Fireworks-only script policy (default):
+                # - For any `script_*` task, do not attempt OpenRouter models unless explicitly allowed.
+                # - This prevents accidental provider drift and matches the operational rule:
+                #   "If Fireworks is down, STOP (do not fall back to OpenRouter for scripts)."
+                if provider == "openrouter" and not _truthy_env("YTM_SCRIPT_ALLOW_OPENROUTER"):
                     removed.append(mk)
                     continue
                 out.append(mk)
@@ -1000,8 +1032,13 @@ class LLMRouter:
             # base tier models
             tier_models = self.config.get("tiers", {}).get(tier, [])
             # Allow tier override from llm_tier_candidates.yaml (opt-in)
-            enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in ("1", "true", "yes", "on")
-            config_dir = CONFIG_PATH.parent
+            enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in (
+                "1",
+                "true",
+                "yes",
+                "on",
+            )
+            config_dir = _BASE_CONFIG_PATH.parent
             local_candidates = config_dir / "llm_tier_candidates.local.yaml"
             candidates_path = local_candidates if local_candidates.exists() else (config_dir / "llm_tier_candidates.yaml")
             if enable_candidates_override and candidates_path.exists():

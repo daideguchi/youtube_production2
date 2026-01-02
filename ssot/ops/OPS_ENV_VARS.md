@@ -199,7 +199,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 重要（固定ルール）:
 - Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
 - **境界（固定）**: Aテキスト本文（`chapters/*.md` / `assembled*.md`）を書き換える可能性がある task は **Codex exec に回さない**。
-  - 対象（例）: `script_chapter_draft`, `script_cta`, `script_chapter_review`, `script_a_text_*`, `script_semantic_alignment_fix`
+  - 対象（例）: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_*`, `script_semantic_alignment_fix`
   - 理由: Codex の言い回しが本文へ混入する事故を構造的に防ぐ（本文は常に LLM API 側で統一）
   - SoT: `configs/codex_exec.yaml: selection.exclude_tasks`
 - それ以外の非本文タスク（`script_outline`/`script_topic_research`/各種 JSON 生成/判定など）は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
@@ -219,6 +219,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
 - `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
 - `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `script_outline,script_topic_research`）
+- `YTM_SCRIPT_ALLOW_OPENROUTER`（default: `0`）: `1` のとき `script_*` task で OpenRouter モデル候補を許可（比較/非常時用）。既定は **Fireworksのみ**（Fireworksが落ちたら停止 = OpenRouterへはフォールバックしない）
 
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。

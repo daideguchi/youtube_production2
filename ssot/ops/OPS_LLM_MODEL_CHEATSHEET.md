@@ -21,6 +21,7 @@
 
 ### 1.1 Primary SoT
 - `configs/llm_router.yaml`（および `configs/llm_router.local.yaml`）
+  - 注意: `configs/llm_router.local.yaml` は `configs/llm_router.yaml` への **deep merge overlay**（差分だけ書く）。local に無い task/tier を消さない（実装: `packages/factory_common/llm_router.py`）。
   - `providers`: azure/openrouter/fireworks/gemini の接続情報（env var名）
   - `models`: モデルキー→provider+deployment/model+capabilities
   - `tiers`: tier名→モデルキー候補の優先順
@@ -43,7 +44,7 @@
 ### 2.1 テキストLLM（台本/読み/補助）
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
   - primary: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek V3.2 exp）
-  - optional fallback: `or_kimi_k2_thinking`（OpenRouter / Kimi K2 Thinking。OpenRouterが死んでいる場合は実質無効）
+  - optional fallback（比較/非常時; opt-in）: `or_kimi_k2_thinking`（OpenRouter / Kimi K2 Thinking。`script_*` で OpenRouter を候補に入れるには `YTM_SCRIPT_ALLOW_OPENROUTER=1` が必要）
   - 比較用（既定では使わない）: `fw_glm_4p7`, `fw_mixtral_8x22b_instruct`（Fireworks。`LLM_FORCE_MODELS`/`--llm-model` で明示したときだけ）
 
 #### 2.1.1 Decision（2025-12-28）: 台本系モデルは「2つ」に固定（DeepSeek v3.2 exp / Kimi K2 Thinking）
@@ -148,6 +149,7 @@
 - 全タスク共通（model chain を固定）:
   - `LLM_FORCE_MODELS="or_deepseek_v3_2_exp,or_kimi_k2_thinking"`（カンマ区切り。モデルキーは `configs/llm_router.yaml: models` のキー）
     - 互換: `deepseek/deepseek-v3.2-exp`（OpenRouter model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（推奨は常に model key 指定）。
+    - 注: `script_*` task では OpenRouter モデルは既定でフィルタされる（Fireworks-only; Fireworksが落ちたら停止）。`script_*` で OpenRouter を許可する場合は `YTM_SCRIPT_ALLOW_OPENROUTER=1` を明示する。
 - タスク別（task→model chain）:
   - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["or_deepseek_v3_2_exp","or_kimi_k2_thinking"],"tts_annotate":["or_deepseek_v3_2_exp"]}'`
 - CLI対応（入口側が上記 env を自動セット）:
