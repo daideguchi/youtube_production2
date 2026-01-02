@@ -522,17 +522,32 @@ export function SsotSystemMap() {
     container.scrollTop += dy;
   }, []);
 
-  useEffect(() => {
-    if (!traceLoadedKey) return;
+  const traceStartNodeId = useMemo(() => {
+    if (!traceLoadedKey) return null;
     const entries = Object.entries(executedByNodeId || {});
-    if (entries.length === 0) return;
+    if (entries.length === 0) return null;
     const best = entries.reduce(
       (acc, [id, info]) => ((info?.firstIndex ?? 0) < (acc.info?.firstIndex ?? 0) ? { id, info } : acc),
       { id: entries[0][0], info: entries[0][1] },
     );
-    if (!best.id) return;
-    requestAnimationFrame(() => centerOnNode(best.id));
-  }, [centerOnNode, executedByNodeId, traceLoadedKey]);
+    return best.id || null;
+  }, [executedByNodeId, traceLoadedKey]);
+
+  const traceAutoAppliedKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!traceLoadedKey) return;
+    if (traceAutoAppliedKeyRef.current === traceLoadedKey) return;
+    traceAutoAppliedKeyRef.current = traceLoadedKey;
+
+    // Trace読込直後は「全体像」を優先して Fit する（startへ勝手に寄せると全体が見えなくなる）。
+    setAutoFit(true);
+    requestAnimationFrame(() => {
+      applyFitToSize(graphSize);
+      requestAnimationFrame(() => centerGraph());
+    });
+
+    if (traceStartNodeId) setSelectedNodeId(traceStartNodeId);
+  }, [applyFitToSize, centerGraph, graphSize, traceLoadedKey, traceStartNodeId]);
 
   const beginPan = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
     const container = graphViewportRef.current;
@@ -749,6 +764,12 @@ export function SsotSystemMap() {
 
   const selectedOutputDecls = useMemo(() => (selectedNode ? parseOutputDecls(selectedNode.outputs) : []), [selectedNode]);
 
+  const selectedSubsteps = useMemo(() => {
+    if (!selectedNode) return [];
+    const raw = (selectedNode as any).substeps;
+    return Array.isArray(raw) ? raw : [];
+  }, [selectedNode]);
+
   const selectedPlaceholderPairs = useMemo(() => {
     if (!selectedNode) return [];
     const llm = selectedNode.llm as any;
@@ -960,6 +981,19 @@ export function SsotSystemMap() {
                   </button>
                   <button type="button" className="research-chip" onClick={() => selectedNodeId && centerOnNode(selectedNodeId)} disabled={!selectedNodeId}>
                     Center
+                  </button>
+                  <button
+                    type="button"
+                    className="research-chip"
+                    onClick={() => {
+                      if (!traceStartNodeId) return;
+                      setSelectedNodeId(traceStartNodeId);
+                      centerOnNode(traceStartNodeId);
+                    }}
+                    disabled={!traceStartNodeId}
+                    title="Traceの最初に実行されたノードへ移動します"
+                  >
+                    Trace Start
                   </button>
                 </div>
               </div>
@@ -1396,6 +1430,52 @@ export function SsotSystemMap() {
                           </details>
                         ) : null}
 
+                        {selectedSubsteps.length > 0 ? (
+                          <details>
+                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                              substeps（内部処理）: {selectedSubsteps.length}
+                            </summary>
+                            <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+                              {selectedSubsteps.slice(0, 6).map((ss: any, i: number) => {
+                                const ssId = ss?.id ? String(ss.id) : `substep#${i + 1}`;
+                                const ssName = ss?.name ? String(ss.name) : ssId;
+                                const ssLlm = ss?.llm as any;
+                                const ssTask = ssLlm?.task ? String(ssLlm.task) : "";
+                                const ssKind = ssLlm?.kind ? String(ssLlm.kind) : "";
+                                const ssTpl = ss?.template as any;
+                                const ssTplPath = ssTpl?.path ? String(ssTpl.path) : "";
+                                const ssTplLine = typeof ssTpl?.line === "number" ? Number(ssTpl.line) : undefined;
+                                return (
+                                  <details
+                                    key={`quick-sub-${ssId}-${i}`}
+                                    style={{
+                                      border: "1px solid rgba(15, 23, 42, 0.10)",
+                                      borderRadius: 10,
+                                      padding: "8px 10px",
+                                      background: "var(--color-surface-subtle)",
+                                    }}
+                                  >
+                                    <summary style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
+                                      <span style={{ fontWeight: 900, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        {ssName}
+                                      </span>
+                                      <span className="mono muted small-text" style={{ flex: "none", maxWidth: 420, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        {ssTask ? `${ssKind === "image_client" ? "image" : "llm"} task=${ssTask}` : ssId}
+                                      </span>
+                                    </summary>
+                                    {ssTplPath ? (
+                                      <div style={{ marginTop: 8 }}>
+                                        <SsotFilePreview repoPath={ssTplPath} highlightLine={ssTplLine} title="Prompt Template" />
+                                      </div>
+                                    ) : null}
+                                  </details>
+                                );
+                              })}
+                              {selectedSubsteps.length > 6 ? <div className="muted small-text">…</div> : null}
+                            </div>
+                          </details>
+                        ) : null}
+
                         {selectedImplRefs.length > 0 ? (
                           <details>
                             <summary className="muted small-text" style={{ cursor: "pointer" }}>
@@ -1471,7 +1551,7 @@ export function SsotSystemMap() {
                 <span>背景ドラッグ: pan</span>
               </div>
 
-              <details style={{ marginTop: 10 }}>
+              <details style={{ marginTop: 10 }} open>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
                 <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                   {nodes.map((s) => {
@@ -1492,6 +1572,7 @@ export function SsotSystemMap() {
                     const outputs = parseOutputDecls(s.outputs);
                     const sotPath = (s as any)?.sot?.path ? String((s as any).sot.path) : "";
                     const implRefs = Array.isArray((s as any).impl_refs) ? ((s as any).impl_refs as any[]) : [];
+                    const substeps = Array.isArray((s as any).substeps) ? (((s as any).substeps as any[]) || []) : [];
                     return (
                       <details
                         key={s.node_id}
@@ -1577,6 +1658,137 @@ export function SsotSystemMap() {
                                 ))}
                               </ul>
                             </div>
+                          ) : null}
+                          {substeps.length > 0 ? (
+                            <details open>
+                              <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                                substeps（内部処理）: {substeps.length}
+                              </summary>
+                              <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                                {substeps.map((ss: any, i: number) => {
+                                  const ssId = ss?.id ? String(ss.id) : `substep#${i + 1}`;
+                                  const ssName = ss?.name ? String(ss.name) : ssId;
+                                  const ssDesc = ss?.description ? String(ss.description) : "";
+                                  const ssOutputs = parseOutputDecls(ss?.outputs);
+                                  const ssLlm = ss?.llm as any;
+                                  const ssTask = ssLlm?.task ? String(ssLlm.task) : "";
+                                  const ssKind = ssLlm?.kind ? String(ssLlm.kind) : "";
+                                  const ssTaskDefs = ssKind === "image_client" ? (catalog as any)?.image?.task_defs || {} : (catalog as any)?.llm?.task_defs || {};
+                                  const ssTaskDef = ssTask ? (ssTaskDefs[ssTask] as any) : null;
+                                  const ssTier = ssTaskDef?.tier ? String(ssTaskDef.tier) : "";
+                                  const ssModelKeys = Array.isArray(ssTaskDef?.model_keys) ? (ssTaskDef.model_keys as any[]).map((x) => String(x)) : [];
+                                  const ssResolvedModels = Array.isArray(ssTaskDef?.resolved_models) ? ((ssTaskDef.resolved_models as any[]) || []) : [];
+                                  const ssTpl = ss?.template as any;
+                                  const ssTplPath = ssTpl?.path ? String(ssTpl.path) : "";
+                                  const ssTplLine = typeof ssTpl?.line === "number" ? Number(ssTpl.line) : undefined;
+                                  const ssPlaceholders = parsePlaceholderPairs(ssLlm?.placeholders);
+                                  const ssImplRefs = Array.isArray(ss?.impl_refs) ? (ss.impl_refs as any[]) : [];
+                                  return (
+                                    <details
+                                      key={`${s.node_id}-sub-${ssId}-${i}`}
+                                      style={{
+                                        border: "1px solid rgba(15, 23, 42, 0.10)",
+                                        borderRadius: 10,
+                                        padding: "8px 10px",
+                                        background: "var(--color-surface-subtle)",
+                                      }}
+                                    >
+                                      <summary
+                                        style={{
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          gap: 10,
+                                          alignItems: "baseline",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        <span style={{ fontWeight: 900, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                          {ssName}
+                                        </span>
+                                        <span className="mono muted small-text" style={{ flex: "none", maxWidth: 520, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                          {ssTask ? `${ssKind === "image_client" ? "image" : "llm"} task=${ssTask}` : ssId}
+                                        </span>
+                                      </summary>
+                                      <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+                                        {ssDesc ? <div className="muted small-text" style={{ whiteSpace: "pre-wrap" }}>{ssDesc}</div> : null}
+                                        {ssTask && (ssTier || ssModelKeys.length > 0) ? (
+                                          <div className="mono muted small-text">
+                                            routing: {ssTier ? `tier=${ssTier}` : "tier=—"}
+                                            {ssModelKeys.length > 0 ? ` / models=${ssModelKeys.slice(0, 6).join(", ")}${ssModelKeys.length > 6 ? ", …" : ""}` : ""}
+                                          </div>
+                                        ) : null}
+                                        {ssTask && ssResolvedModels.length > 0 ? (
+                                          <div className="mono muted small-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                            resolved:{" "}
+                                            {ssResolvedModels
+                                              .slice(0, 3)
+                                              .map((m: any) => {
+                                                const provider = m?.provider ? String(m.provider) : "";
+                                                const model = m?.model_name ? String(m.model_name) : m?.key ? String(m.key) : "";
+                                                const dep = m?.deployment ? String(m.deployment) : "";
+                                                const base = provider && model ? `${provider}:${model}` : model || provider || "";
+                                                return dep ? `${base}(${dep})` : base;
+                                              })
+                                              .filter((x: string) => Boolean(x.trim()))
+                                              .join(" | ")}
+                                            {ssResolvedModels.length > 3 ? " | …" : ""}
+                                          </div>
+                                        ) : null}
+                                        {ssTplPath ? (
+                                          <details>
+                                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                                              Prompt Template（プレビュー）
+                                            </summary>
+                                            <div style={{ marginTop: 8 }}>
+                                              <SsotFilePreview repoPath={ssTplPath} highlightLine={ssTplLine} title="Prompt Template" />
+                                            </div>
+                                          </details>
+                                        ) : null}
+                                        {ssPlaceholders.length > 0 ? (
+                                          <details>
+                                            <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                                              placeholders: {ssPlaceholders.length}
+                                            </summary>
+                                            <pre className="mono" style={{ margin: "8px 0 0 0", whiteSpace: "pre-wrap" }}>
+                                              {ssPlaceholders.map((p) => `${p.key}: ${p.value}`).join("\n")}
+                                            </pre>
+                                          </details>
+                                        ) : null}
+                                        {ssOutputs.length > 0 ? (
+                                          <div>
+                                            <div className="muted small-text" style={{ marginBottom: 4 }}>
+                                              outputs
+                                            </div>
+                                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                              {ssOutputs.map((o, oi) => (
+                                                <li key={`${s.node_id}-sub-${ssId}-out-${oi}`}>
+                                                  <span className="mono">{o.path}</span>
+                                                  {o.required === true ? <span className="muted small-text"> (required)</span> : null}
+                                                  {o.required === false ? <span className="muted small-text"> (optional)</span> : null}
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        ) : null}
+                                        {ssImplRefs.length > 0 ? (
+                                          <div className="muted small-text">
+                                            impl:{" "}
+                                            <span className="mono">
+                                              {ssImplRefs
+                                                .slice(0, 4)
+                                                .map((r: any) => `${r.path}:${r.line}${r.symbol ? `(${r.symbol})` : ""}`)
+                                                .join(", ")}
+                                            </span>
+                                            {ssImplRefs.length > 4 ? <span className="muted small-text"> …</span> : null}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    </details>
+                                  );
+                                })}
+                              </div>
+                            </details>
                           ) : null}
                           {sotPath ? (
                             <div className="muted small-text">

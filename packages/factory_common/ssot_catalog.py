@@ -339,6 +339,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
     runner_lines = _safe_read_text(runner_path).splitlines()
     validator_path = script_pkg_root() / "validator.py"
     validator_lines = _safe_read_text(validator_path).splitlines()
+    prompts_root = script_pkg_root() / "prompts"
 
     def _find_near(start_line: int | None, needle: str, *, max_scan: int = 1400) -> int | None:
         if start_line:
@@ -431,6 +432,380 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 },
                 "impl_refs": impl_refs,
             }
+        if name == "script_outline":
+            step["substeps"] = [
+                {
+                    "id": "B/script_outline/outline_semantic_alignment_gate",
+                    "name": "outline_semantic_alignment_gate",
+                    "description": "\n".join(
+                        [
+                            "任意: アウトラインの意味整合（title ↔ outline）をチェックし、必要なら自動修正する。",
+                            "- env: SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE=1 で有効化",
+                            "- report: content/analysis/alignment/outline_semantic_alignment.json (+ round files)",
+                            "- task: script_semantic_alignment_check / script_semantic_alignment_fix(_minor)",
+                        ]
+                    ),
+                    "llm": {
+                        "kind": "llm_router",
+                        "task": "script_semantic_alignment_check",
+                        "placeholders": {
+                            "TITLE": "from_title",
+                            "OUTLINE_TEXT": "@content/outline.md",
+                        },
+                    },
+                    "template": {
+                        "name": "semantic_alignment_check_prompt.txt",
+                        "path": _repo_rel(prompts_root / "semantic_alignment_check_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [
+                        {"path": "content/analysis/alignment/outline_semantic_alignment.json", "required": False},
+                        {"path": "content/analysis/alignment/outline_semantic_alignment_round*.json", "required": False},
+                    ],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "outline_semantic_alignment.json", max_scan=6000),
+                                symbol="report:outline_semantic_alignment.json",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, 'task="script_semantic_alignment_check"', max_scan=9000),
+                                symbol="task:script_semantic_alignment_check",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, 'task="script_semantic_alignment_fix"', max_scan=12000),
+                                symbol="task:script_semantic_alignment_fix",
+                            ),
+                        ]
+                        if r
+                    ],
+                }
+            ]
+        if name == "script_validation":
+            quality_dir_decl = {"path": "content/analysis/quality_gate/**", "required": False}
+            alignment_dir_decl = {"path": "content/analysis/alignment/**", "required": False}
+            step["substeps"] = [
+                {
+                    "id": "B/script_validation/semantic_alignment_check",
+                    "name": "semantic_alignment_check",
+                    "description": "\n".join(
+                        [
+                            "意味整合（title/サムネ訴求 ↔ Aテキスト）をチェックする。",
+                            "- env: SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_GATE=1（既定ON）",
+                            "- report: content/analysis/alignment/semantic_alignment.json",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_semantic_alignment_check"},
+                    "template": {
+                        "name": "semantic_alignment_check_prompt.txt",
+                        "path": _repo_rel(prompts_root / "semantic_alignment_check_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [{"path": "content/analysis/alignment/semantic_alignment.json", "required": True}, alignment_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, 'task="script_semantic_alignment_check"', max_scan=14000),
+                                symbol="task:script_semantic_alignment_check",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "semantic_alignment.json", max_scan=14000),
+                                symbol="report:semantic_alignment.json",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/semantic_alignment_fix",
+                    "name": "semantic_alignment_fix",
+                    "description": "\n".join(
+                        [
+                            "semantic_alignment が NG のとき、Aテキストを修正して整合させる（適用は明示）。",
+                            "- task: script_semantic_alignment_fix / script_semantic_alignment_fix_minor",
+                            "- 実装では script_validation 内の自動適用は hard-coded で無効（semantic_auto_fix=False）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_semantic_alignment_fix"},
+                    "template": {
+                        "name": "semantic_alignment_fix_prompt.txt",
+                        "path": _repo_rel(prompts_root / "semantic_alignment_fix_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [alignment_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, 'task="script_semantic_alignment_fix"', max_scan=14000),
+                                symbol="task:script_semantic_alignment_fix",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "semantic_auto_fix = False", max_scan=14000),
+                                symbol="semantic_auto_fix_disabled",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/llm_quality_gate_judge",
+                    "name": "llm_quality_gate_judge",
+                    "description": "\n".join(
+                        [
+                            "LLM品質ゲート v2: Judge で指摘/スコアリングを行う。",
+                            "- env: SCRIPT_VALIDATION_LLM_QUALITY_GATE=1（既定ON）",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_JUDGE_TASK（default: script_a_text_quality_judge）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_quality_judge"},
+                    "template": {
+                        "name": "a_text_quality_judge_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_quality_judge_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_JUDGE_TASK", max_scan=16000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_JUDGE_TASK",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "analysis\" / \"quality_gate", max_scan=16000),
+                                symbol="analysis_dir:quality_gate",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/llm_quality_gate_fix",
+                    "name": "llm_quality_gate_fix",
+                    "description": "\n".join(
+                        [
+                            "LLM品質ゲート v2: Fixer で修正案を生成する（judgeの指摘を解消）。",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_FIX_TASK（default: script_a_text_quality_fix）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_quality_fix"},
+                    "template": {
+                        "name": "a_text_quality_fix_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_quality_fix_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_FIX_TASK", max_scan=16000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_FIX_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/llm_quality_gate_shrink",
+                    "name": "llm_quality_gate_shrink",
+                    "description": "\n".join(
+                        [
+                            "長すぎるAテキストを縮める（length_too_long 等）。",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_SHRINK_TASK（default: script_a_text_quality_shrink）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_quality_shrink"},
+                    "template": {
+                        "name": "a_text_quality_shrink_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_quality_shrink_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_SHRINK_TASK", max_scan=16000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_SHRINK_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/llm_quality_gate_expand",
+                    "name": "llm_quality_gate_expand",
+                    "description": "\n".join(
+                        [
+                            "短すぎるAテキストを増補する（length_too_short 等）。",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_EXPAND_TASK（default: script_a_text_quality_expand）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_quality_expand"},
+                    "template": {
+                        "name": "a_text_quality_expand_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_quality_expand_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_EXPAND_TASK", max_scan=16000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_EXPAND_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/llm_quality_gate_extend",
+                    "name": "llm_quality_gate_extend",
+                    "description": "\n".join(
+                        [
+                            "中身は維持しつつ、表現の厚みを足して自然に延ばす（extend）。",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_EXTEND_TASK（default: script_a_text_quality_extend）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_quality_extend"},
+                    "template": {
+                        "name": "a_text_quality_extend_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_quality_extend_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_EXTEND_TASK", max_scan=16000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_EXTEND_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/quality_rebuild_plan",
+                    "name": "quality_rebuild_plan",
+                    "description": "\n".join(
+                        [
+                            "任意: 品質が収束しない場合、planを作り直す（rebuild）。",
+                            "- env: SCRIPT_VALIDATION_LLM_REBUILD_ON_FAIL=1 などで有効",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK（default: script_a_text_rebuild_plan）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_rebuild_plan"},
+                    "template": {
+                        "name": "a_text_rebuild_plan_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_rebuild_plan_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK", max_scan=20000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_REBUILD_PLAN_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/quality_rebuild_draft",
+                    "name": "quality_rebuild_draft",
+                    "description": "\n".join(
+                        [
+                            "任意: 品質が収束しない場合、draftを作り直す（rebuild）。",
+                            "- task env: SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK（default: script_a_text_rebuild_draft）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_rebuild_draft"},
+                    "template": {
+                        "name": "a_text_rebuild_draft_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_rebuild_draft_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK", max_scan=20000),
+                                symbol="env:SCRIPT_VALIDATION_QUALITY_REBUILD_DRAFT_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/final_polish",
+                    "name": "final_polish",
+                    "description": "\n".join(
+                        [
+                            "任意: 最終仕上げ（読みやすさ/自然さを整える）。",
+                            "- env: SCRIPT_VALIDATION_FINAL_POLISH=auto|on|off",
+                            "- task env: SCRIPT_VALIDATION_FINAL_POLISH_TASK（default: script_a_text_final_polish）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_a_text_final_polish"},
+                    "template": {
+                        "name": "a_text_final_polish_prompt.txt",
+                        "path": _repo_rel(prompts_root / "a_text_final_polish_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [quality_dir_decl],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_VALIDATION_FINAL_POLISH_TASK", max_scan=22000),
+                                symbol="env:SCRIPT_VALIDATION_FINAL_POLISH_TASK",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+            ]
         if name == "audio_synthesis":
             step["related_flow"] = "audio_tts"
         stage_items.append(step)
@@ -1284,20 +1659,175 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
             {"sot": {"path": "workspaces/thumbnails/templates.json"}},
         ),
         (
+            "F/api_templates_specs",
+            "api:templates_specs",
+            "templates / layer-specs / thumb-spec / editor-context など（デザインシステム）",
+            [
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "list_thumbnail_image_models"), symbol="GET /api/workspaces/thumbnails/image-models"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_channel_templates"), symbol="GET /api/workspaces/thumbnails/{channel}/templates"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_channel_templates"), symbol="PUT /api/workspaces/thumbnails/{channel}/templates"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_channel_layer_specs"), symbol="GET /api/workspaces/thumbnails/{channel}/layer-specs"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "build_thumbnail_layer_specs"), symbol="POST /api/workspaces/thumbnails/{channel}/{video}/layer-specs/build"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_thumb_spec"), symbol="GET /api/workspaces/thumbnails/{channel}/{video}/thumb-spec"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_thumb_spec"), symbol="PUT /api/workspaces/thumbnails/{channel}/{video}/thumb-spec"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_editor_context"), symbol="GET /api/workspaces/thumbnails/{channel}/{video}/editor-context"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "preview_thumbnail_text_layer"), symbol="POST /api/workspaces/thumbnails/{channel}/{video}/preview/text-layer"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_comment_patch"), symbol="POST /api/workspaces/thumbnails/{channel}/{video}/comment-patch"),
+            ],
+            {
+                "substeps": [
+                    {
+                        "id": "GET /api/workspaces/thumbnails/image-models",
+                        "name": "image-models",
+                        "description": "configs/image_models.yaml から利用可能な image model key を返す（テンプレ設定用）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "list_thumbnail_image_models"), symbol="list_thumbnail_image_models"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "GET/PUT /api/workspaces/thumbnails/{channel}/templates",
+                        "name": "templates",
+                        "description": "\n".join(
+                            [
+                                "templates.json を読み書きし、チャンネル別テンプレ・default_template_id を管理する。",
+                                "- prompt_template / image_model_key / layer_specs など",
+                            ]
+                        ),
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_channel_templates"), symbol="get_thumbnail_channel_templates"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_channel_templates"), symbol="upsert_thumbnail_channel_templates"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/templates.json", "required": True}],
+                    },
+                    {
+                        "id": "GET /api/workspaces/thumbnails/{channel}/layer-specs",
+                        "name": "layer-specs",
+                        "description": "チャンネル別 layer_specs を取得する（templates.json / compiler specs）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_channel_layer_specs"), symbol="get_thumbnail_channel_layer_specs"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_video_layer_specs"), symbol="get_thumbnail_video_layer_specs"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/{video}/layer-specs/build",
+                        "name": "layer-specs:build",
+                        "description": "layer_specs をビルドし、per-episode の生成/プレビューに使う。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "build_thumbnail_layer_specs"), symbol="build_thumbnail_layer_specs"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "GET/PUT /api/workspaces/thumbnails/{channel}/{video}/thumb-spec",
+                        "name": "thumb-spec",
+                        "description": "\n".join(
+                            [
+                                "per-episode の thumb_spec.json を取得/更新する。",
+                                "- schema: ytm.thumbnail.thumb_spec.v1",
+                            ]
+                        ),
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_thumb_spec"), symbol="get_thumbnail_thumb_spec"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_thumb_spec"), symbol="upsert_thumbnail_thumb_spec"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/assets/{CH}/{NNN}/thumb_spec.json", "required": False}],
+                    },
+                    {
+                        "id": "GET /api/workspaces/thumbnails/{channel}/{video}/editor-context",
+                        "name": "editor-context / preview / comment-patch",
+                        "description": "Layer Tuning 用の editor context 取得・テキストlayerプレビュー・コメントパッチを行う。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_editor_context"), symbol="get_thumbnail_editor_context"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "preview_thumbnail_text_layer"), symbol="preview_thumbnail_text_layer"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_comment_patch"), symbol="get_thumbnail_comment_patch"),
+                            ]
+                            if r
+                        ],
+                    },
+                ],
+            },
+        ),
+        (
             "F/api_overview",
             "api:overview",
-            "UI overview: thumbnails一覧",
+            "UI overview + projects.json 更新（status/selected/owner/notes等）",
             [
                 _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_overview"), symbol="GET /api/workspaces/thumbnails"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "update_thumbnail_project"), symbol="PATCH /api/workspaces/thumbnails/{channel}/{video}"),
             ],
-            None,
+            {
+                "outputs": [{"path": "workspaces/thumbnails/projects.json", "required": True}],
+                "substeps": [
+                    {
+                        "id": "GET /api/workspaces/thumbnails",
+                        "name": "overview",
+                        "description": "\n".join(
+                            [
+                                "projects.json を集計し、UI表示用の overview を返す。",
+                                "- variants の selected/is_selected を整理",
+                                "- library_path / quick history 等も付与",
+                            ]
+                        ),
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_overview"), symbol="get_thumbnail_overview"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/projects.json", "required": True}],
+                    },
+                    {
+                        "id": "PATCH /api/workspaces/thumbnails/{channel}/{video}",
+                        "name": "update_project",
+                        "description": "\n".join(
+                            [
+                                "projects.json の project metadata を更新する。",
+                                "- owner/summary/notes/tags/status/due_at/selected_variant_id など",
+                                "- status変更は status_updated_at を更新",
+                            ]
+                        ),
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "update_thumbnail_project"), symbol="update_thumbnail_project"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/projects.json", "required": True}],
+                    },
+                ],
+            },
         ),
         (
             "F/api_variants_generate",
             "api:variants_generate",
-            "AI画像生成→assets保存→projects.jsonへvariant登録",
+            "variants: 手動登録/AI生成/アップロード（projects.jsonへ反映）",
             [
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "create_thumbnail_variant_entry"), symbol="POST /variants"),
                 _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "generate_thumbnail_variant_images"), symbol="POST /variants/generate"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upload_thumbnail_variant_asset"), symbol="POST /variants/upload"),
             ],
             {
                 "llm": {
@@ -1318,6 +1848,61 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
                     {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/ai_*.png", "required": True},
                     {"path": "workspaces/thumbnails/projects.json", "required": True},
                 ],
+                "substeps": [
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/{video}/variants",
+                        "name": "variants:create",
+                        "description": "既存画像（URL/Path）を手動登録して projects.json に variant を追記する。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "create_thumbnail_variant_entry"), symbol="create_thumbnail_variant_entry"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/projects.json", "required": True}],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/{video}/variants/generate",
+                        "name": "variants:generate",
+                        "description": "AI画像生成→assets保存→projects.jsonへvariant登録（ImageClient）。",
+                        "llm": {
+                            "task": "thumbnail_image_gen",
+                            "kind": "image_client",
+                        },
+                        "template": {
+                            "name": "workspaces/thumbnails/templates.json (prompt_template)",
+                            "path": "workspaces/thumbnails/templates.json",
+                        },
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "generate_thumbnail_variant_images"), symbol="generate_thumbnail_variant_images"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [
+                            {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/ai_*.png", "required": True},
+                            {"path": "workspaces/thumbnails/projects.json", "required": True},
+                        ],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/{video}/variants/upload",
+                        "name": "variants:upload",
+                        "description": "UIから画像ファイルをアップロードし、variant として登録する。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upload_thumbnail_variant_asset"), symbol="upload_thumbnail_variant_asset"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [
+                            {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/uploaded_*.*", "required": True},
+                            {"path": "workspaces/thumbnails/projects.json", "required": True},
+                        ],
+                    },
+                ],
             },
         ),
         (
@@ -1331,6 +1916,164 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
                 "outputs": [
                     {"path": "workspaces/thumbnails/assets/{CH}/{NNN}/compiler/<build_id>/out_01.png", "required": True},
                     {"path": "workspaces/thumbnails/projects.json", "required": True},
+                ],
+            },
+        ),
+        (
+            "F/api_library_qc_history",
+            "api:library/qc/history",
+            "素材ライブラリ管理（upload/import/list/rename/delete/assign）+ QC notes + history/download",
+            [
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upload_thumbnail_library_assets"), symbol="POST /library/upload"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "import_thumbnail_library_asset"), symbol="POST /library/import"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_library"), symbol="GET /library"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "rename_thumbnail_library_asset"), symbol="POST /library/{asset_name} rename"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "delete_thumbnail_library_asset"), symbol="DELETE /library/{asset_path}"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "assign_thumbnail_library_asset"), symbol="POST /library/{asset_name}/assign"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_qc_notes"), symbol="GET /qc-notes"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_qc_note"), symbol="PUT /qc-notes"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_quick_history"), symbol="GET /history"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "describe_thumbnail_library_asset"), symbol="POST /library/{asset_name}/describe"),
+                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_asset"), symbol="GET /thumbnails/assets/..."),
+            ],
+            {
+                "substeps": [
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/library/upload",
+                        "name": "library:upload",
+                        "description": "素材画像をライブラリへアップロードして保存する（library/**）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upload_thumbnail_library_assets"), symbol="upload_thumbnail_library_assets"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/assets/{CH}/library/**", "required": True}],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/library/import",
+                        "name": "library:import",
+                        "description": "既存パス/URLから素材を取り込み、library に保存する。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "import_thumbnail_library_asset"), symbol="import_thumbnail_library_asset"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/assets/{CH}/library/**", "required": True}],
+                    },
+                    {
+                        "id": "GET /api/workspaces/thumbnails/{channel}/library",
+                        "name": "library:list",
+                        "description": "library の一覧（メタ付き）を返す。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_library"), symbol="get_thumbnail_library"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/library/{asset_name}",
+                        "name": "library:rename",
+                        "description": "library asset の rename を行う。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "rename_thumbnail_library_asset"), symbol="rename_thumbnail_library_asset"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "DELETE /api/workspaces/thumbnails/{channel}/library/{asset_path}",
+                        "name": "library:delete",
+                        "description": "library asset を削除する。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "delete_thumbnail_library_asset"), symbol="delete_thumbnail_library_asset"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/library/{asset_name}/assign",
+                        "name": "library:assign",
+                        "description": "episode/project に素材を割り当てる（参照付け）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "assign_thumbnail_library_asset"), symbol="assign_thumbnail_library_asset"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "GET/PUT /api/workspaces/thumbnails/{channel}/qc-notes",
+                        "name": "qc-notes",
+                        "description": "QC notes（チェックリスト/メモ）を読み書きする。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_qc_notes"), symbol="get_thumbnail_qc_notes"),
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "upsert_thumbnail_qc_note"), symbol="upsert_thumbnail_qc_note"),
+                            ]
+                            if r
+                        ],
+                        "outputs": [{"path": "workspaces/thumbnails/qc_notes.json", "required": False}],
+                    },
+                    {
+                        "id": "GET /api/workspaces/thumbnails/history",
+                        "name": "history",
+                        "description": "直近操作のクイック履歴（quick history）を返す。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_quick_history"), symbol="get_thumbnail_quick_history"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "GET /api/workspaces/thumbnails/{channel}/download.zip",
+                        "name": "download.zip",
+                        "description": "ローカル assets をZIPでダウンロードする（two_upなどmodeあり）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_first_line_containing(backend_lines, '\"/api/workspaces/thumbnails/{channel}/download.zip\"'), symbol="download.zip route"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "POST /api/workspaces/thumbnails/{channel}/library/{asset_name}/describe",
+                        "name": "library:describe (disabled)",
+                        "description": "現在は無効（LLM API は thumbnails では使わない方針）。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "describe_thumbnail_library_asset"), symbol="describe_thumbnail_library_asset"),
+                            ]
+                            if r
+                        ],
+                    },
+                    {
+                        "id": "GET /thumbnails/assets/{channel}/{video}/{asset_path}",
+                        "name": "assets:file",
+                        "description": "assets のファイル配信（UI preview 用）。bg fallback などを含む。",
+                        "impl_refs": [
+                            r
+                            for r in [
+                                _make_code_ref(repo, backend_main_path, _find_def_line(backend_lines, "get_thumbnail_asset"), symbol="get_thumbnail_asset"),
+                            ]
+                            if r
+                        ],
+                    },
                 ],
             },
         ),
@@ -1367,6 +2110,7 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
                 "- SoT: workspaces/thumbnails/projects.json / templates.json / assets/{CH}/{NNN}/",
                 "- 入口: UI /thumbnails / python3 scripts/thumbnails/build.py",
                 "- 画像生成は provider/model/cost を variants に記録（再現性のため）",
+                "- 重要: thumbnails では LLM API（テキスト生成）は使わない方針（describe は disabled）",
             ]
         ),
         "entrypoints": [
@@ -1994,13 +2738,26 @@ def build_ssot_catalog() -> Dict[str, Any]:
         planning_flow,
     ):
         for st in flow.get("steps") or []:
-            llm = st.get("llm") if isinstance(st, dict) else None
-            if not isinstance(llm, dict) or not llm.get("task"):
+            if not isinstance(st, dict):
                 continue
-            kind = str(llm.get("kind") or "").strip()
-            if kind == "image_client":
-                continue
-            used_tasks.add(str(llm["task"]))
+            llm = st.get("llm")
+            if isinstance(llm, dict) and llm.get("task"):
+                kind = str(llm.get("kind") or "").strip()
+                if kind != "image_client":
+                    used_tasks.add(str(llm["task"]))
+
+            # Nested/internal steps (substeps) may contain additional tasks (e.g. script_validation quality gate).
+            substeps = st.get("substeps")
+            if isinstance(substeps, list):
+                for ss in substeps:
+                    if not isinstance(ss, dict):
+                        continue
+                    llm2 = ss.get("llm")
+                    if not isinstance(llm2, dict) or not llm2.get("task"):
+                        continue
+                    kind2 = str(llm2.get("kind") or "").strip()
+                    if kind2 != "image_client":
+                        used_tasks.add(str(llm2["task"]))
 
     missing_task_defs = sorted(t for t in used_tasks if t and t not in declared_tasks)
 
@@ -2067,13 +2824,23 @@ def build_ssot_catalog() -> Dict[str, Any]:
     # Also include image tasks referenced by flow steps (kind=image_client).
     for flow in (video_srt2images_flow, thumbnails_flow):
         for st in flow.get("steps") or []:
-            llm = st.get("llm") if isinstance(st, dict) else None
-            if not isinstance(llm, dict):
+            if not isinstance(st, dict):
                 continue
-            if str(llm.get("kind") or "") != "image_client":
-                continue
-            if llm.get("task"):
+            llm = st.get("llm")
+            if isinstance(llm, dict) and str(llm.get("kind") or "") == "image_client" and llm.get("task"):
                 used_image_tasks.add(str(llm["task"]))
+            substeps = st.get("substeps")
+            if isinstance(substeps, list):
+                for ss in substeps:
+                    if not isinstance(ss, dict):
+                        continue
+                    llm2 = ss.get("llm")
+                    if not isinstance(llm2, dict):
+                        continue
+                    if str(llm2.get("kind") or "") != "image_client":
+                        continue
+                    if llm2.get("task"):
+                        used_image_tasks.add(str(llm2["task"]))
 
     missing_image_task_defs = sorted(t for t in used_image_tasks if t and t not in declared_image_tasks)
 

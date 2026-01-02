@@ -1865,6 +1865,18 @@ export interface SsotCatalogFlowStep {
   impl?: Record<string, unknown>;
   impl_refs?: Array<{ path: string; line: number; symbol?: string | null }>;
   sot?: Record<string, unknown>;
+  substeps?: SsotCatalogSubstep[];
+}
+
+export interface SsotCatalogSubstep {
+  id: string;
+  name: string;
+  description?: string;
+  outputs?: unknown[];
+  llm?: Record<string, unknown>;
+  template?: { name?: string; path?: string; line?: number } | null;
+  impl_refs?: Array<{ path: string; line: number; symbol?: string | null }>;
+  sot?: Record<string, unknown>;
 }
 
 export interface SsotCatalogEdge {

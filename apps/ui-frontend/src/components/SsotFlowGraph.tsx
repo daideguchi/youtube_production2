@@ -372,6 +372,7 @@ export function SsotFlowGraph({
               width: n.width,
               height: n.height,
               padding: 10,
+              paddingRight: isExec ? 66 : 10,
               borderRadius: 14,
               border: `2px solid ${border}`,
               background,
