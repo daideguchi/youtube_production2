@@ -114,6 +114,10 @@ function domIdForNode(nodeId: string): string {
   return `ssot-node-${safe || "unknown"}`;
 }
 
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
+}
+
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
@@ -126,6 +130,7 @@ export function SsotSystemMap() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
+  const autoFitPendingRef = useRef(true);
 
   const [traceKey, setTraceKey] = useState("");
   const [traceLoading, setTraceLoading] = useState(false);
@@ -350,19 +355,46 @@ export function SsotSystemMap() {
     setOrientation(flow === "mainline" ? "horizontal" : "vertical");
   }, [flow]);
 
-  const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
-  const zoomIn = () => setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), 0.3, 2.5));
-  const zoomOut = () => setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), 0.3, 2.5));
-  const zoomReset = () => setGraphScale(1);
-  const zoomFit = () => {
-    const el = graphViewportRef.current;
-    if (!el) return;
-    const w = el.clientWidth - 40;
-    const h = el.clientHeight - 40;
-    if (w <= 0 || h <= 0) return;
-    const scale = Math.min(w / graphSize.width, h / graphSize.height);
-    setGraphScale(clamp(Number(scale.toFixed(2)), 0.3, 2.5));
+  const applyFitToSize = useCallback(
+    (size: { width: number; height: number }) => {
+      const el = graphViewportRef.current;
+      if (!el) return;
+      const w = el.clientWidth - 40;
+      const h = el.clientHeight - 40;
+      if (w <= 0 || h <= 0) return;
+      const scale = Math.min(w / size.width, h / size.height);
+      const next = clamp(Number(scale.toFixed(2)), 0.3, 2.5);
+      setGraphScale((prev) => (Math.abs(prev - next) < 0.01 ? prev : next));
+    },
+    [],
+  );
+
+  const zoomIn = () => {
+    autoFitPendingRef.current = false;
+    setGraphScale((s) => clamp(Number((s + 0.1).toFixed(2)), 0.3, 2.5));
   };
+  const zoomOut = () => {
+    autoFitPendingRef.current = false;
+    setGraphScale((s) => clamp(Number((s - 0.1).toFixed(2)), 0.3, 2.5));
+  };
+  const zoomReset = () => {
+    autoFitPendingRef.current = false;
+    setGraphScale(1);
+  };
+  const zoomFit = () => {
+    autoFitPendingRef.current = false;
+    applyFitToSize(graphSize);
+  };
+
+  useEffect(() => {
+    autoFitPendingRef.current = true;
+  }, [flow, focusMode, orientation]);
+
+  useEffect(() => {
+    if (!autoFitPendingRef.current) return;
+    requestAnimationFrame(() => applyFitToSize(graphSize));
+    autoFitPendingRef.current = false;
+  }, [applyFitToSize, focusMode, graphSize]);
 
   const centerOnNode = useCallback((nodeId: string) => {
     const container = graphViewportRef.current;
@@ -383,7 +415,10 @@ export function SsotSystemMap() {
       if (prev.width === size.width && prev.height === size.height) return prev;
       return size;
     });
-  }, []);
+    if (!autoFitPendingRef.current) return;
+    autoFitPendingRef.current = false;
+    requestAnimationFrame(() => applyFitToSize(size));
+  }, [applyFitToSize]);
 
   const loadTraceKeyList = useCallback(async () => {
     setTraceListLoading(true);
@@ -815,8 +850,6 @@ export function SsotSystemMap() {
                     position: "relative",
                     width: graphSize.width * graphScale,
                     height: graphSize.height * graphScale,
-                    minWidth: 640,
-                    minHeight: 240,
                   }}
                 >
                   <div
@@ -852,7 +885,7 @@ export function SsotSystemMap() {
                 <span>クリックで詳細 / 凡例:</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(148, 163, 184, 0.14)", border: "1px solid rgba(148, 163, 184, 0.55)" }} />
-                  Phase枠（背景）
+                  Phase枠（複数ノード時）
                 </span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 4, background: "rgba(255, 200, 0, 0.20)", border: "1px solid rgba(255, 200, 0, 0.55)" }} />
@@ -878,6 +911,7 @@ export function SsotSystemMap() {
                   <div className="mono muted small-text">
                     flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
                   </div>
+                  {(flowMeta as any)?.summary ? <div className="muted">{String((flowMeta as any).summary)}</div> : null}
                   {flowCodePaths.length > 0 ? (
                     <div className="muted small-text">
                       code: <span className="mono">{flowCodePaths.join(", ")}</span>
@@ -1061,6 +1095,7 @@ export function SsotSystemMap() {
                       flow_id={(selectedMainlineFlowMeta as any)?.flow_id || "—"} / phase={(selectedMainlineFlowMeta as any)?.phase || "—"} / steps=
                       {Array.isArray((selectedMainlineFlowMeta as any)?.steps) ? (selectedMainlineFlowMeta as any).steps.length : 0}
                     </div>
+                    {(selectedMainlineFlowMeta as any)?.summary ? <div className="muted" style={{ marginTop: 8 }}>{String((selectedMainlineFlowMeta as any).summary)}</div> : null}
                     {selectedMainlineCodePaths.length > 0 ? (
                       <div className="muted small-text" style={{ marginTop: 8 }}>
                         code: <span className="mono">{selectedMainlineCodePaths.join(", ")}</span>
@@ -1190,6 +1225,16 @@ export function SsotSystemMap() {
                             </li>
                           ))}
                         </ul>
+                      ) : null}
+                      {(selectedLlmTaskDef as any)?.router_task ? (
+                        <details style={{ marginTop: 8 }}>
+                          <summary className="muted small-text" style={{ cursor: "pointer" }}>
+                            router_task（configs/llm_router.yaml）
+                          </summary>
+                          <pre className="mono" style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                            {JSON.stringify((selectedLlmTaskDef as any).router_task, null, 2)}
+                          </pre>
+                        </details>
                       ) : null}
                       {(selectedLlmTaskDef as any)?.override_task ? (
                         <details style={{ marginTop: 8 }}>

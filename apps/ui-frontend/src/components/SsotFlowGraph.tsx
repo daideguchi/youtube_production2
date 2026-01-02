@@ -201,7 +201,7 @@ export function SsotFlowGraph({
   const phaseGroups = useMemo(() => {
     const groups = new Map<
       string,
-      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string } }
+      { minX: number; minY: number; maxX: number; maxY: number; colors: { fill: string; stroke: string }; count: number }
     >();
     for (const n of nodes) {
       const phase = (n.step.phase || "").trim();
@@ -213,18 +213,20 @@ export function SsotFlowGraph({
       const x2 = n.x + n.width;
       const y2 = n.y + n.height;
       if (!cur) {
-        groups.set(phase, { minX: x1, minY: y1, maxX: x2, maxY: y2, colors });
+        groups.set(phase, { minX: x1, minY: y1, maxX: x2, maxY: y2, colors, count: 1 });
       } else {
         cur.minX = Math.min(cur.minX, x1);
         cur.minY = Math.min(cur.minY, y1);
         cur.maxX = Math.max(cur.maxX, x2);
         cur.maxY = Math.max(cur.maxY, y2);
+        cur.count += 1;
       }
     }
 
-    if (groups.size <= 1) return [];
+    const entries = Array.from(groups.entries()).filter(([, box]) => box.count >= 2);
+    if (entries.length === 0) return [];
     const pad = 18;
-    return Array.from(groups.entries()).map(([phase, box]) => ({
+    return entries.map(([phase, box]) => ({
       phase,
       x: box.minX - pad,
       y: box.minY - pad,
@@ -363,29 +365,6 @@ export function SsotFlowGraph({
             );
           })()
         ))}
-        {phaseGroups.map((g) => {
-          const label = `Phase ${g.phase}`;
-          const labelWidth = 18 + label.length * 7;
-          const lx = g.x + 14;
-          const ly = g.y + 14;
-          return (
-            <g key={`${g.phase}-label`}>
-              <rect
-                x={lx}
-                y={ly}
-                width={labelWidth}
-                height={22}
-                rx={12}
-                fill="var(--color-surface)"
-                stroke={g.colors.stroke}
-                strokeWidth={1.5}
-              />
-              <text x={lx + 10} y={ly + 11} fill="var(--color-text)" fontSize={12} fontWeight={900} dominantBaseline="middle">
-                {label}
-              </text>
-            </g>
-          );
-        })}
       </svg>
 
       {nodes.map((n) => {
@@ -407,15 +386,15 @@ export function SsotFlowGraph({
                 ? "rgba(14, 165, 233, 0.85)"
               : "var(--color-border-muted)";
         const background = isSelected
-          ? "rgba(25, 118, 210, 0.12)"
+          ? "#eff6ff"
           : isDown
-            ? "rgba(67, 160, 71, 0.08)"
+            ? "#f0fdf4"
             : isUp
-              ? "rgba(156, 39, 176, 0.08)"
+              ? "#faf5ff"
               : isExec
-                ? "rgba(14, 165, 233, 0.08)"
+                ? "#ecfeff"
               : isHighlighted
-                ? "rgba(255, 200, 0, 0.10)"
+                ? "#fffbeb"
                 : "var(--color-surface)";
         return (
           <button
@@ -435,7 +414,8 @@ export function SsotFlowGraph({
               borderRadius: 14,
               border: `2px solid ${border}`,
               background,
-              color: "var(--color-text)",
+              color: "var(--color-text-strong)",
+              boxShadow: isSelected ? "0 10px 24px rgba(29, 78, 216, 0.18)" : undefined,
               display: "grid",
               gridTemplateRows: "auto auto",
               gap: 6,
@@ -472,9 +452,9 @@ export function SsotFlowGraph({
                 {n.step.name || n.step.node_id}
               </div>
             </div>
-            <div className="small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0, color: "var(--color-text)", opacity: 0.72 }}>
+            <div className="small-text" style={{ display: "flex", justifyContent: "space-between", gap: 10, minWidth: 0, color: "var(--color-text-muted)" }}>
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {task ? `${n.id} · TASK:${task}` : n.id}
+                {task ? `TASK:${task}` : n.id}
               </span>
             </div>
           </button>

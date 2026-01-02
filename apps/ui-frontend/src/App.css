@@ -157,7 +157,7 @@
   align-items: center;
   text-align: left;
   background: var(--color-surface-subtle);
-  color: var(--color-text);
+  color: var(--color-text-strong);
 }
 
 .research-entry__meta {
@@ -14852,7 +14852,7 @@ button:hover:not(:disabled) {
   border-radius: 8px;
   background: #f8fafc;
   padding: 8px 10px;
-  color: var(--color-text);
+  color: var(--color-text-strong);
   cursor: pointer;
 }
 .research-entry:hover {

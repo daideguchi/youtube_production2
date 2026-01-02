@@ -336,6 +336,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "script_pipeline",
         "phase": "B",
+        "summary": "LLM+ルールで台本（Aテキスト）を生成し、status.json/assembled*.md を正本として管理するステージパイプライン。",
         "stages_path": _repo_rel(stages_path, root=repo),
         "templates_path": _repo_rel(templates_path, root=repo),
         "runner_path": _repo_rel(runner_path, root=repo),
@@ -371,6 +372,31 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
         if k not in ordered_keys:
             ordered_keys.append(k)
 
+    desc_by_key = {
+        "pipeline": "SRT→cues→images の基礎パイプ（run_pipeline）を実行",
+        "image_generation": "image_cues.json を元に images/*.png を生成（なければ停止）",
+        "belt": "belt_config.json を生成/更新（preset/equal/grouped/LLM 等）",
+        "broll": "ストックB-rollを注入（任意）",
+        "draft": "CapCut draft を生成（capcut_bulk_insert）し run_dir に参照メタを保存",
+        "title_injection": "CapCut draft にタイトルJSONを注入",
+        "timeline_manifest": "audio_tts final SRT 基準で timeline_manifest.json を生成（診断契約）",
+    }
+
+    outputs_by_key = {
+        "pipeline": [
+            "workspaces/video/runs/{run_id}/srt_segments.json",
+            "workspaces/video/runs/{run_id}/image_cues.json",
+        ],
+        "image_generation": ["workspaces/video/runs/{run_id}/images/*.png"],
+        "belt": ["workspaces/video/runs/{run_id}/belt_config.json"],
+        "draft": [
+            "workspaces/video/runs/{run_id}/capcut_draft_info.json",
+            "workspaces/video/runs/{run_id}/capcut_draft",
+        ],
+        "timeline_manifest": ["workspaces/video/runs/{run_id}/timeline_manifest.json"],
+        "title_injection": ["workspaces/video/runs/{run_id}/capcut_draft_info.json"],
+    }
+
     steps: List[Dict[str, Any]] = []
     for idx, k in enumerate(ordered_keys, start=1):
         line_no = int(key_to_line.get(k) or 1)
@@ -380,7 +406,8 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
                 "node_id": f"D/{k}",
                 "order": idx,
                 "name": k,
-                "description": "",
+                "description": desc_by_key.get(k, ""),
+                "outputs": outputs_by_key.get(k, []),
                 "impl": {
                     "auto_capcut_run": {
                         "path": _repo_rel(auto_path, root=repo),
@@ -400,6 +427,7 @@ def _video_auto_capcut_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "video_auto_capcut_run",
         "phase": "D",
+        "summary": "音声SRTを起点に run_dir を作り、image_cues/images を準備して CapCut draft を自動生成する（自動/再開あり）。",
         "auto_capcut_run_path": _repo_rel(auto_path, root=repo),
         "sot": [
             {"path": "workspaces/video/runs/{run_id}/", "kind": "run_dir", "notes": "run-level SoT (pipeline outputs)"},
@@ -576,6 +604,7 @@ def _audio_tts_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "audio_tts",
         "phase": "C",
+        "summary": "Aテキスト（assembled_human.md優先）からTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する。",
         "run_tts_path": _repo_rel(run_tts_path, root=repo),
         "llm_adapter_path": _repo_rel(llm_adapter_path, root=repo),
         "sot": [
@@ -669,6 +698,7 @@ def _thumbnails_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "thumbnails",
         "phase": "F",
+        "summary": "projects/templates/assets を正本として、サムネの生成/合成/差し替えを管理する。",
         "sot": [
             {"path": "workspaces/thumbnails/projects.json", "kind": "projects", "notes": "variants/selected etc"},
             {"path": "workspaces/thumbnails/templates.json", "kind": "templates", "notes": "channel templates/layer_specs"},
@@ -693,6 +723,13 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
         "update_sheet_row",
         "main",
     ]
+    desc_by_fn = {
+        "fetch_rows": "Google Sheet から対象行（ready & video_id空）を取得",
+        "download_drive_file": "Drive URL→fileId を解決しローカルへ一時DL",
+        "upload_youtube": "YouTube APIで動画をアップロード",
+        "update_sheet_row": "Sheetへ Status/Video ID/UpdatedAt を書き戻し",
+        "main": "dry-run / --run 実行のオーケストレーション",
+    }
     steps: List[Dict[str, Any]] = []
     for idx, fn in enumerate(fn_names, start=1):
         steps.append(
@@ -701,7 +738,7 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
                 "node_id": f"G/{fn}",
                 "order": idx,
                 "name": fn,
-                "description": "",
+                "description": desc_by_fn.get(fn, ""),
                 "impl_refs": [r for r in [_make_code_ref(repo, publish_path, _find_def_line(lines, fn), symbol=fn)] if r],
             }
         )
@@ -709,6 +746,7 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "publish",
         "phase": "G",
+        "summary": "Google Sheet/Drive を外部SoTとして、ローカルDL→YouTube upload→Sheet更新までを行う（default dry-run）。",
         "path": _repo_rel(publish_path, root=repo),
         "sot": [
             {"path": "YT_PUBLISH_SHEET_ID / YT_PUBLISH_SHEET_NAME", "kind": "external", "notes": "Google Sheet (external SoT)"},
@@ -768,6 +806,7 @@ def _planning_catalog(repo: Path) -> Dict[str, Any]:
     return {
         "flow_id": "planning",
         "phase": "A",
+        "summary": "Planning CSV（CH別）を正本に、persona/ideas を用意して下流の Script/Thumb へ渡す。",
         "sot": [
             {"path": "workspaces/planning/channels/{CH}.csv", "kind": "planning_csv", "notes": "planning SoT (titles/tags/etc)"},
             {"path": "workspaces/planning/personas/CHxx_PERSONA.md", "kind": "persona", "notes": "persona SoT"},
@@ -935,12 +974,12 @@ def build_ssot_catalog() -> Dict[str, Any]:
         "mainline": {
             "flow_id": "mainline",
             "nodes": [
-                {"phase": "A", "node_id": "A/planning", "name": "Planning"},
-                {"phase": "B", "node_id": "B/script_pipeline", "name": "Script Pipeline"},
-                {"phase": "C", "node_id": "C/audio_tts", "name": "Audio/TTS"},
-                {"phase": "D", "node_id": "D/video", "name": "Video (CapCut)"},
-                {"phase": "F", "node_id": "F/thumbnails", "name": "Thumbnails"},
-                {"phase": "G", "node_id": "G/publish", "name": "Publish"},
+                {"phase": "A", "node_id": "A/planning", "name": "Planning", "description": "企画/タイトル/タグ/進捗などを Planning CSV に集約し、CH-NNN を確定する。"},
+                {"phase": "B", "node_id": "B/script_pipeline", "name": "Script Pipeline", "description": "LLM+ルールで台本（Aテキスト）を生成/検証し、status.json と assembled*.md を正本として保存する。"},
+                {"phase": "C", "node_id": "C/audio_tts", "name": "Audio/TTS", "description": "AテキストからTTS音声（wav）と字幕（srt）を生成し、final SoT へ同期する（alignment/split-brain ガード）。"},
+                {"phase": "D", "node_id": "D/video", "name": "Video (CapCut)", "description": "SRT→image_cues→images→CapCut draft を自動生成し、run_dir に成果物を保存する。"},
+                {"phase": "F", "node_id": "F/thumbnails", "name": "Thumbnails", "description": "サムネの projects/templates/assets を管理し、生成/合成して variants を登録する。"},
+                {"phase": "G", "node_id": "G/publish", "name": "Publish", "description": "Google Sheet/Drive を外部SoTとして、動画をYouTubeへアップロードしSheetを更新する。"},
             ],
             "edges": [
                 {"from": "A/planning", "to": "B/script_pipeline"},
