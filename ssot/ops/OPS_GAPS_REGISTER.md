@@ -22,25 +22,17 @@
 
 ---
 
-## GAP-002（P1 ✅）LLM品質ゲートの収束上限（SSOT=最大3）と実装（codex_exec=最大5）が不一致
+## GAP-002（P1 ✅）LLM品質ゲートの収束上限（SSOT/実装一致・クローズ）
 
-### SSOT主張
-- `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`「1.8 収束の上限」:
-  - Judge: 最大3回 / Fixer: 最大2回（=既定方針）
+### 現状（SSOT/実装）
+- SSOT: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`「1.8 収束の上限」にて **`codex_exec` の回は default/hard cap を 5** に引き上げる旨を明記済み。
+- 実装: `packages/script_pipeline/runner.py` の `script_validation` LLM quality gate v2 は、
+  - `codex_exec` の場合: default/hard cap = 5
+  - それ以外: default/hard cap = 3
 
-### 実装の現実
-- `packages/script_pipeline/runner.py`（`script_validation` の LLM quality gate v2）:
-  - draft provenance が `codex_exec` の場合:
-    - default rounds = 5 / hard cap = 5
-  - それ以外:
-    - default rounds = 3 / hard cap = 3
-
-### 影響
-- 期待よりコスト/時間が増える（特に codex_exec を draft に使った回）。
-- 「SSOTに従って最大3と思っていた」運用者/エージェントが迷う。
-
-### 判断ポイント（要意思決定）
-- SSOTを更新して「codex_exec例外」を正式化するか、実装をSSOTに合わせて3へ戻すか。
+### 判断
+- SSOT/実装は一致しているためクローズ。
+- 運用調整は SSOT 記載の env（例: `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`）で行う。
 
 ---
 
