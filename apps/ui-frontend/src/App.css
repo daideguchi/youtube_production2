@@ -267,9 +267,9 @@
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1600px) {
   .ssot-map .ssot-graph-split {
-    grid-template-columns: minmax(0, 1fr) 420px;
+    grid-template-columns: minmax(0, 1fr) 380px;
     align-items: start;
   }
 

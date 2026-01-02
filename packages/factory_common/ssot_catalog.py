@@ -340,6 +340,10 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
     validator_path = script_pkg_root() / "validator.py"
     validator_lines = _safe_read_text(validator_path).splitlines()
     prompts_root = script_pkg_root() / "prompts"
+    runbook_path = repo / "scripts" / "ops" / "script_runbook.py"
+    runbook_lines = _safe_read_text(runbook_path).splitlines()
+    cli_path = script_pkg_root() / "cli.py"
+    cli_lines = _safe_read_text(cli_path).splitlines()
 
     def _find_near(start_line: int | None, needle: str, *, max_scan: int = 1400) -> int | None:
         if start_line:
@@ -412,7 +416,8 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
         step: Dict[str, Any] = {
                 "phase": "B",
                 "node_id": f"B/{name}",
-                "order": idx,
+                # Reserve B-01/B-02 for entrypoints + ensure_status.
+                "order": idx + 2,
                 "name": name,
                 "description": str(st.get("description") or "").strip(),
                 "outputs": list(st.get("outputs") or []),
@@ -810,6 +815,144 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
             step["related_flow"] = "audio_tts"
         stage_items.append(step)
 
+    entrypoints_step: Dict[str, Any] = {
+        "phase": "B",
+        "node_id": "B/entrypoints",
+        "order": 1,
+        "name": "entrypoints",
+        "description": "\n".join(
+            [
+                "Script Pipeline の代表入口（運用固定）と低レベル入口（開発/デバッグ向け）をまとめる。",
+                "- 推奨: scripts/ops/script_runbook.py（new/redo-full/resume/rewrite/seed-expand）",
+                "- 低レベル: python3 -m script_pipeline.cli（init/run/next/run-all/validate/reconcile/reset/audio/semantic-align）",
+                "- UI: /api/* の script-manifest / reconcile / run(script_validation) / script_reset",
+            ]
+        ),
+        "impl_refs": [
+            r
+            for r in [
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_new"), symbol="runbook:cmd_new"),
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_redo_full"), symbol="runbook:cmd_redo_full"),
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_resume"), symbol="runbook:cmd_resume"),
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_rewrite"), symbol="runbook:cmd_rewrite"),
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_seed_expand"), symbol="runbook:cmd_seed_expand"),
+                _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "main"), symbol="runbook:main"),
+                _make_code_ref(repo, cli_path, _find_first_line_containing(cli_lines, 'sub.add_parser("run"'), symbol='cli:subcmd "run"'),
+                _make_code_ref(repo, cli_path, _find_def_line(cli_lines, "main"), symbol="cli:main"),
+            ]
+            if r
+        ],
+        "substeps": [
+            {
+                "id": "runbook:new",
+                "name": "runbook:new",
+                "description": "\n".join(
+                    [
+                        "新規作成: status を同期し、pending を進めて script_validation まで収束させる（既定）。",
+                        "- 用途: 0→1（初回生成）",
+                    ]
+                ),
+                "impl_refs": [r for r in [_make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_new"), symbol="cmd_new")] if r],
+            },
+            {
+                "id": "runbook:redo-full",
+                "name": "runbook:redo-full",
+                "description": "\n".join(
+                    [
+                        "完全やり直し: reset_video() → regenerate → script_validation まで。",
+                        "- 用途: 大きな前提変更/破損の復旧",
+                    ]
+                ),
+                "impl_refs": [
+                    r
+                    for r in [
+                        _make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_redo_full"), symbol="cmd_redo_full"),
+                        _make_code_ref(repo, runbook_path, _find_first_line_containing(runbook_lines, "reset_video("), symbol="reset_video"),
+                    ]
+                    if r
+                ],
+            },
+            {
+                "id": "runbook:resume",
+                "name": "runbook:resume",
+                "description": "\n".join(
+                    [
+                        "再開: 現状の pending を進める（必要なら --until script_validation で再検証）。",
+                        "- 用途: 中断再開/部分リテイク",
+                    ]
+                ),
+                "impl_refs": [r for r in [_make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_resume"), symbol="cmd_resume")] if r],
+            },
+            {
+                "id": "runbook:rewrite",
+                "name": "runbook:rewrite",
+                "description": "\n".join(
+                    [
+                        "指示書き換え: Aテキストを明示指示で更新し、deterministic validate → script_validation で収束させる。",
+                        "- 用途: 人間の意思決定を反映して作り直す（品質優先）",
+                    ]
+                ),
+                "impl_refs": [r for r in [_make_code_ref(repo, runbook_path, _find_def_line(runbook_lines, "cmd_rewrite"), symbol="cmd_rewrite")] if r],
+            },
+            {
+                "id": "cli:next",
+                "name": "cli:next",
+                "description": "低レベル: stages.yaml 順で最初の pending を1つだけ実行する。",
+                "impl_refs": [
+                    r
+                    for r in [
+                        _make_code_ref(repo, cli_path, _find_first_line_containing(cli_lines, 'sub.add_parser("next"'), symbol='cli:subcmd "next"'),
+                        _make_code_ref(repo, runner_path, _find_def_line(runner_lines, "run_next"), symbol="runner:run_next"),
+                    ]
+                    if r
+                ],
+            },
+            {
+                "id": "cli:semantic-align",
+                "name": "cli:semantic-align",
+                "description": "低レベル: semantic alignment をチェックし、--apply で修正を適用する（明示適用）。",
+                "impl_refs": [
+                    r
+                    for r in [
+                        _make_code_ref(repo, cli_path, _find_first_line_containing(cli_lines, 'sub.add_parser("semantic-align"'), symbol='cli:subcmd "semantic-align"'),
+                        _make_code_ref(repo, cli_path, _find_first_line_containing(cli_lines, "--apply"), symbol="flag:--apply"),
+                    ]
+                    if r
+                ],
+            },
+        ],
+    }
+
+    ensure_status_step: Dict[str, Any] = {
+        "phase": "B",
+        "node_id": "B/ensure_status",
+        "order": 2,
+        "name": "ensure_status",
+        "description": "\n".join(
+            [
+                "status.json を非破壊で backfill し、Planning CSV 行と persona 等を同期する（下流の整合の起点）。",
+                "- status.json が無い場合は init 相当で作成（best-effort）",
+                "- script_manifest.json をベストエフォートで更新（UI契約）",
+                "- planning_input_contract で汚染hintを除去して取り込む",
+            ]
+        ),
+        "outputs": [
+            {"path": "workspaces/scripts/{CH}/{NNN}/status.json", "required": True},
+            {"path": "workspaces/scripts/{CH}/{NNN}/script_manifest.json", "required": False},
+        ],
+        "impl_refs": [
+            r
+            for r in [
+                _make_code_ref(repo, runner_path, _find_def_line(runner_lines, "ensure_status"), symbol="runner:ensure_status"),
+                _make_code_ref(repo, runner_path, _find_first_line_containing(runner_lines, "apply_planning_input_contract"), symbol="apply_planning_input_contract"),
+                _make_code_ref(repo, runner_path, _find_def_line(runner_lines, "_write_script_manifest"), symbol="runner:_write_script_manifest"),
+            ]
+            if r
+        ],
+    }
+
+    all_steps: List[Dict[str, Any]] = [entrypoints_step, ensure_status_step, *stage_items]
+
     return {
         "flow_id": "script_pipeline",
         "phase": "B",
@@ -842,11 +985,8 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
             {"path": "workspaces/scripts/{CH}/{NNN}/artifacts/llm/*.json", "kind": "llm_artifacts", "notes": "manual fill / reuse contract"},
             {"path": "workspaces/scripts/{CH}/{NNN}/content/analysis/**", "kind": "analysis", "notes": "reports (alignment/quality_gate/etc)"},
         ],
-        "steps": stage_items,
-        "edges": [
-            {"from": f"B/{stage_items[i]['name']}", "to": f"B/{stage_items[i + 1]['name']}"}
-            for i in range(0, max(0, len(stage_items) - 1))
-        ],
+        "steps": all_steps,
+        "edges": [{"from": all_steps[i]["node_id"], "to": all_steps[i + 1]["node_id"]} for i in range(0, max(0, len(all_steps) - 1))],
     }
 
 
@@ -2874,6 +3014,16 @@ def build_ssot_catalog() -> Dict[str, Any]:
     publish_flow = _publish_catalog(repo)
     planning_flow = _planning_catalog(repo)
 
+    def _pick_steps(flow: Dict[str, Any], node_ids: List[str]) -> List[Dict[str, Any]]:
+        by_id: Dict[str, Dict[str, Any]] = {}
+        for st in flow.get("steps") or []:
+            if not isinstance(st, dict):
+                continue
+            nid = str(st.get("node_id") or "").strip()
+            if nid:
+                by_id[nid] = st
+        return [by_id[nid] for nid in node_ids if nid in by_id]
+
     declared_tasks: set[str] = set()
     cfg_tasks = llm_router_conf.get("config", {}).get("tasks", {})
     if isinstance(cfg_tasks, dict):
@@ -3066,6 +3216,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
         image_client_lines,
         "Fallback is disabled by default for explicit model_key",
     )
+
+    llm_router_path = repo / "packages" / "factory_common" / "llm_router.py"
+    llm_router_lines = _safe_read_text(llm_router_path).splitlines()
+    strict_llm_line = _find_first_line_containing(llm_router_lines, "Strict model selection policy (NO silent downgrade)")
     policies: List[Dict[str, Any]] = [
         {
             "id": "POLICY-IMG-001",
@@ -3089,7 +3243,30 @@ def build_ssot_catalog() -> Dict[str, Any]:
                 ]
                 if r
             ],
-        }
+        },
+        {
+            "id": "POLICY-LLM-001",
+            "title": "No silent LLM model downgrade",
+            "description": "\n".join(
+                [
+                    "LLMでモデルが明示された場合（call model_keys / env LLM_FORCE_*）、Codex/THINK/別モデルへの“サイレント代替”を禁止する。",
+                    "- 既定: allow_fallback=false（失敗時は停止して判断を要求）",
+                    "- 例外: allow_fallback=true を明示した場合のみ、候補リスト内での代替を許可（=意思決定が必要）",
+                ]
+            ),
+            "impl_refs": [
+                r
+                for r in [
+                    _make_code_ref(
+                        repo,
+                        llm_router_path,
+                        strict_llm_line,
+                        symbol="policy:strict_model_selection",
+                    )
+                ]
+                if r
+            ],
+        },
     ]
 
     return {
@@ -3127,6 +3304,15 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "planning",
+                    "substeps": _pick_steps(
+                        planning_flow,
+                        [
+                            "A/planning_csv",
+                            "A/persona_doc",
+                            "A/idea_manager",
+                            "A/planning_lint",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/planning/channels/{CH}.csv"},
                 },
                 {
@@ -3143,6 +3329,17 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "script_pipeline",
+                    "substeps": _pick_steps(
+                        script_flow,
+                        [
+                            "B/entrypoints",
+                            "B/ensure_status",
+                            "B/topic_research",
+                            "B/script_outline",
+                            "B/script_validation",
+                            "B/audio_synthesis",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/scripts/{CH}/{NNN}/status.json"},
                 },
                 {
@@ -3159,6 +3356,15 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "audio_tts",
+                    "substeps": _pick_steps(
+                        audio_flow,
+                        [
+                            "C/resolve_final_tts_input_path",
+                            "C/alignment_stamp_guard",
+                            "C/audio_manifest_v1",
+                            "C/llm_tts_reading",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav"},
                 },
                 {
@@ -3175,6 +3381,16 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "video_auto_capcut_run",
+                    "substeps": _pick_steps(
+                        video_flow,
+                        [
+                            "D/pipeline",
+                            "D/belt",
+                            "D/draft",
+                            "D/title_injection",
+                            "D/timeline_manifest",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/video/runs/{run_id}/"},
                 },
                 {
@@ -3190,6 +3406,16 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "publish",
+                    "substeps": _pick_steps(
+                        publish_flow,
+                        [
+                            "G/config_env",
+                            "G/fetch_rows",
+                            "G/download_drive_file",
+                            "G/upload_youtube",
+                            "G/update_sheet_row",
+                        ],
+                    ),
                     "sot": {"path": "YT_PUBLISH_SHEET (external)"},
                 },
                 {
@@ -3206,6 +3432,16 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "thumbnails",
+                    "substeps": _pick_steps(
+                        thumbnails_flow,
+                        [
+                            "F/projects_sot",
+                            "F/templates_sot",
+                            "F/api_variants_generate",
+                            "F/api_variants_compose",
+                            "F/cli_build",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/thumbnails/projects.json"},
                 },
                 {
@@ -3221,6 +3457,13 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         ]
                     ),
                     "related_flow": "remotion",
+                    "substeps": _pick_steps(
+                        remotion_flow,
+                        [
+                            "E/remotion_render",
+                            "E/remotion_upload",
+                        ],
+                    ),
                     "sot": {"path": "workspaces/video/runs/{run_id}/remotion/output/final.mp4"},
                 },
             ],

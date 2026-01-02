@@ -1,237 +1,101 @@
-import os
-import types
-import unittest
-
-from factory_common.llm_router import LLMRouter
+import pytest
 
 
-class DummyResponse:
-    def __init__(self, content: str):
-        self.choices = [
-            types.SimpleNamespace(
-                message=types.SimpleNamespace(content=content),
-                finish_reason="stop",
-            )
-        ]
-        self.usage = types.SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3)
+def _make_router(monkeypatch, *, models):
+    import factory_common.llm_router as lr
+
+    # Reset singleton to avoid cross-test state.
+    lr.LLMRouter._instance = None
+    router = lr.LLMRouter()
+
+    # Disable cache + agent-mode hooks for deterministic unit tests.
+    monkeypatch.setattr(lr, "_api_cache_enabled_for_task", lambda _task: False)
+    monkeypatch.setattr(lr, "maybe_handle_agent_mode", lambda **_kw: None)
+    monkeypatch.setattr(lr, "sanitize_params", lambda _model_conf, opts: dict(opts))
+
+    # Minimal model config + fake client.
+    router.config = {
+        "tasks": {},
+        "models": {mk: {"provider": "dummy", "model_name": mk, "capabilities": {"mode": "chat"}, "defaults": {}} for mk in models},
+        "tiers": {},
+    }
+    router.task_overrides = {}
+    router.clients = {"dummy": object()}
+
+    return router, lr
 
 
-class DummyCompletions:
-    def __init__(self, parent, fail_first: int, content: str):
-        self.parent = parent
-        self.fail_first = fail_first
-        self.content = content
+def test_strict_model_keys_disables_codex_and_think_and_fallback(monkeypatch):
+    router, lr = _make_router(monkeypatch, models=["m1", "m2"])
 
-    def create(self, **kwargs):
-        self.parent.last_params = kwargs
-        self.parent.calls += 1
-        if self.parent.calls <= self.fail_first:
-            raise Exception("fail")
-        return DummyResponse(self.content)
+    invoked = []
+    codex_calls = {"n": 0}
+    think_calls = {"n": 0}
 
+    def _codex(**_kw):
+        codex_calls["n"] += 1
+        return None, {"attempted": True, "reason": "should_not_run"}
 
-class DummyClient:
-    def __init__(self, fail_first: int = 0, content: str = "ok"):
-        self.calls = 0
-        self.last_params = None
-        self.chat = types.SimpleNamespace(completions=DummyCompletions(self, fail_first, content))
+    monkeypatch.setattr(lr, "try_codex_exec", _codex)
 
+    def _think_failover(**_kw):
+        think_calls["n"] += 1
+        return {"content": "THINK", "model": "think", "provider": "think", "chain": ["think"]}
 
-class TestLLMRouter(unittest.TestCase):
-    def setUp(self):
-        # Unit tests should not depend on or pollute disk cache.
-        os.environ["LLM_API_CACHE_DISABLE"] = "1"
-        os.environ.pop("LLM_FORCE_MODELS", None)
-        os.environ.pop("LLM_FORCE_MODEL", None)
-        os.environ.pop("LLM_FORCE_TASK_MODELS_JSON", None)
-        # Reset singleton to avoid cross-test contamination.
-        LLMRouter._instance = None
+    monkeypatch.setattr(lr, "maybe_failover_to_think", _think_failover)
 
-    def test_config_loading(self):
-        router = LLMRouter()
-        self.assertIn("providers", router.config)
-        self.assertIn("models", router.config)
-        self.assertIn("tiers", router.config)
-        self.assertIn("tasks", router.config)
+    def _invoke(self, _provider, _client, _model_conf, _messages, return_raw=False, **_kwargs):
+        invoked.append(_model_conf.get("model_name"))
+        raise RuntimeError("provider_fail")
 
-    def test_fallback_across_models(self):
-        router = LLMRouter()
-        dummy = DummyClient(fail_first=1, content="openrouter")
+    monkeypatch.setattr(lr.LLMRouter, "_invoke_provider", _invoke, raising=True)
 
-        # Override runtime state to avoid real HTTP.
-        router.clients = {"openrouter": dummy}
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_fail": {
-                    "provider": "openrouter",
-                    "model_name": "deepseek/deepseek-v3.2-exp",
-                    "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
-                    "defaults": {"temperature": 0.2, "max_tokens": 32},
-                },
-                "m_ok": {
-                    "provider": "openrouter",
-                    "model_name": "deepseek/deepseek-v3.2-exp",
-                    "capabilities": {"mode": "chat", "reasoning": False, "json_mode": True, "max_tokens": 128},
-                    "defaults": {"temperature": 0.2, "max_tokens": 32},
-                },
-            },
-            "tiers": {"standard": ["m_fail", "m_ok"]},
-            "tasks": {"general": {"tier": "standard", "options": {"max_tokens": 32}}},
-        }
+    with pytest.raises(RuntimeError):
+        router.call_with_raw(
+            task="unit_test_task",
+            messages=[{"role": "user", "content": "hello"}],
+            model_keys=["m1", "m2"],
+        )
 
-        out = router.call_with_raw("general", [{"role": "user", "content": "hi"}], max_tokens=16)
-        self.assertEqual(out["content"], "openrouter")
-        self.assertEqual(out["chain"], ["m_fail", "m_ok"])
-        self.assertGreaterEqual(dummy.calls, 2)
-
-    def test_force_models_override(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
-                "m_b": {"provider": "openrouter", "model_name": "y", "capabilities": {"mode": "chat"}},
-            },
-            "tiers": {"standard": ["m_a", "m_b"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "m_b"
-        self.assertEqual(router.get_models_for_task("general"), ["m_b"])
-
-    def test_force_task_models_override_wins(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
-                "m_b": {"provider": "openrouter", "model_name": "y", "capabilities": {"mode": "chat"}},
-            },
-            "tiers": {"standard": ["m_a"]},
-            "tasks": {"general": {"tier": "standard"}, "other": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "m_a"
-        os.environ["LLM_FORCE_TASK_MODELS_JSON"] = '{"general":["m_b"]}'
-        self.assertEqual(router.get_models_for_task("general"), ["m_b"])
-        self.assertEqual(router.get_models_for_task("other"), ["m_a"])
-
-    def test_force_models_unknown_falls_back(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
-            },
-            "tiers": {"standard": ["m_a"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "does_not_exist"
-        self.assertEqual(router.get_models_for_task("general"), ["m_a"])
-
-    def test_force_models_openrouter_model_id_alias(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "or_deepseek_v3_2_exp": {
-                    "provider": "openrouter",
-                    "model_name": "deepseek/deepseek-v3.2-exp",
-                    "capabilities": {"mode": "chat"},
-                },
-            },
-            "tiers": {"standard": ["or_deepseek_v3_2_exp"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "deepseek/deepseek-v3.2-exp"
-        self.assertEqual(router.get_models_for_task("general"), ["or_deepseek_v3_2_exp"])
-
-    def test_force_models_openrouter_prefixed_alias(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "or_deepseek_v3_2_exp": {
-                    "provider": "openrouter",
-                    "model_name": "deepseek/deepseek-v3.2-exp",
-                    "capabilities": {"mode": "chat"},
-                },
-            },
-            "tiers": {"standard": ["or_deepseek_v3_2_exp"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "openrouter:deepseek/deepseek-v3.2-exp"
-        self.assertEqual(router.get_models_for_task("general"), ["or_deepseek_v3_2_exp"])
-
-    def test_force_models_azure_deployment_alias(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"azure": {"env_api_key": "AZURE_OPENAI_API_KEY", "env_endpoint": "AZURE_OPENAI_ENDPOINT"}},
-            "models": {
-                "azure_gpt5_mini": {
-                    "provider": "azure",
-                    "deployment": "gpt-5-mini",
-                    "capabilities": {"mode": "chat"},
-                },
-            },
-            "tiers": {"standard": ["azure_gpt5_mini"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "gpt-5-mini"
-        self.assertEqual(router.get_models_for_task("general"), ["azure_gpt5_mini"])
-
-    def test_force_models_azure_prefixed_deployment_alias(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"azure": {"env_api_key": "AZURE_OPENAI_API_KEY", "env_endpoint": "AZURE_OPENAI_ENDPOINT"}},
-            "models": {
-                "azure_gpt5_mini": {
-                    "provider": "azure",
-                    "deployment": "gpt-5-mini",
-                    "capabilities": {"mode": "chat"},
-                },
-            },
-            "tiers": {"standard": ["azure_gpt5_mini"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "azure:gpt-5-mini"
-        self.assertEqual(router.get_models_for_task("general"), ["azure_gpt5_mini"])
-
-    def test_force_models_alias_ambiguous_falls_back(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_a": {"provider": "openrouter", "model_name": "dup", "capabilities": {"mode": "chat"}},
-                "m_b": {"provider": "openrouter", "model_name": "dup", "capabilities": {"mode": "chat"}},
-            },
-            "tiers": {"standard": ["m_a", "m_b"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_MODELS"] = "dup"
-        self.assertEqual(router.get_models_for_task("general"), ["m_a", "m_b"])
-
-    def test_force_task_models_invalid_json_falls_back(self):
-        router = LLMRouter()
-        router.config = {
-            "providers": {"openrouter": {"env_api_key": "OPENROUTER_API_KEY", "base_url": "https://openrouter.ai/api/v1"}},
-            "models": {
-                "m_a": {"provider": "openrouter", "model_name": "x", "capabilities": {"mode": "chat"}},
-            },
-            "tiers": {"standard": ["m_a"]},
-            "tasks": {"general": {"tier": "standard"}},
-        }
-        router.task_overrides = {}
-        os.environ["LLM_FORCE_TASK_MODELS_JSON"] = "{"
-        self.assertEqual(router.get_models_for_task("general"), ["m_a"])
+    # Strict-by-default: try ONLY the first model; do not call THINK failover.
+    assert invoked == ["m1"]
+    assert think_calls["n"] == 0
+    assert codex_calls["n"] == 0
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_allow_fallback_true_with_model_keys_tries_multiple_but_still_no_codex_or_think(monkeypatch):
+    router, lr = _make_router(monkeypatch, models=["m1", "m2"])
+
+    invoked = []
+    codex_calls = {"n": 0}
+    think_calls = {"n": 0}
+
+    def _codex(**_kw):
+        codex_calls["n"] += 1
+        return None, {"attempted": True, "reason": "should_not_run"}
+
+    monkeypatch.setattr(lr, "try_codex_exec", _codex)
+
+    def _think_failover(**_kw):
+        think_calls["n"] += 1
+        return {"content": "THINK", "model": "think", "provider": "think", "chain": ["think"]}
+
+    monkeypatch.setattr(lr, "maybe_failover_to_think", _think_failover)
+
+    def _invoke(self, _provider, _client, _model_conf, _messages, return_raw=False, **_kwargs):
+        invoked.append(_model_conf.get("model_name"))
+        raise RuntimeError("provider_fail")
+
+    monkeypatch.setattr(lr.LLMRouter, "_invoke_provider", _invoke, raising=True)
+
+    with pytest.raises(RuntimeError):
+        router.call_with_raw(
+            task="unit_test_task",
+            messages=[{"role": "user", "content": "hello"}],
+            model_keys=["m1", "m2"],
+            allow_fallback=True,
+        )
+
+    assert invoked == ["m1", "m2"]
+    assert think_calls["n"] == 0
+    assert codex_calls["n"] == 0

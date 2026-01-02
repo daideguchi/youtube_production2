@@ -246,7 +246,7 @@ export function SsotFlowGraph({
       const hasExec = Boolean(exec);
       if (!selected) {
         if (hasExec) return { stroke: "rgba(14, 165, 233, 0.9)", strokeWidth: 3, opacity: 1, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
-        return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.9, marker: "normal", title: "" };
+        return { stroke: "rgba(100, 116, 139, 0.85)", strokeWidth: 2, opacity: 0.9, marker: "normal", title: "" };
       }
 
       const upstream = selectedPath.upstream;
@@ -257,7 +257,7 @@ export function SsotFlowGraph({
       if (isDownEdge) return { stroke: "rgba(67, 160, 71, 0.9)", strokeWidth: 3, opacity: 1, marker: "down", title: "" };
       if (isUpEdge) return { stroke: "rgba(156, 39, 176, 0.85)", strokeWidth: 3, opacity: 1, marker: "up", title: "" };
       if (hasExec) return { stroke: "rgba(14, 165, 233, 0.85)", strokeWidth: 3, opacity: 0.85, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
-      return { stroke: "var(--color-border)", strokeWidth: 2, opacity: 0.45, marker: "normal", title: "" };
+      return { stroke: "rgba(100, 116, 139, 0.55)", strokeWidth: 2, opacity: 0.55, marker: "normal", title: "" };
     },
     [executedEdges, selectedNodeId, selectedPath.downstream, selectedPath.upstream],
   );
@@ -267,7 +267,7 @@ export function SsotFlowGraph({
       <svg width={renderWidth} height={renderHeight} style={{ position: "absolute", inset: 0 }}>
         <defs>
           <marker id="ssotArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-            <path d="M0,0 L12,6 L0,12 Z" fill="var(--color-border)" />
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(100, 116, 139, 0.9)" />
           </marker>
           <marker id="ssotArrowDown" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
             <path d="M0,0 L12,6 L0,12 Z" fill="rgba(67, 160, 71, 0.95)" />

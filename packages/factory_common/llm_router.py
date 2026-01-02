@@ -1059,6 +1059,7 @@ class LLMRouter:
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
         model_keys: Optional[List[str]] = None,
+        allow_fallback: Optional[bool] = None,
         **kwargs,
     ) -> Any:
         result = self._call_internal(
@@ -1070,6 +1071,7 @@ class LLMRouter:
             response_format=response_format,
             return_raw=False,
             model_keys=model_keys,
+            allow_fallback=allow_fallback,
             **kwargs,
         )
         _trace_llm_call(
@@ -1082,6 +1084,7 @@ class LLMRouter:
                 "max_tokens": max_tokens,
                 "response_format": response_format,
                 "model_keys": model_keys,
+                "allow_fallback": allow_fallback,
                 **kwargs,
             },
         )
@@ -1096,6 +1099,7 @@ class LLMRouter:
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
         model_keys: Optional[List[str]] = None,
+        allow_fallback: Optional[bool] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         """
@@ -1111,6 +1115,7 @@ class LLMRouter:
             response_format=response_format,
             return_raw=True,
             model_keys=model_keys,
+            allow_fallback=allow_fallback,
             **kwargs,
         )
         _trace_llm_call(
@@ -1123,6 +1128,7 @@ class LLMRouter:
                 "max_tokens": max_tokens,
                 "response_format": response_format,
                 "model_keys": model_keys,
+                "allow_fallback": allow_fallback,
                 **kwargs,
             },
         )
@@ -1138,6 +1144,7 @@ class LLMRouter:
         response_format: Optional[str],
         return_raw: bool,
         model_keys: Optional[List[str]],
+        allow_fallback: Optional[bool],
         **kwargs,
     ) -> Dict[str, Any]:
         models = self.get_models_for_task(task, model_keys_override=model_keys)
@@ -1150,6 +1157,39 @@ class LLMRouter:
 
         task_conf = self.config.get("tasks", {}).get(task, {})
         override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
+
+        # -------------------------------------------------------------------
+        # Strict model selection policy (NO silent downgrade)
+        #
+        # User requirement:
+        # - If a human explicitly forces a model, we must NOT silently swap to a different model/provider,
+        #   and we must NOT auto-failover to Codex/THINK. Instead, STOP and report.
+        #
+        # What counts as "explicit" (strict by default):
+        # - call(..., model_keys=[...]) was provided
+        # - env overrides are present: LLM_FORCE_MODELS / LLM_FORCE_MODEL / LLM_FORCE_TASK_MODELS_JSON
+        # - per-task config sets allow_fallback: false
+        #
+        # Override:
+        # - allow_fallback=True explicitly allows trying multiple models from the candidate list,
+        #   but still does not allow Codex/THINK failover (models must remain within the explicit set).
+        # -------------------------------------------------------------------
+        forced_env_models = bool(
+            (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
+            or (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
+        )
+        conf_allow_fallback = None
+        if isinstance(override_conf, dict) and "allow_fallback" in override_conf:
+            conf_allow_fallback = override_conf.get("allow_fallback")
+        elif isinstance(task_conf, dict) and "allow_fallback" in task_conf:
+            conf_allow_fallback = task_conf.get("allow_fallback")
+        if allow_fallback is None and conf_allow_fallback is not None:
+            allow_fallback = bool(conf_allow_fallback)
+
+        strict_model_selection = bool(model_keys) or forced_env_models or (allow_fallback is False)
+        allow_fallback_effective = allow_fallback if allow_fallback is not None else (not strict_model_selection)
+        if strict_model_selection and not allow_fallback_effective and len(models) > 1:
+            logger.warning("Router: strict model selection; fallback disabled (trying only %s)", models[0])
 
         # System Prompt Injection/Override logic (override > task_conf > existing)
         sp_override = system_prompt_override or override_conf.get("system_prompt_override") or task_conf.get("system_prompt_override")
@@ -1231,7 +1271,7 @@ class LLMRouter:
         # Without this, changing model order/chain can keep returning stale cached results.
         try:
             if "_model_chain" not in base_options:
-                base_options["_model_chain"] = list(models)
+                base_options["_model_chain"] = list(models if allow_fallback_effective else models[:1])
         except Exception:
             pass
 
@@ -1337,89 +1377,94 @@ class LLMRouter:
         # - Runs `codex exec --sandbox read-only` to avoid writing to the repo/workspaces.
         # - If Codex is unavailable or output is invalid, fall back to the existing API router path.
         routing: Dict[str, Any] | None = None
-        codex_content, codex_meta = try_codex_exec(
-            task=task,
-            messages=messages,  # type: ignore[arg-type]
-            response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
-        )
-        if codex_meta.get("attempted") and codex_content is not None:
-            latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
-            task_id = None
-            try:
-                task_id = _api_cache_task_id(task, messages, base_options)
-            except Exception:
+        if not strict_model_selection:
+            codex_content, codex_meta = try_codex_exec(
+                task=task,
+                messages=messages,  # type: ignore[arg-type]
+                response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
+            )
+            if codex_meta.get("attempted") and codex_content is not None:
+                latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
                 task_id = None
-            req_id = f"codex_exec:{task_id}" if task_id else "codex_exec"
-            model_label = str((codex_meta or {}).get("model") or "default")
-            chain = ["codex_exec"]
-            self._log_usage(
-                {
-                    "status": "success",
-                    "task": task,
-                    "task_id": str(task_id) if task_id else None,
-                    "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
+                try:
+                    task_id = _api_cache_task_id(task, messages, base_options)
+                except Exception:
+                    task_id = None
+                req_id = f"codex_exec:{task_id}" if task_id else "codex_exec"
+                model_label = str((codex_meta or {}).get("model") or "default")
+                chain = ["codex_exec"]
+                self._log_usage(
+                    {
+                        "status": "success",
+                        "task": task,
+                        "task_id": str(task_id) if task_id else None,
+                        "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
+                        "model": f"codex:{model_label}",
+                        "provider": "codex_exec",
+                        "chain": chain,
+                        "latency_ms": latency_ms,
+                        "usage": {},
+                        "request_id": req_id,
+                        "finish_reason": "stop",
+                        "retry": None,
+                        "routing": {"codex_exec": codex_meta},
+                        "timestamp": time.time(),
+                    }
+                )
+                return {
+                    "content": codex_content,
+                    "raw": {"provider": "codex_exec", "meta": codex_meta} if return_raw else None,
+                    "usage": {},
+                    "request_id": req_id,
                     "model": f"codex:{model_label}",
                     "provider": "codex_exec",
                     "chain": chain,
                     "latency_ms": latency_ms,
-                    "usage": {},
-                    "request_id": req_id,
                     "finish_reason": "stop",
                     "retry": None,
-                    "routing": {"codex_exec": codex_meta},
-                    "timestamp": time.time(),
                 }
-            )
-            return {
-                "content": codex_content,
-                "raw": {"provider": "codex_exec", "meta": codex_meta} if return_raw else None,
-                "usage": {},
-                "request_id": req_id,
-                "model": f"codex:{model_label}",
-                "provider": "codex_exec",
-                "chain": chain,
-                "latency_ms": latency_ms,
-                "finish_reason": "stop",
-                "retry": None,
-            }
-        if codex_meta.get("attempted") and codex_content is None:
-            routing = routing or {}
-            routing["codex_exec"] = codex_meta
+            if codex_meta.get("attempted") and codex_content is None:
+                routing = routing or {}
+                routing["codex_exec"] = codex_meta
 
         # Optional: split traffic between Azure and non-Azure providers (roughly).
         # - Enable via env: LLM_AZURE_SPLIT_RATIO=0.5
         # - Use a stable routing key when provided (env: LLM_ROUTING_KEY); otherwise fall back to task_id hash.
-        ratio = _parse_ratio_env("LLM_AZURE_SPLIT_RATIO")
-        if ratio is not None:
-            azure_models: List[str] = []
-            other_models: List[str] = []
-            for mk in models:
-                conf = (self.config.get("models", {}) or {}).get(mk) or {}
-                provider = conf.get("provider")
-                if provider == "azure":
-                    azure_models.append(mk)
-                else:
-                    other_models.append(mk)
-            if azure_models and other_models:
-                route_key = (os.getenv("LLM_ROUTING_KEY") or "").strip()
-                if not route_key:
-                    try:
-                        route_key = _api_cache_task_id(task, messages, base_options)
-                    except Exception:
-                        route_key = f"{task}:{len(messages)}"
-                bucket = _split_bucket(route_key)
-                prefer_azure = bucket < float(ratio)
-                models = (azure_models + other_models) if prefer_azure else (other_models + azure_models)
-                routing = routing or {}
-                routing.update(
-                    {
-                        "policy": "azure_split_ratio",
-                        "ratio": float(ratio),
-                        "bucket": bucket,
-                        "preferred_provider": "azure" if prefer_azure else "non_azure",
-                        "routing_key": route_key,
-                    }
-                )
+        if not strict_model_selection:
+            ratio = _parse_ratio_env("LLM_AZURE_SPLIT_RATIO")
+            if ratio is not None:
+                azure_models: List[str] = []
+                other_models: List[str] = []
+                for mk in models:
+                    conf = (self.config.get("models", {}) or {}).get(mk) or {}
+                    provider = conf.get("provider")
+                    if provider == "azure":
+                        azure_models.append(mk)
+                    else:
+                        other_models.append(mk)
+                if azure_models and other_models:
+                    route_key = (os.getenv("LLM_ROUTING_KEY") or "").strip()
+                    if not route_key:
+                        try:
+                            route_key = _api_cache_task_id(task, messages, base_options)
+                        except Exception:
+                            route_key = f"{task}:{len(messages)}"
+                    bucket = _split_bucket(route_key)
+                    prefer_azure = bucket < float(ratio)
+                    models = (azure_models + other_models) if prefer_azure else (other_models + azure_models)
+                    routing = routing or {}
+                    routing.update(
+                        {
+                            "policy": "azure_split_ratio",
+                            "ratio": float(ratio),
+                            "bucket": bucket,
+                            "preferred_provider": "azure" if prefer_azure else "non_azure",
+                            "routing_key": route_key,
+                        }
+                    )
+
+        if not allow_fallback_effective and models:
+            models = models[:1]
 
         tried = []
         total_wait = 0.0
@@ -1712,27 +1757,30 @@ class LLMRouter:
                 "task": task,
                 "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
                 "chain": tried,
+                "strict_model_selection": strict_model_selection,
+                "allow_fallback": allow_fallback_effective,
                 "error": str(last_error),
                 "error_class": last_error_class,
                 "status_code": last_status,
                 "timestamp": time.time(),
             }
         )
-        failover = maybe_failover_to_think(
-            task=task,
-            messages=messages,
-            options=base_options,
-            response_format=response_format,
-            return_raw=return_raw,
-            failure={
-                "error": str(last_error) if last_error is not None else None,
-                "error_class": last_error_class,
-                "status_code": last_status,
-                "chain": tried,
-            },
-        )
-        if failover is not None:
-            return failover
+        if not strict_model_selection:
+            failover = maybe_failover_to_think(
+                task=task,
+                messages=messages,
+                options=base_options,
+                response_format=response_format,
+                return_raw=return_raw,
+                failure={
+                    "error": str(last_error) if last_error is not None else None,
+                    "error_class": last_error_class,
+                    "status_code": last_status,
+                    "chain": tried,
+                },
+            )
+            if failover is not None:
+                return failover
 
         raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
 

@@ -202,6 +202,7 @@ export function SsotSystemMap() {
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
   const [autoFit, setAutoFit] = useState(true);
   const [focusMode, setFocusMode] = useState(true);
+  const [showQuickView, setShowQuickView] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -562,7 +563,8 @@ export function SsotSystemMap() {
   }, [flowTasks, traceLoadedKey, traceTaskSummary]);
 
   useEffect(() => {
-    setOrientation(flow === "mainline" ? "horizontal" : "vertical");
+    // Default to vertical to avoid horizontal overflow; users can switch to horizontal manually.
+    setOrientation("vertical");
   }, [flow]);
 
   const applyFitToSize = useCallback(
@@ -1183,6 +1185,16 @@ export function SsotSystemMap() {
                       <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
                         Center
                       </button>
+                      {focusMode ? (
+                        <button
+                          type="button"
+                          className={`research-chip ${showQuickView ? "is-active" : ""}`}
+                          onClick={() => setShowQuickView((v) => !v)}
+                          title="右側のSelectedパネル（目的/LLM/Prompt/Outputs）を表示/非表示"
+                        >
+                          Details
+                        </button>
+                      ) : null}
                     </>
                   ) : (
                     <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
@@ -1528,7 +1540,7 @@ export function SsotSystemMap() {
                   ) : null}
                 </div>
               </details>
-              <div className={`ssot-graph-split${focusMode ? "" : " ssot-graph-split--single"}`} style={{ marginTop: 10 }}>
+              <div className={`ssot-graph-split${focusMode && showQuickView ? "" : " ssot-graph-split--single"}`} style={{ marginTop: 10 }}>
                 {flowView === "graph" ? (
                   <div
                     ref={graphViewportRef}
@@ -1539,7 +1551,7 @@ export function SsotSystemMap() {
                     style={{
                       border: "1px solid var(--color-border-muted)",
                       borderRadius: 14,
-                      background: "var(--color-surface-subtle)",
+                      background: "#f8fafc",
                       overflow: "auto",
                       height: "65vh",
                       minHeight: 360,
@@ -1588,7 +1600,7 @@ export function SsotSystemMap() {
                     style={{
                       border: "1px solid var(--color-border-muted)",
                       borderRadius: 14,
-                      background: "var(--color-surface-subtle)",
+                      background: "#f8fafc",
                       overflow: "auto",
                       height: "65vh",
                       minHeight: 360,
@@ -1733,7 +1745,7 @@ export function SsotSystemMap() {
                   </div>
                 )}
 
-                {focusMode ? (
+                {focusMode && showQuickView ? (
                   <aside
                     style={{
                       border: "1px solid var(--color-border-muted)",

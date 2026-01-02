@@ -821,7 +821,7 @@ export interface RunTtsResponse {
 
 export type ThumbnailProjectStatus = "draft" | "in_progress" | "review" | "approved" | "published" | "archived";
 
-export type ThumbnailVariantStatus = "draft" | "in_progress" | "review" | "approved" | "published" | "archived";
+export type ThumbnailVariantStatus = "draft" | "candidate" | "in_progress" | "review" | "approved" | "published" | "archived";
 
 export interface ThumbnailVariant {
   id: string;
