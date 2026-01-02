@@ -821,7 +821,7 @@ export interface RunTtsResponse {
 
 export type ThumbnailProjectStatus = "draft" | "in_progress" | "review" | "approved" | "published" | "archived";
 
-export type ThumbnailVariantStatus = "draft" | "candidate" | "review" | "approved" | "archived";
+export type ThumbnailVariantStatus = "draft" | "in_progress" | "review" | "approved" | "published" | "archived";
 
 export interface ThumbnailVariant {
   id: string;
@@ -1938,6 +1938,15 @@ export interface SsotCatalog {
       pipeline_path?: string;
       config_path?: string;
       templates_root?: string;
+      sot?: Array<Record<string, unknown>>;
+    };
+    remotion?: {
+      flow_id: string;
+      phase: string;
+      summary?: string;
+      steps: SsotCatalogFlowStep[];
+      edges: SsotCatalogEdge[];
+      path?: string;
       sot?: Array<Record<string, unknown>>;
     };
     audio_tts?: {

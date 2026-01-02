@@ -12,6 +12,7 @@ type FlowKey =
   | "audio_tts"
   | "video_auto_capcut_run"
   | "video_srt2images"
+  | "remotion"
   | "thumbnails"
   | "publish";
 
@@ -247,6 +248,7 @@ export function SsotSystemMap() {
     if (flow === "audio_tts") return catalog.flows.audio_tts?.steps || [];
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.steps || [];
     if (flow === "video_srt2images") return catalog.flows.video_srt2images?.steps || [];
+    if (flow === "remotion") return catalog.flows.remotion?.steps || [];
     if (flow === "thumbnails") return catalog.flows.thumbnails?.steps || [];
     if (flow === "publish") return catalog.flows.publish?.steps || [];
     return [];
@@ -850,6 +852,7 @@ export function SsotSystemMap() {
     if (v === "audio_tts") return "audio_tts";
     if (v === "video_auto_capcut_run") return "video_auto_capcut_run";
     if (v === "video_srt2images") return "video_srt2images";
+    if (v === "remotion") return "remotion";
     if (v === "thumbnails") return "thumbnails";
     if (v === "publish") return "publish";
     return null;
@@ -1028,6 +1031,14 @@ export function SsotSystemMap() {
               disabled={!catalog?.flows?.video_srt2images}
             >
               Video srt2images
+            </button>
+            <button
+              type="button"
+              className={`research-chip ${flow === "remotion" ? "is-active" : ""}`}
+              onClick={() => setFlow("remotion")}
+              disabled={!catalog?.flows?.remotion}
+            >
+              Remotion
             </button>
             <button
               type="button"
