@@ -2319,6 +2319,165 @@ def _publish_catalog(repo: Path) -> Dict[str, Any]:
     }
 
 
+def _remotion_catalog(repo: Path) -> Dict[str, Any]:
+    export_path = repo / "scripts" / "remotion_export.py"
+    batch_path = repo / "scripts" / "ops" / "render_remotion_batch.py"
+    render_js_path = repo / "apps" / "remotion" / "scripts" / "render.js"
+    snapshot_js_path = repo / "apps" / "remotion" / "scripts" / "snapshot.js"
+    load_data_path = repo / "apps" / "remotion" / "src" / "lib" / "loadRunData.ts"
+
+    export_lines = _safe_read_text(export_path).splitlines()
+    batch_lines = _safe_read_text(batch_path).splitlines()
+    render_js_lines = _safe_read_text(render_js_path).splitlines()
+    snapshot_js_lines = _safe_read_text(snapshot_js_path).splitlines()
+    load_data_lines = _safe_read_text(load_data_path).splitlines()
+
+    def _mk(path: Path, line: int | None, symbol: str | None = None) -> Dict[str, Any] | None:
+        return _make_code_ref(repo, path, line, symbol=symbol)
+
+    steps: List[Dict[str, Any]] = []
+    items: List[Tuple[str, str, str, List[Dict[str, Any] | None], Dict[str, Any] | None]] = [
+        (
+            "E/remotion_render",
+            "remotion_render",
+            "\n".join(
+                [
+                    "run_dir を Remotion で mp4 にレンダリングする（実験ライン）。",
+                    "- 入力: run_dir（image_cues.json 等） + SRT + audio wav（audio_tts final を自動解決）",
+                    "- 出力: run_dir/remotion/output/final.mp4（既定）",
+                    "- ログ: run_dir/remotion_run_info.json（missing_images など）",
+                ]
+            ),
+            [
+                _mk(export_path, _find_def_line(export_lines, "cmd_render"), symbol="remotion_export:cmd_render"),
+                _mk(export_path, _find_first_line_containing(export_lines, 'sub.add_parser("render"'), symbol="cli:render"),
+                _mk(export_path, _find_first_line_containing(export_lines, 'node_script = (repo / "apps" / "remotion" / "scripts" / "render.js")'), symbol="node:render.js"),
+                _mk(render_js_path, _find_first_line_containing(render_js_lines, "fs.writeFileSync(path.join(runDir, \"remotion_run_info.json\")"), symbol="write:remotion_run_info.json"),
+                _mk(render_js_path, _find_first_line_containing(render_js_lines, "remotion_missing_images.json"), symbol="write:remotion_missing_images.json"),
+                _mk(load_data_path, _find_def_line(load_data_lines, "loadRunData"), symbol="loadRunData"),
+            ],
+            {
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/remotion/output/final.mp4", "required": False},
+                    {"path": "workspaces/video/runs/{run_id}/remotion_run_info.json", "required": True},
+                    {"path": "workspaces/video/runs/{run_id}/remotion_missing_images.json", "required": False},
+                ],
+            },
+        ),
+        (
+            "E/remotion_snapshot",
+            "remotion_snapshot",
+            "\n".join(
+                [
+                    "任意: snapshot.js で単一フレームを書き出し、画像欠損を検査する（デバッグ用）。",
+                    "- 出力: apps/remotion/out/frame*.png など",
+                    "- 欠損: run_dir/remotion_missing_images_snapshot.json",
+                ]
+            ),
+            [
+                _mk(snapshot_js_path, _find_first_line_containing(snapshot_js_lines, "remotion_missing_images_snapshot.json"), symbol="write:remotion_missing_images_snapshot.json"),
+            ],
+            {
+                "outputs": [
+                    {"path": "apps/remotion/out/*.png", "required": False},
+                    {"path": "workspaces/video/runs/{run_id}/remotion_missing_images_snapshot.json", "required": False},
+                ],
+            },
+        ),
+        (
+            "E/remotion_upload",
+            "remotion_upload",
+            "\n".join(
+                [
+                    "生成済み mp4 を Google Drive にアップロードし、URL を run_dir に保存する（実験ライン）。",
+                    "- env: DRIVE_FOLDER_ID（root）/ DRIVE_UPLOADS_FINAL_FOLDER_ID（override 任意）",
+                    "- 出力: run_dir/remotion/drive_upload.json + drive_url.txt",
+                ]
+            ),
+            [
+                _mk(export_path, _find_def_line(export_lines, "cmd_upload"), symbol="remotion_export:cmd_upload"),
+                _mk(export_path, _find_first_line_containing(export_lines, 'sub.add_parser("upload"'), symbol="cli:upload"),
+                _mk(export_path, _find_first_line_containing(export_lines, "DRIVE_FOLDER_ID"), symbol="env:DRIVE_FOLDER_ID"),
+                _mk(export_path, _find_first_line_containing(export_lines, "DRIVE_UPLOADS_FINAL_FOLDER_ID"), symbol="env:DRIVE_UPLOADS_FINAL_FOLDER_ID"),
+                _mk(export_path, _find_first_line_containing(export_lines, "drive_upload.json"), symbol="write:drive_upload.json"),
+                _mk(export_path, _find_first_line_containing(export_lines, "drive_url.txt"), symbol="write:drive_url.txt"),
+            ],
+            {
+                "outputs": [
+                    {"path": "workspaces/video/runs/{run_id}/remotion/drive_upload.json", "required": False},
+                    {"path": "workspaces/video/runs/{run_id}/remotion/drive_url.txt", "required": False},
+                ],
+            },
+        ),
+        (
+            "E/remotion_batch",
+            "remotion_batch",
+            "\n".join(
+                [
+                    "任意: バッチで複数 run_id を Remotion レンダリングする（回帰/検証用）。",
+                    "- 出力: workspaces/logs/regression/remotion_batch/*.json",
+                ]
+            ),
+            [
+                _mk(batch_path, _find_def_line(batch_lines, "main"), symbol="render_remotion_batch:main"),
+                _mk(batch_path, _find_first_line_containing(batch_lines, "logs_root() / \"regression\" / \"remotion_batch\""), symbol="report_dir"),
+            ],
+            {
+                "outputs": [
+                    {"path": "workspaces/logs/regression/remotion_batch/*.json", "required": False},
+                ],
+            },
+        ),
+    ]
+
+    for idx, (node_id, name, desc, refs, extra) in enumerate(items, start=1):
+        step: Dict[str, Any] = {
+            "phase": "E",
+            "node_id": node_id,
+            "order": idx,
+            "name": name,
+            "description": desc,
+            "impl_refs": [r for r in refs if r],
+        }
+        if extra:
+            step.update(extra)
+        steps.append(step)
+
+    return {
+        "flow_id": "remotion",
+        "phase": "E",
+        "summary": "\n".join(
+            [
+                "Remotion は「実験ライン」の動画生成（CapCut主線の代替候補）。現行の本番運用は CapCut 主線。",
+                "- 入力: workspaces/video/runs/{run_id}/ + audio_tts final wav + srt",
+                "- 出力: run_dir/remotion/output/final.mp4（既定）+ remotion_run_info.json",
+                "- 入口: python3 scripts/remotion_export.py render|upload / python3 scripts/ops/render_remotion_batch.py",
+            ]
+        ),
+        "entrypoints": [
+            "CLI: python3 scripts/remotion_export.py render --run-dir workspaces/video/runs/<run_id> [--channel CHxx]",
+            "CLI: python3 scripts/remotion_export.py upload --run-dir workspaces/video/runs/<run_id> [--channel CHxx]",
+            "CLI: python3 scripts/ops/render_remotion_batch.py --channel CHxx [--from NNN --to MMM] [--dry-run]",
+            "Node: node apps/remotion/scripts/render.js --run <run_dir> --out <mp4>",
+            "Node: node apps/remotion/scripts/snapshot.js --run <run_dir> --out <png>",
+        ],
+        "path": _repo_rel(export_path, root=repo),
+        "sot": [
+            {"path": "workspaces/video/runs/{run_id}/remotion/output/final.mp4", "kind": "mp4", "notes": "Remotion output (experimental)"},
+            {"path": "workspaces/video/runs/{run_id}/remotion_run_info.json", "kind": "log", "notes": "render log (missing images, duration, params)"},
+            {"path": "workspaces/video/runs/{run_id}/remotion_missing_images.json", "kind": "diagnostic", "notes": "missing image list (render)"},
+            {"path": "workspaces/video/runs/{run_id}/remotion/drive_upload.json", "kind": "drive", "notes": "Drive upload metadata"},
+            {"path": "workspaces/video/runs/{run_id}/remotion/drive_url.txt", "kind": "drive", "notes": "Drive URL shortcut"},
+        ],
+        "steps": steps,
+        "edges": [
+            {"from": "E/remotion_render", "to": "E/remotion_upload", "label": "mp4 → Drive"},
+            {"from": "E/remotion_render", "to": "E/remotion_snapshot", "label": "debug"},
+            {"from": "E/remotion_render", "to": "E/remotion_batch", "label": "regression"},
+        ],
+    }
+
+
 def _planning_catalog(repo: Path) -> Dict[str, Any]:
     lint_path = repo / "scripts" / "ops" / "planning_lint.py"
     idea_path = repo / "scripts" / "ops" / "idea.py"
@@ -2710,6 +2869,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
     video_flow = _video_auto_capcut_catalog(repo)
     video_srt2images_flow = _video_srt2images_catalog(repo)
     audio_flow = _audio_tts_catalog(repo)
+    remotion_flow = _remotion_catalog(repo)
     thumbnails_flow = _thumbnails_catalog(repo)
     publish_flow = _publish_catalog(repo)
     planning_flow = _planning_catalog(repo)
@@ -2733,6 +2893,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
         video_flow,
         video_srt2images_flow,
         audio_flow,
+        remotion_flow,
         thumbnails_flow,
         publish_flow,
         planning_flow,
@@ -2941,11 +3102,12 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "flow_id": "mainline",
             "summary": "\n".join(
                 [
-                    "主線: A(Planning) → B(Script) → C(Audio/TTS) → D(Video) → G(Publish)。サムネ(F)は A から独立分岐。",
+                    "主線: A(Planning) → B(Script) → C(Audio/TTS) → D(Video) → G(Publish)。サムネ(F)は A から独立分岐。Remotion(E) は実験ライン。",
                     "- A Planning SoT: workspaces/planning/channels/{CH}.csv（企画/タイトル/タグ/進捗）",
                     "- B Script SoT: workspaces/scripts/{CH}/{NNN}/status.json + content/assembled_human.md（優先）",
                     "- C Audio SoT: workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav + .srt",
                     "- D Video SoT: workspaces/video/runs/{run_id}/（image_cues.json / images/ / capcut_draft_info.json）",
+                    "- E Remotion SoT（experimental）: workspaces/video/runs/{run_id}/remotion/output/final.mp4 + remotion_run_info.json",
                     "- F Thumbnails SoT: workspaces/thumbnails/projects.json",
                     "- G Publish SoT: Google Sheet（外部）+ ローカル側は「投稿済みロック」で誤編集を止める（運用）",
                 ]
@@ -3046,6 +3208,21 @@ def build_ssot_catalog() -> Dict[str, Any]:
                     "related_flow": "thumbnails",
                     "sot": {"path": "workspaces/thumbnails/projects.json"},
                 },
+                {
+                    "phase": "E",
+                    "order": 7,
+                    "node_id": "E/remotion",
+                    "name": "Remotion (Experimental)",
+                    "description": "\n".join(
+                        [
+                            "Remotion で run_dir を mp4 にレンダリングする実験ライン（現行の本番運用は CapCut 主線）。",
+                            "- 入力: run_dir + audio_tts final wav + srt",
+                            "- 出力: run_dir/remotion/output/final.mp4 + remotion_run_info.json",
+                        ]
+                    ),
+                    "related_flow": "remotion",
+                    "sot": {"path": "workspaces/video/runs/{run_id}/remotion/output/final.mp4"},
+                },
             ],
             "edges": [
                 {"from": "A/planning", "to": "B/script_pipeline", "label": "title/persona/targets → status.json"},
@@ -3053,6 +3230,8 @@ def build_ssot_catalog() -> Dict[str, Any]:
                 {"from": "C/audio_tts", "to": "D/video", "label": "final wav+srt → run_dir (image_cues/images/draft)"},
                 {"from": "D/video", "to": "G/publish", "label": "final mp4 → Sheet/YouTube upload"},
                 {"from": "A/planning", "to": "F/thumbnails", "label": "thumb fields → projects.json"},
+                {"from": "D/video", "to": "E/remotion", "label": "run_dir → mp4 (experimental)"},
+                {"from": "E/remotion", "to": "G/publish", "label": "mp4 (experimental) → upload"},
             ],
         },
         "entrypoints": {
@@ -3065,6 +3244,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "video_auto_capcut_run": video_flow,
             "video_srt2images": video_srt2images_flow,
             "audio_tts": audio_flow,
+            "remotion": remotion_flow,
             "thumbnails": thumbnails_flow,
             "publish": publish_flow,
             "planning": planning_flow,
