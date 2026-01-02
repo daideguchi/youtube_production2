@@ -174,6 +174,11 @@ function domIdForTimelineNode(nodeId: string): string {
   return `ssot-timeline-${safe || "unknown"}`;
 }
 
+function domIdForRunbookNode(nodeId: string): string {
+  const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
+  return `ssot-runbook-${safe || "unknown"}`;
+}
+
 function shortUiPath(path: string, keepParts = 3): string {
   const raw = String(path || "").trim();
   if (!raw) return "";
@@ -188,7 +193,7 @@ function clamp(v: number, min: number, max: number) {
 }
 
 // Allow zooming out enough to always fit large traces (readability is handled via Fit + manual zoom).
-const MIN_GRAPH_SCALE = 0.02;
+const MIN_GRAPH_SCALE = 0.01;
 const MAX_GRAPH_SCALE = 3.0;
 const GRAPH_ZOOM_STEP = 0.05;
 
@@ -197,12 +202,13 @@ export function SsotSystemMap() {
   const [flow, setFlow] = useState<FlowKey>("mainline");
   const [flowView, setFlowView] = useState<"timeline" | "graph">("timeline");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">("vertical");
   const [graphScale, setGraphScale] = useState(1);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
   const [autoFit, setAutoFit] = useState(true);
   const [focusMode, setFocusMode] = useState(true);
   const [showQuickView, setShowQuickView] = useState(true);
+  const [substepsParentNodeId, setSubstepsParentNodeId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -241,7 +247,7 @@ export function SsotSystemMap() {
     void loadCatalog(false);
   }, [loadCatalog]);
 
-  const nodes: SsotCatalogFlowStep[] = useMemo(() => {
+  const baseNodes: SsotCatalogFlowStep[] = useMemo(() => {
     if (!catalog) return [];
     if (flow === "mainline") return catalog.mainline.nodes || [];
     if (flow === "planning") return catalog.flows.planning?.steps || [];
@@ -255,7 +261,7 @@ export function SsotSystemMap() {
     return [];
   }, [catalog, flow]);
 
-  const edges = useMemo(() => {
+  const baseEdges = useMemo(() => {
     if (!catalog) return [];
     if (flow === "mainline") return catalog.mainline.edges || [];
     if (flow === "planning") return catalog.flows.planning?.edges || [];
@@ -263,10 +269,52 @@ export function SsotSystemMap() {
     if (flow === "audio_tts") return catalog.flows.audio_tts?.edges || [];
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.edges || [];
     if (flow === "video_srt2images") return catalog.flows.video_srt2images?.edges || [];
+    if (flow === "remotion") return catalog.flows.remotion?.edges || [];
     if (flow === "thumbnails") return catalog.flows.thumbnails?.edges || [];
     if (flow === "publish") return catalog.flows.publish?.edges || [];
     return [];
   }, [catalog, flow]);
+
+  const substepsParent = useMemo(() => {
+    const id = (substepsParentNodeId || "").trim();
+    if (!id) return null;
+    return baseNodes.find((n) => n.node_id === id) || null;
+  }, [baseNodes, substepsParentNodeId]);
+
+  const nodes: SsotCatalogFlowStep[] = useMemo(() => {
+    const parentId = (substepsParentNodeId || "").trim();
+    if (!parentId) return baseNodes;
+    const parent = substepsParent;
+    if (!parent) return baseNodes;
+    const raw = (parent as any)?.substeps;
+    const substeps = Array.isArray(raw) ? (raw as any[]) : [];
+    if (substeps.length === 0) return baseNodes;
+    return substeps
+      .map((ss, idx) => {
+        const sid = ss?.id ? String(ss.id) : ss?.node_id ? String(ss.node_id) : `substep#${idx + 1}`;
+        const name = ss?.name ? String(ss.name) : sid;
+        return {
+          phase: String(parent.phase || ""),
+          node_id: sid,
+          order: idx + 1,
+          name,
+          description: ss?.description ? String(ss.description) : undefined,
+          outputs: ss?.outputs,
+          llm: ss?.llm,
+          template: ss?.template ?? null,
+          impl_refs: ss?.impl_refs,
+          sot: ss?.sot,
+        } as SsotCatalogFlowStep;
+      })
+      .filter((n) => Boolean((n.node_id || "").trim()));
+  }, [baseNodes, substepsParent, substepsParentNodeId]);
+
+  const edges = useMemo(() => {
+    const parentId = (substepsParentNodeId || "").trim();
+    if (!parentId) return baseEdges;
+    if (nodes.length <= 1) return [];
+    return nodes.slice(0, -1).map((n, idx) => ({ from: n.node_id, to: nodes[idx + 1].node_id, label: "next" }));
+  }, [baseEdges, nodes, substepsParentNodeId]);
 
   const nodesForFlowKey = useCallback((k: FlowKey): SsotCatalogFlowStep[] => {
     if (!catalog) return [];
@@ -276,6 +324,7 @@ export function SsotSystemMap() {
     if (k === "audio_tts") return catalog.flows.audio_tts?.steps || [];
     if (k === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run?.steps || [];
     if (k === "video_srt2images") return catalog.flows.video_srt2images?.steps || [];
+    if (k === "remotion") return catalog.flows.remotion?.steps || [];
     if (k === "thumbnails") return catalog.flows.thumbnails?.steps || [];
     if (k === "publish") return catalog.flows.publish?.steps || [];
     return [];
@@ -339,6 +388,7 @@ export function SsotSystemMap() {
     collect((catalog as any)?.flows?.video_srt2images).forEach((t) => d.add(t));
     collect((catalog as any)?.flows?.video_auto_capcut_run).forEach((t) => d.add(t));
     out["D/video"] = d;
+    out["E/remotion"] = collect((catalog as any)?.flows?.remotion);
     out["F/thumbnails"] = collect((catalog as any)?.flows?.thumbnails);
     out["G/publish"] = collect((catalog as any)?.flows?.publish);
     return out;
@@ -346,7 +396,7 @@ export function SsotSystemMap() {
 
   const flowTasks = useMemo(() => {
     const set = new Set<string>();
-    if (flow === "mainline") {
+    if (flow === "mainline" && !substepsParentNodeId) {
       for (const taskSet of Object.values(mainlineTaskSets)) {
         taskSet.forEach((t) => set.add(t));
       }
@@ -358,7 +408,7 @@ export function SsotSystemMap() {
       if (t) set.add(t);
     }
     return set;
-  }, [flow, mainlineTaskSets, nodes]);
+  }, [flow, mainlineTaskSets, nodes, substepsParentNodeId]);
 
   const flowTaskList = useMemo(() => Array.from(flowTasks).sort((a, b) => a.localeCompare(b)), [flowTasks]);
 
@@ -370,6 +420,7 @@ export function SsotSystemMap() {
     if (flow === "audio_tts") return catalog.flows.audio_tts as any;
     if (flow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run as any;
     if (flow === "video_srt2images") return catalog.flows.video_srt2images as any;
+    if (flow === "remotion") return catalog.flows.remotion as any;
     if (flow === "thumbnails") return catalog.flows.thumbnails as any;
     if (flow === "publish") return catalog.flows.publish as any;
     return null;
@@ -413,6 +464,7 @@ export function SsotSystemMap() {
     if (id === "B/script_pipeline") return "script_pipeline";
     if (id === "C/audio_tts") return "audio_tts";
     if (id === "D/video") return "video_auto_capcut_run";
+    if (id === "E/remotion") return "remotion";
     if (id === "F/thumbnails") return "thumbnails";
     if (id === "G/publish") return "publish";
     return null;
@@ -424,6 +476,7 @@ export function SsotSystemMap() {
     if (selectedMainlineFlow === "script_pipeline") return catalog.flows.script_pipeline as any;
     if (selectedMainlineFlow === "audio_tts") return catalog.flows.audio_tts as any;
     if (selectedMainlineFlow === "video_auto_capcut_run") return catalog.flows.video_auto_capcut_run as any;
+    if (selectedMainlineFlow === "remotion") return catalog.flows.remotion as any;
     if (selectedMainlineFlow === "thumbnails") return catalog.flows.thumbnails as any;
     if (selectedMainlineFlow === "publish") return catalog.flows.publish as any;
     return null;
@@ -474,7 +527,7 @@ export function SsotSystemMap() {
   const executedByNodeId = useMemo(() => {
     if (!traceLoadedKey) return {};
     const out: Record<string, { firstIndex: number; count: number }> = {};
-    if (flow === "mainline") {
+    if (flow === "mainline" && !substepsParentNodeId) {
       for (const n of nodes) {
         const taskSet = mainlineTaskSets[n.node_id];
         if (!taskSet || taskSet.size === 0) continue;
@@ -498,14 +551,14 @@ export function SsotSystemMap() {
       if (info) out[n.node_id] = info;
     }
     return out;
-  }, [flow, mainlineTaskSets, nodes, traceLoadedKey, traceTaskSummary]);
+  }, [flow, mainlineTaskSets, nodes, substepsParentNodeId, traceLoadedKey, traceTaskSummary]);
 
   const executedEdges = useMemo(() => {
     if (!traceLoadedKey) return {};
     if (!traceEvents || traceEvents.length === 0) return {};
 
     const taskToNodeId: Record<string, string> = {};
-    if (flow === "mainline") {
+    if (flow === "mainline" && !substepsParentNodeId) {
       for (const [nodeId, taskSet] of Object.entries(mainlineTaskSets)) {
         taskSet.forEach((t) => {
           if (t && !taskToNodeId[t]) taskToNodeId[t] = nodeId;
@@ -545,7 +598,7 @@ export function SsotSystemMap() {
       else out[key] = { firstIndex: cur.firstIndex, count: cur.count + 1 };
     }
     return out;
-  }, [edges, flow, mainlineTaskSets, nodes, traceEvents, traceLoadedKey]);
+  }, [edges, flow, mainlineTaskSets, nodes, substepsParentNodeId, traceEvents, traceLoadedKey]);
 
   const traceUnmatchedTasks = useMemo(() => {
     if (!traceLoadedKey) return [];
@@ -565,6 +618,11 @@ export function SsotSystemMap() {
   useEffect(() => {
     // Default to vertical to avoid horizontal overflow; users can switch to horizontal manually.
     setOrientation("vertical");
+  }, [flow]);
+
+  useEffect(() => {
+    // Reset drill-down scope when switching flows.
+    setSubstepsParentNodeId(null);
   }, [flow]);
 
   const applyFitToSize = useCallback(
@@ -603,6 +661,7 @@ export function SsotSystemMap() {
     setGraphScale(1);
   };
   const zoomFit = () => {
+    setAutoFit(true);
     applyFitToSize(graphSize);
     requestAnimationFrame(() => centerGraph());
   };
@@ -610,6 +669,15 @@ export function SsotSystemMap() {
   useEffect(() => {
     setAutoFit(true);
   }, [flow, orientation]);
+
+  useEffect(() => {
+    if (flowView !== "graph") return;
+    if (!autoFit) return;
+    requestAnimationFrame(() => {
+      applyFitToSize(graphSize);
+      requestAnimationFrame(() => centerGraph());
+    });
+  }, [applyFitToSize, autoFit, centerGraph, flowView, graphSize]);
 
   useEffect(() => {
     if (!autoFit) return;
@@ -660,6 +728,16 @@ export function SsotSystemMap() {
     },
     [centerOnNode, flowView, scrollTimelineToNode],
   );
+
+  const openRunbookForNode = useCallback((nodeId: string) => {
+    if (!nodeId) return;
+    const runbook = document.getElementById("ssot-flow-runbook") as HTMLDetailsElement | null;
+    if (runbook) runbook.open = true;
+    const el = document.getElementById(domIdForRunbookNode(nodeId)) as HTMLDetailsElement | null;
+    if (!el) return;
+    el.open = true;
+    el.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, []);
 
   useEffect(() => {
     const id = pendingFocusNodeIdRef.current;
@@ -861,9 +939,10 @@ export function SsotSystemMap() {
   }, [selectedNode]);
 
   useEffect(() => {
-    if (!selectedNodeId && nodes.length > 0) {
-      setSelectedNodeId(nodes[0].node_id);
-    }
+    if (nodes.length === 0) return;
+    const cur = (selectedNodeId || "").trim();
+    if (cur && nodes.some((n) => n.node_id === cur)) return;
+    setSelectedNodeId(nodes[0].node_id);
   }, [nodes, selectedNodeId]);
 
   const selectedRunnerRef = useMemo(() => {
@@ -925,6 +1004,32 @@ export function SsotSystemMap() {
     return Array.isArray(raw) ? raw : [];
   }, [selectedNode]);
 
+  const enterSubstepsScope = useCallback(() => {
+    if (!selectedNode) return;
+    if (substepsParentNodeId) return;
+    const raw = (selectedNode as any).substeps;
+    const substeps = Array.isArray(raw) ? (raw as any[]) : [];
+    if (substeps.length === 0) return;
+    const first = substeps[0] as any;
+    const firstId = first?.id ? String(first.id) : first?.node_id ? String(first.node_id) : "";
+    setSubstepsParentNodeId(selectedNode.node_id);
+    if (firstId) {
+      setSelectedNodeId(firstId);
+      pendingFocusNodeIdRef.current = firstId;
+    } else {
+      setSelectedNodeId(null);
+      pendingFocusNodeIdRef.current = null;
+    }
+  }, [selectedNode, substepsParentNodeId]);
+
+  const exitSubstepsScope = useCallback(() => {
+    const parent = (substepsParentNodeId || "").trim();
+    if (!parent) return;
+    setSubstepsParentNodeId(null);
+    setSelectedNodeId(parent);
+    pendingFocusNodeIdRef.current = parent;
+  }, [substepsParentNodeId]);
+
   const selectedPlaceholderPairs = useMemo(() => {
     if (!selectedNode) return [];
     const llm = selectedNode.llm as any;
@@ -953,7 +1058,7 @@ export function SsotSystemMap() {
   const selectedTraceTasks = useMemo(() => {
     if (!selectedNode) return [];
     const tasks = new Set<string>();
-    if (flow === "mainline") {
+    if (flow === "mainline" && !substepsParentNodeId) {
       const set = mainlineTaskSets[selectedNode.node_id];
       if (set) set.forEach((t) => (t ? tasks.add(String(t)) : null));
     } else {
@@ -970,7 +1075,7 @@ export function SsotSystemMap() {
       .map((t) => String(t).trim())
       .filter(Boolean)
       .sort((a, b) => a.localeCompare(b));
-  }, [flow, mainlineTaskSets, selectedNode, selectedSubsteps]);
+  }, [flow, mainlineTaskSets, selectedNode, selectedSubsteps, substepsParentNodeId]);
 
   const selectedTraceEntries = useMemo<TraceEntry[]>(() => {
     if (!traceLoadedKey) return [];
@@ -1146,6 +1251,32 @@ export function SsotSystemMap() {
                   <button type="button" className={`research-chip ${flowView === "graph" ? "is-active" : ""}`} onClick={() => setFlowView("graph")}>
                     Graph
                   </button>
+                  {selectedSubsteps.length > 0 || substepsParentNodeId ? (
+                    <>
+                      <button
+                        type="button"
+                        className={`research-chip ${!substepsParentNodeId ? "is-active" : ""}`}
+                        onClick={exitSubstepsScope}
+                        title="Flowのステップ一覧に戻します"
+                      >
+                        Steps
+                      </button>
+                      <button
+                        type="button"
+                        className={`research-chip ${substepsParentNodeId ? "is-active" : ""}`}
+                        onClick={enterSubstepsScope}
+                        disabled={Boolean(substepsParentNodeId) || selectedSubsteps.length === 0}
+                        title="選択ノードの substeps（内部処理）にドリルダウンします"
+                      >
+                        Substeps
+                      </button>
+                      {substepsParentNodeId ? (
+                        <span className="mono muted small-text" style={{ alignSelf: "center", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          of {substepsParentNodeId}
+                        </span>
+                      ) : null}
+                    </>
+                  ) : null}
                   {flowView === "graph" ? (
                     <>
                       <button
@@ -1185,16 +1316,14 @@ export function SsotSystemMap() {
                       <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
                         Center
                       </button>
-                      {focusMode ? (
-                        <button
-                          type="button"
-                          className={`research-chip ${showQuickView ? "is-active" : ""}`}
-                          onClick={() => setShowQuickView((v) => !v)}
-                          title="右側のSelectedパネル（目的/LLM/Prompt/Outputs）を表示/非表示"
-                        >
-                          Details
-                        </button>
-                      ) : null}
+                      <button
+                        type="button"
+                        className={`research-chip ${showQuickView ? "is-active" : ""}`}
+                        onClick={() => setShowQuickView((v) => !v)}
+                        title="Selectedパネル（目的/LLM/Prompt/Outputs）を表示/非表示"
+                      >
+                        Details
+                      </button>
                     </>
                   ) : (
                     <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
@@ -1325,6 +1454,17 @@ export function SsotSystemMap() {
                   <div className="mono muted small-text">
                     flow_id={flowMeta?.flow_id || flow} / phase={(flowMeta as any)?.phase || "—"} / steps={nodes.length} / edges={edges.length} / llm_tasks={flowTaskList.length}
                   </div>
+                  {substepsParentNodeId ? (
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                      <span className="badge subtle">scope</span>
+                      <span className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+                        substeps of {substepsParent ? nodeTitle(substepsParent) : substepsParentNodeId}
+                      </span>
+                      <button type="button" className="research-chip" onClick={exitSubstepsScope}>
+                        Back
+                      </button>
+                    </div>
+                  ) : null}
                   {(flowMeta as any)?.summary ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{String((flowMeta as any).summary)}</div> : null}
                   {policies.length > 0 ? (
                     <details open>
@@ -1540,7 +1680,10 @@ export function SsotSystemMap() {
                   ) : null}
                 </div>
               </details>
-              <div className={`ssot-graph-split${focusMode && showQuickView ? "" : " ssot-graph-split--single"}`} style={{ marginTop: 10 }}>
+              <div
+                className={`ssot-graph-split${showQuickView ? "" : " ssot-graph-split--single"}${focusMode ? " ssot-graph-split--focus" : " ssot-graph-split--stack"}`}
+                style={{ marginTop: 10 }}
+              >
                 {flowView === "graph" ? (
                   <div
                     ref={graphViewportRef}
@@ -1745,7 +1888,7 @@ export function SsotSystemMap() {
                   </div>
                 )}
 
-                {focusMode && showQuickView ? (
+                {showQuickView ? (
                   <aside
                     style={{
                       border: "1px solid var(--color-border-muted)",
@@ -1784,6 +1927,12 @@ export function SsotSystemMap() {
                         {selectedNode.phase ? ` / phase=${selectedNode.phase}` : ""}
                       </div>
 
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button type="button" className="research-chip" onClick={() => openRunbookForNode(selectedNode.node_id)}>
+                          Runbook
+                        </button>
+                      </div>
+
                       {selectedRelatedFlow ? (
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                           <button
@@ -1804,6 +1953,10 @@ export function SsotSystemMap() {
                             {selectedTaskDef?.tier ? ` / tier=${String(selectedTaskDef.tier)}` : ""}
                             {Array.isArray((selectedTaskDef as any)?.model_keys) && (selectedTaskDef as any).model_keys.length > 0
                               ? ` / models=${String((selectedTaskDef as any).model_keys.slice(0, 3).join(", "))}${(selectedTaskDef as any).model_keys.length > 3 ? ", …" : ""}`
+                              : ""}
+                            {(selectedTaskDef as any)?.override_profile ? ` / profile=${String((selectedTaskDef as any).override_profile)}` : ""}
+                            {typeof (selectedTaskDef as any)?.allow_fallback === "boolean"
+                              ? ` / allow_fallback=${String(Boolean((selectedTaskDef as any).allow_fallback))}`
                               : ""}
                             {Array.isArray((selectedTaskDef as any)?.resolved_models) && (selectedTaskDef as any).resolved_models.length > 0
                               ? (() => {
@@ -2034,20 +2187,21 @@ export function SsotSystemMap() {
                 )}
               </div>
 
-              <details style={{ marginTop: 10 }} open={flowView === "graph"}>
+              <details id="ssot-flow-runbook" style={{ marginTop: 10 }} open={flowView === "graph" ? true : undefined}>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
                 <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                   {nodes.map((s) => {
-                    const llm = s.llm as any;
-                    const task = llm?.task ? String(llm.task) : "";
-                    const kind = llm?.kind ? String(llm.kind) : "";
-                    const taskDefs = kind === "image_client" ? (catalog as any)?.image?.task_defs || {} : (catalog as any)?.llm?.task_defs || {};
-                    const taskDef = task ? (taskDefs[task] as any) : null;
-                    const tier = taskDef?.tier ? String(taskDef.tier) : "";
-                    const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as any[]).map((x) => String(x)) : [];
-                    const resolvedModels = Array.isArray(taskDef?.resolved_models) ? ((taskDef.resolved_models as any[]) || []) : [];
-                    const overrideProfile = taskDef?.override_profile ? String(taskDef.override_profile) : "";
-                    const allowFallback = typeof taskDef?.allow_fallback === "boolean" ? Boolean(taskDef.allow_fallback) : null;
+                  const llm = s.llm as any;
+                  const task = llm?.task ? String(llm.task) : "";
+                  const kind = llm?.kind ? String(llm.kind) : "";
+                  const mode = task ? (kind === "image_client" ? "IMAGE" : "LLM") : "CODE";
+                  const taskDefs = kind === "image_client" ? (catalog as any)?.image?.task_defs || {} : (catalog as any)?.llm?.task_defs || {};
+                  const taskDef = task ? (taskDefs[task] as any) : null;
+                  const tier = taskDef?.tier ? String(taskDef.tier) : "";
+                  const modelKeys = Array.isArray(taskDef?.model_keys) ? (taskDef.model_keys as any[]).map((x) => String(x)) : [];
+                  const resolvedModels = Array.isArray(taskDef?.resolved_models) ? ((taskDef.resolved_models as any[]) || []) : [];
+                  const overrideProfile = taskDef?.override_profile ? String(taskDef.override_profile) : "";
+                  const allowFallback = typeof taskDef?.allow_fallback === "boolean" ? Boolean(taskDef.allow_fallback) : null;
                     const tpl = s.template as any;
                     const tplName = tpl?.name ? String(tpl.name) : llm?.template ? String(llm.template) : "";
                     const tplPath = tpl?.path ? String(tpl.path) : "";
@@ -2058,6 +2212,7 @@ export function SsotSystemMap() {
                     const substeps = Array.isArray((s as any).substeps) ? (((s as any).substeps as any[]) || []) : [];
                     return (
                       <details
+                        id={domIdForRunbookNode(s.node_id)}
                         key={s.node_id}
                         style={{
                           border: "1px solid var(--color-border-muted)",
@@ -2066,24 +2221,63 @@ export function SsotSystemMap() {
                           padding: "10px 12px",
                         }}
                       >
-                        <summary style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
-                          <span
-                            style={{
-                              fontWeight: 900,
-                              minWidth: 0,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {nodeTitle(s)}
-                          </span>
-                          <span className="mono muted small-text" style={{ flex: "none", maxWidth: 420, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {task ? `${kind === "image_client" ? "image" : "llm"} task=${task}` : "no-task"}
-                          </span>
+                        <summary
+                          style={{
+                            cursor: "pointer",
+                            display: "grid",
+                            gridTemplateColumns: "minmax(0, 1fr) auto",
+                            gap: 10,
+                            alignItems: "start",
+                          }}
+                        >
+                          <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
+                            <span
+                              style={{
+                                fontWeight: 900,
+                                minWidth: 0,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {nodeTitle(s)}
+                            </span>
+                            {s.description ? (
+                              <span
+                                className="muted small-text"
+                                style={{
+                                  minWidth: 0,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {truncateText(String(s.description), 140)}
+                              </span>
+                            ) : null}
+                          </div>
+                          <div style={{ display: "grid", gap: 4, justifyItems: "end", alignItems: "start" }}>
+                            <span className="badge subtle">{mode}</span>
+                            <span
+                              className="mono muted small-text"
+                              style={{
+                                flex: "none",
+                                maxWidth: 520,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {task ? `${kind === "image_client" ? "image" : "llm"} task=${task}` : "no-task"}
+                            </span>
+                          </div>
                         </summary>
                         <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                          {s.description ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{s.description}</div> : null}
+                          {s.description ? (
+                            <div className="muted" style={{ whiteSpace: "pre-wrap" }}>
+                              {s.description}
+                            </div>
+                          ) : null}
                           {task ? (
                             <div className="mono muted small-text">
                               {kind === "image_client" ? "IMAGE" : "LLM"}: task={task}

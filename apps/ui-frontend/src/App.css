@@ -267,14 +267,14 @@
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 1600px) {
-  .ssot-map .ssot-graph-split {
+.ssot-map .ssot-graph-split.ssot-graph-split--stack {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1200px) {
+  .ssot-map .ssot-graph-split.ssot-graph-split--focus {
     grid-template-columns: minmax(0, 1fr) 380px;
     align-items: start;
-  }
-
-  .ssot-map .ssot-graph-split.ssot-graph-split--single {
-    grid-template-columns: 1fr;
   }
 }
 

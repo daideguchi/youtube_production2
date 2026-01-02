@@ -65,12 +65,12 @@ function computeLayout(
   const dense = steps.length >= 18;
   const small = steps.length <= 12;
 
-  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? 210 : 205;
-  const nodeHeight = ultraDense ? 64 : dense ? 72 : small ? 104 : 90;
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? 230 : 210;
+  const nodeHeight = ultraDense ? 62 : dense ? 70 : small ? 124 : 104;
 
-  const gapMain = ultraDense ? 50 : dense ? 58 : small ? 54 : 68;
-  const gapCross = ultraDense ? 46 : dense ? 56 : small ? 68 : 74;
-  const margin = ultraDense ? 18 : small ? 20 : 24;
+  const gapMain = ultraDense ? 48 : dense ? 56 : small ? 60 : 72;
+  const gapCross = ultraDense ? 44 : dense ? 52 : small ? 72 : 80;
+  const margin = ultraDense ? 16 : small ? 20 : 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
   for (const s of steps) idToStep.set(s.node_id, s);
@@ -184,6 +184,11 @@ export function SsotFlowGraph({
   executed?: Record<string, { firstIndex: number; count: number }>;
   executedEdges?: Record<string, { firstIndex: number; count: number }>;
 }) {
+  const isUltraDense = steps.length >= 40;
+  const isDense = steps.length >= 18;
+  const showDescription = !isDense;
+  const showTaskInFooter = !isUltraDense;
+
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
 
@@ -357,6 +362,8 @@ export function SsotFlowGraph({
                 ? "#fffbeb"
                 : "var(--color-surface)";
         const description = String(n.step.description || "").trim();
+        const nameFontSize = isUltraDense ? 12 : isDense ? 13 : 14;
+        const metaFontSize = isUltraDense ? 10 : 11;
         return (
           <button
             key={n.id}
@@ -371,7 +378,7 @@ export function SsotFlowGraph({
               top: n.y,
               width: n.width,
               height: n.height,
-              padding: 10,
+              padding: isDense ? 8 : 10,
               paddingRight: isExec ? 66 : 10,
               borderRadius: 14,
               border: `2px solid ${border}`,
@@ -381,8 +388,8 @@ export function SsotFlowGraph({
               transform: "none",
               transition: "none",
               display: "grid",
-              gridTemplateRows: "auto auto auto",
-              gap: 6,
+              gridTemplateRows: showDescription ? "auto auto auto" : "auto auto",
+              gap: showDescription ? 6 : 4,
               textAlign: "left",
               overflow: "hidden",
               cursor: "pointer",
@@ -412,7 +419,7 @@ export function SsotFlowGraph({
                   className="mono"
                   style={{
                     flex: "none",
-                    fontSize: 11,
+                    fontSize: isDense ? 10 : 11,
                     fontWeight: 800,
                     padding: "2px 8px",
                     borderRadius: 999,
@@ -424,23 +431,33 @@ export function SsotFlowGraph({
                   {badge}
                 </span>
               ) : null}
-              <div style={{ fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div
+                style={{
+                  fontWeight: 900,
+                  fontSize: nameFontSize,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {n.step.name || n.step.node_id}
               </div>
             </div>
-            <div
-              className="small-text"
-              style={{
-                color: "#334155",
-                lineHeight: 1.35,
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {description || n.id}
-            </div>
+            {showDescription ? (
+              <div
+                className="small-text"
+                style={{
+                  color: "#334155",
+                  lineHeight: 1.35,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {description || n.id}
+              </div>
+            ) : null}
             <div
               className="small-text"
               style={{
@@ -449,12 +466,13 @@ export function SsotFlowGraph({
                 gap: 10,
                 minWidth: 0,
                 color: "#475569",
+                fontSize: metaFontSize,
               }}
             >
               <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: "1 1 0" }}>
                 {n.id}
               </span>
-              {task ? (
+              {showTaskInFooter && task ? (
                 <span
                   className="mono"
                   style={{
