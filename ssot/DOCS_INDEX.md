@@ -7,6 +7,7 @@
 
 ## 1. 最上位SSOT / 参照仕様
 - `README.md`: SSOTの更新/移動/完了移設ルール（索引運用の正本）。
+- `DECISIONS.md`: 意思決定台帳（SSOTトップ）。P0/P1をここで確定→SSOT→実装へ反映する。
 - `reference/REFERENCE_ssot_このプロダクト設計について.md`: 管理者の手書き設計メモ（最上位の意図・方針）。
 - `ops/DATA_LAYOUT.md`: 現行データ格納の実態（SoT/生成物の場所対応）。
 - `ops/OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
