@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getLlmUsageSummary } from "../api/llmUsage";
+import { getFireworksKeyStatus, getLlmUsageSummary, getScriptRoutes, probeFireworksKeys } from "../api/llmUsage";
 import "./LlmUsageDashboardPage.css";
 
 type Agg = {
@@ -64,6 +64,86 @@ type UsageSummaryResponse = {
   }>;
 };
 
+type FireworksKeyLease = {
+  lease_id?: string | null;
+  agent?: string | null;
+  pid?: number | null;
+  host?: string | null;
+  purpose?: string | null;
+  expires_at?: string | null;
+  expires_in_sec?: number | null;
+};
+
+type FireworksKeyRow = {
+  index: number;
+  masked: string;
+  key_fp: string;
+  source: string;
+  status: string;
+  last_checked_at?: string | null;
+  last_http_status?: number | null;
+  ratelimit?: any;
+  lease?: FireworksKeyLease | null;
+};
+
+type FireworksPoolStatus = {
+  pool: "script" | "image";
+  keyring_path: string;
+  state_path: string;
+  keys: FireworksKeyRow[];
+  counts: Array<{ status: string; count: number }>;
+};
+
+type FireworksLeasedKey = {
+  pool?: string | null;
+  key_fp?: string | null;
+  lease_id?: string | null;
+  agent?: string | null;
+  pid?: number | null;
+  host?: string | null;
+  purpose?: string | null;
+  acquired_at?: string | null;
+  expires_at?: string | null;
+  expires_in_sec?: number | null;
+};
+
+type FireworksStatusResponse = {
+  generated_at: string;
+  lease_dir: string;
+  pools: Record<string, FireworksPoolStatus>;
+  leases: FireworksLeasedKey[];
+};
+
+type ScriptRouteCall = { provider?: string | null; model?: string | null; task?: string | null };
+type ScriptRouteValidation = {
+  verdict?: string | null;
+  round?: number | null;
+  max_rounds?: number | null;
+  fix?: { provider?: string | null; model?: string | null; request_id?: string | null } | null;
+  final_polish?:
+    | {
+        enabled?: boolean | null;
+        mode?: string | null;
+        provider?: string | null;
+        model?: string | null;
+        request_id?: string | null;
+        draft_source?: string | null;
+      }
+    | null;
+};
+type ScriptRouteVideo = {
+  video: string;
+  status: string | null;
+  mtime: string | null;
+  script_draft: ScriptRouteCall[];
+  script_review: ScriptRouteCall[];
+  script_validation: ScriptRouteValidation | null;
+};
+type ScriptRoutesResponse = {
+  generated_at: string;
+  channels: Array<{ channel: string; missing: boolean; videos: ScriptRouteVideo[] }>;
+};
+
 type RangeKey = "today_jst" | "last_24h" | "last_7d" | "last_30d" | "all";
 
 const RANGE_OPTIONS: Array<{ value: RangeKey; label: string }> = [
@@ -115,6 +195,32 @@ function clamp01(n: number): number {
 function percentLabel(value: number, total: number): string {
   if (!total) return "0%";
   return `${(clamp01(value / total) * 100).toFixed(1)}%`;
+}
+
+function statusBadgeVariant(statusRaw: string): string {
+  const s = String(statusRaw || "").trim().toLowerCase();
+  if (s === "ok") return "ok";
+  if (s === "exhausted" || s === "invalid") return "bad";
+  if (s === "suspended") return "warn";
+  if (s === "pending") return "warn";
+  if (s === "pass") return "ok";
+  if (s === "fail") return "bad";
+  return "unknown";
+}
+
+function StatusBadge({ value }: { value: string | null | undefined }) {
+  const v = String(value ?? "-");
+  const variant = statusBadgeVariant(v);
+  return <span className={`llm-usage-dashboard__badge llm-usage-dashboard__badge--${variant}`}>{v}</span>;
+}
+
+function joinProviders(calls: ScriptRouteCall[] | null | undefined): string {
+  const list = (calls ?? []).map((c) => `${c.provider ?? "?"}:${c.model ?? "?"}`);
+  const uniq: string[] = [];
+  for (const it of list) {
+    if (!uniq.includes(it)) uniq.push(it);
+  }
+  return uniq.join(", ");
 }
 
 function BarList({
@@ -186,6 +292,25 @@ export function LlmUsageDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [fw, setFw] = useState<FireworksStatusResponse | null>(null);
+  const [fwLoading, setFwLoading] = useState(false);
+  const [fwError, setFwError] = useState<string | null>(null);
+  const [fwProbeLimit, setFwProbeLimit] = useState<number>(() => {
+    const stored = localStorage.getItem("llmUsage.dashboard.fireworksProbeLimit");
+    return stored ? Number(stored) : 0;
+  });
+
+  const [scriptRoutesChannels, setScriptRoutesChannels] = useState<string>(() => {
+    return localStorage.getItem("llmUsage.dashboard.scriptRoutes.channels") ?? "CH10,CH22,CH23";
+  });
+  const [scriptRoutesMaxVideos, setScriptRoutesMaxVideos] = useState<number>(() => {
+    const stored = localStorage.getItem("llmUsage.dashboard.scriptRoutes.maxVideos");
+    return stored ? Number(stored) : 80;
+  });
+  const [scriptRoutesData, setScriptRoutesData] = useState<ScriptRoutesResponse | null>(null);
+  const [scriptRoutesLoading, setScriptRoutesLoading] = useState(false);
+  const [scriptRoutesError, setScriptRoutesError] = useState<string | null>(null);
+
   useEffect(() => {
     localStorage.setItem("llmUsage.dashboard.range", rangeKey);
   }, [rangeKey]);
@@ -195,6 +320,15 @@ export function LlmUsageDashboardPage() {
   useEffect(() => {
     localStorage.setItem("llmUsage.dashboard.topN", String(topN));
   }, [topN]);
+  useEffect(() => {
+    localStorage.setItem("llmUsage.dashboard.fireworksProbeLimit", String(fwProbeLimit));
+  }, [fwProbeLimit]);
+  useEffect(() => {
+    localStorage.setItem("llmUsage.dashboard.scriptRoutes.channels", scriptRoutesChannels);
+  }, [scriptRoutesChannels]);
+  useEffect(() => {
+    localStorage.setItem("llmUsage.dashboard.scriptRoutes.maxVideos", String(scriptRoutesMaxVideos));
+  }, [scriptRoutesMaxVideos]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -209,9 +343,64 @@ export function LlmUsageDashboardPage() {
     }
   }, [provider, rangeKey, topN]);
 
+  const loadFireworksStatus = useCallback(async () => {
+    setFwLoading(true);
+    setFwError(null);
+    try {
+      const res = await getFireworksKeyStatus({ pools: "script,image" });
+      setFw(res as FireworksStatusResponse);
+    } catch (e: any) {
+      setFwError(e?.message || "failed to load");
+    } finally {
+      setFwLoading(false);
+    }
+  }, []);
+
+  const probeFireworksStatus = useCallback(async () => {
+    setFwLoading(true);
+    setFwError(null);
+    try {
+      const res = await probeFireworksKeys({ pool: "all", limit: fwProbeLimit > 0 ? fwProbeLimit : undefined });
+      const merged: FireworksStatusResponse = {
+        generated_at: new Date().toISOString(),
+        lease_dir: fw?.lease_dir ?? "-",
+        pools: {
+          script: (res?.script ?? fw?.pools?.script) as FireworksPoolStatus,
+          image: (res?.image ?? fw?.pools?.image) as FireworksPoolStatus,
+        },
+        leases: fw?.leases ?? [],
+      };
+      setFw(merged);
+    } catch (e: any) {
+      setFwError(e?.message || "failed to probe");
+    } finally {
+      setFwLoading(false);
+    }
+  }, [fw, fwProbeLimit]);
+
+  const loadScriptRoutes = useCallback(async () => {
+    setScriptRoutesLoading(true);
+    setScriptRoutesError(null);
+    try {
+      const channels = String(scriptRoutesChannels || "").trim();
+      const res = await getScriptRoutes({ channels, maxVideos: scriptRoutesMaxVideos });
+      setScriptRoutesData(res as ScriptRoutesResponse);
+    } catch (e: any) {
+      setScriptRoutesError(e?.message || "failed to load");
+    } finally {
+      setScriptRoutesLoading(false);
+    }
+  }, [scriptRoutesChannels, scriptRoutesMaxVideos]);
+
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    loadFireworksStatus();
+  }, [loadFireworksStatus]);
+  useEffect(() => {
+    loadScriptRoutes();
+  }, [loadScriptRoutes]);
 
   const totals = data?.totals;
   const totalTokens = totals?.total_tokens ?? 0;
@@ -224,6 +413,15 @@ export function LlmUsageDashboardPage() {
 
   const cacheHitTokens = totals?.cache_hit_total_tokens ?? 0;
   const cacheHitCalls = totals?.cache_hit_calls ?? 0;
+
+  const scriptRoutesFlat = useMemo(() => {
+    const out: Array<{ channel: string; video: ScriptRouteVideo }> = [];
+    for (const ch of scriptRoutesData?.channels ?? []) {
+      if (!ch || ch.missing) continue;
+      for (const v of ch.videos ?? []) out.push({ channel: ch.channel, video: v });
+    }
+    return out;
+  }, [scriptRoutesData]);
 
   return (
     <div className="page llm-usage-dashboard-page">
@@ -334,6 +532,239 @@ export function LlmUsageDashboardPage() {
               402（クレジット不足）: <span className={code402 ? "error mono" : "mono"}>{formatNumber(code402)}</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="capcut-edit-page__section">
+        <div className="shell-panel shell-panel--placeholder llm-usage-dashboard__panel">
+          <div className="llm-usage-dashboard__panel-header">
+            <div>
+              <h2>Fireworksキー状態（script / image）</h2>
+              <p className="shell-panel__subtitle">
+                “残クレジット額”は取得できないため、token-free probe（<span className="mono">/inference/v1/models</span> の{" "}
+                <span className="mono">200/401/402/412</span>）で <span className="mono">ok/exhausted/invalid/suspended</span> を判定します。
+              </p>
+            </div>
+            <div className="llm-usage-dashboard__panel-actions">
+              <button className="button button--ghost" onClick={loadFireworksStatus} disabled={fwLoading}>
+                {fwLoading ? "更新中…" : "状態更新"}
+              </button>
+              <button className="button button--primary" onClick={probeFireworksStatus} disabled={fwLoading}>
+                probe（token-free）
+              </button>
+            </div>
+          </div>
+
+          <div className="llm-usage-dashboard__controls">
+            <label className="llm-usage-dashboard__control">
+              <span>probe limit（0=全キー）</span>
+              <input
+                type="number"
+                min={0}
+                max={200}
+                value={fwProbeLimit}
+                onChange={(e) => setFwProbeLimit(Math.max(0, Math.min(200, Number(e.target.value))))}
+              />
+            </label>
+            <div className="muted small-text">
+              lease: <span className="mono">{fw?.lease_dir ?? "-"}</span>
+            </div>
+          </div>
+
+          {fwError ? <div className="error llm-usage-dashboard__error">エラー: {fwError}</div> : null}
+
+          {fw ? (
+            <>
+              <div className="llm-usage-dashboard__help-row">
+                {Object.entries(fw.pools ?? {}).map(([pool, p]) => (
+                  <div key={pool} className="llm-usage-dashboard__help-chip">
+                    <span className="mono">{pool}</span>
+                    <span className="muted">:</span>
+                    {(p.counts ?? []).map((c) => (
+                      <span key={`${pool}-${c.status}`} className="mono">
+                        {c.status}={c.count}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {Object.entries(fw.pools ?? {}).map(([pool, p]) => (
+                <details key={pool} className="llm-usage-dashboard__details">
+                  <summary>
+                    {pool} keys（{(p.keys ?? []).length}）
+                  </summary>
+                  <div className="muted small-text" style={{ marginTop: 8 }}>
+                    keyring: <span className="mono">{p.keyring_path}</span>
+                  </div>
+                  <div className="llm-usage-dashboard__table-wrap" style={{ marginTop: 8 }}>
+                    <table className="llm-usage-dashboard__table llm-usage-dashboard__table--compact">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>key</th>
+                          <th>source</th>
+                          <th>status</th>
+                          <th>last</th>
+                          <th>http</th>
+                          <th>lease</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(p.keys ?? []).map((k) => (
+                          <tr key={k.key_fp}>
+                            <td className="mono">{k.index}</td>
+                            <td className="mono">{k.masked}</td>
+                            <td className="mono">{k.source}</td>
+                            <td>
+                              <StatusBadge value={k.status} />
+                            </td>
+                            <td className="mono">{formatDateTime(k.last_checked_at ?? null)}</td>
+                            <td className="mono">{String(k.last_http_status ?? "-")}</td>
+                            <td className="mono">
+                              {k.lease?.lease_id ? (
+                                <>
+                                  {k.lease.lease_id} {k.lease.agent ?? ""}{" "}
+                                  {k.lease.expires_in_sec != null ? `(${k.lease.expires_in_sec}s)` : ""}
+                                </>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+              ))}
+
+              <details className="llm-usage-dashboard__details">
+                <summary>active leases（{(fw.leases ?? []).length}）</summary>
+                <div className="llm-usage-dashboard__table-wrap" style={{ marginTop: 8 }}>
+                  <table className="llm-usage-dashboard__table llm-usage-dashboard__table--compact">
+                    <thead>
+                      <tr>
+                        <th>pool</th>
+                        <th>key_fp</th>
+                        <th>agent</th>
+                        <th>pid</th>
+                        <th>purpose</th>
+                        <th>expires</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(fw.leases ?? []).map((l) => (
+                        <tr key={`${l.pool}-${l.key_fp}-${l.lease_id}`}>
+                          <td className="mono">{l.pool ?? "-"}</td>
+                          <td className="mono">{(l.key_fp ?? "").slice(0, 10) || "-"}</td>
+                          <td className="mono">{l.agent ?? "-"}</td>
+                          <td className="mono">{String(l.pid ?? "-")}</td>
+                          <td className="mono llm-usage-dashboard__cell-truncate" title={l.purpose ?? ""}>
+                            {l.purpose ?? "-"}
+                          </td>
+                          <td className="mono">
+                            {l.expires_in_sec != null ? `${l.expires_in_sec}s` : "-"}{" "}
+                            <span className="muted">{l.expires_at ? `(${l.expires_at})` : ""}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="capcut-edit-page__section">
+        <div className="shell-panel shell-panel--placeholder llm-usage-dashboard__panel">
+          <div className="llm-usage-dashboard__panel-header">
+            <div>
+              <h2>台本生成ルート（status.json から抽出）</h2>
+              <p className="shell-panel__subtitle">どの provider/model が各ステージで使われたかを一覧できます。</p>
+            </div>
+            <div className="llm-usage-dashboard__panel-actions">
+              <button className="button button--primary" onClick={loadScriptRoutes} disabled={scriptRoutesLoading}>
+                {scriptRoutesLoading ? "取得中…" : "取得"}
+              </button>
+            </div>
+          </div>
+
+          <div className="llm-usage-dashboard__controls">
+            <label className="llm-usage-dashboard__control">
+              <span>channels（例: CH10,CH22,CH23）</span>
+              <input value={scriptRoutesChannels} onChange={(e) => setScriptRoutesChannels(e.target.value)} />
+            </label>
+            <label className="llm-usage-dashboard__control">
+              <span>max videos</span>
+              <input
+                type="number"
+                min={1}
+                max={500}
+                value={scriptRoutesMaxVideos}
+                onChange={(e) => setScriptRoutesMaxVideos(Math.max(1, Math.min(500, Number(e.target.value))))}
+              />
+            </label>
+            <div className="muted small-text">
+              updated: <span className="mono">{scriptRoutesData?.generated_at ?? "-"}</span>
+            </div>
+          </div>
+
+          {scriptRoutesError ? <div className="error llm-usage-dashboard__error">エラー: {scriptRoutesError}</div> : null}
+
+          {scriptRoutesData ? (
+            <div className="llm-usage-dashboard__table-wrap">
+              <table className="llm-usage-dashboard__table llm-usage-dashboard__table--compact">
+                <thead>
+                  <tr>
+                    <th>CH</th>
+                    <th>video</th>
+                    <th>status</th>
+                    <th>draft</th>
+                    <th>review</th>
+                    <th>gate</th>
+                    <th>fix</th>
+                    <th>final</th>
+                    <th>mtime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scriptRoutesFlat.map(({ channel, video }) => {
+                    const v = video;
+                    const val = v.script_validation;
+                    const verdict = val?.verdict ?? "-";
+                    const final = val?.final_polish;
+                    return (
+                      <tr key={`${channel}-${v.video}`}>
+                        <td className="mono">{channel}</td>
+                        <td className="mono">{v.video}</td>
+                        <td className="mono">{v.status ?? "-"}</td>
+                        <td className="mono llm-usage-dashboard__cell-truncate" title={joinProviders(v.script_draft)}>
+                          {joinProviders(v.script_draft) || "-"}
+                        </td>
+                        <td className="mono llm-usage-dashboard__cell-truncate" title={joinProviders(v.script_review)}>
+                          {joinProviders(v.script_review) || "-"}
+                        </td>
+                        <td>
+                          <StatusBadge value={String(verdict)} />
+                        </td>
+                        <td className="mono">
+                          {val?.fix?.provider ? `${val.fix.provider}:${val.fix.model ?? "?"}` : "-"}
+                        </td>
+                        <td className="mono">
+                          {final?.provider ? `${final.provider}:${final.model ?? "?"}` : "-"}
+                          {final?.draft_source ? <div className="muted small-text">src={final.draft_source}</div> : null}
+                        </td>
+                        <td className="mono">{v.mtime ? formatDateTime(v.mtime) : "-"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
         </div>
       </section>
 

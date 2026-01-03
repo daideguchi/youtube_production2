@@ -2,14 +2,15 @@
 from __future__ import annotations
 
 """
-fireworks_keyring.py — Fireworks（台本/本文）APIキーのキーローテ用ストアを管理する
+fireworks_keyring.py — Fireworks APIキーのキーローテ用ストアを管理する（台本/画像）
 
 目的:
 - repo 内（workspaces/_scratch など）に秘密鍵を置かずに、運用者が「キーを追加するだけ」で
   ローテーションできるようにする。
 
 既定:
-- キーファイル: ~/.ytm/secrets/fireworks_script_keys.txt
+- pool=script（台本）: ~/.ytm/secrets/fireworks_script_keys.txt
+- pool=image（画像） : ~/.ytm/secrets/fireworks_image_keys.txt
   - ルート変更: YTM_SECRETS_ROOT または --path
 
 ファイル形式:
@@ -100,6 +101,15 @@ def _default_keyring_path() -> Path:
     return secrets_root() / "fireworks_script_keys.txt"
 
 
+def _default_keyring_path_for_pool(pool: str) -> Path:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        return secrets_root() / "fireworks_script_keys.txt"
+    if p == "image":
+        return secrets_root() / "fireworks_image_keys.txt"
+    raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
+
+
 def _legacy_memo_path() -> Path:
     return workspace_root() / "_scratch" / "fireworks_apiメモ"
 
@@ -118,11 +128,35 @@ def _state_path_default() -> Path:
     return secrets_root() / "fireworks_script_keys_state.json"
 
 
+def _state_path_default_for_pool(pool: str) -> Path:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        return secrets_root() / "fireworks_script_keys_state.json"
+    if p == "image":
+        return secrets_root() / "fireworks_image_keys_state.json"
+    raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
+
+
 def _state_path_from_env() -> Path:
     raw = (os.getenv("FIREWORKS_SCRIPT_KEYS_STATE_FILE") or "").strip()
     if raw:
         return Path(raw).expanduser().resolve()
     return _state_path_default()
+
+
+def _state_path_from_env_for_pool(pool: str) -> Path:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        raw = (os.getenv("FIREWORKS_SCRIPT_KEYS_STATE_FILE") or "").strip()
+        if raw:
+            return Path(raw).expanduser().resolve()
+        return _state_path_default_for_pool("script")
+    if p == "image":
+        raw = (os.getenv("FIREWORKS_IMAGE_KEYS_STATE_FILE") or "").strip()
+        if raw:
+            return Path(raw).expanduser().resolve()
+        return _state_path_default_for_pool("image")
+    raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
 
 
 def _load_state(path: Path) -> dict:
@@ -169,8 +203,24 @@ def _primary_key_from_env() -> str:
     return (os.getenv("FIREWORKS_SCRIPT") or os.getenv("FIREWORKS_SCRIPT_API_KEY") or "").strip()
 
 
+def _primary_key_from_env_for_pool(pool: str) -> str:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        return _primary_key_from_env()
+    if p == "image":
+        return (os.getenv("FIREWORKS_IMAGE") or os.getenv("FIREWORKS_IMAGE_API_KEY") or "").strip()
+    raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
+
+
 def _iter_keys_for_ops(keyring_path: Path) -> List[str]:
     primary = _primary_key_from_env()
+    keys = [primary] if primary else []
+    keys.extend(_read_keys(keyring_path))
+    return _dedupe_keep_order([k for k in keys if k])
+
+
+def _iter_keys_for_ops_for_pool(keyring_path: Path, pool: str) -> List[str]:
+    primary = _primary_key_from_env_for_pool(pool)
     keys = [primary] if primary else []
     keys.extend(_read_keys(keyring_path))
     return _dedupe_keep_order([k for k in keys if k])
@@ -179,10 +229,17 @@ def _iter_keys_for_ops(keyring_path: Path) -> List[str]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--pool",
+        type=str,
+        default="script",
+        choices=["script", "image"],
+        help="key pool to manage: script (LLM) | image (workflow/image)",
+    )
+    parser.add_argument(
         "--path",
         type=str,
         default="",
-        help="keyring file path (default: ~/.ytm/secrets/fireworks_script_keys.txt)",
+        help="keyring file path (default depends on --pool)",
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -204,7 +261,12 @@ def main() -> None:
     p_mig.add_argument("--src", type=str, default="", help="legacy source path (default: workspaces/_scratch/fireworks_apiメモ)")
 
     args = parser.parse_args()
-    path = Path(args.path).expanduser().resolve() if str(args.path).strip() else _default_keyring_path()
+    pool = str(getattr(args, "pool", "script") or "script").strip().lower()
+    path = (
+        Path(args.path).expanduser().resolve()
+        if str(args.path).strip()
+        else _default_keyring_path_for_pool(pool)
+    )
 
     if args.cmd == "path":
         print(str(path))
@@ -237,7 +299,7 @@ def main() -> None:
 
     if args.cmd == "list":
         keys = _read_keys(path)
-        state_path = _state_path_from_env()
+        state_path = _state_path_from_env_for_pool(pool)
         state = _load_state(state_path)
         states = state.get("keys") if isinstance(state.get("keys"), dict) else {}
         counts: dict[str, int] = {}
@@ -263,14 +325,16 @@ def main() -> None:
         except Exception as exc:
             raise SystemExit(f"requests is required for check: {exc}") from exc
 
-        keys = _iter_keys_for_ops(path)
+        keys = _iter_keys_for_ops_for_pool(path, pool)
         if not keys:
-            raise SystemExit("no keys found (set FIREWORKS_SCRIPT or add to keyring file)")
+            raise SystemExit(
+                "no keys found (set FIREWORKS_SCRIPT/FIREWORKS_IMAGE or add to keyring file)"
+            )
         limit = int(getattr(args, "limit", 0) or 0)
         if limit > 0:
             keys = keys[:limit]
 
-        state_path = _state_path_from_env()
+        state_path = _state_path_from_env_for_pool(pool)
         state = _load_state(state_path)
 
         endpoint = "https://api.fireworks.ai/inference/v1/models"

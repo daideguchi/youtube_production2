@@ -61,3 +61,43 @@ export async function getLlmUsageSummary(params: { range?: string; topN?: number
   }
   return readJsonOrThrow(res, `Failed to parse usage summary (${res.status})`);
 }
+
+export async function getFireworksKeyStatus(params?: { pools?: string }) {
+  const pools = params?.pools ?? "script,image";
+  const qs = new URLSearchParams();
+  qs.set("pools", pools);
+  const res = await fetch(apiUrl(`/api/llm-usage/fireworks/status?${qs.toString()}`));
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Failed to fetch Fireworks key status: ${res.status} ${text}`);
+  }
+  return readJsonOrThrow(res, `Failed to parse Fireworks key status (${res.status})`);
+}
+
+export async function probeFireworksKeys(params: { pool: "script" | "image" | "all"; limit?: number }) {
+  const qs = new URLSearchParams();
+  qs.set("pool", params.pool);
+  if (params.limit != null) {
+    qs.set("limit", String(params.limit));
+  }
+  const res = await fetch(apiUrl(`/api/llm-usage/fireworks/probe?${qs.toString()}`), { method: "POST" });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Failed to probe Fireworks keys: ${res.status} ${text}`);
+  }
+  return readJsonOrThrow(res, `Failed to parse Fireworks probe result (${res.status})`);
+}
+
+export async function getScriptRoutes(params: { channels: string; maxVideos?: number }) {
+  const qs = new URLSearchParams();
+  qs.set("channels", params.channels);
+  if (params.maxVideos != null) {
+    qs.set("max_videos", String(params.maxVideos));
+  }
+  const res = await fetch(apiUrl(`/api/llm-usage/script-routes?${qs.toString()}`));
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Failed to fetch script routes: ${res.status} ${text}`);
+  }
+  return readJsonOrThrow(res, `Failed to parse script routes (${res.status})`);
+}

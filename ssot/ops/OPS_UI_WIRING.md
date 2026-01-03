@@ -80,6 +80,7 @@
 | `/agent-org` | `apps/ui-frontend/src/pages/AgentOrgPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**`（board/locks/memos） |
 | `/agent-board` | `apps/ui-frontend/src/pages/AgentBoardPage.tsx` | `/api/agent-org/*` | `workspaces/logs/agent_tasks/**` |
 | `/llm-usage` | `apps/ui-frontend/src/pages/LlmUsagePage.tsx` | `/api/llm-usage/*` | `workspaces/logs/**` |
+| `/llm-usage/dashboard` | `apps/ui-frontend/src/pages/LlmUsageDashboardPage.tsx` | `/api/llm-usage/summary`, `/api/llm-usage/fireworks/*`, `/api/llm-usage/script-routes` | `workspaces/logs/llm_usage.jsonl`, `workspaces/scripts/**/status.json`, `~/.ytm/secrets/fireworks_*` |
 | `/ssot` | `apps/ui-frontend/src/pages/SsotPortalPage.tsx` | `/api/research`（base=`ssot`） | `ssot/**` |
 
 補足:

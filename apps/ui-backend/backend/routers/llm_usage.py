@@ -7,14 +7,19 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Query
 import json
+import os
+import hashlib
+import time
 import yaml
 
+from factory_common import fireworks_keys as fw_keys
 from factory_common.paths import logs_root, repo_root
 
 LOG_PATH = logs_root() / "llm_usage.jsonl"
 OVERRIDE_PATH = repo_root() / "configs" / "llm_task_overrides.yaml"
 MODEL_REGISTRY_PATH = repo_root() / "configs" / "llm_model_registry.yaml"
 IMAGE_MODELS_PATH = repo_root() / "configs" / "image_models.yaml"
+SCRIPTS_ROOT = repo_root() / "workspaces" / "scripts"
 
 router = APIRouter(prefix="/api/llm-usage", tags=["llm_usage"])
 
@@ -42,6 +47,7 @@ def list_usage(limit: int = Query(200, ge=1, le=2000)):
     records = _load_records(limit)
     return {"count": len(records), "records": records}
 
+
 def _iter_records() -> Iterable[Dict[str, Any]]:
     if not LOG_PATH.exists():
         return []
@@ -56,6 +62,217 @@ def _iter_records() -> Iterable[Dict[str, Any]]:
                 except Exception:
                     continue
     return _gen()
+
+
+def _sha256_hex(text: str) -> str:
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
+
+
+def _parse_fw_keys_from_text(text: str) -> List[str]:
+    import re
+
+    key_re = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
+    out: List[str] = []
+    seen = set()
+    for raw in str(text or "").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" in line:
+            _left, right = line.split("=", 1)
+            line = right.strip()
+        if "#" in line:
+            line = line.split("#", 1)[0].strip()
+        line = line.strip().strip("'\"")
+        if " " in line or "\t" in line:
+            continue
+        if not all(ord(ch) < 128 for ch in line):
+            continue
+        if not key_re.match(line):
+            continue
+        if line in seen:
+            continue
+        out.append(line)
+        seen.add(line)
+    return out
+
+
+def _read_fw_state_file(path) -> Dict[str, Dict[str, Any]]:
+    try:
+        p = path
+        if hasattr(path, "exists") and not path.exists():
+            return {}
+        obj = json.loads(p.read_text(encoding="utf-8", errors="replace") or "null")
+    except Exception:
+        return {}
+    if not isinstance(obj, dict):
+        return {}
+    keys_obj = obj.get("keys")
+    return keys_obj if isinstance(keys_obj, dict) else {}
+
+
+def _write_fw_state_file(path, *, keys_obj: Dict[str, Dict[str, Any]]) -> None:
+    from datetime import datetime, timezone
+
+    p = path
+    payload = {
+        "version": 1,
+        "updated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "keys": keys_obj,
+    }
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    try:
+        os.chmod(tmp, 0o600)
+    except Exception:
+        pass
+    tmp.replace(p)
+    try:
+        os.chmod(p, 0o600)
+    except Exception:
+        pass
+
+
+def _epoch_to_iso(ts: Any) -> Optional[str]:
+    if ts is None:
+        return None
+    try:
+        v = float(ts)
+    except Exception:
+        return None
+    try:
+        return datetime.fromtimestamp(v, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    except Exception:
+        return None
+
+
+def _fireworks_pool_config(pool: str) -> Dict[str, str]:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        return {
+            "pool": "script",
+            "primary_env": "FIREWORKS_SCRIPT",
+            "primary_alias_env": "FIREWORKS_SCRIPT_API_KEY",
+            "keys_inline_env": "FIREWORKS_SCRIPT_KEYS",
+        }
+    if p == "image":
+        return {
+            "pool": "image",
+            "primary_env": "FIREWORKS_IMAGE",
+            "primary_alias_env": "FIREWORKS_IMAGE_API_KEY",
+            "keys_inline_env": "FIREWORKS_IMAGE_KEYS",
+        }
+    raise HTTPException(status_code=400, detail=f"invalid pool: {pool!r} (expected: script|image|all)")
+
+
+def _get_fireworks_pool_status(pool: str) -> Dict[str, Any]:
+    conf = _fireworks_pool_config(pool)
+    keys = fw_keys.candidate_keys(pool)
+
+    state_path = fw_keys.state_path(pool)
+    keyring_path = fw_keys.keyring_path(pool)
+    state = _read_fw_state_file(state_path)
+
+    file_keys: List[str] = []
+    try:
+        if keyring_path.exists():
+            file_keys = _parse_fw_keys_from_text(keyring_path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        file_keys = []
+
+    env_primary = (os.getenv(conf["primary_env"]) or os.getenv(conf["primary_alias_env"]) or "").strip()
+    env_inline = (os.getenv(conf["keys_inline_env"]) or "").strip()
+    inline_keys = _parse_fw_keys_from_text(env_inline.replace(",", "\n")) if env_inline else []
+
+    # Leases (map by key_fp)
+    now = time.time()
+    leases = fw_keys.list_active_leases()
+    leases_by_fp: Dict[str, Dict[str, Any]] = {}
+    for ent in leases:
+        if not isinstance(ent, dict):
+            continue
+        fp = str(ent.get("key_fp") or "").strip()
+        if not fp:
+            continue
+        leases_by_fp[fp] = ent
+
+    rows: List[Dict[str, Any]] = []
+    counts: Counter[str] = Counter()
+    for idx, k in enumerate(keys, start=1):
+        fp = _sha256_hex(k)
+        ent = state.get(fp) if isinstance(state.get(fp), dict) else {}
+        st = str((ent or {}).get("status") or "unknown")
+        counts[st] += 1
+        lease = leases_by_fp.get(fp)
+
+        source = "file"
+        if env_primary and k == env_primary:
+            source = "env"
+        elif k in inline_keys and k not in file_keys:
+            source = "inline"
+        elif k not in file_keys:
+            source = "env_or_inline"
+
+        rows.append(
+            {
+                "index": idx,
+                "masked": fw_keys.mask_key(k),
+                "key_fp": fp,
+                "source": source,
+                "status": st,
+                "last_checked_at": (ent or {}).get("last_checked_at"),
+                "last_http_status": (ent or {}).get("last_http_status"),
+                "ratelimit": (ent or {}).get("ratelimit"),
+                "lease": (
+                    {
+                        "lease_id": str((lease or {}).get("lease_id") or "")[:8] if lease else None,
+                        "agent": (lease or {}).get("agent") if lease else None,
+                        "pid": (lease or {}).get("pid") if lease else None,
+                        "host": (lease or {}).get("host") if lease else None,
+                        "purpose": (lease or {}).get("purpose") if lease else None,
+                        "expires_at": _epoch_to_iso((lease or {}).get("expires_at")) if lease else None,
+                        "expires_in_sec": (
+                            max(0, int(float((lease or {}).get("expires_at") or 0) - now)) if lease else None
+                        ),
+                    }
+                    if lease
+                    else None
+                ),
+            }
+        )
+
+    return {
+        "pool": conf["pool"],
+        "keyring_path": str(keyring_path),
+        "state_path": str(state_path),
+        "keys": rows,
+        "counts": [{"status": k, "count": int(v)} for k, v in sorted(counts.items())],
+    }
+
+
+def _probe_fireworks_pool(pool: str, *, limit: int = 0) -> Dict[str, Any]:
+    pool = str(pool or "").strip().lower()
+    keys = fw_keys.candidate_keys(pool)
+    if limit and limit > 0:
+        keys = keys[: int(limit)]
+
+    state_path = fw_keys.state_path(pool)
+    state = _read_fw_state_file(state_path)
+
+    for k in keys:
+        status, http_status, ratelimit = fw_keys.probe_key(k)
+        fp = _sha256_hex(k)
+        state[fp] = {
+            "status": str(status or "unknown"),
+            "last_checked_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "last_http_status": int(http_status) if isinstance(http_status, int) else None,
+            "ratelimit": ratelimit if isinstance(ratelimit, dict) and ratelimit else None,
+            "note": None,
+        }
+
+    _write_fw_state_file(state_path, keys_obj=state)
+    return _get_fireworks_pool_status(pool)
 
 
 def _parse_dt(obj: Dict[str, Any]) -> Optional[datetime]:
@@ -429,3 +646,236 @@ def list_models():
 
 def _allowed_models() -> set:
     return set(list_models()["models"])
+
+
+@router.get("/fireworks/status")
+def fireworks_status(pools: str = Query("script,image", description="script,image or script or image")):
+    """
+    Return Fireworks key pool status (masked keys + last probe result) and active key leases.
+
+    Notes:
+    - Uses token-free probe history (`/inference/v1/models`) to classify keys as ok/exhausted/invalid/suspended.
+    - Does NOT report exact remaining credits (Fireworks does not expose a public balance endpoint via API key).
+    """
+    raw = (pools or "").strip().lower()
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    if not parts:
+        parts = ["script", "image"]
+
+    out_pools: Dict[str, Any] = {}
+    for p in parts:
+        if p not in {"script", "image"}:
+            raise HTTPException(status_code=400, detail=f"invalid pool: {p!r}")
+        out_pools[p] = _get_fireworks_pool_status(p)
+
+    leases_raw = fw_keys.list_active_leases()
+    now = time.time()
+    leases_out: List[Dict[str, Any]] = []
+    for ent in leases_raw:
+        if not isinstance(ent, dict):
+            continue
+        exp = ent.get("expires_at")
+        expires_in = None
+        try:
+            expires_in = max(0, int(float(exp) - now)) if exp is not None else None
+        except Exception:
+            expires_in = None
+        leases_out.append(
+            {
+                "pool": ent.get("pool"),
+                "key_fp": ent.get("key_fp"),
+                "lease_id": str(ent.get("lease_id") or "")[:8] if ent.get("lease_id") else None,
+                "agent": ent.get("agent"),
+                "pid": ent.get("pid"),
+                "host": ent.get("host"),
+                "purpose": ent.get("purpose"),
+                "acquired_at": _epoch_to_iso(ent.get("acquired_at")),
+                "expires_at": _epoch_to_iso(ent.get("expires_at")),
+                "expires_in_sec": expires_in,
+            }
+        )
+
+    return {
+        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "lease_dir": str(fw_keys.lease_root_dir()),
+        "pools": out_pools,
+        "leases": leases_out,
+    }
+
+
+@router.post("/fireworks/probe")
+def fireworks_probe(
+    pool: str = Query("script", description="script | image | all"),
+    limit: int = Query(0, ge=0, le=200, description="probe only first N keys (0=all in pool)"),
+):
+    """
+    Probe Fireworks keys (token-free) and update pool state. Returns updated status payload.
+    """
+    p = (pool or "").strip().lower()
+    if p == "all":
+        return {
+            "script": _probe_fireworks_pool("script", limit=limit),
+            "image": _probe_fireworks_pool("image", limit=limit),
+        }
+    if p not in {"script", "image"}:
+        raise HTTPException(status_code=400, detail="pool must be script|image|all")
+    return _probe_fireworks_pool(p, limit=limit)
+
+
+def _safe_load_json(path) -> Dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8", errors="replace") or "null")
+    except Exception:
+        return {}
+
+
+def _stage_llm_calls(status_obj: Dict[str, Any], stage_name: str) -> List[Dict[str, Any]]:
+    stages = status_obj.get("stages")
+    if not isinstance(stages, dict):
+        return []
+    stage = stages.get(stage_name)
+    if not isinstance(stage, dict):
+        return []
+    details = stage.get("details")
+    if not isinstance(details, dict):
+        return []
+    calls = details.get("llm_calls")
+    if not isinstance(calls, list):
+        return []
+    out: List[Dict[str, Any]] = []
+    seen = set()
+    for c in calls:
+        if not isinstance(c, dict):
+            continue
+        provider = str(c.get("provider") or "").strip() or None
+        model = str(c.get("model") or "").strip() or None
+        task = str(c.get("task") or "").strip() or None
+        key = (provider, model, task)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({"provider": provider, "model": model, "task": task})
+    return out
+
+
+def _validation_llm_meta(status_obj: Dict[str, Any]) -> Dict[str, Any]:
+    stages = status_obj.get("stages")
+    if not isinstance(stages, dict):
+        return {}
+    stage = stages.get("script_validation")
+    if not isinstance(stage, dict):
+        return {}
+    details = stage.get("details")
+    if not isinstance(details, dict):
+        return {}
+    gate = details.get("llm_quality_gate")
+    if not isinstance(gate, dict):
+        return {}
+
+    fix_meta = gate.get("fix_llm_meta")
+    if not isinstance(fix_meta, dict):
+        fix_meta = {}
+    final_polish = gate.get("final_polish")
+    if not isinstance(final_polish, dict):
+        final_polish = {}
+    final_meta = final_polish.get("llm_meta")
+    if not isinstance(final_meta, dict):
+        final_meta = {}
+
+    def pick(meta: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "provider": meta.get("provider"),
+            "model": meta.get("model"),
+            "request_id": meta.get("request_id"),
+        }
+
+    return {
+        "verdict": gate.get("verdict"),
+        "round": gate.get("round"),
+        "max_rounds": gate.get("max_rounds"),
+        "fix": pick(fix_meta) if fix_meta else None,
+        "final_polish": {
+            "enabled": (final_polish.get("enabled") if isinstance(final_polish.get("enabled"), bool) else None),
+            "mode": final_polish.get("mode"),
+            "provider": final_meta.get("provider"),
+            "model": final_meta.get("model"),
+            "request_id": final_meta.get("request_id"),
+            "draft_source": final_polish.get("draft_source"),
+        }
+        if final_polish
+        else None,
+    }
+
+
+@router.get("/script-routes")
+def script_routes(
+    channels: str = Query("", description="Comma-separated channels (e.g. CH10,CH22)"),
+    max_videos: int = Query(80, ge=1, le=500),
+):
+    """
+    Summarize which provider/model generated each script (per channel/video).
+
+    This reads `workspaces/scripts/<CH>/<NNN>/status.json` and extracts:
+    - script_draft llm_calls
+    - script_review llm_calls
+    - script_validation quality gate meta (fix/final_polish)
+    """
+    chs = [c.strip() for c in (channels or "").split(",") if c.strip()]
+    if not chs:
+        raise HTTPException(status_code=400, detail="channels is required (comma-separated)")
+
+    result_channels: List[Dict[str, Any]] = []
+    for ch in chs:
+        ch_dir = SCRIPTS_ROOT / ch
+        if not ch_dir.exists():
+            result_channels.append({"channel": ch, "missing": True, "videos": []})
+            continue
+
+        vids: List[str] = []
+        for p in sorted(ch_dir.iterdir()):
+            if not p.is_dir():
+                continue
+            name = p.name
+            if name.isdigit():
+                vids.append(name)
+        vids = vids[: int(max_videos)]
+
+        videos_out: List[Dict[str, Any]] = []
+        for v in vids:
+            status_path = ch_dir / v / "status.json"
+            if not status_path.exists():
+                videos_out.append(
+                    {
+                        "video": v,
+                        "status": "missing",
+                        "mtime": None,
+                        "script_draft": [],
+                        "script_review": [],
+                        "script_validation": None,
+                    }
+                )
+                continue
+
+            st = _safe_load_json(status_path)
+            try:
+                mtime = float(status_path.stat().st_mtime)
+            except Exception:
+                mtime = None
+
+            videos_out.append(
+                {
+                    "video": v,
+                    "status": st.get("status"),
+                    "mtime": _epoch_to_iso(mtime) if mtime is not None else None,
+                    "script_draft": _stage_llm_calls(st, "script_draft"),
+                    "script_review": _stage_llm_calls(st, "script_review"),
+                    "script_validation": _validation_llm_meta(st) or None,
+                }
+            )
+
+        result_channels.append({"channel": ch, "missing": False, "videos": videos_out})
+
+    return {
+        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "channels": result_channels,
+    }

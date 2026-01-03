@@ -22,6 +22,7 @@ from factory_common.llm_api_cache import (
     write_cache as _api_cache_write,
 )
 from factory_common.codex_exec_layer import try_codex_exec
+from factory_common import fireworks_keys
 from factory_common.paths import logs_root, repo_root, secrets_root
 
 DEFAULT_FALLBACK_POLICY = {
@@ -807,16 +808,42 @@ class LLMRouter:
                 key = os.getenv("FIREWORKS_SCRIPT")
             base = p.get("base_url")
             if base and OpenAI:
-                # Fireworks key rotation (same provider only):
-                # - Use the explicitly set key first (FIREWORKS_SCRIPT / FIREWORKS_SCRIPT_API_KEY).
-                # - Optionally load additional keys from:
-                #   - FIREWORKS_SCRIPT_KEYS (comma-separated)
-                #   - FIREWORKS_SCRIPT_KEYS_FILE (one key per line)
-                #   - ~/.ytm/secrets/fireworks_script_keys.txt (default)
+                # Fireworks key rotation + cross-agent exclusivity (same provider only).
+                #
+                # - Keys are sourced the same way as before:
+                #   - Explicit env key first (FIREWORKS_SCRIPT / FIREWORKS_SCRIPT_API_KEY)
+                #   - Optional extras via FIREWORKS_SCRIPT_KEYS / FIREWORKS_SCRIPT_KEYS_FILE
+                #   - Default secrets file: ~/.ytm/secrets/fireworks_script_keys.txt
+                # - Additionally, we acquire an exclusive lease per key to prevent concurrent usage across
+                #   multiple agent processes.
                 self._fireworks_keys = _fireworks_key_candidates(key)
                 self._fireworks_key_index = 0
                 self._fireworks_dead_keys = set()
-                chosen = (self._fireworks_keys[0] if self._fireworks_keys else key)
+                self._fireworks_lease = None
+                try:
+                    self._fireworks_lease_ttl_sec = int(os.getenv("FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC", "1800"))
+                except Exception:
+                    self._fireworks_lease_ttl_sec = 1800
+                purpose = (
+                    f"llm_router:{(os.getenv('LLM_ROUTING_KEY') or '').strip() or 'global'}"
+                )
+
+                chosen = None
+                for i, cand in enumerate(self._fireworks_keys):
+                    lease = fireworks_keys.try_acquire_specific_key(
+                        "script",
+                        key=cand,
+                        purpose=purpose,
+                        ttl_sec=int(self._fireworks_lease_ttl_sec),
+                        preflight=True,
+                    )
+                    if lease is None:
+                        continue
+                    chosen = cand
+                    self._fireworks_key_index = i
+                    self._fireworks_lease = lease
+                    break
+
                 if chosen:
                     try:
                         self.clients["fireworks"] = OpenAI(api_key=chosen, base_url=base)
@@ -845,6 +872,21 @@ class LLMRouter:
                 _update_fireworks_key_state(k, status="invalid", http_status=http_status, note="401 unauthorized")
             elif http_status == 402:
                 _update_fireworks_key_state(k, status="exhausted", http_status=http_status, note="402 payment required")
+            elif http_status == 412:
+                _update_fireworks_key_state(k, status="suspended", http_status=http_status, note="412 precondition failed")
+
+            # Release exclusive lease (if we owned it).
+            lease = getattr(self, "_fireworks_lease", None)
+            try:
+                fp = _sha256_hex(k)
+            except Exception:
+                fp = None
+            if lease is not None and fp and str(getattr(lease, "key_fp", "") or "") == fp:
+                try:
+                    fireworks_keys.release_lease(lease)
+                except Exception:
+                    pass
+                self._fireworks_lease = None
 
     def _fireworks_rotate_client(self) -> Optional[Any]:
         """
@@ -862,19 +904,75 @@ class LLMRouter:
         if not base_url:
             return None
 
+        # Keep the current lease until we successfully swap to a new key.
+        old_lease = getattr(self, "_fireworks_lease", None)
+        ttl_sec = getattr(self, "_fireworks_lease_ttl_sec", 1800)
+        purpose = f"llm_router:rotate:{(os.getenv('LLM_ROUTING_KEY') or '').strip() or 'global'}"
+
         for step in range(1, len(keys) + 1):
             ni = (idx + step) % len(keys)
             k = keys[ni]
             if not k or k in dead:
+                continue
+            lease = fireworks_keys.try_acquire_specific_key(
+                "script",
+                key=k,
+                purpose=purpose,
+                ttl_sec=int(ttl_sec),
+                preflight=True,
+            )
+            if lease is None:
                 continue
             try:
                 new_client = OpenAI(api_key=k, base_url=base_url)
             except TypeError:
                 new_client = OpenAI(api_key=k, base_url=str(base_url))
             self._fireworks_key_index = ni
+            self._fireworks_lease = lease
             self.clients["fireworks"] = new_client
+            if old_lease is not None:
+                try:
+                    fireworks_keys.release_lease(old_lease)
+                except Exception:
+                    pass
             return new_client
         return None
+
+    def _fireworks_ensure_lease(self) -> None:
+        """
+        Best-effort: ensure we still own an exclusive lease for the current Fireworks key.
+        If missing/expired, try to reacquire the current key; otherwise rotate to a new key.
+        """
+        keys = getattr(self, "_fireworks_keys", None)
+        idx = getattr(self, "_fireworks_key_index", None)
+        if not isinstance(keys, list) or not isinstance(idx, int) or not (0 <= idx < len(keys)):
+            return
+
+        ttl_sec = getattr(self, "_fireworks_lease_ttl_sec", 1800)
+        lease = getattr(self, "_fireworks_lease", None)
+        if lease is not None:
+            try:
+                if fireworks_keys.renew_lease(lease, ttl_sec=int(ttl_sec)):
+                    return
+            except Exception:
+                pass
+            self._fireworks_lease = None
+
+        current = keys[idx]
+        purpose = f"llm_router:reacquire:{(os.getenv('LLM_ROUTING_KEY') or '').strip() or 'global'}"
+        lease2 = fireworks_keys.try_acquire_specific_key(
+            "script",
+            key=current,
+            purpose=purpose,
+            ttl_sec=int(ttl_sec),
+            preflight=False,
+        )
+        if lease2 is not None:
+            self._fireworks_lease = lease2
+            return
+
+        # Couldn't reclaim the same key → rotate.
+        self._fireworks_rotate_client()
 
     def get_models_for_task(self, task: str, *, model_keys_override: Optional[List[str]] = None) -> List[str]:
         # Runtime overrides (CLI/UI):
@@ -1480,6 +1578,13 @@ class LLMRouter:
             if not client:
                 logger.debug(f"Client for {provider_name} not ready. Skipping {model_key}")
                 continue
+            if provider_name == "fireworks":
+                # Cross-agent exclusivity: renew/reacquire Fireworks key lease before using the client.
+                self._fireworks_ensure_lease()
+                client = self.clients.get(provider_name)
+                if not client:
+                    logger.debug("Fireworks client not ready after lease refresh. Skipping %s", model_key)
+                    continue
 
             try:
                 safe_options = sanitize_params(model_conf, base_options)
@@ -1610,6 +1715,16 @@ class LLMRouter:
                             empty_retry = 2
                         empty_retry = max(0, min(empty_retry, 5))
                         for attempt in range(empty_retry):
+                            # Rotate Fireworks key between retries.
+                            #
+                            # Background:
+                            # - Empty content is often key-scoped (account precondition/soft limits) even when the
+                            #   API returns 200 OK.
+                            # - `_invoke_provider()` rotates keys only for explicit HTTP status codes (401/402/403/404/412),
+                            #   so we rotate here as well to avoid getting stuck on a "bad but not failing" key.
+                            nxt = self._fireworks_rotate_client()
+                            if nxt is not None:
+                                client = nxt
                             logger.warning(
                                 "Router: %s returned empty content; retrying (fireworks) (%s/%s)",
                                 model_key,

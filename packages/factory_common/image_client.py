@@ -24,6 +24,7 @@ import requests
 import yaml
 
 from factory_common import paths as repo_paths
+from factory_common import fireworks_keys
 
 IMAGE_TRACE_SCHEMA_V1 = "ytm.image_trace.v1"
 
@@ -1565,211 +1566,292 @@ class FireworksImageAdapter:
                 timeout_sec = int(raw_timeout)
 
         defaults = model_conf.get("defaults", {}) if isinstance(model_conf.get("defaults", {}), dict) else {}
-        request_ids: List[str] = []
 
-        def _resolve_num(name: str, default_val: Optional[float]) -> Optional[float]:
-            if isinstance(options.extra, dict) and name in options.extra:
-                v = options.extra.get(name)
+        # Fireworks key management (image pool):
+        # - Prefer leasing a key from the dedicated image pool.
+        # - Enforce exclusivity across parallel agents.
+        # - Retry on key-scoped auth/credit errors by rotating to a different key.
+        try:
+            lease_ttl_sec = int(os.getenv("FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC", "1800"))
+        except Exception:
+            lease_ttl_sec = 1800
+        try:
+            key_attempts = int(os.getenv("FIREWORKS_IMAGE_KEY_MAX_ATTEMPTS", "5"))
+        except Exception:
+            key_attempts = 5
+        key_attempts = max(1, min(20, int(key_attempts)))
+
+        def _is_key_scoped_error(exc: Exception) -> bool:
+            msg = str(exc or "")
+            needles = [
+                "Fireworks error 401:",
+                "Fireworks error 402:",
+                "Fireworks error 403:",
+                "Fireworks error 412:",
+                "Fireworks Kontext error 401:",
+                "Fireworks Kontext error 402:",
+                "Fireworks Kontext error 403:",
+                "Fireworks Kontext error 412:",
+                "Fireworks Kontext get_result error 401:",
+                "Fireworks Kontext get_result error 402:",
+                "Fireworks Kontext get_result error 403:",
+                "Fireworks Kontext get_result error 412:",
+            ]
+            return any(n in msg for n in needles)
+
+        def _run_with_current_key() -> ImageResult:
+            request_ids: List[str] = []
+
+            def _resolve_num(name: str, default_val: Optional[float]) -> Optional[float]:
+                if isinstance(options.extra, dict) and name in options.extra:
+                    v = options.extra.get(name)
+                    if isinstance(v, (int, float)):
+                        return float(v)
+                v = defaults.get(name)
                 if isinstance(v, (int, float)):
                     return float(v)
-            v = defaults.get(name)
-            if isinstance(v, (int, float)):
-                return float(v)
-            return default_val
+                return default_val
 
-        guidance_scale = _resolve_num("guidance_scale", None)
-        num_steps = _resolve_num("num_inference_steps", None)
+            guidance_scale = _resolve_num("guidance_scale", None)
+            num_steps = _resolve_num("num_inference_steps", None)
 
-        target_size = self._parse_size(options.size)
+            target_size = self._parse_size(options.size)
 
-        images: List[bytes] = []
-        for _ in range(max(1, int(options.n or 1))):
-            prompt_max_chars = int(self.max_prompt_chars or 0)
-            if isinstance(options.extra, dict):
-                raw_max = options.extra.get("max_prompt_chars")
-                if isinstance(raw_max, int) and raw_max > 0:
-                    prompt_max_chars = raw_max
-                elif isinstance(raw_max, str) and raw_max.strip().isdigit():
-                    prompt_max_chars = int(raw_max.strip())
-            if isinstance(defaults, dict) and "max_prompt_chars" in defaults:
-                raw_max = defaults.get("max_prompt_chars")
-                if isinstance(raw_max, int) and raw_max > 0:
-                    prompt_max_chars = raw_max
-                elif isinstance(raw_max, str) and raw_max.strip().isdigit():
-                    prompt_max_chars = int(raw_max.strip())
-
-            prompt_text = self._compact_prompt(options.prompt, max_chars=prompt_max_chars)
-            if self._is_kontext_model(model_name):
-                url = self._kontext_endpoint(model_name)
-                payload: Dict[str, Any] = {"prompt": prompt_text}
-
-                if options.aspect_ratio:
-                    payload["aspect_ratio"] = options.aspect_ratio
-                if options.seed is not None:
-                    payload["seed"] = int(options.seed)
-
-                def _resolve_extra_or_default(name: str, default_val: Any) -> Any:
-                    if isinstance(options.extra, dict) and name in options.extra:
-                        return options.extra.get(name)
-                    if name in defaults:
-                        return defaults.get(name)
-                    return default_val
-
-                output_format = _resolve_extra_or_default("output_format", "png")
-                if isinstance(output_format, str) and output_format.strip():
-                    payload["output_format"] = output_format.strip()
-
-                prompt_upsampling = _resolve_extra_or_default("prompt_upsampling", False)
-                if isinstance(prompt_upsampling, bool):
-                    payload["prompt_upsampling"] = prompt_upsampling
-
-                safety_tolerance = _resolve_extra_or_default("safety_tolerance", None)
-                if isinstance(safety_tolerance, (int, float)):
-                    payload["safety_tolerance"] = int(safety_tolerance)
-
-                # Optional reference image (Kontext is strongest with input_image).
-                input_images = options.input_images or []
-                if input_images:
-                    first = str(input_images[0] or "").strip()
-                    if first.startswith("http://") or first.startswith("https://"):
-                        payload["input_image"] = first
-                    else:
-                        try:
-                            b = Path(first).read_bytes()
-                            payload["input_image"] = base64.b64encode(b).decode("ascii")
-                        except Exception:
-                            # Fail-soft: ignore invalid reference images.
-                            pass
-
-                create_timeout_sec = min(180, timeout_sec)
+            images: List[bytes] = []
+            for _ in range(max(1, int(options.n or 1))):
+                prompt_max_chars = int(self.max_prompt_chars or 0)
                 if isinstance(options.extra, dict):
-                    raw_create_timeout = options.extra.get("create_timeout_sec")
-                    if isinstance(raw_create_timeout, (int, float)) and raw_create_timeout > 0:
-                        create_timeout_sec = int(raw_create_timeout)
-                    elif isinstance(raw_create_timeout, str) and raw_create_timeout.strip().isdigit():
-                        create_timeout_sec = int(raw_create_timeout.strip())
+                    raw_max = options.extra.get("max_prompt_chars")
+                    if isinstance(raw_max, int) and raw_max > 0:
+                        prompt_max_chars = raw_max
+                    elif isinstance(raw_max, str) and raw_max.strip().isdigit():
+                        prompt_max_chars = int(raw_max.strip())
+                if isinstance(defaults, dict) and "max_prompt_chars" in defaults:
+                    raw_max = defaults.get("max_prompt_chars")
+                    if isinstance(raw_max, int) and raw_max > 0:
+                        prompt_max_chars = raw_max
+                    elif isinstance(raw_max, str) and raw_max.strip().isdigit():
+                        prompt_max_chars = int(raw_max.strip())
 
-                try:
-                    resp = self._post_json(url=url, payload=payload, timeout_sec=create_timeout_sec)
-                except requests.RequestException as exc:  # pragma: no cover - network faults
-                    raise ImageGenerationError(f"Fireworks Kontext request failed: {exc}") from exc
+                prompt_text = self._compact_prompt(options.prompt, max_chars=prompt_max_chars)
+                if self._is_kontext_model(model_name):
+                    url = self._kontext_endpoint(model_name)
+                    payload: Dict[str, Any] = {"prompt": prompt_text}
 
-                if resp.status_code >= 400:
-                    detail: Any = None
+                    if options.aspect_ratio:
+                        payload["aspect_ratio"] = options.aspect_ratio
+                    if options.seed is not None:
+                        payload["seed"] = int(options.seed)
+
+                    def _resolve_extra_or_default(name: str, default_val: Any) -> Any:
+                        if isinstance(options.extra, dict) and name in options.extra:
+                            return options.extra.get(name)
+                        if name in defaults:
+                            return defaults.get(name)
+                        return default_val
+
+                    output_format = _resolve_extra_or_default("output_format", "png")
+                    if isinstance(output_format, str) and output_format.strip():
+                        payload["output_format"] = output_format.strip()
+
+                    prompt_upsampling = _resolve_extra_or_default("prompt_upsampling", False)
+                    if isinstance(prompt_upsampling, bool):
+                        payload["prompt_upsampling"] = prompt_upsampling
+
+                    safety_tolerance = _resolve_extra_or_default("safety_tolerance", None)
+                    if isinstance(safety_tolerance, (int, float)):
+                        payload["safety_tolerance"] = int(safety_tolerance)
+
+                    # Optional reference image (Kontext is strongest with input_image).
+                    input_images = options.input_images or []
+                    if input_images:
+                        first = str(input_images[0] or "").strip()
+                        if first.startswith("http://") or first.startswith("https://"):
+                            payload["input_image"] = first
+                        else:
+                            try:
+                                b = Path(first).read_bytes()
+                                payload["input_image"] = base64.b64encode(b).decode("ascii")
+                            except Exception:
+                                # Fail-soft: ignore invalid reference images.
+                                pass
+
+                    create_timeout_sec = min(180, timeout_sec)
+                    if isinstance(options.extra, dict):
+                        raw_create_timeout = options.extra.get("create_timeout_sec")
+                        if isinstance(raw_create_timeout, (int, float)) and raw_create_timeout > 0:
+                            create_timeout_sec = int(raw_create_timeout)
+                        elif isinstance(raw_create_timeout, str) and raw_create_timeout.strip().isdigit():
+                            create_timeout_sec = int(raw_create_timeout.strip())
+
                     try:
-                        detail = resp.json()
-                    except Exception:
-                        detail = (resp.text or "").strip()
-                    msg = f"Fireworks Kontext error {resp.status_code}: {detail}"
-                    if resp.status_code == 429:
-                        raise ImageProviderRateLimitError(
-                            msg,
-                            provider="fireworks",
-                            status_code=int(resp.status_code),
-                        )
-                    raise ImageGenerationError(msg)
+                        resp = self._post_json(url=url, payload=payload, timeout_sec=create_timeout_sec)
+                    except requests.RequestException as exc:  # pragma: no cover - network faults
+                        raise ImageGenerationError(f"Fireworks Kontext request failed: {exc}") from exc
 
-                try:
-                    created = resp.json()
-                except Exception as exc:
-                    raise ImageGenerationError(f"Fireworks Kontext returned invalid JSON payload: {exc}") from exc
+                    if resp.status_code >= 400:
+                        detail: Any = None
+                        try:
+                            detail = resp.json()
+                        except Exception:
+                            detail = (resp.text or "").strip()
+                        msg = f"Fireworks Kontext error {resp.status_code}: {detail}"
+                        if resp.status_code == 429:
+                            raise ImageProviderRateLimitError(
+                                msg,
+                                provider="fireworks",
+                                status_code=int(resp.status_code),
+                            )
+                        raise ImageGenerationError(msg)
 
-                if not isinstance(created, dict):
-                    raise ImageGenerationError(f"Fireworks Kontext returned non-object JSON payload: {created}")
-
-                request_id = str(created.get("request_id") or created.get("id") or "").strip()
-                if not request_id:
-                    raise ImageGenerationError(f"Fireworks Kontext did not return request_id: {created}")
-                request_ids.append(request_id)
-
-                result_payload = self._kontext_poll_result(
-                    model_name=model_name,
-                    request_id=request_id,
-                    timeout_sec=timeout_sec,
-                    get_result_timeout_sec=(
-                        int(options.extra.get("get_result_timeout_sec"))
-                        if isinstance(options.extra, dict) and str(options.extra.get("get_result_timeout_sec") or "").strip().isdigit()
-                        else 90
-                    ),
-                )
-                extracted = self._extract_kontext_image_bytes(result_payload, timeout_sec=timeout_sec)
-                if not extracted:
-                    raise ImageGenerationError(f"Fireworks Kontext result did not include any images: {result_payload}")
-                images.append(self._maybe_resize_png(extracted[0], target=target_size))
-            else:
-                url = self._endpoint(model_name)
-                payload = {"prompt": prompt_text}
-                # Provide explicit size when available. Many diffusion workflows expect width/height.
-                if target_size:
-                    payload["width"] = int(target_size[0])
-                    payload["height"] = int(target_size[1])
-                # NOTE: Some Fireworks FLUX workflows intermittently fail with aspect_ratio set
-                # (internal negative dimension errors). We can safely omit it and resize post-hoc.
-                send_ar = (os.getenv("FIREWORKS_IMAGE_SEND_ASPECT_RATIO") or "").strip().lower() in {
-                    "1",
-                    "true",
-                    "yes",
-                    "on",
-                }
-                if send_ar and options.aspect_ratio:
-                    payload["aspect_ratio"] = options.aspect_ratio
-                if guidance_scale is not None:
-                    payload["guidance_scale"] = guidance_scale
-                if num_steps is not None:
-                    payload["num_inference_steps"] = int(num_steps)
-                if options.seed is not None:
-                    payload["seed"] = int(options.seed)
-
-                try:
-                    resp = self._post(url=url, payload=payload, timeout_sec=timeout_sec)
-                except requests.RequestException as exc:  # pragma: no cover - network faults
-                    raise ImageGenerationError(f"Fireworks request failed: {exc}") from exc
-
-                if resp.status_code >= 400:
-                    detail: Any = None
                     try:
-                        detail = resp.json()
-                    except Exception:
-                        detail = (resp.text or "").strip()
-                    msg = f"Fireworks error {resp.status_code}: {detail}"
-                    if resp.status_code == 429:
-                        raise ImageProviderRateLimitError(
-                            msg,
-                            provider="fireworks",
-                            status_code=int(resp.status_code),
-                        )
-                    raise ImageGenerationError(msg)
-
-                content_type = (resp.headers.get("Content-Type") or "").lower()
-                if "application/json" in content_type:
-                    try:
-                        decoded = self._decode_json_payload(resp.json())
+                        created = resp.json()
                     except Exception as exc:
-                        raise ImageGenerationError(f"Fireworks returned invalid JSON payload: {exc}") from exc
-                    if not decoded:
-                        raise ImageGenerationError("Fireworks JSON response did not include any base64 images")
-                    for img in decoded:
-                        images.append(self._maybe_resize_png(img, target=target_size))
+                        raise ImageGenerationError(f"Fireworks Kontext returned invalid JSON payload: {exc}") from exc
+
+                    if not isinstance(created, dict):
+                        raise ImageGenerationError(f"Fireworks Kontext returned non-object JSON payload: {created}")
+
+                    request_id = str(created.get("request_id") or created.get("id") or "").strip()
+                    if not request_id:
+                        raise ImageGenerationError(f"Fireworks Kontext did not return request_id: {created}")
+                    request_ids.append(request_id)
+
+                    result_payload = self._kontext_poll_result(
+                        model_name=model_name,
+                        request_id=request_id,
+                        timeout_sec=timeout_sec,
+                        get_result_timeout_sec=(
+                            int(options.extra.get("get_result_timeout_sec"))
+                            if isinstance(options.extra, dict)
+                            and str(options.extra.get("get_result_timeout_sec") or "").strip().isdigit()
+                            else 90
+                        ),
+                    )
+                    extracted = self._extract_kontext_image_bytes(result_payload, timeout_sec=timeout_sec)
+                    if not extracted:
+                        raise ImageGenerationError(
+                            f"Fireworks Kontext result did not include any images: {result_payload}"
+                        )
+                    images.append(self._maybe_resize_png(extracted[0], target=target_size))
+                else:
+                    url = self._endpoint(model_name)
+                    payload = {"prompt": prompt_text}
+                    # Provide explicit size when available. Many diffusion workflows expect width/height.
+                    if target_size:
+                        payload["width"] = int(target_size[0])
+                        payload["height"] = int(target_size[1])
+                    # NOTE: Some Fireworks FLUX workflows intermittently fail with aspect_ratio set
+                    # (internal negative dimension errors). We can safely omit it and resize post-hoc.
+                    send_ar = (os.getenv("FIREWORKS_IMAGE_SEND_ASPECT_RATIO") or "").strip().lower() in {
+                        "1",
+                        "true",
+                        "yes",
+                        "on",
+                    }
+                    if send_ar and options.aspect_ratio:
+                        payload["aspect_ratio"] = options.aspect_ratio
+                    if guidance_scale is not None:
+                        payload["guidance_scale"] = guidance_scale
+                    if num_steps is not None:
+                        payload["num_inference_steps"] = int(num_steps)
+                    if options.seed is not None:
+                        payload["seed"] = int(options.seed)
+
+                    try:
+                        resp = self._post(url=url, payload=payload, timeout_sec=timeout_sec)
+                    except requests.RequestException as exc:  # pragma: no cover - network faults
+                        raise ImageGenerationError(f"Fireworks request failed: {exc}") from exc
+
+                    if resp.status_code >= 400:
+                        detail: Any = None
+                        try:
+                            detail = resp.json()
+                        except Exception:
+                            detail = (resp.text or "").strip()
+                        msg = f"Fireworks error {resp.status_code}: {detail}"
+                        if resp.status_code == 429:
+                            raise ImageProviderRateLimitError(
+                                msg,
+                                provider="fireworks",
+                                status_code=int(resp.status_code),
+                            )
+                        raise ImageGenerationError(msg)
+
+                    content_type = (resp.headers.get("Content-Type") or "").lower()
+                    if "application/json" in content_type:
+                        try:
+                            decoded = self._decode_json_payload(resp.json())
+                        except Exception as exc:
+                            raise ImageGenerationError(
+                                f"Fireworks returned invalid JSON payload: {exc}"
+                            ) from exc
+                        if not decoded:
+                            raise ImageGenerationError(
+                                "Fireworks JSON response did not include any base64 images"
+                            )
+                        for img in decoded:
+                            images.append(self._maybe_resize_png(img, target=target_size))
+                        continue
+
+                    raw = resp.content or b""
+                    if not raw:
+                        raise ImageGenerationError("Fireworks returned empty image bytes")
+                    images.append(self._maybe_resize_png(raw, target=target_size))
+
+            return ImageResult(
+                images=images,
+                provider="fireworks",
+                model=model_name,
+                request_id=request_ids[-1] if request_ids else None,
+                metadata={
+                    "n": len(images),
+                    "aspect_ratio": options.aspect_ratio,
+                    "size": options.size,
+                    "seed": options.seed,
+                    "negative_prompt": options.negative_prompt,
+                    "guidance_scale": guidance_scale,
+                    "num_inference_steps": num_steps,
+                    "kontext_request_ids": request_ids if request_ids else None,
+                },
+            )
+
+        last_exc: Optional[Exception] = None
+        for attempt in range(key_attempts):
+            lease = fireworks_keys.acquire_key(
+                "image",
+                purpose=f"image:{str(options.task or '')}:{model_name}",
+                ttl_sec=int(lease_ttl_sec),
+                preflight=True,
+            )
+            if lease is None:
+                break
+
+            old_key = self.api_key
+            old_fallback = self.api_key_fallback
+            self.api_key = lease.key
+            # IMPORTANT: do not fall back to an unleased key inside this call.
+            self.api_key_fallback = None
+            try:
+                return _run_with_current_key()
+            except ImageProviderRateLimitError:
+                # Treat rate limit as provider-level; let caller handle cooldown and model fallback.
+                raise
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc if isinstance(exc, Exception) else Exception(str(exc))
+                if _is_key_scoped_error(last_exc):
                     continue
+                raise
+            finally:
+                self.api_key = old_key
+                self.api_key_fallback = old_fallback
+                try:
+                    fireworks_keys.release_lease(lease)
+                except Exception:
+                    pass
 
-                raw = resp.content or b""
-                if not raw:
-                    raise ImageGenerationError("Fireworks returned empty image bytes")
-                images.append(self._maybe_resize_png(raw, target=target_size))
-
-        return ImageResult(
-            images=images,
-            provider="fireworks",
-            model=model_name,
-            request_id=request_ids[-1] if request_ids else None,
-            metadata={
-                "n": len(images),
-                "aspect_ratio": options.aspect_ratio,
-                "size": options.size,
-                "seed": options.seed,
-                "negative_prompt": options.negative_prompt,
-                "guidance_scale": guidance_scale,
-                "num_inference_steps": num_steps,
-                "kontext_request_ids": request_ids if request_ids else None,
-            },
-        )
+        if last_exc is not None:
+            raise ImageGenerationError(
+                f"Fireworks image key rotation exhausted after {key_attempts} attempts: {last_exc}"
+            ) from last_exc
+        raise ImageGenerationError("Fireworks image keys are unavailable (all leased/invalid/exhausted)")

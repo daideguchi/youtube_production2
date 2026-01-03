@@ -9,18 +9,31 @@
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
 - Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / 推奨。互換: `FIREWORKS_API_KEY`）
+  - キーローテ（任意・推奨）:
+    - `FIREWORKS_IMAGE_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
+      - 既定探索: `~/.ytm/secrets/fireworks_image_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
+      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
+    - `FIREWORKS_IMAGE_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
+    - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
+      - 既定: `~/.ytm/secrets/fireworks_image_keys_state.json`
+      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（任意・推奨）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
       - 既定探索: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
-      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py add --key ...`（キーは表示しない）
+      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool script add --key ...`（キーは表示しない）
     - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - `FIREWORKS_SCRIPT_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_script_keys_state.json`
-      - 更新: `python3 scripts/ops/fireworks_keyring.py check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
+      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
     - `FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED`（default: `1`）: stateで `exhausted/invalid` のキーをローテ候補から除外する。
     - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
       - それでも全滅した場合は停止（`LLM_API_FAILOVER_TO_THINK` の挙動に従い pending を作る）。
+  - 並列運用（固定）: **同一キーの同時利用は禁止**（エージェント間排他）
+    - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
+    - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC` / `FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC`（default: `1800`）
+    - 画像は `FIREWORKS_IMAGE_KEY_MAX_ATTEMPTS`（default: `5`）回まで別キーへ切替して再試行する
+    - lease は sha256 fingerprint で管理し、**キー本文は保存しない**
 - OpenRouter: `OPENROUTER_API_KEY`（LLMRouter provider=openrouter 用）
 - OpenAI（任意）: `OPENAI_API_KEY`（openai provider を使う場合のみ）
 - Azure（任意）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）

@@ -168,15 +168,18 @@ SSOT配置（正本）:
 モデルキー（例: Fireworks / 比較用。正本は `configs/llm_router.yaml:models`）:
 - 既定（本文）: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek v3.2 exp, thinking ON）
 - 比較候補: `fw_glm_4p7`（Fireworks / GLM-4.7）, `fw_mixtral_8x22b_instruct`（Fireworks / Mistral系Mixtral）
-- Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
-  - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
-	  - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
-	    - 既定キーファイル: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
-	    - 追加/整形: `python3 scripts/ops/fireworks_keyring.py add --key ...`（キーは表示しない）
-	    - キー状態（枯渇/無効）の判定: `python3 scripts/ops/fireworks_keyring.py check --show-masked`
-	      - state: `~/.ytm/secrets/fireworks_script_keys_state.json`（`FIREWORKS_SCRIPT_KEYS_STATE_FILE` で変更可）
-	      - 既定では state が `exhausted/invalid` のキーはローテ候補から除外される（`FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED=0` で無効化）
-	  - それでも全滅した場合は `LLM_API_FAILOVER_TO_THINK=1`（既定）により pending が生成され、runbookに従って手動で完了できる。
+	- Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
+	  - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
+		  - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
+		    - 既定キーファイル: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
+		    - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool script add --key ...`（キーは表示しない）
+		    - キー状態（枯渇/無効）の判定: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`
+		      - state: `~/.ytm/secrets/fireworks_script_keys_state.json`（`FIREWORKS_SCRIPT_KEYS_STATE_FILE` で変更可）
+		      - 既定では state が `exhausted/invalid` のキーはローテ候補から除外される（`FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED=0` で無効化）
+		    - 並列運用（固定）: 同一キーの同時利用を禁止するため、**キーはエージェント間で排他 lease** を取る
+		      - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
+		      - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC`（default: `1800`）
+		  - それでも全滅した場合は `LLM_API_FAILOVER_TO_THINK=1`（既定）により pending が生成され、runbookに従って手動で完了できる。
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。

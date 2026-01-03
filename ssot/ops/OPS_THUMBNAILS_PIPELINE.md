@@ -21,6 +21,12 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - **Templates SoT**: `workspaces/thumbnails/templates.json`
   - AI生成テンプレ（prompt/model）と、チャンネル別の設定（layer_specs 等）を管理。
   - `templates[].image_model_key` は背景生成に使う ImageClient の model key（正本: `configs/image_models.yaml: models.*`）。運用既定は `fireworks_flux_kontext_max`。
+  - Fireworks（画像）キー運用（固定）:
+    - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
+    - キーローテ（任意・推奨）: `~/.ytm/secrets/fireworks_image_keys.txt`
+      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
+      - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
+    - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
 
 ### 1.2 ローカル合成（Compiler）SoT
 - Stylepack（組版スタイル）: `workspaces/thumbnails/compiler/stylepacks/*.yaml`
@@ -59,6 +65,13 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 補足（A/Bなど複数案）:
 - `assets/{CH}/{NNN}/00_thumb_1.png`, `00_thumb_2.png` のように、複数の“安定出力”を置いてよい（命名は運用で統一する）。
 - 追跡は `projects.json: projects[].variants` に登録し、UI（`/thumbnails`）のギャラリーで `2案（00_thumb_1/2）` または `全バリアント` 表示で確認する。
+- “安定出力が複数ある”場合は、**調整（tuning）のSoTも出力ごとに分離**する（ABを混線させない）。
+  - `assets/{CH}/{NNN}/thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
+    - schema: `ytm.thumbnail.thumb_spec.v1`（中身は通常の `thumb_spec.json` と同じ）
+    - 背景/肖像/文字effects/template選択などの “leaf overrides” を安定出力ごとに独立保持する。
+  - `assets/{CH}/{NNN}/text_line_spec.<stable>.json`（例: `text_line_spec.00_thumb_1.json`）
+    - schema: `ytm.thumbnail.text_line_spec.v1`
+    - **文字を行（slot）単位**で “位置/拡大縮小” を保持する（Canva寄せのため）。
 
 ---
 
