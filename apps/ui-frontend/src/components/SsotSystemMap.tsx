@@ -1158,6 +1158,48 @@ export function SsotSystemMap() {
     pendingFocusNodeIdRef.current = parent;
   }, [substepsParentNodeId]);
 
+  const enterSubstepsScopeForNode = useCallback(
+    (node: SsotCatalogFlowStep) => {
+      if (!node) return;
+      if (substepsParentNodeId) return;
+      const raw = (node as any).substeps;
+      const substeps = Array.isArray(raw) ? (raw as any[]) : [];
+      if (substeps.length === 0) return;
+      const first = substeps[0] as any;
+      const firstId = first?.id ? String(first.id) : first?.node_id ? String(first.node_id) : "";
+      setSubstepsParentNodeId(node.node_id);
+      if (firstId) {
+        setSelectedNodeId(firstId);
+        pendingFocusNodeIdRef.current = firstId;
+      } else {
+        setSelectedNodeId(null);
+        pendingFocusNodeIdRef.current = null;
+      }
+    },
+    [substepsParentNodeId],
+  );
+
+  const openFromGraph = useCallback(
+    (nodeId: string) => {
+      const id = (nodeId || "").trim();
+      if (!id) return;
+      const node = nodes.find((n) => n.node_id === id) || null;
+      if (!node) return;
+      const related = typeof node.related_flow === "string" ? node.related_flow.trim() : "";
+      if (related) {
+        openFlow(related as FlowKey);
+        return;
+      }
+      const substeps = Array.isArray((node as any)?.substeps) ? ((node as any).substeps as any[]) : [];
+      if (!substepsParentNodeId && substeps.length > 0) {
+        enterSubstepsScopeForNode(node);
+        return;
+      }
+      openRunbookForNode(node.node_id);
+    },
+    [enterSubstepsScopeForNode, nodes, openFlow, openRunbookForNode, substepsParentNodeId],
+  );
+
   const selectedPlaceholderPairs = useMemo(() => {
     if (!selectedNode) return [];
     const llm = selectedNode.llm as any;
@@ -1494,7 +1536,7 @@ export function SsotSystemMap() {
               </div>
               {flowView === "graph" ? (
                 <div className="muted small-text" style={{ marginTop: 8 }}>
-                  Drag to pan / Ctrl(or ⌘)+Wheel to zoom / Double-click to Fit
+                  Drag to pan / Ctrl(or ⌘)+Wheel to zoom / Double-click background: Fit / Double-click node: Open
                 </div>
               ) : null}
               {flowView === "graph" && autoFit && fitClamped ? (
@@ -1893,6 +1935,7 @@ export function SsotSystemMap() {
                             setSelectedNodeId(id);
                             focusOnNode(id);
                           }}
+                          onOpen={openFromGraph}
                           orientation={orientation}
                           highlightedNodeIds={keyword.trim() ? filteredNodes.map((n) => n.node_id) : []}
                           onSize={handleGraphSize}

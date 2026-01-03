@@ -3743,7 +3743,11 @@ def build_ssot_catalog() -> Dict[str, Any]:
         tier = str(base.get("tier") or "").strip()
 
         forced_model_key = str(override.get("model_key") or "").strip()
-        allow_fallback = override.get("allow_fallback") if "allow_fallback" in override else None
+        allow_fallback = (
+            bool(override.get("allow_fallback"))
+            if "allow_fallback" in override
+            else (bool(base.get("allow_fallback")) if "allow_fallback" in base else None)
+        )
 
         model_keys: List[str] = []
         if forced_model_key:

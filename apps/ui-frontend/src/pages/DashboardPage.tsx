@@ -36,6 +36,9 @@ export function DashboardPage() {
         <div className="main-status" style={{ justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <span className="status-chip">新規チャンネル追加は「チャンネル設定」から（ハンドルで一意特定）</span>
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <button type="button" className="workspace-button" onClick={() => navigate("/ssot")}>
+              SSOT（read-only）
+            </button>
             <button type="button" className="workspace-button" onClick={() => navigate("/agent-org")}>
               AI Org
             </button>
@@ -89,6 +92,14 @@ export function DashboardPage() {
             title={`SoT: workspaces/thumbnails/projects.json\n案の管理・割当・反映（チャンネル別フィルタはUIで操作）`}
           >
             🖼️ サムネ
+          </button>
+          <button
+            type="button"
+            className="action-chip dashboard-flow__chip"
+            onClick={() => navigate("/ssot/map")}
+            title={`SSOT=UI（read-only）\nFlow/Runbook/Trace をコードから自動生成したカタログで確認します`}
+          >
+            📌 SSOT Map
           </button>
         </div>
 

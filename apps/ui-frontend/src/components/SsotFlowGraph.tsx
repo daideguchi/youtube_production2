@@ -169,6 +169,7 @@ export function SsotFlowGraph({
   edges,
   selectedNodeId,
   onSelect,
+  onOpen,
   orientation,
   highlightedNodeIds,
   onSize,
@@ -179,6 +180,7 @@ export function SsotFlowGraph({
   edges: SsotFlowEdge[];
   selectedNodeId: string | null;
   onSelect: (nodeId: string) => void;
+  onOpen?: (nodeId: string) => void;
   orientation: Orientation;
   highlightedNodeIds?: string[];
   onSize?: (size: { width: number; height: number }) => void;
@@ -338,6 +340,7 @@ export function SsotFlowGraph({
         const badge = nodeBadge(n.step);
         const task = nodeTask(n.step);
         const subCount = Array.isArray((n.step as any)?.substeps) ? ((n.step as any).substeps as any[]).length : 0;
+        const related = String((n.step as any)?.related_flow || "").trim();
         const isSelected = selectedNodeId === n.id;
         const isHighlighted = highlighted.has(n.id);
         const isUp = selectedPath.upstream.has(n.id);
@@ -365,6 +368,13 @@ export function SsotFlowGraph({
                 ? "#fffbeb"
                 : "var(--color-surface)";
         const description = String(n.step.description || "").trim();
+        const dblHint = related
+          ? `\n\nDouble-click: open flow (${related})`
+          : subCount > 0
+            ? "\n\nDouble-click: open substeps"
+            : onOpen
+              ? "\n\nDouble-click: open details"
+              : "";
         const nameFontSize = isUltraDense ? 12 : isDense ? 13 : 14;
         const metaFontSize = isUltraDense ? 10 : 11;
         return (
@@ -374,7 +384,12 @@ export function SsotFlowGraph({
             data-ssot-node-id={n.id}
             type="button"
             onClick={() => onSelect(n.id)}
-            title={`${n.id}${n.step.description ? `\n${n.step.description}` : ""}`}
+            onDoubleClick={(e) => {
+              if (!onOpen) return;
+              e.stopPropagation();
+              onOpen(n.id);
+            }}
+            title={`${n.id}${n.step.description ? `\n${n.step.description}` : ""}${dblHint}`}
             style={{
               position: "absolute",
               left: n.x,
@@ -450,6 +465,28 @@ export function SsotFlowGraph({
                   title="substeps（内部処理）あり"
                 >
                   sub×{subCount}
+                </span>
+              ) : null}
+              {related && !isUltraDense ? (
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: isDense ? 10 : 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(2, 132, 199, 0.24)",
+                    background: "rgba(2, 132, 199, 0.08)",
+                    color: "#0c4a6e",
+                    maxWidth: 180,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={`open flow: ${related}`}
+                >
+                  ↳ {related}
                 </span>
               ) : null}
               <div
