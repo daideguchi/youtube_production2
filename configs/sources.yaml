@@ -415,14 +415,14 @@ channels:
     planning_csv: workspaces/planning/channels/CH26.csv
     persona: workspaces/planning/personas/CH26_PERSONA.md
     channel_prompt: packages/script_pipeline/channels/CH26-拝啓、偉人より/script_prompt.txt
-    web_search_policy: required
+    web_search_policy: disabled
     wikipedia:
       policy: auto
       lang: ja
       fallback_lang: en
     chapter_count: 7
-    target_chars_min: 15000
-    target_chars_max: 20000
+    target_chars_min: 10000
+    target_chars_max: 12000
     video_broll:
       enabled: false
       provider: pexels
