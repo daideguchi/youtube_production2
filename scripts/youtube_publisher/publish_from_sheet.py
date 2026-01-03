@@ -15,6 +15,16 @@
   2. Drive(final) の URL から fileId を抜き、ローカルにダウンロード
   3. YouTube Data API でアップロード（--run のときのみ）
   4. アップロード後、Video ID / Status / UpdatedAt をシートに書き戻す
+
+オプション:
+  - --also-lock-local:
+      upload 成功時にローカル側の “投稿済みロック” も同期する（事故防止）。
+      - Planning CSV: 進捗=投稿済み（該当行のみ）
+      - status.json: metadata.published_lock=true（存在する場合）
+  - --download-dir:
+      Drive の一時DL先（未指定なら system temp）。
+  - --keep-download:
+      upload 成功後も一時DLファイルを削除しない（デフォルトは削除）。
 """
 from __future__ import annotations
 
@@ -70,6 +80,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--status-target", default=os.environ.get("YT_READY_STATUS", "ready"), help="Pick rows with this Status (case-insensitive)")
     parser.add_argument("--max-rows", type=int, default=None, help="Process at most N rows")
     parser.add_argument("--run", action="store_true", help="Actually upload. Without this flag, dry-run only.")
+    parser.add_argument(
+        "--also-lock-local",
+        action="store_true",
+        help="After successful upload, also mark local planning/status as published (published_lock + progress).",
+    )
+    parser.add_argument(
+        "--download-dir",
+        default=None,
+        help="Optional directory for temporary downloads (default: system temp). Example: workspaces/tmp/publish",
+    )
+    parser.add_argument(
+        "--keep-download",
+        action="store_true",
+        help="Do not delete the downloaded file after a successful upload.",
+    )
     return parser.parse_args()
 
 
@@ -116,7 +141,7 @@ def extract_drive_file_id(url: str) -> Optional[str]:
     return None
 
 
-def download_drive_file(drive, file_id: str) -> str:
+def download_drive_file(drive, file_id: str, *, download_dir: str | None = None) -> str:
     req = drive.files().get_media(fileId=file_id)
     fh = io.BytesIO()
     downloader = MediaIoBaseDownload(fh, req)
@@ -124,7 +149,10 @@ def download_drive_file(drive, file_id: str) -> str:
     while not done:
         _, done = downloader.next_chunk()
     fh.seek(0)
-    fd, path = tempfile.mkstemp(prefix="yt_upload_", suffix=".bin")
+    dir_opt = (download_dir or "").strip() or None
+    if dir_opt:
+        os.makedirs(dir_opt, exist_ok=True)
+    fd, path = tempfile.mkstemp(prefix="yt_upload_", suffix=".bin", dir=dir_opt)
     with os.fdopen(fd, "wb") as f:
         f.write(fh.read())
     return path
@@ -265,7 +293,7 @@ def main() -> None:
             continue
         print(f"[{('DRY' if not args.run else 'RUN')}] row {row['_row_number']} title='{row.get('Title','')}'")
         try:
-            file_path = download_drive_file(drive, file_id)
+            file_path = download_drive_file(drive, file_id, download_dir=args.download_dir)
         except Exception as e:
             print(f"[error] row {row['_row_number']} download failed: {e}")
             continue
@@ -275,10 +303,33 @@ def main() -> None:
                 uploaded_video_id = upload_youtube(youtube, file_path, row)
                 update_sheet_row(sheets, args.sheet_id, args.sheet_name, row["_row_number"], uploaded_video_id)
                 print(f"[ok] row {row['_row_number']} uploaded video_id={uploaded_video_id}")
+                if args.also_lock_local:
+                    try:
+                        from factory_common.publish_lock import mark_episode_published_locked
+
+                        ch = (row.get("Channel") or "").strip()
+                        vid = (row.get("VideoNo") or "").strip()
+                        if not ch or not vid:
+                            print(f"[warn] row {row['_row_number']} missing Channel/VideoNo; skip local lock sync")
+                        else:
+                            res = mark_episode_published_locked(ch, vid, force_complete=False)
+                            print(
+                                f"[ok] local publish lock: {res.channel}-{res.video} "
+                                f"(csv_updated={len(res.updated_csv_paths)} status_updated={res.status_updated})"
+                            )
+                    except Exception as exc:
+                        print(f"[warn] local lock sync failed: {exc}")
             except Exception as e:
                 print(f"[error] row {row['_row_number']} upload failed: {e}")
         else:
             print(f"[dry-run] would upload file={file_path}")
+        # Cleanup downloaded file (default). Keep on upload failure for debugging.
+        try:
+            should_delete = (not args.keep_download) and (not args.run or uploaded_video_id is not None)
+            if should_delete:
+                os.remove(file_path)
+        except Exception:
+            pass
         processed += 1
 
 

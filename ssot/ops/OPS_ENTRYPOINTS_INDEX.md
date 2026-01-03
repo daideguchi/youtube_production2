@@ -30,7 +30,9 @@
       - CLI上書き: `--broll-provider {none|pixel|pexels|pixabay|coverr} --broll-ratio 0.2`（要env: `PEXELS_API_KEY` / `PIXABAY_API_KEY` / `COVERR_API_KEY`）
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
-  - `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
+  - 最小（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
+  - 推奨（事故防止: ローカルも投稿済みロック同期）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run --also-lock-local`
+    - 任意（一時DL先を固定）: `--download-dir workspaces/tmp/publish` / 成功後も残す: `--keep-download`
 
 ---
 
