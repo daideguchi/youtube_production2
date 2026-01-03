@@ -193,6 +193,46 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
+function splitDescription(description: string): { headline: string; bullets: string[]; rest: string[] } {
+  const raw = String(description || "");
+  const lines = raw
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length === 0) return { headline: "", bullets: [], rest: [] };
+  const headline = lines[0] || "";
+  const tail = lines.slice(1);
+  const bullets = tail.filter((l) => l.startsWith("- "));
+  const rest = tail.filter((l) => !l.startsWith("- "));
+  return { headline, bullets, rest };
+}
+
+function DescriptionBlock({ description }: { description: string }) {
+  const { headline, bullets, rest } = splitDescription(description);
+  if (!headline && bullets.length === 0 && rest.length === 0) return null;
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {headline ? (
+        <div style={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{headline}</div>
+      ) : null}
+      {bullets.length > 0 ? (
+        <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>
+          {bullets.slice(0, 12).map((b, idx) => (
+            <li key={idx} className="muted small-text" style={{ lineHeight: 1.55, overflowWrap: "anywhere" }}>
+              {b.replace(/^-\\s+/, "")}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {rest.length > 0 ? (
+        <div className="muted small-text" style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+          {rest.join("\n")}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 // Keep zoom-out usable while avoiding unreadably tiny text. For very large flows, prefer Timeline.
 const MIN_GRAPH_SCALE = 0.05;
 const MAX_GRAPH_SCALE = 3.0;
@@ -201,7 +241,7 @@ const GRAPH_ZOOM_STEP = 0.05;
 export function SsotSystemMap() {
   const [catalog, setCatalog] = useState<SsotCatalog | null>(null);
   const [flow, setFlow] = useState<FlowKey>("mainline");
-  const [flowView, setFlowView] = useState<"timeline" | "graph">("timeline");
+  const [flowView, setFlowView] = useState<"timeline" | "graph">("graph");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("vertical");
   const [graphScale, setGraphScale] = useState(1);
@@ -218,6 +258,7 @@ export function SsotSystemMap() {
   const graphViewportRef = useRef<HTMLDivElement | null>(null);
   const timelineViewportRef = useRef<HTMLDivElement | null>(null);
   const pendingFocusNodeIdRef = useRef<string | null>(null);
+  const autoSwitchedFromGraphRef = useRef<string | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
@@ -628,6 +669,11 @@ export function SsotSystemMap() {
   }, [flow]);
 
   useEffect(() => {
+    // System graph can be huge; prefer Timeline for usability.
+    if (flow === "system") setFlowView("timeline");
+  }, [flow]);
+
+  useEffect(() => {
     // In List mode, Graph needs width. Auto-collapse the catalog list panel when switching to Graph.
     if (focusMode) return;
     setShowCatalogPanel(flowView !== "graph");
@@ -637,6 +683,29 @@ export function SsotSystemMap() {
     // Reset drill-down scope when switching flows.
     setSubstepsParentNodeId(null);
   }, [flow]);
+
+  useEffect(() => {
+    // Make the page immediately useful: preselect a recommended node per flow.
+    const ids = new Set(nodes.map((n) => n.node_id));
+    if (selectedNodeId && ids.has(selectedNodeId)) return;
+    if (ids.size === 0) return;
+
+    const preferredByFlow: Partial<Record<FlowKey, string>> = {
+      mainline: "B/script_pipeline",
+      planning: "A/planning_csv",
+      script_pipeline: "B/script_validation",
+      audio_tts: "C/alignment_stamp_guard",
+      video_auto_capcut_run: "D/pipeline",
+      thumbnails: "F/api_variants_generate",
+      publish: "G/main",
+    };
+    const preferred = preferredByFlow[flow];
+    if (preferred && ids.has(preferred)) {
+      setSelectedNodeId(preferred);
+      return;
+    }
+    setSelectedNodeId(nodes[0].node_id);
+  }, [flow, nodes, selectedNodeId]);
 
   const applyFitToSize = useCallback(
     (size: { width: number; height: number }) => {
@@ -746,6 +815,18 @@ export function SsotSystemMap() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [applyFitToSize, autoFit, centerGraph, graphSize]);
+
+  useEffect(() => {
+    // If a graph is too large to fit even at min zoom, auto-switch to Timeline for readability.
+    if (flowView !== "graph") return;
+    if (!autoFit) return;
+    if (!fitClamped) return;
+    if (nodes.length < 18) return;
+    const key = `${flow}:${substepsParentNodeId || ""}:${orientation}`;
+    if (autoSwitchedFromGraphRef.current === key) return;
+    autoSwitchedFromGraphRef.current = key;
+    setFlowView("timeline");
+  }, [autoFit, fitClamped, flow, flowView, nodes.length, orientation, substepsParentNodeId]);
 
   const centerOnNode = useCallback((nodeId: string) => {
     const container = graphViewportRef.current;
@@ -1422,6 +1503,13 @@ export function SsotSystemMap() {
                   <span className="mono">Timeline</span> に切替 or <span className="mono">Substeps</span> で分割してください。
                 </div>
               ) : null}
+              {flowView !== "graph" &&
+              autoSwitchedFromGraphRef.current === `${flow}:${substepsParentNodeId || ""}:${orientation}` ? (
+                <div className="main-alert" style={{ marginTop: 10 }}>
+                  Graphが大きいため <span className="mono">Timeline</span> に自動切替しました（見やすさ優先）。必要なら{" "}
+                  <span className="mono">Graph</span> を選択してください。
+                </div>
+              ) : null}
               {focusMode || (flowView === "graph" && !showCatalogPanel) ? (
                 <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
                   <label className="muted small-text">Filter</label>
@@ -1542,7 +1630,7 @@ export function SsotSystemMap() {
                       </button>
                     </div>
                   ) : null}
-                  {(flowMeta as any)?.summary ? <div className="muted" style={{ whiteSpace: "pre-wrap" }}>{String((flowMeta as any).summary)}</div> : null}
+                  {(flowMeta as any)?.summary ? <DescriptionBlock description={String((flowMeta as any).summary)} /> : null}
                   {policies.length > 0 ? (
                     <details open>
                       <summary style={{ cursor: "pointer", fontWeight: 900 }}>Policies（絶対ルール）</summary>
@@ -1763,6 +1851,7 @@ export function SsotSystemMap() {
               >
                 {flowView === "graph" ? (
                   <div
+                    className="ssot-map__viewport ssot-map__viewport--graph"
                     ref={graphViewportRef}
                     onMouseDown={beginPan}
                     onMouseMove={movePan}
@@ -1775,9 +1864,6 @@ export function SsotSystemMap() {
                       borderRadius: 14,
                       background: "#f8fafc",
                       overflow: "auto",
-                      height: "65vh",
-                      minHeight: 360,
-                      maxHeight: 860,
                       cursor: isPanning ? "grabbing" : "grab",
                       userSelect: "none",
                       minWidth: 0,
@@ -1818,15 +1904,13 @@ export function SsotSystemMap() {
                   </div>
                 ) : (
                   <div
+                    className="ssot-map__viewport ssot-map__viewport--timeline"
                     ref={timelineViewportRef}
                     style={{
                       border: "1px solid var(--color-border-muted)",
                       borderRadius: 14,
                       background: "#f8fafc",
                       overflow: "auto",
-                      height: "65vh",
-                      minHeight: 360,
-                      maxHeight: 860,
                       padding: 12,
                       minWidth: 0,
                     }}
@@ -1969,14 +2053,12 @@ export function SsotSystemMap() {
 
                 {showQuickView ? (
                   <aside
+                    className="ssot-map__viewport ssot-map__viewport--details"
                     style={{
                       border: "1px solid var(--color-border-muted)",
                       borderRadius: 14,
                       background: "var(--color-surface)",
                       padding: 12,
-                      height: "65vh",
-                      minHeight: 360,
-                      maxHeight: 860,
                       overflow: "auto",
                       minWidth: 0,
                     }}
@@ -1993,11 +2075,7 @@ export function SsotSystemMap() {
                     <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                       <div>
                         <div style={{ fontWeight: 900 }}>{nodeTitle(selectedNode)}</div>
-                        {selectedNode.description ? (
-                          <div className="muted" style={{ marginTop: 6, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
-                            {selectedNode.description}
-                          </div>
-                        ) : null}
+                        {selectedNode.description ? <div style={{ marginTop: 8 }}><DescriptionBlock description={String(selectedNode.description)} /></div> : null}
                       </div>
 
                       <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
@@ -2010,6 +2088,16 @@ export function SsotSystemMap() {
                         <button type="button" className="research-chip" onClick={() => openRunbookForNode(selectedNode.node_id)}>
                           Runbook
                         </button>
+                        {selectedSubsteps.length > 0 && !substepsParentNodeId ? (
+                          <button type="button" className="research-chip" onClick={enterSubstepsScope} title="このノードの内部処理（substeps）にドリルダウンします">
+                            Substeps
+                          </button>
+                        ) : null}
+                        {substepsParentNodeId ? (
+                          <button type="button" className="research-chip" onClick={exitSubstepsScope} title="通常のステップ一覧へ戻します">
+                            Exit
+                          </button>
+                        ) : null}
                       </div>
 
                       {selectedRelatedFlow ? (
@@ -2352,11 +2440,7 @@ export function SsotSystemMap() {
                           </div>
                         </summary>
                         <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                          {s.description ? (
-                            <div className="muted" style={{ whiteSpace: "pre-wrap" }}>
-                              {s.description}
-                            </div>
-                          ) : null}
+                          {s.description ? <DescriptionBlock description={String(s.description)} /> : null}
                           {task ? (
                             <div className="mono muted small-text">
                               {kind === "image_client" ? "IMAGE" : "LLM"}: task={task}
@@ -2467,7 +2551,7 @@ export function SsotSystemMap() {
                                         </span>
                                       </summary>
                                       <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-                                        {ssDesc ? <div className="muted small-text" style={{ whiteSpace: "pre-wrap" }}>{ssDesc}</div> : null}
+                                        {ssDesc ? <DescriptionBlock description={ssDesc} /> : null}
                                         {ssTask && (ssTier || ssModelKeys.length > 0) ? (
                                           <div className="mono muted small-text">
                                             routing: {ssTier ? `tier=${ssTier}` : "tier=—"}

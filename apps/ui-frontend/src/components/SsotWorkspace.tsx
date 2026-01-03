@@ -36,7 +36,7 @@ function resolveParentPath(path: string): string {
   return trimmed.slice(0, idx);
 }
 
-export function SsotWorkspace() {
+export function SsotWorkspace({ embedded = false }: { embedded?: boolean } = {}) {
   const [currentPath, setCurrentPath] = useState<string>("");
   const [entries, setEntries] = useState<ResearchFileEntry[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -116,59 +116,64 @@ export function SsotWorkspace() {
 
   return (
     <section className="research-workspace">
-      <header className="research-workspace__header">
-        <div>
-          <p className="eyebrow">/ssot</p>
-          <h2>SSOT ポータル</h2>
-          <p className="research-workspace__note">
-            `ssot/` 配下の正本ドキュメントを UI から直接参照します（read-only）。迷ったら `DOCS_INDEX.md` と `OPS_SYSTEM_OVERVIEW.md` から。
-          </p>
-        </div>
-        <div className="research-workspace__actions">
-          <span className="badge">ssot（Single Source of Truth）</span>
-          <button type="button" className="research-chip" onClick={() => void loadList("")} disabled={loading}>
-            ルート
-          </button>
-          <Link className="research-chip" to="/ssot/map">
-            System Map
-          </Link>
-          <Link className="research-chip" to="/ssot/gaps">
-            Gaps
-          </Link>
-          <Link className="research-chip" to="/ssot/zombies">
-            Zombies
-          </Link>
-          <Link className="research-chip" to="/ssot/entrypoints">
-            Entrypoints
-          </Link>
-          <Link className="research-chip" to="/ssot/trace">
-            Trace
-          </Link>
-          <button type="button" className="research-chip" onClick={() => void loadFile("DOCS_INDEX.md")} disabled={loading}>
-            DOCS_INDEX
-          </button>
-          <button type="button" className="research-chip" onClick={() => void loadFile("OPS_SYSTEM_OVERVIEW.md")} disabled={loading}>
-            OVERVIEW
-          </button>
-          <button
-            type="button"
-            className="research-chip"
-            onClick={() => void loadFile("ops/OPS_CONFIRMED_PIPELINE_FLOW.md")}
-            disabled={loading}
-          >
-            PIPELINE
-          </button>
-          <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_GAPS_REGISTER.md")} disabled={loading}>
-            GAPS
-          </button>
-          <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_OPEN_QUESTIONS.md")} disabled={loading}>
-            QUESTIONS
-          </button>
-          <button type="button" className="research-chip" onClick={() => void loadList(currentPath)} disabled={loading}>
-            {loading ? "読み込み中…" : "再読み込み"}
-          </button>
-        </div>
-      </header>
+      {!embedded ? (
+        <header className="research-workspace__header">
+          <div>
+            <p className="eyebrow">/ssot</p>
+            <h2>SSOT Docs Browser</h2>
+            <p className="research-workspace__note">
+              `ssot/` 配下の正本ドキュメントを UI から直接参照します（read-only）。迷ったら `DOCS_INDEX.md` と `OPS_SYSTEM_OVERVIEW.md` から。
+            </p>
+          </div>
+          <div className="research-workspace__actions">
+            <span className="badge">ssot（Single Source of Truth）</span>
+            <button type="button" className="research-chip" onClick={() => void loadList("")} disabled={loading}>
+              ルート
+            </button>
+            <Link className="research-chip" to="/ssot/map">
+              System Map
+            </Link>
+            <Link className="research-chip" to="/ssot/gaps">
+              Gaps
+            </Link>
+            <Link className="research-chip" to="/ssot/zombies">
+              Zombies
+            </Link>
+            <Link className="research-chip" to="/ssot/entrypoints">
+              Entrypoints
+            </Link>
+            <Link className="research-chip" to="/ssot/trace">
+              Trace
+            </Link>
+            <button type="button" className="research-chip" onClick={() => void loadFile("DECISIONS.md")} disabled={loading}>
+              DECISIONS
+            </button>
+            <button type="button" className="research-chip" onClick={() => void loadFile("DOCS_INDEX.md")} disabled={loading}>
+              DOCS_INDEX
+            </button>
+            <button type="button" className="research-chip" onClick={() => void loadFile("OPS_SYSTEM_OVERVIEW.md")} disabled={loading}>
+              OVERVIEW
+            </button>
+            <button
+              type="button"
+              className="research-chip"
+              onClick={() => void loadFile("ops/OPS_CONFIRMED_PIPELINE_FLOW.md")}
+              disabled={loading}
+            >
+              PIPELINE
+            </button>
+            <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_GAPS_REGISTER.md")} disabled={loading}>
+              GAPS
+            </button>
+            <button type="button" className="research-chip" onClick={() => void loadFile("ops/OPS_OPEN_QUESTIONS.md")} disabled={loading}>
+              QUESTIONS
+            </button>
+            <button type="button" className="research-chip" onClick={() => void loadList(currentPath)} disabled={loading}>
+              {loading ? "読み込み中…" : "再読み込み"}
+            </button>
+          </div>
+        </header>
+      ) : null}
 
       <div className="research-body">
         <div className="research-list">
