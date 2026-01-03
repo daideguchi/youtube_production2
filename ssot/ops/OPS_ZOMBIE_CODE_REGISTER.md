@@ -47,6 +47,28 @@
   - 「LLMは `llm_router` に一本化する」を確定できるなら、`llm.yml` 系 + `llm_client/llm_config` + 関連テストを **legacy隔離→削除** の対象にできる。
   - 併用するなら、SSOT側で「どのフェーズがどちらを使うか」を明記し、運用者が迷わない形に寄せる。
 
+### B-1) “設定SSOTが複数ある”こと自体がゾンビ増殖源
+
+このrepoには **LLM設定の“正本候補”が複数**あり、運用/実装/可視化が分岐して迷子になる。
+
+| ファミリ | 代表ファイル | 現状 | リスク |
+| --- | --- | --- | --- |
+| Router系（現行主線） | `configs/llm_router.yaml`, `configs/llm_task_overrides.yaml`, `packages/factory_common/llm_router.py` | script/audio/video が主に使用 | ✅ 主線。ここへ統一したい |
+| YML系（legacy） | `configs/llm.yml`, `configs/llm.local.yml`, `packages/factory_common/llm_client.py`, `packages/factory_common/llm_config.py` | `llm_client` 以外の実利用がほぼ無い（監査/テスト中心） | “どれが正本か”が崩れる |
+| Registry系（legacy/UI補助） | `configs/llm_registry.json`, `configs/llm_model_registry.yaml` | UI/backend・Remotion等に残存参照 | Routerと二重管理になりやすい |
+
+対応（提案）:
+- 意思決定は `ssot/DECISIONS.md` の **D-010（LLM設定SSOTの一本化）** に集約する。
+
+### B-2) Registry系（`llm_registry.json` / `llm_model_registry.yaml`）が残っている箇所（移行対象）
+
+| 参照元 | 参照しているもの | 役割 | 暫定提案 |
+| --- | --- | --- | --- |
+| `apps/ui-backend/backend/main.py` | `configs/llm_registry.json` | UI設定の読み書き（phase→モデル定義） | Router由来に置換（“UIが書く”SoTを廃止し、SSOT=UI(view)へ） |
+| `apps/ui-backend/backend/routers/llm_usage.py` | `configs/llm_model_registry.yaml` | model key の検証/一覧 | Routerの `models` から生成するAPIへ置換 |
+| `apps/remotion/scripts/gen_belt_from_srt.js` | 両方 | belt生成の旧スクリプト | 使うなら router に統一 / 使わないなら隔離→archive-first |
+| `packages/video_pipeline/src/srt2images/nanobanana_client.py` | `configs/llm_registry.json`（定数） | legacy分岐の残骸 | legacy分岐削除の対象候補（C-2参照） |
+
 ---
 
 ## C) “ゾンビではないが誤用リスクが高い” もの（注意喚起）
@@ -55,9 +77,14 @@
 | --- | --- | --- |
 | `packages/video_pipeline/src/srt2images/engines/capcut_engine.py` | `run_pipeline --engine capcut` 経由で使えるが、SSOT上は **stub/非主線** | SSOTに「stub/非推奨」を明記し、CLI側で deprecate guard（警告/停止）を検討（削除は後） |
 
+### C-2) “disabled/placeholder” の残骸（要棚卸し）
+
+| path | 観測 | 暫定提案 |
+| --- | --- | --- |
+| `packages/video_pipeline/src/srt2images/nanobanana_client.py` | `USE_LEGACY_IMAGE_ROUTER = False` / `_run_mcp` は placeholder | **隔離候補**: 主線が ImageClient に寄った前提なら、legacy/mcp分岐を削る（ただし削除は “確実ゴミ” 判定後） |
+
 ---
 
 ## 次に必要な意思決定（ユーザー確認）
 1) A-1 の4件は「残す（SSOT入口へ昇格）」か「不要（archive→delete）」か？
-2) LLM設定は `llm_router` へ一本化するか？（= `llm.yml` 系の扱い）
-
+2) LLM設定は `llm_router` へ一本化するか？（= `llm.yml`/registry 系の扱い。`ssot/DECISIONS.md:D-010`）
