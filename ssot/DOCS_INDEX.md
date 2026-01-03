@@ -34,7 +34,6 @@
 - `ops/OPS_SSOT_SYSTEM_MAP.md`: UIで“全処理”を漏れなく可視化する（SSOT=UI(view) / フロー図 / Trace）。
 - `ops/OPS_GAPS_REGISTER.md`: SSOT ↔ 実装の乖離台帳（ズレを根拠付きで列挙し、意思決定へつなぐ）。
 - `ops/OPS_OPEN_QUESTIONS.md`: 意思決定が必要な不明点（固定ロジック化の前提を明確化）。
-- `ops/OPS_UI_VREW_PROMPTS.md`: UIから Vrew 用プロンプトを生成する配線/仕様（決定論）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
 - `ops/OPS_PRODUCTION_PACK.md`: 量産投入前の「Production Pack」定義（スナップショット + QA gate + 差分ログ）。
@@ -78,7 +77,6 @@
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
-- `ops/OPS_VREW_IMAGE_ROUTE.md`: Vrewで量産した画像をCapCutドラフトへ安全に差し込む別ルート（image_manifest SoT）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。
 - `packages/video_pipeline/config/channel_config_spec.md` (Reference): `packages/video_pipeline/config/channel_presets.json` / `capcut_settings` の仕様メモ（実装参照）。
 - `ops/IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。

@@ -1344,7 +1344,6 @@ export function AppShell() {
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
           { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
-          { key: "capcutVrew", label: "Vrew用プロンプト", icon: "🧾", path: "/capcut-edit/vrew" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
           { key: "imageTimeline", label: "画像タイムライン", icon: "🕒", path: "/image-timeline" },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },

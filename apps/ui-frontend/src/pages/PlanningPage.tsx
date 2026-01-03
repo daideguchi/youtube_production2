@@ -467,15 +467,6 @@ export function PlanningPage() {
     },
     [navigate]
   );
-  const goToVrewPage = useCallback(
-    (channelCode: string, videoRaw: string) => {
-      const ch = String(channelCode || "").toUpperCase();
-      const token = normalizeVideo(videoRaw);
-      if (!ch || !token) return;
-      navigate(`/capcut-edit/vrew?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(token)}`);
-    },
-    [navigate]
-  );
   const openDetailRow = useCallback(
     (row: Row) => {
       setDetailRow(row);
@@ -1148,18 +1139,6 @@ export function PlanningPage() {
                                     aria-label="台本ページへ"
                                   >
                                     📝
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="planning-page__open"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      goToVrewPage(ch, vid);
-                                    }}
-                                    title="Vrew用プロンプトへ"
-                                    aria-label="Vrew用プロンプトへ"
-                                  >
-                                    🧾
                                   </button>
                                 </>
                               ) : null}

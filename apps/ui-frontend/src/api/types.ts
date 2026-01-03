@@ -525,7 +525,7 @@ export interface ChannelBenchmarksSpec {
 }
 
 export interface VideoWorkflowSpec {
-  key: "vrew_a" | "vrew_b" | "capcut" | "remotion";
+  key: "capcut" | "remotion";
   id: number;
   label: string;
   description: string;
@@ -1624,15 +1624,6 @@ export interface AutoDraftCreatePayload {
   chaptersJson?: string | null;
   episodeInfoJson?: string | null;
   imgDuration?: number | null;
-}
-
-export interface AutoDraftVrewPromptsResponse {
-  ok: boolean;
-  srtPath: string;
-  lineCount: number;
-  prompts: string[];
-  promptsText: string;
-  promptsTextKuten: string;
 }
 
 export interface PromptTemplateItem {

@@ -93,7 +93,6 @@ import {
   AutoDraftListResponse,
   AutoDraftCreateResponse,
   AutoDraftCreatePayload,
-  AutoDraftVrewPromptsResponse,
   AutoDraftSrtItem,
   AutoDraftSrtContent,
   ProjectSrtContent,
@@ -1368,19 +1367,39 @@ export function fetchThumbnailParamCatalog(): Promise<ThumbnailParamCatalogEntry
   return request<ThumbnailParamCatalogEntry[]>("/api/workspaces/thumbnails/param-catalog");
 }
 
-export function fetchThumbnailThumbSpec(channel: string, video: string): Promise<ThumbnailThumbSpec> {
+function withStableQuery(url: string, stable?: string | null): string {
+  const stableId = String(stable ?? "").trim();
+  if (!stableId) {
+    return url;
+  }
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}stable=${encodeURIComponent(stableId)}`;
+}
+
+export function fetchThumbnailThumbSpec(
+  channel: string,
+  video: string,
+  options?: { stable?: string | null }
+): Promise<ThumbnailThumbSpec> {
   return request<ThumbnailThumbSpec>(
-    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`,
+      options?.stable
+    )
   );
 }
 
 export function updateThumbnailThumbSpec(
   channel: string,
   video: string,
-  overrides: Record<string, any>
+  overrides: Record<string, any>,
+  options?: { stable?: string | null }
 ): Promise<ThumbnailThumbSpec> {
   return request<ThumbnailThumbSpec>(
-    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`,
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/thumb-spec`,
+      options?.stable
+    ),
     {
       method: "PUT",
       body: JSON.stringify({ overrides: overrides ?? {} }),
@@ -1388,22 +1407,148 @@ export function updateThumbnailThumbSpec(
   );
 }
 
-export function fetchThumbnailEditorContext(channel: string, video: string): Promise<ThumbnailEditorContext> {
+export function fetchThumbnailEditorContext(
+  channel: string,
+  video: string,
+  options?: { stable?: string | null }
+): Promise<ThumbnailEditorContext> {
   return request<ThumbnailEditorContext>(
-    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/editor-context`
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/editor-context`,
+      options?.stable
+    )
   );
 }
 
 export function previewThumbnailTextLayer(
   channel: string,
   video: string,
-  overrides: Record<string, any>
+  overrides: Record<string, any>,
+  options?: { stable?: string | null }
 ): Promise<ThumbnailPreviewTextLayerResult> {
   return request<ThumbnailPreviewTextLayerResult>(
-    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/preview/text-layer`,
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/preview/text-layer`,
+      options?.stable
+    ),
     {
       method: "POST",
       body: JSON.stringify({ overrides: overrides ?? {} }),
+    }
+  );
+}
+
+export interface ThumbnailTextLineSpecLine {
+  offset_x: number;
+  offset_y: number;
+  scale: number;
+}
+
+export interface ThumbnailTextLineSpec {
+  exists: boolean;
+  path?: string | null;
+  schema: string;
+  channel: string;
+  video: string;
+  stable: string;
+  lines: Record<string, ThumbnailTextLineSpecLine>;
+  updated_at?: string | null;
+}
+
+export function fetchThumbnailTextLineSpec(channel: string, video: string, stable: string): Promise<ThumbnailTextLineSpec> {
+  return request<ThumbnailTextLineSpec>(
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/text-line-spec`,
+      stable
+    )
+  );
+}
+
+export function updateThumbnailTextLineSpec(
+  channel: string,
+  video: string,
+  stable: string,
+  lines: Record<string, ThumbnailTextLineSpecLine>
+): Promise<ThumbnailTextLineSpec> {
+  return request<ThumbnailTextLineSpec>(
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/text-line-spec`,
+      stable
+    ),
+    {
+      method: "PUT",
+      body: JSON.stringify({ lines: lines ?? {} }),
+    }
+  );
+}
+
+export interface ThumbnailPreviewTextLayerSlotsResult {
+  status: string;
+  channel: string;
+  video: string;
+  template_id?: string | null;
+  images: Record<string, { image_url: string; image_path: string }>;
+}
+
+export function previewThumbnailTextLayerSlots(
+  channel: string,
+  video: string,
+  overrides: Record<string, any>,
+  options?: { stable?: string | null }
+): Promise<ThumbnailPreviewTextLayerSlotsResult> {
+  return request<ThumbnailPreviewTextLayerSlotsResult>(
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/preview/text-layer/slots`,
+      options?.stable
+    ),
+    {
+      method: "POST",
+      body: JSON.stringify({ overrides: overrides ?? {} }),
+    }
+  );
+}
+
+export function patchThumbnailVariant(
+  channel: string,
+  video: string,
+  variantId: string,
+  payload: { notes?: string | null; tags?: string[] | null; status?: ThumbnailVariantStatus; label?: string | null; make_selected?: boolean }
+): Promise<ThumbnailVariant> {
+  const body: JsonMap = {};
+  if (payload.notes !== undefined) body.notes = payload.notes;
+  if (payload.tags !== undefined) body.tags = payload.tags;
+  if (payload.status !== undefined) body.status = payload.status;
+  if (payload.label !== undefined) body.label = payload.label;
+  if (payload.make_selected !== undefined) body.make_selected = payload.make_selected;
+  return request<ThumbnailVariant>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/variants/${encodeURIComponent(
+      variantId
+    )}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }
+  );
+}
+
+export interface ThumbnailTwoUpBuildResult {
+  status: string;
+  channel: string;
+  video: string;
+  outputs: Record<string, string>;
+  paths: Record<string, string>;
+}
+
+export function buildThumbnailTwoUp(
+  channel: string,
+  video: string,
+  payload: ThumbnailLayerSpecsBuildPayload
+): Promise<ThumbnailTwoUpBuildResult> {
+  return request<ThumbnailTwoUpBuildResult>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/two-up/build`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload ?? {}),
     }
   );
 }
@@ -2033,19 +2178,6 @@ type AutoDraftSrtContentRaw = {
   ok?: boolean;
 };
 
-type AutoDraftVrewPromptsResponseRaw = {
-  ok: boolean;
-  srt_path?: string;
-  srtPath?: string;
-  line_count?: number;
-  lineCount?: number;
-  prompts?: string[];
-  prompts_text?: string;
-  promptsText?: string;
-  prompts_text_kuten?: string;
-  promptsTextKuten?: string;
-};
-
 type ProjectSrtContentRaw = AutoDraftSrtContentRaw;
 
 type PromptTemplateListResponseRaw = {
@@ -2145,27 +2277,6 @@ export async function updateAutoDraftSrtContent(path: string, content: string): 
     content,
     sizeBytes: data.size_bytes ?? null,
     modifiedTime: data.modified_time ?? null,
-  };
-}
-
-export async function fetchAutoDraftVrewPrompts(srtPath: string): Promise<AutoDraftVrewPromptsResponse> {
-  const data = await request<AutoDraftVrewPromptsResponseRaw>("/api/auto-draft/vrew-prompts", {
-    method: "POST",
-    body: JSON.stringify({ srt_path: srtPath }),
-  });
-  const prompts = data.prompts ?? [];
-  const promptsText = data.prompts_text ?? data.promptsText ?? "";
-  const promptsTextKuten =
-    data.prompts_text_kuten ??
-    data.promptsTextKuten ??
-    (prompts.length > 0 ? prompts.join("") : promptsText.replace(/\n/g, ""));
-  return {
-    ok: Boolean(data.ok),
-    srtPath: data.srt_path ?? data.srtPath ?? srtPath,
-    lineCount: data.line_count ?? data.lineCount ?? 0,
-    prompts,
-    promptsText,
-    promptsTextKuten,
   };
 }
 

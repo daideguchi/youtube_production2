@@ -408,7 +408,7 @@ export function ChannelPortalPage() {
       return;
     }
     // CapCut presets are only required for capcut workflow channels.
-    // vrew/remotion workflows don't have entries in video_production presets and would 404.
+    // Non-capcut workflows don't have entries in video_production presets and would 404.
     const workflowKey = selectedChannelSummary?.video_workflow?.key ?? null;
     const shouldLoadPreset = workflowKey === "capcut";
 

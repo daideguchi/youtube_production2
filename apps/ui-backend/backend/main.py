@@ -5501,23 +5501,13 @@ class ChannelBenchmarksSpec(BaseModel):
 
 
 class VideoWorkflowSpec(BaseModel):
-    key: Literal["vrew_a", "vrew_b", "capcut", "remotion"] = Field(..., description="制作型キー")
+    key: Literal["capcut", "remotion"] = Field(..., description="制作型キー")
     id: int = Field(..., ge=1, le=4, description="制作型ID（メモ４互換: 1..4）")
     label: str = Field(..., description="表示名")
     description: str = Field(..., description="型の説明（短文）")
 
 
 VIDEO_WORKFLOW_DEFINITIONS: Dict[str, Dict[str, Any]] = {
-    "vrew_a": {
-        "id": 1,
-        "label": "vrew型A（編集なし）",
-        "description": "Vrewでそのまま完成（追加編集ゼロ）。最速・最安だが、画面の作り込み感は出にくい。",
-    },
-    "vrew_b": {
-        "id": 2,
-        "label": "vrew型B（薄黒マスク＋人物配置あり）",
-        "description": "Vrew自動生成をベースに、うっすら黒マスク＋人物（立ち絵/写真）を載せる中間型。軽編集で最大効果を狙う。",
-    },
     "capcut": {
         "id": 3,
         "label": "capcut型（画像生成あり）",
@@ -6117,6 +6107,58 @@ class ThumbnailThumbSpecResponse(BaseModel):
     overrides: Dict[str, Any] = Field(default_factory=dict)
     updated_at: Optional[str] = None
     normalized_overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
+
+THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1 = "ytm.thumbnail.text_line_spec.v1"
+
+
+class ThumbnailTextLineSpecLinePayload(BaseModel):
+    offset_x: float = 0.0
+    offset_y: float = 0.0
+    scale: float = 1.0
+
+
+class ThumbnailTextLineSpecUpdateRequest(BaseModel):
+    lines: Dict[str, ThumbnailTextLineSpecLinePayload] = Field(default_factory=dict)
+
+
+class ThumbnailTextLineSpecResponse(BaseModel):
+    exists: bool
+    path: Optional[str] = None
+    schema: str = THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1
+    channel: str
+    video: str
+    stable: str
+    lines: Dict[str, ThumbnailTextLineSpecLinePayload] = Field(default_factory=dict)
+    updated_at: Optional[str] = None
+
+
+class ThumbnailPreviewTextSlotImageResponse(BaseModel):
+    image_url: str
+    image_path: str
+
+
+class ThumbnailPreviewTextLayerSlotsResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    template_id: Optional[str] = None
+    images: Dict[str, ThumbnailPreviewTextSlotImageResponse] = Field(default_factory=dict)
+
+
+class ThumbnailVariantPatchRequest(BaseModel):
+    label: Optional[str] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
+    tags: Optional[List[str]] = None
+    make_selected: Optional[bool] = None
+
+
+class ThumbnailTwoUpBuildResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    outputs: Dict[str, str] = Field(default_factory=dict)
+    paths: Dict[str, str] = Field(default_factory=dict)
 
 
 class ThumbnailLayerSpecsBuildRequest(BaseModel):
@@ -9646,23 +9688,91 @@ def get_thumbnail_param_catalog():
     return items
 
 
+def _utc_now_iso_z() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _normalize_thumbnail_stable_id(raw: Optional[str]) -> Optional[str]:
+    """
+    Normalize a "stable output id" such as `00_thumb_1` / `00_thumb_2`.
+
+    Accepts:
+      - 00_thumb_1
+      - 00_thumb_1.png
+      - thumb_1 / thumb_2 (legacy labels)
+    """
+    if raw is None:
+        return None
+    value = str(raw or "").strip()
+    if not value:
+        return None
+    base = Path(value).name
+    if base.lower().endswith(".png"):
+        base = base[: -len(".png")]
+    lowered = base.strip().lower()
+    if lowered in {"thumb_1", "thumb1", "1"}:
+        return "00_thumb_1"
+    if lowered in {"thumb_2", "thumb2", "2"}:
+        return "00_thumb_2"
+    normalized = base.strip()
+    if normalized.startswith("00_thumb_") and normalized[len("00_thumb_") :].isdigit():
+        return normalized
+    raise HTTPException(status_code=400, detail="stable must be like 00_thumb_1 or 00_thumb_2")
+
+
+def _thumb_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
+    return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"thumb_spec.{stable}.json"
+
+
+def _text_line_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
+    return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"text_line_spec.{stable}.json"
+
+
 @app.get(
     "/api/workspaces/thumbnails/{channel}/{video}/thumb-spec",
     response_model=ThumbnailThumbSpecResponse,
 )
-def get_thumbnail_thumb_spec(channel: str, video: str):
+def get_thumbnail_thumb_spec(
+    channel: str,
+    video: str,
+    stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     try:
-        from script_pipeline.thumbnails.thumb_spec import THUMB_SPEC_SCHEMA_V1, load_thumb_spec
+        from script_pipeline.thumbnails.thumb_spec import (
+            THUMB_SPEC_SCHEMA_V1,
+            ThumbSpecLoadResult,
+            load_thumb_spec,
+            validate_thumb_spec_payload,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumb_spec module is not available: {exc}") from exc
 
-    loaded = load_thumb_spec(channel_code, video_number)
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    loaded = None
+    stable_exists = False
+    stable_path = None
+    if stable_id:
+        stable_path = _thumb_spec_stable_path(channel_code, video_number, stable_id)
+        stable_exists = stable_path.exists()
+        if stable_exists:
+            try:
+                payload = json.loads(stable_path.read_text(encoding="utf-8"))
+                validated = validate_thumb_spec_payload(payload, channel=channel_code, video=video_number)
+                loaded = ThumbSpecLoadResult(payload=validated, path=stable_path)
+            except HTTPException:
+                raise
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"failed to load thumb_spec: {exc}") from exc
     if loaded is None:
+        loaded = load_thumb_spec(channel_code, video_number)
+    if loaded is None:
+        target_path = stable_path if stable_path is not None else None
         return ThumbnailThumbSpecResponse(
-            exists=False,
-            path=None,
+            exists=False if stable_id else False,
+            path=(safe_relative_path(target_path) if isinstance(target_path, Path) else None),
             schema=THUMB_SPEC_SCHEMA_V1,
             channel=channel_code,
             video=video_number,
@@ -9679,8 +9789,12 @@ def get_thumbnail_thumb_spec(channel: str, video: str):
     )
 
     return ThumbnailThumbSpecResponse(
-        exists=True,
-        path=(safe_relative_path(loaded.path) or str(loaded.path)),
+        exists=stable_exists if stable_id else True,
+        path=(
+            safe_relative_path(stable_path) or str(stable_path)
+            if stable_id and isinstance(stable_path, Path)
+            else (safe_relative_path(loaded.path) or str(loaded.path))
+        ),
         schema=(str(payload.get("schema") or "") or None),
         channel=channel_code,
         video=video_number,
@@ -9694,17 +9808,46 @@ def get_thumbnail_thumb_spec(channel: str, video: str):
     "/api/workspaces/thumbnails/{channel}/{video}/thumb-spec",
     response_model=ThumbnailThumbSpecResponse,
 )
-def upsert_thumbnail_thumb_spec(channel: str, video: str, request: ThumbnailThumbSpecUpdateRequest):
+def upsert_thumbnail_thumb_spec(
+    channel: str,
+    video: str,
+    request: ThumbnailThumbSpecUpdateRequest,
+    stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     try:
-        from script_pipeline.thumbnails.thumb_spec import save_thumb_spec
+        from script_pipeline.thumbnails.thumb_spec import THUMB_SPEC_SCHEMA_V1, save_thumb_spec, validate_thumb_spec_payload
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumb_spec module is not available: {exc}") from exc
 
     overrides = request.overrides if isinstance(request.overrides, dict) else {}
     try:
-        save_thumb_spec(channel_code, video_number, overrides)
+        stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+        if not stable_id:
+            save_thumb_spec(channel_code, video_number, overrides)
+        else:
+            path = _thumb_spec_stable_path(channel_code, video_number, stable_id)
+            payload = {
+                "schema": THUMB_SPEC_SCHEMA_V1,
+                "channel": channel_code,
+                "video": video_number,
+                "overrides": overrides,
+                "updated_at": _utc_now_iso_z(),
+            }
+            validated = validate_thumb_spec_payload(payload, channel=channel_code, video=video_number)
+            write_payload = {
+                "schema": THUMB_SPEC_SCHEMA_V1,
+                "channel": channel_code,
+                "video": video_number,
+                "overrides": overrides,
+                "updated_at": validated.get("updated_at") or _utc_now_iso_z(),
+            }
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(path.suffix + ".tmp")
+            tmp.write_text(json.dumps(write_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            tmp.replace(path)
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except (TypeError, ValueError) as exc:
@@ -9712,17 +9855,138 @@ def upsert_thumbnail_thumb_spec(channel: str, video: str, request: ThumbnailThum
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to save thumb_spec: {exc}") from exc
 
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    if stable_id:
+        return get_thumbnail_thumb_spec(channel_code, video_number, stable=stable_id)
     return get_thumbnail_thumb_spec(channel_code, video_number)
+
+
+@app.get(
+    "/api/workspaces/thumbnails/{channel}/{video}/text-line-spec",
+    response_model=ThumbnailTextLineSpecResponse,
+)
+def get_thumbnail_text_line_spec(
+    channel: str,
+    video: str,
+    stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    if not stable_id:
+        raise HTTPException(status_code=400, detail="stable is required")
+    path = _text_line_spec_stable_path(channel_code, video_number, stable_id)
+    if not path.exists():
+        return ThumbnailTextLineSpecResponse(
+            exists=False,
+            path=(safe_relative_path(path) or str(path)),
+            channel=channel_code,
+            video=video_number,
+            stable=stable_id,
+            lines={},
+            updated_at=None,
+        )
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to load text_line_spec: {exc}") from exc
+    lines_payload = payload.get("lines") if isinstance(payload, dict) else None
+    lines: Dict[str, ThumbnailTextLineSpecLinePayload] = {}
+    if isinstance(lines_payload, dict):
+        for raw_slot, raw_line in lines_payload.items():
+            if not isinstance(raw_slot, str) or not raw_slot.strip():
+                continue
+            if not isinstance(raw_line, dict):
+                continue
+            try:
+                lines[raw_slot.strip()] = ThumbnailTextLineSpecLinePayload(
+                    offset_x=float(raw_line.get("offset_x", 0.0)),
+                    offset_y=float(raw_line.get("offset_y", 0.0)),
+                    scale=float(raw_line.get("scale", 1.0)),
+                )
+            except Exception:
+                continue
+    updated_at = payload.get("updated_at") if isinstance(payload, dict) and isinstance(payload.get("updated_at"), str) else None
+    return ThumbnailTextLineSpecResponse(
+        exists=True,
+        path=(safe_relative_path(path) or str(path)),
+        channel=channel_code,
+        video=video_number,
+        stable=stable_id,
+        lines=lines,
+        updated_at=updated_at,
+    )
+
+
+@app.put(
+    "/api/workspaces/thumbnails/{channel}/{video}/text-line-spec",
+    response_model=ThumbnailTextLineSpecResponse,
+)
+def upsert_thumbnail_text_line_spec(
+    channel: str,
+    video: str,
+    request: ThumbnailTextLineSpecUpdateRequest,
+    stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    if not stable_id:
+        raise HTTPException(status_code=400, detail="stable is required")
+
+    lines_out: Dict[str, Dict[str, float]] = {}
+    for raw_slot, raw_line in (request.lines or {}).items():
+        if not isinstance(raw_slot, str) or not raw_slot.strip():
+            continue
+        slot_key = raw_slot.strip()
+        if isinstance(raw_line, ThumbnailTextLineSpecLinePayload):
+            ox = float(raw_line.offset_x)
+            oy = float(raw_line.offset_y)
+            sc = float(raw_line.scale)
+        elif isinstance(raw_line, dict):
+            try:
+                ox = float(raw_line.get("offset_x", 0.0))
+                oy = float(raw_line.get("offset_y", 0.0))
+                sc = float(raw_line.get("scale", 1.0))
+            except Exception:
+                continue
+        else:
+            continue
+        sc = max(0.25, min(4.0, sc))
+        lines_out[slot_key] = {"offset_x": ox, "offset_y": oy, "scale": sc}
+
+    payload = {
+        "schema": THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1,
+        "channel": channel_code,
+        "video": video_number,
+        "stable": stable_id,
+        "lines": lines_out,
+        "updated_at": _utc_now_iso_z(),
+    }
+    path = _text_line_spec_stable_path(channel_code, video_number, stable_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
+    return get_thumbnail_text_line_spec(channel_code, video_number, stable=stable_id)
 
 
 @app.get(
     "/api/workspaces/thumbnails/{channel}/{video}/editor-context",
     response_model=ThumbnailEditorContextResponse,
 )
-def get_thumbnail_editor_context(channel: str, video: str):
+def get_thumbnail_editor_context(
+    channel: str,
+    video: str,
+    stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     video_id = f"{channel_code}-{video_number}"
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
 
     try:
         from script_pipeline.thumbnails.compiler.layer_specs import (
@@ -9731,7 +9995,7 @@ def get_thumbnail_editor_context(channel: str, video: str):
             resolve_channel_layer_spec_ids,
         )
         from script_pipeline.thumbnails.layers.image_layer import find_existing_portrait
-        from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec
+        from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec, validate_thumb_spec_payload
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumbnail compiler modules are not available: {exc}") from exc
 
@@ -9818,8 +10082,21 @@ def get_thumbnail_editor_context(channel: str, video: str):
                 )
 
     # Existing per-video thumb_spec overrides (normalized leaf paths)
-    loaded_spec = load_thumb_spec(channel_code, video_number)
-    overrides_leaf_raw = extract_normalized_override_leaf(loaded_spec.payload) if loaded_spec else {}
+    overrides_source: Optional[Dict[str, Any]] = None
+    if stable_id:
+        stable_path = _thumb_spec_stable_path(channel_code, video_number, stable_id)
+        if stable_path.exists():
+            try:
+                raw = json.loads(stable_path.read_text(encoding="utf-8"))
+                overrides_source = validate_thumb_spec_payload(raw, channel=channel_code, video=video_number)
+            except HTTPException:
+                raise
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"failed to load thumb_spec.{stable_id}: {exc}") from exc
+    if overrides_source is None:
+        loaded_spec = load_thumb_spec(channel_code, video_number)
+        overrides_source = loaded_spec.payload if loaded_spec else {}
+    overrides_leaf_raw = extract_normalized_override_leaf(overrides_source) if overrides_source else {}
 
     overrides_leaf: Dict[str, Any] = {}
     for k, v in (overrides_leaf_raw or {}).items():
@@ -10204,6 +10481,232 @@ def preview_thumbnail_text_layer(channel: str, video: str, request: ThumbnailThu
     )
 
 
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/preview/text-layer/slots",
+    response_model=ThumbnailPreviewTextLayerSlotsResponse,
+)
+def preview_thumbnail_text_layer_slots(
+    channel: str,
+    video: str,
+    request: ThumbnailThumbSpecUpdateRequest,
+    stable: Optional[str] = Query(None, description="optional stable id to namespace output (e.g. 00_thumb_1)"),
+    variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
+):
+    """
+    Render per-slot transparent text layer PNGs so the UI can treat each line like Canva.
+
+    Notes:
+    - No LLM is used.
+    - Overlays (left_tsz/top/bottom bands) are disabled here so the UI can render them as a separate fixed layer.
+    - `overrides.text_offset_*` is intentionally ignored and applied as a client-side translate for smooth dragging.
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    video_id = f"{channel_code}-{video_number}"
+    stable_id = _normalize_thumbnail_stable_id(stable if stable is not None else variant)
+
+    overrides_leaf = request.overrides if isinstance(request.overrides, dict) else {}
+    overrides_leaf = {str(k): v for k, v in overrides_leaf.items() if isinstance(k, str)}
+
+    try:
+        import copy
+        from PIL import Image
+
+        from script_pipeline.thumbnails.compiler.layer_specs import (
+            find_text_layout_item_for_video,
+            load_layer_spec_yaml,
+            resolve_channel_layer_spec_ids,
+        )
+        from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
+        from script_pipeline.thumbnails.tools.layer_specs_builder import _load_planning_copy, _planning_value_for_slot
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"thumbnail text preview dependencies are not available: {exc}") from exc
+
+    try:
+        _, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to resolve text_layout spec id: {exc}") from exc
+
+    try:
+        text_layout_spec = load_layer_spec_yaml(str(text_layout_id).strip())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to load text_layout spec: {exc}") from exc
+
+    try:
+        item = find_text_layout_item_for_video(text_layout_spec, video_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to resolve video item in text_layout spec: {exc}") from exc
+
+    if not isinstance(item, dict):
+        raise HTTPException(status_code=404, detail="video item not found in text_layout spec")
+
+    templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+    if not isinstance(templates_payload, dict):
+        raise HTTPException(status_code=500, detail="text_layout.templates is missing")
+
+    template_id = str(item.get("template_id") or "").strip()
+    template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
+    effective_template_id = str(template_id_override or template_id).strip()
+    tpl_payload = templates_payload.get(effective_template_id)
+    if not isinstance(tpl_payload, dict):
+        raise HTTPException(status_code=500, detail=f"template_id not found: {effective_template_id}")
+    slots_payload = tpl_payload.get("slots")
+    if not isinstance(slots_payload, dict):
+        raise HTTPException(status_code=500, detail=f"template slots missing for {effective_template_id}")
+
+    slot_keys = [str(k).strip() for k in slots_payload.keys() if isinstance(k, str) and str(k).strip()]
+
+    # Apply text_scale by mutating base_size_px in a deep-copied spec (matches build pipeline behavior).
+    text_scale_raw = overrides_leaf.get("overrides.text_scale", 1.0)
+    try:
+        text_scale = float(text_scale_raw)
+    except Exception:
+        text_scale = 1.0
+    if abs(float(text_scale) - 1.0) > 1e-6:
+        text_layout_spec = copy.deepcopy(text_layout_spec)
+        templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+        tpl_payload = templates_payload.get(effective_template_id) if isinstance(templates_payload, dict) else None
+        slots_payload = tpl_payload.get("slots") if isinstance(tpl_payload, dict) else None
+        if isinstance(slots_payload, dict):
+            for slot_cfg in slots_payload.values():
+                if not isinstance(slot_cfg, dict):
+                    continue
+                base_size = slot_cfg.get("base_size_px")
+                if isinstance(base_size, (int, float)) and float(base_size) > 0:
+                    scaled = int(round(float(base_size) * float(text_scale)))
+                    slot_cfg["base_size_px"] = max(1, scaled)
+
+    # Resolve text for each slot.
+    text_payload = item.get("text") if isinstance(item.get("text"), dict) else {}
+    planning_copy = _load_planning_copy(channel_code, video_number)
+
+    copy_upper = str(overrides_leaf.get("overrides.copy_override.upper") or "").strip()
+    copy_title = str(overrides_leaf.get("overrides.copy_override.title") or "").strip()
+    copy_lower = str(overrides_leaf.get("overrides.copy_override.lower") or "").strip()
+
+    def _override_for_slot(slot_name: str) -> str:
+        key = str(slot_name or "").strip().lower()
+        if key in {"line1", "upper", "top"}:
+            return copy_upper
+        if key in {"line2", "title", "main"}:
+            return copy_title
+        if key in {"line3", "lower", "accent"}:
+            return copy_lower
+        return ""
+
+    resolved_by_slot: Dict[str, str] = {}
+    for slot_key in slot_keys:
+        forced = _override_for_slot(slot_key)
+        authored = str(text_payload.get(slot_key) or "").strip()
+        planned = _planning_value_for_slot(slot_key, planning_copy)
+        resolved_by_slot[slot_key] = forced or authored or planned or ""
+
+    # Build effects_override (allowlist) from leaf overrides.
+    effects_override: Dict[str, Any] = {}
+    stroke: Dict[str, Any] = {}
+    shadow: Dict[str, Any] = {}
+    glow: Dict[str, Any] = {}
+    fills: Dict[str, Any] = {}
+
+    if "overrides.text_effects.stroke.width_px" in overrides_leaf:
+        stroke["width_px"] = overrides_leaf["overrides.text_effects.stroke.width_px"]
+    if "overrides.text_effects.stroke.color" in overrides_leaf:
+        stroke["color"] = overrides_leaf["overrides.text_effects.stroke.color"]
+    if "overrides.text_effects.shadow.alpha" in overrides_leaf:
+        shadow["alpha"] = overrides_leaf["overrides.text_effects.shadow.alpha"]
+    if "overrides.text_effects.shadow.offset_px" in overrides_leaf:
+        shadow["offset_px"] = overrides_leaf["overrides.text_effects.shadow.offset_px"]
+    if "overrides.text_effects.shadow.blur_px" in overrides_leaf:
+        shadow["blur_px"] = overrides_leaf["overrides.text_effects.shadow.blur_px"]
+    if "overrides.text_effects.shadow.color" in overrides_leaf:
+        shadow["color"] = overrides_leaf["overrides.text_effects.shadow.color"]
+    if "overrides.text_effects.glow.alpha" in overrides_leaf:
+        glow["alpha"] = overrides_leaf["overrides.text_effects.glow.alpha"]
+    if "overrides.text_effects.glow.blur_px" in overrides_leaf:
+        glow["blur_px"] = overrides_leaf["overrides.text_effects.glow.blur_px"]
+    if "overrides.text_effects.glow.color" in overrides_leaf:
+        glow["color"] = overrides_leaf["overrides.text_effects.glow.color"]
+
+    for fill_key in ("white_fill", "red_fill", "yellow_fill", "hot_red_fill", "purple_fill"):
+        path = f"overrides.text_fills.{fill_key}.color"
+        if path in overrides_leaf:
+            fills[fill_key] = {"color": overrides_leaf[path]}
+
+    if stroke:
+        effects_override["stroke"] = stroke
+    if shadow:
+        effects_override["shadow"] = shadow
+    if glow:
+        effects_override["glow"] = glow
+    if fills:
+        effects_override.update(fills)
+
+    # Overlays are rendered separately in the UI, so disable them in this "text-only" render.
+    overlays_override = {
+        "left_tsz": {"enabled": False},
+        "top_band": {"enabled": False},
+        "bottom_band": {"enabled": False},
+    }
+
+    # Prepare output paths under the canonical workspace assets tree.
+    preview_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "compiler" / "ui_preview"
+    if stable_id:
+        preview_dir = preview_dir / f"text_slots__{stable_id}"
+    else:
+        preview_dir = preview_dir / "text_slots"
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    base_path = preview_dir / "base_transparent.png"
+
+    # Ensure we have a transparent base image at the correct resolution.
+    canvas = text_layout_spec.get("canvas") if isinstance(text_layout_spec, dict) else None
+    try:
+        w = int(canvas.get("w", 1920)) if isinstance(canvas, dict) else 1920
+        h = int(canvas.get("h", 1080)) if isinstance(canvas, dict) else 1080
+    except Exception:
+        w, h = (1920, 1080)
+    w = max(1, w)
+    h = max(1, h)
+    if not base_path.exists():
+        Image.new("RGBA", (w, h), (0, 0, 0, 0)).save(base_path, format="PNG")
+
+    images: Dict[str, ThumbnailPreviewTextSlotImageResponse] = {}
+
+    blank_all: Dict[str, str] = {k: "" for k in slot_keys}
+    for slot_key in slot_keys:
+        resolved = resolved_by_slot.get(slot_key) or ""
+        if not resolved.strip():
+            continue
+        safe_slot = re.sub(r"[^\w.-]", "_", slot_key) or "slot"
+        out_path = preview_dir / f"{safe_slot}.png"
+        slot_override = dict(blank_all)
+        slot_override[slot_key] = resolved
+        try:
+            compose_text_to_png(
+                base_path,
+                text_layout_spec=text_layout_spec,
+                video_id=video_id,
+                out_path=out_path,
+                output_mode="draft",
+                text_override=slot_override,
+                template_id_override=template_id_override,
+                effects_override=effects_override if effects_override else None,
+                overlays_override=overlays_override,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"failed to render text slot {slot_key}: {exc}") from exc
+        rel = safe_relative_path(out_path) or str(out_path)
+        url = f"/thumbnails/assets/{channel_code}/{video_number}/compiler/ui_preview/{preview_dir.name}/{out_path.name}"
+        images[slot_key] = ThumbnailPreviewTextSlotImageResponse(image_url=url, image_path=rel)
+
+    return ThumbnailPreviewTextLayerSlotsResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        template_id=effective_template_id,
+        images=images,
+    )
+
+
 def _extract_thumbnail_human_comment(raw: str) -> str:
     text = str(raw or "")
     if not text.strip():
@@ -10323,6 +10826,72 @@ def build_thumbnail_layer_specs(channel: str, video: str, request: ThumbnailLaye
         thumb_url=thumb_url,
         thumb_path=thumb_path,
         build_meta_path=meta_rel,
+    )
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/two-up/build",
+    response_model=ThumbnailTwoUpBuildResponse,
+)
+def build_thumbnail_two_up(channel: str, video: str, request: ThumbnailLayerSpecsBuildRequest):
+    """
+    Build "stable" two-up outputs (00_thumb_1 / 00_thumb_2) for channels that ship both.
+
+    Currently implemented for CH26 only.
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    if channel_code != "CH26":
+        raise HTTPException(status_code=400, detail="two-up build is only supported for CH26")
+    if request.regen_bg:
+        raise HTTPException(status_code=400, detail="two-up build does not support regen_bg (CH26: existing assets only)")
+
+    script_path = PROJECT_ROOT / "scripts" / "thumbnails" / "ch26_make_two_variants.py"
+    if not script_path.exists():
+        raise HTTPException(status_code=500, detail="ch26_make_two_variants.py is missing")
+
+    cmd = [
+        sys.executable,
+        str(script_path),
+        "--channel",
+        channel_code,
+        "--videos",
+        video_number,
+        "--overwrite",
+        "--register",
+    ]
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to invoke two-up build: {exc}") from exc
+    if proc.returncode != 0:
+        out = (proc.stdout or "").strip()
+        err = (proc.stderr or "").strip()
+        detail = err or out or f"two-up build failed (code={proc.returncode})"
+        raise HTTPException(status_code=500, detail=detail)
+
+    outputs = {
+        "00_thumb_1": f"/thumbnails/assets/{channel_code}/{video_number}/00_thumb_1.png",
+        "00_thumb_2": f"/thumbnails/assets/{channel_code}/{video_number}/00_thumb_2.png",
+        "00_thumb": f"/thumbnails/assets/{channel_code}/{video_number}/00_thumb.png",
+    }
+    paths = {
+        "00_thumb_1": f"{channel_code}/{video_number}/00_thumb_1.png",
+        "00_thumb_2": f"{channel_code}/{video_number}/00_thumb_2.png",
+        "00_thumb": f"{channel_code}/{video_number}/00_thumb.png",
+    }
+    return ThumbnailTwoUpBuildResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        outputs=outputs,
+        paths=paths,
     )
 
 
@@ -10733,6 +11302,93 @@ def create_thumbnail_variant_entry(channel: str, video: str, payload: ThumbnailV
         make_selected=bool(payload.make_selected),
     )
     return variant
+
+
+@app.patch(
+    "/api/workspaces/thumbnails/{channel}/{video}/variants/{variant_id}",
+    response_model=ThumbnailVariantResponse,
+)
+def patch_thumbnail_variant_entry(channel: str, video: str, variant_id: str, payload: ThumbnailVariantPatchRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    vid = str(variant_id or "").strip()
+    if not vid:
+        raise HTTPException(status_code=400, detail="variant_id is required")
+
+    updates: Dict[str, Any] = {}
+    if payload.label is not None:
+        label = str(payload.label or "").strip()
+        if not label:
+            raise HTTPException(status_code=400, detail="label cannot be empty")
+        updates["label"] = label[:120]
+    if payload.status is not None:
+        updates["status"] = _normalize_thumbnail_status(payload.status)
+    if payload.notes is not None:
+        notes = str(payload.notes or "").strip()
+        updates["notes"] = notes if notes else None
+    if payload.tags is not None:
+        updates["tags"] = _normalize_thumbnail_tags(payload.tags)
+    make_selected = payload.make_selected
+
+    if not updates and make_selected is None:
+        raise HTTPException(status_code=400, detail="no updates specified")
+
+    now = datetime.now(timezone.utc).isoformat()
+    with THUMBNAIL_PROJECTS_LOCK:
+        path, doc = _load_thumbnail_projects_document()
+        project = _get_or_create_thumbnail_project(doc, channel_code, video_number)
+        variants = project.get("variants") if isinstance(project.get("variants"), list) else []
+        target: Optional[dict] = None
+        for raw_variant in variants:
+            if not isinstance(raw_variant, dict):
+                continue
+            if str(raw_variant.get("id") or "").strip() == vid:
+                target = raw_variant
+                break
+        if target is None:
+            raise HTTPException(status_code=404, detail="variant not found")
+
+        if "label" in updates:
+            target["label"] = updates["label"]
+        if "status" in updates:
+            target["status"] = updates["status"]
+        if "notes" in updates:
+            target["notes"] = updates["notes"]
+        if "tags" in updates:
+            target["tags"] = updates["tags"]
+
+        target["updated_at"] = now
+        if make_selected is True:
+            project["selected_variant_id"] = vid
+        elif make_selected is False:
+            # Do not unset selected_variant_id automatically; explicit project PATCH should handle it.
+            pass
+        project["updated_at"] = now
+        _write_thumbnail_projects_document(path, doc)
+
+    selected_variant_id = str(project.get("selected_variant_id") or "").strip()
+    is_selected = bool(selected_variant_id and selected_variant_id == vid)
+    image_url = str(target.get("image_url") or "").strip() or None
+    preview_url = str(target.get("preview_url") or "").strip() or image_url
+    return ThumbnailVariantResponse(
+        id=vid,
+        label=str(target.get("label") or "").strip() or None,
+        status=str(target.get("status") or "").strip() or None,
+        image_url=image_url,
+        image_path=str(target.get("image_path") or "").strip() or None,
+        preview_url=preview_url,
+        notes=str(target.get("notes") or "").strip() or None,
+        tags=target.get("tags") if isinstance(target.get("tags"), list) else None,
+        provider=str(target.get("provider") or "").strip() or None,
+        model=str(target.get("model") or "").strip() or None,
+        model_key=str(target.get("model_key") or "").strip() or None,
+        openrouter_generation_id=str(target.get("openrouter_generation_id") or "").strip() or None,
+        cost_usd=(float(target.get("cost_usd")) if target.get("cost_usd") is not None else None),
+        usage=target.get("usage") if isinstance(target.get("usage"), dict) else None,
+        is_selected=is_selected,
+        created_at=str(target.get("created_at") or "").strip() or None,
+        updated_at=str(target.get("updated_at") or "").strip() or None,
+    )
 
 
 @app.post(
@@ -11361,7 +12017,8 @@ def download_thumbnail_zip(
                     continue
                 image_path = str(v.get("image_path") or "").strip()
                 image_url = str(v.get("image_url") or "").strip()
-                if _basename(image_path) in wanted or _basename(image_url) in wanted:
+                base = _basename(image_path) or _basename(image_url)
+                if base in wanted:
                     target_variants.append(v)
 
         for raw_variant in target_variants:

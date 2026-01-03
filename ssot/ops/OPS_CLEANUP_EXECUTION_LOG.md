@@ -2160,3 +2160,39 @@ projects.json 整理:
 結果:
 - `workspaces/scripts/{CH}/{NNN}/content/assembled*.md` を削除し、`status.json` を初期化（再生成待ちに戻した）
 - 研究（`content/analysis/research/*`）は保持（存在する場合のみ）
+
+---
+
+## 2026-01-03
+
+### 1) Vrewルートの完全廃止（repo tracked）
+
+意図:
+- Vrewルートは今後使わないため、UI/Backend/VideoPipeline/SSOT/テスト/CLI（console scripts）を含めて完全に除去し、探索ノイズと誤導線を無くす。
+
+アーカイブ（archive-first）:
+- `backups/graveyard/20260103T065858Z_remove_vrew/`
+  - `CapcutVrewPage.tsx`
+  - `generate_vrew_prompts.py`
+  - `import_vrew_images.py`
+  - `place_images_to_capcut.py`
+  - `OPS_UI_VREW_PROMPTS.md`
+  - `OPS_VREW_IMAGE_ROUTE.md`
+  - `vrew_route/`（dir）
+  - `test_vrew_route_prompts.py`
+
+削除（tracked）:
+- `apps/ui-frontend/src/pages/CapcutVrewPage.tsx`
+- `packages/video_pipeline/tools/generate_vrew_prompts.py`
+- `packages/video_pipeline/tools/import_vrew_images.py`
+- `packages/video_pipeline/tools/place_images_to_capcut.py`
+- `packages/video_pipeline/src/vrew_route/`（dir）
+- `ssot/ops/OPS_UI_VREW_PROMPTS.md`
+- `ssot/ops/OPS_VREW_IMAGE_ROUTE.md`
+- `tests/test_vrew_route_prompts.py`
+
+更新（tracked・入口除去/値の廃止）:
+- UI: `/capcut-edit/vrew` ルート/導線/APIクライアントを削除
+- Backend: `vrew-prompts` 系 endpoints を削除
+- `video_workflow` から `vrew_a` / `vrew_b` を廃止（`capcut` / `remotion` のみに統一）
+- `pyproject.toml` の console scripts（`generate-vrew-prompts`, `render-images`, `place-images-to-capcut`）を削除

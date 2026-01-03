@@ -160,7 +160,7 @@ _HINTS: dict[str, list[str]] = {
         "Create/fix `packages/script_pipeline/channels/{channel}-*/script_prompt.txt` and ensure `configs/sources.yaml` points to it.",
     ],
     "missing_video_workflow": [
-        "Set `video_workflow` in `packages/script_pipeline/channels/{channel}-*/channel_info.json` (e.g., `capcut`, `vrew_a`, `vrew_b`).",
+        "Set `video_workflow` in `packages/script_pipeline/channels/{channel}-*/channel_info.json` (e.g., `capcut`, `remotion`).",
     ],
     # audio config
     "missing_voice_config": [

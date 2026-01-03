@@ -22,7 +22,6 @@ export const AppSidebar = memo(function AppSidebar({
     pathname.startsWith("/channel-workspace");
   const isChannelPortalRoute = Boolean(matchPath("/channels/:channelCode/portal", pathname));
   const isAudioIntegrityRoute = pathname.startsWith("/audio-integrity");
-  const isCapcutVrewRoute = pathname.startsWith("/capcut-edit/vrew");
 
   return (
     <aside className="shell-sidebar">
@@ -54,7 +53,6 @@ export const AppSidebar = memo(function AppSidebar({
                 const isChannelWorkspaceItem = item.key === "channelWorkspace";
                 const isChannelPortalItem = item.key === "channelPortal";
                 const isAudioIntegrityItem = item.key === "audioIntegrity";
-                const isCapcutEditItem = item.key === "capcutEdit";
                 return (
                   <NavLink
                     key={item.key}
@@ -65,8 +63,7 @@ export const AppSidebar = memo(function AppSidebar({
                         (isChannelWorkspaceItem && isChannelWorkspaceRoute) ||
                         (isChannelPortalItem && isChannelPortalRoute) ||
                         (isAudioIntegrityItem && isAudioIntegrityRoute);
-                      const finalActive = isCapcutEditItem && isCapcutVrewRoute ? false : active;
-                      return finalActive ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
+                      return active ? "shell-nav__item shell-nav__item--active" : "shell-nav__item";
                     }}
                   >
                     <span className="shell-nav__icon" aria-hidden>

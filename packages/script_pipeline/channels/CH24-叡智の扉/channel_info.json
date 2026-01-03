@@ -65,7 +65,7 @@
     ],
     "notes": "ベンチマークは必要に応じてUIで追記してください。"
   },
-  "video_workflow": "vrew_a",
+  "video_workflow": "capcut",
   "production_sources": {
     "voice_config_path": "packages/script_pipeline/audio/channels/CH24/voice_config.json",
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",

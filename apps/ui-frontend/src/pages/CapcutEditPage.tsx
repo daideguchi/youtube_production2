@@ -17,9 +17,6 @@ export function CapcutEditPage() {
           <Link className="button" to="/capcut-edit/draft">
             新規ドラフト作成
           </Link>
-          <Link className="button" to="/capcut-edit/vrew">
-            Vrew用プロンプト
-          </Link>
           <Link className="button" to="/capcut-edit/swap">
             既存ドラフトの画像差し替え
           </Link>

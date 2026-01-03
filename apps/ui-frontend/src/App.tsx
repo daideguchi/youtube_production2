@@ -27,7 +27,6 @@ import { JobsPage } from "./pages/JobsPage";
 import { CapcutEditPage } from "./pages/CapcutEditPage";
 import { CapcutDraftPage } from "./pages/CapcutDraftPage";
 import { CapcutSwapPage } from "./pages/CapcutSwapPage";
-import { CapcutVrewPage } from "./pages/CapcutVrewPage";
 import { ProductionPage } from "./pages/ProductionPage";
 import TtsProgressPage from "./pages/TtsProgressPage";
 import { AudioIntegrityPage } from "./pages/AudioIntegrityPage";
@@ -80,7 +79,6 @@ function App() {
         <Route path="/capcut-edit/production" element={<ProductionPage />} />
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />
         <Route path="/capcut-edit/swap" element={<CapcutSwapPage />} />
-        <Route path="/capcut-edit/vrew" element={<CapcutVrewPage />} />
         <Route path="/video-remotion" element={<RemotionWorkspacePage />} />
         <Route path="/audio-tts" element={<AudioTtsPage />} />
         <Route path="/audio-integrity" element={<AudioIntegrityPage />} />

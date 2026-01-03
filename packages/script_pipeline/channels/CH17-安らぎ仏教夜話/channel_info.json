@@ -49,7 +49,7 @@
   },
   "youtube_title": "安らぎ仏教夜話",
   "youtube_handle": "@yasuragi_bukkyo_yawa",
-  "video_workflow": "vrew_b",
+  "video_workflow": "capcut",
   "production_sources": {
     "voice_config_path": "packages/script_pipeline/audio/channels/CH17/voice_config.json",
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
