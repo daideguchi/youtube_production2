@@ -337,6 +337,8 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
 
     runner_path = script_pkg_root() / "runner.py"
     runner_lines = _safe_read_text(runner_path).splitlines()
+    offline_gen_path = script_pkg_root() / "offline_generator.py"
+    offline_gen_lines = _safe_read_text(offline_gen_path).splitlines()
     validator_path = script_pkg_root() / "validator.py"
     validator_lines = _safe_read_text(validator_path).splitlines()
     prompts_root = script_pkg_root() / "prompts"
@@ -354,6 +356,14 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                     return i + 1
         return _find_first_line_containing(runner_lines, needle)
 
+    def _safe_artifact_name(path: str) -> str:
+        safe = str(path or "").replace("/", "__").replace("\\", "__")
+        return "".join(ch if ch.isalnum() or ch in "._-__" else "_" for ch in safe)
+
+    def _llm_artifact_rel(stage: str, output_rel_path: str, *, log_suffix: str = "") -> str:
+        # Mirrors factory_common.artifacts.llm_text_output.artifact_path_for_output naming.
+        return f"artifacts/llm/{stage}{log_suffix}__{_safe_artifact_name(output_rel_path)}.json"
+
     stage_items: List[Dict[str, Any]] = []
     for idx, st in enumerate(stages or [], start=1):
         if not isinstance(st, dict):
@@ -361,7 +371,9 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
         name = str(st.get("name") or "").strip()
         if not name:
             continue
-        llm = st.get("llm") if isinstance(st.get("llm"), dict) else {}
+        llm = dict(st.get("llm") or {}) if isinstance(st.get("llm"), dict) else {}
+        if llm.get("task") and not llm.get("kind"):
+            llm["kind"] = "llm_router"
         tpl_name = str(llm.get("template") or "").strip() if isinstance(llm, dict) else ""
         tpl_conf = templates.get(tpl_name) if isinstance(templates, dict) else None
         tpl_path = ""
@@ -369,11 +381,17 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
             tpl_path = str(tpl_conf.get("path") or "").strip()
 
         dispatch_line: int | None = None
-        pattern = re.compile(rf"stage_name\s*==\s*['\"]{re.escape(name)}['\"]")
+        pattern = re.compile(rf"^\\s*(if|elif)\\s+stage_name\\s*==\\s*['\"]{re.escape(name)}['\"]")
         for ln, line in enumerate(runner_lines, start=1):
             if pattern.search(line):
                 dispatch_line = ln
                 break
+        if dispatch_line is None:
+            pattern = re.compile(rf"stage_name\\s*==\\s*['\"]{re.escape(name)}['\"]")
+            for ln, line in enumerate(runner_lines, start=1):
+                if pattern.search(line):
+                    dispatch_line = ln
+                    break
 
         impl_refs: List[Dict[str, Any]] = []
         dispatch_ref = _make_code_ref(repo, runner_path, dispatch_line, symbol=f"stage_dispatch:{name}")
@@ -437,8 +455,490 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 },
                 "impl_refs": impl_refs,
             }
+        uses_run_llm = bool(llm.get("task")) and name not in {"audio_synthesis", "script_enhancement"}
+        llm_primary_output = ""
+        if uses_run_llm:
+            if name == "script_review":
+                # script_review uses output_override=cta_path (assembled.md is built deterministically).
+                for out in step.get("outputs") or []:
+                    if isinstance(out, dict) and str(out.get("path") or "").strip() == "content/final/cta.txt":
+                        llm_primary_output = "content/final/cta.txt"
+                        break
+            if not llm_primary_output:
+                first_out = (step.get("outputs") or [None])[0]
+                if isinstance(first_out, dict):
+                    llm_primary_output = str(first_out.get("path") or "").strip()
+        if uses_run_llm and llm_primary_output:
+            step["outputs"].extend(
+                [
+                    {"path": _llm_artifact_rel(name, llm_primary_output), "required": False},
+                    {"path": f"logs/{name}_prompt.txt", "required": False},
+                    {"path": f"logs/{name}_response.json", "required": False},
+                ]
+            )
+        if name == "topic_research":
+            step["substeps"] = [
+                {
+                    "id": "B/topic_research/wikipedia_summary",
+                    "name": "wikipedia_summary",
+                    "description": "\n".join(
+                        [
+                            "Best-effort: Wikipedia イントロ（要約/URL）を取得して research に渡す。",
+                            "- 出力: content/analysis/research/wikipedia_summary.json（schema=ytm.wikipedia_summary.v1）",
+                            "- policy: sources(web_search_policy/wikipedia_policy) + env override（YTM_WIKIPEDIA_*）",
+                            "- 重要: 失敗してもパイプラインは止めない（topic_research LLM の入力を弱めるだけ）",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/analysis/research/wikipedia_summary.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_def_line(runner_lines, "_ensure_wikipedia_summary"),
+                                symbol="def:_ensure_wikipedia_summary",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "_ensure_wikipedia_summary(", max_scan=1200),
+                                symbol="call:_ensure_wikipedia_summary",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/topic_research/web_search_results",
+                    "name": "web_search_results",
+                    "description": "\n".join(
+                        [
+                            "Best-effort: Web検索結果（URL/hits）を取得して research に渡す。",
+                            "- 出力: content/analysis/research/search_results.json（schema=ytm.web_search_results.v1）",
+                            "- policy: sources.web_search_policy（disabled/auto/required）",
+                            "- 重要: 失敗してもパイプラインは止めない（ただし厳格モードは別）",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/analysis/research/search_results.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_def_line(runner_lines, "_ensure_web_search_results"),
+                                symbol="def:_ensure_web_search_results",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "_ensure_web_search_results(", max_scan=1200),
+                                symbol="call:_ensure_web_search_results",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/topic_research/missing_sources_guard",
+                    "name": "missing_sources_guard",
+                    "description": "\n".join(
+                        [
+                            "任意の厳格ガード: evidence URL が無い場合、topic_research の前に停止する。",
+                            "- env: SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES=1",
+                            "- 対処: Brave検索を有効化 or research bundle を手で投入してから再実行",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_def_line(runner_lines, "_should_block_topic_research_due_to_missing_research_sources"),
+                                symbol="def:_should_block_topic_research_due_to_missing_research_sources",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(
+                                    dispatch_line,
+                                    "_should_block_topic_research_due_to_missing_research_sources",
+                                    max_scan=1400,
+                                ),
+                                symbol="guard:SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/topic_research/references_json",
+                    "name": "references_json",
+                    "description": "\n".join(
+                        [
+                            "references.json を確実に作る（search/wiki/research_brief からURL抽出）。",
+                            "- 出力: content/analysis/research/references.json",
+                            "- 重要: placeholdersではなく“URL一覧”として downstream fact_check で使う",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/analysis/research/references.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_def_line(runner_lines, "_ensure_references"),
+                                symbol="def:_ensure_references",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "_ensure_references(", max_scan=2400),
+                                symbol="call:_ensure_references",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+            ]
+        if name == "script_master_plan":
+            step["substeps"] = [
+                {
+                    "id": "B/script_master_plan/deterministic_master_plan",
+                    "name": "deterministic_master_plan",
+                    "description": "\n".join(
+                        [
+                            "決定論で master_plan.json を生成する（下流の安定性が目的）。",
+                            "- 出力: content/analysis/master_plan.json（schema=ytm.script_master_plan.v1）",
+                            "- 前提: outline の章構造が必要（無い場合は pending で停止）",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/analysis/master_plan.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_def_line(runner_lines, "_build_deterministic_rebuild_plan"),
+                                symbol="def:_build_deterministic_rebuild_plan",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                dispatch_line,
+                                symbol="stage_dispatch:script_master_plan",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_master_plan/llm_refine_summary_optional",
+                    "name": "llm_refine_summary_optional",
+                    "description": "\n".join(
+                        [
+                            "任意: plan_summary_text だけを LLM で整える（1回だけ/コストガード付き）。",
+                            "- env: SCRIPT_MASTER_PLAN_LLM=1 + SCRIPT_MASTER_PLAN_LLM_TASK（推奨: script_master_plan_opus） + SCRIPT_MASTER_PLAN_LLM_CHANNELS",
+                            "- prompt: prompts/master_plan_prompt.txt",
+                            "- 出力: master_plan.json 内の llm_refinement（schema=ytm.script_master_plan_llm.v1）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_master_plan_opus"},
+                    "template": {
+                        "name": "master_plan_prompt.txt",
+                        "path": _repo_rel(prompts_root / "master_plan_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [{"path": "content/analysis/master_plan.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "SCRIPT_MASTER_PLAN_LLM", max_scan=1600),
+                                symbol="env:SCRIPT_MASTER_PLAN_LLM*",
+                            )
+                        ]
+                        if r
+                    ],
+                },
+            ]
+        if name == "chapter_brief":
+            step["substeps"] = [
+                {
+                    "id": "B/chapter_brief/offline_fallback",
+                    "name": "offline_fallback",
+                    "description": "\n".join(
+                        [
+                            "LLMが走らない場合（artifact/pending や dry 等）、offline で章ブリーフを生成する（best-effort）。",
+                            "- 重要: 章数/章番号が合わない場合は pending で停止（chapter_brief_incomplete）",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                offline_gen_path,
+                                _find_def_line(offline_gen_lines, "generate_chapter_briefs_offline"),
+                                symbol="offline:generate_chapter_briefs_offline",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "generate_chapter_briefs_offline", max_scan=2200),
+                                symbol="call:generate_chapter_briefs_offline",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/chapter_brief/json_canonicalize",
+                    "name": "json_canonicalize",
+                    "description": "\n".join(
+                        [
+                            "chapter_briefs.json を JSON list として canonicalize する（パース事故防止）。",
+                            "- 出力: content/chapters/chapter_briefs.json",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/chapters/chapter_briefs.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "_canonicalize_json_list_file", max_scan=2400),
+                                symbol="canonicalize:_canonicalize_json_list_file",
+                            )
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/chapter_brief/completeness_gate",
+                    "name": "completeness_gate",
+                    "description": "\n".join(
+                        [
+                            "章数/章番号の一致を検査し、足りなければ pending で停止する。",
+                            "- error: chapter_brief_incomplete",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "chapter_brief_incomplete", max_scan=2600), symbol="error:chapter_brief_incomplete")
+                        ]
+                        if r
+                    ],
+                },
+            ]
+        if name == "script_draft":
+            step["substeps"] = [
+                {
+                    "id": "B/script_draft/prereq_gate",
+                    "name": "prereq_gate",
+                    "description": "\n".join(
+                        [
+                            "前提チェック: outline構造 + chapter_briefs.json が揃っていないと停止する。",
+                            "- error: outline_missing_chapters / chapter_brief_missing / chapter_brief_incomplete",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "outline_missing_chapters", max_scan=2400), symbol="error:outline_missing_chapters"),
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "chapter_brief_missing", max_scan=2400), symbol="error:chapter_brief_missing"),
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "chapter_brief_incomplete", max_scan=2400), symbol="error:chapter_brief_incomplete"),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_draft/chapter_loop_llm",
+                    "name": "chapter_loop_llm",
+                    "description": "\n".join(
+                        [
+                            "章ごとに LLM で草稿を生成する（output_override=chapter_{N}.md）。",
+                            "- 出力: content/chapters/chapter_1.md ... chapter_N.md",
+                            "- artifacts: artifacts/llm/script_draft__content__chapters__chapter_N.md.json（章ごと）",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/chapters/chapter_*.md", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "output_override=out_path", max_scan=4000), symbol="call:_run_llm(output_override=chapter_N)"),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_draft/offline_mode",
+                    "name": "offline_mode",
+                    "description": "\n".join(
+                        [
+                            "dry/offline モード: LLMを呼ばずに章草稿を生成する。",
+                            "- env: SCRIPT_PIPELINE_DRY=1",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                offline_gen_path,
+                                _find_def_line(offline_gen_lines, "generate_chapter_drafts_offline"),
+                                symbol="offline:generate_chapter_drafts_offline",
+                            )
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_draft/invalidate_downstream",
+                    "name": "invalidate_downstream",
+                    "description": "\n".join(
+                        [
+                            "章草稿を生成/更新した場合、assembled.md が stale にならないように下流を invalidation する。",
+                            "- 対象: script_review / quality_check / script_validation（assembled_human.md が無い場合）",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "Invalidate downstream assembly", max_scan=5000), symbol="invalidate:downstream"),
+                        ]
+                        if r
+                    ],
+                },
+            ]
+        if name == "script_enhancement":
+            step["substeps"] = [
+                {
+                    "id": "B/script_enhancement/noop_current",
+                    "name": "noop_current",
+                    "description": "\n".join(
+                        [
+                            "⚠ 現状は no-op（outputs=[] のため _run_llm が実行されず、何も変更しない）。",
+                            "意図: 将来的な章改善パス（章ファイル上書き）だが、出力設計が未確定。",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(None, "if not outputs and output_override is None", max_scan=2000), symbol="_run_llm:requires_output"),
+                        ]
+                        if r
+                    ],
+                }
+            ]
+        if name == "script_review":
+            step["substeps"] = [
+                {
+                    "id": "B/script_review/cta_optional",
+                    "name": "cta_optional",
+                    "description": "\n".join(
+                        [
+                            "任意: CTA を生成する（CH04/CH05/CH10 は既定でOFF）。",
+                            "- 出力: content/final/cta.txt（artifact/logsあり）",
+                        ]
+                    ),
+                    "llm": {"kind": "llm_router", "task": "script_cta"},
+                    "template": {
+                        "name": "cta_prompt.txt",
+                        "path": _repo_rel(prompts_root / "cta_prompt.txt", root=repo),
+                        "line": 1,
+                    },
+                    "outputs": [{"path": "content/final/cta.txt", "required": False}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "include_cta", max_scan=1200), symbol="include_cta"),
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "output_override=cta_path", max_scan=1200), symbol="call:_run_llm(output_override=cta.txt)"),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_review/assemble_chapters",
+                    "name": "assemble_chapters",
+                    "description": "\n".join(
+                        [
+                            "章ファイルを結合し、assembled.md を生成する（区切りは ---）。",
+                            "- 出力: content/assembled.md",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/assembled.md", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "assembled_body = \"\\n\\n---\\n\\n\".join", max_scan=1800), symbol="assemble:---join"),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_review/meta_sanitize",
+                    "name": "meta_sanitize",
+                    "description": "\n".join(
+                        [
+                            "最終ガード: URL/出典/メタを Aテキストから除去する（TTS/字幕への混入防止）。",
+                            "- 実装: factory_common.text_sanitizer.strip_meta_from_script",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "strip_meta_from_script", max_scan=2000), symbol="sanitize:strip_meta_from_script"),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_review/alignment_stamp",
+                    "name": "alignment_stamp",
+                    "description": "\n".join(
+                        [
+                            "Planning(title/thumbnail) ↔ Aテキスト の alignment stamp を生成し status.json に保存する。",
+                            "- 下流 audio_tts はこの stamp が無いと STOP（事故防止）",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "build_alignment_stamp(", max_scan=2600), symbol="alignment:build_alignment_stamp"),
+                        ]
+                        if r
+                    ],
+                },
+            ]
         if name == "script_outline":
             step["substeps"] = [
+                {
+                    "id": "B/script_outline/outline_structure_guard",
+                    "name": "outline_structure_guard",
+                    "description": "\n".join(
+                        [
+                            "アウトラインの章構造（章見出し/章数）を保証する。崩れている場合は pending で停止。",
+                            "- error: outline_missing_chapters",
+                        ]
+                    ),
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(repo, runner_path, _find_def_line(runner_lines, "_ensure_outline_structure"), symbol="def:_ensure_outline_structure"),
+                            _make_code_ref(repo, runner_path, _find_near(dispatch_line, "_ensure_outline_structure", max_scan=2400), symbol="call:_ensure_outline_structure"),
+                        ]
+                        if r
+                    ],
+                },
                 {
                     "id": "B/script_outline/outline_semantic_alignment_gate",
                     "name": "outline_semantic_alignment_gate",
@@ -813,6 +1313,65 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
             ]
         if name == "audio_synthesis":
             step["related_flow"] = "audio_tts"
+        if name == "script_validation" and isinstance(step.get("substeps"), list):
+            step["substeps"] = [
+                {
+                    "id": "B/script_validation/deterministic_validate_and_cleanup",
+                    "name": "deterministic_validate_and_cleanup",
+                    "description": "\n".join(
+                        [
+                            "決定論: Aテキスト（assembled_human優先）を検証し、必要なら安全な範囲でcleanupする。",
+                            "- validator: packages/script_pipeline/validator.py:validate_a_text",
+                            "- 重要: 機械的なポーズ行挿入（等間隔）はしない（文脈ベースのみ）",
+                        ]
+                    ),
+                    "outputs": [
+                        {"path": "content/assembled_human.md (if present) / content/assembled.md", "required": True},
+                    ],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                validator_path,
+                                _find_def_line(validator_lines, "validate_a_text"),
+                                symbol="validator:validate_a_text",
+                            ),
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "validate_a_text(", max_scan=12000),
+                                symbol="call:validate_a_text",
+                            ),
+                        ]
+                        if r
+                    ],
+                },
+                {
+                    "id": "B/script_validation/fact_check_gate",
+                    "name": "fact_check_gate",
+                    "description": "\n".join(
+                        [
+                            "証拠ベースのファクトチェックを実行する（失敗したら停止）。",
+                            "- 出力: content/analysis/research/fact_check_report.json",
+                            "- policy: YTM_FACT_CHECK_POLICY / sources.fact_check_policy（channel別）",
+                        ]
+                    ),
+                    "outputs": [{"path": "content/analysis/research/fact_check_report.json", "required": True}],
+                    "impl_refs": [
+                        r
+                        for r in [
+                            _make_code_ref(
+                                repo,
+                                runner_path,
+                                _find_near(dispatch_line, "run_fact_check_with_codex", max_scan=14000),
+                                symbol="fact_check:run_fact_check_with_codex",
+                            )
+                        ]
+                        if r
+                    ],
+                },
+            ] + list(step.get("substeps") or [])
         stage_items.append(step)
 
     entrypoints_step: Dict[str, Any] = {
@@ -3480,6 +4039,12 @@ def build_ssot_catalog() -> Dict[str, Any]:
                             "B/ensure_status",
                             "B/topic_research",
                             "B/script_outline",
+                            "B/script_master_plan",
+                            "B/chapter_brief",
+                            "B/script_draft",
+                            "B/script_enhancement",
+                            "B/script_review",
+                            "B/quality_check",
                             "B/script_validation",
                             "B/audio_synthesis",
                         ],
