@@ -514,6 +514,17 @@ class ImageClient:
                     if raw_af is not None:
                         allow_fallback = bool(raw_af)
 
+        # Tier fallback policy (when no explicit model_key is selected):
+        # - default: try the tier candidate list (best-effort)
+        # - to make a task strict: set tasks.<task>.allow_fallback: false or pass extra.allow_fallback=false
+        tier_allow_fallback = True
+        if allow_fallback_explicit:
+            tier_allow_fallback = allow_fallback
+        else:
+            raw_task_af = task_conf.get("allow_fallback")
+            if raw_task_af is not None:
+                tier_allow_fallback = bool(raw_task_af)
+
         errors: List[Tuple[str, Exception]] = []
         if forced_model_key:
             forced_conf = self._config.get("models", {}).get(forced_model_key)
@@ -614,7 +625,8 @@ class ImageClient:
                 + "; ".join([f"{k}: {e}" for k, e in errors])
             )
 
-        for attempt_idx, model_key in enumerate(self._rotate_candidates(tier_name, candidates)):
+        candidate_keys = self._rotate_candidates(tier_name, candidates) if tier_allow_fallback else candidates[:1]
+        for attempt_idx, model_key in enumerate(candidate_keys):
             model_conf = self._config.get("models", {}).get(model_key)
             if not model_conf:
                 errors.append((model_key, ImageGenerationError(f"Model '{model_key}' not found")))
@@ -697,9 +709,16 @@ class ImageClient:
             prompt_hash=self._hash_prompt(options.prompt),
             errors=[{"model": k, "error": str(e)} for k, e in errors],
         )
+        hint = ""
+        if not tier_allow_fallback and isinstance(candidates, list) and len(candidates) > 1:
+            hint = (
+                " Tier fallback is disabled; set extra.allow_fallback=true (per-call) or "
+                "tasks.<task>.allow_fallback=true (config) to try alternatives."
+            )
         raise ImageGenerationError(
             f"All image models failed for task '{options.task}': "
             + "; ".join([f"{k}: {e}" for k, e in errors])
+            + hint
         )
 
     def _load_config(self) -> Dict[str, Any]:

@@ -61,9 +61,12 @@
 - **明示的にモデル/品質を指定した場合、fallback（別モデル/別tier/別provider）は禁止**。失敗したら **停止して報告**し、代替案を提示する。
 
 ### Recommended（推奨）
-- LLM（`factory_common.llm_router`）/画像（`factory_common.image_client`）ともに:
-  - **明示選択（env/override/call-time）= strict** とみなし、`allow_fallback=true` を明示しない限り代替を試さない。
-  - 例外的に代替を許す場合は **許可の根拠をSSOTに残す**（taskごとに `allow_fallback=true`）。
+- LLM（`factory_common.llm_router`）:
+  - **明示選択（env/override/call-time、またはtask設定でmodelsをpin）= strict** とし、`allow_fallback=true` を明示しない限り先頭モデルのみ。
+- 画像（`factory_common.image_client`）:
+  - **明示 model_key（templates/env/profile/call-time）= strict** とし、`allow_fallback=true` を明示しない限り代替モデルを試さない。
+  - tier候補（`configs/image_models.yaml: tiers`）の自動切替は、`tasks.<task>.allow_fallback=true`（または per-call `extra.allow_fallback=true`）を明示した場合のみ。
+- 例外的に代替を許す場合は **許可の根拠をSSOTに残す**（taskごとに `allow_fallback=true` を宣言）。
 
 ### Rationale（根拠）
 - 品質の“勝手な妥協”は、後工程のやり直しで **コストが最も増える**。

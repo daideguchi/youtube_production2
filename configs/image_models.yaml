@@ -187,18 +187,21 @@ tiers:
 tasks:
   image_generation:
     tier: video_image_gen
+    allow_fallback: false
     defaults:
       aspect_ratio: "16:9"
       size: "1920x1080"
       n: 1
   visual_image_gen:
     tier: video_image_gen
+    allow_fallback: false
     defaults:
       aspect_ratio: "16:9"
       size: "1920x1080"
       n: 1
   thumbnail_image_gen:
     tier: thumbnail_image_gen
+    allow_fallback: false
     retries_per_model: 0
     defaults:
       aspect_ratio: "16:9"
