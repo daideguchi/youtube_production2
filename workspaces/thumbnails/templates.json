@@ -65,6 +65,18 @@
         "version": 3,
         "path": "workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1.yaml",
         "name": "ch22_text_layout_ch22_v1"
+      },
+      "ch23_image_prompts_ch23_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch23_image_prompts_ch23_v1.yaml",
+        "name": "ch23_image_prompts_ch23_v1"
+      },
+      "ch23_text_layout_ch23_v1": {
+        "kind": "text_layout",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch23_text_layout_ch23_v1.yaml",
+        "name": "ch23_text_layout_ch23_v1"
       }
     }
   },
@@ -415,6 +427,51 @@
           "notes": "CH22は手動背景(10_bg.*)も許容するが、画像やり直し/再生成が多いため生成を有効化。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
           "created_at": "2025-12-28T00:00:00Z",
           "updated_at": "2025-12-28T00:00:00Z"
+        }
+      ]
+    },
+    "CH23": {
+      "default_template_id": "ch23_manual_bg_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch23_image_prompts_ch23_v1",
+        "text_layout_id": "ch23_text_layout_ch23_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.08,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH23: 夫婦ドラマ（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "退職した夫が",
+        "preview_title": null,
+        "preview_lower": "家を占領する"
+      },
+      "templates": [
+        {
+          "id": "ch23_manual_bg_v1",
+          "name": "CH23: 背景生成（NO TEXT/左35%を単純化）v1",
+          "image_model_key": "fireworks_flux_kontext_max",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 日本の60代夫婦の家庭ドラマ（落ち着いた水彩コミック調、フルカラー）\\n- 左側35%は文字スペースとして比較的シンプル（壁/テーブル/ボケ）にし、読みやすさを確保\\n- 上部15%と下部25%は文字合成のため情報量を落とす\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH23は layer_specs の prompt_ja を使って背景(10_bg)をFireworks MAXで生成し、文字はローカル合成する。",
+          "created_at": "2026-01-03T00:00:00Z",
+          "updated_at": "2026-01-03T00:00:00Z"
         }
       ]
     }
