@@ -7,6 +7,7 @@ import { SsotFlowGraph } from "./SsotFlowGraph";
 
 type FlowKey =
   | "mainline"
+  | "system"
   | "planning"
   | "script_pipeline"
   | "audio_tts"
@@ -192,8 +193,8 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
-// Allow zooming out enough to always fit large traces (readability is handled via Fit + manual zoom).
-const MIN_GRAPH_SCALE = 0.01;
+// Keep zoom-out usable while avoiding unreadably tiny text. For very large flows, prefer Timeline.
+const MIN_GRAPH_SCALE = 0.05;
 const MAX_GRAPH_SCALE = 3.0;
 const GRAPH_ZOOM_STEP = 0.05;
 
@@ -206,6 +207,7 @@ export function SsotSystemMap() {
   const [graphScale, setGraphScale] = useState(1);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number }>({ width: 640, height: 240 });
   const [autoFit, setAutoFit] = useState(true);
+  const [fitClamped, setFitClamped] = useState(false);
   const [focusMode, setFocusMode] = useState(true);
   const [showQuickView, setShowQuickView] = useState(true);
   const [showCatalogPanel, setShowCatalogPanel] = useState(true);
@@ -251,6 +253,7 @@ export function SsotSystemMap() {
   const baseNodes: SsotCatalogFlowStep[] = useMemo(() => {
     if (!catalog) return [];
     if (flow === "mainline") return catalog.mainline.nodes || [];
+    if (flow === "system") return catalog.system?.nodes || [];
     if (flow === "planning") return catalog.flows.planning?.steps || [];
     if (flow === "script_pipeline") return catalog.flows.script_pipeline?.steps || [];
     if (flow === "audio_tts") return catalog.flows.audio_tts?.steps || [];
@@ -265,6 +268,7 @@ export function SsotSystemMap() {
   const baseEdges = useMemo(() => {
     if (!catalog) return [];
     if (flow === "mainline") return catalog.mainline.edges || [];
+    if (flow === "system") return catalog.system?.edges || [];
     if (flow === "planning") return catalog.flows.planning?.edges || [];
     if (flow === "script_pipeline") return catalog.flows.script_pipeline?.edges || [];
     if (flow === "audio_tts") return catalog.flows.audio_tts?.edges || [];
@@ -320,6 +324,7 @@ export function SsotSystemMap() {
   const nodesForFlowKey = useCallback((k: FlowKey): SsotCatalogFlowStep[] => {
     if (!catalog) return [];
     if (k === "mainline") return catalog.mainline.nodes || [];
+    if (k === "system") return catalog.system?.nodes || [];
     if (k === "planning") return catalog.flows.planning?.steps || [];
     if (k === "script_pipeline") return catalog.flows.script_pipeline?.steps || [];
     if (k === "audio_tts") return catalog.flows.audio_tts?.steps || [];
@@ -416,6 +421,7 @@ export function SsotSystemMap() {
   const flowMeta = useMemo(() => {
     if (!catalog) return null;
     if (flow === "mainline") return catalog.mainline as any;
+    if (flow === "system") return catalog.system as any;
     if (flow === "planning") return catalog.flows.planning as any;
     if (flow === "script_pipeline") return catalog.flows.script_pipeline as any;
     if (flow === "audio_tts") return catalog.flows.audio_tts as any;
@@ -641,6 +647,7 @@ export function SsotSystemMap() {
       if (w <= 0 || h <= 0) return;
       const scale = Math.min(w / size.width, h / size.height);
       const next = clamp(Number(scale.toFixed(3)), MIN_GRAPH_SCALE, MAX_GRAPH_SCALE);
+      setFitClamped(next <= MIN_GRAPH_SCALE + 1e-6);
       setGraphScale((prev) => (Math.abs(prev - next) < 0.001 ? prev : next));
     },
     [],
@@ -1141,6 +1148,15 @@ export function SsotSystemMap() {
             </button>
             <button
               type="button"
+              className={`research-chip ${flow === "system" ? "is-active" : ""}`}
+              onClick={() => setFlow("system")}
+              disabled={!catalog?.system}
+              title="全Flowのsteps/edgesを統合した“全体像”です（Graphは重いのでTimeline推奨）"
+            >
+              System
+            </button>
+            <button
+              type="button"
               className={`research-chip ${flow === "planning" ? "is-active" : ""}`}
               onClick={() => setFlow("planning")}
               disabled={!catalog?.flows?.planning}
@@ -1398,6 +1414,12 @@ export function SsotSystemMap() {
               {flowView === "graph" ? (
                 <div className="muted small-text" style={{ marginTop: 8 }}>
                   Drag to pan / Ctrl(or ⌘)+Wheel to zoom / Double-click to Fit
+                </div>
+              ) : null}
+              {flowView === "graph" && autoFit && fitClamped ? (
+                <div className="main-alert main-alert--warning" style={{ marginTop: 10 }}>
+                  Graphが大きく、Fitが最小倍率（{MIN_GRAPH_SCALE.toFixed(2)}x）に到達しています。読みやすさ優先なら{" "}
+                  <span className="mono">Timeline</span> に切替 or <span className="mono">Substeps</span> で分割してください。
                 </div>
               ) : null}
               {focusMode || (flowView === "graph" && !showCatalogPanel) ? (
@@ -2244,7 +2266,7 @@ export function SsotSystemMap() {
                 )}
               </div>
 
-              <details id="ssot-flow-runbook" style={{ marginTop: 10 }} open={flowView === "graph" ? true : undefined}>
+              <details id="ssot-flow-runbook" style={{ marginTop: 10 }}>
                 <summary style={{ cursor: "pointer", fontWeight: 900 }}>Flow Runbook（全ステップ詳細）</summary>
                 <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
                   {nodes.map((s) => {

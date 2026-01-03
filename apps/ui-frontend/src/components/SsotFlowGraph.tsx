@@ -64,12 +64,13 @@ function computeLayout(
   const ultraDense = steps.length >= 40;
   const dense = steps.length >= 18;
   const small = steps.length <= 12;
+  const compactSmallHorizontal = orientation === "horizontal" && steps.length >= 7;
 
-  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? 230 : 210;
-  const nodeHeight = ultraDense ? 62 : dense ? 70 : small ? 124 : 104;
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? (compactSmallHorizontal ? 150 : 230) : 210;
+  const nodeHeight = ultraDense ? 62 : dense ? 70 : small ? (compactSmallHorizontal ? 114 : 124) : 104;
 
-  const gapMain = ultraDense ? 48 : dense ? 56 : small ? 60 : 72;
-  const gapCross = ultraDense ? 44 : dense ? 52 : small ? 72 : 80;
+  const gapMain = ultraDense ? 48 : dense ? 56 : small ? (compactSmallHorizontal ? 26 : 60) : 72;
+  const gapCross = ultraDense ? 44 : dense ? 52 : small ? (compactSmallHorizontal ? 60 : 72) : 80;
   const margin = ultraDense ? 16 : small ? 20 : 24;
 
   const idToStep = new Map<string, SsotCatalogFlowStep>();
@@ -188,6 +189,7 @@ export function SsotFlowGraph({
   const isDense = steps.length >= 18;
   const showDescription = !isDense;
   const showTaskInFooter = !isUltraDense;
+  const descriptionClamp = steps.length <= 12 ? (orientation === "horizontal" && steps.length >= 7 ? 2 : 3) : 2;
 
   const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
   const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
@@ -469,7 +471,7 @@ export function SsotFlowGraph({
                   color: "#334155",
                   lineHeight: 1.35,
                   display: "-webkit-box",
-                  WebkitLineClamp: 2,
+                  WebkitLineClamp: descriptionClamp,
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
                 }}

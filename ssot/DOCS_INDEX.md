@@ -72,6 +72,7 @@
 - `ops/OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `ops/OPS_YT_DLP.md`: yt-dlp運用（競合タイトル/メタ収集）のSSOT（DLせず公開メタのみ）。
 - `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
+- `ops/OPS_ZOMBIE_CODE_REGISTER.md`: ゾンビコード候補台帳（未確定の棚卸し・意思決定の入口）。
 - `ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`: published済みエピソードのアーカイブ（planning progress 連動、探索ノイズ削減）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。

@@ -135,6 +135,9 @@ export function SsotWorkspace() {
           <Link className="research-chip" to="/ssot/gaps">
             Gaps
           </Link>
+          <Link className="research-chip" to="/ssot/zombies">
+            Zombies
+          </Link>
           <Link className="research-chip" to="/ssot/entrypoints">
             Entrypoints
           </Link>

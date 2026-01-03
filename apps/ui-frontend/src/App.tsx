@@ -16,6 +16,7 @@ import { SsotMapPage } from "./pages/SsotMapPage";
 import { SsotEntrypointsPage } from "./pages/SsotEntrypointsPage";
 import { SsotTracePage } from "./pages/SsotTracePage";
 import { SsotGapsPage } from "./pages/SsotGapsPage";
+import { SsotZombiesPage } from "./pages/SsotZombiesPage";
 import { ThumbnailsPage } from "./pages/ThumbnailsPage";
 import { AudioReviewRoute } from "./pages/AudioReviewRoute";
 import { ReportsPage } from "./pages/ReportsPage";
@@ -64,6 +65,7 @@ function App() {
         <Route path="/ssot" element={<SsotPortalPage />} />
         <Route path="/ssot/map" element={<SsotMapPage />} />
         <Route path="/ssot/gaps" element={<SsotGapsPage />} />
+        <Route path="/ssot/zombies" element={<SsotZombiesPage />} />
         <Route path="/ssot/entrypoints" element={<SsotEntrypointsPage />} />
         <Route path="/ssot/trace" element={<SsotTracePage />} />
         <Route path="/ssot/trace/:key" element={<SsotTracePage />} />

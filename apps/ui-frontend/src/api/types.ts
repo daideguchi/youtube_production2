@@ -1897,6 +1897,12 @@ export interface SsotCatalog {
   schema: string;
   generated_at: string;
   policies?: SsotCatalogPolicy[];
+  system?: {
+    flow_id: string;
+    summary?: string;
+    nodes: SsotCatalogFlowStep[];
+    edges: SsotCatalogEdge[];
+  };
   mainline: {
     flow_id: string;
     nodes: SsotCatalogFlowStep[];
@@ -1995,6 +2001,7 @@ export interface SsotCatalog {
       string,
       {
         tier?: string | null;
+        allow_fallback?: boolean | null;
         model_keys?: string[];
         resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
         router_task?: Record<string, unknown>;

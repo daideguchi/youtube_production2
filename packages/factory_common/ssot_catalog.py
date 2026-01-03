@@ -3089,6 +3089,11 @@ def build_ssot_catalog() -> Dict[str, Any]:
             override = {}
 
         tier = str(override.get("tier") or base.get("tier") or "").strip()
+        allow_fallback = (
+            bool(override.get("allow_fallback"))
+            if isinstance(override, dict) and "allow_fallback" in override
+            else (bool(base.get("allow_fallback")) if "allow_fallback" in base else None)
+        )
 
         model_keys: List[str] = []
         explicit_models = override.get("models") if "models" in override else base.get("models")
@@ -3120,6 +3125,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "resolved_models": resolved_models,
             "router_task": base,
             "override_task": override or None,
+            "allow_fallback": allow_fallback,
         }
 
     declared_image_tasks: set[str] = set()
@@ -3304,12 +3310,115 @@ def build_ssot_catalog() -> Dict[str, Any]:
         },
     ]
 
+    def _flow_first_node_id(flow: Dict[str, Any]) -> str | None:
+        steps = flow.get("steps") or []
+        if not isinstance(steps, list) or not steps:
+            return None
+        first = steps[0]
+        return str(first.get("node_id") or "").strip() if isinstance(first, dict) else None
+
+    def _flow_last_node_id(flow: Dict[str, Any]) -> str | None:
+        steps = flow.get("steps") or []
+        if not isinstance(steps, list) or not steps:
+            return None
+        last = steps[-1]
+        return str(last.get("node_id") or "").strip() if isinstance(last, dict) else None
+
+    def _merge_edges(*edge_lists: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for lst in edge_lists:
+            for e in lst or []:
+                if not isinstance(e, dict):
+                    continue
+                f = str(e.get("from") or "").strip()
+                t = str(e.get("to") or "").strip()
+                if not f or not t:
+                    continue
+                key = f"{f} -> {t}"
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(e)
+        return out
+
+    system_nodes: List[Dict[str, Any]] = []
+    for flow in (
+        planning_flow,
+        script_flow,
+        audio_flow,
+        video_flow,
+        thumbnails_flow,
+        remotion_flow,
+        publish_flow,
+        video_srt2images_flow,
+    ):
+        steps = flow.get("steps") or []
+        if isinstance(steps, list):
+            system_nodes.extend([s for s in steps if isinstance(s, dict)])
+
+    glue_edges: List[Dict[str, Any]] = []
+    p_last = _flow_last_node_id(planning_flow)
+    b_first = _flow_first_node_id(script_flow)
+    b_last = _flow_last_node_id(script_flow)
+    c_first = _flow_first_node_id(audio_flow)
+    c_last = _flow_last_node_id(audio_flow)
+    d_first = _flow_first_node_id(video_flow)
+    d_last = _flow_last_node_id(video_flow)
+    g_first = _flow_first_node_id(publish_flow)
+    f_first = _flow_first_node_id(thumbnails_flow)
+    e_first = _flow_first_node_id(remotion_flow)
+    e_last = _flow_last_node_id(remotion_flow)
+    srt_first = _flow_first_node_id(video_srt2images_flow)
+
+    if p_last and b_first:
+        glue_edges.append({"from": p_last, "to": b_first, "label": "episode key → script"})
+    if b_last and c_first:
+        glue_edges.append({"from": b_last, "to": c_first, "label": "A-text → TTS"})
+    if c_last and d_first:
+        glue_edges.append({"from": c_last, "to": d_first, "label": "wav+srt → video"})
+    if d_last and g_first:
+        glue_edges.append({"from": d_last, "to": g_first, "label": "mp4 → publish"})
+    if p_last and f_first:
+        glue_edges.append({"from": p_last, "to": f_first, "label": "thumb fields → variants"})
+    if d_last and e_first:
+        glue_edges.append({"from": d_last, "to": e_first, "label": "run_dir → remotion"})
+    if e_last and g_first:
+        glue_edges.append({"from": e_last, "to": g_first, "label": "mp4 (remotion) → publish"})
+    if d_first and srt_first:
+        glue_edges.append({"from": d_first, "to": srt_first, "label": "calls run_pipeline"})
+
+    system_graph: Dict[str, Any] = {
+        "flow_id": "system",
+        "summary": "\n".join(
+            [
+                "全フロー（Planning/Script/Audio/Video/Thumbnails/Publish…）を1つのビューに統合した“全体像”。",
+                "- ノード: 各Flowの steps",
+                "- エッジ: 各Flow内の edges + cross-flow glue（label付き）",
+                "- 推奨: Timeline 表示 + Filter（Graphは重くなりがち）",
+            ]
+        ),
+        "nodes": system_nodes,
+        "edges": _merge_edges(
+            planning_flow.get("edges") or [],
+            script_flow.get("edges") or [],
+            audio_flow.get("edges") or [],
+            video_flow.get("edges") or [],
+            thumbnails_flow.get("edges") or [],
+            remotion_flow.get("edges") or [],
+            publish_flow.get("edges") or [],
+            video_srt2images_flow.get("edges") or [],
+            glue_edges,
+        ),
+    }
+
     return {
         "schema": CATALOG_SCHEMA_V1,
         "generated_at": _utc_now_iso(),
         "repo_root": str(repo),
         "logs_root": str(logs_root()),
         "policies": policies,
+        "system": system_graph,
         "mainline": {
             "flow_id": "mainline",
             "summary": "\n".join(
