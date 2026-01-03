@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-01-01T02:26:38.893264+00:00",
+  "updated_at": "2026-01-03T03:32:28.412136+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -8334,6 +8334,876 @@
       "status_updated_at": "2026-01-01T02:26:38.871523+00:00",
       "updated_at": "2026-01-01T02:26:38.871523+00:00",
       "selected_variant_id": "fs::ch01_256_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "001",
+      "variants": [
+        {
+          "id": "fs::ch23_001_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/001/00_thumb_2.png",
+          "image_path": "CH23/001/00_thumb_2.png",
+          "created_at": "2026-01-03T03:28:42.515366+00:00",
+          "updated_at": "2026-01-03T03:28:42.515368+00:00"
+        },
+        {
+          "id": "fs::ch23_001_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/001/00_thumb.png",
+          "image_path": "CH23/001/00_thumb.png",
+          "created_at": "2026-01-03T03:11:20.395069+00:00",
+          "updated_at": "2026-01-03T03:16:12.399877+00:00"
+        }
+      ],
+      "title": "退職した夫が家を占領｜家庭内別居の現実が始まった日",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:28:42.515345+00:00",
+      "updated_at": "2026-01-03T03:28:42.515369+00:00",
+      "selected_variant_id": "fs::ch23_001_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "002",
+      "variants": [
+        {
+          "id": "fs::ch23_002_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/002/00_thumb_2.png",
+          "image_path": "CH23/002/00_thumb_2.png",
+          "created_at": "2026-01-03T03:28:51.162334+00:00",
+          "updated_at": "2026-01-03T03:28:51.162335+00:00"
+        },
+        {
+          "id": "fs::ch23_002_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/002/00_thumb.png",
+          "image_path": "CH23/002/00_thumb.png",
+          "created_at": "2026-01-03T03:16:20.936086+00:00",
+          "updated_at": "2026-01-03T03:16:20.936087+00:00"
+        }
+      ],
+      "title": "たった一言で夫婦が冷えた｜家庭内別居の末路",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:28:51.162314+00:00",
+      "updated_at": "2026-01-03T03:28:51.162337+00:00",
+      "selected_variant_id": "fs::ch23_002_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "003",
+      "variants": [
+        {
+          "id": "fs::ch23_003_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/003/00_thumb_2.png",
+          "image_path": "CH23/003/00_thumb_2.png",
+          "created_at": "2026-01-03T03:28:59.531785+00:00",
+          "updated_at": "2026-01-03T03:28:59.531786+00:00"
+        },
+        {
+          "id": "fs::ch23_003_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/003/00_thumb.png",
+          "image_path": "CH23/003/00_thumb.png",
+          "created_at": "2026-01-03T03:16:29.314591+00:00",
+          "updated_at": "2026-01-03T03:16:29.314593+00:00"
+        }
+      ],
+      "title": "年金を握られた63歳｜私の老後が消える夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:28:59.531764+00:00",
+      "updated_at": "2026-01-03T03:28:59.531788+00:00",
+      "selected_variant_id": "fs::ch23_003_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "004",
+      "variants": [
+        {
+          "id": "fs::ch23_004_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/004/00_thumb_2.png",
+          "image_path": "CH23/004/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:04.751770+00:00",
+          "updated_at": "2026-01-03T03:29:04.751771+00:00"
+        },
+        {
+          "id": "fs::ch23_004_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/004/00_thumb.png",
+          "image_path": "CH23/004/00_thumb.png",
+          "created_at": "2026-01-03T03:16:34.497832+00:00",
+          "updated_at": "2026-01-03T03:16:34.497833+00:00"
+        }
+      ],
+      "title": "義実家同居を迫られた｜逃げ場が消える現実",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:04.751749+00:00",
+      "updated_at": "2026-01-03T03:29:04.751772+00:00",
+      "selected_variant_id": "fs::ch23_004_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "005",
+      "variants": [
+        {
+          "id": "fs::ch23_005_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/005/00_thumb_2.png",
+          "image_path": "CH23/005/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:09.751878+00:00",
+          "updated_at": "2026-01-03T03:29:09.751879+00:00"
+        },
+        {
+          "id": "fs::ch23_005_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/005/00_thumb.png",
+          "image_path": "CH23/005/00_thumb.png",
+          "created_at": "2026-01-03T03:16:39.392853+00:00",
+          "updated_at": "2026-01-03T03:16:39.392854+00:00"
+        }
+      ],
+      "title": "介護の負担が私だけに｜優しさが枯れた夫婦",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:09.751859+00:00",
+      "updated_at": "2026-01-03T03:29:09.751881+00:00",
+      "selected_variant_id": "fs::ch23_005_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "006",
+      "variants": [
+        {
+          "id": "fs::ch23_006_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/006/00_thumb_2.png",
+          "image_path": "CH23/006/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:21.840439+00:00",
+          "updated_at": "2026-01-03T03:29:21.840440+00:00"
+        },
+        {
+          "id": "fs::ch23_006_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/006/00_thumb.png",
+          "image_path": "CH23/006/00_thumb.png",
+          "created_at": "2026-01-03T03:16:51.291797+00:00",
+          "updated_at": "2026-01-03T03:16:51.291799+00:00"
+        }
+      ],
+      "title": "相続の話をした瞬間、家族が割れた｜お金で崩壊する夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:21.840423+00:00",
+      "updated_at": "2026-01-03T03:29:21.840442+00:00",
+      "selected_variant_id": "fs::ch23_006_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "007",
+      "variants": [
+        {
+          "id": "fs::ch23_007_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/007/00_thumb_2.png",
+          "image_path": "CH23/007/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:24.872350+00:00",
+          "updated_at": "2026-01-03T03:29:24.872352+00:00"
+        },
+        {
+          "id": "fs::ch23_007_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/007/00_thumb.png",
+          "image_path": "CH23/007/00_thumb.png",
+          "created_at": "2026-01-03T03:16:54.252566+00:00",
+          "updated_at": "2026-01-03T03:16:54.252567+00:00"
+        }
+      ],
+      "title": "夫の隠し借金が見つかった｜封筒の中が地獄だった",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:24.872333+00:00",
+      "updated_at": "2026-01-03T03:29:24.872353+00:00",
+      "selected_variant_id": "fs::ch23_007_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "008",
+      "variants": [
+        {
+          "id": "fs::ch23_008_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/008/00_thumb_2.png",
+          "image_path": "CH23/008/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:27.227030+00:00",
+          "updated_at": "2026-01-03T03:29:27.227031+00:00"
+        },
+        {
+          "id": "fs::ch23_008_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/008/00_thumb.png",
+          "image_path": "CH23/008/00_thumb.png",
+          "created_at": "2026-01-03T03:16:56.615358+00:00",
+          "updated_at": "2026-01-03T03:16:56.615359+00:00"
+        }
+      ],
+      "title": "夫のスマホを見てしまった｜その名前、誰",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:27.227014+00:00",
+      "updated_at": "2026-01-03T03:29:27.227033+00:00",
+      "selected_variant_id": "fs::ch23_008_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "009",
+      "variants": [
+        {
+          "id": "fs::ch23_009_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/009/00_thumb_2.png",
+          "image_path": "CH23/009/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:31.932146+00:00",
+          "updated_at": "2026-01-03T03:29:31.932147+00:00"
+        },
+        {
+          "id": "fs::ch23_009_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/009/00_thumb.png",
+          "image_path": "CH23/009/00_thumb.png",
+          "created_at": "2026-01-03T03:17:01.311643+00:00",
+          "updated_at": "2026-01-03T03:17:01.311650+00:00"
+        }
+      ],
+      "title": "熟年離婚を口にしたら脅された｜出ていけと言われた夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:31.932132+00:00",
+      "updated_at": "2026-01-03T03:29:31.932149+00:00",
+      "selected_variant_id": "fs::ch23_009_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "010",
+      "variants": [
+        {
+          "id": "fs::ch23_010_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/010/00_thumb_2.png",
+          "image_path": "CH23/010/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:38.605484+00:00",
+          "updated_at": "2026-01-03T03:29:38.605486+00:00"
+        },
+        {
+          "id": "fs::ch23_010_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/010/00_thumb.png",
+          "image_path": "CH23/010/00_thumb.png",
+          "created_at": "2026-01-03T03:17:07.889538+00:00",
+          "updated_at": "2026-01-03T03:17:07.889539+00:00"
+        }
+      ],
+      "title": "私の病院代を渋る夫｜心が折れる現実",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:38.605467+00:00",
+      "updated_at": "2026-01-03T03:29:38.605487+00:00",
+      "selected_variant_id": "fs::ch23_010_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "011",
+      "variants": [
+        {
+          "id": "fs::ch23_011_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/011/00_thumb_2.png",
+          "image_path": "CH23/011/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:50.685609+00:00",
+          "updated_at": "2026-01-03T03:29:50.685610+00:00"
+        },
+        {
+          "id": "fs::ch23_011_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/011/00_thumb.png",
+          "image_path": "CH23/011/00_thumb.png",
+          "created_at": "2026-01-03T03:17:19.829061+00:00",
+          "updated_at": "2026-01-03T03:17:19.829062+00:00"
+        }
+      ],
+      "title": "息子夫婦との同居が限界｜嫁の一言で崩壊",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:50.685590+00:00",
+      "updated_at": "2026-01-03T03:29:50.685612+00:00",
+      "selected_variant_id": "fs::ch23_011_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "012",
+      "variants": [
+        {
+          "id": "fs::ch23_012_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/012/00_thumb_2.png",
+          "image_path": "CH23/012/00_thumb_2.png",
+          "created_at": "2026-01-03T03:29:54.270936+00:00",
+          "updated_at": "2026-01-03T03:29:54.270937+00:00"
+        },
+        {
+          "id": "fs::ch23_012_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/012/00_thumb.png",
+          "image_path": "CH23/012/00_thumb.png",
+          "created_at": "2026-01-03T03:17:23.285921+00:00",
+          "updated_at": "2026-01-03T03:17:23.285922+00:00"
+        }
+      ],
+      "title": "退職後、夫の趣味に老後資金が吸われる｜止まらない現実",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:29:54.270915+00:00",
+      "updated_at": "2026-01-03T03:29:54.270939+00:00",
+      "selected_variant_id": "fs::ch23_012_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "013",
+      "variants": [
+        {
+          "id": "fs::ch23_013_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/013/00_thumb_2.png",
+          "image_path": "CH23/013/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:09.587882+00:00",
+          "updated_at": "2026-01-03T03:30:09.587884+00:00"
+        },
+        {
+          "id": "fs::ch23_013_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/013/00_thumb.png",
+          "image_path": "CH23/013/00_thumb.png",
+          "created_at": "2026-01-03T03:17:38.298743+00:00",
+          "updated_at": "2026-01-03T03:17:38.298744+00:00"
+        }
+      ],
+      "title": "介護認定の日、夫婦の本性が出た｜書類が現実を割る",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:09.587866+00:00",
+      "updated_at": "2026-01-03T03:30:09.587886+00:00",
+      "selected_variant_id": "fs::ch23_013_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "014",
+      "variants": [
+        {
+          "id": "fs::ch23_014_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/014/00_thumb_2.png",
+          "image_path": "CH23/014/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:12.819263+00:00",
+          "updated_at": "2026-01-03T03:30:12.819265+00:00"
+        },
+        {
+          "id": "fs::ch23_014_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/014/00_thumb.png",
+          "image_path": "CH23/014/00_thumb.png",
+          "created_at": "2026-01-03T03:17:41.464326+00:00",
+          "updated_at": "2026-01-03T03:17:41.464327+00:00"
+        }
+      ],
+      "title": "墓の話で初めて口をきかなかった｜死後の話が一番怖い",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:12.819243+00:00",
+      "updated_at": "2026-01-03T03:30:12.819266+00:00",
+      "selected_variant_id": "fs::ch23_014_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "015",
+      "variants": [
+        {
+          "id": "fs::ch23_015_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/015/00_thumb_2.png",
+          "image_path": "CH23/015/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:25.936273+00:00",
+          "updated_at": "2026-01-03T03:30:25.936275+00:00"
+        },
+        {
+          "id": "fs::ch23_015_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/015/00_thumb.png",
+          "image_path": "CH23/015/00_thumb.png",
+          "created_at": "2026-01-03T03:17:54.324668+00:00",
+          "updated_at": "2026-01-03T03:17:54.324670+00:00"
+        }
+      ],
+      "title": "義実家の集まりで私だけ働く｜いつまで『嫁』なの",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:25.936242+00:00",
+      "updated_at": "2026-01-03T03:30:25.936276+00:00",
+      "selected_variant_id": "fs::ch23_015_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "016",
+      "variants": [
+        {
+          "id": "fs::ch23_016_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/016/00_thumb_2.png",
+          "image_path": "CH23/016/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:34.343664+00:00",
+          "updated_at": "2026-01-03T03:30:34.343671+00:00"
+        },
+        {
+          "id": "fs::ch23_016_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/016/00_thumb.png",
+          "image_path": "CH23/016/00_thumb.png",
+          "created_at": "2026-01-03T03:18:02.687612+00:00",
+          "updated_at": "2026-01-03T03:18:02.687614+00:00"
+        }
+      ],
+      "title": "夫が家事をしない理由が最低｜言い訳が刺さる夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:34.343649+00:00",
+      "updated_at": "2026-01-03T03:30:34.343676+00:00",
+      "selected_variant_id": "fs::ch23_016_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "017",
+      "variants": [
+        {
+          "id": "fs::ch23_017_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/017/00_thumb_2.png",
+          "image_path": "CH23/017/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:37.044929+00:00",
+          "updated_at": "2026-01-03T03:30:37.044931+00:00"
+        },
+        {
+          "id": "fs::ch23_017_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/017/00_thumb.png",
+          "image_path": "CH23/017/00_thumb.png",
+          "created_at": "2026-01-03T03:18:05.150037+00:00",
+          "updated_at": "2026-01-03T03:18:05.150038+00:00"
+        }
+      ],
+      "title": "親の介護で夫の兄弟が豹変｜家族の顔が変わる",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:37.044913+00:00",
+      "updated_at": "2026-01-03T03:30:37.044932+00:00",
+      "selected_variant_id": "fs::ch23_017_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "018",
+      "variants": [
+        {
+          "id": "fs::ch23_018_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/018/00_thumb_2.png",
+          "image_path": "CH23/018/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:39.358887+00:00",
+          "updated_at": "2026-01-03T03:30:39.358888+00:00"
+        },
+        {
+          "id": "fs::ch23_018_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/018/00_thumb.png",
+          "image_path": "CH23/018/00_thumb.png",
+          "created_at": "2026-01-03T03:18:07.395047+00:00",
+          "updated_at": "2026-01-03T03:18:07.395050+00:00"
+        }
+      ],
+      "title": "退職後の夫の怒りが止まらない｜家が息苦しい夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:39.358866+00:00",
+      "updated_at": "2026-01-03T03:30:39.358890+00:00",
+      "selected_variant_id": "fs::ch23_018_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "019",
+      "variants": [
+        {
+          "id": "fs::ch23_019_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/019/00_thumb_2.png",
+          "image_path": "CH23/019/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:45.173744+00:00",
+          "updated_at": "2026-01-03T03:30:45.173745+00:00"
+        },
+        {
+          "id": "fs::ch23_019_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/019/00_thumb.png",
+          "image_path": "CH23/019/00_thumb.png",
+          "created_at": "2026-01-03T03:18:13.093150+00:00",
+          "updated_at": "2026-01-03T03:18:13.093151+00:00"
+        }
+      ],
+      "title": "救急の夜、夫の優しさが枯れていた｜残ったのは虚しさ",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:45.173725+00:00",
+      "updated_at": "2026-01-03T03:30:45.173747+00:00",
+      "selected_variant_id": "fs::ch23_019_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "020",
+      "variants": [
+        {
+          "id": "fs::ch23_020_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/020/00_thumb_2.png",
+          "image_path": "CH23/020/00_thumb_2.png",
+          "created_at": "2026-01-03T03:30:55.936513+00:00",
+          "updated_at": "2026-01-03T03:30:55.936514+00:00"
+        },
+        {
+          "id": "fs::ch23_020_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/020/00_thumb.png",
+          "image_path": "CH23/020/00_thumb.png",
+          "created_at": "2026-01-03T03:18:23.638957+00:00",
+          "updated_at": "2026-01-03T03:18:23.638959+00:00"
+        }
+      ],
+      "title": "介護施設を提案したら責められた｜私が悪いの？",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:30:55.936496+00:00",
+      "updated_at": "2026-01-03T03:30:55.936516+00:00",
+      "selected_variant_id": "fs::ch23_020_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "021",
+      "variants": [
+        {
+          "id": "fs::ch23_021_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/021/00_thumb_2.png",
+          "image_path": "CH23/021/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:09.417699+00:00",
+          "updated_at": "2026-01-03T03:31:09.417700+00:00"
+        },
+        {
+          "id": "fs::ch23_021_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/021/00_thumb.png",
+          "image_path": "CH23/021/00_thumb.png",
+          "created_at": "2026-01-03T03:18:36.760192+00:00",
+          "updated_at": "2026-01-03T03:18:36.760193+00:00"
+        }
+      ],
+      "title": "年金分割を調べた夜｜離婚は準備で決まる",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:09.417682+00:00",
+      "updated_at": "2026-01-03T03:31:09.417702+00:00",
+      "selected_variant_id": "fs::ch23_021_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "022",
+      "variants": [
+        {
+          "id": "fs::ch23_022_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/022/00_thumb_2.png",
+          "image_path": "CH23/022/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:15.034919+00:00",
+          "updated_at": "2026-01-03T03:31:15.034921+00:00"
+        },
+        {
+          "id": "fs::ch23_022_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/022/00_thumb.png",
+          "image_path": "CH23/022/00_thumb.png",
+          "created_at": "2026-01-03T03:18:42.303700+00:00",
+          "updated_at": "2026-01-03T03:18:42.303702+00:00"
+        }
+      ],
+      "title": "法事の席で孤立した妻｜親戚付き合いの地獄",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:15.034904+00:00",
+      "updated_at": "2026-01-03T03:31:15.034922+00:00",
+      "selected_variant_id": "fs::ch23_022_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "023",
+      "variants": [
+        {
+          "id": "fs::ch23_023_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/023/00_thumb_2.png",
+          "image_path": "CH23/023/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:25.693654+00:00",
+          "updated_at": "2026-01-03T03:31:25.693655+00:00"
+        },
+        {
+          "id": "fs::ch23_023_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/023/00_thumb.png",
+          "image_path": "CH23/023/00_thumb.png",
+          "created_at": "2026-01-03T03:18:52.713876+00:00",
+          "updated_at": "2026-01-03T03:18:52.713878+00:00"
+        }
+      ],
+      "title": "夫が『俺は悪くない』を繰り返す｜話が通じない現実",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:25.693634+00:00",
+      "updated_at": "2026-01-03T03:31:25.693657+00:00",
+      "selected_variant_id": "fs::ch23_023_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "024",
+      "variants": [
+        {
+          "id": "fs::ch23_024_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/024/00_thumb_2.png",
+          "image_path": "CH23/024/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:29.646650+00:00",
+          "updated_at": "2026-01-03T03:31:29.646651+00:00"
+        },
+        {
+          "id": "fs::ch23_024_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/024/00_thumb.png",
+          "image_path": "CH23/024/00_thumb.png",
+          "created_at": "2026-01-03T03:18:56.746993+00:00",
+          "updated_at": "2026-01-03T03:18:56.746994+00:00"
+        }
+      ],
+      "title": "夫の投資失敗で老後が消えた｜取り返せない夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:29.646635+00:00",
+      "updated_at": "2026-01-03T03:31:29.646652+00:00",
+      "selected_variant_id": "fs::ch23_024_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "025",
+      "variants": [
+        {
+          "id": "fs::ch23_025_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/025/00_thumb_2.png",
+          "image_path": "CH23/025/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:46.448742+00:00",
+          "updated_at": "2026-01-03T03:31:46.448743+00:00"
+        },
+        {
+          "id": "fs::ch23_025_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/025/00_thumb.png",
+          "image_path": "CH23/025/00_thumb.png",
+          "created_at": "2026-01-03T03:19:13.399379+00:00",
+          "updated_at": "2026-01-03T03:19:13.399380+00:00"
+        }
+      ],
+      "title": "介護離職を迫られた私｜私の人生は誰のもの",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:46.448720+00:00",
+      "updated_at": "2026-01-03T03:31:46.448745+00:00",
+      "selected_variant_id": "fs::ch23_025_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "026",
+      "variants": [
+        {
+          "id": "fs::ch23_026_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/026/00_thumb_2.png",
+          "image_path": "CH23/026/00_thumb_2.png",
+          "created_at": "2026-01-03T03:31:57.476803+00:00",
+          "updated_at": "2026-01-03T03:31:57.476805+00:00"
+        },
+        {
+          "id": "fs::ch23_026_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/026/00_thumb.png",
+          "image_path": "CH23/026/00_thumb.png",
+          "created_at": "2026-01-03T03:19:24.171955+00:00",
+          "updated_at": "2026-01-03T03:19:24.171957+00:00"
+        }
+      ],
+      "title": "離婚届を机に置いた朝｜もう戻れない現実",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:31:57.476787+00:00",
+      "updated_at": "2026-01-03T03:31:57.476806+00:00",
+      "selected_variant_id": "fs::ch23_026_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "027",
+      "variants": [
+        {
+          "id": "fs::ch23_027_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/027/00_thumb_2.png",
+          "image_path": "CH23/027/00_thumb_2.png",
+          "created_at": "2026-01-03T03:32:02.890762+00:00",
+          "updated_at": "2026-01-03T03:32:02.890764+00:00"
+        },
+        {
+          "id": "fs::ch23_027_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/027/00_thumb.png",
+          "image_path": "CH23/027/00_thumb.png",
+          "created_at": "2026-01-03T03:19:29.539225+00:00",
+          "updated_at": "2026-01-03T03:19:29.539226+00:00"
+        }
+      ],
+      "title": "子ども世代に頼れない｜老後の孤独が増える夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:32:02.890736+00:00",
+      "updated_at": "2026-01-03T03:32:02.890765+00:00",
+      "selected_variant_id": "fs::ch23_027_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "028",
+      "variants": [
+        {
+          "id": "fs::ch23_028_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/028/00_thumb_2.png",
+          "image_path": "CH23/028/00_thumb_2.png",
+          "created_at": "2026-01-03T03:32:11.360959+00:00",
+          "updated_at": "2026-01-03T03:32:11.360961+00:00"
+        },
+        {
+          "id": "fs::ch23_028_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/028/00_thumb.png",
+          "image_path": "CH23/028/00_thumb.png",
+          "created_at": "2026-01-03T03:19:37.877227+00:00",
+          "updated_at": "2026-01-03T03:19:37.877228+00:00"
+        }
+      ],
+      "title": "孤独死が怖い夫婦｜恐れが攻撃になる",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:32:11.360940+00:00",
+      "updated_at": "2026-01-03T03:32:11.360970+00:00",
+      "selected_variant_id": "fs::ch23_028_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "029",
+      "variants": [
+        {
+          "id": "fs::ch23_029_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/029/00_thumb_2.png",
+          "image_path": "CH23/029/00_thumb_2.png",
+          "created_at": "2026-01-03T03:32:21.681745+00:00",
+          "updated_at": "2026-01-03T03:32:21.681746+00:00"
+        },
+        {
+          "id": "fs::ch23_029_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/029/00_thumb.png",
+          "image_path": "CH23/029/00_thumb.png",
+          "created_at": "2026-01-03T03:19:48.156851+00:00",
+          "updated_at": "2026-01-03T03:19:48.156852+00:00"
+        }
+      ],
+      "title": "要介護の夫が放った最悪の一言｜心が冷える夜",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:32:21.681725+00:00",
+      "updated_at": "2026-01-03T03:32:21.681748+00:00",
+      "selected_variant_id": "fs::ch23_029_00_thumb"
+    },
+    {
+      "channel": "CH23",
+      "video": "030",
+      "variants": [
+        {
+          "id": "fs::ch23_030_00_thumb_2",
+          "label": "00_thumb_2",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/030/00_thumb_2.png",
+          "image_path": "CH23/030/00_thumb_2.png",
+          "created_at": "2026-01-03T03:32:28.412128+00:00",
+          "updated_at": "2026-01-03T03:32:28.412130+00:00"
+        },
+        {
+          "id": "fs::ch23_030_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH23/030/00_thumb.png",
+          "image_path": "CH23/030/00_thumb.png",
+          "created_at": "2026-01-03T03:19:54.724265+00:00",
+          "updated_at": "2026-01-03T03:19:54.724267+00:00"
+        }
+      ],
+      "title": "最後に残ったのは自由｜静かに始まる第二の人生",
+      "status": "review",
+      "status_updated_at": "2026-01-03T03:32:28.412113+00:00",
+      "updated_at": "2026-01-03T03:32:28.412131+00:00",
+      "selected_variant_id": "fs::ch23_030_00_thumb"
     }
   ]
 }
