@@ -28,6 +28,7 @@
 | D-008 | P2 | Publish一時DLの置き場/保持 | **`workspaces/tmp/publish/` へ寄せ、成功後削除（任意保持）** | Proposed |
 | D-009 | P2 | “ゾンビ候補”の扱い | **隔離→入口索引から除外→archive-first削除**（確実ゴミのみ） | Proposed |
 | D-010 | P1 | LLM設定SSOTの一本化 | **`llm_router.yaml` 系へ統一**（`llm.yml`/registryは段階廃止） | Proposed |
+| D-011 | P1 | Script Pipelineのno-op stage | **stageは“明示output契約”必須**（`script_enhancement`は削除/実装） | Proposed |
 
 ---
 
@@ -100,6 +101,29 @@
 ### Impact（影響/作業）
 - SSOT側: `ops/OPS_LLM_MODEL_CHEATSHEET.md` 等の「正本: llm.yml」記述を `llm_router.yaml` に寄せて統一する。
 - 実装側: UI backend / 集計が `llm_registry.json` を参照している箇所を router由来に置換する（段階導入）。
+
+---
+
+## D-011（P1）Script Pipeline の stage は “no-op禁止” にする？（`script_enhancement` の扱い）
+
+### Decision
+- stage は「**明示的なoutput契約（SoT）を持つ**」か「**明示的に廃止/skip**」のどちらかにする。no-op stage（存在するが何もしない）は禁止する。
+
+### Recommended（推奨）
+1) `script_enhancement` は **stages.yaml から外す**（現状は outputs=[] のため実行されず、完了扱いになる）  
+2) “章の改善パス” が必要なら、後日あらためて **output契約を定義して実装**する（例: `chapter_enhancement` が `content/chapters/chapter_N.md` を上書き or `chapters_enhanced/` を生成）
+
+### Rationale（根拠）
+- no-op stage は「完了したように見える」ため、運用ミスとコスト事故を誘発する。
+- SSOT=UI を成立させるには「ステップ=実処理」が一致している必要がある。
+
+### Alternatives（代替案）
+- A) `script_enhancement` を残し、SKIP_STAGES に入れて “deprecated” 表示にする（暫定）。  
+- B) stage を残しつつ output_override で既存ファイルを書き換える（事故リスクが高いので、契約を先に固める必要がある）。
+
+### Impact（影響/作業）
+- `packages/script_pipeline/stages.yaml` の整理（削除 or output契約追加）。
+- `ssot/ops/OPS_ZOMBIE_CODE_REGISTER.md` へ記録し、確定後に archive-first で掃除計画へ落とす。
 
 ---
 

@@ -85,6 +85,14 @@
 
 ---
 
+## D) Script Pipeline の “no-op stage” 候補（誤認/迷子リスク）
+
+| path | 観測 | リスク | 暫定提案 |
+| --- | --- | --- | --- |
+| `packages/script_pipeline/stages.yaml`（`script_enhancement`） | `outputs: []` のため `runner._run_llm()` が実行されず、stageが **何もせず completed 扱い**になる | “改善パスが走った”と誤認し、品質/コスト判断が崩れる（SSOT=UIの一致も崩れる） | `ssot/DECISIONS.md:D-011` で「削除 or output契約を定義して実装」を確定させる |
+
+---
+
 ## 次に必要な意思決定（ユーザー確認）
 1) A-1 の4件は「残す（SSOT入口へ昇格）」か「不要（archive→delete）」か？
 2) LLM設定は `llm_router` へ一本化するか？（= `llm.yml`/registry 系の扱い。`ssot/DECISIONS.md:D-010`）
