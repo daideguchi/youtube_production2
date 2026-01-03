@@ -3220,6 +3220,16 @@ def build_ssot_catalog() -> Dict[str, Any]:
     llm_router_path = repo / "packages" / "factory_common" / "llm_router.py"
     llm_router_lines = _safe_read_text(llm_router_path).splitlines()
     strict_llm_line = _find_first_line_containing(llm_router_lines, "Strict model selection policy (NO silent downgrade)")
+
+    fw_keys_path = repo / "packages" / "factory_common" / "fireworks_keys.py"
+    fw_keys_lines = _safe_read_text(fw_keys_path).splitlines()
+    fw_acquire_line = _find_def_line(fw_keys_lines, "acquire_key")
+    fw_lease_dir_line = _find_def_line(fw_keys_lines, "lease_root_dir")
+    fw_script_ttl_line = _find_first_line_containing(llm_router_lines, "FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC")
+    fw_image_ttl_line = _find_first_line_containing(image_client_lines, "FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC")
+    fw_keyring_tool_path = repo / "scripts" / "ops" / "fireworks_keyring.py"
+    fw_keyring_lines = _safe_read_text(fw_keyring_tool_path).splitlines()
+    fw_keyring_main_line = _find_def_line(fw_keyring_lines, "main")
     policies: List[Dict[str, Any]] = [
         {
             "id": "POLICY-IMG-001",
@@ -3263,6 +3273,31 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         strict_llm_line,
                         symbol="policy:strict_model_selection",
                     )
+                ]
+                if r
+            ],
+        },
+        {
+            "id": "POLICY-FW-001",
+            "title": "Fireworks keys: pooled + leased",
+            "description": "\n".join(
+                [
+                    "Fireworks の API key は「script(LLM)」「image(画像)」のプールで管理し、同一キーの同時実行を lease で防止する。",
+                    "- keyring: env inline / file（secrets_root/fireworks_{script|image}_keys.txt 既定）",
+                    "- lease dir: FIREWORKS_KEYS_LEASE_DIR（既定: secrets_root/fireworks_key_leases）",
+                    "- lease TTL: FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC / FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC（既定: 1800s）",
+                    "- 運用: python3 scripts/ops/fireworks_keyring.py --pool <script|image> list/check",
+                    "- 重要: キー枯渇/無効時は “勝手に別providerへ逃がさず” 停止して報告（品質/コスト事故を防ぐ）",
+                ]
+            ),
+            "impl_refs": [
+                r
+                for r in [
+                    _make_code_ref(repo, fw_keys_path, fw_acquire_line, symbol="fireworks_keys:acquire_key"),
+                    _make_code_ref(repo, fw_keys_path, fw_lease_dir_line, symbol="fireworks_keys:lease_root_dir"),
+                    _make_code_ref(repo, llm_router_path, fw_script_ttl_line, symbol="env:FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC"),
+                    _make_code_ref(repo, image_client_path, fw_image_ttl_line, symbol="env:FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC"),
+                    _make_code_ref(repo, fw_keyring_tool_path, fw_keyring_main_line, symbol="ops:fireworks_keyring"),
                 ]
                 if r
             ],

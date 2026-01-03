@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type WheelEvent as ReactWheelEvent } from "react";
 import { Link } from "react-router-dom";
 import { fetchResearchFileChunk, fetchResearchList, fetchSsotCatalog } from "../api/client";
 import type { ResearchFileEntry, SsotCatalog, SsotCatalogFlowStep } from "../api/types";
@@ -208,6 +208,7 @@ export function SsotSystemMap() {
   const [autoFit, setAutoFit] = useState(true);
   const [focusMode, setFocusMode] = useState(true);
   const [showQuickView, setShowQuickView] = useState(true);
+  const [showCatalogPanel, setShowCatalogPanel] = useState(true);
   const [substepsParentNodeId, setSubstepsParentNodeId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -621,6 +622,12 @@ export function SsotSystemMap() {
   }, [flow]);
 
   useEffect(() => {
+    // In List mode, Graph needs width. Auto-collapse the catalog list panel when switching to Graph.
+    if (focusMode) return;
+    setShowCatalogPanel(flowView !== "graph");
+  }, [focusMode, flowView]);
+
+  useEffect(() => {
     // Reset drill-down scope when switching flows.
     setSubstepsParentNodeId(null);
   }, [flow]);
@@ -665,6 +672,39 @@ export function SsotSystemMap() {
     applyFitToSize(graphSize);
     requestAnimationFrame(() => centerGraph());
   };
+
+  const zoomAtCursor = useCallback(
+    (e: ReactWheelEvent<HTMLDivElement>) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      const el = graphViewportRef.current;
+      if (!el) return;
+      e.preventDefault();
+
+      const rect = el.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+      const direction = e.deltaY < 0 ? 1 : -1;
+
+      setAutoFit(false);
+      setGraphScale((prev) => {
+        const next = clamp(
+          Number((prev + direction * GRAPH_ZOOM_STEP).toFixed(3)),
+          MIN_GRAPH_SCALE,
+          MAX_GRAPH_SCALE,
+        );
+        if (Math.abs(next - prev) < 0.0001) return prev;
+
+        const unscaledX = (el.scrollLeft + cursorX) / prev;
+        const unscaledY = (el.scrollTop + cursorY) / prev;
+        requestAnimationFrame(() => {
+          el.scrollLeft = Math.max(0, unscaledX * next - cursorX);
+          el.scrollTop = Math.max(0, unscaledY * next - cursorY);
+        });
+        return next;
+      });
+    },
+    [],
+  );
 
   useEffect(() => {
     setAutoFit(true);
@@ -1176,8 +1216,8 @@ export function SsotSystemMap() {
         </div>
       </header>
 
-      <div className="research-body" style={focusMode ? { gridTemplateColumns: "1fr" } : undefined}>
-        {!focusMode ? <div className="research-list">
+      <div className="research-body" style={focusMode || (!focusMode && !showCatalogPanel) ? { gridTemplateColumns: "1fr" } : undefined}>
+        {!focusMode && showCatalogPanel ? <div className="research-list">
           <div className="research-list__header">
             <div>
               <p className="muted">カタログ</p>
@@ -1313,6 +1353,16 @@ export function SsotSystemMap() {
                       <button type="button" className="research-chip" onClick={zoomFit}>
                         Fit
                       </button>
+                      {!focusMode ? (
+                        <button
+                          type="button"
+                          className={`research-chip ${showCatalogPanel ? "is-active" : ""}`}
+                          onClick={() => setShowCatalogPanel((v) => !v)}
+                          title="左のカタログ（ノード一覧）を表示/非表示"
+                        >
+                          Catalog
+                        </button>
+                      ) : null}
                       <button type="button" className="research-chip" onClick={() => selectedNodeId && focusOnNode(selectedNodeId)} disabled={!selectedNodeId}>
                         Center
                       </button>
@@ -1345,7 +1395,12 @@ export function SsotSystemMap() {
                   </button>
                 </div>
               </div>
-              {focusMode ? (
+              {flowView === "graph" ? (
+                <div className="muted small-text" style={{ marginTop: 8 }}>
+                  Drag to pan / Ctrl(or ⌘)+Wheel to zoom / Double-click to Fit
+                </div>
+              ) : null}
+              {focusMode || (flowView === "graph" && !showCatalogPanel) ? (
                 <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
                   <label className="muted small-text">Filter</label>
                   <input
@@ -1691,6 +1746,8 @@ export function SsotSystemMap() {
                     onMouseMove={movePan}
                     onMouseUp={endPan}
                     onMouseLeave={endPan}
+                    onWheel={zoomAtCursor}
+                    onDoubleClick={zoomFit}
                     style={{
                       border: "1px solid var(--color-border-muted)",
                       borderRadius: 14,

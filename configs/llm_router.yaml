@@ -181,6 +181,9 @@ tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
     - or_deepseek_v3_2_exp
+    - fw_glm_4p7
+    - fw_kimi_k2_thinking
+    - fw_mixtral_8x22b_instruct
     - or_kimi_k2_thinking
   
   # Standard tasks

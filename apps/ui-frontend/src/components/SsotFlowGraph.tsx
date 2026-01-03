@@ -335,6 +335,7 @@ export function SsotFlowGraph({
       {nodes.map((n) => {
         const badge = nodeBadge(n.step);
         const task = nodeTask(n.step);
+        const subCount = Array.isArray((n.step as any)?.substeps) ? ((n.step as any).substeps as any[]).length : 0;
         const isSelected = selectedNodeId === n.id;
         const isHighlighted = highlighted.has(n.id);
         const isUp = selectedPath.upstream.has(n.id);
@@ -429,6 +430,24 @@ export function SsotFlowGraph({
                   }}
                 >
                   {badge}
+                </span>
+              ) : null}
+              {subCount > 0 && !isUltraDense ? (
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: isDense ? 10 : 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(29, 78, 216, 0.18)",
+                    background: "rgba(29, 78, 216, 0.08)",
+                    color: "#1e3a8a",
+                  }}
+                  title="substeps（内部処理）あり"
+                >
+                  sub×{subCount}
                 </span>
               ) : null}
               <div
