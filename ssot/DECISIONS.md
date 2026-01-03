@@ -27,6 +27,7 @@
 | D-007 | P2 | AudioのBテキスト例外 | **例外導線（CLI/明示入力）として固定** | Proposed |
 | D-008 | P2 | Publish一時DLの置き場/保持 | **`workspaces/tmp/publish/` へ寄せ、成功後削除（任意保持）** | Proposed |
 | D-009 | P2 | “ゾンビ候補”の扱い | **隔離→入口索引から除外→archive-first削除**（確実ゴミのみ） | Proposed |
+| D-010 | P1 | LLM設定SSOTの一本化 | **`llm_router.yaml` 系へ統一**（`llm.yml`/registryは段階廃止） | Proposed |
 
 ---
 
@@ -71,6 +72,31 @@
 ### Alternatives（代替案）
 - A) fallbackを常時許可（非推奨）: 目先の完了を優先し、品質が崩れる。
 - B) provider内だけ許可: provider差分が大きい場合、結局品質差が出る（慎重に）。
+
+---
+
+## D-010（P1）LLM設定のSSOTを `llm_router.yaml` 系へ一本化する？
+
+### Decision
+- LLMの「タスク→モデル/プロバイダ」設定を **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml`** に統一し、`llm.yml` / `llm_registry.json` / `llm_model_registry.yaml` は **段階的に廃止**する。
+
+### Recommended（推奨）
+1) SSOT（正本）: `llm_router.yaml`（tiers/models/tasks） + `llm_task_overrides.yaml`（taskごとの上書き）  
+2) UI/集計のために残っている registry 参照は、将来 **router由来に置換**する（同じ情報を二重管理しない）  
+3) 旧系（`llm.yml` + `factory_common.llm_client`）は “legacy隔離” を経て削除対象へ
+
+### Rationale（根拠）
+- 現状は「複数の設定SSOT」が併存し、運用者/エージェントが必ず迷う（=誤モデル/誤コスト）。
+- 実装主線（script/audio/video）は既に `llm_router` を使っており、`llm_client` 側は参照が薄い（監査/テスト以外）。
+- SSOT=UI を成立させるには、モデル決定ロジックを **1枚**に寄せる必要がある。
+
+### Alternatives（代替案）
+- A) `llm.yml` を正本に戻す: router/overrides/Fireworks lease 等の現行設計と逆行し、移行コストが大きい（非推奨）。
+- B) “併存” を認める: ドキュメント/実装/可視化コストが永続し、ゾンビ増殖が止まらない（非推奨）。
+
+### Impact（影響/作業）
+- SSOT側: `ops/OPS_LLM_MODEL_CHEATSHEET.md` 等の「正本: llm.yml」記述を `llm_router.yaml` に寄せて統一する。
+- 実装側: UI backend / 集計が `llm_registry.json` を参照している箇所を router由来に置換する（段階導入）。
 
 ---
 
@@ -163,4 +189,3 @@
 ### Recommended（推奨）
 - `ops/OPS_ZOMBIE_CODE_REGISTER.md` に根拠付きで列挙
 - 削除時は `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` に従う
-
