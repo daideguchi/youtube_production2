@@ -93,6 +93,14 @@
 
 ---
 
+## E) `packages/script_pipeline/channels/**/channel_info.json` の同期メタ（差分ノイズ源）
+
+| path | 観測 | 暫定提案 |
+| --- | --- | --- |
+| `packages/script_pipeline/channels/**/channel_info.json` | `synced_at`/`view_count`/`subscriber_count` 等が更新され、tracked 差分ノイズになりやすい | `ssot/DECISIONS.md:D-012` で **動的メタは `workspaces/` へ分離** を確定し、sync出力を移す |
+
+---
+
 ## 次に必要な意思決定（ユーザー確認）
 1) A-1 の4件は「残す（SSOT入口へ昇格）」か「不要（archive→delete）」か？
 2) LLM設定は `llm_router` へ一本化するか？（= `llm.yml`/registry 系の扱い。`ssot/DECISIONS.md:D-010`）
