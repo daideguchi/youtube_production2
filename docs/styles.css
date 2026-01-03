@@ -61,7 +61,7 @@ body {
 
 .controls {
   display: grid;
-  grid-template-columns: 160px 160px 1fr;
+  grid-template-columns: minmax(240px, 360px) minmax(140px, 200px) 1fr;
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--border);
