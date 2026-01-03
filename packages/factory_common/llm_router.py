@@ -1266,6 +1266,7 @@ class LLMRouter:
         # What counts as "explicit" (strict by default):
         # - call(..., model_keys=[...]) was provided
         # - env overrides are present: LLM_FORCE_MODELS / LLM_FORCE_MODEL / LLM_FORCE_TASK_MODELS_JSON
+        # - per-task config explicitly pins models: tasks.<task>.models / overrides.<task>.models
         # - per-task config sets allow_fallback: false
         #
         # Override:
@@ -1284,7 +1285,18 @@ class LLMRouter:
         if allow_fallback is None and conf_allow_fallback is not None:
             allow_fallback = bool(conf_allow_fallback)
 
-        strict_model_selection = bool(model_keys) or forced_env_models or (allow_fallback is False)
+        explicit_models_from_conf = False
+        try:
+            explicit_models_from_conf = bool(
+                (override_conf.get("models") if isinstance(override_conf, dict) else None)
+                or (task_conf.get("models") if isinstance(task_conf, dict) else None)
+            )
+        except Exception:
+            explicit_models_from_conf = False
+
+        strict_model_selection = (
+            bool(model_keys) or forced_env_models or explicit_models_from_conf or (allow_fallback is False)
+        )
         allow_fallback_effective = allow_fallback if allow_fallback is not None else (not strict_model_selection)
         if strict_model_selection and not allow_fallback_effective and len(models) > 1:
             logger.warning("Router: strict model selection; fallback disabled (trying only %s)", models[0])
@@ -1897,7 +1909,13 @@ class LLMRouter:
             if failover is not None:
                 return failover
 
-        raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}")
+        hint = ""
+        if strict_model_selection and not allow_fallback_effective:
+            hint = (
+                " Fallback is disabled (strict model selection). "
+                "If you explicitly accept an alternative model, set allow_fallback=true for this task/call."
+            )
+        raise RuntimeError(f"All models failed for task '{task}'. tried={tried} last_error={last_error}.{hint}")
 
     def _invoke_provider(self, provider, client, model_conf, messages, return_raw: bool = False, **kwargs):
         cap = model_conf.get("capabilities", {})

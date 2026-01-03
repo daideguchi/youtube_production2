@@ -164,6 +164,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.2
       extra_body:
@@ -178,6 +179,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.0
       response_format: json_object
@@ -196,6 +198,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.25
       # IMPORTANT: Keep below typical OpenRouter credit-limit ceilings to avoid 402 loops.
@@ -216,6 +219,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.2
       # NOTE: Whole-script rewrite; allow enough headroom to avoid finish_reason=length retries.
@@ -233,6 +237,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.2
       response_format: json_object
@@ -252,6 +257,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.2
       response_format: json_object
@@ -270,6 +276,7 @@ tasks:
       - fw_glm_4p7
       - fw_kimi_k2_thinking
       - fw_mixtral_8x22b_instruct
+    allow_fallback: true
     options:
       temperature: 0.2
       max_tokens: 11000
