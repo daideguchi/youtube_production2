@@ -1529,55 +1529,58 @@ export function ChannelModelPolicyPage() {
 	                  videoConfigCode && videoConfigCode !== videoEffCode ? `config: ${videoConfigCode}` : "";
 
                 const scriptMore = scriptPolicy.codes.length > 1 ? scriptPolicy.codes.slice(1).join(", ") : "";
-                const scriptResolved =
-                  scriptPolicy.primary_provider || scriptPolicy.primary_model
-                    ? `${scriptPolicy.primary_provider || "?"}${scriptPolicy.primary_model ? ` / ${scriptPolicy.primary_model}` : ""}${
-                        scriptPolicy.primary_deployment ? ` / ${scriptPolicy.primary_deployment}` : ""
-                      }`
-                    : "";
-
-                return (
-                  <tr key={`bundle-${ch}`}>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <div style={{ display: "grid", gap: 4 }}>
-                        <span className="mono" style={{ fontWeight: 900 }}>
-                          {ch}
-                        </span>
-                        <span className="muted small-text">{channelNameFromList(channelSummaries, ch)}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <div style={{ display: "grid", gap: 6 }}>
-                        <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
-                          <div className="mono" style={{ fontWeight: 900, overflowWrap: "anywhere" }}>
-                            {bundleEffectiveDisplay}
-                          </div>
-                          <button
-                            type="button"
-                            className="workspace-button"
-                            onClick={() => void copyToClipboard(bundleEffectiveDisplay)}
-                            style={{ padding: "6px 10px", whiteSpace: "nowrap" }}
-                          >
-                            copy
-                          </button>
-                        </div>
-                        {showChannelDetails && bundleConfiguredDisplay !== bundleEffectiveDisplay ? (
-                          <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
-                            config: {bundleConfiguredDisplay}
-                          </div>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <div style={{ display: "grid", gap: 6 }}>
-                        <div className="mono" style={{ fontWeight: 800 }}>
-                          {thumbEffCode || "?"}
-                        </div>
-                        {thumbDesc ? <div className="muted small-text">{thumbDesc}</div> : null}
-                        {showChannelDetails ? (
-                          <>
-                            {forcedThumb?.selector ? (
-                              <div className="mono muted small-text">
+	                return (
+	                  <tr key={`bundle-${ch}`}>
+	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                      <div style={{ display: "grid", gap: 4 }}>
+	                        <span className="mono" style={{ fontWeight: 900 }}>
+	                          {ch}
+	                        </span>
+	                        <span className="muted small-text">{channelNameFromList(channelSummaries, ch)}</span>
+	                      </div>
+	                    </td>
+	                    {isDetail ? (
+	                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                        <div style={{ display: "grid", gap: 6 }}>
+	                          <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
+	                            <div className="mono" style={{ fontWeight: 900, overflowWrap: "anywhere" }}>
+	                              {bundleEffectiveDisplay}
+	                            </div>
+	                            <button
+	                              type="button"
+	                              className="workspace-button workspace-button--ghost workspace-button--compact"
+	                              onClick={() => void copyToClipboard(bundleEffectiveDisplay)}
+	                              style={{ whiteSpace: "nowrap" }}
+	                            >
+	                              コードをコピー
+	                            </button>
+	                          </div>
+	                          {showChannelDetails && bundleConfiguredDisplay !== bundleEffectiveDisplay ? (
+	                            <div className="mono muted small-text" style={{ overflowWrap: "anywhere" }}>
+	                              config: {bundleConfiguredDisplay}
+	                            </div>
+	                          ) : null}
+	                        </div>
+	                      </td>
+	                    ) : null}
+	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                      <div style={{ display: "grid", gap: 6 }}>
+	                        <div style={{ fontWeight: 900 }}>{thumbLabel || "未設定"}</div>
+	                        {thumbDescription ? <div className="muted small-text">{thumbDescription}</div> : null}
+	                        {isDetail && thumbReal ? (
+	                          <div className="muted small-text">
+	                            実モデル: <span className="mono">{thumbReal}</span>
+	                          </div>
+	                        ) : null}
+	                        {isDetail ? (
+	                          <div className="muted small-text">
+	                            code: <span className="mono">{thumbEffCode || "?"}</span>
+	                          </div>
+	                        ) : null}
+	                        {isDetail && showChannelDetails ? (
+	                          <>
+	                            {forcedThumb?.selector ? (
+	                              <div className="mono muted small-text">
                                 env: {forcedThumb.env}={String(forcedThumb.selector)}
                               </div>
                             ) : null}
@@ -1586,33 +1589,46 @@ export function ChannelModelPolicyPage() {
                                 env: {forcedAny.env}={String(forcedAny.selector)}
                               </div>
                             ) : null}
-                            {thumbConfiguredLine ? <div className="mono muted small-text">{thumbConfiguredLine}</div> : null}
-                            {!thumbConfigCode && !thumbConfiguredRaw ? (
-                              <div className="mono muted small-text">config: ?（templates.json未初期化） / default: {defaultThumbSelector}</div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <div style={{ display: "grid", gap: 6 }}>
-                        <div className="mono" style={{ fontWeight: 800 }}>
-                          {scriptEff}
-                        </div>
-                        {scriptResolved ? <div className="muted small-text">{scriptResolved}</div> : null}
-                        {showChannelDetails && scriptMore ? <div className="mono muted small-text">fallback: {scriptMore}</div> : null}
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <div style={{ display: "grid", gap: 6 }}>
-                        <div className="mono" style={{ fontWeight: 800 }}>
-                          {videoEffCode || "?"}
-                        </div>
-                        {videoDesc ? <div className="muted small-text">{videoDesc}</div> : null}
-                        {showChannelDetails ? (
-                          <>
-                            {forcedVideo?.selector ? (
-                              <div className="mono muted small-text">
+	                            {thumbConfiguredLine ? <div className="mono muted small-text">{thumbConfiguredLine}</div> : null}
+	                            {!thumbConfigCode && !thumbConfiguredRaw ? (
+	                              <div className="mono muted small-text">config: ?（templates.json未初期化） / default: {defaultThumbSelector}</div>
+	                            ) : null}
+	                          </>
+	                        ) : null}
+	                      </div>
+	                    </td>
+	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                      <div style={{ display: "grid", gap: 6 }}>
+	                        <div style={{ fontWeight: 900 }}>{scriptLabel || "未設定"}</div>
+	                        {scriptInfo.resolvedText ? <div className="muted small-text">{scriptInfo.resolvedText}</div> : null}
+	                        {isDetail ? (
+	                          <div className="muted small-text">
+	                            code: <span className="mono">{scriptEff}</span>
+	                          </div>
+	                        ) : null}
+	                        {isDetail && showChannelDetails && scriptMore ? (
+	                          <div className="mono muted small-text">fallback: {scriptMore}</div>
+	                        ) : null}
+	                      </div>
+	                    </td>
+	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                      <div style={{ display: "grid", gap: 6 }}>
+	                        <div style={{ fontWeight: 900 }}>{videoLabel || "未設定"}</div>
+	                        {videoDescription ? <div className="muted small-text">{videoDescription}</div> : null}
+	                        {isDetail && videoReal ? (
+	                          <div className="muted small-text">
+	                            実モデル: <span className="mono">{videoReal}</span>
+	                          </div>
+	                        ) : null}
+	                        {isDetail ? (
+	                          <div className="muted small-text">
+	                            code: <span className="mono">{videoEffCode || "?"}</span>
+	                          </div>
+	                        ) : null}
+	                        {isDetail && showChannelDetails ? (
+	                          <>
+	                            {forcedVideo?.selector ? (
+	                              <div className="mono muted small-text">
                                 env: {forcedVideo.env}={String(forcedVideo.selector)}
                               </div>
                             ) : null}
@@ -1621,19 +1637,19 @@ export function ChannelModelPolicyPage() {
                                 env: {forcedAny.env}={String(forcedAny.selector)}
                               </div>
                             ) : null}
-                            {videoConfiguredLine ? <div className="mono muted small-text">{videoConfiguredLine}</div> : null}
-                            {!videoConfiguredRaw ? (
-                              <div className="mono muted small-text">config: tier default / default: {defaultVideoSelector}</div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                      <Link to="/image-model-routing" className="workspace-button" style={{ textDecoration: "none" }}>
-                        画像を編集
-                      </Link>
-                    </td>
+	                            {videoConfiguredLine ? <div className="mono muted small-text">{videoConfiguredLine}</div> : null}
+	                            {!videoConfiguredRaw ? (
+	                              <div className="mono muted small-text">config: tier default / default: {defaultVideoSelector}</div>
+	                            ) : null}
+	                          </>
+	                        ) : null}
+	                      </div>
+	                    </td>
+	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+	                      <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+	                        画像設定
+	                      </Link>
+	                    </td>
                   </tr>
                 );
               })}
