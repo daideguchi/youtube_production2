@@ -9,6 +9,8 @@
 
 # Local override configs (keep out of git)
 configs/*.local.*
+# Local API key configs (never commit)
+**/.openrouter_config
 # Generated logs (prefer workspaces/logs as SoT)
 **/logs/
 !workspaces/logs/

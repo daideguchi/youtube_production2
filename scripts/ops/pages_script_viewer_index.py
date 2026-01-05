@@ -3,7 +3,7 @@
 pages_script_viewer_index.py — GitHub Pages用 Script Viewer の index.json を生成
 
 目的:
-  - `workspaces/scripts/**/assembled.md` をブラウザで閲覧/コピーするための「索引」を用意する
+  - `workspaces/scripts/**/content/assembled_human.md`（優先）/ `content/assembled.md` をブラウザで閲覧/コピーするための「索引」を用意する
   - 台本本文の複製はせず、GitHub の raw URL から参照する（Pages 側は静的）
 
 出力:
@@ -42,8 +42,12 @@ def _channel_sort_key(channel: str) -> tuple[int, str]:
 
 def _discover_assembled_path(episode_dir: Path) -> Path | None:
     """
-    Prefer new SoT path `content/assembled.md`, fallback to legacy `assembled.md`.
+    Prefer canonical A-text `content/assembled_human.md`, fallback to `content/assembled.md`,
+    then legacy `assembled.md`.
     """
+    human = episode_dir / "content" / "assembled_human.md"
+    if human.exists():
+        return human
     candidate = episode_dir / "content" / "assembled.md"
     if candidate.exists():
         return candidate
@@ -136,7 +140,7 @@ def build_index(repo_root: Path) -> dict:
     payload = {
         "generated_at": _now_iso_utc(),
         "generated_by": "scripts/ops/pages_script_viewer_index.py",
-        "source": "workspaces/scripts/**/(content/assembled.md|assembled.md)",
+        "source": "workspaces/scripts/**/(content/assembled_human.md|content/assembled.md|assembled.md)",
         "count": len(items),
         "items": [
             {

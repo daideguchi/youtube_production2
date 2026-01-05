@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 const INDEX_URL = "../data/snapshot/channels.json";
+const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -70,17 +71,17 @@ function normVideo(raw) {
 function stageBadgeLabel(key) {
   switch (key) {
     case "script_outline":
-      return "outline";
+      return "構成";
     case "script_draft":
-      return "draft";
+      return "本文";
     case "script_review":
-      return "review";
+      return "レビュー";
     case "quality_check":
-      return "qc";
+      return "QC";
     case "script_validation":
-      return "validate";
+      return "確定";
     case "audio_synthesis":
-      return "audio";
+      return "音声";
     default:
       return key;
   }
@@ -97,6 +98,54 @@ function classifyStatus(status) {
   return "off";
 }
 
+function classifyScriptOverallStatus(status) {
+  const s = String(status || "").trim().toLowerCase();
+  if (!s) return "off";
+  if (s === "script_validated") return "ok";
+  if (s.includes("in_progress")) return "run";
+  if (s.includes("failed") || s.includes("error") || s.includes("invalid")) return "bad";
+  if (s.includes("completed")) return "warn";
+  if (s.includes("pending")) return "off";
+  return "off";
+}
+
+function scriptOverallLabel(status) {
+  const raw = String(status || "").trim();
+  const s = raw.toLowerCase();
+  if (!s) return "—";
+  if (s === "script_validated") return "A確定";
+  if (s.includes("in_progress")) return "作業中";
+  if (s.includes("completed")) return "生成済";
+  if (s.includes("pending")) return "未着手";
+  if (s.includes("failed") || s.includes("error") || s.includes("invalid")) return "要対応";
+  return raw;
+}
+
+function classifyPlanningProgress(progress) {
+  const s = String(progress || "").trim();
+  if (!s) return "off";
+  if (s.includes("投稿")) return "ok";
+  if (s.includes("完了")) return "ok";
+  if (s.includes("失敗") || s.includes("エラー") || s.includes("error") || s.includes("failed")) return "bad";
+  if (s.includes("済")) return "run";
+  return "warn";
+}
+
+function statusSymbol(cls) {
+  switch (cls) {
+    case "ok":
+      return "✓";
+    case "run":
+      return "…";
+    case "warn":
+      return "!";
+    case "bad":
+      return "×";
+    default:
+      return "—";
+  }
+}
+
 let indexData = null;
 let channels = [];
 let selectedChannel = null;
@@ -108,11 +157,56 @@ const rowsSelect = $("rowsSelect");
 const tableBody = $("tableBody");
 const alertBox = $("alertBox");
 const metaTitle = $("metaTitle");
+const metaSubtitle = $("metaSubtitle");
+const summaryBox = $("summaryBox");
 const planningCsvLink = $("planningCsvLink");
 const openDataJson = $("openDataJson");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
 const rawBase = resolveRawBase();
+const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
+
+let channelMetaById = new Map();
+let channelMetaPromise = null;
+
+function pickChannelDisplayName(meta) {
+  const yt = meta?.youtube || {};
+  const title = String(yt.title || "").trim();
+  if (title) return title;
+  const name = String(meta?.name || "").trim();
+  if (name) return name;
+  return "";
+}
+
+function channelLabel(channelId) {
+  const ch = String(channelId || "").trim();
+  const meta = channelMetaById.get(ch);
+  const name = pickChannelDisplayName(meta);
+  return name ? `${name} (${ch})` : ch;
+}
+
+function loadChannelMeta() {
+  if (channelMetaPromise) return channelMetaPromise;
+  channelMetaPromise = (async () => {
+    try {
+      const res = await fetch(channelsInfoUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`channels_info fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) return channelMetaById;
+      const next = new Map();
+      for (const row of data) {
+        const id = String(row?.channel_id || "").trim();
+        if (!id) continue;
+        next.set(id, row);
+      }
+      channelMetaById = next;
+    } catch (err) {
+      console.warn("[snapshot] failed to load channels_info.json", err);
+    }
+    return channelMetaById;
+  })();
+  return channelMetaPromise;
+}
 
 function setLoading(on) {
   loading.hidden = !on;
@@ -144,7 +238,7 @@ function renderChannelSelect() {
   for (const entry of channels) {
     const opt = document.createElement("option");
     opt.value = entry.channel;
-    opt.textContent = `${entry.channel} (${entry.scripts_count}/${entry.planning_count})`;
+    opt.textContent = `${channelLabel(entry.channel)} · scripts ${entry.scripts_count}/${entry.planning_count}`;
     channelSelect.appendChild(opt);
   }
 }
@@ -154,6 +248,95 @@ function scriptViewerLink(channel, video) {
   url.searchParams.set("channel", channel);
   url.searchParams.set("video", video);
   return url.toString();
+}
+
+function channelSubtitle(channelId) {
+  const ch = String(channelId || "").trim();
+  const meta = channelMetaById.get(ch);
+  const desc = String(meta?.description || "").trim();
+  const handle = String(meta?.youtube?.handle || meta?.youtube_handle || "").trim();
+  const parts = [];
+  if (desc) parts.push(desc);
+  if (handle) parts.push(handle);
+  return parts.join(" · ");
+}
+
+function renderChannelSummary() {
+  if (!channelData?.episodes?.length) {
+    summaryBox.hidden = true;
+    return;
+  }
+
+  const counts = {
+    validated: 0,
+    in_progress: 0,
+    completed: 0,
+    pending: 0,
+    missing: 0,
+    error: 0,
+    other: 0,
+  };
+
+  for (const ep of channelData.episodes) {
+    const script = ep.script || null;
+    if (!script) {
+      counts.missing += 1;
+      continue;
+    }
+    const s = String(script.status || "").trim().toLowerCase();
+    if (!s) {
+      counts.other += 1;
+      continue;
+    }
+    if (s === "script_validated") counts.validated += 1;
+    else if (s.includes("in_progress")) counts.in_progress += 1;
+    else if (s.includes("failed") || s.includes("error") || s.includes("invalid")) counts.error += 1;
+    else if (s.includes("completed")) counts.completed += 1;
+    else if (s.includes("pending")) counts.pending += 1;
+    else counts.other += 1;
+  }
+
+  const total = channelData.episodes.length || 0;
+  const kpis = [
+    { key: "validated", label: "A確定", cls: "ok" },
+    { key: "in_progress", label: "作業中", cls: "run" },
+    { key: "completed", label: "生成済", cls: "warn" },
+    { key: "pending", label: "未着手", cls: "off" },
+    { key: "missing", label: "script無し", cls: "bad" },
+  ];
+
+  const kpiHtml = kpis
+    .map((k) => {
+      const n = counts[k.key] || 0;
+      const pct = total ? Math.round((n / total) * 100) : 0;
+      const title = `${k.label}: ${n}/${total} (${pct}%)`;
+      return `<span class="badge badge--${k.cls}" title="${escapeHtml(title)}">${escapeHtml(k.label)} ${n}</span>`;
+    })
+    .join("");
+
+  const barSegs = [
+    { key: "validated", cls: "ok" },
+    { key: "in_progress", cls: "run" },
+    { key: "completed", cls: "warn" },
+    { key: "error", cls: "bad" },
+    { key: "pending", cls: "off" },
+    { key: "missing", cls: "bad" },
+    { key: "other", cls: "off" },
+  ]
+    .map((seg) => {
+      const n = counts[seg.key] || 0;
+      const pct = total ? (n / total) * 100 : 0;
+      if (pct <= 0) return "";
+      const title = `${seg.key}: ${n}/${total}`;
+      return `<div class="progressbar__seg progressbar__seg--${seg.cls}" style="width:${pct.toFixed(
+        2
+      )}%" title="${escapeHtml(title)}"></div>`;
+    })
+    .filter(Boolean)
+    .join("");
+
+  summaryBox.innerHTML = `<div class="summary__kpis">${kpiHtml}</div><div class="progressbar" aria-label="script status summary">${barSegs}</div>`;
+  summaryBox.hidden = false;
 }
 
 function renderTable() {
@@ -181,6 +364,12 @@ function renderTable() {
 
     const script = ep.script || null;
     const scriptStatus = script?.status || "";
+    const scriptLabel = scriptOverallLabel(scriptStatus);
+    const progressBadge = progress
+      ? `<span class="badge badge--${classifyPlanningProgress(progress)} badge--progress" title="${escapeHtml(
+          progress
+        )}">${escapeHtml(progress)}</span>`
+      : `<span class="badge badge--off badge--progress">—</span>`;
 
     const stages = script?.stages || {};
     const stageKeys = [
@@ -195,9 +384,10 @@ function renderTable() {
       .map((k) => {
         const st = stages?.[k] || "";
         const cls = classifyStatus(st);
+        const sym = statusSymbol(cls);
         const label = stageBadgeLabel(k);
         const title = st ? `${label}: ${st}` : `${label}: —`;
-        return `<span class="badge badge--${cls}" title="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
+        return `<span class="badge badge--${cls}" title="${escapeHtml(title)}">${escapeHtml(sym)} ${escapeHtml(label)}</span>`;
       })
       .join("");
 
@@ -211,10 +401,6 @@ function renderTable() {
       planningUpdated
     )}</span></div>`;
 
-    const scriptBadge = `<span class="badge badge--${classifyStatus(scriptStatus)}" title="${escapeHtml(
-      scriptStatus || "—"
-    )}">${escapeHtml(scriptStatus || "—")}</span>`;
-
     const links = [
       `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video))}">open</a>`,
       assembledUrl ? `<a class="btn btn--ghost" href="${escapeHtml(assembledUrl)}" target="_blank" rel="noreferrer">raw</a>` : "",
@@ -226,8 +412,10 @@ function renderTable() {
     tr.innerHTML = `
       <td class="mono">${idHtml}</td>
       <td>${titleHtml}</td>
-      <td>${escapeHtml(progress || "—")}</td>
-      <td>${scriptBadge}</td>
+      <td>${progressBadge}</td>
+      <td><span class="badge badge--${classifyScriptOverallStatus(scriptStatus)}" title="${escapeHtml(
+        scriptStatus || "—"
+      )}">${escapeHtml(scriptLabel)}</span></td>
       <td><div class="badges">${stageBadges}</div></td>
       <td><div class="links">${links}</div></td>
     `;
@@ -235,7 +423,9 @@ function renderTable() {
   }
 
   const extra = filtered.length > sliced.length ? ` (showing ${sliced.length}/${filtered.length})` : ` (${filtered.length})`;
-  footerMeta.textContent = `channel: ${selectedChannel} · episodes: ${channelData.episodes.length}${extra} · generated: ${channelData.generated_at || "—"}`;
+  footerMeta.textContent = `channel: ${channelLabel(selectedChannel)} · episodes: ${channelData.episodes.length}${extra} · generated: ${
+    channelData.generated_at || "—"
+  }`;
 }
 
 async function loadChannel(channel) {
@@ -256,7 +446,11 @@ async function loadChannel(channel) {
     planningCsvLink.textContent = planningCsv || "—";
     planningCsvLink.href = planningCsv ? joinUrl(rawBase, planningCsv) : "#";
 
-    metaTitle.textContent = `${channel} · planning ${channelData?.planning_count || 0} · scripts ${channelData?.scripts_count || 0}`;
+    metaTitle.textContent = `${channelLabel(channel)} · planning ${channelData?.planning_count || 0} · scripts ${channelData?.scripts_count || 0}`;
+    const subtitle = channelSubtitle(channel);
+    metaSubtitle.textContent = subtitle || "—";
+    metaSubtitle.hidden = !subtitle;
+    renderChannelSummary();
     renderTable();
     writeQuery({ channel, q: String(searchInput.value || "") });
   } catch (err) {
@@ -267,6 +461,9 @@ async function loadChannel(channel) {
     planningCsvLink.textContent = "—";
     planningCsvLink.href = "#";
     footerMeta.textContent = "—";
+    metaSubtitle.textContent = "—";
+    metaSubtitle.hidden = true;
+    summaryBox.hidden = true;
     setAlert(`スナップショットの読み込みに失敗しました。\n\n${String(err)}\n\n※ GitHub Pages 側では workflow が data を生成します。ローカルでは:\npython3 scripts/ops/pages_snapshot_export.py --write`);
   } finally {
     setLoading(false);
@@ -277,7 +474,7 @@ async function reloadIndex() {
   setLoading(true);
   setAlert("");
   try {
-    const res = await fetch(INDEX_URL, { cache: "no-store" });
+    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta()]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     channels = Array.isArray(indexData?.channels) ? indexData.channels : [];
@@ -325,4 +522,3 @@ function setupEvents() {
 
 setupEvents();
 void reloadIndex();
-

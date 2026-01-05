@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 const INDEX_URL = "./data/index.json";
+const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const CHUNK_SIZE = 10_000;
 
 function $(id) {
@@ -83,6 +84,51 @@ function joinUrl(base, path) {
   return safeBase + safePath;
 }
 
+const rawBase = resolveRawBase();
+const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
+
+let channelMetaById = new Map();
+let channelMetaPromise = null;
+
+function pickChannelDisplayName(meta) {
+  const yt = meta?.youtube || {};
+  const title = String(yt.title || "").trim();
+  if (title) return title;
+  const name = String(meta?.name || "").trim();
+  if (name) return name;
+  return "";
+}
+
+function channelLabel(channelId) {
+  const ch = String(channelId || "").trim();
+  const meta = channelMetaById.get(ch);
+  const name = pickChannelDisplayName(meta);
+  return name ? `${name} (${ch})` : ch;
+}
+
+function loadChannelMeta() {
+  if (channelMetaPromise) return channelMetaPromise;
+  channelMetaPromise = (async () => {
+    try {
+      const res = await fetch(channelsInfoUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`channels_info fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) return channelMetaById;
+      const next = new Map();
+      for (const row of data) {
+        const id = String(row?.channel_id || "").trim();
+        if (!id) continue;
+        next.set(id, row);
+      }
+      channelMetaById = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load channels_info.json", err);
+    }
+    return channelMetaById;
+  })();
+  return channelMetaPromise;
+}
+
 let indexData = null;
 let items = [];
 let grouped = new Map();
@@ -142,7 +188,7 @@ function renderChannels() {
   for (const ch of channels) {
     const opt = document.createElement("option");
     opt.value = ch;
-    opt.textContent = ch;
+    opt.textContent = channelLabel(ch);
     channelSelect.appendChild(opt);
   }
 }
@@ -241,10 +287,10 @@ async function loadScript(it) {
   loadedNoSepText = "";
   renderNoSepChunkButtons();
 
-  metaTitle.textContent = it.title ? `${it.video_id} · ${it.title}` : it.video_id;
+  const chLabel = channelLabel(it.channel);
+  metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
   metaPath.textContent = it.assembled_path;
 
-  const rawBase = resolveRawBase();
   const url = joinUrl(rawBase, it.assembled_path);
   openRaw.href = url;
 
@@ -282,7 +328,7 @@ function selectItem(channel, video) {
 async function reloadIndex() {
   setLoading(true);
   try {
-    const res = await fetch(INDEX_URL, { cache: "no-store" });
+    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta()]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     items = Array.isArray(indexData?.items) ? indexData.items : [];
@@ -342,10 +388,12 @@ function setupEvents() {
     }
     const results = items
       .filter((it) => {
+        const ch = String(it.channel || "").toLowerCase();
+        const chLabel = String(channelLabel(it.channel) || "").toLowerCase();
         const id = String(it.video_id || "").toLowerCase();
         const title = String(it.title || "").toLowerCase();
         const video = String(it.video || "").toLowerCase();
-        return id.includes(q) || title.includes(q) || video === q;
+        return id.includes(q) || title.includes(q) || video === q || ch === q || ch.includes(q) || chLabel.includes(q);
       })
       .slice(0, 20);
     if (!results.length) {

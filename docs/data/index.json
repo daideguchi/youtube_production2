@@ -1,8 +1,8 @@
 {
-  "generated_at": "2025-12-28T09:25:59.422353Z",
+  "generated_at": "2026-01-03T08:57:05.648938Z",
   "generated_by": "scripts/ops/pages_script_viewer_index.py",
-  "source": "workspaces/scripts/**/(content/assembled.md|assembled.md)",
-  "count": 721,
+  "source": "workspaces/scripts/**/(content/assembled_human.md|content/assembled.md|assembled.md)",
+  "count": 517,
   "items": [
     {
       "channel": "CH01",
@@ -1371,388 +1371,178 @@
     },
     {
       "channel": "CH01",
-      "video": "196",
-      "video_id": "CH01-196",
-      "title": "【嫉妬の正体】他人を羨む心が消える、ブッダの驚くべき思考法",
-      "assembled_path": "workspaces/scripts/CH01/196/content/assembled.md"
+      "video": "252",
+      "video_id": "CH01-252",
+      "title": "【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）",
+      "assembled_path": "workspaces/scripts/CH01/252/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "197",
-      "video_id": "CH01-197",
-      "title": "【許さなくていい】ブッダが教える「許せない相手」との正しい決別方法",
-      "assembled_path": "workspaces/scripts/CH01/197/content/assembled.md"
+      "video": "253",
+      "video_id": "CH01-253",
+      "title": "友達がいなくても幸せな人の特徴。まともな人ほど「孤独」が強くなる理由",
+      "assembled_path": "workspaces/scripts/CH01/253/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "198",
-      "video_id": "CH01-198",
-      "title": "【貧乏神が好む】お金が逃げていく人の共通点５選。金運を上げる意外な方法｜ブッダの教え",
-      "assembled_path": "workspaces/scripts/CH01/198/content/assembled.md"
+      "video": "254",
+      "video_id": "CH01-254",
+      "title": "【心を守る】陰口を叩かれても平気になる方法。ブッダが教える「受け流し3呼吸」",
+      "assembled_path": "workspaces/scripts/CH01/254/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "199",
-      "video_id": "CH01-199",
-      "title": "【優しさが仇になる】「いい人」をやめれば、人生はすべてうまくいく",
-      "assembled_path": "workspaces/scripts/CH01/199/content/assembled.md"
+      "video": "255",
+      "video_id": "CH01-255",
+      "title": "正直者がバカを見ない生き方。尽くすほど雑に扱われる「優しすぎる人」への最終通告",
+      "assembled_path": "workspaces/scripts/CH01/255/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "200",
-      "video_id": "CH01-200",
-      "title": "【60代からの生き方】「何もしない」が正解。ブッダが説く、最高の老後",
-      "assembled_path": "workspaces/scripts/CH01/200/content/assembled.md"
+      "video": "256",
+      "video_id": "CH01-256",
+      "title": "【ブッダの教え】老後は友達を減らしなさい。それが最強の選択です",
+      "assembled_path": "workspaces/scripts/CH01/256/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "201",
-      "video_id": "CH01-201",
-      "title": "【捨てれば入る】50代から運気が爆上がりする「執着の手放し方」",
-      "assembled_path": "workspaces/scripts/CH01/201/content/assembled.md"
+      "video": "257",
+      "video_id": "CH01-257",
+      "title": "【ブッダの警鐘】親の期待で人生が壊れます。「いい子」をやめられない人の苦しみ",
+      "assembled_path": "workspaces/scripts/CH01/257/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "202",
-      "video_id": "CH01-202",
-      "title": "【最高の復讐】嫌いな人を一瞬で黙らせる、ブッダの「無視」の技術",
-      "assembled_path": "workspaces/scripts/CH01/202/content/assembled.md"
+      "video": "258",
+      "video_id": "CH01-258",
+      "title": "【完全論破】マウントを取る人が一番嫌がること。自慢する人は最後に孤独になります",
+      "assembled_path": "workspaces/scripts/CH01/258/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "203",
-      "video_id": "CH01-203",
-      "title": "【苦しみの終わり】「もう限界」と思った時に見る、心が軽くなるブッダの教え",
-      "assembled_path": "workspaces/scripts/CH01/203/content/assembled.md"
+      "video": "271",
+      "video_id": "CH01-271",
+      "title": "【黙らせ方】会話泥棒の心理と正しい対処法。人の話を奪う人が信頼を失う理由",
+      "assembled_path": "workspaces/scripts/CH01/271/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "204",
-      "video_id": "CH01-204",
-      "title": "【縁切りのススメ】離れるだけで運気が上がる、悪縁の特徴",
-      "assembled_path": "workspaces/scripts/CH01/204/content/assembled.md"
+      "video": "272",
+      "video_id": "CH01-272",
+      "title": "【無心こそ最強】SNSの比較地獄から抜け出す方法。心が静かになる「無関心」の技術",
+      "assembled_path": "workspaces/scripts/CH01/272/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "205",
-      "video_id": "CH01-205",
-      "title": "【貧乏神が逃げていく】お金に好かれる人が密かにやっている「感謝」の習慣",
-      "assembled_path": "workspaces/scripts/CH01/205/content/assembled.md"
+      "video": "273",
+      "video_id": "CH01-273",
+      "title": "【警告】過去を捨てられない人は晩年が地獄になります。後悔と恨みを手放す「放下着」ルーティン",
+      "assembled_path": "workspaces/scripts/CH01/273/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "206",
-      "video_id": "CH01-206",
-      "title": "【病は気から】心の毒を出し切れば、体はみるみる若返る",
-      "assembled_path": "workspaces/scripts/CH01/206/content/assembled.md"
+      "video": "276",
+      "video_id": "CH01-276",
+      "title": "最高の復讐は「無視」です。嫌味な人に効く仏教的な返し",
+      "assembled_path": "workspaces/scripts/CH01/276/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "207",
-      "video_id": "CH01-207",
-      "title": "【過去はゴミ】終わったことをクヨクヨ悩まない、ブッダの「忘れる」力",
-      "assembled_path": "workspaces/scripts/CH01/207/content/assembled.md"
+      "video": "277",
+      "video_id": "CH01-277",
+      "title": "絶対に話してはいけない5つのこと。秘密を守れない人が失う「信用」",
+      "assembled_path": "workspaces/scripts/CH01/277/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "208",
-      "video_id": "CH01-208",
-      "title": "【見下してくる人へ】相手にするな。哀れな人への「慈悲の視線」",
-      "assembled_path": "workspaces/scripts/CH01/208/content/assembled.md"
+      "video": "278",
+      "video_id": "CH01-278",
+      "title": "【沈黙の智慧】賢い人が絶対にしない会話の癖｜ブッダの教え",
+      "assembled_path": "workspaces/scripts/CH01/278/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "209",
-      "video_id": "CH01-209",
-      "title": "【不安消滅】老後の不安が嘘のように消える、ブッダの「今ここ」の教え",
-      "assembled_path": "workspaces/scripts/CH01/209/content/assembled.md"
+      "video": "279",
+      "video_id": "CH01-279",
+      "title": "【関わると不幸になる】会うと疲れる人の正体。距離を置くべき相手の特徴",
+      "assembled_path": "workspaces/scripts/CH01/279/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "210",
-      "video_id": "CH01-210",
-      "title": "【家族でも距離を置け】一緒にいると不幸になる家族の特徴５選",
-      "assembled_path": "workspaces/scripts/CH01/210/content/assembled.md"
+      "video": "280",
+      "video_id": "CH01-280",
+      "title": "人に期待するほど怒りが増えます。期待を捨てると心が静かになる理由",
+      "assembled_path": "workspaces/scripts/CH01/280/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "211",
-      "video_id": "CH01-211",
-      "title": "【人間関係の整理】「縁を切るべき人」の特徴５選｜あなたの運気を吸い取る疫病神",
-      "assembled_path": "workspaces/scripts/CH01/211/content/assembled.md"
+      "video": "281",
+      "video_id": "CH01-281",
+      "title": "【侘び寂びの真髄】本当に価値あるものは何か。執着を捨てると見える美しさ",
+      "assembled_path": "workspaces/scripts/CH01/281/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "212",
-      "video_id": "CH01-212",
-      "title": "【賢者の沈黙】なぜ賢い人は「言い返さない」のか？バカを相手にしない技術",
-      "assembled_path": "workspaces/scripts/CH01/212/content/assembled.md"
+      "video": "282",
+      "video_id": "CH01-282",
+      "title": "【嫉妬の毒】他人の成功を喜べない人の心が壊れていく理由",
+      "assembled_path": "workspaces/scripts/CH01/282/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "213",
-      "video_id": "CH01-213",
-      "title": "【孤独の正体】群れる羊になるな。孤高のライオンとして生きる覚悟",
-      "assembled_path": "workspaces/scripts/CH01/213/content/assembled.md"
+      "video": "283",
+      "video_id": "CH01-283",
+      "title": "【孤独の価値】一人を楽しめる人が最後に勝つ理由｜ブッダの教え",
+      "assembled_path": "workspaces/scripts/CH01/283/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "214",
-      "video_id": "CH01-214",
-      "title": "【復讐の心理学】嫌いな人を一番苦しめる「最高の復讐」とは？",
-      "assembled_path": "workspaces/scripts/CH01/214/content/assembled.md"
+      "video": "284",
+      "video_id": "CH01-284",
+      "title": "【怒りの正体】カッとなる前に知っておくべき仏教の教え。冷静さを取り戻す方法",
+      "assembled_path": "workspaces/scripts/CH01/284/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "215",
-      "video_id": "CH01-215",
-      "title": "【期待しない生き方】「裏切られた」と嘆く前に捨てるべき３つの期待",
-      "assembled_path": "workspaces/scripts/CH01/215/content/assembled.md"
+      "video": "285",
+      "video_id": "CH01-285",
+      "title": "【老いを味方に】年を取るほど人生が良くなる人の共通点",
+      "assembled_path": "workspaces/scripts/CH01/285/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "216",
-      "video_id": "CH01-216",
-      "title": "【秘密の力】絶対に人に言ってはいけない「あなたの弱点」と「将来の計画」",
-      "assembled_path": "workspaces/scripts/CH01/216/content/assembled.md"
+      "video": "286",
+      "video_id": "CH01-286",
+      "title": "【七転び八起き】失敗から立ち直れない人が知るべき仏教の教え",
+      "assembled_path": "workspaces/scripts/CH01/286/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "217",
-      "video_id": "CH01-217",
-      "title": "【善人の末路】「いい人」をやめないと、人生は搾取され続ける",
-      "assembled_path": "workspaces/scripts/CH01/217/content/assembled.md"
+      "video": "287",
+      "video_id": "CH01-287",
+      "title": "【執着の手放し方】手放せないものが多い人ほど苦しむ理由",
+      "assembled_path": "workspaces/scripts/CH01/287/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "218",
-      "video_id": "CH01-218",
-      "title": "【因果応報】他人を陥れた人間が迎える「惨めな末路」",
-      "assembled_path": "workspaces/scripts/CH01/218/content/assembled.md"
+      "video": "288",
+      "video_id": "CH01-288",
+      "title": "【他人の評価】人の目を気にしすぎる人が自分らしく生きる方法",
+      "assembled_path": "workspaces/scripts/CH01/288/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "219",
-      "video_id": "CH01-219",
-      "title": "【老後の後悔】死ぬ瞬間に「もっと冒険すればよかった」と泣かないために",
-      "assembled_path": "workspaces/scripts/CH01/219/content/assembled.md"
+      "video": "289",
+      "video_id": "CH01-289",
+      "title": "【許しの力】許せない人がいる時に知るべき仏教の教え",
+      "assembled_path": "workspaces/scripts/CH01/289/content/assembled.md"
     },
     {
       "channel": "CH01",
-      "video": "220",
-      "video_id": "CH01-220",
-      "title": "【悪口を言われたら】相手にするな。ブッダが教える「無視」の極意",
-      "assembled_path": "workspaces/scripts/CH01/220/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "221",
-      "video_id": "CH01-221",
-      "title": "【嫉妬の正体】あなたを攻撃してくる人は、実はあなたに憧れている",
-      "assembled_path": "workspaces/scripts/CH01/221/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "222",
-      "video_id": "CH01-222",
-      "title": "【逃げる勇気】精神が崩壊する前に、その場から全力で逃げなさい",
-      "assembled_path": "workspaces/scripts/CH01/222/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "223",
-      "video_id": "CH01-223",
-      "title": "【お金の真実】清貧は美徳ではない。お金がないと心も荒む理由",
-      "assembled_path": "workspaces/scripts/CH01/223/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "224",
-      "video_id": "CH01-224",
-      "title": "【偽善者の特徴】笑顔で近づいてくる「いい人」の仮面を剥ぐ方法",
-      "assembled_path": "workspaces/scripts/CH01/224/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "225",
-      "video_id": "CH01-225",
-      "title": "【親不孝のすすめ】親の期待に応えるな。あなたの人生はあなたのもの",
-      "assembled_path": "workspaces/scripts/CH01/225/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "226",
-      "video_id": "CH01-226",
-      "title": "【鈍感力】いちいち気にしない人が、結局一番強い理由",
-      "assembled_path": "workspaces/scripts/CH01/226/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "227",
-      "video_id": "CH01-227",
-      "title": "【断る力】NOと言えない人は、一生他人の奴隷で終わる",
-      "assembled_path": "workspaces/scripts/CH01/227/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "228",
-      "video_id": "CH01-228",
-      "title": "【見栄を張るな】自分を大きく見せようとする人が、一番小さく見える",
-      "assembled_path": "workspaces/scripts/CH01/228/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "229",
-      "video_id": "CH01-229",
-      "title": "【努力の罠】「頑張れば報われる」は嘘。正しい場所で戦え",
-      "assembled_path": "workspaces/scripts/CH01/229/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "230",
-      "video_id": "CH01-230",
-      "title": "【執着の断捨離】過去の栄光にしがみつく人が、老害になる理由",
-      "assembled_path": "workspaces/scripts/CH01/230/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "231",
-      "video_id": "CH01-231",
-      "title": "【無関心の力】「どうでもいい」と呟くだけで、人生は9割うまくいく",
-      "assembled_path": "workspaces/scripts/CH01/231/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "232",
-      "video_id": "CH01-232",
-      "title": "【嘘の効用】正直者がバカを見る世界で、賢く生きるための「嘘」の技術",
-      "assembled_path": "workspaces/scripts/CH01/232/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "233",
-      "video_id": "CH01-233",
-      "title": "【他人の目】「変な人」と思われたら勝ち。常識を疑え",
-      "assembled_path": "workspaces/scripts/CH01/233/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "234",
-      "video_id": "CH01-234",
-      "title": "【死の受容】明日死ぬとしても、あなたは今日と同じ一日を過ごしますか？",
-      "assembled_path": "workspaces/scripts/CH01/234/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "235",
-      "video_id": "CH01-235",
-      "title": "【支配からの脱却】あなたをコントロールしようとする人の手口",
-      "assembled_path": "workspaces/scripts/CH01/235/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "236",
-      "video_id": "CH01-236",
-      "title": "【孤独死の真実】誰にも看取られずに死ぬことは、不幸なのか？",
-      "assembled_path": "workspaces/scripts/CH01/236/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "237",
-      "video_id": "CH01-237",
-      "title": "【諦める力】夢は叶わない。だからこそ、人生は面白い",
-      "assembled_path": "workspaces/scripts/CH01/237/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "238",
-      "video_id": "CH01-238",
-      "title": "【怒りの活用法】怒りは抑えるな。エネルギーに変えて行動しろ",
-      "assembled_path": "workspaces/scripts/CH01/238/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "239",
-      "video_id": "CH01-239",
-      "title": "【嫉妬される快感】人から妬まれるようになったら、一人前である理由",
-      "assembled_path": "workspaces/scripts/CH01/239/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "240",
-      "video_id": "CH01-240",
-      "title": "【無駄の効用】人生の豊かさは「無駄な時間」にこそ宿る",
-      "assembled_path": "workspaces/scripts/CH01/240/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "241",
-      "video_id": "CH01-241",
-      "title": "【媚びない生き方】誰にでもいい顔をする八方美人は、誰からも信用されない",
-      "assembled_path": "workspaces/scripts/CH01/241/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "242",
-      "video_id": "CH01-242",
-      "title": "【弱さの開示】「助けて」と言える人が、結局一番愛される",
-      "assembled_path": "workspaces/scripts/CH01/242/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "243",
-      "video_id": "CH01-243",
-      "title": "【老いの受容】アンチエイジングという無駄な抵抗をやめる勇気",
-      "assembled_path": "workspaces/scripts/CH01/243/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "244",
-      "video_id": "CH01-244",
-      "title": "【直感の力】論理で考えるな。違和感こそが正解だ",
-      "assembled_path": "workspaces/scripts/CH01/244/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "245",
-      "video_id": "CH01-245",
-      "title": "【比較の罠】隣の芝生は青くない。実は人工芝かもしれない",
-      "assembled_path": "workspaces/scripts/CH01/245/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "246",
-      "video_id": "CH01-246",
-      "title": "【逃げ場所の確保】心の避難所（サードプレイス）を持たない人は脆い",
-      "assembled_path": "workspaces/scripts/CH01/246/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "247",
-      "video_id": "CH01-247",
-      "title": "【恩を売るな】「してあげた」と思った瞬間、それは善行ではなく取引になる",
-      "assembled_path": "workspaces/scripts/CH01/247/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "248",
-      "video_id": "CH01-248",
-      "title": "【言葉の暴力】正論は人を傷つける刃物。正しさよりも優しさを",
-      "assembled_path": "workspaces/scripts/CH01/248/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "249",
-      "video_id": "CH01-249",
-      "title": "【運の正体】運がいい人は、運が悪い出来事を「ネタ」にする",
-      "assembled_path": "workspaces/scripts/CH01/249/content/assembled.md"
-    },
-    {
-      "channel": "CH01",
-      "video": "250",
-      "video_id": "CH01-250",
-      "title": "【死生観】死ぬことは、宇宙に還ること。恐怖を手放すブッダの教え",
-      "assembled_path": "workspaces/scripts/CH01/250/content/assembled.md"
+      "video": "290",
+      "video_id": "CH01-290",
+      "title": "【死の恐怖】死が怖い人が知るべき仏教の教え。恐怖を和らげる考え方",
+      "assembled_path": "workspaces/scripts/CH01/290/content/assembled.md"
     },
     {
       "channel": "CH02",
@@ -1794,7 +1584,7 @@
       "video": "006",
       "video_id": "CH02-006",
       "title": "【人間関係】なぜ「いい人」ほど孤独になるのか―善意という名の監獄",
-      "assembled_path": "workspaces/scripts/CH02/006/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/006/content/assembled_human.md"
     },
     {
       "channel": "CH02",
@@ -1850,70 +1640,70 @@
       "video": "014",
       "video_id": "CH02-014",
       "title": "【正義の暴走】なぜ現代人はSNSで他人を叩かずにはいられないのか",
-      "assembled_path": "workspaces/scripts/CH02/014/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/014/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "015",
       "video_id": "CH02-015",
       "title": "【ミニマリズムの罠】「何もない部屋」に住む人ほど、実は何かに支配されている",
-      "assembled_path": "workspaces/scripts/CH02/015/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/015/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "016",
       "video_id": "CH02-016",
       "title": "【天才の憂鬱】なぜレオナルド・ダ・ヴィンチは、ほとんどの作品を未完で終えたのか",
-      "assembled_path": "workspaces/scripts/CH02/016/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/016/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "017",
       "video_id": "CH02-017",
       "title": "【テクノロジーの隷従】なぜスマホは、あなたを賢くするどころか、思考停止に導くのか",
-      "assembled_path": "workspaces/scripts/CH02/017/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/017/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "018",
       "video_id": "CH02-018",
       "title": "【美意識の哲学】なぜ日本人は「わびさび」に惹かれるのか―不完全さの中に神を見る",
-      "assembled_path": "workspaces/scripts/CH02/018/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/018/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "019",
       "video_id": "CH02-019",
       "title": "【大衆の熱狂】なぜ人は、ワールドカップやアイドルに熱狂し、自分を忘れるのか",
-      "assembled_path": "workspaces/scripts/CH02/019/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/019/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "020",
       "video_id": "CH02-020",
       "title": "【言語の限界】なぜ「本当に大切なこと」は、言葉にした瞬間に嘘になるのか",
-      "assembled_path": "workspaces/scripts/CH02/020/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/020/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "021",
       "video_id": "CH02-021",
       "title": "【悪の陳腐さ】なぜ世界から「悪人」が消えないのか―凡人が悪魔に変わる時",
-      "assembled_path": "workspaces/scripts/CH02/021/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/021/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "022",
       "video_id": "CH02-022",
       "title": "【嫉妬の哲学】他人の成功を喜べないあなたへ―嫉妬は“才能の羅針盤”である",
-      "assembled_path": "workspaces/scripts/CH02/022/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/022/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "023",
       "video_id": "CH02-023",
       "title": "【退屈という病】なぜ暇な時間があると、人は不安になるのか―パスカルの警告",
-      "assembled_path": "workspaces/scripts/CH02/023/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/023/content/assembled_human.md"
     },
     {
       "channel": "CH02",
@@ -1927,119 +1717,119 @@
       "video": "025",
       "video_id": "CH02-025",
       "title": "【選択の呪い】「選べない」のは、あなたが臆病だからではない―自由という名の地獄",
-      "assembled_path": "workspaces/scripts/CH02/025/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/025/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "026",
       "video_id": "CH02-026",
       "title": "【優しさの刃】あなたの“良かれ”は、なぜ相手を傷つけるのか―他者への介入という暴力",
-      "assembled_path": "workspaces/scripts/CH02/026/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/026/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "027",
       "video_id": "CH02-027",
       "title": "【仮面の社会】なぜ私たちは、会社や学校で“キャラ”を演じてしまうのか",
-      "assembled_path": "workspaces/scripts/CH02/027/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/027/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "028",
       "video_id": "CH02-028",
       "title": "【都市の孤独】なぜ人口密度が高い東京ほど、人は孤独を感じるのか",
-      "assembled_path": "workspaces/scripts/CH02/028/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/028/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "029",
       "video_id": "CH02-029",
       "title": "【才能の呪い】なぜ神童は大人になると、ただの人になるのか―才能の正しい殺し方",
-      "assembled_path": "workspaces/scripts/CH02/029/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/029/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "030",
       "video_id": "CH02-030",
       "title": "【笑いの哲学】なぜ私たちは、人の失敗を笑ってしまうのか―攻撃性としてのユーモア",
-      "assembled_path": "workspaces/scripts/CH02/030/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/030/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "031",
       "video_id": "CH02-031",
       "title": "【静かなる崩壊】なぜ「真面目な人」ほど、ある日突然心が折れるのか―サイレント・バーンアウト",
-      "assembled_path": "workspaces/scripts/CH02/031/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/031/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "032",
       "video_id": "CH02-032",
       "title": "【共感疲労】なぜ「優しい人」ほど、他人の痛みに押しつぶされてしまうのか",
-      "assembled_path": "workspaces/scripts/CH02/032/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/032/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "033",
       "video_id": "CH02-033",
       "title": "【ポジティブの呪い】なぜ「前向きな言葉」ほど、人を絶望させるのか―トキシック・ポジティビティ",
-      "assembled_path": "workspaces/scripts/CH02/033/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/033/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "034",
       "video_id": "CH02-034",
       "title": "【順調の不安】予定通りに進む日ほど心がざわつく理由",
-      "assembled_path": "workspaces/scripts/CH02/034/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/034/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "035",
       "video_id": "CH02-035",
       "title": "【深夜のリプレイ】昔の失言を繰り返し思い出す脳",
-      "assembled_path": "workspaces/scripts/CH02/035/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/035/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "036",
       "video_id": "CH02-036",
       "title": "【発言の恐怖】会議で声が出なくなる心理",
-      "assembled_path": "workspaces/scripts/CH02/036/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/036/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "037",
       "video_id": "CH02-037",
       "title": "【先回り疲れ】全部コントロールしたい人が燃え尽きる理由",
-      "assembled_path": "workspaces/scripts/CH02/037/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/037/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "038",
       "video_id": "CH02-038",
       "title": "【停滞する部屋】片づけられない心が守っているもの",
-      "assembled_path": "workspaces/scripts/CH02/038/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/038/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "039",
       "video_id": "CH02-039",
       "title": "【祝福の飢餓】他人の成功が自分を削るメカニズム",
-      "assembled_path": "workspaces/scripts/CH02/039/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/039/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "040",
       "video_id": "CH02-040",
       "title": "【期待の重圧】褒め言葉が動きを止める瞬間",
-      "assembled_path": "workspaces/scripts/CH02/040/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/040/content/assembled_human.md"
     },
     {
       "channel": "CH02",
       "video": "041",
       "video_id": "CH02-041",
       "title": "【同調の沼】同じ意見ばかり聞くと判断が鈍る",
-      "assembled_path": "workspaces/scripts/CH02/041/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH02/041/content/assembled_human.md"
     },
     {
       "channel": "CH02",
@@ -2760,119 +2550,119 @@
       "video": "001",
       "video_id": "CH04-001",
       "title": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
-      "assembled_path": "workspaces/scripts/CH04/001/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/001/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "002",
       "video_id": "CH04-002",
       "title": "【悪用厳禁】言葉を使わずに人を動かす、古代ローマの賢者が実践した「5つの沈黙術」",
-      "assembled_path": "workspaces/scripts/CH04/002/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/002/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "003",
       "video_id": "CH04-003",
       "title": "【衝撃の真実】あなたは、今の親を選んで生まれてきた。魂が計画した“人生の宿題”の本当の意味",
-      "assembled_path": "workspaces/scripts/CH04/003/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/003/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "004",
       "video_id": "CH04-004",
       "title": "【99%が誤解】“引き寄せの法則”は、願うのをやめた時に発動する。望む未来を確定させる「意図」の黄金律",
-      "assembled_path": "workspaces/scripts/CH04/004/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/004/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "005",
       "video_id": "CH04-005",
       "title": "【もう頑張らない】人生は“戦い”ではない。無駄な努力を手放し、宇宙の流れに乗る禅の教え",
-      "assembled_path": "workspaces/scripts/CH04/005/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/005/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "006",
       "video_id": "CH04-006",
       "title": "【閲覧注意】なぜか“お金に嫌われる人”の共通点。あなたの無意識に潜む「貧乏マインド」を根こそぎ浄化する方法",
-      "assembled_path": "workspaces/scripts/CH04/006/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/006/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "007",
       "video_id": "CH04-007",
       "title": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方",
-      "assembled_path": "workspaces/scripts/CH04/007/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/007/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "008",
       "video_id": "CH04-008",
       "title": "【衝撃】“努力が報われない”本当の理由。あなたの才能を100%解放する「フロー状態」の作り方",
-      "assembled_path": "workspaces/scripts/CH04/008/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/008/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "009",
       "video_id": "CH04-009",
       "title": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
-      "assembled_path": "workspaces/scripts/CH04/009/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/009/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "010",
       "video_id": "CH04-010",
       "title": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
-      "assembled_path": "workspaces/scripts/CH04/010/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/010/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "011",
       "video_id": "CH04-011",
       "title": "【実話】なぜか“運がいい人”が、寝る前に必ずやっている「感謝」の儀式。富と幸運を自動で引き寄せる脳の作り方",
-      "assembled_path": "workspaces/scripts/CH04/011/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/011/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "012",
       "video_id": "CH04-012",
       "title": "【鳥肌注意】この世は“仮想現実”だった。人生のシナリオを自在に書き換える、プラトンの「イデア論」",
-      "assembled_path": "workspaces/scripts/CH04/012/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/012/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "013",
       "video_id": "CH04-013",
       "title": "【9割が知らない】なぜか“大切にされる人”の共通点。「自己肯定感」を無理に上げず、自分の価値を最大化する禁断の心理術",
-      "assembled_path": "workspaces/scripts/CH04/013/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/013/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "014",
       "video_id": "CH04-014",
       "title": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
-      "assembled_path": "workspaces/scripts/CH04/014/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/014/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "015",
       "video_id": "CH04-015",
       "title": "【聴くだけで覚醒】人生の“OS”を書き換える、古代グノーシスの禁断福音書。偽りの神から、本当の自分を取り戻せ",
-      "assembled_path": "workspaces/scripts/CH04/015/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/015/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "016",
       "video_id": "CH04-016",
       "title": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
-      "assembled_path": "workspaces/scripts/CH04/016/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/016/content/assembled_human.md"
     },
     {
       "channel": "CH04",
       "video": "017",
       "video_id": "CH04-017",
       "title": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
-      "assembled_path": "workspaces/scripts/CH04/017/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/017/content/assembled_human.md"
     },
     {
       "channel": "CH04",
@@ -2963,7 +2753,7 @@
       "video": "030",
       "video_id": "CH04-030",
       "title": "【人生が変わる5つの秘密】意識・つながり・循環・今・完全性。今日からできる実践",
-      "assembled_path": "workspaces/scripts/CH04/030/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH04/030/content/assembled_human.md"
     },
     {
       "channel": "CH05",
@@ -2984,924 +2774,630 @@
       "video": "003",
       "video_id": "CH05-003",
       "title": "【隣人トラブル】「毎晩うるさい！」隣室のバイオリンの音に怒鳴り込んだら、出てきたのは元オーケストラの指揮者だった。「君のために弾こう」と言われ…。",
-      "assembled_path": "workspaces/scripts/CH05/003/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/003/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "004",
       "video_id": "CH05-004",
       "title": "【体験談】シルバー人材センターでペアを組んだのは、ライバル会社の元部長。「君のところのやり方は気に食わん！」と喧嘩ばかりだったのに…。",
-      "assembled_path": "workspaces/scripts/CH05/004/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/004/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "005",
       "video_id": "CH05-005",
       "title": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
-      "assembled_path": "workspaces/scripts/CH05/005/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/005/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "006",
       "video_id": "CH05-006",
       "title": "【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。",
-      "assembled_path": "workspaces/scripts/CH05/006/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/006/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "007",
       "video_id": "CH05-007",
       "title": "【ミステリー】夫の遺品から出てきた、見知らぬ女性へのラブレター。「嫉妬」の二文字を胸に会いに行ったら、その女性は夫がずっと支援していた孤児だった。",
-      "assembled_path": "workspaces/scripts/CH05/007/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/007/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "008",
       "video_id": "CH05-008",
       "title": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
-      "assembled_path": "workspaces/scripts/CH05/008/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/008/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "009",
       "video_id": "CH05-009",
       "title": "【禁断の恋？】息子の嫁の父親と、孫の誕生会で意気投合。「子供たちが結婚したんだ、我々も親戚だな」なんて笑っていたら、いつの間にか二人で会う仲に…。",
-      "assembled_path": "workspaces/scripts/CH05/009/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/009/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "010",
       "video_id": "CH05-010",
       "title": "【危険な香り】エレベーターで出会った初老男性に、理性ごと奪われた日",
-      "assembled_path": "workspaces/scripts/CH05/010/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/010/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "011",
       "video_id": "CH05-011",
       "title": "【シニアの健康】毎年受ける人間ドック。「来年もここで会いましょう」が合言葉だったのに、その日、彼が現れることはなかった…。",
-      "assembled_path": "workspaces/scripts/CH05/011/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/011/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "012",
       "video_id": "CH05-012",
       "title": "【家庭菜園】きゅうりの育て方で大喧嘩した、隣の畑の頑固おやじ。「俺のやり方が絶対だ！」と言い張る彼が、こっそり私の畑に肥料をやるのを見てしまった。",
-      "assembled_path": "workspaces/scripts/CH05/012/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/012/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "013",
       "video_id": "CH05-013",
       "title": "【俳句の会】「老いらくの恋、恥ずかしき、蟬しぐれ」と詠んだ私。選者の先生が「素晴らしい句だ。…私のことですかな？」と、静かに微笑んだ。",
-      "assembled_path": "workspaces/scripts/CH05/013/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/013/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "014",
       "video_id": "CH05-014",
       "title": "【カラオケ】スナックでいつもデュエットする相手。「銀座の恋の物語」を歌う時だけ、彼は役者になる。でも、その夜「これは本気だよ」と手を握ってきた。",
-      "assembled_path": "workspaces/scripts/CH05/014/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/014/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "015",
       "video_id": "CH05-015",
       "title": "【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」",
-      "assembled_path": "workspaces/scripts/CH05/015/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/015/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "016",
       "video_id": "CH05-016",
       "title": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
-      "assembled_path": "workspaces/scripts/CH05/016/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/016/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "017",
       "video_id": "CH05-017",
       "title": "【秘密の共有】「この店、潰れちゃうんだって」行きつけの喫茶店のマスターにそう告げられた夜。同じく常連だった彼と「二人だけの秘密にしよう」と約束した。",
-      "assembled_path": "workspaces/scripts/CH05/017/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/017/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "018",
       "video_id": "CH05-018",
       "title": "【再就職】66歳、清掃のパートで再就職。指導係は、私より年下の62歳。「あなた、手際が悪いわね」と厳しい彼女に、なぜか惹かれてしまった。",
-      "assembled_path": "workspaces/scripts/CH05/018/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/018/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "019",
       "video_id": "CH05-019",
       "title": "【ボランティア】地域のゴミ拾いボランティア。「こんなことしても、街は綺麗にならんよ」と皮肉ばかり言う彼が、誰よりも熱心にゴミを拾っていた。",
-      "assembled_path": "workspaces/scripts/CH05/019/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/019/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "020",
       "video_id": "CH05-020",
       "title": "【図書館の奇跡】いつも同じ席で歴史小説を読んでいる彼。ある日、私が返却した本を、彼が借りていった。本の最終ページに、感想を書いたメモを挟んでみたら…。",
-      "assembled_path": "workspaces/scripts/CH05/020/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/020/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "021",
       "video_id": "CH05-021",
       "title": "【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。",
-      "assembled_path": "workspaces/scripts/CH05/021/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/021/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "022",
       "video_id": "CH05-022",
       "title": "【思い出の場所】閉園する遊園地。40年前に妻と来たメリーゴーランドの前で、一人涙ぐんでいると「あなたも、お別れを言いに？」と、同じく一人の女性に声をかけられた。",
-      "assembled_path": "workspaces/scripts/CH05/022/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/022/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "023",
       "video_id": "CH05-023",
       "title": "【カメラ】野鳥の撮影が趣味の私。最高のシャッターチャンスを狙っていたら、ファインダーの先に、いつも見かける彼が、鳥に餌をやっている姿が…。",
-      "assembled_path": "workspaces/scripts/CH05/023/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/023/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "024",
       "video_id": "CH05-024",
       "title": "【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」",
-      "assembled_path": "workspaces/scripts/CH05/024/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/024/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "025",
       "video_id": "CH05-025",
       "title": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
-      "assembled_path": "workspaces/scripts/CH05/025/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/025/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "026",
       "video_id": "CH05-026",
       "title": "【お遍路】亡き夫の供養のため、一人で始めたお遍路の旅。雨宿りしたお堂で出会ったのは、同じく妻を亡くしたという彼だった。「あと八十七箇所、一緒に歩きませんか」",
-      "assembled_path": "workspaces/scripts/CH05/026/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/026/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "027",
       "video_id": "CH05-027",
       "title": "【ドローン】孫へのプレゼントで買ったドローンに、私がハマってしまった。空撮仲間と集まる公園で、いつも的確なアドバイスをくれる師匠（74歳）を、いつしか目で追っていた。",
-      "assembled_path": "workspaces/scripts/CH05/027/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/027/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "028",
       "video_id": "CH05-028",
       "title": "【歴史】城跡巡りが趣味の私。石垣の前で熱く語り合えるのは、いつも会う彼だけだった。「この城で、落ち合いませんか」まるで戦国時代の密会のようで…。",
-      "assembled_path": "workspaces/scripts/CH05/028/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/028/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "029",
       "video_id": "CH05-029",
       "title": "【シェアハウス】子供も独立し、広い家を持て余した私が始めたシニア向けシェアハウス。最後の入居者は、20年前に離婚した元夫だった。",
-      "assembled_path": "workspaces/scripts/CH05/029/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/029/content/assembled_human.md"
     },
     {
       "channel": "CH05",
       "video": "030",
       "video_id": "CH05-030",
       "title": "【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。",
-      "assembled_path": "workspaces/scripts/CH05/030/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH05/030/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "001",
       "video_id": "CH06-001",
       "title": "【禁断の福音書】トマス福音書が暴く「キリスト教の裏面史」",
-      "assembled_path": "workspaces/scripts/CH06/001/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/001/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "002",
       "video_id": "CH06-002",
       "title": "【オーパーツ地図】ピリ・レイスの地図に描かれた「南極」",
-      "assembled_path": "workspaces/scripts/CH06/002/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/002/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "003",
       "video_id": "CH06-003",
       "title": "【人類の起源】生命は宇宙から来たのか―パンスペルミア説",
-      "assembled_path": "workspaces/scripts/CH06/003/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/003/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "004",
       "video_id": "CH06-004",
       "title": "【本能寺の空白】信長は死んでいない―遺体なき真実",
-      "assembled_path": "workspaces/scripts/CH06/004/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/004/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "005",
       "video_id": "CH06-005",
       "title": "【20億年前の原子炉】オクロ天然原子炉は偶然か―設計か",
-      "assembled_path": "workspaces/scripts/CH06/005/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/005/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "006",
       "video_id": "CH06-006",
       "title": "【国家機密】消えた駆逐艦―フィラデルフィア実験",
-      "assembled_path": "workspaces/scripts/CH06/006/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/006/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "007",
       "video_id": "CH06-007",
       "title": "【焼失した知の王国】アレクサンドリア図書館の「禁書」",
-      "assembled_path": "workspaces/scripts/CH06/007/content/assembled.md"
-    },
-    {
-      "channel": "CH06",
-      "video": "008",
-      "video_id": "CH06-008",
-      "title": "【人類最期の発明】シンギュラリティ―AIが支配者になる日",
-      "assembled_path": "workspaces/scripts/CH06/008/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/007/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "009",
       "video_id": "CH06-009",
       "title": "【解読不能】ヴォイニッチ手稿―誰が何のために書いたのか",
-      "assembled_path": "workspaces/scripts/CH06/009/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/009/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "010",
       "video_id": "CH06-010",
       "title": "【終末の予言】ヨハネの黙示録―封印が解かれる時",
-      "assembled_path": "workspaces/scripts/CH06/010/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/010/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "011",
       "video_id": "CH06-011",
       "title": "【世界を動かす結社】フリーメイソン―象徴が語る目的",
-      "assembled_path": "workspaces/scripts/CH06/011/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/011/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "012",
       "video_id": "CH06-012",
       "title": "【4500年前の超技術】ギザのピラミッドは誰が建てた",
-      "assembled_path": "workspaces/scripts/CH06/012/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/012/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "013",
       "video_id": "CH06-013",
       "title": "【封印されたUFO】ロズウェル事件―回収された「何か」",
-      "assembled_path": "workspaces/scripts/CH06/013/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/013/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "014",
       "video_id": "CH06-014",
       "title": "【触れてはならない神器】契約の箱アーク―禁断の力",
-      "assembled_path": "workspaces/scripts/CH06/014/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/014/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "015",
       "video_id": "CH06-015",
       "title": "【海底の巨大遺跡】与那国島―人工か自然か",
-      "assembled_path": "workspaces/scripts/CH06/015/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/015/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "016",
       "video_id": "CH06-016",
       "title": "【封印された巨大古墳】仁徳天皇陵はなぜ掘れない",
-      "assembled_path": "workspaces/scripts/CH06/016/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/016/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "017",
       "video_id": "CH06-017",
       "title": "【地底世界】地球空洞説―足元に「別文明」はあるのか",
-      "assembled_path": "workspaces/scripts/CH06/017/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/017/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "018",
       "video_id": "CH06-018",
       "title": "【予言は終わっていない】ノストラダムス―恐怖の真意",
-      "assembled_path": "workspaces/scripts/CH06/018/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/018/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "019",
       "video_id": "CH06-019",
       "title": "【火星の顔】NASAが否定した「文明の痕跡」",
-      "assembled_path": "workspaces/scripts/CH06/019/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/019/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "020",
       "video_id": "CH06-020",
       "title": "【消された神々】日本神話のタブー―塗りつぶされたページ",
-      "assembled_path": "workspaces/scripts/CH06/020/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/020/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "021",
       "video_id": "CH06-021",
       "title": "【月は人工物か】ムーンマトリックス―行けない理由",
-      "assembled_path": "workspaces/scripts/CH06/021/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/021/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "022",
       "video_id": "CH06-022",
       "title": "【モアイの警告】イースター島が辿った「文明崩壊」",
-      "assembled_path": "workspaces/scripts/CH06/022/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/022/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "023",
       "video_id": "CH06-023",
       "title": "【公式発表の嘘】JFK暗殺―消された真犯人",
-      "assembled_path": "workspaces/scripts/CH06/023/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/023/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "024",
       "video_id": "CH06-024",
       "title": "【絶対に覗くな】ダークウェブ―最深部の闇市場",
-      "assembled_path": "workspaces/scripts/CH06/024/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/024/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "025",
       "video_id": "CH06-025",
       "title": "【痕跡なき大爆発】ツングースカ―正体不明の空中爆発",
-      "assembled_path": "workspaces/scripts/CH06/025/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/025/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "026",
       "video_id": "CH06-026",
       "title": "【2012年の真相】マヤ暦は終末ではなかった",
-      "assembled_path": "workspaces/scripts/CH06/026/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/026/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "027",
       "video_id": "CH06-027",
       "title": "【古代核戦争】マハーバーラタに刻まれた「核の光」",
-      "assembled_path": "workspaces/scripts/CH06/027/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/027/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "028",
       "video_id": "CH06-028",
       "title": "【宇宙人はどこにいる】フェルミのパラドックス―沈黙の理由",
-      "assembled_path": "workspaces/scripts/CH06/028/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/028/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "029",
       "video_id": "CH06-029",
       "title": "【魔の海域】バミューダ・トライアングル―消える船と機体",
-      "assembled_path": "workspaces/scripts/CH06/029/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/029/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "030",
       "video_id": "CH06-030",
       "title": "【ネット史上最大の謎】Cicada 3301―招待状の正体",
-      "assembled_path": "workspaces/scripts/CH06/030/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/030/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "031",
       "video_id": "CH06-031",
       "title": "【写真に写った未来人】1941年の謎の男―タイムトラベラー",
-      "assembled_path": "workspaces/scripts/CH06/031/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/031/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "032",
       "video_id": "CH06-032",
       "title": "【テントを内側から切り裂いた】ディアトロフ峠事件―9人は何に追われた",
-      "assembled_path": "workspaces/scripts/CH06/032/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/032/content/assembled_human.md"
     },
     {
       "channel": "CH06",
       "video": "033",
       "video_id": "CH06-033",
       "title": "【ピラミッドより古い神殿】ギョベクリ・テペ―歴史が崩れる瞬間",
-      "assembled_path": "workspaces/scripts/CH06/033/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH06/033/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "001",
       "video_id": "CH07-001",
       "title": "【逆転の一言】見下された時に使えるブッダの知恵",
-      "assembled_path": "workspaces/scripts/CH07/001/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/001/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "002",
       "video_id": "CH07-002",
       "title": "【人生が変わる】悪口・批判・否定を気にしない方法",
-      "assembled_path": "workspaces/scripts/CH07/002/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/002/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "003",
       "video_id": "CH07-003",
       "title": "心が汚い人が必ず発する7つの言葉",
-      "assembled_path": "workspaces/scripts/CH07/003/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/003/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "004",
       "video_id": "CH07-004",
       "title": "心配ばかりしてしまうあなたへ｜心が軽くなる仏教の教え",
-      "assembled_path": "workspaces/scripts/CH07/004/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/004/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "005",
       "video_id": "CH07-005",
       "title": "「どうでもいい」と思うと心が軽くなる理由",
-      "assembled_path": "workspaces/scripts/CH07/005/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/005/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "006",
       "video_id": "CH07-006",
       "title": "【もう苦しまなくていい】許さなくていい生き方",
-      "assembled_path": "workspaces/scripts/CH07/006/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/006/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "007",
       "video_id": "CH07-007",
       "title": "優しい人の口癖とその深い意味",
-      "assembled_path": "workspaces/scripts/CH07/007/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/007/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "008",
       "video_id": "CH07-008",
       "title": "誠実な人が無意識に使う魔法の言葉",
-      "assembled_path": "workspaces/scripts/CH07/008/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/008/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "009",
       "video_id": "CH07-009",
       "title": "【因果応報】あなたを苦しめた人が迎える結末",
-      "assembled_path": "workspaces/scripts/CH07/009/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/009/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "010",
       "video_id": "CH07-010",
       "title": "【絶対に助けてはいけない人】関わった瞬間に不幸になる相手",
-      "assembled_path": "workspaces/scripts/CH07/010/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/010/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "011",
       "video_id": "CH07-011",
       "title": "【もう舐められない】見下されたときの最強の一言",
-      "assembled_path": "workspaces/scripts/CH07/011/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/011/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "012",
       "video_id": "CH07-012",
       "title": "【正論よりも大切なもの】常識が人を傷つける理由",
-      "assembled_path": "workspaces/scripts/CH07/012/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/012/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "013",
       "video_id": "CH07-013",
       "title": "【感謝すべき敵】腹が立つ人への仏教的対処法",
-      "assembled_path": "workspaces/scripts/CH07/013/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/013/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "014",
       "video_id": "CH07-014",
       "title": "【警告】こんな子供は親を不幸にする…今すぐ縁を切れ",
-      "assembled_path": "workspaces/scripts/CH07/014/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/014/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "015",
       "video_id": "CH07-015",
       "title": "辛いときに口にすると心が軽くなる仏の言葉",
-      "assembled_path": "workspaces/scripts/CH07/015/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/015/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "016",
       "video_id": "CH07-016",
       "title": "【偶然じゃない】嫌いな人との出会いに意味がある",
-      "assembled_path": "workspaces/scripts/CH07/016/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/016/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "017",
       "video_id": "CH07-017",
       "title": "【言い返すな】上から目線の人への返し方",
-      "assembled_path": "workspaces/scripts/CH07/017/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/017/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "018",
       "video_id": "CH07-018",
       "title": "【話しすぎ注意】言葉が多いと不幸になる",
-      "assembled_path": "workspaces/scripts/CH07/018/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/018/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "019",
       "video_id": "CH07-019",
       "title": "【手放すな】運命の縁を教えてくれる言葉",
-      "assembled_path": "workspaces/scripts/CH07/019/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/019/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "020",
       "video_id": "CH07-020",
       "title": "【老後の備え】子供に絶対に渡してはいけない5つのもの",
-      "assembled_path": "workspaces/scripts/CH07/020/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/020/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "021",
       "video_id": "CH07-021",
       "title": "【許すと不幸になる】絶対に許してはいけない人間関係",
-      "assembled_path": "workspaces/scripts/CH07/021/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/021/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "022",
       "video_id": "CH07-022",
       "title": "【心を守る技法】攻撃的な人への最も賢い返し方",
-      "assembled_path": "workspaces/scripts/CH07/022/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/022/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "023",
       "video_id": "CH07-023",
       "title": "【誤解されたままでもいい理由】分かってもらえない時の心の保ち方",
-      "assembled_path": "workspaces/scripts/CH07/023/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/023/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "024",
       "video_id": "CH07-024",
       "title": "【老後は言葉遣いで決まる】豊かに生きる話し方",
-      "assembled_path": "workspaces/scripts/CH07/024/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/024/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "025",
       "video_id": "CH07-025",
       "title": "【心を守る一言】否定してくる人への最強の返し",
-      "assembled_path": "workspaces/scripts/CH07/025/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/025/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "026",
       "video_id": "CH07-026",
       "title": "嫉妬する人の特徴と対処法",
-      "assembled_path": "workspaces/scripts/CH07/026/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/026/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "027",
       "video_id": "CH07-027",
       "title": "嘘をつく人が使う5つの言葉",
-      "assembled_path": "workspaces/scripts/CH07/027/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/027/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "028",
       "video_id": "CH07-028",
       "title": "【良くも悪くも聞き流す】心を軽くするブッダの教え",
-      "assembled_path": "workspaces/scripts/CH07/028/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/028/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "029",
       "video_id": "CH07-029",
       "title": "【親しい人ほど危険】裏切る人の本性を見抜く方法",
-      "assembled_path": "workspaces/scripts/CH07/029/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/029/content/assembled_human.md"
     },
     {
       "channel": "CH07",
       "video": "030",
       "video_id": "CH07-030",
       "title": "【親の後悔】知らずにやってしまう子育ての間違い",
-      "assembled_path": "workspaces/scripts/CH07/030/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "001",
-      "video_id": "CH08-001",
-      "title": "【悪用厳禁】反応しない最強の力",
-      "assembled_path": "workspaces/scripts/CH08/001/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "002",
-      "video_id": "CH08-002",
-      "title": "「あなたの子供はカルマ」この言葉の真の意味",
-      "assembled_path": "workspaces/scripts/CH08/002/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "003",
-      "video_id": "CH08-003",
-      "title": "子供の誕生日は偶然じゃない 衝撃のメッセージ",
-      "assembled_path": "workspaces/scripts/CH08/003/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "004",
-      "video_id": "CH08-004",
-      "title": "霊的に目覚めた人が静かに社会から消える理由",
-      "assembled_path": "workspaces/scripts/CH08/004/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "005",
-      "video_id": "CH08-005",
-      "title": "再生した瞬間人生が全自動で整う波動固定術",
-      "assembled_path": "workspaces/scripts/CH08/005/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "006",
-      "video_id": "CH08-006",
-      "title": "宇宙と会話し実際に答えを受け取る5つの方法",
-      "assembled_path": "workspaces/scripts/CH08/006/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "007",
-      "video_id": "CH08-007",
-      "title": "世界のエリートが使うエネルギー操作マニュアル",
-      "assembled_path": "workspaces/scripts/CH08/007/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "008",
-      "video_id": "CH08-008",
-      "title": "【嘘だろ？】呼吸一つで現実が激変する秘密",
-      "assembled_path": "workspaces/scripts/CH08/008/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "009",
-      "video_id": "CH08-009",
-      "title": "頭の中の独り言をやめたら人生が根こそぎ変わった",
-      "assembled_path": "workspaces/scripts/CH08/009/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "010",
-      "video_id": "CH08-010",
-      "title": "撤退の驚くべき力 あなたを消耗させる人間関係の罠",
-      "assembled_path": "workspaces/scripts/CH08/010/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "011",
-      "video_id": "CH08-011",
-      "title": "心は誰に話しかけているのか？",
-      "assembled_path": "workspaces/scripts/CH08/011/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "012",
-      "video_id": "CH08-012",
-      "title": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密",
-      "assembled_path": "workspaces/scripts/CH08/012/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "013",
-      "video_id": "CH08-013",
-      "title": "最終テストに合格した人にだけ見えている景色",
-      "assembled_path": "workspaces/scripts/CH08/013/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "014",
-      "video_id": "CH08-014",
-      "title": "誰も知らないエネルギーコントロールの裏技",
-      "assembled_path": "workspaces/scripts/CH08/014/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "015",
-      "video_id": "CH08-015",
-      "title": "考えている時、あなたは実は聴いている",
-      "assembled_path": "workspaces/scripts/CH08/015/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "016",
-      "video_id": "CH08-016",
-      "title": "1200年間隠された真実 人生はすべて自分で選んでいた",
-      "assembled_path": "workspaces/scripts/CH08/016/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "017",
-      "video_id": "CH08-017",
-      "title": "もう二度と人間に生まれてこない魂の特徴",
-      "assembled_path": "workspaces/scripts/CH08/017/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "018",
-      "video_id": "CH08-018",
-      "title": "人が恋に落ちる理由は外見でも性格でもない",
-      "assembled_path": "workspaces/scripts/CH08/018/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "019",
-      "video_id": "CH08-019",
-      "title": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート",
-      "assembled_path": "workspaces/scripts/CH08/019/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "020",
-      "video_id": "CH08-020",
-      "title": "人生は壮大な魂のドラマだった 生まれる前に決めた真実",
-      "assembled_path": "workspaces/scripts/CH08/020/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "021",
-      "video_id": "CH08-021",
-      "title": "ブッダが語った「どうでもいい」という最強の真理",
-      "assembled_path": "workspaces/scripts/CH08/021/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "022",
-      "video_id": "CH08-022",
-      "title": "この才能を持つ人は普通に生きられない 危険な知覚",
-      "assembled_path": "workspaces/scripts/CH08/022/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "023",
-      "video_id": "CH08-023",
-      "title": "あなたがお母さんを選んだ本当の理由",
-      "assembled_path": "workspaces/scripts/CH08/023/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "024",
-      "video_id": "CH08-024",
-      "title": "もしこれを経験したなら第5次元に入っている",
-      "assembled_path": "workspaces/scripts/CH08/024/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "025",
-      "video_id": "CH08-025",
-      "title": "老化は作られた幻想 時間を巻き戻す意識の書き換え",
-      "assembled_path": "workspaces/scripts/CH08/025/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "026",
-      "video_id": "CH08-026",
-      "title": "左手につけた瞬間運気が吸い取られる罠",
-      "assembled_path": "workspaces/scripts/CH08/026/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "027",
-      "video_id": "CH08-027",
-      "title": "どんな嫌な人からも攻撃されなくなる最強の心理術",
-      "assembled_path": "workspaces/scripts/CH08/027/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "028",
-      "video_id": "CH08-028",
-      "title": "選ばれし者が大勢の人と関われない理由",
-      "assembled_path": "workspaces/scripts/CH08/028/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "029",
-      "video_id": "CH08-029",
-      "title": "寝る前に名前を逆さに21回唱える人生好転の秘術",
-      "assembled_path": "workspaces/scripts/CH08/029/content/assembled.md"
-    },
-    {
-      "channel": "CH08",
-      "video": "030",
-      "video_id": "CH08-030",
-      "title": "もう一人のあなたから届く人生好転サイン",
-      "assembled_path": "workspaces/scripts/CH08/030/content/assembled.md"
-    },
-    {
-      "channel": "CH09",
-      "video": "001",
-      "video_id": "CH09-001",
-      "title": "【話すと危険】口が裂けても他人に言うな7つのこと",
-      "assembled_path": "workspaces/scripts/CH09/001/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "001",
-      "video_id": "CH10-001",
-      "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術",
-      "assembled_path": "workspaces/scripts/CH10/001/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "002",
-      "video_id": "CH10-002",
-      "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由",
-      "assembled_path": "workspaces/scripts/CH10/002/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "003",
-      "video_id": "CH10-003",
-      "title": "【ニコラ・テスラ流】369の周波数で夢を叶える",
-      "assembled_path": "workspaces/scripts/CH10/003/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "004",
-      "video_id": "CH10-004",
-      "title": "【ニコラ・テスラ流】未来を引き寄せる7つの教え",
-      "assembled_path": "workspaces/scripts/CH10/004/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "005",
-      "video_id": "CH10-005",
-      "title": "【岡潔流】本当に頭がいい人は速さより深さを選ぶ理由",
-      "assembled_path": "workspaces/scripts/CH10/005/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "006",
-      "video_id": "CH10-006",
-      "title": "【ニコラ・テスラ流】少ない行動で結果を出す思考術",
-      "assembled_path": "workspaces/scripts/CH10/006/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "007",
-      "video_id": "CH10-007",
-      "title": "【ニコラ・テスラ流】常識を超えて考える力",
-      "assembled_path": "workspaces/scripts/CH10/007/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "008",
-      "video_id": "CH10-008",
-      "title": "【岡潔流】考える量と賢さは無関係である理由",
-      "assembled_path": "workspaces/scripts/CH10/008/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "009",
-      "video_id": "CH10-009",
-      "title": "【周波数は嘘をつかない】現実を作る意識の法則（ホーキンズ）",
-      "assembled_path": "workspaces/scripts/CH10/009/content/assembled.md"
-    },
-    {
-      "channel": "CH10",
-      "video": "010",
-      "video_id": "CH10-010",
-      "title": "【岡潔流】賢さの本質は『感じながら考える』にある",
-      "assembled_path": "workspaces/scripts/CH10/010/content/assembled.md"
+      "assembled_path": "workspaces/scripts/CH07/030/content/assembled_human.md"
     },
     {
       "channel": "CH11",
@@ -3912,927 +3408,213 @@
     },
     {
       "channel": "CH11",
-      "video": "002",
-      "video_id": "CH11-002",
-      "title": "# 【徳がにじみ出る人】子供や孫が自然と会いに来たくなる、素敵なおじいちゃん・おばあちゃんの特徴",
-      "assembled_path": "workspaces/scripts/CH11/002/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "003",
-      "video_id": "CH11-003",
-      "title": "# 【運気が上がる朝の習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由",
-      "assembled_path": "workspaces/scripts/CH11/003/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
       "video": "004",
       "video_id": "CH11-004",
       "title": "【要注意】これを言うと老後に嫌われる「昔は良かった」が口癖の人がたどる悲惨な結末",
       "assembled_path": "workspaces/scripts/CH11/004/content/assembled.md"
     },
     {
-      "channel": "CH11",
-      "video": "005",
-      "video_id": "CH11-005",
-      "title": "【人生の最後に笑う人】60歳を過ぎてようやく気づいた「本当に大切にすべきこと」５選｜ブッダの教え",
-      "assembled_path": "workspaces/scripts/CH11/005/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "006",
-      "video_id": "CH11-006",
-      "title": "【もう悩まない】過ぎたことをいつまでも悔やんでしまうあなたへ｜ブッダが教える\"過去\"を手放す心の整理術",
-      "assembled_path": "workspaces/scripts/CH11/006/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "007",
-      "video_id": "CH11-007",
-      "title": "【実は孤独こそが最強】一人でいる時間を\"楽しむ\"人だけが手に入れる穏やかな老後とは？",
-      "assembled_path": "workspaces/scripts/CH11/007/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "008",
-      "video_id": "CH11-008",
-      "title": "【危険なサイン】あなたの善意を食い物にする「ずるい人」から身を守るブッダの知恵",
-      "assembled_path": "workspaces/scripts/CH11/008/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "009",
-      "video_id": "CH11-009",
-      "title": "【死ぬのが怖いあなたへ】穏やかな最期を迎えるために今からできる心の準備｜ブッダの輪廻転生の教え",
-      "assembled_path": "workspaces/scripts/CH11/009/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "010",
-      "video_id": "CH11-010",
-      "title": "【ありがたいお言葉】心が弱った時に唱えるだけで不思議と力が湧いてくる「仏様の短い言葉」集",
-      "assembled_path": "workspaces/scripts/CH11/010/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "011",
-      "video_id": "CH11-011",
-      "title": "【怒りを消す技術】腹が立ったとき、人生が好転するブッダの「考えない」習慣",
-      "assembled_path": "workspaces/scripts/CH11/011/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "012",
-      "video_id": "CH11-012",
-      "title": "【なぜかお金に困らない人の口癖】ブッダが教える、豊かさを引き寄せる「感謝」の言葉の力",
-      "assembled_path": "workspaces/scripts/CH11/012/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "013",
-      "video_id": "CH11-013",
-      "title": "【心が楽になる鈍感力】いちいち傷つかない人が実践している、ブッダの「受け流す」智慧",
-      "assembled_path": "workspaces/scripts/CH11/013/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "014",
-      "video_id": "CH11-014",
-      "title": "【老後の夫婦関係】もう我慢しない。つかず離れず、心地よい距離感を保つブッダの教え",
-      "assembled_path": "workspaces/scripts/CH11/014/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "015",
-      "video_id": "CH11-015",
-      "title": "【寝る前5分でできること】今日の不安をリセットし、幸運を引き寄せる夜の習慣｜ブッダの瞑想法",
-      "assembled_path": "workspaces/scripts/CH11/015/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "016",
-      "video_id": "CH11-016",
-      "title": "【病と共に生きる智慧】病気になって初めてわかる、本当の幸せとは｜ブッダの教え",
-      "assembled_path": "workspaces/scripts/CH11/016/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "017",
-      "video_id": "CH11-017",
-      "title": "【人を見る目】一瞬で「裏表のある人」を見抜くブッダの観察術｜本当に信用できる人の特徴",
-      "assembled_path": "workspaces/scripts/CH11/017/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "018",
-      "video_id": "CH11-018",
-      "title": "【幸運な晩年】なぜかいつもご機嫌な人が、無意識にやっている「徳を積む」習慣",
-      "assembled_path": "workspaces/scripts/CH11/018/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "019",
-      "video_id": "CH11-019",
-      "title": "【もう比べない生き方】SNSや他人の成功が気になるとき、心がスーッと軽くなるブッダの言葉",
-      "assembled_path": "workspaces/scripts/CH11/019/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "020",
-      "video_id": "CH11-020",
-      "title": "【人生が虚しいと感じたら】何をやっても楽しくないあなたへ。ブッダが教える「生きる意味」の見つけ方",
-      "assembled_path": "workspaces/scripts/CH11/020/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "021",
-      "video_id": "CH11-021",
-      "title": "【話の聞き方ひとつで変わる】なぜか人が集まる人の「究極の傾聴術」｜ブッダの教え",
-      "assembled_path": "workspaces/scripts/CH11/021/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "022",
-      "video_id": "CH11-022",
-      "title": "【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧",
-      "assembled_path": "workspaces/scripts/CH11/022/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "023",
-      "video_id": "CH11-023",
-      "title": "【もう執着しない】失ったものを数えるのをやめ、今あるものに感謝するブッダの心の整え方",
-      "assembled_path": "workspaces/scripts/CH11/023/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "024",
-      "video_id": "CH11-024",
-      "title": "【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段",
-      "assembled_path": "workspaces/scripts/CH11/024/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "025",
-      "video_id": "CH11-025",
-      "title": "【ご先祖様に守られているサイン】あなたのそばにいる見えない力の存在に気づく時｜仏教の教え",
-      "assembled_path": "workspaces/scripts/CH11/025/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "026",
-      "video_id": "CH11-026",
-      "title": "【言葉の力】口にするだけで運命が変わる「天国言葉」と、人生を壊す「地獄言葉」｜ブッダの正語",
-      "assembled_path": "workspaces/scripts/CH11/026/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "027",
-      "video_id": "CH11-027",
-      "title": "【究極の断捨離】人生の最後に本当に残すべきは、たった３つだけ｜ブッダのミニマリズム",
-      "assembled_path": "workspaces/scripts/CH11/027/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "028",
-      "video_id": "CH11-028",
-      "title": "【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣",
-      "assembled_path": "workspaces/scripts/CH11/028/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "029",
-      "video_id": "CH11-029",
-      "title": "【心配性のあなたへ】まだ起きてもいないことで悩むのをやめるブッダの「今を生きる」技術",
-      "assembled_path": "workspaces/scripts/CH11/029/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "030",
-      "video_id": "CH11-030",
-      "title": "【人生の迷子になったら】進むべき道がわからなくなった時に読む、ブッダからの手紙",
-      "assembled_path": "workspaces/scripts/CH11/030/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "031",
-      "video_id": "CH11-031",
-      "title": "【科学が証明したブッダの智慧】瞑想が脳と心にもたらす奇跡の効果｜ハーバード大学の研究で判明",
-      "assembled_path": "workspaces/scripts/CH11/031/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "032",
-      "video_id": "CH11-032",
-      "title": "【人間関係の悩みが消える】嫌な人から自分を守る、ブッダの「慈悲の距離」という考え方",
-      "assembled_path": "workspaces/scripts/CH11/032/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "033",
-      "video_id": "CH11-033",
-      "title": "【月５万円でも豊かに暮らす】ブッダの「足るを知る」という生き方｜老後の資金不安が消えるシンプルな習慣",
-      "assembled_path": "workspaces/scripts/CH11/033/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "034",
-      "video_id": "CH11-034",
-      "title": "【心がスーッと軽くなる】スマホ疲れ、情報疲れから抜け出す、ブッダの「無分別」の智慧",
-      "assembled_path": "workspaces/scripts/CH11/034/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "035",
-      "video_id": "CH11-035",
-      "title": "【100年歩ける体づくり】動くことは禅である。ブッダに学ぶ、心と体を整える「歩行禅」のすすめ",
-      "assembled_path": "workspaces/scripts/CH11/035/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "036",
-      "video_id": "CH11-036",
-      "title": "見えないところで守られる。鉛筆が一本になるまで（CH11-036）",
-      "assembled_path": "workspaces/scripts/CH11/036/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "037",
-      "video_id": "CH11-037",
-      "title": "【もう他人に振り回されない】ブッダの「自灯明」の教えに学ぶ、”自分軸”で生きるためのヒント",
-      "assembled_path": "workspaces/scripts/CH11/037/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "038",
-      "video_id": "CH11-038",
-      "title": "【幸運が舞い込む人相】ブッダの「和顔愛語」を実践するだけで、あなたの印象は劇的に変わる",
-      "assembled_path": "workspaces/scripts/CH11/038/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "039",
-      "video_id": "CH11-039",
-      "title": "【もうクヨクヨしない】過去の後悔を手放し、「今」を最高に生きるブッダの処方箋",
-      "assembled_path": "workspaces/scripts/CH11/039/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "040",
-      "video_id": "CH11-040",
-      "title": "【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則",
-      "assembled_path": "workspaces/scripts/CH11/040/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "041",
-      "video_id": "CH11-041",
-      "title": "【失敗を巻き直す】ブッダが教える静かなやり直し術",
-      "assembled_path": "workspaces/scripts/CH11/041/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "042",
-      "video_id": "CH11-042",
-      "title": "【もう怒りで失敗しない】腹が立った時、ブッダならどうする？心を鎮める「アンガーマネジメント」",
-      "assembled_path": "workspaces/scripts/CH11/042/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "043",
-      "video_id": "CH11-043",
-      "title": "【死ぬのが怖い、が消える話】ブッダが説く「輪廻転生」と、穏やかな最期を迎える心の準備",
-      "assembled_path": "workspaces/scripts/CH11/043/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "044",
-      "video_id": "CH11-044",
-      "title": "心を整える片付け ── 中道で進める実践台本",
-      "assembled_path": "workspaces/scripts/CH11/044/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "045",
-      "video_id": "CH11-045",
-      "title": "【人生に疲れたあなたへ】何をやっても楽しくない…「空虚感」の正体と、ブッダの処方箋",
-      "assembled_path": "workspaces/scripts/CH11/045/content/assembled.md"
-    },
-    {
-      "channel": "CH11",
-      "video": "046",
-      "video_id": "CH11-046",
-      "title": "# ブッダが教える「余白のある老後」――執着を手放し、心を整える10の習慣（長尺特別編）",
-      "assembled_path": "workspaces/scripts/CH11/046/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "001",
-      "video_id": "CH12-001",
-      "title": "【不眠】夜の不安が止まらない人へ｜今夜眠れる3分法",
-      "assembled_path": "workspaces/scripts/CH12/001/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "002",
-      "video_id": "CH12-002",
-      "title": "【後悔】思い出すほど苦しくなる｜最初に切る1つ",
-      "assembled_path": "workspaces/scripts/CH12/002/content/assembled.md"
+      "video_id": "CH13-002",
+      "title": "【夫婦】我慢が続くほど壊れる｜会話の線引き",
+      "assembled_path": "workspaces/scripts/CH13/002/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "003",
-      "video_id": "CH12-003",
-      "title": "【孤独】ひとりの夜が刺さる人へ｜孤独が薄まる見方",
-      "assembled_path": "workspaces/scripts/CH12/003/content/assembled.md"
+      "video_id": "CH13-003",
+      "title": "【口出し】善意で口を出すほど嫌われる｜関係が壊れる前にやめる一言",
+      "assembled_path": "workspaces/scripts/CH13/003/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "004",
-      "video_id": "CH12-004",
-      "title": "【心配】最悪を想像して苦しい｜脳の暴走を止める",
-      "assembled_path": "workspaces/scripts/CH12/004/content/assembled.md"
+      "video_id": "CH13-004",
+      "title": "【断り方】行きたくない誘いは“これ”で終わる｜角を立てずに切る",
+      "assembled_path": "workspaces/scripts/CH13/004/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "005",
-      "video_id": "CH12-005",
-      "title": "【自己否定】自分責めが止まらない｜弱る前にやめろ",
-      "assembled_path": "workspaces/scripts/CH12/005/content/assembled.md"
+      "video_id": "CH13-005",
+      "title": "【人の目】人の目が怖い人へ｜怖さの正体は“損”",
+      "assembled_path": "workspaces/scripts/CH13/005/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "006",
-      "video_id": "CH12-006",
-      "title": "【不安】理由のない怖さが来る夜｜それは異常じゃない",
-      "assembled_path": "workspaces/scripts/CH12/006/content/assembled.md"
+      "video_id": "CH13-006",
+      "title": "【限界】頑張るほど心が荒れる｜壊れる前に引く線",
+      "assembled_path": "workspaces/scripts/CH13/006/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "007",
-      "video_id": "CH12-007",
-      "title": "【怒り】夜に怒りが燃え返る｜燃料を切れば消える",
-      "assembled_path": "workspaces/scripts/CH12/007/content/assembled.md"
+      "video_id": "CH13-007",
+      "title": "【悪口】悪口が刺さる人へ｜刺さる場所は“ここ”",
+      "assembled_path": "workspaces/scripts/CH13/007/content/assembled.md"
     },
     {
-      "channel": "CH12",
-      "video": "008",
-      "video_id": "CH12-008",
-      "title": "【比較】同級生の話で心が沈む｜比べるほど老ける",
-      "assembled_path": "workspaces/scripts/CH12/008/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "009",
-      "video_id": "CH12-009",
-      "title": "【空虚】満たそうとするほど空く｜埋め方が逆だ",
-      "assembled_path": "workspaces/scripts/CH12/009/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "010",
-      "video_id": "CH12-010",
-      "title": "【焦り】時間がない焦り｜焦るほど苦しくなる理由",
-      "assembled_path": "workspaces/scripts/CH12/010/content/assembled.md"
+      "video_id": "CH13-010",
+      "title": "【距離】嫌いじゃないのに疲れる｜壊さず離れる技術",
+      "assembled_path": "workspaces/scripts/CH13/010/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "011",
-      "video_id": "CH12-011",
-      "title": "【不安】朝が怖い人へ｜朝の憂うつが軽くなる",
-      "assembled_path": "workspaces/scripts/CH12/011/content/assembled.md"
+      "video_id": "CH13-011",
+      "title": "【寂しさ】会えない相手が頭から離れない｜寂しさを増やす罠",
+      "assembled_path": "workspaces/scripts/CH13/011/content/assembled.md"
     },
     {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "012",
-      "video_id": "CH12-012",
-      "title": "【喪失】失ったものが戻らない夜｜抱え直すと軽い",
-      "assembled_path": "workspaces/scripts/CH12/012/content/assembled.md"
+      "video_id": "CH13-012",
+      "title": "【マウント】マウントに勝とうとするな｜勝つ必要はない",
+      "assembled_path": "workspaces/scripts/CH13/012/content/assembled.md"
     },
     {
-      "channel": "CH12",
-      "video": "013",
-      "video_id": "CH12-013",
-      "title": "【罪悪感】休むと罪だと思う人へ｜真面目が毒になる",
-      "assembled_path": "workspaces/scripts/CH12/013/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "014",
-      "video_id": "CH12-014",
-      "title": "【孤独】話し相手が減った寂しさ｜寂しさの扱い方",
-      "assembled_path": "workspaces/scripts/CH12/014/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "015",
-      "video_id": "CH12-015",
-      "title": "【不安】死が怖い夜｜怖さを薄める見方",
-      "assembled_path": "workspaces/scripts/CH12/015/content/assembled.md"
+      "video_id": "CH13-015",
+      "title": "【対立】揉めるのが怖い人へ｜揉めないための線",
+      "assembled_path": "workspaces/scripts/CH13/015/content/assembled.md"
     },
     {
-      "channel": "CH12",
-      "video": "016",
-      "video_id": "CH12-016",
-      "title": "【思考】考えすぎで疲れる｜思考を切るスイッチ",
-      "assembled_path": "workspaces/scripts/CH12/016/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "017",
-      "video_id": "CH12-017",
-      "title": "【後悔】あの一言を戻したい｜巻き戻し地獄を終わらせる",
-      "assembled_path": "workspaces/scripts/CH12/017/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
+      "channel": "CH13",
       "video": "018",
-      "video_id": "CH12-018",
-      "title": "【不安】家族の将来が心配すぎる｜心配の鎖を外す",
-      "assembled_path": "workspaces/scripts/CH12/018/content/assembled.md"
+      "video_id": "CH13-018",
+      "title": "【連絡】連絡が来るだけで胃が痛い｜体が答えてる",
+      "assembled_path": "workspaces/scripts/CH13/018/content/assembled.md"
     },
     {
-      "channel": "CH12",
-      "video": "019",
-      "video_id": "CH12-019",
-      "title": "【不眠】眠ろうとするほど眠れない｜逆が効く",
-      "assembled_path": "workspaces/scripts/CH12/019/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "020",
-      "video_id": "CH12-020",
-      "title": "【孤独】孤独を埋めようとすると増える｜やり方を変えろ",
-      "assembled_path": "workspaces/scripts/CH12/020/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "021",
-      "video_id": "CH12-021",
-      "title": "【不安】胸が苦しくなる不安｜体の反応を落とす",
-      "assembled_path": "workspaces/scripts/CH12/021/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "022",
-      "video_id": "CH12-022",
-      "title": "【怒り】許せない記憶が蘇る｜記憶の火を消す",
-      "assembled_path": "workspaces/scripts/CH12/022/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "023",
-      "video_id": "CH12-023",
-      "title": "【疲労】頑張り癖が抜けない｜頑張るほど壊れる",
-      "assembled_path": "workspaces/scripts/CH12/023/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "024",
-      "video_id": "CH12-024",
-      "title": "【安心】今すぐ落ち着く短い教え｜一言で呼吸が戻る",
-      "assembled_path": "workspaces/scripts/CH12/024/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "025",
-      "video_id": "CH12-025",
-      "title": "【孤独】ひとりが恥ずかしい人へ｜恥ではない",
-      "assembled_path": "workspaces/scripts/CH12/025/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "026",
-      "video_id": "CH12-026",
-      "title": "【不安】不安に勝とうとするほど負ける｜勝ち方は逆",
-      "assembled_path": "workspaces/scripts/CH12/026/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "027",
-      "video_id": "CH12-027",
-      "title": "【回復】落ちた日の正解｜何もしないが最短",
-      "assembled_path": "workspaces/scripts/CH12/027/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "028",
-      "video_id": "CH12-028",
-      "title": "【不安】未来の答えが出ない｜答えより大事な1つ",
-      "assembled_path": "workspaces/scripts/CH12/028/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "029",
-      "video_id": "CH12-029",
-      "title": "【慈悲】自分に厳しすぎる｜厳しさが毒になる",
-      "assembled_path": "workspaces/scripts/CH12/029/content/assembled.md"
-    },
-    {
-      "channel": "CH12",
-      "video": "030",
-      "video_id": "CH12-030",
-      "title": "【夜】明日が軽くなる話｜夜に整える順番",
-      "assembled_path": "workspaces/scripts/CH12/030/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "001",
-      "video_id": "CH22-001",
-      "title": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
-      "assembled_path": "workspaces/scripts/CH22/001/content/assembled.md"
+      "video_id": "CH14-001",
+      "title": "【執着】手放せないほど苦しい｜ほどける順番はこれ",
+      "assembled_path": "workspaces/scripts/CH14/001/content/assembled.md"
     },
     {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "002",
-      "video_id": "CH22-002",
-      "title": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
-      "assembled_path": "workspaces/scripts/CH22/002/content/assembled.md"
+      "video_id": "CH14-002",
+      "title": "【過去】昔の栄光が忘れられない｜今を削る罠",
+      "assembled_path": "workspaces/scripts/CH14/002/content/assembled.md"
     },
     {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "003",
-      "video_id": "CH22-003",
-      "title": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
-      "assembled_path": "workspaces/scripts/CH22/003/content/assembled.md"
+      "video_id": "CH14-003",
+      "title": "【恨み】許せない人が頭から離れない｜切れる見方",
+      "assembled_path": "workspaces/scripts/CH14/003/content/assembled.md"
     },
     {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "004",
-      "video_id": "CH22-004",
-      "title": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
-      "assembled_path": "workspaces/scripts/CH22/004/content/assembled.md"
+      "video_id": "CH14-004",
+      "title": "【後悔】選択の後悔が止まらない｜巻き戻しを終わらせる",
+      "assembled_path": "workspaces/scripts/CH14/004/content/assembled.md"
     },
     {
-      "channel": "CH22",
-      "video": "005",
-      "video_id": "CH22-005",
-      "title": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
-      "assembled_path": "workspaces/scripts/CH22/005/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "006",
-      "video_id": "CH22-006",
-      "title": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
-      "assembled_path": "workspaces/scripts/CH22/006/content/assembled.md"
+      "video_id": "CH14-006",
+      "title": "【比較】同級生と比べるほど老ける｜比べない軸",
+      "assembled_path": "workspaces/scripts/CH14/006/content/assembled.md"
     },
     {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "007",
-      "video_id": "CH22-007",
-      "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
-      "assembled_path": "workspaces/scripts/CH22/007/content/assembled.md"
+      "video_id": "CH14-007",
+      "title": "【物】捨てられないのは心の問題｜手放しは技術",
+      "assembled_path": "workspaces/scripts/CH14/007/content/assembled.md"
     },
     {
-      "channel": "CH22",
-      "video": "008",
-      "video_id": "CH22-008",
-      "title": "友人宅に私の席がない｜『友達』じゃなかった現実",
-      "assembled_path": "workspaces/scripts/CH22/008/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
+      "channel": "CH14",
       "video": "009",
-      "video_id": "CH22-009",
-      "title": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
-      "assembled_path": "workspaces/scripts/CH22/009/content/assembled.md"
+      "video_id": "CH14-009",
+      "title": "【怒り】怒りを握るほど損｜握らない練習",
+      "assembled_path": "workspaces/scripts/CH14/009/content/assembled.md"
     },
     {
-      "channel": "CH22",
-      "video": "010",
-      "video_id": "CH22-010",
-      "title": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
-      "assembled_path": "workspaces/scripts/CH22/010/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "011",
-      "video_id": "CH22-011",
-      "title": "孫の話ばかりで息が詰まる｜比べる会の地獄",
-      "assembled_path": "workspaces/scripts/CH22/011/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "012",
-      "video_id": "CH22-012",
-      "title": "友人の夫から一本の電話｜噂が広がる夜",
-      "assembled_path": "workspaces/scripts/CH22/012/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "013",
-      "video_id": "CH22-013",
-      "title": "貸したお金が戻らない｜友情が終わる一線",
-      "assembled_path": "workspaces/scripts/CH22/013/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "014",
-      "video_id": "CH22-014",
-      "title": "町内会の集金で突然敵に｜正しいのに孤立する現実",
-      "assembled_path": "workspaces/scripts/CH22/014/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "015",
-      "video_id": "CH22-015",
-      "title": "冗談のつもりが一言で崩壊｜友人関係の末路",
-      "assembled_path": "workspaces/scripts/CH22/015/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "018",
-      "video_id": "CH22-018",
-      "title": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
-      "assembled_path": "workspaces/scripts/CH22/018/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "019",
-      "video_id": "CH22-019",
-      "title": "旅行の部屋割りで立場が決まった｜余り者の現実",
-      "assembled_path": "workspaces/scripts/CH22/019/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "020",
-      "video_id": "CH22-020",
-      "title": "優しさが怖い友人｜近づくほど奪われる関係",
-      "assembled_path": "workspaces/scripts/CH22/020/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "021",
-      "video_id": "CH22-021",
-      "title": "謝罪の品を突き返された｜もう戻れない夜",
-      "assembled_path": "workspaces/scripts/CH22/021/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "022",
-      "video_id": "CH22-022",
-      "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
-      "assembled_path": "workspaces/scripts/CH22/022/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "023",
-      "video_id": "CH22-023",
-      "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
-      "assembled_path": "workspaces/scripts/CH22/023/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "024",
-      "video_id": "CH22-024",
-      "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
-      "assembled_path": "workspaces/scripts/CH22/024/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "025",
-      "video_id": "CH22-025",
-      "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
-      "assembled_path": "workspaces/scripts/CH22/025/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "026",
-      "video_id": "CH22-026",
-      "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
-      "assembled_path": "workspaces/scripts/CH22/026/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "027",
-      "video_id": "CH22-027",
-      "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
-      "assembled_path": "workspaces/scripts/CH22/027/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "028",
-      "video_id": "CH22-028",
-      "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
-      "assembled_path": "workspaces/scripts/CH22/028/content/assembled.md"
-    },
-    {
-      "channel": "CH22",
-      "video": "030",
-      "video_id": "CH22-030",
-      "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
-      "assembled_path": "workspaces/scripts/CH22/030/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
+      "channel": "CH15",
       "video": "001",
-      "video_id": "CH23-001",
-      "title": "退職した夫が家を占領｜家庭内別居の現実が始まった日",
-      "assembled_path": "workspaces/scripts/CH23/001/content/assembled.md"
+      "video_id": "CH15-001",
+      "title": "【心】折れやすい人ほど真面目が毒｜強くなる順番",
+      "assembled_path": "workspaces/scripts/CH15/001/content/assembled.md"
     },
     {
-      "channel": "CH23",
+      "channel": "CH15",
       "video": "002",
-      "video_id": "CH23-002",
-      "title": "たった一言で夫婦が冷えた｜家庭内別居の末路",
-      "assembled_path": "workspaces/scripts/CH23/002/content/assembled.md"
+      "video_id": "CH15-002",
+      "title": "【先延ばし】やるほど悪化する自分責め｜明日から動ける",
+      "assembled_path": "workspaces/scripts/CH15/002/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "003",
-      "video_id": "CH23-003",
-      "title": "年金を握られた63歳｜私の老後が消える夜",
-      "assembled_path": "workspaces/scripts/CH23/003/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "004",
-      "video_id": "CH23-004",
-      "title": "義実家同居を迫られた｜逃げ場が消える現実",
-      "assembled_path": "workspaces/scripts/CH23/004/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "005",
-      "video_id": "CH23-005",
-      "title": "介護の負担が私だけに｜優しさが枯れた夫婦",
-      "assembled_path": "workspaces/scripts/CH23/005/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
+      "channel": "CH15",
       "video": "006",
-      "video_id": "CH23-006",
-      "title": "相続の話をした瞬間、家族が割れた｜お金で崩壊する夜",
-      "assembled_path": "workspaces/scripts/CH23/006/content/assembled.md"
+      "video_id": "CH15-006",
+      "title": "【怒り】怒りで体力を削るな｜怒りは損",
+      "assembled_path": "workspaces/scripts/CH15/006/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "007",
-      "video_id": "CH23-007",
-      "title": "夫の隠し借金が見つかった｜封筒の中が地獄だった",
-      "assembled_path": "workspaces/scripts/CH23/007/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "008",
-      "video_id": "CH23-008",
-      "title": "夫のスマホを見てしまった｜その名前、誰",
-      "assembled_path": "workspaces/scripts/CH23/008/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "009",
-      "video_id": "CH23-009",
-      "title": "熟年離婚を口にしたら脅された｜出ていけと言われた夜",
-      "assembled_path": "workspaces/scripts/CH23/009/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "010",
-      "video_id": "CH23-010",
-      "title": "私の病院代を渋る夫｜心が折れる現実",
-      "assembled_path": "workspaces/scripts/CH23/010/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "011",
-      "video_id": "CH23-011",
-      "title": "息子夫婦との同居が限界｜嫁の一言で崩壊",
-      "assembled_path": "workspaces/scripts/CH23/011/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "012",
-      "video_id": "CH23-012",
-      "title": "退職後、夫の趣味に老後資金が吸われる｜止まらない現実",
-      "assembled_path": "workspaces/scripts/CH23/012/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "013",
-      "video_id": "CH23-013",
-      "title": "介護認定の日、夫婦の本性が出た｜書類が現実を割る",
-      "assembled_path": "workspaces/scripts/CH23/013/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "014",
-      "video_id": "CH23-014",
-      "title": "墓の話で初めて口をきかなかった｜死後の話が一番怖い",
-      "assembled_path": "workspaces/scripts/CH23/014/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "015",
-      "video_id": "CH23-015",
-      "title": "義実家の集まりで私だけ働く｜いつまで『嫁』なの",
-      "assembled_path": "workspaces/scripts/CH23/015/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "016",
-      "video_id": "CH23-016",
-      "title": "夫が家事をしない理由が最低｜言い訳が刺さる夜",
-      "assembled_path": "workspaces/scripts/CH23/016/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "017",
-      "video_id": "CH23-017",
-      "title": "親の介護で夫の兄弟が豹変｜家族の顔が変わる",
-      "assembled_path": "workspaces/scripts/CH23/017/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "018",
-      "video_id": "CH23-018",
-      "title": "退職後の夫の怒りが止まらない｜家が息苦しい夜",
-      "assembled_path": "workspaces/scripts/CH23/018/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "019",
-      "video_id": "CH23-019",
-      "title": "救急の夜、夫の優しさが枯れていた｜残ったのは虚しさ",
-      "assembled_path": "workspaces/scripts/CH23/019/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
+      "channel": "CH15",
       "video": "020",
-      "video_id": "CH23-020",
-      "title": "介護施設を提案したら責められた｜私が悪いの？",
-      "assembled_path": "workspaces/scripts/CH23/020/content/assembled.md"
+      "video_id": "CH15-020",
+      "title": "【対人】嫌味が刺さる人へ｜刺さる場所を守れ",
+      "assembled_path": "workspaces/scripts/CH15/020/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "021",
-      "video_id": "CH23-021",
-      "title": "年金分割を調べた夜｜離婚は準備で決まる",
-      "assembled_path": "workspaces/scripts/CH23/021/content/assembled.md"
+      "channel": "CH16",
+      "video": "001",
+      "video_id": "CH16-001",
+      "title": "【老後不安】お金の怖さが消えない理由｜先に整える1つ",
+      "assembled_path": "workspaces/scripts/CH16/001/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "022",
-      "video_id": "CH23-022",
-      "title": "法事の席で孤立した妻｜親戚付き合いの地獄",
-      "assembled_path": "workspaces/scripts/CH23/022/content/assembled.md"
+      "channel": "CH16",
+      "video": "002",
+      "video_id": "CH16-002",
+      "title": "【固定費】気づかぬ出費が増える｜最初に切る一つ",
+      "assembled_path": "workspaces/scripts/CH16/002/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "023",
-      "video_id": "CH23-023",
-      "title": "夫が『俺は悪くない』を繰り返す｜話が通じない現実",
-      "assembled_path": "workspaces/scripts/CH23/023/content/assembled.md"
+      "channel": "CH16",
+      "video": "003",
+      "video_id": "CH16-003",
+      "title": "【節約】苦しい節約は続かない｜続く節約の順番",
+      "assembled_path": "workspaces/scripts/CH16/003/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "024",
-      "video_id": "CH23-024",
-      "title": "夫の投資失敗で老後が消えた｜取り返せない夜",
-      "assembled_path": "workspaces/scripts/CH23/024/content/assembled.md"
+      "channel": "CH16",
+      "video": "004",
+      "video_id": "CH16-004",
+      "title": "【浪費】不安で買ってしまう｜買うほど不安が増える",
+      "assembled_path": "workspaces/scripts/CH16/004/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "025",
-      "video_id": "CH23-025",
-      "title": "介護離職を迫られた私｜私の人生は誰のもの",
-      "assembled_path": "workspaces/scripts/CH23/025/content/assembled.md"
+      "channel": "CH16",
+      "video": "005",
+      "video_id": "CH16-005",
+      "title": "【年金】年金が不安で眠れない｜眠れる見方",
+      "assembled_path": "workspaces/scripts/CH16/005/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "026",
-      "video_id": "CH23-026",
-      "title": "離婚届を机に置いた朝｜もう戻れない現実",
-      "assembled_path": "workspaces/scripts/CH23/026/content/assembled.md"
+      "channel": "CH16",
+      "video": "006",
+      "video_id": "CH16-006",
+      "title": "【見栄】見栄の出費が心を削る｜見栄は罠",
+      "assembled_path": "workspaces/scripts/CH16/006/content/assembled.md"
     },
     {
-      "channel": "CH23",
-      "video": "027",
-      "video_id": "CH23-027",
-      "title": "子ども世代に頼れない｜老後の孤独が増える夜",
-      "assembled_path": "workspaces/scripts/CH23/027/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "028",
-      "video_id": "CH23-028",
-      "title": "孤独死が怖い夫婦｜恐れが攻撃になる",
-      "assembled_path": "workspaces/scripts/CH23/028/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "029",
-      "video_id": "CH23-029",
-      "title": "要介護の夫が放った最悪の一言｜心が冷える夜",
-      "assembled_path": "workspaces/scripts/CH23/029/content/assembled.md"
-    },
-    {
-      "channel": "CH23",
-      "video": "030",
-      "video_id": "CH23-030",
-      "title": "最後に残ったのは自由｜静かに始まる第二の人生",
-      "assembled_path": "workspaces/scripts/CH23/030/content/assembled.md"
+      "channel": "CH16",
+      "video": "007",
+      "video_id": "CH16-007",
+      "title": "【運】運が逃げる人の共通点｜真面目が罠になる",
+      "assembled_path": "workspaces/scripts/CH16/007/content/assembled.md"
     },
     {
       "channel": "CH24",
@@ -4840,216 +3622,6 @@
       "video_id": "CH24-001",
       "title": "最大の勝ち方は「静かに距離を置く」理由【弘法大師の教え】",
       "assembled_path": "workspaces/scripts/CH24/001/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "002",
-      "video_id": "CH24-002",
-      "title": "悪口を言う人は無視よりこれが効く【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/002/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "003",
-      "video_id": "CH24-003",
-      "title": "上から目線には戦わず勝て（相手を崩す距離）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/003/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "004",
-      "video_id": "CH24-004",
-      "title": "文句が多い人は心が「飢えてる」理由【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/004/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "005",
-      "video_id": "CH24-005",
-      "title": "優しい人ほど我慢で壊れる（壊れる前に知ること）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/005/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "006",
-      "video_id": "CH24-006",
-      "title": "報われない人はここを間違える「一点」【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/006/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "007",
-      "video_id": "CH24-007",
-      "title": "他人の機嫌に命を渡さない方法【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/007/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "008",
-      "video_id": "CH24-008",
-      "title": "怒りの正体は「期待のしがみつき」だった【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/008/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "009",
-      "video_id": "CH24-009",
-      "title": "奪われたら勝てる生き方でいろ（奪わせない）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/009/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "010",
-      "video_id": "CH24-010",
-      "title": "決断できないのは「鎖」につながれているから【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/010/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "011",
-      "video_id": "CH24-011",
-      "title": "縁が切れるのは運が開く前兆（怖がらなくていい）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/011/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "012",
-      "video_id": "CH24-012",
-      "title": "握りしめている「幻」の正体（手放しの核心）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/012/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "013",
-      "video_id": "CH24-013",
-      "title": "友達が去ったら成功の合図（次の段階へ）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/013/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "014",
-      "video_id": "CH24-014",
-      "title": "都合のいい人を急に辞めてはいけない（順序がある）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/014/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "015",
-      "video_id": "CH24-015",
-      "title": "サビついた心に必要なもの【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/015/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "016",
-      "video_id": "CH24-016",
-      "title": "しがみついてはいけない人間関係【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/016/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "017",
-      "video_id": "CH24-017",
-      "title": "線引きできない人は話を聞かれない（軽く見られる）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/017/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "018",
-      "video_id": "CH24-018",
-      "title": "我慢しない人が最後は勝つ（強さの正体）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/018/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "019",
-      "video_id": "CH24-019",
-      "title": "人生で試されるのは「あの3文字」【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/019/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "020",
-      "video_id": "CH24-020",
-      "title": "後ろめたさを捨てていい（心が軽くなる）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/020/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "021",
-      "video_id": "CH24-021",
-      "title": "最大の復讐は「無視」すること（争わない勝ち方）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/021/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "022",
-      "video_id": "CH24-022",
-      "title": "言い返すな。黙って整えろ【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/022/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "023",
-      "video_id": "CH24-023",
-      "title": "嫉妬する人は必ず孤独になる【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/023/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "024",
-      "video_id": "CH24-024",
-      "title": "家族に雑にされる理由はこれ【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/024/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "025",
-      "video_id": "CH24-025",
-      "title": "すぐ謝る人が損をする（自分を安売りする癖）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/025/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "026",
-      "video_id": "CH24-026",
-      "title": "眠れない夜は心を緩めろ（不安を戻す方法）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/026/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "027",
-      "video_id": "CH24-027",
-      "title": "老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/027/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "028",
-      "video_id": "CH24-028",
-      "title": "50代で差がつく「貧乏の口ぐせ」【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/028/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "029",
-      "video_id": "CH24-029",
-      "title": "その口ぐせ、金が逃げる【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/029/content/assembled.md"
-    },
-    {
-      "channel": "CH24",
-      "video": "030",
-      "video_id": "CH24-030",
-      "title": "期待するほど心が苦しい【弘法大師の教え】",
-      "assembled_path": "workspaces/scripts/CH24/030/content/assembled.md"
-    },
-    {
-      "channel": "CH99",
-      "video": "001",
-      "video_id": "CH99-001",
-      "title": null,
-      "assembled_path": "workspaces/scripts/CH99/001/content/assembled.md"
     }
   ]
 }
