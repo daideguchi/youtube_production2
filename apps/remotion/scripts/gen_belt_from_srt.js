@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 /**
- * Belt generator that reads provider/model from configs/llm_registry.json + configs/llm_model_registry.yaml.
- * - Supports Azure (responses API preferred when use_responses_api=true) and OpenRouter chat.
- * - No hardcoded model names; env can override via LLM_MODEL / LLM_PROVIDER.
- * - Endpoint is normalized (strip /openai..., openai.azure.com -> cognitiveservices.azure.com).
+ * Belt generator that uses Python LLMRouter (slot-based routing).
+ * - No direct provider/model selection in JS (prevents model-name drift).
  * - --no-fallback: fail on LLM error (no even split).
  */
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
+import { spawnSync } from "child_process";
 
 const findRepoRoot = (startDir) => {
   let dir = startDir;
@@ -80,203 +79,80 @@ function parseSrt(text) {
   return cues;
 }
 
-// Remove equal-split and preset fallback: if LLM fails and --no-fallback is set, exit with error.
-
-function loadJsonRegistry() {
-  try {
-    const p = path.join(process.cwd(), "configs", "llm_registry.json");
-    return JSON.parse(fs.readFileSync(p, "utf-8"));
-  } catch {
-    return {};
-  }
-}
-
-function loadYamlRegistry() {
-  try {
-    const p = path.join(process.cwd(), "configs", "llm_model_registry.yaml");
-    if (!fs.existsSync(p)) return {};
-    const lines = fs.readFileSync(p, "utf-8").split(/\r?\n/);
-    const models = {};
-    let cur = null;
-    let indent = null;
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      const mm = line.match(/^([ ]{2})([A-Za-z0-9._/+:-]+):\s*$/);
-      if (mm && mm[2] !== "models") {
-        cur = mm[2];
-        indent = mm[1];
-        models[cur] = {};
-        continue;
-      }
-      if (cur && indent && line.startsWith(indent.repeat(2))) {
-        const kv = line.trim().split(":");
-        const key = kv.shift().trim();
-        const val = kv.join(":").trim().replace(/^["']|["']$/g, "");
-        models[cur][key] = val;
-      }
-    }
-    return models;
-  } catch {
-    return {};
-  }
-}
-
-function resolveModelConfig(modelKey = "belt_generation") {
-  const json = loadJsonRegistry();
-  const entryJson = json[modelKey] || json.general || {};
-  const yaml = loadYamlRegistry();
-  const envModel = process.env.LLM_MODEL || process.env.AZURE_OPENAI_DEPLOYMENT;
-  const envProvider = process.env.LLM_PROVIDER;
-  const model = envModel || entryJson.model || "gpt-5-mini";
-  const yamlEntry = yaml[model] || {};
-  const provider = envProvider || entryJson.provider || yamlEntry.provider || "azure";
-  return { model, provider, yamlEntry };
-}
-
-function normalizeEndpoint(raw) {
-  let ep = raw || "";
-  if (ep.includes("/openai")) ep = ep.split("/openai")[0];
-  if (ep.includes("openai.azure.com")) ep = ep.replace("openai.azure.com", "cognitiveservices.azure.com");
-  return ep.replace(/\/+$/, "");
-}
-
-async function callAzureResponses(prompt, maxTokens, cfg) {
-  const apiKey = process.env.AZURE_OPENAI_API_KEY;
-  const endpoint = normalizeEndpoint(process.env.AZURE_OPENAI_ENDPOINT || cfg.endpoint || "");
-  const apiVersionResponses = process.env.AZURE_OPENAI_RESPONSES_API_VERSION || cfg.api_version_responses || "2025-03-01-preview";
-  if (!cfg.deployment && !cfg.model) throw new Error("Azure config missing deployment/model");
-  if (!apiKey || !endpoint) throw new Error("Azure config missing endpoint/apiKey");
-
-  const url = `${endpoint}/openai/responses?api-version=${apiVersionResponses}`;
-  const body = {
-    model: cfg.deployment || cfg.model,
-    input: [
-      {
-        role: "system",
-        content:
-          "You generate short Japanese section labels for a video timeline. Return only JSON array of objects {start,end,label}. Keep label 4-8 Japanese chars. Ensure non-overlapping, ordered, within duration.",
-      },
-      { role: "user", content: prompt },
-    ],
-    max_output_tokens: maxTokens,
-    reasoning: { effort: "minimal" },
-    text: { verbosity: "low" },
-  };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "api-key": apiKey },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`Azure responses error ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  const out = parseResponsesOutput(data);
-  if (!out) throw new Error("Azure responses: empty content");
-  return out;
-}
-
-async function callAzureChat(prompt, maxTokens, cfg) {
-  const apiKey = process.env.AZURE_OPENAI_API_KEY;
-  const endpoint = normalizeEndpoint(process.env.AZURE_OPENAI_ENDPOINT || cfg.endpoint || "");
-  const apiVersion = process.env.AZURE_OPENAI_API_VERSION || cfg.api_version || "2024-12-01-preview";
-  const deployment = cfg.deployment || cfg.model;
-  if (!deployment) throw new Error("Azure chat config missing deployment/model");
-  if (!apiKey || !endpoint) throw new Error("Azure chat config missing endpoint/apiKey");
-  const url = `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
-  const body = {
-    messages: [
-      {
-        role: "system",
-        content:
-          "You generate short Japanese section labels for a video timeline. Return only JSON array of objects {start,end,label}. Keep label 4-8 Japanese chars. Ensure non-overlapping, ordered, within duration.",
-      },
-      { role: "user", content: prompt },
-    ],
-    max_tokens: maxTokens,
-    temperature: 0,
-  };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": apiKey,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`Azure chat error ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content) throw new Error("Azure chat: empty content");
-  return String(content).trim();
-}
-
-async function callOpenRouter(prompt, maxTokens, cfg) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  const baseUrl = process.env.OPENROUTER_BASE_URL || cfg.endpoint || "https://openrouter.ai/api/v1";
-  const model = cfg.model || "meta-llama/llama-3.3-70b-instruct:free";
-  if (!apiKey) throw new Error("OpenRouter config missing OPENROUTER_API_KEY");
-  const url = `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
-  const body = {
-    model,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You generate short Japanese section labels for a video timeline. Return only JSON array of objects {start,end,label}. Keep label 4-8 Japanese chars. Ensure non-overlapping, ordered, within duration.",
-      },
-      { role: "user", content: prompt },
-    ],
-    max_tokens: maxTokens,
-    temperature: 0,
-  };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`OpenRouter error ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content) throw new Error("OpenRouter: empty content");
-  return String(content).trim();
-}
-
-function parseResponsesOutput(data) {
-  if (data?.output_text) return String(data.output_text).trim();
-  if (Array.isArray(data?.output)) {
-    const texts = [];
-    for (const item of data.output) {
-      if (item?.type === "message") {
-        for (const c of item.content || []) {
-          if (c?.text) texts.push(c.text);
-          if (c?.output_text) texts.push(c.output_text);
-        }
-      }
-    }
-    if (texts.length) return texts.join("\n").trim();
-  }
-  if (Array.isArray(data?.choices) && data.choices[0]?.message?.content) {
-    return String(data.choices[0].message.content).trim();
-  }
-  return "";
-}
-
 async function callLLM(prompt, maxTokens = 200) {
-  const { model, provider, yamlEntry } = resolveModelConfig("belt_generation");
-  const cfg = { model, ...yamlEntry };
-  if (provider === "openrouter") {
-    return await callOpenRouter(prompt, maxTokens, cfg);
+  const python = process.env.PYTHON_BIN || process.env.PYTHON || "python3";
+  const routerTask = process.env.BELT_LLM_TASK || "belt_generation";
+  const timeout = Number(process.env.BELT_LLM_TIMEOUT_SEC || 120);
+  const temperature = Number(process.env.BELT_LLM_TEMPERATURE || 0.2);
+
+  const pyCode = `
+import json
+import os
+import sys
+
+from factory_common.llm_router import get_router
+
+payload = json.loads(sys.stdin.read() or "{}")
+prompt = str(payload.get("prompt") or "").strip()
+task = str(payload.get("task") or "belt_generation").strip() or "belt_generation"
+timeout = int(payload.get("timeout") or 120)
+max_tokens = payload.get("max_tokens")
+temperature = payload.get("temperature")
+if max_tokens is not None:
+    try:
+        max_tokens = int(max_tokens)
+    except Exception:
+        max_tokens = None
+if temperature is not None:
+    try:
+        temperature = float(temperature)
+    except Exception:
+        temperature = None
+
+router = get_router()
+content = router.call(
+    task=task,
+    messages=[{"role": "user", "content": prompt}],
+    temperature=temperature,
+    max_tokens=max_tokens,
+    response_format="json_object",
+    timeout=timeout,
+)
+if isinstance(content, list):
+    text = " ".join(str(part.get("text", "")).strip() for part in content if isinstance(part, dict)).strip()
+else:
+    text = str(content or "").strip()
+sys.stdout.write(text)
+`;
+
+  const env = { ...process.env };
+  env.PYTHONPATH = env.PYTHONPATH || `${REPO_ROOT}:${path.join(REPO_ROOT, "packages")}`;
+
+  const payload = {
+    prompt,
+    task: routerTask,
+    timeout,
+    max_tokens: maxTokens,
+    temperature,
+  };
+  const res = spawnSync(python, ["-c", pyCode], {
+    input: JSON.stringify(payload),
+    encoding: "utf-8",
+    env,
+    cwd: REPO_ROOT,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  if (res.error) throw res.error;
+
+  const stdout = String(res.stdout || "").trim();
+  const stderr = String(res.stderr || "").trim();
+  if (res.status !== 0) {
+    throw new Error(stderr || stdout || `python exited with code ${res.status}`);
   }
-  const useResponses = yamlEntry.use_responses_api !== false;
-  if (provider === "azure" && useResponses) {
-    return await callAzureResponses(prompt, maxTokens, cfg);
+  if (!stdout) {
+    throw new Error("LLMRouter returned empty output");
   }
-  if (provider === "azure") {
-    return await callAzureChat(prompt, maxTokens, cfg);
-  }
-  throw new Error(`Unsupported provider for belt_generation: ${provider}`);
+  return stdout;
 }
 
 function clampBelts(belts, total) {
@@ -336,7 +212,7 @@ function loadPromptTemplate(total, maxLabels, summary) {
   if (!tpl) {
     tpl =
       `動画の総尺は約{{TOTAL_SEC}}秒です。文章量と転換点に基づき、最大{{MAX_LABELS}}個のセクションに分け、` +
-      `JSON array like [{ "start": 秒, "end": 秒, "label": "短い見出し" }] を返してください。\n` +
+      `JSON object like { "belts": [{ "start": 秒, "end": 秒, "text": "短い見出し" }] } を返してください。\n` +
       `制約: 6-12文字程度の日本語。重複なし、昇順、0<=start<end<={{TOTAL_SEC}}。等分禁止。\n` +
       `分割数はテキスト量に応じて決めてよい（上限 {{MAX_LABELS}}）。\n` +
       `禁止: 人名/キャラ名（例: ミホ, サナエ, 彼女, 彼）、抽象語のみ（導入/まとめ/説明/苦悩/物語/日常/気づき 等）。\n` +
@@ -391,7 +267,8 @@ async function main() {
       } catch {}
       throw new Error(`LLM JSON parse failed: ${e?.message || e}. raw saved to ${dump}`);
     }
-    belts = clampBelts(parsed, total);
+    const beltsRaw = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.belts) ? parsed.belts : [];
+    belts = clampBelts(beltsRaw, total);
     belts = normalizeTimeline(belts, total);
     belts = addOrdinalPrefix(belts);
     usedLLM = true;

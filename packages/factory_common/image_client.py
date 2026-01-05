@@ -27,6 +27,19 @@ from factory_common import paths as repo_paths
 from factory_common import fireworks_keys
 
 IMAGE_TRACE_SCHEMA_V1 = "ytm.image_trace.v1"
+def _deep_merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Deep-merge dicts (override wins), keeping base keys when override is partial.
+
+    Used for `.local` config overlays to avoid drift when only a small subset is customized.
+    """
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge_dict(out.get(k) or {}, v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
 
 
 def _trace_image_disabled() -> bool:
@@ -373,6 +386,7 @@ class ImageClient:
         self.config_path = resolved_config
         self._adapter_overrides = adapter_overrides or {}
         self._config = config_data or self._load_config()
+        self._model_slots = self._load_model_slots()
         self._task_overrides = self._load_task_overrides()
 
     @staticmethod
@@ -394,6 +408,95 @@ class ImageClient:
             return raw
         raw = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY") or "").strip()
         return raw or None
+
+    def _load_model_slots(self) -> Dict[str, Any]:
+        """
+        Load optional image model slot codes (e.g. g-1 / f-4).
+
+        Base: `configs/image_model_slots.yaml`
+        Local: `configs/image_model_slots.local.yaml` (override; not tracked)
+        """
+        root = repo_paths.repo_root()
+        env_path = (os.getenv("IMAGE_CLIENT_MODEL_SLOTS_PATH") or "").strip()
+        if env_path:
+            resolved = Path(env_path)
+            if not resolved.is_absolute():
+                resolved = root / resolved
+            base_path = resolved
+        else:
+            base_path = root / "configs" / "image_model_slots.yaml"
+        local_path = root / "configs" / "image_model_slots.local.yaml"
+
+        if not base_path.exists() and not local_path.exists():
+            return {"schema_version": 1, "slots": {}}
+
+        base: Dict[str, Any] = {}
+        if base_path.exists():
+            try:
+                raw = yaml.safe_load(base_path.read_text(encoding="utf-8")) or {}
+                if isinstance(raw, dict):
+                    base = raw
+            except Exception:
+                base = {}
+
+        if local_path.exists():
+            try:
+                local = yaml.safe_load(local_path.read_text(encoding="utf-8")) or {}
+            except Exception:
+                local = {}
+            if isinstance(local, dict) and local:
+                return _deep_merge_dict(base, local)
+
+        return base
+
+    def _resolve_model_key_selector(self, *, task: str, selector: str) -> Optional[str]:
+        """
+        Resolve a model selector to a real `model_key` in `configs/image_models.yaml`.
+
+        Supported:
+        - direct model key (e.g. `fireworks_flux_kontext_max`)
+        - slot code (e.g. `f-4`) via `configs/image_model_slots.yaml`
+        """
+        raw = str(selector or "").strip()
+        if not raw:
+            return None
+
+        models = self._config.get("models", {})
+        if isinstance(models, dict) and raw in models:
+            return raw
+
+        slots_conf = getattr(self, "_model_slots", None)
+        slots = slots_conf.get("slots") if isinstance(slots_conf, dict) else None
+        if not isinstance(slots, dict):
+            return None
+
+        ent = slots.get(raw)
+        if ent is None and raw.lower() in slots:
+            ent = slots.get(raw.lower())
+        if not isinstance(ent, dict):
+            return None
+
+        tasks = ent.get("tasks")
+        if not isinstance(tasks, dict):
+            return None
+
+        tn = str(task or "").strip()
+        mk = tasks.get(tn)
+        if mk in (None, ""):
+            mk = tasks.get("default")
+        if not isinstance(mk, str) or not mk.strip():
+            return None
+        mk_norm = mk.strip()
+        if isinstance(models, dict) and mk_norm in models:
+            return mk_norm
+
+        logging.warning(
+            "ImageClient: slot selector '%s' resolved to unknown model_key '%s' for task '%s'; ignoring",
+            raw,
+            mk_norm,
+            tn,
+        )
+        return None
 
     def _task_overrides_path(self) -> Path:
         root = repo_paths.repo_root()
@@ -499,9 +602,9 @@ class ImageClient:
                 mk = override.get("model_key")
                 if isinstance(mk, str) and mk.strip():
                     mk_norm = mk.strip()
-                    models = self._config.get("models", {})
-                    if isinstance(models, dict) and mk_norm in models:
-                        forced_model_key = mk_norm
+                    resolved = self._resolve_model_key_selector(task=options.task, selector=mk_norm)
+                    if resolved:
+                        forced_model_key = resolved
                         forced_model_from_profile = True
                     else:
                         logging.warning(
@@ -527,9 +630,19 @@ class ImageClient:
 
         errors: List[Tuple[str, Exception]] = []
         if forced_model_key:
+            forced_selector = forced_model_key
+            forced_model_key = self._resolve_model_key_selector(task=options.task, selector=forced_selector) or forced_selector
             forced_conf = self._config.get("models", {}).get(forced_model_key)
             if not forced_conf:
-                raise ImageGenerationError(f"Forced model '{forced_model_key}' not found in image model configuration")
+                hint = ""
+                if forced_model_key != forced_selector:
+                    hint = (
+                        f" (selector '{forced_selector}' resolved to '{forced_model_key}', but it is missing). "
+                        "Check configs/image_model_slots.yaml and configs/image_models.yaml."
+                    )
+                raise ImageGenerationError(
+                    f"Forced model '{forced_selector}' not found in image model configuration{hint}"
+                )
 
             candidate_keys: List[str] = [forced_model_key]
             if allow_fallback and isinstance(candidates, list):
@@ -1253,10 +1366,19 @@ class FireworksImageAdapter:
         api_key_fallback = GeminiImageAdapter._resolve_api_key(api_key_fallback_env)
 
         if not api_key and not api_key_fallback:
-            raise ImageGenerationError(
-                "Fireworks API key not found. Please set environment variable "
-                f"'{api_key_env}' (or fallback '{api_key_fallback_env}')."
-            )
+            # Support pooled keyring-based operation (factory_common.fireworks_keys).
+            # `generate()` will lease a key per request; we only need *some* key source to exist.
+            try:
+                has_keyring_keys = bool(fireworks_keys.candidate_keys("image"))
+            except Exception:
+                has_keyring_keys = False
+
+            if not has_keyring_keys:
+                raise ImageGenerationError(
+                    "Fireworks API key not found. Please set environment variable "
+                    f"'{api_key_env}' (or fallback '{api_key_fallback_env}'), or add keys to "
+                    f"the keyring file '{fireworks_keys.keyring_path('image')}'."
+                )
 
         self.api_key = api_key
         self.api_key_fallback = api_key_fallback if api_key_fallback and api_key_fallback != api_key else None
@@ -1273,7 +1395,8 @@ class FireworksImageAdapter:
         if isinstance(raw, str) and raw.strip().isdigit():
             return int(raw.strip())
         # Empirically: very long prompts can cause internal workflow failures for FLUX schnell.
-        return 1000
+        # Keep this conservative; Kontext models override via configs/image_models.yaml defaults.
+        return 800
 
     def _resolve_account(self) -> str:
         env_account = str(self.provider_conf.get("env_account") or "").strip()
@@ -1758,8 +1881,14 @@ class FireworksImageAdapter:
                     payload = {"prompt": prompt_text}
                     # Provide explicit size when available. Many diffusion workflows expect width/height.
                     if target_size:
-                        payload["width"] = int(target_size[0])
-                        payload["height"] = int(target_size[1])
+                        tw = int(target_size[0])
+                        th = int(target_size[1])
+                        # Some Fireworks diffusion workflows appear to require width/height divisible by 16.
+                        # Generate at a safe size and resize to the requested target post-hoc.
+                        safe_w = ((tw + 15) // 16) * 16
+                        safe_h = ((th + 15) // 16) * 16
+                        payload["width"] = safe_w
+                        payload["height"] = safe_h
                     # NOTE: Some Fireworks FLUX workflows intermittently fail with aspect_ratio set
                     # (internal negative dimension errors). We can safely omit it and resize post-hoc.
                     send_ar = (os.getenv("FIREWORKS_IMAGE_SEND_ASPECT_RATIO") or "").strip().lower() in {

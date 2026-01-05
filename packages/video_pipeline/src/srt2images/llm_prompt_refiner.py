@@ -28,7 +28,12 @@ def _env_flag(name: str, default: bool = True) -> bool:
     return val.strip().lower() not in ("0", "false", "no", "off")
 
 def _llm_mode() -> str:
-    return (os.getenv("LLM_MODE") or "api").strip().lower()
+    try:
+        from factory_common.llm_exec_slots import effective_llm_mode
+
+        return effective_llm_mode()
+    except Exception:
+        return (os.getenv("LLM_MODE") or "api").strip().lower()
 
 
 def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:

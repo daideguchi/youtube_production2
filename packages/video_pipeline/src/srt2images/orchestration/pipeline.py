@@ -15,7 +15,6 @@ from ..cue_maker import make_cues
 from ..cues_plan import (
     is_think_or_agent_mode,
     make_cues_from_sections,
-    plan_sections_heuristic,
     plan_sections_via_router,
 )
 from ..llm_context_analyzer import LLMContextAnalyzer
@@ -148,7 +147,7 @@ def run_pipeline(args):
     # CH12: slower pacing (~25s per image) is required; prefer deterministic cues_plan.
     if channel_upper == "CH12":
         use_cues_plan = True
-        # NOTE: plan implementation is controlled via SRT2IMAGES_CUES_PLAN_IMPL (default: router in api mode).
+        # NOTE: cues_plan is always driven by `visual_image_cues_plan` (API or THINK/AGENT pending).
 
     # 1.5) Generate Visual Bible (Before cues)
     persona_text = ""
@@ -282,31 +281,13 @@ def run_pipeline(args):
 
             if planned_sections is None:
                 try:
-                    plan_impl = (os.getenv("SRT2IMAGES_CUES_PLAN_IMPL") or "").strip().lower()
-                    use_heuristic = False
-                    if plan_impl in {"heuristic", "local"}:
-                        use_heuristic = True
-                    elif is_think_or_agent_mode() and plan_impl not in {"router", "llm", "api"}:
-                        # THINK/AGENT mode default: avoid queueing LLM tasks; plan locally.
-                        use_heuristic = True
-
-                    if use_heuristic:
-                        planned_sections = plan_sections_heuristic(
-                            segments=segments,
-                            base_seconds=base_seconds,
-                        )
-                        llm_task = {
-                            "task": "visual_image_cues_plan",
-                            "note": "heuristic (no-LLM, think-mode default)",
-                        }
-                    else:
-                        planned_sections = plan_sections_via_router(
-                            segments=segments,
-                            channel_id=args.channel,
-                            base_seconds=base_seconds,
-                            style_hint=style_hint,
-                        )
-                        llm_task = {"task": "visual_image_cues_plan"}
+                    planned_sections = plan_sections_via_router(
+                        segments=segments,
+                        channel_id=args.channel,
+                        base_seconds=base_seconds,
+                        style_hint=style_hint,
+                    )
+                    llm_task = {"task": "visual_image_cues_plan"}
                     episode = parse_episode_id(str(srt_path))
                     episode_id = episode.episode if episode else None
                     plan_art = build_visual_cues_plan_artifact(

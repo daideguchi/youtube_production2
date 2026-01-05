@@ -448,7 +448,8 @@ Script excerpts:
             extra_ch02 = (
                 "\n"
                 "- **CRITICAL FOR CH02:** Default to personless symbolic imagery. Avoid depicting humans/faces/bodies unless the script explicitly requires it.\n"
-                "- Prefer quiet metaphorical motifs (mask, mirror, empty chair, door, clock shadow, haze, light beam) over literal character scenes.\n"
+                "- Prefer quiet metaphorical imagery derived from THIS section's content; do not default to a fixed symbol set.\n"
+                "- Avoid cliché symbol repetition (e.g., clocks/pocket-watches) unless the script explicitly mentions them.\n"
                 "- `persona_needed` should be false unless a recurring character is explicitly described in the script.\n"
                 "- `visual_focus` should be object/space focused (not a person) and must differ from adjacent sections.\n"
             )

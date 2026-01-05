@@ -86,6 +86,11 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=30, help="LLM timeout seconds (default: 30)")
     parser.add_argument("--batch-size", type=int, default=20, help="LLM batch size (default: 20)")
     parser.add_argument("--llm-model", help="Optional model key override (sets LLM_FORCE_MODELS)")
+    parser.add_argument(
+        "--llm-slot",
+        type=int,
+        help="Force numeric LLM routing slot (sets LLM_MODEL_SLOT). Preferred over --llm-model.",
+    )
     parser.add_argument("--disable", action="store_true", help="Disable linebreak formatting (pass-through)")
     args = parser.parse_args()
 
@@ -93,8 +98,22 @@ def main() -> int:
     if not in_path.exists():
         raise FileNotFoundError(in_path)
 
+    if getattr(args, "llm_slot", None) is not None:
+        try:
+            slot = int(args.llm_slot)
+        except Exception:
+            raise SystemExit(f"--llm-slot must be an integer; got: {args.llm_slot}")
+        if slot < 0:
+            raise SystemExit(f"--llm-slot must be >= 0; got: {slot}")
+        os.environ["LLM_MODEL_SLOT"] = str(slot)
+
     if args.llm_model:
-        os.environ["LLM_FORCE_MODELS"] = str(args.llm_model).strip()
+        raw = str(args.llm_model).strip()
+        # Compatibility: pure integer means slot selection.
+        if raw.isdigit():
+            os.environ["LLM_MODEL_SLOT"] = raw
+        else:
+            os.environ["LLM_FORCE_MODELS"] = raw
 
     os.environ["SRT_LINEBREAK_ENABLED"] = "0" if args.disable else "1"
     os.environ["SRT_LINEBREAK_MODE"] = "off" if args.mode == "off" else str(args.mode)

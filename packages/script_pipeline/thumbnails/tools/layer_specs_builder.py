@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import copy
 import json
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
+from PIL import Image, ImageDraw, ImageOps
 
 from factory_common import paths as fpaths
 from factory_common.image_client import ImageClient
@@ -33,7 +35,7 @@ from script_pipeline.thumbnails.layers.image_layer import (
     suppressed_center_region_path,
 )
 from script_pipeline.thumbnails.layers.text_layer import compose_text_to_png
-from script_pipeline.thumbnails.io_utils import PngOutputMode
+from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic
 from script_pipeline.thumbnails.thumb_spec import extract_normalized_override_leaf, load_thumb_spec
 from script_pipeline.tools import planning_store
 
@@ -380,6 +382,455 @@ def _as_norm_offset(value: Any, default: tuple[float, float]) -> tuple[float, fl
     return (x, y)
 
 
+def _text_line_spec_path(channel: str, video: str, *, stable: Optional[str] = None) -> Path:
+    base_dir = fpaths.thumbnail_assets_dir(channel, video)
+    stable_raw = str(stable or "").strip()
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+        if stable_name:
+            return base_dir / f"text_line_spec.{stable_name}.json"
+    return base_dir / "text_line_spec.json"
+
+
+def _load_text_line_spec_lines(channel: str, video: str, *, stable: Optional[str] = None) -> Dict[str, Dict[str, float]]:
+    stable_raw = str(stable or "").strip()
+    stable_name = ""
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+
+    candidates: List[Path] = []
+    if stable_name:
+        candidates.append(_text_line_spec_path(channel, video, stable=stable_name))
+        # Stable variants must not inherit text_line_spec.json implicitly.
+        # Only the primary stable (00_thumb_1) may fall back to legacy text_line_spec.json.
+        if stable_name == "00_thumb_1":
+            candidates.append(_text_line_spec_path(channel, video, stable=None))
+    else:
+        candidates.append(_text_line_spec_path(channel, video, stable=None))
+
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        lines_payload = payload.get("lines") if isinstance(payload, dict) else None
+        if not isinstance(lines_payload, dict):
+            return {}
+        out: Dict[str, Dict[str, float]] = {}
+        for raw_slot, raw_line in lines_payload.items():
+            if not isinstance(raw_slot, str) or not raw_slot.strip():
+                continue
+            if not isinstance(raw_line, dict):
+                continue
+            try:
+                ox = float(raw_line.get("offset_x", 0.0))
+                oy = float(raw_line.get("offset_y", 0.0))
+                sc = float(raw_line.get("scale", 1.0))
+                rot = float(raw_line.get("rotate_deg", 0.0))
+            except Exception:
+                continue
+            sc = max(0.25, min(4.0, sc))
+            rot = max(-180.0, min(180.0, rot))
+            out[raw_slot.strip()] = {"offset_x": ox, "offset_y": oy, "scale": sc, "rotate_deg": rot}
+        return out
+    return {}
+
+
+def _elements_spec_path(channel: str, video: str, *, stable: Optional[str] = None) -> Path:
+    base_dir = fpaths.thumbnail_assets_dir(channel, video)
+    stable_raw = str(stable or "").strip()
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+        if stable_name:
+            return base_dir / f"elements_spec.{stable_name}.json"
+    return base_dir / "elements_spec.json"
+
+
+def _load_elements_spec_elements(channel: str, video: str, *, stable: Optional[str] = None) -> List[Dict[str, Any]]:
+    stable_raw = str(stable or "").strip()
+    stable_name = ""
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+
+    candidates: List[Path] = []
+    if stable_name:
+        candidates.append(_elements_spec_path(channel, video, stable=stable_name))
+        # Stable variants must not inherit elements_spec.json implicitly.
+        # Only the primary stable (00_thumb_1) may fall back to legacy elements_spec.json.
+        if stable_name == "00_thumb_1":
+            candidates.append(_elements_spec_path(channel, video, stable=None))
+    else:
+        candidates.append(_elements_spec_path(channel, video, stable=None))
+
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        elements_payload = payload.get("elements") if isinstance(payload, dict) else None
+        if not isinstance(elements_payload, list):
+            return []
+        out: List[Dict[str, Any]] = []
+        for raw in elements_payload:
+            if not isinstance(raw, dict):
+                continue
+            element_id = str(raw.get("id") or "").strip()
+            kind = str(raw.get("kind") or "").strip()
+            if not element_id or kind not in {"rect", "circle", "image"}:
+                continue
+            layer = str(raw.get("layer") or "above_portrait").strip() or "above_portrait"
+            if layer not in {"above_portrait", "below_portrait"}:
+                layer = "above_portrait"
+            try:
+                x = float(raw.get("x", 0.5))
+                y = float(raw.get("y", 0.5))
+                w = float(raw.get("w", 0.2))
+                h = float(raw.get("h", 0.2))
+            except Exception:
+                continue
+            try:
+                z = int(raw.get("z", 0))
+            except Exception:
+                z = 0
+            try:
+                rot = float(raw.get("rotation_deg", 0.0))
+            except Exception:
+                rot = 0.0
+            try:
+                opacity = float(raw.get("opacity", 1.0))
+            except Exception:
+                opacity = 1.0
+            fill = str(raw.get("fill") or "").strip() or None
+            src_path = str(raw.get("src_path") or "").strip() or None
+
+            stroke_payload = raw.get("stroke") if isinstance(raw.get("stroke"), dict) else None
+            stroke: Optional[Dict[str, Any]] = None
+            if isinstance(stroke_payload, dict):
+                stroke_color = str(stroke_payload.get("color") or "").strip() or None
+                try:
+                    stroke_width = float(stroke_payload.get("width_px", 0.0))
+                except Exception:
+                    stroke_width = 0.0
+                if stroke_color or abs(float(stroke_width)) > 1e-9:
+                    stroke = {"color": stroke_color, "width_px": float(stroke_width)}
+
+            out.append(
+                {
+                    "id": element_id,
+                    "kind": kind,
+                    "layer": layer,
+                    "z": int(z),
+                    "x": float(x),
+                    "y": float(y),
+                    "w": float(w),
+                    "h": float(h),
+                    "rotation_deg": float(rot),
+                    "opacity": float(opacity),
+                    "fill": fill,
+                    "stroke": stroke,
+                    "src_path": src_path,
+                }
+            )
+        return out
+    return []
+
+
+def _hex_to_rgba(value: str, *, alpha: float) -> tuple[int, int, int, int]:
+    s = str(value or "").strip()
+    if s.startswith("#") and len(s) == 7:
+        try:
+            r = int(s[1:3], 16)
+            g = int(s[3:5], 16)
+            b = int(s[5:7], 16)
+        except Exception:
+            r, g, b = (255, 255, 255)
+    else:
+        r, g, b = (255, 255, 255)
+    a = int(round(255 * max(0.0, min(1.0, float(alpha)))))
+    return (r, g, b, a)
+
+
+def _resolve_element_src_file(channel: str, video: str, src_path: str) -> Optional[Path]:
+    raw = str(src_path or "").strip().lstrip("/").rstrip("/")
+    if not raw:
+        return None
+    normalized = raw.replace("\\", "/")
+    rel = Path(normalized)
+    if rel.is_absolute() or any(part in {"", ".", ".."} for part in rel.parts):
+        return None
+
+    ch = _normalize_channel(channel)
+    video_dir = fpaths.thumbnail_assets_dir(ch, video)
+    channel_root = fpaths.thumbnails_root() / "assets" / ch
+    assets_root = fpaths.thumbnails_root() / "assets"
+
+    if normalized.lower().startswith("library/"):
+        candidate = (channel_root / rel).resolve()
+        try:
+            candidate.relative_to(channel_root.resolve())
+        except ValueError:
+            return None
+        return candidate if candidate.is_file() else None
+
+    parts = list(rel.parts)
+    if parts and parts[0].upper().startswith("CH") and parts[0][2:].isdigit():
+        candidate = (assets_root / rel).resolve()
+        try:
+            candidate.relative_to(assets_root.resolve())
+        except ValueError:
+            return None
+        return candidate if candidate.is_file() else None
+
+    candidate = (video_dir / rel).resolve()
+    try:
+        candidate.relative_to(video_dir.resolve())
+    except ValueError:
+        return None
+    return candidate if candidate.is_file() else None
+
+
+def _apply_elements_to_image(
+    base: Image.Image,
+    *,
+    channel: str,
+    video: str,
+    elements: List[Dict[str, Any]],
+) -> Image.Image:
+    out = base.convert("RGBA")
+    width, height = out.size
+    for el in elements:
+        kind = str(el.get("kind") or "").strip()
+        if kind not in {"rect", "circle", "image"}:
+            continue
+        try:
+            x = float(el.get("x", 0.5))
+            y = float(el.get("y", 0.5))
+            w = float(el.get("w", 0.2))
+            h = float(el.get("h", 0.2))
+        except Exception:
+            continue
+        try:
+            rot = float(el.get("rotation_deg", 0.0))
+        except Exception:
+            rot = 0.0
+        try:
+            opacity = float(el.get("opacity", 1.0))
+        except Exception:
+            opacity = 1.0
+        opacity = max(0.0, min(1.0, opacity))
+
+        cx = float(width) * x
+        cy = float(height) * y
+        w_px = max(1, int(round(float(width) * max(0.01, w))))
+        h_px = max(1, int(round(float(height) * max(0.01, h))))
+        left = int(round(cx - w_px / 2))
+        top = int(round(cy - h_px / 2))
+
+        layer_img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        if kind == "image":
+            src_file = _resolve_element_src_file(channel, video, str(el.get("src_path") or ""))
+            if src_file is None:
+                continue
+            try:
+                with Image.open(src_file) as src_in:
+                    src = src_in.convert("RGBA")
+            except Exception:
+                continue
+            fitted = ImageOps.fit(src, (w_px, h_px), method=Image.LANCZOS, centering=(0.5, 0.5))
+            if opacity < 1.0:
+                r, g, b, a = fitted.split()
+                a = a.point(lambda p: int(round(p * opacity)))
+                fitted = Image.merge("RGBA", (r, g, b, a))
+            layer_img.paste(fitted, (left, top), fitted)
+        else:
+            fill = str(el.get("fill") or "").strip() or "#ffffff"
+            draw = ImageDraw.Draw(layer_img)
+            bbox = [left, top, left + w_px, top + h_px]
+            fill_rgba = _hex_to_rgba(fill, alpha=opacity)
+            stroke = el.get("stroke") if isinstance(el.get("stroke"), dict) else None
+            outline = None
+            stroke_width = 0
+            if isinstance(stroke, dict):
+                stroke_color = str(stroke.get("color") or "").strip() or "#000000"
+                try:
+                    stroke_width = int(round(float(stroke.get("width_px", 0.0))))
+                except Exception:
+                    stroke_width = 0
+                if stroke_width > 0:
+                    outline = _hex_to_rgba(stroke_color, alpha=opacity)
+            if kind == "rect":
+                draw.rectangle(bbox, fill=fill_rgba, outline=outline, width=max(0, stroke_width))
+            else:
+                draw.ellipse(bbox, fill=fill_rgba, outline=outline, width=max(0, stroke_width))
+
+        rot = max(-180.0, min(180.0, rot))
+        if abs(rot) > 1e-6:
+            layer_img = layer_img.rotate(-float(rot), resample=Image.BICUBIC, center=(cx, cy), expand=False)
+
+        out = Image.alpha_composite(out, layer_img)
+    return out
+
+
+def _apply_elements_to_path(
+    base_image_path: Path,
+    *,
+    channel: str,
+    video: str,
+    elements: List[Dict[str, Any]],
+    out_path: Path,
+) -> Path:
+    if not elements:
+        return base_image_path
+    with Image.open(base_image_path) as base_in:
+        base = base_in.convert("RGBA")
+    composed = _apply_elements_to_image(base, channel=channel, video=video, elements=elements)
+    save_png_atomic(composed, out_path, mode="draft", verify=True)
+    return out_path
+
+
+def _shift_layer_rgba(img: Image.Image, *, dx: int, dy: int) -> Image.Image:
+    layer = img.convert("RGBA")
+    w, h = layer.size
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    out.paste(layer, (int(dx), int(dy)), layer)
+    return out
+
+
+def _compose_text_canva_like(
+    base_image_path: Path,
+    *,
+    text_layout_spec: Dict[str, Any],
+    video_id: str,
+    out_path: Path,
+    output_mode: PngOutputMode,
+    template_id: str,
+    resolved_text_by_slot: Dict[str, str],
+    text_line_spec_lines: Dict[str, Dict[str, float]],
+    text_offset_x: float = 0.0,
+    text_offset_y: float = 0.0,
+    template_id_override: Optional[str] = None,
+    effects_override: Optional[Dict[str, Any]] = None,
+    overlays_override: Optional[Dict[str, Any]] = None,
+) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with Image.open(base_image_path) as base_in:
+        base = base_in.convert("RGBA")
+    width, height = base.size
+
+    templates = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+    tpl = templates.get(template_id) if isinstance(templates, dict) else None
+    slots_payload = tpl.get("slots") if isinstance(tpl, dict) else None
+    if not isinstance(slots_payload, dict):
+        save_png_atomic(base, out_path, mode=output_mode, verify=True)
+        return
+
+    slot_keys = [str(k).strip() for k in slots_payload.keys() if isinstance(k, str) and str(k).strip()]
+    blank_all = {k: "" for k in slot_keys}
+    slot_boxes: Dict[str, List[float]] = {}
+    for slot_key in slot_keys:
+        cfg = slots_payload.get(slot_key)
+        if not isinstance(cfg, dict):
+            continue
+        box = cfg.get("box")
+        if not isinstance(box, (list, tuple)) or len(box) != 4:
+            continue
+        try:
+            nums = [float(box[0]), float(box[1]), float(box[2]), float(box[3])]
+        except Exception:
+            continue
+        slot_boxes[slot_key] = nums
+
+    overlays_disabled = {
+        "left_tsz": {"enabled": False},
+        "top_band": {"enabled": False},
+        "bottom_band": {"enabled": False},
+    }
+
+    with tempfile.TemporaryDirectory(prefix=f"thumb_text_{video_id.replace('-', '_')}_") as tmpdir:
+        tmp_root = Path(tmpdir)
+        transparent_base = tmp_root / "base_transparent.png"
+        Image.new("RGBA", (width, height), (0, 0, 0, 0)).save(transparent_base, format="PNG")
+
+        overlays_img = compose_text_to_png(
+            transparent_base,
+            text_layout_spec=text_layout_spec,
+            video_id=video_id,
+            out_path=tmp_root / "overlays.png",
+            output_mode="draft",
+            text_override=blank_all,
+            template_id_override=template_id_override,
+            effects_override=effects_override,
+            overlays_override=overlays_override,
+        ).convert("RGBA")
+        base = Image.alpha_composite(base, overlays_img)
+
+        for slot_key in slot_keys:
+            text_value = str(resolved_text_by_slot.get(slot_key) or "").strip()
+            if not text_value:
+                continue
+
+            slot_override = dict(blank_all)
+            slot_override[slot_key] = text_value
+            slot_img = compose_text_to_png(
+                transparent_base,
+                text_layout_spec=text_layout_spec,
+                video_id=video_id,
+                out_path=tmp_root / f"text__{slot_key}.png",
+                output_mode="draft",
+                text_override=slot_override,
+                template_id_override=template_id_override,
+                effects_override=effects_override,
+                overlays_override=overlays_disabled,
+            ).convert("RGBA")
+
+            line = text_line_spec_lines.get(slot_key) if isinstance(text_line_spec_lines, dict) else None
+            try:
+                ox = float(line.get("offset_x", 0.0)) if isinstance(line, dict) else 0.0
+                oy = float(line.get("offset_y", 0.0)) if isinstance(line, dict) else 0.0
+            except Exception:
+                ox, oy = (0.0, 0.0)
+            try:
+                rot = float(line.get("rotate_deg", 0.0)) if isinstance(line, dict) else 0.0
+            except Exception:
+                rot = 0.0
+            rot = max(-180.0, min(180.0, rot))
+
+            if abs(rot) > 1e-6:
+                box = slot_boxes.get(slot_key)
+                if isinstance(box, list) and len(box) == 4:
+                    cx = (float(box[0]) + float(box[2]) * 0.5) * float(width)
+                    cy = (float(box[1]) + float(box[3]) * 0.5) * float(height)
+                else:
+                    cx = float(width) * 0.5
+                    cy = float(height) * 0.5
+                # Pillow rotates CCW; match CSS rotate() (clockwise) by flipping the sign.
+                slot_img = slot_img.rotate(-float(rot), resample=Image.BICUBIC, center=(cx, cy), expand=False)
+
+            dx = int(round(float(width) * float(text_offset_x + ox)))
+            dy = int(round(float(height) * float(text_offset_y + oy)))
+            if dx or dy:
+                slot_img = _shift_layer_rgba(slot_img, dx=dx, dy=dy)
+            base = Image.alpha_composite(base, slot_img)
+
+    save_png_atomic(base, out_path, mode=output_mode, verify=True)
+
+
 def build_channel_thumbnails(
     *,
     channel: str,
@@ -420,6 +871,9 @@ def build_channel_thumbnails(
         raise ValueError("stable_thumb_name must be a filename (no directories)")
     if Path(stable_thumb_name).suffix.lower() != ".png":
         raise ValueError("stable_thumb_name must end with .png")
+    stable_id: Optional[str] = None
+    if stable_thumb_name != "00_thumb.png":
+        stable_id = Path(stable_thumb_name).stem
     ch = _normalize_channel(channel)
     build_id = str(build_id or "").strip() or datetime.now(timezone.utc).strftime("build_%Y%m%dT%H%M%SZ")
     resolved_variant_label = str(variant_label or "").strip()
@@ -495,7 +949,7 @@ def build_channel_thumbnails(
         build_thumb = build_dir / "out_01.png"
         build_meta_path = build_dir / "build_meta.json"
 
-        thumb_spec = load_thumb_spec(ch, target.video)
+        thumb_spec = load_thumb_spec(ch, target.video, stable=stable_id)
         overrides_leaf = extract_normalized_override_leaf(thumb_spec.payload) if thumb_spec else {}
 
         video_bg_brightness = float(overrides_leaf.get("overrides.bg_enhance.brightness", base_bg_brightness))
@@ -692,8 +1146,10 @@ def build_channel_thumbnails(
                 if val:
                     text_override[slot_key] = val
 
+        text_line_spec_lines = _load_text_line_spec_lines(ch, target.video, stable=stable_id)
+
         text_spec_for_render = text_spec
-        needs_text_mutation = abs(float(video_text_scale) - 1.0) > 1e-6 or (
+        needs_text_mutation = bool(text_line_spec_lines) or abs(float(video_text_scale) - 1.0) > 1e-6 or (
             abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9
         )
         if needs_text_mutation and isinstance(text_spec, dict):
@@ -702,7 +1158,7 @@ def build_channel_thumbnails(
             tpl_out = templates_out.get(template_id) if isinstance(templates_out, dict) and template_id else None
             slots_out = tpl_out.get("slots") if isinstance(tpl_out, dict) else None
             if isinstance(slots_out, dict):
-                for slot_cfg in slots_out.values():
+                for slot_key, slot_cfg in slots_out.items():
                     if not isinstance(slot_cfg, dict):
                         continue
                     if abs(float(video_text_scale) - 1.0) > 1e-6:
@@ -710,17 +1166,54 @@ def build_channel_thumbnails(
                         if isinstance(base_size, (int, float)):
                             scaled = int(round(float(base_size) * float(video_text_scale)))
                             slot_cfg["base_size_px"] = max(1, scaled)
-                    if abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9:
-                        box = slot_cfg.get("box")
-                        if isinstance(box, (list, tuple)) and len(box) == 4 and all(
-                            isinstance(v, (int, float)) for v in box
-                        ):
-                            slot_cfg["box"] = [
-                                float(box[0]) + float(video_text_offset_x),
-                                float(box[1]) + float(video_text_offset_y),
-                                float(box[2]),
-                                float(box[3]),
-                            ]
+                    line = text_line_spec_lines.get(str(slot_key).strip()) if isinstance(slot_key, str) else None
+                    if isinstance(line, dict):
+                        line_scale = line.get("scale", 1.0)
+                        try:
+                            line_scale_f = float(line_scale)
+                        except Exception:
+                            line_scale_f = 1.0
+                        if abs(float(line_scale_f) - 1.0) > 1e-6:
+                            base_size = slot_cfg.get("base_size_px")
+                            if isinstance(base_size, (int, float)):
+                                scaled = int(round(float(base_size) * float(line_scale_f)))
+                                slot_cfg["base_size_px"] = max(1, scaled)
+
+        resolved_text_by_slot: Dict[str, str] = {}
+        if isinstance(slots, dict):
+            for slot_name in slots.keys():
+                slot_key = str(slot_name or "").strip()
+                if not slot_key:
+                    continue
+                forced = _override_for_slot(slot_key)
+                authored = str(text_payload.get(slot_key) or "").strip() if isinstance(text_payload, dict) else ""
+                planned = _planning_value_for_slot(slot_key, planning_copy)
+                resolved_text_by_slot[slot_key] = forced or authored or planned or ""
+
+        use_canva_text = abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9
+        if not use_canva_text:
+            for line in (text_line_spec_lines or {}).values():
+                if not isinstance(line, dict):
+                    continue
+                try:
+                    ox = float(line.get("offset_x", 0.0))
+                    oy = float(line.get("offset_y", 0.0))
+                    rot = float(line.get("rotate_deg", 0.0))
+                except Exception:
+                    continue
+                if abs(float(ox)) > 1e-9 or abs(float(oy)) > 1e-9 or abs(float(rot)) > 1e-6:
+                    use_canva_text = True
+                    break
+
+        elements_spec = _load_elements_spec_elements(ch, target.video, stable=stable_id)
+        elements_below = sorted(
+            [el for el in elements_spec if str(el.get("layer") or "above_portrait") == "below_portrait"],
+            key=lambda el: int(el.get("z", 0)) if isinstance(el.get("z"), (int, float, str)) else 0,
+        )
+        elements_above = sorted(
+            [el for el in elements_spec if str(el.get("layer") or "above_portrait") != "below_portrait"],
+            key=lambda el: int(el.get("z", 0)) if isinstance(el.get("z"), (int, float, str)) else 0,
+        )
 
         with enhanced_bg_path(
             out_bg,
@@ -737,72 +1230,228 @@ def build_channel_thumbnails(
             portrait_path = find_existing_portrait(video_dir)
             portrait_used = False
             if portrait_path is not None:
-                # CH26 benchmark: portrait is composited as a separate layer (本人肖像素材を使用)
-                dest_box_norm_default = (0.29, 0.06, 0.42, 0.76)
-                dest_box_norm = dest_box_norm_default
-                anchor = "bottom_center"
-                portrait_zoom = 1.0
-                portrait_offset_px = (0, 0)
-                off_norm = (0.0, 0.0)
-                trim_transparent = False
+                portrait_enabled = bool(overrides_leaf.get("overrides.portrait.enabled", stable_id != "00_thumb_2"))
+                if not portrait_enabled:
+                    base_for_text_out = base_for_text
+                    if elements_below:
+                        base_for_text_out = _apply_elements_to_path(
+                            base_for_text_out,
+                            channel=ch,
+                            video=target.video,
+                            elements=elements_below,
+                            out_path=build_dir / "base__elements_below.png",
+                        )
+                    if elements_above:
+                        base_for_text_out = _apply_elements_to_path(
+                            base_for_text_out,
+                            channel=ch,
+                            video=target.video,
+                            elements=elements_above,
+                            out_path=build_dir / "base__elements_above.png",
+                        )
+                    if use_canva_text:
+                        _compose_text_canva_like(
+                            base_for_text_out,
+                            text_layout_spec=text_spec_for_render,
+                            video_id=target.video_id,
+                            out_path=build_thumb,
+                            output_mode=output_mode,
+                            template_id=template_id,
+                            resolved_text_by_slot=resolved_text_by_slot,
+                            text_line_spec_lines=text_line_spec_lines,
+                            text_offset_x=float(video_text_offset_x),
+                            text_offset_y=float(video_text_offset_y),
+                            template_id_override=template_id_override,
+                            effects_override=effects_override,
+                            overlays_override=overlays_override,
+                        )
+                    else:
+                        compose_text_to_png(
+                            base_for_text_out,
+                            text_layout_spec=text_spec_for_render,
+                            video_id=target.video_id,
+                            out_path=build_thumb,
+                            output_mode=output_mode,
+                            text_override=text_override if text_override else None,
+                            template_id_override=template_id_override,
+                            effects_override=effects_override,
+                            overlays_override=overlays_override,
+                        )
+                else:
+                    # CH26 benchmark: portrait is composited as a separate layer (本人肖像素材を使用)
+                    dest_box_norm_default = (0.29, 0.06, 0.42, 0.76)
+                    dest_box_norm = dest_box_norm_default
+                    anchor = "bottom_center"
+                    portrait_zoom = 1.0
+                    portrait_offset_px = (0, 0)
+                    off_norm = (0.0, 0.0)
+                    trim_transparent = False
 
-                fg_brightness = 1.20
-                fg_contrast = 1.08
-                fg_color = 0.98
+                    fg_brightness = 1.20
+                    fg_contrast = 1.08
+                    fg_color = 0.98
 
-                if ch == "CH26":
-                    cfg_defaults = portrait_policy.get("defaults") if isinstance(portrait_policy.get("defaults"), dict) else {}
-                    cfg_overrides = portrait_policy.get("overrides") if isinstance(portrait_policy.get("overrides"), dict) else {}
-                    ov = cfg_overrides.get(target.video) if isinstance(cfg_overrides, dict) else None
-                    ov = ov if isinstance(ov, dict) else {}
+                    if ch == "CH26":
+                        cfg_defaults = (
+                            portrait_policy.get("defaults") if isinstance(portrait_policy.get("defaults"), dict) else {}
+                        )
+                        cfg_overrides = (
+                            portrait_policy.get("overrides") if isinstance(portrait_policy.get("overrides"), dict) else {}
+                        )
+                        ov = cfg_overrides.get(target.video) if isinstance(cfg_overrides, dict) else None
+                        ov = ov if isinstance(ov, dict) else {}
 
-                    dest_box_norm = _as_norm_box(ov.get("dest_box") or cfg_defaults.get("dest_box"), dest_box_norm_default)
-                    anchor = str(ov.get("anchor") or cfg_defaults.get("anchor") or anchor).strip() or anchor
-                    portrait_zoom = _as_float(ov.get("zoom") if "zoom" in ov else cfg_defaults.get("zoom"), 1.0)
-                    off_norm = _as_norm_offset(ov.get("offset") if "offset" in ov else cfg_defaults.get("offset"), (0.0, 0.0))
-                    trim_transparent = bool(ov.get("trim_transparent") if "trim_transparent" in ov else cfg_defaults.get("trim_transparent"))
+                        dest_box_norm = _as_norm_box(
+                            ov.get("dest_box") or cfg_defaults.get("dest_box"), dest_box_norm_default
+                        )
+                        anchor = str(ov.get("anchor") or cfg_defaults.get("anchor") or anchor).strip() or anchor
+                        portrait_zoom = _as_float(ov.get("zoom") if "zoom" in ov else cfg_defaults.get("zoom"), 1.0)
+                        off_norm = _as_norm_offset(
+                            ov.get("offset") if "offset" in ov else cfg_defaults.get("offset"), (0.0, 0.0)
+                        )
+                        trim_transparent = bool(
+                            ov.get("trim_transparent") if "trim_transparent" in ov else cfg_defaults.get("trim_transparent")
+                        )
 
-                    fg_defaults = cfg_defaults.get("fg") if isinstance(cfg_defaults.get("fg"), dict) else {}
-                    fg_override = ov.get("fg") if isinstance(ov.get("fg"), dict) else {}
-                    fg_brightness = _as_float(fg_override.get("brightness") if "brightness" in fg_override else fg_defaults.get("brightness"), 1.26)
-                    fg_contrast = _as_float(fg_override.get("contrast") if "contrast" in fg_override else fg_defaults.get("contrast"), 1.10)
-                    fg_color = _as_float(fg_override.get("color") if "color" in fg_override else fg_defaults.get("color"), 1.00)
+                        fg_defaults = cfg_defaults.get("fg") if isinstance(cfg_defaults.get("fg"), dict) else {}
+                        fg_override = ov.get("fg") if isinstance(ov.get("fg"), dict) else {}
+                        fg_brightness = _as_float(
+                            fg_override.get("brightness") if "brightness" in fg_override else fg_defaults.get("brightness"),
+                            1.26,
+                        )
+                        fg_contrast = _as_float(
+                            fg_override.get("contrast") if "contrast" in fg_override else fg_defaults.get("contrast"),
+                            1.10,
+                        )
+                        fg_color = _as_float(
+                            fg_override.get("color") if "color" in fg_override else fg_defaults.get("color"), 1.00
+                        )
 
-                # Per-video thumb_spec overrides should win over channel policy.
-                # These are normalized offsets (relative to canvas width/height).
-                if "overrides.portrait.zoom" in overrides_leaf:
-                    portrait_zoom = float(overrides_leaf["overrides.portrait.zoom"])
-                off_x = float(off_norm[0]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
-                off_y = float(off_norm[1]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
-                if "overrides.portrait.offset_x" in overrides_leaf:
-                    off_x = float(overrides_leaf["overrides.portrait.offset_x"])
-                if "overrides.portrait.offset_y" in overrides_leaf:
-                    off_y = float(overrides_leaf["overrides.portrait.offset_y"])
-                portrait_offset_px = (int(round(width * off_x)), int(round(height * off_y)))
-                if "overrides.portrait.trim_transparent" in overrides_leaf:
-                    trim_transparent = bool(overrides_leaf["overrides.portrait.trim_transparent"])
-                if "overrides.portrait.fg_brightness" in overrides_leaf:
-                    fg_brightness = float(overrides_leaf["overrides.portrait.fg_brightness"])
-                if "overrides.portrait.fg_contrast" in overrides_leaf:
-                    fg_contrast = float(overrides_leaf["overrides.portrait.fg_contrast"])
-                if "overrides.portrait.fg_color" in overrides_leaf:
-                    fg_color = float(overrides_leaf["overrides.portrait.fg_color"])
+                    # Per-video thumb_spec overrides should win over channel policy.
+                    # These are normalized offsets (relative to canvas width/height).
+                    if "overrides.portrait.zoom" in overrides_leaf:
+                        portrait_zoom = float(overrides_leaf["overrides.portrait.zoom"])
+                    off_x = float(off_norm[0]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
+                    off_y = float(off_norm[1]) if isinstance(off_norm, tuple) and len(off_norm) == 2 else 0.0
+                    if "overrides.portrait.offset_x" in overrides_leaf:
+                        off_x = float(overrides_leaf["overrides.portrait.offset_x"])
+                    if "overrides.portrait.offset_y" in overrides_leaf:
+                        off_y = float(overrides_leaf["overrides.portrait.offset_y"])
+                    portrait_offset_px = (int(round(width * off_x)), int(round(height * off_y)))
+                    if "overrides.portrait.trim_transparent" in overrides_leaf:
+                        trim_transparent = bool(overrides_leaf["overrides.portrait.trim_transparent"])
+                    if "overrides.portrait.fg_brightness" in overrides_leaf:
+                        fg_brightness = float(overrides_leaf["overrides.portrait.fg_brightness"])
+                    if "overrides.portrait.fg_contrast" in overrides_leaf:
+                        fg_contrast = float(overrides_leaf["overrides.portrait.fg_contrast"])
+                    if "overrides.portrait.fg_color" in overrides_leaf:
+                        fg_color = float(overrides_leaf["overrides.portrait.fg_color"])
 
-                dest_box_px = (
-                    int(round(width * dest_box_norm[0])),
-                    int(round(height * dest_box_norm[1])),
-                    int(round(width * dest_box_norm[2])),
-                    int(round(height * dest_box_norm[3])),
-                )
-                if ch == "CH26":
-                    # CH26 backgrounds may already contain a portrait; suppress the center region to avoid "double face".
-                    with suppressed_center_region_path(
-                        base_for_text,
-                        dest_box_px=dest_box_px,
-                        temp_prefix=f"{target.video_id}_bg_supp_",
-                    ) as suppressed_bg:
+                    dest_box_px = (
+                        int(round(width * dest_box_norm[0])),
+                        int(round(height * dest_box_norm[1])),
+                        int(round(width * dest_box_norm[2])),
+                        int(round(height * dest_box_norm[3])),
+                    )
+                    suppress_box_px = dest_box_px
+                    if portrait_offset_px != (0, 0):
+                        suppress_box_px = (
+                            int(dest_box_px[0]) + int(portrait_offset_px[0]),
+                            int(dest_box_px[1]) + int(portrait_offset_px[1]),
+                            int(dest_box_px[2]),
+                            int(dest_box_px[3]),
+                        )
+                    suppress_bg = bool(overrides_leaf.get("overrides.portrait.suppress_bg", ch == "CH26"))
+                    # CH26 backgrounds may already contain a portrait; when portrait is enabled we must suppress it.
+                    if ch == "CH26":
+                        suppress_bg = True
+                    if suppress_bg:
+                        # CH26 (and any channel opting into suppress_bg) must not leave a recognizable "ghost face"
+                        # behind the overlaid portrait. Use a hard suppression that effectively blacks-out the region.
+                        suppress_kwargs = {
+                            "pad_ratio": 0.25,
+                            "mask_blur_ratio": 0.01,
+                            "brightness": 0.0,
+                            "contrast": 1.0,
+                        }
+                        with suppressed_center_region_path(
+                            base_for_text,
+                            dest_box_px=suppress_box_px,
+                            temp_prefix=f"{target.video_id}_bg_supp_",
+                            **suppress_kwargs,
+                        ) as suppressed_bg:
+                            base_for_portrait = suppressed_bg
+                            if elements_below:
+                                base_for_portrait = _apply_elements_to_path(
+                                    base_for_portrait,
+                                    channel=ch,
+                                    video=target.video,
+                                    elements=elements_below,
+                                    out_path=build_dir / "base__elements_below.png",
+                                )
+                            with composited_portrait_path(
+                                base_for_portrait,
+                                portrait_path=portrait_path,
+                                dest_box_px=dest_box_px,
+                                temp_prefix=f"{target.video_id}_base_",
+                                anchor=anchor,
+                                portrait_zoom=float(portrait_zoom),
+                                portrait_offset_px=portrait_offset_px,
+                                trim_transparent=bool(trim_transparent),
+                                fg_brightness=fg_brightness,
+                                fg_contrast=fg_contrast,
+                                fg_color=fg_color,
+                            ) as base_with_portrait:
+                                portrait_used = True
+                                base_for_text_out = base_with_portrait
+                                if elements_above:
+                                    base_for_text_out = _apply_elements_to_path(
+                                        base_for_text_out,
+                                        channel=ch,
+                                        video=target.video,
+                                        elements=elements_above,
+                                        out_path=build_dir / "base__elements_above.png",
+                                    )
+                                if use_canva_text:
+                                    _compose_text_canva_like(
+                                        base_for_text_out,
+                                        text_layout_spec=text_spec_for_render,
+                                        video_id=target.video_id,
+                                        out_path=build_thumb,
+                                        output_mode=output_mode,
+                                        template_id=template_id,
+                                        resolved_text_by_slot=resolved_text_by_slot,
+                                        text_line_spec_lines=text_line_spec_lines,
+                                        text_offset_x=float(video_text_offset_x),
+                                        text_offset_y=float(video_text_offset_y),
+                                        template_id_override=template_id_override,
+                                        effects_override=effects_override,
+                                        overlays_override=overlays_override,
+                                    )
+                                else:
+                                    compose_text_to_png(
+                                        base_for_text_out,
+                                        text_layout_spec=text_spec_for_render,
+                                        video_id=target.video_id,
+                                        out_path=build_thumb,
+                                        output_mode=output_mode,
+                                        text_override=text_override if text_override else None,
+                                        template_id_override=template_id_override,
+                                        effects_override=effects_override,
+                                        overlays_override=overlays_override,
+                                    )
+                    else:
+                        base_for_portrait = base_for_text
+                        if elements_below:
+                            base_for_portrait = _apply_elements_to_path(
+                                base_for_portrait,
+                                channel=ch,
+                                video=target.video,
+                                elements=elements_below,
+                                out_path=build_dir / "base__elements_below.png",
+                            )
                         with composited_portrait_path(
-                            suppressed_bg,
+                            base_for_portrait,
                             portrait_path=portrait_path,
                             dest_box_px=dest_box_px,
                             temp_prefix=f"{target.video_id}_base_",
@@ -815,55 +1464,89 @@ def build_channel_thumbnails(
                             fg_color=fg_color,
                         ) as base_with_portrait:
                             portrait_used = True
-                            compose_text_to_png(
-                                base_with_portrait,
-                                text_layout_spec=text_spec_for_render,
-                                video_id=target.video_id,
-                                out_path=build_thumb,
-                                output_mode=output_mode,
-                                text_override=text_override if text_override else None,
-                                template_id_override=template_id_override,
-                                effects_override=effects_override,
-                                overlays_override=overlays_override,
-                            )
-                else:
-                    with composited_portrait_path(
-                        base_for_text,
-                        portrait_path=portrait_path,
-                        dest_box_px=dest_box_px,
-                        temp_prefix=f"{target.video_id}_base_",
-                        anchor=anchor,
-                        portrait_zoom=float(portrait_zoom),
-                        portrait_offset_px=portrait_offset_px,
-                        trim_transparent=bool(trim_transparent),
-                        fg_brightness=fg_brightness,
-                        fg_contrast=fg_contrast,
-                        fg_color=fg_color,
-                    ) as base_with_portrait:
-                        portrait_used = True
-                        compose_text_to_png(
-                            base_with_portrait,
-                            text_layout_spec=text_spec_for_render,
-                            video_id=target.video_id,
-                            out_path=build_thumb,
-                            output_mode=output_mode,
-                            text_override=text_override if text_override else None,
-                            template_id_override=template_id_override,
-                            effects_override=effects_override,
-                            overlays_override=overlays_override,
-                        )
+                            base_for_text_out = base_with_portrait
+                            if elements_above:
+                                base_for_text_out = _apply_elements_to_path(
+                                    base_for_text_out,
+                                    channel=ch,
+                                    video=target.video,
+                                    elements=elements_above,
+                                    out_path=build_dir / "base__elements_above.png",
+                                )
+                            if use_canva_text:
+                                _compose_text_canva_like(
+                                    base_for_text_out,
+                                    text_layout_spec=text_spec_for_render,
+                                    video_id=target.video_id,
+                                    out_path=build_thumb,
+                                    output_mode=output_mode,
+                                    template_id=template_id,
+                                    resolved_text_by_slot=resolved_text_by_slot,
+                                    text_line_spec_lines=text_line_spec_lines,
+                                    text_offset_x=float(video_text_offset_x),
+                                    text_offset_y=float(video_text_offset_y),
+                                    template_id_override=template_id_override,
+                                    effects_override=effects_override,
+                                    overlays_override=overlays_override,
+                                )
+                            else:
+                                compose_text_to_png(
+                                    base_for_text_out,
+                                    text_layout_spec=text_spec_for_render,
+                                    video_id=target.video_id,
+                                    out_path=build_thumb,
+                                    output_mode=output_mode,
+                                    text_override=text_override if text_override else None,
+                                    template_id_override=template_id_override,
+                                    effects_override=effects_override,
+                                    overlays_override=overlays_override,
+                                )
             else:
-                compose_text_to_png(
-                    base_for_text,
-                    text_layout_spec=text_spec_for_render,
-                    video_id=target.video_id,
-                    out_path=build_thumb,
-                    output_mode=output_mode,
-                    text_override=text_override if text_override else None,
-                    template_id_override=template_id_override,
-                    effects_override=effects_override,
-                    overlays_override=overlays_override,
-                )
+                base_for_text_out = base_for_text
+                if elements_below:
+                    base_for_text_out = _apply_elements_to_path(
+                        base_for_text_out,
+                        channel=ch,
+                        video=target.video,
+                        elements=elements_below,
+                        out_path=build_dir / "base__elements_below.png",
+                    )
+                if elements_above:
+                    base_for_text_out = _apply_elements_to_path(
+                        base_for_text_out,
+                        channel=ch,
+                        video=target.video,
+                        elements=elements_above,
+                        out_path=build_dir / "base__elements_above.png",
+                    )
+                if use_canva_text:
+                    _compose_text_canva_like(
+                        base_for_text_out,
+                        text_layout_spec=text_spec_for_render,
+                        video_id=target.video_id,
+                        out_path=build_thumb,
+                        output_mode=output_mode,
+                        template_id=template_id,
+                        resolved_text_by_slot=resolved_text_by_slot,
+                        text_line_spec_lines=text_line_spec_lines,
+                        text_offset_x=float(video_text_offset_x),
+                        text_offset_y=float(video_text_offset_y),
+                        template_id_override=template_id_override,
+                        effects_override=effects_override,
+                        overlays_override=overlays_override,
+                    )
+                else:
+                    compose_text_to_png(
+                        base_for_text_out,
+                        text_layout_spec=text_spec_for_render,
+                        video_id=target.video_id,
+                        out_path=build_thumb,
+                        output_mode=output_mode,
+                        text_override=text_override if text_override else None,
+                        template_id_override=template_id_override,
+                        effects_override=effects_override,
+                        overlays_override=overlays_override,
+                    )
         # Update stable artifact (00_thumb.png) from this build output.
         tmp_stable = stable_thumb.with_suffix(stable_thumb.suffix + ".tmp")
         tmp_stable.write_bytes(build_thumb.read_bytes())

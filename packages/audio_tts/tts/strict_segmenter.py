@@ -1,4 +1,5 @@
 import re
+import os
 from typing import List
 from .strict_structure import AudioSegment
 
@@ -16,6 +17,16 @@ PAUSE_COMMA = 0.0 # Voicevox handles commas naturally, so 0 explicit pause usual
 # Also handle "。」" or "！" etc.
 RE_SPLIT = re.compile(r'([^。！？\n]+[。！？])')
 RE_PAUSE_MARKER = re.compile(r"^-{3,}$")
+
+# Optional: group sentence-level parts into larger segments to reduce the total
+# number of synthesis calls (important for voicepeak CLI performance).
+# 0 disables grouping and preserves the historical 1-sentence-per-segment behavior.
+_GROUP_CHARS = 0
+try:
+    _GROUP_CHARS = int((os.getenv("TTS_STRICT_GROUP_CHARS") or "").strip() or "0")
+except Exception:
+    _GROUP_CHARS = 0
+_GROUP_CHARS = max(0, _GROUP_CHARS)
 
 
 def _apply_min_post_pause(segments: List[AudioSegment], pause_sec: float) -> None:
@@ -92,17 +103,38 @@ def strict_segmentation(text: str) -> List[AudioSegment]:
                 if leftover.strip():
                     parts.append(leftover)
 
-        for j, part in enumerate(parts):
+        # Optionally group multiple sentence-level parts into a larger segment.
+        # This keeps the pipeline deterministic but significantly reduces the number of
+        # per-segment synthesis calls (voicepeak in particular is slow when called hundreds of times).
+        if _GROUP_CHARS > 0 and len(parts) > 1:
+            grouped: List[str] = []
+            buf = ""
+            for part in parts:
+                part = part.strip()
+                if not part:
+                    continue
+                if not buf:
+                    buf = part
+                    continue
+                # Keep a light separator for readability; voice engines handle it naturally.
+                candidate = f"{buf} {part}"
+                if len(candidate) <= _GROUP_CHARS:
+                    buf = candidate
+                else:
+                    grouped.append(buf)
+                    buf = part
+            if buf.strip():
+                grouped.append(buf.strip())
+            parts = grouped
+
+        for part in parts:
             part = part.strip()
             if not part:
                 continue
-                
+
             # Default pause is sentence pause
             pause = PAUSE_SENTENCE
-            
-            # If this is the last part of the line, use Paragraph Pause if structure implies
-            # (But strictly, we rely on Markdown structure. For plain text lines, we treat them as sentences.)
-            
+
             seg = AudioSegment(
                 text=part,
                 reading=None,

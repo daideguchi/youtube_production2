@@ -82,15 +82,6 @@ stages:
         OUTLINE_TEXT: "@content/outline.md"
         CHAPTER_JSON: "{\"heading\": \"第1章\"}"
         SCRIPT_PROMPT: from_a_text_channel_prompt
-  - name: script_enhancement
-    description: Enhancement pass (no new files)
-    outputs: []
-    llm:
-      task: script_chapter_review
-      template: chapter_review
-      max_tokens: 4096
-      placeholders:
-        SCRIPT_CONTENT: "@content/chapters/chapter_1.md"
   - name: script_review
     description: Assemble chapters
     outputs:
@@ -111,20 +102,6 @@ stages:
         CHANNEL_STYLE_GUIDE: from_style
         CTA_PURPOSE: "物語の余韻を残し、深い考察を促す（チャンネル登録や高評価は一切求めない）"
         TARGET_LENGTH: "160"
-  - name: quality_check
-    description: Quality review
-    outputs:
-      - path: content/analysis/research/quality_review.md
-        required: true
-    llm:
-      task: script_quality_check
-      template: quality
-      max_tokens: 4096
-      placeholders:
-        SCRIPT_CONTENT: "@content/assembled.md"
-        CHANNEL_CONTEXT: from_channel_name
-        AUDIENCE_PROFILE: from_persona
-        CHANNEL_STYLE_GUIDE: from_style
   - name: script_validation
     description: Final validation (A-text quality gate; SoT=content/assembled_human.md preferred, else content/assembled.md)
     outputs:

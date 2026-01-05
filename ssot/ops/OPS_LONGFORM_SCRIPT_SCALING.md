@@ -31,7 +31,7 @@
 - `script_review` は LLMで全文を組み替えず、**章をそのまま結合**する（スケールする）。
 
 **長尺に対して弱い部分**
-- `quality_check` と `script_validation`（LLM Judge/Fix）が **全文（A_TEXT）をそのままプロンプトに埋め込む**ため、超長尺で破綻しやすい。
+- `script_validation`（LLM Judge/Fix）が **全文（A_TEXT）をそのままプロンプトに埋め込む**ため、超長尺で破綻しやすい。
   - 例: `packages/script_pipeline/prompts/a_text_quality_judge_prompt.txt` は `<<A_TEXT>>` をそのまま要求する。
 
 ### Route B（補助）: `a_text_section_compose`（SSOTパターンでセクション分割→合成）
@@ -88,7 +88,7 @@
 ### 3.1 Quality gate が “全文LLM” 前提
 現状:
 - `script_validation` の LLM Judge/Fix は `<<A_TEXT>>` に全文を入れる。
-- `quality_check` も `<<SCRIPT_CONTENT>>` に全文を入れる。
+- （参考）旧 `quality_check` は冗長/高コストのため主線から除外済み。
 
 問題:
 - 超長尺ではコンテキスト超過、または「一部しか読めない」状態になり、**判定の信頼性が落ちる**。

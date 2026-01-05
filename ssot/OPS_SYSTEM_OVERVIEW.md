@@ -89,7 +89,7 @@
 - 正規入口（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`（詳細: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` / `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`）
 - 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli ...`
 - ステージは概ね以下の順（SoTは `status.json`）:
-  - `topic_research` → `script_outline` → `chapter_brief` → `script_draft` → `script_review` → `quality_check` → `script_validation`
+  - `topic_research` → `script_outline` → `script_master_plan` → `chapter_brief` → `script_draft` → `script_review` → `script_validation`
 
 重要（A/Bテキスト）
 - Aテキスト（表示用）:
@@ -162,6 +162,7 @@
 - `/capcut-edit/*`: run_dir（動画生成）を扱う（SoT: `workspaces/video/runs/**`）
 - `/image-management`: 画像variants/差し替え支援（SoT: `workspaces/video/runs/**`）
 - `/thumbnails`: サムネ動線（SoT: `workspaces/thumbnails/projects.json`）
+- `/image-model-routing`: 画像モデル（サムネ/動画内画像）をチャンネル別に指定（SoT: `workspaces/thumbnails/templates.json`, `packages/video_pipeline/config/channel_presets.json`）
 - `/channel-settings`: チャンネル登録/監査/ベンチマーク編集（SoT: `channel_info.json` の `benchmarks` 等）
 - `/agent-org` `/agent-board`: エージェント協調（board/locks/memos）
 - `/llm-usage` `/reports`: ログ可視化

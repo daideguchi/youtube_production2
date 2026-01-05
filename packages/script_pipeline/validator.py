@@ -595,7 +595,6 @@ def validate_completed_outputs(channel: str, video: str, stage_defs: List[Dict[s
     It also applies artifact lifecycle rules:
     - Once `script_review` is completed, upstream intermediates (research/outline/chapters)
       are allowed to be missing (they may have been purged/archived).
-    - Once `script_validation` is completed, `quality_check` intermediates are allowed missing.
     - For `audio_synthesis`, only durable outputs under `workspaces/audio/final/**` are required.
     """
     errors: List[str] = []
@@ -629,10 +628,6 @@ def validate_completed_outputs(channel: str, video: str, stage_defs: List[Dict[s
         # Allow purged intermediates once assembled script exists.
         if script_review_done and name in {"topic_research", "script_outline", "chapter_brief", "script_draft"}:
             continue
-        # Allow purged quality review after final validation.
-        if script_validation_done and name == "quality_check":
-            continue
-
         if name == "script_review":
             assembled_candidates = [
                 base / "content" / "assembled_human.md",

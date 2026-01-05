@@ -55,7 +55,6 @@ SCRIPT_STAGE_KEYS = [
     "script_outline",
     "script_draft",
     "script_review",
-    "quality_check",
     "script_validation",
     "audio_synthesis",
 ]
@@ -296,4 +295,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

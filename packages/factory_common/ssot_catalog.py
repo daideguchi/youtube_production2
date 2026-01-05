@@ -326,6 +326,16 @@ def _load_yaml(path: Path) -> Any:
         return None
 
 
+def _deep_merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge_dict(out.get(k) or {}, v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
+
+
 def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
     stages_path = script_pkg_root() / "stages.yaml"
     templates_path = script_pkg_root() / "templates.yaml"
@@ -455,7 +465,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                 },
                 "impl_refs": impl_refs,
             }
-        uses_run_llm = bool(llm.get("task")) and name not in {"audio_synthesis", "script_enhancement"}
+        uses_run_llm = bool(llm.get("task")) and name not in {"audio_synthesis"}
         llm_primary_output = ""
         if uses_run_llm:
             if name == "script_review":
@@ -807,7 +817,7 @@ def _script_pipeline_catalog(repo: Path) -> Dict[str, Any]:
                     "description": "\n".join(
                         [
                             "章草稿を生成/更新した場合、assembled.md が stale にならないように下流を invalidation する。",
-                            "- 対象: script_review / quality_check / script_validation（assembled_human.md が無い場合）",
+                            "- 対象: script_review / script_validation（assembled_human.md が無い場合）",
                         ]
                     ),
                     "impl_refs": [
@@ -3490,14 +3500,491 @@ def _load_llm_router_config(repo: Path) -> Dict[str, Any]:
 
 
 def _load_llm_task_overrides(repo: Path) -> Dict[str, Any]:
-    path = repo / "configs" / "llm_task_overrides.yaml"
-    cfg = _load_yaml(path)
+    default_path = repo / "configs" / "llm_task_overrides.yaml"
+    local_path = repo / "configs" / "llm_task_overrides.local.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
     if not isinstance(cfg, dict):
         cfg = {}
+
     tasks = cfg.get("tasks", {})
     if not isinstance(tasks, dict):
         tasks = {}
-    return {"path": _repo_rel(path, root=repo), "config": cfg, "tasks": tasks}
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "config": cfg,
+        "tasks": tasks,
+    }
+
+
+def _boolish(value: object) -> bool:
+    if value is True:
+        return True
+    s = str(value or "").strip().lower()
+    return s in {"1", "true", "yes", "y", "on"}
+
+
+def _load_llm_model_slots(repo: Path) -> Dict[str, Any]:
+    """
+    Load the numeric model-slot routing config used by LLMRouter.
+
+    Notes:
+    - Intended for SSOT/UI visualization (no secrets).
+    - Prefers local override when present.
+    """
+    default_path = repo / "configs" / "llm_model_slots.yaml"
+    local_path = repo / "configs" / "llm_model_slots.local.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    slots_raw = cfg.get("slots") if isinstance(cfg.get("slots"), dict) else {}
+    slots: List[Dict[str, Any]] = []
+    for raw_id, ent in slots_raw.items():
+        try:
+            slot_id = int(raw_id)  # yaml may parse numeric keys as int already
+        except Exception:
+            try:
+                slot_id = int(str(raw_id))
+            except Exception:
+                continue
+        if slot_id < 0:
+            continue
+        if not isinstance(ent, dict):
+            continue
+        slots.append(
+            {
+                "id": slot_id,
+                "label": ent.get("label"),
+                "description": ent.get("description"),
+                "script_allow_openrouter": _boolish(ent.get("script_allow_openrouter")),
+                "tiers": ent.get("tiers") if isinstance(ent.get("tiers"), dict) else None,
+                "script_tiers": ent.get("script_tiers") if isinstance(ent.get("script_tiers"), dict) else None,
+            }
+        )
+    slots.sort(key=lambda s: int(s.get("id") or 0))
+
+    try:
+        default_slot = int(cfg.get("default_slot") or 0)
+    except Exception:
+        default_slot = 0
+    default_slot = max(0, default_slot)
+
+    env_raw = (os.getenv("LLM_MODEL_SLOT") or "").strip()
+    active_slot_id = default_slot
+    active_source = "default"
+    if env_raw:
+        try:
+            active_slot_id = max(0, int(env_raw))
+            active_source = "env"
+        except Exception:
+            active_slot_id = default_slot
+            active_source = "default"
+
+    active: Dict[str, Any] = {"id": active_slot_id, "source": active_source}
+    for s in slots:
+        sid = s.get("id") if isinstance(s, dict) else None
+        if sid is None:
+            continue
+        try:
+            sid_int = int(sid)
+        except Exception:
+            continue
+        if sid_int == active_slot_id:
+            if s.get("label"):
+                active["label"] = s.get("label")
+            if s.get("description"):
+                active["description"] = s.get("description")
+            active["script_allow_openrouter"] = bool(s.get("script_allow_openrouter"))
+            break
+
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "schema_version": cfg.get("schema_version"),
+        "default_slot": default_slot,
+        "active_slot": active,
+        "slots": slots,
+    }
+
+
+def _load_llm_model_codes(repo: Path) -> Dict[str, Any]:
+    """
+    Load operator-facing model codes (no secrets).
+    """
+    default_path = repo / "configs" / "llm_model_codes.yaml"
+    local_path = repo / "configs" / "llm_model_codes.local.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    raw_codes = cfg.get("codes") if isinstance(cfg.get("codes"), dict) else {}
+    codes: List[Dict[str, Any]] = []
+    for raw_code, ent in raw_codes.items():
+        code = str(raw_code or "").strip()
+        if not code:
+            continue
+        model_key: str | None = None
+        label: str | None = None
+        if isinstance(ent, str):
+            model_key = str(ent or "").strip() or None
+        elif isinstance(ent, dict):
+            model_key = str(ent.get("model_key") or "").strip() or None
+            label = str(ent.get("label") or "").strip() or None
+        if not model_key:
+            continue
+        codes.append({"code": code, "model_key": model_key, "label": label})
+    codes.sort(key=lambda c: str(c.get("code") or ""))
+
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "schema_version": cfg.get("schema_version"),
+        "codes": codes,
+    }
+
+
+def _split_csv_env(raw: str | None) -> List[str]:
+    if not raw:
+        return []
+    out: List[str] = []
+    for part in str(raw).split(","):
+        s = part.strip()
+        if s:
+            out.append(s)
+    return out
+
+
+def _load_codex_exec_config(repo: Path) -> Dict[str, Any]:
+    """
+    Load Codex exec layer config (no secrets).
+
+    Used for SSOT/UI visualization only.
+    """
+    default_path = repo / "configs" / "codex_exec.yaml"
+    local_path = repo / "configs" / "codex_exec.local.yaml"
+    cfg_path = local_path if local_path.exists() else default_path
+    cfg = _load_yaml(cfg_path)
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    enabled = _boolish(cfg.get("enabled"))
+    auto_enable_when_codex_managed = _boolish(cfg.get("auto_enable_when_codex_managed"))
+    profile = str(cfg.get("profile") or "").strip() or "claude-code"
+    sandbox = str(cfg.get("sandbox") or "").strip() or "read-only"
+    try:
+        timeout_s = int(cfg.get("timeout_s") or 180)
+    except Exception:
+        timeout_s = 180
+    timeout_s = max(1, timeout_s)
+
+    timeout_s_by_task = cfg.get("timeout_s_by_task") if isinstance(cfg.get("timeout_s_by_task"), dict) else {}
+    model = str(cfg.get("model") or "").strip()
+
+    selection = cfg.get("selection") if isinstance(cfg.get("selection"), dict) else {}
+    include_task_prefixes = selection.get("include_task_prefixes") if isinstance(selection.get("include_task_prefixes"), list) else []
+    include_tasks = selection.get("include_tasks") if isinstance(selection.get("include_tasks"), list) else []
+    exclude_tasks = selection.get("exclude_tasks") if isinstance(selection.get("exclude_tasks"), list) else []
+
+    include_task_prefixes_clean = [str(x).strip() for x in include_task_prefixes if str(x).strip()]
+    include_tasks_clean = [str(x).strip() for x in include_tasks if str(x).strip()]
+    exclude_tasks_clean = [str(x).strip() for x in exclude_tasks if str(x).strip()]
+
+    # --- Env overrides (safe) ---
+    env_enabled_raw = (os.getenv("YTM_CODEX_EXEC_ENABLED") or "").strip()
+    env_disable_raw = (os.getenv("YTM_CODEX_EXEC_DISABLE") or "").strip()
+    env_profile_raw = (os.getenv("YTM_CODEX_EXEC_PROFILE") or "").strip()
+    env_model_raw = (os.getenv("YTM_CODEX_EXEC_MODEL") or "").strip()
+    env_timeout_raw = (os.getenv("YTM_CODEX_EXEC_TIMEOUT_S") or "").strip()
+    env_sandbox_raw = (os.getenv("YTM_CODEX_EXEC_SANDBOX") or "").strip()
+    env_exclude_tasks_raw = (os.getenv("YTM_CODEX_EXEC_EXCLUDE_TASKS") or "").strip()
+    env_enable_in_pytest_raw = (os.getenv("YTM_CODEX_EXEC_ENABLE_IN_PYTEST") or "").strip()
+    codex_managed = _boolish((os.getenv("CODEX_MANAGED_BY_NPM") or "").strip())
+    in_pytest = bool((os.getenv("PYTEST_CURRENT_TEST") or "").strip())
+    allow_in_pytest = _boolish(env_enable_in_pytest_raw) if env_enable_in_pytest_raw else False
+
+    # Match runtime precedence in factory_common.codex_exec_layer:
+    #  1) YTM_CODEX_EXEC_DISABLE
+    #  2) pytest safety gate
+    #  3) YTM_CODEX_EXEC_ENABLED
+    #  4) exec-slot override (LLM_EXEC_SLOT)
+    #  5) config.enabled
+    #  6) CODEX_MANAGED_BY_NPM:auto_enable
+    enabled_effective = False
+    enabled_source = "config.enabled"
+    if _boolish(env_disable_raw):
+        enabled_effective = False
+        enabled_source = "env:YTM_CODEX_EXEC_DISABLE"
+    elif in_pytest and not allow_in_pytest:
+        enabled_effective = False
+        enabled_source = "pytest_default_off"
+    elif env_enabled_raw:
+        enabled_effective = _boolish(env_enabled_raw)
+        enabled_source = "env:YTM_CODEX_EXEC_ENABLED"
+    else:
+        exec_slot_override: bool | None = None
+        try:
+            from factory_common.llm_exec_slots import codex_exec_enabled_override
+
+            exec_slot_override = codex_exec_enabled_override()
+        except Exception:
+            exec_slot_override = None
+
+        if exec_slot_override is not None:
+            enabled_effective = bool(exec_slot_override)
+            enabled_source = "LLM_EXEC_SLOT"
+        elif enabled:
+            enabled_effective = True
+            enabled_source = "config.enabled"
+        elif codex_managed and auto_enable_when_codex_managed:
+            enabled_effective = True
+            enabled_source = "CODEX_MANAGED_BY_NPM:auto_enable"
+
+    profile_effective = env_profile_raw or profile
+    profile_source = "env:YTM_CODEX_EXEC_PROFILE" if env_profile_raw else "config.profile"
+
+    sandbox_effective = env_sandbox_raw or sandbox
+    sandbox_source = "env:YTM_CODEX_EXEC_SANDBOX" if env_sandbox_raw else "config.sandbox"
+
+    model_effective = env_model_raw or model
+    model_source = "env:YTM_CODEX_EXEC_MODEL" if env_model_raw else "config.model"
+
+    timeout_effective = timeout_s
+    timeout_source = "config.timeout_s"
+    if env_timeout_raw:
+        try:
+            timeout_effective = max(1, int(env_timeout_raw))
+            timeout_source = "env:YTM_CODEX_EXEC_TIMEOUT_S"
+        except Exception:
+            timeout_effective = timeout_s
+            timeout_source = "config.timeout_s"
+
+    env_exclude_extra = _split_csv_env(env_exclude_tasks_raw)
+    exclude_effective = exclude_tasks_clean[:]
+    for t in env_exclude_extra:
+        if t not in exclude_effective:
+            exclude_effective.append(t)
+
+    return {
+        "path": _repo_rel(cfg_path, root=repo),
+        "enabled": bool(enabled),
+        "auto_enable_when_codex_managed": bool(auto_enable_when_codex_managed),
+        "profile": profile,
+        "sandbox": sandbox,
+        "timeout_s": timeout_s,
+        "timeout_s_by_task": timeout_s_by_task,
+        "model": model,
+        "selection": {
+            "include_task_prefixes": include_task_prefixes_clean,
+            "include_tasks": include_tasks_clean,
+            "exclude_tasks": exclude_tasks_clean,
+        },
+        "effective": {
+            "enabled": bool(enabled_effective),
+            "enabled_source": enabled_source,
+            "profile": profile_effective,
+            "profile_source": profile_source,
+            "sandbox": sandbox_effective,
+            "sandbox_source": sandbox_source,
+            "timeout_s": timeout_effective,
+            "timeout_s_source": timeout_source,
+            "model": model_effective,
+            "model_source": model_source,
+            "exclude_tasks": exclude_effective,
+            "exclude_tasks_source": "env:YTM_CODEX_EXEC_EXCLUDE_TASKS" if env_exclude_extra else "config.selection.exclude_tasks",
+            "codex_managed": bool(codex_managed),
+            "in_pytest": bool(in_pytest),
+        },
+    }
+
+
+def _load_llm_agent_mode(repo: Path) -> Dict[str, Any]:
+    """
+    Load THINK/AGENT mode switches (no secrets).
+    """
+    mode_source = "default"
+    try:
+        from factory_common.llm_exec_slots import active_llm_exec_slot_id, effective_api_failover_to_think, effective_llm_mode
+
+        mode = effective_llm_mode()
+        failover_to_think = effective_api_failover_to_think()
+        raw_mode = (os.getenv("LLM_MODE") or "").strip().lower()
+        if raw_mode in {"api", "agent", "think"}:
+            mode_source = "env:LLM_MODE"
+        else:
+            active = active_llm_exec_slot_id()
+            if str(active.get("source") or "") == "env":
+                mode_source = "env:LLM_EXEC_SLOT"
+            else:
+                mode_source = "default"
+    except Exception:
+        mode = (os.getenv("LLM_MODE") or "").strip().lower() or "api"
+        if mode not in {"api", "agent", "think"}:
+            mode = "api"
+        failover_raw = (os.getenv("LLM_API_FAILOVER_TO_THINK") or "").strip()
+        # Default is ON (even when unset).
+        failover_to_think = True if not failover_raw else _boolish(failover_raw)
+
+    queue_dir = (os.getenv("LLM_AGENT_QUEUE_DIR") or "").strip()
+    if not queue_dir:
+        queue_dir = "workspaces/logs/agent_tasks"
+
+    return {
+        "mode": mode,
+        "mode_source": mode_source,
+        "queue_dir": queue_dir,
+        "failover_to_think": bool(failover_to_think),
+        "filters": {
+            "tasks": _split_csv_env(os.getenv("LLM_AGENT_TASKS")),
+            "task_prefixes": _split_csv_env(os.getenv("LLM_AGENT_TASK_PREFIXES")),
+            "exclude_tasks": _split_csv_env(os.getenv("LLM_AGENT_EXCLUDE_TASKS")),
+            "exclude_prefixes": _split_csv_env(os.getenv("LLM_AGENT_EXCLUDE_PREFIXES")),
+        },
+    }
+
+
+def _load_llm_exec_slots(repo: Path) -> Dict[str, Any]:
+    """
+    Load LLM execution slots (LLM_EXEC_SLOT) for UI/SSOT visibility (no secrets).
+
+    This slot controls:
+      - LLM_MODE (api/think/agent)
+      - Codex exec enable override (YTM_CODEX_EXEC_ENABLED)
+      - API→THINK failover enable override (LLM_API_FAILOVER_TO_THINK)
+    """
+    default_path = repo / "configs" / "llm_exec_slots.yaml"
+    local_path = repo / "configs" / "llm_exec_slots.local.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    try:
+        default_slot = int(cfg.get("default_slot") or 0)
+    except Exception:
+        default_slot = 0
+    default_slot = max(0, default_slot)
+
+    env_raw = (os.getenv("LLM_EXEC_SLOT") or "").strip()
+    active_slot_id = default_slot
+    active_source = "default"
+    if env_raw:
+        try:
+            active_slot_id = max(0, int(env_raw))
+            active_source = "env"
+        except Exception:
+            active_slot_id = default_slot
+            active_source = "default"
+
+    slots_raw = cfg.get("slots") if isinstance(cfg.get("slots"), dict) else {}
+    slots: List[Dict[str, Any]] = []
+    for raw_id, ent in slots_raw.items():
+        try:
+            slot_id = int(raw_id)
+        except Exception:
+            try:
+                slot_id = int(str(raw_id))
+            except Exception:
+                continue
+        if slot_id < 0:
+            continue
+        if not isinstance(ent, dict):
+            continue
+
+        llm_mode = str(ent.get("llm_mode") or "").strip().lower()
+        if llm_mode not in {"api", "think", "agent"}:
+            llm_mode = ""
+
+        codex_ent = ent.get("codex_exec") if isinstance(ent.get("codex_exec"), dict) else {}
+        codex_enabled = None
+        if isinstance(codex_ent, dict) and "enabled" in codex_ent:
+            codex_enabled = _boolish(codex_ent.get("enabled"))
+
+        api_failover = None
+        if "api_failover_to_think" in ent:
+            api_failover = _boolish(ent.get("api_failover_to_think"))
+
+        slots.append(
+            {
+                "id": slot_id,
+                "label": ent.get("label"),
+                "description": ent.get("description"),
+                "llm_mode": llm_mode or None,
+                "codex_exec_enabled": codex_enabled,
+                "api_failover_to_think": api_failover,
+            }
+        )
+    slots.sort(key=lambda s: int(s.get("id") or 0))
+
+    active: Dict[str, Any] = {"id": active_slot_id, "source": active_source}
+    for s in slots:
+        if int(s.get("id") or -1) == active_slot_id:
+            if s.get("label"):
+                active["label"] = s.get("label")
+            if s.get("description"):
+                active["description"] = s.get("description")
+            break
+
+    effective: Dict[str, Any] = {}
+    try:
+        from factory_common.llm_exec_slots import codex_exec_enabled_override, effective_api_failover_to_think, effective_llm_mode
+
+        effective = {
+            "llm_mode": effective_llm_mode(),
+            "codex_exec_enabled_override": codex_exec_enabled_override(),
+            "api_failover_to_think": effective_api_failover_to_think(),
+        }
+    except Exception:
+        effective = {}
+
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "schema_version": cfg.get("schema_version"),
+        "default_slot": default_slot,
+        "active_slot": active,
+        "slots": slots,
+        "effective": effective,
+    }
 
 
 def _load_image_models_config(repo: Path) -> Dict[str, Any]:
@@ -3508,6 +3995,145 @@ def _load_image_models_config(repo: Path) -> Dict[str, Any]:
     if not isinstance(cfg, dict):
         cfg = {}
     return {"path": _repo_rel(cfg_path, root=repo), "config": cfg}
+
+
+def _load_image_model_slots(repo: Path) -> Dict[str, Any]:
+    """
+    Load image model slot codes (e.g. g-1 / f-4) for UI/SSOT visibility (no secrets).
+    """
+    default_path = repo / "configs" / "image_model_slots.yaml"
+    local_path = repo / "configs" / "image_model_slots.local.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
+    if not isinstance(cfg, dict):
+        cfg = {}
+
+    slots_raw = cfg.get("slots") if isinstance(cfg.get("slots"), dict) else {}
+    slots: List[Dict[str, Any]] = []
+    for raw_id, ent in slots_raw.items():
+        slot_id = str(raw_id or "").strip()
+        if not slot_id:
+            continue
+        if not isinstance(ent, dict):
+            continue
+        tasks = ent.get("tasks") if isinstance(ent.get("tasks"), dict) else None
+        slots.append(
+            {
+                "id": slot_id,
+                "label": ent.get("label"),
+                "description": ent.get("description"),
+                "tasks": tasks,
+            }
+        )
+    slots.sort(key=lambda s: str(s.get("id") or ""))
+
+    def _env(name: str) -> str | None:
+        v = (os.getenv(name) or "").strip()
+        return v or None
+
+    active_overrides: List[Dict[str, Any]] = []
+    for env_name, task in [
+        ("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", "visual_image_gen"),
+        ("IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN", "thumbnail_image_gen"),
+        ("IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION", "image_generation"),
+        ("IMAGE_CLIENT_FORCE_MODEL_KEY", "*"),
+    ]:
+        val = _env(env_name)
+        if not val:
+            continue
+        active_overrides.append({"env": env_name, "task": task, "selector": val})
+
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "schema_version": cfg.get("schema_version"),
+        "slots": slots,
+        "active_overrides": active_overrides,
+    }
+
+
+def _env_present(env_name: str | None) -> bool:
+    if not env_name:
+        return False
+    return bool((os.getenv(str(env_name)) or "").strip())
+
+
+def _provider_envs(ent: Dict[str, Any]) -> List[str]:
+    """
+    Extract env var names from a provider config entry.
+    (Names only; never includes values.)
+    """
+    raw: List[str] = []
+    for k, v in (ent or {}).items():
+        if not str(k or "").startswith("env_"):
+            continue
+        if isinstance(v, str) and v.strip():
+            raw.append(v.strip())
+    seen = set()
+    out: List[str] = []
+    for e in raw:
+        if e in seen:
+            continue
+        out.append(e)
+        seen.add(e)
+    return out
+
+
+def _provider_status_from_config(*, providers: Dict[str, Any], fireworks_pool: str | None = None) -> List[Dict[str, Any]]:
+    """
+    Convert provider config (from YAML) into a UI-safe readiness snapshot.
+    """
+    out: List[Dict[str, Any]] = []
+    for name, ent in (providers or {}).items():
+        pname = str(name or "").strip()
+        if not pname or not isinstance(ent, dict):
+            continue
+
+        envs = _provider_envs(ent)
+        missing: List[str] = []
+        candidate_keys_count: int | None = None
+
+        if pname == "azure":
+            for env_name in [ent.get("env_api_key"), ent.get("env_endpoint")]:
+                if isinstance(env_name, str) and env_name.strip() and not _env_present(env_name):
+                    missing.append(env_name.strip())
+        elif pname == "fireworks" and fireworks_pool:
+            try:
+                from factory_common import fireworks_keys as fw_keys
+
+                candidate_keys_count = len(fw_keys.candidate_keys(fireworks_pool))
+            except Exception:
+                candidate_keys_count = None
+            if not candidate_keys_count:
+                primary = ent.get("env_api_key")
+                if isinstance(primary, str) and primary.strip() and not _env_present(primary):
+                    missing.append(primary.strip())
+        else:
+            primary = ent.get("env_api_key")
+            if isinstance(primary, str) and primary.strip() and not _env_present(primary):
+                missing.append(primary.strip())
+
+        ready = len(missing) == 0
+        out.append(
+            {
+                "provider": pname,
+                "envs": envs,
+                "ready": bool(ready),
+                "missing_envs": missing or None,
+                "candidate_keys_count": candidate_keys_count,
+            }
+        )
+    out.sort(key=lambda e: str(e.get("provider") or ""))
+    return out
 
 
 def _load_image_task_overrides(repo: Path) -> Dict[str, Any]:
@@ -3559,10 +4185,24 @@ def build_ssot_catalog() -> Dict[str, Any]:
     llm_calls = _extract_llm_tasks_from_code(repo)
     llm_router_conf = _load_llm_router_config(repo)
     llm_task_overrides = _load_llm_task_overrides(repo)
+    llm_model_slots = _load_llm_model_slots(repo)
+    llm_model_codes = _load_llm_model_codes(repo)
+    llm_exec_slots = _load_llm_exec_slots(repo)
+    codex_exec = _load_codex_exec_config(repo)
+    llm_agent_mode = _load_llm_agent_mode(repo)
+    llm_provider_status = _provider_status_from_config(
+        providers=llm_router_conf.get("config", {}).get("providers", {}) if isinstance(llm_router_conf, dict) else {},
+        fireworks_pool="script",
+    )
 
     image_calls = _extract_image_tasks_from_code(repo)
     image_models_conf = _load_image_models_config(repo)
     image_task_overrides = _load_image_task_overrides(repo)
+    image_model_slots = _load_image_model_slots(repo)
+    image_provider_status = _provider_status_from_config(
+        providers=image_models_conf.get("config", {}).get("providers", {}) if isinstance(image_models_conf, dict) else {},
+        fireworks_pool="image",
+    )
 
     script_flow = _script_pipeline_catalog(repo)
     video_flow = _video_auto_capcut_catalog(repo)
@@ -3638,6 +4278,70 @@ def build_ssot_catalog() -> Dict[str, Any]:
     if not isinstance(models, dict):
         models = {}
 
+    llm_model_registry: Dict[str, Any] = {}
+    for k, ent in models.items():
+        key = str(k or "").strip()
+        if not key or not isinstance(ent, dict):
+            continue
+        llm_model_registry[key] = {
+            "provider": ent.get("provider"),
+            "model_name": ent.get("model_name"),
+            "deployment": ent.get("deployment"),
+        }
+
+    llm_code_to_model_key: Dict[str, str] = {}
+    for ent in llm_model_codes.get("codes") if isinstance(llm_model_codes, dict) else []:
+        if not isinstance(ent, dict):
+            continue
+        code = str(ent.get("code") or "").strip()
+        model_key = str(ent.get("model_key") or "").strip()
+        if code and model_key:
+            llm_code_to_model_key[code] = model_key
+
+    def _resolve_llm_selector(selector: str) -> str:
+        raw = str(selector or "").strip()
+        return llm_code_to_model_key.get(raw, raw)
+
+    active_slot_id: int = 0
+    if isinstance(llm_model_slots, dict):
+        active = llm_model_slots.get("active_slot") if isinstance(llm_model_slots.get("active_slot"), dict) else {}
+        try:
+            active_slot_id = int(active.get("id") or 0)
+        except Exception:
+            active_slot_id = 0
+    active_slot_id = max(0, active_slot_id)
+
+    active_slot_tiers: Dict[str, Any] = {}
+    active_slot_script_tiers: Dict[str, Any] = {}
+    if isinstance(llm_model_slots, dict):
+        for ent in llm_model_slots.get("slots") if isinstance(llm_model_slots.get("slots"), list) else []:
+            if not isinstance(ent, dict):
+                continue
+            sid = ent.get("id")
+            if sid is None:
+                continue
+            try:
+                sid_int = int(sid)
+            except Exception:
+                continue
+            if sid_int != active_slot_id:
+                continue
+            if isinstance(ent.get("tiers"), dict):
+                active_slot_tiers = ent.get("tiers") or {}
+            if isinstance(ent.get("script_tiers"), dict):
+                active_slot_script_tiers = ent.get("script_tiers") or {}
+            break
+
+    def _models_from_slot(*, task: str, tier: str) -> List[str]:
+        if not tier:
+            return []
+        is_script = str(task or "").startswith("script_")
+        if is_script and isinstance(active_slot_script_tiers.get(tier), list):
+            return [str(x) for x in active_slot_script_tiers.get(tier) if str(x).strip()]
+        if isinstance(active_slot_tiers.get(tier), list):
+            return [str(x) for x in active_slot_tiers.get(tier) if str(x).strip()]
+        return []
+
     task_defs: Dict[str, Any] = {}
     for task in sorted(t for t in used_tasks if t):
         base = cfg_tasks.get(task, {}) if isinstance(cfg_tasks, dict) else {}
@@ -3655,23 +4359,33 @@ def build_ssot_catalog() -> Dict[str, Any]:
         )
 
         model_keys: List[str] = []
+        model_source: str | None = None
         explicit_models = override.get("models") if "models" in override else base.get("models")
         if explicit_models:
             if isinstance(explicit_models, list):
                 model_keys = [str(x) for x in explicit_models if str(x).strip()]
             elif isinstance(explicit_models, str):
                 model_keys = [explicit_models.strip()]
-        elif tier and isinstance(tiers.get(tier), list):
-            model_keys = [str(x) for x in tiers.get(tier) if str(x).strip()]
+            model_source = "task_override.models" if "models" in override else "task_config.models"
+        elif tier:
+            slot_keys = _models_from_slot(task=task, tier=tier)
+            if slot_keys:
+                model_keys = slot_keys
+                model_source = f"llm_model_slots:{active_slot_id}:{'script_tiers' if str(task).startswith('script_') else 'tiers'}:{tier}"
+            elif isinstance(tiers.get(tier), list):
+                model_keys = [str(x) for x in tiers.get(tier) if str(x).strip()]
+                model_source = f"llm_router.tiers:{tier}"
 
         resolved_models: List[Dict[str, Any]] = []
         for mk in model_keys:
-            mc = models.get(mk, {})
+            resolved_key = _resolve_llm_selector(mk)
+            mc = models.get(resolved_key, {})
             if not isinstance(mc, dict):
                 mc = {}
             resolved_models.append(
                 {
                     "key": mk,
+                    "resolved_model_key": resolved_key,
                     "provider": mc.get("provider"),
                     "model_name": mc.get("model_name"),
                     "deployment": mc.get("deployment"),
@@ -3685,12 +4399,26 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "router_task": base,
             "override_task": override or None,
             "allow_fallback": allow_fallback,
+            "model_source": model_source,
         }
 
     declared_image_tasks: set[str] = set()
     image_cfg_tasks = image_models_conf.get("config", {}).get("tasks", {})
+    image_models = image_models_conf.get("config", {}).get("models", {})
     if isinstance(image_cfg_tasks, dict):
         declared_image_tasks |= {str(k) for k in image_cfg_tasks.keys()}
+    if not isinstance(image_models, dict):
+        image_models = {}
+
+    image_model_registry: Dict[str, Any] = {}
+    for k, ent in image_models.items():
+        key = str(k or "").strip()
+        if not key or not isinstance(ent, dict):
+            continue
+        image_model_registry[key] = {
+            "provider": ent.get("provider"),
+            "model_name": ent.get("model_name"),
+        }
 
     used_image_tasks: set[str] = {str(c.get("task") or "") for c in image_calls if c.get("task")}
     for c in image_calls:
@@ -3727,6 +4455,29 @@ def build_ssot_catalog() -> Dict[str, Any]:
     if not isinstance(image_models, dict):
         image_models = {}
 
+    image_slot_to_tasks: Dict[str, Dict[str, Any]] = {}
+    if isinstance(image_model_slots, dict):
+        for ent in image_model_slots.get("slots") if isinstance(image_model_slots.get("slots"), list) else []:
+            if not isinstance(ent, dict):
+                continue
+            slot_id = str(ent.get("id") or "").strip()
+            tasks = ent.get("tasks")
+            if slot_id and isinstance(tasks, dict):
+                image_slot_to_tasks[slot_id] = tasks
+
+    def _resolve_image_selector(selector: str, *, task: str) -> str:
+        raw = str(selector or "").strip()
+        if not raw:
+            return raw
+        if raw in image_models:
+            return raw
+        slot_tasks = image_slot_to_tasks.get(raw)
+        if isinstance(slot_tasks, dict):
+            mk = slot_tasks.get(task)
+            if isinstance(mk, str) and mk.strip():
+                return mk.strip()
+        return raw
+
     image_override_tasks = image_task_overrides.get("tasks", {})
     if not isinstance(image_override_tasks, dict):
         image_override_tasks = {}
@@ -3757,12 +4508,14 @@ def build_ssot_catalog() -> Dict[str, Any]:
 
         resolved_models: List[Dict[str, Any]] = []
         for mk in model_keys:
-            mc = image_models.get(mk, {})
+            resolved_key = _resolve_image_selector(mk, task=task)
+            mc = image_models.get(resolved_key, {})
             if not isinstance(mc, dict):
                 mc = {}
             resolved_models.append(
                 {
                     "key": mk,
+                    "resolved_model_key": resolved_key,
                     "provider": mc.get("provider"),
                     "model_name": mc.get("model_name"),
                     "deployment": mc.get("deployment"),
@@ -3828,9 +4581,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
             "title": "No silent LLM model downgrade",
             "description": "\n".join(
                 [
-                    "LLMでモデルが明示された場合（call model_keys / env LLM_FORCE_*）、Codex/THINK/別モデルへの“サイレント代替”を禁止する。",
+                    "LLMでモデルが明示された場合（call model_keys / env LLM_FORCE_* / env LLM_MODEL_SLOT）、Codex/THINK/別モデルへの“サイレント代替”を禁止する。",
                     "- 既定: allow_fallback=false（失敗時は停止して判断を要求）",
                     "- 例外: allow_fallback=true を明示した場合のみ、候補リスト内での代替を許可（=意思決定が必要）",
+                    "- 注: `script_*` は THINK へフォールバックしない（API停止時は即停止・記録）",
                 ]
             ),
             "impl_refs": [
@@ -4046,9 +4800,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
                             "B/script_master_plan",
                             "B/chapter_brief",
                             "B/script_draft",
-                            "B/script_enhancement",
                             "B/script_review",
-                            "B/quality_check",
                             "B/script_validation",
                             "B/audio_synthesis",
                         ],
@@ -4207,7 +4959,18 @@ def build_ssot_catalog() -> Dict[str, Any]:
         },
         "llm": {
             "router_config": {"path": llm_router_conf.get("path"), "tasks_count": len(cfg_tasks) if isinstance(cfg_tasks, dict) else 0},
-            "task_overrides": {"path": llm_task_overrides.get("path"), "tasks_count": len(override_tasks) if isinstance(override_tasks, dict) else 0},
+            "task_overrides": {
+                "path": llm_task_overrides.get("path"),
+                "local_path": llm_task_overrides.get("local_path"),
+                "tasks_count": len(override_tasks) if isinstance(override_tasks, dict) else 0,
+            },
+            "providers": llm_provider_status,
+            "model_slots": llm_model_slots,
+            "model_codes": llm_model_codes,
+            "exec_slots": llm_exec_slots,
+            "model_registry": llm_model_registry,
+            "codex_exec": codex_exec,
+            "agent_mode": llm_agent_mode,
             "callsites": llm_calls,
             "used_tasks": sorted(t for t in used_tasks if t),
             "missing_task_defs": missing_task_defs,
@@ -4218,6 +4981,9 @@ def build_ssot_catalog() -> Dict[str, Any]:
                 "path": image_models_conf.get("path"),
                 "tasks_count": len(image_cfg_tasks) if isinstance(image_cfg_tasks, dict) else 0,
             },
+            "providers": image_provider_status,
+            "model_slots": image_model_slots,
+            "model_registry": image_model_registry,
             "task_overrides": {
                 "path": image_task_overrides.get("path"),
                 "profile": image_task_overrides.get("profile"),

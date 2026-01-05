@@ -117,6 +117,50 @@ templates:
         shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
         glow: false
 
+  M09_left_3line_ch24_benchmark_030:
+    description: 'CH24ベンチマーク(030)の比率で3行（上=条件/中=キーワード/下=結論を強調）'
+    slots:
+      line1:
+        # CH24 kobo_text_layer_spec_30.json (1280x720) の box/size を 1920x1080 に合わせた比率
+        box: [0.0453, 0.0778, 0.5781, 0.2083]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 132
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 18
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0453, 0.3194, 0.5781, 0.2361]
+        font: headline_sans_ch24_black
+        fill: yellow_fill
+        base_size_px: 180
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 21
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0453, 0.5694, 0.5781, 0.2639]
+        font: headline_sans_ch24_black
+        fill: red_fill
+        base_size_px: 198
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 21
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+
   M09_left_2line_strong:
     description: 'メモ9: 左2行（主張を太く・読みやすく）'
     slots:
@@ -257,9 +301,9 @@ items:
     title: '【ブッダの警鐘】親の期待で人生が壊れます。「いい子」をやめられない人の苦しみ'
     template_id: M09_left_3line_strong
     text:
-      line1: '親の期待'
+      line1: '親の期待で'
       line2: 'いい子'
-      line3: 'やめろ'
+      line3: '[r]人生崩壊[/r]'
 
   - video_id: CH01-258
     title: '【完全論破】マウントを取る人が一番嫌がること。自慢する人は最後に孤独になります'

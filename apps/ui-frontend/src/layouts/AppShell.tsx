@@ -83,6 +83,8 @@ export type WorkspaceView =
   | "reports"
   | "jobs"
   | "settings"
+  | "modelPolicy"
+  | "imageModelRouting"
   | "llmUsage";
 
 export type ShellOutletContext = {
@@ -171,7 +173,6 @@ const SCRIPT_STAGE_KEYS = [
   "script_polish_ai",
   "script_validation",
   "script_review",
-  "script_enhancement",
   "script_draft",
   "script_outline",
 ];
@@ -290,6 +291,12 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/settings", pathname)) {
     return "settings";
   }
+  if (matchPath("/model-policy", pathname)) {
+    return "modelPolicy";
+  }
+  if (matchPath("/image-model-routing", pathname)) {
+    return "imageModelRouting";
+  }
   if (matchPath("/audio-review", pathname)) {
     return "audioReview";
   }
@@ -372,6 +379,14 @@ const PLACEHOLDER_COPY: Record<
   settings: {
     title: "設定",
     description: "OpenAI / OpenRouter の APIキーや既定モデルを管理し、最新のマルチモーダル構成に切り替えます。",
+  },
+  modelPolicy: {
+    title: "モデル方針（チャンネル別）",
+    description: "画像/LLMのモデル選定方針をチャンネル単位で表に固定し、YAML書き換え運用を撲滅します。",
+  },
+  imageModelRouting: {
+    title: "画像モデル設定",
+    description: "チャンネル別に、サムネ/動画内画像の生成モデル（provider/variant）を明示的に切り替えます。",
   },
   channelWorkspace: {
     title: "台本・音声字幕管理",
@@ -1362,6 +1377,8 @@ export function AppShell() {
           { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
           { key: "llmUsageDashboard", label: "LLMコスト", icon: "🧮", path: "/llm-usage/dashboard" },
           { key: "llmUsage", label: "LLMログ/Override", icon: "🧠", path: "/llm-usage" },
+          { key: "modelPolicy", label: "モデル方針", icon: "📋", path: "/model-policy" },
+          { key: "imageModelRouting", label: "画像モデル", icon: "🎨", path: "/image-model-routing" },
           { key: "channelSettings", label: "チャンネル設定", icon: "⚙️", path: "/channel-settings" },
           { key: "settings", label: "設定", icon: "🛠️", path: "/settings" },
           { key: "reports", label: "レポート", icon: "📈", path: "/reports" },

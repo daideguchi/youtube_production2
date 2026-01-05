@@ -7,9 +7,9 @@
     "avatar_url": "https://yt3.ggpht.com/jJqICzc6MLeq5HENBO7SMhxUFhqxJX2xE_ywSjH7LL6icVoq_AE-696TqO28I_06DhWPafMCFgw=s88-c-k-c0x00ffffff-no-rj",
     "banner_url": "https://yt3.googleusercontent.com/2JgKCnJ5n5XhkXeTgpwHPhv0e2TfC4G_7SU0Tj0JNGu9paNUFErhh5xPV24yBmv83p19ZYTD",
     "title": "静寂の哲学",
-    "subscriber_count": 295,
-    "view_count": 14096,
-    "video_count": 37,
+    "subscriber_count": 316,
+    "view_count": 15416,
+    "video_count": 45,
     "custom_url": "@seijaku_philosophy",
     "handle": "@seijaku_philosophy",
     "url": "https://www.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ",
@@ -22,10 +22,10 @@
     "url": "https://www.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ",
     "handle": "@seijaku_philosophy",
     "custom_url": "@seijaku_philosophy",
-    "view_count": 14096,
-    "subscriber_count": 295,
-    "video_count": 37,
-    "synced_at": "2025-12-26T06:50:19.493906+00:00",
+    "view_count": 15416,
+    "subscriber_count": 316,
+    "video_count": 45,
+    "synced_at": "2026-01-04T08:18:35.528961+00:00",
     "source": "UCM5VYzeXFFcMiBYfSDOILlQ",
     "published_at": "2024-11-05T05:48:45.544632Z"
   },
@@ -76,22 +76,22 @@
     "updated_at": "2025-12-27",
     "channels": [
       {
+        "handle": null,
+        "name": "曖昧な思考",
+        "url": "https://www.youtube.com/channel/UCKAXg84Mg4FighZJ14bxJvA",
+        "note": "CH02の主ベンチマーク（サムネ: 上部黒帯+白文字 / 画のトーン）。構成/語りのテンポも参考。"
+      },
+      {
         "handle": "@shinririri",
         "name": "真理の扉",
         "url": "https://www.youtube.com/@shinririri",
-        "note": "心理/自己啓発の語り口・導入フック・構成の参考"
+        "note": "参考（補助）: 心理/自己啓発の語り口・導入フック・構成"
       },
       {
         "handle": "@Shikounokaku",
         "name": "思考の核",
         "url": "https://www.youtube.com/@Shikounokaku",
-        "note": "思考整理系の話運び・比喩・結論回収の参考"
-      },
-      {
-        "handle": null,
-        "name": "曖昧な思考",
-        "url": "https://www.youtube.com/channel/UCKAXg84Mg4FighZJ14bxJvA",
-        "note": "テンポ/トーン/話の畳み方の参考（表現は自チャンネル規約に合わせて調整）"
+        "note": "参考（補助）: 思考整理系の話運び・比喩・結論回収"
       }
     ],
     "script_samples": [
@@ -114,7 +114,7 @@
         "note": "5フェーズ型 / 守破離×物語×実践 まで分解（CH02/CH20の型に落とす）"
       }
     ],
-    "notes": "ベンチマークはUIから追加してください。"
+    "notes": "CH02のベンチマーク正本: 曖昧な思考。追加/更新はUIから行う。"
   },
   "production_sources": {
     "voice_config_path": "packages/script_pipeline/audio/channels/CH02/voice_config.json",

@@ -40,6 +40,8 @@ import { AgentBoardPage } from "./pages/AgentBoardPage";
 import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
 import { ImageManagementPage } from "./pages/ImageManagementPage";
 import { AuditPage } from "./pages/AuditPage";
+import { ImageModelRoutingPage } from "./pages/ImageModelRoutingPage";
+import { ChannelModelPolicyPage } from "./pages/ChannelModelPolicyPage";
 
 function App() {
   return (
@@ -56,6 +58,8 @@ function App() {
         <Route path="/channel-settings" element={<ChannelSettingsPage />} />
         <Route path="/prompts" element={<PromptManagerPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/model-policy" element={<ChannelModelPolicyPage />} />
+        <Route path="/image-model-routing" element={<ImageModelRoutingPage />} />
         <Route path="/channels/:channelCode" element={<ChannelOverviewPage />} />
         <Route path="/channels/:channelCode/portal" element={<ChannelPortalPage />} />
         <Route path="/channels/:channelCode/videos/:video" element={<ChannelDetailPage />} />

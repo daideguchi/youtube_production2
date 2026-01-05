@@ -68,7 +68,10 @@ def _to_project_relative(path: Path) -> str:
 
 
 def _llm_mode() -> str:
-    return (os.getenv("LLM_MODE") or "api").strip().lower()
+    # Prefer explicit env; otherwise fall back to numeric exec-slot (LLM_EXEC_SLOT).
+    from factory_common.llm_exec_slots import effective_llm_mode
+
+    return effective_llm_mode()
 
 
 def _agent_name() -> Optional[str]:

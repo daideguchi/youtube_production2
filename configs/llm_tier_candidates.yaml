@@ -1,21 +1,20 @@
 tiers:
   heavy_reasoning:
-    - or_deepseek_v3_2_exp
-    - or_kimi_k2_thinking
+    - fw-deepseek-v3p2-exp-1
+    - open-kimi-thinking-1
   standard:
-    - or_deepseek_v3_2_exp
-    - or_hunyuan_a13b_instruct
-    - or_qwen_2_5_7b_instruct
-    - or_gemma_3n_e2b_it_free
-    - azure_gpt5_mini
+    - fw-deepseek-v3p2-exp-1
+    - open-hunyuan-a13b-1
+    - open-qwen-2p5-7b-1
+    - open-gemma-3n-free-1
   cheap:
-    - or_gemma_3n_e2b_it_free
-    - or_hunyuan_a13b_instruct
-    - or_mistral_7b_instruct_free
-    - or_qwen_2_5_7b_instruct
+    - open-gemma-3n-free-1
+    - open-hunyuan-a13b-1
+    - open-mistral-7b-free-1
+    - open-qwen-2p5-7b-1
   image_gen:
-    - gemini_2_5_flash_image
+    - gm-flash-image-1
   vision_caption:
-    - or_qwen_2_5_vl_72b_instruct
+    - open-qwen-2p5-vl-72b-1
   master_plan_opus:
-    - or_claude_opus_4_5
+    - open-claude-opus-4p5-1

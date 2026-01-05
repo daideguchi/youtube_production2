@@ -1,5 +1,10 @@
 # LLM 呼び出しレイヤ現状整理と段階的リファイン案
 
+> 重要（現行SSOT）:
+> - この文書は過去の整理/検討メモ（completed）です。**現行運用の正本ではありません**。
+> - 現行のモデル選択SSOTは `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md` / `ssot/ops/OPS_ENV_VARS.md`。
+> - モデル切替は **数字スロット** `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）に統一されています。
+
 ## 1. 現状の実装サマリ
 
 - **集計ツール**: `python3 scripts/aggregate_llm_usage.py --log workspaces/logs/llm_usage.jsonl --top 10` でモデル/タスク別件数や fallback_chain, 平均レイテンシを確認。詳細は `ssot/ops/TOOLS_LLM_USAGE.md`。

@@ -130,6 +130,59 @@ class TestImageClient(unittest.TestCase):
             else:
                 os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = prev
 
+    def test_env_forced_model_key_accepts_slot_code(self):
+        prev_forced = os.environ.get("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN")
+        prev_slots_path = os.environ.get("IMAGE_CLIENT_MODEL_SLOTS_PATH")
+        os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = "f-4"
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                slots_path = Path(tmp) / "image_model_slots.yaml"
+                slots_path.write_text(
+                    "\n".join(
+                        [
+                            "schema_version: 1",
+                            "slots:",
+                            "  f-4:",
+                            "    tasks:",
+                            "      visual_image_gen: m2",
+                        ]
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+                os.environ["IMAGE_CLIENT_MODEL_SLOTS_PATH"] = str(slots_path)
+
+                cfg = {
+                    "providers": {},
+                    "models": {
+                        "m1": {"provider": "dummy", "model_name": "m1"},
+                        "m2": {"provider": "dummy", "model_name": "m2"},
+                    },
+                    "tiers": {"image": ["m1", "m2"]},
+                    "tasks": {"visual_image_gen": {"tier": "image", "defaults": {}}},
+                }
+                a1 = DummyAdapter(fail=False, label="a1")
+                a2 = DummyAdapter(fail=False, label="a2")
+                client = ImageClient(
+                    config_path=Path(tmp) / "image_models.yaml",
+                    config_data=cfg,
+                    adapter_overrides={"m1": a1, "m2": a2},
+                )
+                res = client.generate(ImageTaskOptions(task="visual_image_gen", prompt="test"))
+                self.assertEqual(res.model, "m2")
+                self.assertEqual(a1.calls, 0)
+                self.assertEqual(a2.calls, 1)
+        finally:
+            if prev_forced is None:
+                os.environ.pop("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN", None)
+            else:
+                os.environ["IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN"] = prev_forced
+
+            if prev_slots_path is None:
+                os.environ.pop("IMAGE_CLIENT_MODEL_SLOTS_PATH", None)
+            else:
+                os.environ["IMAGE_CLIENT_MODEL_SLOTS_PATH"] = prev_slots_path
+
     def test_failover(self):
         with tempfile.TemporaryDirectory() as tmp:
             cfg = {

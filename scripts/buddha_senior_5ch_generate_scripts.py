@@ -32,11 +32,10 @@ DEFAULT_CHANNELS = ["CH12", "CH13", "CH14", "CH15", "CH16"]
 SCRIPT_STAGES = [
     "topic_research",
     "script_outline",
+    "script_master_plan",
     "chapter_brief",
     "script_draft",
-    "script_enhancement",
     "script_review",
-    "quality_check",
     "script_validation",
 ]
 

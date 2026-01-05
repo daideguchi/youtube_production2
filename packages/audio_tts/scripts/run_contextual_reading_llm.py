@@ -18,7 +18,13 @@ def chunk_sections(sections: List[Dict[str, Any]], size: int) -> List[List[Dict[
     return [sections[i : i + size] for i in range(0, len(sections), size)]
 
 def _is_think_or_agent_mode() -> bool:
-    return (os.getenv("LLM_MODE") or "").strip().lower() in ("think", "agent")
+    try:
+        from factory_common.llm_exec_slots import effective_llm_mode
+
+        mode = effective_llm_mode()
+    except Exception:
+        mode = (os.getenv("LLM_MODE") or "").strip().lower()
+    return mode in ("think", "agent")
 
 
 def _parse_router_response(content: Any) -> Dict[str, Any]:

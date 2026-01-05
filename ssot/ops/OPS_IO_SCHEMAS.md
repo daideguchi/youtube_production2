@@ -401,9 +401,17 @@ variants[*]（観測キー例）:
 
 標準レイアウト（動画単位）:
 - `workspaces/thumbnails/assets/{CH}/{NNN}/`
-  - SoT（動画差分）: `thumb_spec.json`
+  - SoT（動画差分）:
+    - 推奨: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
+    - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、可能なら stable へ移行する）
+  - SoT（文字・行単位）:
+    - 推奨: `text_line_spec.<stable>.json`
+    - 互換: `text_line_spec.json`（legacy。例外として `00_thumb_1` のみ fallback 可 / `00_thumb_2` は継承しない）
+  - SoT（追加要素・図形/画像など）:
+    - 推奨: `elements_spec.<stable>.json`
+    - 互換: `elements_spec.json`（legacy。例外として `00_thumb_1` のみ fallback 可 / `00_thumb_2` は継承しない）
   - 派生（planning由来）: `planning_meta.json`
-  - 派生（安定出力）: `00_thumb.png`, `00_thumb_1.png`, `00_thumb_2.png`, `10_bg.png` など
+  - 派生（安定出力）: `00_thumb.png` または `00_thumb_1.png` / `00_thumb_2.png`、`10_bg.png`、`20_portrait.png` など
   - 派生（build履歴）: `compiler/<build_id>/out_*.png`, `compiler/<build_id>/build_meta.json`
 
 ### 5.4 Layer Specs（画像レイヤ/文字レイヤの仕様YAML）
@@ -429,7 +437,17 @@ variants[*]（観測キー例）:
 - text_layout
   - `version`: int
   - `coordinate_system`: `normalized_0_to_1`
-  - `global`: `safe_zones`, `fonts`, `effects_defaults`, `fit_rules`
+  - `global`: `safe_zones`, `fonts`, `effects_defaults`, `fit_rules`, `overlays`
+    - `overlays.top_band` / `overlays.bottom_band`（任意）:
+      - 共通: `enabled: bool`, `color: "#RRGGBB"`, `y0/y1: float(0..1)`
+      - 既定（gradient）: `alpha_top/alpha_bottom: float(0..1)`
+      - `mode: brush|ink` の場合（黒筆帯/刷毛帯）:
+        - `alpha: float(0..1)`（帯の最大不透明度）
+        - `roughness: float`（エッジの歪み）
+        - `feather_px: int`（エッジのフェード幅）
+        - `hole_count: int`（かすれ/薄い箇所の密度）
+        - `blur_px: int`（マスクのぼかし）
+        - `seed: int`（任意。未指定は安定seed）
   - `templates`: `{template_id: {slots, fallbacks}}`
   - `items[]`: `{video_id,title?,template_id,fallbacks?,text:{top,main,accent,author}}`
 

@@ -1,0 +1,80 @@
+schema_version: 1
+
+# LLM execution routing by numeric slot (operator-friendly).
+#
+# Goal:
+# - Avoid ad-hoc env juggling for "where the LLM runs".
+# - Make runtime switching numeric & stable (no model-name rewrites).
+#
+# What this controls:
+# - LLM_MODE: api | think | agent
+# - Codex exec layer (read-only) enable/disable override
+# - API → THINK failover enable/disable override (non-script only; script_* still stops)
+#
+# Usage:
+# - Default (slot 0): no env needed
+# - Force: LLM_EXEC_SLOT=3 ./scripts/with_ytm_env.sh python3 ...
+# - Or:   ./scripts/with_ytm_env.sh --exec-slot 3 python3 ...
+#
+# Notes:
+# - This slot is applied only when the corresponding env vars are NOT explicitly set.
+#   (Explicit env vars always win; slot is the "safe default".)
+# - Per-machine overrides belong in: configs/llm_exec_slots.local.yaml
+
+default_slot: 0
+
+slots:
+  0:
+    label: api_default
+    description: |
+      Normal run.
+      - LLM_MODE=api
+      - codex exec: follow configs/codex_exec.yaml (+ env)
+      - API→THINK failover: default ON
+    llm_mode: api
+
+  1:
+    label: api_force_codex_on
+    description: |
+      Force codex exec ON (for eligible tasks) before API.
+      - LLM_MODE=api
+      - YTM_CODEX_EXEC_ENABLED=1 (unless explicitly set)
+    llm_mode: api
+    codex_exec:
+      enabled: true
+
+  2:
+    label: api_force_codex_off
+    description: |
+      Force codex exec OFF.
+      - LLM_MODE=api
+      - YTM_CODEX_EXEC_ENABLED=0 (unless explicitly set)
+    llm_mode: api
+    codex_exec:
+      enabled: false
+
+  3:
+    label: think_mode
+    description: |
+      THINK MODE (agent queue).
+      - LLM_MODE=think
+      - API is not called; pending is created for target tasks
+    llm_mode: think
+
+  4:
+    label: agent_mode
+    description: |
+      AGENT MODE (agent queue; explicit).
+      - LLM_MODE=agent
+    llm_mode: agent
+
+  5:
+    label: api_failover_off
+    description: |
+      Disable API→THINK failover for non-script tasks.
+      (script_* still stops on API failure.)
+      - LLM_MODE=api
+      - LLM_API_FAILOVER_TO_THINK=0 (unless explicitly set)
+    llm_mode: api
+    api_failover_to_think: false
+

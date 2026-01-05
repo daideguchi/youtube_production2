@@ -5,7 +5,8 @@
 tasks:
   # NOTE:
   # - Script pipeline (台本) 系の task は Azure/GPT 系へ流さない（固定ルール）。
-  # - ここでの override は、原則 Fireworks/OpenRouter のロジック名を指定する（例: or_deepseek_v3_2_exp）。
+  # - ここでの override は、原則 “モデルコード” を指定する（例: script-main-1 / open-kimi-thinking-1）。
+  #   実体は `configs/llm_model_codes.yaml` → `configs/llm_router.yaml:models.<model_key>` に解決される。
   visual_bible:
     tier: heavy_reasoning
     options:
@@ -16,7 +17,7 @@ tasks:
   visual_image_cues_plan:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - visual-cues-plan-main-1
     options:
       temperature: 0.3
       response_format: json_object
@@ -40,7 +41,7 @@ tasks:
   script_outline:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       max_tokens: 2600
@@ -52,7 +53,7 @@ tasks:
   script_chapter_brief:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       response_format: json_object
       temperature: 0.2
@@ -65,7 +66,7 @@ tasks:
   script_quality_check:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       max_tokens: 2600
@@ -78,7 +79,7 @@ tasks:
   script_topic_research:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       max_tokens: 4200
@@ -90,7 +91,7 @@ tasks:
   script_chapter_draft:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.25
       max_tokens: 11000
@@ -102,7 +103,7 @@ tasks:
   script_chapter_review:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       max_tokens: 12000
@@ -114,7 +115,7 @@ tasks:
   script_cta:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       max_tokens: 1200
@@ -127,7 +128,7 @@ tasks:
   script_format:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.0
       max_tokens: 2000
@@ -136,7 +137,7 @@ tasks:
   script_a_text_seed:
     tier: standard
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.25
       max_tokens: 4096
@@ -149,7 +150,7 @@ tasks:
   script_semantic_alignment_check:
     tier: standard
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       # NOTE: This task must return strict JSON.
       # Thinking is mandatory; we keep DeepSeek fixed and use JSON mode to avoid reasoning leakage.
@@ -160,10 +161,10 @@ tasks:
   script_semantic_alignment_fix:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.2
@@ -175,10 +176,10 @@ tasks:
   script_a_text_quality_judge:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.0
@@ -194,10 +195,10 @@ tasks:
   script_a_text_quality_fix:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.25
@@ -215,10 +216,10 @@ tasks:
   script_a_text_final_polish:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.2
@@ -229,14 +230,28 @@ tasks:
           enabled: true
           exclude: true
 
+  # Human review comment → apply minimal edits to the full A-text.
+  # Used by UI endpoint: "レビューコメントを反映して台本を修正".
+  script_human_review_apply:
+    tier: heavy_reasoning
+    models:
+      - script-main-1
+    options:
+      temperature: 0.2
+      max_tokens: 22000
+      extra_body:
+        reasoning:
+          enabled: true
+          exclude: true
+
   # A-text hard rescue: extend-only (length shortage)
   script_a_text_quality_extend:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.2
@@ -253,10 +268,10 @@ tasks:
   script_a_text_quality_expand:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.2
@@ -272,10 +287,10 @@ tasks:
   script_a_text_quality_shrink:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
-      - fw_glm_4p7
-      - fw_kimi_k2_thinking
-      - fw_mixtral_8x22b_instruct
+      - script-main-1
+      - script-fallback-glm-1
+      - script-fallback-kimi-1
+      - script-fallback-mixtral-1
     allow_fallback: true
     options:
       temperature: 0.2
@@ -289,7 +304,7 @@ tasks:
   script_a_text_rebuild_plan:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.2
       response_format: json_object
@@ -302,7 +317,7 @@ tasks:
   script_a_text_rebuild_draft:
     tier: heavy_reasoning
     models:
-      - or_deepseek_v3_2_exp
+      - script-main-1
     options:
       temperature: 0.25
       max_tokens: 11000
@@ -313,7 +328,7 @@ tasks:
 
   # 例: 特定taskの models を固定する
   # script_outline:
-  #   models: [or_deepseek_v3_2_exp]
+  #   models: [script-main-1]
   #   system_prompt_override: "You are a careful editor."
   #   options:
   #     temperature: 0.2

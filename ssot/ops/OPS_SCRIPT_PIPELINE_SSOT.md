@@ -175,7 +175,7 @@ script_master_plan（設計図 / master_plan.json）
   v
 chapter_brief
   v
-script_draft → script_enhancement → script_review → quality_check
+script_draft → script_review
   v
  script_validation（禁則=機械チェック + 内容=LLM + 意味整合=LLM + ファクトチェック）
   v
@@ -193,10 +193,8 @@ flowchart LR
   OUT --> MP["script_master_plan（設計図）"]
   MP --> BR["chapter_brief"]
   BR --> DR["script_draft"]
-  DR --> EN["script_enhancement"]
-  EN --> REV["script_review"]
-  REV --> QC["quality_check"]
-  QC --> VAL["script_validation\n(機械チェック→LLM品質→意味整合→ファクトチェック)"]
+  DR --> REV["script_review"]
+  REV --> VAL["script_validation\n(機械チェック→LLM品質→意味整合→ファクトチェック)"]
   VAL --> AUDIO["audio_synthesis（必要時のみ）"]
 ```
 

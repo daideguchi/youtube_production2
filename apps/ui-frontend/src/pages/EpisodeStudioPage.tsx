@@ -68,11 +68,10 @@ function formatArtifactMeta(meta?: Record<string, unknown> | null): string | nul
 const DEFAULT_STAGE_ORDER = [
   "topic_research",
   "script_outline",
+  "script_master_plan",
   "chapter_brief",
   "script_draft",
-  "script_enhancement",
   "script_review",
-  "quality_check",
   "script_validation",
   "audio_synthesis",
 ] as const;
@@ -80,11 +79,10 @@ const DEFAULT_STAGE_ORDER = [
 const STAGE_LABELS: Record<string, string> = {
   topic_research: "リサーチ",
   script_outline: "アウトライン",
+  script_master_plan: "設計図",
   chapter_brief: "章ブリーフ",
   script_draft: "章ドラフト",
-  script_enhancement: "改善",
   script_review: "組み立て",
-  quality_check: "品質チェック",
   script_validation: "最終バリデーション",
   audio_synthesis: "音声生成（入口）",
 };

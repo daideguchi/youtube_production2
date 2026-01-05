@@ -187,6 +187,7 @@
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
+- UI（モデル指定）: `/image-model-routing`（チャンネル別に サムネ/動画内画像 の画像モデルを指定）
 - 統一CLI（量産/リテイク/QC）: `python scripts/thumbnails/build.py --help`
   - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
   - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）

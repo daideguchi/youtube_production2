@@ -436,6 +436,7 @@ def _run_direct(
     config_path: str | None,
     timeout_sec: int,
     input_images: list[str] | None = None,
+    model_key: str | None = None,
     *,
     max_retries: int = 3,
 ) -> bool:
@@ -477,6 +478,9 @@ def _run_direct(
                 raw_af = os.getenv("SRT2IMAGES_IMAGE_ALLOW_FALLBACK")
                 if raw_af is not None and raw_af.strip() != "":
                     extra["allow_fallback"] = raw_af.strip().lower() not in ("0", "false", "no", "off")
+                mk = (str(model_key).strip() if model_key else "")
+                if mk:
+                    extra["model_key"] = mk
                 options = ImageTaskOptions(
                     task="visual_image_gen",
                     prompt=prompt,
@@ -552,6 +556,26 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
     import shutil
     
     out_path = cue["image_path"]
+
+    # If this cue already has an injected asset (e.g., stock b-roll mp4), skip image generation.
+    # CapCut insertion prefers `asset_relpath` over `images/*.png`.
+    rel = ""
+    try:
+        rel = (cue.get("asset_relpath") or "").strip()
+    except Exception:
+        rel = ""
+    if rel:
+        try:
+            run_dir = Path(out_path).resolve().parent.parent  # images/.. -> run_dir
+            asset_path = (run_dir / rel).resolve()
+            if asset_path.exists():
+                logging.info("Skip image generation (asset_relpath=%s): %s", rel, out_path)
+                return
+            logging.warning("asset_relpath set but missing (%s); generating image fallback: %s", asset_path, out_path)
+        except Exception:
+            # If path resolution fails, fall back to image generation.
+            pass
+
     prompt = cue.get("prompt", cue.get("summary", ""))
     try:
         # Prepend persona if available in run_dir (workspaces/video/runs/<run_id>/persona.*)
@@ -599,6 +623,13 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         return
 
     # Only direct path (ImageClient)
+    model_key = None
+    try:
+        mk = cue.get("image_model_key")
+        if isinstance(mk, str) and mk.strip():
+            model_key = mk.strip()
+    except Exception:
+        model_key = None
     ok = _run_direct(
         prompt,
         out_path,
@@ -607,6 +638,7 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         config_path,
         timeout_sec,
         input_images=input_images,
+        model_key=model_key,
         max_retries=max_retries,
     )
         

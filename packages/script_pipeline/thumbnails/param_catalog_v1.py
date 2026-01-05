@@ -89,8 +89,9 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
 
     # overrides.text_* (text rendering tuning)
     "overrides.text_scale": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
-    "overrides.text_offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
-    "overrides.text_offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
+    # NOTE: Canva-like editor allows moving text out of frame; keep wide bounds.
+    "overrides.text_offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
+    "overrides.text_offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
 
     # overrides.text_fills.* (solid fill color overrides; keys must exist in authored specs)
     "overrides.text_fills.white_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
@@ -100,9 +101,12 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     "overrides.text_fills.purple_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
 
     # overrides.portrait.* (per-video portrait composite tuning, CH26 benchmark)
+    "overrides.portrait.enabled": ParamSpec(kind="bool", engine="layer_specs_v3"),
+    "overrides.portrait.suppress_bg": ParamSpec(kind="bool", engine="layer_specs_v3"),
     "overrides.portrait.zoom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
-    "overrides.portrait.offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
-    "overrides.portrait.offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-0.25, max_value=0.25),
+    # NOTE: Canva-like editor allows moving portrait out of frame; keep wide bounds.
+    "overrides.portrait.offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
+    "overrides.portrait.offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
     "overrides.portrait.trim_transparent": ParamSpec(kind="bool", engine="layer_specs_v3"),
     "overrides.portrait.fg_brightness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),
     "overrides.portrait.fg_contrast": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),

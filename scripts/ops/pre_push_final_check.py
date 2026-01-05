@@ -23,9 +23,9 @@ from _bootstrap import bootstrap
 REPO_ROOT = bootstrap(load_env=False)
 
 
-def _run(cmd: list[str]) -> int:
+def _run(cmd: list[str], *, cwd: Path | None = None) -> int:
     print(f"$ {' '.join(cmd)}")
-    p = subprocess.run(cmd, cwd=str(REPO_ROOT))
+    p = subprocess.run(cmd, cwd=str(cwd or REPO_ROOT))
     return int(p.returncode)
 
 def _read_text(path: Path) -> str:
@@ -69,6 +69,15 @@ def main(argv: list[str] | None = None) -> int:
 
     # SSOT catalog (UI "System Map") must build cleanly (no missing task defs).
     rc = max(rc, _run([sys.executable, "scripts/ops/build_ssot_catalog.py", "--check"]))
+
+    # UI SSOT (System Map/Catalog) must remain type-safe on the frontend.
+    # If ssot_catalog schema changes but UI types/components don't, this should fail here.
+    ui_root = REPO_ROOT / "apps" / "ui-frontend"
+    tsc_bin = ui_root / "node_modules" / ".bin" / "tsc"
+    if tsc_bin.exists():
+        rc = max(rc, _run([str(tsc_bin), "--noEmit"], cwd=ui_root))
+    else:
+        print("[warn] ui-frontend tsc not found; skipping TypeScript check (run npm ci in apps/ui-frontend)")
 
     # Python syntax guard (catches broken scripts not covered by pytest imports).
     rc = max(

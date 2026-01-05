@@ -16,7 +16,6 @@ const SCRIPT_STAGE_KEYS = [
   "script_polish_ai",
   "script_validation",
   "script_review",
-  "script_enhancement",
   "script_draft",
   "script_outline",
 ];

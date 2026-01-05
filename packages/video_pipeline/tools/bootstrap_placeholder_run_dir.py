@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -34,7 +35,11 @@ tool_bootstrap(load_env=False)
 
 from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
 from video_pipeline.src.srt2images.srt_parser import parse_srt  # noqa: E402
-from video_pipeline.src.srt2images.cues_plan import make_cues_from_sections, plan_sections_via_router  # noqa: E402
+from video_pipeline.src.srt2images.cues_plan import (  # noqa: E402
+    is_think_or_agent_mode,
+    make_cues_from_sections,
+    plan_sections_via_router,
+)
 from factory_common.artifacts.srt_segments import build_srt_segments_artifact, write_srt_segments_artifact  # noqa: E402
 from factory_common.artifacts.visual_cues_plan import (  # noqa: E402
     build_visual_cues_plan_artifact,
@@ -165,6 +170,7 @@ def bootstrap_run_dir(
                     base_seconds=base_seconds,
                     style_hint=style_hint,
                 )
+                llm_task = {"task": "visual_image_cues_plan"}
                 episode = parse_episode_id(str(srt_path))
                 episode_id = episode.episode if episode else None
                 plan_art = build_visual_cues_plan_artifact(
@@ -187,7 +193,7 @@ def bootstrap_run_dir(
                     episode=episode_id,
                     style_hint=style_hint,
                     status="ready",
-                    llm_task={"task": "visual_image_cues_plan"},
+                    llm_task=llm_task,
                 )
                 write_visual_cues_plan(plan_path, plan_art)
             except SystemExit as e:

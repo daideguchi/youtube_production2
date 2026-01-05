@@ -50,10 +50,10 @@ export enum StageStatus {
 export enum WorkflowStage {
   TOPIC_RESEARCH = "topic_research",
   SCRIPT_OUTLINE = "script_outline",
+  SCRIPT_MASTER_PLAN = "script_master_plan",
+  CHAPTER_BRIEF = "chapter_brief",
   SCRIPT_DRAFT = "script_draft",
-  SCRIPT_ENHANCEMENT = "script_enhancement",
   SCRIPT_REVIEW = "script_review",
-  QUALITY_CHECK = "quality_check",
   SCRIPT_VALIDATION = "script_validation",
   SCRIPT_POLISH_AI = "script_polish_ai",
   SCRIPT_AUDIO_AI = "script_audio_ai",
@@ -1216,6 +1216,58 @@ export interface CodexSettingsUpdate {
   model_reasoning_effort?: CodexReasoningEffort;
 }
 
+export interface ImageModelKeyInfo {
+  key: string;
+  provider: string;
+  model_name: string;
+}
+
+export interface ImageModelCatalogOption {
+  id: string;
+  label: string;
+  provider_group: string;
+  variant: string;
+  model_key?: string | null;
+  enabled: boolean;
+  note?: string | null;
+}
+
+export interface ImageModelRoutingCatalog {
+  thumbnail: ImageModelCatalogOption[];
+  video_image: ImageModelCatalogOption[];
+}
+
+export interface ImageModelRoutingSelection {
+  model_key?: string | null;
+  provider?: string | null;
+  model_name?: string | null;
+  source: string;
+  missing: boolean;
+  blocked?: boolean;
+  note?: string | null;
+  meta?: Record<string, unknown>;
+}
+
+export interface ChannelImageModelRouting {
+  channel: string;
+  thumbnail: ImageModelRoutingSelection;
+  video_image: ImageModelRoutingSelection;
+}
+
+export interface ImageModelRoutingResponse {
+  schema: string;
+  generated_at: string;
+  blocked_model_keys: string[];
+  models: ImageModelKeyInfo[];
+  catalog: ImageModelRoutingCatalog;
+  channels: ChannelImageModelRouting[];
+}
+
+export interface ImageModelRoutingUpdatePayload {
+  thumbnail_model_key?: string | null;
+  video_image_model_key?: string | null;
+}
+
 export interface PhaseModel {
   label: string;
   provider: "openai" | "openrouter" | "gemini";
@@ -1987,16 +2039,137 @@ export interface SsotCatalog {
     missing_task_defs: string[];
     callsites: Array<{ task: string; call: string; source: { path: string; line: number } }>;
     router_config?: { path?: string; tasks_count?: number };
-    task_overrides?: { path?: string; tasks_count?: number };
+    task_overrides?: { path?: string; local_path?: string | null; tasks_count?: number };
+    providers?: Array<{
+      provider: string;
+      envs?: string[];
+      ready?: boolean;
+      missing_envs?: string[] | null;
+      candidate_keys_count?: number | null;
+    }>;
+    model_registry?: Record<
+      string,
+      {
+        provider?: string;
+        model_name?: string;
+        deployment?: string;
+      }
+    >;
+    codex_exec?: {
+      path?: string;
+      enabled?: boolean;
+      auto_enable_when_codex_managed?: boolean;
+      profile?: string;
+      sandbox?: string;
+      timeout_s?: number;
+      timeout_s_by_task?: Record<string, number>;
+      model?: string;
+      selection?: {
+        include_task_prefixes?: string[];
+        include_tasks?: string[];
+        exclude_tasks?: string[];
+      };
+      effective?: {
+        enabled?: boolean;
+        enabled_source?: string;
+        profile?: string;
+        profile_source?: string;
+        sandbox?: string;
+        sandbox_source?: string;
+        timeout_s?: number;
+        timeout_s_source?: string;
+        model?: string;
+        model_source?: string;
+        exclude_tasks?: string[];
+        exclude_tasks_source?: string;
+        codex_managed?: boolean;
+        in_pytest?: boolean;
+      };
+    };
+    agent_mode?: {
+      mode: string;
+      mode_source?: string;
+      queue_dir: string;
+      failover_to_think: boolean;
+      filters?: {
+        tasks?: string[];
+        task_prefixes?: string[];
+        exclude_tasks?: string[];
+        exclude_prefixes?: string[];
+      };
+    };
+    model_slots?: {
+      path?: string;
+      local_path?: string | null;
+      schema_version?: number;
+      default_slot?: number;
+      active_slot?: {
+        id: number;
+        source?: string;
+        label?: string;
+        description?: string;
+        script_allow_openrouter?: boolean;
+      };
+      slots?: Array<{
+        id: number;
+        label?: string;
+        description?: string;
+        script_allow_openrouter?: boolean;
+        tiers?: Record<string, unknown> | null;
+        script_tiers?: Record<string, unknown> | null;
+      }>;
+    };
+    model_codes?: {
+      path?: string;
+      local_path?: string | null;
+      schema_version?: number;
+      codes?: Array<{
+        code: string;
+        model_key: string;
+        label?: string | null;
+      }>;
+    };
+    exec_slots?: {
+      path?: string;
+      local_path?: string | null;
+      schema_version?: number;
+      default_slot?: number;
+      active_slot?: {
+        id: number;
+        source?: string;
+        label?: string;
+        description?: string;
+      };
+      slots?: Array<{
+        id: number;
+        label?: string;
+        description?: string;
+        llm_mode?: string | null;
+        codex_exec_enabled?: boolean | null;
+        api_failover_to_think?: boolean | null;
+      }>;
+      effective?: {
+        llm_mode?: string;
+        codex_exec_enabled_override?: boolean | null;
+        api_failover_to_think?: boolean;
+      };
+    };
     task_defs?: Record<
       string,
       {
         tier?: string | null;
         allow_fallback?: boolean | null;
         model_keys?: string[];
-        resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
+        resolved_models?: Array<{
+          key: string;
+          resolved_model_key?: string;
+          provider?: string;
+          model_name?: string;
+          deployment?: string;
+        }>;
         router_task?: Record<string, unknown>;
         override_task?: Record<string, unknown> | null;
+        model_source?: string | null;
       }
     >;
   };
@@ -2005,13 +2178,49 @@ export interface SsotCatalog {
     missing_task_defs: string[];
     callsites: Array<{ task: string; call: string; source: { path: string; line: number } }>;
     router_config?: { path?: string; tasks_count?: number };
+    providers?: Array<{
+      provider: string;
+      envs?: string[];
+      ready?: boolean;
+      missing_envs?: string[] | null;
+      candidate_keys_count?: number | null;
+    }>;
+    model_registry?: Record<
+      string,
+      {
+        provider?: string;
+        model_name?: string;
+      }
+    >;
+    model_slots?: {
+      path?: string;
+      local_path?: string | null;
+      schema_version?: number;
+      slots?: Array<{
+        id: string;
+        label?: string;
+        description?: string;
+        tasks?: Record<string, unknown> | null;
+      }>;
+      active_overrides?: Array<{
+        env: string;
+        task: string;
+        selector: string;
+      }>;
+    };
     task_overrides?: { path?: string; profile?: string; tasks_count?: number };
     task_defs?: Record<
       string,
       {
         tier?: string | null;
         model_keys?: string[];
-        resolved_models?: Array<{ key: string; provider?: string; model_name?: string; deployment?: string }>;
+        resolved_models?: Array<{
+          key: string;
+          resolved_model_key?: string;
+          provider?: string;
+          model_name?: string;
+          deployment?: string;
+        }>;
         router_task?: Record<string, unknown>;
         override_task?: Record<string, unknown> | null;
         override_profile?: string | null;

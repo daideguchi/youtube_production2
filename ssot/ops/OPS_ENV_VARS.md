@@ -5,6 +5,32 @@
 - `.env.example` をベースに必要キーを埋める。
   - 注: LLMRouter は `.env` を `override=True` で読み込むため、**シェルで export 済みでも `.env` が優先**される。
 - グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
+- **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
+- モデル選択は **モデル名ではなく数字スロット**で行う（モデル名の書き換え禁止）。
+  - `LLM_MODEL_SLOT`（default: `0`）: `configs/llm_model_slots.yaml` の `slots` から選ぶ
+  - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
+  - スロット内で参照するモデルは **model code**（`open-k-1` / `fw-d-1` 等）に統一する（正本: `configs/llm_model_codes.yaml`）。
+  - 推奨実行: `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`（または `./scripts/with_ytm_env.sh 2 python3 ...`）
+  - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
+  - 注:
+    - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
+    - `script_*` は既定で Fireworks-only（OpenRouter はブロック）。OpenRouter で回す場合は `YTM_SCRIPT_ALLOW_OPENROUTER=1` または slot 定義で `script_allow_openrouter: true`
+- 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
+  - `LLM_EXEC_SLOT`（default: `0`）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
+  - 例:
+    - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`（THINK MODE: pendingを作る）
+    - `./scripts/with_ytm_env.sh --exec-slot 1 python3 ...`（codex exec を強制ON）
+    - `./scripts/with_ytm_env.sh x3 2 python3 ...`（shorthand: `xN`=exec slot, `N`=model slot）
+  - 優先順位:
+    - 明示の env（`LLM_MODE` / `YTM_CODEX_EXEC_*` / `LLM_API_FAILOVER_TO_THINK` 等）がある場合は **それが勝つ**
+    - slot は「安全なデフォルト」として適用される
+- 画像モデル選択は **短いslot code**（例: `g-1`, `f-4`）で行う（`image_models.yaml` の書き換え禁止）。
+  - スロット定義: `configs/image_model_slots.yaml`（個別調整: `configs/image_model_slots.local.yaml`）
+  - 適用先:
+    - 動画内画像: `packages/video_pipeline/config/channel_presets.json` の `channels.<CH>.image_generation.model_key`
+    - サムネ: `workspaces/thumbnails/templates.json` の `templates[].image_model_key`
+    - その実行だけ上書き: `IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>=g-1`（例: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1`）
+  - 任意: `IMAGE_CLIENT_MODEL_SLOTS_PATH` で slot 定義ファイルを差し替えできる（検証/一時切替用途）
 
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
@@ -16,7 +42,7 @@
     - `FIREWORKS_IMAGE_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_image_keys_state.json`
-      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
+      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（既定: `GET /inference/v1/models`。トークン消費なし。`412` は `suspended`）
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（任意・推奨）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
@@ -25,10 +51,17 @@
     - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - `FIREWORKS_SCRIPT_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_script_keys_state.json`
-      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`（`/inference/v1/models` で判定。トークン消費なし）
-    - `FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED`（default: `1`）: stateで `exhausted/invalid` のキーをローテ候補から除外する。
+      - 更新（既定）: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`（`GET /inference/v1/models`。トークン消費なし）
+      - 更新（推論で確認）: `python3 scripts/ops/fireworks_keyring.py --pool script check --mode chat --show-masked`（`POST /chat/completions`。最小トークン消費）
+      - 退避（使えないキーを隔離）: `python3 scripts/ops/fireworks_keyring.py --pool script quarantine --show-masked`（既定: `~/.ytm/secrets/fireworks_script_keys.quarantine.txt`）
+      - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool script restore --show-masked`
+    - `FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED`（default: `1`）: stateで `exhausted/invalid/suspended` のキーをローテ候補から除外する。
+    - Fireworks コストガード（任意・強く推奨）:
+      - `FIREWORKS_BUDGET_MAX_CALLS_PER_ROUTING_KEY` / `FIREWORKS_BUDGET_MAX_TOKENS_PER_ROUTING_KEY`: 1本（`LLM_ROUTING_KEY=CHxx-NNN`）あたりの上限
+      - `FIREWORKS_BUDGET_MAX_CALLS_TOTAL` / `FIREWORKS_BUDGET_MAX_TOKENS_TOTAL`: プロセス全体の上限
+      - いずれかを設定すると、上限到達後は Fireworks を **停止**（他プロバイダへ自動フォールバックしない）
     - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
-      - それでも全滅した場合は停止（`LLM_API_FAILOVER_TO_THINK` の挙動に従い pending を作る）。
+      - それでも全滅した場合は停止（`script_*` は THINK フォールバックしない。runbookに従って復旧）。
   - 並列運用（固定）: **同一キーの同時利用は禁止**（エージェント間排他）
     - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
     - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC` / `FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC`（default: `1800`）
@@ -293,10 +326,11 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - 任意: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
 - 任意: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
 
-## 重要ルール: API LLM が死んだら THINK MODE で続行
+## 重要ルール: 非`script_*` は API LLM が死んだら THINK MODE で続行（`script_*` は例外）
 - `LLM_API_FAILOVER_TO_THINK`（任意）:
   - **デフォルト有効**（未設定でもON）
-  - API LLM が失敗したら、自動で pending を作って停止（= THINK MODEで続行できる状態にする）
+  - API LLM が失敗したら、非`script_*` は自動で pending を作って停止（= THINK MODEで続行できる状態にする）
+  - `script_*` は例外: pending を作らず停止（台本はAPIのみ。失敗時は原因特定→キー/課金/設定を直して再実行）
   - 無効化: `LLM_API_FAILOVER_TO_THINK=0`
 - `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
 

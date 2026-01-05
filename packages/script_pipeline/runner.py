@@ -4046,6 +4046,21 @@ def reconcile_status(channel: str, video: str, *, allow_downgrade: bool = False)
                 changed = True
             continue
 
+        # Safety: if validation has hard error codes recorded, never reconcile it as completed.
+        # This must apply regardless of stage_defs outputs configuration.
+        if name == "script_validation":
+            try:
+                error_codes = state.details.get("error_codes") if isinstance(state.details, dict) else None
+                if error_codes:
+                    if state.status in {"processing", "completed"}:
+                        state.status = "pending"
+                        if isinstance(state.details, dict):
+                            state.details["reconciled_error_codes_demote"] = True
+                        changed = True
+                    continue
+            except Exception:
+                pass
+
         # Once assembled is present, upstream intermediates are allowed missing.
         # Still perform light housekeeping (clear stale error markers / update chapter_count when possible).
         if assembled_ok and name in {"topic_research", "script_outline", "script_master_plan", "chapter_brief", "script_draft"}:
@@ -6633,7 +6648,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         except Exception:
             should_invalidate = True
         if should_invalidate and gen_paths:
-            for downstream in ("script_review", "quality_check", "script_validation"):
+            for downstream in ("script_review", "script_validation"):
                 ds = st.stages.get(downstream)
                 if ds is None:
                     continue
@@ -6664,9 +6679,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         assembled_path = base / "content" / "assembled.md"
         scenes_path = base / "content" / "final" / "scenes.json"
         cta_path = base / "content" / "final" / "cta.txt"
-        # Some channels already include a proper closing inside the last chapter; avoid redundant CTA
-        # that can drift tone or introduce meta leaks.
-        include_cta = st.channel not in {"CH04", "CH05", "CH10"}
+        # CTA generation is optional and high-cost; default OFF to avoid redundant spend.
+        # Enable explicitly when needed:
+        #   SCRIPT_REVIEW_GENERATE_CTA=1 python -m script_pipeline.cli run --channel CHxx --video NNN --stage script_review
+        include_cta = _truthy_env("SCRIPT_REVIEW_GENERATE_CTA", "0")
         if os.getenv("SCRIPT_PIPELINE_DRY", "0") == "1":
             # Offline mode: do not carry over CTA (avoid stale/accidental duplication).
             include_cta = False

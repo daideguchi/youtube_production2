@@ -61,16 +61,20 @@
 
 ---
 
-## GAP-005（P1 🟡）`script_enhancement` stage が no-op（stage定義↔実装の内部不整合）
+## GAP-005（P1 ✅）`script_enhancement` stage が no-op（stage定義↔実装の内部不整合）
 
-### 観測（実装）
-- `packages/script_pipeline/stages.yaml` は `script_enhancement`（LLM task `script_chapter_review`）を定義しているが、`outputs: []`。
-- `packages/script_pipeline/runner.py:_run_llm()` は **outputs が空かつ output_override が無い場合は実行しない**（=常に False）。
-- そのため `script_enhancement` は **何もせず completed 扱い**になり、UI/運用が誤認しやすい。
+### 旧観測（問題）
+- `packages/script_pipeline/stages.yaml` に `script_enhancement`（LLM task `script_chapter_review`）が定義されていたが、`outputs: []` だった。
+- `packages/script_pipeline/runner.py:_run_llm()` は **outputs が空かつ output_override が無い場合は実行しない**ため、実質 no-op になっていた。
+- その結果、stage が **何もせず completed 扱い**になり、UI/運用が誤認しやすかった。
 
 ### 影響
 - 「改善パスが走った」と誤認し、品質/やり直し判断が崩れる（コスト事故）。
 - SSOT=UI の“1ステップ=1処理”の一致が崩れる。
 
-### 判断ポイント（意思決定）
-- `ssot/DECISIONS.md:D-011` を確定し、`script_enhancement` を **削除**するか、**明示output契約を定義して実装**するか決める。
+### 判断
+- `ssot/DECISIONS.md:D-011` を確定し、`script_enhancement` を主線から除外してクローズ（no-op解消）。
+
+### 現状（解消後）
+- `script_enhancement` は主線の stage 定義から除外（no-op排除）。
+- 既存の `status.json` に `script_enhancement` が残っていても、主線では実行されない（互換のため放置可）。

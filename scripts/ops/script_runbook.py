@@ -85,8 +85,28 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
 
     Mirrors `packages/script_pipeline/cli.py` so operators can switch models with one flag:
     - --llm-model MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_MODELS
+    - --llm-slot N → LLM_MODEL_SLOT
+    - --exec-slot N → LLM_EXEC_SLOT
     - --llm-task-model TASK=MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_TASK_MODELS_JSON
     """
+    if getattr(args, "llm_slot", None) is not None:
+        try:
+            slot = int(args.llm_slot)
+        except Exception:
+            raise SystemExit(f"--llm-slot must be an integer; got: {args.llm_slot}")
+        if slot < 0:
+            raise SystemExit(f"--llm-slot must be >= 0; got: {slot}")
+        os.environ["LLM_MODEL_SLOT"] = str(slot)
+
+    if getattr(args, "exec_slot", None) is not None:
+        try:
+            slot = int(args.exec_slot)
+        except Exception:
+            raise SystemExit(f"--exec-slot must be an integer; got: {args.exec_slot}")
+        if slot < 0:
+            raise SystemExit(f"--exec-slot must be >= 0; got: {slot}")
+        os.environ["LLM_EXEC_SLOT"] = str(slot)
+
     if getattr(args, "llm_model", None):
         flattened: list[str] = []
         for raw in args.llm_model or []:
@@ -95,7 +115,10 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
                 if part:
                     flattened.append(part)
         if flattened:
-            os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
+            if len(flattened) == 1 and flattened[0].isdigit():
+                os.environ["LLM_MODEL_SLOT"] = flattened[0]
+            else:
+                os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
 
     if getattr(args, "llm_task_model", None):
         mapping: dict[str, list[str]] = {}
@@ -122,6 +145,16 @@ def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
         "--llm-model",
         action="append",
         help="Force LLM router model key(s) for this run (comma-separated). Can be repeated.",
+    )
+    p.add_argument(
+        "--llm-slot",
+        type=int,
+        help="Force numeric LLM routing slot (sets LLM_MODEL_SLOT). Preferred over --llm-model.",
+    )
+    p.add_argument(
+        "--exec-slot",
+        type=int,
+        help="Force numeric LLM exec slot (sets LLM_EXEC_SLOT). Controls api/think/agent/codex exec/failover.",
     )
     p.add_argument(
         "--llm-task-model",

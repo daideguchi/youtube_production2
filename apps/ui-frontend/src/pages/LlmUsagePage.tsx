@@ -47,7 +47,7 @@ export const LlmUsagePage: React.FC = () => {
       const models = (conf as any)?.models || [];
       for (const m of models) {
         if (allowed.size && !allowed.has(m)) {
-          setError(`Unknown model key in overrides: ${m} (task=${task})`);
+          setError(`Unknown model selector in overrides: ${m} (task=${task})`);
           return;
         }
       }
@@ -55,7 +55,7 @@ export const LlmUsagePage: React.FC = () => {
     setSaving(true);
     setError(null);
     try {
-      await saveLlmOverrides(overrides);
+      await saveLlmOverrides({ tasks: overrides?.tasks || {} });
       await load();
     } catch (e: any) {
       setError(e?.message || "failed to save");
@@ -88,6 +88,10 @@ export const LlmUsagePage: React.FC = () => {
   return (
     <div style={{ padding: 16 }}>
       <h2>LLM Usage & Overrides</h2>
+      <div style={{ marginBottom: 12, padding: 10, border: "1px solid #f59e0b", background: "#fff7ed", color: "#7c2d12" }}>
+        <b>注意:</b> ここはデバッグ用です。保存される override は <code>configs/llm_task_overrides.local.yaml</code>（ローカル専用）に書かれます。
+        SSOT（<code>configs/llm_task_overrides.yaml</code>）は書き換えません。通常運用は <code>/model-policy</code> と数字スロットを使ってください。
+      </div>
       <div style={{ display: "flex", gap: 16 }}>
         <div style={{ flex: 2 }}>
           <h3>Logs (latest {limit})</h3>

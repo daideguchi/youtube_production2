@@ -1,5 +1,10 @@
 # LLM レイヤー再設計プラン (SSOT)
 
+> 重要（現行SSOT）:
+> - この文書は過去の再設計プラン（completed）です。**現行運用の正本ではありません**。
+> - 現行のモデル選択SSOTは `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md` / `ssot/ops/OPS_ENV_VARS.md`。
+> - モデル切替は **数字スロット** `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）に統一されています。
+
 ## 1. 目的
 - 本リポジトリでは台本生成・TTS 補助・画像用チャンクなどで LLM を広範に利用しており、多くが **Azure gpt-5-mini 固定** かつタスク側ベタ書きになっている。【F:configs/llm_registry.json†L1-L74】
 - 台本品質を上げるには強い reasoning モデルをタスク単位で確実に使い分ける必要がある一方、TTS・画像系はコスト優先でよい。

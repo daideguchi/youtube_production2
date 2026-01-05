@@ -56,21 +56,6 @@ def _write_persona_mode_off(run_dir: Path) -> None:
         pass
 
 
-_CH02_MOTIF_RULES: list[tuple[str, str]] = [
-    (r"(電話|通話|受話器|コール|call)", "phone receiver, warm glow, empty room"),
-    (r"(スマホ|通知|SNS|DM|メッセージ|scroll|timeline|feed)", "glowing smartphone, dark table, quiet haze"),
-    (r"(仮面|マスク|キャラ|演じ|役割|persona|mask)", "mask on chair, empty stage, soft spotlight"),
-    (r"(記憶|思い出|過去|改竄|書き換え|偽の記憶|memory)", "faded photograph, smudged ink, eraser dust"),
-    (r"(鏡|反射|自己|自分|mirror|reflection)", "fogged mirror, dim corridor, pale light"),
-    (r"(扉|ドア|鍵|door|key)", "closed door, thin beam of light, dust in air"),
-    (r"(時間|時計|clock|time)", "clock shadow, long hands, late dusk"),
-    (r"(天秤|秤|balance|scale)", "balance scale, empty tray, quiet tension"),
-    (r"(霧|霞|haze|fog)", "hazy hallway, blue-gray shadows, stillness"),
-    (r"(光|希望|beam of light|sunbeam)", "single light beam, dust motes, deep shadow"),
-    (r"(深夜|ベッド|眠|寝室|night|bed)", "empty bed, rumpled sheets, small warm light"),
-    (r"(本|書物|ページ|book|page)", "closed book, blank pages, candlelight"),
-]
-
 _CH02_HUMAN_PATTERNS = re.compile(
     r"(老人|高齢|おじい|おばあ|老夫婦|年寄|爺|婆|老女|老婆|"
     r"\b(elderly|old man|old woman|grandfather|grandmother|senior|man|woman|boy|girl|person|people|portrait|face)\b"
@@ -80,25 +65,12 @@ _CH02_HUMAN_PATTERNS = re.compile(
 
 
 def _derive_ch02_visual_focus(cue: Dict[str, Any]) -> str:
-    # Prefer an object/metaphor motif. If cue.visual_focus looks human-centric, override it.
-    raw = " ".join(
-        [
-            str(cue.get("visual_focus") or ""),
-            str(cue.get("summary") or ""),
-            str(cue.get("text") or ""),
-        ]
-    )
-
-    if raw and not _CH02_HUMAN_PATTERNS.search(raw):
-        vf = str(cue.get("visual_focus") or "").strip()
-        if vf:
-            return vf
-
-    for pattern, motif in _CH02_MOTIF_RULES:
-        if re.search(pattern, raw, flags=re.IGNORECASE):
-            return motif
-
-    return "symbolic object motif, negative space, soft gold light"
+    # SSOT: Do NOT pick `visual_focus` via keyword dictionaries / fixed motif pools.
+    # Use the cue's planned `visual_focus` as-is; keep CH02 personless by default.
+    vf = str(cue.get("visual_focus") or "").strip()
+    if vf and not _CH02_HUMAN_PATTERNS.search(vf):
+        return vf
+    return "symbolic still life, negative space, soft gold light"
 
 
 def _derive_ch02_main_character(_: Dict[str, Any]) -> str:
@@ -326,7 +298,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, help="srt2images output run dir (contains image_cues.json)")
     ap.add_argument("--channel", help="Override channel id (e.g., CH02). If omitted, inferred from run_dir name.")
-    ap.add_argument("--force", action="store_true", help="Delete existing images/*.png before regeneration")
+    ap.add_argument("--force", action="store_true", help="Delete existing images/*.png before regeneration (destructive)")
+    ap.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Regenerate images even if images/*.png already exists (non-destructive; keeps existing files until overwritten).",
+    )
     ap.add_argument("--max", type=int, default=0, help="Limit number of cues/images to generate (0 = all)")
     ap.add_argument(
         "--only-missing",
@@ -414,6 +391,7 @@ def main() -> None:
         else:
             deleted = _delete_existing_pngs(images_dir)
             print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
+    force_generate = bool(args.force or args.overwrite)
 
     # Fill prompts + image_path for the subset we generate.
     gen_cues: List[Dict[str, Any]] = []
@@ -506,7 +484,7 @@ def main() -> None:
         gen_cues,
         mode="direct",
         concurrency=1,
-        force=bool(args.force),
+        force=force_generate,
         width=width,
         height=height,
         timeout_sec=int(args.timeout_sec),

@@ -6,6 +6,7 @@ import json
 import hashlib
 import logging
 import inspect
+import threading
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Union
 from pathlib import Path
@@ -42,6 +43,15 @@ TRANSIENT_STATUSES = set(DEFAULT_FALLBACK_POLICY["transient_statuses"])
 
 _FIREWORKS_API_KEY_RE = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
 
+class FireworksBudgetExceeded(RuntimeError):
+    pass
+
+_FIREWORKS_BUDGET_LOCK = threading.Lock()
+_FIREWORKS_BUDGET_STATE: Dict[str, Any] = {
+    "total": {"calls": 0, "tokens": 0},
+    "per_routing_key": {},
+}
+
 def _env_truthy(name: str, default: str = "0") -> bool:
     raw = (os.getenv(name) or "").strip()
     if not raw:
@@ -52,6 +62,15 @@ def _env_truthy(name: str, default: str = "0") -> bool:
 
 def _sha256_hex(value: str) -> str:
     return hashlib.sha256((value or "").encode("utf-8")).hexdigest()
+
+def _env_int(name: str) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return 0
+    try:
+        return max(0, int(raw))
+    except Exception:
+        return 0
 
 
 def _fireworks_keys_state_file_default() -> Path:
@@ -217,7 +236,7 @@ def _fireworks_key_candidates(primary_key: Optional[str]) -> List[str]:
                 fp = _sha256_hex(k)
                 ent = st.get(fp) if isinstance(st.get(fp), dict) else {}
                 s = str((ent or {}).get("status") or "").strip().lower()
-                if s in {"exhausted", "invalid"}:
+                if s in {"exhausted", "invalid", "suspended"}:
                     continue
                 filtered.append(k)
             keys = filtered
@@ -300,9 +319,14 @@ logger = logging.getLogger("LLMRouter")
 PROJECT_ROOT = repo_root()
 _BASE_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.yaml"
 _LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_router.local.yaml"
+_MODEL_SLOTS_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_model_slots.yaml"
+_MODEL_SLOTS_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_model_slots.local.yaml"
+_MODEL_CODES_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_model_codes.yaml"
+_MODEL_CODES_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_model_codes.local.yaml"
 FALLBACK_POLICY_PATH = PROJECT_ROOT / "configs" / "llm_fallback_policy.yaml"
 DEFAULT_LOG_PATH = logs_root() / "llm_usage.jsonl"
 TASK_OVERRIDE_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.yaml"
+TASK_OVERRIDE_LOCAL_PATH = PROJECT_ROOT / "configs" / "llm_task_overrides.local.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
 
 LLM_TRACE_SCHEMA_V1 = "ytm.llm_trace.v1"
@@ -654,6 +678,8 @@ class LLMRouter:
         
         _load_env_forced()
         self.config = self._load_config()
+        self.model_slots = self._load_model_slots()
+        self.model_codes = self._load_model_codes()
         self.fallback_policy = self._load_fallback_policy()
         self.task_overrides = self._load_task_overrides()
         self._setup_clients()
@@ -675,6 +701,168 @@ class LLMRouter:
             if isinstance(local, dict) and local:
                 return _deep_merge_dict(base, local)
         return base
+
+    def _load_model_slots(self) -> Dict[str, Any]:
+        """
+        Load optional model-slot config.
+
+        Slot selection is controlled via env `LLM_MODEL_SLOT` (int). Default is `default_slot`.
+        """
+        if not _MODEL_SLOTS_CONFIG_PATH.exists():
+            return {"schema_version": 1, "default_slot": 0, "slots": {0: {}}}
+        base = yaml.safe_load(_MODEL_SLOTS_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+        if not isinstance(base, dict):
+            base = {}
+        if _MODEL_SLOTS_LOCAL_CONFIG_PATH.exists():
+            try:
+                local = yaml.safe_load(_MODEL_SLOTS_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            except Exception:
+                local = {}
+            if isinstance(local, dict) and local:
+                return _deep_merge_dict(base, local)
+        return base
+
+    def _load_model_codes(self) -> Dict[str, Any]:
+        """
+        Load optional operator-facing model code map.
+
+        Code selection is supported in:
+        - configs/llm_model_slots.yaml (tiers/script_tiers)
+        - configs/llm_task_overrides.yaml (models)
+        - env overrides: LLM_FORCE_MODELS / LLM_FORCE_TASK_MODELS_JSON
+        - call(..., model_keys=[...]) and CLI flags that set the above env
+
+        Base: configs/llm_model_codes.yaml
+        Local: configs/llm_model_codes.local.yaml
+        """
+        if not _MODEL_CODES_CONFIG_PATH.exists():
+            return {"schema_version": 1, "codes": {}}
+        base = yaml.safe_load(_MODEL_CODES_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+        if not isinstance(base, dict):
+            base = {}
+        if _MODEL_CODES_LOCAL_CONFIG_PATH.exists():
+            try:
+                local = yaml.safe_load(_MODEL_CODES_LOCAL_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            except Exception:
+                local = {}
+            if isinstance(local, dict) and local:
+                return _deep_merge_dict(base, local)
+        return base
+
+    def _resolve_model_code(self, token: str) -> Optional[str]:
+        """
+        Resolve operator-facing code (e.g. `open-k-1`) to a configured model key.
+        """
+        raw = str(token or "").strip()
+        if not raw:
+            return None
+        conf = getattr(self, "model_codes", None)
+        codes = conf.get("codes") if isinstance(conf, dict) else None
+        if not isinstance(codes, dict):
+            return None
+        ent = codes.get(raw)
+        if ent is None and raw.lower() in codes:
+            ent = codes.get(raw.lower())
+        if ent is None:
+            return None
+        if isinstance(ent, str):
+            mk = ent.strip()
+            return mk or None
+        if isinstance(ent, dict):
+            mk = str(ent.get("model_key") or "").strip()
+            return mk or None
+        return None
+
+    def _model_slot_id(self) -> int:
+        raw = (os.getenv("LLM_MODEL_SLOT") or "").strip()
+        if raw == "":
+            # Compatibility: some legacy callers set LLM_FORCE_MODELS to a single integer.
+            # Treat it as a slot id only when LLM_MODEL_SLOT is not set.
+            forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
+            if forced_all.isdigit():
+                try:
+                    return max(0, int(forced_all))
+                except Exception:
+                    pass
+            try:
+                default_slot = (self.model_slots or {}).get("default_slot") if isinstance(self.model_slots, dict) else 0
+            except Exception:
+                default_slot = 0
+            try:
+                return max(0, int(default_slot))
+            except Exception:
+                return 0
+        try:
+            return max(0, int(raw))
+        except Exception:
+            return 0
+
+    def _model_slot_entry(self, slot_id: int) -> Dict[str, Any]:
+        conf = self.model_slots if isinstance(self.model_slots, dict) else {}
+        slots = conf.get("slots") if isinstance(conf.get("slots"), dict) else {}
+        ent = None
+        if slot_id in slots:
+            ent = slots.get(slot_id)
+        if ent is None and str(slot_id) in slots:
+            ent = slots.get(str(slot_id))
+        return ent if isinstance(ent, dict) else {}
+
+    def _model_slot_allows_openrouter_for_scripts(self) -> bool:
+        """
+        Slot-level policy knob: allow OpenRouter models for `script_*` tasks.
+
+        This exists so "all routing is controlled by numeric slots" works without additional env vars.
+        Env override `YTM_SCRIPT_ALLOW_OPENROUTER=1` still works and is treated as an explicit override.
+        """
+        ent = self._model_slot_entry(self._model_slot_id())
+        if not isinstance(ent, dict) or not ent:
+            return False
+        raw = ent.get("script_allow_openrouter")
+        if raw is None or raw == "":
+            return False
+        return str(raw).strip().lower() in ("1", "true", "yes", "y", "on")
+
+    def _model_slot_models_raw(self, *, task: str, tier: str) -> Optional[object]:
+        """
+        Return the raw slot model override for this task/tier, or None when not applicable.
+
+        Slot schema (configs/llm_model_slots.yaml):
+        - slots.<id>.tiers.<tier>: [model_key, ...]   (preferred)
+        - slots.<id>.force_models: [model_key, ...]   (legacy / global fallback)
+
+        Notes:
+        - Slot routing applies to text/chat tiers. image_gen is intentionally not overridden.
+        - `script_*` tasks must STOP on API failure; enforced elsewhere (no THINK failover).
+        """
+        slot_id = self._model_slot_id()
+        ent = self._model_slot_entry(slot_id)
+        if not isinstance(ent, dict) or not ent:
+            return None
+
+        # Do not override image generation tier.
+        if str(tier or "").strip() == "image_gen":
+            return None
+
+        tn = str(task or "")
+        mapping = None
+        if tn.startswith("script_") and isinstance(ent.get("script_tiers"), dict):
+            mapping = ent.get("script_tiers")
+        elif isinstance(ent.get("tiers"), dict):
+            mapping = ent.get("tiers")
+
+        tiers = mapping if isinstance(mapping, dict) else {}
+        if tiers:
+            v = tiers.get(tier)
+            if v in (None, "", []):
+                v = tiers.get(str(tier))
+            if v not in (None, "", []):
+                return v
+
+        # Legacy fallback: global force_models.
+        raw = ent.get("force_models")
+        if raw in (None, "", []):
+            return None
+        return raw
 
     def _log_usage(self, payload: Dict[str, Any]) -> None:
         if os.getenv("LLM_ROUTER_LOG_DISABLE") == "1":
@@ -699,15 +887,28 @@ class LLMRouter:
         return policy
 
     def _load_task_overrides(self) -> Dict[str, Any]:
-        overrides: Dict[str, Any] = {}
+        base_tasks: Dict[str, Any] = {}
         if TASK_OVERRIDE_PATH.exists():
             try:
                 loaded = yaml.safe_load(TASK_OVERRIDE_PATH.read_text()) or {}
                 if isinstance(loaded, dict):
-                    overrides = loaded.get("tasks", {})
+                    tasks = loaded.get("tasks", {})
+                    if isinstance(tasks, dict):
+                        base_tasks = tasks
             except Exception as e:
-                logger.warning(f"Failed to load task overrides; ignoring. Error: {e}")
-        return overrides
+                logger.warning(f"Failed to load task overrides; ignoring base. Error: {e}")
+
+        if TASK_OVERRIDE_LOCAL_PATH.exists():
+            try:
+                loaded_local = yaml.safe_load(TASK_OVERRIDE_LOCAL_PATH.read_text()) or {}
+                if isinstance(loaded_local, dict):
+                    local_tasks = loaded_local.get("tasks", {})
+                    if isinstance(local_tasks, dict) and local_tasks:
+                        return _deep_merge_dict(base_tasks, local_tasks)
+            except Exception as e:
+                logger.warning(f"Failed to load local task overrides; ignoring local. Error: {e}")
+
+        return base_tasks
 
     def _extract_usage(self, result: Any) -> Dict[str, Any]:
         """
@@ -974,22 +1175,105 @@ class LLMRouter:
         # Couldn't reclaim the same key → rotate.
         self._fireworks_rotate_client()
 
+    def _fireworks_budget_routing_key(self) -> str:
+        rk = (os.getenv("LLM_ROUTING_KEY") or "").strip()
+        return rk if rk else "__global__"
+
+    def _fireworks_budget_limits(self) -> Dict[str, int]:
+        return {
+            "max_calls_per_routing_key": _env_int("FIREWORKS_BUDGET_MAX_CALLS_PER_ROUTING_KEY"),
+            "max_tokens_per_routing_key": _env_int("FIREWORKS_BUDGET_MAX_TOKENS_PER_ROUTING_KEY"),
+            "max_calls_total": _env_int("FIREWORKS_BUDGET_MAX_CALLS_TOTAL"),
+            "max_tokens_total": _env_int("FIREWORKS_BUDGET_MAX_TOKENS_TOTAL"),
+        }
+
+    def _fireworks_budget_enabled(self) -> bool:
+        lim = self._fireworks_budget_limits()
+        return any(int(v or 0) > 0 for v in lim.values())
+
+    def _fireworks_budget_check(self, provider_name: str) -> None:
+        if str(provider_name or "") != "fireworks":
+            return
+        lim = self._fireworks_budget_limits()
+        if not any(int(v or 0) > 0 for v in lim.values()):
+            return
+
+        rk = self._fireworks_budget_routing_key()
+        with _FIREWORKS_BUDGET_LOCK:
+            per = _FIREWORKS_BUDGET_STATE.setdefault("per_routing_key", {}).setdefault(  # type: ignore[call-arg]
+                rk, {"calls": 0, "tokens": 0}
+            )
+            total = _FIREWORKS_BUDGET_STATE.setdefault("total", {"calls": 0, "tokens": 0})  # type: ignore[call-arg]
+
+            if lim["max_calls_per_routing_key"] and int(per.get("calls") or 0) >= lim["max_calls_per_routing_key"]:
+                raise FireworksBudgetExceeded(
+                    f"Fireworks budget exceeded: calls_per_routing_key "
+                    f"(routing_key={rk}, calls={int(per.get('calls') or 0)}, limit={lim['max_calls_per_routing_key']})"
+                )
+            if lim["max_tokens_per_routing_key"] and int(per.get("tokens") or 0) >= lim["max_tokens_per_routing_key"]:
+                raise FireworksBudgetExceeded(
+                    f"Fireworks budget exceeded: tokens_per_routing_key "
+                    f"(routing_key={rk}, tokens={int(per.get('tokens') or 0)}, limit={lim['max_tokens_per_routing_key']})"
+                )
+            if lim["max_calls_total"] and int(total.get("calls") or 0) >= lim["max_calls_total"]:
+                raise FireworksBudgetExceeded(
+                    f"Fireworks budget exceeded: calls_total "
+                    f"(calls={int(total.get('calls') or 0)}, limit={lim['max_calls_total']})"
+                )
+            if lim["max_tokens_total"] and int(total.get("tokens") or 0) >= lim["max_tokens_total"]:
+                raise FireworksBudgetExceeded(
+                    f"Fireworks budget exceeded: tokens_total "
+                    f"(tokens={int(total.get('tokens') or 0)}, limit={lim['max_tokens_total']})"
+                )
+
+    def _fireworks_budget_add_from_result(self, provider_name: str, result: Any) -> None:
+        if str(provider_name or "") != "fireworks":
+            return
+        if not self._fireworks_budget_enabled():
+            return
+        usage = self._extract_usage(result)
+        try:
+            pt = int(usage.get("prompt_tokens") or 0)
+            ct = int(usage.get("completion_tokens") or 0)
+            tt = int(usage.get("total_tokens") or (pt + ct))
+        except Exception:
+            tt = 0
+
+        rk = self._fireworks_budget_routing_key()
+        with _FIREWORKS_BUDGET_LOCK:
+            per = _FIREWORKS_BUDGET_STATE.setdefault("per_routing_key", {}).setdefault(  # type: ignore[call-arg]
+                rk, {"calls": 0, "tokens": 0}
+            )
+            total = _FIREWORKS_BUDGET_STATE.setdefault("total", {"calls": 0, "tokens": 0})  # type: ignore[call-arg]
+            per["calls"] = int(per.get("calls") or 0) + 1
+            per["tokens"] = int(per.get("tokens") or 0) + int(tt or 0)
+            total["calls"] = int(total.get("calls") or 0) + 1
+            total["tokens"] = int(total.get("tokens") or 0) + int(tt or 0)
+
     def get_models_for_task(self, task: str, *, model_keys_override: Optional[List[str]] = None) -> List[str]:
         # Runtime overrides (CLI/UI):
         # - LLM_FORCE_MODELS="model_key1,model_key2"
         # - LLM_FORCE_TASK_MODELS_JSON='{"task_name":["model_key1","model_key2"]}'
         # These allow swapping models without editing router configs.
         models_conf = self.config.get("models", {}) or {}
+        task_conf = self.config.get("tasks", {}).get(task, {}) or {}
+        override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
+        tier = override_conf.get("tier") or task_conf.get("tier") or "standard"
+        tier_name = str(tier or "").strip() or "standard"
 
         def _truthy_env(name: str) -> bool:
             return (os.getenv(name) or "").strip().lower() in ("1", "true", "yes", "y", "on")
 
-        def _filter_disallowed_models(task_name: str, candidates: List[str]) -> List[str]:
+        allow_openrouter_for_scripts = self._model_slot_allows_openrouter_for_scripts()
+
+        def _filter_disallowed_models(task_name: str, task_tier: str, candidates: List[str]) -> List[str]:
             # Hard safety rule:
-            # - Never route script-writing tasks through Azure/OpenAI "GPT" models.
-            #   (User requirement: gpt-5-mini must not touch scripts.)
+            # - Never route heavy_reasoning tasks OR script-writing tasks through Azure/OpenAI "GPT" models.
+            #   (User requirement: gpt-5-mini must not touch heavy_reasoning; also never touch scripts.)
             tn = str(task_name or "")
-            if not tn.startswith("script_"):
+            is_script = tn.startswith("script_")
+            is_heavy = str(task_tier or "").strip() == "heavy_reasoning"
+            if not (is_script or is_heavy):
                 return candidates
             out: List[str] = []
             removed: List[str] = []
@@ -1003,7 +1287,9 @@ class LLMRouter:
                 # - For any `script_*` task, do not attempt OpenRouter models unless explicitly allowed.
                 # - This prevents accidental provider drift and matches the operational rule:
                 #   "If Fireworks is down, STOP (do not fall back to OpenRouter for scripts)."
-                if provider == "openrouter" and not _truthy_env("YTM_SCRIPT_ALLOW_OPENROUTER"):
+                if is_script and provider == "openrouter" and not (
+                    _truthy_env("YTM_SCRIPT_ALLOW_OPENROUTER") or allow_openrouter_for_scripts
+                ):
                     removed.append(mk)
                     continue
                 out.append(mk)
@@ -1081,7 +1367,10 @@ class LLMRouter:
             out: List[str] = []
             seen: set[str] = set()
             for tok in forced:
-                mk = tok if tok in models_conf else _resolve_model_key_alias(tok)
+                mk = tok if tok in models_conf else (self._resolve_model_code(tok) or _resolve_model_key_alias(tok))
+                if mk and mk not in models_conf:
+                    logger.warning("LLM model code/alias resolved to unknown model key (%s -> %s)", tok, mk)
+                    mk = None
                 if mk and mk not in seen:
                     out.append(mk)
                     seen.add(mk)
@@ -1091,7 +1380,7 @@ class LLMRouter:
             forced = _split_model_keys(model_keys_override)
             forced_valid = _normalize_forced_models(forced)
             if forced_valid:
-                return _filter_disallowed_models(task, forced_valid)
+                return _filter_disallowed_models(task, tier_name, forced_valid)
             if forced:
                 logger.warning("model_keys_override: unknown model keys: %s", forced)
 
@@ -1103,7 +1392,7 @@ class LLMRouter:
                     forced = _split_model_keys(mapping.get(task))
                     forced_valid = _normalize_forced_models(forced)
                     if forced_valid:
-                        return _filter_disallowed_models(task, forced_valid)
+                        return _filter_disallowed_models(task, tier_name, forced_valid)
                     if forced:
                         logger.warning("LLM_FORCE_TASK_MODELS_JSON: unknown model keys for task=%s: %s", task, forced)
             except Exception as e:
@@ -1111,16 +1400,25 @@ class LLMRouter:
 
         forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
         if forced_all:
-            forced = _split_model_keys(forced_all)
+            # Numeric-only LLM_FORCE_MODELS is treated as a legacy slot alias (handled via LLM_MODEL_SLOT logic).
+            if (os.getenv("LLM_MODEL_SLOT") or "").strip() == "" and forced_all.isdigit():
+                forced_all = ""
+            if forced_all:
+                forced = _split_model_keys(forced_all)
+                forced_valid = _normalize_forced_models(forced)
+                if forced_valid:
+                    return _filter_disallowed_models(task, tier_name, forced_valid)
+                if forced:
+                    logger.warning("LLM_FORCE_MODELS: unknown model keys: %s", forced)
+
+        slot_raw = self._model_slot_models_raw(task=task, tier=tier_name)
+        if slot_raw is not None:
+            forced = _split_model_keys(slot_raw)
             forced_valid = _normalize_forced_models(forced)
             if forced_valid:
-                return _filter_disallowed_models(task, forced_valid)
+                return _filter_disallowed_models(task, tier_name, forced_valid)
             if forced:
-                logger.warning("LLM_FORCE_MODELS: unknown model keys: %s", forced)
-
-        task_conf = self.config.get("tasks", {}).get(task, {})
-        override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
-        tier = override_conf.get("tier") or task_conf.get("tier") or "standard"
+                logger.warning("LLM_MODEL_SLOT=%s: unknown model keys: %s", self._model_slot_id(), forced)
         
         tier_models = []
         # explicit models override wins
@@ -1146,7 +1444,12 @@ class LLMRouter:
                         tier_models = candidates[tier]
                 except Exception as e:
                     logger.warning(f"Failed to load tier candidates override: {e}")
-        return _filter_disallowed_models(task, list(tier_models or []))
+        resolved = _normalize_forced_models(_split_model_keys(tier_models))
+        if resolved:
+            return _filter_disallowed_models(task, tier_name, resolved)
+        if tier_models:
+            logger.warning("tier models: unknown model keys: %s", _split_model_keys(tier_models))
+        return []
 
     def call(
         self,
@@ -1257,26 +1560,31 @@ class LLMRouter:
         override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
 
         # -------------------------------------------------------------------
-        # Strict model selection policy (NO silent downgrade)
+        # Strict model selection policy (no silent model/provider swap)
         #
-        # User requirement:
-        # - If a human explicitly forces a model, we must NOT silently swap to a different model/provider,
-        #   and we must NOT auto-failover to Codex/THINK. Instead, STOP and report.
+        # Policy:
+        # - When a model chain is explicitly pinned, NEVER expand the chain beyond that explicit set.
+        # - For non-script tasks, API failures may still fail over to THINK MODE (agent queue), because that
+        #   does not change the chosen LLM model chain.
+        # - For `script_*` tasks, do NOT fail over to THINK MODE; STOP and log (operational rule).
         #
-        # What counts as "explicit" (strict by default):
+        # What counts as "explicit":
         # - call(..., model_keys=[...]) was provided
         # - env overrides are present: LLM_FORCE_MODELS / LLM_FORCE_MODEL / LLM_FORCE_TASK_MODELS_JSON
+        # - model-slot override is active: LLM_MODEL_SLOT selects a slot with `force_models`
         # - per-task config explicitly pins models: tasks.<task>.models / overrides.<task>.models
         # - per-task config sets allow_fallback: false
-        #
-        # Override:
-        # - allow_fallback=True explicitly allows trying multiple models from the candidate list,
-        #   but still does not allow Codex/THINK failover (models must remain within the explicit set).
         # -------------------------------------------------------------------
         forced_env_models = bool(
             (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
             or (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
         )
+        slot_forced_models = False
+        try:
+            tier_for_slot = override_conf.get("tier") or task_conf.get("tier") or "standard"
+            slot_forced_models = self._model_slot_models_raw(task=task, tier=str(tier_for_slot)) is not None
+        except Exception:
+            slot_forced_models = False
         conf_allow_fallback = None
         if isinstance(override_conf, dict) and "allow_fallback" in override_conf:
             conf_allow_fallback = override_conf.get("allow_fallback")
@@ -1295,7 +1603,11 @@ class LLMRouter:
             explicit_models_from_conf = False
 
         strict_model_selection = (
-            bool(model_keys) or forced_env_models or explicit_models_from_conf or (allow_fallback is False)
+            bool(model_keys)
+            or forced_env_models
+            or slot_forced_models
+            or explicit_models_from_conf
+            or (allow_fallback is False)
         )
         allow_fallback_effective = allow_fallback if allow_fallback is not None else (not strict_model_selection)
         if strict_model_selection and not allow_fallback_effective and len(models) > 1:
@@ -1621,6 +1933,7 @@ class LLMRouter:
                 logger.info(f"Router: Invoking {model_key} for {task}...")
                 start = time.time()
                 invoke_options = dict(safe_options)
+                self._fireworks_budget_check(provider_name)
                 raw_result = self._invoke_provider(
                     provider_name,
                     client,
@@ -1629,6 +1942,7 @@ class LLMRouter:
                     return_raw=True,
                     **safe_options,
                 )
+                self._fireworks_budget_add_from_result(provider_name, raw_result)
                 finish_reason = _extract_finish_reason(raw_result)
 
                 # Retry-on-truncation (finish_reason == "length") to keep low default caps safe.
@@ -1691,6 +2005,7 @@ class LLMRouter:
                         base_options["max_tokens"] = new_max
                         retry_opts = dict(safe_options)
                         retry_opts[max_key] = new_max
+                        self._fireworks_budget_check(provider_name)
                         raw_retry = self._invoke_provider(
                             provider_name,
                             client,
@@ -1699,6 +2014,7 @@ class LLMRouter:
                             return_raw=True,
                             **retry_opts,
                         )
+                        self._fireworks_budget_add_from_result(provider_name, raw_retry)
                         finish_reason_retry = _extract_finish_reason(raw_retry)
                         retry_meta = {
                             "reason": "finish_reason_length",
@@ -1743,6 +2059,7 @@ class LLMRouter:
                                 attempt + 1,
                                 empty_retry,
                             )
+                            self._fireworks_budget_check(provider_name)
                             raw_retry2 = self._invoke_provider(
                                 provider_name,
                                 client,
@@ -1751,6 +2068,7 @@ class LLMRouter:
                                 return_raw=True,
                                 **invoke_options,
                             )
+                            self._fireworks_budget_add_from_result(provider_name, raw_retry2)
                             finish_reason2 = _extract_finish_reason(raw_retry2)
                             content2 = self._extract_content(provider_name, model_conf, raw_retry2)
                             if isinstance(content2, str) and content2.strip():
@@ -1817,6 +2135,18 @@ class LLMRouter:
                     "finish_reason": finish_reason,
                     "timestamp": time.time(),
                 }
+                if provider_name == "fireworks":
+                    # For spend attribution / incident response:
+                    # - Log only a stable fingerprint of the active Fireworks API key (never the raw key).
+                    try:
+                        keys = getattr(self, "_fireworks_keys", None)
+                        idx = getattr(self, "_fireworks_key_index", None)
+                        if isinstance(keys, list) and isinstance(idx, int) and 0 <= idx < len(keys):
+                            k = str(keys[idx] or "").strip()
+                            if k:
+                                log_payload["fireworks_key_fp"] = _sha256_hex(k)
+                    except Exception:
+                        pass
                 if routing:
                     log_payload["routing"] = routing
                 if retry_meta:
@@ -1840,6 +2170,9 @@ class LLMRouter:
                     "cache": {"write": True, "path": str(cache_write_path)} if cache_write_path else None,
                     "routing": routing,
                 }
+            except FireworksBudgetExceeded:
+                # Budget guard is a deliberate STOP (no fallback to other models/providers).
+                raise
             except Exception as e:
                 status = _extract_status(e)
                 logger.warning(f"Failed to call {model_key}: {e} (status={status})")
@@ -1892,7 +2225,8 @@ class LLMRouter:
                 "timestamp": time.time(),
             }
         )
-        if not strict_model_selection:
+        allow_think_failover = not str(task or "").startswith("script_")
+        if allow_think_failover:
             failover = maybe_failover_to_think(
                 task=task,
                 messages=messages,
@@ -1946,7 +2280,7 @@ class LLMRouter:
                 mn = str(model_conf.get("model_name") or "").strip().lower()
             except Exception:
                 mn = ""
-            if "deepseek-v3.2-exp" in mn:
+            if ("deepseek-v3.2-exp" in mn) or ("kimi-k2-thinking" in mn):
                 eb = params.get("extra_body")
                 if not isinstance(eb, dict):
                     eb = {}

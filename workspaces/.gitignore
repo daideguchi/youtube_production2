@@ -21,7 +21,13 @@ episodes/*
 !episodes/README.md
 
 # Allow manual script writing for these channels
+!scripts/CH09/**
 !scripts/CH10/**
+!scripts/CH13/**
+!scripts/CH14/**
+!scripts/CH15/**
+!scripts/CH16/**
 !scripts/CH22/**
 !scripts/CH23/**
 !scripts/CH24/**
+!scripts/CH26/**

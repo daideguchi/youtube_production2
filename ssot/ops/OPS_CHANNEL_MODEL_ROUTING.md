@@ -1,0 +1,162 @@
+# OPS_CHANNEL_MODEL_ROUTING.md
+
+目的: **チャンネル単位で「どの処理がどのモデルを使うか」**を 1 枚に集約し、モデル名/YAML書き換え運用を撲滅する。
+
+---
+
+## 0) まず覚える3点（チャンネル差分）
+
+チャンネルで基本的に違うのは **この3つだけ**:
+
+- サムネ画像（`thumbnail_image_gen`）
+- 台本LLM（`script_*`）
+- 動画内画像（`visual_image_gen`）
+
+UI（`/model-policy`）では、この3点セットを **1つのコード**で表す:
+
+- 形式: `<thumb>_<script>_<video>`（必要なら suffix `@xN` を付ける）
+  - `<thumb>`: サムネ画像の **画像コード**（例: `g-1`, `f-4`）
+  - `<script>`: 台本の **LLMコード**（例: `script-main-1`）
+  - `<video>`: 動画内画像の **画像コード**（例: `g-1`, `f-1`）
+  - `@xN`（任意）: 実行モードの共有用（例: `@x3` = THINK MODE）
+
+例:
+
+- CH01 を「いまの運用（Gemini-only）」で回す: `g-1_script-main-1_g-1`
+- CH01 の「動画内画像だけ」Flux Max にする（例）: `g-1_script-main-1_f-4`
+- THINK MODE で回す（例）: `g-1_script-main-1_g-1@x3`
+  - 意味: `LLM_EXEC_SLOT=3`（`configs/llm_exec_slots.yaml`）
+
+注:
+
+- 画像は `IMAGE_CLIENT_FORCE_MODEL_KEY_*` による **実行時 override** があるため、UIでは `effective` と `config` を併記する。
+- 台本（`script_*`）は **現状チャンネルごとの切替は無い**（task override / 数字スロットで統制）。必要ならSSOTで設計を追加する。
+
+---
+
+## 1) 触っていい“操作レバー”だけ（ここ以外を触らない）
+
+### テキストLLM（台本以外の一般タスク）
+- **数字スロット**: `LLM_MODEL_SLOT`（= `configs/llm_model_slots.yaml`）
+- 推奨: CLI の `--llm-slot <N>`（モデル名を直書きしない）
+
+### 実行モード（どこで動く？）
+- **数字スロット**: `LLM_EXEC_SLOT`（= `configs/llm_exec_slots.yaml`）
+  - 例: `--exec-slot 3`（THINK MODE）, `--exec-slot 1`（codex exec 強制ON）
+- 推奨: `./scripts/with_ytm_env.sh --exec-slot <N> ...`（env直書きの増殖を防ぐ）
+
+### 台本（script_*）
+- **台本は task override で固定**（= `configs/llm_task_overrides.yaml`）
+- UI/デバッグ上書きは `configs/llm_task_overrides.local.yaml`（git管理しない）にのみ書く（SSOTの破壊防止）
+- `script_*` は **失敗時に停止・記録**（THINK へフォールバックしない）
+
+### 画像（動画用 / サムネ）
+- **画像コード**: `configs/image_model_slots.yaml`
+- 動画用画像（SRT→images）: `packages/video_pipeline/config/channel_presets.json` の `image_generation.model_key`
+- サムネ: `workspaces/thumbnails/templates.json` の `image_model_key`
+- UI:
+  - 方針ビュー（表）: `/model-policy`
+  - 設定編集: `/image-model-routing`
+
+---
+
+## 2) テキストLLM: スロット（概要）
+
+`configs/llm_model_slots.yaml`（slot は **“ルーティングの型”**）
+
+- `slot 0` `openrouter_main`（デフォルト）
+  - `heavy_reasoning=txt-main-hr-1`
+  - `standard=txt-main-std-1`
+  - `cheap=txt-main-cheap-1`
+  - `vision_caption=txt-vision-caption-1`
+  - `web_search=txt-web-search-1`
+  - `master_plan_opus=txt-master-plan-opus-1`
+  - `script_*` は `script-main-1`（OpenRouterへは流さない）
+- `slot 1` `openrouter_kimi_all`（全 tier を Kimi 固定）
+- `slot 2` `openrouter_mistral_all`（全 tier を Mistral free 固定）
+- `slot 3` `fireworks_deepseek_v3_2`（全 tier を Fireworks DeepSeek 固定）
+- `slot 4` `fireworks_glm_4p7`
+- `slot 5` `fireworks_mixtral_8x22b`
+
+---
+
+## 3) 台本（script_*）: 固定チェーン（概要）
+
+`configs/llm_task_overrides.yaml`
+
+- main: `script-main-1`
+- fallback（`allow_fallback=true` の task のみ）:
+  - `script-fallback-glm-1`
+  - `script-fallback-kimi-1`
+  - `script-fallback-mixtral-1`
+- 非台本でも pin されるタスク（例）:
+  - `visual_image_cues_plan=visual-cues-plan-main-1`
+
+（コード→実体の対応は `configs/llm_model_codes.yaml`）
+
+---
+
+## 4) 画像コード（推奨）
+
+`configs/image_model_slots.yaml`
+
+- `img-gemini-flash-1`（alias: `g-1`）
+- `img-flux-schnell-1`（alias: `f-1`）
+- `img-flux-pro-1`（alias: `f-3`）
+- `img-flux-max-1`（alias: `f-4`）
+
+既定（SSOT）:
+- `visual_image_gen` default: `img-flux-schnell-1`
+- `thumbnail_image_gen` default: `img-flux-max-1`
+
+---
+
+## 5) 画像ポリシー（チャンネル別の要件）: まずここを見る
+
+### 5.1 動画用画像（SRT→images / visual_image_gen）
+
+| CH | 要件（動画用画像） | いま通る前提 |
+|---|---|---|
+| 共通 | デフォは `img-flux-schnell-1`（= `f-1`） | デフォ維持 |
+| CH01 | **絶対に高品質**（`img-flux-max-1` または `img-gemini-flash-1`） | **いまは `img-gemini-flash-1` で回す** |
+| CH02 | `img-flux-pro-1` または `img-flux-max-1` | **いまは `img-gemini-flash-1` で回す** |
+| CH04 | `img-flux-pro-1` / `img-flux-max-1` / `img-gemini-flash-1` | **いまは `img-gemini-flash-1` で回す** |
+| CH06 | `img-flux-pro-1` / `img-flux-max-1` / `img-gemini-flash-1` | **いまは `img-gemini-flash-1` で回す** |
+| CH08 | `img-flux-schnell-1` メインでOK | そのままでOK |
+
+運用メモ:
+- 「いまは Gemini しか通らない」間は、YAML を書き換えず **環境変数で強制**する（ブレ/事故防止）。
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=img-gemini-flash-1`（または `g-1`）
+
+### 5.2 サムネ（thumbnail_image_gen）
+
+- ルール: **絶対に `img-gemini-flash-1` か `img-flux-max-1`**
+- 優先順位: **Gemini > Max**
+- 「いまは Gemini しか通らない」間は:
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=img-gemini-flash-1`（または `g-1`）
+- 将来: fal.ai を追加しても flux は使う（固定はしない）
+
+---
+
+## 6) その他のLLM処理（共通）: task → tier → slot
+
+「Bテキスト」「画像プロンプト整形」「TTS補助」などの細かい処理は、基本的に **全チャンネル共通**。
+
+- task（例）:
+  - `belt_generation`（Bテキスト）
+  - `visual_prompt_refine`（画像プロンプト整形）
+  - `visual_thumbnail_caption`（サムネ要約）
+  - `tts_segment`（TTS分割）
+- これらは `configs/llm_router.yaml` の `tasks.<task>.tier` で tier が決まり、
+  **tier は `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）でモデルコードに解決**される。
+- 一覧はUI `/model-policy` の「その他のLLM処理（共通）」表で確認する。
+
+---
+
+## 7) 「いまの設定」を見る場所（手で表を保守しない）
+
+チャンネル別の「現状」は更新頻度が高く、SSOTに **手書きのスナップショット表**を置くとズレます。
+
+- 一覧（推奨）: UI `/model-policy`（effective + config + ENV override）
+- 編集: UI `/image-model-routing`（画像） / SSOT（台本LLM・スロット）
+- 生成チェック: `python3 scripts/ops/build_ssot_catalog.py --check`

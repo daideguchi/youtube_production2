@@ -16,12 +16,22 @@ from factory_common import fireworks_keys as fw_keys
 from factory_common.paths import logs_root, repo_root
 
 LOG_PATH = logs_root() / "llm_usage.jsonl"
-OVERRIDE_PATH = repo_root() / "configs" / "llm_task_overrides.yaml"
-MODEL_REGISTRY_PATH = repo_root() / "configs" / "llm_model_registry.yaml"
-IMAGE_MODELS_PATH = repo_root() / "configs" / "image_models.yaml"
+OVERRIDE_BASE_PATH = repo_root() / "configs" / "llm_task_overrides.yaml"
+OVERRIDE_LOCAL_PATH = repo_root() / "configs" / "llm_task_overrides.local.yaml"
+LLM_ROUTER_CONFIG_PATH = repo_root() / "configs" / "llm_router.yaml"
+LLM_MODEL_CODES_PATH = repo_root() / "configs" / "llm_model_codes.yaml"
 SCRIPTS_ROOT = repo_root() / "workspaces" / "scripts"
 
 router = APIRouter(prefix="/api/llm-usage", tags=["llm_usage"])
+
+def _deep_merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge_dict(out.get(k) or {}, v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
 
 
 def _load_records(limit: int) -> List[Dict[str, Any]]:
@@ -577,24 +587,53 @@ def usage_summary(
 @router.get("/overrides")
 def get_overrides():
     """
-    Return current task overrides (YAML content as dict). Empty dict if missing.
+    Return current task overrides (effective), with base/local paths for visibility.
+
+    Notes:
+    - Base (tracked): configs/llm_task_overrides.yaml
+    - Local (untracked): configs/llm_task_overrides.local.yaml
+    - UI writes ONLY to the local file to avoid SSOT drift.
     """
-    if not OVERRIDE_PATH.exists():
-        return {"tasks": {}}
+    base: Dict[str, Any] = {"tasks": {}}
+    local: Dict[str, Any] = {"tasks": {}}
     try:
-        data = yaml.safe_load(OVERRIDE_PATH.read_text()) or {}
-        if not isinstance(data, dict):
-            raise ValueError("override file is not a mapping")
-        return data
+        if OVERRIDE_BASE_PATH.exists():
+            obj = yaml.safe_load(OVERRIDE_BASE_PATH.read_text()) or {}
+            if isinstance(obj, dict):
+                base = obj
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read overrides: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to read base overrides: {e}")
+
+    try:
+        if OVERRIDE_LOCAL_PATH.exists():
+            obj = yaml.safe_load(OVERRIDE_LOCAL_PATH.read_text()) or {}
+            if isinstance(obj, dict):
+                local = obj
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read local overrides: {e}")
+
+    base_tasks = base.get("tasks") if isinstance(base.get("tasks"), dict) else {}
+    local_tasks = local.get("tasks") if isinstance(local.get("tasks"), dict) else {}
+    effective_tasks = _deep_merge_dict(base_tasks, local_tasks)
+
+    return {
+        "schema": "ytm.llm_task_overrides.v1",
+        "paths": {"base": str(OVERRIDE_BASE_PATH), "local": str(OVERRIDE_LOCAL_PATH)},
+        "counts": {"base": len(base_tasks), "local": len(local_tasks), "effective": len(effective_tasks)},
+        "tasks": effective_tasks,
+        "local_tasks": local_tasks,
+    }
 
 
 @router.post("/overrides")
 def set_overrides(body: Dict[str, Any]):
     """
     Replace task overrides (expects dict with top-level 'tasks').
-    Validates model keys against llm_model_registry + image_models.
+    Validates model selectors against:
+      - configs/llm_router.yaml: models.<model_key>
+      - configs/llm_model_codes.yaml: codes.<code>
+
+    Writes ONLY to configs/llm_task_overrides.local.yaml (untracked) to avoid SSOT drift.
     """
     if not isinstance(body, dict) or "tasks" not in body:
         raise HTTPException(status_code=400, detail="Payload must include 'tasks' mapping")
@@ -602,7 +641,7 @@ def set_overrides(body: Dict[str, Any]):
     if not isinstance(tasks, dict):
         raise HTTPException(status_code=400, detail="'tasks' must be a mapping")
 
-    allowed = _allowed_models()
+    allowed = _allowed_llm_selectors()
     for task, conf in tasks.items():
         if not isinstance(conf, dict):
             raise HTTPException(status_code=400, detail=f"Invalid override format for task {task}")
@@ -613,39 +652,69 @@ def set_overrides(body: Dict[str, Any]):
             if allowed and m not in allowed:
                 raise HTTPException(status_code=400, detail=f"Unknown model key {m} for task {task}")
 
+    base_tasks: Dict[str, Any] = {}
     try:
-        OVERRIDE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OVERRIDE_PATH.write_text(yaml.safe_dump({"tasks": tasks}, allow_unicode=True, sort_keys=False))
+        if OVERRIDE_BASE_PATH.exists():
+            base_obj = yaml.safe_load(OVERRIDE_BASE_PATH.read_text()) or {}
+            if isinstance(base_obj, dict) and isinstance(base_obj.get("tasks"), dict):
+                base_tasks = base_obj.get("tasks") or {}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read base overrides: {e}")
+
+    def _normalize(obj: Any) -> Any:
+        if obj is None:
+            return None
+        if isinstance(obj, dict):
+            return {str(k): _normalize(v) for k, v in sorted(obj.items(), key=lambda kv: str(kv[0]))}
+        if isinstance(obj, list):
+            return [_normalize(v) for v in obj]
+        return obj
+
+    local_tasks: Dict[str, Any] = {}
+    for task, conf in tasks.items():
+        base_conf = base_tasks.get(task)
+        base_conf_norm = _normalize(base_conf) if isinstance(base_conf, dict) else _normalize({})
+        conf_norm = _normalize(conf)
+        if conf_norm != base_conf_norm:
+            local_tasks[task] = conf
+
+    try:
+        OVERRIDE_LOCAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+        OVERRIDE_LOCAL_PATH.write_text(
+            yaml.safe_dump({"tasks": local_tasks}, allow_unicode=True, sort_keys=False)
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write overrides: {e}")
-    return {"status": "ok", "tasks": tasks}
+    return {"status": "ok", "paths": {"base": str(OVERRIDE_BASE_PATH), "local": str(OVERRIDE_LOCAL_PATH)}, "tasks": tasks, "local_tasks": local_tasks}
 
 
 @router.get("/models")
 def list_models():
     """
-    Return available model keys (llm_model_registry + image_models).
+    Return available model selectors for overrides.
+    - model_key from configs/llm_router.yaml
+    - code from configs/llm_model_codes.yaml
     """
-    models = set()
-    if MODEL_REGISTRY_PATH.exists():
-        try:
-            data = yaml.safe_load(MODEL_REGISTRY_PATH.read_text()) or {}
-            if isinstance(data, dict):
-                models.update(data.get("models", {}).keys())
-        except Exception:
-            pass
-    if IMAGE_MODELS_PATH.exists():
-        try:
-            data = yaml.safe_load(IMAGE_MODELS_PATH.read_text()) or {}
-            if isinstance(data, dict):
-                models.update(data.get("models", {}).keys())
-        except Exception:
-            pass
-    return {"models": sorted(models)}
+    return {"models": sorted(_allowed_llm_selectors())}
 
 
-def _allowed_models() -> set:
-    return set(list_models()["models"])
+def _allowed_llm_selectors() -> set[str]:
+    out: set[str] = set()
+    try:
+        if LLM_ROUTER_CONFIG_PATH.exists():
+            data = yaml.safe_load(LLM_ROUTER_CONFIG_PATH.read_text()) or {}
+            if isinstance(data, dict) and isinstance(data.get("models"), dict):
+                out.update(str(k) for k in data.get("models", {}).keys())
+    except Exception:
+        pass
+    try:
+        if LLM_MODEL_CODES_PATH.exists():
+            data = yaml.safe_load(LLM_MODEL_CODES_PATH.read_text()) or {}
+            if isinstance(data, dict) and isinstance(data.get("codes"), dict):
+                out.update(str(k) for k in data.get("codes", {}).keys())
+    except Exception:
+        pass
+    return {s for s in out if s and str(s).strip()}
 
 
 @router.get("/fireworks/status")

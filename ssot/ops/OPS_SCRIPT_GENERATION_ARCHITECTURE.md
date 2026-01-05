@@ -143,6 +143,7 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - モデル名をコード/プロンプトに直書きしない（設定に集約し、差分が追える）。
 
 SSOT配置（正本）:
+- 数字スロット（運用の主レバー）: `configs/llm_model_slots.yaml`（個別上書き: `configs/llm_model_slots.local.yaml`）
 - タスク別のモデル指定: `configs/llm_task_overrides.yaml`（`script_*` の override）
 - モデルID/プロバイダ登録: `configs/llm.yml` / `configs/llm_router.yaml`（logical model key → provider実体）
 
@@ -152,13 +153,14 @@ SSOT配置（正本）:
     `script_a_text_quality_shrink`, `script_a_text_quality_extend`, `script_a_text_final_polish`,
     `script_semantic_alignment_fix` など（本文を書き換える可能性があるもの）。
 - **切替レバーは1つに統一**し、複数の方式を併用しない（運用の混乱防止）。
-  - 推奨（迷わない/壊さない）: `LLM_FORCE_MODELS`（または入口CLIの `--llm-model`）で **この実行だけ**切替する。
-    - repoのYAMLを触らずに比較できる（ロールバック事故を避ける）。
+  - 推奨（迷わない/壊さない）: **数字スロット** `LLM_MODEL_SLOT`（または入口CLIの `--llm-slot`）で **この実行だけ**切替する。
+    - repoのYAMLを触らずに比較できる（ロールバック事故を避ける）。モデル名の書き換えもしない。
     - 入口（例）:
-      - `python3 scripts/ops/script_runbook.py … --llm-model fw_glm_4p7`
-      - `python -m script_pipeline.cli … --llm-model fw_mixtral_8x22b_instruct`
-    - 実体: `LLM_FORCE_MODELS="fw_glm_4p7"`（カンマ区切りでチェーンも指定可）
-  - 既定の更新（恒久切替）が必要な場合のみ、`configs/llm_task_overrides.yaml` の `script_*` の `models:` を **1箇所の参照（anchor）**に集約して差し替える。
+      - `python3 scripts/ops/script_runbook.py … --llm-slot 4`
+      - `python -m script_pipeline.cli … --llm-slot 2`
+    - 互換（暫定）: `--llm-model 2` のように **数字だけ**渡した場合も slot として解釈する。
+  - `LLM_FORCE_MODELS` / `--llm-model fw-g-1` のような **明示モデル指定は緊急デバッグ用途のみ**（運用では増やさない）。
+  - 既定の更新（恒久切替）が必要な場合は、`configs/llm_model_slots.yaml` の slot 定義を更新する（個別環境の差分は `configs/llm_model_slots.local.yaml`）。
 
 モデルプロファイルの契約（Aテキスト本文用）:
 - **thinking 必須**（内容生成/修正は推論品質が支配的）。
@@ -166,8 +168,8 @@ SSOT配置（正本）:
 - 最大出力が大きいこと（長文でも `finish_reason=length` でループしない）。
 
 モデルキー（例: Fireworks / 比較用。正本は `configs/llm_router.yaml:models`）:
-- 既定（本文）: `or_deepseek_v3_2_exp`（Fireworks / DeepSeek v3.2 exp, thinking ON）
-- 比較候補: `fw_glm_4p7`（Fireworks / GLM-4.7）, `fw_mixtral_8x22b_instruct`（Fireworks / Mistral系Mixtral）
+- 既定（本文）: `fw-d-1`（Fireworks / DeepSeek v3.2 exp, thinking ON）
+- 比較候補: `fw-g-1`（Fireworks / GLM-4.7）, `fw-m-1`（Fireworks / Mistral系Mixtral）
 	- Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
 	  - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
 		  - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
@@ -179,7 +181,7 @@ SSOT配置（正本）:
 		    - 並列運用（固定）: 同一キーの同時利用を禁止するため、**キーはエージェント間で排他 lease** を取る
 		      - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
 		      - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC`（default: `1800`）
-		  - それでも全滅した場合は `LLM_API_FAILOVER_TO_THINK=1`（既定）により pending が生成され、runbookに従って手動で完了できる。
+		  - それでも全滅した場合は停止し、runbookに従って復旧する（`script_*` は THINK フォールバックしない）。
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。

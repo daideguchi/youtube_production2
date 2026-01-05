@@ -5,7 +5,6 @@ import logging
 import math
 import os
 import re
-from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -15,7 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 def is_think_or_agent_mode() -> bool:
-    return (os.getenv("LLM_MODE") or "").strip().lower() in ("think", "agent")
+    try:
+        from factory_common.llm_exec_slots import effective_llm_mode
+
+        mode = effective_llm_mode()
+    except Exception:
+        mode = (os.getenv("LLM_MODE") or "").strip().lower()
+    return mode in ("think", "agent")
 
 
 def _truncate(text: str, limit: int) -> str:
@@ -353,6 +358,7 @@ Each section must:
 - Cover consecutive SRT segments (no overlap, no gaps; the full script must be covered).
 - Average around ~{base_seconds:.1f}s per image, but DO NOT be perfectly uniform; create pacing variation.
 - Describe ONE clear visual idea the viewer should picture (concrete action/pose/setting/props/lighting).
+- CRITICAL: Visual Focus must be faithful to the section content. If using metaphor/symbolism, it must be explicitly grounded in THIS section; do NOT default to generic cliché symbols (e.g., clocks/pocket-watches) unless the script explicitly mentions them.
 - Avoid putting text inside the scene.
 {monk_policy.rstrip()}
 {extra_rapid}
@@ -504,34 +510,6 @@ _JA_STOPWORDS: set[str] = {
     "など",
 }
 
-# Map common abstract narration keywords to concrete, drawable motifs.
-# NOTE: Keep this small and generic; we still derive variation from section keywords.
-_VISUAL_FOCUS_MAP: dict[str, str] = {
-    "宇宙": "starry galaxy sky, gentle nebula clouds",
-    "星": "starry night sky, soft glowing constellations",
-    "次元": "abstract layered light planes, depth and perspective",
-    "意識": "floating light threads, subtle aura particles",
-    "エネルギー": "glowing particles around a crystal, soft light bloom",
-    "魂": "soft luminous orb, quiet ethereal atmosphere",
-    "現実": "everyday room with warm lamp light, calm realism",
-    "時間": "antique pocket watch on wooden desk, warm lamp glow",
-    "時計": "antique clockwork details, macro close-up",
-    "扉": "mysterious door slightly open, light leaking",
-    "鍵": "old key on a notebook, shallow depth of field",
-    "鏡": "old mirror with soft reflection, muted colors",
-    "道": "forest path at dawn, morning mist",
-    "森": "misty forest, soft sun rays through trees",
-    "窓": "window with curtains, gentle morning light",
-    "光": "warm lantern glow in dim room, cozy mood",
-    "呼吸": "steam rising from a cup, calm air movement",
-    "瞑想": "empty cushion in a quiet room, soft shadows",
-    "夢": "surreal floating objects, soft dreamy haze",
-    "記憶": "old photographs scattered on desk, nostalgic tone",
-    "罠": "dark corridor with subtle warning atmosphere",
-    "危険": "tense shadows, dramatic contrast but still watercolor",
-}
-
-
 def _tokenize_loose(text: str) -> List[str]:
     """
     Lightweight tokenization that works reasonably for Japanese narration text without external NLP deps.
@@ -558,7 +536,7 @@ def _tokenize_loose(text: str) -> List[str]:
             continue
         # Filter out noisy single-character tokens unless they are useful drawable motifs.
         if len(t) == 1 and not t.isascii():
-            if t not in _VISUAL_FOCUS_MAP and t not in {"心", "光", "闇", "夢", "道", "森", "海", "月", "星", "鍵", "扉", "鏡", "魂"}:
+            if t not in {"心", "光", "闇", "夢", "道", "森", "海", "月", "星", "鍵", "扉", "鏡", "魂"}:
                 continue
         out.append(t)
     return out
@@ -614,90 +592,33 @@ def _boundary_score(
 
 
 def _classify_role_and_section(text: str) -> tuple[str, str]:
-    t = (text or "").strip()
-    if not t:
-        return "", "other"
-    head = t[:40]
-    if any(head.startswith(x) for x in ("こんばんは", "こんにちは", "おはよう")):
-        return "hook", "context"
-    if any(x in head for x in ("チャンネル登録", "フォロー", "高評価")):
-        return "cta", "instruction"
-    if any(x in head for x in ("まとめ", "結論", "最後に")):
-        return "recap", "analysis"
-    if any(x in head for x in _LIST_MARKERS) or re.search(r"(一つ目|二つ目|三つ目|第一|第二|第三)", head):
-        return "list_item", "list"
-    if "「" in t and "」" in t:
-        return "quote", "dialogue"
-    if any(x in t for x in ("あなた", "皆さん", "みなさん")):
-        return "viewer_address", "exposition"
-    return "explanation", "exposition"
+    raise RuntimeError(
+        "Heuristic role/section classification is disabled by SSOT; use visual_image_cues_plan (router/THINK/AGENT) instead."
+    )
 
 
 def _infer_emotional_tone(tokens: List[str], text: str) -> str:
-    blob = " ".join(tokens) + " " + (text or "")
-    if any(x in blob for x in ("恐怖", "不安", "闇", "危険", "罠", "悪用")):
-        return "tense"
-    if any(x in blob for x in ("安心", "癒", "温か", "やさし", "希望", "光")):
-        return "warm"
-    if any(x in blob for x in ("宇宙", "次元", "神秘", "霊", "魂")):
-        return "mysterious"
-    return "calm"
+    raise RuntimeError(
+        "Heuristic emotional_tone inference is disabled by SSOT; use visual_image_cues_plan (router/THINK/AGENT) instead."
+    )
 
 
 def _build_summary(tokens: List[str], text: str) -> str:
     """
     Build a short Japanese label (<=30 chars) from keywords.
     """
-    if not tokens:
-        return _truncate(text, 30)
-    top = []
-    for t, _c in Counter(tokens).most_common(6):
-        if t in _JA_STOPWORDS:
-            continue
-        top.append(t)
-        if len(top) >= 3:
-            break
-    if not top:
-        return _truncate(text, 30)
-    # Prefer concise label
-    joined = "・".join(top[:2]) if len(top) >= 2 else top[0]
-    return _truncate(joined, 30)
+    raise RuntimeError(
+        "Heuristic summary builder is disabled by SSOT; use visual_image_cues_plan (router/THINK/AGENT) instead."
+    )
 
 
 def _build_visual_focus(tokens: List[str], text: str, *, prev_focus: str = "") -> str:
     """
     Build a concrete visual focus line. Keep it drawable and avoid embedded text.
     """
-    # Prefer mapped motifs when matching keywords appear.
-    chosen = ""
-    for t, _c in Counter(tokens).most_common(12):
-        if t in _VISUAL_FOCUS_MAP:
-            chosen = _VISUAL_FOCUS_MAP[t]
-            break
-
-    if not chosen:
-        # Fall back to a keyword-driven, but still concrete motif.
-        # Rotate through a small pool deterministically to avoid repeating the same fallback.
-        pool = [
-            "warm desk lamp with open notebook, quiet room",
-            "misty forest path, soft morning light",
-            "window-side table with journal and coffee cup, calm atmosphere",
-            "moonlit clouds over a silent town, muted colors",
-            "abstract soft light particles drifting in dark space",
-            "old bookshelf and scattered papers, nostalgic tone",
-        ]
-        seed = 0
-        for t in tokens[:8]:
-            seed = (seed * 131 + sum(ord(ch) for ch in t)) % 9973
-        chosen = pool[seed % len(pool)]
-
-    # Ensure adjacent variation.
-    if prev_focus and chosen == prev_focus:
-        chosen = "close-up of " + chosen
-
-    # Avoid accidental meta/quotes
-    chosen = chosen.replace("[", "").replace("]", "").replace("(", "").replace(")", "")
-    return _truncate(chosen, 140)
+    raise RuntimeError(
+        "Heuristic visual_focus generation is disabled by SSOT; use visual_image_cues_plan (router/THINK/AGENT) instead."
+    )
 
 
 def plan_sections_heuristic(
@@ -713,6 +634,9 @@ def plan_sections_heuristic(
     - Context-based boundaries (topic/role transition scoring), not equal spacing.
     - Provide concrete visual_focus strings to drive prompt building.
     """
+    raise RuntimeError(
+        "plan_sections_heuristic is disabled by SSOT; use plan_sections_via_router (visual_image_cues_plan) instead."
+    )
     if not segments:
         return []
 

@@ -192,7 +192,6 @@ tiers:
     - or_hunyuan_a13b_instruct
     - or_qwen_2_5_7b_instruct
     - or_gemma_3n_e2b_it_free
-    - azure_gpt5_mini
 
   # Cost effective
   cheap:

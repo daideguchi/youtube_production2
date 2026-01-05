@@ -91,7 +91,19 @@ function compareChannelCode(a: string, b: string): number {
 }
 
 function normalizeChannelCode(value: string | null): string {
-  return (value ?? "").trim().toUpperCase();
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  const compact = raw.toUpperCase().replace(/[\s_]/g, "");
+  const match = compact.match(/CH(\d{1,3})/);
+  if (match) {
+    const num = match[1] ?? "";
+    return `CH${num.padStart(2, "0")}`;
+  }
+  const digits = compact.replace(/[^0-9]/g, "");
+  if (digits && digits.length <= 3) {
+    return `CH${digits.padStart(2, "0")}`;
+  }
+  return compact;
 }
 
 const AUDIT_COLUMN = "監査(参考)";
@@ -464,6 +476,15 @@ export function PlanningPage() {
       const token = normalizeVideo(videoRaw);
       if (!ch || !token) return;
       navigate(`/channels/${encodeURIComponent(ch)}/videos/${encodeURIComponent(token)}`);
+    },
+    [navigate]
+  );
+  const goToThumbnailsPage = useCallback(
+    (channelCode: string, videoRaw: string) => {
+      const ch = normalizeChannelCode(channelCode);
+      const token = normalizeVideo(videoRaw);
+      if (!/^CH\\d{2,3}$/.test(ch) || !token) return;
+      navigate(`/thumbnails?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(token)}`);
     },
     [navigate]
   );
@@ -1152,13 +1173,50 @@ export function PlanningPage() {
                             className="planning-page__thumb"
                             onClick={(e) => {
                               e.stopPropagation();
+                              const ch =
+                                row["チャンネル"] ||
+                                row["channel"] ||
+                                row["channel_code"] ||
+                                row["CH"] ||
+                                row["ch"] ||
+                                channel;
+                              const vid =
+                                row["動画番号"] ||
+                                row["動画ID"] ||
+                                row["video"] ||
+                                row["video_number"] ||
+                                row["vid"] ||
+                                row["番号"] ||
+                                "";
+                              const thumbUrl = thumbs[0]?.url ?? "";
+                              if (e.metaKey || e.ctrlKey || e.altKey) {
+                                setThumbPreviewItems(thumbs);
+                                setThumbPreviewIndex(0);
+                                setThumbPreview(thumbs[0].url);
+                                return;
+                              }
+                              if (ch && vid) {
+                                goToThumbnailsPage(String(ch), String(vid));
+                                return;
+                              }
+                              const parsed = (() => {
+                                const match = String(thumbUrl)
+                                  .replace(/^https?:\/\/[^/]+/i, "")
+                                  .match(/\/thumbnails\/assets\/([^/]+)\/([^/]+)\//i);
+                                if (!match) return null;
+                                return { channel: match[1] ?? "", video: match[2] ?? "" };
+                              })();
+                              if (parsed?.channel && parsed?.video) {
+                                goToThumbnailsPage(parsed.channel, parsed.video);
+                                return;
+                              }
                               setThumbPreviewItems(thumbs);
                               setThumbPreviewIndex(0);
                               setThumbPreview(thumbs[0].url);
                             }}
-                            title="サムネをプレビュー"
+                            title="クリックでサムネ編集（⌘/Ctrl/Alt クリックでプレビュー）"
                           >
-                            <img src={thumbs[0].url} alt="thumb" loading="lazy" />
+                            <img src={thumbs[0].url} alt="thumb" loading="lazy" draggable={false} />
                             {thumbs.length > 1 ? (
                               <span className="planning-page__thumb-count">+{thumbs.length - 1}</span>
                             ) : null}
@@ -1559,7 +1617,7 @@ export function PlanningPage() {
           <div className="planning-page__preview" onClick={(e) => e.stopPropagation()}>
             <button className="planning-page__close" onClick={() => setThumbPreview(null)}>× 閉じる</button>
             <div className="planning-page__preview-body">
-              <img src={thumbPreview} alt="thumbnail preview" loading="lazy" />
+              <img src={thumbPreview} alt="thumbnail preview" loading="lazy" draggable={false} />
               {thumbPreviewItems && thumbPreviewItems.length > 1 ? (
                 <div className="planning-page__preview-strip">
                   {thumbPreviewItems.map((item, i) => (

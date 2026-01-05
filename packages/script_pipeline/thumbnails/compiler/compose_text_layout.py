@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import random
 import re
 import subprocess
 from dataclasses import dataclass
@@ -1028,6 +1030,354 @@ def _apply_vertical_overlay(
     overlay.putalpha(mask)
     return Image.alpha_composite(img, overlay)
 
+def _stable_seed_u64(key: str) -> int:
+    digest = hashlib.sha256(str(key or "").encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big", signed=False)
+
+
+def _smooth_noise(values: List[float], *, window: int) -> List[float]:
+    if not values:
+        return []
+    w = max(1, int(window))
+    if w <= 1:
+        return list(values)
+    if w % 2 == 0:
+        w += 1
+    half = w // 2
+    n = len(values)
+    out: List[float] = [0.0] * n
+    for i in range(n):
+        s = 0.0
+        c = 0
+        lo = max(0, i - half)
+        hi = min(n - 1, i + half)
+        for j in range(lo, hi + 1):
+            s += float(values[j])
+            c += 1
+        out[i] = s / float(c or 1)
+    return out
+
+
+def _build_brush_band_mask(
+    size: Tuple[int, int],
+    *,
+    edge: str,
+    max_alpha: int,
+    seed: int,
+    roughness: float,
+    feather_px: int,
+    hole_count: int,
+    blur_px: int,
+) -> Image.Image:
+    """
+    Build a "brush stroke" alpha mask for a band region.
+
+    edge:
+      - "bottom": irregular bottom edge (top band)
+      - "top": irregular top edge (bottom band)
+    """
+    w, h = int(size[0]), int(size[1])
+    if w <= 0 or h <= 0:
+        return Image.new("L", (max(1, w), max(1, h)), 0)
+
+    edge_key = str(edge or "").strip().lower()
+    if edge_key not in {"bottom", "top"}:
+        edge_key = "bottom"
+
+    a = max(0, min(255, int(max_alpha)))
+    rough = max(0.0, min(0.55, float(roughness)))
+    feather = max(1, int(feather_px))
+    blur = max(0, int(blur_px))
+
+    rng = random.Random(int(seed) & 0xFFFFFFFF_FFFFFFFF)
+
+    # Low-frequency noise curve along X
+    step = max(18, int(round(w / 72.0)))
+    cps = [rng.uniform(-1.0, 1.0) for _ in range((w // step) + 3)]
+    raw_noise: List[float] = [0.0] * w
+    for i in range(len(cps) - 1):
+        x0 = i * step
+        x1 = min(w - 1, (i + 1) * step)
+        if x0 >= w:
+            break
+        v0, v1 = cps[i], cps[i + 1]
+        span = max(1, x1 - x0)
+        for x in range(x0, x1 + 1):
+            t = (x - x0) / float(span)
+            raw_noise[x] = (v0 * (1.0 - t)) + (v1 * t)
+    noise = _smooth_noise(raw_noise, window=max(5, step // 2))
+
+    # Edge curve (near the far side of the band so the text region stays solid).
+    if edge_key == "bottom":
+        base_edge = int(round(h * 0.97))
+        # Keep most of the band solid to preserve text legibility.
+        min_edge = int(round(h * 0.90))
+        max_edge = h - 1
+    else:
+        base_edge = int(round(h * 0.03))
+        min_edge = 0
+        max_edge = int(round(h * 0.20))
+
+    amp = max(1, int(round(h * rough)))
+    curve: List[int] = [0] * w
+    for x in range(w):
+        ey = base_edge + int(round(noise[x] * amp))
+        curve[x] = max(min_edge, min(max_edge, ey))
+
+    mask = Image.new("L", (w, h), 0)
+    pix = mask.load()
+
+    for x in range(w):
+        ey = int(curve[x])
+        if edge_key == "bottom":
+            for y in range(0, max(0, min(h, ey))):
+                pix[x, y] = a
+            for y in range(max(0, ey), max(0, min(h, ey + feather))):
+                t = (y - ey) / float(feather)
+                pix[x, y] = int(round(a * (1.0 - t)))
+        else:
+            for y in range(max(0, ey), h):
+                pix[x, y] = a
+            for y in range(max(0, ey - feather), max(0, min(h, ey))):
+                t = (ey - y) / float(feather)
+                pix[x, y] = int(round(a * (1.0 - t)))
+
+    # Punch a few "bristle holes" near the rough edge.
+    holes = max(0, int(hole_count))
+    if holes:
+        draw = ImageDraw.Draw(mask)
+        for _ in range(holes):
+            # Small "paint thinning" specks near the rough edge (avoid big blobs/slits).
+            rw = rng.randint(max(6, w // 320), max(18, w // 90))
+            rh = rng.randint(max(4, h // 80), max(14, h // 26))
+            rw = max(6, min(w - 1, rw))
+            rh = max(4, min(h - 1, rh))
+            x0 = rng.randint(0, max(0, w - rw))
+            if edge_key == "bottom":
+                y0 = rng.randint(max(0, h - max(8, int(round(feather * 2.2)))), max(0, h - rh))
+            else:
+                y0 = rng.randint(0, min(max(0, h - rh), max(0, int(round(feather * 1.6)))))
+            fill = int(round(a * rng.uniform(0.55, 0.90)))
+            draw.ellipse([x0, y0, x0 + rw, y0 + rh], fill=max(0, min(a, fill)))
+
+    # Add dry-brush texture near the rough edge (avoid "flat rectangle" look).
+    if a > 0 and rough > 0.0:
+        edge_band = int(round(max(18.0, float(feather) * 1.6, float(h) * 0.10)))
+        edge_band = max(8, min(h, edge_band))
+        # Higher-res noise to avoid large "bubble" artifacts.
+        nw = max(96, w // 24)
+        nh = max(24, edge_band // 3)
+        noise_small = Image.new("L", (nw, nh), 0)
+        noise_small.putdata([rng.randint(0, 255) for _ in range(nw * nh)])
+        noise = noise_small.resize((w, edge_band), resample=Image.BILINEAR)
+        noise_px = noise.load()
+
+        if edge_key == "bottom":
+            y_start = h - edge_band
+            for y in range(y_start, h):
+                wy = (y - y_start) / float(max(1, edge_band - 1))  # 0..1 (strong near bottom)
+                for x in range(w):
+                    cur = int(pix[x, y] or 0)
+                    if cur <= 0:
+                        continue
+                    n = float(noise_px[x, y - y_start]) / 255.0
+                    f = 0.60 + (0.40 * n)
+                    pix[x, y] = int(round(cur * ((1.0 - wy) + (wy * f))))
+        else:
+            y_end = edge_band
+            for y in range(0, y_end):
+                wy = (y_end - 1 - y) / float(max(1, y_end - 1))  # 0..1 (strong near top)
+                for x in range(w):
+                    cur = int(pix[x, y] or 0)
+                    if cur <= 0:
+                        continue
+                    n = float(noise_px[x, y]) / 255.0
+                    f = 0.60 + (0.40 * n)
+                    pix[x, y] = int(round(cur * ((1.0 - wy) + (wy * f))))
+
+    if blur:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=float(blur)))
+    return mask
+
+
+def _build_brush_stroke_mask(
+    size: Tuple[int, int],
+    *,
+    max_alpha: int,
+    seed: int,
+    roughness: float,
+    feather_px: int,
+    hole_count: int,
+    blur_px: int,
+) -> Image.Image:
+    """
+    Build an organic "brush stroke" alpha mask meant to sit behind text (not a full-width band).
+
+    This is intentionally stylized: irregular edges + slight splatter so it reads as "ink/brush".
+    """
+    w, h = int(size[0]), int(size[1])
+    if w <= 0 or h <= 0:
+        return Image.new("L", (max(1, w), max(1, h)), 0)
+
+    a = max(0, min(255, int(max_alpha)))
+    rough = max(0.0, min(0.85, float(roughness)))
+    feather = max(0, int(feather_px))
+    blur = max(0, int(blur_px))
+
+    rng = random.Random(int(seed) & 0xFFFFFFFF_FFFFFFFF)
+
+    mask = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(mask)
+
+    # Stroke body: many overlapping ellipses along X with jittered center/thickness.
+    step = max(4, int(round(w / 220.0)))
+    rx_base = max(8, step * 3)
+    base_thickness = int(round(h * (0.78 + rng.uniform(-0.06, 0.06))))
+    base_thickness = max(int(round(h * 0.58)), min(h, base_thickness))
+    base_ry = max(3, base_thickness // 2)
+    cy = h // 2
+
+    end_taper_span = max(1, int(round(w * 0.12)))
+    for x in range(-rx_base * 2, w + rx_base * 2, step):
+        x_clamped = max(0, min(w - 1, x))
+        dist = min(x_clamped, (w - 1) - x_clamped)
+        taper = min(1.0, float(dist) / float(end_taper_span))
+        taper = 0.25 + (0.75 * taper)
+
+        jy = (rng.random() - 0.5) * float(h) * rough * 0.22
+        ry = float(base_ry) * taper * (1.0 + ((rng.random() - 0.5) * rough * 0.55))
+        ry_i = max(2, min(h, int(round(ry))))
+        rx_i = int(round(rx_base * (1.0 + rough * 0.25)))
+        draw.ellipse([x - rx_i, (cy + jy) - ry_i, x + rx_i, (cy + jy) + ry_i], fill=a)
+
+    # "Thin paint" holes inside the stroke (reduce alpha locally).
+    holes = max(0, int(hole_count))
+    if holes:
+        for _ in range(holes):
+            rw = rng.randint(max(10, w // 90), max(24, w // 45))
+            rh = rng.randint(max(6, h // 18), max(18, h // 9))
+            rw = max(6, min(w - 1, rw))
+            rh = max(4, min(h - 1, rh))
+            x0 = rng.randint(0, max(0, w - rw))
+            y0 = rng.randint(max(0, cy - base_ry), min(max(0, h - rh), cy + base_ry))
+            fill = int(round(a * rng.uniform(0.05, 0.55)))
+            draw.ellipse([x0, y0, x0 + rw, y0 + rh], fill=max(0, min(a, fill)))
+
+    # Splatter around the stroke edges (adds "brush" feel).
+    splatter = max(0, int(round(holes * 0.75)))
+    if splatter:
+        for _ in range(splatter):
+            r = rng.randint(2, max(3, int(round(min(w, h) * 0.020))))
+            x0 = rng.randint(0, max(0, w - 1))
+            # pick above or below the stroke
+            sign = -1 if rng.random() < 0.5 else 1
+            y_center = int(round(cy + (sign * (base_ry + rng.uniform(6.0, float(base_ry) * 0.65)))))
+            y0 = max(0, min(h - 1, y_center))
+            fill = int(round(a * rng.uniform(0.12, 0.55)))
+            draw.ellipse([x0 - r, y0 - r, x0 + r, y0 + r], fill=max(0, min(a, fill)))
+
+    # Optional softening.
+    if feather > 0:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=float(max(1, min(6, feather // 8)))))
+    if blur > 0:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=float(blur)))
+    return mask
+
+
+def _apply_brush_band_overlay(
+    base: Image.Image,
+    *,
+    y0: float,
+    y1: float,
+    color: RGBA,
+    alpha: float,
+    edge: str,
+    seed: int,
+    roughness: float,
+    feather_px: int,
+    hole_count: int,
+    blur_px: int,
+) -> Image.Image:
+    img = base.convert("RGBA")
+    w, h = img.size
+
+    y0 = max(0.0, min(1.0, float(y0)))
+    y1 = max(0.0, min(1.0, float(y1)))
+    if y1 <= y0 + 1e-6:
+        return img
+
+    start_px = int(round(y0 * h))
+    end_px = int(round(y1 * h))
+    start_px = max(0, min(h, start_px))
+    end_px = max(0, min(h, end_px))
+    if end_px <= start_px:
+        return img
+
+    band_h = max(1, end_px - start_px)
+    a = max(0.0, min(1.0, float(alpha)))
+    max_alpha = int(round(a * 255))
+
+    mask = _build_brush_band_mask(
+        (w, band_h),
+        edge=edge,
+        max_alpha=max_alpha,
+        seed=seed,
+        roughness=roughness,
+        feather_px=feather_px,
+        hole_count=hole_count,
+        blur_px=blur_px,
+    )
+    overlay = Image.new("RGBA", (w, band_h), (color[0], color[1], color[2], 255))
+    overlay.putalpha(mask)
+
+    full = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    full.alpha_composite(overlay, dest=(0, start_px))
+    return Image.alpha_composite(img, full)
+
+
+def _apply_brush_stroke_overlay(
+    base: Image.Image,
+    *,
+    box_px: Tuple[int, int, int, int],
+    color: RGBA,
+    alpha: float,
+    seed: int,
+    roughness: float,
+    feather_px: int,
+    hole_count: int,
+    blur_px: int,
+) -> Image.Image:
+    img = base.convert("RGBA")
+    w, h = img.size
+    x0, y0, x1, y1 = [int(v) for v in box_px]
+    x0 = max(0, min(w - 1, x0))
+    y0 = max(0, min(h - 1, y0))
+    x1 = max(x0 + 1, min(w, x1))
+    y1 = max(y0 + 1, min(h, y1))
+    sw = max(1, x1 - x0)
+    sh = max(1, y1 - y0)
+
+    a = max(0.0, min(1.0, float(alpha)))
+    max_alpha = int(round(a * 255))
+    if max_alpha <= 0:
+        return img
+
+    mask = _build_brush_stroke_mask(
+        (sw, sh),
+        max_alpha=max_alpha,
+        seed=seed,
+        roughness=roughness,
+        feather_px=feather_px,
+        hole_count=hole_count,
+        blur_px=blur_px,
+    )
+    overlay = Image.new("RGBA", (sw, sh), (color[0], color[1], color[2], 255))
+    overlay.putalpha(mask)
+
+    full = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    full.alpha_composite(overlay, dest=(x0, y0))
+    return Image.alpha_composite(img, full)
+
 
 def _deep_merge_dict(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
     out: Dict[str, Any] = dict(base)
@@ -1091,14 +1441,40 @@ def compose_text_layout(
         alpha_top = float(top_band.get("alpha_top", 0.70))
         alpha_bottom = float(top_band.get("alpha_bottom", 0.0))
         col = _parse_color(str(top_band.get("color") or "#000000"))
-        base = _apply_vertical_overlay(
-            base,
-            y0=y0,
-            y1=y1,
-            color=col,
-            alpha_top=alpha_top,
-            alpha_bottom=alpha_bottom,
-        )
+        mode = str(top_band.get("mode") or "").strip().lower()
+        if mode in {"brush", "ink"}:
+            alpha = float(top_band.get("alpha", max(alpha_top, alpha_bottom)))
+            roughness = float(top_band.get("roughness", 0.10))
+            feather_px = int(top_band.get("feather_px", 28))
+            hole_count = int(top_band.get("hole_count", 26))
+            blur_px = int(top_band.get("blur_px", 2))
+            seed_raw = top_band.get("seed")
+            try:
+                seed = int(seed_raw) if seed_raw is not None else int(_stable_seed_u64(f"{video_id}|top_band|{mode}"))
+            except Exception:
+                seed = int(_stable_seed_u64(f"{video_id}|top_band|{mode}"))
+            base = _apply_brush_band_overlay(
+                base,
+                y0=y0,
+                y1=y1,
+                color=col,
+                alpha=alpha,
+                edge="bottom",
+                seed=seed,
+                roughness=roughness,
+                feather_px=feather_px,
+                hole_count=hole_count,
+                blur_px=blur_px,
+            )
+        else:
+            base = _apply_vertical_overlay(
+                base,
+                y0=y0,
+                y1=y1,
+                color=col,
+                alpha_top=alpha_top,
+                alpha_bottom=alpha_bottom,
+            )
 
     bottom_band = overlays_cfg.get("bottom_band") if isinstance(overlays_cfg.get("bottom_band"), dict) else None
     if isinstance(bottom_band, dict) and bool(bottom_band.get("enabled", True)):
@@ -1107,14 +1483,40 @@ def compose_text_layout(
         alpha_top = float(bottom_band.get("alpha_top", 0.0))
         alpha_bottom = float(bottom_band.get("alpha_bottom", 0.80))
         col = _parse_color(str(bottom_band.get("color") or "#000000"))
-        base = _apply_vertical_overlay(
-            base,
-            y0=y0,
-            y1=y1,
-            color=col,
-            alpha_top=alpha_top,
-            alpha_bottom=alpha_bottom,
-        )
+        mode = str(bottom_band.get("mode") or "").strip().lower()
+        if mode in {"brush", "ink"}:
+            alpha = float(bottom_band.get("alpha", max(alpha_top, alpha_bottom)))
+            roughness = float(bottom_band.get("roughness", 0.08))
+            feather_px = int(bottom_band.get("feather_px", 26))
+            hole_count = int(bottom_band.get("hole_count", 22))
+            blur_px = int(bottom_band.get("blur_px", 2))
+            seed_raw = bottom_band.get("seed")
+            try:
+                seed = int(seed_raw) if seed_raw is not None else int(_stable_seed_u64(f"{video_id}|bottom_band|{mode}"))
+            except Exception:
+                seed = int(_stable_seed_u64(f"{video_id}|bottom_band|{mode}"))
+            base = _apply_brush_band_overlay(
+                base,
+                y0=y0,
+                y1=y1,
+                color=col,
+                alpha=alpha,
+                edge="top",
+                seed=seed,
+                roughness=roughness,
+                feather_px=feather_px,
+                hole_count=hole_count,
+                blur_px=blur_px,
+            )
+        else:
+            base = _apply_vertical_overlay(
+                base,
+                y0=y0,
+                y1=y1,
+                color=col,
+                alpha_top=alpha_top,
+                alpha_bottom=alpha_bottom,
+            )
 
     fonts_cfg = global_cfg.get("fonts") if isinstance(global_cfg.get("fonts"), dict) else {}
     effects = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
@@ -1317,6 +1719,116 @@ def compose_text_layout(
                     y_draw = int(y0 + (h - text_h))
                 else:
                     y_draw = int(y0 + (h - text_h) // 2)
+
+        backdrop_cfg = slot_cfg.get("backdrop")
+        if isinstance(backdrop_cfg, dict) and bool(backdrop_cfg.get("enabled", True)):
+            mode = str(backdrop_cfg.get("mode") or "brush_stroke").strip().lower()
+            if mode in {"brush_stroke", "brushstroke", "brush"}:
+                try:
+                    bd_alpha = float(backdrop_cfg.get("alpha", 0.90))
+                except Exception:
+                    bd_alpha = 0.90
+                bd_alpha = max(0.0, min(1.0, bd_alpha))
+
+                try:
+                    bd_color = _parse_color(str(backdrop_cfg.get("color") or "#000000"))
+                except Exception:
+                    bd_color = (0, 0, 0, 255)
+
+                try:
+                    pad_x = int(backdrop_cfg.get("pad_x_px", 84))
+                except Exception:
+                    pad_x = 84
+                try:
+                    pad_y = int(backdrop_cfg.get("pad_y_px", 24))
+                except Exception:
+                    pad_y = 24
+                pad_x = max(0, int(pad_x))
+                pad_y = max(0, int(pad_y))
+
+                try:
+                    roughness = float(backdrop_cfg.get("roughness", 0.25))
+                except Exception:
+                    roughness = 0.25
+                try:
+                    feather_px = int(backdrop_cfg.get("feather_px", 22))
+                except Exception:
+                    feather_px = 22
+                try:
+                    hole_count = int(backdrop_cfg.get("hole_count", 18))
+                except Exception:
+                    hole_count = 18
+                try:
+                    blur_px = int(backdrop_cfg.get("blur_px", 1))
+                except Exception:
+                    blur_px = 1
+
+                seed_raw = backdrop_cfg.get("seed")
+                try:
+                    seed = (
+                        int(seed_raw)
+                        if seed_raw is not None
+                        else int(_stable_seed_u64(f"{video_id}|{template_id}|{slot_name}|backdrop|{mode}"))
+                    )
+                except Exception:
+                    seed = int(_stable_seed_u64(f"{video_id}|{template_id}|{slot_name}|backdrop|{mode}"))
+
+                # Compute a tight bbox for the actually-rendered text and place the brush stroke behind it.
+                font = _load_truetype(font_path, fit.font_size)
+                tr = int(tracking or 0)
+                sw = int(fit.stroke_width if stroke_enabled else 0)
+
+                bbox_union: Optional[Tuple[int, int, int, int]] = None
+                y_cursor = int(y_draw)
+                for line in fit.lines:
+                    if not line:
+                        continue
+                    bbox = _bbox_text_with_tracking(font, line, stroke_width=sw, tracking=tr)
+                    bw = max(0, int(bbox[2] - bbox[0]))
+                    bh = max(0, int(bbox[3] - bbox[1]))
+                    if align == "center":
+                        left_edge = x0 + max(0, (w - bw) // 2)
+                    elif align == "right":
+                        left_edge = x0 + max(0, w - bw)
+                    else:
+                        left_edge = x0
+                    x_anchor = int(left_edge - bbox[0])
+                    y_anchor = int(y_cursor - bbox[1])
+                    abs_box = (
+                        int(x_anchor + bbox[0]),
+                        int(y_anchor + bbox[1]),
+                        int(x_anchor + bbox[2]),
+                        int(y_anchor + bbox[3]),
+                    )
+                    if bbox_union is None:
+                        bbox_union = abs_box
+                    else:
+                        bbox_union = (
+                            min(bbox_union[0], abs_box[0]),
+                            min(bbox_union[1], abs_box[1]),
+                            max(bbox_union[2], abs_box[2]),
+                            max(bbox_union[3], abs_box[3]),
+                        )
+                    y_cursor += bh + int(fit.line_gap)
+
+                if bbox_union is not None and bd_alpha > 0.0:
+                    box_px = (
+                        bbox_union[0] - pad_x,
+                        bbox_union[1] - pad_y,
+                        bbox_union[2] + pad_x,
+                        bbox_union[3] + pad_y,
+                    )
+                    out = _apply_brush_stroke_overlay(
+                        out,
+                        box_px=box_px,
+                        color=bd_color,
+                        alpha=bd_alpha,
+                        seed=seed,
+                        roughness=roughness,
+                        feather_px=feather_px,
+                        hole_count=hole_count,
+                        blur_px=blur_px,
+                    )
 
         out = _render_text_lines(
             out,

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel, Field
 
+from factory_common import locks as coord_locks
 from factory_common.artifacts.llm_text_output import LlmTextOutputArtifactV1, load_llm_text_artifact
 from factory_common.artifacts.utils import atomic_write_json
 from factory_common.episode_progress import build_episode_progress_view
@@ -83,6 +85,69 @@ def _read_json_limited(path: Path, *, max_bytes: int = 5_000_000) -> Dict[str, A
         raise
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"invalid json: {exc}") from exc
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content, encoding="utf-8")
+    tmp.replace(path)
+
+
+def _read_text_best_effort(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return path.read_text(encoding="utf-8", errors="ignore")
+
+
+def _strip_code_fences(text: str) -> str:
+    t = str(text or "").strip()
+    if t.startswith("```"):
+        t = t.strip("`").strip()
+    for prefix in ("json", "JSON"):
+        if t.startswith(prefix):
+            # Some models prefix outputs with "json" even when not asked.
+            t = t[len(prefix) :].strip()
+    return t.strip()
+
+
+def _set_script_validation_pending(status_obj: Dict[str, Any]) -> None:
+    stages = status_obj.get("stages")
+    if not isinstance(stages, dict):
+        stages = {}
+        status_obj["stages"] = stages
+    sv = stages.get("script_validation")
+    if not isinstance(sv, dict):
+        sv = {"status": "pending", "details": {}}
+        stages["script_validation"] = sv
+    sv["status"] = "pending"
+    details = sv.get("details")
+    if not isinstance(details, dict):
+        details = {}
+    # Clear prior error context to avoid stale UI.
+    for key in ("error", "error_codes", "issues", "fix_hints", "llm_quality_gate"):
+        details.pop(key, None)
+    sv["details"] = details
+
+
+class ScriptReviewApplyRequest(BaseModel):
+    comment: str = Field(..., description="Review comment/instructions to apply to the A-text")
+    expected_updated_at: Optional[str] = Field(
+        default=None, description="Optimistic concurrency guard (status.json updated_at)"
+    )
+    dry_run: bool = Field(default=False, description="If true, do not write files; return revised text only")
+
+
+class ScriptReviewApplyResponse(BaseModel):
+    status: Literal["ok"] = "ok"
+    updated_at: Optional[str] = None
+    assembled_human: str
+    llm: Optional[Dict[str, Any]] = None
 
 
 @router.get("/api/channels/{channel}/videos/{video}/script-manifest")
@@ -175,6 +240,135 @@ def run_script_pipeline_stage(channel: str, video: str, stage: str) -> Dict[str,
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"stage run failed: {exc}") from exc
     return _read_json_limited(status_path)
+
+
+@router.post(
+    "/api/channels/{channel}/videos/{video}/script-review/apply",
+    response_model=ScriptReviewApplyResponse,
+)
+def apply_script_review_comment(channel: str, video: str, payload: ScriptReviewApplyRequest) -> ScriptReviewApplyResponse:
+    """
+    Apply a human review comment to the full A-text (assembled_human.md), using LLMRouter.
+    This endpoint never exposes API keys and respects coordination locks.
+    """
+    ch = _normalize_channel(channel)
+    no = _normalize_video(video)
+    base = _script_base_dir(ch, no)
+
+    comment = str(payload.comment or "").strip()
+    if not comment:
+        raise HTTPException(status_code=400, detail="comment is required")
+
+    status_path = base / "status.json"
+    if not status_path.exists():
+        raise HTTPException(status_code=404, detail="status.json not found")
+
+    active_locks = coord_locks.default_active_locks_for_mutation()
+    for p in (
+        status_path,
+        base / "content" / "assembled.md",
+        base / "content" / "assembled_human.md",
+    ):
+        blocking = coord_locks.find_blocking_lock(p, active_locks)
+        if blocking:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "blocked_by_lock",
+                    "lock": {"id": blocking.lock_id, "created_by": blocking.created_by, "mode": blocking.mode},
+                },
+            )
+
+    status_obj = _read_json_limited(status_path)
+    expected = str(payload.expected_updated_at or "").strip()
+    if expected:
+        current = str(status_obj.get("updated_at") or "").strip()
+        if current and current != expected:
+            raise HTTPException(status_code=409, detail="最新の情報を再取得してからやり直してください。")
+
+    content_dir = base / "content"
+    assembled = content_dir / "assembled.md"
+    assembled_human = content_dir / "assembled_human.md"
+    if assembled.parent.name != "content" or assembled_human.parent.name != "content":
+        raise HTTPException(status_code=400, detail="invalid content dir")
+
+    src_path = assembled_human if assembled_human.exists() else assembled
+    if not src_path.exists():
+        raise HTTPException(status_code=404, detail="A-text not found (assembled_human.md / assembled.md)")
+    src_text = _read_text_best_effort(src_path).strip()
+    if not src_text:
+        raise HTTPException(status_code=400, detail="A-text is empty")
+
+    channel_note = ""
+    if ch == "CH23":
+        channel_note = (
+            "CH23 policy: this is empathy-style narration. "
+            "Do NOT encourage the viewer or give motivational lines; keep it observational/empathic."
+        )
+
+    prompt = (
+        "You are a professional Japanese YouTube narration script editor.\n"
+        "Task: Apply the human review comment to the full A-text with minimal necessary edits.\n"
+        f"{channel_note}\n\n"
+        "Hard rules for the output:\n"
+        "- Output ONLY the revised A-text (no headings, no bullet lists, no numbering, no markdown fences).\n"
+        "- Do NOT include URLs, citations, footnotes, or bracketed references.\n"
+        "- Keep the story coherent; do not invent new facts.\n"
+        "- Preserve the original tone and pacing unless the comment requires change.\n\n"
+        "Human review comment:\n"
+        f"{comment}\n\n"
+        "Current A-text:\n"
+        "```\n"
+        f"{src_text}\n"
+        "```\n"
+    )
+
+    try:
+        from factory_common.llm_router import get_router
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=503, detail=f"LLMRouter is not available: {exc}") from exc
+
+    router = get_router()
+    try:
+        result = router.call_with_raw(
+            task="script_human_review_apply",
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"LLM failed: {exc}") from exc
+
+    revised = _strip_code_fences(str(result.get("content") or "")).strip()
+    if not revised:
+        raise HTTPException(status_code=500, detail="LLM returned empty content")
+
+    ts = _utc_now_iso()
+    if not payload.dry_run:
+        _atomic_write_text(assembled_human, revised)
+        _atomic_write_text(assembled, revised)
+        status_obj["updated_at"] = ts
+        meta = status_obj.get("metadata")
+        if not isinstance(meta, dict):
+            meta = {}
+            status_obj["metadata"] = meta
+        meta["redo_script"] = False
+        meta["redo_audio"] = True
+        meta["audio_reviewed"] = False
+        meta["review_comment_applied_at"] = ts
+        _set_script_validation_pending(status_obj)
+        atomic_write_json(status_path, status_obj)
+
+    llm_meta = {
+        "provider": result.get("provider"),
+        "model": result.get("model"),
+        "request_id": result.get("request_id"),
+        "latency_ms": result.get("latency_ms"),
+    }
+    llm_meta = {k: v for k, v in llm_meta.items() if v is not None}
+    return ScriptReviewApplyResponse(
+        updated_at=None if payload.dry_run else ts,
+        assembled_human=revised,
+        llm=llm_meta or None,
+    )
 
 
 class LlmArtifactListItem(BaseModel):

@@ -2,11 +2,15 @@
 
 > Plan metadata
 > - Plan ID: **PLAN_LLM_PIPELINE_REFACTOR**
-> - ステータス: Active
+> - ステータス: Superseded（数字スロット `LLM_MODEL_SLOT` 運用に統一）
 > - 担当/レビュー: Codex（SSOT メンテナ）
 > - 対象範囲 (In Scope): `script_pipeline`, `audio_tts`, `video_pipeline` の LLM 呼び出し経路と共通ルーター
 > - 非対象 (Out of Scope): UI/投稿自動化、Remotion/CapCut テンプレの詳細設計
 > - 最終更新日: 2025-12-10
+
+> 重要（現行SSOT）:
+> - 本計画は slot 統一前の内容を含みます。現行運用の正本は `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md` / `ssot/ops/OPS_ENV_VARS.md`。
+> - モデル切替は **数字スロット** `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）に統一されています。
 
 ## 1. 概要
 - **目的**: 台本（Aテキスト）、TTS 用 Bテキスト、画像ドラフトの3系統を横断し、LLM 呼び出しの品質・一貫性・耐障害性を高める。
@@ -35,7 +39,7 @@
 
 ### 2.4 画像用文脈解析・プロンプト生成
 - `packages/video_pipeline/src/srt2images/cue_maker.py` で SRT セグメントを LLM 文脈解析に渡し、自然なセクション境界と summary/visual_focus を得る。モデルは `LLMContextAnalyzer` が registry/env から選択（Gemini/ Azure / OpenRouter）。【F:packages/video_pipeline/src/srt2images/cue_maker.py†L13-L112】
-- `LLMContextAnalyzer` は Azure 429/5xx にバックオフリトライ、OpenRouter も REST 呼び出し、Gemini 3 系をデフォルトに採用。セクション情報は cue に書き戻され、後続の画像生成（Gemini image 等）に利用されるが、キャラ・世界観の一貫性を守る「Visual Bible」挿入は未実装。【F:packages/video_pipeline/src/srt2images/llm_context_analyzer.py†L37-L214】
+- `LLMContextAnalyzer` は Azure 429/5xx にバックオフリトライ、OpenRouter も REST 呼び出し。※運用ポリシー: Gemini 3 preview は使用禁止（BANリスク）。現行のモデル選択は `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md`（スロット/タスク）に従う。セクション情報は cue に書き戻され、後続の画像生成（Gemini image 等）に利用されるが、キャラ・世界観の一貫性を守る「Visual Bible」挿入は未実装。【F:packages/video_pipeline/src/srt2images/llm_context_analyzer.py†L37-L214】
 
 ### 2.5 問題点
 - LLM 呼び出し口が複数（script_pipeline 独自、audio_tts 独自、srt2images 独自）で、model registry やパラメータ互換の統一がない。

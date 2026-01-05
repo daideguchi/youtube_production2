@@ -60,10 +60,12 @@
 
 - **L0/SoT（絶対保持）**
   - `status.json`
-  - `content/final/assembled.md`（存在しない場合は `content/assembled.md` を正本とみなす）
+  - `content/assembled_human.md`（存在する場合はこれが正本）
+  - `content/assembled.md`（`assembled_human.md` が無い場合の正本。存在する場合はミラー/互換入力）
 - **L1/Final**
-  - `content/assembled.md`
   - `content/final/scenes.json`, `content/final/cta.txt`
+- **Legacy（生成/編集禁止。存在する場合は整理対象）**
+  - `content/final/assembled.md`（旧ミラー。正本ではない）
 - **L2/Intermediate**
   - `content/analysis/research/*`（research_brief, references, quality_review 等）
   - `content/analysis/quality_gate/*`（script_validation の judge/fix レポート）
@@ -77,12 +79,12 @@
   - `workspaces/scripts/_state/logs/*.log`
 
 **削除/圧縮基準**
-- `status.json.stage >= script_validation`（台本最終化）になったら:
+- `status.json` の `stages.script_validation.status == completed`（台本最終化）になったら:
   - L2 の `analysis/research` と `chapters*` を
     - `workspaces/scripts/_archive/<timestamp>/...` に**丸ごと移して圧縮**（zip）  
       もしくは
     - `--purge-intermediate` 指定時に削除。
-- `status.json.stage >= audio_synthesis`（音声生成済み）になったら:
+- `status.json` の `stages.audio_synthesis.status == completed`（音声生成済み）になったら:
   - `content/outline.md` は L2→L1 に昇格（台本の再編集で参照価値が高い）。
 - L3 ログは `scripts/cleanup_data.py --run --keep-days 14` を基準（workspaces/scripts の state logs）。
 

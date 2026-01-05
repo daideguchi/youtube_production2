@@ -115,6 +115,16 @@ def parse_args() -> argparse.Namespace:
         help="Force LLM router model key(s) for this run (comma-separated). Can be repeated.",
     )
     common.add_argument(
+        "--llm-slot",
+        type=int,
+        help="Force numeric LLM routing slot (sets LLM_MODEL_SLOT). Preferred over --llm-model.",
+    )
+    common.add_argument(
+        "--exec-slot",
+        type=int,
+        help="Force numeric LLM exec slot (sets LLM_EXEC_SLOT). Controls api/think/agent/codex exec/failover.",
+    )
+    common.add_argument(
         "--llm-task-model",
         action="append",
         help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
@@ -178,6 +188,24 @@ def main() -> None:
     title = args.title
 
     # Apply optional LLM overrides for this CLI process.
+    if getattr(args, "llm_slot", None) is not None:
+        try:
+            slot = int(args.llm_slot)
+        except Exception:
+            raise SystemExit(f"--llm-slot must be an integer; got: {args.llm_slot}")
+        if slot < 0:
+            raise SystemExit(f"--llm-slot must be >= 0; got: {slot}")
+        os.environ["LLM_MODEL_SLOT"] = str(slot)
+
+    if getattr(args, "exec_slot", None) is not None:
+        try:
+            slot = int(args.exec_slot)
+        except Exception:
+            raise SystemExit(f"--exec-slot must be an integer; got: {args.exec_slot}")
+        if slot < 0:
+            raise SystemExit(f"--exec-slot must be >= 0; got: {slot}")
+        os.environ["LLM_EXEC_SLOT"] = str(slot)
+
     if getattr(args, "llm_model", None):
         flattened: list[str] = []
         for raw in args.llm_model or []:
@@ -186,7 +214,11 @@ def main() -> None:
                 if part:
                     flattened.append(part)
         if flattened:
-            os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
+            # If the user passed a pure integer, treat it as slot selection for compatibility.
+            if len(flattened) == 1 and flattened[0].isdigit():
+                os.environ["LLM_MODEL_SLOT"] = flattened[0]
+            else:
+                os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
 
     if getattr(args, "llm_task_model", None):
         mapping: dict[str, list[str]] = {}

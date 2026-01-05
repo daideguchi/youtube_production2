@@ -12,6 +12,7 @@ export function SsotPortalPage() {
           <p className="research-workspace__note">
             SSOT = UI（read-only）。目的は「人間/AIの認識ズレをゼロ」にすることです。まずは{" "}
             <span className="mono">System Map</span> を開いて、ノードをクリック→右側の要点（目的/LLM/Prompt/Outputs/SoT）を確認してください。
+            SSOT更新時は System Map/Catalog も必ず追随させます（`python3 scripts/ops/pre_push_final_check.py`）。
           </p>
         </div>
       </header>
@@ -55,6 +56,11 @@ export function SsotPortalPage() {
             <div className="ssot-portal-card__title">Trace</div>
             <div className="ssot-portal-card__desc">実行ログ（JSONL）から “どのLLM/Prompt” を使ったか追跡</div>
             <div className="ssot-portal-card__meta mono">logs/traces</div>
+          </Link>
+          <Link className="ssot-portal-card" to="/model-policy">
+            <div className="ssot-portal-card__title">Model Policy</div>
+            <div className="ssot-portal-card__desc">チャンネル別のモデル方針（画像/LLMスロット）を表で固定</div>
+            <div className="ssot-portal-card__meta mono">g-1 / f-4 / slots</div>
           </Link>
         </section>
 

@@ -13,7 +13,7 @@ const STAGE_GROUPS: {
   {
     key: "script",
     label: "台本",
-    stageKeys: ["topic_research", "script_outline", "script_draft", "script_enhancement", "script_review", "quality_check", "script_validation"],
+    stageKeys: ["topic_research", "script_outline", "script_master_plan", "chapter_brief", "script_draft", "script_review", "script_validation"],
   },
   { key: "polish", label: "仕上げ", stageKeys: ["script_polish_ai", "script_audio_ai", "script_tts_prepare"] },
   { key: "audio", label: "音声", stageKeys: ["audio_synthesis"] },

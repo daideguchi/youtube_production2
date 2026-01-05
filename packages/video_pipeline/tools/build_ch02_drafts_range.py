@@ -7,7 +7,9 @@ Modes:
   - placeholder: bootstrap placeholder cues+noise images (no image API calls) then build the draft (debug-only).
 
 This script ensures:
-  - Final TTS wav/srt exist (generates via audio_tts with SKIP_TTS_READING=1)
+  - Final TTS wav/srt exist
+    - If only .flac exists under workspaces/audio/final (space-saving), decode .flac -> .wav (lossless) for CapCut insertion.
+    - If neither wav nor flac exist, generates via audio_tts with SKIP_TTS_READING=1.
   - Run dir exists with image_cues.json + images/
   - CapCut draft is created from CH02-テンプレ
   - Belt main text is patched from script status.json (SSOT)
@@ -101,13 +103,45 @@ def _run(cmd: List[str], *, env: Optional[Dict[str, str]] = None, cwd: Optional[
     if proc.returncode != 0:
         raise SystemExit(proc.returncode)
 
+def _decode_flac_to_wav(flac: Path, wav: Path) -> None:
+    """
+    Decode FLAC -> WAV (lossless) for tooling that requires WAV (CapCut/pyJianYingDraft).
+    Keep sample rate/channels stable to avoid subtle drift.
+    """
+    wav.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-y",
+        "-i",
+        str(flac),
+        "-acodec",
+        "pcm_s16le",
+        "-ar",
+        "24000",
+        "-ac",
+        "1",
+        str(wav),
+    ]
+    _run(cmd)
+
 
 def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
     final_dir = audio_artifacts_root() / "final" / channel / video
     wav = final_dir / f"{channel}-{video}.wav"
     srt = final_dir / f"{channel}-{video}.srt"
+    flac = final_dir / f"{channel}-{video}.flac"
     if wav.exists() and srt.exists():
         return wav, srt
+    # Space-saving runs may keep only FLAC. Decode it back to WAV so downstream
+    # CapCut tooling can insert voice audio deterministically.
+    if (not wav.exists()) and flac.exists() and srt.exists():
+        print(f"[AUDIO] Decoding FLAC -> WAV: {flac.name} -> {wav.name}")
+        _decode_flac_to_wav(flac, wav)
+        if wav.exists():
+            return wav, srt
 
     assembled = script_data_root() / channel / video / "content" / "assembled_human.md"
     if not assembled.exists():
@@ -138,7 +172,7 @@ def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
     return wav, srt
 
 
-def bootstrap_run_dir(channel: str, video: str, run_name: str, srt: Path) -> None:
+def bootstrap_run_dir(channel: str, video: str, run_name: str, srt: Path, *, imgdur: float) -> None:
     run_dir = RUN_ROOT / run_name
     main_title = _derive_topic_from_status(channel, video)
     _run(
@@ -154,7 +188,7 @@ def bootstrap_run_dir(channel: str, video: str, run_name: str, srt: Path) -> Non
             "--fps",
             "30",
             "--imgdur",
-            "20.0",
+            str(float(imgdur)),
             "--crossfade",
             "0.5",
             "--main-title",
@@ -258,6 +292,12 @@ def main() -> None:
     ap.add_argument("--run-prefix", default="regen")
     ap.add_argument("--base-time", help="Base timestamp 'YYYYMMDD_HHMMSS' (optional)")
     ap.add_argument(
+        "--imgdur",
+        type=float,
+        default=float(os.getenv("CH02_DRAFT_IMG_DUR_SEC", "25.0") or "25.0"),
+        help="Target image duration seconds (default: 25.0; override via CH02_DRAFT_IMG_DUR_SEC)",
+    )
+    ap.add_argument(
         "--mode",
         choices=["images", "placeholder"],
         default="images",
@@ -288,7 +328,7 @@ def main() -> None:
         wav, srt = ensure_tts_final(channel, video)
         print(f"[TTS] wav={wav} srt={srt}")
         if args.mode == "placeholder":
-            bootstrap_run_dir(channel, video, run_name, srt)
+            bootstrap_run_dir(channel, video, run_name, srt, imgdur=float(args.imgdur))
         build_capcut_draft(channel, video, run_name, srt, draft_root=args.draft_root, mode=args.mode)
 
     print("\n[DONE] All requested videos completed.")

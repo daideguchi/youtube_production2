@@ -285,6 +285,20 @@ class TextLayoutGlobalSpec:
     effects: EffectsDefaultsSpec
     fit_rules: List[str]
 
+@dataclass(frozen=True)
+class TextBackdropSpec:
+    enabled: bool
+    mode: str
+    color: str
+    alpha: float
+    pad_x_px: int
+    pad_y_px: int
+    roughness: float
+    feather_px: int
+    hole_count: int
+    blur_px: int
+    seed: Optional[int]
+
 
 @dataclass(frozen=True)
 class TextSlotSpec:
@@ -298,6 +312,7 @@ class TextSlotSpec:
     stroke: bool
     shadow: bool
     glow: bool
+    backdrop: Optional[TextBackdropSpec]
 
 
 @dataclass(frozen=True)
@@ -525,7 +540,7 @@ def _parse_slot(
         parts,
         m,
         required={"box", "font", "fill", "base_size_px", "align", "max_lines"},
-        optional={"tracking", "stroke", "stroke_width_px", "shadow", "shadow_override", "glow", "valign"},
+        optional={"tracking", "stroke", "stroke_width_px", "shadow", "shadow_override", "glow", "valign", "backdrop"},
     )
     box_raw = _as_list(spec_path, [*parts, "box"], m.get("box"))
     if len(box_raw) != 4:
@@ -558,6 +573,62 @@ def _parse_slot(
     shadow = _as_bool(spec_path, [*parts, "shadow"], m.get("shadow", True))
     glow = _as_bool(spec_path, [*parts, "glow"], m.get("glow", False))
 
+    backdrop: Optional[TextBackdropSpec] = None
+    if "backdrop" in m:
+        bp = [*parts, "backdrop"]
+        bd = _as_mapping(spec_path, bp, m.get("backdrop"))
+        _ensure_keys(
+            spec_path,
+            bp,
+            bd,
+            required=set(),
+            optional={
+                "enabled",
+                "mode",
+                "color",
+                "alpha",
+                "pad_x_px",
+                "pad_y_px",
+                "roughness",
+                "feather_px",
+                "hole_count",
+                "blur_px",
+                "seed",
+            },
+        )
+        enabled = _as_bool(spec_path, [*bp, "enabled"], bd.get("enabled", True))
+        mode = _as_str(spec_path, [*bp, "mode"], bd.get("mode", "brush_stroke")).lower()
+        if mode not in {"brush_stroke", "brushstroke", "brush"}:
+            raise _err(spec_path, [*bp, "mode"], f"invalid backdrop mode: {mode}")
+        color = _as_str(spec_path, [*bp, "color"], bd.get("color", "#000000"))
+        alpha = _as_float(spec_path, [*bp, "alpha"], bd.get("alpha", 0.9))
+        if alpha < 0.0 or alpha > 1.0:
+            raise _err(spec_path, [*bp, "alpha"], "alpha must be 0..1")
+        pad_x_px = _as_int(spec_path, [*bp, "pad_x_px"], bd.get("pad_x_px", 84), min_value=0)
+        pad_y_px = _as_int(spec_path, [*bp, "pad_y_px"], bd.get("pad_y_px", 24), min_value=0)
+        roughness = _as_float(spec_path, [*bp, "roughness"], bd.get("roughness", 0.25))
+        feather_px = _as_int(spec_path, [*bp, "feather_px"], bd.get("feather_px", 22), min_value=0)
+        hole_count = _as_int(spec_path, [*bp, "hole_count"], bd.get("hole_count", 18), min_value=0)
+        blur_px = _as_int(spec_path, [*bp, "blur_px"], bd.get("blur_px", 1), min_value=0)
+        seed: Optional[int] = None
+        if "seed" in bd:
+            seed_val = bd.get("seed")
+            if seed_val is not None:
+                seed = _as_int(spec_path, [*bp, "seed"], seed_val)
+        backdrop = TextBackdropSpec(
+            enabled=enabled,
+            mode=mode,
+            color=color,
+            alpha=float(alpha),
+            pad_x_px=pad_x_px,
+            pad_y_px=pad_y_px,
+            roughness=float(roughness),
+            feather_px=feather_px,
+            hole_count=hole_count,
+            blur_px=blur_px,
+            seed=seed,
+        )
+
     return TextSlotSpec(
         box=box,
         font=font,
@@ -569,6 +640,7 @@ def _parse_slot(
         stroke=stroke,
         shadow=shadow,
         glow=glow,
+        backdrop=backdrop,
     )
 
 

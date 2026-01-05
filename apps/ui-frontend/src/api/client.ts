@@ -123,6 +123,9 @@ import {
   VisualCuesPlanArtifact,
   VisualCuesPlanUpdatePayload,
   TtsProgressResponse,
+  ImageModelRoutingResponse,
+  ImageModelRoutingUpdatePayload,
+  ChannelImageModelRouting,
 } from "./types";
 
 import { apiUrl } from "./baseUrl";
@@ -1442,6 +1445,7 @@ export interface ThumbnailTextLineSpecLine {
   offset_x: number;
   offset_y: number;
   scale: number;
+  rotate_deg?: number;
 }
 
 export interface ThumbnailTextLineSpec {
@@ -1455,7 +1459,11 @@ export interface ThumbnailTextLineSpec {
   updated_at?: string | null;
 }
 
-export function fetchThumbnailTextLineSpec(channel: string, video: string, stable: string): Promise<ThumbnailTextLineSpec> {
+export function fetchThumbnailTextLineSpec(
+  channel: string,
+  video: string,
+  stable?: string | null
+): Promise<ThumbnailTextLineSpec> {
   return request<ThumbnailTextLineSpec>(
     withStableQuery(
       `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/text-line-spec`,
@@ -1467,7 +1475,7 @@ export function fetchThumbnailTextLineSpec(channel: string, video: string, stabl
 export function updateThumbnailTextLineSpec(
   channel: string,
   video: string,
-  stable: string,
+  stable: string | null | undefined,
   lines: Record<string, ThumbnailTextLineSpecLine>
 ): Promise<ThumbnailTextLineSpec> {
   return request<ThumbnailTextLineSpec>(
@@ -1478,6 +1486,72 @@ export function updateThumbnailTextLineSpec(
     {
       method: "PUT",
       body: JSON.stringify({ lines: lines ?? {} }),
+    }
+  );
+}
+
+export type ThumbnailElementKind = "rect" | "circle" | "image";
+export type ThumbnailElementLayer = "above_portrait" | "below_portrait";
+
+export interface ThumbnailElementStroke {
+  color?: string | null;
+  width_px?: number;
+}
+
+export interface ThumbnailElementSpec {
+  id: string;
+  kind: ThumbnailElementKind;
+  layer?: ThumbnailElementLayer;
+  z?: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotation_deg?: number;
+  opacity?: number;
+  fill?: string | null;
+  stroke?: ThumbnailElementStroke | null;
+  src_path?: string | null;
+}
+
+export interface ThumbnailElementsSpec {
+  exists: boolean;
+  path?: string | null;
+  schema: string;
+  channel: string;
+  video: string;
+  stable: string;
+  elements: ThumbnailElementSpec[];
+  updated_at?: string | null;
+}
+
+export function fetchThumbnailElementsSpec(
+  channel: string,
+  video: string,
+  stable?: string | null
+): Promise<ThumbnailElementsSpec> {
+  return request<ThumbnailElementsSpec>(
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/elements-spec`,
+      stable
+    )
+  );
+}
+
+export function updateThumbnailElementsSpec(
+  channel: string,
+  video: string,
+  stable: string | null | undefined,
+  elements: ThumbnailElementSpec[]
+): Promise<ThumbnailElementsSpec> {
+  return request<ThumbnailElementsSpec>(
+    withStableQuery(
+      `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/elements-spec`,
+      stable
+    ),
+    {
+      method: "PUT",
+      body: JSON.stringify({ elements: elements ?? [] }),
     }
   );
 }
@@ -1494,7 +1568,7 @@ export function previewThumbnailTextLayerSlots(
   channel: string,
   video: string,
   overrides: Record<string, any>,
-  options?: { stable?: string | null }
+  options?: { stable?: string | null; lines?: Record<string, ThumbnailTextLineSpecLine> }
 ): Promise<ThumbnailPreviewTextLayerSlotsResult> {
   return request<ThumbnailPreviewTextLayerSlotsResult>(
     withStableQuery(
@@ -1503,7 +1577,7 @@ export function previewThumbnailTextLayerSlots(
     ),
     {
       method: "POST",
-      body: JSON.stringify({ overrides: overrides ?? {} }),
+      body: JSON.stringify({ overrides: overrides ?? {}, lines: options?.lines ?? {} }),
     }
   );
 }
@@ -2346,6 +2420,20 @@ export function fetchCodexSettings(): Promise<CodexSettings> {
 export function updateCodexSettings(payload: CodexSettingsUpdate): Promise<CodexSettings> {
   return request<CodexSettings>("/api/settings/codex", {
     method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchImageModelRouting(): Promise<ImageModelRoutingResponse> {
+  return request<ImageModelRoutingResponse>("/api/settings/image-model-routing");
+}
+
+export function updateImageModelRoutingChannel(
+  channel: string,
+  payload: ImageModelRoutingUpdatePayload
+): Promise<ChannelImageModelRouting> {
+  return request<ChannelImageModelRouting>(`/api/settings/image-model-routing/${encodeURIComponent(channel)}`, {
+    method: "PATCH",
     body: JSON.stringify(payload),
   });
 }

@@ -20,8 +20,17 @@ class ThumbSpecLoadResult:
     path: Path
 
 
-def thumb_spec_path(channel: str, video: str) -> Path:
-    return fpaths.thumbnail_assets_dir(channel, video) / "thumb_spec.json"
+def thumb_spec_path(channel: str, video: str, *, stable: Optional[str] = None) -> Path:
+    base_dir = fpaths.thumbnail_assets_dir(channel, video)
+    stable_raw = str(stable or "").strip()
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+        if stable_name:
+            return base_dir / f"thumb_spec.{stable_name}.json"
+    return base_dir / "thumb_spec.json"
 
 
 def _utc_now_iso() -> str:
@@ -97,7 +106,17 @@ def _flatten_overrides(overrides: Dict[str, Any]) -> Dict[str, Any]:
         if root_key == "portrait":
             if not isinstance(root_value, dict):
                 raise TypeError("portrait must be an object")
-            allowed = {"zoom", "offset_x", "offset_y", "trim_transparent", "fg_brightness", "fg_contrast", "fg_color"}
+            allowed = {
+                "enabled",
+                "suppress_bg",
+                "zoom",
+                "offset_x",
+                "offset_y",
+                "trim_transparent",
+                "fg_brightness",
+                "fg_contrast",
+                "fg_color",
+            }
             for k, v in root_value.items():
                 out[f"overrides.portrait.{k}"] = v
             for k in root_value.keys():
@@ -181,7 +200,26 @@ def validate_thumb_spec_payload(payload: Dict[str, Any], *, channel: str, video:
     return out
 
 
-def load_thumb_spec(channel: str, video: str) -> Optional[ThumbSpecLoadResult]:
+def load_thumb_spec(channel: str, video: str, *, stable: Optional[str] = None) -> Optional[ThumbSpecLoadResult]:
+    stable_raw = str(stable or "").strip()
+    stable_name = ""
+    if stable_raw:
+        stable_name = Path(stable_raw).name
+        if stable_name.lower().endswith(".png"):
+            stable_name = stable_name[: -len(".png")]
+        stable_name = stable_name.strip()
+
+    stable_path = thumb_spec_path(channel, video, stable=stable_name) if stable_name else None
+    if stable_path and stable_path.exists():
+        payload = json.loads(stable_path.read_text(encoding="utf-8"))
+        validated = validate_thumb_spec_payload(payload, channel=channel, video=video)
+        return ThumbSpecLoadResult(payload=validated, path=stable_path)
+
+    # Stable variants must not inherit thumb_spec.json implicitly.
+    # Only the primary stable (00_thumb_1) may fall back to legacy thumb_spec.json.
+    if stable_name and stable_name != "00_thumb_1":
+        return None
+
     path = thumb_spec_path(channel, video)
     if not path.exists():
         return None
@@ -190,8 +228,8 @@ def load_thumb_spec(channel: str, video: str) -> Optional[ThumbSpecLoadResult]:
     return ThumbSpecLoadResult(payload=validated, path=path)
 
 
-def save_thumb_spec(channel: str, video: str, overrides: Dict[str, Any]) -> Path:
-    path = thumb_spec_path(channel, video)
+def save_thumb_spec(channel: str, video: str, overrides: Dict[str, Any], *, stable: Optional[str] = None) -> Path:
+    path = thumb_spec_path(channel, video, stable=stable)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "schema": THUMB_SPEC_SCHEMA_V1,

@@ -120,6 +120,39 @@ def _mask(key: str) -> str:
         return "*" * len(k)
     return f"{k[:4]}…{k[-4:]}"
 
+
+def _matches_key(key: str, pattern: str) -> bool:
+    """
+    Match helper for operator workflows without exposing full keys.
+
+    Supported patterns:
+    - Exact key (fw_...) (not recommended to paste, but supported)
+    - Mask-like patterns with ellipsis, e.g.:
+        fw_1234…abcd
+        fw_1234...abcd
+      -> prefix/suffix match against the full key
+    - Exact match against this tool's mask output (first4…last4)
+    """
+    k = str(key or "").strip()
+    p = str(pattern or "").strip().strip("'\"")
+    if not k or not p:
+        return False
+    if p == k:
+        return True
+    # Accept both unicode ellipsis and three dots.
+    if "..." in p and "…" not in p:
+        p = p.replace("...", "…")
+    if "…" in p:
+        pre, suf = p.split("…", 1)
+        pre = pre.strip()
+        suf = suf.strip()
+        if pre and not k.startswith(pre):
+            return False
+        if suf and not k.endswith(suf):
+            return False
+        return True
+    return _mask(k) == p
+
 def _sha256_hex(value: str) -> str:
     return hashlib.sha256((value or "").encode("utf-8")).hexdigest()
 
@@ -134,6 +167,15 @@ def _state_path_default_for_pool(pool: str) -> Path:
         return secrets_root() / "fireworks_script_keys_state.json"
     if p == "image":
         return secrets_root() / "fireworks_image_keys_state.json"
+    raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
+
+
+def _quarantine_path_default_for_pool(pool: str) -> Path:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        return secrets_root() / "fireworks_script_keys.quarantine.txt"
+    if p == "image":
+        return secrets_root() / "fireworks_image_keys.quarantine.txt"
     raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
 
 
@@ -253,9 +295,64 @@ def main() -> None:
     p_list = sub.add_parser("list", help="list key count (optionally masked)")
     p_list.add_argument("--show-masked", action="store_true", help="print masked keys (prefix…suffix)")
 
-    p_check = sub.add_parser("check", help="probe keys (no token spend) and update state")
+    p_check = sub.add_parser(
+        "check",
+        help="probe keys and update state (models=token-free; chat=1-token inference)",
+    )
     p_check.add_argument("--limit", type=int, default=0, help="check only first N keys (0=all)")
     p_check.add_argument("--show-masked", action="store_true", help="print masked keys and status")
+    p_check.add_argument(
+        "--mode",
+        type=str,
+        default="models",
+        choices=["models", "chat"],
+        help="probe mode: models (GET /models; token-free) | chat (POST /chat/completions; small spend)",
+    )
+    p_check.add_argument(
+        "--model",
+        type=str,
+        default="",
+        help="model id for --mode chat (default: accounts/fireworks/models/glm-4p7)",
+    )
+
+    p_quar = sub.add_parser("quarantine", help="move unusable keys from keyring to a quarantine file")
+    p_quar.add_argument(
+        "--status",
+        type=str,
+        default="invalid,exhausted,suspended",
+        help="comma-separated statuses to quarantine (based on state file)",
+    )
+    p_quar.add_argument(
+        "--quarantine-path",
+        type=str,
+        default="",
+        help="quarantine file path (default depends on --pool)",
+    )
+    p_quar.add_argument(
+        "--match",
+        action="append",
+        default=[],
+        help="also quarantine keys matching pattern (e.g. fw_1234…abcd or fw_1234...abcd); repeatable",
+    )
+    p_quar.add_argument("--dry-run", action="store_true", help="do not write files")
+    p_quar.add_argument("--show-masked", action="store_true", help="print masked moved keys")
+
+    p_restore = sub.add_parser("restore", help="restore keys from quarantine back into keyring")
+    p_restore.add_argument(
+        "--quarantine-path",
+        type=str,
+        default="",
+        help="quarantine file path (default depends on --pool)",
+    )
+    p_restore.add_argument("--limit", type=int, default=0, help="restore only first N keys (0=all)")
+    p_restore.add_argument(
+        "--match",
+        action="append",
+        default=[],
+        help="restore keys matching pattern (e.g. fw_1234…abcd or fw_1234...abcd); repeatable",
+    )
+    p_restore.add_argument("--dry-run", action="store_true", help="do not write files")
+    p_restore.add_argument("--show-masked", action="store_true", help="print masked restored keys")
 
     p_mig = sub.add_parser("migrate-from-scratch", help="one-time import from legacy memo into keyring")
     p_mig.add_argument("--src", type=str, default="", help="legacy source path (default: workspaces/_scratch/fireworks_apiメモ)")
@@ -337,15 +434,31 @@ def main() -> None:
         state_path = _state_path_from_env_for_pool(pool)
         state = _load_state(state_path)
 
-        endpoint = "https://api.fireworks.ai/inference/v1/models"
-        summary = {"ok": 0, "invalid": 0, "exhausted": 0, "error": 0}
+        mode = str(getattr(args, "mode", "models") or "models").strip().lower()
+        endpoint = (
+            "https://api.fireworks.ai/inference/v1/models"
+            if mode == "models"
+            else "https://api.fireworks.ai/inference/v1/chat/completions"
+        )
+        model = str(getattr(args, "model", "") or "").strip() or "accounts/fireworks/models/glm-4p7"
+        payload = {"model": model, "messages": [{"role": "user", "content": "ping"}], "max_tokens": 1}
+
+        summary = {"ok": 0, "invalid": 0, "exhausted": 0, "suspended": 0, "error": 0}
         rows: List[str] = []
         for k in keys:
             status = "unknown"
             http_status = None
             ratelimit = None
             try:
-                r = requests.get(endpoint, headers={"Authorization": f"Bearer {k}"}, timeout=20)
+                if mode == "models":
+                    r = requests.get(endpoint, headers={"Authorization": f"Bearer {k}"}, timeout=20)
+                else:
+                    r = requests.post(
+                        endpoint,
+                        headers={"Authorization": f"Bearer {k}"},
+                        json=payload,
+                        timeout=20,
+                    )
                 http_status = int(r.status_code)
                 if r.status_code == 200:
                     status = "ok"
@@ -362,6 +475,8 @@ def main() -> None:
                     status = "invalid"
                 elif r.status_code == 402:
                     status = "exhausted"
+                elif r.status_code == 412:
+                    status = "suspended"
                 else:
                     status = "error"
             except Exception:
@@ -372,9 +487,114 @@ def main() -> None:
                 rows.append(f"{_mask(k)}\t{status}\thttp={http_status}")
 
         _write_state(state_path, state)
-        print(f"ok={summary.get('ok',0)} exhausted={summary.get('exhausted',0)} invalid={summary.get('invalid',0)} error={summary.get('error',0)} total={len(keys)} state={state_path}")
+        print(
+            f"ok={summary.get('ok',0)} exhausted={summary.get('exhausted',0)} "
+            f"invalid={summary.get('invalid',0)} suspended={summary.get('suspended',0)} "
+            f"error={summary.get('error',0)} total={len(keys)} state={state_path} mode={mode}"
+        )
         for line in rows:
             print(line)
+        return
+
+    if args.cmd == "quarantine":
+        statuses = {
+            s.strip().lower()
+            for s in str(getattr(args, "status", "") or "").split(",")
+            if s.strip()
+        }
+        match_patterns = [str(p).strip() for p in (getattr(args, "match", []) or []) if str(p).strip()]
+        qpath = (
+            Path(str(getattr(args, "quarantine_path", "") or "").strip()).expanduser().resolve()
+            if str(getattr(args, "quarantine_path", "") or "").strip()
+            else _quarantine_path_default_for_pool(pool)
+        )
+        if qpath == path:
+            raise SystemExit("--quarantine-path must be different from --path")
+
+        keys = _read_keys(path)
+        if not keys:
+            print(f"ok: nothing to quarantine (keyring empty): {path}")
+            return
+
+        state_path = _state_path_from_env_for_pool(pool)
+        state = _load_state(state_path)
+        states = state.get("keys") if isinstance(state.get("keys"), dict) else {}
+
+        moved: List[str] = []
+        kept: List[str] = []
+        for k in keys:
+            ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+            st = str((ent or {}).get("status") or "unknown").strip().lower()
+            force = any(_matches_key(k, pat) for pat in match_patterns) if match_patterns else False
+            if force or st in statuses:
+                moved.append(k)
+            else:
+                kept.append(k)
+
+        if not moved:
+            tail = f" matches={match_patterns}" if match_patterns else ""
+            print(f"ok: no keys matched statuses={sorted(statuses)} (kept={len(kept)}): {path}{tail}")
+            return
+
+        existing_q = _read_keys(qpath)
+        merged_q = _dedupe_keep_order([*existing_q, *moved])
+
+        dry_run = bool(getattr(args, "dry_run", False))
+        if not dry_run:
+            _write_keys(path, kept)
+            _write_keys(qpath, merged_q)
+
+        print(
+            f"ok: quarantined={len(moved)} kept={len(kept)} quarantine_total={len(merged_q)} "
+            f"statuses={sorted(statuses)} dry_run={dry_run} keyring={path} quarantine={qpath}"
+        )
+        if getattr(args, "show_masked", False):
+            for k in moved:
+                ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+                st = str((ent or {}).get("status") or "unknown")
+                hs = (ent or {}).get("last_http_status")
+                tail = f" http={hs}" if hs is not None else ""
+                print(f"{_mask(k)}\t{st}{tail}")
+        return
+
+    if args.cmd == "restore":
+        qpath = (
+            Path(str(getattr(args, "quarantine_path", "") or "").strip()).expanduser().resolve()
+            if str(getattr(args, "quarantine_path", "") or "").strip()
+            else _quarantine_path_default_for_pool(pool)
+        )
+        if qpath == path:
+            raise SystemExit("--quarantine-path must be different from --path")
+
+        qkeys = _read_keys(qpath)
+        if not qkeys:
+            print(f"ok: quarantine empty: {qpath}")
+            return
+
+        match_patterns = [str(p).strip() for p in (getattr(args, "match", []) or []) if str(p).strip()]
+        limit = int(getattr(args, "limit", 0) or 0)
+        if match_patterns:
+            restore_keys = [k for k in qkeys if any(_matches_key(k, pat) for pat in match_patterns)]
+            keep_q = [k for k in qkeys if k not in set(restore_keys)]
+        else:
+            restore_keys = qkeys[:limit] if limit > 0 else list(qkeys)
+            keep_q = qkeys[len(restore_keys) :]
+
+        active = _read_keys(path)
+        merged = _dedupe_keep_order([*active, *restore_keys])
+
+        dry_run = bool(getattr(args, "dry_run", False))
+        if not dry_run:
+            _write_keys(path, merged)
+            _write_keys(qpath, keep_q)
+
+        print(
+            f"ok: restored={len(restore_keys)} active_total={len(merged)} "
+            f"quarantine_remaining={len(keep_q)} dry_run={dry_run} keyring={path} quarantine={qpath}"
+        )
+        if getattr(args, "show_masked", False):
+            for k in restore_keys:
+                print(_mask(k))
         return
 
     if args.cmd == "migrate-from-scratch":
@@ -389,12 +609,19 @@ def main() -> None:
             memo_text = src.read_text(encoding="utf-8", errors="replace")
         except Exception:
             memo_text = ""
-        src_keys = _extract_fw_keys_anywhere(memo_text)
+        extracted = _extract_fw_keys_anywhere(memo_text)
+        qpath = _quarantine_path_default_for_pool(pool)
+        qkeys = set(_read_keys(qpath))
+        src_keys = [k for k in extracted if k not in qkeys]
+        skipped_quarantined = max(0, len(extracted) - len(src_keys))
         dst_keys = _read_keys(path)
         merged = _dedupe_keep_order([*dst_keys, *src_keys])
         if merged != dst_keys:
             _write_keys(path, merged)
-        print(f"ok: imported {len(src_keys)} (total={len(merged)}) from {src}")
+        print(
+            f"ok: extracted={len(extracted)} imported={len(src_keys)} skipped_quarantined={skipped_quarantined} "
+            f"total={len(merged)} from {src} quarantine={qpath}"
+        )
         return
 
     raise SystemExit(f"unknown command: {args.cmd}")

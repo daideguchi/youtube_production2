@@ -202,6 +202,17 @@ EOF
 - cues/セクション分割は等間隔にしない（文脈ベースで切る）。
 - THINK/AGENT時は `visual_image_cues_plan` を優先し、stop/resume ループを減らす。
 
+### 3.4 SSOT変更時のUI反映（強制）
+SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI側のSSOT表示（System Map/Catalog）が古いままになると、全員が迷って事故る。
+
+- `ssot/**` を更新したら、**必ず** UI側SSOT（`/ssot/map` / Docs Browser）の整合も確認・必要なら修正する
+- 典型パターン:
+  - 新しい運用レバー/設定キー/ロジックを追加した → `packages/factory_common/ssot_catalog.py`（System Map）に追記
+  - catalogの返却JSONに新しいフィールドを足した → `apps/ui-frontend/src/api/types.ts` と表示コンポーネントを更新
+- 最低限の確認（必須）:
+  - `python3 scripts/ops/build_ssot_catalog.py --check`
+  - `python3 scripts/ops/pre_push_final_check.py`（UIのSSOTチェックも含む）
+
 ---
 
 ## 4. よくある作業（迷わない手順）
@@ -219,6 +230,8 @@ EOF
 python scripts/agent_runner.py list
 python scripts/agent_runner.py prompt <TASK_ID>
 ```
+注:
+- `script_*` は **API失敗時に自動でTHINKへ落ちない**（即停止・記録が正）。THINK MODE は明示的に使う。
 
 ### 4.3 “確実ゴミ”の削除（強制手順）
 1) `rg` で参照ゼロ確認（Docs言及は除外してよい）  

@@ -172,7 +172,7 @@ flowchart LR
 ```
 
 - 音声成果物の公式保存先: `workspaces/audio/final/<channel>/<video>/`。  
-- TTSエンジン: CH01→Voicepeak（男性3, CLI）、CH06-033→VOICEVOX（青山流星）、デフォルトVoicevox。LLMは Azure gpt-5-mini 固定。  
+- TTSエンジン: CH01→Voicepeak（男性3, CLI）、CH06-033→VOICEVOX（青山流星）、デフォルトVoicevox。LLMは **数字スロット（`LLM_MODEL_SLOT`）で固定**し、`heavy_reasoning`/`script_*` は Azure/OpenAI GPT を禁止（デフォルトは slot 0）。  
 
 ## 8. TODO / 実装状況
 | 項目 | 内容 | 状態 |

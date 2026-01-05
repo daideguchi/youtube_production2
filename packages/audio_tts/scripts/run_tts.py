@@ -265,6 +265,11 @@ def parse_args() -> argparse.Namespace:
     # LLM Settings (Now managed via .env and Router)
     p.add_argument("--llm-model", help="Force LLM router model key(s) for this run (comma-separated).")
     p.add_argument(
+        "--llm-slot",
+        type=int,
+        help="Force numeric LLM routing slot (sets LLM_MODEL_SLOT). Preferred over --llm-model.",
+    )
+    p.add_argument(
         "--llm-task-model",
         action="append",
         help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
@@ -483,8 +488,22 @@ def main() -> None:
         print(f"[INFO] reading_source override requested: {args.reading_source}")
 
     # Optional: allow CLI-driven model overrides without editing router config.
+    if getattr(args, "llm_slot", None) is not None:
+        try:
+            slot = int(args.llm_slot)
+        except Exception:
+            raise SystemExit(f"--llm-slot must be an integer; got: {args.llm_slot}")
+        if slot < 0:
+            raise SystemExit(f"--llm-slot must be >= 0; got: {slot}")
+        os.environ["LLM_MODEL_SLOT"] = str(slot)
+
     if args.llm_model:
-        os.environ["LLM_FORCE_MODELS"] = str(args.llm_model).strip()
+        raw = str(args.llm_model).strip()
+        # Compatibility: pure integer means slot selection.
+        if raw.isdigit():
+            os.environ["LLM_MODEL_SLOT"] = raw
+        else:
+            os.environ["LLM_FORCE_MODELS"] = raw
     if args.llm_task_model:
         mapping: dict[str, list[str]] = {}
         for raw in args.llm_task_model or []:

@@ -1,0 +1,190 @@
+schema_version: 1
+
+# Operator-facing model codes.
+#
+# Goal:
+# - Never touch vendor model ids in ops configs (no drift).
+# - Use short, stable codes in:
+#   - `configs/llm_model_slots.yaml`
+#   - `configs/llm_task_overrides.yaml` (when pinning model chains)
+#   - env overrides: `LLM_FORCE_MODELS="txt-main-hr-1"`
+#   - CLI overrides: `--llm-model txt-main-hr-1`
+#
+# Notes:
+# - Codes resolve to existing `configs/llm_router.yaml: models.<model_key>`.
+# - Provider-specific request params (Azure/OpenRouter/Fireworks) remain defined by that model_key.
+# - Per-machine overrides belong in `configs/llm_model_codes.local.yaml` (not tracked).
+
+codes:
+  # --- Role codes (recommended; describe *why* the model is used) ---
+  # Text mainline (slot 0 default routing)
+  txt-main-hr-1:
+    model_key: or_kimi_k2_thinking
+    label: text_main_heavy_reasoning
+
+  txt-main-std-1:
+    model_key: or_hunyuan_a13b_instruct
+    label: text_main_standard
+
+  txt-main-cheap-1:
+    model_key: or_mistral_7b_instruct_free
+    label: text_main_cheap
+
+  txt-vision-caption-1:
+    model_key: or_qwen_2_5_vl_72b_instruct
+    label: text_vision_caption
+
+  txt-web-search-1:
+    model_key: or_perplexity_sonar
+    label: text_web_search
+
+  txt-master-plan-opus-1:
+    model_key: or_claude_opus_4_5
+    label: text_master_plan_opus
+
+  # Script pipeline (台本). Default is Fireworks-only; stop on API failure.
+  script-main-1:
+    model_key: or_deepseek_v3_2_exp
+    label: script_main
+
+  script-fallback-glm-1:
+    model_key: fw_glm_4p7
+    label: script_fallback_glm_4p7
+
+  script-fallback-kimi-1:
+    model_key: fw_kimi_k2_thinking
+    label: script_fallback_kimi_k2_thinking
+
+  script-fallback-mixtral-1:
+    model_key: fw_mixtral_8x22b_instruct
+    label: script_fallback_mixtral_8x22b
+
+  # Non-script pinned tasks (e.g. visual cue planning)
+  visual-cues-plan-main-1:
+    model_key: or_deepseek_v3_2_exp
+    label: visual_cues_plan_main
+
+  # --- OpenRouter (open-*) ---
+  # Descriptive codes (recommended for ops)
+  open-kimi-thinking-1:
+    model_key: or_kimi_k2_thinking
+    label: kimi_k2_thinking
+
+  open-hunyuan-a13b-1:
+    model_key: or_hunyuan_a13b_instruct
+    label: hunyuan_a13b_instruct
+
+  open-mistral-7b-free-1:
+    model_key: or_mistral_7b_instruct_free
+    label: mistral_7b_instruct_free
+
+  open-qwen-2p5-7b-1:
+    model_key: or_qwen_2_5_7b_instruct
+    label: qwen_2_5_7b_instruct
+
+  open-qwen-2p5-vl-72b-1:
+    model_key: or_qwen_2_5_vl_72b_instruct
+    label: qwen_2_5_vl_72b_instruct
+
+  open-gemma-3n-free-1:
+    model_key: or_gemma_3n_e2b_it_free
+    label: gemma_3n_e2b_it_free
+
+  open-sonar-1:
+    model_key: or_perplexity_sonar
+    label: perplexity_sonar
+
+  open-claude-opus-4p5-1:
+    model_key: or_claude_opus_4_5
+    label: claude_opus_4_5
+
+  # Legacy short codes (backward-compatible; avoid adding new ones)
+  # --- OpenRouter (open-*) ---
+  open-k-1: # Kimi K2 Thinking
+    model_key: or_kimi_k2_thinking
+    label: kimi_k2_thinking
+
+  open-h-1: # Hunyuan A13B Instruct
+    model_key: or_hunyuan_a13b_instruct
+    label: hunyuan_a13b_instruct
+
+  open-m-1: # Mistral 7B Instruct (free)
+    model_key: or_mistral_7b_instruct_free
+    label: mistral_7b_instruct_free
+
+  open-q-1: # Qwen 2.5 7B Instruct
+    model_key: or_qwen_2_5_7b_instruct
+    label: qwen_2_5_7b_instruct
+
+  open-qv-1: # Qwen 2.5 VL 72B Instruct
+    model_key: or_qwen_2_5_vl_72b_instruct
+    label: qwen_2_5_vl_72b_instruct
+
+  open-g-1: # Gemma 3n e2b it (free)
+    model_key: or_gemma_3n_e2b_it_free
+    label: gemma_3n_e2b_it_free
+
+  open-p-1: # Perplexity Sonar (web search)
+    model_key: or_perplexity_sonar
+    label: perplexity_sonar
+
+  open-o-1: # Claude Opus 4.5
+    model_key: or_claude_opus_4_5
+    label: claude_opus_4_5
+
+  # --- Fireworks (fw-*) ---
+  # Descriptive codes (recommended for ops)
+  fw-deepseek-v3p2-exp-1:
+    model_key: or_deepseek_v3_2_exp
+    label: deepseek_v3_2_exp
+
+  fw-glm-4p7-1:
+    model_key: fw_glm_4p7
+    label: glm_4p7
+
+  fw-kimi-thinking-1:
+    model_key: fw_kimi_k2_thinking
+    label: kimi_k2_thinking
+
+  fw-mixtral-8x22b-1:
+    model_key: fw_mixtral_8x22b_instruct
+    label: mixtral_8x22b_instruct
+
+  # Legacy short codes (backward-compatible; avoid adding new ones)
+  fw-d-1: # DeepSeek v3.2 exp (Fireworks OpenAI-compatible)
+    model_key: or_deepseek_v3_2_exp
+    label: deepseek_v3_2_exp
+
+  fw-g-1: # GLM 4.7
+    model_key: fw_glm_4p7
+    label: glm_4p7
+
+  fw-k-1: # Kimi K2 Thinking (Fireworks)
+    model_key: fw_kimi_k2_thinking
+    label: kimi_k2_thinking
+
+  fw-m-1: # Mixtral 8x22B Instruct
+    model_key: fw_mixtral_8x22b_instruct
+    label: mixtral_8x22b_instruct
+
+  # --- Azure (az-*) ---
+  # NOTE: Registered for completeness. Do not use for heavy_reasoning or script_* (router blocks it).
+  az-gpt5-mini-1:
+    model_key: azure_gpt5_mini
+    label: azure_gpt5_mini
+
+  # Legacy short codes (backward-compatible; avoid adding new ones)
+  az-g5m-1: # GPT-5 mini (Azure deployment)
+    model_key: azure_gpt5_mini
+    label: azure_gpt5_mini
+
+  # --- Gemini (gm-*) ---
+  # NOTE: LLMRouter uses Gemini only for image generation tier (image_gen).
+  gm-flash-image-1:
+    model_key: gemini_2_5_flash_image
+    label: gemini_2_5_flash_image
+
+  # Legacy short codes (backward-compatible; avoid adding new ones)
+  gm-img-1:
+    model_key: gemini_2_5_flash_image
+    label: gemini_2_5_flash_image

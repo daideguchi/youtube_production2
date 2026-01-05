@@ -27,6 +27,7 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import time
 import sys
 import logging
@@ -80,9 +81,54 @@ def update_draft_content_with_id_swap(draft_dir: Path, index: int, new_image_pat
     new_id = generate_uuid()
     found_material = None
 
-    # 1. Find the material and update it
+    def _material_suffix(mat: dict) -> str:
+        for k in ("path", "material_name"):
+            raw = str(mat.get(k) or "").strip()
+            if not raw:
+                continue
+            suf = Path(raw).suffix.lower()
+            if suf:
+                return suf
+        return ""
+
+    def _png_to_mp4(png_path: Path, mp4_path: Path, *, duration_sec: float, width: int, height: int) -> bool:
+        ffmpeg = shutil.which("ffmpeg")
+        if not ffmpeg:
+            logger.error("ffmpeg not found; cannot convert PNG->MP4 for %s", mp4_path.name)
+            return False
+        duration_sec = float(duration_sec) if duration_sec and duration_sec > 0 else 3.0
+        width = int(width) if width and int(width) > 0 else 1920
+        height = int(height) if height and int(height) > 0 else 1080
+
+        cmd = [
+            ffmpeg,
+            "-y",
+            "-loop",
+            "1",
+            "-i",
+            str(png_path),
+            "-t",
+            f"{duration_sec:.3f}",
+            "-vf",
+            f"scale={width}:{height},format=yuv420p",
+            "-r",
+            "30",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            str(mp4_path),
+        ]
+        try:
+            res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return res.returncode == 0 and mp4_path.exists()
+        except Exception as e:
+            logger.error("ffmpeg failed: %s", e)
+            return False
+
+    # 1. Find the material and update it (photo or video)
     for mat in materials:
-        if mat.get('type') != 'photo':
+        if mat.get('type') not in ('photo', 'video'):
             continue
             
         path = mat.get('path', '')
@@ -99,26 +145,56 @@ def update_draft_content_with_id_swap(draft_dir: Path, index: int, new_image_pat
         logger.warning(f"   ⚠️ Material for index {index} not found in draft.")
         return False
 
-    # 2. Copy new image to draft assets
+    # 2. Copy/convert new image to draft assets
     asset_dir = draft_dir / "assets" / "image"
     asset_dir.mkdir(parents=True, exist_ok=True)
     
-    draft_image_path = asset_dir / new_image_path.name
-    shutil.copy2(new_image_path, draft_image_path)
+    src_suffix = new_image_path.suffix.lower()
+    target_suffix = _material_suffix(found_material) or src_suffix
+
+    # CapCut sometimes stores srt2images assets as mp4 (type=video). In that case,
+    # convert the PNG into an mp4 still clip that matches the original material's
+    # dimensions/duration so timeline behavior stays stable.
+    if target_suffix == ".mp4":
+        out_name = new_image_path.with_suffix(".mp4").name
+        draft_image_path = asset_dir / out_name
+        if src_suffix == ".mp4":
+            shutil.copy2(new_image_path, draft_image_path)
+        else:
+            duration_us = found_material.get("duration")
+            try:
+                duration_sec = float(duration_us) / 1_000_000.0 if duration_us else 0.0
+            except Exception:
+                duration_sec = 0.0
+            ok = _png_to_mp4(
+                new_image_path,
+                draft_image_path,
+                duration_sec=duration_sec,
+                width=int(found_material.get("width") or 1920),
+                height=int(found_material.get("height") or 1080),
+            )
+            if not ok:
+                logger.error(f"   ❌ Failed to convert PNG->MP4 for index {index}")
+                return False
+    else:
+        # Default: keep as image (PNG/JPG/etc) and copy bytes.
+        draft_image_path = asset_dir / new_image_path.name
+        shutil.copy2(new_image_path, draft_image_path)
     
     # 3. Update Material Definition
     # We change the ID, Path, Name, and Dimensions
     found_material['id'] = new_id
     found_material['path'] = str(draft_image_path)
-    found_material['material_name'] = new_image_path.name
+    found_material['material_name'] = draft_image_path.name
     
-    try:
-        from PIL import Image
-        with Image.open(new_image_path) as img:
-            found_material['width'] = img.width
-            found_material['height'] = img.height
-    except ImportError:
-        pass
+    if target_suffix != ".mp4":
+        try:
+            from PIL import Image
+            with Image.open(new_image_path) as img:
+                found_material['width'] = img.width
+                found_material['height'] = img.height
+        except ImportError:
+            pass
 
     logger.info(f"   🔄 Swapping Material ID: {old_id} -> {new_id}")
     logger.info(f"   📂 New Path: {draft_image_path.name}")
@@ -164,6 +240,11 @@ def main():
     parser.add_argument("--draft-path", required=True, help="Path to CapCut draft")
     parser.add_argument("--indices", type=int, nargs='+', required=True, help="Image indices to process")
     parser.add_argument("--style-mode", choices=['illustration', 'realistic', 'keep'], default='illustration')
+    parser.add_argument(
+        "--swap-only",
+        action="store_true",
+        help="Skip regeneration and only perform ID swap using existing run_dir/images/<index>.png",
+    )
     parser.add_argument("--custom-prompt", help="Optional custom prompt instruction")
 
     args = parser.parse_args()
@@ -194,22 +275,36 @@ REQUIREMENT: Character must be an illustration/drawing, NOT a real person.
     if args.custom_prompt:
         style_instruction += f"\n{args.custom_prompt}"
 
-    regenerator = ImageRegenerator(run_dir)
+    regenerator = None if args.swap_only else ImageRegenerator(run_dir)
     logger.info(f"🚀 V2 Processing {len(args.indices)} images (ID Swap Mode)...")
 
     success_count = 0
     for idx in args.indices:
-        logger.info(f"🔄 [Image {idx}] Regenerating...")
-        
-        success = regenerator.regenerate_image(
-            idx,
-            custom_prompt=args.custom_prompt,
-            custom_style=style_instruction
-        )
-        if not success:
-            continue
-            
-        # Versioning
+        if not args.swap_only:
+            logger.info(f"🔄 [Image {idx}] Regenerating...")
+            success = regenerator.regenerate_image(
+                idx,
+                custom_prompt=args.custom_prompt,
+                custom_style=style_instruction,
+            )
+            if not success:
+                continue
+        else:
+            original_path = run_dir / "images" / f"{idx:04d}.png"
+            try:
+                if not original_path.exists():
+                    logger.error(f"❌ [Image {idx}] Missing existing image: {original_path}")
+                    continue
+                if original_path.stat().st_size < 50 * 1024:
+                    logger.error(
+                        f"❌ [Image {idx}] Existing image looks like a fallback/placeholder (size < 50KB): {original_path}"
+                    )
+                    continue
+            except Exception as exc:
+                logger.error(f"❌ [Image {idx}] Failed to stat existing image: {exc}")
+                continue
+
+        # Versioning (always create a fresh filename to avoid CapCut caching by path)
         original_path = run_dir / "images" / f"{idx:04d}.png"
         timestamp = int(time.time())
         new_filename = f"{idx:04d}_v{timestamp}.png"

@@ -85,11 +85,11 @@
 
 ---
 
-## D) Script Pipeline の “no-op stage” 候補（誤認/迷子リスク）
+## D) Script Pipeline の “no-op stage”（解消済み）
 
 | path | 観測 | リスク | 暫定提案 |
 | --- | --- | --- | --- |
-| `packages/script_pipeline/stages.yaml`（`script_enhancement`） | `outputs: []` のため `runner._run_llm()` が実行されず、stageが **何もせず completed 扱い**になる | “改善パスが走った”と誤認し、品質/コスト判断が崩れる（SSOT=UIの一致も崩れる） | `ssot/DECISIONS.md:D-011` で「削除 or output契約を定義して実装」を確定させる |
+| `packages/script_pipeline/stages.yaml`（旧 `script_enhancement`） | `outputs: []` により no-op 完了扱いになる問題があった | 誤認により品質/コスト判断が崩れる | **解消**: D-011 に従い主線から除外（2026-01-04） |
 
 ---
 

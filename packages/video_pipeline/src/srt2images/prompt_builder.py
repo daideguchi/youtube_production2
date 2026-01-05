@@ -3,6 +3,9 @@ from __future__ import annotations
 import re
 
 GLOBAL_IMAGE_GUARDRAILS = (
+    "Fidelity: the image must accurately depict THIS cue's content; avoid generic filler images. "
+    "Do NOT substitute abstract concepts with cliché symbols (e.g., clocks/pocket-watches/hourglasses) unless explicitly required by the cue. "
+    "Avoid repeating the same prop/symbol across many cues; vary subject, composition, and setting while staying faithful. "
     "Consistency: keep recurring characters identical across shots (face, hairstyle, age, body type, clothing). "
     "Keep recurring locations consistent (layout, key props, lighting) unless the scene explicitly changes. "
     "If a reference image is provided, treat it as the strict style/character anchor and change only what the prompt describes. "

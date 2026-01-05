@@ -13,6 +13,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   assignThumbnailLibraryAsset,
   buildThumbnailLayerSpecs,
+  buildThumbnailTwoUp,
   composeThumbnailVariant,
   createPlanningRow,
   createThumbnailVariant,
@@ -21,20 +22,26 @@ import {
   fetchThumbnailImageModels,
   fetchThumbnailLibrary,
   fetchThumbnailQcNotes,
+  fetchThumbnailElementsSpec,
+  fetchThumbnailTextLineSpec,
   fetchThumbnailVideoLayerSpecs,
   fetchThumbnailOverview,
   fetchThumbnailTemplates,
   generateThumbnailVariants,
   importThumbnailLibraryAsset,
-  previewThumbnailTextLayer,
+  patchThumbnailVariant,
+  previewThumbnailTextLayerSlots,
   resolveApiUrl,
   updateThumbnailThumbSpec,
+  updateThumbnailElementsSpec,
+  updateThumbnailTextLineSpec,
   updateThumbnailQcNote,
   updatePlanning,
   updateThumbnailProject,
   updateThumbnailTemplates,
   uploadThumbnailVariantAsset,
   uploadThumbnailLibraryAssets,
+  type ThumbnailElementSpec,
 } from "../api/client";
 import { ThumbnailBulkPanel } from "./ThumbnailBulkPanel";
 import {
@@ -155,10 +162,13 @@ type GalleryCopyEditState = {
 
 type LayerTuningDialogState = {
   projectKey: string;
+  cardKey: string;
   channel: string;
   video: string;
+  stable: string | null;
   projectTitle: string;
   commentDraft: string;
+  commentDraftByStable: Record<string, string>;
   loading: boolean;
   saving: boolean;
   building: boolean;
@@ -199,6 +209,30 @@ type LayerTuningPreviewDragState =
       startClientY: number;
       startOffX: number;
       startOffY: number;
+      width: number;
+      height: number;
+    }
+  | {
+      kind: "text_slot";
+      slotKey: string;
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startOffX: number;
+      startOffY: number;
+      width: number;
+      height: number;
+    }
+  | {
+      kind: "element";
+      elementId: string;
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startX: number;
+      startY: number;
+      elementW: number;
+      elementH: number;
       width: number;
       height: number;
     };
@@ -368,6 +402,30 @@ function resolveLayerTuningLeafValue(dialog: LayerTuningDialogState, path: strin
     return defaults[path];
   }
   return fallback;
+}
+
+function normalizeThumbnailStableId(raw: unknown): string | null {
+  const rawValue = String(raw ?? "").trim();
+  if (!rawValue) {
+    return null;
+  }
+  const cleaned = rawValue.split("?")[0].split("#")[0].trim();
+  if (!cleaned) {
+    return null;
+  }
+  const base = cleaned.split("/").filter(Boolean).slice(-1)[0] ?? cleaned;
+  const withoutExt = base.replace(/\.(png|jpg|jpeg|webp)$/i, "").trim();
+  const lowered = withoutExt.toLowerCase();
+  if (["thumb_1", "thumb1", "1", "a", "00_thumb", "thumb"].includes(lowered)) {
+    return "00_thumb_1";
+  }
+  if (["thumb_2", "thumb2", "2", "b"].includes(lowered)) {
+    return "00_thumb_2";
+  }
+  if (/^00_thumb_\d+$/.test(withoutExt)) {
+    return withoutExt;
+  }
+  return null;
 }
 
 function isLayerTuningLeafOverridden(dialog: LayerTuningDialogState, path: string): boolean {
@@ -590,6 +648,37 @@ function clampNumber(value: number, min: number, max: number): number {
   return value;
 }
 
+function createLocalId(prefix: string): string {
+  const safePrefix = (prefix ?? "").trim() || "id";
+  const ts = Date.now().toString(36);
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `${safePrefix}_${ts}_${rand}`;
+}
+
+function resolveElementSrcUrl(channel: string, video: string, srcPath: string): string | null {
+  const raw = String(srcPath ?? "").trim();
+  if (!raw) {
+    return null;
+  }
+  const cleaned = raw.replace(/^\/+/, "").replace(/\\/g, "/");
+  const parts = cleaned.split("/").filter(Boolean);
+  if (!parts.length) {
+    return null;
+  }
+  if (parts.length >= 2 && /^CH\\d+$/.test(parts[0].toUpperCase())) {
+    const ch = parts[0].toUpperCase();
+    const rest = parts.slice(1).join("/");
+    if (rest.startsWith("library/")) {
+      return `/thumbnails/library/${encodeURIComponent(ch)}/${rest}`;
+    }
+    return `/thumbnails/assets/${encodeURIComponent(ch)}/${encodeURIComponent(video)}/${rest}`;
+  }
+  if (cleaned.startsWith("library/")) {
+    return `/thumbnails/library/${encodeURIComponent(channel)}/${cleaned}`;
+  }
+  return `/thumbnails/assets/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/${cleaned}`;
+}
+
 function hexToRgba(hex: string, alpha: number): string {
   const cleaned = (hex ?? "").trim();
   const match = /^#?([0-9a-fA-F]{6})$/.exec(cleaned);
@@ -629,7 +718,8 @@ function hasThumbFileSuffix(value: string | null | undefined, fileName: string):
   if (!value) {
     return false;
   }
-  return value === fileName || value.endsWith(`/${fileName}`);
+  const clean = String(value).split("?")[0].split("#")[0];
+  return clean === fileName || clean.endsWith(`/${fileName}`);
 }
 
 function findVariantByThumbFile(project: ThumbnailProject, fileName: string): ThumbnailVariant | null {
@@ -729,21 +819,49 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const layerTuningPreviewDragRef = useRef<LayerTuningPreviewDragState | null>(null);
   const layerTuningPreviewRafRef = useRef<number | null>(null);
   const layerTuningPreviewPendingPatchRef = useRef<Record<string, unknown> | null>(null);
-  const [layerTuningSelectedAsset, setLayerTuningSelectedAsset] = useState<"bg" | "portrait" | "text">("bg");
+  const [layerTuningSelectedAsset, setLayerTuningSelectedAsset] = useState<"bg" | "portrait" | "text" | "element">(
+    "bg"
+  );
   const layerTuningDialogRef = useRef<LayerTuningDialogState | null>(null);
-  const layerTuningSelectedAssetRef = useRef<"bg" | "portrait" | "text">("bg");
+  const layerTuningSelectedAssetRef = useRef<"bg" | "portrait" | "text" | "element">("bg");
   const [layerTuningPreviewSize, setLayerTuningPreviewSize] = useState<{ width: number; height: number }>({
     width: 0,
     height: 0,
   });
   const [layerTuningBgPreviewSrc, setLayerTuningBgPreviewSrc] = useState<string | null>(null);
   const [layerTuningPortraitPreviewSrc, setLayerTuningPortraitPreviewSrc] = useState<string | null>(null);
-  const [layerTuningTextPreviewSrc, setLayerTuningTextPreviewSrc] = useState<string | null>(null);
-  const [layerTuningTextPreviewStatus, setLayerTuningTextPreviewStatus] = useState<{
+  const [layerTuningTextSlotImages, setLayerTuningTextSlotImages] = useState<Record<string, string>>({});
+  const [layerTuningTextSlotStatus, setLayerTuningTextSlotStatus] = useState<{
     loading: boolean;
     error: string | null;
   }>({ loading: false, error: null });
-  const layerTuningTextPreviewRequestRef = useRef(0);
+  const layerTuningTextSlotRequestRef = useRef(0);
+  const [layerTuningTextLineSpecLines, setLayerTuningTextLineSpecLines] = useState<
+    Record<string, { offset_x: number; offset_y: number; scale: number; rotate_deg?: number }>
+  >({});
+  const layerTuningTextLineSpecRef = useRef<
+    Record<string, { offset_x: number; offset_y: number; scale: number; rotate_deg?: number }>
+  >({});
+  const layerTuningTextSlotBoxesRef = useRef<Record<string, number[]>>({});
+  const [layerTuningTextLineSpecStatus, setLayerTuningTextLineSpecStatus] = useState<{
+    loading: boolean;
+    error: string | null;
+  }>({ loading: false, error: null });
+  const layerTuningTextLineSpecRequestRef = useRef(0);
+  const layerTuningTextLegacyMigrationRef = useRef<Record<string, boolean>>({});
+  const [layerTuningSelectedTextSlot, setLayerTuningSelectedTextSlot] = useState<string | null>(null);
+  const layerTuningSelectedTextSlotRef = useRef<string | null>(null);
+  const [layerTuningElements, setLayerTuningElements] = useState<ThumbnailElementSpec[]>([]);
+  const layerTuningElementsRef = useRef<ThumbnailElementSpec[]>([]);
+  const [layerTuningElementsStatus, setLayerTuningElementsStatus] = useState<{ loading: boolean; error: string | null }>(
+    { loading: false, error: null }
+  );
+  const layerTuningElementsRequestRef = useRef(0);
+  const [layerTuningSelectedElementId, setLayerTuningSelectedElementId] = useState<string | null>(null);
+  const layerTuningSelectedElementIdRef = useRef<string | null>(null);
+  const layerTuningElementUploadInputRef = useRef<HTMLInputElement | null>(null);
+  const [layerTuningSnapEnabled, setLayerTuningSnapEnabled] = useState<boolean>(true);
+  const layerTuningSnapEnabledRef = useRef<boolean>(true);
   const [planningRowsByVideo, setPlanningRowsByVideo] = useState<Record<string, Record<string, string>>>({});
   const [planningLoading, setPlanningLoading] = useState(false);
   const [planningError, setPlanningError] = useState<string | null>(null);
@@ -752,6 +870,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const [channelPickerQuery, setChannelPickerQuery] = useState("");
   const channelPickerButtonRef = useRef<HTMLButtonElement | null>(null);
   const channelPickerPanelRef = useRef<HTMLDivElement | null>(null);
+  const autoOpenLayerTuningRef = useRef<string | null>(null);
 
   const selectChannel = useCallback(
     (channelCode: string) => {
@@ -1089,6 +1208,40 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     []
   );
 
+  const patchVariantInOverview = useCallback(
+    (channelCode: string, video: string, variantId: string, patch: Partial<ThumbnailVariant>) => {
+      if (!variantId) {
+        return;
+      }
+      setOverview((current) => {
+        if (!current) {
+          return current;
+        }
+        const nextChannels = current.channels.map((channel) => {
+          if (channel.channel !== channelCode) {
+            return channel;
+          }
+          const nextProjects = channel.projects.map((project) => {
+            if (project.video !== video) {
+              return project;
+            }
+            const variants = Array.isArray(project.variants) ? project.variants : [];
+            const nextVariants = variants.map((variant) => {
+              if (variant.id !== variantId) {
+                return variant;
+              }
+              return { ...variant, ...patch };
+            });
+            return { ...project, variants: nextVariants };
+          });
+          return { ...channel, projects: nextProjects };
+        });
+        return { ...current, channels: nextChannels };
+      });
+    },
+    []
+  );
+
   const handleCopyAssetPath = useCallback((path: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(path).catch(() => {
@@ -1141,15 +1294,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }, []);
 
   const handleGalleryProjectStatusChange = useCallback(
-    async (project: ThumbnailProject, status: ThumbnailProjectStatus) => {
-      const projectKey = getProjectKey(project);
-      const draftNotes = galleryNotesDraft[projectKey];
+    async (project: ThumbnailProject, cardKey: string, status: ThumbnailProjectStatus) => {
+      const draftNotes = galleryNotesDraft[cardKey];
       const currentNotes = project.notes ?? "";
       const notesDirty = draftNotes !== undefined && draftNotes !== currentNotes;
       const trimmedNotes = notesDirty ? draftNotes.trim() : "";
       const notesPayload = notesDirty ? (trimmedNotes ? trimmedNotes : null) : undefined;
-      setGalleryProjectSaving((current) => ({ ...current, [projectKey]: true }));
-      setProjectFeedback(projectKey, null);
+      setGalleryProjectSaving((current) => ({ ...current, [cardKey]: true }));
+      setProjectFeedback(cardKey, null);
       try {
         await updateThumbnailProject(project.channel, project.video, {
           status,
@@ -1162,46 +1314,86 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         if (notesPayload !== undefined) {
           setGalleryNotesDraft((current) => {
             const next = { ...current };
-            delete next[projectKey];
+            delete next[cardKey];
             return next;
           });
         }
-        setProjectFeedback(projectKey, {
+        setProjectFeedback(cardKey, {
           type: "success",
           message: notesPayload !== undefined ? "ステータスとコメントを保存しました。" : "保存しました。",
           timestamp: Date.now(),
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        setProjectFeedback(projectKey, {
+        setProjectFeedback(cardKey, {
           type: "error",
           message,
           timestamp: Date.now(),
         });
       } finally {
-        setGalleryProjectSaving((current) => ({ ...current, [projectKey]: false }));
+        setGalleryProjectSaving((current) => ({ ...current, [cardKey]: false }));
       }
     },
     [galleryNotesDraft, patchProjectInOverview, setProjectFeedback]
   );
 
-  const handleGalleryNotesChange = useCallback((projectKey: string, value: string) => {
+  const handleGalleryVariantStatusChange = useCallback(
+    async (project: ThumbnailProject, variant: ThumbnailVariant, cardKey: string, status: ThumbnailVariantStatus) => {
+      const draftNotes = galleryNotesDraft[cardKey];
+      const currentNotes = variant.notes ?? "";
+      const notesDirty = draftNotes !== undefined && draftNotes !== currentNotes;
+      const trimmedNotes = notesDirty ? draftNotes.trim() : "";
+      const notesPayload = notesDirty ? (trimmedNotes ? trimmedNotes : null) : undefined;
+      setGalleryProjectSaving((current) => ({ ...current, [cardKey]: true }));
+      setProjectFeedback(cardKey, null);
+      try {
+        const updated = await patchThumbnailVariant(project.channel, project.video, variant.id, {
+          status,
+          ...(notesPayload !== undefined ? { notes: notesPayload } : {}),
+        });
+        patchVariantInOverview(project.channel, project.video, variant.id, updated);
+        if (notesPayload !== undefined) {
+          setGalleryNotesDraft((current) => {
+            const next = { ...current };
+            delete next[cardKey];
+            return next;
+          });
+        }
+        setProjectFeedback(cardKey, {
+          type: "success",
+          message: notesPayload !== undefined ? "ステータスとコメントを保存しました。" : "保存しました。",
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(cardKey, {
+          type: "error",
+          message,
+          timestamp: Date.now(),
+        });
+      } finally {
+        setGalleryProjectSaving((current) => ({ ...current, [cardKey]: false }));
+      }
+    },
+    [galleryNotesDraft, patchVariantInOverview, setProjectFeedback]
+  );
+
+  const handleGalleryNotesChange = useCallback((cardKey: string, value: string) => {
     setGalleryNotesDraft((current) => ({
       ...current,
-      [projectKey]: value,
+      [cardKey]: value,
     }));
   }, []);
 
   const handleGalleryNotesSave = useCallback(
-    async (project: ThumbnailProject) => {
-      const projectKey = getProjectKey(project);
-      const draft = galleryNotesDraft[projectKey];
+    async (project: ThumbnailProject, cardKey: string) => {
+      const draft = galleryNotesDraft[cardKey];
       const currentNotes = project.notes ?? "";
       if (draft === undefined || draft === currentNotes) {
         return;
       }
-      setGalleryProjectSaving((current) => ({ ...current, [projectKey]: true }));
-      setProjectFeedback(projectKey, null);
+      setGalleryProjectSaving((current) => ({ ...current, [cardKey]: true }));
+      setProjectFeedback(cardKey, null);
       const trimmed = draft.trim();
       try {
         await updateThumbnailProject(project.channel, project.video, {
@@ -1210,26 +1402,65 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         patchProjectInOverview(project.channel, project.video, { notes: trimmed ? trimmed : null });
         setGalleryNotesDraft((current) => {
           const next = { ...current };
-          delete next[projectKey];
+          delete next[cardKey];
           return next;
         });
-        setProjectFeedback(projectKey, {
+        setProjectFeedback(cardKey, {
           type: "success",
           message: "コメントを保存しました。",
           timestamp: Date.now(),
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        setProjectFeedback(projectKey, {
+        setProjectFeedback(cardKey, {
           type: "error",
           message,
           timestamp: Date.now(),
         });
       } finally {
-        setGalleryProjectSaving((current) => ({ ...current, [projectKey]: false }));
+        setGalleryProjectSaving((current) => ({ ...current, [cardKey]: false }));
       }
     },
     [galleryNotesDraft, patchProjectInOverview, setProjectFeedback]
+  );
+
+  const handleGalleryVariantNotesSave = useCallback(
+    async (project: ThumbnailProject, variant: ThumbnailVariant, cardKey: string) => {
+      const draft = galleryNotesDraft[cardKey];
+      const currentNotes = variant.notes ?? "";
+      if (draft === undefined || draft === currentNotes) {
+        return;
+      }
+      setGalleryProjectSaving((current) => ({ ...current, [cardKey]: true }));
+      setProjectFeedback(cardKey, null);
+      const trimmed = draft.trim();
+      try {
+        const updated = await patchThumbnailVariant(project.channel, project.video, variant.id, {
+          notes: trimmed ? trimmed : null,
+        });
+        patchVariantInOverview(project.channel, project.video, variant.id, updated);
+        setGalleryNotesDraft((current) => {
+          const next = { ...current };
+          delete next[cardKey];
+          return next;
+        });
+        setProjectFeedback(cardKey, {
+          type: "success",
+          message: "コメントを保存しました。",
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(cardKey, {
+          type: "error",
+          message,
+          timestamp: Date.now(),
+        });
+      } finally {
+        setGalleryProjectSaving((current) => ({ ...current, [cardKey]: false }));
+      }
+    },
+    [galleryNotesDraft, patchVariantInOverview, setProjectFeedback]
   );
 
   const handleQcNotesChange = useCallback((relativePath: string, value: string) => {
@@ -1684,12 +1915,12 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         </div>
       </div>
       <div className="thumbnail-gallery-grid">
-        {galleryItems.slice(0, galleryLimit).map((item) => {
-          const project = item.project;
-          const projectKey = getProjectKey(project);
-          const itemKey = item.key;
-          const selectedVariant = item.variant;
-          const slotLabel = (item.slotLabel ?? "").trim();
+	        {galleryItems.slice(0, galleryLimit).map((item) => {
+	          const project = item.project;
+	          const itemKey = item.key;
+	          const cardKey = itemKey;
+	          const selectedVariant = item.variant;
+	          const slotLabel = (item.slotLabel ?? "").trim();
           const displayVariantLabel = (() => {
             const base = selectedVariant ? (selectedVariant.label ?? selectedVariant.id) : "";
             if (!base) {
@@ -1713,10 +1944,60 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   <div className="thumbnail-gallery-card__note">
                     {isTwoUpMode && slotLabel ? `${slotLabel} 未生成` : "サムネ未登録"}
                   </div>
+                  {isTwoUpMode && slotLabel ? (
+                    <div className="thumbnail-gallery-card__buttons">
+                      <button
+                        type="button"
+                        className="btn btn--primary"
+                        onClick={() =>
+                          handleOpenLayerTuningDialog(project, {
+                            stable: slotLabel,
+                            cardKey,
+                          })
+                        }
+                      >
+                        調整（ドラッグ）
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() =>
+                          handleOpenLayerTuningDialog(project, {
+                            stable: slotLabel,
+                            initialSelectedAsset: "text",
+                            cardKey,
+                          })
+                        }
+                      >
+                        文字を編集
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               </article>
             );
           }
+
+          const stableForEdit = (() => {
+            if (isTwoUpMode && slotLabel) {
+              return slotLabel;
+            }
+            if (
+              hasThumbFileSuffix(selectedVariant.image_path, "00_thumb_1.png") ||
+              hasThumbFileSuffix(selectedVariant.image_url, "00_thumb_1.png") ||
+              hasThumbFileSuffix(selectedVariant.preview_url, "00_thumb_1.png")
+            ) {
+              return "00_thumb_1";
+            }
+            if (
+              hasThumbFileSuffix(selectedVariant.image_path, "00_thumb_2.png") ||
+              hasThumbFileSuffix(selectedVariant.image_url, "00_thumb_2.png") ||
+              hasThumbFileSuffix(selectedVariant.preview_url, "00_thumb_2.png")
+            ) {
+              return "00_thumb_2";
+            }
+            return null;
+          })();
 
           const cacheBustToken =
             selectedVariant.updated_at ?? project.updated_at ?? project.status_updated_at ?? null;
@@ -1729,11 +2010,22 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
                   : null;
           const imageUrl = imageUrlBase ? withCacheBust(imageUrlBase, cacheBustToken) : null;
-          const statusLabel = PROJECT_STATUS_LABELS[project.status] ?? project.status;
-          const feedback = cardFeedback[projectKey];
-          const busy = galleryProjectSaving[projectKey] ?? false;
-          const notesValue = galleryNotesDraft[projectKey] ?? project.notes ?? "";
-          const notesDirty = notesValue !== (project.notes ?? "");
+          const variantMode = galleryVariantMode === "selected" ? "project" : "variant";
+          const statusRaw = variantMode === "project" ? project.status : selectedVariant.status;
+          const statusForStyle = (() => {
+            if (statusRaw === "candidate") return "draft";
+            if (statusRaw === "published") return "approved";
+            return statusRaw;
+          })();
+          const statusLabel =
+            variantMode === "project"
+              ? PROJECT_STATUS_LABELS[project.status] ?? project.status
+              : VARIANT_STATUS_LABELS[selectedVariant.status] ?? selectedVariant.status;
+          const feedback = cardFeedback[cardKey];
+          const busy = galleryProjectSaving[cardKey] ?? false;
+          const notesSource = variantMode === "project" ? project.notes ?? "" : selectedVariant.notes ?? "";
+          const notesValue = galleryNotesDraft[cardKey] ?? notesSource;
+          const notesDirty = notesValue !== notesSource;
           const downloadName = (() => {
             if (galleryVariantMode !== "selected") {
               const raw = selectedVariant.image_path ?? selectedVariant.image_url ?? "";
@@ -1747,26 +2039,41 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             return `${project.channel}-${project.video}.png`;
           })();
 
-          return (
-            <article
-              key={itemKey}
-              className={[
-                "thumbnail-gallery-card",
-                `thumbnail-gallery-card--${project.status}`,
-                busy ? "is-updating" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <div className="thumbnail-gallery-card__media">
-                {imageUrl ? (
-                  <a href={imageUrl} target="_blank" rel="noreferrer" title="別タブで表示">
-                    <img src={imageUrl} alt={`${project.channel}-${project.video}`} loading="lazy" />
-                  </a>
-                ) : (
-                  <div className="thumbnail-gallery-card__placeholder">No Image</div>
-                )}
-              </div>
+	          return (
+	            <article
+	              key={itemKey}
+	              className={[
+	                "thumbnail-gallery-card",
+	                `thumbnail-gallery-card--${statusForStyle}`,
+	                busy ? "is-updating" : "",
+	              ]
+	                .filter(Boolean)
+	                .join(" ")}
+	            >
+	              <div className="thumbnail-gallery-card__media">
+	                {imageUrl ? (
+	                  <button
+	                    type="button"
+	                    className="thumbnail-gallery-card__media-button"
+	                    onClick={() =>
+	                      handleOpenLayerTuningDialog(project, {
+	                        stable: stableForEdit,
+	                        cardKey,
+	                      })
+	                    }
+	                    title="クリックで調整を開く"
+	                  >
+	                    <img
+	                      src={imageUrl}
+	                      alt={`${project.channel}-${project.video}`}
+	                      loading="lazy"
+	                      draggable={false}
+	                    />
+	                  </button>
+	                ) : (
+	                  <div className="thumbnail-gallery-card__placeholder">No Image</div>
+	                )}
+	              </div>
               <div className="thumbnail-gallery-card__meta">
                 <div className="thumbnail-gallery-card__code">{project.channel}-{project.video}</div>
                 <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
@@ -1774,30 +2081,48 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                 </div>
                 <div className="thumbnail-gallery-card__variant">{displayVariantLabel}</div>
                 <div className="thumbnail-gallery-card__review-row">
-                  <span className={`thumbnail-card__status-badge thumbnail-card__status-badge--${project.status}`}>
+                  <span className={`thumbnail-card__status-badge thumbnail-card__status-badge--${statusForStyle}`}>
                     {statusLabel}
                   </span>
                   <div className="thumbnail-gallery-card__review-actions" role="group" aria-label="レビュー判定">
                     <button
                       type="button"
-                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "approved" ? "is-active" : ""}`}
-                      onClick={() => handleGalleryProjectStatusChange(project, "approved")}
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${statusRaw === "approved" ? "is-active" : ""}`}
+                      onClick={() => {
+                        if (variantMode === "project") {
+                          void handleGalleryProjectStatusChange(project, cardKey, "approved");
+                          return;
+                        }
+                        void handleGalleryVariantStatusChange(project, selectedVariant, cardKey, "approved");
+                      }}
                       disabled={busy}
                     >
                       OK
                     </button>
                     <button
                       type="button"
-                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "in_progress" ? "is-active" : ""}`}
-                      onClick={() => handleGalleryProjectStatusChange(project, "in_progress")}
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${statusRaw === "in_progress" ? "is-active" : ""}`}
+                      onClick={() => {
+                        if (variantMode === "project") {
+                          void handleGalleryProjectStatusChange(project, cardKey, "in_progress");
+                          return;
+                        }
+                        void handleGalleryVariantStatusChange(project, selectedVariant, cardKey, "in_progress");
+                      }}
                       disabled={busy}
                     >
                       やり直し
                     </button>
                     <button
                       type="button"
-                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${project.status === "review" ? "is-active" : ""}`}
-                      onClick={() => handleGalleryProjectStatusChange(project, "review")}
+                      className={`btn btn--ghost thumbnail-gallery-card__review-btn ${statusRaw === "review" ? "is-active" : ""}`}
+                      onClick={() => {
+                        if (variantMode === "project") {
+                          void handleGalleryProjectStatusChange(project, cardKey, "review");
+                          return;
+                        }
+                        void handleGalleryVariantStatusChange(project, selectedVariant, cardKey, "review");
+                      }}
                       disabled={busy}
                     >
                       保留
@@ -1809,13 +2134,15 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     value={notesValue}
                     placeholder="コメント（任意）"
                     rows={2}
-                    onChange={(event) => handleGalleryNotesChange(projectKey, event.target.value)}
+                    onChange={(event) => handleGalleryNotesChange(cardKey, event.target.value)}
                     onKeyDown={(event) => {
                       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                         event.preventDefault();
-                        handleGalleryNotesSave(project).catch(() => {
-                          // error surfaced in feedback
-                        });
+                        if (variantMode === "project") {
+                          void handleGalleryNotesSave(project, cardKey);
+                          return;
+                        }
+                        void handleGalleryVariantNotesSave(project, selectedVariant, cardKey);
                       }
                     }}
                     disabled={busy}
@@ -1825,9 +2152,11 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                       type="button"
                       className="btn btn--ghost"
                       onClick={() => {
-                        handleGalleryNotesSave(project).catch(() => {
-                          // error surfaced in feedback
-                        });
+                        if (variantMode === "project") {
+                          void handleGalleryNotesSave(project, cardKey);
+                          return;
+                        }
+                        void handleGalleryVariantNotesSave(project, selectedVariant, cardKey);
                       }}
                       disabled={busy || !notesDirty}
                     >
@@ -1835,23 +2164,48 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     </button>
                   </div>
                 </div>
-                {imageUrl ? (
-                  <div className="thumbnail-gallery-card__buttons">
-                    <button
-                      type="button"
-                      className="btn btn--primary"
-                      onClick={() => handleOpenLayerTuningDialog(project)}
-                      title="Canvaみたいにドラッグで位置調整できます"
-                    >
-                      調整（ドラッグ）
-                    </button>
-                    <button type="button" className="btn btn--ghost" onClick={() => handleOpenGalleryCopyEdit(project)}>
-                      文字を編集
-                    </button>
-                    <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
-                      開く
-                    </a>
-                    <a className="btn" href={imageUrl} download={downloadName}>
+	                {imageUrl ? (
+	                  <div className="thumbnail-gallery-card__buttons">
+	                    <button
+	                      type="button"
+	                      className="btn btn--primary"
+	                      onClick={() =>
+	                        handleOpenLayerTuningDialog(project, {
+	                          stable: stableForEdit,
+	                          cardKey,
+	                        })
+	                      }
+	                      title="Canvaみたいにドラッグで位置調整できます"
+	                    >
+	                      調整（ドラッグ）
+	                    </button>
+	                    {isTwoUpMode ? (
+	                      <button
+	                        type="button"
+	                        className="btn btn--ghost"
+	                        onClick={() =>
+	                          handleOpenLayerTuningDialog(project, {
+	                            stable: stableForEdit,
+	                            initialSelectedAsset: "text",
+	                            cardKey,
+	                          })
+	                        }
+	                      >
+	                        文字を編集
+	                      </button>
+	                    ) : (
+	                      <button
+	                        type="button"
+	                        className="btn btn--ghost"
+	                        onClick={() => handleOpenGalleryCopyEdit(project)}
+	                      >
+	                        文字を編集
+	                      </button>
+	                    )}
+	                    <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
+	                      開く
+	                    </a>
+	                    <a className="btn" href={imageUrl} download={downloadName}>
                       DL
                     </a>
                   </div>
@@ -2623,48 +2977,168 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     setProjectFeedback(projectKey, null);
   }, [setProjectFeedback]);
 
-  const handleOpenLayerTuningDialog = useCallback((project: ThumbnailProject) => {
-    const projectKey = getProjectKey(project);
-    setLayerTuningDialog({
-      projectKey,
-      channel: project.channel,
-      video: normalizeVideoInput(project.video) || project.video,
-      projectTitle: project.title ?? project.sheet_title ?? "（タイトル未設定）",
-      commentDraft: extractHumanCommentFromNotes(project.notes),
-      loading: true,
-      saving: false,
-      building: false,
-      allowGenerate: true,
-      regenBg: false,
-      outputMode: "draft",
-      error: undefined,
-      context: undefined,
-      overridesLeaf: {},
-    });
-    setProjectFeedback(projectKey, null);
-  }, [setProjectFeedback]);
+  const handleOpenLayerTuningDialog = useCallback(
+    (
+      project: ThumbnailProject,
+      options?: { stable?: string | null; initialSelectedAsset?: "bg" | "portrait" | "text"; cardKey?: string }
+    ) => {
+      const stableCandidate = normalizeThumbnailStableId(options?.stable);
+      const stable =
+        stableCandidate ??
+        (galleryVariantMode === "two_up" || channelHasTwoUpVariants ? "00_thumb_1" : null);
+      const projectKey = getProjectKey(project);
+      const cardKey = String(options?.cardKey || "").trim() || projectKey;
+      const initialSelectedAsset = options?.initialSelectedAsset ?? "bg";
+      const stableKey = stable ?? "__default__";
+      const stableVariant = stable ? findVariantByThumbFile(project, `${stable}.png`) : null;
+      const initialComment = extractHumanCommentFromNotes(stableVariant?.notes ?? project.notes);
+      setLayerTuningSelectedAsset(initialSelectedAsset);
+      setLayerTuningDialog({
+        projectKey,
+        cardKey,
+        channel: project.channel,
+        video: normalizeVideoInput(project.video) || project.video,
+        stable,
+        projectTitle: project.title ?? project.sheet_title ?? "（タイトル未設定）",
+        commentDraft: initialComment,
+        commentDraftByStable: { [stableKey]: initialComment },
+        loading: true,
+        saving: false,
+        building: false,
+        allowGenerate: true,
+        regenBg: false,
+        outputMode: "draft",
+        error: undefined,
+        context: undefined,
+        overridesLeaf: {},
+      });
+      setProjectFeedback(cardKey, null);
+    },
+    [channelHasTwoUpVariants, galleryVariantMode, setProjectFeedback]
+  );
+
+  useEffect(() => {
+    if (!activeChannel) {
+      return;
+    }
+    const params = new URLSearchParams(location.search);
+    const videoParam = normalizeVideoInput(params.get("video") ?? "");
+    if (!videoParam) {
+      return;
+    }
+    const stableParam = (params.get("stable") ?? params.get("variant") ?? "").trim();
+    const stable = normalizeThumbnailStableId(stableParam);
+    const key = `${activeChannel.channel}-${videoParam}-${stable ?? ""}`;
+    if (autoOpenLayerTuningRef.current === key) {
+      return;
+    }
+    const project = activeChannel.projects.find((item) => normalizeVideoInput(item.video) === videoParam);
+    if (!project) {
+      return;
+    }
+    autoOpenLayerTuningRef.current = key;
+    setActiveTab("gallery");
+    handleOpenLayerTuningDialog(project, { stable, initialSelectedAsset: "bg" });
+  }, [activeChannel, handleOpenLayerTuningDialog, location.search]);
 
   const handleCloseLayerTuningDialog = useCallback(() => {
     setLayerTuningDialog(null);
   }, []);
 
-  const layerTuningProjectKey = layerTuningDialog?.projectKey ?? null;
-  const layerTuningChannel = layerTuningDialog?.channel ?? null;
-  const layerTuningVideo = layerTuningDialog?.video ?? null;
+  const handleLayerTuningStableChange = useCallback((nextStableRaw: string) => {
+    const nextStable = normalizeThumbnailStableId(nextStableRaw);
+    if (!nextStable) {
+      return;
+    }
+    setLayerTuningDialog((current) => {
+      if (!current) {
+        return current;
+      }
+      if (current.stable === nextStable) {
+        return current;
+      }
+      const stableKey = nextStable ?? "__default__";
+      const commentDraft = (current.commentDraftByStable ?? {})[stableKey] ?? "";
+      const nextCardKey = (() => {
+        const base = String(current.cardKey || current.projectKey || "").trim();
+        if (!base) {
+          return base;
+        }
+        if (/#thumb_[12]$/.test(base)) {
+          const suffix = nextStable === "00_thumb_2" ? "#thumb_2" : "#thumb_1";
+          return base.replace(/#thumb_[12]$/, suffix);
+        }
+        return base;
+      })();
+      return { ...current, stable: nextStable, cardKey: nextCardKey || current.cardKey, commentDraft, loading: true, error: undefined };
+    });
+    setLayerTuningSelectedAsset("bg");
+  }, []);
+
+	  const layerTuningProjectKey = layerTuningDialog?.projectKey ?? null;
+	  const layerTuningChannel = layerTuningDialog?.channel ?? null;
+	  const layerTuningVideo = layerTuningDialog?.video ?? null;
+	  const layerTuningStable = layerTuningDialog?.stable ?? null;
+  const layerTuningForcedTextTemplateId = String(
+    layerTuningDialog?.overridesLeaf?.["overrides.text_template_id"] ?? ""
+  ).trim();
+
+  const layerTuningTextTemplateId = useMemo(() => {
+    const ctx = layerTuningDialog?.context;
+    const options = (ctx?.template_options ?? []) as Array<{ id: string; slots?: Record<string, unknown> }>;
+    if (!options.length) {
+      return "";
+    }
+    const forced = layerTuningForcedTextTemplateId;
+    const fallback = String(ctx?.template_id_default ?? "").trim();
+    return forced || fallback || String(options[0]?.id ?? "");
+  }, [layerTuningDialog?.context, layerTuningForcedTextTemplateId]);
+
+  const layerTuningTextSlotBoxes = useMemo(() => {
+    const ctx = layerTuningDialog?.context;
+    const options = (ctx?.template_options ?? []) as Array<{ id: string; slots?: Record<string, { box?: number[] | null }> }>;
+    if (!options.length || !layerTuningTextTemplateId) {
+      return {};
+    }
+    const tpl =
+      options.find((opt) => String(opt.id || "").trim() === layerTuningTextTemplateId) ?? options[0];
+    const slots = (tpl?.slots ?? {}) as Record<string, { box?: number[] | null }>;
+    const out: Record<string, number[]> = {};
+    Object.entries(slots).forEach(([slotKey, meta]) => {
+      const box = meta?.box ?? null;
+      if (!slotKey || !Array.isArray(box) || box.length !== 4) {
+        return;
+      }
+      const nums = box.map((v) => Number(v));
+      if (nums.some((v) => !Number.isFinite(v))) {
+        return;
+      }
+      out[slotKey] = nums;
+    });
+    return out;
+  }, [layerTuningDialog?.context, layerTuningTextTemplateId]);
 
   const layerTuningTextPreviewSignature = useMemo(() => {
     const overrides = pickThumbnailTextPreviewOverrides(layerTuningDialog?.overridesLeaf ?? {});
     const entries = Object.entries(overrides).sort(([a], [b]) => a.localeCompare(b));
+    return JSON.stringify({ stable: layerTuningStable ?? "", entries });
+  }, [layerTuningDialog?.overridesLeaf, layerTuningStable]);
+
+  const layerTuningTextPreviewLineSignature = useMemo(() => {
+    const entries = Object.entries(layerTuningTextLineSpecLines ?? {})
+      .map(([slotKey, line]) => [slotKey, Number((line as any)?.scale ?? 1)] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
     return JSON.stringify(entries);
-  }, [layerTuningDialog?.overridesLeaf]);
+  }, [layerTuningTextLineSpecLines]);
 
   const layerTuningTextPreviewOverrides = useMemo(() => {
     try {
-      const parsed = JSON.parse(layerTuningTextPreviewSignature) as Array<[string, any]>;
-      if (!Array.isArray(parsed)) {
+      const parsed = JSON.parse(layerTuningTextPreviewSignature) as { entries?: Array<[string, any]> };
+      const entries = Array.isArray(parsed?.entries) ? parsed.entries : [];
+      if (!Array.isArray(entries)) {
         return {};
       }
-      return Object.fromEntries(parsed);
+      return Object.fromEntries(entries);
     } catch {
       return {};
     }
@@ -2679,36 +3153,73 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }, [layerTuningSelectedAsset]);
 
   useEffect(() => {
+    layerTuningSelectedTextSlotRef.current = layerTuningSelectedTextSlot;
+  }, [layerTuningSelectedTextSlot]);
+
+  useEffect(() => {
+    layerTuningTextLineSpecRef.current = layerTuningTextLineSpecLines;
+  }, [layerTuningTextLineSpecLines]);
+
+  useEffect(() => {
+    layerTuningTextSlotBoxesRef.current = layerTuningTextSlotBoxes;
+  }, [layerTuningTextSlotBoxes]);
+
+  useEffect(() => {
+    layerTuningElementsRef.current = layerTuningElements;
+  }, [layerTuningElements]);
+
+  useEffect(() => {
+    layerTuningSelectedElementIdRef.current = layerTuningSelectedElementId;
+  }, [layerTuningSelectedElementId]);
+
+  useEffect(() => {
+    layerTuningSnapEnabledRef.current = layerTuningSnapEnabled;
+  }, [layerTuningSnapEnabled]);
+
+  useEffect(() => {
     if (!layerTuningChannel || !layerTuningVideo) {
       setLayerTuningBgPreviewSrc(null);
       setLayerTuningPortraitPreviewSrc(null);
-      setLayerTuningTextPreviewSrc(null);
-      setLayerTuningTextPreviewStatus({ loading: false, error: null });
-      layerTuningTextPreviewRequestRef.current += 1;
+      setLayerTuningTextSlotImages({});
+      setLayerTuningTextSlotStatus({ loading: false, error: null });
+      layerTuningTextSlotRequestRef.current += 1;
+      setLayerTuningTextLineSpecLines({});
+      setLayerTuningTextLineSpecStatus({ loading: false, error: null });
+      setLayerTuningSelectedTextSlot(null);
+      setLayerTuningElements([]);
+      setLayerTuningElementsStatus({ loading: false, error: null });
+      layerTuningElementsRequestRef.current += 1;
+      setLayerTuningSelectedElementId(null);
       layerTuningPreviewDragRef.current = null;
       if (layerTuningPreviewRafRef.current !== null) {
         window.cancelAnimationFrame(layerTuningPreviewRafRef.current);
         layerTuningPreviewRafRef.current = null;
       }
-      layerTuningPreviewPendingPatchRef.current = null;
-      setLayerTuningSelectedAsset("bg");
-      return;
-    }
-    setLayerTuningBgPreviewSrc(resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.png`));
+	      layerTuningPreviewPendingPatchRef.current = null;
+	      return;
+	    }
+	    setLayerTuningBgPreviewSrc(resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/10_bg.png`));
     setLayerTuningPortraitPreviewSrc(
       resolveApiUrl(`/thumbnails/assets/${layerTuningChannel}/${layerTuningVideo}/20_portrait.png`)
     );
-    setLayerTuningTextPreviewSrc(null);
-    setLayerTuningTextPreviewStatus({ loading: false, error: null });
-    layerTuningTextPreviewRequestRef.current += 1;
+    setLayerTuningTextSlotImages({});
+    setLayerTuningTextSlotStatus({ loading: false, error: null });
+    layerTuningTextSlotRequestRef.current += 1;
+    setLayerTuningTextLineSpecLines({});
+    setLayerTuningTextLineSpecStatus({ loading: false, error: null });
+    layerTuningTextLineSpecRequestRef.current += 1;
+    setLayerTuningSelectedTextSlot(null);
+    setLayerTuningElements([]);
+    setLayerTuningElementsStatus({ loading: false, error: null });
+    layerTuningElementsRequestRef.current += 1;
+    setLayerTuningSelectedElementId(null);
     layerTuningPreviewDragRef.current = null;
     if (layerTuningPreviewRafRef.current !== null) {
       window.cancelAnimationFrame(layerTuningPreviewRafRef.current);
       layerTuningPreviewRafRef.current = null;
     }
     layerTuningPreviewPendingPatchRef.current = null;
-    setLayerTuningSelectedAsset("bg");
-  }, [layerTuningChannel, layerTuningVideo]);
+  }, [layerTuningChannel, layerTuningStable, layerTuningVideo]);
 
   useEffect(() => {
     if (!layerTuningProjectKey) {
@@ -2761,9 +3272,24 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         return;
       }
       if (selected === "text") {
-        const currentScale = Number(resolveLayerTuningLeafValue(dialog, "overrides.text_scale", 1.0));
-        const nextScale = clampNumber(currentScale * factor, 0.5, 2.0);
-        setLeaf("overrides.text_scale", Number(nextScale.toFixed(3)));
+        const slotKey =
+          layerTuningSelectedTextSlotRef.current ??
+          Object.keys(layerTuningTextLineSpecRef.current ?? {})
+            .filter(Boolean)
+            .sort((a, b) => a.localeCompare(b))[0] ??
+          null;
+        if (!slotKey) {
+          return;
+        }
+        const currentLine = layerTuningTextLineSpecRef.current?.[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+        const currentScale = Number(currentLine.scale ?? 1);
+        const nextScale = clampNumber(currentScale * factor, 0.25, 4.0);
+        setLayerTuningTextLineSpecLines((current) => {
+          const next = { ...(current ?? {}) };
+          const existing = next[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+          next[slotKey] = { ...existing, scale: Number(nextScale.toFixed(3)) };
+          return next;
+        });
         return;
       }
       const currentZoom = Number(resolveLayerTuningLeafValue(dialog, "overrides.bg_pan_zoom.zoom", 1.0));
@@ -2793,8 +3319,8 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
       return;
     }
-    const requestId = Date.now();
-    layerTuningRequestRef.current = requestId;
+    const requestId = (layerTuningRequestRef.current += 1);
+    const requestedStable = layerTuningStable ?? null;
     const projectKey = layerTuningProjectKey;
     setLayerTuningDialog((current) => {
       if (!current || current.projectKey !== projectKey) {
@@ -2802,13 +3328,16 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       }
       return { ...current, loading: true, error: undefined };
     });
-    fetchThumbnailEditorContext(layerTuningChannel, layerTuningVideo)
+    fetchThumbnailEditorContext(layerTuningChannel, layerTuningVideo, { stable: requestedStable })
       .then((context) => {
         if (layerTuningRequestRef.current !== requestId) {
           return;
         }
         setLayerTuningDialog((current) => {
           if (!current || current.projectKey !== projectKey) {
+            return current;
+          }
+          if ((current.stable ?? null) !== requestedStable) {
             return current;
           }
           return {
@@ -2828,10 +3357,199 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           if (!current || current.projectKey !== projectKey) {
             return current;
           }
+          if ((current.stable ?? null) !== requestedStable) {
+            return current;
+          }
           return { ...current, loading: false, error: message };
         });
       });
-  }, [layerTuningChannel, layerTuningProjectKey, layerTuningVideo]);
+  }, [layerTuningChannel, layerTuningProjectKey, layerTuningStable, layerTuningVideo]);
+
+  useEffect(() => {
+    if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
+      return;
+    }
+    if (layerTuningDialog?.loading) {
+      return;
+    }
+    const requestId = (layerTuningTextLineSpecRequestRef.current += 1);
+    setLayerTuningTextLineSpecStatus({ loading: true, error: null });
+    fetchThumbnailTextLineSpec(layerTuningChannel, layerTuningVideo, layerTuningStable)
+      .then((result) => {
+        if (layerTuningTextLineSpecRequestRef.current !== requestId) {
+          return;
+        }
+        const rawLines = (result?.lines ?? {}) as Record<
+          string,
+          { offset_x: number; offset_y: number; scale: number; rotate_deg?: number }
+        >;
+        const slotKeys = (() => {
+          const dialog = layerTuningDialogRef.current;
+          const ctx = dialog?.context;
+          const options = (ctx?.template_options ?? []) as Array<{ id: string; slots?: Record<string, unknown> }>;
+          if (!options.length) {
+            return Object.keys(rawLines ?? {});
+          }
+          const forced = String(dialog?.overridesLeaf?.["overrides.text_template_id"] ?? "").trim();
+          const fallback = String(ctx?.template_id_default ?? "").trim();
+          const templateId = forced || fallback || options[0]?.id || "";
+          const tpl = options.find((opt) => String(opt.id || "").trim() === templateId) ?? options[0];
+          const slots = (tpl?.slots ?? {}) as Record<string, unknown>;
+          const keys = Object.keys(slots).filter(Boolean);
+          return keys.length ? keys : Object.keys(rawLines ?? {});
+        })();
+
+        const asNum = (value: any, fallback: number) => {
+          const parsed = Number(value);
+          return Number.isFinite(parsed) ? parsed : fallback;
+        };
+
+        const merged: Record<string, { offset_x: number; offset_y: number; scale: number; rotate_deg?: number }> = {};
+        for (const slotKey of slotKeys) {
+          const line = rawLines?.[slotKey];
+          merged[slotKey] = {
+            offset_x: clampNumber(asNum(line?.offset_x, 0), -2, 2),
+            offset_y: clampNumber(asNum(line?.offset_y, 0), -2, 2),
+            scale: clampNumber(asNum(line?.scale, 1), 0.25, 4),
+            rotate_deg: clampNumber(asNum(line?.rotate_deg, 0), -180, 180),
+          };
+        }
+        Object.entries(rawLines ?? {}).forEach(([slotKey, line]) => {
+          if (!slotKey || Object.prototype.hasOwnProperty.call(merged, slotKey)) {
+            return;
+          }
+          merged[slotKey] = {
+            offset_x: clampNumber(asNum(line?.offset_x, 0), -2, 2),
+            offset_y: clampNumber(asNum(line?.offset_y, 0), -2, 2),
+            scale: clampNumber(asNum(line?.scale, 1), 0.25, 4),
+            rotate_deg: clampNumber(asNum(line?.rotate_deg, 0), -180, 180),
+          };
+        });
+
+        setLayerTuningTextLineSpecLines(merged);
+        setLayerTuningTextLineSpecStatus({ loading: false, error: null });
+        setLayerTuningSelectedTextSlot((current) => {
+          if (current && Object.prototype.hasOwnProperty.call(merged, current)) {
+            return current;
+          }
+          const keys = Object.keys(merged);
+          return keys.length ? keys[0] : current;
+        });
+      })
+      .catch((error) => {
+        if (layerTuningTextLineSpecRequestRef.current !== requestId) {
+          return;
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        setLayerTuningTextLineSpecStatus({ loading: false, error: message });
+      });
+  }, [layerTuningChannel, layerTuningDialog?.loading, layerTuningProjectKey, layerTuningStable, layerTuningVideo]);
+
+  useEffect(() => {
+    if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
+      return;
+    }
+    if (layerTuningDialog?.loading) {
+      return;
+    }
+    const requestId = (layerTuningElementsRequestRef.current += 1);
+    setLayerTuningElementsStatus({ loading: true, error: null });
+    fetchThumbnailElementsSpec(layerTuningChannel, layerTuningVideo, layerTuningStable)
+      .then((result) => {
+        if (layerTuningElementsRequestRef.current !== requestId) {
+          return;
+        }
+        const nextElements = Array.isArray(result?.elements) ? (result.elements as ThumbnailElementSpec[]) : [];
+        setLayerTuningElements(nextElements);
+        setLayerTuningElementsStatus({ loading: false, error: null });
+        setLayerTuningSelectedElementId((current) => {
+          if (current && nextElements.some((el) => el.id === current)) {
+            return current;
+          }
+          return nextElements[0]?.id ?? null;
+        });
+      })
+      .catch((error) => {
+        if (layerTuningElementsRequestRef.current !== requestId) {
+          return;
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        setLayerTuningElementsStatus({ loading: false, error: message });
+      });
+  }, [layerTuningChannel, layerTuningDialog?.loading, layerTuningProjectKey, layerTuningStable, layerTuningVideo]);
+
+  useEffect(() => {
+    if (!layerTuningDialog || layerTuningDialog.loading) {
+      return;
+    }
+    if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
+      return;
+    }
+    if (layerTuningTextLineSpecStatus.loading) {
+      return;
+    }
+    const key = `${layerTuningChannel}-${layerTuningVideo}-${layerTuningStable ?? ""}`;
+    if (layerTuningTextLegacyMigrationRef.current[key]) {
+      return;
+    }
+    if (Object.keys(layerTuningTextLineSpecLines).length === 0) {
+      return;
+    }
+
+    const rawOffX = Number(layerTuningDialog.overridesLeaf?.["overrides.text_offset_x"] ?? 0);
+    const rawOffY = Number(layerTuningDialog.overridesLeaf?.["overrides.text_offset_y"] ?? 0);
+    const rawScale = Number(layerTuningDialog.overridesLeaf?.["overrides.text_scale"] ?? 1);
+
+    const offX = Number.isFinite(rawOffX) ? rawOffX : 0;
+    const offY = Number.isFinite(rawOffY) ? rawOffY : 0;
+    const scale = Number.isFinite(rawScale) ? rawScale : 1;
+
+    const hasLegacyOffsets = Math.abs(offX) > 1e-9 || Math.abs(offY) > 1e-9;
+    const hasLegacyScale = Math.abs(scale - 1) > 1e-6;
+    if (!hasLegacyOffsets && !hasLegacyScale) {
+      layerTuningTextLegacyMigrationRef.current[key] = true;
+      return;
+    }
+
+    setLayerTuningTextLineSpecLines((current) => {
+      const next = { ...(current ?? {}) };
+      const factor = clampNumber(scale, 0.25, 4.0);
+      Object.entries(next).forEach(([slotKey, line]) => {
+        if (!slotKey) {
+          return;
+        }
+        const base = line ?? { offset_x: 0, offset_y: 0, scale: 1, rotate_deg: 0 };
+        next[slotKey] = {
+          offset_x: clampNumber(Number(base.offset_x ?? 0) + offX, -2, 2),
+          offset_y: clampNumber(Number(base.offset_y ?? 0) + offY, -2, 2),
+          scale: clampNumber(Number(base.scale ?? 1) * factor, 0.25, 4),
+          rotate_deg: clampNumber(Number((base as any).rotate_deg ?? 0), -180, 180),
+        };
+      });
+      return next;
+    });
+
+    setLayerTuningDialog((current) => {
+      if (!current || current.projectKey !== layerTuningProjectKey) {
+        return current;
+      }
+      const nextLeaf = { ...(current.overridesLeaf ?? {}) };
+      delete nextLeaf["overrides.text_offset_x"];
+      delete nextLeaf["overrides.text_offset_y"];
+      delete nextLeaf["overrides.text_scale"];
+      return { ...current, overridesLeaf: nextLeaf };
+    });
+
+    layerTuningTextLegacyMigrationRef.current[key] = true;
+  }, [
+    layerTuningChannel,
+    layerTuningDialog,
+    layerTuningProjectKey,
+    layerTuningStable,
+    layerTuningTextLineSpecLines,
+    layerTuningTextLineSpecStatus.loading,
+    layerTuningVideo,
+  ]);
 
   useEffect(() => {
     if (!layerTuningProjectKey || !layerTuningChannel || !layerTuningVideo) {
@@ -2841,25 +3559,43 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       return;
     }
 
-    const requestId = (layerTuningTextPreviewRequestRef.current += 1);
-    setLayerTuningTextPreviewStatus((current) => ({ ...current, loading: true, error: null }));
+    const requestId = (layerTuningTextSlotRequestRef.current += 1);
+    setLayerTuningTextSlotStatus({ loading: true, error: null });
 
     const timer = window.setTimeout(() => {
-      previewThumbnailTextLayer(layerTuningChannel, layerTuningVideo, layerTuningTextPreviewOverrides)
+      previewThumbnailTextLayerSlots(layerTuningChannel, layerTuningVideo, layerTuningTextPreviewOverrides, {
+        stable: layerTuningStable,
+        lines: layerTuningTextLineSpecRef.current ?? {},
+      })
         .then((result) => {
-          if (layerTuningTextPreviewRequestRef.current !== requestId) {
+          if (layerTuningTextSlotRequestRef.current !== requestId) {
             return;
           }
-          const url = resolveApiUrl(`${result.image_url}?v=${requestId}`);
-          setLayerTuningTextPreviewSrc(url);
-          setLayerTuningTextPreviewStatus({ loading: false, error: null });
+          const images = (result?.images ?? {}) as Record<string, { image_url: string }>;
+          const next: Record<string, string> = {};
+          Object.entries(images).forEach(([slotKey, value]) => {
+            const urlRaw = value?.image_url;
+            if (!slotKey || !urlRaw) {
+              return;
+            }
+            next[slotKey] = resolveApiUrl(`${urlRaw}?v=${requestId}`);
+          });
+          setLayerTuningTextSlotImages(next);
+          setLayerTuningTextSlotStatus({ loading: false, error: null });
+          setLayerTuningSelectedTextSlot((current) => {
+            if (current && Object.prototype.hasOwnProperty.call(next, current)) {
+              return current;
+            }
+            const keys = Object.keys(next);
+            return keys.length ? keys[0] : current;
+          });
         })
         .catch((error) => {
-          if (layerTuningTextPreviewRequestRef.current !== requestId) {
+          if (layerTuningTextSlotRequestRef.current !== requestId) {
             return;
           }
           const message = error instanceof Error ? error.message : String(error);
-          setLayerTuningTextPreviewStatus({ loading: false, error: message });
+          setLayerTuningTextSlotStatus({ loading: false, error: message });
         });
     }, 180);
 
@@ -2870,6 +3606,8 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     layerTuningChannel,
     layerTuningDialog?.loading,
     layerTuningProjectKey,
+    layerTuningStable,
+    layerTuningTextPreviewLineSignature,
     layerTuningTextPreviewOverrides,
     layerTuningVideo,
   ]);
@@ -2998,6 +3736,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       if (event.button !== 0) {
         return;
       }
+      event.stopPropagation();
       setLayerTuningSelectedAsset("portrait");
 
       const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
@@ -3031,13 +3770,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   );
 
   const beginLayerTuningPreviewTextDrag = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
+    (event: React.PointerEvent<HTMLDivElement>, slotKeyOverride?: string) => {
       if (!layerTuningDialog) {
         return;
       }
       if (event.button !== 0) {
         return;
       }
+      event.stopPropagation();
       setLayerTuningSelectedAsset("text");
 
       const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
@@ -3047,10 +3787,27 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         return;
       }
 
-      const offX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0));
-      const offY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0));
+      const forcedKey = String(slotKeyOverride ?? "").trim();
+      const slotKey =
+        forcedKey ||
+        layerTuningSelectedTextSlotRef.current ||
+        Object.keys(layerTuningTextLineSpecRef.current ?? {})
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b))[0] ||
+        Object.keys(layerTuningTextSlotImages).filter(Boolean).sort((a, b) => a.localeCompare(b))[0] ||
+        null;
+      if (!slotKey) {
+        return;
+      }
+      if (layerTuningSelectedTextSlotRef.current !== slotKey) {
+        setLayerTuningSelectedTextSlot(slotKey);
+      }
+      const currentLine = layerTuningTextLineSpecRef.current?.[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+      const offX = Number(currentLine.offset_x ?? 0);
+      const offY = Number(currentLine.offset_y ?? 0);
       layerTuningPreviewDragRef.current = {
-        kind: "text",
+        kind: "text_slot",
+        slotKey,
         pointerId: event.pointerId,
         startClientX: event.clientX,
         startClientY: event.clientY,
@@ -3065,6 +3822,65 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       } catch {
         // ignore
       }
+      event.preventDefault();
+    },
+    [layerTuningDialog, layerTuningPreviewSize.height, layerTuningPreviewSize.width, layerTuningTextSlotImages]
+  );
+
+  const beginLayerTuningPreviewElementDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>, elementId: string) => {
+      if (!layerTuningDialog) {
+        return;
+      }
+      if (event.button !== 0) {
+        return;
+      }
+      const id = String(elementId || "").trim();
+      if (!id) {
+        return;
+      }
+
+      setLayerTuningSelectedAsset("element");
+      if (layerTuningSelectedElementIdRef.current !== id) {
+        setLayerTuningSelectedElementId(id);
+      }
+
+      const rect = layerTuningPreviewRef.current?.getBoundingClientRect() ?? null;
+      const width = rect?.width ?? layerTuningPreviewSize.width;
+      const height = rect?.height ?? layerTuningPreviewSize.height;
+      if (!width || !height) {
+        return;
+      }
+
+      const currentElements = layerTuningElementsRef.current ?? [];
+      const el = currentElements.find((item) => String(item?.id ?? "") === id);
+      if (!el) {
+        return;
+      }
+      const startX = Number.isFinite(Number((el as any).x)) ? Number((el as any).x) : 0.5;
+      const startY = Number.isFinite(Number((el as any).y)) ? Number((el as any).y) : 0.5;
+      const elementW = Number.isFinite(Number((el as any).w)) ? Number((el as any).w) : 0.2;
+      const elementH = Number.isFinite(Number((el as any).h)) ? Number((el as any).h) : 0.2;
+      layerTuningPreviewDragRef.current = {
+        kind: "element",
+        elementId: id,
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startX,
+        startY,
+        elementW,
+        elementH,
+        width,
+        height,
+      };
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+      event.stopPropagation();
       event.preventDefault();
     },
     [layerTuningDialog, layerTuningPreviewSize.height, layerTuningPreviewSize.width]
@@ -3096,8 +3912,108 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         return;
       }
 
-      const nextOffX = clampNumber(drag.startOffX + dx / drag.width, -0.25, 0.25);
-      const nextOffY = clampNumber(drag.startOffY + dy / drag.height, -0.25, 0.25);
+      if (drag.kind === "element") {
+        const elementId = String(drag.elementId || "").trim();
+        if (!elementId) {
+          return;
+        }
+        const wNorm = Number.isFinite(Number(drag.elementW)) ? Number(drag.elementW) : 0.2;
+        const hNorm = Number.isFinite(Number(drag.elementH)) ? Number(drag.elementH) : 0.2;
+        const thresholdX = drag.width ? 8 / drag.width : 0;
+        const thresholdY = drag.height ? 8 / drag.height : 0;
+        let nextX = clampNumber(drag.startX + dx / drag.width, -2, 3);
+        let nextY = clampNumber(drag.startY + dy / drag.height, -2, 3);
+        if (layerTuningSnapEnabledRef.current && thresholdX > 0 && thresholdY > 0) {
+          const left = nextX - wNorm / 2;
+          const right = nextX + wNorm / 2;
+          const top = nextY - hNorm / 2;
+          const bottom = nextY + hNorm / 2;
+          if (Math.abs(nextX - 0.5) < thresholdX) {
+            nextX = 0.5;
+          } else if (Math.abs(left - 0.0) < thresholdX) {
+            nextX = wNorm / 2;
+          } else if (Math.abs(right - 1.0) < thresholdX) {
+            nextX = 1.0 - wNorm / 2;
+          }
+          if (Math.abs(nextY - 0.5) < thresholdY) {
+            nextY = 0.5;
+          } else if (Math.abs(top - 0.0) < thresholdY) {
+            nextY = hNorm / 2;
+          } else if (Math.abs(bottom - 1.0) < thresholdY) {
+            nextY = 1.0 - hNorm / 2;
+          }
+        }
+        setLayerTuningElements((current) =>
+          (current ?? []).map((el) => {
+            if (String(el?.id ?? "") !== elementId) {
+              return el;
+            }
+            return { ...el, x: Number(nextX.toFixed(4)), y: Number(nextY.toFixed(4)) };
+          })
+        );
+        return;
+      }
+
+      if (drag.kind === "text_slot") {
+        const nextOffX = clampNumber(drag.startOffX + dx / drag.width, -2, 2);
+        const nextOffY = clampNumber(drag.startOffY + dy / drag.height, -2, 2);
+        const slotKey = String(drag.slotKey || "").trim();
+        if (!slotKey) {
+          return;
+        }
+        const box = layerTuningTextSlotBoxesRef.current?.[slotKey];
+        let resolvedOffX = nextOffX;
+        let resolvedOffY = nextOffY;
+        if (
+          layerTuningSnapEnabledRef.current &&
+          Array.isArray(box) &&
+          box.length === 4 &&
+          drag.width > 0 &&
+          drag.height > 0
+        ) {
+          const thresholdX = 8 / drag.width;
+          const thresholdY = 8 / drag.height;
+          const boxLeft = Number(box[0]) + resolvedOffX;
+          const boxTop = Number(box[1]) + resolvedOffY;
+          const boxW = Number(box[2]);
+          const boxH = Number(box[3]);
+          const boxRight = boxLeft + boxW;
+          const boxBottom = boxTop + boxH;
+          const boxCx = boxLeft + boxW / 2;
+          const boxCy = boxTop + boxH / 2;
+
+          if (Math.abs(boxCx - 0.5) < thresholdX) {
+            resolvedOffX = 0.5 - (Number(box[0]) + boxW / 2);
+          } else if (Math.abs(boxLeft - 0.0) < thresholdX) {
+            resolvedOffX = -Number(box[0]);
+          } else if (Math.abs(boxRight - 1.0) < thresholdX) {
+            resolvedOffX = 1.0 - (Number(box[0]) + boxW);
+          }
+          if (Math.abs(boxCy - 0.5) < thresholdY) {
+            resolvedOffY = 0.5 - (Number(box[1]) + boxH / 2);
+          } else if (Math.abs(boxTop - 0.0) < thresholdY) {
+            resolvedOffY = -Number(box[1]);
+          } else if (Math.abs(boxBottom - 1.0) < thresholdY) {
+            resolvedOffY = 1.0 - (Number(box[1]) + boxH);
+          }
+          resolvedOffX = clampNumber(resolvedOffX, -2, 2);
+          resolvedOffY = clampNumber(resolvedOffY, -2, 2);
+        }
+        setLayerTuningTextLineSpecLines((current) => {
+          const next = { ...(current ?? {}) };
+          const existing = next[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+          next[slotKey] = {
+            ...existing,
+            offset_x: Number(resolvedOffX.toFixed(4)),
+            offset_y: Number(resolvedOffY.toFixed(4)),
+          };
+          return next;
+        });
+        return;
+      }
+
+      const nextOffX = clampNumber(drag.startOffX + dx / drag.width, -2, 2);
+      const nextOffY = clampNumber(drag.startOffY + dy / drag.height, -2, 2);
       if (drag.kind === "text") {
         scheduleLayerTuningPreviewPatch({
           "overrides.text_offset_x": nextOffX,
@@ -3135,6 +4051,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       if (!event.deltaY) {
         return;
       }
+      event.stopPropagation();
       event.preventDefault();
       const currentZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.bg_pan_zoom.zoom", 1.0));
       const factor = Math.exp(-event.deltaY * 0.001);
@@ -3152,6 +4069,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       if (!event.deltaY) {
         return;
       }
+      event.stopPropagation();
       event.preventDefault();
       const currentZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.zoom", 1.0));
       const factor = Math.exp(-event.deltaY * 0.001);
@@ -3163,12 +4081,47 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 
   const handleLayerTuningCommentChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
     const value = event.target.value;
-    setLayerTuningDialog((current) => (current ? { ...current, commentDraft: value } : current));
+    setLayerTuningDialog((current) => {
+      if (!current) {
+        return current;
+      }
+      const stableKey = current.stable ?? "__default__";
+      return {
+        ...current,
+        commentDraft: value,
+        commentDraftByStable: { ...(current.commentDraftByStable ?? {}), [stableKey]: value },
+      };
+    });
   }, []);
 
   const applyLayerTuningPreset = useCallback((presetId: string) => {
     const id = (presetId ?? "").trim();
     if (!id) {
+      return;
+    }
+    if (id === "text_big" || id === "text_small") {
+      const factor = id === "text_big" ? 1.12 : 0.92;
+      const slotKey =
+        layerTuningSelectedTextSlotRef.current ??
+        Object.keys(layerTuningTextLineSpecRef.current ?? {})
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b))[0] ??
+        null;
+      if (!slotKey) {
+        return;
+      }
+      if (layerTuningSelectedTextSlotRef.current !== slotKey) {
+        setLayerTuningSelectedTextSlot(slotKey);
+      }
+      setLayerTuningSelectedAsset("text");
+      setLayerTuningTextLineSpecLines((current) => {
+        const next = { ...(current ?? {}) };
+        const existing = next[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+        const currentScale = Number(existing.scale ?? 1);
+        const nextScale = clampNumber(currentScale * factor, 0.25, 4);
+        next[slotKey] = { ...existing, scale: Number(nextScale.toFixed(3)) };
+        return next;
+      });
       return;
     }
     const channel = layerTuningDialog?.channel ?? null;
@@ -3184,8 +4137,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       },
       bg_vivid: { label: "背景: 彩度UP", leaf: { "overrides.bg_enhance.color": 1.18 } },
       bg_zoom_in: { label: "背景: 少しズーム", leaf: { "overrides.bg_pan_zoom.zoom": 1.12 } },
-      text_big: { label: "文字: 大きめ", leaf: { "overrides.text_scale": 1.12 } },
-      text_small: { label: "文字: 小さめ", leaf: { "overrides.text_scale": 0.92 } },
       portrait_zoom: { label: "肖像: アップ", leaf: { "overrides.portrait.zoom": 1.25 } },
       portrait_bright: {
         label: "肖像: 明るく",
@@ -3206,13 +4157,262 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     mergeLayerTuningOverridesLeaf(preset.leaf);
   }, [layerTuningDialog?.channel, mergeLayerTuningOverridesLeaf]);
 
-  const handleSaveLayerTuning = useCallback(
-    async (mode: "save" | "save_and_build") => {
-      if (!layerTuningDialog) {
+  const updateLayerTuningSelectedElement = useCallback((patch: Partial<ThumbnailElementSpec>) => {
+    const elementId = String(layerTuningSelectedElementIdRef.current ?? "").trim();
+    if (!elementId) {
+      return;
+    }
+    setLayerTuningElements((current) =>
+      (current ?? []).map((el) => {
+        if (String(el?.id ?? "") !== elementId) {
+          return el;
+        }
+        return { ...el, ...patch };
+      })
+    );
+  }, []);
+
+  const addLayerTuningElement = useCallback(
+    (kind: "rect" | "circle") => {
+      const id = createLocalId("el");
+      const next: ThumbnailElementSpec = {
+        id,
+        kind,
+        layer: "above_portrait",
+        z: 0,
+        x: 0.5,
+        y: 0.5,
+        w: 0.22,
+        h: 0.18,
+        rotation_deg: 0,
+        opacity: 0.9,
+        fill: kind === "circle" ? "#ffffff" : "#ffffff",
+        stroke: null,
+      };
+      setLayerTuningElements((current) => [...(current ?? []), next]);
+      setLayerTuningSelectedElementId(id);
+      setLayerTuningSelectedAsset("element");
+    },
+    []
+  );
+
+  const duplicateLayerTuningSelectedElement = useCallback(() => {
+    const elementId = String(layerTuningSelectedElementIdRef.current ?? "").trim();
+    if (!elementId) {
+      return;
+    }
+    const elements = layerTuningElementsRef.current ?? [];
+    const base = elements.find((el) => String(el?.id ?? "") === elementId);
+    if (!base) {
+      return;
+    }
+    const id = createLocalId("el");
+    const clone: ThumbnailElementSpec = {
+      ...base,
+      id,
+      x: clampNumber(Number((base as any).x ?? 0.5) + 0.02, -2, 3),
+      y: clampNumber(Number((base as any).y ?? 0.5) + 0.02, -2, 3),
+      z: Number((base as any).z ?? 0) + 1,
+    };
+    setLayerTuningElements((current) => [...(current ?? []), clone]);
+    setLayerTuningSelectedElementId(id);
+    setLayerTuningSelectedAsset("element");
+  }, []);
+
+  const deleteLayerTuningSelectedElement = useCallback(() => {
+    const elementId = String(layerTuningSelectedElementIdRef.current ?? "").trim();
+    if (!elementId) {
+      return;
+    }
+    setLayerTuningElements((current) => (current ?? []).filter((el) => String(el?.id ?? "") !== elementId));
+    setLayerTuningSelectedElementId((current) => (current === elementId ? null : current));
+  }, []);
+
+  const moveLayerTuningSelectedElementZ = useCallback((direction: "front" | "back") => {
+    const elementId = String(layerTuningSelectedElementIdRef.current ?? "").trim();
+    if (!elementId) {
+      return;
+    }
+    const elements = layerTuningElementsRef.current ?? [];
+    const current = elements.find((el) => String(el?.id ?? "") === elementId);
+    if (!current) {
+      return;
+    }
+    const layer = String((current as any).layer ?? "above_portrait");
+    const sameLayer = elements.filter((el) => String((el as any).layer ?? "above_portrait") === layer);
+    const zValues = sameLayer.map((el) => Number((el as any).z ?? 0)).filter((v) => Number.isFinite(v));
+    const currentZ = Number((current as any).z ?? 0);
+    const nextZ =
+      direction === "front"
+        ? (zValues.length ? Math.max(...zValues) : 0) + 1
+        : (zValues.length ? Math.min(...zValues) : 0) - 1;
+    updateLayerTuningSelectedElement({ z: Number.isFinite(nextZ) ? nextZ : currentZ });
+  }, [updateLayerTuningSelectedElement]);
+
+  const alignLayerTuningSelected = useCallback(
+    (align: "left" | "center" | "right" | "top" | "middle" | "bottom") => {
+      const dialog = layerTuningDialogRef.current;
+      if (!dialog) {
         return;
       }
-      const { projectKey, channel, video, allowGenerate, regenBg, outputMode } = layerTuningDialog;
-      const overrides = leafOverridesToThumbSpecOverrides(layerTuningDialog.overridesLeaf ?? {});
+      const selected = layerTuningSelectedAssetRef.current;
+      if (selected === "element") {
+        const elementId = String(layerTuningSelectedElementIdRef.current ?? "").trim();
+        if (!elementId) {
+          return;
+        }
+        const elements = layerTuningElementsRef.current ?? [];
+        const el = elements.find((item) => String(item?.id ?? "") === elementId);
+        if (!el) {
+          return;
+        }
+        const w = clampNumber(Number((el as any).w ?? 0.2), 0.01, 4);
+        const h = clampNumber(Number((el as any).h ?? 0.2), 0.01, 4);
+        const patch: Partial<ThumbnailElementSpec> = {};
+        if (align === "left") {
+          patch.x = clampNumber(w / 2, -2, 3);
+        } else if (align === "center") {
+          patch.x = 0.5;
+        } else if (align === "right") {
+          patch.x = clampNumber(1.0 - w / 2, -2, 3);
+        } else if (align === "top") {
+          patch.y = clampNumber(h / 2, -2, 3);
+        } else if (align === "middle") {
+          patch.y = 0.5;
+        } else if (align === "bottom") {
+          patch.y = clampNumber(1.0 - h / 2, -2, 3);
+        }
+        if (Object.keys(patch).length) {
+          updateLayerTuningSelectedElement(patch);
+        }
+        return;
+      }
+
+      if (selected === "text") {
+        const slotKey = String(layerTuningSelectedTextSlotRef.current ?? "").trim();
+        const box = slotKey ? layerTuningTextSlotBoxesRef.current?.[slotKey] : null;
+        if (!slotKey || !Array.isArray(box) || box.length !== 4) {
+          return;
+        }
+        const left0 = Number(box[0]);
+        const top0 = Number(box[1]);
+        const w0 = Number(box[2]);
+        const h0 = Number(box[3]);
+        if (![left0, top0, w0, h0].every((v) => Number.isFinite(v))) {
+          return;
+        }
+        setLayerTuningTextLineSpecLines((current) => {
+          const next = { ...(current ?? {}) };
+          const existing = next[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1, rotate_deg: 0 };
+          let ox = Number(existing.offset_x ?? 0);
+          let oy = Number(existing.offset_y ?? 0);
+          if (align === "left") {
+            ox = -left0;
+          } else if (align === "center") {
+            ox = 0.5 - (left0 + w0 / 2);
+          } else if (align === "right") {
+            ox = 1.0 - (left0 + w0);
+          } else if (align === "top") {
+            oy = -top0;
+          } else if (align === "middle") {
+            oy = 0.5 - (top0 + h0 / 2);
+          } else if (align === "bottom") {
+            oy = 1.0 - (top0 + h0);
+          }
+          next[slotKey] = {
+            ...existing,
+            offset_x: Number(clampNumber(ox, -2, 2).toFixed(4)),
+            offset_y: Number(clampNumber(oy, -2, 2).toFixed(4)),
+          };
+          return next;
+        });
+        return;
+      }
+
+      if (selected === "portrait") {
+        const rawPortraitBox = (dialog.context as any)?.portrait_dest_box_norm;
+        const portraitBox =
+          Array.isArray(rawPortraitBox) && rawPortraitBox.length === 4
+            ? rawPortraitBox.map((v: any) => Number(v))
+            : [0.29, 0.06, 0.42, 0.76];
+        const left0 = Number(portraitBox[0]);
+        const top0 = Number(portraitBox[1]);
+        const w0 = Number(portraitBox[2]);
+        const h0 = Number(portraitBox[3]);
+        if (![left0, top0, w0, h0].every((v) => Number.isFinite(v))) {
+          return;
+        }
+        const curX = Number(resolveLayerTuningLeafValue(dialog, "overrides.portrait.offset_x", 0.0));
+        const curY = Number(resolveLayerTuningLeafValue(dialog, "overrides.portrait.offset_y", 0.0));
+        let ox = Number.isFinite(curX) ? curX : 0.0;
+        let oy = Number.isFinite(curY) ? curY : 0.0;
+        if (align === "left") {
+          ox = -left0;
+        } else if (align === "center") {
+          ox = 0.5 - (left0 + w0 / 2);
+        } else if (align === "right") {
+          ox = 1.0 - (left0 + w0);
+        } else if (align === "top") {
+          oy = -top0;
+        } else if (align === "middle") {
+          oy = 0.5 - (top0 + h0 / 2);
+        } else if (align === "bottom") {
+          oy = 1.0 - (top0 + h0);
+        }
+        mergeLayerTuningOverridesLeaf({
+          "overrides.portrait.offset_x": Number(clampNumber(ox, -2, 2).toFixed(4)),
+          "overrides.portrait.offset_y": Number(clampNumber(oy, -2, 2).toFixed(4)),
+        });
+      }
+    },
+    [mergeLayerTuningOverridesLeaf, updateLayerTuningSelectedElement]
+  );
+
+  const handleLayerTuningElementUploadChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const files = input.files ? Array.from(input.files) : [];
+    input.value = "";
+    const dialog = layerTuningDialogRef.current;
+    if (!dialog || !files.length) {
+      return;
+    }
+    try {
+      const assets = await uploadThumbnailLibraryAssets(dialog.channel, files);
+      const asset = assets[0];
+      if (!asset) {
+        return;
+      }
+      const id = createLocalId("el");
+      const next: ThumbnailElementSpec = {
+        id,
+        kind: "image",
+        layer: "above_portrait",
+        z: 0,
+        x: 0.5,
+        y: 0.5,
+        w: 0.28,
+        h: 0.28,
+        rotation_deg: 0,
+        opacity: 1,
+        src_path: asset.relative_path,
+      };
+      setLayerTuningElements((current) => [...(current ?? []), next]);
+      setLayerTuningSelectedElementId(id);
+      setLayerTuningSelectedAsset("element");
+      setLayerTuningElementsStatus((current) => ({ ...current, error: null }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setLayerTuningElementsStatus({ loading: false, error: message });
+    }
+  }, []);
+
+	  const handleSaveLayerTuning = useCallback(
+	    async (mode: "save" | "save_and_build") => {
+	      if (!layerTuningDialog) {
+	        return;
+	      }
+	      const { projectKey, cardKey, channel, video, stable, allowGenerate, regenBg, outputMode } = layerTuningDialog;
+	      const overrides = leafOverridesToThumbSpecOverrides(layerTuningDialog.overridesLeaf ?? {});
 
       setLayerTuningDialog((current) => {
         if (!current || current.projectKey !== projectKey) {
@@ -3221,33 +4421,65 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         return { ...current, saving: true, building: mode === "save_and_build", error: undefined };
       });
 
-      try {
-        await updateThumbnailThumbSpec(channel, video, overrides);
+	      try {
+	        const textLineSpecLines = layerTuningTextLineSpecRef.current ?? {};
+	        if (Object.keys(textLineSpecLines).length > 0) {
+	          await updateThumbnailTextLineSpec(channel, video, stable, textLineSpecLines);
+	        }
+          const elements = layerTuningElementsRef.current ?? [];
+          await updateThumbnailElementsSpec(channel, video, stable, elements);
+	        await updateThumbnailThumbSpec(channel, video, overrides, stable ? { stable } : undefined);
 
-        if (mode === "save_and_build") {
-          await buildThumbnailLayerSpecs(channel, video, {
-            allow_generate: Boolean(allowGenerate),
-            regen_bg: Boolean(regenBg),
-            output_mode: outputMode,
-          });
-        }
+	        if (mode === "save_and_build") {
+	          if (stable) {
+	            await buildThumbnailTwoUp(channel, video, {
+	              allow_generate: Boolean(allowGenerate),
+	              regen_bg: false,
+	              output_mode: outputMode,
+	            });
+	          } else {
+	            await buildThumbnailLayerSpecs(channel, video, {
+	              allow_generate: Boolean(allowGenerate),
+	              regen_bg: Boolean(regenBg),
+	              output_mode: outputMode,
+	            });
+	          }
+	        }
 
-        await fetchData({ silent: true });
-        const previewUrl = withCacheBust(resolveApiUrl(`/thumbnails/assets/${channel}/${video}/00_thumb.png`), String(Date.now()));
-        setProjectFeedback(projectKey, {
-          type: "success",
-          message: (
-            <span>
-              {mode === "save_and_build" ? "保存して再生成しました。" : "保存しました。"}
-              {" "}
-              <a href={previewUrl} target="_blank" rel="noreferrer">
-                プレビュー
-              </a>
-            </span>
-          ),
-          timestamp: Date.now(),
-        });
-        setLayerTuningDialog(null);
+	        await fetchData({ silent: true });
+	        const previewToken = String(Date.now());
+	        const previewUrl = withCacheBust(
+	          resolveApiUrl(`/thumbnails/assets/${channel}/${video}/${stable ? `${stable}.png` : "00_thumb.png"}`),
+	          previewToken
+	        );
+	        const previewUrl1 = withCacheBust(resolveApiUrl(`/thumbnails/assets/${channel}/${video}/00_thumb_1.png`), previewToken);
+	        const previewUrl2 = withCacheBust(resolveApiUrl(`/thumbnails/assets/${channel}/${video}/00_thumb_2.png`), previewToken);
+	        setProjectFeedback(cardKey, {
+	          type: "success",
+	          message: (
+	            <span>
+	              {mode === "save_and_build" ? "保存して再生成しました。" : "保存しました。"}
+	              {" "}
+	              {stable ? (
+	                <>
+	                  <a href={previewUrl1} target="_blank" rel="noreferrer">
+	                    00_thumb_1
+	                  </a>
+	                  {" / "}
+	                  <a href={previewUrl2} target="_blank" rel="noreferrer">
+	                    00_thumb_2
+	                  </a>
+	                </>
+	              ) : (
+	                <a href={previewUrl} target="_blank" rel="noreferrer">
+	                  プレビュー
+	                </a>
+	              )}
+	            </span>
+	          ),
+	          timestamp: Date.now(),
+	        });
+	        setLayerTuningDialog(null);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         setLayerTuningDialog((current) => {
@@ -3256,6 +4488,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           }
           return { ...current, saving: false, building: false, error: message };
         });
+        setProjectFeedback(cardKey, { type: "error", message, timestamp: Date.now() });
       }
     },
     [fetchData, layerTuningDialog, setProjectFeedback]
@@ -3789,9 +5022,9 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             return (
               <article key={asset.id} className="thumbnail-library-card">
                 <div className="thumbnail-library-card__preview">
-                  <a href={previewUrl} target="_blank" rel="noreferrer" title="別タブで表示">
-                    <img src={previewUrl} alt={asset.file_name} loading="lazy" />
-                  </a>
+	                  <a href={previewUrl} target="_blank" rel="noreferrer" title="別タブで表示">
+	                    <img src={previewUrl} alt={asset.file_name} loading="lazy" draggable={false} />
+	                  </a>
                 </div>
                 <div className="thumbnail-library-card__meta">
                   <strong title={asset.file_name}>{asset.file_name}</strong>
@@ -3939,7 +5172,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             return (
               <article key={asset.id} className="thumbnail-library-card">
                 <div className="thumbnail-library-card__preview">
-                  <img src={previewUrl} alt={asset.file_name} loading="lazy" />
+	                  <img src={previewUrl} alt={asset.file_name} loading="lazy" draggable={false} />
                 </div>
                 <div className="thumbnail-library-card__meta">
                   <strong title={asset.file_name}>{asset.file_name}</strong>
@@ -4206,13 +5439,13 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               const disableApply = !variantForm;
               return (
                 <div key={video.video_id} className="thumbnail-channel-video">
-                  <a className="thumbnail-channel-video__thumb" href={video.url} target="_blank" rel="noreferrer">
-                    {video.thumbnail_url ? (
-                      <img src={video.thumbnail_url} alt={video.title} loading="lazy" />
-                    ) : (
-                      <span>No Image</span>
-                    )}
-                  </a>
+	                  <a className="thumbnail-channel-video__thumb" href={video.url} target="_blank" rel="noreferrer">
+	                    {video.thumbnail_url ? (
+	                      <img src={video.thumbnail_url} alt={video.title} loading="lazy" draggable={false} />
+	                    ) : (
+	                      <span>No Image</span>
+	                    )}
+	                  </a>
                   <div className="thumbnail-channel-video__info">
                     <div className="thumbnail-channel-video__title" title={video.title}>
                       {video.title}
@@ -4321,6 +5554,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                             src={avatarUrl ?? undefined}
                             alt=""
                             loading="lazy"
+                            draggable={false}
                             onError={() =>
                               setChannelAvatarErrors((current) => ({ ...current, [activeChannel.channel]: true }))
                             }
@@ -4405,6 +5639,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                 src={avatarUrl ?? undefined}
                                 alt=""
                                 loading="lazy"
+                                draggable={false}
                                 onError={() =>
                                   setChannelAvatarErrors((current) => ({ ...current, [channel.channel]: true }))
                                 }
@@ -4690,19 +5925,44 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         ) : (
                           <>
                             <div className="thumbnail-card__selected">
-                              <div className="thumbnail-card__selected-media">
-                                {selectedVariantImage ? (
-                                  <a href={selectedVariantImage} target="_blank" rel="noreferrer" title="別タブで表示">
-                                    <img
-                                      src={selectedVariantImage}
-                                      alt={selectedVariantLabel ?? `${project.channel}-${project.video}`}
-                                      loading="lazy"
-                                    />
-                                  </a>
-                                ) : (
-                                  <div className="thumbnail-card__selected-placeholder">No Image</div>
-                                )}
-                              </div>
+	                              <div className="thumbnail-card__selected-media">
+	                                {selectedVariantImage ? (
+	                                  <button
+	                                    type="button"
+	                                    className="thumbnail-card__selected-button"
+	                                    onClick={() => {
+	                                      const stableForEdit = (() => {
+	                                        if (
+	                                          hasThumbFileSuffix(selectedVariant?.image_path, "00_thumb_1.png") ||
+	                                          hasThumbFileSuffix(selectedVariant?.image_url, "00_thumb_1.png") ||
+	                                          hasThumbFileSuffix(selectedVariant?.preview_url, "00_thumb_1.png")
+	                                        ) {
+	                                          return "00_thumb_1";
+	                                        }
+	                                        if (
+	                                          hasThumbFileSuffix(selectedVariant?.image_path, "00_thumb_2.png") ||
+	                                          hasThumbFileSuffix(selectedVariant?.image_url, "00_thumb_2.png") ||
+	                                          hasThumbFileSuffix(selectedVariant?.preview_url, "00_thumb_2.png")
+	                                        ) {
+	                                          return "00_thumb_2";
+	                                        }
+	                                        return null;
+	                                      })();
+	                                      handleOpenLayerTuningDialog(project, { stable: stableForEdit });
+	                                    }}
+	                                    title="クリックで調整を開く"
+	                                  >
+	                                    <img
+	                                      src={selectedVariantImage}
+	                                      alt={selectedVariantLabel ?? `${project.channel}-${project.video}`}
+	                                      loading="lazy"
+	                                      draggable={false}
+	                                    />
+	                                  </button>
+	                                ) : (
+	                                  <div className="thumbnail-card__selected-placeholder">No Image</div>
+	                                )}
+	                              </div>
                               <div className="thumbnail-card__selected-meta">
                                 <div className="thumbnail-card__selected-title">
                                   <strong>{selectedVariantLabel ?? "（案名なし）"}</strong>
@@ -4750,7 +6010,12 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                     >
                                       <div className="thumbnail-variant-tile__media">
                                         {variantImage ? (
-                                          <img src={variantImage} alt={variant.label ?? variant.id} loading="lazy" />
+	                                          <img
+	                                            src={variantImage}
+	                                            alt={variant.label ?? variant.id}
+	                                            loading="lazy"
+	                                            draggable={false}
+	                                          />
                                         ) : (
                                           <span className="thumbnail-variant-tile__placeholder">No Image</span>
                                         )}
@@ -5407,25 +6672,47 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           <div className="thumbnail-planning-dialog" role="dialog" aria-modal="true">
             <div className="thumbnail-planning-dialog__backdrop" onClick={handleCloseLayerTuningDialog} />
             <div className="thumbnail-planning-dialog__panel">
-              <header className="thumbnail-planning-dialog__header">
-                <div className="thumbnail-planning-dialog__eyebrow">
-                  {layerTuningDialog.channel} / {layerTuningDialog.video}
-                </div>
-                <h2>サムネ調整（Layer Specs）</h2>
-                <p className="thumbnail-planning-dialog__meta">{layerTuningDialog.projectTitle}</p>
-              </header>
+	              <header className="thumbnail-planning-dialog__header">
+	                <div className="thumbnail-planning-dialog__eyebrow">
+	                  {layerTuningDialog.channel} / {layerTuningDialog.video}
+	                  {layerTuningDialog.stable ? ` / ${layerTuningDialog.stable}` : ""}
+	                </div>
+	                <h2>サムネ調整（Layer Specs）</h2>
+	                <p className="thumbnail-planning-dialog__meta">{layerTuningDialog.projectTitle}</p>
+	                {channelHasTwoUpVariants || galleryVariantMode === "two_up" ? (
+	                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 8 }}>
+	                    <span className="muted small-text">2案:</span>
+	                    <button
+	                      type="button"
+	                      className={`btn btn--ghost ${layerTuningDialog.stable === "00_thumb_1" ? "is-active" : ""}`}
+	                      onClick={() => handleLayerTuningStableChange("00_thumb_1")}
+	                      disabled={layerTuningDialog.loading || layerTuningDialog.saving || layerTuningDialog.building}
+	                    >
+	                      00_thumb_1
+	                    </button>
+	                    <button
+	                      type="button"
+	                      className={`btn btn--ghost ${layerTuningDialog.stable === "00_thumb_2" ? "is-active" : ""}`}
+	                      onClick={() => handleLayerTuningStableChange("00_thumb_2")}
+	                      disabled={layerTuningDialog.loading || layerTuningDialog.saving || layerTuningDialog.building}
+	                    >
+	                      00_thumb_2
+	                    </button>
+	                  </div>
+	                ) : null}
+	              </header>
               {layerTuningDialog.loading ? (
                 <div className="thumbnail-planning-form">
                   <p>読み込み中…</p>
                 </div>
               ) : (
-                <form
-                  className="thumbnail-planning-form"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    handleSaveLayerTuning("save_and_build");
-                  }}
-                >
+	                <form
+	                  className="thumbnail-planning-form"
+	                  onSubmit={(event) => {
+	                    event.preventDefault();
+	                    handleSaveLayerTuning("save");
+	                  }}
+	                >
                   <label className="thumbnail-planning-form__field--stacked">
                     <span>コメント（メモ）</span>
                     <textarea
@@ -5619,11 +6906,6 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           0,
                           1
                         );
-                        const textOffX = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0));
-                        const textOffY = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0));
-                        const textTranslateX = width ? textOffX * width : 0;
-                        const textTranslateY = height ? textOffY * height : 0;
-                        const textTranslate = `translate3d(${textTranslateX}px, ${textTranslateY}px, 0)`;
 
                         const topBandEnabled = Boolean(
                           resolveLayerTuningLeafValue(layerTuningDialog, "overrides.overlays.top_band.enabled", true)
@@ -5671,7 +6953,28 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           1
                         );
 
-                        const portraitEnabled = Boolean(layerTuningDialog.context?.portrait_available);
+                        const portraitDefaultEnabled = layerTuningStable !== "00_thumb_2";
+                        const portraitEnabled =
+                          Boolean(layerTuningDialog.context?.portrait_available) &&
+                          Boolean(
+                            resolveLayerTuningLeafValue(
+                              layerTuningDialog,
+                              "overrides.portrait.enabled",
+                              portraitDefaultEnabled
+                            )
+                          );
+                        const portraitSuppressBgDefault =
+                          layerTuningDialog.channel === "CH26" && portraitEnabled;
+                        const portraitSuppressBgRaw = Boolean(
+                          resolveLayerTuningLeafValue(
+                            layerTuningDialog,
+                            "overrides.portrait.suppress_bg",
+                            portraitSuppressBgDefault
+                          )
+                        );
+                        // CH26 backgrounds may include a face; when portrait is enabled we must suppress it to avoid "double face".
+                        const portraitSuppressBgForced = portraitEnabled && layerTuningDialog.channel === "CH26";
+                        const portraitSuppressBg = portraitEnabled && (portraitSuppressBgForced || portraitSuppressBgRaw);
                         const portraitZoom = Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.zoom", 1.0));
                         const portraitOffX = Number(
                           resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_x", 0.0)
@@ -5703,6 +7006,24 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         const boxH = height ? Math.round(height * portraitBox[3]) : 0;
                         const offPxX = width ? portraitOffX * width : 0;
                         const offPxY = height ? portraitOffY * height : 0;
+
+                        const suppressBgOverlayCss = (() => {
+                          if (!portraitSuppressBg) {
+                            return null;
+                          }
+                          if (!width || !height || !boxW || !boxH) {
+                            return null;
+                          }
+                          const minDim = Math.max(1, Math.min(width, height));
+                          // Hard suppression: ensure no background "ghost face" remains visible around the portrait.
+                          // Must follow portrait offset so it stays aligned while dragging.
+                          const pad = Math.max(0, Math.round(minDim * 0.35));
+                          const cx = Math.round(boxLeft + offPxX + boxW * 0.5);
+                          const cy = Math.round(boxTop + offPxY + boxH * 0.5);
+                          const rx = Math.max(1, Math.round(boxW * 0.5 + pad));
+                          const ry = Math.max(1, Math.round(boxH * 0.5 + pad));
+                          return `radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 96%, rgba(0,0,0,0) 100%)`;
+                        })();
 
                         const leftTszGradient = `linear-gradient(90deg, ${hexToRgba(
                           overlaysLeftColor,
@@ -5736,6 +7057,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                 position: "absolute",
                                 inset: 0,
                                 cursor: "grab",
+                                zIndex: 0,
                               }}
                               onPointerDown={beginLayerTuningPreviewBgDrag}
                               onPointerMove={handleLayerTuningPreviewDragMove}
@@ -5784,6 +7106,17 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                       />
                                     </div>
                                   </div>
+                                  {suppressBgOverlayCss ? (
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        pointerEvents: "none",
+                                        backgroundImage: suppressBgOverlayCss,
+                                        zIndex: 1,
+                                      }}
+                                    />
+                                  ) : null}
                                 </div>
                               ) : (
                                 <div
@@ -5836,40 +7169,271 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                               />
                             ) : null}
 
-                            <div
-                              style={{
-                                position: "absolute",
-                                inset: 0,
-                                transform: textTranslate,
-                                pointerEvents: "none",
-                                zIndex: 30,
-                              }}
-                            >
-                              {layerTuningTextPreviewSrc ? (
-                                <img
-                                  src={layerTuningTextPreviewSrc}
-                                  alt="text"
-                                  draggable={false}
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    pointerEvents: "none",
-                                  }}
-                                  onError={() => {
-                                    setLayerTuningTextPreviewSrc(null);
-                                    setLayerTuningTextPreviewStatus((current) => ({
-                                      loading: false,
-                                      error: current.error ?? "文字レイヤの読み込みに失敗しました",
-                                    }));
-                                  }}
-                                />
-                              ) : layerTuningTextPreviewStatus.loading ? (
-                                <div
-                                  style={{
-                                    position: "absolute",
-                                    left: 12,
-                                    bottom: 12,
+                            {layerTuningElements.length && layerTuningChannel && layerTuningVideo ? (
+                              <>
+                                <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
+                                  {layerTuningElements
+                                    .filter((el) => String((el as any)?.layer ?? "above_portrait") === "below_portrait")
+                                    .slice()
+                                    .sort((a, b) => Number((a as any)?.z ?? 0) - Number((b as any)?.z ?? 0))
+                                    .map((el) => {
+                                      const id = String(el?.id ?? "").trim();
+                                      if (!id) {
+                                        return null;
+                                      }
+                                      const kind = String((el as any)?.kind ?? "").trim();
+                                      const x = clampNumber(Number((el as any)?.x ?? 0.5), -2, 3);
+                                      const y = clampNumber(Number((el as any)?.y ?? 0.5), -2, 3);
+                                      const wNorm = clampNumber(Number((el as any)?.w ?? 0.2), 0.01, 4);
+                                      const hNorm = clampNumber(Number((el as any)?.h ?? 0.2), 0.01, 4);
+                                      const left = (x - wNorm / 2) * width;
+                                      const top = (y - hNorm / 2) * height;
+                                      const wPx = wNorm * width;
+                                      const hPx = hNorm * height;
+                                      const rotation = clampNumber(Number((el as any)?.rotation_deg ?? 0), -180, 180);
+                                      const opacity = clampNumber(Number((el as any)?.opacity ?? 1), 0, 1);
+                                      const fill = String((el as any)?.fill ?? "").trim() || "#ffffff";
+                                      const stroke = (el as any)?.stroke ?? null;
+                                      const strokeWidth = stroke ? Number(stroke.width_px ?? 0) : 0;
+                                      const strokeColor = stroke ? String(stroke.color ?? "").trim() : "";
+                                      const borderRadius = kind === "circle" ? "50%" : 12;
+                                      const selected =
+                                        layerTuningSelectedAsset === "element" && layerTuningSelectedElementId === id;
+                                      const srcPath = String((el as any)?.src_path ?? "").trim();
+                                      const resolvedUrl = srcPath ? resolveElementSrcUrl(layerTuningChannel, layerTuningVideo, srcPath) : null;
+                                      const srcUrl = resolvedUrl ? resolveApiUrl(resolvedUrl) : null;
+
+                                      return (
+                                        <div
+                                          key={id}
+                                          style={{
+                                            position: "absolute",
+                                            left,
+                                            top,
+                                            width: wPx,
+                                            height: hPx,
+                                            transform: `rotate(${rotation}deg)`,
+                                            transformOrigin: "50% 50%",
+                                            opacity,
+                                            cursor: "grab",
+                                            touchAction: "none",
+                                            pointerEvents: "auto",
+                                            borderRadius,
+                                            overflow: "hidden",
+                                            boxSizing: "border-box",
+                                            background: kind === "image" ? "transparent" : fill,
+                                            border:
+                                              Number.isFinite(strokeWidth) && strokeWidth > 0
+                                                ? `${clampNumber(strokeWidth, 0, 64)}px solid ${strokeColor || "#000000"}`
+                                                : "none",
+                                            outline: selected ? "2px solid rgba(59, 130, 246, 0.95)" : "none",
+                                            outlineOffset: 2,
+                                          }}
+                                          onPointerDown={(event) => beginLayerTuningPreviewElementDrag(event, id)}
+                                          onPointerMove={handleLayerTuningPreviewDragMove}
+                                          onPointerUp={handleLayerTuningPreviewDragEnd}
+                                          onPointerCancel={handleLayerTuningPreviewDragEnd}
+                                        >
+                                          {kind === "image" ? (
+                                            srcUrl ? (
+                                              <img
+                                                src={srcUrl}
+                                                alt=""
+                                                draggable={false}
+                                                style={{
+                                                  width: "100%",
+                                                  height: "100%",
+                                                  objectFit: "cover",
+                                                  pointerEvents: "none",
+                                                }}
+                                              />
+                                            ) : (
+                                              <div
+                                                style={{
+                                                  width: "100%",
+                                                  height: "100%",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent: "center",
+                                                  fontSize: 12,
+                                                  color: "rgba(255,255,255,0.8)",
+                                                  background: "rgba(0,0,0,0.35)",
+                                                }}
+                                              >
+                                                image missing
+                                              </div>
+                                            )
+                                          ) : null}
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                                <div style={{ position: "absolute", inset: 0, zIndex: 18, pointerEvents: "none" }}>
+                                  {layerTuningElements
+                                    .filter((el) => String((el as any)?.layer ?? "above_portrait") !== "below_portrait")
+                                    .slice()
+                                    .sort((a, b) => Number((a as any)?.z ?? 0) - Number((b as any)?.z ?? 0))
+                                    .map((el) => {
+                                      const id = String(el?.id ?? "").trim();
+                                      if (!id) {
+                                        return null;
+                                      }
+                                      const kind = String((el as any)?.kind ?? "").trim();
+                                      const x = clampNumber(Number((el as any)?.x ?? 0.5), -2, 3);
+                                      const y = clampNumber(Number((el as any)?.y ?? 0.5), -2, 3);
+                                      const wNorm = clampNumber(Number((el as any)?.w ?? 0.2), 0.01, 4);
+                                      const hNorm = clampNumber(Number((el as any)?.h ?? 0.2), 0.01, 4);
+                                      const left = (x - wNorm / 2) * width;
+                                      const top = (y - hNorm / 2) * height;
+                                      const wPx = wNorm * width;
+                                      const hPx = hNorm * height;
+                                      const rotation = clampNumber(Number((el as any)?.rotation_deg ?? 0), -180, 180);
+                                      const opacity = clampNumber(Number((el as any)?.opacity ?? 1), 0, 1);
+                                      const fill = String((el as any)?.fill ?? "").trim() || "#ffffff";
+                                      const stroke = (el as any)?.stroke ?? null;
+                                      const strokeWidth = stroke ? Number(stroke.width_px ?? 0) : 0;
+                                      const strokeColor = stroke ? String(stroke.color ?? "").trim() : "";
+                                      const borderRadius = kind === "circle" ? "50%" : 12;
+                                      const selected =
+                                        layerTuningSelectedAsset === "element" && layerTuningSelectedElementId === id;
+                                      const srcPath = String((el as any)?.src_path ?? "").trim();
+                                      const resolvedUrl = srcPath ? resolveElementSrcUrl(layerTuningChannel, layerTuningVideo, srcPath) : null;
+                                      const srcUrl = resolvedUrl ? resolveApiUrl(resolvedUrl) : null;
+
+                                      return (
+                                        <div
+                                          key={id}
+                                          style={{
+                                            position: "absolute",
+                                            left,
+                                            top,
+                                            width: wPx,
+                                            height: hPx,
+                                            transform: `rotate(${rotation}deg)`,
+                                            transformOrigin: "50% 50%",
+                                            opacity,
+                                            cursor: "grab",
+                                            touchAction: "none",
+                                            pointerEvents: "auto",
+                                            borderRadius,
+                                            overflow: "hidden",
+                                            boxSizing: "border-box",
+                                            background: kind === "image" ? "transparent" : fill,
+                                            border:
+                                              Number.isFinite(strokeWidth) && strokeWidth > 0
+                                                ? `${clampNumber(strokeWidth, 0, 64)}px solid ${strokeColor || "#000000"}`
+                                                : "none",
+                                            outline: selected ? "2px solid rgba(59, 130, 246, 0.95)" : "none",
+                                            outlineOffset: 2,
+                                          }}
+                                          onPointerDown={(event) => beginLayerTuningPreviewElementDrag(event, id)}
+                                          onPointerMove={handleLayerTuningPreviewDragMove}
+                                          onPointerUp={handleLayerTuningPreviewDragEnd}
+                                          onPointerCancel={handleLayerTuningPreviewDragEnd}
+                                        >
+                                          {kind === "image" ? (
+                                            srcUrl ? (
+                                              <img
+                                                src={srcUrl}
+                                                alt=""
+                                                draggable={false}
+                                                style={{
+                                                  width: "100%",
+                                                  height: "100%",
+                                                  objectFit: "cover",
+                                                  pointerEvents: "none",
+                                                }}
+                                              />
+                                            ) : (
+                                              <div
+                                                style={{
+                                                  width: "100%",
+                                                  height: "100%",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent: "center",
+                                                  fontSize: 12,
+                                                  color: "rgba(255,255,255,0.8)",
+                                                  background: "rgba(0,0,0,0.35)",
+                                                }}
+                                              >
+                                                image missing
+                                              </div>
+                                            )
+                                          ) : null}
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              </>
+                            ) : null}
+
+		                            <div
+		                              style={{
+		                                position: "absolute",
+		                                inset: 0,
+		                                pointerEvents: "none",
+		                                zIndex: 30,
+		                              }}
+		                            >
+	                              {Object.keys(layerTuningTextSlotImages).length > 0 ? (
+	                                Object.entries(layerTuningTextSlotImages).map(([slotKey, url]) => {
+	                                  const line = layerTuningTextLineSpecLines[slotKey];
+	                                  const box = layerTuningTextSlotBoxes?.[slotKey] ?? null;
+	                                  const rot = clampNumber(Number(line?.rotate_deg ?? 0), -180, 180);
+	                                  const dx = width ? Number(line?.offset_x ?? 0) * width : 0;
+	                                  const dy = height ? Number(line?.offset_y ?? 0) * height : 0;
+	                                  const slotTranslate = `translate3d(${dx}px, ${dy}px, 0)`;
+	                                  const cx =
+	                                    width && Array.isArray(box) && box.length === 4
+	                                      ? (Number(box[0]) + Number(box[2]) * 0.5) * width
+	                                      : width * 0.5;
+	                                  const cy =
+	                                    height && Array.isArray(box) && box.length === 4
+	                                      ? (Number(box[1]) + Number(box[3]) * 0.5) * height
+	                                      : height * 0.5;
+	                                  return (
+	                                    <div key={slotKey} style={{ position: "absolute", inset: 0, transform: slotTranslate }}>
+	                                      <div
+	                                        style={{
+	                                          position: "absolute",
+	                                          inset: 0,
+	                                          transform: rot ? `rotate(${rot}deg)` : undefined,
+	                                          transformOrigin: `${cx}px ${cy}px`,
+	                                        }}
+	                                      >
+	                                      <img
+	                                        src={url}
+	                                        alt={`text:${slotKey}`}
+	                                        draggable={false}
+	                                        style={{
+	                                          width: "100%",
+	                                          height: "100%",
+	                                          objectFit: "cover",
+	                                          pointerEvents: "none",
+	                                        }}
+	                                        onError={() => {
+	                                          setLayerTuningTextSlotImages((current) => {
+	                                            const next = { ...current };
+	                                            delete next[slotKey];
+	                                            return next;
+	                                          });
+	                                          setLayerTuningTextSlotStatus((current) => ({
+	                                            loading: false,
+	                                            error: current.error ?? "文字レイヤの読み込みに失敗しました",
+	                                          }));
+	                                        }}
+	                                      />
+	                                      </div>
+	                                    </div>
+	                                  );
+	                                })
+	                              ) : layerTuningTextSlotStatus.loading ? (
+	                                <div
+	                                  style={{
+	                                    position: "absolute",
+	                                    left: 12,
+	                                    bottom: 12,
                                     padding: "6px 10px",
                                     borderRadius: 10,
                                     background: "rgba(0,0,0,0.55)",
@@ -5877,69 +7441,120 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                     fontSize: 12,
                                     letterSpacing: 0.2,
                                   }}
-                                >
-                                  文字レイヤ生成中…
-                                </div>
-                              ) : layerTuningTextPreviewStatus.error ? (
-                                <div
-                                  style={{
-                                    position: "absolute",
-                                    left: 12,
-                                    bottom: 12,
+	                                >
+	                                  文字レイヤ生成中…
+	                                </div>
+	                              ) : layerTuningTextSlotStatus.error ? (
+	                                <div
+	                                  style={{
+	                                    position: "absolute",
+	                                    left: 12,
+	                                    bottom: 12,
                                     padding: "6px 10px",
                                     borderRadius: 10,
                                     background: "rgba(127, 29, 29, 0.7)",
                                     color: "rgba(255,255,255,0.95)",
                                     fontSize: 12,
                                     letterSpacing: 0.2,
-                                  }}
-                                >
-                                  文字レイヤ: {layerTuningTextPreviewStatus.error}
-                                </div>
-                              ) : null}
-                            </div>
+	                                  }}
+	                                >
+	                                  文字レイヤ: {layerTuningTextSlotStatus.error}
+	                                </div>
+	                              ) : null}
+	                            </div>
 
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: `${(overlaysLeftX0 * 100).toFixed(2)}%`,
-                                top: 0,
-                                width: `${(Math.max(0, overlaysLeftX1 - overlaysLeftX0) * 100).toFixed(2)}%`,
-                                height: "100%",
-                                transform: textTranslate,
-                                cursor: "grab",
-                                touchAction: "none",
-                                borderRadius: 8,
-                                boxSizing: "border-box",
-                                border:
-                                  layerTuningSelectedAsset === "text"
-                                    ? "2px solid rgba(59, 130, 246, 0.95)"
-                                    : "1px dashed rgba(255,255,255,0.18)",
-                                background: layerTuningSelectedAsset === "text" ? "rgba(59, 130, 246, 0.08)" : "transparent",
-                                zIndex: 40,
-                              }}
-                              onPointerDown={beginLayerTuningPreviewTextDrag}
-                              onPointerMove={handleLayerTuningPreviewDragMove}
-                              onPointerUp={handleLayerTuningPreviewDragEnd}
-                              onPointerCancel={handleLayerTuningPreviewDragEnd}
-                            >
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  left: 8,
-                                  bottom: 8,
-                                  padding: "2px 8px",
-                                  borderRadius: 999,
-                                  background: "rgba(0,0,0,0.35)",
-                                  color: "rgba(255,255,255,0.85)",
-                                  fontSize: 11,
-                                  letterSpacing: 0.3,
-                                  pointerEvents: "none",
-                                }}
-                              >
-                                TEXT
-                              </div>
-                            </div>
+                            {(() => {
+                              if (!width || !height) {
+                                return null;
+                              }
+                              const ctx = layerTuningDialog.context;
+                              const options = (ctx?.template_options ?? []) as Array<{
+                                id: string;
+                                slots?: Record<string, { box?: number[] | null }>;
+                              }>;
+                              if (!options.length) {
+                                return null;
+                              }
+                              const forced = String(layerTuningDialog.overridesLeaf?.["overrides.text_template_id"] ?? "").trim();
+                              const fallback = String(ctx?.template_id_default ?? "").trim();
+                              const templateId = forced || fallback || String(options[0]?.id ?? "");
+                              const tpl =
+                                options.find((opt) => String(opt.id || "").trim() === templateId) ?? options[0];
+                              const slots = (tpl?.slots ?? {}) as Record<string, { box?: number[] | null }>;
+                              const entries = Object.entries(slots);
+                              if (!entries.length) {
+                                return null;
+                              }
+                              return (
+                                <div style={{ position: "absolute", inset: 0, zIndex: 40, pointerEvents: "none" }}>
+                                  {entries.map(([slotKey, meta]) => {
+                                    const box = meta?.box ?? null;
+                                    if (!Array.isArray(box) || box.length !== 4) {
+                                      return null;
+                                    }
+                                    const line = layerTuningTextLineSpecLines?.[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1 };
+                                    const left = Number(box[0]) * width + Number(line.offset_x ?? 0) * width;
+                                    const top = Number(box[1]) * height + Number(line.offset_y ?? 0) * height;
+                                    const wPx = Number(box[2]) * width;
+                                    const hPx = Number(box[3]) * height;
+                                    if (
+                                      !Number.isFinite(left) ||
+                                      !Number.isFinite(top) ||
+                                      !Number.isFinite(wPx) ||
+                                      !Number.isFinite(hPx)
+                                    ) {
+                                      return null;
+                                    }
+                                    const selected =
+                                      layerTuningSelectedAsset === "text" && layerTuningSelectedTextSlot === slotKey;
+                                    return (
+                                      <div
+                                        key={slotKey}
+                                        style={{
+                                          position: "absolute",
+                                          left,
+                                          top,
+                                          width: wPx,
+                                          height: hPx,
+                                          cursor: "grab",
+                                          touchAction: "none",
+                                          borderRadius: 8,
+                                          boxSizing: "border-box",
+                                          border: selected
+                                            ? "2px solid rgba(59, 130, 246, 0.95)"
+                                            : "1px dashed rgba(255,255,255,0.18)",
+                                          background: selected ? "rgba(59, 130, 246, 0.06)" : "transparent",
+                                          pointerEvents: "auto",
+                                        }}
+                                        onPointerDown={(event) => beginLayerTuningPreviewTextDrag(event, slotKey)}
+                                        onPointerMove={handleLayerTuningPreviewDragMove}
+                                        onPointerUp={handleLayerTuningPreviewDragEnd}
+                                        onPointerCancel={handleLayerTuningPreviewDragEnd}
+                                      >
+                                        {selected ? (
+                                          <div
+                                            style={{
+                                              position: "absolute",
+                                              left: 8,
+                                              bottom: 8,
+                                              padding: "2px 8px",
+                                              borderRadius: 999,
+                                              background: "rgba(0,0,0,0.35)",
+                                              color: "rgba(255,255,255,0.85)",
+                                              fontSize: 11,
+                                              letterSpacing: 0.3,
+                                              pointerEvents: "none",
+                                            }}
+                                          >
+                                            TEXT: {slotKey}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
 
                             {portraitEnabled ? (
                               <>
@@ -5953,6 +7568,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                     border: "1px dashed rgba(255,255,255,0.35)",
                                     pointerEvents: "none",
                                     borderRadius: 6,
+                                    zIndex: 15,
                                   }}
                                 />
                                 <div
@@ -5971,6 +7587,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                                         ? "2px solid rgba(59, 130, 246, 0.95)"
                                         : "none",
                                     outlineOffset: 2,
+                                    zIndex: 15,
                                   }}
                                   onPointerDown={beginLayerTuningPreviewPortraitDrag}
                                   onPointerMove={handleLayerTuningPreviewDragMove}
@@ -6083,21 +7700,51 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                       >
                         背景: リセット
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        onClick={() =>
-                          mergeLayerTuningOverridesLeaf({
-                            "overrides.text_offset_x": null,
-                            "overrides.text_offset_y": null,
-                          })
-                        }
-                      >
-                        文字: リセット
-                      </button>
-                      {layerTuningDialog.context?.portrait_available ? (
-                        <button
-                          type="button"
+	                      <button
+	                        type="button"
+	                        className="btn btn--ghost"
+	                        onClick={() => {
+	                          mergeLayerTuningOverridesLeaf({
+	                            "overrides.text_offset_x": null,
+	                            "overrides.text_offset_y": null,
+	                          });
+	                          const slotKey = layerTuningSelectedTextSlotRef.current;
+		                          if (slotKey) {
+		                            setLayerTuningTextLineSpecLines((current) => {
+		                              const next = { ...(current ?? {}) };
+		                              const existing = next[slotKey] ?? { offset_x: 0, offset_y: 0, scale: 1, rotate_deg: 0 };
+		                              next[slotKey] = { ...existing, offset_x: 0, offset_y: 0, scale: 1, rotate_deg: 0 };
+		                              return next;
+		                            });
+		                          }
+	                        }}
+	                      >
+	                        文字: リセット
+	                      </button>
+	                      {Object.keys(layerTuningTextSlotImages).length > 0 ? (
+	                        <label className="muted small-text" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+	                          <span>行</span>
+	                          <select
+	                            value={layerTuningSelectedTextSlot ?? ""}
+	                            onChange={(event) => {
+	                              const next = event.target.value;
+	                              setLayerTuningSelectedTextSlot(next || null);
+	                              setLayerTuningSelectedAsset("text");
+	                            }}
+	                          >
+	                            {Object.keys(layerTuningTextSlotImages)
+	                              .sort((a, b) => a.localeCompare(b))
+	                              .map((slotKey) => (
+	                                <option key={slotKey} value={slotKey}>
+	                                  {slotKey}
+	                                </option>
+	                              ))}
+	                          </select>
+	                        </label>
+	                      ) : null}
+	                      {layerTuningDialog.context?.portrait_available ? (
+	                        <button
+	                          type="button"
                           className="btn btn--ghost"
                           onClick={() =>
                             mergeLayerTuningOverridesLeaf({
@@ -6111,10 +7758,10 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                         </button>
                       ) : null}
                     </div>
-                    <p className="thumbnail-library__placeholder" style={{ marginTop: -4 }}>
-                      背景/文字/肖像: クリックして選択 → ドラッグで移動。ホイール: 選択中の素材をズーム（文字はサイズ調整）。
-                    </p>
-                  </div>
+	                    <p className="thumbnail-library__placeholder" style={{ marginTop: -4 }}>
+	                      背景/肖像: クリックして選択 → ドラッグで移動。文字: 行（枠）クリック → ドラッグで移動。ホイール: 背景/肖像ズーム、文字は行サイズ。
+	                    </p>
+	                  </div>
 
                   <div className="thumbnail-planning-form__grid">
                     <label>
@@ -6159,6 +7806,299 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     </label>
                   </div>
 
+                  <h3 style={{ marginTop: 18, marginBottom: 8 }}>要素（図形・画像）</h3>
+                  <div className="thumbnail-planning-form__grid">
+                    <div className="thumbnail-planning-form__field--wide" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                      <button type="button" className="btn btn--ghost" onClick={() => addLayerTuningElement("rect")}>
+                        ＋四角
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => addLayerTuningElement("circle")}>
+                        ＋丸
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() => layerTuningElementUploadInputRef.current?.click()}
+                        disabled={layerTuningElementsStatus.loading}
+                      >
+                        ＋画像
+                      </button>
+                      <input
+                        ref={layerTuningElementUploadInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLayerTuningElementUploadChange}
+                        style={{ display: "none" }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={duplicateLayerTuningSelectedElement}
+                        disabled={!layerTuningSelectedElementId}
+                      >
+                        複製
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={deleteLayerTuningSelectedElement}
+                        disabled={!layerTuningSelectedElementId}
+                      >
+                        削除
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() => moveLayerTuningSelectedElementZ("front")}
+                        disabled={!layerTuningSelectedElementId}
+                      >
+                        前へ
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() => moveLayerTuningSelectedElementZ("back")}
+                        disabled={!layerTuningSelectedElementId}
+                      >
+                        後ろへ
+                      </button>
+                      <label className="muted small-text" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: 8 }}>
+                        <input
+                          type="checkbox"
+                          checked={layerTuningSnapEnabled}
+                          onChange={(event) => setLayerTuningSnapEnabled(event.target.checked)}
+                        />
+                        <span>スナップ</span>
+                      </label>
+                    </div>
+                    <div className="thumbnail-planning-form__field--wide" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                      <span className="muted small-text">整列（選択中の素材）:</span>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("left")}>
+                        左
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("center")}>
+                        中央
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("right")}>
+                        右
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("top")}>
+                        上
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("middle")}>
+                        中
+                      </button>
+                      <button type="button" className="btn btn--ghost" onClick={() => alignLayerTuningSelected("bottom")}>
+                        下
+                      </button>
+                    </div>
+                    <label className="thumbnail-planning-form__field--wide">
+                      <span>選択中の要素</span>
+                      <select
+                        value={layerTuningSelectedElementId ?? ""}
+                        onChange={(event) => {
+                          const next = event.target.value;
+                          setLayerTuningSelectedElementId(next || null);
+                          if (next) {
+                            setLayerTuningSelectedAsset("element");
+                          }
+                        }}
+                      >
+                        <option value="">（なし）</option>
+                        {(layerTuningElements ?? [])
+                          .slice()
+                          .sort((a, b) => String(a?.id ?? "").localeCompare(String(b?.id ?? "")))
+                          .map((el) => {
+                            const id = String(el?.id ?? "").trim();
+                            if (!id) return null;
+                            const kind = String((el as any)?.kind ?? "");
+                            return (
+                              <option key={id} value={id}>
+                                {kind}:{id}
+                              </option>
+                            );
+                          })}
+                      </select>
+                    </label>
+                    {(() => {
+                      const selectedId = String(layerTuningSelectedElementId ?? "").trim();
+                      const el = selectedId ? (layerTuningElements ?? []).find((item) => String(item?.id ?? "") === selectedId) : null;
+                      if (!el) {
+                        return (
+                          <p className="muted small-text thumbnail-planning-form__field--wide">
+                            「＋四角 / ＋丸 / ＋画像」で追加 → クリックして選択 → ドラッグで移動。数値でも微調整できます。
+                          </p>
+                        );
+                      }
+                      const kind = String((el as any)?.kind ?? "rect");
+                      const layer = String((el as any)?.layer ?? "above_portrait");
+                      const x = Number((el as any)?.x ?? 0.5);
+                      const y = Number((el as any)?.y ?? 0.5);
+                      const w = Number((el as any)?.w ?? 0.2);
+                      const h = Number((el as any)?.h ?? 0.2);
+                      const rotation = Number((el as any)?.rotation_deg ?? 0);
+                      const opacity = Number((el as any)?.opacity ?? 1);
+                      const fill = String((el as any)?.fill ?? "").trim() || "#ffffff";
+                      const stroke = (el as any)?.stroke ?? null;
+                      const strokeWidth = Number(stroke?.width_px ?? 0);
+                      const strokeColor = String(stroke?.color ?? "#000000") || "#000000";
+                      const clampMaybe = (value: number, lo: number, hi: number) => clampNumber(Number(value), lo, hi);
+                      return (
+                        <>
+                          <label>
+                            <span>レイヤ</span>
+                            <select
+                              value={layer}
+                              onChange={(event) =>
+                                updateLayerTuningSelectedElement({ layer: event.target.value as any })
+                              }
+                            >
+                              <option value="above_portrait">画像より上（肖像の上）</option>
+                              <option value="below_portrait">画像より下（背景）</option>
+                            </select>
+                          </label>
+                          <label>
+                            <span>z</span>
+                            <input
+                              type="number"
+                              value={Number.isFinite(Number((el as any)?.z)) ? Number((el as any)?.z) : 0}
+                              onChange={(event) =>
+                                updateLayerTuningSelectedElement({ z: Math.round(Number(event.target.value) || 0) })
+                              }
+                            />
+                          </label>
+                          <label>
+                            <span>X（中心）</span>
+                            <input
+                              type="range"
+                              min={-2}
+                              max={3}
+                              step={0.001}
+                              value={clampMaybe(x, -2, 3)}
+                              onChange={(event) => updateLayerTuningSelectedElement({ x: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label>
+                            <span>Y（中心）</span>
+                            <input
+                              type="range"
+                              min={-2}
+                              max={3}
+                              step={0.001}
+                              value={clampMaybe(y, -2, 3)}
+                              onChange={(event) => updateLayerTuningSelectedElement({ y: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label>
+                            <span>幅</span>
+                            <input
+                              type="range"
+                              min={0.01}
+                              max={4}
+                              step={0.001}
+                              value={clampMaybe(w, 0.01, 4)}
+                              onChange={(event) => updateLayerTuningSelectedElement({ w: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label>
+                            <span>高さ</span>
+                            <input
+                              type="range"
+                              min={0.01}
+                              max={4}
+                              step={0.001}
+                              value={clampMaybe(h, 0.01, 4)}
+                              onChange={(event) => updateLayerTuningSelectedElement({ h: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label>
+                            <span>回転</span>
+                            <input
+                              type="range"
+                              min={-180}
+                              max={180}
+                              step={0.1}
+                              value={clampMaybe(rotation, -180, 180)}
+                              onChange={(event) =>
+                                updateLayerTuningSelectedElement({ rotation_deg: Number(event.target.value) })
+                              }
+                            />
+                          </label>
+                          <label>
+                            <span>不透明度</span>
+                            <input
+                              type="range"
+                              min={0}
+                              max={1}
+                              step={0.01}
+                              value={clampMaybe(opacity, 0, 1)}
+                              onChange={(event) =>
+                                updateLayerTuningSelectedElement({ opacity: Number(event.target.value) })
+                              }
+                            />
+                          </label>
+                          {kind !== "image" ? (
+                            <label>
+                              <span>塗り</span>
+                              <input
+                                type="color"
+                                value={/^#[0-9a-fA-F]{6}$/.test(fill) ? fill : "#ffffff"}
+                                onChange={(event) => updateLayerTuningSelectedElement({ fill: event.target.value })}
+                              />
+                            </label>
+                          ) : null}
+                          <label>
+                            <span>枠線（幅）</span>
+                            <input
+                              type="range"
+                              min={0}
+                              max={64}
+                              step={1}
+                              value={clampMaybe(strokeWidth, 0, 64)}
+                              onChange={(event) => {
+                                const widthPx = Math.max(0, Number(event.target.value) || 0);
+                                if (widthPx <= 0) {
+                                  updateLayerTuningSelectedElement({ stroke: null as any });
+                                  return;
+                                }
+                                updateLayerTuningSelectedElement({
+                                  stroke: { color: strokeColor, width_px: widthPx } as any,
+                                });
+                              }}
+                            />
+                          </label>
+                          <label>
+                            <span>枠線（色）</span>
+                            <input
+                              type="color"
+                              value={/^#[0-9a-fA-F]{6}$/.test(strokeColor) ? strokeColor : "#000000"}
+                              onChange={(event) => {
+                                const color = event.target.value;
+                                if (!stroke || strokeWidth <= 0) {
+                                  updateLayerTuningSelectedElement({
+                                    stroke: { color, width_px: Math.max(1, strokeWidth || 1) } as any,
+                                  });
+                                  return;
+                                }
+                                updateLayerTuningSelectedElement({ stroke: { ...stroke, color } as any });
+                              }}
+                            />
+                          </label>
+                          {kind === "image" ? (
+                            <p className="muted small-text thumbnail-planning-form__field--wide">
+                              画像要素: 「＋画像」で差し替え（新規）できます。既存の差し替え UI は次フェーズで追加。
+                            </p>
+                          ) : null}
+                        </>
+                      );
+                    })()}
+                    {layerTuningElementsStatus.error ? (
+                      <div className="thumbnail-planning-form__error thumbnail-planning-form__field--wide" role="alert">
+                        {layerTuningElementsStatus.error}
+                      </div>
+                    ) : null}
+                  </div>
+
                   <h3 style={{ marginTop: 18, marginBottom: 8 }}>文字</h3>
                   <div className="thumbnail-planning-form__grid">
                     <label className="thumbnail-planning-form__field--wide">
@@ -6184,44 +8124,101 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           </option>
                         ))}
                       </select>
-	                    </label>
-	                    <label className="thumbnail-planning-form__field--wide">
-	                      <span>文字サイズ（scale）</span>
-	                      <input
-	                        type="range"
-                        min={0.5}
-                        max={2}
-                        step={0.01}
-                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_scale", 1.0))}
-                        onChange={(event) => setLayerTuningOverrideLeaf("overrides.text_scale", Number(event.target.value))}
-                      />
                     </label>
-                    <label className="thumbnail-planning-form__field--wide">
-                      <span>文字位置X（offset_x）</span>
-                      <input
-                        type="range"
-                        min={-0.25}
-                        max={0.25}
-                        step={0.001}
-                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_x", 0.0))}
-                        onChange={(event) =>
-                          setLayerTuningOverrideLeaf("overrides.text_offset_x", Number(event.target.value))
+                    {(() => {
+                      const keys = Object.keys(layerTuningTextLineSpecLines ?? {})
+                        .filter(Boolean)
+                        .sort((a, b) => a.localeCompare(b));
+                      const resolvedKey =
+                        (layerTuningSelectedTextSlot && keys.includes(layerTuningSelectedTextSlot)
+                          ? layerTuningSelectedTextSlot
+                          : keys[0]) ?? "";
+                      const line = resolvedKey ? layerTuningTextLineSpecLines?.[resolvedKey] : null;
+                      const disabled = !resolvedKey;
+                      const updateLine = (
+                        patch: Partial<{ offset_x: number; offset_y: number; scale: number; rotate_deg: number }>
+                      ) => {
+                        if (!resolvedKey) {
+                          return;
                         }
-                      />
-                    </label>
-                    <label className="thumbnail-planning-form__field--wide">
-                      <span>文字位置Y（offset_y）</span>
-                      <input
-                        type="range"
-                        min={-0.25}
-                        max={0.25}
-                        step={0.001}
-                        value={Number(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.text_offset_y", 0.0))}
-                        onChange={(event) =>
-                          setLayerTuningOverrideLeaf("overrides.text_offset_y", Number(event.target.value))
-                        }
-                      />
-                    </label>
+                        setLayerTuningTextLineSpecLines((current) => {
+                          const next = { ...(current ?? {}) };
+                          const existing = next[resolvedKey] ?? { offset_x: 0, offset_y: 0, scale: 1, rotate_deg: 0 };
+                          next[resolvedKey] = { ...existing, ...patch };
+                          return next;
+                        });
+                      };
+                      return (
+                        <>
+                          <label className="thumbnail-planning-form__field--wide">
+                            <span>行（slot）</span>
+                            <select
+                              value={resolvedKey}
+                              disabled={keys.length === 0}
+                              onChange={(event) => {
+                                const next = event.target.value;
+                                setLayerTuningSelectedTextSlot(next || null);
+                                setLayerTuningSelectedAsset("text");
+                              }}
+                            >
+                              {keys.map((slotKey) => (
+                                <option key={slotKey} value={slotKey}>
+                                  {slotKey}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="thumbnail-planning-form__field--wide">
+                            <span>文字サイズ（行scale）</span>
+                            <input
+                              type="range"
+                              min={0.25}
+                              max={4}
+                              step={0.01}
+                              disabled={disabled}
+                              value={Number(line?.scale ?? 1)}
+                              onChange={(event) => updateLine({ scale: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label className="thumbnail-planning-form__field--wide">
+                            <span>文字位置X（行offset_x）</span>
+                            <input
+                              type="range"
+                              min={-2}
+                              max={2}
+                              step={0.001}
+                              disabled={disabled}
+                              value={Number(line?.offset_x ?? 0)}
+                              onChange={(event) => updateLine({ offset_x: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label className="thumbnail-planning-form__field--wide">
+                            <span>回転（行rotate_deg）</span>
+                            <input
+                              type="range"
+                              min={-180}
+                              max={180}
+                              step={0.1}
+                              disabled={disabled}
+                              value={Number(line?.rotate_deg ?? 0)}
+                              onChange={(event) => updateLine({ rotate_deg: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label className="thumbnail-planning-form__field--wide">
+                            <span>文字位置Y（行offset_y）</span>
+                            <input
+                              type="range"
+                              min={-2}
+                              max={2}
+                              step={0.001}
+                              disabled={disabled}
+                              value={Number(line?.offset_y ?? 0)}
+                              onChange={(event) => updateLine({ offset_y: Number(event.target.value) })}
+                            />
+                          </label>
+                        </>
+                      );
+                    })()}
                     <label>
                       <span>上段色（red_fill）</span>
                       <input
@@ -6940,14 +8937,54 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     </div>
                   </details>
 
-                    {layerTuningDialog.context?.portrait_available ? (
-                      <>
-                      <h3 style={{ marginTop: 18, marginBottom: 8 }}>肖像</h3>
-                      <div className="thumbnail-planning-form__grid">
-                        <label>
-                          <span>ズーム</span>
-                          <input
-                            type="range"
+	                    {layerTuningDialog.context?.portrait_available ? (
+	                      <>
+	                      <h3 style={{ marginTop: 18, marginBottom: 8 }}>肖像</h3>
+                        {(() => {
+                          const portraitDefaultEnabled = layerTuningStable !== "00_thumb_2";
+                          const portraitEnabled = Boolean(
+                            resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.enabled", portraitDefaultEnabled)
+                          );
+                          const suppressBgDefault = layerTuningDialog.channel === "CH26" && portraitEnabled;
+                          const suppressBgForced = layerTuningDialog.channel === "CH26" && portraitEnabled;
+                          const suppressBg =
+                            suppressBgForced ||
+                            Boolean(resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.suppress_bg", suppressBgDefault));
+                          return (
+	                      <div className="thumbnail-planning-form__grid">
+	                        <label>
+	                          <span>有効</span>
+	                          <input
+	                            type="checkbox"
+                              checked={portraitEnabled}
+	                            onChange={(event) =>
+	                              setLayerTuningOverrideLeaf("overrides.portrait.enabled", event.target.checked)
+	                            }
+	                          />
+	                        </label>
+	                        <label>
+	                          <span>背景の顔を抑制</span>
+	                          <input
+	                            type="checkbox"
+                              checked={suppressBg}
+                              disabled={suppressBgForced}
+                              onChange={(event) => {
+                                if (suppressBgForced) {
+                                  return;
+                                }
+                                setLayerTuningOverrideLeaf("overrides.portrait.suppress_bg", event.target.checked);
+                              }}
+	                          />
+	                        </label>
+                          {suppressBgForced ? (
+                            <div className="muted small-text" style={{ gridColumn: "1 / -1" }}>
+                              CH26 は背景に顔が含まれることがあるため、肖像が有効な間は「背景の顔を抑制」を固定でONにします。
+                            </div>
+                          ) : null}
+	                        <label>
+	                          <span>ズーム</span>
+	                          <input
+	                            type="range"
                             min={0.5}
                             max={2}
                             step={0.01}
@@ -6961,8 +8998,8 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           <span>位置X</span>
                           <input
                             type="range"
-                            min={-0.25}
-                            max={0.25}
+                            min={-2}
+                            max={2}
                             step={0.001}
                             value={Number(
                               resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_x", 0.0)
@@ -6976,8 +9013,8 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           <span>位置Y</span>
                           <input
                             type="range"
-                            min={-0.25}
-                            max={0.25}
+                            min={-2}
+                            max={2}
                             step={0.001}
                             value={Number(
                               resolveLayerTuningLeafValue(layerTuningDialog, "overrides.portrait.offset_y", 0.0)
@@ -7040,46 +9077,52 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                             onChange={(event) =>
                               setLayerTuningOverrideLeaf("overrides.portrait.trim_transparent", event.target.checked)
                             }
-                          />
-                        </label>
-                      </div>
-                    </>
-                  ) : null}
+	                          />
+	                        </label>
+	                      </div>
+                          );
+                        })()}
+	                      </>
+	                    ) : null}
 
                   {layerTuningDialog.error ? (
                     <div className="thumbnail-planning-form__error" role="alert">
                       {layerTuningDialog.error}
                     </div>
                   ) : null}
-                  <div className="thumbnail-planning-form__actions">
-                    <button
-                      type="button"
-                      onClick={handleCloseLayerTuningDialog}
-                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
-                    >
+	                  <div className="thumbnail-planning-form__actions">
+	                    <p className="muted small-text" style={{ margin: "0 auto 0 0", alignSelf: "center" }}>
+	                      保存: 設定だけ保存（PNGは更新しません）。保存して再生成: PNGを作り直して反映。
+	                    </p>
+	                    <button
+	                      type="button"
+	                      onClick={handleCloseLayerTuningDialog}
+	                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
+	                    >
                       キャンセル
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveLayerTuning("save")}
-                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
-                    >
-                      保存
-                    </button>
-                    <button
-                      type="submit"
-                      className="thumbnail-planning-form__submit"
-                      disabled={
-                        layerTuningDialog.saving ||
-                        layerTuningDialog.building ||
-                        (layerTuningDialog.regenBg && !layerTuningDialog.allowGenerate)
-                      }
-                    >
-                      {layerTuningDialog.building ? "再生成中…" : "保存して再生成"}
-                    </button>
-                  </div>
-                </form>
-              )}
+	                    <button
+	                      type="button"
+	                      onClick={() => handleSaveLayerTuning("save")}
+	                      disabled={layerTuningDialog.saving || layerTuningDialog.building}
+	                    >
+	                      保存（設定のみ）
+	                    </button>
+	                    <button
+	                      type="button"
+	                      className="thumbnail-planning-form__submit"
+	                      onClick={() => handleSaveLayerTuning("save_and_build")}
+	                      disabled={
+	                        layerTuningDialog.saving ||
+	                        layerTuningDialog.building ||
+	                        (layerTuningDialog.regenBg && !layerTuningDialog.allowGenerate)
+	                      }
+	                    >
+	                      {layerTuningDialog.building ? "再生成中…" : "保存して再生成（PNG更新）"}
+	                    </button>
+	                  </div>
+	                </form>
+	              )}
             </div>
           </div>
         ) : null}

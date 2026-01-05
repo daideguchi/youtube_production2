@@ -86,10 +86,9 @@ def _write_failover_memo(queue_dir: Path, *, task_id: str, task: str, body: str)
 
 
 def _failover_enabled() -> bool:
-    raw = (os.getenv("LLM_API_FAILOVER_TO_THINK") or os.getenv("LLM_API_FALLBACK_TO_THINK") or "").strip()
-    if raw == "":
-        return True
-    return raw.lower() not in {"0", "false", "no", "off"}
+    from factory_common.llm_exec_slots import effective_api_failover_to_think
+
+    return effective_api_failover_to_think()
 
 
 def maybe_failover_to_think(

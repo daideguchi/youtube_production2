@@ -28,7 +28,7 @@
 | D-008 | P2 | Publish一時DLの置き場/保持 | **`workspaces/tmp/publish/` へ寄せ、成功後削除（任意保持）** | Proposed |
 | D-009 | P2 | “ゾンビ候補”の扱い | **隔離→入口索引から除外→archive-first削除**（確実ゴミのみ） | Proposed |
 | D-010 | P1 | LLM設定SSOTの一本化 | **`llm_router.yaml` 系へ統一**（`llm.yml`/registryは段階廃止） | Proposed |
-| D-011 | P1 | Script Pipelineのno-op stage | **stageは“明示output契約”必須**（`script_enhancement`は削除/実装） | Proposed |
+| D-011 | P1 | Script Pipelineのno-op stage | **stageは“明示output契約”必須**（`script_enhancement`は削除/実装） | Done |
 | D-012 | P2 | channel_info の“同期メタ” | **動的メタは `workspaces/` へ分離**（packagesは静的設定のみ） | Proposed |
 
 ---
@@ -125,6 +125,7 @@
 ### Impact（影響/作業）
 - `packages/script_pipeline/stages.yaml` の整理（削除 or output契約追加）。
 - `ssot/ops/OPS_ZOMBIE_CODE_REGISTER.md` へ記録し、確定後に archive-first で掃除計画へ落とす。
+- 実装（2026-01-04）: `script_enhancement` を `stages.yaml` 主線から除外（no-op解消）。
 
 ---
 

@@ -27,6 +27,81 @@ set +a
 #   YTM_WEB_SEARCH_PROVIDER=brave ./scripts/with_ytm_env.sh ...
 : "${YTM_WEB_SEARCH_PROVIDER:=disabled}"
 export YTM_WEB_SEARCH_PROVIDER
+
+# Optional: numeric slots (operator-friendly; avoids editing configs).
+#
+# - LLM model slot (what model code each tier uses):
+#     LLM_MODEL_SLOT   (configs/llm_model_slots.yaml)
+# - LLM exec slot (where/how it runs: api/codex exec/think/agent/failover):
+#     LLM_EXEC_SLOT    (configs/llm_exec_slots.yaml)
+#
+# Examples:
+#   ./scripts/with_ytm_env.sh --llm-slot 2 python3 ...
+#   ./scripts/with_ytm_env.sh --exec-slot 3 python3 ...
+#   ./scripts/with_ytm_env.sh x3 2 python3 ...   # shorthand: xN=exec slot, N=model slot
+while [[ $# -ge 1 ]]; do
+  case "$1" in
+    --llm-slot|--model-slot)
+      if [[ $# -lt 2 ]]; then
+        echo "❌ Missing value for $1 (expected an integer slot id)" >&2
+        exit 2
+      fi
+      if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+        echo "❌ Invalid LLM slot: $2 (expected an integer)" >&2
+        exit 2
+      fi
+      export LLM_MODEL_SLOT="$2"
+      shift 2
+      ;;
+    --llm-slot=*|--model-slot=*)
+      SLOT_VAL="${1#*=}"
+      if [[ ! "$SLOT_VAL" =~ ^[0-9]+$ ]]; then
+        echo "❌ Invalid LLM slot: $SLOT_VAL (expected an integer)" >&2
+        exit 2
+      fi
+      export LLM_MODEL_SLOT="$SLOT_VAL"
+      shift 1
+      ;;
+    --exec-slot|--llm-exec-slot)
+      if [[ $# -lt 2 ]]; then
+        echo "❌ Missing value for $1 (expected an integer slot id)" >&2
+        exit 2
+      fi
+      if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+        echo "❌ Invalid exec slot: $2 (expected an integer)" >&2
+        exit 2
+      fi
+      export LLM_EXEC_SLOT="$2"
+      shift 2
+      ;;
+    --exec-slot=*|--llm-exec-slot=*)
+      EXEC_VAL="${1#*=}"
+      if [[ ! "$EXEC_VAL" =~ ^[0-9]+$ ]]; then
+        echo "❌ Invalid exec slot: $EXEC_VAL (expected an integer)" >&2
+        exit 2
+      fi
+      export LLM_EXEC_SLOT="$EXEC_VAL"
+      shift 1
+      ;;
+    x*)
+      EXEC_VAL="${1#x}"
+      if [[ "$EXEC_VAL" =~ ^[0-9]+$ ]]; then
+        export LLM_EXEC_SLOT="$EXEC_VAL"
+        shift 1
+        continue
+      fi
+      break
+      ;;
+    *)
+      if [[ "$1" =~ ^[0-9]+$ ]]; then
+        export LLM_MODEL_SLOT="$1"
+        shift 1
+        continue
+      fi
+      break
+      ;;
+  esac
+done
 if [[ $# -eq 0 ]]; then
   echo "✅ Environment loaded. Run commands like: ./scripts/with_ytm_env.sh python3 ..." >&2
   exit 0

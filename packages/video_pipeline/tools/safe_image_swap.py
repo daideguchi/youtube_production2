@@ -60,6 +60,7 @@ def main():
     ap.add_argument("--draft", required=True, help="CapCut draft のパス（既存ドラフトを壊さず差し替え）")
     ap.add_argument("--indices", type=int, nargs="+", required=True, help="1-based 画像番号のリスト")
     ap.add_argument("--style-mode", choices=["illustration", "realistic", "keep"], default="illustration")
+    ap.add_argument("--swap-only", action="store_true", help="既存 images/<index>.png を使ってID差し替えのみ（再生成しない）")
     ap.add_argument("--custom-prompt", default="", help="persona など追加指示（任意）")
     ap.add_argument("--only-allow-draft-substring", required=True, help="必須: 指定文字列をドラフトパスに含まない場合は即エラー")
     ap.add_argument("--skip-full-sync", action="store_true", help="(非推奨/無視されます) draft_info のトラックを上書きしない")
@@ -169,6 +170,8 @@ def main():
         "--style-mode",
         args.style_mode,
     ]
+    if args.swap_only:
+        regen_cmd += ["--swap-only"]
     if args.custom_prompt:
         regen_cmd += ["--custom-prompt", args.custom_prompt]
 

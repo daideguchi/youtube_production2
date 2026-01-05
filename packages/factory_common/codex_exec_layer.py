@@ -140,6 +140,16 @@ def _codex_exec_globally_enabled(cfg: Dict[str, Any]) -> bool:
     if enabled_override is not None and str(enabled_override).strip() != "":
         return _truthy(enabled_override)
 
+    # Optional: numeric exec-slot override (LLM_EXEC_SLOT) when no explicit env override exists.
+    try:
+        from factory_common.llm_exec_slots import codex_exec_enabled_override
+
+        slot_override = codex_exec_enabled_override()
+    except Exception:
+        slot_override = None
+    if slot_override is not None:
+        return bool(slot_override)
+
     if _truthy(cfg.get("enabled")):
         return True
 

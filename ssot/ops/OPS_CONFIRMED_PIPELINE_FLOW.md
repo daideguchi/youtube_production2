@@ -159,17 +159,12 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 5. `script_draft`
    - Outputs:
      - `content/chapters/chapter_1.md` (required, 以後章数分増える想定)
-6. `script_enhancement`
-   - Outputs: なし（内容改善のみ）
-7. `script_review`
+6. `script_review`
    - Outputs:
      - `content/assembled.md` (required)  ※最終Aテキスト
      - `content/final/cta.txt` (optional)
      - `content/final/scenes.json` (optional)
-8. `quality_check`
-   - Outputs:
-     - `content/analysis/research/quality_review.md` (required)
-9. `script_validation`
+7. `script_validation`
    - Outputs:
      - `content/analysis/research/fact_check_report.json` (required)
      - （他は status.json の stage details に結果を記録）
@@ -202,7 +197,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - 出力: `content/analysis/research/fact_check_report.json`
        - CH05/CH22/CH23 は不要（`web_search_policy=disabled` のため既定で無効）
      - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
-10. `audio_synthesis`（Audioフェーズ呼び出し口）
+8. `audio_synthesis`（Audioフェーズ呼び出し口）
    - Outputs（参照先はAudio側で確定）:
      - `audio_prep/script_sanitized.txt` (required)
      - `audio_prep/chunks/` (optional)
@@ -300,7 +295,9 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
      - THINK/AGENT（`LLM_MODE=think|agent`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
        - `visual_image_cues_plan`（single-task）で区間計画→ cues 化
        - `PromptRefiner` はスキップ（stop/resume ループ回避）
-		   - Outputs:
+       - **禁止**: no-LLM のヒューリスティック（辞書/固定プール等）で `visual_focus` を機械生成して続行しない。不足は `pending` で停止→runbookに従って埋めて再実行。
+       - **最重要（意味整合）**: 各cue画像は **そのセクション内容を正確に表現**する（抽象/比喩でも当該セクションの具体に紐づける）。同じ象徴（時計/懐中時計など）の連発や無関係な埋め画像はNG。必要なら `visual_cues_plan.json` を修正してから再実行する。
+		     - Outputs:
 		     - `workspaces/video/runs/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
 		     - `workspaces/video/runs/{run_id}/image_cues.json`
 		     - `workspaces/video/runs/{run_id}/images/0001.png ...`

@@ -1087,6 +1087,53 @@ useEffect(() => {
     });
   }, [assembledDraft, detail.channel, detail.updated_at, detail.video, redoNote, ttsDraft, wrapAction]);
 
+  const handleApplyReviewCommentToScript = useCallback(async () => {
+    const ch = String(detail.channel || "")
+      .trim()
+      .toUpperCase();
+    const vid = String(detail.video || "").trim();
+    const comment = redoNote.trim();
+    if (!ch || !vid) {
+      setError("channel/video が未設定です。");
+      return;
+    }
+    if (!comment) {
+      setError("レビューコメント（メモ）が空です。");
+      return;
+    }
+    await wrapAction("レビューコメント反映（AI）", async () => {
+      const response = await fetch(
+        apiUrl(
+          `/api/channels/${encodeURIComponent(ch)}/videos/${encodeURIComponent(vid)}/script-review/apply`
+        ),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            comment,
+            expected_updated_at: detail.updated_at ?? null,
+          }),
+        }
+      );
+      if (!response.ok) {
+        let reason = `HTTP ${response.status}`;
+        try {
+          const data = (await response.json()) as any;
+          if (typeof data?.detail === "string") reason = data.detail;
+          else if (data?.detail) reason = JSON.stringify(data.detail);
+          else reason = JSON.stringify(data);
+        } catch {
+          /* best effort */
+        }
+        throw new Error(reason);
+      }
+      setMessage("レビューコメントを反映しました。再読み込みします…");
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
+    });
+  }, [detail.channel, detail.updated_at, detail.video, redoNote, wrapAction]);
+
   const handleSaveStatus = useCallback(
     () => wrapAction("案件ステータス", () => onUpdateStatus(statusDraft)),
     [onUpdateStatus, statusDraft, wrapAction]
@@ -2321,6 +2368,15 @@ useEffect(() => {
                     }}
                   >
                     {redoSaving ? "保存中..." : "保存"}
+                  </button>
+                  <button
+                    type="button"
+                    className="workspace-button workspace-button--ghost workspace-button--sm"
+                    disabled={redoSaving || busyAction !== null || !redoNote.trim()}
+                    onClick={() => void handleApplyReviewCommentToScript()}
+                    title="メモ（レビューコメント）を元にAテキストをAIで修正し、assembled_human.mdへ反映します"
+                  >
+                    AIで反映
                   </button>
                 </div>
                 <textarea

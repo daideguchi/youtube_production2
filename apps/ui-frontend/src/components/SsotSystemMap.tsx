@@ -1835,7 +1835,53 @@ export function SsotSystemMap() {
                   {catalog?.llm?.router_config?.path ? (
                     <div className="muted small-text">
                       llm_router: <span className="mono">{String(catalog.llm.router_config.path)}</span>
-                      {catalog?.llm?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.llm.task_overrides.path)}</span> : null}
+                      {catalog?.llm?.task_overrides?.path ? (
+                        <span className="mono">
+                          {" "}
+                          / overrides: {String(catalog.llm.task_overrides.path)}
+                          {catalog.llm.task_overrides.local_path ? ` (+ ${String(catalog.llm.task_overrides.local_path)})` : ""}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {catalog?.llm?.model_slots?.path ? (
+                    <div className="muted small-text">
+                      llm_model_slots: <span className="mono">{String(catalog.llm.model_slots.path)}</span>
+                      {catalog.llm.model_slots.active_slot ? (
+                        <span className="mono">
+                          {" "}
+                          / active: {String(catalog.llm.model_slots.active_slot.id)}
+                          {catalog.llm.model_slots.active_slot.label ? ` (${String(catalog.llm.model_slots.active_slot.label)})` : ""}
+                          {catalog.llm.model_slots.active_slot.source ? ` / source: ${String(catalog.llm.model_slots.active_slot.source)}` : ""}
+                          {typeof catalog.llm.model_slots.active_slot.script_allow_openrouter === "boolean"
+                            ? ` / script_allow_openrouter=${String(catalog.llm.model_slots.active_slot.script_allow_openrouter)}`
+                            : ""}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {catalog?.llm?.model_codes?.path ? (
+                    <div className="muted small-text">
+                      llm_model_codes: <span className="mono">{String(catalog.llm.model_codes.path)}</span>
+                      {typeof catalog.llm.model_codes.codes?.length === "number" ? (
+                        <span className="mono"> / codes: {String(catalog.llm.model_codes.codes.length)}</span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {catalog?.llm?.exec_slots?.path ? (
+                    <div className="muted small-text">
+                      llm_exec_slots: <span className="mono">{String(catalog.llm.exec_slots.path)}</span>
+                      {catalog.llm.exec_slots.active_slot ? (
+                        <span className="mono">
+                          {" "}
+                          / active: {String(catalog.llm.exec_slots.active_slot.id)}
+                          {catalog.llm.exec_slots.active_slot.label ? ` (${String(catalog.llm.exec_slots.active_slot.label)})` : ""}
+                          {catalog.llm.exec_slots.active_slot.source ? ` / source: ${String(catalog.llm.exec_slots.active_slot.source)}` : ""}
+                        </span>
+                      ) : null}
+                      {catalog.llm.exec_slots.effective?.llm_mode ? (
+                        <span className="mono"> / mode: {String(catalog.llm.exec_slots.effective.llm_mode)}</span>
+                      ) : null}
                     </div>
                   ) : null}
                   {catalog?.image?.router_config?.path ? (
@@ -1843,6 +1889,28 @@ export function SsotSystemMap() {
                       image_models: <span className="mono">{String(catalog.image.router_config.path)}</span>
                       {catalog?.image?.task_overrides?.path ? <span className="mono"> / overrides: {String(catalog.image.task_overrides.path)}</span> : null}
                       {catalog?.image?.task_overrides?.profile ? <span className="mono"> / profile: {String(catalog.image.task_overrides.profile)}</span> : null}
+                    </div>
+                  ) : null}
+                  {catalog?.image?.model_slots?.path ? (
+                    <div className="muted small-text">
+                      image_model_slots: <span className="mono">{String(catalog.image.model_slots.path)}</span>
+                      {typeof catalog.image.model_slots.slots?.length === "number" ? (
+                        <span className="mono"> / slots: {String(catalog.image.model_slots.slots.length)}</span>
+                      ) : null}
+                      {Array.isArray(catalog.image.model_slots.active_overrides) && catalog.image.model_slots.active_overrides.length > 0 ? (
+                        <span className="mono">
+                          {" "}
+                          / overrides:{" "}
+                          {catalog.image.model_slots.active_overrides
+                            .map((o) => {
+                              const task = String(o?.task ?? "").trim() || "*";
+                              const selector = String(o?.selector ?? "").trim();
+                              return selector ? `${task}=${selector}` : null;
+                            })
+                            .filter(Boolean)
+                            .join(", ")}
+                        </span>
+                      ) : null}
                     </div>
                   ) : null}
                   {flowSotDecls.length > 0 ? (

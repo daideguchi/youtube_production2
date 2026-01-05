@@ -37,19 +37,19 @@
 ### 2.2 B テキスト/TTS（audio_tts/tts）
 | ステージ | 入力ボリューム | 期待出力 | 推定 Tokens | 呼び出し回数 | 推奨モデル/ tier | 根拠 |
 | --- | --- | --- | --- | --- | --- | --- |
-| tts_annotate (危険トークン注釈) | MeCab トークン列 (3k〜4k 文字想定) + 厳格 JSON ルール | token_annotations JSON | ~3.5k + 1.0k = **4.5k** | 1 | standard → **azure_gpt5_mini** | router 経由の JSON 必須で安定性優先。【F:audio_tts/tts/llm_adapter.py†L113-L198】【F:configs/llm_router.yaml†L125-L134】 |
-| llm_readings_for_candidates | リスク候補ごとに少量文脈 | 読みの JSON | **0.4k**/batch × 5 = **2k** | ~5 | standard → **azure_gpt5_mini** | 短文多数。スループット重視で standard tier。【F:audio_tts/tts/llm_adapter.py†L200-L226】【F:configs/llm_router.yaml†L125-L134】 |
-| tts_segment (SRT 分割) | A テキスト全体 (~12k tokens) を 35–70 文字で分割【F:audio_tts/tts/llm_adapter.py†L26-L47】 | segments JSON | ~12k + 2k = **14k** | 1 | standard → **azure_gpt5_mini** | チャンク化のみ。速度優先。【F:configs/llm_router.yaml†L125-L138】 |
-| tts_pause | segments (~2k 文字) | pause JSON | **2.5k** | 1 | standard → **azure_gpt5_mini** | 短文、安定性重視。【F:audio_tts/tts/llm_adapter.py†L36-L48】【F:configs/llm_router.yaml†L135-L142】 |
-| tts_reading / B_TEXT_GEN | 機械分割された本文 (~12k tokens) | 読み付き B テキスト | **12k + 12k = 24k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 読み修正 + ポーズ挿入で長尺。品質最優先。【F:packages/audio_tts/tts/llm_adapter.py†L144-L218】【F:configs/llm_router.yaml†L139-L146】 |
+| tts_annotate (危険トークン注釈) | MeCab トークン列 (3k〜4k 文字想定) + 厳格 JSON ルール | token_annotations JSON | ~3.5k + 1.0k = **4.5k** | 1 | standard → **or_deepseek_v3_2_exp** | router 経由の JSON 必須で安定性優先。【F:audio_tts/tts/llm_adapter.py†L113-L198】【F:configs/llm_router.yaml†L125-L134】 |
+| llm_readings_for_candidates | リスク候補ごとに少量文脈 | 読みの JSON | **0.4k**/batch × 5 = **2k** | ~5 | standard → **or_deepseek_v3_2_exp** | 短文多数。スループット重視で standard tier。【F:audio_tts/tts/llm_adapter.py†L200-L226】【F:configs/llm_router.yaml†L125-L134】 |
+| tts_segment (SRT 分割) | A テキスト全体 (~12k tokens) を 35–70 文字で分割【F:audio_tts/tts/llm_adapter.py†L26-L47】 | segments JSON | ~12k + 2k = **14k** | 1 | standard → **or_deepseek_v3_2_exp** | チャンク化のみ。速度優先。【F:configs/llm_router.yaml†L125-L138】 |
+| tts_pause | segments (~2k 文字) | pause JSON | **2.5k** | 1 | standard → **or_deepseek_v3_2_exp** | 短文、安定性重視。【F:audio_tts/tts/llm_adapter.py†L36-L48】【F:configs/llm_router.yaml†L135-L142】 |
+| tts_reading / B_TEXT_GEN | 機械分割された本文 (~12k tokens) | 読み付き B テキスト | **12k + 12k = 24k** | 1 | heavy_reasoning → **or_deepseek_v3_2_exp**（thinking必須） | 読み修正 + ポーズ挿入で長尺。品質最優先。【F:packages/audio_tts/tts/llm_adapter.py†L144-L218】【F:configs/llm_router.yaml†L139-L146】 |
 
 **累計目安**: ~47k tokens。script と合わせても 128k 以内だが、B テキスト生成は別ジョブ実行を推奨。
 
 ### 2.3 画像文脈解析（video_pipeline）
 | ステージ | 入力ボリューム | 期待出力 | 推定 Tokens | 呼び出し回数 | 推奨モデル/ tier | 根拠 |
 | --- | --- | --- | --- | --- | --- | --- |
-| visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
-| visual_section_plan | 最大 1000 セグメントを結合（目安 50k chars）【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **azure_gpt5_mini** | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
+| visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **or_deepseek_v3_2_exp**（thinking必須） | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
+| visual_section_plan | 最大 1000 セグメントを結合（目安 50k chars）【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **or_deepseek_v3_2_exp**（thinking必須） | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
 | visual_prompt_refine | セクションごとの短文 (~1k) | 画像プロンプト | **1.5k** | 20–30 (セクション数) | heavy_reasoning → **or_deepseek_v3_2_exp**（fallback: **or_kimi_k2_thinking**） | R1 系は使わない。 |
 | visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。UI/auto は direct/none の 1本道。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】【F:configs/image_models.yaml†L25-L41】 |
 | e2e_smoke | 便宜上の環境ゲート | - | - | - | RUN_E2E_SMOKE=1 でのみ実行 | 重いテストの誤実行防止（ゲートのみ）。 |

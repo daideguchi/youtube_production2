@@ -131,9 +131,17 @@ workspaces/thumbnails/README.md
 - UI/Backend は `/thumbnails/assets/...` を配信する設計で、物理パスは `workspaces/thumbnails/assets/...` を正とする。
 - 標準レイアウト（動画単位）:
   - `workspaces/thumbnails/assets/{CH}/{NNN}/`
-    - SoT（動画差分）: `thumb_spec.json`
+    - SoT（動画差分）:
+      - 推奨: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
+      - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、可能なら stable へ移行する）
+    - SoT（文字・行単位）:
+      - 推奨: `text_line_spec.<stable>.json`
+      - 互換: `text_line_spec.json`
+    - SoT（追加要素・図形/画像など）:
+      - 推奨: `elements_spec.<stable>.json`
+      - 互換: `elements_spec.json`
     - 派生（planning由来）: `planning_meta.json`
-    - 派生（安定出力）: `00_thumb.png`, `10_bg.png` など
+    - 派生（安定出力）: `00_thumb.png` または `00_thumb_1.png` / `00_thumb_2.png`、`10_bg.png`、`20_portrait.png` など
     - 派生（build履歴）: `compiler/<build_id>/out_*.png`, `compiler/<build_id>/build_meta.json`
 - `workspaces/thumbnails/CHxx_<チャンネル名>/...` は旧来の資産配置として残っているため、移行/アーカイブ方針を `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md` と `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` で確定させる。
 - 画像レイヤ/文字レイヤの設計は「Layer Specs（YAML）」で管理できる（例: `CH10_image_prompts_FINAL_v3.yaml`, `CH10_text_layout_FINAL_v3.yaml`）。これはチャンネル固有の中身を持つが、**スキーマ/運用は汎用**で、UI/Compiler が参照する。
@@ -175,6 +183,9 @@ asset
 | `POST /api/auto-draft/create` | `workspaces/video/runs/<run_id>/...` | SRT→画像→CapCutドラフト生成 |
 | `GET /api/workspaces/thumbnails` | `workspaces/thumbnails/projects.json` | サムネSoT |
 | `GET|PUT /api/workspaces/thumbnails/{channel}/templates` | `workspaces/thumbnails/templates.json` | サムネテンプレSoT |
+| `GET|PUT /api/workspaces/thumbnails/{channel}/{video}/thumb-spec` | `workspaces/thumbnails/assets/{CH}/{NNN}/thumb_spec.<stable>.json` | `?stable=00_thumb_1`（未指定はlegacy `thumb_spec.json`） |
+| `GET|PUT /api/workspaces/thumbnails/{channel}/{video}/text-line-spec` | `workspaces/thumbnails/assets/{CH}/{NNN}/text_line_spec.<stable>.json` | `?stable=...`（未指定はlegacy `text_line_spec.json`） |
+| `GET|PUT /api/workspaces/thumbnails/{channel}/{video}/elements-spec` | `workspaces/thumbnails/assets/{CH}/{NNN}/elements_spec.<stable>.json` | `?stable=...`（未指定はlegacy `elements_spec.json`） |
 | `GET /thumbnails/assets/{...}` | `workspaces/thumbnails/assets/...` | 静的配信 |
 
 ## 4. 注意点・既知の問題

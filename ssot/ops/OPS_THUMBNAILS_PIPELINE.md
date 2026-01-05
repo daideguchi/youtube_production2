@@ -20,13 +20,23 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - 各チャンネル/各動画のサムネ案（variants）と `status/notes` を追跡。
 - **Templates SoT**: `workspaces/thumbnails/templates.json`
   - AI生成テンプレ（prompt/model）と、チャンネル別の設定（layer_specs 等）を管理。
-  - `templates[].image_model_key` は背景生成に使う ImageClient の model key（正本: `configs/image_models.yaml: models.*`）。運用既定は `fireworks_flux_kontext_max`。
+  - `templates[].image_model_key` は背景生成に使う ImageClient の **model selector**（model key もしくは slot code）。
+    - model key 正本: `configs/image_models.yaml: models.*`
+    - slot code 正本: `configs/image_model_slots.yaml`（例: `f-4`）
+    - 運用既定（現行）: `fireworks_flux_kontext_max`
   - Fireworks（画像）キー運用（固定）:
     - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
     - キーローテ（任意・推奨）: `~/.ytm/secrets/fireworks_image_keys.txt`
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
       - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
     - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
+
+  - 非常時（Fireworksが使えない/止める必要がある場合）:
+    - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
+    - サムネ背景生成だけ Gemini に切替する場合は、タスク強制で固定する:
+      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
+    - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict が原則）。
+    - 期間が長い場合は `.gitignore` 対象の `configs/*.local.*`（例: `configs/image_models.local.yaml`, `configs/image_model_slots.local.yaml`）で切替してよい（コミットしない）。
 
 ### 1.2 ローカル合成（Compiler）SoT
 - Stylepack（組版スタイル）: `workspaces/thumbnails/compiler/stylepacks/*.yaml`
@@ -62,16 +72,34 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - `00_thumb.png`（“ファイル直参照”運用。CH10など）
 - `compiler/<build_id>/out_01.png`（“build単位”運用。CH07など）
 
-補足（A/Bなど複数案）:
-- `assets/{CH}/{NNN}/00_thumb_1.png`, `00_thumb_2.png` のように、複数の“安定出力”を置いてよい（命名は運用で統一する）。
+補足（2案/複数安定出力）:
+- 原則: サムネの“安定出力”は `00_thumb.png` の1枚運用。
+- 2案（`00_thumb_1/2`）を運用する場合は、各動画あたり **2つの別物**として扱う（片方の調整がもう片方に影響しないこと）。
+  - UI（`/thumbnails`）のギャラリーは `2案（00_thumb_1/2）` 表示で確認する。未生成の案は `未生成` として表示される（生成/調整の入口）。
+  - UI（調整モーダル）のボタン意味:
+    - `保存（設定のみ）`: `thumb_spec.<stable>.json` / `text_line_spec.<stable>.json` / `elements_spec.<stable>.json` を保存（画像PNGは更新しない）
+    - `保存して再生成（PNG更新）`: 上記を保存した上で `00_thumb_<n>.png` を再生成して反映する
+  - 例: CH26 は `00_thumb_1/00_thumb_2` を前提に運用する（30枚×2=60枚）。
+- `assets/{CH}/{NNN}/00_thumb_1.png`, `00_thumb_2.png` のように、複数の安定出力を置いてよい（命名は運用で統一する）。
 - 追跡は `projects.json: projects[].variants` に登録し、UI（`/thumbnails`）のギャラリーで `2案（00_thumb_1/2）` または `全バリアント` 表示で確認する。
-- “安定出力が複数ある”場合は、**調整（tuning）のSoTも出力ごとに分離**する（ABを混線させない）。
+- “安定出力が複数ある”場合は、**調整（tuning）のSoTも出力ごとに分離**する（混線禁止）。
+  - 互換ルール（重要）:
+    - 旧フォーマット（`thumb_spec.json`, `text_line_spec.json`, `elements_spec.json`）は当面残る。
+    - **暗黙fallbackは禁止**（混線事故の温床）。例外として **`00_thumb_1` のみ**旧ファイルへ fallback してよい。
+    - `00_thumb_2` は旧ファイルを **絶対に継承しない**（存在しない場合は “空” として扱う）。
   - `assets/{CH}/{NNN}/thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
     - schema: `ytm.thumbnail.thumb_spec.v1`（中身は通常の `thumb_spec.json` と同じ）
     - 背景/肖像/文字effects/template選択などの “leaf overrides” を安定出力ごとに独立保持する。
+    - 重要: 2案の混線防止のため、**`00_thumb_2` の既定は `overrides.portrait.enabled=false`**（必要なら `thumb_spec.00_thumb_2.json` で明示的にON）。
+      - CH26 は背景に顔が含まれることがあるため、`overrides.portrait.enabled=true` の間は “背景の顔を抑制” (`overrides.portrait.suppress_bg`) を強制ON（ダブルフェイス事故防止）。
+        - 抑制領域は `overrides.portrait.offset_(x|y)` に追従する（UIプレビュー/ビルド両方）。
   - `assets/{CH}/{NNN}/text_line_spec.<stable>.json`（例: `text_line_spec.00_thumb_1.json`）
     - schema: `ytm.thumbnail.text_line_spec.v1`
-    - **文字を行（slot）単位**で “位置/拡大縮小” を保持する（Canva寄せのため）。
+    - **文字を行（slot）単位**で “位置/拡大縮小/回転” を保持する（Canva寄せのため）。
+  - `assets/{CH}/{NNN}/elements_spec.<stable>.json`（例: `elements_spec.00_thumb_1.json`）
+    - schema: `ytm.thumbnail.elements_spec.v1`
+    - 図形/画像などの追加要素を保持する（Canva基本機能に寄せる）。
+    - layer: `below_portrait|above_portrait`, かつ z で整列し、**最終は文字が最前面**（画像の上に文字）。
 
 ---
 
@@ -247,7 +275,7 @@ A/B（2案）で安定出力名を分けたい場合:
   - `packages/script_pipeline/thumbnails/tools/layer_specs_builder.py` は `bg_zoom/bg_pan_*` を **CLI引数からのみ**受け取り、チャンネル別SoTが無い。
 - 現行（対応済 / 2025-12-30）:
   - チャンネル既定: `templates.json.channels[CHxx].compiler_defaults.bg_pan_zoom` を読み、未指定（既定値）の場合に適用する。
-  - 動画差分: `workspaces/thumbnails/assets/{CH}/{NNN}/thumb_spec.json: overrides.bg_pan_zoom.*` に寄せる。
+  - 動画差分: `workspaces/thumbnails/assets/{CH}/{NNN}/thumb_spec.<stable>.json: overrides.bg_pan_zoom.*` に寄せる（legacy: `thumb_spec.json`）。
   - build履歴メタは `compiler/<build_id>/build_meta.json` に分離（legacy `meta.json` は上書きされない）。
 
 確認ワンライナー（混在チェック）:
@@ -257,7 +285,7 @@ A/B（2案）で安定出力名を分けたい場合:
 
 - 観測: `workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1.yaml` の `items[].text` が空で、build時に planning CSV の `サムネタイトル上/サムネタイトル/サムネタイトル下` を **空欄のみ注入**する設計（`packages/script_pipeline/thumbnails/tools/layer_specs_builder.py:_load_planning_copy()`）。
 - 影響: 「どのコピーがSoTか」が見えにくく、CSV側の未更新/空欄があると、thumbが空文字になって原因切り分けに時間が掛かる。
-- 現行（対応済 / 2025-12-30）: 動画差分のコピー例外は `thumb_spec.json: overrides.copy_override.{upper,title,lower}` で上書き可能（CSVの空欄事故を局所化する）。
+- 現行（対応済 / 2025-12-30）: 動画差分のコピー例外は `thumb_spec.<stable>.json: overrides.copy_override.{upper,title,lower}` で上書き可能（legacy: `thumb_spec.json`。CSVの空欄事故を局所化する）。
 
 ### 9.3 build が Planning CSV を動画ごとに都度ロードしている（バッチが遅い）
 
@@ -276,7 +304,7 @@ A/B（2案）で安定出力名を分けたい場合:
 - 影響: 「画像を下に」等の指示が、毎回 CLI の手動パラメータに依存して混在し、結果がカオス化する。
 - 現行（対応済 / 2025-12-30）:
   - チャンネル既定は `templates.json.channels[CHxx].compiler_defaults`（bg_pan_zoom/bg_enhance/bg_enhance_band）へ寄せる。
-  - 動画差分は `thumb_spec.json`（overrides.*）へ寄せる。
+  - 動画差分は `thumb_spec.<stable>.json`（overrides.*）へ寄せる（legacy: `thumb_spec.json`）。
 
 ---
 
