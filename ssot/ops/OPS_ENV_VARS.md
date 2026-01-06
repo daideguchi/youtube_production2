@@ -21,9 +21,23 @@
     - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`（THINK MODE: pendingを作る）
     - `./scripts/with_ytm_env.sh --exec-slot 1 python3 ...`（codex exec を強制ON）
     - `./scripts/with_ytm_env.sh x3 2 python3 ...`（shorthand: `xN`=exec slot, `N`=model slot）
-  - 優先順位:
-    - 明示の env（`LLM_MODE` / `YTM_CODEX_EXEC_*` / `LLM_API_FAILOVER_TO_THINK` 等）がある場合は **それが勝つ**
+  - 優先順位（互換/緊急用）:
+    - `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` のときだけ、明示の env（`LLM_MODE` / `YTM_CODEX_EXEC_*` / `LLM_API_FAILOVER_TO_THINK` 等）が勝つ
+    - 通常運用（lockdown ON）では、これらの env は **検出した時点で停止**（ブレ防止）。slot を使う
     - slot は「安全なデフォルト」として適用される
+- **運用ロック（ブレ防止）**: `YTM_ROUTING_LOCKDOWN=1`（default: ON）
+  - 目的: どのAIエージェントが実行しても「同じスロット/コードなら同じルーティング」になるように、**上書き経路を潰す**
+  - ON のとき、次の “非スロット上書き” は **検出した時点で停止**（事故防止）:
+    - モデル系: `LLM_FORCE_MODELS` / `LLM_FORCE_MODEL`（※数字だけならslot互換として許可） / `LLM_FORCE_TASK_MODELS_JSON`
+    - 実行系: `LLM_MODE` / `LLM_API_FAILOVER_TO_THINK` / `LLM_API_FALLBACK_TO_THINK` / `YTM_CODEX_EXEC_*`
+  - SSOT保護: `configs/llm_task_overrides.yaml` は運用中に書き換えない（モデル名の書き換え事故防止）
+    - ロックダウンONでは「未コミット差分がある」だけで停止する（`scripts/with_ytm_env.sh` / 主要entrypointで検知）
+    - 禁止モデル（例）: `az-gpt5-mini-1` / `azure_gpt5_mini` は task overrides 経由での利用を **完全禁止**（fallbackでも不可）
+  - 代わりに使うレバー:
+    - どのモデル系統で回すか → `LLM_MODEL_SLOT`（数字）
+    - どこで動かすか → `LLM_EXEC_SLOT`（数字）
+    - 画像 → `g-1` / `f-1` / `f-3` / `f-4`（`configs/image_model_slots.yaml`）
+  - 緊急デバッグだけ例外: `YTM_EMERGENCY_OVERRIDE=1`（この実行だけロック解除。通常運用では使わない）
 - 画像モデル選択は **短いslot code**（例: `g-1`, `f-4`）で行う（`image_models.yaml` の書き換え禁止）。
   - スロット定義: `configs/image_model_slots.yaml`（個別調整: `configs/image_model_slots.local.yaml`）
   - 適用先:
@@ -261,6 +275,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - 任意のローカル上書き: `configs/codex_exec.local.yaml`
 
 ### 環境変数（任意）
+- 注意: 通常運用では `YTM_ROUTING_LOCKDOWN=1` のため、`YTM_CODEX_EXEC_*` の直接上書きは **検出した時点で停止**する。切替は `LLM_EXEC_SLOT=1/2` と `configs/codex_exec*.yaml` を使う（緊急デバッグのみ `YTM_EMERGENCY_OVERRIDE=1`）。
 - `YTM_CODEX_EXEC_ENABLED`（override）: `1` で強制ON / `0` で強制OFF（未設定なら `configs/codex_exec.yaml` と `CODEX_MANAGED_BY_NPM` に従う）
 - `YTM_CODEX_EXEC_DISABLE`（default: `0`）: `1` で強制OFF（緊急停止用）
 - `YTM_CODEX_EXEC_ENABLE_IN_PYTEST`（default: `0`）: `1` のときだけ pytest 中の Codex exec を許可（既定はテスト安定のためOFF）
@@ -286,11 +301,12 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
 
-### 切替
-- `LLM_MODE`:
-  - `api`（デフォルト）: 通常どおり API LLM を呼ぶ
-  - `agent`: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る
-  - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら `script_/tts_/visual_/title_/belt_` を安全デフォルトで intercept（`image_generation` 等は除外）
+### 切替（推奨: exec-slot）
+- `LLM_EXEC_SLOT`:
+  - `0`（デフォルト）: 通常どおり API LLM を呼ぶ
+  - `3`（THINK MODE）: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る（安全デフォルトで intercept）
+  - `4`（AGENT MODE）: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る（明示）
+- 互換/緊急用: `LLM_MODE=api|agent|think`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
 
 ### キュー配置
 - `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`
@@ -315,7 +331,7 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - THINK MODE（一発）:
   - `./scripts/think.sh --all-text -- python -m script_pipeline.cli run-all --channel CH06 --video 033`
 - agent-mode（手動）:
-  - `export LLM_MODE=agent`
+  - `export LLM_EXEC_SLOT=4`
   - `export LLM_AGENT_TASK_PREFIXES=script_`
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033`
 
@@ -327,11 +343,9 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - 任意: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
 
 ## 重要ルール: 非`script_*` は API LLM が死んだら THINK MODE で続行（`script_*` は例外）
-- `LLM_API_FAILOVER_TO_THINK`（任意）:
-  - **デフォルト有効**（未設定でもON）
-  - API LLM が失敗したら、非`script_*` は自動で pending を作って停止（= THINK MODEで続行できる状態にする）
-  - `script_*` は例外: pending を作らず停止（台本はAPIのみ。失敗時は原因特定→キー/課金/設定を直して再実行）
-  - 無効化: `LLM_API_FAILOVER_TO_THINK=0`
+- デフォルト: **有効**（未設定でもON）
+- 無効化（推奨）: `LLM_EXEC_SLOT=5`（api_failover_off。非scriptのみ。`script_*` は例外で停止）
+- 互換/緊急: `LLM_API_FAILOVER_TO_THINK=0`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
 - `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
 
 ### 失敗時に見る場所

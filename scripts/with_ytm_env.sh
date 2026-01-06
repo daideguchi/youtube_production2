@@ -28,6 +28,14 @@ set +a
 : "${YTM_WEB_SEARCH_PROVIDER:=disabled}"
 export YTM_WEB_SEARCH_PROVIDER
 
+# Routing lockdown (default: ON) to prevent ad-hoc overrides that cause drift across agents.
+# - Set YTM_ROUTING_LOCKDOWN=0 to temporarily restore legacy behavior.
+# - Set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging (not for normal ops).
+: "${YTM_ROUTING_LOCKDOWN:=1}"
+: "${YTM_EMERGENCY_OVERRIDE:=0}"
+export YTM_ROUTING_LOCKDOWN
+export YTM_EMERGENCY_OVERRIDE
+
 # Optional: numeric slots (operator-friendly; avoids editing configs).
 #
 # - LLM model slot (what model code each tier uses):
@@ -102,6 +110,75 @@ while [[ $# -ge 1 ]]; do
       ;;
   esac
 done
+
+# Hard-stop on forbidden overrides (drift prevention).
+if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]]; then
+  # SSOT integrity guard: under lockdown we do not allow ad-hoc edits to model routing configs.
+  # (This prevents "someone rewrote the model YAML" drift across agents.)
+  if command -v git >/dev/null 2>&1; then
+    if ! git -C "$ROOT_DIR" diff --quiet -- "configs/llm_task_overrides.yaml" 2>/dev/null; then
+      echo "❌ [LOCKDOWN] Uncommitted changes detected: configs/llm_task_overrides.yaml" >&2
+      echo "    モデル/タスク上書きの書き換えは禁止です。slot/code 運用に戻し、revert してください。" >&2
+      echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+      exit 3
+    fi
+  fi
+  # Hard-ban: azure_gpt5_mini must never be selected via task overrides (fallbackでも不可).
+  if [[ -f "$ROOT_DIR/configs/llm_task_overrides.yaml" ]]; then
+    if grep -qE "az-gpt5-mini-1|azure_gpt5_mini" "$ROOT_DIR/configs/llm_task_overrides.yaml"; then
+      echo "❌ [LOCKDOWN] Forbidden model key detected in configs/llm_task_overrides.yaml: az-gpt5-mini-1" >&2
+      echo "    このモデルは使用禁止です（fallbackでも不可）。slot/code のみで運用し、設定を戻してください。" >&2
+      exit 3
+    fi
+  fi
+  if [[ -n "${LLM_MODE:-}" ]]; then
+    echo "❌ [LOCKDOWN] LLM_MODE is forbidden. Use LLM_EXEC_SLOT / --exec-slot instead." >&2
+    exit 3
+  fi
+  if [[ -n "${LLM_API_FAILOVER_TO_THINK:-}" || -n "${LLM_API_FALLBACK_TO_THINK:-}" ]]; then
+    echo "❌ [LOCKDOWN] LLM_API_FAILOVER_TO_THINK is forbidden. Use LLM_EXEC_SLOT (e.g. slot 5 = failover OFF)." >&2
+    exit 3
+  fi
+  FORCE_ALL="${LLM_FORCE_MODELS:-${LLM_FORCE_MODEL:-}}"
+  if [[ -n "${FORCE_ALL}" && ! "${FORCE_ALL}" =~ ^[0-9]+$ ]]; then
+    echo "❌ [LOCKDOWN] LLM_FORCE_MODELS is forbidden. Use LLM_MODEL_SLOT / --llm-slot instead." >&2
+    exit 3
+  fi
+  if [[ -n "${LLM_FORCE_TASK_MODELS_JSON:-}" ]]; then
+    echo "❌ [LOCKDOWN] LLM_FORCE_TASK_MODELS_JSON is forbidden. Use SSOT task routing + slots instead." >&2
+    exit 3
+  fi
+  if [[ -n "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" ]]; then
+    _v="$(printf '%s' "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "${_v}" != "" && "${_v}" != "0" && "${_v}" != "false" && "${_v}" != "no" && "${_v}" != "off" ]]; then
+      echo "❌ [LOCKDOWN] YTM_SCRIPT_ALLOW_OPENROUTER is forbidden. Use LLM_MODEL_SLOT (slotの script_allow_openrouter) instead." >&2
+      echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+      exit 3
+    fi
+  fi
+  if [[ -n "${LLM_ENABLE_TIER_CANDIDATES_OVERRIDE:-}" ]]; then
+    _v="$(printf '%s' "${LLM_ENABLE_TIER_CANDIDATES_OVERRIDE:-}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "${_v}" != "" && "${_v}" != "0" && "${_v}" != "false" && "${_v}" != "no" && "${_v}" != "off" ]]; then
+      echo "❌ [LOCKDOWN] LLM_ENABLE_TIER_CANDIDATES_OVERRIDE is forbidden. Use slots/codes only (no hidden tier swap)." >&2
+      echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+      exit 3
+    fi
+  fi
+  for v in \
+    YTM_CODEX_EXEC_DISABLE \
+    YTM_CODEX_EXEC_ENABLED \
+    YTM_CODEX_EXEC_PROFILE \
+    YTM_CODEX_EXEC_SANDBOX \
+    YTM_CODEX_EXEC_TIMEOUT_S \
+    YTM_CODEX_EXEC_MODEL \
+    YTM_CODEX_EXEC_EXCLUDE_TASKS \
+    YTM_CODEX_EXEC_ENABLE_IN_PYTEST; do
+    if [[ -n "${!v:-}" ]]; then
+      echo "❌ [LOCKDOWN] ${v} is forbidden. Use LLM_EXEC_SLOT + configs/codex_exec.yaml instead." >&2
+      exit 3
+    fi
+  done
+fi
 if [[ $# -eq 0 ]]; then
   echo "✅ Environment loaded. Run commands like: ./scripts/with_ytm_env.sh python3 ..." >&2
   exit 0

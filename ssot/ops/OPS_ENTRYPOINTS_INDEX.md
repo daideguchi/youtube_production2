@@ -28,6 +28,10 @@
       - デフォルト: OFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）
       - ON時の既定: provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）
       - CLI上書き: `--broll-provider {none|pixel|pexels|pixabay|coverr} --broll-ratio 0.2`（要env: `PEXELS_API_KEY` / `PIXABAY_API_KEY` / `COVERR_API_KEY`）
+    - CH02（既定mix）: gemini:schnell:フリー動画 = `4:3:3`
+      - SoT: `configs/sources.yaml: channels.CH02.image_source_mix`
+      - 適用: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix --run <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
+      - 画像生成を止めている場合: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_cues --run <run_dir> --only-missing` → `auto_capcut_run --resume` でドラフト再構築
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - 最小（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`

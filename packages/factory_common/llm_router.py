@@ -25,6 +25,7 @@ from factory_common.llm_api_cache import (
 from factory_common.codex_exec_layer import try_codex_exec
 from factory_common import fireworks_keys
 from factory_common.paths import logs_root, repo_root, secrets_root
+from factory_common.routing_lockdown import assert_env_absent
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -1264,6 +1265,17 @@ class LLMRouter:
         def _truthy_env(name: str) -> bool:
             return (os.getenv(name) or "").strip().lower() in ("1", "true", "yes", "y", "on")
 
+        # Under routing lockdown (default ON), forbid env overrides that can silently change routing.
+        # Switching must happen via numeric slots/codes only.
+        assert_env_absent(
+            [
+                "YTM_SCRIPT_ALLOW_OPENROUTER",
+                "LLM_ENABLE_TIER_CANDIDATES_OVERRIDE",
+            ],
+            context=f"llm_router.get_models_for_task({task})",
+            hint="Use LLM_MODEL_SLOT (and slot's script_allow_openrouter) for routing. Debug only: YTM_EMERGENCY_OVERRIDE=1.",
+        )
+
         allow_openrouter_for_scripts = self._model_slot_allows_openrouter_for_scripts()
 
         def _filter_disallowed_models(task_name: str, task_tier: str, candidates: List[str]) -> List[str]:
@@ -1579,12 +1591,24 @@ class LLMRouter:
             (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
             or (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
         )
+        # Treat model-slot routing as "strict" only when the operator explicitly selected a slot.
+        #
+        # Rationale:
+        # - Slot 0 is the default baseline mapping (tier → model) and should not disable the
+        #   optional Codex exec first layer.
+        # - When LLM_MODEL_SLOT is explicitly set (or legacy numeric LLM_FORCE_MODELS is used),
+        #   the caller intent is "pin models", so we keep strict behavior.
         slot_forced_models = False
-        try:
-            tier_for_slot = override_conf.get("tier") or task_conf.get("tier") or "standard"
-            slot_forced_models = self._model_slot_models_raw(task=task, tier=str(tier_for_slot)) is not None
-        except Exception:
-            slot_forced_models = False
+        slot_override_active = (os.getenv("LLM_MODEL_SLOT") or "").strip() != ""
+        if not slot_override_active:
+            forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
+            slot_override_active = forced_all.isdigit()
+        if slot_override_active:
+            try:
+                tier_for_slot = override_conf.get("tier") or task_conf.get("tier") or "standard"
+                slot_forced_models = self._model_slot_models_raw(task=task, tier=str(tier_for_slot)) is not None
+            except Exception:
+                slot_forced_models = False
         conf_allow_fallback = None
         if isinstance(override_conf, dict) and "allow_fallback" in override_conf:
             conf_allow_fallback = override_conf.get("allow_fallback")
@@ -1799,55 +1823,54 @@ class LLMRouter:
         # - Runs `codex exec --sandbox read-only` to avoid writing to the repo/workspaces.
         # - If Codex is unavailable or output is invalid, fall back to the existing API router path.
         routing: Dict[str, Any] | None = None
-        if not strict_model_selection:
-            codex_content, codex_meta = try_codex_exec(
-                task=task,
-                messages=messages,  # type: ignore[arg-type]
-                response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
-            )
-            if codex_meta.get("attempted") and codex_content is not None:
-                latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
+        codex_content, codex_meta = try_codex_exec(
+            task=task,
+            messages=messages,  # type: ignore[arg-type]
+            response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
+        )
+        if codex_meta.get("attempted") and codex_content is not None:
+            latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
+            task_id = None
+            try:
+                task_id = _api_cache_task_id(task, messages, base_options)
+            except Exception:
                 task_id = None
-                try:
-                    task_id = _api_cache_task_id(task, messages, base_options)
-                except Exception:
-                    task_id = None
-                req_id = f"codex_exec:{task_id}" if task_id else "codex_exec"
-                model_label = str((codex_meta or {}).get("model") or "default")
-                chain = ["codex_exec"]
-                self._log_usage(
-                    {
-                        "status": "success",
-                        "task": task,
-                        "task_id": str(task_id) if task_id else None,
-                        "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
-                        "model": f"codex:{model_label}",
-                        "provider": "codex_exec",
-                        "chain": chain,
-                        "latency_ms": latency_ms,
-                        "usage": {},
-                        "request_id": req_id,
-                        "finish_reason": "stop",
-                        "retry": None,
-                        "routing": {"codex_exec": codex_meta},
-                        "timestamp": time.time(),
-                    }
-                )
-                return {
-                    "content": codex_content,
-                    "raw": {"provider": "codex_exec", "meta": codex_meta} if return_raw else None,
-                    "usage": {},
-                    "request_id": req_id,
+            req_id = f"codex_exec:{task_id}" if task_id else "codex_exec"
+            model_label = str((codex_meta or {}).get("model") or "default")
+            chain = ["codex_exec"]
+            self._log_usage(
+                {
+                    "status": "success",
+                    "task": task,
+                    "task_id": str(task_id) if task_id else None,
+                    "routing_key": (os.getenv("LLM_ROUTING_KEY") or "").strip() or None,
                     "model": f"codex:{model_label}",
                     "provider": "codex_exec",
                     "chain": chain,
                     "latency_ms": latency_ms,
+                    "usage": {},
+                    "request_id": req_id,
                     "finish_reason": "stop",
                     "retry": None,
+                    "routing": {"codex_exec": codex_meta},
+                    "timestamp": time.time(),
                 }
-            if codex_meta.get("attempted") and codex_content is None:
-                routing = routing or {}
-                routing["codex_exec"] = codex_meta
+            )
+            return {
+                "content": codex_content,
+                "raw": {"provider": "codex_exec", "meta": codex_meta} if return_raw else None,
+                "usage": {},
+                "request_id": req_id,
+                "model": f"codex:{model_label}",
+                "provider": "codex_exec",
+                "chain": chain,
+                "latency_ms": latency_ms,
+                "finish_reason": "stop",
+                "retry": None,
+            }
+        if codex_meta.get("attempted") and codex_content is None:
+            routing = routing or {}
+            routing["codex_exec"] = codex_meta
 
         # Optional: split traffic between Azure and non-Azure providers (roughly).
         # - Enable via env: LLM_AZURE_SPLIT_RATIO=0.5

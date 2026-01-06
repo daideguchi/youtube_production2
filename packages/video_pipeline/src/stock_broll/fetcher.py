@@ -27,6 +27,16 @@ def normalize_query(query: str) -> str:
     return q
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return int(default)
+    try:
+        return int(raw)
+    except Exception:
+        return int(default)
+
+
 def _cache_key(provider: str, params: Dict[str, Any]) -> str:
     raw = json.dumps({"provider": provider, "params": params}, sort_keys=True, ensure_ascii=False).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
@@ -128,8 +138,17 @@ def _score_candidate(
     score = 0.0
 
     # Resolution
-    score += min(c.width / max(min_w, 1), 4.0) * 10.0
-    score += min(c.height / max(min_h, 1), 4.0) * 6.0
+    # Prefer sufficient resolution, but avoid oversized sources (e.g. 4K) which waste bandwidth/disk.
+    # Cap is operator-configurable to match the timeline export (default: 1920x1080).
+    max_w = _env_int("YTM_BROLL_MAX_W", 1920)
+    max_h = _env_int("YTM_BROLL_MAX_H", 1080)
+    eff_w = min(int(c.width or 0), max_w) if max_w > 0 else int(c.width or 0)
+    eff_h = min(int(c.height or 0), max_h) if max_h > 0 else int(c.height or 0)
+    score += min(eff_w / max(min_w, 1), 4.0) * 10.0
+    score += min(eff_h / max(min_h, 1), 4.0) * 6.0
+    if max_w > 0 and max_h > 0 and (int(c.width or 0) > max_w or int(c.height or 0) > max_h):
+        over = max((int(c.width or 0) / max_w) if max_w else 1.0, (int(c.height or 0) / max_h) if max_h else 1.0)
+        score -= 12.0 * max(0.0, over - 1.0)
 
     # Aspect ratio
     ar = _aspect_ratio_bucket(c.width, c.height)
@@ -238,8 +257,6 @@ def pexels_video_candidates(payload: Dict[str, Any]) -> List[StockVideoCandidate
         preview = str(v.get("image") or "")
 
         files = v.get("video_files", []) or []
-        # Prefer the largest mp4
-        best = None  # (area, w, h, link)
         for f in files:
             if str(f.get("file_type") or "").lower() != "video/mp4":
                 continue
@@ -248,28 +265,21 @@ def pexels_video_candidates(payload: Dict[str, Any]) -> List[StockVideoCandidate
             link = str(f.get("link") or "")
             if not link:
                 continue
-            area = w * h
-            if best is None or area > best[0]:
-                best = (area, w, h, link)
-
-        if best is None:
-            continue
-
-        out.append(
-            StockVideoCandidate(
-                provider="pexels",
-                provider_id=vid,
-                page_url=page_url,
-                creator=creator,
-                width=best[1],
-                height=best[2],
-                duration_sec=duration,
-                download_url=best[3],
-                preview_url=preview,
-                license_note="Pexels: show source/credit when displaying search results (see docs).",
-                raw=v,
+            out.append(
+                StockVideoCandidate(
+                    provider="pexels",
+                    provider_id=vid,
+                    page_url=page_url,
+                    creator=creator,
+                    width=w,
+                    height=h,
+                    duration_sec=duration,
+                    download_url=link,
+                    preview_url=preview,
+                    license_note="Pexels: show source/credit when displaying search results (see docs).",
+                    raw=v,
+                )
             )
-        )
     return out
 
 
@@ -543,4 +553,3 @@ def fetch_best_stock_video(
         return out_path, meta
 
     raise ValueError(f"Unknown broll provider: {provider}")
-

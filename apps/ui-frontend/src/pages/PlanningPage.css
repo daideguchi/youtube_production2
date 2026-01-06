@@ -248,6 +248,34 @@
   position: relative;
 }
 
+.planning-page__thumbs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 32px);
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.planning-page__thumb--tiny {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  padding: 0;
+}
+
+.planning-page__thumb-slot {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  background: rgba(0, 0, 0, 0.68);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 1px 5px;
+  border-radius: 999px;
+}
+
 .planning-page__thumb img {
   width: 100%;
   height: 100%;

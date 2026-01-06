@@ -14,13 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 def is_think_or_agent_mode() -> bool:
-    try:
-        from factory_common.llm_exec_slots import effective_llm_mode
+    from factory_common.llm_exec_slots import effective_llm_mode
 
-        mode = effective_llm_mode()
-    except Exception:
-        mode = (os.getenv("LLM_MODE") or "").strip().lower()
-    return mode in ("think", "agent")
+    return effective_llm_mode() in ("think", "agent")
 
 
 def _truncate(text: str, limit: int) -> str:

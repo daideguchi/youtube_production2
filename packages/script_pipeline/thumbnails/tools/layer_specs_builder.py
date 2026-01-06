@@ -1355,12 +1355,23 @@ def build_channel_thumbnails(
                     )
                     suppress_box_px = dest_box_px
                     if portrait_offset_px != (0, 0):
-                        suppress_box_px = (
+                        shifted_box_px = (
                             int(dest_box_px[0]) + int(portrait_offset_px[0]),
                             int(dest_box_px[1]) + int(portrait_offset_px[1]),
                             int(dest_box_px[2]),
                             int(dest_box_px[3]),
                         )
+                        left = min(int(dest_box_px[0]), int(shifted_box_px[0]))
+                        top = min(int(dest_box_px[1]), int(shifted_box_px[1]))
+                        right = max(
+                            int(dest_box_px[0]) + int(dest_box_px[2]),
+                            int(shifted_box_px[0]) + int(shifted_box_px[2]),
+                        )
+                        bottom = max(
+                            int(dest_box_px[1]) + int(dest_box_px[3]),
+                            int(shifted_box_px[1]) + int(shifted_box_px[3]),
+                        )
+                        suppress_box_px = (left, top, max(1, right - left), max(1, bottom - top))
                     suppress_bg = bool(overrides_leaf.get("overrides.portrait.suppress_bg", ch == "CH26"))
                     # CH26 backgrounds may already contain a portrait; when portrait is enabled we must suppress it.
                     if ch == "CH26":

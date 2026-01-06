@@ -27,6 +27,27 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - THINK MODE で回す（例）: `g-1_script-main-1_g-1@x3`
   - 意味: `LLM_EXEC_SLOT=3`（`configs/llm_exec_slots.yaml`）
 
+### 0.1 コード早見表（画像）
+
+| code | 意味 | ざっくり用途 |
+|---|---|---|
+| `g-1` | Gemini（画像生成） | いま安定して通る前提 |
+| `f-1` | FLUX schnell | 速い（動画内画像のデフォ候補） |
+| `f-3` | FLUX pro | 高品質（動画内画像の候補） |
+| `f-4` | FLUX max | 最高品質（サムネ/重要シーン向け） |
+
+### 0.2 `@xN`（実行モード）早見表
+
+| `@xN` | 意味 |
+|---|---|
+| `@x0` | 通常（LLM API） |
+| `@x3` | THINK（エージェントが代行 / pending） |
+
+### 0.3 台本（`script_*`）は基本 “共通” です
+
+- チャンネルごとに台本モデルを切り替える運用は **基本しない**（ブレ防止）。
+- 台本の固定は `configs/llm_task_overrides.yaml` / 数字スロットで統制する（モデル名/YAML書き換え運用をしない）。
+
 注:
 
 - 画像は `IMAGE_CLIENT_FORCE_MODEL_KEY_*` による **実行時 override** があるため、UIでは `effective` と `config` を併記する。

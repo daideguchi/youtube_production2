@@ -39,7 +39,14 @@ channels:
     video_broll:
       enabled: false
       provider: pexels
-      ratio: 0.2
+      ratio: 0.3
+    image_source_mix:
+      enabled: true
+      weights: "4:3:3" # gemini:schnell:free
+      gemini_model_key: g-1
+      schnell_model_key: f-1
+      broll_provider: pexels
+      broll_min_gap_sec: 60.0
   CH03:
     planning_csv: workspaces/planning/channels/CH03.csv
     persona: workspaces/planning/personas/CH03_PERSONA.md

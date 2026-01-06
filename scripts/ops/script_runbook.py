@@ -45,6 +45,11 @@ from scripts.ops._bootstrap import bootstrap
 
 bootstrap(load_env=True)
 
+from factory_common.routing_lockdown import (  # noqa: E402
+    assert_no_llm_model_overrides,
+    assert_task_overrides_unchanged,
+    lockdown_active,
+)
 from factory_common.paths import logs_root, repo_root, script_pkg_root  # noqa: E402
 from factory_common.llm_router import get_router  # noqa: E402
 from script_pipeline.runner import ensure_status, reconcile_status, reset_video, run_next, run_stage  # noqa: E402
@@ -118,6 +123,11 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
             if len(flattened) == 1 and flattened[0].isdigit():
                 os.environ["LLM_MODEL_SLOT"] = flattened[0]
             else:
+                if lockdown_active():
+                    raise SystemExit(
+                        "Forbidden: --llm-model with non-numeric values under YTM_ROUTING_LOCKDOWN=1. "
+                        "Use --llm-slot (numeric) instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+                    )
                 os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
 
     if getattr(args, "llm_task_model", None):
@@ -137,6 +147,11 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
                 raise SystemExit(f"--llm-task-model models are empty: {spec}")
             mapping[task] = model_keys
         if mapping:
+            if lockdown_active():
+                raise SystemExit(
+                    "Forbidden: --llm-task-model under YTM_ROUTING_LOCKDOWN=1. "
+                    "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead."
+                )
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
 
@@ -1360,6 +1375,8 @@ def main() -> int:
     seed_p.set_defaults(func=cmd_seed_expand)
 
     args = ap.parse_args()
+    assert_no_llm_model_overrides(context="script_runbook.py (startup)")
+    assert_task_overrides_unchanged(context="script_runbook.py (startup)")
     _apply_llm_overrides_from_args(args)
     return int(args.func(args))
 

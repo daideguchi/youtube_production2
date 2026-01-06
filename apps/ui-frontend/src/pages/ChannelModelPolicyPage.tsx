@@ -4,6 +4,7 @@ import { fetchImageModelRouting, fetchSsotCatalog } from "../api/client";
 import { getFireworksKeyStatus } from "../api/llmUsage";
 import type { ChannelImageModelRouting, ChannelSummary, ImageModelRoutingSelection, ImageModelRoutingResponse, SsotCatalog } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import "./ChannelModelPolicyPage.css";
 
 function normalizeKey(value?: string | null): string {
   return (value ?? "").trim();
@@ -95,13 +96,75 @@ function canonicalizeImageCode(raw: string | null | undefined, canonicalById: Re
   return canonicalById[s] ?? s;
 }
 
-function describeImageCode(code: string, byId: Record<string, ImageSlotMeta>): string {
-  const meta = byId[code];
-  if (!meta) return "";
-  const label = meta.label || "";
-  const desc = meta.description || "";
-  if (label && desc) return `${label} · ${desc}`;
-  return label || desc || "";
+function humanImageCodeTitle(code: string): string {
+  const c = String(code ?? "").trim();
+  if (!c) return "未設定";
+  if (c === "g-1") return "Gemini（画像生成）";
+  if (c === "f-1") return "FLUX schnell（速い）";
+  if (c === "f-3") return "FLUX pro（高品質）";
+  if (c === "f-4") return "FLUX max（最高品質）";
+  return c;
+}
+
+function humanImageCodeHint(code: string): string {
+  const c = String(code ?? "").trim();
+  if (!c) return "";
+  if (c === "g-1") return "いまはこれが安定して通る前提";
+  if (c === "f-1") return "速度重視（動画内画像のデフォルト候補）";
+  if (c === "f-3") return "品質重視（動画内画像の候補）";
+  if (c === "f-4") return "最高品質（サムネ/重要シーン向け）";
+  return "";
+}
+
+function firstSentence(text: string): string {
+  const s = String(text ?? "").trim();
+  if (!s) return "";
+  const firstLine = s.split(/\r?\n/)[0]?.trim() ?? "";
+  if (!firstLine) return "";
+  const idx = firstLine.indexOf("。");
+  if (idx >= 0) return firstLine.slice(0, idx + 1);
+  return firstLine;
+}
+
+function withIdPrefix(id: number | null, title: string): string {
+  const t = String(title ?? "").trim();
+  if (id === null) return t || "不明";
+  if (!t) return String(id);
+  return `${id}: ${t}`;
+}
+
+type ExecSlotEntry = {
+  id: number;
+  label?: string;
+  description?: string;
+  llm_mode?: string | null;
+  codex_exec_enabled?: boolean | null;
+  api_failover_to_think?: boolean | null;
+};
+
+function humanExecSlotLabel(entry: ExecSlotEntry | null, id: number | null): string {
+  const mode = String(entry?.llm_mode ?? "").trim().toLowerCase();
+  if (mode === "think") return "THINK（エージェント代替）";
+  if (mode === "agent") return "AGENT（エージェント）";
+  if (mode === "api" || !mode) {
+    if (entry?.codex_exec_enabled === true) return "API + codex exec 優先";
+    if (entry?.codex_exec_enabled === false) return "API（codex exec 無効）";
+    if (entry?.api_failover_to_think === false) return "API（failover OFF）";
+    return "API（通常）";
+  }
+  const desc = firstSentence(String(entry?.description ?? ""));
+  if (desc) return desc;
+  const l = String(entry?.label ?? "").trim();
+  if (l) return l;
+  return id !== null ? `slot ${id}` : "不明";
+}
+
+function humanLlmSlotLabel(entry: any | null, id: number | null): string {
+  const desc = firstSentence(String(entry?.description ?? ""));
+  if (desc) return desc;
+  const l = String(entry?.label ?? "").trim();
+  if (l) return l;
+  return id !== null ? `slot ${id}` : "不明";
 }
 
 type ScriptPolicyInfo = {
@@ -173,6 +236,15 @@ const VIDEO_IMAGE_POLICY_BY_CHANNEL: Record<string, VideoImagePolicy> = {
 function resolveVideoImagePolicy(code: string): VideoImagePolicy {
   const key = String(code || "").trim().toUpperCase();
   return VIDEO_IMAGE_POLICY_BY_CHANNEL[key] ?? VIDEO_IMAGE_POLICY_DEFAULT;
+}
+
+function videoRequirementShort(code: string): { label: string; tone: "normal" | "warn" } {
+  const key = String(code || "").trim().toUpperCase();
+  if (key === "CH01") return { label: "要件: 高品質必須", tone: "warn" };
+  if (key === "CH02") return { label: "要件: 高品質推奨", tone: "normal" };
+  if (key === "CH04" || key === "CH06") return { label: "要件: 高品質OK", tone: "normal" };
+  if (key === "CH08") return { label: "要件: 速度優先OK", tone: "normal" };
+  return { label: "要件: デフォルト", tone: "normal" };
 }
 
 function resolvePolicyNowAssumption(code: string): string {
@@ -268,17 +340,29 @@ function taskPurpose(task: string): string {
   return meta?.purpose ? meta.purpose : "";
 }
 
+function humanProviderName(provider: string): string {
+  const p = String(provider ?? "").trim().toLowerCase();
+  if (!p) return "";
+  if (p === "openrouter") return "OpenRouter";
+  if (p === "fireworks") return "Fireworks";
+  if (p === "gemini" || p === "google") return "Gemini";
+  if (p === "azure") return "Azure";
+  if (p === "openai") return "OpenAI";
+  return p;
+}
+
 function formatResolvedModel(provider?: string | null, modelName?: string | null, deployment?: string | null): string {
-  const p = String(provider ?? "").trim();
+  const p = humanProviderName(String(provider ?? ""));
   const m = String(modelName ?? "").trim();
   const d = String(deployment ?? "").trim();
   if (!p && !m && !d) return "";
   if (p === "azure") {
-    if (d) return `${p} / ${d}`;
-    if (m) return `${p} / ${m}`;
-    return p;
+    if (d) return `${p}（${d}）`;
+    if (m) return `${p}（${m}）`;
+    return String(p);
   }
-  if (m) return `${p || "?"} / ${m}`;
+  if (p && m) return `${p}（${m}）`;
+  if (m) return `?（${m}）`;
   return p || "";
 }
 
@@ -323,9 +407,9 @@ function resolveImageModelKeyText(
   if (!key) return "";
   const meta = modelRegistry[key] ?? null;
   if (!meta) return "";
-  const provider = String(meta.provider ?? "").trim();
+  const provider = humanProviderName(String(meta.provider ?? ""));
   const modelName = String(meta.model_name ?? "").trim();
-  if (provider && modelName) return `${provider} / ${modelName}`;
+  if (provider && modelName) return `${provider}（${modelName}）`;
   return provider || modelName || "";
 }
 
@@ -400,12 +484,14 @@ type PolicyTab = "channels" | "images" | "scripts" | "tasks" | "diagnostics";
 
 type UiLevel = "simple" | "detail";
 
+type ChannelListView = "cards" | "table";
+
 const POLICY_TABS: Array<{ id: PolicyTab; label: string; hint: string }> = [
-  { id: "channels", label: "チャンネル別", hint: "まずはここ（3点だけ）" },
-  { id: "images", label: "画像（動画/サムネ）", hint: "コードの意味・要件・設定場所" },
-  { id: "scripts", label: "台本（script_*）", hint: "台本モデルの見方・スロット" },
-  { id: "tasks", label: "共通タスク", hint: "Bテキスト / 画像計画 / TTS補助" },
-  { id: "diagnostics", label: "診断/トラブル", hint: "412・キー・漏れチェック" },
+  { id: "channels", label: "📺 チャンネル", hint: "ここだけ見ればOK（3点）" },
+  { id: "images", label: "🎨 画像", hint: "コードの意味・要件・設定場所" },
+  { id: "scripts", label: "📝 台本", hint: "台本モデルの見方・スロット" },
+  { id: "tasks", label: "⚙️ 共通タスク", hint: "Bテキスト / 画像計画 / TTS補助" },
+  { id: "diagnostics", label: "🧪 トラブル", hint: "412 / キー / 漏れチェック" },
 ];
 
 function isPolicyTab(value: unknown): value is PolicyTab {
@@ -460,6 +546,30 @@ export function ChannelModelPolicyPage() {
       // ignore storage errors
     }
   }, [uiLevel]);
+
+  const [channelListView, setChannelListView] = useState<ChannelListView>(() => {
+    try {
+      const raw = window.localStorage.getItem("modelPolicy.channelListView");
+      const v = String(raw ?? "").trim();
+      return v === "table" ? "table" : "cards";
+    } catch {
+      return "cards";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("modelPolicy.channelListView", channelListView);
+    } catch {
+      // ignore storage errors
+    }
+  }, [channelListView]);
+
+  useEffect(() => {
+    if (uiLevel !== "simple") return;
+    if (channelListView === "cards") return;
+    setChannelListView("cards");
+  }, [uiLevel, channelListView]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -525,9 +635,6 @@ export function ChannelModelPolicyPage() {
 
   const llmActiveSlot = useMemo(() => catalog?.llm?.model_slots?.active_slot ?? null, [catalog]);
   const llmDefaultSlot = useMemo(() => catalog?.llm?.model_slots?.default_slot ?? null, [catalog]);
-  const llmSlotPath = useMemo(() => catalog?.llm?.model_slots?.path ?? null, [catalog]);
-  const llmRouterPath = useMemo(() => catalog?.llm?.router_config?.path ?? null, [catalog]);
-  const llmOverridesPath = useMemo(() => catalog?.llm?.task_overrides?.path ?? null, [catalog]);
   const execSlots = useMemo(() => (catalog as any)?.llm?.exec_slots ?? null, [catalog]);
   const codexExec = useMemo(() => catalog?.llm?.codex_exec ?? null, [catalog]);
   const agentMode = useMemo(() => catalog?.llm?.agent_mode ?? null, [catalog]);
@@ -596,13 +703,26 @@ export function ChannelModelPolicyPage() {
     return rows;
   }, [catalog, taskQuery, codexExec, agentMode]);
 
-  const { byId: imageSlotById, canonicalById: imageCanonicalById } = useMemo(() => buildImageSlotMaps(imageSlots), [imageSlots]);
+  const { canonicalById: imageCanonicalById } = useMemo(() => buildImageSlotMaps(imageSlots), [imageSlots]);
   const forcedThumb = useMemo(() => pickImageOverride(activeOverrides, "thumbnail_image_gen"), [activeOverrides]);
   const forcedVideo = useMemo(() => pickImageOverride(activeOverrides, "visual_image_gen"), [activeOverrides]);
   const forcedAny = useMemo(() => pickImageOverride(activeOverrides, "*"), [activeOverrides]);
 
   const defaultVideoSelector = useMemo(() => canonicalizeImageCode("img-flux-schnell-1", imageCanonicalById) || "f-1", [imageCanonicalById]);
   const defaultThumbSelector = useMemo(() => canonicalizeImageCode("img-flux-max-1", imageCanonicalById) || "f-4", [imageCanonicalById]);
+
+  const effectiveThumbNowCode = useMemo(() => {
+    const raw = (forcedThumb?.selector ?? forcedAny?.selector ?? null) || defaultThumbSelector;
+    return canonicalizeImageCode(raw, imageCanonicalById) || String(raw ?? "").trim();
+  }, [forcedThumb, forcedAny, defaultThumbSelector, imageCanonicalById]);
+
+  const effectiveVideoNowCode = useMemo(() => {
+    const raw = (forcedVideo?.selector ?? forcedAny?.selector ?? null) || defaultVideoSelector;
+    return canonicalizeImageCode(raw, imageCanonicalById) || String(raw ?? "").trim();
+  }, [forcedVideo, forcedAny, defaultVideoSelector, imageCanonicalById]);
+
+  const thumbForcedNow = Boolean((forcedThumb?.selector ?? forcedAny?.selector ?? "").toString().trim());
+  const videoForcedNow = Boolean((forcedVideo?.selector ?? forcedAny?.selector ?? "").toString().trim());
 
   const imageModelKeyByCodeAndTask = useMemo(() => {
     const out: Record<string, Record<string, string>> = {};
@@ -684,6 +804,33 @@ export function ChannelModelPolicyPage() {
     if (typeof id !== "number") return null;
     return (llmSlots as any[]).find((s) => Number((s as any)?.id) === id) ?? null;
   }, [llmActiveSlot, llmSlots]);
+
+  const execSlotList = useMemo(() => {
+    const raw = (execSlots as any)?.slots;
+    if (!Array.isArray(raw)) return [] as ExecSlotEntry[];
+    const entries: ExecSlotEntry[] = [];
+    for (const s of raw as any[]) {
+      const id = Number((s as any)?.id);
+      if (!Number.isFinite(id)) continue;
+      entries.push({
+        id,
+        label: typeof (s as any)?.label === "string" ? String((s as any).label) : undefined,
+        description: typeof (s as any)?.description === "string" ? String((s as any).description) : undefined,
+        llm_mode: typeof (s as any)?.llm_mode === "string" ? String((s as any).llm_mode) : null,
+        codex_exec_enabled: typeof (s as any)?.codex_exec_enabled === "boolean" ? Boolean((s as any).codex_exec_enabled) : null,
+        api_failover_to_think: typeof (s as any)?.api_failover_to_think === "boolean" ? Boolean((s as any).api_failover_to_think) : null,
+      });
+    }
+    entries.sort((a, b) => a.id - b.id);
+    return entries;
+  }, [execSlots]);
+
+  const execActiveEntry = useMemo(() => {
+    const active = (execSlots as any)?.active_slot ?? null;
+    const id = typeof active?.id === "number" ? (active.id as number) : null;
+    if (id === null) return null;
+    return execSlotList.find((s) => s.id === id) ?? null;
+  }, [execSlots, execSlotList]);
 
   const llmDefaultSlotEntry = useMemo(() => {
     const id = llmDefaultSlot;
@@ -772,12 +919,25 @@ export function ChannelModelPolicyPage() {
   const fwImageOk = fireworksCount(fwImageCounts, "ok");
 
   const isDetail = uiLevel === "detail";
+  const visibleTabs =
+    uiLevel === "detail"
+      ? POLICY_TABS
+      : POLICY_TABS.filter((t) => t.id === "channels" || t.id === "images" || t.id === "diagnostics");
+
+  useEffect(() => {
+    if (uiLevel !== "simple") return;
+    if (tab === "channels" || tab === "images" || tab === "diagnostics") return;
+    setTab("channels");
+  }, [uiLevel, tab]);
 
   const showChannels = tab === "channels";
   const showImages = tab === "images";
   const showScripts = tab === "scripts";
   const showTasks = tab === "tasks";
   const showDiagnostics = tab === "diagnostics";
+
+  const llmActiveSlotId = typeof (llmActiveSlot as any)?.id === "number" ? ((llmActiveSlot as any).id as number) : null;
+  const llmActiveSlotLabel = String((llmActiveSlotEntry as any)?.label ?? "").trim();
 
   const diagnosticsIssuesCount =
     llmMissing.length + imageMissing.length + llmUnresolvedSelectors.length + imageUnresolvedModelKeys.length;
@@ -786,7 +946,7 @@ export function ChannelModelPolicyPage() {
   const commonTaskRows = useMemo(() => llmTaskRows.filter((r) => r.category !== "script"), [llmTaskRows]);
 
 	  return (
-	    <section className="main-content" style={{ padding: 18 }}>
+	    <section className="main-content model-policy-page">
 	      <div className="main-status" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 14 }}>
 	        <div style={{ display: "grid", gap: 8 }}>
 	          <div style={{ fontSize: 18, fontWeight: 950 }}>モデル方針</div>
@@ -797,19 +957,6 @@ export function ChannelModelPolicyPage() {
 	            ) : (
 	              <span>（詳細=コード/設定ファイル/ENV も表示）</span>
 	            )}
-	          </div>
-	          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-	            <span className="status-chip status-chip--danger">いまは Gemini-only（画像生成）</span>
-	            {scriptPolicy.primary_code ? (
-	              <span className="status-chip" style={{ opacity: 0.9 }}>
-	                台本: <span className="mono">{scriptPolicy.primary_code}</span>
-	              </span>
-	            ) : null}
-	            {isDetail ? (
-	              <span className="status-chip" style={{ opacity: 0.8 }}>
-	                SoT: <span className="mono">ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md</span>
-	              </span>
-	            ) : null}
 	          </div>
 	        </div>
 
@@ -836,33 +983,39 @@ export function ChannelModelPolicyPage() {
 	            onClick={() => void refresh()}
 	            disabled={loading}
 	          >
-	            再読み込み
+	            更新
 	          </button>
 	          <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
-	            画像設定
+	            画像モデルを変更
 	          </Link>
 	          <button
 	            type="button"
 	            className="workspace-button workspace-button--ghost workspace-button--compact"
 	            onClick={() => setTab("diagnostics")}
 	          >
-	            診断
+	            トラブル診断{diagnosticsIssuesCount > 0 ? `（${diagnosticsIssuesCount}）` : ""}
 	          </button>
 	          <Link to="/ssot" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
-	            SSOT
+	            SSOT（仕様）
 	          </Link>
-	        </div>
-	      </div>
+		        </div>
+		      </div>
 
-      {loading || error ? (
-        <div className="main-status" style={{ marginTop: 12, gap: 10, flexWrap: "wrap" }}>
-          {loading ? <span className="status-chip">読み込み中…</span> : null}
-          {error ? <span className="status-chip status-chip--danger">{error}</span> : null}
-        </div>
+          {copied ? (
+            <div className="mp-toast" role="status" aria-live="polite">
+              コピーしました
+            </div>
+          ) : null}
+
+	      {loading || error ? (
+	        <div className="main-status" style={{ marginTop: 12, gap: 10, flexWrap: "wrap" }}>
+	          {loading ? <span className="status-chip">読み込み中…</span> : null}
+	          {error ? <span className="status-chip status-chip--danger">{error}</span> : null}
+	        </div>
       ) : null}
 
 	      <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-	        {POLICY_TABS.map((t) => {
+	        {visibleTabs.map((t) => {
 	          const active = tab === t.id;
 	          const cls = active ? "workspace-button workspace-button--primary workspace-button--compact" : "workspace-button workspace-button--ghost workspace-button--compact";
 	          return (
@@ -879,89 +1032,152 @@ export function ChannelModelPolicyPage() {
 	          );
 	        })}
 	        <span className="muted small-text" style={{ marginLeft: 4 }}>
-	          {POLICY_TABS.find((t) => t.id === tab)?.hint ?? ""}
+	          {visibleTabs.find((t) => t.id === tab)?.hint ?? ""}
 	        </span>
+          {uiLevel === "simple" ? (
+            <span className="muted small-text">（詳細にすると「台本/共通タスク」も表示）</span>
+          ) : null}
 	      </div>
 
-	      <div className="main-status" style={{ marginTop: 10, gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-	        <span className="status-chip" style={{ opacity: 0.85 }}>
-	          チャンネル: {filteredChannels.length}/{sortedChannels.length}
-	        </span>
-	        <button
-	          type="button"
-	          className={`workspace-button workspace-button--compact ${diagnosticsIssuesCount > 0 ? "workspace-button--primary" : "workspace-button--ghost"}`}
-	          onClick={() => setTab("diagnostics")}
-	          title="漏れ/未解決/412などの確認"
-	        >
-	          診断: <span className="mono">{diagnosticsIssuesCount > 0 ? `${diagnosticsIssuesCount}件` : "OK"}</span>
-	        </button>
-	        <span className="status-chip" style={{ opacity: 0.85 }}>
-	          実行: <span className="mono">{llmModeNow}</span> / exec slot{" "}
-	          <span className="mono">{execActiveId !== null ? String(execActiveId) : "?"}</span>
-	          {execActiveLabel ? <span className="muted">（{execActiveLabel}）</span> : null}
-	          {codexEnabled ? <span className="muted">（codex=ON）</span> : null}
-	        </span>
-        <span className="status-chip" style={{ opacity: 0.85 }}>
-          LLM slot: <span className="mono">{llmActiveSlot ? String((llmActiveSlot as any).id) : "?"}</span>
-          {llmActiveSlotEntry && (llmActiveSlotEntry as any)?.label ? (
-            <span className="muted">（{String((llmActiveSlotEntry as any).label)}）</span>
-          ) : null}
-        </span>
-        {copied ? (
-          <span className="status-chip" style={{ opacity: 0.85 }}>
-            copied: <span className="mono">{copied}</span>
-          </span>
-        ) : null}
-      </div>
+        <div className="mp-section" style={{ marginTop: 12 }}>
+          <div className="mp-topgrid">
+            <div className="mp-card">
+              <div className="mp-card__title">🖼️ サムネ（現在）</div>
+              <div className="mp-card__value">
+                {humanImageCodeTitle(effectiveThumbNowCode)}
+                <span className="mp-chip" data-code={effectiveThumbNowCode || undefined}>
+                  {effectiveThumbNowCode || "?"}
+                </span>
+                {thumbForcedNow ? <span className="mp-chip mp-chip--warn">envで強制中</span> : null}
+              </div>
+              <div className="mp-card__hint">ルール: サムネは「Gemini ＞ FLUX max」。いま動いているものだけ見ればOK。</div>
+            </div>
 
-      {showDiagnostics ? (
-        <div className="main-alert" style={{ marginTop: 12 }}>
-        <div style={{ fontWeight: 950, marginBottom: 6 }}>デフォルト設定 / 設定済みモデル / 利用可否</div>
-        <div className="muted small-text" style={{ lineHeight: 1.65 }}>
-          ここだけ見れば「何が動くか」を判断できます。運用の切替は <span className="mono">slot</span>（数値）と{" "}
-          <span className="mono">code</span>（短い記号）で行い、YAMLのモデル名は書き換えません。
+            <div className="mp-card">
+              <div className="mp-card__title">📝 台本（現在）</div>
+              <div className="mp-card__value">
+                {formatResolvedModel(scriptPolicy.primary_provider, scriptPolicy.primary_model, scriptPolicy.primary_deployment) ||
+                  (llmCodeToLabel[scriptPolicy.primary_code] ?? "").trim() ||
+                  scriptPolicy.primary_code ||
+                  "（未取得）"}
+                {isDetail && scriptPolicy.primary_code ? (
+                  <span className="mp-chip" data-provider={String(scriptPolicy.primary_provider ?? "").trim().toLowerCase() || undefined}>
+                    {scriptPolicy.primary_code}
+                  </span>
+                ) : null}
+              </div>
+              <div className="mp-card__hint">台本（script_*）は「勝手に別モデルへ行かない」前提で固定運用。</div>
+            </div>
+
+            <div className="mp-card">
+              <div className="mp-card__title">🎞️ 動画内画像（現在）</div>
+              <div className="mp-card__value">
+                {humanImageCodeTitle(effectiveVideoNowCode)}
+                <span className="mp-chip" data-code={effectiveVideoNowCode || undefined}>
+                  {effectiveVideoNowCode || "?"}
+                </span>
+                {videoForcedNow ? <span className="mp-chip mp-chip--warn">envで強制中</span> : null}
+              </div>
+              <div className="mp-card__hint">デフォは「FLUX schnell」。CH01などは高品質要件があるのでチャンネルの「要件」も確認。</div>
+            </div>
+
+            <div className="mp-card">
+              <div className="mp-card__title">🚦 使える？（ざっくり）</div>
+              <div className="mp-card__value">
+                {llmProviderStatus.map((p) => {
+                  const providerRaw = String((p as any)?.provider ?? "").trim().toLowerCase() || "?";
+                  const provider = humanProviderName(providerRaw) || providerRaw;
+                  const ready = Boolean((p as any)?.ready);
+                  const cls = ready ? "mp-chip" : "mp-chip mp-chip--warn";
+                  return (
+                    <span key={`top-llm-provider-${providerRaw}`} className={cls} data-provider={ready ? providerRaw : undefined}>
+                      テキスト: {provider} {ready ? "OK" : "NG"}
+                    </span>
+                  );
+                })}
+                {imageProviderStatus.map((p) => {
+                  const providerRaw = String((p as any)?.provider ?? "").trim().toLowerCase() || "?";
+                  const provider = humanProviderName(providerRaw) || providerRaw;
+                  const ready = Boolean((p as any)?.ready);
+                  const cls = ready ? "mp-chip" : "mp-chip mp-chip--warn";
+                  return (
+                    <span key={`top-img-provider-${providerRaw}`} className={cls} data-provider={ready ? providerRaw : undefined}>
+                      画像: {provider} {ready ? "OK" : "NG"}
+                    </span>
+                  );
+                })}
+              </div>
+              <div className="mp-card__hint">
+                Fireworksキー（ok数）: 台本/LLM={fwScriptPool ? String(fwScriptOk) : "?"} / 画像={fwImagePool ? String(fwImageOk) : "?"}（詳細は「トラブル診断」）
+              </div>
+            </div>
+          </div>
+
+          <details className="mp-card">
+            <summary className="mp-card__title">📌 3点コードの読み方（コピー用）</summary>
+            <div className="mp-card__hint">
+              形式は <span className="mono">サムネ_台本_動画内画像</span> です（例: <span className="mono">g-1_script-main-1_g-1</span>）。<br />
+              「台本」はチャンネル差分ではなく共通（slot/code運用）なので、まずはチャンネルカードの3つだけ見ればOKです。
+            </div>
+          </details>
+	        </div>
+
+	      {showDiagnostics ? (
+	        <div className="main-alert" style={{ marginTop: 12 }}>
+	        <div style={{ fontWeight: 950, marginBottom: 6 }}>まず見るところ（要約）</div>
+	        <div className="muted small-text" style={{ lineHeight: 1.65 }}>
+	          「いま使えるプロバイダ」と「Fireworksの412切り分け」をまとめて確認します。運用の切替は{" "}
+          <span className="mono">slot</span>（数値）と <span className="mono">code</span>（短い記号）だけで行います。
         </div>
 
         <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <span className="status-chip">
-            default LLM_MODEL_SLOT=<span className="mono">{typeof llmDefaultSlot === "number" ? String(llmDefaultSlot) : "?"}</span>
-            {llmDefaultSlotEntry && (llmDefaultSlotEntry as any)?.label ? (
-              <span className="muted">（{String((llmDefaultSlotEntry as any).label)}）</span>
-            ) : null}
-          </span>
-          <span className="status-chip">
-            active LLM_MODEL_SLOT=<span className="mono">{llmActiveSlot ? String((llmActiveSlot as any).id) : "?"}</span>
-            {llmActiveSlotEntry && (llmActiveSlotEntry as any)?.label ? (
-              <span className="muted">（{String((llmActiveSlotEntry as any).label)}）</span>
-            ) : null}
-          </span>
-          <span className="status-chip">
-            default LLM_EXEC_SLOT=<span className="mono">{typeof execDefaultSlot === "number" ? String(execDefaultSlot) : "?"}</span>
-          </span>
-          <span className="status-chip">
-            active LLM_EXEC_SLOT=<span className="mono">{execActiveId !== null ? String(execActiveId) : "?"}</span>{" "}
-            <span className="muted">（mode={llmModeNow}）</span>
-          </span>
-          <span className="status-chip">
-            default thumb=<span className="mono">{defaultThumbSelector}</span> / default video=<span className="mono">{defaultVideoSelector}</span>
-          </span>
-          <span className="status-chip">
-            configured: LLM models=<span className="mono">{String(llmModelsCount)}</span> / codes=<span className="mono">{String(llmCodesCount)}</span> · image models=
-            <span className="mono">{String(imageModelsCount)}</span> / codes=<span className="mono">{String(imageCodesCount)}</span>
-          </span>
-          {Object.keys(defaultSlotTiers).length > 0 ? (
-            <span className="status-chip" style={{ opacity: 0.9 }}>
-              default tier: <span className="mono">hr={defaultSlotTiers.heavy_reasoning?.[0] ?? "—"}</span> /{" "}
-              <span className="mono">std={defaultSlotTiers.standard?.[0] ?? "—"}</span> /{" "}
-              <span className="mono">cheap={defaultSlotTiers.cheap?.[0] ?? "—"}</span>
-              {Object.keys(defaultSlotScriptTiers).length > 0 ? (
-                <>
-                  {" "}
-                  / <span className="mono">script={defaultSlotScriptTiers.heavy_reasoning?.[0] ?? "—"}</span>
-                </>
+          {!isDetail ? (
+            <>
+              <span className="status-chip">
+                LLM: <span style={{ fontWeight: 900 }}>{withIdPrefix(llmActiveSlotId, humanLlmSlotLabel(llmActiveSlotEntry, llmActiveSlotId))}</span>
+              </span>
+              <span className="status-chip">
+                実行: <span style={{ fontWeight: 900 }}>{withIdPrefix(execActiveId, humanExecSlotLabel(execActiveEntry, execActiveId))}</span>
+              </span>
+              <span className={`status-chip ${thumbForcedNow || videoForcedNow ? "status-chip--warning" : ""}`}>
+                画像: サムネ={humanImageCodeTitle(effectiveThumbNowCode)} / 動画内={humanImageCodeTitle(effectiveVideoNowCode)}
+                {thumbForcedNow || videoForcedNow ? <span className="muted">（強制中）</span> : null}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="status-chip">
+                LLM_MODEL_SLOT: default=<span className="mono">{typeof llmDefaultSlot === "number" ? String(llmDefaultSlot) : "?"}</span> / active=
+                <span className="mono">{llmActiveSlotId !== null ? String(llmActiveSlotId) : "?"}</span>
+                {llmActiveSlotLabel ? <span className="muted">（{llmActiveSlotLabel}）</span> : null}
+              </span>
+              <span className="status-chip">
+                LLM_EXEC_SLOT: default=<span className="mono">{typeof execDefaultSlot === "number" ? String(execDefaultSlot) : "?"}</span> / active=
+                <span className="mono">{execActiveId !== null ? String(execActiveId) : "?"}</span>
+                <span className="muted">（mode={llmModeNow}）</span>
+              </span>
+              <span className="status-chip">
+                画像default: サムネ=<span className="mono">{defaultThumbSelector}</span> / 動画内=<span className="mono">{defaultVideoSelector}</span>
+              </span>
+              <span className="status-chip">
+                登録: LLM models=<span className="mono">{String(llmModelsCount)}</span> / codes=<span className="mono">{String(llmCodesCount)}</span> · image models=
+                <span className="mono">{String(imageModelsCount)}</span> / codes=<span className="mono">{String(imageCodesCount)}</span>
+              </span>
+              {Object.keys(defaultSlotTiers).length > 0 ? (
+                <span className="status-chip" style={{ opacity: 0.9 }}>
+                  default tier: <span className="mono">hr={defaultSlotTiers.heavy_reasoning?.[0] ?? "—"}</span> /{" "}
+                  <span className="mono">std={defaultSlotTiers.standard?.[0] ?? "—"}</span> /{" "}
+                  <span className="mono">cheap={defaultSlotTiers.cheap?.[0] ?? "—"}</span>
+                  {Object.keys(defaultSlotScriptTiers).length > 0 ? (
+                    <>
+                      {" "}
+                      / <span className="mono">script={defaultSlotScriptTiers.heavy_reasoning?.[0] ?? "—"}</span>
+                    </>
+                  ) : null}
+                </span>
               ) : null}
-            </span>
-          ) : null}
+            </>
+          )}
         </div>
 
         <div style={{ marginTop: 10 }}>
@@ -970,32 +1186,34 @@ export function ChannelModelPolicyPage() {
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
             {llmProviderStatus.map((p) => {
-              const provider = String((p as any)?.provider ?? "").trim() || "?";
+              const providerRaw = String((p as any)?.provider ?? "").trim() || "?";
+              const provider = humanProviderName(providerRaw) || providerRaw;
               const ready = Boolean((p as any)?.ready);
               const missing = Array.isArray((p as any)?.missing_envs) ? ((p as any).missing_envs as string[]).join(", ") : "";
               const cand = (p as any)?.candidate_keys_count;
-              const extra = provider === "fireworks" && typeof cand === "number" ? `keys=${String(cand)}` : "";
+              const extra = providerRaw === "fireworks" && typeof cand === "number" ? `keys=${String(cand)}` : "";
               const chipClass = ready ? "status-chip" : "status-chip status-chip--danger";
               return (
                 <span key={`llm-provider-${provider}`} className={chipClass} style={{ opacity: 0.9 }}>
-                  LLM:{provider} <span className="mono">{ready ? "OK" : "NG"}</span>
-                  {extra ? <span className="muted">（{extra}）</span> : null}
-                  {!ready && missing ? <span className="muted">（missing: {missing}）</span> : null}
+                  テキスト: {provider} <span className="mono">{ready ? "OK" : "NG"}</span>
+                  {isDetail && extra ? <span className="muted">（{extra}）</span> : null}
+                  {isDetail && !ready && missing ? <span className="muted">（未設定: {missing}）</span> : null}
                 </span>
               );
             })}
             {imageProviderStatus.map((p) => {
-              const provider = String((p as any)?.provider ?? "").trim() || "?";
+              const providerRaw = String((p as any)?.provider ?? "").trim() || "?";
+              const provider = humanProviderName(providerRaw) || providerRaw;
               const ready = Boolean((p as any)?.ready);
               const missing = Array.isArray((p as any)?.missing_envs) ? ((p as any).missing_envs as string[]).join(", ") : "";
               const cand = (p as any)?.candidate_keys_count;
-              const extra = provider === "fireworks" && typeof cand === "number" ? `keys=${String(cand)}` : "";
+              const extra = providerRaw === "fireworks" && typeof cand === "number" ? `keys=${String(cand)}` : "";
               const chipClass = ready ? "status-chip" : "status-chip status-chip--danger";
               return (
                 <span key={`img-provider-${provider}`} className={chipClass} style={{ opacity: 0.9 }}>
-                  IMG:{provider} <span className="mono">{ready ? "OK" : "NG"}</span>
-                  {extra ? <span className="muted">（{extra}）</span> : null}
-                  {!ready && missing ? <span className="muted">（missing: {missing}）</span> : null}
+                  画像: {provider} <span className="mono">{ready ? "OK" : "NG"}</span>
+                  {isDetail && extra ? <span className="muted">（{extra}）</span> : null}
+                  {isDetail && !ready && missing ? <span className="muted">（未設定: {missing}）</span> : null}
                 </span>
               );
             })}
@@ -1004,8 +1222,8 @@ export function ChannelModelPolicyPage() {
 
         <div style={{ marginTop: 10 }}>
           <div className="muted small-text" style={{ marginBottom: 6 }}>
-            Fireworksキー状態（412/ban等の切り分け用）
-            {fwGeneratedAt ? (
+            Fireworksキー（状態 / 412切り分け）
+            {isDetail && fwGeneratedAt ? (
               <>
                 {" "}
                 / generated_at=<span className="mono">{fwGeneratedAt}</span>
@@ -1015,43 +1233,45 @@ export function ChannelModelPolicyPage() {
           {fireworksStatusError ? <div className="muted small-text">（取得失敗: {fireworksStatusError}）</div> : null}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
             <span className={`status-chip ${fwScriptOk > 0 ? "" : "status-chip--danger"}`} style={{ opacity: 0.9 }}>
-              FW:script <span className="mono">{fwScriptPool ? formatFireworksCounts(fwScriptCounts) : "（未取得）"}</span>
+              台本/LLM用 <span className="mono">{fwScriptPool ? formatFireworksCounts(fwScriptCounts) : "（未取得）"}</span>
             </span>
             <span className={`status-chip ${fwImageOk > 0 ? "" : "status-chip--danger"}`} style={{ opacity: 0.9 }}>
-              FW:image <span className="mono">{fwImagePool ? formatFireworksCounts(fwImageCounts) : "（未取得）"}</span>
+              画像用 <span className="mono">{fwImagePool ? formatFireworksCounts(fwImageCounts) : "（未取得）"}</span>
             </span>
-            <Link to="/llm-usage" className="workspace-button" style={{ textDecoration: "none" }}>
-              詳細（probe/leases）
+            <Link to="/llm-usage" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+              LLM使用ログ（詳細）
             </Link>
           </div>
         </div>
 
-        <details style={{ marginTop: 10 }}>
-          <summary style={{ cursor: "pointer", fontWeight: 900 }}>設定済みモデルの内訳</summary>
-          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-            <div className="muted small-text">
-              LLM models by provider:{" "}
-              <span className="mono">
-                {Object.keys(llmModelCountsByProvider)
-                  .sort((a, b) => a.localeCompare(b))
-                  .map((k) => `${k}=${llmModelCountsByProvider[k]}`)
-                  .join(", ") || "—"}
-              </span>
+        {isDetail ? (
+          <details style={{ marginTop: 10 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 900 }}>設定済みモデルの内訳（詳細）</summary>
+            <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+              <div className="muted small-text">
+                LLM models by provider:{" "}
+                <span className="mono">
+                  {Object.keys(llmModelCountsByProvider)
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((k) => `${k}=${llmModelCountsByProvider[k]}`)
+                    .join(", ") || "—"}
+                </span>
+              </div>
+              <div className="muted small-text">
+                image models by provider:{" "}
+                <span className="mono">
+                  {Object.keys(imageModelCountsByProvider)
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((k) => `${k}=${imageModelCountsByProvider[k]}`)
+                    .join(", ") || "—"}
+                </span>
+              </div>
+              <div className="muted small-text">
+                コード辞書の詳細は、このページ下部の <span className="mono">LLMコード辞書</span> / <span className="mono">画像モデルコード</span> を参照。
+              </div>
             </div>
-            <div className="muted small-text">
-              image models by provider:{" "}
-              <span className="mono">
-                {Object.keys(imageModelCountsByProvider)
-                  .sort((a, b) => a.localeCompare(b))
-                  .map((k) => `${k}=${imageModelCountsByProvider[k]}`)
-                  .join(", ") || "—"}
-              </span>
-            </div>
-            <div className="muted small-text">
-              コード辞書の詳細は、このページ下部の <span className="mono">LLMコード辞書</span> / <span className="mono">画像モデルコード</span> を参照。
-            </div>
-          </div>
-        </details>
+          </details>
+        ) : null}
         </div>
       ) : null}
 
@@ -1060,9 +1280,15 @@ export function ChannelModelPolicyPage() {
           <div className="main-status" style={{ margin: 0, flexDirection: "column", alignItems: "stretch", gap: 10 }}>
             <div style={{ fontWeight: 950 }}>画像の運用（いま何を使う？）</div>
             <div className="muted small-text" style={{ lineHeight: 1.7 }}>
-              現在は <span className="mono">Gemini（g-1）</span> だけが安定して通る前提なので、画像生成は Gemini-only で回します。
+              現在（effective）: サムネ={humanImageCodeTitle(effectiveThumbNowCode)} / 動画内={humanImageCodeTitle(effectiveVideoNowCode)}
+              {thumbForcedNow || videoForcedNow ? <span className="muted">（envで強制中）</span> : <span className="muted">（configのまま）</span>}
               <br />
-              画像の設定変更は <Link to="/image-model-routing">画像設定</Link> から。
+              変更は「画像モデルを変更」から。
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+                画像モデルを変更
+              </Link>
             </div>
             {isDetail ? (
               <>
@@ -1091,54 +1317,6 @@ export function ChannelModelPolicyPage() {
           </div>
         ) : null}
 
-        {showChannels ? (
-          <div className="main-status" style={{ margin: 0, flexDirection: "column", alignItems: "stretch", gap: 10 }}>
-            <div style={{ fontWeight: 950 }}>迷わないための要点（ここだけ見ればOK）</div>
-            <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.75 }}>
-              <li>
-                チャンネルごとに違うのは <span className="mono">3つ</span> だけ：<span style={{ fontWeight: 800 }}>サムネ</span> /{" "}
-                <span style={{ fontWeight: 800 }}>台本</span> / <span style={{ fontWeight: 800 }}>動画内画像</span>
-              </li>
-              <li>
-                それ以外（Bテキスト・画像計画・TTS補助など）は <span style={{ fontWeight: 800 }}>共通タスク</span>（チャンネル別ではない）
-              </li>
-              <li>
-                APIが落ちたときの動き（THINK/AGENTに回すか、停止するか）は{" "}
-                <span className="mono">LLM_EXEC_SLOT</span> とルールで決まる
-              </li>
-            </ul>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <button type="button" className="workspace-button workspace-button--ghost workspace-button--compact" onClick={() => setTab("images")}>
-                画像のルールを見る
-              </button>
-              <button type="button" className="workspace-button workspace-button--ghost workspace-button--compact" onClick={() => setTab("tasks")}>
-                共通タスクを見る
-              </button>
-              <button type="button" className="workspace-button workspace-button--ghost workspace-button--compact" onClick={() => setTab("diagnostics")}>
-                診断を見る
-              </button>
-            </div>
-            {isDetail ? (
-              <details>
-                <summary style={{ cursor: "pointer", fontWeight: 800 }}>詳細（設定の参照先/slot）</summary>
-                <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.7 }}>
-                  LLM_MODEL_SLOT: default{" "}
-                  <span className="mono">{typeof llmDefaultSlot === "number" ? String(llmDefaultSlot) : "?"}</span> / active{" "}
-                  <span className="mono">{llmActiveSlot ? String((llmActiveSlot as any).id) : "?"}</span>
-                  {llmSlotPath ? <span className="mono"> · slots: {String(llmSlotPath)}</span> : null}
-                  <br />
-                  LLM_EXEC_SLOT: default <span className="mono">{typeof execDefaultSlot === "number" ? String(execDefaultSlot) : "?"}</span> / active{" "}
-                  <span className="mono">{execActiveId !== null ? String(execActiveId) : "?"}</span>
-                  {execSlotPath ? <span className="mono"> · exec slots: {execSlotPath}</span> : null}
-                  <br />
-                  router: <span className="mono">{llmRouterPath || "configs/llm_router.yaml"}</span>
-                  {llmOverridesPath ? <span className="mono"> / overrides: {String(llmOverridesPath)}</span> : null}
-                </div>
-              </details>
-            ) : null}
-          </div>
-        ) : null}
-
         {showDiagnostics ? (
           <div className="main-alert" style={{ margin: 0 }}>
           <div style={{ fontWeight: 950, marginBottom: 6 }}>実行モード（どこで動く？）</div>
@@ -1150,11 +1328,39 @@ export function ChannelModelPolicyPage() {
             <span className="mono">codex exec</span> に回さない / APIが落ちたら停止。
           </div>
 
+          {!isDetail ? (
+            <div style={{ display: "grid", gap: 10 }}>
+              <div>
+                現在: <span style={{ fontWeight: 900 }}>{withIdPrefix(execActiveId, humanExecSlotLabel(execActiveEntry, execActiveId))}</span>
+                <span className="muted small-text">
+                  {" "}
+                  （mode=<span className="mono">{llmModeNow}</span>
+                  {codexEnabled ? " / codex=ON" : ""}）
+                </span>
+              </div>
+              <div className="muted small-text" style={{ lineHeight: 1.7 }}>
+                切替は <span className="mono">LLM_EXEC_SLOT</span>（数字）で行います。コピー用コマンドは「詳細」表示にまとめています。
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="workspace-button workspace-button--ghost workspace-button--compact"
+                  onClick={() => setUiLevel("detail")}
+                >
+                  詳細に切り替える
+                </button>
+                <Link to="/ssot" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+                  SSOT（環境変数）
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", minWidth: 980, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>mode</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>種類</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>いまの状態</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>設定（コピー）</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>参照</th>
@@ -1164,7 +1370,7 @@ export function ChannelModelPolicyPage() {
                 <tr>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                     <span className="mono" style={{ fontWeight: 900 }}>
-                      exec slot
+                      exec slot（推奨）
                     </span>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -1185,54 +1391,27 @@ export function ChannelModelPolicyPage() {
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=0")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        slot 0
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=1")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        codex on
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=2")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        codex off
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=3")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        think
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=4")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        agent
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=5")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        failover off
-                      </button>
+                      {execSlotList.length > 0 ? (
+                        execSlotList.map((s) => {
+                          const active = execActiveId === s.id;
+                          const cls = active
+                            ? "workspace-button workspace-button--primary workspace-button--compact"
+                            : "workspace-button workspace-button--ghost workspace-button--compact";
+                          const title = humanExecSlotLabel(s, s.id);
+                          return (
+                            <button
+                              key={`exec-slot-copy-${s.id}`}
+                              type="button"
+                              className={cls}
+                              onClick={() => void copyToClipboard(`export LLM_EXEC_SLOT=${s.id}`)}
+                            >
+                              {withIdPrefix(s.id, title)}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <span className="muted">（slots未取得）</span>
+                      )}
                     </div>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -1246,7 +1425,7 @@ export function ChannelModelPolicyPage() {
                 <tr>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                     <span className="mono" style={{ fontWeight: 900 }}>
-                      codex exec
+                      codex exec（ルール実行）
                     </span>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -1273,28 +1452,21 @@ export function ChannelModelPolicyPage() {
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       <button
                         type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export YTM_CODEX_EXEC_ENABLED=1")}
-                        style={{ padding: "6px 10px" }}
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=1")}
                       >
-                        enable
+                        exec-slot 1（codex優先）
                       </button>
                       <button
                         type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export YTM_CODEX_EXEC_ENABLED=0")}
-                        style={{ padding: "6px 10px" }}
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=2")}
                       >
-                        disable
+                        exec-slot 2（codex無効）
                       </button>
-                      <button
-                        type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export YTM_CODEX_EXEC_DISABLE=1")}
-                        style={{ padding: "6px 10px" }}
-                      >
-                        emergency off
-                      </button>
+                    </div>
+                    <div className="muted small-text" style={{ marginTop: 6, lineHeight: 1.55 }}>
+                      ※ 通常運用では <span className="mono">YTM_CODEX_EXEC_*</span> は使いません（ブレ防止のためロックダウンで停止します）。
                     </div>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -1307,13 +1479,13 @@ export function ChannelModelPolicyPage() {
                 <tr>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                     <span className="mono" style={{ fontWeight: 900 }}>
-                      THINK/AGENT
+                      THINK/AGENT（pending）
                     </span>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                     <div style={{ display: "grid", gap: 4 }}>
                       <div>
-                        LLM_MODE=<span className="mono" style={{ fontWeight: 900 }}>{llmModeNow}</span>
+                        実行モード=<span className="mono" style={{ fontWeight: 900 }}>{llmModeNow}</span>
                       </div>
                       <div className="muted small-text">
                         queue=<span className="mono">{String(agentMode?.queue_dir ?? "workspaces/logs/agent_tasks")}</span> / API failover=
@@ -1325,38 +1497,44 @@ export function ChannelModelPolicyPage() {
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       <button
                         type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_MODE=think")}
-                        style={{ padding: "6px 10px" }}
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=3")}
                       >
-                        think on
+                        exec-slot 3（THINK）
                       </button>
                       <button
                         type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_MODE=api")}
-                        style={{ padding: "6px 10px" }}
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=4")}
                       >
-                        api on
+                        exec-slot 4（AGENT）
                       </button>
                       <button
                         type="button"
-                        className="workspace-button"
-                        onClick={() => void copyToClipboard("export LLM_API_FAILOVER_TO_THINK=0")}
-                        style={{ padding: "6px 10px" }}
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=0")}
                       >
-                        failover off
+                        exec-slot 0（APIに戻す）
                       </button>
                       <button
                         type="button"
-                        className="workspace-button"
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=5")}
+                      >
+                        exec-slot 5（failover OFF）
+                      </button>
+                      <button
+                        type="button"
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
                         onClick={() =>
                           void copyToClipboard("./scripts/think.sh --all-text -- python -m script_pipeline.cli run-all --channel CH06 --video 033")
                         }
-                        style={{ padding: "6px 10px" }}
                       >
-                        run think.sh
+                        think.sh（例）をコピー
                       </button>
+                    </div>
+                    <div className="muted small-text" style={{ marginTop: 6, lineHeight: 1.55 }}>
+                      ※ 通常運用では <span className="mono">LLM_MODE</span> / <span className="mono">LLM_API_FAILOVER_TO_THINK</span> は使いません（ブレ防止のためロックダウンで停止します）。
                     </div>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -1371,13 +1549,13 @@ export function ChannelModelPolicyPage() {
             <summary style={{ cursor: "pointer", fontWeight: 800 }}>codex exec 対象タスク（概要）</summary>
             <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
               <div className="muted small-text">
-                include prefixes: <span className="mono">{normalizeStringArray(codexExec?.selection?.include_task_prefixes ?? []).join(", ") || "—"}</span>
+                対象prefix: <span className="mono">{normalizeStringArray(codexExec?.selection?.include_task_prefixes ?? []).join(", ") || "—"}</span>
               </div>
               <div className="muted small-text">
-                include tasks: <span className="mono">{normalizeStringArray(codexExec?.selection?.include_tasks ?? []).join(", ") || "—"}</span>
+                対象task: <span className="mono">{normalizeStringArray(codexExec?.selection?.include_tasks ?? []).join(", ") || "—"}</span>
               </div>
               <div className="muted small-text">
-                exclude tasks（effective）:{" "}
+                除外task（実効）:{" "}
                 <span className="mono">{normalizeStringArray(codexExec?.effective?.exclude_tasks ?? []).length}</span>
               </div>
               {normalizeStringArray(codexExec?.effective?.exclude_tasks ?? []).length > 0 ? (
@@ -1388,6 +1566,8 @@ export function ChannelModelPolicyPage() {
               ) : null}
             </div>
           </details>
+            </>
+          )}
           </div>
         ) : null}
 
@@ -1396,25 +1576,25 @@ export function ChannelModelPolicyPage() {
             <div style={{ fontWeight: 950, marginBottom: 6 }}>漏れチェック（自動）</div>
           <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
             <li>
-              LLM task_defs: {(catalog?.llm?.used_tasks?.length ?? 0) || 0} / missing_task_defs:{" "}
+              LLM task_defs: {(catalog?.llm?.used_tasks?.length ?? 0) || 0} / 足りない:{" "}
               <span className={llmMissing.length > 0 ? "mono" : "mono muted"}>{String(llmMissing.length)}</span>
-              {llmMissing.length > 0 ? <span className="muted small-text">（{llmMissing.join(", ")}）</span> : null}
+              {isDetail && llmMissing.length > 0 ? <span className="muted small-text">（{llmMissing.join(", ")}）</span> : null}
             </li>
             <li>
-              image task_defs: {(catalog?.image?.used_tasks?.length ?? 0) || 0} / missing_task_defs:{" "}
+              image task_defs: {(catalog?.image?.used_tasks?.length ?? 0) || 0} / 足りない:{" "}
               <span className={imageMissing.length > 0 ? "mono" : "mono muted"}>{String(imageMissing.length)}</span>
-              {imageMissing.length > 0 ? <span className="muted small-text">（{imageMissing.join(", ")}）</span> : null}
+              {isDetail && imageMissing.length > 0 ? <span className="muted small-text">（{imageMissing.join(", ")}）</span> : null}
             </li>
             <li>
               未解決LLMコード: <span className={llmUnresolvedSelectors.length > 0 ? "mono" : "mono muted"}>{String(llmUnresolvedSelectors.length)}</span>
-              {llmUnresolvedSelectors.length > 0 ? (
+              {isDetail && llmUnresolvedSelectors.length > 0 ? (
                 <span className="muted small-text">（{llmUnresolvedSelectors.slice(0, 12).join(", ")}{llmUnresolvedSelectors.length > 12 ? ", …" : ""}）</span>
               ) : null}
             </li>
             <li>
               未解決image model_key:{" "}
               <span className={imageUnresolvedModelKeys.length > 0 ? "mono" : "mono muted"}>{String(imageUnresolvedModelKeys.length)}</span>
-              {imageUnresolvedModelKeys.length > 0 ? (
+              {isDetail && imageUnresolvedModelKeys.length > 0 ? (
                 <span className="muted small-text">（{imageUnresolvedModelKeys.join(", ")}）</span>
               ) : null}
             </li>
@@ -1427,47 +1607,207 @@ export function ChannelModelPolicyPage() {
         ) : null}
 
 	        {showChannels ? (
-	          <div style={{ overflowX: "auto" }}>
-	          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
-	            <div style={{ fontWeight: 950 }}>チャンネル別の3点（サムネ / 台本 / 動画内画像）</div>
-	            <span className="muted small-text" style={{ lineHeight: 1.6 }}>
-	              {!isDetail ? (
-	                <>各チャンネルで見るのはこの3つだけ。コードや設定差分は「詳細」に切替すると出ます。</>
-	              ) : (
-	                <>
-	                  形式（メモ用コード）: <span className="mono">thumb_script_video</span> + <span className="mono">@xN</span>（任意）
-	                </>
-	              )}
-	            </span>
-	            <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
-	              画像設定を開く
-	            </Link>
-	            <input
-	              value={channelQuery}
-	              onChange={(e) => setChannelQuery(e.target.value)}
-	              placeholder="CH/名前で検索…"
-	              style={{
-	                padding: "8px 10px",
-	                borderRadius: 8,
-	                border: "1px solid rgba(148,163,184,0.35)",
-	                background: "rgba(15,23,42,0.35)",
-	                color: "inherit",
-	                minWidth: 180,
-	              }}
-	            />
-	            {isDetail ? (
-	              <label className="muted small-text" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-	                <input type="checkbox" checked={showChannelDetails} onChange={(e) => setShowChannelDetails(e.target.checked)} />
-	                設定差分/強制（env）も表示
-	              </label>
-	            ) : null}
-	            {isDetail ? (
-	              <label className="muted small-text" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-	                <input type="checkbox" checked={includeExecSlotInCode} onChange={(e) => setIncludeExecSlotInCode(e.target.checked)} />
-	                コードに <span className="mono">@xN</span> を付ける
-	              </label>
-	            ) : null}
-	          </div>
+	          <div className="mp-section">
+              <div className="mp-toolbar">
+                <div className="mp-toolbar__left">
+                  <div style={{ fontWeight: 950 }}>チャンネル一覧</div>
+                  <span className="mp-chip">
+                    {filteredChannels.length}/{sortedChannels.length}
+                  </span>
+                  <input
+                    value={channelQuery}
+                    onChange={(e) => setChannelQuery(e.target.value)}
+                    placeholder="CH/名前で検索…"
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 10,
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                    minWidth: 220,
+                    }}
+                  />
+                  {isDetail ? (
+                    <>
+                      <div className="mp-view-toggle">
+                        <button
+                          type="button"
+                          className={`workspace-button workspace-button--compact ${channelListView === "cards" ? "workspace-button--primary" : "workspace-button--ghost"}`}
+                          onClick={() => setChannelListView("cards")}
+                        >
+                          カード
+                        </button>
+                        <button
+                          type="button"
+                          className={`workspace-button workspace-button--compact ${channelListView === "table" ? "workspace-button--primary" : "workspace-button--ghost"}`}
+                          onClick={() => setChannelListView("table")}
+                        >
+                          表
+                        </button>
+                      </div>
+                      <label className="muted small-text" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                        <input type="checkbox" checked={showChannelDetails} onChange={(e) => setShowChannelDetails(e.target.checked)} />
+                        設定差分/強制（env）も表示
+                      </label>
+                      <label className="muted small-text" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                        <input type="checkbox" checked={includeExecSlotInCode} onChange={(e) => setIncludeExecSlotInCode(e.target.checked)} />
+                        コードに <span className="mono">@xN</span> を付ける
+                      </label>
+                    </>
+                  ) : null}
+                </div>
+                <div className="mp-toolbar__right">
+                  <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+                    画像モデルを変更
+                  </Link>
+                  <button type="button" className="workspace-button workspace-button--ghost workspace-button--compact" onClick={() => setTab("images")}>
+                    画像ルール（要件）
+                  </button>
+                </div>
+              </div>
+
+              {channelListView === "cards" ? (
+                <div className="mp-channel-grid">
+                  {filteredChannels.map((ch) => {
+                    const name = channelNameFromList(channelSummaries, ch);
+                    const req = videoRequirementShort(ch);
+                    const row = routing ? rowForChannel(routing.channels ?? [], ch) : null;
+
+                    const thumbConfiguredRaw = row?.thumbnail?.model_key ?? null;
+                    const thumbConfigured = canonicalizeImageCode(thumbConfiguredRaw, imageCanonicalById) || "";
+                    const thumbEffectiveRaw = (forcedThumb?.selector ?? forcedAny?.selector ?? null) || thumbConfiguredRaw;
+                    const thumbEffective = canonicalizeImageCode(thumbEffectiveRaw, imageCanonicalById) || "";
+
+                    const videoConfiguredRaw = row?.video_image?.model_key ?? null;
+                    const videoConfigured = canonicalizeImageCode(videoConfiguredRaw, imageCanonicalById) || "";
+                    const videoEffectiveRaw =
+                      (forcedVideo?.selector ?? forcedAny?.selector ?? null) || (videoConfiguredRaw || "img-flux-schnell-1");
+                    const videoEffective = canonicalizeImageCode(videoEffectiveRaw, imageCanonicalById) || "";
+
+                    const thumbConfigCode = thumbConfigured || (thumbConfiguredRaw ? String(thumbConfiguredRaw) : "");
+                    const thumbEffCode = thumbEffective || (thumbEffectiveRaw ? String(thumbEffectiveRaw) : "");
+                    const videoConfigCode = videoConfigured || (videoConfiguredRaw ? String(videoConfiguredRaw) : defaultVideoSelector);
+                    const videoEffCode = videoEffective || (videoEffectiveRaw ? String(videoEffectiveRaw) : defaultVideoSelector);
+
+                    const scriptCode = scriptPolicy.primary_code || "";
+                    const scriptEff = scriptCode || "?";
+                    const scriptInfo = resolveLlmSelectorInfo(scriptEff, llmCodeToModelKey, llmModelRegistry);
+                    const scriptProviderRaw = String(((llmModelRegistry as any)[scriptInfo.modelKey] as any)?.provider ?? scriptPolicy.primary_provider ?? "")
+                      .trim()
+                      .toLowerCase();
+                    const scriptDetail = scriptInfo.resolvedText || (llmCodeToLabel[scriptEff] ?? "").trim() || scriptEff;
+                    const hasScriptFallback = scriptPolicy.codes.length > 1;
+
+                    const execSuffix = isDetail && includeExecSlotInCode ? `@x${execActiveId !== null ? String(execActiveId) : "?"}` : "";
+                    const bundleEffectiveDisplay = `${thumbEffCode || "?"}_${scriptEff}_${videoEffCode || "?"}${execSuffix}`;
+
+                    const thumbTitle = humanImageCodeTitle(thumbEffCode) || (thumbEffCode || "未設定");
+                    const thumbHint = humanImageCodeHint(thumbEffCode);
+                    const thumbReal = resolveImageTaskModelText(thumbEffCode, "thumbnail_image_gen");
+                    const videoTitle = humanImageCodeTitle(videoEffCode) || (videoEffCode || "未設定");
+                    const videoHint = humanImageCodeHint(videoEffCode);
+                    const videoReal = resolveImageTaskModelText(videoEffCode, "visual_image_gen");
+
+                    const reqChipClass = req.tone === "warn" ? "mp-chip mp-chip--warn" : "mp-chip";
+                    const forcedChip =
+                      thumbForcedNow || videoForcedNow ? <span className="mp-chip mp-chip--warn">envで強制中</span> : null;
+
+                    const configuredLine = isDetail && showChannelDetails ? `設定: ${thumbConfigCode || "?"}_${scriptEff}_${videoConfigCode || "?"}${execSuffix}` : "";
+
+                    return (
+                      <div key={`ch-card-${ch}`} className="mp-channel-card">
+                        <div className="mp-channel-card__header">
+                          <div style={{ display: "grid", gap: 8 }}>
+                            <div className="mp-channel-card__title">
+                              <span className="mp-channel-card__code">{ch}</span>
+                              <span className="mp-channel-card__name">{name}</span>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                              <span className={reqChipClass}>{req.label}</span>
+                              {forcedChip}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mp-three">
+                          <div className="mp-mini" data-code={thumbEffCode || undefined}>
+                            <div className="mp-mini__head">
+                              <div className="mp-mini__label">🖼️ サムネ</div>
+                              <span className="mp-chip" data-code={thumbEffCode || undefined}>
+                                {thumbEffCode || "?"}
+                              </span>
+                            </div>
+                            <div className="mp-mini__body">
+                              <div className="mp-mini__value">{thumbTitle}</div>
+                              {thumbHint ? <div className="mp-mini__hint">{thumbHint}</div> : null}
+                              {isDetail && thumbReal ? <div className="mp-mini__hint">実モデル: {thumbReal}</div> : null}
+                              {isDetail && showChannelDetails && thumbConfigCode && thumbConfigCode !== thumbEffCode ? (
+                                <div className="mp-mini__hint">設定コード: {thumbConfigCode}</div>
+                              ) : null}
+                              {isDetail && showChannelDetails && (forcedThumb?.selector || forcedAny?.selector) ? (
+                                <div className="mp-mini__hint">強制: {String(forcedThumb?.selector ?? forcedAny?.selector)}</div>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          <div className="mp-mini" data-provider={scriptProviderRaw || undefined}>
+                            <div className="mp-mini__head">
+                              <div className="mp-mini__label">📝 台本</div>
+                              <span className="mp-chip" data-provider={scriptProviderRaw || undefined}>
+                                {humanProviderName(scriptProviderRaw) || "LLM"}
+                              </span>
+                            </div>
+                            <div className="mp-mini__body">
+                              <div className="mp-mini__value">{scriptDetail || "—"}</div>
+                              {hasScriptFallback ? <div className="mp-mini__hint">fallback あり（詳細で確認）</div> : null}
+                              {isDetail ? <div className="mp-mini__hint">code: {scriptEff}</div> : null}
+                            </div>
+                          </div>
+
+                          <div className="mp-mini" data-code={videoEffCode || undefined}>
+                            <div className="mp-mini__head">
+                              <div className="mp-mini__label">🎞️ 動画内画像</div>
+                              <span className="mp-chip" data-code={videoEffCode || undefined}>
+                                {videoEffCode || "?"}
+                              </span>
+                            </div>
+                            <div className="mp-mini__body">
+                              <div className="mp-mini__value">{videoTitle}</div>
+                              {videoHint ? <div className="mp-mini__hint">{videoHint}</div> : null}
+                              {isDetail && videoReal ? <div className="mp-mini__hint">実モデル: {videoReal}</div> : null}
+                              {isDetail && showChannelDetails && videoConfigCode && videoConfigCode !== videoEffCode ? (
+                                <div className="mp-mini__hint">設定コード: {videoConfigCode}</div>
+                              ) : null}
+                              {isDetail && showChannelDetails && (forcedVideo?.selector || forcedAny?.selector) ? (
+                                <div className="mp-mini__hint">強制: {String(forcedVideo?.selector ?? forcedAny?.selector)}</div>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mp-code-row">
+                          <div style={{ display: "grid", gap: 4 }}>
+                            <div className="mp-muted">3点コード（サムネ_台本_動画内画像）</div>
+                            <div className="mp-code-row__code">{bundleEffectiveDisplay}</div>
+                          </div>
+                          <button
+                            type="button"
+                            className="workspace-button workspace-button--ghost workspace-button--compact"
+                            onClick={() => void copyToClipboard(bundleEffectiveDisplay)}
+                            title="このチャンネルの3点コードをコピー"
+                          >
+                            コピー
+                          </button>
+                        </div>
+                        {configuredLine ? <div className="mp-muted">{configuredLine}</div> : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              {channelListView === "table" ? (
+                <div style={{ overflowX: "auto" }}>
 	          <table style={{ width: "100%", minWidth: 1260, borderCollapse: "collapse" }}>
 	            <thead>
 	              <tr>
@@ -1510,18 +1850,17 @@ export function ChannelModelPolicyPage() {
 	                const bundleEffectiveDisplay = `${bundleEffective}${execSuffix}`;
 	                const bundleConfiguredDisplay = `${bundleConfigured}${execSuffix}`;
 	
-	                const thumbMeta = (imageSlotById as any)[thumbEffCode] as ImageSlotMeta | undefined;
-	                const thumbLabel = String(thumbMeta?.label ?? "").trim() || (thumbEffCode || "未設定");
-	                const thumbDescription = String(thumbMeta?.description ?? "").trim();
+	                const thumbTitle = humanImageCodeTitle(thumbEffCode) || (thumbEffCode || "未設定");
+	                const thumbHint = humanImageCodeHint(thumbEffCode);
 	                const thumbReal = resolveImageTaskModelText(thumbEffCode, "thumbnail_image_gen");
 	
-	                const videoMeta = (imageSlotById as any)[videoEffCode] as ImageSlotMeta | undefined;
-	                const videoLabel = String(videoMeta?.label ?? "").trim() || (videoEffCode || "未設定");
-	                const videoDescription = String(videoMeta?.description ?? "").trim();
+	                const videoTitle = humanImageCodeTitle(videoEffCode) || (videoEffCode || "未設定");
+	                const videoHint = humanImageCodeHint(videoEffCode);
 	                const videoReal = resolveImageTaskModelText(videoEffCode, "visual_image_gen");
 	
 	                const scriptInfo = resolveLlmSelectorInfo(scriptEff, llmCodeToModelKey, llmModelRegistry);
-	                const scriptLabel = (llmCodeToLabel[scriptEff] ?? "").trim() || scriptInfo.resolvedText || scriptEff;
+	                const scriptTitle = scriptEff ? (scriptEff === scriptPolicy.primary_code ? "台本（本線）" : "台本") : "未設定";
+	                const scriptDetail = scriptInfo.resolvedText || (llmCodeToLabel[scriptEff] ?? "").trim() || scriptEff;
 	
 	                const thumbConfiguredLine =
 	                  thumbConfigCode && thumbConfigCode !== thumbEffCode ? `config: ${thumbConfigCode}` : "";
@@ -1565,8 +1904,8 @@ export function ChannelModelPolicyPage() {
 	                    ) : null}
 	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
 	                      <div style={{ display: "grid", gap: 6 }}>
-	                        <div style={{ fontWeight: 900 }}>{thumbLabel || "未設定"}</div>
-	                        {thumbDescription ? <div className="muted small-text">{thumbDescription}</div> : null}
+	                        <div style={{ fontWeight: 900 }}>{thumbTitle || "未設定"}</div>
+	                        {thumbHint ? <div className="muted small-text">{thumbHint}</div> : null}
 	                        {isDetail && thumbReal ? (
 	                          <div className="muted small-text">
 	                            実モデル: <span className="mono">{thumbReal}</span>
@@ -1599,8 +1938,8 @@ export function ChannelModelPolicyPage() {
 	                    </td>
 	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
 	                      <div style={{ display: "grid", gap: 6 }}>
-	                        <div style={{ fontWeight: 900 }}>{scriptLabel || "未設定"}</div>
-	                        {scriptInfo.resolvedText ? <div className="muted small-text">{scriptInfo.resolvedText}</div> : null}
+	                        <div style={{ fontWeight: 900 }}>{scriptTitle || "未設定"}</div>
+	                        {scriptDetail ? <div className="muted small-text">{scriptDetail}</div> : null}
 	                        {isDetail ? (
 	                          <div className="muted small-text">
 	                            code: <span className="mono">{scriptEff}</span>
@@ -1613,8 +1952,8 @@ export function ChannelModelPolicyPage() {
 	                    </td>
 	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
 	                      <div style={{ display: "grid", gap: 6 }}>
-	                        <div style={{ fontWeight: 900 }}>{videoLabel || "未設定"}</div>
-	                        {videoDescription ? <div className="muted small-text">{videoDescription}</div> : null}
+	                        <div style={{ fontWeight: 900 }}>{videoTitle || "未設定"}</div>
+	                        {videoHint ? <div className="muted small-text">{videoHint}</div> : null}
 	                        {isDetail && videoReal ? (
 	                          <div className="muted small-text">
 	                            実モデル: <span className="mono">{videoReal}</span>
@@ -1646,9 +1985,20 @@ export function ChannelModelPolicyPage() {
 	                      </div>
 	                    </td>
 	                    <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-	                      <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
-	                        画像設定
-	                      </Link>
+	                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+	                        {!isDetail ? (
+	                          <button
+	                            type="button"
+	                            className="workspace-button workspace-button--ghost workspace-button--compact"
+	                            onClick={() => void copyToClipboard(bundleEffectiveDisplay)}
+	                          >
+	                            コードをコピー
+	                          </button>
+	                        ) : null}
+	                        <Link to="/image-model-routing" className="workspace-button workspace-button--ghost workspace-button--compact" style={{ textDecoration: "none" }}>
+	                          画像モデルを変更
+	                        </Link>
+	                      </div>
 	                    </td>
                   </tr>
                 );
@@ -1656,7 +2006,8 @@ export function ChannelModelPolicyPage() {
 	            </tbody>
 	          </table>
 	        </div>
-
+              ) : null}
+            </div>
 	        ) : null}
 
 	        {showImages ? (
@@ -1789,9 +2140,9 @@ export function ChannelModelPolicyPage() {
                 style={{
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid rgba(148,163,184,0.35)",
-                  background: "rgba(15,23,42,0.18)",
-                  color: "inherit",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
                   minWidth: 280,
                 }}
               />
@@ -1808,63 +2159,116 @@ export function ChannelModelPolicyPage() {
               </div>
             )}
             <div style={{ marginTop: 10, overflowX: "auto" }}>
-              <table style={{ width: "100%", minWidth: 1240, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>カテゴリ</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>task</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>用途</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>tier</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>実行</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>model（code）</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>provider / model</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>決まり方</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(showScripts ? scriptTaskRows : commonTaskRows).map((r) => (
-                    <tr key={`task-${r.task}`}>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <span style={{ fontWeight: 800 }}>{CATEGORY_LABELS[r.category] ?? r.category}</span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <div style={{ display: "grid", gap: 4 }}>
-                          <span className="mono" style={{ fontWeight: 900 }}>
-                            {r.task}
-                          </span>
-                          {r.label && r.label !== r.task ? <span className="muted small-text">{r.label}</span> : null}
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 260 }}>
-                        <span style={{ opacity: 0.9 }}>{r.purpose || "—"}</span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <span className="mono" style={{ fontWeight: 800 }}>
-                          {r.tier || "—"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 160 }}>
-                        <span className="mono" style={{ fontWeight: 800 }}>
-                          {r.execPath || "—"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 280 }}>
-                        <span className="mono" style={{ fontWeight: 900, overflowWrap: "anywhere" }}>
-                          {r.modelChain || "—"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 260 }}>
-                        <span className="mono" style={{ overflowWrap: "anywhere" }}>
-                          {r.resolvedText || "—"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <span className="muted small-text">{r.sourceText || "—"}</span>
-                      </td>
+              {!isDetail ? (
+                <table style={{ width: "100%", minWidth: 980, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>カテゴリ</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>処理</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>用途</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>実行</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>使うモデル</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {(showScripts ? scriptTaskRows : commonTaskRows).map((r) => (
+                      <tr key={`task-simple-${r.task}`}>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+                          <span style={{ fontWeight: 800 }}>{CATEGORY_LABELS[r.category] ?? r.category}</span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 220 }}>
+                          <div style={{ display: "grid", gap: 4 }}>
+                            <div style={{ fontWeight: 900 }}>{r.label || r.task}</div>
+                            <div className="muted small-text">
+                              task: <span className="mono">{r.task}</span>
+                              {r.tier ? (
+                                <>
+                                  {" "}
+                                  / tier: <span className="mono">{r.tier}</span>
+                                </>
+                              ) : null}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 280 }}>
+                          <span style={{ opacity: 0.9 }}>{r.purpose || "—"}</span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 160 }}>
+                          <span style={{ fontWeight: 800 }}>{r.execPath || "—"}</span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 260 }}>
+                          <div style={{ display: "grid", gap: 4 }}>
+                            <div style={{ fontWeight: 800 }}>{r.resolvedText || "—"}</div>
+                            {r.modelChain && r.modelChain.includes("→") ? (
+                              <div className="muted small-text">
+                                fallback: <span className="mono">{r.modelChain}</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table style={{ width: "100%", minWidth: 1240, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>カテゴリ</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>task</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>用途</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>tier</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>実行</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>model（code）</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>provider / model</th>
+                      <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>決まり方</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(showScripts ? scriptTaskRows : commonTaskRows).map((r) => (
+                      <tr key={`task-${r.task}`}>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+                          <span style={{ fontWeight: 800 }}>{CATEGORY_LABELS[r.category] ?? r.category}</span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+                          <div style={{ display: "grid", gap: 4 }}>
+                            <span className="mono" style={{ fontWeight: 900 }}>
+                              {r.task}
+                            </span>
+                            {r.label && r.label !== r.task ? <span className="muted small-text">{r.label}</span> : null}
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 260 }}>
+                          <span style={{ opacity: 0.9 }}>{r.purpose || "—"}</span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+                          <span className="mono" style={{ fontWeight: 800 }}>
+                            {r.tier || "—"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 160 }}>
+                          <span className="mono" style={{ fontWeight: 800 }}>
+                            {r.execPath || "—"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 280 }}>
+                          <span className="mono" style={{ fontWeight: 900, overflowWrap: "anywhere" }}>
+                            {r.modelChain || "—"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)", minWidth: 260 }}>
+                          <span className="mono" style={{ overflowWrap: "anywhere" }}>
+                            {r.resolvedText || "—"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
+                          <span className="muted small-text">{r.sourceText || "—"}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         ) : null}
@@ -1880,10 +2284,10 @@ export function ChannelModelPolicyPage() {
             <table style={{ width: "100%", minWidth: 980, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>code</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>label / description</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>コード</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>名前 / 説明</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>
-                    tasks（task=real model_key）
+                    task（task=実モデル）
                   </th>
                 </tr>
               </thead>
@@ -1949,9 +2353,9 @@ export function ChannelModelPolicyPage() {
               <table style={{ width: "100%", minWidth: 980, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>alias</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>canonical</th>
-                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>label</th>
+                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>エイリアス</th>
+                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>本体コード</th>
+                    <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>名前</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1990,12 +2394,12 @@ export function ChannelModelPolicyPage() {
           </details>
         ) : null}
 
-        {showDiagnostics ? (
+        {showDiagnostics && isDetail ? (
           <details>
-            <summary style={{ cursor: "pointer", fontWeight: 900 }}>実行スロット（llm_exec_slots.yaml）</summary>
+          <summary style={{ cursor: "pointer", fontWeight: 900 }}>実行スロット（llm_exec_slots.yaml）</summary>
           <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
             <span className="mono">LLM_EXEC_SLOT</span> は「どこで動くか（api / think / agent / codex exec / failover）」を数字で切替えるレバーです。
-            明示の <span className="mono">LLM_MODE</span> / <span className="mono">YTM_CODEX_EXEC_ENABLED</span> などがある場合はそれが優先されます。
+            通常運用ではこれだけを使います（ロックダウンONでは <span className="mono">LLM_MODE</span> / <span className="mono">YTM_CODEX_EXEC_*</span> などの直接上書きは停止）。
           </div>
 
           <div style={{ marginTop: 10 }} className="main-alert">
@@ -2211,16 +2615,16 @@ export function ChannelModelPolicyPage() {
           <details>
             <summary style={{ cursor: "pointer", fontWeight: 900 }}>LLMコード辞書（llm_model_codes.yaml）</summary>
           <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
-            ここにある <span className="mono">code</span> を slot / task override に書く（モデル名は書かない）。
+            ここにある <span className="mono">コード</span> を slot / task override に書く（モデル名は書かない）。
           </div>
           <div style={{ marginTop: 10, overflowX: "auto" }}>
             <table style={{ width: "100%", minWidth: 980, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>code</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>model_key</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>provider / model</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>label</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>コード</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>モデルキー</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>実モデル</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>名前</th>
                 </tr>
               </thead>
               <tbody>

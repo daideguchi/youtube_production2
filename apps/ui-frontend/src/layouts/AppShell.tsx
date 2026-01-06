@@ -57,6 +57,7 @@ export type ReadyFilter = "all" | "ready" | "not_ready";
 
 export type WorkspaceView =
   | "dashboard"
+  | "publishingProgress"
   | "audit"
   | "workflow"
   | "studio"
@@ -246,6 +247,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/audit", pathname)) {
     return "audit";
   }
+  if (matchPath("/publishing-progress", pathname)) {
+    return "publishingProgress";
+  }
   if (matchPath("/channels/:channelCode/videos/:video", pathname)) {
     return "channelVideo";
   }
@@ -337,6 +341,10 @@ const PLACEHOLDER_COPY: Record<
   Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo" | "channelPortal">,
   PlaceholderCopy
 > = {
+  publishingProgress: {
+    title: "投稿進捗（予約Runway）",
+    description: "Publish Sheet（外部SoT）を基に、チャンネル別の予約最終日と残り日数を可視化します。",
+  },
   audit: {
     title: "監査（欠損チェック / Precheck）",
     description: "チャンネル監査とPrecheckをまとめて確認し、欠損や詰まりを先に潰します。",
@@ -1343,6 +1351,7 @@ export function AppShell() {
         title: "編集/品質",
         items: [
           { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
+          { key: "publishingProgress", label: "投稿進捗", icon: "📅", path: "/publishing-progress" },
           { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
           { key: "channelPortal", label: "チャンネルポータル", icon: "🧭", path: channelPortalLink },
           { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },

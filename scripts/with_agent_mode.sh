@@ -5,7 +5,7 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE' >&2
-with_agent_mode.sh — run a command with LLM_MODE=agent
+with_agent_mode.sh — run a command in AGENT MODE (via LLM_EXEC_SLOT)
 
 Usage:
   ./scripts/with_agent_mode.sh [options] -- <command> [args...]
@@ -24,8 +24,22 @@ Example (script tasks only):
 USAGE
 }
 
-# Allow callers to choose alias (e.g. LLM_MODE=think). Default is "agent".
-export LLM_MODE="${LLM_MODE:-agent}"
+# Compatibility: callers may still export LLM_MODE=think/agent.
+# In normal ops we avoid LLM_MODE and use exec-slot to prevent drift across agents.
+MODE_RAW="${LLM_MODE:-agent}"
+unset LLM_MODE || true
+case "$(echo "$MODE_RAW" | tr '[:upper:]' '[:lower:]')" in
+  think)
+    export LLM_EXEC_SLOT="3"
+    ;;
+  agent|"")
+    export LLM_EXEC_SLOT="4"
+    ;;
+  *)
+    echo "Invalid LLM_MODE for with_agent_mode.sh: $MODE_RAW (expected: agent|think)" >&2
+    exit 2
+    ;;
+esac
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -75,4 +89,3 @@ if [[ $# -eq 0 ]]; then
 fi
 
 exec "$@"
-

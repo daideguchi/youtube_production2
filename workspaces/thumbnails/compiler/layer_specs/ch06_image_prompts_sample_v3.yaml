@@ -1,0 +1,59 @@
+version: 3
+name: CH06_image_prompts_sample_v3
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  forbid_text: true
+items:
+  - video_id: CH06-034
+    title: '【南極の封印】ハイジャンプ作戦と黒塗り航海記'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, antarctica map spread on a desk, redacted naval logbook, military compass, icy mist
+
+  - video_id: CH06-035
+    title: '【消された超能力計画】スターゲイト計画の遠隔透視'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, declassified CIA remote viewing file folder, target silhouette over a map, faint psychic wave ripples
+
+  - video_id: CH06-036
+    title: '【禁忌の周波数】タオス・ハムは誰が鳴らすのか'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, vibrating tuning fork and low-frequency wave ripples through dust, deserted small-town street at night in background
+
+  - video_id: CH06-037
+    title: '【沈黙した電波】WOW!シグナルは返信だったのか'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, radio telescope dish, single bright pulse beam in starry sky, quiet cosmic signal
+
+  - video_id: CH06-038
+    title: '【影の衛星】ブラックナイト―軌道に残る古い目'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, ancient black satellite silhouette in orbit above Earth, debris fragments, ominous stillness
+
+  - video_id: CH06-039
+    title: '【森のUFO報告書】レンデルシャム事件の公式メモ'
+    person_key: symbolic
+    prompt_ja: |
+      dark mysterious library interior, ancient bookshelves, cinematic lighting, teal and amber, high contrast, volumetric fog, dust particles, shallow depth of field, 16:9, no text, no letters, no numbers, leave left side dark gradient for title, dark pine forest at night, UFO glow between trees, official memo papers scattered on desk
+
+  - video_id: CH06-064
+    title: '【黒塗りの月面写真】アポロ写真の「空白」が示すもの'
+    person_key: symbolic
+    prompt_ja: |
+      cinematic sci-fi illustration, the Moon surface at night with Earth rising, a giant stack of lunar photo prints in the foreground with heavy black redaction bars (abstract, no readable text), torn edges, sealed archive folder emitting a faint red warning glow, an astronaut silhouette far away, dramatic rim lighting, deep navy + cyan, high contrast, volumetric dust, 16:9, no text, no letters, no numbers
+
+  - video_id: CH06-065
+    title: '【地下都市計画】政府文書に残る「地下」構想'
+    person_key: symbolic
+    prompt_ja: |
+      cinematic sci-fi illustration, a massive underground city cross-section inside a cavern, glowing city lights, a huge circular tunnel mouth, blueprint sheets with black redactions (no readable text) in the foreground, sealed government file folders, dramatic lighting, deep navy + amber accents, high contrast, 16:9, no text, no letters, no numbers
+
+  - video_id: CH06-066
+    title: '【消えた航海ログ】海で途絶えた黒塗り通信'
+    person_key: symbolic
+    prompt_ja: |
+      cinematic dark illustration, stormy ocean at night with an abandoned ship silhouette, a radio receiver in the foreground emitting a single cyan pulse (no letters), torn naval logbook with heavy redaction bars (no readable text), rain and distant lightning, deep navy + red accents, high contrast, 16:9, no text, no letters, no numbers

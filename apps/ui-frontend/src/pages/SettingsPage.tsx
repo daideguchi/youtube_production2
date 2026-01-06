@@ -488,7 +488,7 @@ export function SettingsPage() {
                     ))}
                   </datalist>
                   <p className="settings-card__hint">
-                    Pipeline は `configs/codex_exec.local.yaml` に保存します（SSOTを汚さない）。環境変数 `YTM_CODEX_EXEC_PROFILE` がある場合はそれが最優先になります。
+                    Pipeline は `configs/codex_exec.local.yaml` に保存します（SSOTを汚さない）。通常運用は `LLM_EXEC_SLOT` とこの設定で管理します（ロックダウンONでは `YTM_CODEX_EXEC_*` の env 上書きは停止）。
                   </p>
                 </label>
                 <label>

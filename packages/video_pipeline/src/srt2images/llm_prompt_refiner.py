@@ -28,12 +28,9 @@ def _env_flag(name: str, default: bool = True) -> bool:
     return val.strip().lower() not in ("0", "false", "no", "off")
 
 def _llm_mode() -> str:
-    try:
-        from factory_common.llm_exec_slots import effective_llm_mode
+    from factory_common.llm_exec_slots import effective_llm_mode
 
-        return effective_llm_mode()
-    except Exception:
-        return (os.getenv("LLM_MODE") or "api").strip().lower()
+    return effective_llm_mode()
 
 
 def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:
@@ -70,7 +67,7 @@ def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:
 
 class PromptRefiner:
     def __init__(self, model: Optional[str] = None, api_key: Optional[str] = None) -> None:
-        # NOTE: Prompt refinement is routed via factory_common.llm_router (LLM_MODE aware).
+        # NOTE: Prompt refinement is routed via factory_common.llm_router (exec-slot aware).
         # Keep constructor args for backward compatibility, but routing is task-based.
         self.model = model or os.getenv("SRT2IMAGES_PROMPT_MODEL") or ""
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or ""
@@ -97,7 +94,7 @@ class PromptRefiner:
         # Per-cue refinement + agent/think mode would create many pending tasks (operator pain).
         # Keep refinement API-only; cues_plan already provides a single-task planning route.
         if _llm_mode() in {"agent", "think"}:
-            logger.info("PromptRefiner: LLM_MODE=%s; skipping per-cue refine.", _llm_mode())
+            logger.info("PromptRefiner: mode=%s; skipping per-cue refine.", _llm_mode())
             return cues
 
         try:

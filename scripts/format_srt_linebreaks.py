@@ -28,6 +28,11 @@ from _bootstrap import bootstrap
 
 PROJECT_ROOT = bootstrap()
 
+from factory_common.routing_lockdown import (  # noqa: E402
+    assert_no_llm_model_overrides,
+    assert_task_overrides_unchanged,
+    lockdown_active,
+)
 from audio_tts.tts.llm_adapter import format_srt_lines  # noqa: E402
 
 SRT_SEPARATOR = re.compile(r"\r?\n\r?\n")
@@ -85,7 +90,7 @@ def main() -> int:
     parser.add_argument("--retry-limit", type=int, default=1, help="RETRY_LIMIT (default: 1)")
     parser.add_argument("--timeout", type=int, default=30, help="LLM timeout seconds (default: 30)")
     parser.add_argument("--batch-size", type=int, default=20, help="LLM batch size (default: 20)")
-    parser.add_argument("--llm-model", help="Optional model key override (sets LLM_FORCE_MODELS)")
+    parser.add_argument("--llm-model", help="Optional model key override (sets LLM_FORCE_MODELS). DEBUG ONLY; prefer --llm-slot.")
     parser.add_argument(
         "--llm-slot",
         type=int,
@@ -93,6 +98,9 @@ def main() -> int:
     )
     parser.add_argument("--disable", action="store_true", help="Disable linebreak formatting (pass-through)")
     args = parser.parse_args()
+
+    assert_no_llm_model_overrides(context="format_srt_linebreaks.py (startup)")
+    assert_task_overrides_unchanged(context="format_srt_linebreaks.py (startup)")
 
     in_path = Path(args.srt).expanduser().resolve()
     if not in_path.exists():
@@ -113,6 +121,11 @@ def main() -> int:
         if raw.isdigit():
             os.environ["LLM_MODEL_SLOT"] = raw
         else:
+            if lockdown_active():
+                raise SystemExit(
+                    "Forbidden: --llm-model with non-numeric values under YTM_ROUTING_LOCKDOWN=1. "
+                    "Use --llm-slot (numeric) instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+                )
             os.environ["LLM_FORCE_MODELS"] = raw
 
     os.environ["SRT_LINEBREAK_ENABLED"] = "0" if args.disable else "1"

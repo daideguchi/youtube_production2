@@ -89,3 +89,38 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 push前に、SSOT↔実装の不整合がないかを点検する（詳細は `scripts/ops/pre_push_final_check.py` を参照）。
 
 ※ サムネ作成・編集周りは調整中のため、該当領域の仕様確定までは「警告は出るが運用で判断」する。
+
+---
+
+## 5) よくあるエラー: `.git/index.lock` を作れない（Operation not permitted）
+
+症状:
+
+- `fatal: Unable to create '<repo>/.git/index.lock': Operation not permitted`
+
+原因:
+
+- `.git/` が **write-lock（immutable / chmod）** されている状態。
+- 並列運用でロールバック事故を防ぐための **仕様**（意図的に止めている）。
+
+確認:
+
+- `python3 scripts/ops/git_write_lock.py status`
+  - `locked (immutable)` / `locked (chmod)` / `locked (external)` なら該当
+
+対処（push直前の“短時間だけ”開ける）:
+
+1. Orchestrator を起動（lease を握る）
+   - `python3 scripts/agent_org.py orchestrator start --name dd-orch --no-process-requests`
+2. `.git` を push 用に一時アンロック
+   - `python3 scripts/ops/git_write_lock.py unlock-for-push`
+3. commit/push（PR運用推奨。`ssot/ops/OPS_GIT_BRANCH_POLICY.md` 参照）
+4. push後すぐ再ロック
+   - `python3 scripts/ops/git_write_lock.py lock`
+5. Orchestrator 停止
+   - `python3 scripts/agent_org.py orchestrator stop`
+
+注意:
+
+- unlock状態を放置しない（事故率が跳ね上がる）。
+- worker は原則 `bash scripts/ops/save_patch.sh` で **スコープ限定パッチ**を保存し、Orchestrator/人間が apply→commit→push する。

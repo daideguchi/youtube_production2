@@ -62,3 +62,26 @@
 - commit/pushが不安定な環境では、まず `bash scripts/ops/save_patch.sh` でパッチ保存し、Orchestrator/人間が apply→commit→push する。
 - `main` 反映（push）直前のみ `.git` の write-lock を一時解除する（`python3 scripts/ops/git_write_lock.py unlock-for-push`）。
 
+---
+
+## 4) 安全に「完全push」する手順（推奨）
+
+目的:
+- 他エージェントの変更を混ぜず、事故なく `main` まで反映する（= “完全push”）。
+
+手順（おすすめの最小ルート）:
+
+1. 変更範囲を lock する（並列衝突防止）
+2. **スコープ限定パッチ**を作る（差分を“持ち運び”できる形に）
+   - 例: `bash scripts/ops/save_patch.sh --label model_policy_ui --path 'apps/ui-frontend/src/pages/ChannelModelPolicyPage.*' --path 'ssot/ops/OPS_*MODEL_ROUTING.md' --path 'ssot/ops/OPS_GIT_*.md'`
+3. Orchestrator/人間が clean な `main` から短命ブランチを作り、パッチを apply
+   - ブランチ例: `codex/model-policy-ui`
+4. チェックを通す（最低限）
+   - `npm -C apps/ui-frontend run build`
+   - `python3 scripts/ops/build_ssot_catalog.py --check`
+5. push前に `.git` を一時アンロック → push後すぐ再ロック
+   - エラー `.../.git/index.lock: Operation not permitted` が出る場合は `ssot/ops/OPS_GIT_SAFETY.md` の「5) よくあるエラー」を参照
+6. PR → `main` へ（merge後、短命ブランチは削除）
+
+補足:
+- 「自分の作業ツリーに他人の差分が大量にある」状態で、直接 `git add` すると混ぜやすい。**パッチ運搬**を標準にする。

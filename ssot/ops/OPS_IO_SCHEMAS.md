@@ -450,15 +450,22 @@ variants[*]（観測キー例）:
         - `seed: int`（任意。未指定は安定seed）
   - `templates.*.slots.*.backdrop`（任意。文字の背面に「筆のような帯」を敷く）:
     - `enabled: bool`
-    - `mode: brush_stroke`（現行はこれのみ。互換: `brush`, `brushstroke`）
-    - `color: "#RRGGBB"`
-    - `alpha: float(0..1)`（帯の最大不透明度）
-    - `pad_x_px/pad_y_px: int`（文字bboxに足す余白）
-    - `roughness: float`（エッジの歪み）
-    - `feather_px: int`（エッジのフェード幅）
-    - `hole_count: int`（かすれ/薄い箇所の密度）
-    - `blur_px: int`（マスクのぼかし）
-    - `seed: int`（任意。未指定は安定seed）
+    - `mode: brush_stroke`（生成帯。互換: `brush`, `brushstroke`）
+      - `color: "#RRGGBB"`
+      - `alpha: float(0..1)`（帯の最大不透明度）
+      - `pad_x_px/pad_y_px: int`（文字bboxに足す余白）
+      - `roughness: float`（エッジの歪み）
+      - `feather_px: int`（エッジのフェード幅）
+      - `hole_count: int`（かすれ/薄い箇所の密度）
+      - `blur_px: int`（マスクのぼかし）
+      - `seed: int`（任意。未指定は安定seed）
+    - `mode: image|png|asset`（透過PNGを「文字レイヤの1つ下」に敷く。ベンチの黒筆帯に寄せたい時はこれ）
+      - `image_path: str`（例: `asset/thumbnails/common/brush/brush_swipe_bench_02.png`）
+      - `fit: stretch|cover|contain`（既定: `cover`）
+      - `colorize: bool`（既定:false。trueの場合はPNGをalphaマスクとして `color` で塗る）
+      - `color: "#RRGGBB"`（`colorize:true` の時に使用）
+      - `alpha: float(0..1)`（PNG alpha に乗算）
+      - `pad_x_px/pad_y_px: int`（文字bboxに足す余白）
   - `templates`: `{template_id: {slots, fallbacks}}`
   - `items[]`: `{video_id,title?,template_id,fallbacks?,text:{top,main,accent,author}}`
 

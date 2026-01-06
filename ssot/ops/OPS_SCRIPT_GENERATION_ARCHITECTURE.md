@@ -131,9 +131,14 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
    - 事故/レート制限/契約変更に備え、Codexを完全にOFFにしても量産が止まらないことを要件とする。
 
 運用スイッチ（迷わないための最小セット）:
-- Codex exec の緊急停止: `YTM_CODEX_EXEC_DISABLE=1`
-- Codex exec の強制ON/OFF: `YTM_CODEX_EXEC_ENABLED=1|0`
-- Codex exec の推論強度: `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（任意）
+- 推奨: **exec-slot** で切替（モデル名/環境変数の直書きを増やさない）
+  - Codex exec を優先: `LLM_EXEC_SLOT=1`
+  - Codex exec を無効化: `LLM_EXEC_SLOT=2`
+- Codex exec の既定設定は `configs/codex_exec.yaml`（個別環境は `configs/codex_exec.local.yaml`）で管理する（SSOTを汚さない）。
+- 緊急デバッグのみ（通常運用ではロックダウンで停止）:
+  - `YTM_CODEX_EXEC_DISABLE=1` / `YTM_CODEX_EXEC_ENABLED=1|0`
+  - `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（任意）
+  - 使う場合は `YTM_EMERGENCY_OVERRIDE=1` を同時にセットして「この実行だけ」例外扱いにする
 
 ### 2.5 本文モデルの「1スイッチ切替」設計（DeepSeek ⇄ Mistral ⇄ GLM-4.7）
 

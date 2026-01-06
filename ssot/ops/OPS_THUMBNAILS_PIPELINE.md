@@ -18,6 +18,8 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 ### 1.1 管理SoT（UIが読む/書く）
 - **Projects SoT**: `workspaces/thumbnails/projects.json`
   - 各チャンネル/各動画のサムネ案（variants）と `status/notes` を追跡。
+  - `variants[].tags` はUI運用の最小拡張に使う。
+    - `rejected`: 不採用（ボツ）フラグ。UI（`/thumbnails`）でチェックを付けて管理する（2案でも**片方だけ**に付けられる）。
 - **Templates SoT**: `workspaces/thumbnails/templates.json`
   - AI生成テンプレ（prompt/model）と、チャンネル別の設定（layer_specs 等）を管理。
   - `templates[].image_model_key` は背景生成に使う ImageClient の **model selector**（model key もしくは slot code）。
@@ -76,6 +78,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - 原則: サムネの“安定出力”は `00_thumb.png` の1枚運用。
 - 2案（`00_thumb_1/2`）を運用する場合は、各動画あたり **2つの別物**として扱う（片方の調整がもう片方に影響しないこと）。
   - UI（`/thumbnails`）のギャラリーは `2案（00_thumb_1/2）` 表示で確認する。未生成の案は `未生成` として表示される（生成/調整の入口）。
+  - 企画CSV一覧（`/planning` の `サムネ` 列）は、`00_thumb_1/00_thumb_2` がある場合 **2枚を並べて表示**し、それぞれクリックで `stable=00_thumb_1|00_thumb_2` を付けて編集画面を開く（混線防止）。
   - UI（調整モーダル）のボタン意味:
     - `保存（設定のみ）`: `thumb_spec.<stable>.json` / `text_line_spec.<stable>.json` / `elements_spec.<stable>.json` を保存（画像PNGは更新しない）
     - `保存して再生成（PNG更新）`: 上記を保存した上で `00_thumb_<n>.png` を再生成して反映する
@@ -92,7 +95,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
     - 背景/肖像/文字effects/template選択などの “leaf overrides” を安定出力ごとに独立保持する。
     - 重要: 2案の混線防止のため、**`00_thumb_2` の既定は `overrides.portrait.enabled=false`**（必要なら `thumb_spec.00_thumb_2.json` で明示的にON）。
       - CH26 は背景に顔が含まれることがあるため、`overrides.portrait.enabled=true` の間は “背景の顔を抑制” (`overrides.portrait.suppress_bg`) を強制ON（ダブルフェイス事故防止）。
-        - 抑制領域は `overrides.portrait.offset_(x|y)` に追従する（UIプレビュー/ビルド両方）。
+        - 抑制領域は `overrides.portrait.offset_(x|y)` に追従しつつ、**元位置とオフセット位置の両方を覆う**（UIプレビュー/ビルド両方）。
   - `assets/{CH}/{NNN}/text_line_spec.<stable>.json`（例: `text_line_spec.00_thumb_1.json`）
     - schema: `ytm.thumbnail.text_line_spec.v1`
     - **文字を行（slot）単位**で “位置/拡大縮小/回転” を保持する（Canva寄せのため）。

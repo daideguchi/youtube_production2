@@ -3,7 +3,7 @@
 ## Runbook metadata
 - **Runbook ID**: RUNBOOK_THINK_MODE_OPERATOR
 - **ステータス**: Active
-- **対象**: THINK MODE（`LLM_MODE=think`）で発生する `workspaces/logs/agent_tasks/pending/*.json`
+- **対象**: THINK MODE（`LLM_EXEC_SLOT=3`）で発生する `workspaces/logs/agent_tasks/pending/*.json`
 - **想定利用者**: AIエージェント（端末操作・ファイル編集・コマンド実行ができる）
 - **最終更新日**: 2025-12-12
 
@@ -14,7 +14,7 @@
 ## 2. 重要な前提
 - **コマンドはエージェントが実行する**（人間は監督/指示のみ）。
 - THINK MODE は「API LLM 呼び出しの代わりに pending を作って停止」する。
-- 重要: **API LLM が落ちた場合も自動で THINK MODE にフォールバック**する（`LLM_API_FAILOVER_TO_THINK`、デフォルト有効）。
+- 重要: **API LLM が落ちた場合も自動で THINK MODE にフォールバック**する（デフォルト有効。無効化は `LLM_EXEC_SLOT=5`）。
 - 複数エージェント運用では `LLM_AGENT_NAME` を設定し、作業前に pending を **claim** して衝突を避ける。
 
 ## 3. 実行プロトコル（ループ）

@@ -7,7 +7,7 @@ schema_version: 1
 # - Make runtime switching numeric & stable (no model-name rewrites).
 #
 # What this controls:
-# - LLM_MODE: api | think | agent
+# - execution mode: api | think | agent
 # - Codex exec layer (read-only) enable/disable override
 # - API → THINK failover enable/disable override (non-script only; script_* still stops)
 #
@@ -17,8 +17,9 @@ schema_version: 1
 # - Or:   ./scripts/with_ytm_env.sh --exec-slot 3 python3 ...
 #
 # Notes:
-# - This slot is applied only when the corresponding env vars are NOT explicitly set.
-#   (Explicit env vars always win; slot is the "safe default".)
+# - Under `YTM_ROUTING_LOCKDOWN=1` (default), direct env overrides like `LLM_MODE` / `YTM_CODEX_EXEC_*`
+#   / `LLM_API_FAILOVER_TO_THINK` are forbidden and will hard-stop. Use exec-slot instead.
+# - When `YTM_ROUTING_LOCKDOWN=0` or `YTM_EMERGENCY_OVERRIDE=1`, explicit env overrides may take precedence.
 # - Per-machine overrides belong in: configs/llm_exec_slots.local.yaml
 
 default_slot: 0
@@ -28,8 +29,8 @@ slots:
     label: api_default
     description: |
       Normal run.
-      - LLM_MODE=api
-      - codex exec: follow configs/codex_exec.yaml (+ env)
+      - mode: API
+      - codex exec: follow configs/codex_exec.yaml (and local override)
       - API→THINK failover: default ON
     llm_mode: api
 
@@ -37,8 +38,8 @@ slots:
     label: api_force_codex_on
     description: |
       Force codex exec ON (for eligible tasks) before API.
-      - LLM_MODE=api
-      - YTM_CODEX_EXEC_ENABLED=1 (unless explicitly set)
+      - mode: API
+      - codex exec: forced ON
     llm_mode: api
     codex_exec:
       enabled: true
@@ -47,8 +48,8 @@ slots:
     label: api_force_codex_off
     description: |
       Force codex exec OFF.
-      - LLM_MODE=api
-      - YTM_CODEX_EXEC_ENABLED=0 (unless explicitly set)
+      - mode: API
+      - codex exec: forced OFF
     llm_mode: api
     codex_exec:
       enabled: false
@@ -57,7 +58,6 @@ slots:
     label: think_mode
     description: |
       THINK MODE (agent queue).
-      - LLM_MODE=think
       - API is not called; pending is created for target tasks
     llm_mode: think
 
@@ -65,7 +65,6 @@ slots:
     label: agent_mode
     description: |
       AGENT MODE (agent queue; explicit).
-      - LLM_MODE=agent
     llm_mode: agent
 
   5:
@@ -73,8 +72,7 @@ slots:
     description: |
       Disable API→THINK failover for non-script tasks.
       (script_* still stops on API failure.)
-      - LLM_MODE=api
-      - LLM_API_FAILOVER_TO_THINK=0 (unless explicitly set)
+      - mode: API
+      - api→think failover: OFF
     llm_mode: api
     api_failover_to_think: false
-

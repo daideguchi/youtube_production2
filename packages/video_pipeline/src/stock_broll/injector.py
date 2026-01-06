@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -96,15 +97,18 @@ def _pick_query_for_provider(cue: Dict[str, Any], provider_dir: str) -> str:
     summary = str(cue.get("summary") or "").strip()
     text = str(cue.get("text") or "").strip()
 
-    base = visual_focus if (visual_focus and re.search(r"[A-Za-z]", visual_focus)) else (summary or text)
+    # Prefer concise, drawable hints; avoid full raw text unless needed.
+    base = visual_focus or summary or text
     base = normalize_query(base)
 
     if provider_dir != "coverr":
+        base = _maybe_translate_to_english_query(base)
         base = re.sub(r"[\"'`<>]", "", base).strip()
         return base[:90]
 
     # Coverr: extract a few strong keywords from the English parts.
-    words = re.findall(r"[A-Za-z]+", f"{visual_focus} {summary}".lower())
+    hint = _maybe_translate_to_english_query(f"{visual_focus} {summary}".strip())
+    words = re.findall(r"[A-Za-z]+", hint.lower())
     kept: List[str] = []
     for w in words:
         if w in _COVERR_STOPWORDS:
@@ -123,10 +127,10 @@ def _pick_query_for_provider(cue: Dict[str, Any], provider_dir: str) -> str:
 def _coverr_query_candidates(cue: Dict[str, Any]) -> List[str]:
     visual_focus = str(cue.get("visual_focus") or "").strip()
     summary = str(cue.get("summary") or "").strip()
-    base = normalize_query(visual_focus if re.search(r"[A-Za-z]", visual_focus or "") else (summary or ""))
+    base = normalize_query(_maybe_translate_to_english_query(visual_focus or summary or ""))
     base = re.sub(r"[\"'`<>]", "", base).strip()
 
-    words = re.findall(r"[A-Za-z]+", f"{visual_focus} {summary}".lower())
+    words = re.findall(r"[A-Za-z]+", base.lower())
     kept: List[str] = []
     for w in words:
         if w in _COVERR_STOPWORDS:
@@ -208,6 +212,77 @@ def _provider_norm(provider: str) -> str:
     if p in {"pixel", "pexels"}:
         return "pexels"
     return p
+
+
+_BROLL_QUERY_CACHE: Dict[str, str] = {}
+
+
+def _maybe_translate_to_english_query(text: str) -> str:
+    """
+    Stock providers (pexels/pixabay) are heavily English-indexed. When cues are Japanese-only,
+    translate into a short English keyword query for higher hit rates.
+
+    This is NOT a visual-motif shortcut: it should preserve the concrete scene described by the cue.
+    """
+    raw = normalize_query(text)
+    if not raw:
+        return ""
+    if re.search(r"[A-Za-z]", raw):
+        return raw
+
+    key = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+    cached = _BROLL_QUERY_CACHE.get(key)
+    if cached:
+        return cached
+
+    # Lazy import to keep injector lightweight for non-LLM workflows.
+    try:
+        from factory_common.llm_router import get_router  # noqa: WPS433 (runtime import)
+    except Exception:
+        return raw
+
+    prompt = "\n".join(
+        [
+            "Convert the following Japanese scene description into an English stock video search query.",
+            "Output rules:",
+            "- Return ONLY the query (no quotes, no punctuation).",
+            "- 2–5 simple words, concrete visible objects/actions/places.",
+            "- Avoid metaphors/symbols; avoid 'illustration', 'painting', 'anime'.",
+            "- No brand names, no text, no UI.",
+            "",
+            f"Japanese: {raw}",
+        ]
+    )
+
+    try:
+        # IMPORTANT:
+        # - OpenRouter (standard tier) may be out-of-credits in this repo.
+        # - Fireworks script keys can be suspended depending on the machine/state.
+        # Use a stable, SSOT-provisioned Azure model explicitly for this small translation.
+        q = str(
+            get_router().call(
+                task="broll_query",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0,
+                max_tokens=128,
+                timeout=60,
+                model_keys=["azure_gpt5_mini"],
+            )
+            or ""
+        ).strip()
+    except BaseException:
+        return raw
+
+    q = q.splitlines()[0].strip()
+    q = re.sub(r"[\"'`<>]", "", q)
+    q = re.sub(r"[^A-Za-z0-9 _-]+", " ", q)
+    q = re.sub(r"\s+", " ", q).strip()
+    if not q:
+        return raw
+
+    # Cache and return.
+    _BROLL_QUERY_CACHE[key] = q
+    return q
 
 
 def inject_broll_into_run(

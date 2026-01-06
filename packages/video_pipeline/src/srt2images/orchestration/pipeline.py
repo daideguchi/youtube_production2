@@ -483,6 +483,8 @@ def run_pipeline(args):
         return bool(re.search(r"[一-龠ぁ-んァ-ン]", text or ""))
 
     def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
+        import re
+
         s = str(visual_focus or "").strip()
         if not s:
             return ""
@@ -510,19 +512,22 @@ def run_pipeline(args):
             "handwriting",
             "calligraphy",
         )
-        icon_words = ("icon", "icons", "symbol", "symbols")
 
-        if any(w in lower for w in text_words):
-            if "note" in lower:
+        def _has_word(word: str) -> bool:
+            try:
+                return bool(re.search(rf"\b{re.escape(word)}\b", lower))
+            except Exception:
+                return word in lower
+
+        def _has_any(words: tuple[str, ...]) -> bool:
+            return any(_has_word(w) for w in words)
+
+        if _has_any(text_words):
+            if _has_word("note"):
                 return "Small blank note by pillow, soft moonlight, quiet room"
-            if any(w in lower for w in ("journal", "notebook", "paper", "page")):
+            if _has_any(("journal", "notebook", "paper", "page")):
                 return "Hand with pen above blank notebook page, warm lantern light"
             return "Hand holding pen above blank paper, warm lantern light"
-
-        if any(w in lower for w in icon_words):
-            if any(w in lower for w in ("breath", "inhale", "exhale", "cool in", "warm out", "pause")):
-                return "Incense smoke showing inhale–pause–exhale cycle"
-            return "Three simple objects arranged neatly on a wooden table"
 
         return s
 

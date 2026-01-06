@@ -1,0 +1,59 @@
+version: 3
+name: CH08_image_prompts_sample_v3
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  forbid_text: true
+items:
+  - video_id: CH08-031
+    title: '【眠れない夜】頭の回転を止める静かな読書儀式'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, open book, swirling thoughts settling like dust into calm water bowl
+
+  - video_id: CH08-032
+    title: '【過覚醒】寝る前3分で心を緩める呼吸と灯り'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, candle flame and gentle breath mist, small hourglass, soft calming glow
+
+  - video_id: CH08-033
+    title: '【情報疲れ】夜に心を閉じる「一行日記」の方法'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, small notebook and pen, a single blank line on paper, tidy desk, quiet closure
+
+  - video_id: CH08-034
+    title: '【不安】未来の心配を小さくする紙の箱メソッド'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, small paper box on desk, tiny paper birds flying into it, anxiety contained
+
+  - video_id: CH08-035
+    title: '【孤独】一人の夜を安心に変える「静かな対話」'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, two chairs facing, warm circle of light, faint empty speech bubbles without text
+
+  - video_id: CH08-036
+    title: '【自己否定】自分を責める声を静める夜の言葉'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, soft glowing droplets near the heart area, gentle hand on chest, soothing mood
+
+  - video_id: CH08-061
+    title: '【寝つき】頭を静かに切り替える「合図」'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, a small bell without markings as a gentle cue, calm breath mist fading, cozy chair, serene mood
+
+  - video_id: CH08-062
+    title: '【夜の反芻】考えが戻る時のやさしい止め方'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, looping ribbon-like thought trails gently untangling into calm dust, a small bowl of water reflecting light, soothing
+
+  - video_id: CH08-063
+    title: '【不安】胸がざわつく夜に「感情の名前」を付ける'
+    person_key: symbolic
+    prompt_ja: |
+      moonlit hidden library room, warm desk lamp, floating books, soft teal and gold, tranquil atmosphere, gentle bokeh, cinematic soft lighting, 16:9, no text, no letters, no numbers, clean negative space for overlay text, warm light around chest area, colored droplets floating like labeled emotions but without text, gentle hand on heart, calm

@@ -38,6 +38,9 @@ timeout_s_by_task:
   script_outline: 300
   script_master_plan: 420
   script_chapter_brief: 420
+  # Visual planning can be long (large SRT + JSON schema); allow enough time to avoid API fallback.
+  visual_section_plan: 900
+  visual_image_cues_plan: 900
 
 # Optional: pass `-m <MODEL>` to `codex exec`.
 # Empty means "use Codex CLI defaults".

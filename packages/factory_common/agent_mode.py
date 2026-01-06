@@ -6,7 +6,11 @@ Goal:
 - Keep the switch opt-in via env vars (default remains API).
 
 Key env vars (SSOT: ssot/ops/OPS_ENV_VARS.md):
-- LLM_MODE=api|agent|think  (think is an alias of agent, with safe defaults)
+- LLM_EXEC_SLOT=0|3|4 (recommended; stable)
+  - 0: API
+  - 3: THINK (agent queue; safe defaults)
+  - 4: AGENT (agent queue; explicit)
+- LLM_MODE=api|agent|think (legacy; blocked under routing lockdown unless emergency override)
 - LLM_AGENT_QUEUE_DIR=/abs/or/relative/path (default: workspaces/logs/agent_tasks)
 - LLM_AGENT_NAME=Mike (optional; used for claimed_by/completed_by metadata)
 - LLM_AGENT_TASKS=comma,separated,task,names (optional; exact allowlist)
@@ -116,7 +120,7 @@ def agent_mode_enabled_for_task(task: str) -> bool:
         prefixes = [p.strip() for p in prefixes_csv.split(",") if p.strip()]
         return any(task.startswith(p) for p in prefixes)
 
-    # No allowlist specified → allow all tasks (still opt-in via LLM_MODE)
+    # No allowlist specified → allow all tasks (still opt-in via exec-slot / agent-mode)
     return True
 
 

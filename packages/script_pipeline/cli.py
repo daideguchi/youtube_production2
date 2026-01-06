@@ -15,6 +15,11 @@ from .runner import _load_stage_defs  # internal use for init ordering
 from .runner import _load_sources  # internal use for SSOT syncing
 from .sot import save_status
 from .sot import DATA_ROOT
+from factory_common.routing_lockdown import (
+    assert_no_llm_model_overrides,
+    assert_task_overrides_unchanged,
+    lockdown_active,
+)
 
 
 def _utc_now_compact() -> str:
@@ -112,7 +117,7 @@ def parse_args() -> argparse.Namespace:
     common.add_argument(
         "--llm-model",
         action="append",
-        help="Force LLM router model key(s) for this run (comma-separated). Can be repeated.",
+        help="Force LLM router model key(s) for this run (comma-separated). DEBUG ONLY; prefer --llm-slot.",
     )
     common.add_argument(
         "--llm-slot",
@@ -127,7 +132,7 @@ def parse_args() -> argparse.Namespace:
     common.add_argument(
         "--llm-task-model",
         action="append",
-        help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
+        help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable). DEBUG ONLY.",
     )
 
     sub.add_parser("init", parents=[common], help="Initialize status.json if missing")
@@ -187,6 +192,10 @@ def main() -> None:
     no = args.video.zfill(3)
     title = args.title
 
+    # Lockdown policy (default ON): forbid ad-hoc model overrides that cause drift across agents.
+    assert_no_llm_model_overrides(context="script_pipeline.cli (startup)")
+    assert_task_overrides_unchanged(context="script_pipeline.cli (startup)")
+
     # Apply optional LLM overrides for this CLI process.
     if getattr(args, "llm_slot", None) is not None:
         try:
@@ -218,6 +227,11 @@ def main() -> None:
             if len(flattened) == 1 and flattened[0].isdigit():
                 os.environ["LLM_MODEL_SLOT"] = flattened[0]
             else:
+                if lockdown_active():
+                    raise SystemExit(
+                        "Forbidden: --llm-model with non-numeric values under YTM_ROUTING_LOCKDOWN=1. "
+                        "Use --llm-slot (numeric) instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+                    )
                 os.environ["LLM_FORCE_MODELS"] = ",".join(flattened)
 
     if getattr(args, "llm_task_model", None):
@@ -237,6 +251,11 @@ def main() -> None:
                 raise SystemExit(f"--llm-task-model models are empty: {spec}")
             mapping[task] = model_keys
         if mapping:
+            if lockdown_active():
+                raise SystemExit(
+                    "Forbidden: --llm-task-model under YTM_ROUTING_LOCKDOWN=1. "
+                    "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead."
+                )
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
     if args.command == "a-text-rebuild":

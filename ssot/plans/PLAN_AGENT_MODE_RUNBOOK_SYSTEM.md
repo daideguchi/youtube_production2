@@ -23,7 +23,7 @@
 - API/Agent をフラグで切替できるようにし、破壊的変更なしで段階導入する。
 
 ## 2. 成功条件（DoD）
-- `LLM_MODE=agent|think` で実行すると、LLM 呼び出しが:
+- `LLM_EXEC_SLOT=3|4`（THINK/AGENT）で実行すると、LLM 呼び出しが:
   - API を呼ばず `workspaces/logs/agent_tasks/pending/` にタスク JSON を生成し停止（互換: `logs/agent_tasks/...`）
   - `workspaces/logs/agent_tasks/results/<id>.json` が存在すれば API の代わりにそれを返す（互換: `logs/agent_tasks/...`）
   - `complete → rerun` で **同じコマンドが続きから進む**
@@ -38,12 +38,14 @@
 ## 4. 切替（環境変数）
 正本: `ssot/ops/OPS_ENV_VARS.md`
 
-- `LLM_MODE`:
-  - `api`（デフォルト）: 既存の API LLM 呼び出し
-  - `agent`: すべて agent-mode（pending を作って停止）
-  - `think`: `agent` の別名（THINK MODE）。フィルタ未指定なら **テキスト系のみ** を安全デフォルトで intercept
+- `LLM_EXEC_SLOT`（推奨）:
+  - `0`（デフォルト）: 既存の API LLM 呼び出し
+  - `3`（THINK MODE）: pending を作って停止（安全デフォルトで intercept）
+  - `4`（AGENT MODE）: pending を作って停止（明示）
+- 互換/緊急用: `LLM_MODE=api|agent|think`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
 - API失敗時のTHINK MODEフォールバック（重要ルール）:
-  - `LLM_API_FAILOVER_TO_THINK`（デフォルト有効）: API LLM が失敗したら自動で pending を作って停止（= THINK MODEで続行可能）
+  - デフォルト有効: API LLM が失敗したら自動で pending を作って停止（= THINK MODEで続行可能）
+  - 無効化: `LLM_EXEC_SLOT=5`（非scriptのみ。`script_*` は例外で停止）
 - 担当エージェント名（推奨）:
   - `LLM_AGENT_NAME=...`（例: `LLM_AGENT_NAME=Mike`）
     - pending に `claimed_by` / `claimed_at` を自動付与

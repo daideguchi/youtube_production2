@@ -174,6 +174,7 @@ from backend.core.tools.prompt_utils import auto_placeholder_values
 from script_pipeline.tools import planning_requirements, planning_store
 from script_pipeline.tools import openrouter_models as openrouter_model_utils
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
+from backend.app.publish_sheet_client import PublishSheetClient, PublishSheetError
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
@@ -2284,16 +2285,8 @@ def _launch_batch_task(
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.touch()
 
-    # llm_model の解決 (Noneならデフォルト設定を適用)
-    if config.llm_model is None:
-        current_settings = _get_ui_settings()
-        resolved_provider, resolved_model = _resolve_phase_choice(
-            current_settings.get("llm", {}),
-            "script_rewrite",
-            default_provider="openrouter",
-            default_model="qwen/qwen3-14b:free"
-        )
-        config.llm_model = f"{resolved_provider}:{resolved_model}" if resolved_provider else resolved_model
+    # NOTE: Do not auto-fill llm_model here.
+    # Model routing must be controlled by numeric slots (llm_slot / LLM_MODEL_SLOT) to prevent drift.
 
     config_path = log_path.with_suffix(".config.json")
     config_payload = config.model_dump()
@@ -2339,6 +2332,10 @@ def _build_batch_command(
         "--until",
         "script_validation",
     ]
+    if getattr(config, "llm_slot", None) is not None:
+        cmd.extend(["--llm-slot", str(int(config.llm_slot))])
+    if getattr(config, "exec_slot", None) is not None:
+        cmd.extend(["--exec-slot", str(int(config.exec_slot))])
     return cmd
 
 
@@ -2355,6 +2352,19 @@ async def run_batch_workflow_task(task_id: str, channel_code: str, video_numbers
     if queue_id:
         _update_queue_progress(queue_id, total=total_videos, status=QueueEntryStatus.running.value, processed=0, current_video=None)
     
+    # Legacy compatibility: llm_model accepts numeric-only as slot id.
+    # Non-numeric values are forbidden to prevent drift across agents.
+    raw_legacy_slot = str(getattr(config, "llm_model", "") or "").strip()
+    if raw_legacy_slot:
+        if raw_legacy_slot.isdigit():
+            if getattr(config, "llm_slot", None) is None:
+                config.llm_slot = int(raw_legacy_slot)
+        else:
+            raise RuntimeError(
+                "Forbidden batch config: llm_model must be numeric slot (LLM_MODEL_SLOT). "
+                "Use config.llm_slot / --llm-slot instead."
+            )
+
     try:
         with log_path.open("a", encoding="utf-8") as log_file:
             for index, video in enumerate(video_numbers):
@@ -2366,10 +2376,6 @@ async def run_batch_workflow_task(task_id: str, channel_code: str, video_numbers
                 
                 cmd = _build_batch_command(channel_code, video, config, config_path)
                 env = os.environ.copy()
-                if config.llm_model:
-                    # Best-effort: let llm_router override models without editing configs.
-                    # (If the key is unknown, llm_router logs a warning and ignores it.)
-                    env["LLM_FORCE_MODELS"] = str(config.llm_model).strip()
                 process = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdout=asyncio.subprocess.PIPE,
@@ -5110,7 +5116,20 @@ class BatchWorkflowConfig(BaseModel):
     max_characters: int = Field(12000, ge=1000)
     script_prompt_template: Optional[str] = None
     quality_check_template: Optional[str] = None
-    llm_model: Optional[str] = Field(None, description="未指定の場合はシステム設定の 'script_rewrite' モデルを使用")
+    llm_slot: Optional[int] = Field(
+        None,
+        ge=0,
+        description="推奨: 数字スロット（LLM_MODEL_SLOT）。未指定ならデフォルトslot。",
+    )
+    exec_slot: Optional[int] = Field(
+        None,
+        ge=0,
+        description="推奨: 実行スロット（LLM_EXEC_SLOT）。未指定ならデフォルトslot。",
+    )
+    llm_model: Optional[str] = Field(
+        None,
+        description="[deprecated] モデル名/キーでの上書き。ブレ防止のため通常運用では禁止。数字だけ指定した場合は slot として解釈。",
+    )
     loop_mode: bool = True
     auto_retry: bool = True
     debug_log: bool = False
@@ -5309,6 +5328,37 @@ class PublishUnlockResponse(BaseModel):
     channel: str
     video: str
     updated_at: str
+
+
+class PublishingScheduleVideoItem(BaseModel):
+    channel: str
+    video: Optional[str] = None
+    title: Optional[str] = None
+    status: Optional[str] = None
+    visibility: Optional[str] = None
+    scheduled_publish_at: Optional[str] = None
+    youtube_video_id: Optional[str] = None
+
+
+class PublishingScheduleChannelSummary(BaseModel):
+    channel: str
+    last_published_date: Optional[str] = None
+    last_scheduled_date: Optional[str] = None
+    schedule_runway_days: int = 0
+    upcoming_count: int = 0
+    upcoming: List[PublishingScheduleVideoItem] = Field(default_factory=list)
+
+
+class PublishingScheduleOverviewResponse(BaseModel):
+    status: str
+    timezone: str
+    today: str
+    now: str
+    sheet_id: Optional[str] = None
+    sheet_name: Optional[str] = None
+    fetched_at: Optional[str] = None
+    channels: List[PublishingScheduleChannelSummary]
+    warnings: List[str] = Field(default_factory=list)
 
 
 
@@ -9013,6 +9063,125 @@ def dashboard_overview(
         channels=overview_channels,
         stage_matrix=stage_matrix,
         alerts=alerts,
+    )
+
+
+@app.get("/api/publishing/runway", response_model=PublishingScheduleOverviewResponse)
+def publishing_runway_overview(
+    refresh: bool = Query(False, description="キャッシュを無視して外部SoTを再取得"),
+    limit: int = Query(12, ge=0, le=100, description="各チャンネルで返す今後の予約本数"),
+):
+    """
+    External SoT（Google Sheet）から「投稿予約（公開予約）」の最終到達点を集計する。
+
+    Note:
+      - local planning/status の「投稿済みロック」とは別系統。ここは publish sheet を正とする。
+      - UI は `schedule_runway_days` をキーに優先度付けできる。
+    """
+
+    try:
+        client = PublishSheetClient.from_env()
+        sheet_rows, fetched_at = client.fetch_rows(force=bool(refresh))
+    except PublishSheetError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    tz_name = "Asia/Tokyo"
+    try:
+        from zoneinfo import ZoneInfo
+
+        tz = ZoneInfo(tz_name)
+    except Exception:
+        tz = timezone(timedelta(hours=9))
+
+    now_utc = datetime.now(timezone.utc)
+    now_jst = now_utc.astimezone(tz)
+    today_jst = now_jst.date()
+
+    def _parse_schedule(value: str) -> Optional[datetime]:
+        dt = parse_iso_datetime((value or "").strip())
+        if not dt:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+
+    warnings: List[str] = []
+    grouped: Dict[str, List[Tuple[Optional[datetime], PublishingScheduleVideoItem]]] = {}
+
+    for row in sheet_rows:
+        ch_raw = str(row.get("Channel") or "").strip()
+        ch = ch_raw.upper()
+        if not ch or not re.match(r"^CH\\d+$", ch):
+            if ch_raw:
+                warnings.append(f"Invalid Channel in publish sheet: {ch_raw} (row {row.get('_row_number')})")
+            continue
+
+        video = normalize_planning_video_number(row.get("VideoNo"))
+        scheduled_dt = _parse_schedule(str(row.get("ScheduledPublish (RFC3339)") or ""))
+
+        item = PublishingScheduleVideoItem(
+            channel=ch,
+            video=video,
+            title=normalize_optional_text(row.get("Title")),
+            status=normalize_optional_text(row.get("Status")),
+            visibility=normalize_optional_text(row.get("Visibility")),
+            scheduled_publish_at=scheduled_dt.astimezone(tz).isoformat() if scheduled_dt else None,
+            youtube_video_id=normalize_optional_text(row.get("YouTube Video ID")),
+        )
+        grouped.setdefault(ch, []).append((scheduled_dt, item))
+
+    # Ensure local-known channels appear even if the sheet is partial.
+    for code in list_known_channel_codes(refresh_channel_info(force=True)):
+        grouped.setdefault(code, [])
+
+    summaries: List[PublishingScheduleChannelSummary] = []
+    for ch in sorted(grouped.keys(), key=_channel_sort_key):
+        pairs = grouped.get(ch) or []
+        uploaded = [(dt, it) for dt, it in pairs if (it.youtube_video_id or "").strip()]
+        upcoming = [(dt, it) for dt, it in uploaded if dt is not None and dt > now_utc]
+        published = [(dt, it) for dt, it in uploaded if dt is not None and dt <= now_utc]
+
+        upcoming.sort(key=lambda x: x[0])
+        published.sort(key=lambda x: x[0])
+
+        last_scheduled_date = None
+        runway_days = 0
+        if upcoming:
+            last_scheduled_dt = upcoming[-1][0].astimezone(tz)
+            last_scheduled_date = last_scheduled_dt.date().isoformat()
+            runway_days = (last_scheduled_dt.date() - today_jst).days
+            if runway_days < 0:
+                runway_days = 0
+
+        last_published_date = None
+        if published:
+            last_published_dt = published[-1][0].astimezone(tz)
+            last_published_date = last_published_dt.date().isoformat()
+
+        summaries.append(
+            PublishingScheduleChannelSummary(
+                channel=ch,
+                last_published_date=last_published_date,
+                last_scheduled_date=last_scheduled_date,
+                schedule_runway_days=runway_days,
+                upcoming_count=len(upcoming),
+                upcoming=[it for _, it in upcoming[: int(limit)]],
+            )
+        )
+
+    # Sort by runway (short first), then channel.
+    summaries.sort(key=lambda s: (s.schedule_runway_days, _channel_sort_key(s.channel)))
+
+    return PublishingScheduleOverviewResponse(
+        status="ok",
+        timezone=tz_name,
+        today=today_jst.isoformat(),
+        now=now_jst.isoformat(),
+        sheet_id=client.config.sheet_id,
+        sheet_name=client.config.sheet_name,
+        fetched_at=fetched_at,
+        channels=summaries,
+        warnings=warnings[:200],
     )
 
 
@@ -13663,6 +13832,25 @@ def _find_thumbnails(channel: str, video: Optional[str] = None, title: Optional[
         return []
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video) if video else None
+
+    # Fast path: when channel+video is known, prefer stable outputs from the standard assets layout.
+    # This keeps 2案(00_thumb_1/2) discoverable and avoids expensive full-tree scans.
+    if video_no:
+        asset_dir = base / "assets" / channel_code / video_no
+        preferred_names = ("00_thumb_1.png", "00_thumb_2.png", "00_thumb.png")
+        candidates = [asset_dir / name for name in preferred_names if (asset_dir / name).is_file()]
+        if candidates:
+            results: List[Dict[str, str]] = []
+            for p in candidates[: max(0, int(limit))]:
+                rel = p.relative_to(PROJECT_ROOT)
+                results.append(
+                    {
+                        "path": str(rel),
+                        "url": f"/thumbnails/assets/{channel_code}/{video_no}/{p.name}",
+                        "name": p.name,
+                    }
+                )
+            return results
     video_no_int = None
     if video_no and video_no.isdigit():
         try:
@@ -14400,6 +14588,14 @@ def _task_response(task_id: str, record: Dict[str, Any]) -> BatchWorkflowTaskRes
 async def start_batch_workflow(payload: BatchWorkflowRequest):
     channel_code = normalize_channel_code(payload.channel_code)
     video_numbers = [normalize_video_number(v) for v in payload.video_numbers]
+    # Guard: prevent drift across agents by forbidding non-slot model overrides.
+    if payload.config and getattr(payload.config, "llm_model", None):
+        raw = str(getattr(payload.config, "llm_model") or "").strip()
+        if raw and not raw.isdigit():
+            raise HTTPException(
+                status_code=400,
+                detail="llm_model は禁止です（ブレ防止）。数字スロット（llm_slot / LLM_MODEL_SLOT）を指定してください。",
+            )
     if _channel_is_busy(channel_code):
         raise HTTPException(
             status_code=409,
@@ -14413,6 +14609,13 @@ async def start_batch_workflow(payload: BatchWorkflowRequest):
 async def enqueue_batch_workflow(payload: BatchQueueRequest):
     channel_code = normalize_channel_code(payload.channel_code)
     video_numbers = [normalize_video_number(v) for v in payload.video_numbers]
+    if payload.config and getattr(payload.config, "llm_model", None):
+        raw = str(getattr(payload.config, "llm_model") or "").strip()
+        if raw and not raw.isdigit():
+            raise HTTPException(
+                status_code=400,
+                detail="llm_model は禁止です（ブレ防止）。数字スロット（llm_slot / LLM_MODEL_SLOT）を指定してください。",
+            )
     entry_id = insert_queue_entry(channel_code, video_numbers, payload.config)
     entry = get_queue_entry(entry_id)
     if not entry:

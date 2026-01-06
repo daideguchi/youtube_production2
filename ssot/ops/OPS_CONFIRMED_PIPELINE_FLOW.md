@@ -134,7 +134,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - `packages/script_pipeline/channels/CHxx-*/script_prompt.txt`（チャンネル固有の台本プロンプト）
 - LLM設定:
   - `packages/factory_common/llm_router.py` が `.env` と `configs/llm_router*.yaml` / `configs/llm_task_overrides.yaml` を参照して task→tier→model を解決。
-  - `LLM_MODE=api|think|agent` の2ルート（API実行 or pendingキュー）。
+  - 実行モードは **exec-slot** で切替: `LLM_EXEC_SLOT=0(api)` / `3(think)` / `4(agent)`（think/agent は pending キュー）。
 
 **Stages と Outputs（現行 stages.yaml）**
 1. `topic_research`
@@ -292,7 +292,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 1. `run_pipeline` 実行（cue生成＋画像生成）
    - cues 計画の分岐:
      - 通常: Visual Bible → `LLMContextAnalyzer`（文脈分割）→ `PromptRefiner`（近傍整合）
-     - THINK/AGENT（`LLM_MODE=think|agent`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
+     - THINK/AGENT（`LLM_EXEC_SLOT=3|4`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
        - `visual_image_cues_plan`（single-task）で区間計画→ cues 化
        - `PromptRefiner` はスキップ（stop/resume ループ回避）
        - **禁止**: no-LLM のヒューリスティック（辞書/固定プール等）で `visual_focus` を機械生成して続行しない。不足は `pending` で停止→runbookに従って埋めて再実行。

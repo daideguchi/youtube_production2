@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Tuple
 import yaml
 
 from factory_common.paths import repo_root
+from factory_common.routing_lockdown import assert_env_absent
 
 
 DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
@@ -129,6 +130,20 @@ def load_codex_exec_config() -> Dict[str, Any]:
 
 
 def _codex_exec_globally_enabled(cfg: Dict[str, Any]) -> bool:
+    assert_env_absent(
+        [
+            "YTM_CODEX_EXEC_DISABLE",
+            "YTM_CODEX_EXEC_ENABLED",
+            "YTM_CODEX_EXEC_PROFILE",
+            "YTM_CODEX_EXEC_SANDBOX",
+            "YTM_CODEX_EXEC_TIMEOUT_S",
+            "YTM_CODEX_EXEC_MODEL",
+            "YTM_CODEX_EXEC_EXCLUDE_TASKS",
+            "YTM_CODEX_EXEC_ENABLE_IN_PYTEST",
+        ],
+        context="codex_exec_layer._codex_exec_globally_enabled",
+        hint="Use LLM_EXEC_SLOT=1/2 (codex on/off) and configs/codex_exec.yaml for defaults.",
+    )
     if _truthy(_env("YTM_CODEX_EXEC_DISABLE")):
         return False
 

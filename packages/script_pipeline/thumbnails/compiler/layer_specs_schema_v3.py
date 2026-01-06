@@ -291,6 +291,9 @@ class TextBackdropSpec:
     mode: str
     color: str
     alpha: float
+    image_path: Optional[str]
+    fit: str
+    colorize: bool
     pad_x_px: int
     pad_y_px: int
     roughness: float
@@ -587,6 +590,9 @@ def _parse_slot(
                 "mode",
                 "color",
                 "alpha",
+                "image_path",
+                "fit",
+                "colorize",
                 "pad_x_px",
                 "pad_y_px",
                 "roughness",
@@ -598,12 +604,22 @@ def _parse_slot(
         )
         enabled = _as_bool(spec_path, [*bp, "enabled"], bd.get("enabled", True))
         mode = _as_str(spec_path, [*bp, "mode"], bd.get("mode", "brush_stroke")).lower()
-        if mode not in {"brush_stroke", "brushstroke", "brush"}:
+        if mode not in {"brush_stroke", "brushstroke", "brush", "image", "png", "asset"}:
             raise _err(spec_path, [*bp, "mode"], f"invalid backdrop mode: {mode}")
         color = _as_str(spec_path, [*bp, "color"], bd.get("color", "#000000"))
         alpha = _as_float(spec_path, [*bp, "alpha"], bd.get("alpha", 0.9))
         if alpha < 0.0 or alpha > 1.0:
             raise _err(spec_path, [*bp, "alpha"], "alpha must be 0..1")
+
+        image_path: Optional[str] = None
+        fit = "cover"
+        colorize = False
+        if mode in {"image", "png", "asset"}:
+            image_path = _as_str(spec_path, [*bp, "image_path"], bd.get("image_path") or "")
+            fit = _as_str(spec_path, [*bp, "fit"], bd.get("fit") or "cover").lower()
+            if fit not in {"stretch", "cover", "contain"}:
+                raise _err(spec_path, [*bp, "fit"], f"invalid fit: {fit}")
+            colorize = _as_bool(spec_path, [*bp, "colorize"], bd.get("colorize", False))
         pad_x_px = _as_int(spec_path, [*bp, "pad_x_px"], bd.get("pad_x_px", 84), min_value=0)
         pad_y_px = _as_int(spec_path, [*bp, "pad_y_px"], bd.get("pad_y_px", 24), min_value=0)
         roughness = _as_float(spec_path, [*bp, "roughness"], bd.get("roughness", 0.25))
@@ -620,6 +636,9 @@ def _parse_slot(
             mode=mode,
             color=color,
             alpha=float(alpha),
+            image_path=image_path,
+            fit=fit,
+            colorize=colorize,
             pad_x_px=pad_x_px,
             pad_y_px=pad_y_px,
             roughness=float(roughness),

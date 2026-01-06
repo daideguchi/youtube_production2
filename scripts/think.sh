@@ -133,7 +133,8 @@ while :; do
   fi
 
   ENV_VARS=(
-    LLM_MODE=think
+    # Use exec-slot (not LLM_MODE) to avoid drift across agents.
+    LLM_EXEC_SLOT=3
     LLM_AGENT_QUEUE_DIR="$QUEUE_DIR"
     LLM_AGENT_TASK_PREFIXES="$PREFIXES"
     LLM_AGENT_EXCLUDE_TASKS="$EXCLUDE_TASKS"

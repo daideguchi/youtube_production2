@@ -187,6 +187,26 @@ const normalizeVideo = (value: any): string => {
   return digits.padStart(3, "0");
 };
 
+const normalizeThumbStable = (raw: string | null | undefined): string | null => {
+  const value = String(raw ?? "").trim();
+  if (!value) return null;
+  const base = value.split("?")[0]?.split("#")[0] ?? value;
+  const name = base.split("/").filter(Boolean).slice(-1)[0] ?? base;
+  if (name === "00_thumb_1.png" || name === "00_thumb_2.png") {
+    return name.replace(/\.png$/i, "");
+  }
+  return null;
+};
+
+const pickTwoUpThumb = (items: ThumbnailLookupItem[], stable: "00_thumb_1" | "00_thumb_2"): ThumbnailLookupItem | null => {
+  return (
+    items.find((item) => normalizeThumbStable(item.name) === stable) ??
+    items.find((item) => normalizeThumbStable(item.path) === stable) ??
+    items.find((item) => normalizeThumbStable(item.url) === stable) ??
+    null
+  );
+};
+
 const formatDialogAuditBadge = (
   item: DialogAiAuditItem | null | undefined
 ): { label: string; cls: string; title: string } => {
@@ -480,11 +500,13 @@ export function PlanningPage() {
     [navigate]
   );
   const goToThumbnailsPage = useCallback(
-    (channelCode: string, videoRaw: string) => {
+    (channelCode: string, videoRaw: string, options?: { stable?: string | null }) => {
       const ch = normalizeChannelCode(channelCode);
       const token = normalizeVideo(videoRaw);
       if (!/^CH\\d{2,3}$/.test(ch) || !token) return;
-      navigate(`/thumbnails?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(token)}`);
+      const stable = String(options?.stable ?? "").trim();
+      const stableQuery = stable ? `&stable=${encodeURIComponent(stable)}` : "";
+      navigate(`/thumbnails?channel=${encodeURIComponent(ch)}&video=${encodeURIComponent(token)}${stableQuery}`);
     },
     [navigate]
   );
@@ -577,8 +599,10 @@ export function PlanningPage() {
 
   const requestThumbForRow = useCallback(
     (row: Row) => {
-      const ch = row["チャンネル"] || channel;
-      const vid = row["動画番号"] || row["video"] || "";
+      const chRaw = row["チャンネル"] || row["channel"] || row["channel_code"] || row["CH"] || row["ch"] || channel;
+      const vidRaw = row["動画番号"] || row["動画ID"] || row["video"] || row["video_number"] || row["vid"] || row["番号"] || "";
+      const ch = normalizeChannelCode(String(chRaw));
+      const vid = normalizeVideo(String(vidRaw));
       if (!ch || !vid) return;
       const key = `${ch}-${vid}`;
       if (thumbRequestedRef.current.has(key)) return;
@@ -593,7 +617,7 @@ export function PlanningPage() {
         return;
       }
 
-      lookupThumbnails(ch, vid, row["タイトル"] || undefined, 1)
+      lookupThumbnails(ch, vid, row["タイトル"] || undefined, 3)
         .then((res) => {
           setThumbMap((prev) => ({
             ...prev,
@@ -992,7 +1016,7 @@ export function PlanningPage() {
           </thead>
           <tbody>
             {filteredRows.map((row, idx) => {
-              const ch = String(row["チャンネル"] || channel || "").trim().toUpperCase();
+              const ch = normalizeChannelCode(String(row["チャンネル"] || channel || ""));
               const vid = normalizeVideo(row["動画番号"] || row["video"] || "");
               const rowKey = ch && vid ? `${ch}-${vid}` : "";
               const dup = rowKey ? keyConceptDupes.dupByRow[rowKey] : null;
@@ -1009,9 +1033,9 @@ export function PlanningPage() {
                   const isMedium = MEDIUM_COLUMNS.has(col);
                   const isThumb = THUMB_COLUMNS.has(col);
                   const isDupKeyConcept = col === "キーコンセプト" && Boolean(dup);
-                  const thumbKey = `${row["チャンネル"] || channel}-${row["動画番号"] || row["video"] || ""}`;
-                  const thumbs = thumbMap[thumbKey] || [];
-                  if (isThumb && !thumbMap[thumbKey]) {
+                  const thumbKey = rowKey;
+                  const thumbs = thumbKey ? thumbMap[thumbKey] || [] : [];
+                  if (isThumb && thumbKey && !thumbMap[thumbKey]) {
                     requestThumbForRow(row);
                   }
                   return (
@@ -1168,59 +1192,100 @@ export function PlanningPage() {
                         })()
                       ) : col === "サムネ" ? (
                         thumbs.length ? (
-                          <button
-                            type="button"
-                            className="planning-page__thumb"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const ch =
-                                row["チャンネル"] ||
-                                row["channel"] ||
-                                row["channel_code"] ||
-                                row["CH"] ||
-                                row["ch"] ||
-                                channel;
-                              const vid =
-                                row["動画番号"] ||
-                                row["動画ID"] ||
-                                row["video"] ||
-                                row["video_number"] ||
-                                row["vid"] ||
-                                row["番号"] ||
-                                "";
-                              const thumbUrl = thumbs[0]?.url ?? "";
-                              if (e.metaKey || e.ctrlKey || e.altKey) {
-                                setThumbPreviewItems(thumbs);
-                                setThumbPreviewIndex(0);
-                                setThumbPreview(thumbs[0].url);
-                                return;
-                              }
-                              if (ch && vid) {
-                                goToThumbnailsPage(String(ch), String(vid));
-                                return;
-                              }
-                              const parsed = (() => {
-                                const match = String(thumbUrl)
-                                  .replace(/^https?:\/\/[^/]+/i, "")
-                                  .match(/\/thumbnails\/assets\/([^/]+)\/([^/]+)\//i);
-                                if (!match) return null;
-                                return { channel: match[1] ?? "", video: match[2] ?? "" };
-                              })();
-                              if (parsed?.channel && parsed?.video) {
-                                goToThumbnailsPage(parsed.channel, parsed.video);
-                                return;
-                              }
+                          (() => {
+                            const thumb1 = pickTwoUpThumb(thumbs, "00_thumb_1");
+                            const thumb2 = pickTwoUpThumb(thumbs, "00_thumb_2");
+                            const ch =
+                              row["チャンネル"] ||
+                              row["channel"] ||
+                              row["channel_code"] ||
+                              row["CH"] ||
+                              row["ch"] ||
+                              channel;
+                            const vid =
+                              row["動画番号"] ||
+                              row["動画ID"] ||
+                              row["video"] ||
+                              row["video_number"] ||
+                              row["vid"] ||
+                              row["番号"] ||
+                              "";
+                            const handlePreviewClick = (index: number) => {
                               setThumbPreviewItems(thumbs);
-                              setThumbPreviewIndex(0);
-                              setThumbPreview(thumbs[0].url);
-                            }}
-                            title="クリックでサムネ編集（⌘/Ctrl/Alt クリックでプレビュー）"
-                          >
-                            <img src={thumbs[0].url} alt="thumb" loading="lazy" draggable={false} />
-                            {thumbs.length > 1 ? (
-                              <span className="planning-page__thumb-count">+{thumbs.length - 1}</span>
-                            ) : null}
-                          </button>
+                              setThumbPreviewIndex(index);
+                              setThumbPreview(thumbs[index]?.url ?? null);
+                            };
+                            if (thumb1 && thumb2) {
+                              const extraCount = Math.max(0, thumbs.length - 2);
+                              return (
+                                <div className="planning-page__thumbs" title="クリックでサムネ編集（⌘/Ctrl/Alt クリックでプレビュー）">
+                                  {[{ item: thumb1, stable: "00_thumb_1", label: "1" }, { item: thumb2, stable: "00_thumb_2", label: "2" }].map(
+                                    ({ item, stable, label }, index) => (
+                                      <button
+                                        key={stable}
+                                        type="button"
+                                        className="planning-page__thumb planning-page__thumb--tiny"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (e.metaKey || e.ctrlKey || e.altKey) {
+                                            handlePreviewClick(index);
+                                            return;
+                                          }
+                                          if (ch && vid) {
+                                            goToThumbnailsPage(String(ch), String(vid), { stable });
+                                            return;
+                                          }
+                                          handlePreviewClick(index);
+                                        }}
+                                      >
+                                        <img src={item.url} alt={`thumb:${stable}`} loading="lazy" draggable={false} />
+                                        <span className="planning-page__thumb-slot">{label}</span>
+                                        {index === 1 && extraCount > 0 ? (
+                                          <span className="planning-page__thumb-count">+{extraCount}</span>
+                                        ) : null}
+                                      </button>
+                                    )
+                                  )}
+                                </div>
+                              );
+                            }
+                            return (
+                              <button
+                                type="button"
+                                className="planning-page__thumb"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const thumbUrl = thumbs[0]?.url ?? "";
+                                  if (e.metaKey || e.ctrlKey || e.altKey) {
+                                    handlePreviewClick(0);
+                                    return;
+                                  }
+                                  if (ch && vid) {
+                                    goToThumbnailsPage(String(ch), String(vid));
+                                    return;
+                                  }
+                                  const parsed = (() => {
+                                    const match = String(thumbUrl)
+                                      .replace(/^https?:\/\/[^/]+/i, "")
+                                      .match(/\/thumbnails\/assets\/([^/]+)\/([^/]+)\//i);
+                                    if (!match) return null;
+                                    return { channel: match[1] ?? "", video: match[2] ?? "" };
+                                  })();
+                                  if (parsed?.channel && parsed?.video) {
+                                    goToThumbnailsPage(parsed.channel, parsed.video);
+                                    return;
+                                  }
+                                  handlePreviewClick(0);
+                                }}
+                                title="クリックでサムネ編集（⌘/Ctrl/Alt クリックでプレビュー）"
+                              >
+                                <img src={thumbs[0].url} alt="thumb" loading="lazy" draggable={false} />
+                                {thumbs.length > 1 ? (
+                                  <span className="planning-page__thumb-count">+{thumbs.length - 1}</span>
+                                ) : null}
+                              </button>
+                            );
+                          })()
                         ) : (
                           <span className="planning-page__cell-text muted">なし</span>
                         )

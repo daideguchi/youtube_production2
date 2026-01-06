@@ -311,6 +311,7 @@ const VARIANT_STATUS_LABELS: Record<ThumbnailVariantStatus, string> = VARIANT_ST
 const SUPPORTED_THUMBNAIL_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
 const THUMBNAIL_ASSET_BASE_PATH = "workspaces/thumbnails/assets";
 const DEFAULT_GALLERY_LIMIT = 30;
+const VARIANT_REJECT_TAG = "rejected";
 
 const isQcLibraryAsset = (asset: ThumbnailLibraryAsset): boolean => {
   const rel = (asset.relative_path ?? "").replace(/\\/g, "/");
@@ -1113,12 +1114,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     setGalleryProjectSaving({});
     setGalleryNotesDraft({});
     setExpandedProjectKey(null);
-    setGalleryLimit(DEFAULT_GALLERY_LIMIT);
+    const projectCount = activeChannel?.projects.length ?? 0;
+    const nextLimit = channelHasTwoUpVariants ? Math.max(DEFAULT_GALLERY_LIMIT, projectCount * 2) : DEFAULT_GALLERY_LIMIT;
+    setGalleryLimit(nextLimit);
     setQcNotes({});
     setQcNotesDraft({});
     setQcNotesSaving({});
     setQcNotesError(null);
-  }, [activeChannel?.channel]);
+  }, [activeChannel?.channel, activeChannel?.projects.length, channelHasTwoUpVariants]);
 
   const loadPlanning = useCallback(
     async (channelCode: string, options?: { silent?: boolean }) => {
@@ -1376,6 +1379,50 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       }
     },
     [galleryNotesDraft, patchVariantInOverview, setProjectFeedback]
+  );
+
+  const handleGalleryVariantRejectedChange = useCallback(
+    async (project: ThumbnailProject, variant: ThumbnailVariant, cardKey: string, rejected: boolean) => {
+      const currentTags = Array.isArray(variant.tags) ? variant.tags : [];
+      const cleaned = currentTags
+        .map((tag) => String(tag ?? "").trim())
+        .filter(Boolean)
+        .filter((tag) => tag.toLowerCase() !== VARIANT_REJECT_TAG);
+      const nextTags = rejected ? [VARIANT_REJECT_TAG, ...cleaned] : cleaned;
+      const seen = new Set<string>();
+      const unique: string[] = [];
+      nextTags.forEach((tag) => {
+        const key = tag.toLowerCase();
+        if (seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        unique.push(tag);
+      });
+      const tagsPayload = unique.length ? unique : null;
+
+      setGalleryProjectSaving((current) => ({ ...current, [cardKey]: true }));
+      setProjectFeedback(cardKey, null);
+      try {
+        const updated = await patchThumbnailVariant(project.channel, project.video, variant.id, { tags: tagsPayload });
+        patchVariantInOverview(project.channel, project.video, variant.id, updated);
+        setProjectFeedback(cardKey, {
+          type: "success",
+          message: rejected ? "ボツにしました。" : "ボツを解除しました。",
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setProjectFeedback(cardKey, {
+          type: "error",
+          message,
+          timestamp: Date.now(),
+        });
+      } finally {
+        setGalleryProjectSaving((current) => ({ ...current, [cardKey]: false }));
+      }
+    },
+    [patchVariantInOverview, setProjectFeedback]
   );
 
   const handleGalleryNotesChange = useCallback((cardKey: string, value: string) => {
@@ -2023,6 +2070,9 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               : VARIANT_STATUS_LABELS[selectedVariant.status] ?? selectedVariant.status;
           const feedback = cardFeedback[cardKey];
           const busy = galleryProjectSaving[cardKey] ?? false;
+          const rejected = Array.isArray(selectedVariant.tags)
+            ? selectedVariant.tags.some((tag) => String(tag ?? "").trim().toLowerCase() === VARIANT_REJECT_TAG)
+            : false;
           const notesSource = variantMode === "project" ? project.notes ?? "" : selectedVariant.notes ?? "";
           const notesValue = galleryNotesDraft[cardKey] ?? notesSource;
           const notesDirty = notesValue !== notesSource;
@@ -2046,6 +2096,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                "thumbnail-gallery-card",
 	                `thumbnail-gallery-card--${statusForStyle}`,
 	                busy ? "is-updating" : "",
+	                rejected ? "is-rejected" : "",
 	              ]
 	                .filter(Boolean)
 	                .join(" ")}
@@ -2085,6 +2136,20 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                     {statusLabel}
                   </span>
                   <div className="thumbnail-gallery-card__review-actions" role="group" aria-label="レビュー判定">
+                    <label
+                      className={`thumbnail-gallery-card__reject-toggle ${rejected ? "is-active" : ""}`}
+                      title="不採用（ボツ）"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={rejected}
+                        onChange={(event) =>
+                          void handleGalleryVariantRejectedChange(project, selectedVariant, cardKey, event.target.checked)
+                        }
+                        disabled={busy}
+                      />
+                      ボツ
+                    </label>
                     <button
                       type="button"
                       className={`btn btn--ghost thumbnail-gallery-card__review-btn ${statusRaw === "approved" ? "is-active" : ""}`}
@@ -7016,12 +7081,20 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                           }
                           const minDim = Math.max(1, Math.min(width, height));
                           // Hard suppression: ensure no background "ghost face" remains visible around the portrait.
-                          // Must follow portrait offset so it stays aligned while dragging.
+                          // Must cover both the original box and the offset box so dragging doesn't reveal the old face.
                           const pad = Math.max(0, Math.round(minDim * 0.35));
-                          const cx = Math.round(boxLeft + offPxX + boxW * 0.5);
-                          const cy = Math.round(boxTop + offPxY + boxH * 0.5);
-                          const rx = Math.max(1, Math.round(boxW * 0.5 + pad));
-                          const ry = Math.max(1, Math.round(boxH * 0.5 + pad));
+                          const baseLeft = boxLeft;
+                          const baseTop = boxTop;
+                          const shiftedLeft = boxLeft + offPxX;
+                          const shiftedTop = boxTop + offPxY;
+                          const left = Math.min(baseLeft, shiftedLeft);
+                          const top = Math.min(baseTop, shiftedTop);
+                          const right = Math.max(baseLeft + boxW, shiftedLeft + boxW);
+                          const bottom = Math.max(baseTop + boxH, shiftedTop + boxH);
+                          const cx = Math.round(left + (right - left) * 0.5);
+                          const cy = Math.round(top + (bottom - top) * 0.5);
+                          const rx = Math.max(1, Math.round((right - left) * 0.5 + pad));
+                          const ry = Math.max(1, Math.round((bottom - top) * 0.5 + pad));
                           return `radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 96%, rgba(0,0,0,0) 100%)`;
                         })();
 

@@ -110,8 +110,8 @@ notes: <消し忘れ防止の一言>
 ### Coordination / Agent運用
 - `python3 scripts/agent_org.py ...`（locks/board/memos）
 - `python3 scripts/agent_runner.py ...`（pending/results の運用）
-- `bash scripts/think.sh -- <cmd>`（LLM_MODE=think の安全運用）
-- `bash scripts/with_agent_mode.sh -- <cmd>`（LLM_MODE=agent の運用）
+- `bash scripts/think.sh -- <cmd>`（THINK MODE: `LLM_EXEC_SLOT=3`）
+- `bash scripts/with_agent_mode.sh -- <cmd>`（AGENT MODE: `LLM_EXEC_SLOT=4`）
 - `bash scripts/with_ytm_env.sh <cmd>`（`.env` を export してから実行。シェル/Node系に必須）
 
 ### Redo（リテイク）運用

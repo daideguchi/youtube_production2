@@ -482,6 +482,15 @@ def _find_video_input_file(channel: str, filename: str) -> Path | None:
 def main() -> None:
     skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
+    from factory_common.routing_lockdown import (
+        assert_no_llm_model_overrides,
+        assert_task_overrides_unchanged,
+        lockdown_active,
+    )
+
+    # Lockdown policy (default ON): forbid ad-hoc model overrides that cause drift across agents.
+    assert_no_llm_model_overrides(context="audio_tts.run_tts (startup)")
+    assert_task_overrides_unchanged(context="audio_tts.run_tts (startup)")
     if args.reading_source:
         # STRICT pipeline currently uses MeCab tokenization for readings; keep this flag
         # for compatibility with UI/backends that pass it (future support).
@@ -503,6 +512,11 @@ def main() -> None:
         if raw.isdigit():
             os.environ["LLM_MODEL_SLOT"] = raw
         else:
+            if lockdown_active():
+                raise SystemExit(
+                    "Forbidden: --llm-model with non-numeric values under YTM_ROUTING_LOCKDOWN=1. "
+                    "Use --llm-slot (numeric) instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+                )
             os.environ["LLM_FORCE_MODELS"] = raw
     if args.llm_task_model:
         mapping: dict[str, list[str]] = {}
@@ -521,6 +535,11 @@ def main() -> None:
                 raise SystemExit(f"--llm-task-model models are empty: {spec}")
             mapping[task] = model_keys
         if mapping:
+            if lockdown_active():
+                raise SystemExit(
+                    "Forbidden: --llm-task-model under YTM_ROUTING_LOCKDOWN=1. "
+                    "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead."
+                )
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
     if len(args.video) != 3 or not args.video.isdigit():

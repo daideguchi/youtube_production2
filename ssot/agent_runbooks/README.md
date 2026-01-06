@@ -1,8 +1,8 @@
 # Agent Runbooks (SSOT)
 
 このフォルダは **agent/think-mode 運用の指示書（Runbook）の正本** です。  
-`LLM_MODE=agent|think` でパイプラインを動かすと、`workspaces/logs/agent_tasks/pending/` に「処理待ちタスク」が生成されます。
-また、API LLM が失敗した場合も `LLM_API_FAILOVER_TO_THINK`（デフォルト有効）により pending が生成されます。
+`LLM_EXEC_SLOT=3（THINK）` / `LLM_EXEC_SLOT=4（AGENT）` でパイプラインを動かすと、`workspaces/logs/agent_tasks/pending/` に「処理待ちタスク」が生成されます。
+また、API LLM が失敗した場合も **API→THINK failover（デフォルト有効）** により pending が生成されます（無効化は `LLM_EXEC_SLOT=5`）。
 
 ## 原則
 - Runbook は「そのまま実行できる」レベルで書く（コマンド/分岐/成果物/チェックを具体化）。

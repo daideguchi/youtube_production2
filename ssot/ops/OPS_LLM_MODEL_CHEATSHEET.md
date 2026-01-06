@@ -53,7 +53,7 @@
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
   - primary: `fw-d-1`（Fireworks / DeepSeek V3.2 exp）
   - optional fallback（比較/非常時; opt-in）: `open-k-1`（OpenRouter / Kimi K2 Thinking。`script_*` で OpenRouter を候補に入れるには `YTM_SCRIPT_ALLOW_OPENROUTER=1` または slot 側 `script_allow_openrouter: true` が必要）
-  - 比較用（既定では使わない）: `fw-g-1`, `fw-m-1`（Fireworks。`LLM_FORCE_MODELS`/`--llm-model` で明示したときだけ）
+  - 比較用（既定では使わない）: `fw-g-1`, `fw-m-1`（Fireworks。通常運用は slot 切替。`LLM_FORCE_MODELS`/`--llm-model` は緊急デバッグのみで `YTM_EMERGENCY_OVERRIDE=1` が必要）
 
 #### 2.1.1 Decision（2025-12-28）: 台本系モデルは「2つ」に固定（DeepSeek v3.2 exp / Kimi K2 Thinking）
 対象（正本）:
@@ -174,12 +174,14 @@
     - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`
     - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --exec-slot 3`
 
-- 全タスク共通（model chain を固定）:
-  - `LLM_FORCE_MODELS="fw-d-1,open-k-1"`（カンマ区切り。**モデルコード**は `configs/llm_model_codes.yaml`）
-    - 互換: `deepseek/deepseek-v3.2-exp`（model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（推奨は常に model code 指定）。
-    - 注: `script_*` task では OpenRouter モデルは既定でフィルタされる（Fireworks-only; Fireworksが落ちたら停止）。`script_*` で OpenRouter を許可する場合は `YTM_SCRIPT_ALLOW_OPENROUTER=1` または slot 側 `script_allow_openrouter: true`。
-- タスク別（task→model chain）:
-  - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["fw-d-1","open-k-1"],"tts_annotate":["fw-d-1"]}'`
+- 互換/緊急デバッグ（通常運用では使わない。`YTM_ROUTING_LOCKDOWN=1` では停止）:
+  - 全タスク共通（model chain を固定）:
+    - `LLM_FORCE_MODELS="fw-d-1,open-k-1"`（カンマ区切り。**モデルコード**は `configs/llm_model_codes.yaml`）
+      - 互換: `deepseek/deepseek-v3.2-exp`（model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（推奨は常に model code 指定）。
+      - 注: `script_*` task では OpenRouter モデルは既定でフィルタされる（Fireworks-only; Fireworksが落ちたら停止）。`script_*` で OpenRouter を許可する場合は `YTM_SCRIPT_ALLOW_OPENROUTER=1` または slot 側 `script_allow_openrouter: true`。
+  - タスク別（task→model chain）:
+    - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["fw-d-1","open-k-1"],"tts_annotate":["fw-d-1"]}'`
+  - 使う場合は `YTM_EMERGENCY_OVERRIDE=1` を同時にセットして「この実行だけ」例外扱いにする
 - CLI対応（入口側が上記 env を自動セット）:
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --llm-slot 0`
   - `python3 scripts/ops/script_runbook.py resume --channel CH06 --video 033 --llm-slot 4`

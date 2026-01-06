@@ -491,7 +491,7 @@ def generate_title_from_cues(cues_path: Path) -> str:
     if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
         raise RuntimeError(
             "SRT2IMAGES_DISABLE_TEXT_LLM=1 is set, but heuristic title fallback is forbidden. "
-            "Unset it and rerun (or set LLM_MODE=think to use the agent queue)."
+            "Unset it and rerun (or use THINK mode via ./scripts/think.sh or LLM_EXEC_SLOT=3)."
         )
 
     # Use LLMRouter instead of direct google.genai
@@ -1111,7 +1111,7 @@ def main():
         if os.getenv("SRT2IMAGES_DISABLE_TEXT_LLM") == "1":
             raise SystemExit(
                 "SRT2IMAGES_DISABLE_TEXT_LLM=1 is set, but deterministic belt fallback is forbidden. "
-                "Unset it and rerun, or use --belt-mode existing/equal/grouped (or LLM_MODE=think)."
+                "Unset it and rerun, or use --belt-mode existing/equal/grouped (or THINK mode via ./scripts/think.sh / LLM_EXEC_SLOT=3)."
             )
         make_llm_belt_from_cues(run_dir, opening_offset=opening_offset, sections=4, channel_id=args.channel)
     else:
