@@ -172,21 +172,15 @@ SSOT配置（正本）:
 - chain-of-thought を本文に混ぜない（“最終出力のみ”を抽出できる設定を前提にする）。
 - 最大出力が大きいこと（長文でも `finish_reason=length` でループしない）。
 
-モデルキー（例: Fireworks / 比較用。正本は `configs/llm_router.yaml:models`）:
-- 既定（本文）: `fw-d-1`（Fireworks / DeepSeek v3.2 exp, thinking ON）
-- 比較候補: `fw-g-1`（Fireworks / GLM-4.7）, `fw-m-1`（Fireworks / Mistral系Mixtral）
-	- Fireworks障害時: **別プロバイダへ逃がさず、その時点で停止**する（固定ルール）。
-	  - ただし「Fireworks APIキーのローテーション」は許可する（同一プロバイダ内での切替）。
-		  - 仕組み: `FIREWORKS_SCRIPT`（主キー）に加え、`FIREWORKS_SCRIPT_KEYS_FILE`（または `FIREWORKS_SCRIPT_KEYS`）で複数キーを登録し、失敗時に自動で次キーへ切替する。
-		    - 既定キーファイル: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
-		    - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool script add --key ...`（キーは表示しない）
-		    - キー状態（枯渇/無効）の判定: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`
-		      - state: `~/.ytm/secrets/fireworks_script_keys_state.json`（`FIREWORKS_SCRIPT_KEYS_STATE_FILE` で変更可）
-		      - 既定では state が `exhausted/invalid` のキーはローテ候補から除外される（`FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED=0` で無効化）
-		    - 並列運用（固定）: 同一キーの同時利用を禁止するため、**キーはエージェント間で排他 lease** を取る
-		      - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
-		      - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC`（default: `1800`）
-		  - それでも全滅した場合は停止し、runbookに従って復旧する（`script_*` は THINK フォールバックしない）。
+モデル方針（本文/台本）:
+- **既定は slot 0**（`configs/llm_model_slots.yaml`）。
+  - `script_*` は slot の `script_tiers` に従う（現行: OpenRouter `open-kimi-thinking-1`）。
+  - “モデル名を書き換えない” ため、運用の切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>` だけで行う。
+- **Fireworks（text/台本） は通常運用で無効**（412/課金事故防止・メモキー誤投入防止）。
+  - ガード: `YTM_DISABLE_FIREWORKS_TEXT=1`（`scripts/with_ytm_env.sh` 既定 / ルーター側でも除外）
+  - 例外（デバッグのみ）: `YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0` のうえで `--llm-slot 3/4/5` 等を選ぶ
+  - `script_*` は API 停止時に **即停止**（THINK フォールバックしない）
+- Fireworks script keyring（`FIREWORKS_SCRIPT*` / `FIREWORKS_SCRIPT_KEYS_*`）は **現行運用では使わない**（pool は空/隔離済み）。
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。

@@ -255,10 +255,6 @@ def _maybe_translate_to_english_query(text: str) -> str:
     )
 
     try:
-        # IMPORTANT:
-        # - OpenRouter (standard tier) may be out-of-credits in this repo.
-        # - Fireworks script keys can be suspended depending on the machine/state.
-        # Use a stable, SSOT-provisioned Azure model explicitly for this small translation.
         q = str(
             get_router().call(
                 task="broll_query",
@@ -266,7 +262,6 @@ def _maybe_translate_to_english_query(text: str) -> str:
                 temperature=0.0,
                 max_tokens=128,
                 timeout=60,
-                model_keys=["azure_gpt5_mini"],
             )
             or ""
         ).strip()

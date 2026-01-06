@@ -36,6 +36,12 @@ export YTM_WEB_SEARCH_PROVIDER
 export YTM_ROUTING_LOCKDOWN
 export YTM_EMERGENCY_OVERRIDE
 
+# Fireworks(text) is disabled in normal ops (ban/412 + drift prevention).
+# Re-enable ONLY for one-off debugging with:
+#   YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0
+: "${YTM_DISABLE_FIREWORKS_TEXT:=1}"
+export YTM_DISABLE_FIREWORKS_TEXT
+
 # Optional: numeric slots (operator-friendly; avoids editing configs).
 #
 # - LLM model slot (what model code each tier uses):
@@ -147,6 +153,14 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
   if [[ -n "${LLM_FORCE_TASK_MODELS_JSON:-}" ]]; then
     echo "❌ [LOCKDOWN] LLM_FORCE_TASK_MODELS_JSON is forbidden. Use SSOT task routing + slots instead." >&2
     exit 3
+  fi
+  if [[ -n "${YTM_DISABLE_FIREWORKS_TEXT:-}" ]]; then
+    _v="$(printf '%s' "${YTM_DISABLE_FIREWORKS_TEXT:-}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "${_v}" == "" || "${_v}" == "0" || "${_v}" == "false" || "${_v}" == "no" || "${_v}" == "off" ]]; then
+      echo "❌ [LOCKDOWN] Fireworks(text) must remain disabled in normal ops." >&2
+      echo "    debug only: YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0" >&2
+      exit 3
+    fi
   fi
   if [[ -n "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" ]]; then
     _v="$(printf '%s' "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" | tr '[:upper:]' '[:lower:]')"

@@ -25,7 +25,12 @@ from factory_common.llm_api_cache import (
 from factory_common.codex_exec_layer import try_codex_exec
 from factory_common import fireworks_keys
 from factory_common.paths import logs_root, repo_root, secrets_root
-from factory_common.routing_lockdown import assert_env_absent
+from factory_common.routing_lockdown import (
+    assert_env_absent,
+    assert_no_llm_model_overrides,
+    assert_task_overrides_unchanged,
+    lockdown_active,
+)
 
 DEFAULT_FALLBACK_POLICY = {
     "transient_statuses": [429, 500, 502, 503, 504, 408],
@@ -59,6 +64,26 @@ def _env_truthy(name: str, default: str = "0") -> bool:
         raw = str(default or "").strip()
     raw = raw.lower()
     return raw not in {"", "0", "false", "no", "off"}
+
+
+def _fireworks_text_disabled() -> bool:
+    """
+    Safety switch: disable Fireworks provider for text/chat calls.
+
+    Default behavior:
+    - Fireworks(text) is disabled unless explicitly enabled.
+      This prevents accidental spend / 412 loops and avoids using "memo keys".
+
+    Overrides:
+    - Set `YTM_DISABLE_FIREWORKS_TEXT=0` to re-enable Fireworks(text) explicitly.
+    - Set `YTM_EMERGENCY_OVERRIDE=1` to bypass lockdown defaults for one-off debugging.
+    """
+    if lockdown_active():
+        return True
+    raw = (os.getenv("YTM_DISABLE_FIREWORKS_TEXT") or "").strip()
+    if raw == "":
+        return True
+    return _env_truthy("YTM_DISABLE_FIREWORKS_TEXT", default="0")
 
 
 def _sha256_hex(value: str) -> str:
@@ -683,6 +708,8 @@ class LLMRouter:
             return
         
         _load_env_forced()
+        assert_task_overrides_unchanged(context="LLMRouter.__init__")
+        assert_no_llm_model_overrides(context="LLMRouter.__init__")
         self.config = self._load_config()
         self.model_slots = self._load_model_slots()
         self.model_codes = self._load_model_codes()
@@ -1002,7 +1029,7 @@ class LLMRouter:
                     )
 
         # Fireworks (OpenAI-compatible)
-        if "fireworks" in providers:
+        if "fireworks" in providers and not _fireworks_text_disabled():
             p = providers["fireworks"]
             key_name = p.get("env_api_key")
             key = os.getenv(key_name)
@@ -1257,6 +1284,19 @@ class LLMRouter:
             total["tokens"] = int(total.get("tokens") or 0) + int(tt or 0)
 
     def get_models_for_task(self, task: str, *, model_keys_override: Optional[List[str]] = None) -> List[str]:
+        assert_no_llm_model_overrides(context=f"llm_router.get_models_for_task({task})")
+        if model_keys_override and lockdown_active():
+            raise RuntimeError(
+                "\n".join(
+                    [
+                        "[LOCKDOWN] Forbidden per-call model override detected.",
+                        f"- context: llm_router.get_models_for_task({task})",
+                        "- policy: Use numeric slots (LLM_MODEL_SLOT) for routing; do not pass model_keys=... in ops.",
+                        "- hint: remove model_keys=... and use --llm-slot <N> / LLM_MODEL_SLOT=<N> instead.",
+                        "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
+                    ]
+                )
+            )
         # Runtime overrides (CLI/UI):
         # - LLM_FORCE_MODELS="model_key1,model_key2"
         # - LLM_FORCE_TASK_MODELS_JSON='{"task_name":["model_key1","model_key2"]}'
@@ -1282,6 +1322,7 @@ class LLMRouter:
         )
 
         allow_openrouter_for_scripts = self._model_slot_allows_openrouter_for_scripts()
+        fireworks_text_disabled = _fireworks_text_disabled()
 
         def _filter_disallowed_models(task_name: str, task_tier: str, candidates: List[str]) -> List[str]:
             # Hard safety rule:
@@ -1290,13 +1331,17 @@ class LLMRouter:
             tn = str(task_name or "")
             is_script = tn.startswith("script_")
             is_heavy = str(task_tier or "").strip() == "heavy_reasoning"
-            if not (is_script or is_heavy):
-                return candidates
             out: List[str] = []
             removed: List[str] = []
             for mk in candidates:
                 conf = models_conf.get(mk) if isinstance(models_conf, dict) else None
                 provider = str((conf or {}).get("provider") or "").strip().lower()
+                if provider == "fireworks" and fireworks_text_disabled:
+                    removed.append(mk)
+                    continue
+                if not (is_script or is_heavy):
+                    out.append(mk)
+                    continue
                 if mk.startswith("azure_") or provider in {"azure", "openai"}:
                     removed.append(mk)
                     continue

@@ -25,18 +25,20 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - `templates[].image_model_key` は背景生成に使う ImageClient の **model selector**（model key もしくは slot code）。
     - model key 正本: `configs/image_models.yaml: models.*`
     - slot code 正本: `configs/image_model_slots.yaml`（例: `f-4`）
-    - 運用既定（現行）: `fireworks_flux_kontext_max`
+    - 運用既定（現行）: **Gemini 2.5 Flash Image**（`g-1` / `img-gemini-flash-1`）
+      - ポリシー: サムネは **Gemini > FLUX max**（サイレント切替はしない）
   - Fireworks（画像）キー運用（固定）:
     - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
+      - ただし現行運用では **Fireworks（text/台本）は無効**（`YTM_DISABLE_FIREWORKS_TEXT=1`）
     - キーローテ（任意・推奨）: `~/.ytm/secrets/fireworks_image_keys.txt`
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
       - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
     - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
 
-  - 非常時（Fireworksが使えない/止める必要がある場合）:
+  - 非常時（Gemini が使えない/止める必要がある場合）:
     - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
-    - サムネ背景生成だけ Gemini に切替する場合は、タスク強制で固定する:
-      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
+    - サムネ背景生成だけ FLUX max に切替する場合は、タスク強制で固定する:
+      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
     - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict が原則）。
     - 期間が長い場合は `.gitignore` 対象の `configs/*.local.*`（例: `configs/image_models.local.yaml`, `configs/image_model_slots.local.yaml`）で切替してよい（コミットしない）。
 
@@ -57,6 +59,13 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 背景の作り方は2通り:
 1) UIのテンプレからAI生成（Templates SoTに従う）
 2) 手動/外部で作った画像を配置（アップロード/コピー）
+
+手動差し替え（推奨: UI経由）:
+- `/thumbnails` → `調整（ドラッグ）` → `素材の差し替え（画像アップロード）` からアップロードすると、安定ファイル名へ置換される。
+  - 背景: `10_bg.png`
+  - 肖像（任意）: `20_portrait.png`
+  - 出力（最終）: `00_thumb.png`（または `00_thumb_1.png` / `00_thumb_2.png`）
+- 直接ファイル操作する場合も、保存先は同じ: `workspaces/thumbnails/assets/{CH}/{NNN}/`
 
 ### 2.2 文字（コピー）を用意する
 コピーのSoTは「企画CSV」または「Layer Specs」。

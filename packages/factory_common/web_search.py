@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
+from factory_common.routing_lockdown import lockdown_active
+
 
 class WebSearchError(RuntimeError):
     pass
@@ -188,6 +190,9 @@ def openrouter_web_search(
         raise ValueError("query is empty")
 
     model_override = (model or os.getenv("YTM_WEB_SEARCH_OPENROUTER_MODEL") or "").strip() or None
+    if model_override and lockdown_active():
+        # Drift prevention: model selection must be controlled via numeric slots, not per-call overrides.
+        model_override = None
     task = (os.getenv("YTM_WEB_SEARCH_OPENROUTER_TASK") or "web_search_openrouter").strip() or "web_search_openrouter"
 
     try:
