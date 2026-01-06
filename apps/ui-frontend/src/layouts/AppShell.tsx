@@ -340,10 +340,10 @@ function determineView(pathname: string): WorkspaceView {
 const PLACEHOLDER_COPY: Record<
   Exclude<WorkspaceView, "dashboard" | "channel" | "channelVideo" | "channelPortal">,
   PlaceholderCopy
-> = {
+  > = {
   publishingProgress: {
-    title: "投稿進捗（予約Runway）",
-    description: "Publish Sheet（外部SoT）を基に、チャンネル別の予約最終日と残り日数を可視化します。",
+    title: "投稿進捗",
+    description: "Planning CSV（workspaces/planning/channels/CHxx.csv）から、投稿済み（投入済み）フラグを集計して可視化します。",
   },
   audit: {
     title: "監査（欠損チェック / Precheck）",

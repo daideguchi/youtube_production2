@@ -20,7 +20,7 @@ default_slot: 0
 slots:
   0:
     label: openrouter_main
-    description: OpenRouterを主線（Fireworks枯渇時のデフォルト）。tierごとに1モデル固定。
+    description: OpenRouterを主線（デフォルト）。tierごとに1モデル固定。
     tiers:
       heavy_reasoning:
         - txt-main-hr-1
@@ -35,18 +35,18 @@ slots:
       master_plan_opus:
         - txt-master-plan-opus-1
     # Script tasks are special:
-    # - Default policy keeps scripts on Fireworks (stop if Fireworks is down / suspended).
-    # - To run scripts on OpenRouter, select a slot that sets script_allow_openrouter: true.
-    script_allow_openrouter: false
+    # - 通常運用では「Fireworks (text) は使わない」前提に寄せる。
+    # - そのため slot 0 でも script_* は OpenRouter に固定する（失敗時は停止。THINKへは行かない）。
+    script_allow_openrouter: true
     script_tiers:
       heavy_reasoning:
-        - script-main-1
+        - open-kimi-thinking-1
       standard:
-        - script-main-1
+        - open-kimi-thinking-1
       cheap:
-        - script-main-1
+        - open-kimi-thinking-1
       master_plan_opus:
-        - script-main-1
+        - open-kimi-thinking-1
 
   1:
     label: openrouter_kimi_all

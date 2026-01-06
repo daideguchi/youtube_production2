@@ -308,12 +308,17 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - `image_cues.json` の `input_images` に guide 画像が入り、生成時に **前フレーム画像を追加参照**して identity drift を抑える（guide + prev）。
        - OpenRouter 側が multimodal を拒否した場合は **text-only に自動フォールバック**して継続する。
        - **投稿済み/確定済み**の run/draft は不変（事故防止）: 既存runを上書き再生成しない。必ず `run_id` を新規にして再生成する。
- 	1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
+ 1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
 	   - 既定はOFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）。ONにする場合の既定は provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）。
 	   - CLI指定（`--broll-provider/--broll-ratio`）がある場合は sources.yaml より優先される。
 	   - 目的: “画像だけ”の単調さを避けるため、文脈に合う stock video（mp4）を全体の約20%だけ差し込む。
 	   - 選定は `image_cues.json` の `visual_focus/summary` を使ったスコアリング（等間隔ではない）。
 	   - CapCut挿入は `asset_relpath` があれば mp4 を優先し、動画はミュートで挿入する。
+	   - 容量対策（重要）:
+	     - APIレスポンスだけでなく **mp4本体も共有キャッシュ**する（重複DL/重複保存を防止）。
+	     - キャッシュ: `workspaces/video/_state/stock_broll_cache/<provider>/files/*.mp4`
+	     - run_dir への配置は hardlink 優先（同一inode再利用）なので、同一素材を複数run/draftで使っても容量が増えにくい。
+	     - 既定の解像度上限は `1280x720`（`YTM_BROLL_MAX_W/H`）。必要なら env で調整する。
 	   - Outputs:
 	     - `workspaces/video/runs/{run_id}/broll/<provider>/*.mp4`
 	     - `workspaces/video/runs/{run_id}/broll_manifest.json`（クレジット/デバッグ）

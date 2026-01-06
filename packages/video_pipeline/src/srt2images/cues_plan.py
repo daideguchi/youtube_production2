@@ -287,6 +287,27 @@ def _default_target_sections(*, segments: List[Dict[str, Any]], base_seconds: fl
     return target
 
 
+def _normalize_visual_focus_key(text: str) -> str:
+    s = str(text or "").strip().lower()
+    if not s:
+        return ""
+    # Normalize punctuation/whitespace so exact duplicates are reliably detected.
+    s = re.sub(r"[\r\n\t]+", " ", s)
+    s = re.sub(r"[\\-_/]+", " ", s)
+    s = re.sub(r"[^\w\s]+", " ", s)
+    return " ".join(s.split())
+
+
+def _find_duplicate_visual_focus(sections: List["PlannedSection"]) -> Dict[str, List[int]]:
+    seen: Dict[str, List[int]] = {}
+    for idx, sec in enumerate(sections, start=1):
+        key = _normalize_visual_focus_key(sec.visual_focus)
+        if not key:
+            continue
+        seen.setdefault(key, []).append(idx)
+    return {k: v for k, v in seen.items() if len(v) > 1}
+
+
 def plan_sections_via_router(
     *,
     segments: List[Dict[str, Any]],
@@ -354,7 +375,8 @@ Each section must:
 - Cover consecutive SRT segments (no overlap, no gaps; the full script must be covered).
 - Average around ~{base_seconds:.1f}s per image, but DO NOT be perfectly uniform; create pacing variation.
 - Describe ONE clear visual idea the viewer should picture (concrete action/pose/setting/props/lighting).
-- CRITICAL: Visual Focus must be faithful to the section content. If using metaphor/symbolism, it must be explicitly grounded in THIS section; do NOT default to generic cliché symbols (e.g., clocks/pocket-watches) unless the script explicitly mentions them.
+- CRITICAL: Visual Focus must be faithful to the section content. If using metaphor/symbolism, it must be explicitly grounded in THIS section; do NOT default to generic cliché symbols.
+- CRITICAL: Avoid repetition across sections. Do not reuse the same main subject/prop; make each `visual_focus` distinct (not just a trivial rephrase).
 - Avoid putting text inside the scene.
 {monk_policy.rstrip()}
 {extra_rapid}
@@ -383,53 +405,80 @@ Script:
     base_cap = int(os.getenv("SRT2IMAGES_CUES_PLAN_BASE_TOKENS", "1200"))
     hard_cap = int(os.getenv("SRT2IMAGES_CUES_PLAN_MAX_TOKENS", "3200"))
     max_tokens = min(hard_cap, max(base_cap, per_section * max_sections))
-    content = router.call(
-        task="visual_image_cues_plan",
-        messages=[{"role": "user", "content": prompt}],
-        response_format="json_object",
-        temperature=0.3,
-        max_tokens=max_tokens,
+    attempt_note = ""
+    last_repeats: Dict[str, List[int]] = {}
+    for attempt in range(2):
+        prompt_run = prompt
+        if attempt_note:
+            prompt_run = f"{prompt}\n\n{attempt_note}".strip()
+
+        content = router.call(
+            task="visual_image_cues_plan",
+            messages=[{"role": "user", "content": prompt_run}],
+            response_format="json_object",
+            temperature=0.3,
+            max_tokens=max_tokens,
+        )
+        json_str = _extract_json_object(str(content or ""))
+        if not json_str:
+            raise ValueError("failed to extract JSON object from plan response")
+        data = json.loads(json_str)
+
+        sections = _coerce_sections(data, segment_count=len(segments))
+        if len(sections) > max_sections:
+            # Cap by merging adjacent sections with the weakest topic boundary.
+            # This avoids "too many images" without resorting to equal spacing.
+            texts = [str(s.get("text") or "").strip() for s in segments]
+            tokens_per_seg = [set(_tokenize_loose(t)) for t in texts]
+
+            while len(sections) > max_sections and len(sections) >= 2:
+                best_i = 0
+                best_score = float("inf")
+                for i in range(len(sections) - 1):
+                    boundary_idx = sections[i].end_segment - 1  # 1-based -> 0-based boundary
+                    if boundary_idx < 0 or boundary_idx >= len(tokens_per_seg) - 1:
+                        score = 0.0
+                    else:
+                        score = _boundary_score(idx=boundary_idx, tokens_per_seg=tokens_per_seg, texts=texts, window=3)
+                    if score < best_score:
+                        best_score = score
+                        best_i = i
+
+                a = sections[best_i]
+                b = sections[best_i + 1]
+                merged = PlannedSection(
+                    start_segment=a.start_segment,
+                    end_segment=b.end_segment,
+                    summary=_truncate((a.summary or b.summary or ""), 60),
+                    visual_focus=_truncate((a.visual_focus or b.visual_focus or ""), 180),
+                    emotional_tone=_truncate((a.emotional_tone or b.emotional_tone or ""), 40),
+                    persona_needed=bool(a.persona_needed or b.persona_needed),
+                    role_tag=_truncate((a.role_tag or b.role_tag or ""), 40),
+                    section_type=_truncate((a.section_type or b.section_type or ""), 40),
+                )
+                sections = sections[:best_i] + [merged] + sections[best_i + 2 :]
+
+        repeats = _find_duplicate_visual_focus(sections)
+        if not repeats:
+            return sections
+
+        last_repeats = repeats
+        logger.warning(
+            "cues_plan: duplicate visual_focus detected (attempt=%d, unique_repeats=%d). Retrying once.",
+            attempt + 1,
+            len(repeats),
+        )
+        attempt_note = (
+            "IMPORTANT: Your previous output repeated identical `visual_focus` across multiple sections.\n"
+            "- Fix by making every section's `visual_focus` distinct and faithful to THAT section.\n"
+            "- Do NOT reuse the same main prop/symbol across sections.\n"
+            "Return ONLY the full JSON object in the original schema."
+        )
+
+    raise RuntimeError(
+        "visual_image_cues_plan produced repetitive visual_focus across sections "
+        f"(unique_repeats={len(last_repeats)}). Use THINK/AGENT mode and edit visual_cues_plan.json manually."
     )
-    json_str = _extract_json_object(str(content or ""))
-    if not json_str:
-        raise ValueError("failed to extract JSON object from plan response")
-    data = json.loads(json_str)
-
-    sections = _coerce_sections(data, segment_count=len(segments))
-    if len(sections) > max_sections:
-        # Cap by merging adjacent sections with the weakest topic boundary.
-        # This avoids "too many images" without resorting to equal spacing.
-        texts = [str(s.get("text") or "").strip() for s in segments]
-        tokens_per_seg = [set(_tokenize_loose(t)) for t in texts]
-
-        while len(sections) > max_sections and len(sections) >= 2:
-            best_i = 0
-            best_score = float("inf")
-            for i in range(len(sections) - 1):
-                boundary_idx = sections[i].end_segment - 1  # 1-based -> 0-based boundary
-                if boundary_idx < 0 or boundary_idx >= len(tokens_per_seg) - 1:
-                    score = 0.0
-                else:
-                    score = _boundary_score(idx=boundary_idx, tokens_per_seg=tokens_per_seg, texts=texts, window=3)
-                if score < best_score:
-                    best_score = score
-                    best_i = i
-
-            a = sections[best_i]
-            b = sections[best_i + 1]
-            merged = PlannedSection(
-                start_segment=a.start_segment,
-                end_segment=b.end_segment,
-                summary=_truncate((a.summary or b.summary or ""), 60),
-                visual_focus=_truncate((a.visual_focus or b.visual_focus or ""), 180),
-                emotional_tone=_truncate((a.emotional_tone or b.emotional_tone or ""), 40),
-                persona_needed=bool(a.persona_needed or b.persona_needed),
-                role_tag=_truncate((a.role_tag or b.role_tag or ""), 40),
-                section_type=_truncate((a.section_type or b.section_type or ""), 40),
-            )
-            sections = sections[:best_i] + [merged] + sections[best_i + 2 :]
-
-    return sections
 
 
 _TRANSITION_PREFIXES: tuple[str, ...] = (

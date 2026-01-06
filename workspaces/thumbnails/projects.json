@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-01-06T03:59:01.366532+00:00",
+  "updated_at": "2026-01-06T07:08:22.330841+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -10298,6 +10298,15 @@
       "video": "061",
       "variants": [
         {
+          "id": "fs::ch04_061_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH04/061/00_thumb_12.png",
+          "image_path": "CH04/061/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:08.151156+00:00",
+          "updated_at": "2026-01-06T07:08:08.151157+00:00"
+        },
+        {
           "id": "fs::ch04_061_00_thumb_11",
           "label": "00_thumb_11",
           "status": "review",
@@ -10381,14 +10390,23 @@
       ],
       "title": "【禁書効果】禁止されるほど読みたくなる心理",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:58:50.835559+00:00",
-      "updated_at": "2026-01-06T03:58:50.835595+00:00",
+      "status_updated_at": "2026-01-06T07:08:08.151124+00:00",
+      "updated_at": "2026-01-06T07:08:08.151160+00:00",
       "selected_variant_id": "fs::ch04_061_00_thumb_3"
     },
     {
       "channel": "CH04",
       "video": "062",
       "variants": [
+        {
+          "id": "fs::ch04_062_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH04/062/00_thumb_12.png",
+          "image_path": "CH04/062/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:09.719871+00:00",
+          "updated_at": "2026-01-06T07:08:09.719872+00:00"
+        },
         {
           "id": "fs::ch04_062_00_thumb_11",
           "label": "00_thumb_11",
@@ -10473,14 +10491,23 @@
       ],
       "title": "【秘密の快感】なぜ人は秘密を守れないのか",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:58:52.238111+00:00",
-      "updated_at": "2026-01-06T03:58:52.238130+00:00",
+      "status_updated_at": "2026-01-06T07:08:09.719846+00:00",
+      "updated_at": "2026-01-06T07:08:09.719874+00:00",
       "selected_variant_id": "fs::ch04_062_00_thumb_3"
     },
     {
       "channel": "CH04",
       "video": "063",
       "variants": [
+        {
+          "id": "fs::ch04_063_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH04/063/00_thumb_12.png",
+          "image_path": "CH04/063/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:11.120164+00:00",
+          "updated_at": "2026-01-06T07:08:11.120165+00:00"
+        },
         {
           "id": "fs::ch04_063_00_thumb_11",
           "label": "00_thumb_11",
@@ -10565,8 +10592,8 @@
       ],
       "title": "【鏡の錯覚】鏡を見た時、脳が“理想”に補正する",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:58:53.597256+00:00",
-      "updated_at": "2026-01-06T03:58:53.597283+00:00",
+      "status_updated_at": "2026-01-06T07:08:11.120144+00:00",
+      "updated_at": "2026-01-06T07:08:11.120168+00:00",
       "selected_variant_id": "fs::ch04_063_00_thumb_3"
     },
     {
@@ -10742,6 +10769,15 @@
       "video": "061",
       "variants": [
         {
+          "id": "fs::ch08_061_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH08/061/00_thumb_12.png",
+          "image_path": "CH08/061/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:19.248930+00:00",
+          "updated_at": "2026-01-06T07:08:19.248931+00:00"
+        },
+        {
           "id": "fs::ch08_061_00_thumb_11",
           "label": "00_thumb_11",
           "status": "review",
@@ -10825,14 +10861,23 @@
       ],
       "title": "【寝つき】頭を静かに切り替える「合図」",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:58:58.342155+00:00",
-      "updated_at": "2026-01-06T03:58:58.342182+00:00",
+      "status_updated_at": "2026-01-06T07:08:19.248906+00:00",
+      "updated_at": "2026-01-06T07:08:19.248936+00:00",
       "selected_variant_id": "fs::ch08_061_00_thumb_3"
     },
     {
       "channel": "CH08",
       "video": "062",
       "variants": [
+        {
+          "id": "fs::ch08_062_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH08/062/00_thumb_12.png",
+          "image_path": "CH08/062/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:20.783374+00:00",
+          "updated_at": "2026-01-06T07:08:20.783376+00:00"
+        },
         {
           "id": "fs::ch08_062_00_thumb_11",
           "label": "00_thumb_11",
@@ -10917,14 +10962,23 @@
       ],
       "title": "【夜の反芻】考えが戻る時のやさしい止め方",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:58:59.852269+00:00",
-      "updated_at": "2026-01-06T03:58:59.852305+00:00",
+      "status_updated_at": "2026-01-06T07:08:20.783349+00:00",
+      "updated_at": "2026-01-06T07:08:20.783378+00:00",
       "selected_variant_id": "fs::ch08_062_00_thumb_3"
     },
     {
       "channel": "CH08",
       "video": "063",
       "variants": [
+        {
+          "id": "fs::ch08_063_00_thumb_12",
+          "label": "00_thumb_12",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH08/063/00_thumb_12.png",
+          "image_path": "CH08/063/00_thumb_12.png",
+          "created_at": "2026-01-06T07:08:22.330834+00:00",
+          "updated_at": "2026-01-06T07:08:22.330835+00:00"
+        },
         {
           "id": "fs::ch08_063_00_thumb_11",
           "label": "00_thumb_11",
@@ -11009,8 +11063,8 @@
       ],
       "title": "【不安】胸がざわつく夜に「感情の名前」を付ける",
       "status": "review",
-      "status_updated_at": "2026-01-06T03:59:01.366500+00:00",
-      "updated_at": "2026-01-06T03:59:01.366526+00:00",
+      "status_updated_at": "2026-01-06T07:08:22.330818+00:00",
+      "updated_at": "2026-01-06T07:08:22.330837+00:00",
       "selected_variant_id": "fs::ch08_063_00_thumb_3"
     }
   ]

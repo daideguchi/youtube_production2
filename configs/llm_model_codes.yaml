@@ -42,7 +42,9 @@ codes:
     model_key: or_claude_opus_4_5
     label: text_master_plan_opus
 
-  # Script pipeline (台本). Default is Fireworks-only; stop on API failure.
+  # Script pipeline (台本).
+  # - Current ops default is OpenRouter via `configs/llm_model_slots.yaml` (Fireworks(text) is paused).
+  # - Fireworks codes remain registered for recovery/comparison (do not assume they are active).
   script-main-1:
     model_key: or_deepseek_v3_2_exp
     label: script_main

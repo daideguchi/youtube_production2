@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +45,122 @@ def _cache_key(provider: str, params: Dict[str, Any]) -> str:
 
 def _cache_dir(provider: str) -> Path:
     return video_state_root() / "stock_broll_cache" / provider
+
+
+def _file_cache_dir(provider: str) -> Path:
+    return _cache_dir(provider) / "files"
+
+
+def _env_flag(name: str, default: bool) -> bool:
+    raw = (os.getenv(name) or "").strip().lower()
+    if not raw:
+        return bool(default)
+    return raw not in {"0", "false", "no", "off", "disabled"}
+
+
+def _cached_mp4_path(provider: str, candidate: "StockVideoCandidate") -> Path:
+    # Keep names stable for hardlink reuse across runs.
+    provider_id = str(candidate.provider_id or "unknown").strip()
+    dims = f"{int(candidate.width or 0)}x{int(candidate.height or 0)}"
+    base = re.sub(r"[^A-Za-z0-9_-]+", "_", f"{provider_id}_{dims}").strip("_")[:90] or "unknown"
+    return _file_cache_dir(provider) / f"{base}.mp4"
+
+
+def _min_valid_file_bytes() -> int:
+    return max(1024, _env_int("YTM_BROLL_MIN_BYTES", 50_000))
+
+
+def _is_valid_video_file(path: Path) -> bool:
+    try:
+        return path.exists() and path.is_file() and int(path.stat().st_size) >= _min_valid_file_bytes()
+    except Exception:
+        return False
+
+
+def _hardlink_or_copy(src: Path, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        if dest.exists():
+            dest.unlink()
+    except Exception:
+        pass
+
+    # Prefer hardlink to avoid duplicating bytes.
+    try:
+        os.link(src, dest)
+        return
+    except Exception:
+        pass
+
+    shutil.copy2(src, dest)
+
+
+def _download_to_cache(
+    *,
+    provider: str,
+    candidate: "StockVideoCandidate",
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 180,
+) -> Path:
+    """
+    Download the candidate video into the shared cache, then return the cached path.
+
+    Cache policy:
+    - Enabled by default (YTM_BROLL_FILE_CACHE=1).
+    - Valid cached files are reused (hardlinked into run dirs).
+    - Uses atomic rename to avoid leaving partial files as cache hits.
+    """
+    cache_enabled = _env_flag("YTM_BROLL_FILE_CACHE", True)
+    if not cache_enabled:
+        # When cache disabled, the caller should download directly to out_path.
+        raise RuntimeError("file_cache_disabled")
+
+    cache_path = _cached_mp4_path(provider, candidate)
+    if _is_valid_video_file(cache_path):
+        return cache_path
+
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = cache_path.with_suffix(f".tmp.{os.getpid()}.mp4")
+    try:
+        if tmp.exists():
+            tmp.unlink()
+    except Exception:
+        pass
+
+    _http_download(candidate.download_url, out_path=tmp, headers=headers, timeout=timeout)
+    if not _is_valid_video_file(tmp):
+        try:
+            if tmp.exists():
+                tmp.unlink()
+        except Exception:
+            pass
+        raise RuntimeError(f"downloaded_file_too_small: {tmp}")
+
+    # Atomic publish; if another process already populated cache_path, keep it.
+    try:
+        tmp.rename(cache_path)
+    except FileExistsError:
+        try:
+            tmp.unlink()
+        except Exception:
+            pass
+    except Exception:
+        # Best-effort fallback: keep tmp as the cache file.
+        try:
+            if cache_path.exists():
+                # Another process may have succeeded.
+                tmp.unlink(missing_ok=True)
+            else:
+                tmp.rename(cache_path)
+        except Exception:
+            pass
+
+    if _is_valid_video_file(cache_path):
+        return cache_path
+    # Last resort: if rename failed, return tmp if it still exists and is valid.
+    if _is_valid_video_file(tmp):
+        return tmp
+    raise RuntimeError(f"cache_download_failed: {cache_path}")
 
 
 def _load_cache(provider: str, key: str, ttl_seconds: int) -> Optional[Dict[str, Any]]:
@@ -140,8 +257,9 @@ def _score_candidate(
     # Resolution
     # Prefer sufficient resolution, but avoid oversized sources (e.g. 4K) which waste bandwidth/disk.
     # Cap is operator-configurable to match the timeline export (default: 1920x1080).
-    max_w = _env_int("YTM_BROLL_MAX_W", 1920)
-    max_h = _env_int("YTM_BROLL_MAX_H", 1080)
+    # NOTE: default is 1280x720 to keep disk usage reasonable for draft-time B-roll.
+    max_w = _env_int("YTM_BROLL_MAX_W", 1280)
+    max_h = _env_int("YTM_BROLL_MAX_H", 720)
     eff_w = min(int(c.width or 0), max_w) if max_w > 0 else int(c.width or 0)
     eff_h = min(int(c.height or 0), max_h) if max_h > 0 else int(c.height or 0)
     score += min(eff_w / max(min_w, 1), 4.0) * 10.0
@@ -474,8 +592,9 @@ def fetch_best_stock_video(
     provider_norm = str(provider or "").strip().lower()
     if provider_norm in {"pixel", "pexels"}:
         payload = search_pexels_videos(query=query, cache_ttl_seconds=cache_ttl_seconds)
+        candidates = pexels_video_candidates(payload)
         cand = pick_best_candidate(
-            pexels_video_candidates(payload),
+            candidates,
             min_w=min_w,
             min_h=min_h,
             prefer_ar=prefer_ar,
@@ -484,7 +603,12 @@ def fetch_best_stock_video(
         )
         if not cand:
             return None
-        _http_download(cand.download_url, out_path=out_path, headers={"Authorization": (os.getenv("PEXELS_API_KEY") or "").strip()})
+        headers = {"Authorization": (os.getenv("PEXELS_API_KEY") or "").strip()}
+        try:
+            cached = _download_to_cache(provider="pexels", candidate=cand, headers=headers)
+            _hardlink_or_copy(cached, out_path)
+        except Exception:
+            _http_download(cand.download_url, out_path=out_path, headers=headers)
         meta = {
             "provider": cand.provider,
             "provider_id": cand.provider_id,
@@ -500,8 +624,9 @@ def fetch_best_stock_video(
 
     if provider_norm == "pixabay":
         payload = search_pixabay_videos(query=query, min_w=min_w, min_h=min_h, cache_ttl_seconds=cache_ttl_seconds)
+        candidates = pixabay_video_candidates(payload)
         cand = pick_best_candidate(
-            pixabay_video_candidates(payload),
+            candidates,
             min_w=min_w,
             min_h=min_h,
             prefer_ar=prefer_ar,
@@ -510,7 +635,11 @@ def fetch_best_stock_video(
         )
         if not cand:
             return None
-        _http_download(cand.download_url, out_path=out_path)
+        try:
+            cached = _download_to_cache(provider="pixabay", candidate=cand)
+            _hardlink_or_copy(cached, out_path)
+        except Exception:
+            _http_download(cand.download_url, out_path=out_path)
         meta = {
             "provider": cand.provider,
             "provider_id": cand.provider_id,
@@ -526,8 +655,9 @@ def fetch_best_stock_video(
 
     if provider_norm == "coverr":
         payload = search_coverr_videos(query=query, cache_ttl_seconds=cache_ttl_seconds)
+        candidates = coverr_video_candidates(payload)
         cand = pick_best_candidate(
-            coverr_video_candidates(payload),
+            candidates,
             min_w=min_w,
             min_h=min_h,
             prefer_ar=prefer_ar,
@@ -537,7 +667,11 @@ def fetch_best_stock_video(
         if not cand:
             return None
         headers = {"Authorization": f"Bearer {(os.getenv('COVERR_API_KEY') or '').strip()}"}
-        _http_download(cand.download_url, out_path=out_path, headers=headers)
+        try:
+            cached = _download_to_cache(provider="coverr", candidate=cand, headers=headers)
+            _hardlink_or_copy(cached, out_path)
+        except Exception:
+            _http_download(cand.download_url, out_path=out_path, headers=headers)
         coverr_register_download(cand.provider_id)
         meta = {
             "provider": cand.provider,

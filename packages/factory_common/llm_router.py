@@ -656,10 +656,15 @@ def _split_bucket(key: str) -> float:
     return n / 65536.0
 
 def _load_env_forced():
-    """Load .env file and OVERWRITE existing env vars to ensure SSOT."""
+    """
+    Load repo `.env` without overriding already-set env vars.
+
+    Why:
+    - Ops routing is controlled by numeric slots/codes (LLM_MODEL_SLOT / LLM_EXEC_SLOT / image codes).
+    - Wrapper-provided env must win over `.env` to prevent cross-agent drift.
+    """
     if ENV_PATH.exists():
-        # Using python-dotenv with override=True
-        load_dotenv(dotenv_path=ENV_PATH, override=True)
+        load_dotenv(dotenv_path=ENV_PATH, override=False)
     else:
         logger.warning(f".env not found at {ENV_PATH}")
 

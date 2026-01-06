@@ -2196,3 +2196,30 @@ projects.json 整理:
 - Backend: `vrew-prompts` 系 endpoints を削除
 - `video_workflow` から `vrew_a` / `vrew_b` を廃止（`capcut` / `remotion` のみに統一）
 - `pyproject.toml` の console scripts（`generate-vrew-prompts`, `render-images`, `place-images-to-capcut`）を削除
+
+---
+
+## 2026-01-06
+
+### 1) CH02 投稿済み資産の削除（disk逼迫対応 / workspace生成物）
+
+背景:
+- CH02-042〜082 のCapCutドラフト再生成中に ENOSPC（空き容量枯渇）が発生。
+- ユーザー了承: 投稿済みの音声/その他資産は削除してよい（台本・進捗は保持）。
+
+削除（workspace, untracked）:
+- `workspaces/audio/final/CH02/001` 〜 `workspaces/audio/final/CH02/041`（投稿済み: `workspaces/planning/channels/CH02.csv` で確認）
+
+保持:
+- `workspaces/scripts/CH02/**`（台本）
+- `workspaces/planning/channels/CH02.csv`（進捗）
+
+### 2) CapCut 旧ドラフトの削除（Archive掃除）
+
+意図:
+- 旧ドラフト（試行生成分）を削除し、ディスクを回復（新規ドラフトは `~/Movies/CapCut/User Data/Projects/com.lveditor.draft` 側に再生成済み）。
+
+削除（external, untracked）:
+- `~/Movies/CapCut/Archive_20260106_093139/`
+- `~/Movies/CapCut/Archive_20260106_134641/`
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH02-0[4-8][0-9]_*_draft*`（旧試行ドラフト。`★CH02-*` の安定名ドラフトのみ残す）

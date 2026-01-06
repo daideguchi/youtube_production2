@@ -3,7 +3,7 @@
 ## 原則
 - 秘密鍵はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
 - `.env.example` をベースに必要キーを埋める。
-  - 注: LLMRouter は `.env` を `override=True` で読み込むため、**シェルで export 済みでも `.env` が優先**される。
+  - 注: LLMRouter は `.env` を `override=False` で読み込むため、**シェル export / `./scripts/with_ytm_env.sh` の値が優先**される（未設定のみ `.env` で補完）。
 - グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
 - **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
 - モデル選択は **モデル名ではなく数字スロット**で行う（モデル名の書き換え禁止）。
@@ -14,7 +14,7 @@
   - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
   - 注:
     - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
-    - `script_*` は既定で Fireworks-only（OpenRouter はブロック）。OpenRouter で回す場合は `YTM_SCRIPT_ALLOW_OPENROUTER=1` または slot 定義で `script_allow_openrouter: true`
+    - `script_*` は **現運用では OpenRouter 固定**（Fireworks(text) は使わない / 412対策）。切替は slot 定義（`configs/llm_model_slots.yaml` の `script_tiers` / `script_allow_openrouter`）で行う
 - 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
   - `LLM_EXEC_SLOT`（default: `0`）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
   - 例:
@@ -30,6 +30,7 @@
   - ON のとき、次の “非スロット上書き” は **検出した時点で停止**（事故防止）:
     - モデル系: `LLM_FORCE_MODELS` / `LLM_FORCE_MODEL`（※数字だけならslot互換として許可） / `LLM_FORCE_TASK_MODELS_JSON`
     - 実行系: `LLM_MODE` / `LLM_API_FAILOVER_TO_THINK` / `LLM_API_FALLBACK_TO_THINK` / `YTM_CODEX_EXEC_*`
+    - 隠し切替（禁止）: `YTM_SCRIPT_ALLOW_OPENROUTER` / `LLM_ENABLE_TIER_CANDIDATES_OVERRIDE`
   - SSOT保護: `configs/llm_task_overrides.yaml` は運用中に書き換えない（モデル名の書き換え事故防止）
     - ロックダウンONでは「未コミット差分がある」だけで停止する（`scripts/with_ytm_env.sh` / 主要entrypointで検知）
     - 禁止モデル（例）: `az-gpt5-mini-1` / `azure_gpt5_mini` は task overrides 経由での利用を **完全禁止**（fallbackでも不可）
@@ -284,7 +285,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
 - `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
 - `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `script_outline,script_topic_research`）
-- `YTM_SCRIPT_ALLOW_OPENROUTER`（default: `0`）: `1` のとき `script_*` task で OpenRouter モデル候補を許可（比較/非常時用）。既定は **Fireworksのみ**（Fireworksが落ちたら停止 = OpenRouterへはフォールバックしない）
+- `YTM_SCRIPT_ALLOW_OPENROUTER`（legacy）: 旧運用互換。`YTM_ROUTING_LOCKDOWN=1`（既定）では **検出した時点で停止**するため、通常運用では使わない（slot定義で固定する）
 
 ## Script pipeline: Planning整合（内容汚染の安全弁）
 - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH`（default: `0`）: Planning 行が `tag_mismatch` の場合に高コスト工程の前で停止する（strict運用）。既定は停止せず、汚染されやすいテーマヒントだけ落として続行する（タイトルは常に正）。
@@ -341,6 +342,18 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - 任意: `SRT2IMAGES_TARGET_SECTIONS=12` のように指定すると、cues 計画の目標セクション数を上書きできる（最低5）。
 - 任意: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
 - 任意: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
+
+### Stock B-roll（フリー動画）向け補足
+必要キー（provider有効時のみ）:
+- `PEXELS_API_KEY`（pixel/pexels）
+- `PIXABAY_API_KEY`（pixabay）
+- `COVERR_API_KEY`（coverr）
+
+容量/再利用（推奨デフォルト）:
+- `YTM_BROLL_FILE_CACHE`（default: `1`）: mp4本体を共有キャッシュし、run_dir へは hardlink で再利用する（重複DL/重複保存を抑制）
+  - cache path: `workspaces/video/_state/stock_broll_cache/<provider>/files/*.mp4`
+- `YTM_BROLL_MAX_W`（default: `1280`）, `YTM_BROLL_MAX_H`（default: `720`）: 候補選定で **過大解像度（例: 1080p/4K）を避ける**ための上限
+- `YTM_BROLL_MIN_BYTES`（default: `50000`）: 壊れた/空のmp4をキャッシュヒット扱いしないための最小サイズ
 
 ## 重要ルール: 非`script_*` は API LLM が死んだら THINK MODE で続行（`script_*` は例外）
 - デフォルト: **有効**（未設定でもON）

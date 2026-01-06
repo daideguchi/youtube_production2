@@ -1108,7 +1108,8 @@ export function ChannelModelPolicyPage() {
                 })}
               </div>
               <div className="mp-card__hint">
-                Fireworksキー（ok数）: 台本/LLM={fwScriptPool ? String(fwScriptOk) : "?"} / 画像={fwImagePool ? String(fwImageOk) : "?"}（詳細は「トラブル診断」）
+                Fireworksキー（ok数）: 画像={fwImagePool ? String(fwImageOk) : "?"} / 台本用={fwScriptPool ? String(fwScriptOk) : "?"}
+                <span className="mp-muted">（台本は現在OpenRouter運用なので 0でもOK）</span>
               </div>
             </div>
           </div>
@@ -1116,7 +1117,7 @@ export function ChannelModelPolicyPage() {
           <details className="mp-card">
             <summary className="mp-card__title">📌 3点コードの読み方（コピー用）</summary>
             <div className="mp-card__hint">
-              形式は <span className="mono">サムネ_台本_動画内画像</span> です（例: <span className="mono">g-1_script-main-1_g-1</span>）。<br />
+              形式は <span className="mono">サムネ_台本_動画内画像</span> です（例: <span className="mono">g-1_open-kimi-thinking-1_g-1</span>）。<br />
               「台本」はチャンネル差分ではなく共通（slot/code運用）なので、まずはチャンネルカードの3つだけ見ればOKです。
             </div>
           </details>

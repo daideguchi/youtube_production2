@@ -33,7 +33,7 @@ templates:
         backdrop:
           enabled: true
           mode: image
-          image_path: asset/thumbnails/common/brush/brush_swipe_bench_02.png
+          image_path: asset/thumbnails/common/brush/brush_swipe_bench_04.png
           fit: stretch
           colorize: true
           color: '#000000'
@@ -54,7 +54,7 @@ templates:
         backdrop:
           enabled: true
           mode: image
-          image_path: asset/thumbnails/common/brush/brush_swipe_bench_02.png
+          image_path: asset/thumbnails/common/brush/brush_swipe_bench_04.png
           fit: stretch
           colorize: true
           color: '#000000'
