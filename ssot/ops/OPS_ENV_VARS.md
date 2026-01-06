@@ -357,7 +357,9 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 
 ## 重要ルール: 非`script_*` は API LLM が死んだら THINK MODE で続行（`script_*` は例外）
 - デフォルト: **有効**（未設定でもON）
-- 無効化（推奨）: `LLM_EXEC_SLOT=5`（api_failover_off。非scriptのみ。`script_*` は例外で停止）
+- 無効化（**デバッグ専用**）: `LLM_EXEC_SLOT=5`（api_failover_off。非scriptのみ。`script_*` は例外で停止）
+  - **ロックダウン中（`YTM_ROUTING_LOCKDOWN=1`）は非`script_*` の failover は必ずON**（絶対ルール / OFFにできない）
+  - OFF にする必要があるのは緊急デバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1` の上で使う）
 - 互換/緊急: `LLM_API_FAILOVER_TO_THINK=0`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
 - `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
 

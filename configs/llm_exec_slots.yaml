@@ -74,5 +74,8 @@ slots:
       (script_* still stops on API failure.)
       - mode: API
       - api→think failover: OFF
+      Note:
+      - Under `YTM_ROUTING_LOCKDOWN=1` (default), non-script failover is forced ON (absolute rule).
+        To truly disable failover, run with `YTM_EMERGENCY_OVERRIDE=1` (debug only).
     llm_mode: api
     api_failover_to_think: false

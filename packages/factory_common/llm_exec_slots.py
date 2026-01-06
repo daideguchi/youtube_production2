@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 import yaml
 
 from factory_common import paths as repo_paths
-from factory_common.routing_lockdown import assert_env_absent
+from factory_common.routing_lockdown import assert_env_absent, lockdown_active
 
 PROJECT_ROOT = repo_paths.repo_root()
 _DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "llm_exec_slots.yaml"
@@ -178,6 +178,11 @@ def effective_api_failover_to_think() -> bool:
         context="llm_exec_slots.effective_api_failover_to_think",
         hint="Use LLM_EXEC_SLOT=5 to disable failover (non-script tasks). Default is ON.",
     )
+    # Absolute ops rule:
+    # - Under routing lockdown, non-script tasks must always fail over to THINK mode on API failure.
+    # - This prevents silent provider/model drift and keeps the pipeline moving without rewriting configs.
+    if lockdown_active():
+        return True
     raw = (os.getenv("LLM_API_FAILOVER_TO_THINK") or os.getenv("LLM_API_FALLBACK_TO_THINK") or "").strip()
     if raw != "":
         return raw.lower() not in {"0", "false", "no", "off"}

@@ -168,7 +168,9 @@
   - `LLM_EXEC_SLOT=2`: codex exec 強制OFF
   - `LLM_EXEC_SLOT=3`: THINK MODE（pending を作る）
   - `LLM_EXEC_SLOT=4`: AGENT MODE（pending を作る）
-  - `LLM_EXEC_SLOT=5`: API→THINK failover をOFF（非scriptのみ。script_* は停止）
+  - `LLM_EXEC_SLOT=5`: API→THINK failover をOFF（**デバッグ専用**）
+    - **ロックダウン中（`YTM_ROUTING_LOCKDOWN=1`）は非`script_*` の failover は必ずON**（オフにできない / 絶対ルール）
+    - OFF にする必要があるのは緊急デバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1` の上で使う）
   - 使い方（例）:
     - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`
     - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --exec-slot 3`

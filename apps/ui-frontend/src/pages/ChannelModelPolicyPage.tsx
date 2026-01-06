@@ -149,7 +149,7 @@ function humanExecSlotLabel(entry: ExecSlotEntry | null, id: number | null): str
   if (mode === "api" || !mode) {
     if (entry?.codex_exec_enabled === true) return "API + codex exec 優先";
     if (entry?.codex_exec_enabled === false) return "API（codex exec 無効）";
-    if (entry?.api_failover_to_think === false) return "API（failover OFF）";
+    if (entry?.api_failover_to_think === false) return "API（failover OFF / デバッグ）";
     return "API（通常）";
   }
   const desc = firstSentence(String(entry?.description ?? ""));
@@ -1522,7 +1522,7 @@ export function ChannelModelPolicyPage() {
                         className="workspace-button workspace-button--ghost workspace-button--compact"
                         onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=5")}
                       >
-                        exec-slot 5（failover OFF）
+                        exec-slot 5（failover OFF / debug）
                       </button>
                       <button
                         type="button"
@@ -1536,6 +1536,8 @@ export function ChannelModelPolicyPage() {
                     </div>
                     <div className="muted small-text" style={{ marginTop: 6, lineHeight: 1.55 }}>
                       ※ 通常運用では <span className="mono">LLM_MODE</span> / <span className="mono">LLM_API_FAILOVER_TO_THINK</span> は使いません（ブレ防止のためロックダウンで停止します）。
+                      <br />
+                      ※ ロックダウン中は非<span className="mono">script_*</span> の failover は <b>ON固定</b> です（exec-slot 5 は緊急デバッグ時に <span className="mono">YTM_EMERGENCY_OVERRIDE=1</span> の上でのみ有効）。
                     </div>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -2401,6 +2403,8 @@ export function ChannelModelPolicyPage() {
           <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
             <span className="mono">LLM_EXEC_SLOT</span> は「どこで動くか（api / think / agent / codex exec / failover）」を数字で切替えるレバーです。
             通常運用ではこれだけを使います（ロックダウンONでは <span className="mono">LLM_MODE</span> / <span className="mono">YTM_CODEX_EXEC_*</span> などの直接上書きは停止）。
+            <br />
+            ロックダウン中は非<span className="mono">script_*</span> の failover は <b>ON固定</b>（OFFにするのは緊急デバッグ時のみ）。
           </div>
 
           <div style={{ marginTop: 10 }} className="main-alert">
