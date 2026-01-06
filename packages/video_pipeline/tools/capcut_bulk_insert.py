@@ -3008,11 +3008,52 @@ def main():
             raise FileNotFoundError(f"Asset missing for cue[{i}]: {src}")
 
         dest = assets_dir / src.name
+        # Prefer hardlinking to avoid duplicating large assets (e.g., b-roll MP4) into CapCut drafts.
+        # This prevents "No space left on device" failures on tight disks. Fall back to copy when linking fails.
+        linked = False
         try:
-            shutil.copy2(src, dest)
-        except Exception as exc:
-            if not dest.exists():
-                raise RuntimeError(f"Failed to copy asset for cue[{i}]: {src} -> {dest}: {exc}") from exc
+            if dest.exists():
+                dest.unlink()
+        except Exception:
+            pass
+        try:
+            os.link(src, dest)
+            linked = True
+        except Exception:
+            linked = False
+
+        if not linked:
+            try:
+                shutil.copy2(src, dest)
+            except Exception as exc:
+                # shutil.copy2() can fail *after* copying the data (e.g., metadata/xattr issues).
+                # If the destination exists but is incomplete (e.g., 0 bytes), treat it as a hard error.
+                try:
+                    src_size = int(src.stat().st_size)
+                except Exception:
+                    src_size = -1
+                try:
+                    dest_size = int(dest.stat().st_size) if dest.exists() else -1
+                except Exception:
+                    dest_size = -1
+
+                if dest.exists() and src_size > 0 and dest_size == src_size:
+                    # Data copied successfully; ignore metadata copy failure.
+                    pass
+                else:
+                    # Remove partial file and retry copying data-only.
+                    try:
+                        if dest.exists():
+                            dest.unlink()
+                    except Exception:
+                        pass
+                    try:
+                        shutil.copyfile(src, dest)
+                        dest_size2 = int(dest.stat().st_size) if dest.exists() else -1
+                        if src_size > 0 and dest_size2 != src_size:
+                            raise RuntimeError("copy_size_mismatch_after_retry")
+                    except Exception as exc2:
+                        raise RuntimeError(f"Failed to copy asset for cue[{i}]: {src} -> {dest}: {exc2}") from exc2
         # Absolute timing from cues
         start_us, dur_us = schedule[i]
         # Material: reference draft-local asset path to avoid relinking
@@ -3273,9 +3314,37 @@ def main():
         audio_dir.mkdir(parents=True, exist_ok=True)
         voice_dest = audio_dir / vpath.name
         try:
-            shutil.copy2(vpath, voice_dest)
-        except Exception as exc:
-            logger.warning(f"⚠️ Failed to copy voice file into draft materials: {exc}")
+            if voice_dest.exists():
+                voice_dest.unlink()
+        except Exception:
+            pass
+
+        # Prefer hardlinking to avoid duplicating large WAVs into CapCut drafts (disk pressure).
+        linked = False
+        try:
+            os.link(vpath, voice_dest)
+            linked = True
+        except Exception:
+            linked = False
+
+        if not linked:
+            try:
+                shutil.copy2(vpath, voice_dest)
+            except Exception as exc:
+                # shutil.copy2() can fail after copying data (metadata/xattr). Treat size-match as success.
+                try:
+                    src_size = int(vpath.stat().st_size)
+                except Exception:
+                    src_size = -1
+                try:
+                    dest_size = int(voice_dest.stat().st_size) if voice_dest.exists() else -1
+                except Exception:
+                    dest_size = -1
+                if voice_dest.exists() and src_size > 0 and dest_size == src_size:
+                    pass
+                else:
+                    logger.error(f"❌ Failed to prepare voice file in draft materials: {exc}")
+                    sys.exit(1)
 
         # Ensure audio track below BGM
         voice_track = "voiceover"
