@@ -2328,3 +2328,15 @@ archive-first（repo, tracked）:
 更新（SSOT）:
 - `ssot/ops/OPS_ZOMBIE_CODE_REGISTER.md`（解消として記録）
 - `ssot/ops/OPS_SCRIPTS_INVENTORY.md`（再生成: `python3 scripts/ops/scripts_inventory.py --write`）
+
+### 3) CH16 012-030 ゴミ台本の削除（ユーザー指示 / 復元しない）
+
+背景:
+- ユーザー指示: **CH16 012〜030 はゴミ台本なので削除済み。復元しないこと。**
+- 誤って worktree に復元してしまったため、archive-first で再削除して “消した状態” に戻した。
+
+archive-first（repo, tracked）:
+- `backups/graveyard/20260108T222232Z__remove_CH16_012-030_trash_assembled_md/`（退避コピー）
+
+削除（repo, tracked / worktree）:
+- `workspaces/scripts/CH16/012..030/content/assembled.md`（19ファイル）
