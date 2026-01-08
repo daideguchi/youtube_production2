@@ -150,7 +150,10 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 SSOT配置（正本）:
 - 数字スロット（運用の主レバー）: `configs/llm_model_slots.yaml`（個別上書き: `configs/llm_model_slots.local.yaml`）
 - タスク別のモデル指定: `configs/llm_task_overrides.yaml`（`script_*` の override）
-- モデルID/プロバイダ登録: `configs/llm.yml` / `configs/llm_router.yaml`（logical model key → provider実体）
+- モデルID/プロバイダ登録（SSOT）:
+  - `configs/llm_router.yaml`（provider/model 定義）
+  - `configs/llm_model_codes.yaml`（運用コード→model_key 解決）
+  - 注: `configs/llm.yml` は legacy（互換/テスト用）であり、通常運用のルーティングSSOTではない
 
 設計方針（“1スイッチ”を崩さない）:
 - **Aテキスト本文に関わる task は、同一の「本文モデルプロファイル」を参照する**（タスクごとにモデルを散らさない）。

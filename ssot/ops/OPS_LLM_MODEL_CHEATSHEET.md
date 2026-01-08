@@ -10,7 +10,7 @@
 ## 0. 原則（モジュール管理の“正”）
 
 - **ハードコード禁止**: コードにモデル名（例: `gpt-5-mini`）を直書きしない。
-- **タスクキーで呼ぶ**: `LLMClient.call(task=..., messages=...)` の `task` がSoT。
+- **タスクキーで呼ぶ**: `LLMRouter.call(task=..., messages=...)` の `task` がSoT。
 - **切替は設定で**: モデル切替/コスト最適化は `configs/*.yml|*.yaml` 側で完結させる。
 - **無断でモデルを追加/切替しない**: `configs/llm*.yml` / `configs/image_models.yaml` の tier 候補やモデルキーを、指示なしで増やしたり順序変更しない（特に画像生成は運用/課金/品質に直結するため厳禁）。例外は SSOT 更新 + 人間レビュー承認後のみ。
 - **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計）に集約し、他の散発ログはL3として短期保持。
@@ -41,9 +41,10 @@
 - `configs/llm_tier_mapping.yaml`（task→tier; legacy）
 - `configs/llm_tier_candidates.yaml`（tier→モデル候補; legacy）
 
-### 1.3 移行中（参考）
+### 1.3 Legacy（互換/原則使わない）
 - `configs/llm.yml` / `configs/llm.local.yml`
-  - 新 `LLMClient` 系の設定（移行中）。`script_pipeline`（台本生成の主線）は現状こちらを見ない。
+  - legacy tooling/tests 互換のために残っている設定。通常運用のルーティングSSOTではない。
+  - `script_pipeline`（台本生成の主線）は現状こちらを見ない。
 
 ---
 

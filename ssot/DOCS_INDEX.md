@@ -65,7 +65,7 @@
 - `ops/OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
 - `ops/OPS_PLANNING_PATCHES.md`: 企画の上書き/追加/部分更新（Planning Patch）運用SSOT（差分ログ/lock前提）。
 - `ops/OPS_SCRIPT_INPUT_CONTRACT.md`: Planning入力の契約（L1/L2/L3）と汚染防止ルール。
-- `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm.yml`）。
+- `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm_router.yaml` + codes/slots）。
 - `ops/OPS_CHANNEL_MODEL_ROUTING.md`: チャンネル別モデルルーティング（slot/codes/画像コードの運用正本）。
 - `ops/OPS_ENV_VARS.md`: 環境変数・キー管理の原則と必須一覧。
 - `ops/OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
