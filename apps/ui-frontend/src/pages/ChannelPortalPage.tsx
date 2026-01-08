@@ -762,8 +762,7 @@ export function ChannelPortalPage() {
 	      });
 	    }
 	  };
-  const scriptRewritePhase = llmSettings?.llm?.phase_models?.script_rewrite ?? null;
-  const scriptRewriteDisplay = scriptRewritePhase?.model ? `${scriptRewritePhase.provider}:${scriptRewritePhase.model}` : "—";
+  const llmSlotDisplay = profile?.llm_slot != null ? String(profile.llm_slot) : "—";
   const captionProvider = llmSettings?.llm?.caption_provider ?? null;
   const captionModel =
     captionProvider === "openai"
@@ -1049,9 +1048,9 @@ export function ChannelPortalPage() {
                 <button
                   type="button"
                   className="channel-card__action"
-                  onClick={() => navigate("/settings")}
+                  onClick={() => navigate("/model-policy")}
                 >
-                  LLM設定
+                  モデルポリシー
                 </button>
                 {isCapCutWorkflow ? (
                   <button
@@ -1069,8 +1068,8 @@ export function ChannelPortalPage() {
             {llmError ? <div className="main-alert main-alert--error">{llmError}</div> : null}
 
             <dl className="portal-kv">
-              <dt>台本量産（script_rewrite）</dt>
-              <dd>{scriptRewriteDisplay}</dd>
+              <dt>台本量産（LLM_MODEL_SLOT）</dt>
+              <dd>{llmSlotDisplay}</dd>
 
               <dt>Caption</dt>
               <dd>{captionProvider ? `${captionProvider}:${captionModel ?? "—"}` : "—"}</dd>

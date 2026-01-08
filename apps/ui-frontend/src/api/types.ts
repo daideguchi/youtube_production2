@@ -549,6 +549,7 @@ export interface ChannelProfileResponse {
   default_min_characters: number;
   default_max_characters: number;
   chapter_count?: number | null;
+  llm_slot?: number | null;
   llm_model?: string | null;
   quality_check_template?: string | null;
   planning_persona?: string | null;
@@ -1296,6 +1297,8 @@ export interface BatchWorkflowConfigPayload {
   max_characters?: number;
   script_prompt_template?: string | null;
   quality_check_template?: string | null;
+  llm_slot?: number | null;
+  exec_slot?: number | null;
   llm_model?: string | null;
   loop_mode?: boolean;
   auto_retry?: boolean;

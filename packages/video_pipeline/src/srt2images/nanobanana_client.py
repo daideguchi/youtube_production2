@@ -141,10 +141,6 @@ def _increment_success_counter():
     _SUCCESSFUL_IMAGE_COUNT += 1
     _reset_429_counter()
 
-# SSOT: UI保存時に書き出されるフェーズ別モデル定義
-LLM_REGISTRY_PATH = repo_root() / "configs" / "llm_registry.json"
-
-
 def _which(cmd: str) -> str | None:
     return shutil.which(cmd)
 

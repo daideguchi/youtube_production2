@@ -7,7 +7,6 @@ import {
   fetchBatchWorkflowLog,
   fetchBatchWorkflowTask,
   fetchChannelProfile,
-  fetchLlmSettings,
   fetchPlanningRows,
   fetchPlanningSpreadsheet,
   updatePlanning,
@@ -49,15 +48,14 @@ const QUEUE_STATUS_LABELS: Record<string, string> = {
 const DEFAULT_FORM = {
   minCharacters: 8000,
   maxCharacters: 12000,
-  llmModel: "",
+  llmSlot: null as number | null,
+  execSlot: null as number | null,
   scriptPrompt: "",
   qualityTemplate: "",
   loopMode: true,
   autoRetry: true,
   debugLog: false,
 };
-
-const FALLBACK_LLM_MODEL = "qwen/qwen3-14b:free";
 
 type FormState = typeof DEFAULT_FORM;
 type FormFieldName = keyof FormState;
@@ -193,28 +191,6 @@ export function ScriptFactoryPage() {
   const [queueReloadKey, setQueueReloadKey] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
-    fetchLlmSettings()
-      .then((settings) => {
-        if (cancelled) return;
-        const phase = settings.llm.phase_models?.script_rewrite;
-        const defaultModel = phase?.model ? `${phase.provider}:${phase.model}` : null;
-        if (defaultModel) {
-          setFormValues((prev) => {
-            if (!prev.llmModel || prev.llmModel === FALLBACK_LLM_MODEL) {
-              return { ...prev, llmModel: defaultModel };
-            }
-            return prev;
-          });
-        }
-      })
-      .catch((err) => console.warn("Failed to load LLM settings", err));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!selectedChannel) {
       setChannelProfile(null);
       setProfileError(null);
@@ -237,17 +213,13 @@ export function ScriptFactoryPage() {
         if (cancelled) return;
         setChannelProfile(profile);
         setFormValues((prev) => {
-          const profileModel = (profile.llm_model ?? "").trim();
-          const prevModel = (prev.llmModel ?? "").trim();
-          const useProfileModel =
-            profileModel.length > 0 &&
-            (profileModel !== FALLBACK_LLM_MODEL || prevModel.length === 0 || prevModel === FALLBACK_LLM_MODEL);
-
+          const profileSlot = profile.llm_slot ?? null;
+          const useProfileSlot = profileSlot !== null && prev.llmSlot === null;
           return {
             ...prev,
             minCharacters: profile.default_min_characters ?? prev.minCharacters,
             maxCharacters: profile.default_max_characters ?? prev.maxCharacters,
-            llmModel: useProfileModel ? profileModel : prev.llmModel,
+            llmSlot: useProfileSlot ? profileSlot : prev.llmSlot,
             scriptPrompt: profile.script_prompt ?? prev.scriptPrompt,
             qualityTemplate: profile.quality_check_template ?? prev.qualityTemplate,
           };
@@ -766,6 +738,14 @@ useEffect(() => {
     const field = name as FormFieldName;
     const isCheckbox = event.target instanceof HTMLInputElement && event.target.type === "checkbox";
     const isNumber = event.target instanceof HTMLInputElement && event.target.type === "number";
+    if ((field === "llmSlot" || field === "execSlot") && isNumber) {
+      const trimmed = value.trim();
+      setFormValues((prev) => ({
+        ...prev,
+        [field]: trimmed === "" ? null : Number(trimmed),
+      }));
+      return;
+    }
     setFormValues((prev) => ({
       ...prev,
       [field]: isCheckbox ? (event.target as HTMLInputElement).checked : isNumber ? Number(value) : value,
@@ -851,7 +831,8 @@ useEffect(() => {
           max_characters: Number(formValues.maxCharacters) || DEFAULT_FORM.maxCharacters,
           script_prompt_template: formValues.scriptPrompt || undefined,
           quality_check_template: formValues.qualityTemplate || undefined,
-          llm_model: formValues.llmModel || undefined,
+          llm_slot: formValues.llmSlot ?? undefined,
+          exec_slot: formValues.execSlot ?? undefined,
           loop_mode: !!formValues.loopMode,
           auto_retry: !!formValues.autoRetry,
           debug_log: !!formValues.debugLog,
@@ -873,7 +854,7 @@ useEffect(() => {
         <div>
           <h1>台本作成ワークスペース</h1>
           <p>
-            SSOT → CSV → Sheets の一貫ルールを守りつつ、量産対象の企画をチェックしてパラメータを整え、Qwen 無料モデルで連続生成します。
+            SSOT → CSV → Sheets の一貫ルールを守りつつ、量産対象の企画をチェックしてパラメータを整え、数字スロット（LLM_MODEL_SLOT）でルーティングします。
           </p>
         </div>
         <div className="script-factory__stats">
@@ -1122,8 +1103,26 @@ useEffect(() => {
                   />
                 </label>
                 <label>
-                  LLMモデル
-                  <input type="text" name="llmModel" value={formValues.llmModel} onChange={handleFormChange} />
+                  LLMスロット（LLM_MODEL_SLOT）
+                  <input
+                    type="number"
+                    name="llmSlot"
+                    min={0}
+                    value={formValues.llmSlot ?? ""}
+                    onChange={handleFormChange}
+                    placeholder="(default)"
+                  />
+                </label>
+                <label>
+                  実行スロット（LLM_EXEC_SLOT）
+                  <input
+                    type="number"
+                    name="execSlot"
+                    min={0}
+                    value={formValues.execSlot ?? ""}
+                    onChange={handleFormChange}
+                    placeholder="(default)"
+                  />
                 </label>
                 <label className="checkbox-field">
                   <input

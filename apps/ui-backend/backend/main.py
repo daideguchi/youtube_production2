@@ -1,4 +1,23 @@
-"""FastAPI backend for the React UI."""
+"""
+FastAPI backend for the React UI.
+
+This file is intentionally the canonical entrypoint (`backend.main:app`) referenced by SSOT docs.
+It is large; use the section map below to avoid getting lost.
+
+SECTION MAP (grep for these tokens)
+- Settings/UI keys: `/api/settings/` / `_get_ui_settings`
+- Model routing (SSOT): `configs/llm_router.yaml` / `LLM_MODEL_SLOT` / `/model-policy` (frontend)
+- Prompts: `/api/prompts`
+- Channels: `/api/channels` / `ChannelProfileResponse`
+- Planning CSV: `/api/planning`
+- SSOT docs (persona/templates): `/api/ssot/`
+- Dashboard: `/api/dashboard/overview`
+- Batch script generation: `/api/batch-workflow/`
+- Audio/TTS tools: `/api/channels/{channel}/videos/{video}/tts/`
+- Video assets: `/api/workspaces/video/`
+
+Routers implemented under `apps/ui-backend/backend/routers/` are included near the `include_router` block.
+"""
 
 from __future__ import annotations
 
@@ -281,7 +300,6 @@ OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
 OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {}}
 OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
 UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
-LLM_REGISTRY_PATH = PROJECT_ROOT / "configs" / "llm_registry.json"
 CODEX_CONFIG_TOML_PATH = Path.home() / ".codex" / "config.toml"
 CODEX_EXEC_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.yaml"
 CODEX_EXEC_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.local.yaml"
@@ -328,7 +346,6 @@ DEFAULT_UI_SETTINGS: Dict[str, Any] = {
 UI_SETTINGS: Dict[str, Any] = {}
 UI_SETTINGS_DISK_STATE: Dict[str, Optional[float]] = {
     "ui_settings_mtime": None,
-    "llm_registry_mtime": None,
 }
 
 CODEX_SETTINGS_LOCK = threading.Lock()
@@ -619,17 +636,8 @@ def _load_ui_settings_from_disk() -> None:
                     settings["llm"] = _normalize_llm_settings(loaded.get("llm"))
             except Exception as exc:  # pragma: no cover - corrupted settings
                 logger.warning("Failed to read %s: %s", UI_SETTINGS_PATH, exc)
-        # registry があれば phase_models を上書き
-        if LLM_REGISTRY_PATH.exists():
-            try:
-                registry = json.loads(LLM_REGISTRY_PATH.read_text(encoding="utf-8"))
-                if isinstance(registry, dict):
-                    settings["llm"]["phase_models"] = registry
-            except Exception as exc:  # pragma: no cover
-                logger.warning("Failed to read llm registry %s: %s", LLM_REGISTRY_PATH, exc)
         UI_SETTINGS = settings
         UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
-        UI_SETTINGS_DISK_STATE["llm_registry_mtime"] = _safe_mtime(LLM_REGISTRY_PATH)
 
 
 def _write_ui_settings(settings: Dict[str, Any]) -> None:
@@ -638,24 +646,12 @@ def _write_ui_settings(settings: Dict[str, Any]) -> None:
         UI_SETTINGS_PATH.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
         UI_SETTINGS.update(copy.deepcopy(settings))
         UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
-        # phase_models を registry にも書き出す
-        phase_models = settings.get("llm", {}).get("phase_models") or {}
-        try:
-            LLM_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
-            LLM_REGISTRY_PATH.write_text(json.dumps(phase_models, ensure_ascii=False, indent=2), encoding="utf-8")
-            UI_SETTINGS_DISK_STATE["llm_registry_mtime"] = _safe_mtime(LLM_REGISTRY_PATH)
-        except Exception as exc:  # pragma: no cover
-            logger.warning("Failed to write llm registry %s: %s", LLM_REGISTRY_PATH, exc)
 
 
 def _maybe_reload_ui_settings_from_disk() -> None:
     ui_mtime = _safe_mtime(UI_SETTINGS_PATH)
-    registry_mtime = _safe_mtime(LLM_REGISTRY_PATH)
     with SETTINGS_LOCK:
-        if (
-            ui_mtime == UI_SETTINGS_DISK_STATE.get("ui_settings_mtime")
-            and registry_mtime == UI_SETTINGS_DISK_STATE.get("llm_registry_mtime")
-        ):
+        if ui_mtime == UI_SETTINGS_DISK_STATE.get("ui_settings_mtime"):
             return
     _load_ui_settings_from_disk()
 
@@ -2082,23 +2078,19 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
     chars_min, chars_max = _resolve_channel_target_chars(channel_code)
     chapter_count = _resolve_channel_chapter_count(channel_code)
 
-    # Default model token used by batch/script rewrite (exposed for UI defaults).
-    # NOTE: Avoid provider validation here; profile view should work even without API keys.
-    llm_model = "qwen/qwen3-14b:free"
+    # Default model routing for batch/script generation is controlled by numeric slots (LLM_MODEL_SLOT).
+    # Keep this in the channel profile response so the UI can prefill without guessing.
+    llm_slot: int = 0
     try:
-        ui_settings = _get_ui_settings()
-        llm = ui_settings.get("llm", {}) if isinstance(ui_settings, dict) else {}
-        phase_models = llm.get("phase_models") if isinstance(llm, dict) else None
-        if isinstance(phase_models, dict):
-            entry = phase_models.get("script_rewrite") or {}
-            if isinstance(entry, dict):
-                provider = entry.get("provider")
-                model = entry.get("model")
-                provider_s = str(provider).strip().lower() if isinstance(provider, str) and provider.strip() else "openrouter"
-                model_s = str(model).strip() if isinstance(model, str) and model.strip() else "qwen/qwen3-14b:free"
-                llm_model = f"{provider_s}:{model_s}" if provider_s else model_s
+        slots_path = PROJECT_ROOT / "configs" / "llm_model_slots.yaml"
+        if slots_path.exists():
+            doc = yaml.safe_load(slots_path.read_text(encoding="utf-8")) or {}
+            if isinstance(doc, dict):
+                raw = doc.get("default_slot")
+                if raw is not None and str(raw).strip() != "":
+                    llm_slot = max(0, int(str(raw).strip()))
     except Exception:
-        llm_model = "qwen/qwen3-14b:free"
+        llm_slot = 0
 
     return ChannelProfileResponse(
         channel_code=profile.code,
@@ -2118,7 +2110,8 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         default_min_characters=chars_min,
         default_max_characters=chars_max,
         chapter_count=chapter_count,
-        llm_model=llm_model,
+        llm_slot=llm_slot,
+        llm_model=str(llm_slot),
         planning_persona=planning_persona or profile.persona_summary or profile.audience_profile,
         planning_persona_path=planning_persona_path,
         planning_required_fieldsets=planning_required,
@@ -5828,9 +5821,14 @@ class ChannelProfileResponse(BaseModel):
     default_min_characters: int = Field(8000, ge=1000)
     default_max_characters: int = Field(12000, ge=1000)
     chapter_count: Optional[int] = Field(None, ge=1)
-    llm_model: str = Field(
-        "qwen/qwen3-14b:free",
-        description="量産で使用するモデル指定（例: openrouter:deepseek/... , azure:gpt-5-mini）",
+    llm_slot: Optional[int] = Field(
+        None,
+        ge=0,
+        description="量産で使用するモデルスロット（LLM_MODEL_SLOT）。未指定ならデフォルトslot。",
+    )
+    llm_model: Optional[str] = Field(
+        None,
+        description="[deprecated] ブレ防止のため通常運用では禁止。数字だけ指定した場合は slot として解釈。",
     )
     quality_check_template: Optional[str] = None
     planning_persona: Optional[str] = Field(

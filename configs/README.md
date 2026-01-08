@@ -4,8 +4,13 @@
 - 追加・変更時は `ssot/history/HISTORY_codex-memory.md` に記録する。
 
 ## LLM 関連の正本
-- モデル仕様: `configs/llm_model_registry.yaml`
-- フェーズ割当: `configs/llm_registry.json`（UI 上書きは `configs/ui_settings.json` 経由）
+- 正本（ルーティング）:
+  - `configs/llm_router.yaml`（+ `configs/llm_router.local.yaml`）
+  - `configs/llm_task_overrides.yaml`（+ `configs/llm_task_overrides.local.yaml`）
+  - `configs/llm_model_codes.yaml`（+ `configs/llm_model_codes.local.yaml`）
+  - `configs/llm_model_slots.yaml`（+ `configs/llm_model_slots.local.yaml`）
+  - `configs/llm_exec_slots.yaml`（+ `configs/llm_exec_slots.local.yaml`）
+- UI設定（キー/表示用。ルーティングSSOTではない）: `configs/ui_settings.json`
 - OpenRouterメタ: `packages/script_pipeline/config/openrouter_models.json` を正とし、必要なら `python -m script_pipeline.tools.openrouter_models --free-only` で更新。
 
 ## 画像生成（ImageClient）
