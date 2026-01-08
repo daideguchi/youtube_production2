@@ -194,7 +194,7 @@ flowchart LR
 ## 10. 絶対に忘れてはならないこと
 1. **REFERENCE が最上位**：疑問があれば必ずここに立ち返り、矛盾は REFERENCE → README/OPS の順で解消する。
 2. **サムネイルは人間の責務**：自動アサインは行わず、承認ログを残してから投稿へ進める。
-3. **status.json が唯一の進捗 SoT**。channels CSV はミラーであり、status.json を基準に同期する。Sheets や一時ファイルで編集しない。
+3. **status.json が「パイプライン状態/ガード」のSoT**。進捗表示（UI/一覧）は **status.json + 成果物（assembled, wav/srt 等）から派生**し、UIは自動で status.json を書き換えない。Sheets や一時ファイルで編集しない。
 4. **A/B テキストを混ぜない**：表示と音声で管理ファイルを分離し、辞書/ポーズルールを厳守する。
 5. **ログを残す**：ガード結果・承認判断・改善メモを `ssot/history/HISTORY_codex-memory.md` に即記録。
 6. **分析で終わり分析に戻る**：`workspaces/planning/analytics/<channel>.csv` を必ず更新し、次の企画に反映する。

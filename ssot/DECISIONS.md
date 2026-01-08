@@ -40,7 +40,7 @@
 
 ### Recommended（推奨）
 1) redo正本 = `status.json`  
-2) UIの進捗ビューは **CSV行 + status.json をmerge**（現行実装に合わせる）  
+2) UIの進捗ビューは **CSV行 + status.json + 成果物（assembled, wav/srt 等）を “effective view” としてmerge**（read-only。status.json の欠損/古さを表示で吸収）  
 3) CSV側に redo を書き戻さない（必要なら “表示用export” を別ファイルで生成）
 
 ### Rationale（根拠）

@@ -3,7 +3,7 @@
 この文書は「どこに、どんなログが、どの処理で、どの粒度で溜まっていくか」を**コード実態に基づき確定**したSoT。  
 ログ整理/リファクタリング/削除判断は本マップを正とする。
 
-関連: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`, `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
+関連: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`, `ssot/plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md`, `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
 
 ---
 

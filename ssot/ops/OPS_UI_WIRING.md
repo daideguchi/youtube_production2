@@ -97,9 +97,17 @@
 - SoT/意味:
   - `channels[].total`（UI表示「企画総数」）は **Planning SoT** を正とする  
     (`workspaces/planning/channels/CHxx.csv` の動画番号行。CHxx の scripts が無くても表示する)
-  - `script_completed` / `ready_for_audio` / `audio_completed` / `srt_completed` は **status.json / 成果物** を参照  
-    status.json が無い企画は `pending` 扱いとして `stage_matrix` も埋める（UIが 100%着手 と誤判定しないため）
-  - **表示の整合性（運用ガード）**: legacy/手動運用で `stage_matrix.script_outline=pending` のまま下流（台本/音声）が揃うケースがあるため、UIは表示値を正規化して矛盾を出さない  
+  - `script_completed` / `ready_for_audio` / `audio_completed` / `srt_completed` は **effective view（status.json + 成果物）** を参照（read-only）
+    - `stage_matrix` は `pending|in_progress|review|blocked|completed` に正規化（`processing/failed` 等の legacy token も吸収）
+    - 台本（script）:
+      - `script_completed`: Aテキスト成果物の実在で判定（`content/assembled_human.md` 優先 → `content/assembled.md`）。ダミー本文（例: 「この動画の台本本文は外部管理です」「ダミー本文を配置しています」）は未完扱い。
+      - Aテキストがある場合、`topic_research`〜`script_review`（+ legacy: `script_enhancement`, `quality_check`）は completed に補正して表示する（status.jsonは書き換えない）
+      - `ready_for_audio`: `script_validation=completed`（assembled だけでは「チェック済み」に見せない）
+    - 音声/字幕:
+      - `audio_completed`: `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav` が存在する（拡張子は実装側で `.flac/.mp3/.m4a` も許容）
+      - `srt_completed`: 同 `.srt` が存在する
+  - status.json が無い企画は `pending` 扱いとして `stage_matrix` も埋める（UIが 100%着手 と誤判定しないため）
+  - **表示の整合性（運用ガード）**: legacy/手動運用で `stage_matrix.script_outline=pending` のまま下流（台本/音声）が揃うケースがあるため、UIは effective view を使って矛盾を出さない  
     例: `台本着手済み ≥ 台本完成 ≥ 音声用テキスト完成 ≥ 音声・字幕完了`（各値は `0..total` に clamp）
 
 ### 4-2) リテイク件数（Redo Summary）
