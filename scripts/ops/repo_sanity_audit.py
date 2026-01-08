@@ -26,6 +26,12 @@ REPO_ROOT = bootstrap(load_env=False)
 from factory_common.repo_layout import unexpected_repo_root_entries  # noqa: E402
 
 _GRAVEYARD_MANIFEST_RE = re.compile(r"backups/graveyard/[A-Za-z0-9TZ_\\-]+/manifest\.tsv")
+_WORKFLOW_SCRIPT_CALL_RE = re.compile(
+    r"(?:^|[\s;|&])"
+    r"(?P<cmd>python3?|bash)"
+    r"\s+"
+    r"(?P<path>(?:\./)?(?:scripts|apps|packages)/[A-Za-z0-9_./\-]+\.(?:py|sh))"
+)
 
 
 def _git(args: List[str]) -> str:
@@ -130,6 +136,52 @@ def check_graveyard_manifest_refs(*, verbose: bool) -> int:
     return 0
 
 
+def check_workflow_script_refs(*, verbose: bool) -> int:
+    """
+    Prevent CI footguns: workflows referencing deleted scripts.
+
+    This is a deterministic check that scans `.github/workflows/*.yml` for common
+    "run" calls like:
+      - python3 scripts/.../*.py
+      - bash scripts/.../*.sh
+    and ensures those referenced files exist in the repo.
+    """
+    workflows_dir = REPO_ROOT / ".github" / "workflows"
+    if not workflows_dir.exists():
+        if verbose:
+            print("[ok] workflows: none")
+        return 0
+
+    missing: list[tuple[str, int, str]] = []
+    checked_paths: set[str] = set()
+
+    for wf in sorted(workflows_dir.glob("*.yml")) + sorted(workflows_dir.glob("*.yaml")):
+        try:
+            raw = wf.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        for ln, line in enumerate(raw.splitlines(), start=1):
+            for m in _WORKFLOW_SCRIPT_CALL_RE.finditer(line):
+                p = (m.group("path") or "").strip().replace("\\", "/").lstrip("./")
+                if not p:
+                    continue
+                checked_paths.add(p)
+                if not (REPO_ROOT / p).exists():
+                    missing.append((wf.relative_to(REPO_ROOT).as_posix(), ln, p))
+
+    if missing:
+        print("[FAIL] workflow references missing repo scripts (CI will fail):")
+        for wf_rel, ln, p in missing[:50]:
+            print(f"  - {wf_rel}:{ln}: {p}")
+        if len(missing) > 50:
+            print(f"  ... ({len(missing)-50} more)")
+        return 1
+
+    if verbose:
+        print(f"[ok] workflows: script refs ok ({len(checked_paths)} files checked)")
+    return 0
+
+
 def main(argv: List[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Repo sanity audit (symlink + layout guard)")
     ap.add_argument("--verbose", action="store_true")
@@ -139,6 +191,7 @@ def main(argv: List[str] | None = None) -> int:
     rc = max(rc, check_no_tracked_symlinks(verbose=bool(args.verbose)))
     rc = max(rc, check_no_legacy_alias_paths(verbose=bool(args.verbose)))
     rc = max(rc, check_graveyard_manifest_refs(verbose=bool(args.verbose)))
+    rc = max(rc, check_workflow_script_refs(verbose=bool(args.verbose)))
     return int(rc)
 
 
