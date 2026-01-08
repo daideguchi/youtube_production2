@@ -13,7 +13,7 @@
   - `python -m scripts.cleanup_workspace`
   - `python3 scripts/ops/cleanup_logs.py`
   - `python3 scripts/cleanup_data.py`
-- **最終更新日**: 2026-01-08
+- **最終更新日**: 2026-01-09
 
 ## 1. 背景と目的
 - 中間生成物（L2）と一時ログ/キャッシュ（L3）が溜まり、探索ノイズとディスク逼迫を起こす。
@@ -59,7 +59,22 @@ python3 scripts/ops/logs_snapshot.py
 du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/dev/null | sort -h
 ```
 
+### 5.1 直近スナップショット（観測ベース）
+2026-01-09（参考。環境/実行で変動する）:
+- `workspaces/video`: 約 63G
+- `workspaces/audio`: 約 18G
+- `workspaces/scripts`: 約 12G
+- `workspaces/thumbnails`: 約 6.5G
+- `workspaces/logs`: 約 337M
+- `workspaces/_scratch`: 約 238M
+- `workspaces/tmp`: 約 44M
+
+優先順位（迷わない順）:
+1) **キャッシュ/ログ（低リスク）**: `bash scripts/ops/cleanup_caches.sh` / `python -m scripts.cleanup_workspace --logs --dry-run` → `--run`
+2) **台本中間物（L2/L3）**: `python -m scripts.cleanup_workspace --scripts --dry-run` → `--run`
+3) **video runs（最も肥大化しやすい）**: `python -m scripts.cleanup_workspace --video-runs --dry-run ...` → 合意後に `--run --yes`
+4) **audio final chunks（published/ready後）**: `python3 scripts/purge_audio_final_chunks.py --help`
+
 ## 6. リスクと対策
 - **誤削除リスク**: dry-run 既定 + SoT境界を SSOT で固定 + archive-first（tracked）で回避。
 - **並列衝突**: `scripts/agent_org.py lock` により作業範囲をロックしてから実行する。
-
