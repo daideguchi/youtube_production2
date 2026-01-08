@@ -83,98 +83,13 @@ from audio_tts.tts.reading_dict import (
 from audio_tts.tts.mecab_tokenizer import tokenize_with_mecab
 from audio_tts.tts.auditor import calc_kana_mismatch_score
 
-try:
-    import portalocker  # type: ignore
-except ImportError:  # pragma: no cover - fallback shim for test environments
-    import threading
-    from typing import Optional, TextIO
-
-    class _LockException(Exception):
-        pass
-
-    class _Timeout(_LockException):
-        pass
-
-    class _Exceptions:
-        Timeout = _Timeout
-        LockException = _LockException
-
-    _LOCKS: Dict[str, threading.Lock] = {}
-
-    class _StubLock:
-        def __init__(
-            self,
-            filename: str,
-            mode: str = "r",
-            timeout: Optional[float] = None,
-            encoding: Optional[str] = None,
-        ) -> None:
-            self._filename = str(Path(filename))
-            self._mode = mode
-            self._encoding = encoding
-            self._timeout = timeout
-            self._file: Optional[TextIO] = None
-            _LOCKS.setdefault(self._filename, threading.Lock())
-            self._lock = _LOCKS[self._filename]
-
-        def __enter__(self) -> TextIO:
-            if self._timeout is None:
-                acquired = self._lock.acquire()
-            else:
-                acquired = self._lock.acquire(timeout=self._timeout)
-            if not acquired:
-                raise _Timeout(f"Failed to acquire lock on {self._filename}")
-            self._file = open(self._filename, self._mode, encoding=self._encoding)
-            return self._file
-
-        def __exit__(self, exc_type, exc_value, traceback) -> None:
-            try:
-                if self._file:
-                    self._file.close()
-            finally:
-                self._lock.release()
-            return False
-
-    def _lock_factory(
-        filename: str,
-        mode: str = "r",
-        timeout: Optional[float] = None,
-        encoding: Optional[str] = None,
-    ) -> _StubLock:
-        return _StubLock(filename, mode=mode, timeout=timeout, encoding=encoding)
-
-    class _PortalockerStub:
-        exceptions = _Exceptions()
-        Lock = staticmethod(_lock_factory)
-        Timeout = _Timeout
-        LockException = _LockException
-
-    portalocker = _PortalockerStub()  # type: ignore
-else:  # pragma: no cover - ensure compatibility across portalocker versions
-    timeout_cls = getattr(portalocker, "Timeout", RuntimeError)
-    lock_exc_cls = getattr(portalocker, "LockException", RuntimeError)
-    exceptions_obj = getattr(portalocker, "exceptions", None)
-    if exceptions_obj is None:
-        class _CompatExceptions:
-            Timeout = timeout_cls
-            LockException = lock_exc_cls
-
-        portalocker.exceptions = _CompatExceptions()  # type: ignore[attr-defined]
-    else:
-        try:
-            setattr(exceptions_obj, "Timeout", timeout_cls)
-            setattr(exceptions_obj, "LockException", lock_exc_cls)
-        except Exception:  # pragma: no cover - robustness
-            pass
+from backend.core.portalocker_compat import portalocker
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Form, Body, BackgroundTasks
 from backend.routers import jobs
 from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
-import urllib.parse
-import subprocess
-import os
 
 from backend.tools.optional_fields_registry import (
     OPTIONAL_FIELDS,
@@ -7422,7 +7337,7 @@ def _collect_health_components() -> Dict[str, bool]:
         "video_pipeline": VIDEO_PIPELINE_ROOT.exists(),
         "logs_dir": LOGS_ROOT.exists(),
         "ui_log_dir": UI_LOG_DIR.exists(),
-                "channel_planning_dir": CHANNEL_PLANNING_DIR.exists(),
+        "channel_planning_dir": CHANNEL_PLANNING_DIR.exists(),
         "gemini_api_key": bool(os.getenv("GEMINI_API_KEY")),
         "openrouter_api_key": bool(_get_effective_openrouter_key()),
         "openai_api_key": bool(_get_effective_openai_key()),
